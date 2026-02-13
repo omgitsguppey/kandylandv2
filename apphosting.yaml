@@ -1,0 +1,26 @@
+runConfig:
+  cpu: 1
+  memoryMiB: 2048
+  concurrency: 80
+  minInstances: 0
+  maxInstances: 2
+
+env:
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: AIzaSyAgaplGHL_q1IHWEkTNbvHI343V5fFEVvY
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: kandydrops-by-ikandy.firebaseapp.com
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: kandydrops-by-ikandy
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: kandydrops-by-ikandy.firebasestorage.app
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: 588753156317
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: 1:588753156317:web:4e0e8419f4ac21cc918334
+  - variable: NEXT_PUBLIC_PAYPAL_ENV
+    value: sandbox
+  - variable: NEXT_PUBLIC_PAYPAL_CLIENT_ID_SANDBOX
+    value: Afaw0i8m7U9_m-8-FxqfZ37DkMLPBWfR2NBHIy47e2jeLhrN3QIoRBBuoBwh3WL-3Ixjlh2Ua4lGdhRl
+  - variable: NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE
+    value: AevKg28mFN8-lj_tBjqnfwye_yad5AYs04SHmoj75knEv_DqhWWSOMksXqUJN_fJuwnEuyfRLd9xch8T
