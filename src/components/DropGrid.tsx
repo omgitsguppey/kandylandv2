@@ -1,6 +1,6 @@
 "use client";
 
-import { useDrops } from "@/hooks/useDrops";
+
 import { DropCard } from "./DropCard";
 import { PromoCard } from "./PromoCard";
 import { Drop } from "@/types/db";
@@ -13,11 +13,9 @@ interface DropGridProps {
 }
 
 export function DropGrid({ drops: propDrops, loading: propLoading, isSearching }: DropGridProps) {
-    const { drops: hookDrops, loading: hookLoading, error } = useDrops();
-
-    // Use props if available, otherwise use hook
-    const drops = propDrops || hookDrops;
-    const loading = propLoading !== undefined ? propLoading : hookLoading;
+    // pure component, data must be passed
+    const drops = propDrops || [];
+    const loading = propLoading || false;
 
     if (loading) {
         return (
@@ -27,9 +25,7 @@ export function DropGrid({ drops: propDrops, loading: propLoading, isSearching }
         );
     }
 
-    if (error && !propDrops) {
-        return <div className="text-center text-red-400 mt-12 mb-20">{error}</div>;
-    }
+
 
     if (drops.length === 0) {
         return (

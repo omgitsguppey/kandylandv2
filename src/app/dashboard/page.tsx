@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { DailyCheckIn } from "@/components/Dashboard/DailyCheckIn";
 import { redirect } from "next/navigation";
@@ -9,17 +10,35 @@ import Link from "next/link";
 export default function DashboardPage() {
     const { user, userProfile, loading } = useAuth();
 
+    useEffect(() => {
+        if (!loading && !user) {
+            redirect("/");
+        }
+    }, [user, loading]);
+
+    // Skeleton UI
     if (loading) {
         return (
-            <div className="min-h-screen bg-black flex items-center justify-center">
-                <Loader2 className="w-10 h-10 text-brand-pink animate-spin" />
-            </div>
+            <main className="min-h-screen pt-24 px-4 pb-24 md:pb-12 max-w-7xl mx-auto animate-pulse">
+                <header className="mb-8 md:mb-12">
+                    <div className="h-10 w-3/4 md:w-1/2 bg-white/10 rounded-xl mb-4" />
+                    <div className="h-5 w-1/3 bg-white/5 rounded-lg" />
+                </header>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="space-y-6 md:space-y-8">
+                        <div className="h-64 bg-white/5 rounded-3xl" /> {/* Check-In Skeleton */}
+                        <div className="h-40 bg-white/5 rounded-3xl" /> {/* Stats Skeleton */}
+                    </div>
+                    <div className="lg:col-span-2">
+                        <div className="h-[400px] bg-white/5 rounded-3xl" /> {/* Collection Skeleton */}
+                    </div>
+                </div>
+            </main>
         );
     }
 
-    if (!user) {
-        redirect("/"); // Protect route
-    }
+    if (!user) return null; // Handled by redirect
 
     return (
         <main className="min-h-screen pt-24 px-4 pb-24 md:pb-12 max-w-7xl mx-auto">
