@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { collection, query, orderBy, getDocs, doc, updateDoc, Timestamp, writeBatch, serverTimestamp, arrayUnion, arrayRemove } from "firebase/firestore";
+import { collection, query, orderBy, getDocs, doc, updateDoc, writeBatch, serverTimestamp, arrayUnion, arrayRemove } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { UserProfile } from "@/types/db";
-import { Loader2, Search, Shield, Ban, CheckCircle, AlertTriangle, MoreVertical, Edit2, Lock, Unlock, Plus } from "lucide-react";
+import { Loader2, Search, Shield, Ban, CheckCircle, AlertTriangle, Edit2, Lock, Plus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { format } from "date-fns";
+import { BalanceAdjustmentModal } from "@/components/Admin/BalanceAdjustmentModal";
+
 
 export default function UserManagementPage() {
     const [users, setUsers] = useState<UserProfile[]>([]);
@@ -19,7 +21,6 @@ export default function UserManagementPage() {
 
     // Balance Editing State
     const [editBalanceUser, setEditBalanceUser] = useState<UserProfile | null>(null);
-    const [newBalance, setNewBalance] = useState<string>("");
 
     useEffect(() => {
         fetchUsers();
@@ -80,52 +81,7 @@ export default function UserManagementPage() {
         }
     };
 
-    const handleUpdateBalance = async () => {
-        if (!editBalanceUser || newBalance === "") return;
-        setProcessing(true);
-        try {
-            const targetBalance = parseInt(newBalance);
-            if (isNaN(targetBalance)) throw new Error("Invalid balance");
 
-            const difference = targetBalance - editBalanceUser.gumDropsBalance;
-            if (difference === 0) {
-                setEditBalanceUser(null);
-                setNewBalance("");
-                setProcessing(false);
-                return;
-            }
-
-            const batch = writeBatch(db);
-            const userRef = doc(db, "users", editBalanceUser.uid);
-            const transactionRef = doc(collection(db, "transactions"));
-
-            // 1. Update User Balance
-            batch.update(userRef, {
-                gumDropsBalance: targetBalance
-            });
-
-            // 2. Create Ledger Entry
-            batch.set(transactionRef, {
-                userId: editBalanceUser.uid,
-                amount: difference, // Can be positive or negative
-                type: 'admin_adjustment',
-                description: `Admin Adjustment: ${difference > 0 ? '+' : ''}${difference} Drops`,
-                timestamp: serverTimestamp()
-            });
-
-            await batch.commit();
-
-            // Update local state
-            setUsers(users.map(u => u.uid === editBalanceUser.uid ? { ...u, gumDropsBalance: targetBalance } : u));
-            setEditBalanceUser(null);
-            setNewBalance("");
-        } catch (error) {
-            console.error("Error updating balance:", error);
-            alert("Failed to update balance.");
-        } finally {
-            setProcessing(false);
-        }
-    };
 
     // --- Content Management ---
     const [contentUser, setContentUser] = useState<UserProfile | null>(null);
@@ -290,8 +246,8 @@ export default function UserManagementPage() {
                                         </td>
                                         <td className="p-4">
                                             <span className={`px-2 py-1 rounded-full text-xs font-bold border capitalize ${user.role === 'admin' ? "bg-red-500/10 text-red-400 border-red-500/20" :
-                                                    user.role === 'creator' ? "bg-purple-500/10 text-purple-400 border-purple-500/20" :
-                                                        "bg-gray-500/10 text-gray-400 border-gray-500/20"
+                                                user.role === 'creator' ? "bg-purple-500/10 text-purple-400 border-purple-500/20" :
+                                                    "bg-gray-500/10 text-gray-400 border-gray-500/20"
                                                 }`}>
                                                 {user.role || 'user'}
                                             </span>
@@ -408,8 +364,8 @@ export default function UserManagementPage() {
 
                                 <div className="flex items-center justify-between text-xs">
                                     <span className={`px-1.5 py-0.5 rounded border capitalize ${user.role === 'admin' ? "bg-red-500/10 text-red-400 border-red-500/20" :
-                                            user.role === 'creator' ? "bg-purple-500/10 text-purple-400 border-purple-500/20" :
-                                                "bg-gray-500/10 text-gray-400 border-gray-500/20"
+                                        user.role === 'creator' ? "bg-purple-500/10 text-purple-400 border-purple-500/20" :
+                                            "bg-gray-500/10 text-gray-400 border-gray-500/20"
                                         }`}>
                                         {user.role || 'user'}
                                     </span>
@@ -477,48 +433,13 @@ export default function UserManagementPage() {
                     )}
 
                     {editBalanceUser && (
-                        <div className="bg-zinc-900 border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl">
-                            <h3 className="text-xl font-bold text-white mb-2">Adjust Balance</h3>
-                            <p className="text-gray-400 mb-6">
-                                Update Gum Drops for <strong>{editBalanceUser.displayName || editBalanceUser.email}</strong>.
-                            </p>
-
-                            <div className="mb-6 space-y-4">
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Current Balance</label>
-                                    <div className="text-2xl font-mono text-white">{editBalanceUser.gumDropsBalance} 🍬</div>
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-2">New Balance</label>
-                                    <input
-                                        type="number"
-                                        className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:border-brand-pink outline-none font-mono text-lg"
-                                        value={newBalance}
-                                        onChange={(e) => setNewBalance(e.target.value)}
-                                        placeholder="Enter amount..."
-                                    />
-                                </div>
-                                {newBalance !== "" && !isNaN(Number(newBalance)) && (
-                                    <div className="text-sm text-gray-400">
-                                        Adjustment: <span className={Number(newBalance) > editBalanceUser.gumDropsBalance ? "text-green-500" : "text-red-500"}>
-                                            {Number(newBalance) > editBalanceUser.gumDropsBalance ? "+" : ""}
-                                            {Number(newBalance) - editBalanceUser.gumDropsBalance}
-                                        </span>
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="flex justify-end gap-3">
-                                <Button variant="ghost" onClick={() => { setEditBalanceUser(null); setNewBalance(""); }}>Cancel</Button>
-                                <Button
-                                    variant="brand"
-                                    onClick={handleUpdateBalance}
-                                    disabled={processing || newBalance === "" || isNaN(Number(newBalance))}
-                                >
-                                    {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : "Update Balance"}
-                                </Button>
-                            </div>
-                        </div>
+                        <BalanceAdjustmentModal
+                            user={editBalanceUser}
+                            onClose={() => setEditBalanceUser(null)}
+                            onSuccess={(newBalance) => {
+                                setUsers(users.map(u => u.uid === editBalanceUser.uid ? { ...u, gumDropsBalance: newBalance } : u));
+                            }}
+                        />
                     )}
                     {contentUser && (
                         <div className="bg-zinc-900 border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl">
