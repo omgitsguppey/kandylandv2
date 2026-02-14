@@ -261,7 +261,7 @@ export default function UserManagementPage() {
                                             <div className="flex items-center gap-2">
                                                 {user.gumDropsBalance} 🍬
                                                 <button
-                                                    onClick={() => { setEditBalanceUser(user); setNewBalance(user.gumDropsBalance.toString()); }}
+                                                    onClick={() => setEditBalanceUser(user)}
                                                     className="p-1 rounded-md hover:bg-white/10 text-gray-500 hover:text-white transition-colors"
                                                     title="Edit Balance"
                                                 >
@@ -371,7 +371,7 @@ export default function UserManagementPage() {
                                     </span>
                                     <div className="font-mono text-brand-pink flex items-center gap-1">
                                         {user.gumDropsBalance} 🍬
-                                        <button onClick={() => { setEditBalanceUser(user); setNewBalance(user.gumDropsBalance.toString()); }}><Edit2 className="w-3 h-3 text-gray-500" /></button>
+                                        <button onClick={() => setEditBalanceUser(user)}><Edit2 className="w-3 h-3 text-gray-500" /></button>
                                     </div>
                                 </div>
 
