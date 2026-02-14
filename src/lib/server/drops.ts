@@ -23,7 +23,7 @@ export async function getDrops(): Promise<Drop[]> {
                 createdAt: data.createdAt?.toMillis?.() || data.createdAt,
                 validFrom: data.validFrom?.toMillis?.() || data.validFrom,
                 validUntil: data.validUntil?.toMillis?.() || data.validUntil,
-            } as Drop;
+            } as unknown as Drop;
         });
     } catch (error) {
         console.error("Error fetching drops:", error);
@@ -50,9 +50,11 @@ export async function getDrop(id: string): Promise<Drop | null> {
             createdAt: data.createdAt?.toMillis?.() || data.createdAt,
             validFrom: data.validFrom?.toMillis?.() || data.validFrom,
             validUntil: data.validUntil?.toMillis?.() || data.validUntil,
-        } as Drop;
+        } as unknown as Drop;
     } catch (error) {
         console.error("Error fetching drop:", error);
         return null;
     }
 }
+
+export const getDropServer = getDrop;

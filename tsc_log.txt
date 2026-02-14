@@ -1,0 +1,7 @@
+src/app/dashboard/library/page.tsx(7,40): error TS2554: Expected 0 arguments, but got 1.
+src/components/CoreLayoutWrapper.tsx(10,19): error TS2307: Cannot find module 'dayjs' or its corresponding type declarations.
+src/components/CoreLayoutWrapper.tsx(11,26): error TS2307: Cannot find module 'dayjs/plugin/relativeTime' or its corresponding type declarations.
+src/lib/server/drops.ts(17,20): error TS2352: Conversion of type '{ createdAt: any; validFrom: any; validUntil: any; id: string; }' to type 'Drop' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ createdAt: any; validFrom: any; validUntil: any; id: string; }' is missing the following properties from type 'Drop': title, description, imageUrl, contentUrl, and 3 more.
+src/lib/server/drops.ts(47,16): error TS2352: Conversion of type '{ createdAt: any; validFrom: any; validUntil: any; id: string; }' to type 'Drop' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ createdAt: any; validFrom: any; validUntil: any; id: string; }' is missing the following properties from type 'Drop': title, description, imageUrl, contentUrl, and 3 more.

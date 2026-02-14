@@ -12,49 +12,31 @@ import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { User } from "firebase/auth";
 import { useNow } from "@/context/NowContext";
-import { useUserProfile } from "@/context/AuthContext"; // Import useUserProfile
+import { useUserProfile } from "@/context/AuthContext";
 
-// ... interface ...
+interface DropCardProps {
+    drop: Drop;
+    priority?: boolean;
+    user?: User | null;
+    isUnlocked?: boolean;
+    canAfford?: boolean;
+}
 
 function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAfford = false }: DropCardProps) {
     const { now } = useNow();
-    const { refreshProfile } = useUserProfile(); // Get refresh function
+    const { refreshProfile } = useUserProfile();
     const [timeLeft, setTimeLeft] = useState("");
-    // ...
+    const [isHovered, setIsHovered] = useState(false);
+    const [unlocking, setUnlocking] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-    // ... useEffect ...
-
-    const handleUnlock = async () => {
-        if (!user || unlocking || isUnlocked) return;
-        // ... canAfford check ...
-
-        setUnlocking(true);
-        setError(null);
-
-        try {
-            // ... firebase batch logic ...
-
-            // Commit Batch
-            await batch.commit();
-
-            // Refresh Profile to reflect changes (balance/unlocks) immediately
-            await refreshProfile();
-
-            toast.success(`Unwrapped: ${drop.title}`, {
-                // ...
-                const [isHovered, setIsHovered] = useState(false);
-                const [unlocking, setUnlocking] = useState(false);
-                const [error, setError] = useState<string | null>(null);
-
-                // Phase 2: Derived time based on shared 'now'
-                useEffect(() => {
+    // Phase 2: Derived time based on shared 'now'
+    useEffect(() => {
         if (now < drop.validFrom) {
             setTimeLeft(`Starts in ${formatDistanceToNow(drop.validFrom)}`);
         } else if (now < drop.validUntil) {
             const diff = drop.validUntil - now;
             if (diff > 24 * 60 * 60 * 1000) {
-                // Only update string if changed significantly to avoid render? 
-                // formatDistanceToNow is fuzzy so it's fine.
                 setTimeLeft(formatDistanceToNow(drop.validUntil, { addSuffix: true }));
             } else {
                 const seconds = Math.floor((diff / 1000) % 60);
@@ -66,7 +48,6 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
             setTimeLeft("Expired");
         }
     }, [now, drop.validFrom, drop.validUntil]);
-
 
     const handleUnlock = async () => {
         if (!user || unlocking || isUnlocked) return;
@@ -106,6 +87,9 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
 
             // Commit Batch
             await batch.commit();
+
+            // Refresh Profile to reflect changes (balance/unlocks) immediately
+            await refreshProfile();
 
             toast.success(`Unwrapped: ${drop.title}`, {
                 description: "Enjoy your exclusive content!",

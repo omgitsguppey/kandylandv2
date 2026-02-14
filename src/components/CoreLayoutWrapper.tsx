@@ -7,10 +7,7 @@ import { OnboardingModal } from "@/components/Auth/OnboardingModal";
 import { Toaster } from "sonner";
 import { DebugBreakpoints } from "@/components/Debug/DebugBreakpoints";
 import CookieBanner from "@/components/CookieBanner";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
 
-dayjs.extend(relativeTime);
 
 export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     return (
