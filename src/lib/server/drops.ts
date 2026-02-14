@@ -6,7 +6,7 @@ export async function getDrops(): Promise<Drop[]> {
     try {
         if (!adminDb) return [];
         const dropsRef = adminDb.collection("drops");
-        const snapshot = await dropsRef.orderBy("createdAt", "desc").get();
+        const snapshot = await dropsRef.orderBy("validFrom", "desc").get();
 
         if (snapshot.empty) {
             return [];

@@ -34,15 +34,19 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
     useEffect(() => {
         if (now < drop.validFrom) {
             setTimeLeft(`Starts in ${formatDistanceToNow(drop.validFrom)}`);
-        } else if (now < drop.validUntil) {
-            const diff = drop.validUntil - now;
-            if (diff > 24 * 60 * 60 * 1000) {
-                setTimeLeft(formatDistanceToNow(drop.validUntil, { addSuffix: true }));
+        } else if (!drop.validUntil || now < drop.validUntil) {
+            if (!drop.validUntil) {
+                setTimeLeft("Forever"); // Or leave empty to hide
             } else {
-                const seconds = Math.floor((diff / 1000) % 60);
-                const minutes = Math.floor((diff / 1000 / 60) % 60);
-                const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-                setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
+                const diff = drop.validUntil - now;
+                if (diff > 24 * 60 * 60 * 1000) {
+                    setTimeLeft(formatDistanceToNow(drop.validUntil, { addSuffix: true }));
+                } else {
+                    const seconds = Math.floor((diff / 1000) % 60);
+                    const minutes = Math.floor((diff / 1000 / 60) % 60);
+                    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                    setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
+                }
             }
         } else {
             setTimeLeft("Expired");

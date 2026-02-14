@@ -33,7 +33,7 @@ export interface Drop {
     contentUrl: string; // The secret content to unlock
     unlockCost: number;
     validFrom: number; // Timestamp
-    validUntil: number; // Timestamp
+    validUntil?: number; // Timestamp (Optional - if missing, never expires)
     status: 'active' | 'expired' | 'scheduled';
     totalUnlocks: number;
 

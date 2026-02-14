@@ -83,7 +83,7 @@ export default function AdminDropsPage() {
                                 if (now < drop.validFrom) {
                                     status = "scheduled";
                                     statusColor = "bg-brand-yellow/10 text-brand-yellow border-brand-yellow/20";
-                                } else if (now < drop.validUntil) {
+                                } else if (!drop.validUntil || now < drop.validUntil) {
                                     status = "active";
                                     statusColor = "bg-brand-green/10 text-brand-green border-brand-green/20";
                                 }
@@ -160,7 +160,7 @@ export default function AdminDropsPage() {
                         if (now < drop.validFrom) {
                             status = "scheduled";
                             statusColor = "bg-brand-yellow/10 text-brand-yellow border-brand-yellow/20";
-                        } else if (now < drop.validUntil) {
+                        } else if (!drop.validUntil || now < drop.validUntil) {
                             status = "active";
                             statusColor = "bg-brand-green/10 text-brand-green border-brand-green/20";
                         }

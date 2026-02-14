@@ -33,7 +33,7 @@ const dropSchema = z.object({
     contentUrl: z.string().url("Content file is required"),
     unlockCost: z.coerce.number().min(0, "Cost cannot be negative"),
     validFrom: z.string(),
-    validUntil: z.string(),
+    validUntil: z.string().optional().or(z.literal("")),
     type: z.enum(["content", "promo", "external"]),
     // Optional/Dynamic fields
     ctaText: z.string().optional(),
@@ -97,7 +97,9 @@ function DropForm() {
                     setValue("contentUrl", data.contentUrl);
                     setValue("unlockCost", data.unlockCost);
                     setValue("validFrom", new Date(data.validFrom).toISOString().slice(0, 16));
-                    setValue("validUntil", new Date(data.validUntil).toISOString().slice(0, 16));
+                    if (data.validUntil) {
+                        setValue("validUntil", new Date(data.validUntil).toISOString().slice(0, 16));
+                    }
                     setValue("type", data.type || "content");
                     setValue("ctaText", data.ctaText || "");
                     setValue("actionUrl", data.actionUrl || "");
@@ -126,12 +128,16 @@ function DropForm() {
     const onSubmit: SubmitHandler<DropFormData> = async (data) => {
         try {
             const validFrom = new Date(data.validFrom).getTime();
-            const validUntil = new Date(data.validUntil).getTime();
+            let validUntil: number | undefined = undefined;
 
-            if (validFrom >= validUntil) {
-                alert("End date must be after start date");
-                return;
+            if (data.validUntil) {
+                validUntil = new Date(data.validUntil).getTime();
+                if (validFrom >= validUntil) {
+                    alert("End date must be after start date");
+                    return;
+                }
             }
+
 
             const dropData = {
                 title: data.title,
@@ -140,8 +146,8 @@ function DropForm() {
                 contentUrl: data.contentUrl,
                 unlockCost: data.unlockCost,
                 validFrom,
-                validUntil,
-                status: (Date.now() < validUntil) ? "active" : "expired",
+                validUntil, // Can be undefined
+                status: (!validUntil || Date.now() < validUntil) ? "active" : "expired",
                 type: data.type,
                 ctaText: data.ctaText,
                 actionUrl: data.actionUrl,
@@ -324,6 +330,7 @@ function DropForm() {
                         <input
                             {...register("validUntil")}
                             type="datetime-local"
+                            placeholder="Leave empty for permanent"
                             className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-cyan/50 transition-all [color-scheme:dark]"
                         />
                     </div>
