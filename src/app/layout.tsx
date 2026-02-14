@@ -42,7 +42,7 @@ export default function RootLayout({
         <AuthProvider>
           <UIProvider>
             <PayPalProvider>
-              <PerformanceMonitor />
+              {/* <PerformanceMonitor /> */}
               <main className="pt-20 min-h-screen relative overflow-hidden pb-24 md:pb-0">
                 {/* Background Elements */}
                 <div className="fixed inset-0 z-0 pointer-events-none">
@@ -57,10 +57,7 @@ export default function RootLayout({
                     {children}
                   </ErrorBoundary>
                   <DebugBreakpoints />
-                  {/* React Scan (Dev Only) */}
-                  {process.env.NODE_ENV === 'development' && (
-                    <script src="https://unpkg.com/react-scan/dist/auto.global.js" async />
-                  )}
+                  {/* React Scan (Dev Only) - Removed for performance safety */}
                 </div>
 
                 <MobileBottomBar />
