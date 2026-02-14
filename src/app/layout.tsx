@@ -25,6 +25,8 @@ import MobileBottomBar from "@/components/Navigation/MobileBottomBar";
 import { GlobalPurchaseModal } from "@/components/GlobalPurchaseModal"; // Import from new file
 import { OnboardingModal } from "@/components/Auth/OnboardingModal";
 import { Toaster } from 'sonner';
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { DebugBreakpoints } from "@/components/Debug/DebugBreakpoints";
 import CookieBanner from "@/components/CookieBanner";
 import { PerformanceMonitor } from "@/components/PerformanceMonitor";
 
@@ -51,7 +53,14 @@ export default function RootLayout({
                 {/* Content */}
                 <div className="relative z-10">
                   <Navbar />
-                  {children}
+                  <ErrorBoundary>
+                    {children}
+                  </ErrorBoundary>
+                  <DebugBreakpoints />
+                  {/* React Scan (Dev Only) */}
+                  {process.env.NODE_ENV === 'development' && (
+                    <script src="https://unpkg.com/react-scan/dist/auto.global.js" async />
+                  )}
                 </div>
 
                 <MobileBottomBar />

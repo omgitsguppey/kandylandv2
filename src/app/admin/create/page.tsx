@@ -9,38 +9,77 @@ import { FileUpload } from "@/components/Admin/FileUpload";
 import Link from "next/link";
 import { Drop } from "@/types/db";
 import { format } from "date-fns";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+
+// Logic for default dates
+const getDefaultDates = () => {
+    const start = new Date();
+    const end = new Date();
+    end.setDate(end.getDate() + 7);
+    return {
+        validFrom: start.toISOString().slice(0, 16),
+        validUntil: end.toISOString().slice(0, 16)
+    };
+};
+
+// Validation Schema
+const dropSchema = z.object({
+    title: z.string().min(3, "Title is too short"),
+    description: z.string().min(10, "Description is too short"),
+    imageUrl: z.string().url("Cover image is required"),
+    contentUrl: z.string().url("Content file is required"),
+    unlockCost: z.coerce.number().min(0, "Cost cannot be negative"),
+    validFrom: z.string(),
+    validUntil: z.string(),
+    type: z.enum(["content", "promo", "external"]),
+    // Optional/Dynamic fields
+    ctaText: z.string().optional(),
+    actionUrl: z.string().optional(),
+    accentColor: z.string().optional(),
+    fileMetadata: z.object({
+        size: z.number(),
+        type: z.string()
+    }).nullable().optional()
+});
+
+type DropFormData = z.infer<typeof dropSchema>;
 
 function DropForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const dropId = searchParams.get("id");
     const isEditMode = !!dropId;
-
-    const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(isEditMode);
 
-    // Default valid dates (starts now, ends in 7 days)
-    const defaultStart = new Date();
-    const defaultEnd = new Date();
-    defaultEnd.setDate(defaultEnd.getDate() + 7);
-
-    const formatForInput = (date: Date) => date.toISOString().slice(0, 16);
-
-    const [formData, setFormData] = useState({
-        title: "",
-        description: "",
-        imageUrl: "",
-        contentUrl: "",
-        unlockCost: 100,
-        validFrom: formatForInput(defaultStart),
-        validUntil: formatForInput(defaultEnd),
-        // New Fields
-        type: "content",
-        ctaText: "",
-        actionUrl: "",
-        accentColor: "#ec4899",
-        fileMetadata: null as { size: number, type: string } | null
+    // React Hook Form
+    const {
+        register,
+        handleSubmit,
+        setValue,
+        watch,
+        formState: { errors, isSubmitting }
+    } = useForm<DropFormData>({
+        resolver: zodResolver(dropSchema) as any,
+        defaultValues: {
+            title: "",
+            description: "",
+            imageUrl: "",
+            contentUrl: "",
+            unlockCost: 100,
+            type: "content",
+            accentColor: "#ec4899",
+            ctaText: "",
+            actionUrl: "",
+            fileMetadata: null,
+            ...getDefaultDates()
+        }
     });
+
+    const dropType = watch("type");
+    const accentColor = watch("accentColor");
 
     useEffect(() => {
         if (!dropId) return;
@@ -51,20 +90,19 @@ function DropForm() {
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) {
                     const data = docSnap.data() as Drop;
-                    setFormData({
-                        title: data.title,
-                        description: data.description,
-                        imageUrl: data.imageUrl,
-                        contentUrl: data.contentUrl,
-                        unlockCost: data.unlockCost,
-                        validFrom: formatForInput(new Date(data.validFrom)),
-                        validUntil: formatForInput(new Date(data.validUntil)),
-                        type: data.type || "content",
-                        ctaText: data.ctaText || "",
-                        actionUrl: data.actionUrl || "",
-                        accentColor: data.accentColor || "#ec4899",
-                        fileMetadata: data.fileMetadata || null
-                    });
+                    // Populate form
+                    setValue("title", data.title);
+                    setValue("description", data.description);
+                    setValue("imageUrl", data.imageUrl);
+                    setValue("contentUrl", data.contentUrl);
+                    setValue("unlockCost", data.unlockCost);
+                    setValue("validFrom", new Date(data.validFrom).toISOString().slice(0, 16));
+                    setValue("validUntil", new Date(data.validUntil).toISOString().slice(0, 16));
+                    setValue("type", data.type || "content");
+                    setValue("ctaText", data.ctaText || "");
+                    setValue("actionUrl", data.actionUrl || "");
+                    setValue("accentColor", data.accentColor || "#ec4899");
+                    setValue("fileMetadata", data.fileMetadata || null);
                 } else {
                     alert("Drop not found!");
                     router.push("/admin/drops");
@@ -76,55 +114,43 @@ function DropForm() {
             }
         }
         fetchDrop();
-    }, [dropId, router]);
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
+    }, [dropId, router, setValue]);
 
     const handleUploadComplete = (field: "imageUrl" | "contentUrl") => (url: string, metadata?: { size: number, type: string }) => {
-        setFormData(prev => {
-            const updates: any = { [field]: url };
-            if (field === "contentUrl" && metadata) {
-                updates.fileMetadata = metadata;
-            }
-            return { ...prev, ...updates };
-        });
+        setValue(field, url, { shouldValidate: true });
+        if (field === "contentUrl" && metadata) {
+            setValue("fileMetadata", metadata);
+        }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-
+    const onSubmit: SubmitHandler<DropFormData> = async (data) => {
         try {
-            // Convert datetime-local strings to timestamps
-            const validFrom = new Date(formData.validFrom).getTime();
-            const validUntil = new Date(formData.validUntil).getTime();
+            const validFrom = new Date(data.validFrom).getTime();
+            const validUntil = new Date(data.validUntil).getTime();
 
-            if (isNaN(validFrom) || isNaN(validUntil)) {
-                throw new Error("Invalid dates");
+            if (validFrom >= validUntil) {
+                alert("End date must be after start date");
+                return;
             }
 
             const dropData = {
-                title: formData.title,
-                description: formData.description,
-                imageUrl: formData.imageUrl,
-                contentUrl: formData.contentUrl,
-                unlockCost: Number(formData.unlockCost),
+                title: data.title,
+                description: data.description,
+                imageUrl: data.imageUrl,
+                contentUrl: data.contentUrl,
+                unlockCost: data.unlockCost,
                 validFrom,
                 validUntil,
                 status: (Date.now() < validUntil) ? "active" : "expired",
-                // Dynamic Fields
-                type: formData.type as any,
-                ctaText: formData.ctaText,
-                actionUrl: formData.actionUrl,
-                accentColor: formData.accentColor,
-                fileMetadata: formData.fileMetadata,
+                type: data.type,
+                ctaText: data.ctaText,
+                actionUrl: data.actionUrl,
+                accentColor: data.accentColor,
+                fileMetadata: data.fileMetadata,
             };
 
             if (isEditMode) {
-                await updateDoc(doc(db, "drops", dropId!), dropData);
+                await updateDoc(doc(db, "drops", dropId!), dropData as any);
             } else {
                 await addDoc(collection(db, "drops"), {
                     ...dropData,
@@ -136,8 +162,6 @@ function DropForm() {
         } catch (error) {
             console.error("Error saving drop:", error);
             alert("Failed to save drop. Check console.");
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -161,7 +185,7 @@ function DropForm() {
                 </p>
             </header>
 
-            <form onSubmit={handleSubmit} className="glass-panel p-8 rounded-3xl space-y-6">
+            <form onSubmit={handleSubmit(onSubmit)} className="glass-panel p-8 rounded-3xl space-y-6">
 
                 {/* Title */}
                 <div className="space-y-2">
@@ -169,28 +193,24 @@ function DropForm() {
                         <Type className="w-4 h-4" /> Drop Title
                     </label>
                     <input
+                        {...register("title")}
                         type="text"
-                        name="title"
-                        required
-                        value={formData.title}
-                        onChange={handleChange}
                         placeholder="e.g. Neon Lollipops Pack"
                         className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-gray-600 focus:outline-none focus:border-brand-pink/50 focus:ring-1 focus:ring-brand-pink/50 transition-all"
                     />
+                    {errors.title && <p className="text-red-400 text-xs">{errors.title.message}</p>}
                 </div>
 
                 {/* Description */}
                 <div className="space-y-2">
                     <label className="text-sm font-bold text-gray-300">Description</label>
                     <textarea
-                        name="description"
-                        required
-                        value={formData.description}
-                        onChange={handleChange}
+                        {...register("description")}
                         placeholder="Describe what's inside..."
                         rows={3}
                         className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-gray-600 focus:outline-none focus:border-brand-pink/50 focus:ring-1 focus:ring-brand-pink/50 transition-all resize-none"
                     />
+                    {errors.description && <p className="text-red-400 text-xs">{errors.description.message}</p>}
                 </div>
 
                 {/* File Uploads */}
@@ -201,9 +221,7 @@ function DropForm() {
                         <div className="space-y-2">
                             <label className="text-sm font-bold text-gray-300">Drop Type</label>
                             <select
-                                name="type"
-                                value={formData.type}
-                                onChange={handleChange}
+                                {...register("type")}
                                 className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-pink/50 transition-all"
                             >
                                 <option value="content">Content Drop (Standard)</option>
@@ -212,15 +230,13 @@ function DropForm() {
                             </select>
                         </div>
 
-                        {formData.type !== 'content' && (
+                        {dropType !== 'content' && (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold text-gray-300">Call to Action (Button)</label>
                                     <input
+                                        {...register("ctaText")}
                                         type="text"
-                                        name="ctaText"
-                                        value={formData.ctaText}
-                                        onChange={handleChange}
                                         placeholder="e.g. Visit Shop"
                                         className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-pink/50 transition-all"
                                     />
@@ -228,10 +244,8 @@ function DropForm() {
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold text-gray-300">Action URL</label>
                                     <input
+                                        {...register("actionUrl")}
                                         type="url"
-                                        name="actionUrl"
-                                        value={formData.actionUrl}
-                                        onChange={handleChange}
                                         placeholder="https://..."
                                         className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-pink/50 transition-all"
                                     />
@@ -240,17 +254,13 @@ function DropForm() {
                                     <label className="text-sm font-bold text-gray-300">Accent Color</label>
                                     <div className="flex gap-2">
                                         <input
+                                            {...register("accentColor")}
                                             type="color"
-                                            name="accentColor"
-                                            value={formData.accentColor}
-                                            onChange={handleChange}
                                             className="h-12 w-12 rounded-lg cursor-pointer bg-transparent border-none"
                                         />
                                         <input
+                                            {...register("accentColor")}
                                             type="text"
-                                            name="accentColor"
-                                            value={formData.accentColor}
-                                            onChange={handleChange}
                                             className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-mono"
                                         />
                                     </div>
@@ -258,29 +268,30 @@ function DropForm() {
                             </div>
                         )}
                     </div>
-                    <FileUpload
-                        label="Drop Image (Cover)"
-                        folder="drops/images"
-                        accept="image/*"
-                        helperText="Recommend 1:1 aspect ratio"
-                        initialUrl={formData.imageUrl}
-                        onUploadComplete={handleUploadComplete("imageUrl")}
-                    />
 
-                    <FileUpload
-                        label="Content (The Drop)"
-                        folder="drops/content"
-                        helperText="Zip, Audio, Video, etc."
-                        initialUrl={formData.contentUrl}
-                        onUploadComplete={handleUploadComplete("contentUrl")}
-                    />
+                    <div className="space-y-2">
+                        <FileUpload
+                            label="Drop Image (Cover)"
+                            folder="drops/images"
+                            accept="image/*"
+                            helperText="Recommend 1:1 aspect ratio"
+                            initialUrl={watch("imageUrl")}
+                            onUploadComplete={handleUploadComplete("imageUrl")}
+                        />
+                        {errors.imageUrl && <p className="text-red-400 text-xs">{errors.imageUrl.message}</p>}
+                    </div>
+
+                    <div className="space-y-2">
+                        <FileUpload
+                            label="Content (The Drop)"
+                            folder="drops/content"
+                            helperText="Zip, Audio, Video, etc."
+                            initialUrl={watch("contentUrl")}
+                            onUploadComplete={handleUploadComplete("contentUrl")}
+                        />
+                        {errors.contentUrl && <p className="text-red-400 text-xs">{errors.contentUrl.message}</p>}
+                    </div>
                 </div>
-
-                {/* Hidden inputs to ensure required validation works if users type manually instead of upload, 
-                    though FileUpload updates state. We can also add validation logic. */}
-                <input type="hidden" name="imageUrl" required value={formData.imageUrl} />
-                <input type="hidden" name="contentUrl" required value={formData.contentUrl} />
-
 
                 {/* Cost & Schedule */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -289,25 +300,20 @@ function DropForm() {
                             <DollarSign className="w-4 h-4" /> Cost (Drops)
                         </label>
                         <input
+                            {...register("unlockCost")}
                             type="number"
-                            name="unlockCost"
-                            required
                             min="0"
-                            value={formData.unlockCost}
-                            onChange={handleChange}
                             className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-yellow/50 transition-all"
                         />
+                        {errors.unlockCost && <p className="text-red-400 text-xs">{errors.unlockCost.message}</p>}
                     </div>
                     <div className="space-y-2">
                         <label className="text-sm font-bold text-gray-300 flex items-center gap-2">
                             <Calendar className="w-4 h-4" /> Valid From
                         </label>
                         <input
+                            {...register("validFrom")}
                             type="datetime-local"
-                            name="validFrom"
-                            required
-                            value={formData.validFrom}
-                            onChange={handleChange}
                             className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-cyan/50 transition-all [color-scheme:dark]"
                         />
                     </div>
@@ -316,11 +322,8 @@ function DropForm() {
                             <Calendar className="w-4 h-4" /> Valid Until
                         </label>
                         <input
+                            {...register("validUntil")}
                             type="datetime-local"
-                            name="validUntil"
-                            required
-                            value={formData.validUntil}
-                            onChange={handleChange}
                             className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-cyan/50 transition-all [color-scheme:dark]"
                         />
                     </div>
@@ -330,15 +333,15 @@ function DropForm() {
                 <div className="pt-4">
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={isSubmitting}
                         className="w-full py-4 rounded-xl bg-gradient-to-r from-brand-pink to-brand-purple font-bold text-white shadow-lg shadow-brand-pink/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {loading ? (
+                        {isSubmitting ? (
                             <Loader2 className="w-5 h-5 animate-spin" />
                         ) : (
                             <Save className="w-5 h-5" />
                         )}
-                        {loading ? "Saving Drop..." : isEditMode ? "Update Drop" : "Create Drop"}
+                        {isSubmitting ? "Saving Drop..." : isEditMode ? "Update Drop" : "Create Drop"}
                     </button>
                 </div>
 

@@ -19,7 +19,7 @@ export default function Hero() {
             </div>
 
             {/* Parallax Content */}
-            <div className="relative z-10 text-center px-0 w-full max-w-[95%] md:max-w-7xl mx-auto">
+            <div className="relative z-10 text-center w-full max-w-7xl mx-auto px-4 md:px-8">
                 <div className="mb-4 md:mb-8 flex justify-center">
                     <div className="p-4 md:p-8 relative">
                         <div className="absolute inset-0 bg-white/5 rounded-full blur-3xl"></div>
@@ -31,7 +31,7 @@ export default function Hero() {
                     KandyDrops
                 </h1>
 
-                <p className="text-base md:text-2xl text-gray-400 font-medium max-w-xl md:max-w-3xl mx-auto mb-6 md:mb-10 leading-relaxed px-4">
+                <p className="text-base md:text-2xl text-gray-400 font-medium max-w-xl md:max-w-3xl mx-auto mb-6 md:mb-10 leading-relaxed">
                     <span className="flex items-center gap-2 text-sm md:text-base font-medium tracking-wide justify-center">
                         <span className="w-2 h-2 rounded-full bg-brand-green" />
                         <span className="text-white">Collect. Unwrap. Own the moment.</span>

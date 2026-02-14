@@ -1,65 +1,100 @@
 "use client";
 
 import { useState, useEffect } from "react";
-
-import { User, Calendar, Camera, Check, ShieldCheck, ArrowRight, Sparkles } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { User, Calendar, Camera, Check, ShieldCheck, ArrowRight, Sparkles, Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { doc, updateDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { db, storage } from "@/lib/firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { toast } from "sonner";
 import { differenceInYears, parseISO } from "date-fns";
-import { Loader2 } from "lucide-react";
+
+// Validation Schema
+const onboardingSchema = z.object({
+    username: z.string()
+        .min(3, "Username must be at least 3 characters")
+        .regex(/^[a-z0-9_]+$/, "Only lowercase letters, numbers, and underscores"),
+    dateOfBirth: z.string().refine((val) => {
+        const age = differenceInYears(new Date(), parseISO(val));
+        return age >= 18;
+    }, "You must be 18+ to join KandyDrops"),
+    bio: z.string().optional(),
+});
+
+type OnboardingFormData = z.infer<typeof onboardingSchema>;
 
 export function OnboardingModal() {
     const { user, userProfile } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
-    const [step, setStep] = useState(1); // 1: Profile, 2: Identity, 3: Creator (Optional)
+    const [step, setStep] = useState(1); // 1: Profile, 2: Identity, 3: Creator
     const [loading, setLoading] = useState(false);
 
-    // Form State
-    const [username, setUsername] = useState("");
-    const [dateOfBirth, setDateOfBirth] = useState("");
-    const [bio, setBio] = useState("");
+    // Avatar state is handled separately as it involves file upload/preview logic
+    // that is easier to manage outside of simple text input registration for now,
+    // though it could be integrated into RHF if desired.
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
-    // Validation State
+    // Custom check state
     const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
     const [checkingUsername, setCheckingUsername] = useState(false);
 
+    // RHF
+    const {
+        register,
+        handleSubmit,
+        watch,
+        setValue,
+        trigger,
+        formState: { errors }
+    } = useForm<OnboardingFormData>({
+        resolver: zodResolver(onboardingSchema),
+        mode: "onChange",
+        defaultValues: {
+            username: "",
+            dateOfBirth: "",
+            bio: ""
+        }
+    });
+
+    const username = watch("username");
+
     useEffect(() => {
         if (user && userProfile) {
-            // Check if critical info is missing
             const missingUsername = !userProfile.username;
             const missingDob = !userProfile.dateOfBirth;
 
             if (missingUsername || missingDob) {
                 setIsOpen(true);
-                // Pre-fill if available (e.g. from Google displayName, though we want unique handles)
                 if (missingUsername && user.displayName) {
-                    setUsername(user.displayName.replace(/\s+/g, '').toLowerCase());
+                    const clean = user.displayName.replace(/\s+/g, '').toLowerCase();
+                    setValue("username", clean);
+                    checkUsernameAvailability(clean);
                 }
             } else {
                 setIsOpen(false);
             }
         }
-    }, [user, userProfile]);
+    }, [user, userProfile, setValue]);
 
-    const checkUsername = async (val: string) => {
-        if (val.length < 3) {
+    // Real-time username availability check debounced/triggered manually on change
+    const checkUsernameAvailability = async (val: string) => {
+        if (!val || val.length < 3) {
             setUsernameAvailable(null);
             return;
         }
-        setCheckingUsername(true);
-        // Simple standardization
-        const clean = val.toLowerCase().replace(/[^a-z0-9_]/g, "");
-        setUsername(clean);
 
+        // Basic pattern check before DB check
+        if (!/^[a-z0-9_]+$/.test(val)) return;
+
+        setCheckingUsername(true);
         try {
-            const q = query(collection(db, "users"), where("username", "==", clean));
+            const q = query(collection(db, "users"), where("username", "==", val));
             const snap = await getDocs(q);
-            // Available if empty OR if it's already ME (unlikely in this flow but good safety)
+            // Available if empty OR if it's already ME (though likely not me if I'm onboarding)
             setUsernameAvailable(snap.empty);
         } catch (error) {
             console.error(error);
@@ -67,6 +102,14 @@ export function OnboardingModal() {
             setCheckingUsername(false);
         }
     };
+
+    // Watch username for changes to trigger availability check
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (username) checkUsernameAvailability(username);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [username]);
 
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -80,23 +123,22 @@ export function OnboardingModal() {
         }
     };
 
-    const handleStep1Submit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!usernameAvailable && !userProfile?.username) return; // Allow if merely updating
-        setStep(2);
-    };
-
-    const handleStep2Submit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        const age = differenceInYears(new Date(), parseISO(dateOfBirth));
-        if (age < 18) {
-            toast.error("You must be 18+ to use KandyDrops.");
-            return;
+    const nextStep = async () => {
+        let valid = false;
+        if (step === 1) {
+            valid = await trigger("username");
+            if (valid && usernameAvailable === false) {
+                // RHF valid doesn't know about DB uniqueness, so we block here
+                return;
+            }
+        } else if (step === 2) {
+            valid = await trigger("dateOfBirth");
         }
-        setStep(3);
+
+        if (valid) setStep(prev => prev + 1);
     };
 
-    const handleFinalSubmit = async () => {
+    const onSubmit = async (data: OnboardingFormData) => {
         if (!user) return;
         setLoading(true);
 
@@ -112,12 +154,10 @@ export function OnboardingModal() {
 
             // Update Firestore
             const updates: any = {};
-            if (!userProfile?.username) updates.username = username;
-            if (!userProfile?.dateOfBirth) updates.dateOfBirth = dateOfBirth;
+            if (!userProfile?.username) updates.username = data.username;
+            if (!userProfile?.dateOfBirth) updates.dateOfBirth = data.dateOfBirth;
             if (photoURL) updates.photoURL = photoURL;
-            if (bio) updates.bio = bio;
-
-            // Set 'user' role implicitly if undefined, logic can handle promotions later
+            if (data.bio) updates.bio = data.bio;
 
             await updateDoc(doc(db, "users", user.uid), updates);
 
@@ -135,147 +175,148 @@ export function OnboardingModal() {
     if (!isOpen) return null;
 
     return (
-        isOpen ? (
-            <div
-                className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
-            >
-                <div
-                    className="w-full max-w-lg bg-zinc-900 border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
-                >
-                    {/* Header */}
-                    <div className="p-8 border-b border-white/5 bg-gradient-to-r from-brand-pink/10 to-transparent">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="p-2 bg-brand-pink/20 rounded-lg">
-                                <Sparkles className="w-6 h-6 text-brand-pink" />
-                            </div>
-                            <h2 className="text-2xl font-bold text-white">Welcome to KandyDrops</h2>
-                        </div>
-                        <p className="text-gray-400">Let's set up your profile to get you started.</p>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+            <div className="w-full max-w-lg bg-zinc-900 border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
 
-                        {/* Progress */}
-                        <div className="flex gap-2 mt-6">
-                            {[1, 2, 3].map((s) => (
-                                <div
-                                    key={s}
-                                    className={`h-1 flex-1 rounded-full transition-colors ${s <= step ? 'bg-brand-pink' : 'bg-white/10'}`}
-                                />
-                            ))}
+                {/* Header */}
+                <div className="p-8 border-b border-white/5 bg-gradient-to-r from-brand-pink/10 to-transparent">
+                    <div className="flex items-center gap-3 mb-2">
+                        <div className="p-2 bg-brand-pink/20 rounded-lg">
+                            <Sparkles className="w-6 h-6 text-brand-pink" />
                         </div>
+                        <h2 className="text-2xl font-bold text-white">Welcome to KandyDrops</h2>
                     </div>
+                    <p className="text-gray-400">Let's set up your profile to get you started.</p>
 
-                    {/* Content */}
-                    <div className="p-8 overflow-y-auto">
-                        {step === 1 && (
-                            <form onSubmit={handleStep1Submit} className="space-y-6">
-                                <div className="space-y-4">
-                                    <div className="flex justify-center">
-                                        <div className="relative group">
-                                            <div className="w-24 h-24 rounded-full overflow-hidden bg-black border-2 border-white/10 flex items-center justify-center">
-                                                {avatarPreview || user?.photoURL ? (
-                                                    <img src={avatarPreview || user?.photoURL || ""} alt="Avatar" className="w-full h-full object-cover" />
-                                                ) : (
-                                                    <User className="w-10 h-10 text-gray-500" />
-                                                )}
-                                            </div>
-                                            <label className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-full">
-                                                <Camera className="w-6 h-6 text-white" />
-                                                <input type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" />
-                                            </label>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-bold text-gray-300">Choose a Username</label>
-                                        <div className="relative">
-                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">@</span>
-                                            <input
-                                                type="text"
-                                                value={username}
-                                                onChange={(e) => checkUsername(e.target.value)}
-                                                className={`w-full bg-black/50 border rounded-xl px-8 py-3 text-white focus:outline-none transition-all ${usernameAvailable === true ? "border-green-500/50 focus:border-green-500" :
-                                                    usernameAvailable === false ? "border-red-500/50 focus:border-red-500" :
-                                                        "border-white/10 focus:border-brand-pink"
-                                                    }`}
-                                                placeholder="username"
-                                                required
-                                            />
-                                            {checkingUsername && (
-                                                <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-gray-400" />
-                                            )}
-                                        </div>
-                                        {usernameAvailable === false && (
-                                            <p className="text-xs text-red-400">Username already taken.</p>
-                                        )}
-                                        {usernameAvailable === true && (
-                                            <p className="text-xs text-green-400">Username available!</p>
-                                        )}
-                                    </div>
-                                </div>
-                                <button
-                                    type="submit"
-                                    disabled={!username || usernameAvailable === false}
-                                    className="w-full py-4 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                                >
-                                    Next Step <ArrowRight className="w-4 h-4" />
-                                </button>
-                            </form>
-                        )}
-
-                        {step === 2 && (
-                            <form onSubmit={handleStep2Submit} className="space-y-6">
-                                <div className="space-y-4">
-                                    <div className="p-4 bg-brand-pink/10 rounded-xl border border-brand-pink/20 flex gap-3">
-                                        <ShieldCheck className="w-6 h-6 text-brand-pink shrink-0" />
-                                        <p className="text-sm text-brand-pink/80">
-                                            We need your birth date to comply with age restrictions. This will not be public.
-                                        </p>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-bold text-gray-300">Date of Birth</label>
-                                        <div className="relative">
-                                            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                                            <input
-                                                type="date"
-                                                value={dateOfBirth}
-                                                onChange={(e) => setDateOfBirth(e.target.value)}
-                                                className="w-full bg-black/50 border border-white/10 rounded-xl px-12 py-3 text-white focus:outline-none focus:border-brand-pink transition-all [color-scheme:dark]"
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                                <button type="submit" className="w-full py-4 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors">
-                                    Continue
-                                </button>
-                            </form>
-                        )}
-
-                        {step === 3 && (
-                            <div className="space-y-6">
-                                <div className="space-y-4">
-                                    <h3 className="text-lg font-bold text-white">Add a Bio (Optional)</h3>
-                                    <p className="text-sm text-gray-400">Tell others a bit about yourself.</p>
-                                    <textarea
-                                        value={bio}
-                                        onChange={(e) => setBio(e.target.value)}
-                                        placeholder="I love synthwave and neon lights..."
-                                        rows={4}
-                                        className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-brand-pink transition-all resize-none"
-                                    />
-                                </div>
-                                <button
-                                    onClick={handleFinalSubmit}
-                                    disabled={loading}
-                                    className="w-full py-4 bg-gradient-to-r from-brand-pink to-brand-purple text-white font-bold rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-                                >
-                                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Complete Setup"}
-                                </button>
-                            </div>
-                        )}
+                    {/* Progress */}
+                    <div className="flex gap-2 mt-6">
+                        {[1, 2, 3].map((s) => (
+                            <div
+                                key={s}
+                                className={`h-1 flex-1 rounded-full transition-colors ${s <= step ? 'bg-brand-pink' : 'bg-white/10'}`}
+                            />
+                        ))}
                     </div>
                 </div>
+
+                {/* Content */}
+                <div className="p-8 overflow-y-auto">
+                    <form onSubmit={handleSubmit(onSubmit)}>
+
+                        {/* Step 1: Profile & Username */}
+                        <div className={step === 1 ? "block space-y-6" : "hidden"}>
+                            <div className="space-y-4">
+                                <div className="flex justify-center">
+                                    <div className="relative group">
+                                        <div className="w-24 h-24 rounded-full overflow-hidden bg-black border-2 border-white/10 flex items-center justify-center">
+                                            {avatarPreview || user?.photoURL ? (
+                                                <img src={avatarPreview || user?.photoURL || ""} alt="Avatar" className="w-full h-full object-cover" />
+                                            ) : (
+                                                <User className="w-10 h-10 text-gray-500" />
+                                            )}
+                                        </div>
+                                        <label className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-full">
+                                            <Camera className="w-6 h-6 text-white" />
+                                            <input type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" />
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-300">Choose a Username</label>
+                                    <div className="relative">
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">@</span>
+                                        <input
+                                            {...register("username")}
+                                            type="text"
+                                            className={`w-full bg-black/50 border rounded-xl px-8 py-3 text-white focus:outline-none transition-all ${errors.username ? "border-red-500" :
+                                                    usernameAvailable === true ? "border-green-500/50 focus:border-green-500" :
+                                                        "border-white/10 focus:border-brand-pink"
+                                                }`}
+                                            placeholder="username"
+                                        />
+                                        {checkingUsername && (
+                                            <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-gray-400" />
+                                        )}
+                                    </div>
+                                    {errors.username && (
+                                        <p className="text-xs text-red-400">{errors.username.message}</p>
+                                    )}
+                                    {!errors.username && usernameAvailable === false && (
+                                        <p className="text-xs text-red-400">Username already taken.</p>
+                                    )}
+                                    {!errors.username && usernameAvailable === true && (
+                                        <p className="text-xs text-green-400">Username available!</p>
+                                    )}
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={nextStep}
+                                className="w-full py-4 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+                            >
+                                Next Step <ArrowRight className="w-4 h-4" />
+                            </button>
+                        </div>
+
+                        {/* Step 2: Identity */}
+                        <div className={step === 2 ? "block space-y-6" : "hidden"}>
+                            <div className="space-y-4">
+                                <div className="p-4 bg-brand-pink/10 rounded-xl border border-brand-pink/20 flex gap-3">
+                                    <ShieldCheck className="w-6 h-6 text-brand-pink shrink-0" />
+                                    <p className="text-sm text-brand-pink/80">
+                                        We need your birth date to comply with age restrictions. This will not be public.
+                                    </p>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-300">Date of Birth</label>
+                                    <div className="relative">
+                                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                        <input
+                                            {...register("dateOfBirth")}
+                                            type="date"
+                                            className="w-full bg-black/50 border border-white/10 rounded-xl px-12 py-3 text-white focus:outline-none focus:border-brand-pink transition-all [color-scheme:dark]"
+                                        />
+                                    </div>
+                                    {errors.dateOfBirth && (
+                                        <p className="text-xs text-red-400">{errors.dateOfBirth.message}</p>
+                                    )}
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={nextStep}
+                                className="w-full py-4 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors"
+                            >
+                                Continue
+                            </button>
+                        </div>
+
+                        {/* Step 3: Creator */}
+                        <div className={step === 3 ? "block space-y-6" : "hidden"}>
+                            <div className="space-y-4">
+                                <h3 className="text-lg font-bold text-white">Add a Bio (Optional)</h3>
+                                <p className="text-sm text-gray-400">Tell others a bit about yourself.</p>
+                                <textarea
+                                    {...register("bio")}
+                                    placeholder="I love synthwave and neon lights..."
+                                    rows={4}
+                                    className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-brand-pink transition-all resize-none"
+                                />
+                            </div>
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full py-4 bg-gradient-to-r from-brand-pink to-brand-purple text-white font-bold rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                            >
+                                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Complete Setup"}
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
             </div>
-        ) : null
+        </div>
     );
 }

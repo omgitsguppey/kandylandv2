@@ -1,0 +1,41 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - navigation [ref=e4]:
+        - generic [ref=e5]:
+          - link "KandyDrops" [ref=e6] [cursor=pointer]:
+            - /url: /
+          - button "Sign In" [ref=e8]:
+            - img [ref=e9]
+            - text: Sign In
+      - img [ref=e13]
+      - generic:
+        - generic: 393px x 727px
+        - generic: xs (mobile)
+    - navigation [ref=e15]:
+      - link "Home" [ref=e16] [cursor=pointer]:
+        - /url: /
+        - img [ref=e18]
+        - generic [ref=e21]: Home
+      - link "Drops" [ref=e22] [cursor=pointer]:
+        - /url: /drops
+        - img [ref=e24]
+        - generic [ref=e26]: Drops
+      - link "Experiences" [ref=e27] [cursor=pointer]:
+        - /url: /experiences
+        - img [ref=e29]
+        - generic [ref=e32]: Experiences
+      - button "Wallet" [ref=e33]:
+        - img [ref=e35]
+        - generic [ref=e38]: Wallet
+    - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e44] [cursor=pointer]:
+    - img [ref=e45]
+  - alert [ref=e48]
+  - generic [ref=e49]:
+    - generic [ref=e50]: This website uses cookies to enhance the user experience and track interactions for improvement. By continuing, you verify you are over 18.
+    - button "Accept cookies" [ref=e52] [cursor=pointer]: I Understand
+```

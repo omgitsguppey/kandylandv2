@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
+  timeout: 60 * 1000,
   testDir: './tests',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
@@ -28,6 +29,18 @@ export default defineConfig({
     {
       name: 'Mobile Chrome',
       use: { ...devices['Pixel 5'] },
+    },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
+    },
+    {
+      name: 'Mobile Safari',
+      use: { ...devices['iPhone 14 Pro'] },
+    },
+    {
+      name: 'Tablet Safari',
+      use: { ...devices['iPad Pro 11'] },
     },
   ],
 });
