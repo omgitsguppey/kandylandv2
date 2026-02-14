@@ -28,7 +28,7 @@ export default function MobileBottomBar() {
                 <div className="absolute bottom-28 left-1/2 -translate-x-1/2 pointer-events-auto">
                     <button
                         onClick={openPurchaseModal}
-                        className="bg-black/80 backdrop-blur-xl border border-brand-yellow/30 pl-3 pr-4 py-1.5 rounded-full flex items-center gap-2 shadow-[0_4px_20px_rgba(250,204,21,0.2)] animate-in slide-in-from-bottom-4 duration-500"
+                        className="bg-black/80 backdrop-blur-xl border border-brand-yellow/30 pl-3 pr-4 py-1.5 rounded-full flex items-center gap-2 shadow-[0_4px_20px_rgba(250,204,21,0.2)]"
                     >
                         <div className="w-5 h-5 bg-brand-yellow/20 rounded-full flex items-center justify-center">
                             <Wallet className="w-3 h-3 text-brand-yellow" />

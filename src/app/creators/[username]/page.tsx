@@ -9,7 +9,7 @@ import { DropGrid } from "@/components/DropGrid";
 import { useAuth } from "@/context/AuthContext";
 import { Loader2, MapPin, Link as LinkIcon, Twitter, Instagram, Globe, UserPlus, UserCheck, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
+
 
 export default function CreatorProfilePage() {
     const params = useParams();
@@ -192,8 +192,8 @@ export default function CreatorProfilePage() {
                             onClick={handleFollow}
                             disabled={followLoading}
                             className={`w-full md:w-auto px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all ${following
-                                    ? "bg-white/10 text-white hover:bg-white/20"
-                                    : "bg-brand-pink text-white hover:bg-brand-pink/80 shadow-lg shadow-brand-pink/20"
+                                ? "bg-white/10 text-white hover:bg-white/20"
+                                : "bg-brand-pink text-white hover:bg-brand-pink/80 shadow-lg shadow-brand-pink/20"
                                 }`}
                         >
                             {followLoading ? (

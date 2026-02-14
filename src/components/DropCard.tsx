@@ -163,18 +163,18 @@ function DropCardBase({ drop, priority = false }: DropCardProps) {
 
     return (
         <div
-            className="group relative p-2 md:p-6 rounded-2xl md:rounded-3xl glass-panel transition-all duration-500 hover:-translate-y-2 overflow-hidden"
+            className="group relative p-2 md:p-6 rounded-2xl md:rounded-3xl glass-panel overflow-hidden"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            <div className="absolute inset-0 bg-gradient-to-br from-brand-pink/5 via-transparent to-brand-cyan/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-br from-brand-pink/5 via-transparent to-brand-cyan/5 pointer-events-none" />
 
             {/* Image / Content Container */}
             <div className="relative w-full aspect-square bg-black/40 rounded-xl md:rounded-2xl mb-2 md:mb-5 overflow-hidden group/image shadow-inner border border-white/5">
                 {isUnlocked ? (
                     // UNLOCKED STATE: Show Content
                     drop.contentUrl ? (
-                        <div className="w-full h-full relative animate-in fade-in duration-700">
+                        <div className="w-full h-full relative">
                             {['mp4', 'webm'].some(ext => drop.contentUrl.includes(ext)) ? (
                                 <video src={drop.contentUrl} controls className="w-full h-full object-cover" />
                             ) : (
@@ -186,7 +186,7 @@ function DropCardBase({ drop, priority = false }: DropCardProps) {
                                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                 />
                             )}
-                            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover/image:opacity-100 transition-opacity duration-300">
+                            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover/image:opacity-100">
                                 <span className="font-bold text-brand-green bg-black/90 px-4 py-2 rounded-full border border-brand-green/30 shadow-lg shadow-brand-green/20">View Content</span>
                             </div>
                         </div>
@@ -204,7 +204,7 @@ function DropCardBase({ drop, priority = false }: DropCardProps) {
                             alt={drop.title}
                             fill
                             priority={priority} // Prioritize based on grid position
-                            className="object-cover group-hover:scale-105 transition-transform duration-700 opacity-70 group-hover:opacity-100"
+                            className="object-cover opacity-80 group-hover:opacity-100"
                             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw" // Corrected: Mobile is 2-col (50vw), not 1-col
                         />
                     ) : (
@@ -214,15 +214,15 @@ function DropCardBase({ drop, priority = false }: DropCardProps) {
 
                 {/* Hot Badge */}
                 {drop.totalUnlocks > 50 && !isUnlocked && (
-                    <div className="absolute top-2 left-2 md:top-3 md:left-3 bg-brand-orange/90 backdrop-blur-md px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-bold text-white flex items-center gap-1 shadow-lg animate-pulse">
+                    <div className="absolute top-2 left-2 md:top-3 md:left-3 bg-brand-orange/90 backdrop-blur-md px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-bold text-white flex items-center gap-1 shadow-lg">
                         🔥 Hot
                     </div>
                 )}
 
                 <div className={cn(
-                    "absolute top-2 right-2 md:top-3 md:right-3 backdrop-blur-xl px-2 py-0.5 md:px-3 md:py-1.5 rounded-full text-[10px] md:text-xs font-mono font-medium flex items-center gap-1 border shadow-lg transition-colors",
+                    "absolute top-2 right-2 md:top-3 md:right-3 backdrop-blur-xl px-2 py-0.5 md:px-3 md:py-1.5 rounded-full text-[10px] md:text-xs font-mono font-medium flex items-center gap-1 border shadow-lg",
                     timeLeft.includes("h ") || timeLeft.includes("m ") // Less than 24h
-                        ? "bg-red-500/80 text-white border-red-500/50 animate-pulse"
+                        ? "bg-red-500/80 text-white border-red-500/50"
                         : "bg-black/40 text-white border-white/10"
                 )}>
                     <Clock className="w-3 h-3" />
@@ -251,12 +251,11 @@ function DropCardBase({ drop, priority = false }: DropCardProps) {
                             onClick={handleUnlock}
                             disabled={unlocking || !user}
                             className={cn(
-                                "px-4 py-1.5 md:px-6 md:py-2.5 rounded-lg md:rounded-xl font-bold text-xs md:text-sm transition-all flex items-center gap-1.5 md:gap-2 border relative overflow-hidden",
+                                "px-4 py-1.5 md:px-6 md:py-2.5 rounded-lg md:rounded-xl font-bold text-xs md:text-sm flex items-center gap-1.5 md:gap-2 border relative overflow-hidden",
                                 canAfford
                                     ? "bg-white text-black border-white hover:bg-brand-pink hover:border-brand-pink hover:text-white shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:shadow-[0_0_25px_rgba(236,72,153,0.4)]"
                                     : "bg-white/5 text-gray-500 border-white/5 cursor-not-allowed",
-                                "disabled:opacity-50 disabled:cursor-not-allowed active:scale-95",
-                                canAfford && !unlocking ? "animate-pulse" : ""
+                                "disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
                             )}
                         >
                             {unlocking ? (
@@ -269,7 +268,7 @@ function DropCardBase({ drop, priority = false }: DropCardProps) {
                     )}
                 </div>
                 {error && (
-                    <div className="mt-2 md:mt-3 text-[10px] md:text-xs text-red-400 flex items-center justify-center gap-1.5 animate-bounce font-medium bg-red-500/10 py-1 rounded-md border border-red-500/10">
+                    <div className="mt-2 md:mt-3 text-[10px] md:text-xs text-red-400 flex items-center justify-center gap-1.5 font-medium bg-red-500/10 py-1 rounded-md border border-red-500/10">
                         <AlertCircle className="w-3 h-3" /> {error}
                     </div>
                 )}

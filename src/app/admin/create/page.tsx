@@ -213,7 +213,7 @@ function DropForm() {
                         </div>
 
                         {formData.type !== 'content' && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-top-4 duration-300">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold text-gray-300">Call to Action (Button)</label>
                                     <input

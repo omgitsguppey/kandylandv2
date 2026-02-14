@@ -5,7 +5,7 @@ import { useDrops } from "@/hooks/useDrops";
 import { Loader2, Play, Lock } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
-import { motion } from "framer-motion";
+
 
 export default function LibraryPage() {
     const { userProfile, loading: authLoading } = useAuth();
@@ -51,11 +51,8 @@ export default function LibraryPage() {
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {unlockedDrops.map((drop, index) => (
-                        <motion.div
+                        <div
                             key={drop.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.05 }}
                         >
                             <Link href={`/dashboard/viewer?id=${drop.id}`} className="block group">
                                 <div className="relative aspect-video rounded-2xl overflow-hidden mb-4 border border-white/10 group-hover:border-brand-pink/50 transition-colors">
@@ -79,7 +76,7 @@ export default function LibraryPage() {
                                 <h3 className="text-lg font-bold text-white group-hover:text-brand-pink transition-colors line-clamp-1">{drop.title}</h3>
                                 <p className="text-sm text-gray-400 line-clamp-1">{drop.description}</p>
                             </Link>
-                        </motion.div>
+                        </div>
                     ))}
                 </div>
             )}

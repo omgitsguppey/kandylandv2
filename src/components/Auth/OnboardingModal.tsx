@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+
 import { User, Calendar, Camera, Check, ShieldCheck, ArrowRight, Sparkles } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { doc, updateDoc, collection, query, where, getDocs } from "firebase/firestore";
@@ -135,16 +135,11 @@ export function OnboardingModal() {
     if (!isOpen) return null;
 
     return (
-        <AnimatePresence>
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
+        isOpen ? (
+            <div
                 className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
             >
-                <motion.div
-                    initial={{ scale: 0.95, opacity: 0, y: 20 }}
-                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                <div
                     className="w-full max-w-lg bg-zinc-900 border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
                 >
                     {/* Header */}
@@ -198,8 +193,8 @@ export function OnboardingModal() {
                                                 value={username}
                                                 onChange={(e) => checkUsername(e.target.value)}
                                                 className={`w-full bg-black/50 border rounded-xl px-8 py-3 text-white focus:outline-none transition-all ${usernameAvailable === true ? "border-green-500/50 focus:border-green-500" :
-                                                        usernameAvailable === false ? "border-red-500/50 focus:border-red-500" :
-                                                            "border-white/10 focus:border-brand-pink"
+                                                    usernameAvailable === false ? "border-red-500/50 focus:border-red-500" :
+                                                        "border-white/10 focus:border-brand-pink"
                                                     }`}
                                                 placeholder="username"
                                                 required
@@ -279,8 +274,8 @@ export function OnboardingModal() {
                             </div>
                         )}
                     </div>
-                </motion.div>
-            </motion.div>
-        </AnimatePresence>
+                </div>
+            </div>
+        ) : null
     );
 }

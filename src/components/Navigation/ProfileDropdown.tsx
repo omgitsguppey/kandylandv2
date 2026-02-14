@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
 import { User, LogOut, LayoutDashboard, Library, Settings, ChevronDown } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
@@ -55,47 +54,41 @@ export function ProfileDropdown() {
                 <ChevronDown className={cn("w-4 h-4 text-gray-400 transition-transform duration-300", isOpen && "rotate-180")} />
             </button>
 
-            <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        transition={{ duration: 0.2 }}
-                        className="absolute right-0 top-full mt-2 w-64 glass-panel backdrop-blur-3xl bg-black/80 rounded-2xl p-2 shadow-2xl border border-white/10 overflow-hidden origin-top-right z-50"
-                    >
-                        <div className="px-4 py-3 border-b border-white/10 mb-2">
-                            <p className="text-sm font-bold text-white flex items-center gap-2">
-                                My Account
-                                {isAdmin && <span className="text-xs text-brand-cyan">(Admin)</span>}
-                            </p>
-                            <p className="text-xs text-gray-400 truncate">{user.email}</p>
-                        </div>
+            {isOpen && (
+                <div
+                    className="absolute right-0 top-full mt-2 w-64 glass-panel backdrop-blur-3xl bg-black/80 rounded-2xl p-2 shadow-2xl border border-white/10 overflow-hidden origin-top-right z-50"
+                >
+                    <div className="px-4 py-3 border-b border-white/10 mb-2">
+                        <p className="text-sm font-bold text-white flex items-center gap-2">
+                            My Account
+                            {isAdmin && <span className="text-xs text-brand-cyan">(Admin)</span>}
+                        </p>
+                        <p className="text-xs text-gray-400 truncate">{user.email}</p>
+                    </div>
 
-                        <nav className="space-y-1">
-                            {isAdmin && (
-                                <DropdownItem href="/admin" icon={<LayoutDashboard className="w-4 h-4 text-brand-cyan" />} label="Admin Dashboard" onClick={() => setIsOpen(false)} />
-                            )}
-                            <DropdownItem href="/dashboard" icon={<LayoutDashboard className="w-4 h-4" />} label="Dashboard" onClick={() => setIsOpen(false)} />
-                            <DropdownItem href="/dashboard/library" icon={<Library className="w-4 h-4" />} label="My KandyDrops" onClick={() => setIsOpen(false)} />
-                            <DropdownItem href="/dashboard/profile" icon={<Settings className="w-4 h-4" />} label="Settings" onClick={() => setIsOpen(false)} />
-                        </nav>
+                    <nav className="space-y-1">
+                        {isAdmin && (
+                            <DropdownItem href="/admin" icon={<LayoutDashboard className="w-4 h-4 text-brand-cyan" />} label="Admin Dashboard" onClick={() => setIsOpen(false)} />
+                        )}
+                        <DropdownItem href="/dashboard" icon={<LayoutDashboard className="w-4 h-4" />} label="Dashboard" onClick={() => setIsOpen(false)} />
+                        <DropdownItem href="/dashboard/library" icon={<Library className="w-4 h-4" />} label="My KandyDrops" onClick={() => setIsOpen(false)} />
+                        <DropdownItem href="/dashboard/profile" icon={<Settings className="w-4 h-4" />} label="Settings" onClick={() => setIsOpen(false)} />
+                    </nav>
 
-                        <div className="mt-2 pt-2 border-t border-white/10">
-                            <button
-                                onClick={() => {
-                                    logout();
-                                    setIsOpen(false);
-                                }}
-                                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-xl transition-colors"
-                            >
-                                <LogOut className="w-4 h-4" />
-                                Sign Out
-                            </button>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                    <div className="mt-2 pt-2 border-t border-white/10">
+                        <button
+                            onClick={() => {
+                                logout();
+                                setIsOpen(false);
+                            }}
+                            className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-xl transition-colors"
+                        >
+                            <LogOut className="w-4 h-4" />
+                            Sign Out
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

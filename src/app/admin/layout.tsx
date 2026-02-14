@@ -124,7 +124,7 @@ export default function AdminLayout({
 
             {/* Main Content */}
             <main className="flex-1 md:ml-64 p-4 md:p-8 overflow-y-auto min-h-[calc(100vh-80px)] mt-14 md:mt-0">
-                <div className="max-w-6xl mx-auto animate-in fade-in duration-500">
+                <div className="max-w-6xl mx-auto">
                     {children}
                 </div>
             </main>

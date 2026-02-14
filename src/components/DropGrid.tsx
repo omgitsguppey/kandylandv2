@@ -5,7 +5,6 @@ import { DropCard } from "./DropCard";
 import { PromoCard } from "./PromoCard";
 import { Drop } from "@/types/db";
 import { Loader2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 
 interface DropGridProps {
     drops?: Drop[];
@@ -34,25 +33,14 @@ export function DropGrid({ drops: propDrops, loading: propLoading, isSearching }
 
     if (drops.length === 0) {
         return (
-            <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
+            <div
                 className="text-center mt-12 py-20 px-4 glass-panel rounded-3xl max-w-2xl mx-auto border border-white/5"
             >
-                <motion.div
-                    animate={{
-                        y: [0, -10, 0],
-                        rotate: [0, 5, -5, 0]
-                    }}
-                    transition={{
-                        duration: 4,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                    }}
+                <div
                     className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_40px_rgba(236,72,153,0.1)]"
                 >
                     <span className="text-5xl">🍬</span>
-                </motion.div>
+                </div>
                 <h3 className="text-2xl font-bold text-white mb-2">
                     {isSearching ? "No matching drops found" : "The Candy Shop is Empty"}
                 </h3>
@@ -61,7 +49,7 @@ export function DropGrid({ drops: propDrops, loading: propLoading, isSearching }
                         ? "Try adjusting your search terms or browsing our featured collections."
                         : "All drops have been claimed or expired. Check back soon for fresh content!"}
                 </p>
-            </motion.div>
+            </div>
         )
     }
 
@@ -70,8 +58,6 @@ export function DropGrid({ drops: propDrops, loading: propLoading, isSearching }
             {drops.map((drop, index) => (
                 <div
                     key={drop.id}
-                    className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-backwards"
-                    style={{ animationDelay: `${index * 50}ms` }}
                 >
                     {(drop.type === 'promo' || drop.type === 'external') ? (
                         <PromoCard drop={drop} />
