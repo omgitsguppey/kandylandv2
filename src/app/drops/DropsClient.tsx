@@ -35,7 +35,11 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
             if (selectedCategory === "New") {
                 result = [...result].sort((a, b) => b.validFrom - a.validFrom);
             } else if (selectedCategory === "Ending Soon") {
-                result = [...result].sort((a, b) => a.validUntil - b.validUntil);
+                result = [...result].sort((a, b) => {
+                    const timeA = a.validUntil || Number.MAX_SAFE_INTEGER;
+                    const timeB = b.validUntil || Number.MAX_SAFE_INTEGER;
+                    return timeA - timeB;
+                });
             }
         }
 

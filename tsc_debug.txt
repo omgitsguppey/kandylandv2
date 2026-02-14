@@ -1,0 +1,2 @@
+src/app/drops/DropsClient.tsx(38,53): error TS18048: 'a.validUntil' is possibly 'undefined'.
+src/app/drops/DropsClient.tsx(38,68): error TS18048: 'b.validUntil' is possibly 'undefined'.

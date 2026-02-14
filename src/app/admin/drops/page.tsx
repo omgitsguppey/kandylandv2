@@ -112,7 +112,7 @@ export default function AdminDropsPage() {
                                             </div>
                                             <div className="text-xs text-gray-500 mt-1 flex items-center gap-2">
                                                 <Clock className="w-3 h-3" />
-                                                {format(drop.validUntil, "MMM d, HH:mm")}
+                                                {drop.validUntil ? format(drop.validUntil, "MMM d, HH:mm") : "Forever"}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
