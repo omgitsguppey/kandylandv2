@@ -6,81 +6,67 @@ import { formatDistanceToNow } from "date-fns";
 import NextImage from "next/image";
 import { Lock, Unlock, Clock, Loader2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/context/AuthContext";
 import { doc, arrayUnion, increment, collection, serverTimestamp, writeBatch } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
+import { User } from "firebase/auth";
+import { useNow } from "@/context/NowContext";
+import { useUserProfile } from "@/context/AuthContext"; // Import useUserProfile
 
-interface DropCardProps {
-    drop: Drop;
-    priority?: boolean;
-}
+// ... interface ...
 
-function DropCardBase({ drop, priority = false }: DropCardProps) {
-    const { user, userProfile } = useAuth();
-    // ... (rest of the component logic remains effectively same, just update the image priority)
-
-    // ... inside return ...
-    <NextImage
-        src={drop.imageUrl}
-        alt={drop.title}
-        fill
-        priority={priority}
-        className="object-cover group-hover:scale-105 transition-transform duration-700 opacity-70 group-hover:opacity-100"
-        sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-    />
+function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAfford = false }: DropCardProps) {
+    const { now } = useNow();
+    const { refreshProfile } = useUserProfile(); // Get refresh function
     const [timeLeft, setTimeLeft] = useState("");
-    const [isHovered, setIsHovered] = useState(false);
-    const [unlocking, setUnlocking] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    // ...
 
-    const isUnlocked = userProfile?.unlockedContent?.includes(drop.id);
-    const canAfford = (userProfile?.gumDropsBalance || 0) >= drop.unlockCost;
+    // ... useEffect ...
 
-    useEffect(() => {
-        const updateTime = () => {
-            const now = Date.now();
-            if (now < drop.validFrom) {
-                setTimeLeft(`Starts in ${formatDistanceToNow(drop.validFrom)}`);
-            } else if (now < drop.validUntil) {
-                const diff = drop.validUntil - now;
-                // If more than 24h, just show days/hours to save rendering
-                if (diff > 24 * 60 * 60 * 1000) {
-                    // Update only every minute if > 24h
-                    setTimeLeft(formatDistanceToNow(drop.validUntil, { addSuffix: true }));
-                } else {
-                    const seconds = Math.floor((diff / 1000) % 60);
-                    const minutes = Math.floor((diff / 1000 / 60) % 60);
-                    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-                    setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
-                }
+    const handleUnlock = async () => {
+        if (!user || unlocking || isUnlocked) return;
+        // ... canAfford check ...
+
+        setUnlocking(true);
+        setError(null);
+
+        try {
+            // ... firebase batch logic ...
+
+            // Commit Batch
+            await batch.commit();
+
+            // Refresh Profile to reflect changes (balance/unlocks) immediately
+            await refreshProfile();
+
+            toast.success(`Unwrapped: ${drop.title}`, {
+                // ...
+                const [isHovered, setIsHovered] = useState(false);
+                const [unlocking, setUnlocking] = useState(false);
+                const [error, setError] = useState<string | null>(null);
+
+                // Phase 2: Derived time based on shared 'now'
+                useEffect(() => {
+        if (now < drop.validFrom) {
+            setTimeLeft(`Starts in ${formatDistanceToNow(drop.validFrom)}`);
+        } else if (now < drop.validUntil) {
+            const diff = drop.validUntil - now;
+            if (diff > 24 * 60 * 60 * 1000) {
+                // Only update string if changed significantly to avoid render? 
+                // formatDistanceToNow is fuzzy so it's fine.
+                setTimeLeft(formatDistanceToNow(drop.validUntil, { addSuffix: true }));
             } else {
-                setTimeLeft("Expired");
-                return true; // Expired
+                const seconds = Math.floor((diff / 1000) % 60);
+                const minutes = Math.floor((diff / 1000 / 60) % 60);
+                const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
             }
-            return false;
-        };
-
-        // Initial run
-        if (updateTime()) return;
-
-        // Smart interval
-        const now = Date.now();
-        const timeToStart = drop.validFrom - now;
-        const timeToEnd = drop.validUntil - now;
-
-        let intervalMs = 1000;
-        if (timeToEnd > 24 * 60 * 60 * 1000 && timeToStart < 0) {
-            intervalMs = 60000; // 1 minute if > 24h left
+        } else {
+            setTimeLeft("Expired");
         }
+    }, [now, drop.validFrom, drop.validUntil]);
 
-        const timer = setInterval(() => {
-            if (updateTime()) clearInterval(timer);
-        }, intervalMs);
-
-        return () => clearInterval(timer);
-    }, [drop]);
 
     const handleUnlock = async () => {
         if (!user || unlocking || isUnlocked) return;
@@ -97,11 +83,8 @@ function DropCardBase({ drop, priority = false }: DropCardProps) {
         setUnlocking(true);
         setError(null);
 
-        // Optimistic UI could go here, but let's wait for firestore for safety
-
         try {
             const userRef = doc(db, "users", user.uid);
-
             const batch = writeBatch(db);
 
             // 1. Deduct Gum Drops and Add to Unlocked Content
@@ -205,7 +188,7 @@ function DropCardBase({ drop, priority = false }: DropCardProps) {
                             fill
                             priority={priority} // Prioritize based on grid position
                             className="object-cover opacity-80 group-hover:opacity-100"
-                            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw" // Corrected: Mobile is 2-col (50vw), not 1-col
+                            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
                         />
                     ) : (
                         <div className="w-full h-full flex items-center justify-center text-5xl bg-zinc-900/50">🍬</div>

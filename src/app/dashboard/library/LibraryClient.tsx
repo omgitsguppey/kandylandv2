@@ -1,10 +1,11 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
-import { Loader2, Play, Lock, Package, ArrowRight } from "lucide-react";
+import { Play, Lock } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import { Drop } from "@/types/db";
+import NextImage from "next/image";
 
 interface LibraryClientProps {
     drops: Drop[];
@@ -31,6 +32,7 @@ export function LibraryClient({ drops }: LibraryClientProps) {
     }
 
     // Filter drops to only those unlocked by the user
+    // Provide explicit fallback for undefined userProfile/unlockedContent to avoid crash
     const unlockedDrops = drops.filter(drop => userProfile?.unlockedContent?.includes(drop.id));
 
     return (
@@ -59,7 +61,7 @@ export function LibraryClient({ drops }: LibraryClientProps) {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {unlockedDrops.map((drop, index) => (
+                    {unlockedDrops.map((drop) => (
                         <div
                             key={drop.id}
                         >
@@ -67,7 +69,13 @@ export function LibraryClient({ drops }: LibraryClientProps) {
                                 <div className="relative aspect-video rounded-2xl overflow-hidden mb-4 border border-white/10 group-hover:border-brand-pink/50 transition-colors">
                                     {/* Thumbnail */}
                                     {drop.imageUrl ? (
-                                        <img src={drop.imageUrl} alt={drop.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                        <NextImage
+                                            src={drop.imageUrl}
+                                            alt={drop.title}
+                                            fill
+                                            className="object-cover transition-transform duration-500 group-hover:scale-105"
+                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                        />
                                     ) : (
                                         <div className="w-full h-full bg-zinc-900 flex items-center justify-center">
                                             <span className="text-4xl">🍬</span>

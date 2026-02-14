@@ -1,19 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useAuth } from "@/context/AuthContext";
+import { useAuthIdentity, useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
-import { LogIn, LogOut, Wallet, Plus, Menu } from "lucide-react";
+import { LogIn, Wallet, Plus } from "lucide-react";
 import { ProfileDropdown } from "@/components/Navigation/ProfileDropdown";
 import { ProfileSidebar } from "@/components/Navigation/ProfileSidebar";
 import { useState } from "react";
-
 import { usePathname } from "next/navigation";
-
 import { AuthModal } from "@/components/Auth/AuthModal";
+import NextImage from "next/image";
 
 export function Navbar() {
-    const { user, userProfile } = useAuth(); // Removed direct signInWithGoogle
+    const { user } = useAuthIdentity();
+    const { userProfile } = useUserProfile();
     const { openPurchaseModal } = useUI();
     const pathname = usePathname();
 
@@ -60,10 +60,16 @@ export function Navbar() {
                                 {/* Mobile Menu Trigger */}
                                 <button
                                     onClick={() => setIsMobileMenuOpen(true)}
-                                    className="md:hidden w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white border border-white/10"
+                                    className="md:hidden w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white border border-white/10 relative overflow-hidden"
                                 >
                                     {user.photoURL ? (
-                                        <img src={user.photoURL} alt="Profile" className="w-full h-full rounded-full object-cover opacity-80" />
+                                        <NextImage
+                                            src={user.photoURL}
+                                            alt="Profile"
+                                            fill
+                                            className="object-cover opacity-80"
+                                            sizes="40px"
+                                        />
                                     ) : (
                                         <span className="font-bold text-sm bg-gradient-to-tr from-brand-pink to-brand-purple bg-clip-text text-transparent">
                                             {user.displayName?.charAt(0).toUpperCase()}
@@ -92,4 +98,3 @@ export function Navbar() {
         </>
     );
 }
-

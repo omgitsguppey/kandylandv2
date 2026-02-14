@@ -2,9 +2,9 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { User, LogOut, LayoutDashboard, Library, Settings, X, Plus } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
-import { useUI } from "@/context/UIContext"; // Assuming we add a state for this, or pass props
+import { LogOut, LayoutDashboard, Library, Settings, X, Plus } from "lucide-react";
+import { useAuthIdentity, useUserProfile } from "@/context/AuthContext";
+import { useUI } from "@/context/UIContext";
 import { cn } from "@/lib/utils";
 
 interface ProfileSidebarProps {
@@ -13,7 +13,8 @@ interface ProfileSidebarProps {
 }
 
 export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
-    const { user, logout, userProfile } = useAuth();
+    const { user, logout } = useAuthIdentity();
+    const { userProfile } = useUserProfile();
     const { openPurchaseModal } = useUI();
 
     const isAdmin = user?.email === "uylusjohnson@gmail.com";
@@ -41,7 +42,7 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
 
                 {/* Sidebar */}
                 <div
-                    className="fixed top-0 right-0 bottom-0 w-[85vw] max-w-sm z-[70] bg-black/90 border-l border-white/10 flex flex-col backdrop-blur-3xl shadow-2xl"
+                    className="fixed top-0 right-0 bottom-0 w-[85vw] max-w-sm z-[70] bg-zinc-900 border-l border-white/10 flex flex-col shadow-2xl"
                 >
                     {/* Header */}
                     <div className="p-6 border-b border-white/10 flex items-center justify-between">
@@ -56,7 +57,7 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
                             </div>
                             <div>
                                 <div className="flex items-center gap-2">
-                                    <h3 className="font-bold text-white">{user.displayName}</h3>
+                                    <h3 className="font-bold text-white mb-0.5">{user.displayName}</h3>
                                     {isAdmin && (
                                         <span className="px-1.5 py-0.5 rounded-full bg-brand-cyan/20 text-brand-cyan text-[10px] font-bold border border-brand-cyan/30">
                                             ADMIN

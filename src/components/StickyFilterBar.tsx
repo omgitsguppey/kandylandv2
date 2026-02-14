@@ -28,15 +28,19 @@ export default function StickyFilterBar({
         setLocalSearch(searchQuery);
     }, [searchQuery]);
 
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setLocalSearch(value);
-
-        // Simple debounce
-        const timeoutId = setTimeout(() => {
-            onSearchChange(value);
+    // Debounce effect
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            if (localSearch !== searchQuery) {
+                onSearchChange(localSearch);
+            }
         }, 300);
-        return () => clearTimeout(timeoutId);
+
+        return () => clearTimeout(handler);
+    }, [localSearch, searchQuery, onSearchChange]);
+
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setLocalSearch(e.target.value);
     };
 
     useEffect(() => {

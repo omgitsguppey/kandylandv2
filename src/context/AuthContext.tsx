@@ -1,178 +1,228 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useMemo, useCallback, ReactNode } from "react";
 import {
     onAuthStateChanged,
     User,
     GoogleAuthProvider,
     signInWithPopup,
-    createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
-    setPersistence,
-    browserLocalPersistence
+    createUserWithEmailAndPassword,
+    signOut
 } from "firebase/auth";
-import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
+import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { UserProfile } from "@/types/db";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
-interface AuthContextType {
+// --- Split Context Definitions ---
+
+interface AuthIdentityContextType {
     user: User | null;
-    userProfile: UserProfile | null;
-    loading: boolean;
     signInWithGoogle: () => Promise<void>;
     signInWithEmail: (email: string, pass: string) => Promise<void>;
     signUpWithEmail: (email: string, pass: string, username: string, dob: string) => Promise<void>;
     logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType>({
-    user: null,
-    userProfile: null,
-    loading: true,
-    signInWithGoogle: async () => { },
-    signInWithEmail: async () => { },
-    signUpWithEmail: async () => { },
-    logout: async () => { },
-});
+interface UserProfileContextType {
+    userProfile: UserProfile | null;
+    refreshProfile: () => Promise<void>;
+    setUserProfile: (profile: UserProfile | null) => void;
+}
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+interface AuthLoadingContextType {
+    loading: boolean;
+}
+
+const AuthIdentityContext = createContext<AuthIdentityContextType | null>(null);
+const UserProfileContext = createContext<UserProfileContextType | null>(null);
+const AuthLoadingContext = createContext<AuthLoadingContextType | null>(null);
+
+// --- Combined Context for Legacy Support ---
+interface AuthContextType extends AuthIdentityContextType, UserProfileContextType, AuthLoadingContextType { }
+
+const AuthContext = createContext<AuthContextType | null>(null);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
 
+    // 1. Auth Listener (Identity Only)
     useEffect(() => {
-        let unsubscribeProfile: (() => void) | null = null;
-
-        // Ensure persistence is Local (default, but explicit helps with some edge cases)
-        setPersistence(auth, browserLocalPersistence).catch((error) => {
-            console.error("Auth Persistence Error:", error);
-        });
-
-        const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
-
-            // Clean up previous profile listener if it exists
-            if (unsubscribeProfile) {
-                unsubscribeProfile();
-                unsubscribeProfile = null;
-            }
-
-            if (currentUser) {
-                const userRef = doc(db, "users", currentUser.uid);
-                unsubscribeProfile = onSnapshot(userRef, (docSnap) => {
-                    if (docSnap.exists()) {
-                        const profile = docSnap.data() as UserProfile;
-
-                        // Check Status
-                        if (profile.status === 'banned' || profile.status === 'suspended') {
-                            console.warn(`User is ${profile.status}: ${profile.statusReason}`);
-                            // If we want to force logout immediately:
-                            // auth.signOut();
-                            // setUser(null);
-                            // setUserProfile(null);
-                            // But maybe we want to let them see a "Banned" screen?
-                            // For now, let's just set the profile so the UI can react?
-                            // Actually, auto-logout is safest to prevent unauthorized actions.
-                            if (window.location.pathname !== "/") {
-                                // Simple enforcement: Sign out.
-                                auth.signOut().then(() => {
-                                    alert(`Your account has been ${profile.status}.\nReason: ${profile.statusReason || "Violation of terms."}`);
-                                    window.location.href = "/";
-                                });
-                                return;
-                            }
-                        }
-
-                        setUserProfile(profile);
-                    } else {
-                        // Profile creation for Google Sign In happens here if needed, 
-                        // but for Email Sign Up we handle it explicitly below to capture extra fields.
-                        // If it doesn't exist yet (race condition or first Google login), create basic profile
-                        const newProfile: UserProfile = {
-                            uid: currentUser.uid,
-                            email: currentUser.email,
-                            displayName: currentUser.displayName || "User",
-                            photoURL: currentUser.photoURL,
-                            gumDropsBalance: 0,
-                            unlockedContent: [],
-                            createdAt: Date.now(),
-                        };
-                        // We use setDoc with merge true just in case another process is creating it
-                        setDoc(userRef, newProfile, { merge: true });
-                    }
-                });
-            } else {
+            if (!currentUser) {
                 setUserProfile(null);
+                setLoading(false);
             }
-
-            setLoading(false);
         });
-
-        return () => {
-            unsubscribeAuth();
-            if (unsubscribeProfile) unsubscribeProfile();
-        };
+        return () => unsubscribe();
     }, []);
 
-    const logout = async () => {
-        await auth.signOut();
+    // 2. Fetch Profile ONE-OFF when user changes
+    const fetchProfile = useCallback(async () => {
+        if (!user) return;
+        try {
+            const docRef = doc(db, "users", user.uid);
+            const snapshot = await getDoc(docRef);
+            if (snapshot.exists()) {
+                const profile = snapshot.data() as UserProfile;
+
+                // Check Status (Legacy Logic)
+                if (profile.status === 'banned' || profile.status === 'suspended') {
+                    if (window.location.pathname !== "/") {
+                        await signOut(auth);
+                        alert(`Your account has been ${profile.status}.\nReason: ${profile.statusReason || "Violation of terms."}`);
+                        window.location.href = "/";
+                        return;
+                    }
+                }
+
+                setUserProfile(profile);
+            } else {
+                // Create basic profile if missing (Legacy Logic)
+                const newProfile: UserProfile = {
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName || "User",
+                    photoURL: user.photoURL,
+                    gumDropsBalance: 0,
+                    unlockedContent: [],
+                    createdAt: Date.now(),
+                };
+                await setDoc(docRef, newProfile, { merge: true });
+                setUserProfile(newProfile);
+            }
+        } catch (err) {
+            console.error("Error fetching profile:", err);
+        } finally {
+            setLoading(false);
+        }
+    }, [user]);
+
+    useEffect(() => {
+        if (user) {
+            fetchProfile();
+        } else {
+            setLoading(false);
+        }
+    }, [user, fetchProfile]);
+
+    const refreshProfile = async () => {
+        await fetchProfile();
     };
+
+    // --- Auth Actions ---
 
     const signInWithGoogle = async () => {
         try {
             const provider = new GoogleAuthProvider();
             await signInWithPopup(auth, provider);
-        } catch (error) {
-            console.error("Error signing in with Google", error);
-            throw error;
+            toast.success("Welcome back!");
+            router.push("/dashboard");
+        } catch (error: any) {
+            console.error("Login failed", error);
+            toast.error(error.message);
         }
     };
 
     const signInWithEmail = async (email: string, pass: string) => {
-        try {
-            await signInWithEmailAndPassword(auth, email, pass);
-        } catch (error) {
-            console.error("Error signing in with Email", error);
-            throw error;
-        }
+        await signInWithEmailAndPassword(auth, email, pass);
+        toast.success("Welcome back!");
+        router.push("/dashboard");
     };
 
     const signUpWithEmail = async (email: string, pass: string, username: string, dob: string) => {
-        try {
-            const result = await createUserWithEmailAndPassword(auth, email, pass);
-            // Create rich profile immediately
-            const userRef = doc(db, "users", result.user.uid);
-            const newProfile: UserProfile = {
-                uid: result.user.uid,
-                email: email,
-                displayName: username,
-                username: username,
-                dateOfBirth: dob,
-                photoURL: null,
-                gumDropsBalance: 0,
-                unlockedContent: [],
-                createdAt: Date.now(),
-            };
-            await setDoc(userRef, newProfile);
-        } catch (error) {
-            console.error("Error signing up", error);
-            throw error;
-        }
+        const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+        const newUser = userCredential.user;
+
+        await setDoc(doc(db, "users", newUser.uid), {
+            uid: newUser.uid,
+            email: newUser.email,
+            displayName: username,
+            dob,
+            gumDropsBalance: 100, // Welcome bonus
+            unlockedContent: [],
+            createdAt: serverTimestamp()
+        });
+
+        toast.success("Account created! +100 Gum Drops");
+        router.push("/dashboard");
     };
 
+    const logout = async () => {
+        await signOut(auth);
+        router.push("/");
+    };
+
+    // --- Memoized Values ---
+
+    const identityValue = useMemo(() => ({
+        user,
+        signInWithGoogle,
+        signInWithEmail,
+        signUpWithEmail,
+        logout
+    }), [user]);
+
+    const profileValue = useMemo(() => ({
+        userProfile,
+        refreshProfile,
+        setUserProfile
+    }), [userProfile]);
+
+    const loadingValue = useMemo(() => ({
+        loading
+    }), [loading]);
+
+    // Legacy combined value (memoized)
+    const combinedValue = useMemo(() => ({
+        ...identityValue,
+        ...profileValue,
+        ...loadingValue
+    }), [identityValue, profileValue, loadingValue]);
+
     return (
-        <AuthContext.Provider value={{
-            user,
-            userProfile,
-            loading,
-            signInWithGoogle,
-            signInWithEmail,
-            signUpWithEmail,
-            logout
-        }}>
-            {children}
+        <AuthContext.Provider value={combinedValue}>
+            <AuthIdentityContext.Provider value={identityValue}>
+                <UserProfileContext.Provider value={profileValue}>
+                    <AuthLoadingContext.Provider value={loadingValue}>
+                        {children}
+                    </AuthLoadingContext.Provider>
+                </UserProfileContext.Provider>
+            </AuthIdentityContext.Provider>
         </AuthContext.Provider>
     );
 }
 
-export const useAuth = () => useContext(AuthContext);
+// --- Specific Hooks ---
+
+export const useAuthIdentity = () => {
+    const context = useContext(AuthIdentityContext);
+    if (!context) throw new Error("useAuthIdentity must be used within AuthProvider");
+    return context;
+};
+
+export const useUserProfile = () => {
+    const context = useContext(UserProfileContext);
+    // Allow using userProfile in contexts where it might be null (though Provider always exists if wrapped)
+    if (!context) throw new Error("useUserProfile must be used within AuthProvider");
+    return context;
+};
+
+export const useAuthLoading = () => {
+    const context = useContext(AuthLoadingContext);
+    if (!context) throw new Error("useAuthLoading must be used within AuthProvider");
+    return context;
+};
+
+// --- Legacy Hook ---
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (!context) throw new Error("useAuth must be used within AuthProvider");
+    return context;
+};

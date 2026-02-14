@@ -2,11 +2,11 @@ import { useRef } from "react";
 import { Button } from "@/components/ui/Button";
 import { CandyIcon } from "@/components/ui/Icon";
 import Link from "next/link";
-import { useAuth } from "@/context/AuthContext";
+import { useAuthIdentity } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 
 export default function Hero() {
-    const { user } = useAuth();
+    const { user } = useAuthIdentity();
     const { openAuthModal } = useUI();
     const ref = useRef(null);
 

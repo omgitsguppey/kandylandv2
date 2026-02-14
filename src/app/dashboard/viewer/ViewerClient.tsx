@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { Loader2, ArrowLeft, Lock, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Lock, ShieldCheck } from "lucide-react";
 import { Drop } from "@/types/db";
+import NextImage from "next/image";
 
 interface ViewerClientProps {
     drop: Drop | null;
@@ -117,8 +118,16 @@ export function ViewerClient({ drop }: ViewerClientProps) {
                             } else if (type.startsWith("audio/") || url.match(/\.(mp3|wav)$/i)) {
                                 return (
                                     <div className="w-full h-full flex flex-col items-center justify-center p-8 bg-gradient-to-br from-gray-900 to-black">
-                                        <div className="w-32 h-32 rounded-full overflow-hidden mb-8 border-4 border-white/10 animate-[spin_10s_linear_infinite]">
-                                            <img src={drop.imageUrl} alt="Album Art" className="w-full h-full object-cover" />
+                                        <div className="w-32 h-32 rounded-full overflow-hidden mb-8 border-4 border-white/10 animate-[spin_10s_linear_infinite] relative">
+                                            {drop.imageUrl && (
+                                                <NextImage
+                                                    src={drop.imageUrl}
+                                                    alt="Album Art"
+                                                    fill
+                                                    className="object-cover"
+                                                    sizes="128px"
+                                                />
+                                            )}
                                         </div>
                                         <audio controls controlsList="nodownload" className="w-full max-w-md">
                                             <source src={url} type={type || "audio/mpeg"} />
@@ -128,12 +137,16 @@ export function ViewerClient({ drop }: ViewerClientProps) {
                                 );
                             } else if (type.startsWith("image/") || url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
                                 return (
-                                    <img
-                                        src={url}
-                                        alt="Secure Content"
-                                        className="w-full h-full object-contain pointer-events-none select-none"
-                                        draggable={false}
-                                    />
+                                    <div className="relative w-full h-full">
+                                        <NextImage
+                                            src={url}
+                                            alt="Secure Content"
+                                            fill
+                                            className="object-contain pointer-events-none select-none"
+                                            draggable={false}
+                                            sizes="80vw"
+                                        />
+                                    </div>
                                 );
                             } else {
                                 // Fallback for Zip / PDF / Other

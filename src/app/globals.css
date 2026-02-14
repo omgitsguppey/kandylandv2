@@ -8,6 +8,20 @@
   --color-brand-yellow: #facc15;
   --color-brand-purple: #8b5cf6;
   --color-brand-green: #10b981;
+
+  --animate-float: float 8s ease-in-out infinite;
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0) scale(1);
+    }
+
+    50% {
+      transform: translateY(-20px) scale(1.05);
+    }
+  }
 }
 
 :root {

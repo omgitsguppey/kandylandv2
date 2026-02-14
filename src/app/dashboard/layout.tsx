@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { LayoutDashboard, Library, Settings, LogOut, Menu, X } from "lucide-react";
+import { LayoutDashboard, Library, Settings, LogOut, Menu, X, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
+import { DashboardProfileListener } from "@/components/DashboardProfileListener";
 
 export default function DashboardLayout({
     children,
@@ -39,7 +39,10 @@ export default function DashboardLayout({
     ];
 
     return (
-        <div className="min-h-screen bg-black text-white flex">
+        <div className="flex h-screen bg-black overflow-hidden relative">
+            {/* Listener for Realtime Profile Updates in Dashboard */}
+            <DashboardProfileListener />
+
             {/* Desktop Sidebar */}
             <aside className="hidden lg:flex w-64 flex-col border-r border-white/10 bg-black/50 backdrop-blur-xl fixed inset-y-0 z-40">
                 <div className="p-6">

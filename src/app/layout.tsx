@@ -2,7 +2,13 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
+import { UIProvider } from "@/context/UIContext";
+import { NowProvider } from "@/context/NowContext";
 import { Navbar } from "@/components/Navbar";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { CoreLayoutWrapper } from "@/components/CoreLayoutWrapper";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,18 +25,6 @@ export const metadata: Metadata = {
   description: "Get Gum Drops, Unlock Content, Feel the Rush.",
 };
 
-import { PayPalProvider } from "@/components/PayPalProvider";
-import { UIProvider } from "@/context/UIContext";
-import MobileBottomBar from "@/components/Navigation/MobileBottomBar";
-import { GlobalPurchaseModal } from "@/components/GlobalPurchaseModal"; // Import from new file
-import { OnboardingModal } from "@/components/Auth/OnboardingModal";
-import { Toaster } from 'sonner';
-import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { DebugBreakpoints } from "@/components/Debug/DebugBreakpoints";
-import CookieBanner from "@/components/CookieBanner";
-import { PerformanceMonitor } from "@/components/PerformanceMonitor";
-
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -41,32 +35,27 @@ export default function RootLayout({
       <body className="antialiased min-h-screen bg-black text-white selection:bg-brand-pink selection:text-white">
         <AuthProvider>
           <UIProvider>
-            <PayPalProvider>
-              {/* <PerformanceMonitor /> */}
-              <main className="pt-20 min-h-screen relative overflow-hidden pb-24 md:pb-0">
-                {/* Background Elements */}
-                <div className="fixed inset-0 z-0 pointer-events-none">
-                  <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-brand-pink/20 blur-[120px] animate-float" />
-                  <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-brand-cyan/20 blur-[120px] animate-float animation-delay-2000" />
-                </div>
+            <NowProvider>
+              <CoreLayoutWrapper>
+                <main className="pt-20 min-h-screen relative overflow-hidden pb-24 md:pb-0">
+                  {/* Background Elements */}
+                  <div className="fixed inset-0 z-0 pointer-events-none">
+                    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-brand-pink/20 blur-[120px] animate-float transform-gpu" />
+                    <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-brand-cyan/20 blur-[120px] animate-float animation-delay-2000 transform-gpu" />
+                  </div>
 
-                {/* Content */}
-                <div className="relative z-10">
-                  <Navbar />
-                  <ErrorBoundary>
-                    {children}
-                  </ErrorBoundary>
-                  <DebugBreakpoints />
-                  {/* React Scan (Dev Only) - Removed for performance safety */}
-                </div>
-
-                <MobileBottomBar />
-                <GlobalPurchaseModal />
-                <OnboardingModal />
-                <Toaster position="top-center" theme="dark" richColors closeButton />
-              </main>
-            </PayPalProvider>
-            <CookieBanner />
+                  {/* Content */}
+                  <div className="relative z-10">
+                    <Navbar />
+                    <ErrorBoundary>
+                      {children}
+                    </ErrorBoundary>
+                  </div>
+                </main>
+                <Analytics />
+                <SpeedInsights />
+              </CoreLayoutWrapper>
+            </NowProvider>
           </UIProvider>
         </AuthProvider>
       </body>
