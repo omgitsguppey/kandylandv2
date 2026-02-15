@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { updateProfile } from "firebase/auth";
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { Button } from "@/components/ui/Button";
 import { Loader2, Save, User } from "lucide-react";
 
@@ -22,21 +20,25 @@ export default function ProfilePage() {
         setMessage(null);
 
         try {
-            // Update Auth Profile
+            // Update Auth Profile (client-side — needs auth token)
             await updateProfile(user, {
                 displayName: displayName
             });
 
-            // Update Firestore User Document
-            const userRef = doc(db, "users", user.uid);
-            await updateDoc(userRef, {
-                displayName: displayName
+            // Update Firestore via server API
+            const response = await fetch("/api/user/profile", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId: user.uid, displayName }),
             });
 
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error);
+
             setMessage({ type: 'success', text: "Profile updated successfully!" });
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error updating profile:", error);
-            setMessage({ type: 'error', text: "Failed to update profile. Please try again." });
+            setMessage({ type: 'error', text: error.message || "Failed to update profile. Please try again." });
         } finally {
             setLoading(false);
         }

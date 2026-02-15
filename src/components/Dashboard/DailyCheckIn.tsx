@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { db } from "@/lib/firebase";
-import { doc, updateDoc, increment, serverTimestamp, addDoc, collection, writeBatch } from "firebase/firestore";
 import { differenceInHours, isSameDay } from "date-fns";
 import { Gift, Loader2, CheckCircle, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -49,48 +47,23 @@ export function DailyCheckIn() {
     const handleClaim = async () => {
         setLoading(true);
         try {
-            const userRef = doc(db, "users", user.uid);
+            const response = await fetch("/api/checkin", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId: user.uid }),
+            });
 
-            // Determine actual streak to save
-            // If claiming today, and it wasn't broken, it's current + 1.
-            // If broken, it's 1.
-            // We already calculated 'nextStreak' based on time expectation.
-            // Wait, if users checks in Day 1 (Streak 1), Day 2 (Streak 2)...
-            // If they miss Day 3, and check in Day 4.
-            // hoursSinceLast would be > 48. So nextStreak = 1. Correct.
+            const result = await response.json();
 
-            // Reset after 7 days? User said "resets back to 10" (Day 1).
-            // So if currentStreak was 7, nextStreak would be 8 -> Reset to 1?
-            // "up to 70 total... then resets back to 10".
-            // So if they just claimed Day 7 (70), the NEXT day (Day 8) should be Day 1 (10).
-            let finalStreak = nextStreak;
-            if (currentStreak >= 7 && !isAlreadyClaimedToday) {
-                finalStreak = 1;
+            if (!response.ok) {
+                if (result.alreadyClaimed) {
+                    toast.info("Already claimed today!");
+                    return;
+                }
+                throw new Error(result.error || "Check-in failed");
             }
 
-            const finalReward = finalStreak * 10;
-
-            const batch = writeBatch(db);
-
-            // 1. Update User Profile
-            batch.update(userRef, {
-                gumDropsBalance: increment(finalReward),
-                lastCheckIn: now,
-                streakCount: finalStreak
-            });
-
-            // 2. Create Transaction Record
-            const transactionRef = doc(collection(db, "transactions"));
-            batch.set(transactionRef, {
-                userId: user.uid,
-                type: "purchase_currency", // Earning
-                amount: finalReward,
-                description: `Daily Check-in: Day ${finalStreak}`,
-                timestamp: serverTimestamp()
-            });
-
-            // Commit Batch
-            await batch.commit();
+            const { reward, streak } = result;
 
             // Analytics
             if (typeof window !== "undefined") {
@@ -98,13 +71,13 @@ export function DailyCheckIn() {
                     const analytics = getAnalytics();
                     logEvent(analytics, "earn_virtual_currency", {
                         virtual_currency_name: "Gum Drops",
-                        value: finalReward
+                        value: reward
                     });
-                });
+                }).catch(() => { });
             }
 
-            toast.success(`Claimed ${finalReward} Gum Drops!`, {
-                description: `Streak: ${finalStreak} days`,
+            toast.success(`Claimed ${reward} Gum Drops!`, {
+                description: `Streak: ${streak} days`,
                 icon: "🎁"
             });
 
@@ -134,9 +107,9 @@ export function DailyCheckIn() {
             }());
 
             setClaimed(true);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error claiming daily reward:", error);
-            toast.error("Failed to claim reward");
+            toast.error(error.message || "Failed to claim reward");
         } finally {
             setLoading(false);
         }

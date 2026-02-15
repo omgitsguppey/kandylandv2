@@ -1,8 +1,6 @@
-import { db } from "@/lib/firebase";
-import { doc, runTransaction, serverTimestamp, collection } from "firebase/firestore";
-
 /**
  * Atomically adjusts a user's Gum Drop balance and logs the transaction.
+ * Now calls the server-side API route instead of writing to Firestore directly.
  * 
  * @param userId - The ID of the user to adjust.
  * @param amount - The amount to add (positive) or remove (negative).
@@ -12,46 +10,29 @@ import { doc, runTransaction, serverTimestamp, collection } from "firebase/fires
  */
 export async function adjustUserBalance(userId: string, amount: number, reason: string, adminId: string) {
     if (!userId || !amount || !reason || !adminId) {
-        throw new Error("Missing required parameters for balance adjustment.");
+        return { success: false, error: "Missing required parameters for balance adjustment." };
     }
 
     try {
-        const result = await runTransaction(db, async (transaction) => {
-            const userRef = doc(db, "users", userId);
-            const userDoc = await transaction.get(userRef);
-
-            if (!userDoc.exists()) {
-                throw new Error("User does not exist!");
-            }
-
-            const currentBalance = userDoc.data().gumDropsBalance || 0;
-            const newBalance = currentBalance + amount;
-
-            if (newBalance < 0) {
-                throw new Error(`Insufficient funds. Cannot deduct ${Math.abs(amount)} from ${currentBalance}.`);
-            }
-
-            // 1. Update User Balance
-            transaction.update(userRef, {
-                gumDropsBalance: newBalance
-            });
-
-            // 2. Create Ledger Entry
-            const transactionRef = doc(collection(db, "transactions"));
-            transaction.set(transactionRef, {
+        const response = await fetch("/api/admin/balance", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
                 userId,
                 amount,
-                type: 'admin_adjustment',
-                description: reason,
-                adminId,
-                timestamp: serverTimestamp(),
-                balanceAfter: newBalance
-            });
-
-            return newBalance;
+                reason,
+                adminEmail: adminId,
+            }),
         });
 
-        return { success: true, newBalance: result };
+        const result = await response.json();
+        if (!response.ok) {
+            return { success: false, error: result.error || "Balance adjustment failed" };
+        }
+
+        // The server side doesn't conveniently return the new balance, so we estimate it
+        // The caller (BalanceAdjustmentModal) calculates it locally anyway 
+        return { success: true, newBalance: undefined as number | undefined };
     } catch (error: any) {
         console.error("Balance Adjustment Error:", error);
         return { success: false, error: error.message };

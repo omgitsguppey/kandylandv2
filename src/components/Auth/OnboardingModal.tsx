@@ -6,8 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { User, Calendar, Camera, Check, ShieldCheck, ArrowRight, Sparkles, Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { doc, updateDoc, collection, query, where, getDocs } from "firebase/firestore";
-import { db, storage } from "@/lib/firebase";
+import { storage } from "@/lib/firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { toast } from "sonner";
 import { differenceInYears, parseISO } from "date-fns";
@@ -87,15 +86,14 @@ export function OnboardingModal() {
             return;
         }
 
-        // Basic pattern check before DB check
+        // Basic pattern check before server check
         if (!/^[a-z0-9_]+$/.test(val)) return;
 
         setCheckingUsername(true);
         try {
-            const q = query(collection(db, "users"), where("username", "==", val));
-            const snap = await getDocs(q);
-            // Available if empty OR if it's already ME (though likely not me if I'm onboarding)
-            setUsernameAvailable(snap.empty);
+            const response = await fetch("/api/user/check-username?username=" + encodeURIComponent(val));
+            const result = await response.json();
+            setUsernameAvailable(result.available);
         } catch (error) {
             console.error(error);
         } finally {
@@ -145,28 +143,35 @@ export function OnboardingModal() {
         try {
             let photoURL = userProfile?.photoURL;
 
-            // Upload Avatar if changed
+            // Upload Avatar if changed (stays client-side — needs file access)
             if (avatarFile) {
                 const storageRef = ref(storage, `users/${user.uid}/avatar_${Date.now()}`);
                 await uploadBytes(storageRef, avatarFile);
                 photoURL = await getDownloadURL(storageRef);
             }
 
-            // Update Firestore
-            const updates: any = {};
-            if (!userProfile?.username) updates.username = data.username;
-            if (!userProfile?.dateOfBirth) updates.dateOfBirth = data.dateOfBirth;
-            if (photoURL) updates.photoURL = photoURL;
-            if (data.bio) updates.bio = data.bio;
+            // Submit to server API
+            const response = await fetch("/api/user/profile", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    userId: user.uid,
+                    username: !userProfile?.username ? data.username : undefined,
+                    dateOfBirth: !userProfile?.dateOfBirth ? data.dateOfBirth : undefined,
+                    bio: data.bio,
+                    photoURL,
+                }),
+            });
 
-            await updateDoc(doc(db, "users", user.uid), updates);
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error || "Profile save failed");
 
             toast.success("Profile Setup Complete!", { icon: "🎉" });
             setIsOpen(false);
 
-        } catch (error) {
+        } catch (error: any) {
             console.error("Onboarding Error:", error);
-            toast.error("Failed to save profile.");
+            toast.error(error.message || "Failed to save profile.");
         } finally {
             setLoading(false);
         }
@@ -230,8 +235,8 @@ export function OnboardingModal() {
                                             {...register("username")}
                                             type="text"
                                             className={`w-full bg-black/50 border rounded-xl px-8 py-3 text-white focus:outline-none transition-all ${errors.username ? "border-red-500" :
-                                                    usernameAvailable === true ? "border-green-500/50 focus:border-green-500" :
-                                                        "border-white/10 focus:border-brand-pink"
+                                                usernameAvailable === true ? "border-green-500/50 focus:border-green-500" :
+                                                    "border-white/10 focus:border-brand-pink"
                                                 }`}
                                             placeholder="username"
                                         />

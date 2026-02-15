@@ -6,8 +6,7 @@ import { formatDistanceToNow } from "date-fns";
 import NextImage from "next/image";
 import { Lock, Unlock, Clock, Loader2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { doc, arrayUnion, increment, collection, serverTimestamp, writeBatch } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { User } from "firebase/auth";
@@ -69,28 +68,22 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
         setError(null);
 
         try {
-            const userRef = doc(db, "users", user.uid);
-            const batch = writeBatch(db);
-
-            // 1. Deduct Gum Drops and Add to Unlocked Content
-            batch.update(userRef, {
-                gumDropsBalance: increment(-drop.unlockCost),
-                unlockedContent: arrayUnion(drop.id)
+            const response = await fetch("/api/drops/unlock", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId: user.uid, dropId: drop.id }),
             });
 
-            // 2. Record Transaction
-            const transactionRef = doc(collection(db, "transactions"));
-            batch.set(transactionRef, {
-                userId: user.uid,
-                type: "unlock_content",
-                amount: -drop.unlockCost,
-                relatedDropId: drop.id,
-                description: `Unlocked: ${drop.title}`,
-                timestamp: serverTimestamp()
-            });
+            const result = await response.json();
 
-            // Commit Batch
-            await batch.commit();
+            if (!response.ok) {
+                if (result.alreadyUnlocked) {
+                    toast.info("Already unwrapped!");
+                    await refreshProfile();
+                    return;
+                }
+                throw new Error(result.error || "Unlock failed");
+            }
 
             // Refresh Profile to reflect changes (balance/unlocks) immediately
             await refreshProfile();
@@ -118,20 +111,19 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                         virtual_currency_name: "Gum Drops",
                         item_name: drop.title
                     });
-                });
+                }).catch(() => { });
             }
 
-        } catch (err) {
+        } catch (err: any) {
             console.error("Unwrap failed:", err);
             toast.error("Unwrap failed", {
-                description: "Please try again later."
+                description: err.message || "Please try again later."
             });
-            setError("Unwrap failed. Try again.");
+            setError(err.message || "Unwrap failed. Try again.");
         } finally {
             setUnlocking(false);
         }
     };
-
     return (
         <div
             className="group relative p-2 md:p-6 rounded-2xl md:rounded-3xl glass-panel overflow-hidden"

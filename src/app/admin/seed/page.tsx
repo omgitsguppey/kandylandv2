@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { collection, writeBatch, doc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { Drop } from "@/types/db";
 import { useAuth } from "@/context/AuthContext";
 import { Loader2 } from "lucide-react";
@@ -38,50 +36,48 @@ export default function AdminSeedPage() {
         setMessage("");
 
         try {
-            const batch = writeBatch(db);
             const now = Date.now();
             const oneDay = 24 * 60 * 60 * 1000;
+            const drops: Partial<Drop>[] = [];
 
             // Generate 20 drops
             for (let i = 0; i < 20; i++) {
-                const newDocRef = doc(collection(db, "drops"));
-
-                // Randomize dates to have some active, some expired, some future
                 let validFrom, validUntil;
                 const rand = Math.random();
 
                 if (rand < 0.2) {
-                    // Expired (20%)
                     validFrom = now - (oneDay * 5);
                     validUntil = now - (oneDay * 1);
                 } else if (rand < 0.8) {
-                    // Active (60%)
                     validFrom = now - (oneDay * 1);
                     validUntil = now + (oneDay * 2);
                 } else {
-                    // Scheduled (20%)
                     validFrom = now + (oneDay * 1);
                     validUntil = now + (oneDay * 5);
                 }
 
-                const newDrop: Drop = {
-                    id: newDocRef.id,
+                drops.push({
                     title: SAMPLE_TITLES[i % SAMPLE_TITLES.length] + ` #${Math.floor(Math.random() * 100)}`,
                     description: DESCRIPTIONS[i % DESCRIPTIONS.length],
-                    imageUrl: `https://picsum.photos/seed/${i}/400/400`, // Random placeholder image
+                    imageUrl: `https://picsum.photos/seed/${i}/400/400`,
                     contentUrl: "https://example.com/secret-content",
-                    unlockCost: Math.floor(Math.random() * 10) * 10 + 10, // 10, 20, ... 100
+                    unlockCost: Math.floor(Math.random() * 10) * 10 + 10,
                     validFrom,
                     validUntil,
                     status: (now < validUntil) ? ((now < validFrom) ? "scheduled" : "active") : "expired",
                     totalUnlocks: Math.floor(Math.random() * 50),
-                };
-
-                batch.set(newDocRef, newDrop);
+                });
             }
 
-            await batch.commit();
-            setMessage("✅ Successfully seeded 20 drops!");
+            const response = await fetch("/api/admin/seed", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ drops }),
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error);
+
+            setMessage(`✅ Successfully seeded ${result.count} drops!`);
         } catch (err: any) {
             console.error(err);
             setMessage(`Error seeding drops: ${err.message || err.toString()}`);

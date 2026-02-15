@@ -1,14 +1,4 @@
 
-import { db } from "@/lib/firebase";
-import {
-    collection,
-    addDoc,
-    serverTimestamp,
-    updateDoc,
-    doc,
-    arrayUnion
-} from "firebase/firestore";
-
 export interface NotificationPayload {
     title: string;
     message: string;
@@ -22,11 +12,14 @@ export interface NotificationPayload {
 
 export async function sendNotification(payload: NotificationPayload) {
     try {
-        await addDoc(collection(db, "notifications"), {
-            ...payload,
-            createdAt: serverTimestamp(),
-            readBy: []
+        const response = await fetch("/api/notifications", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
         });
+
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error);
         return { success: true };
     } catch (error) {
         console.error("Error sending notification:", error);
@@ -36,11 +29,13 @@ export async function sendNotification(payload: NotificationPayload) {
 
 export async function markNotificationAsRead(notificationId: string, userId: string) {
     try {
-        const ref = doc(db, "notifications", notificationId);
-        await updateDoc(ref, {
-            readBy: arrayUnion(userId)
+        const response = await fetch("/api/notifications", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ notificationId, userId }),
         });
-        return true;
+
+        return response.ok;
     } catch (error) {
         console.error("Error marking notification as read:", error);
         return false;

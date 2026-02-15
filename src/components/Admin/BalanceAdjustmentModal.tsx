@@ -39,9 +39,10 @@ export function BalanceAdjustmentModal({ user, onClose, onSuccess }: Props) {
         try {
             const result = await adjustUserBalance(user.uid, val, reason, currentUser.uid);
 
-            if (result.success && typeof result.newBalance === 'number') {
-                toast.success(`Balance updated. New Balance: ${result.newBalance}`);
-                onSuccess(result.newBalance);
+            if (result.success) {
+                const newBalance = (user.gumDropsBalance || 0) + val;
+                toast.success(`Balance updated. New Balance: ${newBalance}`);
+                onSuccess(newBalance);
                 onClose();
             } else {
                 toast.error(result.error || "Failed to update balance");

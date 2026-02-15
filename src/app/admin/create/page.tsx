@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { collection, addDoc, doc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { collection, doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, Save, Calendar, DollarSign, ArrowLeft, ChevronDown, ChevronUp, Image as ImageIcon, FileAudio } from "lucide-react";
@@ -172,20 +172,32 @@ function DropForm() {
             };
 
             if (isEditMode) {
-                await updateDoc(doc(db, "drops", dropId!), dropData as any);
-            } else {
-                await addDoc(collection(db, "drops"), {
-                    ...dropData,
-                    totalUnlocks: 0,
-                    // createdAt is added by the server/client on creation
-                    createdAt: serverTimestamp(),
+                const response = await fetch("/api/admin/drops", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ dropId: dropId!, dropData }),
                 });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error);
+            } else {
+                const response = await fetch("/api/admin/drops", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        dropData: {
+                            ...dropData,
+                            totalUnlocks: 0,
+                        },
+                    }),
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error);
             }
 
             router.push("/admin/drops");
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error saving drop:", error);
-            alert("Failed to save drop. Check console.");
+            alert(error.message || "Failed to save drop. Check console.");
         }
     };
 

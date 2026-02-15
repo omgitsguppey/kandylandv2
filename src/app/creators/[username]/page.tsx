@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { collection, query, where, getDocs, doc, getDoc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { UserProfile, Drop } from "@/types/db";
 import { DropGrid } from "@/components/DropGrid";
@@ -85,25 +85,27 @@ export default function CreatorProfilePage() {
         }
 
         setFollowLoading(true);
-        const userRef = doc(db, "users", currentUser.uid);
 
         try {
-            if (following) {
-                await updateDoc(userRef, {
-                    following: arrayRemove(creator.uid)
-                });
-                setFollowing(false);
-                toast.success(`Unfollowed ${creator.displayName}`);
-            } else {
-                await updateDoc(userRef, {
-                    following: arrayUnion(creator.uid)
-                });
-                setFollowing(true);
-                toast.success(`Following ${creator.displayName}!`);
-            }
-        } catch (error) {
+            const action = following ? "unfollow" : "follow";
+            const response = await fetch("/api/user/follow", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    userId: currentUser.uid,
+                    targetUserId: creator.uid,
+                    action,
+                }),
+            });
+
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error);
+
+            setFollowing(!following);
+            toast.success(following ? `Unfollowed ${creator.displayName}` : `Following ${creator.displayName}!`);
+        } catch (error: any) {
             console.error("Follow error:", error);
-            toast.error("Action failed.");
+            toast.error(error.message || "Action failed.");
         } finally {
             setFollowLoading(false);
         }

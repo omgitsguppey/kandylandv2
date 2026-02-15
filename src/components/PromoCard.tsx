@@ -3,24 +3,18 @@ import { cn } from "@/lib/utils";
 import { ArrowUpRight } from "lucide-react";
 import NextImage from "next/image";
 
-import { doc, updateDoc, increment } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-
 interface PromoCardProps {
     drop: Drop;
 }
 
 export function PromoCard({ drop }: PromoCardProps) {
     const handleClick = () => {
-        // Track click as an 'unlock' or interaction
-        try {
-            const dropRef = doc(db, "drops", drop.id);
-            updateDoc(dropRef, {
-                totalUnlocks: increment(1)
-            });
-        } catch (e) {
-            console.error("Error tracking click:", e);
-        }
+        // Track click server-side (fire-and-forget)
+        fetch("/api/drops/track", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ dropId: drop.id }),
+        }).catch(() => { });
     };
 
     return (

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { collection, query, orderBy, getDocs, doc, updateDoc, writeBatch, serverTimestamp, arrayUnion, arrayRemove } from "firebase/firestore";
+import { collection, query, orderBy, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { UserProfile } from "@/types/db";
 import { Loader2, Search, Shield, Ban, CheckCircle, AlertTriangle, Edit2, Lock, Plus } from "lucide-react";
@@ -54,28 +54,33 @@ export default function UserManagementPage() {
         setProcessing(true);
 
         try {
-            const userRef = doc(db, "users", actionUser.uid);
-            let updateData: Partial<UserProfile> = {};
+            let updates: Record<string, any> = {};
 
             if (actionType === 'activate') {
-                updateData = { status: 'active', statusReason: "" };
+                updates = { status: 'active', statusReason: "" };
             } else {
-                updateData = {
+                updates = {
                     status: actionType === 'ban' ? 'banned' : 'suspended',
                     statusReason: reason
                 };
             }
 
-            await updateDoc(userRef, updateData);
+            const response = await fetch("/api/admin/users", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId: actionUser.uid, updates }),
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error);
 
             // Update local state
-            setUsers(users.map(u => u.uid === actionUser.uid ? { ...u, ...updateData } : u));
+            setUsers(users.map(u => u.uid === actionUser.uid ? { ...u, ...updates } : u));
             setActionType(null);
             setActionUser(null);
             setReason("");
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error updating user status:", error);
-            alert("Failed to update user status.");
+            alert(error.message || "Failed to update user status.");
         } finally {
             setProcessing(false);
         }
@@ -92,36 +97,19 @@ export default function UserManagementPage() {
         if (!contentUser || !dropId) return;
         setContentActionProcessing(true);
         try {
-            const userRef = doc(db, "users", contentUser.uid);
-            const batch = writeBatch(db);
-
-            // 1. Update User Unlocked Content
-            if (action === 'add') {
-                if (contentUser.unlockedContent?.includes(dropId)) {
-                    alert("User already has this content unlocked.");
-                    setContentActionProcessing(false);
-                    return;
-                }
-                batch.update(userRef, {
-                    unlockedContent: arrayUnion(dropId)
-                });
-            } else {
-                batch.update(userRef, {
-                    unlockedContent: arrayRemove(dropId)
-                });
+            if (action === 'add' && contentUser.unlockedContent?.includes(dropId)) {
+                alert("User already has this content unlocked.");
+                setContentActionProcessing(false);
+                return;
             }
 
-            // 2. Log Admin Adjustment
-            const transactionRef = doc(collection(db, "transactions"));
-            batch.set(transactionRef, {
-                userId: contentUser.uid,
-                type: 'admin_adjustment',
-                amount: 0,
-                description: `Admin ${action === 'add' ? 'Unlocked' : 'Locked'} Drop: ${dropId}`,
-                timestamp: serverTimestamp()
+            const response = await fetch("/api/admin/users", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId: contentUser.uid, action, dropId }),
             });
-
-            await batch.commit();
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error);
 
             // Update Local State
             const updatedContent = action === 'add'
@@ -131,9 +119,9 @@ export default function UserManagementPage() {
             setUsers(users.map(u => u.uid === contentUser.uid ? { ...u, unlockedContent: updatedContent } : u));
             setContentUser({ ...contentUser, unlockedContent: updatedContent });
             setContentInput("");
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error managing content:", error);
-            alert("Failed to update content access.");
+            alert(error.message || "Failed to update content access.");
         } finally {
             setContentActionProcessing(false);
         }
@@ -142,24 +130,36 @@ export default function UserManagementPage() {
     // --- Role & Verification Management ---
     const handleRoleUpdate = async (uid: string, newRole: 'user' | 'creator' | 'admin') => {
         try {
-            await updateDoc(doc(db, "users", uid), { role: newRole });
+            const response = await fetch("/api/admin/users", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId: uid, updates: { role: newRole } }),
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error);
             // Update local state
             setUsers(users.map(u => u.uid === uid ? { ...u, role: newRole } : u));
             alert(`Role updated to ${newRole}`);
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            alert("Failed to update role");
+            alert(error.message || "Failed to update role");
         }
     };
 
     const handleVerification = async (uid: string, isVerified: boolean) => {
         try {
-            await updateDoc(doc(db, "users", uid), { isVerified });
+            const response = await fetch("/api/admin/users", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId: uid, updates: { isVerified } }),
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error);
             // Update local state
             setUsers(users.map(u => u.uid === uid ? { ...u, isVerified } : u));
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            alert("Failed to update verification");
+            alert(error.message || "Failed to update verification");
         }
     };
 
