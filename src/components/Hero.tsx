@@ -11,7 +11,7 @@ export default function Hero() {
     const ref = useRef(null);
 
     return (
-        <section ref={ref} className="relative min-h-[60vh] md:min-h-[90vh] flex items-center justify-center overflow-hidden py-12 md:py-0">
+        <section ref={ref} className="relative h-full md:min-h-[90vh] flex items-center justify-center overflow-hidden md:py-0">
             {/* Background Gradients (True Black Theme) */}
             <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-brand-purple/20 rounded-full blur-[120px] opacity-40"></div>

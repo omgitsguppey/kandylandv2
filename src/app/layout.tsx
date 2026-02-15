@@ -37,10 +37,10 @@ export default function RootLayout({
           <UIProvider>
             <NowProvider>
               <CoreLayoutWrapper>
-                <main className="pt-20 min-h-screen relative overflow-hidden pb-24 md:pb-0">
+                <main className="pt-20 h-[100dvh] relative overflow-hidden pb-24 md:pb-0">
                   {/* Background Elements */}
                   <div className="fixed inset-0 z-0 pointer-events-none">
-                    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-brand-pink/20 blur-[120px] animate-float transform-gpu" />
+                    <div className="absolute top-[-20%] left-[-20%] w-[50%] h-[50%] rounded-full bg-brand-pink/15 blur-[150px] animate-float transform-gpu" />
                     <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-brand-cyan/20 blur-[120px] animate-float animation-delay-2000 transform-gpu" />
                   </div>
 

@@ -21,8 +21,7 @@ export function Navbar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
-    // Don't render Navbar on dashboard pages
-    if (pathname?.startsWith("/dashboard")) return null;
+    // Navbar is now global
 
     return (
         <>

@@ -1,9 +1,20 @@
 "use client";
-
+import { useEffect, useState } from "react";
 import CookieConsent from "react-cookie-consent";
-import { useUI } from "@/context/UIContext";
 
 export default function CookieBanner() {
+    const [showBanner, setShowBanner] = useState(false);
+
+    useEffect(() => {
+        // Check localStorage on mount
+        const consent = localStorage.getItem("kandydrops_cookie_consent");
+        if (!consent) {
+            setShowBanner(true);
+        }
+    }, []);
+
+    if (!showBanner) return null;
+
     return (
         <CookieConsent
             location="bottom"
@@ -25,6 +36,10 @@ export default function CookieBanner() {
                 padding: "8px 16px"
             }}
             expires={150}
+            onAccept={() => {
+                localStorage.setItem("kandydrops_cookie_consent", "true");
+                setShowBanner(false);
+            }}
         >
             This website uses cookies to enhance the user experience and track interactions for improvement.{" "}
             <span style={{ fontSize: "10px", color: "#6b7280" }}>By continuing, you verify you are over 18.</span>

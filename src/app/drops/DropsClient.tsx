@@ -49,6 +49,16 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
     return (
         <main className="min-h-screen bg-black selection:bg-brand-pink/30 pt-24 md:pt-32 px-4 md:px-8 max-w-7xl mx-auto pb-24">
 
+            {/* Page Header */}
+            <div className="mb-6 md:mb-8">
+                <h1 className="text-2xl md:text-4xl font-bold tracking-tighter text-white/90">
+                    KandyDrops by iKandy
+                </h1>
+                <p className="text-sm md:text-base text-gray-400 mt-1 font-medium">
+                    Unwrap your favorite flavors before they’re gone!
+                </p>
+            </div>
+
             {/* Sticky Filter Bar */}
             <StickyFilterBar
                 categories={CATEGORIES}

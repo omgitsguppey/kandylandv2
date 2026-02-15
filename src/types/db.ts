@@ -36,6 +36,7 @@ export interface Drop {
     validUntil?: number; // Timestamp (Optional - if missing, never expires)
     status: 'active' | 'expired' | 'scheduled';
     totalUnlocks: number;
+    createdAt?: number; // Added for sort/display
 
     // Dynamic Content Fields
     type?: 'content' | 'promo' | 'external';

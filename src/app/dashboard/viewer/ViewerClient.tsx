@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { ArrowLeft, Lock, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Lock, ShieldCheck, Heart, Share2, Download } from "lucide-react";
+import { toast } from "sonner";
 import { Drop } from "@/types/db";
 import NextImage from "next/image";
 
@@ -80,26 +81,24 @@ export function ViewerClient({ drop }: ViewerClientProps) {
     }
 
     return (
-        <div className="max-w-4xl mx-auto pt-24 pb-20 px-4">
-            <div className="flex items-center justify-between mb-6">
-                <Link href="/dashboard/library" className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
-                    <ArrowLeft className="w-4 h-4" />
-                    Back to Library
-                </Link>
-                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-brand-green/10 text-brand-green border border-brand-green/20 text-xs font-bold uppercase tracking-wider">
-                    <ShieldCheck className="w-3 h-3" />
-                    Secure Environment
+        <div className="min-h-screen bg-black pb-20">
+            {/* 1. Full-Width Media Viewer (Immersive) */}
+            <div className="w-full bg-black relative">
+                {/* Back Button Overlay */}
+                <div className="absolute top-4 left-4 z-20">
+                    <Link
+                        href="/dashboard"
+                        className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/50 backdrop-blur-md text-white/80 hover:text-white hover:bg-black/70 transition-all border border-white/10 text-sm font-medium"
+                    >
+                        <ArrowLeft className="w-4 h-4" />
+                        <span className="hidden md:inline">Library</span>
+                    </Link>
                 </div>
-            </div>
 
-            <div
-                className="glass-panel p-1 rounded-3xl overflow-hidden border border-white/10 shadow-2xl relative"
-                onContextMenu={(e) => e.preventDefault()}
-            >
-                <div className="relative aspect-video bg-black rounded-2xl overflow-hidden flex items-center justify-center">
+                {/* Media Container - 16:9 on mobile, max-height constraints on desktop */}
+                <div className="w-full aspect-video max-h-[85vh] mx-auto bg-zinc-900 flex items-center justify-center relative group">
                     {drop.contentUrl ? (
                         (() => {
-                            // Determine type from metadata or URL extension
                             const type = drop.fileMetadata?.type || "";
                             const url = drop.contentUrl;
 
@@ -110,28 +109,25 @@ export function ViewerClient({ drop }: ViewerClientProps) {
                                         controlsList="nodownload"
                                         className="w-full h-full object-contain"
                                         poster={drop.imageUrl}
+                                        autoPlay
                                     >
                                         <source src={url} type={type || "video/mp4"} />
-                                        Your browser does not support the video tag.
                                     </video>
                                 );
                             } else if (type.startsWith("audio/") || url.match(/\.(mp3|wav)$/i)) {
                                 return (
-                                    <div className="w-full h-full flex flex-col items-center justify-center p-8 bg-gradient-to-br from-gray-900 to-black">
-                                        <div className="w-32 h-32 rounded-full overflow-hidden mb-8 border-4 border-white/10 animate-[spin_10s_linear_infinite] relative">
-                                            {drop.imageUrl && (
-                                                <NextImage
-                                                    src={drop.imageUrl}
-                                                    alt="Album Art"
-                                                    fill
-                                                    className="object-cover"
-                                                    sizes="128px"
-                                                />
-                                            )}
+                                    <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-black relative">
+                                        <NextImage
+                                            src={drop.imageUrl}
+                                            alt="Album Art"
+                                            fill
+                                            className="object-cover opacity-30 blur-3xl"
+                                        />
+                                        <div className="relative z-10 w-48 h-48 md:w-64 md:h-64 rounded-2xl overflow-hidden shadow-2xl border border-white/10 mb-8">
+                                            <NextImage src={drop.imageUrl} alt="Art" fill className="object-cover" />
                                         </div>
-                                        <audio controls controlsList="nodownload" className="w-full max-w-md">
+                                        <audio controls controlsList="nodownload" className="relative z-10 w-[90%] max-w-md">
                                             <source src={url} type={type || "audio/mpeg"} />
-                                            Your browser does not support the audio element.
                                         </audio>
                                     </div>
                                 );
@@ -140,46 +136,97 @@ export function ViewerClient({ drop }: ViewerClientProps) {
                                     <div className="relative w-full h-full">
                                         <NextImage
                                             src={url}
-                                            alt="Secure Content"
+                                            alt="Content"
                                             fill
-                                            className="object-contain pointer-events-none select-none"
-                                            draggable={false}
-                                            sizes="80vw"
+                                            className="object-contain"
+                                            sizes="100vw"
                                         />
                                     </div>
                                 );
                             } else {
-                                // Fallback for Zip / PDF / Other
+                                // Fallback for Files
                                 return (
-                                    <div className="flex flex-col items-center justify-center p-12 text-center">
-                                        <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-6">
-                                            <ShieldCheck className="w-8 h-8 text-brand-cyan" />
+                                    <div className="text-center p-10">
+                                        <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+                                            <ShieldCheck className="w-10 h-10 text-gray-400" />
                                         </div>
-                                        <h3 className="text-xl font-bold text-white mb-2">Ready to Download</h3>
-                                        <p className="text-gray-400 mb-6">This content is available for direct download.</p>
-                                        <a
-                                            href={url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="px-8 py-3 bg-brand-pink text-white font-bold rounded-full hover:bg-pink-600 transition-colors shadow-lg shadow-brand-pink/20"
-                                        >
-                                            Download File
-                                        </a>
+                                        <p className="text-gray-400">File Preview Not Available</p>
                                     </div>
                                 );
                             }
                         })()
                     ) : (
-                        <div className="flex items-center justify-center h-full text-gray-500">
-                            Content not available
-                        </div>
+                        <div className="text-gray-500">Content Unavailable</div>
                     )}
                 </div>
             </div>
 
-            <div className="mt-8">
-                <h1 className="text-3xl font-bold text-white mb-2">{drop.title}</h1>
-                <p className="text-gray-400 leading-relaxed max-w-2xl">{drop.description}</p>
+            {/* 2. Content Info & Engagement */}
+            <div className="max-w-4xl mx-auto px-4 mt-6 md:mt-8">
+                <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
+
+                    {/* Title & Metadata */}
+                    <div className="flex-1">
+                        <div className="flex items-center gap-3 text-xs md:text-sm text-gray-400 mb-2">
+                            <span className="px-2 py-0.5 rounded bg-white/10 border border-white/5 text-brand-pink font-mono uppercase tracking-wider">
+                                #{drop.id.slice(0, 4)}
+                            </span>
+                            <span>•</span>
+                            <span>Unlocked Just Now</span>
+                        </div>
+                        <h1 className="text-2xl md:text-4xl font-bold text-white mb-3 leading-tight">
+                            {drop.title}
+                        </h1>
+                        <p className="text-gray-400 leading-relaxed text-sm md:text-base max-w-2xl">
+                            {drop.description}
+                        </p>
+                    </div>
+
+                    {/* 3. Engagement & Actions */}
+                    <div className="flex flex-col gap-3 w-full md:w-auto min-w-[200px]">
+                        {/* Primary Actions Row */}
+                        <div className="flex items-center gap-2">
+                            <button className="flex-1 px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold transition-colors flex items-center justify-center gap-2 border border-white/5">
+                                <Heart className="w-5 h-5" /> <span className="text-sm">Like</span>
+                            </button>
+                            <button
+                                className="flex-1 px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold transition-colors flex items-center justify-center gap-2 border border-white/5"
+                                onClick={() => {
+                                    navigator.clipboard.writeText(window.location.href);
+                                    toast.success("Link copied!");
+                                }}
+                            >
+                                <Share2 className="w-5 h-5" /> <span className="text-sm">Share</span>
+                            </button>
+                        </div>
+
+                        {/* 4. Secondary Download (Tertiary) */}
+                        {drop.contentUrl && (
+                            <a
+                                href={drop.contentUrl}
+                                download
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-full px-4 py-3 rounded-xl border border-white/10 text-gray-400 font-medium text-sm flex items-center justify-center gap-2 hover:bg-white/5 hover:text-white transition-all"
+                            >
+                                <Download className="w-4 h-4" />
+                                <span>Download File</span>
+                            </a>
+                        )}
+                    </div>
+                </div>
+
+                {/* 5. Retention: More Like This (Static Placeholder for now) */}
+                <div className="mt-12 md:mt-20 border-t border-white/5 pt-8">
+                    <h3 className="text-lg font-bold text-white mb-6">More from collection</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 opacity-50 pointer-events-none grayscale">
+                        {/* Visual placeholders context */}
+                        {[1, 2, 3, 4].map(i => (
+                            <div key={i} className="aspect-square bg-white/5 rounded-xl border border-white/5" />
+                        ))}
+                    </div>
+                    <p className="text-center text-xs text-gray-600 mt-4">Exploring collection coming soon...</p>
+                </div>
             </div>
         </div>
     );

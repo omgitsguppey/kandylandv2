@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, Grid, Wallet, Search, Sparkles } from "lucide-react";
+import { Home, Candy, Wallet, Search, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -17,7 +17,7 @@ export default function MobileBottomBar() {
 
     const navItems = [
         { label: "Home", href: "/", icon: Home },
-        { label: "Drops", href: "/drops", icon: Grid },
+        { label: "Drops", href: "/drops", icon: Candy },
         { label: "Experiences", href: "/experiences", icon: Sparkles },
     ];
 

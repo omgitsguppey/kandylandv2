@@ -8,6 +8,8 @@ import {
     signInWithPopup,
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
+    setPersistence,
+    browserLocalPersistence,
     signOut
 } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
@@ -50,6 +52,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
+
+    // 0. Ensure Persistence (First Priority)
+    useEffect(() => {
+        const setupPersistence = async () => {
+            try {
+                await setPersistence(auth, browserLocalPersistence);
+            } catch (error) {
+                console.error("Auth persistence failed:", error);
+            }
+        };
+        setupPersistence();
+    }, []);
 
     // 1. Auth Listener (Identity Only)
     useEffect(() => {

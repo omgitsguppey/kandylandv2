@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export default function ExperiencesPage() {
     return (
-        <main className="min-h-screen bg-black flex flex-col items-center justify-center p-4 text-center">
+        <div className="h-[calc(100dvh-11rem)] md:h-[calc(100dvh-5rem)] w-full bg-black flex flex-col items-center justify-center text-center overflow-hidden">
             <div
                 className="mb-8 relative"
             >
@@ -37,6 +37,6 @@ export default function ExperiencesPage() {
                     Back to Home
                 </Link>
             </div>
-        </main >
+        </div >
     );
 }
