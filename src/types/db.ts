@@ -44,6 +44,9 @@ export interface Drop {
     actionUrl?: string;
     accentColor?: string;
 
+    // Tag System
+    tags?: string[]; // 'Sweet', 'Spicy', 'RAW', etc.
+
     // File Metadata
     fileMetadata?: {
         size: number;

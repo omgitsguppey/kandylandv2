@@ -184,14 +184,32 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                 )}
 
                 {/* Hot Badge */}
-                {drop.totalUnlocks > 50 && !isUnlocked && (
-                    <div className="absolute top-2 left-2 md:top-3 md:left-3 bg-brand-orange/90 backdrop-blur-md px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-bold text-white flex items-center gap-1 shadow-lg">
-                        🔥 Hot
-                    </div>
-                )}
+                <div className="absolute top-2 left-2 md:top-3 md:left-3 flex flex-col gap-1 items-start z-10">
+                    {drop.totalUnlocks > 50 && !isUnlocked && (
+                        <div className="bg-brand-orange/90 backdrop-blur-md px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-bold text-white flex items-center gap-1 shadow-lg animate-in slide-in-from-left-2 duration-300">
+                            🔥 Hot
+                        </div>
+                    )}
+
+                    {/* Tags */}
+                    {drop.tags && drop.tags.length > 0 && drop.tags.map((tag, i) => (
+                        <div
+                            key={tag}
+                            className={cn(
+                                "backdrop-blur-md px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-bold text-white shadow-lg border border-white/10 animate-in slide-in-from-left-2 duration-300",
+                                tag === 'Sweet' ? "bg-pink-500/80" :
+                                    tag === 'Spicy' ? "bg-red-500/80" :
+                                        tag === 'RAW' ? "bg-zinc-800/80 border-white/20" : "bg-brand-purple/80"
+                            )}
+                            style={{ animationDelay: `${i * 100}ms` }}
+                        >
+                            {tag}
+                        </div>
+                    ))}
+                </div>
 
                 <div className={cn(
-                    "absolute top-2 right-2 md:top-3 md:right-3 backdrop-blur-xl px-2 py-0.5 md:px-3 md:py-1.5 rounded-full text-[10px] md:text-xs font-mono font-medium flex items-center gap-1 border shadow-lg",
+                    "absolute top-2 right-2 md:top-3 md:right-3 backdrop-blur-xl px-2 py-0.5 md:px-3 md:py-1.5 rounded-full text-[10px] md:text-xs font-mono font-medium flex items-center gap-1 border shadow-lg z-10",
                     timeLeft.includes("h ") || timeLeft.includes("m ") // Less than 24h
                         ? "bg-red-500/80 text-white border-red-500/50"
                         : "bg-black/40 text-white border-white/10"
@@ -208,8 +226,8 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                 </div>
 
                 <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-1 md:gap-2 px-2 py-1 md:px-3 md:py-1.5 bg-brand-yellow/10 rounded-lg border border-brand-yellow/20">
-                        <span className="text-brand-yellow font-bold text-[10px] md:text-sm tracking-wide whitespace-nowrap">{drop.unlockCost} Drops</span>
+                    <div className="flex items-center gap-1 md:gap-2 px-2 py-1 md:px-3 md:py-1.5 bg-brand-purple/10 rounded-lg border border-brand-purple/20">
+                        <span className="text-brand-purple font-bold text-[10px] md:text-sm tracking-wide whitespace-nowrap">{drop.unlockCost} Drops</span>
                     </div>
 
                     {isUnlocked ? (

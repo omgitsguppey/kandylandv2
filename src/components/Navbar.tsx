@@ -6,6 +6,8 @@ import { useUI } from "@/context/UIContext";
 import { LogIn, Wallet, Plus } from "lucide-react";
 import { ProfileDropdown } from "@/components/Navigation/ProfileDropdown";
 import { ProfileSidebar } from "@/components/Navigation/ProfileSidebar";
+import { AdminDropdown } from "@/components/Navigation/AdminDropdown";
+import { NotificationBell } from "@/components/Navigation/NotificationBell";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { AuthModal } from "@/components/Auth/AuthModal";
@@ -34,11 +36,17 @@ export function Navbar() {
                     <div className="flex items-center gap-4">
                         {user ? (
                             <>
+                                {/* Admin Dropdown (Desktop & Mobile) - Protected internally */}
+                                <AdminDropdown />
+
+                                {/* Notification Bell (Global) */}
+                                <NotificationBell />
+
                                 {/* Wallet - Hidden on Mobile, shown on Desktop */}
                                 <div className="hidden md:flex items-center gap-3 pl-4 pr-1.5 py-1.5 glass-button rounded-full border border-white/5">
                                     <div className="flex items-center gap-2">
-                                        <Wallet className="w-4 h-4 text-brand-yellow drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]" />
-                                        <span className="font-mono text-brand-yellow font-bold tracking-wider">
+                                        <Wallet className="w-4 h-4 text-brand-purple drop-shadow-[0_0_8px_rgba(139,92,246,0.5)]" />
+                                        <span className="font-mono text-brand-purple font-bold tracking-wider">
                                             {userProfile?.gumDropsBalance || 0}
                                         </span>
                                     </div>

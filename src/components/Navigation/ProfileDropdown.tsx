@@ -67,9 +67,6 @@ export function ProfileDropdown() {
                     </div>
 
                     <nav className="space-y-1">
-                        {isAdmin && (
-                            <DropdownItem href="/admin" icon={<LayoutDashboard className="w-4 h-4 text-brand-cyan" />} label="Admin Dashboard" onClick={() => setIsOpen(false)} />
-                        )}
                         <DropdownItem href="/dashboard" icon={<LayoutDashboard className="w-4 h-4" />} label="Dashboard" onClick={() => setIsOpen(false)} />
                         <DropdownItem href="/dashboard/library" icon={<Library className="w-4 h-4" />} label="My KandyDrops" onClick={() => setIsOpen(false)} />
                         <DropdownItem href="/dashboard/profile" icon={<Settings className="w-4 h-4" />} label="Settings" onClick={() => setIsOpen(false)} />

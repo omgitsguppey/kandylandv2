@@ -5,7 +5,7 @@ import { collection, query, orderBy, onSnapshot, deleteDoc, doc } from "firebase
 import { db } from "@/lib/firebase";
 import { Drop } from "@/types/db";
 import { format } from "date-fns";
-import { Trash2, Edit, Eye, MoreHorizontal, Calendar, Clock, Lock, Package } from "lucide-react";
+import { Trash2, Edit, Eye, MoreHorizontal, Calendar, Clock, Lock, Package, PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -55,9 +55,12 @@ export default function AdminDropsPage() {
                 </div>
                 <Link
                     href="/admin/create"
-                    className="px-6 py-3 rounded-xl bg-brand-pink font-bold text-white hover:bg-brand-pink/80 transition-colors shadow-lg shadow-brand-pink/20"
+                    className="px-5 py-2 rounded-full bg-brand-pink font-bold text-white text-sm hover:bg-brand-pink/80 transition-colors shadow-lg shadow-brand-pink/20 flex items-center gap-2"
                 >
-                    + Create Drop
+                    <div className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center">
+                        <PlusCircle className="w-3 h-3" />
+                    </div>
+                    Create Drop
                 </Link>
             </header>
 

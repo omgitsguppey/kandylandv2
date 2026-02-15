@@ -28,10 +28,10 @@ export default function MobileBottomBar() {
                 <div className="absolute bottom-28 left-1/2 -translate-x-1/2 pointer-events-auto">
                     <button
                         onClick={openPurchaseModal}
-                        className="bg-black/80 backdrop-blur-xl border border-brand-yellow/30 pl-3 pr-4 py-1.5 rounded-full flex items-center gap-2 shadow-[0_4px_20px_rgba(250,204,21,0.2)]"
+                        className="bg-black/80 backdrop-blur-xl border border-brand-purple/30 pl-3 pr-4 py-1.5 rounded-full flex items-center gap-2 shadow-[0_4px_20px_rgba(139,92,246,0.2)]"
                     >
-                        <div className="w-5 h-5 bg-brand-yellow/20 rounded-full flex items-center justify-center">
-                            <Wallet className="w-3 h-3 text-brand-yellow" />
+                        <div className="w-5 h-5 bg-brand-purple/20 rounded-full flex items-center justify-center">
+                            <Wallet className="w-3 h-3 text-brand-purple" />
                         </div>
                         <span className="font-bold text-sm text-white tabular-nums">
                             {userProfile?.gumDropsBalance || 0}
@@ -80,9 +80,9 @@ export default function MobileBottomBar() {
                         if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
                         openPurchaseModal();
                     }}
-                    className="flex flex-col items-center gap-1 p-2 rounded-xl w-16 text-brand-yellow hover:text-white transition-colors active:scale-90"
+                    className="flex flex-col items-center gap-1 p-2 rounded-xl w-16 text-brand-purple hover:text-white transition-colors active:scale-90"
                 >
-                    <div className="p-1 rounded-lg bg-brand-yellow/10">
+                    <div className="p-1 rounded-lg bg-brand-purple/10">
                         <Wallet className="w-6 h-6" />
                     </div>
                     <span className="text-[10px] font-medium">Wallet</span>

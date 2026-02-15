@@ -77,7 +77,7 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
                         <div className="glass-panel bg-white/5 rounded-2xl p-4 flex items-center justify-between mb-2">
                             <div>
                                 <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">My Stash</p>
-                                <p className="text-2xl font-bold text-brand-yellow">{userProfile?.gumDropsBalance || 0} <span className="text-sm text-gray-400 font-normal">Drops</span></p>
+                                <p className="text-2xl font-bold text-brand-purple">{userProfile?.gumDropsBalance || 0} <span className="text-sm text-gray-400 font-normal">Drops</span></p>
                             </div>
                             <button
                                 onClick={() => {
@@ -93,9 +93,6 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
 
                     {/* Navigation */}
                     <nav className="flex-1 px-4 space-y-1">
-                        {isAdmin && (
-                            <SidebarItem href="/admin" icon={<LayoutDashboard className="w-5 h-5 text-brand-cyan" />} label="Admin Dashboard" onClick={onClose} />
-                        )}
                         <SidebarItem href="/dashboard" icon={<LayoutDashboard className="w-5 h-5" />} label="Dashboard" onClick={onClose} />
                         <SidebarItem href="/dashboard/library" icon={<Library className="w-5 h-5" />} label="My KandyDrops" onClick={onClose} />
                         <SidebarItem href="/dashboard/profile" icon={<Settings className="w-5 h-5" />} label="Settings" onClick={onClose} />

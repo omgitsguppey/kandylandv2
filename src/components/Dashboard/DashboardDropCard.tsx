@@ -90,7 +90,7 @@ function DashboardDropCardBase({ drop, isUnlocked, onClick }: DashboardDropCardP
                         </>
                     ) : (
                         <div className="w-full flex items-center justify-between text-xs">
-                            <span className="text-brand-pink font-bold">{drop.unlockCost} Drops</span>
+                            <span className="text-brand-purple font-bold">{drop.unlockCost} Drops</span>
                             <span className="text-gray-500">To Unlock</span>
                         </div>
                     )}

@@ -77,8 +77,8 @@ export default function StickyFilterBar({
         <div
             ref={barRef}
             className={cn(
-                "sticky top-[72px] z-40 py-3 transition-all duration-300",
-                isSticky ? "bg-black/60 backdrop-blur-xl border-b border-white/10" : "bg-transparent"
+                "sticky top-[72px] z-40 py-2 transition-all duration-300",
+                isSticky ? "bg-black/50 border-b border-white/5 backdrop-blur-sm" : "bg-transparent"
             )}
         >
             <div className="max-w-7xl mx-auto px-4 md:px-8 flex flex-col md:flex-row gap-4 items-center justify-between">
@@ -98,7 +98,7 @@ export default function StickyFilterBar({
                 </div>
 
                 {/* Categories (Horizontal Scroll) */}
-                <div className="w-full md:w-auto overflow-x-auto no-scrollbar flex items-center gap-2 pb-1 md:pb-0">
+                <div className="w-full md:w-auto overflow-x-auto no-scrollbar flex items-center gap-2 pl-1 md:pl-0">
                     {categories.map((cat) => {
                         const Icon = icons[cat] || Tag;
                         const isSelected = selectedCategory === cat;
@@ -108,10 +108,10 @@ export default function StickyFilterBar({
                                 key={cat}
                                 onClick={() => onSelectCategory(cat)}
                                 className={cn(
-                                    "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all border",
+                                    "flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border",
                                     isSelected
-                                        ? "bg-white/10 backdrop-blur-md text-white border-brand-pink/50 shadow-[0_0_15px_rgba(236,72,153,0.2)] scale-105"
-                                        : "bg-white/5 text-gray-400 border-transparent hover:bg-white/10 hover:text-white"
+                                        ? "bg-white/10 text-white border-brand-pink/50 shadow-[0_0_10px_rgba(236,72,153,0.2)]"
+                                        : "bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white"
                                 )}
                             >
                                 <Icon className={cn("w-3.5 h-3.5", isSelected ? "text-brand-pink" : "opacity-70")} />

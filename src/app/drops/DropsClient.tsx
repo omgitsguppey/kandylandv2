@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { DropGrid } from "@/components/DropGrid";
 import StickyFilterBar from "@/components/StickyFilterBar";
+import { FeaturedCarousel } from "@/components/FeaturedCarousel";
 import { Drop } from "@/types/db";
 
 const CATEGORIES = ["All", "New", "Ending Soon", "Hottest", "Rare"];
@@ -68,11 +69,18 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
                 onSearchChange={setSearchQuery}
             />
 
+            {/* Featured Section (Only show if no search/filter active for cleaner UX, or always? Prompt says "Page structure... Featured... All". imply constant structure. Let's show it unless searching) */}
+            {!searchQuery && selectedCategory === "All" && (
+                <div className="mt-8">
+                    <FeaturedCarousel drops={initialDrops} />
+                </div>
+            )}
+
             {/* Drops Grid */}
             <div className="mt-8 min-h-[500px]">
-                <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center justify-between mb-8 px-4 md:px-0">
                     <h2 className="text-2xl font-bold text-white tracking-tight">
-                        {searchQuery ? `Search Results: "${searchQuery}"` : selectedCategory === "All" ? "All Collections" : `${selectedCategory} Drops`}
+                        {searchQuery ? `Search Results: "${searchQuery}"` : selectedCategory === "All" ? "All KandyDrops" : `${selectedCategory} Drops`}
                     </h2>
                     <span className="text-gray-500 text-sm font-mono">{filteredDrops.length} items</span>
                 </div>

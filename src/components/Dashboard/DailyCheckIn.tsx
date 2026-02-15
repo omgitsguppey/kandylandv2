@@ -145,7 +145,7 @@ export function DailyCheckIn() {
     return (
         <div className="glass-panel p-6 rounded-3xl relative overflow-hidden">
             {/* Background Glow */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-brand-yellow/10 rounded-full blur-[50px] pointer-events-none" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-brand-purple/10 rounded-full blur-[50px] pointer-events-none" />
 
             <div className="relative z-10">
                 <div className="flex items-center justify-between mb-6">
@@ -156,8 +156,8 @@ export function DailyCheckIn() {
                         <p className="text-gray-400 text-sm">Check in daily to earn Gum Drops!</p>
                     </div>
                     <div className="text-right">
-                        <div className="text-3xl font-bold text-brand-yellow">{isAlreadyClaimedToday ? currentStreak : (displayStreak > 7 ? 1 : displayStreak)}<span className="text-base text-gray-500">/7</span></div>
-                        <div className="text-xs text-brand-yellow font-bold uppercase tracking-wider">Day Streak</div>
+                        <div className="text-3xl font-bold text-brand-purple">{isAlreadyClaimedToday ? currentStreak : (displayStreak > 7 ? 1 : displayStreak)}<span className="text-base text-gray-500">/7</span></div>
+                        <div className="text-xs text-brand-purple font-bold uppercase tracking-wider">Day Streak</div>
                     </div>
                 </div>
 
@@ -208,7 +208,7 @@ export function DailyCheckIn() {
                         {loading ? (
                             <Loader2 className="w-5 h-5 animate-spin" />
                         ) : (
-                            <>Claim <span className="text-brand-yellow mx-1">{rewardAmount}</span> Gum Drops</>
+                            <>Claim <span className="text-brand-purple mx-1">{rewardAmount}</span> Gum Drops</>
                         )}
                     </Button>
                 )}

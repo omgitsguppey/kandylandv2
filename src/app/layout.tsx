@@ -32,12 +32,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="antialiased min-h-screen bg-black text-white selection:bg-brand-pink selection:text-white">
+      <body className="antialiased min-h-[100dvh] bg-black text-white selection:bg-brand-pink selection:text-white flex flex-col overflow-x-hidden">
         <AuthProvider>
           <UIProvider>
             <NowProvider>
               <CoreLayoutWrapper>
-                <main className="pt-20 min-h-screen relative pb-24 md:pb-0">
+                <main className="pt-20 flex-1 relative flex flex-col">
                   {/* Background Elements */}
                   <div className="fixed inset-0 z-0 pointer-events-none">
                     <div className="absolute top-[-20%] left-[-20%] w-[50%] h-[50%] rounded-full bg-brand-pink/15 blur-[150px] animate-float transform-gpu" />
@@ -45,7 +45,7 @@ export default function RootLayout({
                   </div>
 
                   {/* Content */}
-                  <div className="relative z-10">
+                  <div className="relative z-10 flex-1 w-full">
                     <Navbar />
                     <ErrorBoundary>
                       {children}
