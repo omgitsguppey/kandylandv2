@@ -5,8 +5,6 @@ import { PayPalButtons, usePayPalScriptReducer, SCRIPT_LOADING_STATE, DISPATCH_A
 import { X, Candy } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
-import { doc, increment, updateDoc, collection, addDoc, serverTimestamp, writeBatch } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
 
@@ -61,30 +59,28 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
         try {
             if (!user) throw new Error("User not authenticated");
 
-            // 1. Update user balance (Atomic Batch)
-            const userRef = doc(db, "users", user.uid);
-            const batch = writeBatch(db);
-
-            batch.update(userRef, {
-                gumDropsBalance: increment(selectedPackage.drops)
+            // Server-side capture & verification
+            const response = await fetch("/api/paypal/capture", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    orderId,
+                    userId: user.uid,
+                    expectedDrops: selectedPackage.drops,
+                }),
             });
 
-            // 2. Record transaction
-            const transactionRef = doc(collection(db, "transactions"));
-            batch.set(transactionRef, {
-                userId: user.uid,
-                type: "purchase",
-                amount: selectedPackage.drops,
-                cost: selectedPackage.price,
-                currency: "USD",
-                paymentId: orderId,
-                status: "completed",
-                timestamp: serverTimestamp()
-            });
+            const result = await response.json();
 
-            await batch.commit();
+            if (!response.ok) {
+                throw new Error(result.error || "Payment verification failed");
+            }
 
-            // Analytics
+            if (result.duplicate) {
+                toast.info("This payment was already processed.");
+            }
+
+            // Analytics (non-critical, fire-and-forget)
             if (typeof window !== "undefined") {
                 import("firebase/analytics").then(({ getAnalytics, logEvent }) => {
                     const analytics = getAnalytics();
@@ -94,18 +90,23 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                         transaction_id: orderId,
                         items: [{ item_name: selectedPackage.label, quantity: 1 }]
                     });
-                });
+                }).catch(() => { });
             }
 
+            // Celebrate
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+
             setSuccess(true);
+            toast.success(`${result.drops || selectedPackage.drops} Gum Drops added!`);
             setTimeout(() => {
                 setSuccess(false);
                 onClose();
             }, 3000);
 
-        } catch (err) {
+        } catch (err: any) {
             console.error("Purchase error:", err);
-            setError("Purchase failed. Please contact support.");
+            setError(err.message || "Purchase failed. Please contact support.");
+            toast.error("Purchase failed", { description: err.message });
         } finally {
             setProcessing(false);
         }
@@ -200,10 +201,10 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                                     ],
                                                 });
                                             }}
-                                            onApprove={async (data, actions) => {
-                                                const order = await actions.order?.capture();
-                                                if (order?.id) {
-                                                    await handleApprove(order.id);
+                                            onApprove={async (data) => {
+                                                // Server captures & verifies — never capture client-side
+                                                if (data.orderID) {
+                                                    await handleApprove(data.orderID);
                                                 }
                                             }}
                                             onError={(err) => {
