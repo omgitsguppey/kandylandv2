@@ -50,11 +50,11 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
         <main className="min-h-screen bg-black selection:bg-brand-pink/30 pt-24 md:pt-32 px-4 md:px-8 max-w-7xl mx-auto pb-24">
 
             {/* Page Header */}
-            <div className="mb-6 md:mb-8">
-                <h1 className="text-2xl md:text-4xl font-bold tracking-tighter text-white/90">
+            <div className="mb-12 md:mb-16 flex flex-col items-center text-center">
+                <h1 className="text-4xl md:text-6xl font-black tracking-tighter text-white/90 mb-3 drop-shadow-xl">
                     KandyDrops by iKandy
                 </h1>
-                <p className="text-sm md:text-base text-gray-400 mt-1 font-medium">
+                <p className="text-base md:text-lg text-gray-400 font-medium max-w-lg mx-auto leading-relaxed">
                     Unwrap your favorite flavors before they’re gone!
                 </p>
             </div>

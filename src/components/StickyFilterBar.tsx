@@ -110,7 +110,7 @@ export default function StickyFilterBar({
                                 className={cn(
                                     "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all border",
                                     isSelected
-                                        ? "bg-white text-black border-white shadow-[0_0_15px_rgba(255,255,255,0.3)] scale-105"
+                                        ? "bg-white/10 backdrop-blur-md text-white border-brand-pink/50 shadow-[0_0_15px_rgba(236,72,153,0.2)] scale-105"
                                         : "bg-white/5 text-gray-400 border-transparent hover:bg-white/10 hover:text-white"
                                 )}
                             >
