@@ -1,3 +1,5 @@
+"use client";
+
 import { useRef } from "react";
 import { Button } from "@/components/ui/Button";
 import { CandyIcon } from "@/components/ui/Icon";
