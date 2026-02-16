@@ -4,11 +4,20 @@
 
 Remote repo: `https://github.com/omgitsguppey/kandylandv2.git`
 
-If no remote is configured, add it first:
+### Setup (run once per session if no remote exists)
 
 ```bash
-git remote add origin https://github.com/omgitsguppey/kandylandv2.git
+# Use token auth for non-interactive environments
+git remote add origin https://${GITHUB_TOKEN}@github.com/omgitsguppey/kandylandv2.git
 ```
+
+If origin already exists but needs auth:
+
+```bash
+git remote set-url origin https://${GITHUB_TOKEN}@github.com/omgitsguppey/kandylandv2.git
+```
+
+### Push
 
 This repo's default branch is `main`. If your local branch is `work` (as in Codex sandboxes), push with:
 
