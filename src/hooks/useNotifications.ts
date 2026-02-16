@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { collection, query, orderBy, onSnapshot, limit, Timestamp } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { db } from "@/lib/firebase-data";
 import { useAuthIdentity } from "@/context/AuthContext";
 import { markNotificationAsRead } from "@/lib/notifications";
 

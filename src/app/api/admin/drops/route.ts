@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { verifyAdmin, AuthError } from "@/lib/server/auth";
+import { verifyAdmin, AuthError, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 
 // Whitelist of allowed drop fields to prevent arbitrary writes
@@ -43,12 +43,8 @@ export async function POST(request: NextRequest) {
         });
 
         return NextResponse.json({ success: true, id: docRef.id });
-    } catch (error: any) {
-        if (error instanceof AuthError) {
-            return NextResponse.json({ error: error.message }, { status: error.status });
-        }
-        console.error("Create drop error:", error);
-        return NextResponse.json({ error: error.message || "Create failed" }, { status: 500 });
+    } catch (error) {
+        return handleApiError(error, "Admin.Drops.POST");
     }
 }
 
@@ -75,12 +71,8 @@ export async function PUT(request: NextRequest) {
         await dropRef.update(sanitized);
 
         return NextResponse.json({ success: true });
-    } catch (error: any) {
-        if (error instanceof AuthError) {
-            return NextResponse.json({ error: error.message }, { status: error.status });
-        }
-        console.error("Update drop error:", error);
-        return NextResponse.json({ error: error.message || "Update failed" }, { status: 500 });
+    } catch (error) {
+        return handleApiError(error, "Admin.Drops.PUT");
     }
 }
 
@@ -107,11 +99,7 @@ export async function DELETE(request: NextRequest) {
         await dropRef.delete();
 
         return NextResponse.json({ success: true });
-    } catch (error: any) {
-        if (error instanceof AuthError) {
-            return NextResponse.json({ error: error.message }, { status: error.status });
-        }
-        console.error("Delete drop error:", error);
-        return NextResponse.json({ error: error.message || "Delete failed" }, { status: 500 });
+    } catch (error) {
+        return handleApiError(error, "Admin.Drops.DELETE");
     }
 }

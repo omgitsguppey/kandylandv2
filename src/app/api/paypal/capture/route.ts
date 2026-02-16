@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { verifyAuth, AuthError } from "@/lib/server/auth";
+import { verifyAuth, AuthError, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 
 // PayPal API base URLs
@@ -213,14 +213,7 @@ export async function POST(request: NextRequest) {
             success: true,
             drops: dropsToCredit,
         });
-    } catch (error: any) {
-        if (error instanceof AuthError) {
-            return NextResponse.json({ error: error.message }, { status: error.status });
-        }
-        console.error("PayPal verification error:", error);
-        return NextResponse.json(
-            { error: error.message || "Payment verification failed" },
-            { status: 500 }
-        );
+    } catch (error) {
+        return handleApiError(error, "PayPal.Capture");
     }
 }

@@ -17,26 +17,62 @@ import { useUserProfile } from "@/context/AuthContext";
 interface DropCardProps {
     drop: Drop;
     priority?: boolean;
-    user?: User | null;
+    user: User | null;
     isUnlocked?: boolean;
     canAfford?: boolean;
 }
+
+interface DropCardBadgeProps {
+    type: 'hot' | 'tag';
+    label: string;
+    index?: number;
+}
+
+const DropCardBadge = ({ type, label, index = 0 }: DropCardBadgeProps) => (
+    <div
+        className={cn(
+            "backdrop-blur-md px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-bold text-white shadow-lg border animate-in slide-in-from-left-2 duration-300",
+            type === 'hot' ? "bg-brand-orange/90 border-transparent" : "bg-brand-purple/80 border-white/10",
+            label === 'Sweet' && "bg-pink-500/80",
+            label === 'Spicy' && "bg-red-500/80",
+            label === 'RAW' && "bg-zinc-800/80 border-white/20"
+        )}
+        style={{ animationDelay: `${index * 100}ms` }}
+    >
+        {type === 'hot' && "🔥 "}
+        {label}
+    </div>
+);
+
+interface DropCardTimerProps {
+    timeLeft: string;
+}
+
+const DropCardTimer = ({ timeLeft }: DropCardTimerProps) => (
+    <div className={cn(
+        "absolute top-2 right-2 md:top-3 md:right-3 backdrop-blur-xl px-2 py-0.5 md:px-3 md:py-1.5 rounded-full text-[10px] md:text-xs font-mono font-medium flex items-center gap-1 border shadow-lg z-10",
+        timeLeft.includes("h ") || timeLeft.includes("m ")
+            ? "bg-red-500/80 text-white border-red-500/50"
+            : "bg-black/40 text-white border-white/10"
+    )}>
+        <Clock className="w-3 h-3" />
+        {timeLeft}
+    </div>
+);
 
 function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAfford = false }: DropCardProps) {
     const { now } = useNow();
     const { refreshProfile } = useUserProfile();
     const [timeLeft, setTimeLeft] = useState("");
-    const [isHovered, setIsHovered] = useState(false);
     const [unlocking, setUnlocking] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Phase 2: Derived time based on shared 'now'
     useEffect(() => {
         if (now < drop.validFrom) {
             setTimeLeft(`Starts in ${formatDistanceToNow(drop.validFrom)}`);
         } else if (!drop.validUntil || now < drop.validUntil) {
             if (!drop.validUntil) {
-                setTimeLeft("Forever"); // Or leave empty to hide
+                setTimeLeft("Forever");
             } else {
                 const diff = drop.validUntil - now;
                 if (diff > 24 * 60 * 60 * 1000) {
@@ -85,7 +121,6 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                 throw new Error(result.error || "Unlock failed");
             }
 
-            // Refresh Profile to reflect changes (balance/unlocks) immediately
             await refreshProfile();
 
             toast.success(`Unwrapped: ${drop.title}`, {
@@ -94,7 +129,6 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                 duration: 4000
             });
 
-            // Trigger confetti
             confetti({
                 particleCount: 100,
                 spread: 70,
@@ -102,7 +136,6 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                 colors: ['#ec4899', '#06b6d4', '#facc15']
             });
 
-            // Analytics
             if (typeof window !== "undefined") {
                 import("firebase/analytics").then(({ getAnalytics, logEvent }) => {
                     const analytics = getAnalytics();
@@ -124,18 +157,14 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
             setUnlocking(false);
         }
     };
+
     return (
-        <div
-            className="group relative p-2 md:p-6 rounded-2xl md:rounded-3xl glass-panel overflow-hidden"
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-        >
+        <div className="group relative p-2 md:p-6 rounded-2xl md:rounded-3xl glass-panel overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-brand-pink/5 via-transparent to-brand-cyan/5 pointer-events-none" />
 
-            {/* Image / Content Container */}
+            {/* Media Area */}
             <div className="relative w-full aspect-square bg-black/40 rounded-xl md:rounded-2xl mb-2 md:mb-5 overflow-hidden group/image shadow-inner border border-white/5">
                 {isUnlocked ? (
-                    // UNLOCKED STATE: Show Content
                     drop.contentUrl ? (
                         <div className="w-full h-full relative">
                             {['mp4', 'webm'].some(ext => drop.contentUrl.includes(ext)) ? (
@@ -149,7 +178,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                 />
                             )}
-                            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover/image:opacity-100">
+                            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover/image:opacity-100 transition-opacity">
                                 <span className="font-bold text-brand-green bg-black/90 px-4 py-2 rounded-full border border-brand-green/30 shadow-lg shadow-brand-green/20">View Content</span>
                             </div>
                         </div>
@@ -160,55 +189,33 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                         </div>
                     )
                 ) : (
-                    // LOCKED STATE: Show Preview/Placeholder
-                    drop.imageUrl ? (
-                        <NextImage
-                            src={drop.imageUrl}
-                            alt={drop.title}
-                            fill
-                            priority={priority} // Prioritize based on grid position
-                            className="object-cover opacity-80 group-hover:opacity-100"
-                            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                        />
-                    ) : (
-                        <div className="w-full h-full flex items-center justify-center text-5xl bg-zinc-900/50">🍬</div>
-                    )
+                    <div className="w-full h-full relative">
+                        {drop.imageUrl ? (
+                            <NextImage
+                                src={drop.imageUrl}
+                                alt={drop.title}
+                                fill
+                                priority={priority}
+                                className="object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                            />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center text-5xl bg-zinc-900/50">🍬</div>
+                        )}
+                    </div>
                 )}
 
-                {/* Hot Badge */}
+                {/* Overlays */}
                 <div className="absolute top-2 left-2 md:top-3 md:left-3 flex flex-col gap-1 items-start z-10">
                     {drop.totalUnlocks > 50 && !isUnlocked && (
-                        <div className="bg-brand-orange/90 backdrop-blur-md px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-bold text-white flex items-center gap-1 shadow-lg animate-in slide-in-from-left-2 duration-300">
-                            🔥 Hot
-                        </div>
+                        <DropCardBadge type="hot" label="Hot" />
                     )}
-
-                    {/* Tags */}
-                    {drop.tags && drop.tags.length > 0 && drop.tags.map((tag, i) => (
-                        <div
-                            key={tag}
-                            className={cn(
-                                "backdrop-blur-md px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-bold text-white shadow-lg border border-white/10 animate-in slide-in-from-left-2 duration-300",
-                                tag === 'Sweet' ? "bg-pink-500/80" :
-                                    tag === 'Spicy' ? "bg-red-500/80" :
-                                        tag === 'RAW' ? "bg-zinc-800/80 border-white/20" : "bg-brand-purple/80"
-                            )}
-                            style={{ animationDelay: `${i * 100}ms` }}
-                        >
-                            {tag}
-                        </div>
+                    {drop.tags?.map((tag, i) => (
+                        <DropCardBadge key={tag} type="tag" label={tag} index={i} />
                     ))}
                 </div>
 
-                <div className={cn(
-                    "absolute top-2 right-2 md:top-3 md:right-3 backdrop-blur-xl px-2 py-0.5 md:px-3 md:py-1.5 rounded-full text-[10px] md:text-xs font-mono font-medium flex items-center gap-1 border shadow-lg z-10",
-                    timeLeft.includes("h ") || timeLeft.includes("m ") // Less than 24h
-                        ? "bg-red-500/80 text-white border-red-500/50"
-                        : "bg-black/40 text-white border-white/10"
-                )}>
-                    <Clock className="w-3 h-3" />
-                    {timeLeft}
-                </div>
+                <DropCardTimer timeLeft={timeLeft} />
             </div>
 
             <div className="relative z-10">
@@ -236,7 +243,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                                 canAfford
                                     ? "bg-white text-black border-white hover:bg-brand-pink hover:border-brand-pink hover:text-white shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:shadow-[0_0_25px_rgba(236,72,153,0.4)]"
                                     : "bg-white/5 text-gray-500 border-white/5 cursor-not-allowed",
-                                "disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+                                "disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-all"
                             )}
                         >
                             {unlocking ? (
@@ -259,3 +266,4 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
 }
 
 export const DropCard = memo(DropCardBase);
+

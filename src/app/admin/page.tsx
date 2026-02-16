@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { collection, getCountFromServer, query, where, getDocs, orderBy, limit } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { db } from "@/lib/firebase-data";
 import { Users, Package, DollarSign, Activity, TrendingUp } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 

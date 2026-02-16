@@ -10,16 +10,14 @@ import {
     createUserWithEmailAndPassword,
     setPersistence,
     browserLocalPersistence,
-    signOut
+    signOut,
 } from "firebase/auth";
-import { auth, db } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { auth } from "@/lib/firebase";
 import { UserProfile } from "@/types/db";
+import { normalizeUserProfile } from "@/lib/user-utils";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
-
-// --- Split Context Definitions ---
 
 interface AuthIdentityContextType {
     user: User | null;
@@ -43,10 +41,39 @@ const AuthIdentityContext = createContext<AuthIdentityContextType | null>(null);
 const UserProfileContext = createContext<UserProfileContextType | null>(null);
 const AuthLoadingContext = createContext<AuthLoadingContextType | null>(null);
 
-// --- Combined Context for Legacy Support ---
 interface AuthContextType extends AuthIdentityContextType, UserProfileContextType, AuthLoadingContextType { }
 
 const AuthContext = createContext<AuthContextType | null>(null);
+
+let persistencePromise: Promise<void> | null = null;
+
+function ensureAuthPersistence() {
+    if (!persistencePromise) {
+        persistencePromise = setPersistence(auth, browserLocalPersistence).catch((error) => {
+            persistencePromise = null;
+            throw error;
+        });
+    }
+
+    return persistencePromise;
+}
+
+
+async function fetchUserProfile(user: User): Promise<UserProfile | null> {
+    const [{ db }, { doc, getDoc }] = await Promise.all([
+        import("@/lib/firebase-data"),
+        import("firebase/firestore"),
+    ]);
+
+    const profileDocRef = doc(db, "users", user.uid);
+    const profileSnapshot = await getDoc(profileDocRef);
+
+    if (!profileSnapshot.exists()) {
+        return null;
+    }
+
+    return normalizeUserProfile(profileSnapshot.data(), user);
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
@@ -54,20 +81,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
 
-    // 0. Ensure Persistence (First Priority)
     useEffect(() => {
-        const setupPersistence = async () => {
-            try {
-                await setPersistence(auth, browserLocalPersistence);
-            } catch (error) {
-                console.error("Auth persistence failed:", error);
-            }
-        };
-        setupPersistence();
-    }, []);
+        ensureAuthPersistence().catch((error) => {
+            console.error("Auth persistence failed:", error);
+        });
 
-    // 1. Auth Listener (Identity Only)
-    useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
             if (!currentUser) {
@@ -75,51 +93,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 setLoading(false);
             }
         });
+
         return () => unsubscribe();
     }, []);
 
-    // 2. Fetch Profile ONE-OFF when user changes
     const fetchProfile = useCallback(async () => {
         if (!user) return;
-        try {
-            const docRef = doc(db, "users", user.uid);
-            const snapshot = await getDoc(docRef);
-            if (snapshot.exists()) {
-                const profile = snapshot.data() as UserProfile;
 
-                // Check Status (Legacy Logic)
-                if (profile.status === 'banned' || profile.status === 'suspended') {
-                    if (window.location.pathname !== "/") {
-                        await signOut(auth);
-                        alert(`Your account has been ${profile.status}.\nReason: ${profile.statusReason || "Violation of terms."}`);
-                        window.location.href = "/";
-                        return;
-                    }
+        try {
+            const profile = await fetchUserProfile(user);
+
+            if (profile) {
+                if ((profile.status === "banned" || profile.status === "suspended") && window.location.pathname !== "/") {
+                    await signOut(auth);
+                    alert(`Your account has been ${profile.status}.\nReason: ${profile.statusReason || "Violation of terms."}`);
+                    window.location.href = "/";
+                    return;
                 }
 
                 setUserProfile(profile);
-            } else {
-                // Create basic profile if missing — via server API
-                try {
-                    const response = await authFetch("/api/user/register", {
-                        method: "POST",
-                        body: JSON.stringify({
-                            displayName: user.displayName || "User",
-                        }),
-                    });
-                    if (response.ok) {
-                        // Re-fetch the profile that was just created server-side
-                        const refreshed = await getDoc(docRef);
-                        if (refreshed.exists()) {
-                            setUserProfile(refreshed.data() as UserProfile);
-                        }
-                    } else {
-                        console.error("Failed to auto-create profile via API");
-                    }
-                } catch (regErr) {
-                    console.error("Auto-register API error:", regErr);
-                }
+                return;
             }
+
+            const response = await authFetch("/api/user/register", {
+                method: "POST",
+                body: JSON.stringify({
+                    displayName: user.displayName || "User",
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to auto-create profile via API");
+            }
+
+            const refreshedProfile = await fetchUserProfile(user);
+            setUserProfile(refreshedProfile);
         } catch (err) {
             console.error("Error fetching profile:", err);
         } finally {
@@ -130,52 +138,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         if (user) {
             fetchProfile();
-        } else {
-            setLoading(false);
+            return;
         }
+
+        setLoading(false);
     }, [user, fetchProfile]);
 
     const refreshProfile = async () => {
         await fetchProfile();
     };
 
-    // --- Auth Actions ---
-
     const signInWithGoogle = async () => {
         try {
+            await ensureAuthPersistence();
             const provider = new GoogleAuthProvider();
+            provider.setCustomParameters({ prompt: "select_account" });
+
             await signInWithPopup(auth, provider);
             toast.success("Welcome back!");
             router.push("/dashboard");
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : "Login failed";
             console.error("Login failed", error);
-            toast.error(error.message);
+            toast.error(message);
         }
     };
 
     const signInWithEmail = async (email: string, pass: string) => {
+        await ensureAuthPersistence();
         await signInWithEmailAndPassword(auth, email, pass);
         toast.success("Welcome back!");
         router.push("/dashboard");
     };
 
     const signUpWithEmail = async (email: string, pass: string, username: string, dob: string) => {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-        const newUser = userCredential.user;
+        await ensureAuthPersistence();
+        await createUserWithEmailAndPassword(auth, email, pass);
 
-        // Create profile server-side
         const response = await authFetch("/api/user/register", {
             method: "POST",
             body: JSON.stringify({
                 displayName: username,
-                username: username.replace(/\s+/g, '').toLowerCase(),
+                username: username.replace(/\s+/g, "").toLowerCase(),
                 dateOfBirth: dob,
                 welcomeBonus: true,
             }),
         });
 
         if (!response.ok) {
-            const result = await response.json();
+            const result = (await response.json()) as { error?: string };
             throw new Error(result.error || "Registration failed");
         }
 
@@ -188,47 +199,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         router.push("/");
     };
 
-    // --- Memoized Values ---
+    const identityValue = useMemo(
+        () => ({
+            user,
+            signInWithGoogle,
+            signInWithEmail,
+            signUpWithEmail,
+            logout,
+        }),
+        [user]
+    );
 
-    const identityValue = useMemo(() => ({
-        user,
-        signInWithGoogle,
-        signInWithEmail,
-        signUpWithEmail,
-        logout
-    }), [user]);
+    const profileValue = useMemo(
+        () => ({
+            userProfile,
+            refreshProfile,
+            setUserProfile,
+        }),
+        [userProfile]
+    );
 
-    const profileValue = useMemo(() => ({
-        userProfile,
-        refreshProfile,
-        setUserProfile
-    }), [userProfile]);
+    const loadingValue = useMemo(
+        () => ({
+            loading,
+        }),
+        [loading]
+    );
 
-    const loadingValue = useMemo(() => ({
-        loading
-    }), [loading]);
-
-    // Legacy combined value (memoized)
-    const combinedValue = useMemo(() => ({
-        ...identityValue,
-        ...profileValue,
-        ...loadingValue
-    }), [identityValue, profileValue, loadingValue]);
+    const combinedValue = useMemo(
+        () => ({
+            ...identityValue,
+            ...profileValue,
+            ...loadingValue,
+        }),
+        [identityValue, profileValue, loadingValue]
+    );
 
     return (
         <AuthContext.Provider value={combinedValue}>
             <AuthIdentityContext.Provider value={identityValue}>
                 <UserProfileContext.Provider value={profileValue}>
-                    <AuthLoadingContext.Provider value={loadingValue}>
-                        {children}
-                    </AuthLoadingContext.Provider>
+                    <AuthLoadingContext.Provider value={loadingValue}>{children}</AuthLoadingContext.Provider>
                 </UserProfileContext.Provider>
             </AuthIdentityContext.Provider>
         </AuthContext.Provider>
     );
 }
-
-// --- Specific Hooks ---
 
 export const useAuthIdentity = () => {
     const context = useContext(AuthIdentityContext);
@@ -238,7 +254,6 @@ export const useAuthIdentity = () => {
 
 export const useUserProfile = () => {
     const context = useContext(UserProfileContext);
-    // Allow using userProfile in contexts where it might be null (though Provider always exists if wrapped)
     if (!context) throw new Error("useUserProfile must be used within AuthProvider");
     return context;
 };
@@ -249,7 +264,6 @@ export const useAuthLoading = () => {
     return context;
 };
 
-// --- Legacy Hook ---
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (!context) throw new Error("useAuth must be used within AuthProvider");

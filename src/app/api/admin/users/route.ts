@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { verifyAdmin, AuthError } from "@/lib/server/auth";
+import { verifyAdmin, AuthError, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 
 // PUT — Update user status/role (admin-only)
@@ -34,12 +34,8 @@ export async function PUT(request: NextRequest) {
         await userRef.update(sanitized);
 
         return NextResponse.json({ success: true });
-    } catch (error: any) {
-        if (error instanceof AuthError) {
-            return NextResponse.json({ error: error.message }, { status: error.status });
-        }
-        console.error("Admin user update error:", error);
-        return NextResponse.json({ error: error.message || "Update failed" }, { status: 500 });
+    } catch (error) {
+        return handleApiError(error, "Admin.Users.PUT");
     }
 }
 
@@ -68,11 +64,7 @@ export async function POST(request: NextRequest) {
         }
 
         return NextResponse.json({ success: true });
-    } catch (error: any) {
-        if (error instanceof AuthError) {
-            return NextResponse.json({ error: error.message }, { status: error.status });
-        }
-        console.error("Admin content manage error:", error);
-        return NextResponse.json({ error: error.message || "Action failed" }, { status: 500 });
+    } catch (error) {
+        return handleApiError(error, "Admin.Users.POST");
     }
 }

@@ -1,5 +1,5 @@
 import "server-only";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { adminAuth, adminDb } from "./firebase-admin";
 
 export interface AuthResult {
@@ -52,6 +52,20 @@ export async function verifyAdmin(request: NextRequest): Promise<AuthResult> {
     }
 
     return authResult;
+}
+
+/**
+ * Standard API error handler for route handlers.
+ */
+export function handleApiError(error: any, context: string) {
+    if (error instanceof AuthError) {
+        return NextResponse.json({ error: error.message }, { status: error.status });
+    }
+    console.error(`[API ERROR] ${context}:`, error);
+    return NextResponse.json(
+        { error: error instanceof Error ? error.message : "Internal server error" },
+        { status: 500 }
+    );
 }
 
 /**

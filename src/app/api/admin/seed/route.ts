@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { verifyAdmin, AuthError } from "@/lib/server/auth";
+import { verifyAdmin, AuthError, handleApiError } from "@/lib/server/auth";
 
 export async function POST(request: NextRequest) {
     try {
@@ -28,11 +28,7 @@ export async function POST(request: NextRequest) {
         await batch.commit();
 
         return NextResponse.json({ success: true, count: drops.length });
-    } catch (error: any) {
-        if (error instanceof AuthError) {
-            return NextResponse.json({ error: error.message }, { status: error.status });
-        }
-        console.error("Seed error:", error);
-        return NextResponse.json({ error: error.message || "Seed failed" }, { status: 500 });
+    } catch (error) {
+        return handleApiError(error, "Admin.Seed");
     }
 }

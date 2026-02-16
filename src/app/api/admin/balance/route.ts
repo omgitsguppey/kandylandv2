@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { verifyAdmin, AuthError } from "@/lib/server/auth";
+import { verifyAdmin, AuthError, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 
 // POST — Adjust user balance (admin-only)
@@ -38,11 +38,7 @@ export async function POST(request: NextRequest) {
         await batch.commit();
 
         return NextResponse.json({ success: true });
-    } catch (error: any) {
-        if (error instanceof AuthError) {
-            return NextResponse.json({ error: error.message }, { status: error.status });
-        }
-        console.error("Balance adjustment error:", error);
-        return NextResponse.json({ error: error.message || "Adjustment failed" }, { status: 500 });
+    } catch (error) {
+        return handleApiError(error, "Admin.Balance");
     }
 }

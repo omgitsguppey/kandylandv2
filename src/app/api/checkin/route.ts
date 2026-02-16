@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { verifyAuth, AuthError } from "@/lib/server/auth";
+import { verifyAuth, AuthError, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 import { getCSTDayBoundaries } from "@/lib/timezone";
 
@@ -79,11 +79,7 @@ export async function POST(request: NextRequest) {
             reward,
             streak: nextStreak,
         });
-    } catch (error: any) {
-        if (error instanceof AuthError) {
-            return NextResponse.json({ error: error.message }, { status: error.status });
-        }
-        console.error("Check-in error:", error);
-        return NextResponse.json({ error: error.message || "Check-in failed" }, { status: 500 });
+    } catch (error) {
+        return handleApiError(error, "Checkin.POST");
     }
 }

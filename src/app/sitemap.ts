@@ -1,27 +1,28 @@
 import { MetadataRoute } from 'next';
+import { SITE_ORIGIN } from '@/lib/firebase';
 
 export default function sitemap(): MetadataRoute.Sitemap {
     return [
         {
-            url: 'https://kandydrops-by-ikandy.web.app',
+            url: SITE_ORIGIN,
             lastModified: new Date(),
             changeFrequency: 'daily',
             priority: 1,
         },
         {
-            url: 'https://kandydrops-by-ikandy.web.app/drops',
+            url: `${SITE_ORIGIN}/drops`,
             lastModified: new Date(),
             changeFrequency: 'daily',
             priority: 0.8,
         },
         {
-            url: 'https://kandydrops-by-ikandy.web.app/terms',
+            url: `${SITE_ORIGIN}/terms`,
             lastModified: new Date(),
             changeFrequency: 'monthly',
             priority: 0.5,
         },
         {
-            url: 'https://kandydrops-by-ikandy.web.app/privacy',
+            url: `${SITE_ORIGIN}/privacy`,
             lastModified: new Date(),
             changeFrequency: 'monthly',
             priority: 0.5,

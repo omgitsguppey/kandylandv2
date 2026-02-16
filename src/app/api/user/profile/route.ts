@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { verifyAuth, AuthError } from "@/lib/server/auth";
+import { verifyAuth, AuthError, handleApiError } from "@/lib/server/auth";
 
 // PUT — Update display name (from ProfilePage)
 export async function PUT(request: NextRequest) {
@@ -26,12 +26,8 @@ export async function PUT(request: NextRequest) {
         await userRef.update({ displayName });
 
         return NextResponse.json({ success: true });
-    } catch (error: any) {
-        if (error instanceof AuthError) {
-            return NextResponse.json({ error: error.message }, { status: error.status });
-        }
-        console.error("Profile update error:", error);
-        return NextResponse.json({ error: error.message || "Update failed" }, { status: 500 });
+    } catch (error) {
+        return handleApiError(error, "Profile.PUT");
     }
 }
 
@@ -89,11 +85,7 @@ export async function POST(request: NextRequest) {
         await userRef.update(updates);
 
         return NextResponse.json({ success: true });
-    } catch (error: any) {
-        if (error instanceof AuthError) {
-            return NextResponse.json({ error: error.message }, { status: error.status });
-        }
-        console.error("Onboarding error:", error);
-        return NextResponse.json({ error: error.message || "Onboarding failed" }, { status: 500 });
+    } catch (error) {
+        return handleApiError(error, "Profile.POST");
     }
 }

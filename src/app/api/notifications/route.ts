@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { verifyAuth, verifyAdmin, AuthError } from "@/lib/server/auth";
+import { verifyAuth, verifyAdmin, AuthError, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 
 // POST — Send notification (admin-only)
@@ -30,12 +30,8 @@ export async function POST(request: NextRequest) {
         });
 
         return NextResponse.json({ success: true });
-    } catch (error: any) {
-        if (error instanceof AuthError) {
-            return NextResponse.json({ error: error.message }, { status: error.status });
-        }
-        console.error("Send notification error:", error);
-        return NextResponse.json({ error: error.message || "Failed to send" }, { status: 500 });
+    } catch (error) {
+        return handleApiError(error, "Notifications.POST");
     }
 }
 
@@ -58,11 +54,7 @@ export async function PUT(request: NextRequest) {
         await ref.update({ readBy: FieldValue.arrayUnion(caller.uid) });
 
         return NextResponse.json({ success: true });
-    } catch (error: any) {
-        if (error instanceof AuthError) {
-            return NextResponse.json({ error: error.message }, { status: error.status });
-        }
-        console.error("Mark read error:", error);
-        return NextResponse.json({ error: error.message || "Failed to mark read" }, { status: 500 });
+    } catch (error) {
+        return handleApiError(error, "Notifications.PUT");
     }
 }

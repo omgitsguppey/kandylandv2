@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { collection, query, orderBy, getDocs } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { db } from "@/lib/firebase-data";
 import { UserProfile } from "@/types/db";
 import { Loader2, Search, Shield, Ban, CheckCircle, AlertTriangle, Edit2, Lock, Plus } from "lucide-react";
 import { Button } from "@/components/ui/Button";

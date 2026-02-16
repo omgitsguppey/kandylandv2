@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { db } from "@/lib/firebase";
+import { db } from "@/lib/firebase-data";
 import { collection, query, orderBy, limit, onSnapshot } from "firebase/firestore";
 import { Button } from "@/components/ui/Button";
 import { Loader2, Terminal, RefreshCw, Plus, PlayCircle } from "lucide-react";

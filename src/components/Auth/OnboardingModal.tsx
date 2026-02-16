@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { User, Calendar, Camera, Check, ShieldCheck, ArrowRight, Sparkles, Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { storage } from "@/lib/firebase";
+import { storage } from "@/lib/firebase-data";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { toast } from "sonner";
 import { differenceInYears, parseISO } from "date-fns";

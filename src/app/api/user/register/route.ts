@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { verifyAuth, AuthError } from "@/lib/server/auth";
+import { verifyAuth, AuthError, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 
 export async function POST(request: NextRequest) {
@@ -61,11 +61,7 @@ export async function POST(request: NextRequest) {
         await userRef.set(newProfile, { merge: true });
 
         return NextResponse.json({ success: true, welcomeBonus: welcomeBonus ? 100 : 0 });
-    } catch (error: any) {
-        if (error instanceof AuthError) {
-            return NextResponse.json({ error: error.message }, { status: error.status });
-        }
-        console.error("Register error:", error);
-        return NextResponse.json({ error: error.message || "Registration failed" }, { status: 500 });
+    } catch (error) {
+        return handleApiError(error, "User.Register");
     }
 }

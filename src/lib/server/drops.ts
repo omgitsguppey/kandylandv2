@@ -131,7 +131,7 @@ export async function getDrops(): Promise<Drop[]> {
     }
 }
 
-export const getDropsServer = getDrops;
+
 
 export async function getDrop(id: string): Promise<Drop | null> {
     try {
@@ -166,4 +166,4 @@ export async function getDrop(id: string): Promise<Drop | null> {
     }
 }
 
-export const getDropServer = getDrop;
+

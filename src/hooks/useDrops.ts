@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { db } from "@/lib/firebase-data";
 import { Drop } from "@/types/db";
 
 export function useDrops(statusFilter: string[] | null = ["active", "scheduled"]) {
