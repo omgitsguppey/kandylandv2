@@ -97,11 +97,6 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
 
             setSuccess(true);
             toast.success(`${result.drops || selectedPackage.drops} Gum Drops added!`);
-            setTimeout(() => {
-                setSuccess(false);
-                onClose();
-            }, 3000);
-
         } catch (err: any) {
             console.error("Purchase error:", err);
             setError(err.message || "Purchase failed. Please contact support.");
@@ -117,7 +112,10 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                 {/* Fixed Backdrop */}
                 <div
                     className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md"
-                    onClick={onClose}
+                    onClick={() => {
+                        setSuccess(false);
+                        onClose();
+                    }}
                     aria-hidden="true"
                 />
 
@@ -129,7 +127,10 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                             className="relative w-full max-w-md bg-black/50 backdrop-blur-3xl rounded-3xl p-6 md:p-8 shadow-2xl border border-white/10 pointer-events-auto"
                         >
                             <button
-                                onClick={onClose}
+                                onClick={() => {
+                                    setSuccess(false);
+                                    onClose();
+                                }}
                                 className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors z-20"
                             >
                                 <X className="w-5 h-5" />
@@ -240,7 +241,10 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                         You've added <strong>{selectedPackage.drops} Gum Drops</strong> to your stash.
                                     </p>
                                     <button
-                                        onClick={onClose}
+                                        onClick={() => {
+                                            setSuccess(false);
+                                            onClose();
+                                        }}
                                         className="w-full py-3 rounded-xl font-bold bg-white text-black hover:bg-gray-100 transition-colors"
                                     >
                                         Awesome

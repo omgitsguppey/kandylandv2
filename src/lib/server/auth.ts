@@ -5,6 +5,7 @@ import { adminAuth, adminDb } from "./firebase-admin";
 export interface AuthResult {
     uid: string;
     email: string | undefined;
+    isAdmin?: boolean;
 }
 
 /**
@@ -24,7 +25,11 @@ export async function verifyAuth(request: NextRequest): Promise<AuthResult> {
 
     try {
         const decoded = await adminAuth.verifyIdToken(idToken);
-        return { uid: decoded.uid, email: decoded.email };
+        return {
+            uid: decoded.uid,
+            email: decoded.email,
+            isAdmin: decoded.admin === true
+        };
     } catch {
         throw new AuthError("Invalid or expired token", 401);
     }
@@ -37,17 +42,7 @@ export async function verifyAuth(request: NextRequest): Promise<AuthResult> {
 export async function verifyAdmin(request: NextRequest): Promise<AuthResult> {
     const authResult = await verifyAuth(request);
 
-    if (!adminDb) {
-        throw new AuthError("Database not available", 500);
-    }
-
-    const userDoc = await adminDb.collection("users").doc(authResult.uid).get();
-    if (!userDoc.exists) {
-        throw new AuthError("User profile not found", 403);
-    }
-
-    const userData = userDoc.data();
-    if (userData?.role !== "admin") {
+    if (!authResult.isAdmin) {
         throw new AuthError("Admin access required", 403);
     }
 
