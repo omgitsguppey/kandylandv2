@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { collection, doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { db } from "@/lib/firebase-data";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, Save, Calendar, DollarSign, ArrowLeft, ChevronDown, ChevronUp, Image as ImageIcon, FileAudio } from "lucide-react";
 import { FileUpload } from "@/components/Admin/FileUpload";

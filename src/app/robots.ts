@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next';
+import { SITE_ORIGIN } from '@/lib/site-config';
 
 export default function robots(): MetadataRoute.Robots {
     return {
@@ -7,6 +8,6 @@ export default function robots(): MetadataRoute.Robots {
             allow: '/',
             disallow: ['/admin/', '/dashboard/'],
         },
-        sitemap: 'https://kandydrops-by-ikandy.web.app/sitemap.xml',
+        sitemap: `${SITE_ORIGIN}/sitemap.xml`,
     };
 }

@@ -1,112 +1,153 @@
+"use client";
 
-import { useState, useEffect } from "react";
-import {
-    collection,
-    query,
-    orderBy,
-    onSnapshot,
-    where,
-    limit
-} from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { useState, useEffect, useMemo } from "react";
+import { collection, query, orderBy, onSnapshot, limit, Timestamp } from "firebase/firestore";
+import { db } from "@/lib/firebase-data";
 import { useAuthIdentity } from "@/context/AuthContext";
 import { markNotificationAsRead } from "@/lib/notifications";
+
+interface NotificationTarget {
+    global: boolean;
+    userIds: string[];
+}
 
 export interface Notification {
     id: string;
     title: string;
     message: string;
-    type: 'info' | 'success' | 'warning' | 'error';
-    createdAt: any;
+    type: "info" | "success" | "warning" | "error";
+    createdAt: Timestamp | null;
     readBy: string[];
-    target: {
-        global: boolean;
-        userIds?: string[];
-    };
+    target: NotificationTarget;
     link?: string;
+}
+
+interface NotificationDoc {
+    title?: unknown;
+    message?: unknown;
+    type?: unknown;
+    createdAt?: unknown;
+    readBy?: unknown;
+    target?: unknown;
+    link?: unknown;
+}
+
+const NOTIFICATION_TYPES: Notification["type"][] = ["info", "success", "warning", "error"];
+
+function normalizeNotification(id: string, data: NotificationDoc): Notification | null {
+    if (typeof data.title !== "string" || typeof data.message !== "string") {
+        return null;
+    }
+
+    const type = NOTIFICATION_TYPES.includes(data.type as Notification["type"])
+        ? (data.type as Notification["type"])
+        : "info";
+
+    const createdAt = data.createdAt instanceof Timestamp ? data.createdAt : null;
+    const readBy = Array.isArray(data.readBy) ? data.readBy.filter((entry): entry is string => typeof entry === "string") : [];
+
+    const targetObj = (data.target && typeof data.target === "object") ? data.target as { global?: unknown; userIds?: unknown } : null;
+    const userIds = Array.isArray(targetObj?.userIds)
+        ? targetObj.userIds.filter((entry): entry is string => typeof entry === "string")
+        : [];
+
+    const target: NotificationTarget = {
+        global: targetObj?.global === true,
+        userIds,
+    };
+
+    return {
+        id,
+        title: data.title,
+        message: data.message,
+        type,
+        createdAt,
+        readBy,
+        target,
+        link: typeof data.link === "string" ? data.link : undefined,
+    };
 }
 
 export function useNotifications() {
     const { user } = useAuthIdentity();
     const [notifications, setNotifications] = useState<Notification[]>([]);
-    const [unreadCount, setUnreadCount] = useState(0);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (!user) {
             setNotifications([]);
-            setUnreadCount(0);
             setLoading(false);
             return;
         }
 
-        // Subscribe to global notifications OR notifications targeted at user
-        // Note: Firestore OR queries can be tricky. For now, we'll fetch global ones 
-        // and filter client side if needed, or two queries. 
-        // Simplest valid query for now: global = true
+        setLoading(true);
 
-        // Let's just fetch recent global notifications for MVP
-        const q = query(
+        const notificationsQuery = query(
             collection(db, "notifications"),
             orderBy("createdAt", "desc"),
             limit(50)
         );
 
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const allNotes: Notification[] = [];
-            let unread = 0;
+        const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
+            const scopedNotifications: Notification[] = [];
 
-            snapshot.forEach((doc) => {
-                const data = doc.data() as Omit<Notification, "id">;
+            snapshot.forEach((noteDoc) => {
+                const normalized = normalizeNotification(noteDoc.id, noteDoc.data() as NotificationDoc);
+                if (!normalized) {
+                    return;
+                }
 
-                // Filter logic
-                const isGlobal = data.target?.global;
-                const isTargeted = data.target?.userIds?.includes(user.uid);
-
-                if (isGlobal || isTargeted) {
-                    const isRead = data.readBy?.includes(user.uid);
-                    if (!isRead) unread++;
-
-                    allNotes.push({ id: doc.id, ...data });
+                if (normalized.target.global || normalized.target.userIds.includes(user.uid)) {
+                    scopedNotifications.push(normalized);
                 }
             });
 
-            setNotifications(allNotes);
-            setUnreadCount(unread);
+            setNotifications(scopedNotifications);
             setLoading(false);
         });
 
         return () => unsubscribe();
     }, [user]);
 
+    const unreadCount = useMemo(
+        () => (user ? notifications.filter((notification) => !notification.readBy.includes(user.uid)).length : 0),
+        [notifications, user]
+    );
+
     const markAsRead = async (id: string) => {
         if (!user) return;
 
-        // Optimistic update
-        setNotifications(prev => prev.map(n => {
-            if (n.id === id && !n.readBy.includes(user.uid)) {
-                return { ...n, readBy: [...n.readBy, user.uid] };
+        setNotifications((prev) => prev.map((notification) => {
+            if (notification.id !== id || notification.readBy.includes(user.uid)) {
+                return notification;
             }
-            return n;
+
+            return { ...notification, readBy: [...notification.readBy, user.uid] };
         }));
-        setUnreadCount(prev => Math.max(0, prev - 1));
 
         await markNotificationAsRead(id);
     };
 
     const markAllAsRead = async () => {
         if (!user) return;
-        const unreadNotes = notifications.filter(n => !n.readBy.includes(user.uid));
 
-        // Optimistic
-        setNotifications(prev => prev.map(n => ({
-            ...n,
-            readBy: [...(n.readBy || []), user.uid]
-        })));
-        setUnreadCount(0);
+        const unreadIds = notifications
+            .filter((notification) => !notification.readBy.includes(user.uid))
+            .map((notification) => notification.id);
 
-        // This might be heavy if many unread, but okay for MVP
-        unreadNotes.forEach(n => markNotificationAsRead(n.id));
+        if (unreadIds.length === 0) {
+            return;
+        }
+
+        setNotifications((prev) => prev.map((notification) => {
+            if (notification.readBy.includes(user.uid)) {
+                return notification;
+            }
+
+            return { ...notification, readBy: [...notification.readBy, user.uid] };
+        }));
+
+        await Promise.all(unreadIds.map((id) => markNotificationAsRead(id)));
     };
 
     return { notifications, unreadCount, loading, markAsRead, markAllAsRead };

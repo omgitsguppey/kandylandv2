@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { storage } from "@/lib/firebase";
+import { storage } from "@/lib/firebase-data";
 import { Upload, X, Loader2, FileType, Image as ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 

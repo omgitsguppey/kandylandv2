@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { db } from "@/lib/firebase-data";
 import { Drop } from "@/types/db";
 import { format } from "date-fns";
 import { Trash2, Edit, Eye, MoreHorizontal, Calendar, Clock, Lock, Package, PlusCircle } from "lucide-react";

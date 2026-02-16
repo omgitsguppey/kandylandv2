@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { ref, listAll, getDownloadURL, deleteObject, uploadBytes } from "firebase/storage";
-import { storage } from "@/lib/firebase";
+import { storage } from "@/lib/firebase-data";
 import { Loader2, Upload, Trash2, Copy, FileIcon, Image as ImageIcon, Video, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { format } from "date-fns";

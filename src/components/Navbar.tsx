@@ -9,19 +9,14 @@ import { ProfileSidebar } from "@/components/Navigation/ProfileSidebar";
 import { AdminDropdown } from "@/components/Navigation/AdminDropdown";
 import { NotificationBell } from "@/components/Navigation/NotificationBell";
 import { useState } from "react";
-import { usePathname } from "next/navigation";
-import { AuthModal } from "@/components/Auth/AuthModal";
 import NextImage from "next/image";
 
 export function Navbar() {
     const { user } = useAuthIdentity();
     const { userProfile } = useUserProfile();
-    const { openPurchaseModal } = useUI();
-    const pathname = usePathname();
-
+    const { openPurchaseModal, openAuthModal } = useUI();
     // UI States
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
     // Navbar is now global
 
@@ -86,7 +81,7 @@ export function Navbar() {
                             </>
                         ) : (
                             <button
-                                onClick={() => setIsAuthModalOpen(true)}
+                                onClick={openAuthModal}
                                 className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-white text-black font-bold text-sm tracking-wide shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_25px_rgba(255,255,255,0.5)] hover:scale-105 transition-all duration-300"
                             >
                                 <LogIn className="w-4 h-4" />
@@ -100,8 +95,6 @@ export function Navbar() {
             {/* Mobile Sidebar */}
             <ProfileSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
 
-            {/* Auth Modal */}
-            <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
         </>
     );
 }

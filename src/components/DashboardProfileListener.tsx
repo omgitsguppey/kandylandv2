@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuthIdentity, useUserProfile } from "@/context/AuthContext";
-import { db } from "@/lib/firebase";
+import { db } from "@/lib/firebase-data";
 import { UserProfile } from "@/types/db";
 import { doc, onSnapshot } from "firebase/firestore";
 import { useEffect } from "react";
