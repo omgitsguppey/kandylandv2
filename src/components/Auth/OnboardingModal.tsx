@@ -10,6 +10,7 @@ import { storage } from "@/lib/firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { toast } from "sonner";
 import { differenceInYears, parseISO } from "date-fns";
+import { authFetch } from "@/lib/authFetch";
 
 // Validation Schema
 const onboardingSchema = z.object({
@@ -151,11 +152,9 @@ export function OnboardingModal() {
             }
 
             // Submit to server API
-            const response = await fetch("/api/user/profile", {
+            const response = await authFetch("/api/user/profile", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    userId: user.uid,
                     username: !userProfile?.username ? data.username : undefined,
                     dateOfBirth: !userProfile?.dateOfBirth ? data.dateOfBirth : undefined,
                     bio: data.bio,

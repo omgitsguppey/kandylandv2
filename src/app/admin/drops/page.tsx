@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { collection, query, orderBy, onSnapshot, deleteDoc, doc } from "firebase/firestore";
+import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Drop } from "@/types/db";
 import { format } from "date-fns";
 import { Trash2, Edit, Eye, MoreHorizontal, Calendar, Clock, Lock, Package, PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { authFetch } from "@/lib/authFetch";
+import { toast } from "sonner";
 
 export default function AdminDropsPage() {
     const [drops, setDrops] = useState<Drop[]>([]);
@@ -30,10 +32,16 @@ export default function AdminDropsPage() {
     const handleDelete = async (id: string) => {
         if (confirm("Are you sure you want to delete this drop? This cannot be undone.")) {
             try {
-                await deleteDoc(doc(db, "drops", id));
-            } catch (err) {
+                const response = await authFetch("/api/admin/drops", {
+                    method: "DELETE",
+                    body: JSON.stringify({ dropId: id }),
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error);
+                toast.success("Drop deleted successfully");
+            } catch (err: any) {
                 console.error("Error deleting drop:", err);
-                alert("Failed to delete drop.");
+                toast.error(err.message || "Failed to delete drop.");
             }
         }
     };

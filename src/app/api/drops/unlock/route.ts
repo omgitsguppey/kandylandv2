@@ -1,17 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
+import { verifyAuth, AuthError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 
 export async function POST(request: NextRequest) {
     try {
-        const { userId, dropId } = await request.json();
+        const caller = await verifyAuth(request);
 
-        if (!userId || !dropId) {
-            return NextResponse.json({ error: "Missing userId or dropId" }, { status: 400 });
+        const { dropId } = await request.json();
+
+        if (!dropId) {
+            return NextResponse.json({ error: "Missing dropId" }, { status: 400 });
         }
         if (!adminDb) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });
         }
+
+        // Use the verified UID from the token
+        const userId = caller.uid;
 
         // 1. Fetch user profile
         const userRef = adminDb.collection("users").doc(userId);
@@ -77,6 +83,9 @@ export async function POST(request: NextRequest) {
             newBalance: balance - unlockCost,
         });
     } catch (error: any) {
+        if (error instanceof AuthError) {
+            return NextResponse.json({ error: error.message }, { status: error.status });
+        }
         console.error("Unlock error:", error);
         return NextResponse.json({ error: error.message || "Unlock failed" }, { status: 500 });
     }

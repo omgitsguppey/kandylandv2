@@ -1,26 +1,34 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-      // Drops: Public read, Auth write (Admin only ideally, but Auth for now)
-      match /drops/{dropId} {
-        allow read: if true;
-        allow write: if request.auth != null;
-      }
-      
-      // Users: Owner only OR Admin
-      match /users/{userId} {
-        allow read, write: if request.auth != null && (request.auth.uid == userId || request.auth.token.email == 'uylusjohnson@gmail.com');
-      }
+    
+    // Drops: Public read, NO client writes (all writes via Admin SDK)
+    match /drops/{dropId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    
+    // Users: Authenticated read only, NO client writes (all writes via Admin SDK)
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
 
-      // Transactions: Owner only + Create OR Admin
-      match /transactions/{transactionId} {
-        allow read: if request.auth != null && (resource.data.userId == request.auth.uid || request.auth.token.email == 'uylusjohnson@gmail.com');
-        allow create: if request.auth != null && (request.resource.data.userId == request.auth.uid || request.auth.token.email == 'uylusjohnson@gmail.com');
-      }
+    // Transactions: Authenticated read only, NO client writes
+    match /transactions/{transactionId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
 
-      // Default deny
-      match /{document=**} {
-        allow read, write: if false;
-      }
+    // Notifications: Authenticated read only, NO client writes
+    match /notifications/{notificationId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
   }
 }

@@ -8,6 +8,7 @@ import { Loader2, Search, Shield, Ban, CheckCircle, AlertTriangle, Edit2, Lock, 
 import { Button } from "@/components/ui/Button";
 import { format } from "date-fns";
 import { BalanceAdjustmentModal } from "@/components/Admin/BalanceAdjustmentModal";
+import { authFetch } from "@/lib/authFetch";
 
 
 export default function UserManagementPage() {
@@ -65,9 +66,8 @@ export default function UserManagementPage() {
                 };
             }
 
-            const response = await fetch("/api/admin/users", {
+            const response = await authFetch("/api/admin/users", {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ userId: actionUser.uid, updates }),
             });
             const result = await response.json();
@@ -103,9 +103,8 @@ export default function UserManagementPage() {
                 return;
             }
 
-            const response = await fetch("/api/admin/users", {
+            const response = await authFetch("/api/admin/users", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ userId: contentUser.uid, action, dropId }),
             });
             const result = await response.json();
@@ -130,9 +129,8 @@ export default function UserManagementPage() {
     // --- Role & Verification Management ---
     const handleRoleUpdate = async (uid: string, newRole: 'user' | 'creator' | 'admin') => {
         try {
-            const response = await fetch("/api/admin/users", {
+            const response = await authFetch("/api/admin/users", {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ userId: uid, updates: { role: newRole } }),
             });
             const result = await response.json();
@@ -148,9 +146,8 @@ export default function UserManagementPage() {
 
     const handleVerification = async (uid: string, isVerified: boolean) => {
         try {
-            const response = await fetch("/api/admin/users", {
+            const response = await authFetch("/api/admin/users", {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ userId: uid, updates: { isVerified } }),
             });
             const result = await response.json();

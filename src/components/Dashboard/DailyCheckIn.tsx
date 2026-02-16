@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
+import { authFetch } from "@/lib/authFetch";
 
 export function DailyCheckIn() {
     const { user, userProfile } = useAuth();
@@ -47,10 +48,8 @@ export function DailyCheckIn() {
     const handleClaim = async () => {
         setLoading(true);
         try {
-            const response = await fetch("/api/checkin", {
+            const response = await authFetch("/api/checkin", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId: user.uid }),
             });
 
             const result = await response.json();

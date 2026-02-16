@@ -1,4 +1,6 @@
 
+import { authFetch } from "@/lib/authFetch";
+
 export interface NotificationPayload {
     title: string;
     message: string;
@@ -12,9 +14,8 @@ export interface NotificationPayload {
 
 export async function sendNotification(payload: NotificationPayload) {
     try {
-        const response = await fetch("/api/notifications", {
+        const response = await authFetch("/api/notifications", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
         });
 
@@ -27,12 +28,11 @@ export async function sendNotification(payload: NotificationPayload) {
     }
 }
 
-export async function markNotificationAsRead(notificationId: string, userId: string) {
+export async function markNotificationAsRead(notificationId: string) {
     try {
-        const response = await fetch("/api/notifications", {
+        const response = await authFetch("/api/notifications", {
             method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ notificationId, userId }),
+            body: JSON.stringify({ notificationId }),
         });
 
         return response.ok;

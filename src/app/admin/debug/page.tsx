@@ -3,9 +3,11 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { db } from "@/lib/firebase";
-import { collection, query, orderBy, limit, onSnapshot, addDoc, serverTimestamp, doc, runTransaction } from "firebase/firestore";
+import { collection, query, orderBy, limit, onSnapshot } from "firebase/firestore";
 import { Button } from "@/components/ui/Button";
 import { Loader2, Terminal, RefreshCw, Plus, PlayCircle } from "lucide-react";
+import { authFetch } from "@/lib/authFetch";
+import { toast } from "sonner";
 
 export default function DebugConsole() {
     const { user, userProfile } = useAuth();
@@ -32,27 +34,20 @@ export default function DebugConsole() {
         setProcessing(true);
         try {
             const amount = parseInt(simAmount);
-            await runTransaction(db, async (transaction) => {
-                const userRef = doc(db, "users", user.uid);
-                const userDoc = await transaction.get(userRef);
-                if (!userDoc.exists()) throw "User does not exist!";
-
-                const newBalance = (userDoc.data().gumDropsBalance || 0) + amount;
-                transaction.update(userRef, { gumDropsBalance: newBalance });
-
-                const txRef = doc(collection(db, "transactions"));
-                transaction.set(txRef, {
+            const response = await authFetch("/api/admin/balance", {
+                method: "POST",
+                body: JSON.stringify({
                     userId: user.uid,
-                    type: 'debug_adjustment',
-                    amount: amount,
-                    description: `Debug Console Adjustment: +${amount}`,
-                    timestamp: serverTimestamp()
-                });
+                    amount,
+                    reason: `Debug Console Adjustment: +${amount}`,
+                }),
             });
-            alert("Simulation Successful!");
-        } catch (error) {
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error);
+            toast.success("Simulation Successful!");
+        } catch (error: any) {
             console.error(error);
-            alert("Simulation Failed");
+            toast.error(error.message || "Simulation Failed");
         } finally {
             setProcessing(false);
         }

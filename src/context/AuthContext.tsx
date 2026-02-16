@@ -13,10 +13,11 @@ import {
     signOut
 } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { UserProfile } from "@/types/db";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { authFetch } from "@/lib/authFetch";
 
 // --- Split Context Definitions ---
 
@@ -98,18 +99,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
                 setUserProfile(profile);
             } else {
-                // Create basic profile if missing (Legacy Logic)
-                const newProfile: UserProfile = {
-                    uid: user.uid,
-                    email: user.email,
-                    displayName: user.displayName || "User",
-                    photoURL: user.photoURL,
-                    gumDropsBalance: 0,
-                    unlockedContent: [],
-                    createdAt: Date.now(),
-                };
-                await setDoc(docRef, newProfile, { merge: true });
-                setUserProfile(newProfile);
+                // Create basic profile if missing — via server API
+                try {
+                    const response = await authFetch("/api/user/register", {
+                        method: "POST",
+                        body: JSON.stringify({
+                            displayName: user.displayName || "User",
+                        }),
+                    });
+                    if (response.ok) {
+                        // Re-fetch the profile that was just created server-side
+                        const refreshed = await getDoc(docRef);
+                        if (refreshed.exists()) {
+                            setUserProfile(refreshed.data() as UserProfile);
+                        }
+                    } else {
+                        console.error("Failed to auto-create profile via API");
+                    }
+                } catch (regErr) {
+                    console.error("Auto-register API error:", regErr);
+                }
             }
         } catch (err) {
             console.error("Error fetching profile:", err);
@@ -154,15 +163,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
         const newUser = userCredential.user;
 
-        await setDoc(doc(db, "users", newUser.uid), {
-            uid: newUser.uid,
-            email: newUser.email,
-            displayName: username,
-            dob,
-            gumDropsBalance: 100, // Welcome bonus
-            unlockedContent: [],
-            createdAt: serverTimestamp()
+        // Create profile server-side
+        const response = await authFetch("/api/user/register", {
+            method: "POST",
+            body: JSON.stringify({
+                displayName: username,
+                username: username.replace(/\s+/g, '').toLowerCase(),
+                dateOfBirth: dob,
+                welcomeBonus: true,
+            }),
         });
+
+        if (!response.ok) {
+            const result = await response.json();
+            throw new Error(result.error || "Registration failed");
+        }
 
         toast.success("Account created! +100 Gum Drops");
         router.push("/dashboard");

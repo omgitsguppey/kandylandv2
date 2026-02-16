@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
+import { verifyAuth, AuthError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 
 export async function POST(request: NextRequest) {
     try {
-        const { userId, targetUserId, action } = await request.json();
+        const caller = await verifyAuth(request);
 
-        if (!userId || !targetUserId || !action) {
+        const { targetUserId, action } = await request.json();
+
+        // Use verified UID from token
+        const userId = caller.uid;
+
+        if (!targetUserId || !action) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
         if (userId === targetUserId) {
@@ -29,6 +35,9 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({ success: true, action });
     } catch (error: any) {
+        if (error instanceof AuthError) {
+            return NextResponse.json({ error: error.message }, { status: error.status });
+        }
         console.error("Follow error:", error);
         return NextResponse.json({ error: error.message || "Follow action failed" }, { status: 500 });
     }

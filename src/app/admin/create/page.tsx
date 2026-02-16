@@ -12,18 +12,9 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { cn } from "@/lib/utils";
+import { authFetch } from "@/lib/authFetch";
+import { getDefaultCSTDates, toCSTString, fromCSTInput } from "@/lib/timezone";
 
-
-// Logic for default dates
-const getDefaultDates = () => {
-    const start = new Date();
-    const end = new Date();
-    end.setDate(end.getDate() + 7);
-    return {
-        validFrom: start.toISOString().slice(0, 16),
-        validUntil: end.toISOString().slice(0, 16)
-    };
-};
 
 // Validation Schema
 const dropSchema = z.object({
@@ -43,7 +34,12 @@ const dropSchema = z.object({
     fileMetadata: z.object({
         size: z.number(),
         type: z.string()
-    }).nullable().optional()
+    }).nullable().optional(),
+    // Auto-Rotation
+    rotationEnabled: z.boolean().optional(),
+    rotationIntervalDays: z.coerce.number().min(1).optional(),
+    rotationDurationDays: z.coerce.number().min(1).optional(),
+    rotationMaxRotations: z.coerce.number().min(1).optional().or(z.literal("")).transform(v => v === "" ? undefined : v),
 });
 
 type DropFormData = z.infer<typeof dropSchema>;
@@ -81,12 +77,17 @@ function DropForm() {
             ctaText: "",
             actionUrl: "",
             fileMetadata: null,
-            ...getDefaultDates()
+            rotationEnabled: false,
+            rotationIntervalDays: 7,
+            rotationDurationDays: 3,
+            rotationMaxRotations: undefined,
+            ...getDefaultCSTDates()
         }
     });
 
     const dropType = watch("type");
     const currentTags = watch("tags") || [];
+    const rotationEnabled = watch("rotationEnabled");
 
     useEffect(() => {
         if (!dropId) return;
@@ -103,9 +104,18 @@ function DropForm() {
                     setValue("imageUrl", data.imageUrl);
                     setValue("contentUrl", data.contentUrl);
                     setValue("unlockCost", data.unlockCost);
-                    setValue("validFrom", new Date(data.validFrom).toISOString().slice(0, 16));
+                    setValue("validFrom", toCSTString(data.validFrom));
                     if (data.validUntil) {
-                        setValue("validUntil", new Date(data.validUntil).toISOString().slice(0, 16));
+                        setValue("validUntil", toCSTString(data.validUntil));
+                    }
+                    // Load rotation config
+                    if (data.rotationConfig) {
+                        setValue("rotationEnabled", data.rotationConfig.enabled);
+                        setValue("rotationIntervalDays", data.rotationConfig.intervalDays);
+                        setValue("rotationDurationDays", data.rotationConfig.durationDays);
+                        if (data.rotationConfig.maxRotations) {
+                            setValue("rotationMaxRotations", data.rotationConfig.maxRotations);
+                        }
                     }
                     setValue("type", data.type || "content");
                     setValue("tags", data.tags || []);
@@ -142,27 +152,47 @@ function DropForm() {
 
     const onSubmit: SubmitHandler<DropFormData> = async (data) => {
         try {
-            const validFrom = new Date(data.validFrom).getTime();
+            // Parse datetime-local inputs as CST → UTC ms
+            const validFrom = fromCSTInput(data.validFrom);
             let validUntil: number | undefined = undefined;
 
             if (data.validUntil) {
-                validUntil = new Date(data.validUntil).getTime();
+                validUntil = fromCSTInput(data.validUntil);
                 if (validFrom >= validUntil) {
                     alert("End date must be after start date");
                     return;
                 }
             }
 
+            // Determine status based on current time vs CST-parsed dates
+            const now = Date.now();
+            let status: string;
+            if (now < validFrom) {
+                status = "scheduled";
+            } else if (validUntil && now >= validUntil) {
+                status = "expired";
+            } else {
+                status = "active";
+            }
 
-            const dropData = {
+            // Build rotation config if enabled
+            const rotationConfig = data.rotationEnabled ? {
+                enabled: true,
+                intervalDays: data.rotationIntervalDays || 7,
+                durationDays: data.rotationDurationDays || 3,
+                maxRotations: data.rotationMaxRotations || undefined,
+                rotationCount: 0,
+            } : undefined;
+
+            const dropData: Record<string, any> = {
                 title: data.title,
                 description: data.description,
                 imageUrl: data.imageUrl,
                 contentUrl: data.contentUrl,
                 unlockCost: data.unlockCost,
                 validFrom,
-                validUntil, // Can be undefined
-                status: (!validUntil || Date.now() < validUntil) ? "active" : "expired",
+                validUntil,
+                status,
                 type: data.type,
                 tags: data.tags,
                 ctaText: data.ctaText,
@@ -171,18 +201,20 @@ function DropForm() {
                 fileMetadata: data.fileMetadata,
             };
 
+            if (rotationConfig) {
+                dropData.rotationConfig = rotationConfig;
+            }
+
             if (isEditMode) {
-                const response = await fetch("/api/admin/drops", {
+                const response = await authFetch("/api/admin/drops", {
                     method: "PUT",
-                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ dropId: dropId!, dropData }),
                 });
                 const result = await response.json();
                 if (!response.ok) throw new Error(result.error);
             } else {
-                const response = await fetch("/api/admin/drops", {
+                const response = await authFetch("/api/admin/drops", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         dropData: {
                             ...dropData,
@@ -366,7 +398,7 @@ function DropForm() {
                     <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1">
                             <label className="text-xs font-bold text-gray-500 flex items-center gap-1 uppercase">
-                                <Calendar className="w-3 h-3" /> Start
+                                <Calendar className="w-3 h-3" /> Start (CST)
                             </label>
                             <input
                                 {...register("validFrom")}
@@ -376,7 +408,7 @@ function DropForm() {
                         </div>
                         <div className="space-y-1">
                             <label className="text-xs font-bold text-gray-500 flex items-center gap-1 uppercase">
-                                <Calendar className="w-3 h-3" /> End
+                                <Calendar className="w-3 h-3" /> End (CST)
                             </label>
                             <input
                                 {...register("validUntil")}
@@ -384,6 +416,53 @@ function DropForm() {
                                 className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-xs focus:outline-none focus:border-brand-cyan/50 transition-all [color-scheme:dark]"
                             />
                         </div>
+                    </div>
+
+                    {/* Auto-Rotation Config */}
+                    <div className="mt-4 pt-4 border-t border-white/5">
+                        <label className="flex items-center gap-3 cursor-pointer group">
+                            <input
+                                type="checkbox"
+                                {...register("rotationEnabled")}
+                                className="w-4 h-4 rounded border-white/20 bg-white/5 text-brand-pink focus:ring-brand-pink/50"
+                            />
+                            <span className="text-xs font-bold text-gray-500 uppercase group-hover:text-gray-300 transition-colors">
+                                Auto-Rotate Schedule
+                            </span>
+                        </label>
+
+                        {rotationEnabled && (
+                            <div className="mt-3 grid grid-cols-3 gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                                <div className="space-y-1">
+                                    <label className="text-xs text-gray-400 block">Cycle (days)</label>
+                                    <input
+                                        {...register("rotationIntervalDays")}
+                                        type="number"
+                                        min="1"
+                                        className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-brand-purple/50"
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-xs text-gray-400 block">Active (days)</label>
+                                    <input
+                                        {...register("rotationDurationDays")}
+                                        type="number"
+                                        min="1"
+                                        className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-brand-purple/50"
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-xs text-gray-400 block">Max rotations</label>
+                                    <input
+                                        {...register("rotationMaxRotations")}
+                                        type="number"
+                                        min="1"
+                                        placeholder="∞"
+                                        className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-brand-purple/50 placeholder:text-gray-600"
+                                    />
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 

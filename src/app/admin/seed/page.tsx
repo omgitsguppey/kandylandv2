@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Drop } from "@/types/db";
 import { useAuth } from "@/context/AuthContext";
 import { Loader2 } from "lucide-react";
+import { authFetch } from "@/lib/authFetch";
 
 const SAMPLE_TITLES = [
     "Neon Lollipops Pack", "Cyber Gummy Bears", "Retro Wave Soda", "Glitch Pop Rocks",
@@ -27,8 +28,8 @@ export default function AdminSeedPage() {
     const [message, setMessage] = useState("");
 
     const createTestDrops = async () => {
-        if (!user || user.email !== "uylusjohnson@gmail.com") {
-            setMessage("Unauthorized: You must be uylusjohnson@gmail.com");
+        if (!user) {
+            setMessage("Unauthorized: You must be logged in.");
             return;
         }
 
@@ -69,9 +70,8 @@ export default function AdminSeedPage() {
                 });
             }
 
-            const response = await fetch("/api/admin/seed", {
+            const response = await authFetch("/api/admin/seed", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ drops }),
             });
             const result = await response.json();

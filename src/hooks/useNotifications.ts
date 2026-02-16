@@ -91,7 +91,7 @@ export function useNotifications() {
         }));
         setUnreadCount(prev => Math.max(0, prev - 1));
 
-        await markNotificationAsRead(id, user.uid);
+        await markNotificationAsRead(id);
     };
 
     const markAllAsRead = async () => {
@@ -106,7 +106,7 @@ export function useNotifications() {
         setUnreadCount(0);
 
         // This might be heavy if many unread, but okay for MVP
-        unreadNotes.forEach(n => markNotificationAsRead(n.id, user.uid));
+        unreadNotes.forEach(n => markNotificationAsRead(n.id));
     };
 
     return { notifications, unreadCount, loading, markAsRead, markAllAsRead };

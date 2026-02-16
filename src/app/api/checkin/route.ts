@@ -1,17 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
+import { verifyAuth, AuthError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
+import { getCSTDayBoundaries } from "@/lib/timezone";
 
 export async function POST(request: NextRequest) {
     try {
-        const { userId } = await request.json();
+        const caller = await verifyAuth(request);
 
-        if (!userId) {
-            return NextResponse.json({ error: "Missing userId" }, { status: 400 });
-        }
         if (!adminDb) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });
         }
+
+        // Use the verified UID from the token, not from the request body
+        const userId = caller.uid;
 
         // 1. Fetch user profile
         const userRef = adminDb.collection("users").doc(userId);
@@ -25,13 +27,9 @@ export async function POST(request: NextRequest) {
         const lastCheckIn = userData.lastCheckIn || 0;
         const currentStreak = userData.streakCount || 0;
 
-        // 2. Check if already claimed today
-        const lastCheckInDate = new Date(lastCheckIn);
-        const todayDate = new Date(now);
-        const isSameDay =
-            lastCheckInDate.getFullYear() === todayDate.getFullYear() &&
-            lastCheckInDate.getMonth() === todayDate.getMonth() &&
-            lastCheckInDate.getDate() === todayDate.getDate();
+        // 2. Check if already claimed today (CST day boundaries)
+        const { startOfDay, endOfDay } = getCSTDayBoundaries(now);
+        const isSameDay = lastCheckIn >= startOfDay && lastCheckIn < endOfDay;
 
         if (isSameDay && lastCheckIn > 0) {
             return NextResponse.json({ error: "Already claimed today", alreadyClaimed: true }, { status: 409 });
@@ -42,13 +40,11 @@ export async function POST(request: NextRequest) {
         let nextStreak: number;
 
         if (hoursSinceLast > 48) {
-            // Streak broken
             nextStreak = 1;
         } else {
             nextStreak = currentStreak + 1;
         }
 
-        // Reset after 7∙day cycle
         if (currentStreak >= 7) {
             nextStreak = 1;
         }
@@ -84,6 +80,9 @@ export async function POST(request: NextRequest) {
             streak: nextStreak,
         });
     } catch (error: any) {
+        if (error instanceof AuthError) {
+            return NextResponse.json({ error: error.message }, { status: error.status });
+        }
         console.error("Check-in error:", error);
         return NextResponse.json({ error: error.message || "Check-in failed" }, { status: 500 });
     }

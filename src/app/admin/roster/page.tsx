@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { UserProfile } from "@/types/db";
 import { format } from "date-fns";
 import { Shield, ShieldAlert, CheckCircle2, User, Search, UserCheck, UserX, Crown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { authFetch } from "@/lib/authFetch";
 
 export default function AdminRosterPage() {
     const [users, setUsers] = useState<UserProfile[]>([]);
@@ -45,21 +46,31 @@ export default function AdminRosterPage() {
 
     const handleRoleUpdate = async (uid: string, newRole: 'user' | 'creator' | 'admin') => {
         try {
-            await updateDoc(doc(db, "users", uid), { role: newRole });
+            const response = await authFetch("/api/admin/users", {
+                method: "PUT",
+                body: JSON.stringify({ userId: uid, updates: { role: newRole } }),
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error);
             toast.success(`Role updated to ${newRole}`);
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            toast.error("Failed to update role");
+            toast.error(error.message || "Failed to update role");
         }
     };
 
     const handleVerification = async (uid: string, isVerified: boolean) => {
         try {
-            await updateDoc(doc(db, "users", uid), { isVerified });
+            const response = await authFetch("/api/admin/users", {
+                method: "PUT",
+                body: JSON.stringify({ userId: uid, updates: { isVerified } }),
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error);
             toast.success(isVerified ? "User verified" : "Verification removed");
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            toast.error("Failed to update verification");
+            toast.error(error.message || "Failed to update verification");
         }
     };
 

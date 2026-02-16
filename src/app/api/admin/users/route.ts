@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
+import { verifyAdmin, AuthError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 
-// PUT — Update user status (active/suspended/banned)
+// PUT — Update user status/role (admin-only)
 export async function PUT(request: NextRequest) {
     try {
+        await verifyAdmin(request);
+
         const { userId, updates } = await request.json();
 
         if (!userId || !updates) {
@@ -14,19 +17,37 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });
         }
 
+        // Whitelist allowed fields to prevent arbitrary writes
+        const allowedFields = ["role", "isVerified", "status", "statusReason"];
+        const sanitized: Record<string, any> = {};
+        for (const key of allowedFields) {
+            if (updates[key] !== undefined) {
+                sanitized[key] = updates[key];
+            }
+        }
+
+        if (Object.keys(sanitized).length === 0) {
+            return NextResponse.json({ error: "No valid fields to update" }, { status: 400 });
+        }
+
         const userRef = adminDb.collection("users").doc(userId);
-        await userRef.update(updates);
+        await userRef.update(sanitized);
 
         return NextResponse.json({ success: true });
     } catch (error: any) {
+        if (error instanceof AuthError) {
+            return NextResponse.json({ error: error.message }, { status: error.status });
+        }
         console.error("Admin user update error:", error);
         return NextResponse.json({ error: error.message || "Update failed" }, { status: 500 });
     }
 }
 
-// POST — Manage user content (add/remove unlocked drops)
+// POST — Manage user content (add/remove unlocked drops, admin-only)
 export async function POST(request: NextRequest) {
     try {
+        await verifyAdmin(request);
+
         const { userId, action, dropId } = await request.json();
 
         if (!userId || !action || !dropId) {
@@ -48,6 +69,9 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({ success: true });
     } catch (error: any) {
+        if (error instanceof AuthError) {
+            return NextResponse.json({ error: error.message }, { status: error.status });
+        }
         console.error("Admin content manage error:", error);
         return NextResponse.json({ error: error.message || "Action failed" }, { status: 500 });
     }

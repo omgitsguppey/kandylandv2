@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
+import { verifyAuth, AuthError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 
 export async function POST(request: NextRequest) {
     try {
+        await verifyAuth(request);
+
         const { dropId } = await request.json();
 
         if (!dropId || !adminDb) {
@@ -11,10 +14,13 @@ export async function POST(request: NextRequest) {
         }
 
         const dropRef = adminDb.collection("drops").doc(dropId);
-        await dropRef.update({ totalUnlocks: FieldValue.increment(1) });
+        await dropRef.update({ totalClicks: FieldValue.increment(1) });
 
         return NextResponse.json({ success: true });
     } catch (error: any) {
+        if (error instanceof AuthError) {
+            return NextResponse.json({ error: error.message }, { status: error.status });
+        }
         return NextResponse.json({ error: "Track failed" }, { status: 500 });
     }
 }

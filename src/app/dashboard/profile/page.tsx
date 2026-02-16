@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { updateProfile } from "firebase/auth";
 import { Button } from "@/components/ui/Button";
 import { Loader2, Save, User } from "lucide-react";
+import { authFetch } from "@/lib/authFetch";
 
 export default function ProfilePage() {
     const { user } = useAuth();
@@ -26,10 +27,9 @@ export default function ProfilePage() {
             });
 
             // Update Firestore via server API
-            const response = await fetch("/api/user/profile", {
+            const response = await authFetch("/api/user/profile", {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId: user.uid, displayName }),
+                body: JSON.stringify({ displayName }),
             });
 
             const result = await response.json();

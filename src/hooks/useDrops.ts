@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { collection, query, where, orderBy, onSnapshot, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Drop } from "@/types/db";
@@ -9,6 +9,12 @@ export function useDrops(statusFilter: string[] | null = ["active", "scheduled"]
     const [drops, setDrops] = useState<Drop[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    // Stable reference for the filter array
+    const filterKey = useMemo(
+        () => (statusFilter ? statusFilter.sort().join(",") : "all"),
+        [statusFilter]
+    );
 
     useEffect(() => {
         const dropsRef = collection(db, "drops");
@@ -39,7 +45,7 @@ export function useDrops(statusFilter: string[] | null = ["active", "scheduled"]
         });
 
         return () => unsubscribe();
-    }, [JSON.stringify(statusFilter)]); // Re-run if filter changes
+    }, [filterKey]); // Stable dependency instead of JSON.stringify
 
     return { drops, loading, error };
 }

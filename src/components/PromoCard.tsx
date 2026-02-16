@@ -1,5 +1,6 @@
 import { Drop } from "@/types/db";
 import { cn } from "@/lib/utils";
+import { authFetch } from "@/lib/authFetch";
 import { ArrowUpRight } from "lucide-react";
 import NextImage from "next/image";
 
@@ -10,9 +11,8 @@ interface PromoCardProps {
 export function PromoCard({ drop }: PromoCardProps) {
     const handleClick = () => {
         // Track click server-side (fire-and-forget)
-        fetch("/api/drops/track", {
+        authFetch("/api/drops/track", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ dropId: drop.id }),
         }).catch(() => { });
     };

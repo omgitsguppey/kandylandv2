@@ -37,7 +37,7 @@ export function BalanceAdjustmentModal({ user, onClose, onSuccess }: Props) {
 
         setProcessing(true);
         try {
-            const result = await adjustUserBalance(user.uid, val, reason, currentUser.uid);
+            const result = await adjustUserBalance(user.uid, val, reason);
 
             if (result.success) {
                 const newBalance = (user.gumDropsBalance || 0) + val;

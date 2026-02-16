@@ -9,6 +9,7 @@ import { DropGrid } from "@/components/DropGrid";
 import { useAuth } from "@/context/AuthContext";
 import { Loader2, MapPin, Link as LinkIcon, Twitter, Instagram, Globe, UserPlus, UserCheck, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
+import { authFetch } from "@/lib/authFetch";
 
 
 export default function CreatorProfilePage() {
@@ -88,11 +89,9 @@ export default function CreatorProfilePage() {
 
         try {
             const action = following ? "unfollow" : "follow";
-            const response = await fetch("/api/user/follow", {
+            const response = await authFetch("/api/user/follow", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    userId: currentUser.uid,
                     targetUserId: creator.uid,
                     action,
                 }),

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
+import { verifyAuth, AuthError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 
 // PayPal API base URLs
@@ -82,13 +83,18 @@ const VALID_PACKAGES: Record<string, number> = {
 
 export async function POST(request: NextRequest) {
     try {
+        const caller = await verifyAuth(request);
+
         const body = await request.json();
-        const { orderId, userId, expectedDrops } = body;
+        const { orderId, expectedDrops } = body;
+
+        // Use verified UID from token
+        const userId = caller.uid;
 
         // Validate inputs
-        if (!orderId || !userId || !expectedDrops) {
+        if (!orderId || !expectedDrops) {
             return NextResponse.json(
-                { error: "Missing required fields: orderId, userId, expectedDrops" },
+                { error: "Missing required fields: orderId, expectedDrops" },
                 { status: 400 }
             );
         }
@@ -208,6 +214,9 @@ export async function POST(request: NextRequest) {
             drops: dropsToCredit,
         });
     } catch (error: any) {
+        if (error instanceof AuthError) {
+            return NextResponse.json({ error: error.message }, { status: error.status });
+        }
         console.error("PayPal verification error:", error);
         return NextResponse.json(
             { error: error.message || "Payment verification failed" },

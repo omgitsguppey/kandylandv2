@@ -1,0 +1,2171 @@
+﻿{
+  "config": {
+    "configFile": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\playwright.config.ts",
+    "rootDir": "C:/Users/uylus/OneDrive/Documents/KandyDrops_Final/tests",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 4
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/uylus/OneDrive/Documents/KandyDrops_Final/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/uylus/OneDrive/Documents/KandyDrops_Final/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/uylus/OneDrive/Documents/KandyDrops_Final/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "Mobile Chrome",
+        "name": "Mobile Chrome",
+        "testDir": "C:/Users/uylus/OneDrive/Documents/KandyDrops_Final/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/uylus/OneDrive/Documents/KandyDrops_Final/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "C:/Users/uylus/OneDrive/Documents/KandyDrops_Final/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/uylus/OneDrive/Documents/KandyDrops_Final/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "Mobile Safari",
+        "name": "Mobile Safari",
+        "testDir": "C:/Users/uylus/OneDrive/Documents/KandyDrops_Final/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/uylus/OneDrive/Documents/KandyDrops_Final/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "Tablet Safari",
+        "name": "Tablet Safari",
+        "testDir": "C:/Users/uylus/OneDrive/Documents/KandyDrops_Final/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.2",
+    "workers": 4,
+    "webServer": {
+      "command": "npm run dev",
+      "url": "http://localhost:3000",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "launch-qa.spec.ts",
+      "file": "launch-qa.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Public Pages ΓÇö Smoke Tests",
+          "file": "launch-qa.spec.ts",
+          "line": 7,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Home page loads with hero section",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2770,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:32:41.903Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-283760cf1b5cf9cfb3a2",
+              "file": "launch-qa.spec.ts",
+              "line": 8,
+              "column": 9
+            },
+            {
+              "title": "Drops page loads with content grid",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 7418,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveTitle\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/KandyDrops/i\u001b[39m\nReceived string:  \u001b[31m\"\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveTitle\" with timeout 5000ms\u001b[22m\n\u001b[2m    8 ├ù unexpected value \"\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveTitle\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/KandyDrops/i\u001b[39m\nReceived string:  \u001b[31m\"\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveTitle\" with timeout 5000ms\u001b[22m\n\u001b[2m    8 ├ù unexpected value \"\"\u001b[22m\n\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:28:28",
+                        "location": {
+                          "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                          "column": 28,
+                          "line": 28
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 26 |\u001b[39m     test(\u001b[32m'Drops page loads with content grid'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 27 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/drops'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 28 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveTitle(\u001b[35m/KandyDrops/i\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 29 |\u001b[39m\n \u001b[90m 30 |\u001b[39m         \u001b[90m// Page header\u001b[39m\n \u001b[90m 31 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'heading'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[35m/KandyDrops/i\u001b[39m })\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                            "column": 28,
+                            "line": 28
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveTitle\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/KandyDrops/i\u001b[39m\nReceived string:  \u001b[31m\"\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveTitle\" with timeout 5000ms\u001b[22m\n\u001b[2m    8 ├ù unexpected value \"\"\u001b[22m\n\n\n  26 |     test('Drops page loads with content grid', async ({ page }) => {\n  27 |         await page.goto('/drops');\n> 28 |         await expect(page).toHaveTitle(/KandyDrops/i);\n     |                            ^\n  29 |\n  30 |         // Page header\n  31 |         await expect(page.getByRole('heading', { name: /KandyDrops/i }).first()).toBeVisible({ timeout: 15000 });\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:28:28"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:32:41.937Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\test-results\\launch-qa-Public-Pages-ΓÇö-S-89667-age-loads-with-content-grid-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                        "column": 28,
+                        "line": 28
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-4be7a86eda5162838c27",
+              "file": "launch-qa.spec.ts",
+              "line": 26,
+              "column": 9
+            },
+            {
+              "title": "Experiences page loads with coming soon content",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 2795,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:32:41.879Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-eab1f6d56c6d7c493a1c",
+              "file": "launch-qa.spec.ts",
+              "line": 38,
+              "column": 9
+            },
+            {
+              "title": "Privacy policy page loads",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 4717,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:32:41.910Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-7c3b039835c6409b9a52",
+              "file": "launch-qa.spec.ts",
+              "line": 49,
+              "column": 9
+            },
+            {
+              "title": "Terms of service page loads",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 3266,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:32:45.740Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-6f2558d52fe499bafc40",
+              "file": "launch-qa.spec.ts",
+              "line": 57,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "SEO ΓÇö Meta Tags & Structure",
+          "file": "launch-qa.spec.ts",
+          "line": 69,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Home page has proper meta tags",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2902,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:32:45.742Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-c09b8d631c979982ad06",
+              "file": "launch-qa.spec.ts",
+              "line": 70,
+              "column": 9
+            },
+            {
+              "title": "Drops page renders heading structure",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 1485,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:97:23",
+                        "location": {
+                          "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                          "column": 23,
+                          "line": 97
+                        },
+                        "snippet": "\u001b[0m \u001b[90m  95 |\u001b[39m         \u001b[36mconst\u001b[39m headings \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1, h2, h3'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m  96 |\u001b[39m         \u001b[36mconst\u001b[39m count \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m headings\u001b[33m.\u001b[39mcount()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  97 |\u001b[39m         expect(count)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m  98 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m  99 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 100 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                            "column": 23,
+                            "line": 97
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\n   95 |         const headings = page.locator('h1, h2, h3');\n   96 |         const count = await headings.count();\n>  97 |         expect(count).toBeGreaterThan(0);\n      |                       ^\n   98 |     });\n   99 | });\n  100 |\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:97:23"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:32:47.639Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\test-results\\launch-qa-SEO-ΓÇö-Meta-Tags--3483a-e-renders-heading-structure-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                        "column": 23,
+                        "line": 97
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-c3e598a46b6bd819f0eb",
+              "file": "launch-qa.spec.ts",
+              "line": 90,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "Navigation",
+          "file": "launch-qa.spec.ts",
+          "line": 105,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Navbar is visible on all pages",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 802,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:32:48.722Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-17e3264e69f31e8be888",
+              "file": "launch-qa.spec.ts",
+              "line": 106,
+              "column": 9
+            },
+            {
+              "title": "Logo link navigates to home",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "timedOut",
+                      "duration": 60194,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                            "column": 20,
+                            "line": 121
+                          },
+                          "message": "Error: locator.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('nav a[href=\"/\"]').first()\u001b[22m\n\n\n  119 |\n  120 |         const logo = page.locator('nav a[href=\"/\"]').first();\n> 121 |         await logo.click();\n      |                    ^\n  122 |         await page.waitForURL('/');\n  123 |         expect(page.url()).toContain('/');\n  124 |     });\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:121:20"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:32:49.104Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\test-results\\launch-qa-Navigation-Logo-link-navigates-to-home-chromium\\error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-65d64f0a216b054f600d",
+              "file": "launch-qa.spec.ts",
+              "line": 116,
+              "column": 9
+            },
+            {
+              "title": "Sign In button is visible when not authenticated",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 2670,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:32:56.687Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-e471ff8820ba1bc55184",
+              "file": "launch-qa.spec.ts",
+              "line": 126,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "404 Page",
+          "file": "launch-qa.spec.ts",
+          "line": 146,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Invalid route shows 404 page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 751,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:32:49.627Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-da7aced4a84f39c8dda6",
+              "file": "launch-qa.spec.ts",
+              "line": 147,
+              "column": 9
+            },
+            {
+              "title": "404 \"Return Home\" navigates back to home",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 779,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:32:50.451Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-d9b7c682b81244d5cf22",
+              "file": "launch-qa.spec.ts",
+              "line": 159,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "Auth Modal",
+          "file": "launch-qa.spec.ts",
+          "line": 173,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Sign In button opens auth modal",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 3321,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:192:61",
+                        "location": {
+                          "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                          "column": 61,
+                          "line": 192
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 190 |\u001b[39m             \u001b[36mconst\u001b[39m googleBtn \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByText(\u001b[35m/google/i\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m.\u001b[39misVisible()\u001b[33m.\u001b[39m\u001b[36mcatch\u001b[39m(() \u001b[33m=>\u001b[39m \u001b[36mfalse\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 191 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 192 |\u001b[39m             expect(modalVisible \u001b[33m||\u001b[39m emailField \u001b[33m||\u001b[39m googleBtn)\u001b[33m.\u001b[39mtoBeTruthy()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 193 |\u001b[39m         } \u001b[36melse\u001b[39m {\n \u001b[90m 194 |\u001b[39m             \u001b[90m// User is already logged in ΓÇö skip\u001b[39m\n \u001b[90m 195 |\u001b[39m             test\u001b[33m.\u001b[39mskip()\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                            "column": 61,
+                            "line": 192
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  190 |             const googleBtn = await page.getByText(/google/i).first().isVisible().catch(() => false);\n  191 |\n> 192 |             expect(modalVisible || emailField || googleBtn).toBeTruthy();\n      |                                                             ^\n  193 |         } else {\n  194 |             // User is already logged in ΓÇö skip\n  195 |             test.skip();\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:192:61"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:32:56.686Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\test-results\\launch-qa-Auth-Modal-Sign-In-button-opens-auth-modal-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                        "column": 61,
+                        "line": 192
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-5a7403c2de9753a22542",
+              "file": "launch-qa.spec.ts",
+              "line": 174,
+              "column": 9
+            },
+            {
+              "title": "Auth modal can be closed",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3464,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:32:51.288Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-d361266f6b9023025f0d",
+              "file": "launch-qa.spec.ts",
+              "line": 199,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "Drops Page ΓÇö Filters & Search",
+          "file": "launch-qa.spec.ts",
+          "line": 231,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Category filter buttons are clickable",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3690,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:32:54.804Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-70501668bbbf2b3d5706",
+              "file": "launch-qa.spec.ts",
+              "line": 232,
+              "column": 9
+            },
+            {
+              "title": "Search input works on drops page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3383,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:32:58.543Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-5ca3d1208db29af9f22a",
+              "file": "launch-qa.spec.ts",
+              "line": 250,
+              "column": 9
+            },
+            {
+              "title": "Drop cards render with expected structure",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 5777,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:33:00.022Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-931965d3e3da6e3fa231",
+              "file": "launch-qa.spec.ts",
+              "line": 269,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "API Routes ΓÇö Auth Enforcement",
+          "file": "launch-qa.spec.ts",
+          "line": 292,
+          "column": 6,
+          "specs": [
+            {
+              "title": "POST /api/checkin returns 401 without auth",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 238,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:297:30",
+                        "location": {
+                          "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                          "column": 30,
+                          "line": 297
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 295 |\u001b[39m             data\u001b[33m:\u001b[39m {}\u001b[33m,\u001b[39m\n \u001b[90m 296 |\u001b[39m         })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 297 |\u001b[39m         expect(res\u001b[33m.\u001b[39mstatus())\u001b[33m.\u001b[39mtoBe(\u001b[35m401\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 298 |\u001b[39m         \u001b[36mconst\u001b[39m body \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m res\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 299 |\u001b[39m         expect(body\u001b[33m.\u001b[39merror)\u001b[33m.\u001b[39mtoBeTruthy()\u001b[33m;\u001b[39m\n \u001b[90m 300 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                            "column": 30,
+                            "line": 297
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n\n  295 |             data: {},\n  296 |         });\n> 297 |         expect(res.status()).toBe(401);\n      |                              ^\n  298 |         const body = await res.json();\n  299 |         expect(body.error).toBeTruthy();\n  300 |     });\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:297:30"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:33:06.612Z",
+                      "annotations": [],
+                      "attachments": [],
+                      "errorLocation": {
+                        "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                        "column": 30,
+                        "line": 297
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-e5e46a433105bd4594e5",
+              "file": "launch-qa.spec.ts",
+              "line": 293,
+              "column": 9
+            },
+            {
+              "title": "POST /api/drops/unlock returns 401 without auth",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 90,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:306:30",
+                        "location": {
+                          "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                          "column": 30,
+                          "line": 306
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 304 |\u001b[39m             data\u001b[33m:\u001b[39m { dropId\u001b[33m:\u001b[39m \u001b[32m'test'\u001b[39m }\u001b[33m,\u001b[39m\n \u001b[90m 305 |\u001b[39m         })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 306 |\u001b[39m         expect(res\u001b[33m.\u001b[39mstatus())\u001b[33m.\u001b[39mtoBe(\u001b[35m401\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 307 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 308 |\u001b[39m\n \u001b[90m 309 |\u001b[39m     test(\u001b[32m'POST /api/drops/track returns 401 without auth'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ request }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                            "column": 30,
+                            "line": 306
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n\n  304 |             data: { dropId: 'test' },\n  305 |         });\n> 306 |         expect(res.status()).toBe(401);\n      |                              ^\n  307 |     });\n  308 |\n  309 |     test('POST /api/drops/track returns 401 without auth', async ({ request }) => {\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:306:30"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:33:01.971Z",
+                      "annotations": [],
+                      "attachments": [],
+                      "errorLocation": {
+                        "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                        "column": 30,
+                        "line": 306
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-bfe45494844ef6f185a3",
+              "file": "launch-qa.spec.ts",
+              "line": 302,
+              "column": 9
+            },
+            {
+              "title": "POST /api/drops/track returns 401 without auth",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 197,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:313:30",
+                        "location": {
+                          "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                          "column": 30,
+                          "line": 313
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 311 |\u001b[39m             data\u001b[33m:\u001b[39m { dropId\u001b[33m:\u001b[39m \u001b[32m'test'\u001b[39m }\u001b[33m,\u001b[39m\n \u001b[90m 312 |\u001b[39m         })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 313 |\u001b[39m         expect(res\u001b[33m.\u001b[39mstatus())\u001b[33m.\u001b[39mtoBe(\u001b[35m401\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 314 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 315 |\u001b[39m\n \u001b[90m 316 |\u001b[39m     test(\u001b[32m'POST /api/paypal/capture returns 401 without auth'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ request }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                            "column": 30,
+                            "line": 313
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n\n  311 |             data: { dropId: 'test' },\n  312 |         });\n> 313 |         expect(res.status()).toBe(401);\n      |                              ^\n  314 |     });\n  315 |\n  316 |     test('POST /api/paypal/capture returns 401 without auth', async ({ request }) => {\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:313:30"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:33:09.489Z",
+                      "annotations": [],
+                      "attachments": [],
+                      "errorLocation": {
+                        "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                        "column": 30,
+                        "line": 313
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-26dc5266a5aa734c0c95",
+              "file": "launch-qa.spec.ts",
+              "line": 309,
+              "column": 9
+            },
+            {
+              "title": "POST /api/paypal/capture returns 401 without auth",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 409,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:320:30",
+                        "location": {
+                          "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                          "column": 30,
+                          "line": 320
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 318 |\u001b[39m             data\u001b[33m:\u001b[39m { orderId\u001b[33m:\u001b[39m \u001b[32m'test'\u001b[39m\u001b[33m,\u001b[39m expectedDrops\u001b[33m:\u001b[39m \u001b[35m100\u001b[39m }\u001b[33m,\u001b[39m\n \u001b[90m 319 |\u001b[39m         })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 320 |\u001b[39m         expect(res\u001b[33m.\u001b[39mstatus())\u001b[33m.\u001b[39mtoBe(\u001b[35m401\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 321 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 322 |\u001b[39m\n \u001b[90m 323 |\u001b[39m     test(\u001b[32m'PUT /api/user/profile returns 401 without auth'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ request }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                            "column": 30,
+                            "line": 320
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n\n  318 |             data: { orderId: 'test', expectedDrops: 100 },\n  319 |         });\n> 320 |         expect(res.status()).toBe(401);\n      |                              ^\n  321 |     });\n  322 |\n  323 |     test('PUT /api/user/profile returns 401 without auth', async ({ request }) => {\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:320:30"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:33:05.858Z",
+                      "annotations": [],
+                      "attachments": [],
+                      "errorLocation": {
+                        "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                        "column": 30,
+                        "line": 320
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-bec84727c36bce5fe524",
+              "file": "launch-qa.spec.ts",
+              "line": 316,
+              "column": 9
+            },
+            {
+              "title": "PUT /api/user/profile returns 401 without auth",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 262,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:327:30",
+                        "location": {
+                          "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                          "column": 30,
+                          "line": 327
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 325 |\u001b[39m             data\u001b[33m:\u001b[39m { displayName\u001b[33m:\u001b[39m \u001b[32m'test'\u001b[39m }\u001b[33m,\u001b[39m\n \u001b[90m 326 |\u001b[39m         })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 327 |\u001b[39m         expect(res\u001b[33m.\u001b[39mstatus())\u001b[33m.\u001b[39mtoBe(\u001b[35m401\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 328 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 329 |\u001b[39m\n \u001b[90m 330 |\u001b[39m     test(\u001b[32m'POST /api/user/follow returns 401 without auth'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ request }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                            "column": 30,
+                            "line": 327
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n\n  325 |             data: { displayName: 'test' },\n  326 |         });\n> 327 |         expect(res.status()).toBe(401);\n      |                              ^\n  328 |     });\n  329 |\n  330 |     test('POST /api/user/follow returns 401 without auth', async ({ request }) => {\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:327:30"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:33:13.556Z",
+                      "annotations": [],
+                      "attachments": [],
+                      "errorLocation": {
+                        "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                        "column": 30,
+                        "line": 327
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-f37382ab49fd514bd16e",
+              "file": "launch-qa.spec.ts",
+              "line": 323,
+              "column": 9
+            },
+            {
+              "title": "POST /api/user/follow returns 401 without auth",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 250,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:334:30",
+                        "location": {
+                          "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                          "column": 30,
+                          "line": 334
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 332 |\u001b[39m             data\u001b[33m:\u001b[39m { targetUserId\u001b[33m:\u001b[39m \u001b[32m'test'\u001b[39m\u001b[33m,\u001b[39m action\u001b[33m:\u001b[39m \u001b[32m'follow'\u001b[39m }\u001b[33m,\u001b[39m\n \u001b[90m 333 |\u001b[39m         })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 334 |\u001b[39m         expect(res\u001b[33m.\u001b[39mstatus())\u001b[33m.\u001b[39mtoBe(\u001b[35m401\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 335 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 336 |\u001b[39m\n \u001b[90m 337 |\u001b[39m     test(\u001b[32m'POST /api/user/register returns 401 without auth'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ request }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                            "column": 30,
+                            "line": 334
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n\n  332 |             data: { targetUserId: 'test', action: 'follow' },\n  333 |         });\n> 334 |         expect(res.status()).toBe(401);\n      |                              ^\n  335 |     });\n  336 |\n  337 |     test('POST /api/user/register returns 401 without auth', async ({ request }) => {\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:334:30"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:33:13.867Z",
+                      "annotations": [],
+                      "attachments": [],
+                      "errorLocation": {
+                        "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                        "column": 30,
+                        "line": 334
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-0e2b7091106f505460c1",
+              "file": "launch-qa.spec.ts",
+              "line": 330,
+              "column": 9
+            },
+            {
+              "title": "POST /api/user/register returns 401 without auth",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 203,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:341:30",
+                        "location": {
+                          "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                          "column": 30,
+                          "line": 341
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 339 |\u001b[39m             data\u001b[33m:\u001b[39m { displayName\u001b[33m:\u001b[39m \u001b[32m'test'\u001b[39m }\u001b[33m,\u001b[39m\n \u001b[90m 340 |\u001b[39m         })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 341 |\u001b[39m         expect(res\u001b[33m.\u001b[39mstatus())\u001b[33m.\u001b[39mtoBe(\u001b[35m401\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 342 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 343 |\u001b[39m\n \u001b[90m 344 |\u001b[39m     test(\u001b[32m'PUT /api/notifications returns 401 without auth'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ request }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                            "column": 30,
+                            "line": 341
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n\n  339 |             data: { displayName: 'test' },\n  340 |         });\n> 341 |         expect(res.status()).toBe(401);\n      |                              ^\n  342 |     });\n  343 |\n  344 |     test('PUT /api/notifications returns 401 without auth', async ({ request }) => {\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:341:30"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:33:16.500Z",
+                      "annotations": [],
+                      "attachments": [],
+                      "errorLocation": {
+                        "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                        "column": 30,
+                        "line": 341
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-6440f6900dae8e4ce5c1",
+              "file": "launch-qa.spec.ts",
+              "line": 337,
+              "column": 9
+            },
+            {
+              "title": "PUT /api/notifications returns 401 without auth",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 11,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 190,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:348:30",
+                        "location": {
+                          "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                          "column": 30,
+                          "line": 348
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 346 |\u001b[39m             data\u001b[33m:\u001b[39m { notificationId\u001b[33m:\u001b[39m \u001b[32m'test'\u001b[39m }\u001b[33m,\u001b[39m\n \u001b[90m 347 |\u001b[39m         })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 348 |\u001b[39m         expect(res\u001b[33m.\u001b[39mstatus())\u001b[33m.\u001b[39mtoBe(\u001b[35m401\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 349 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 350 |\u001b[39m\n \u001b[90m 351 |\u001b[39m     test(\u001b[32m'POST /api/notifications returns 401 without auth'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ request }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                            "column": 30,
+                            "line": 348
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n\n  346 |             data: { notificationId: 'test' },\n  347 |         });\n> 348 |         expect(res.status()).toBe(401);\n      |                              ^\n  349 |     });\n  350 |\n  351 |     test('POST /api/notifications returns 401 without auth', async ({ request }) => {\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:348:30"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:33:20.448Z",
+                      "annotations": [],
+                      "attachments": [],
+                      "errorLocation": {
+                        "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                        "column": 30,
+                        "line": 348
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-723011e882c98c9dd01e",
+              "file": "launch-qa.spec.ts",
+              "line": 344,
+              "column": 9
+            },
+            {
+              "title": "POST /api/notifications returns 401 without auth",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 195,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:355:30",
+                        "location": {
+                          "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                          "column": 30,
+                          "line": 355
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 353 |\u001b[39m             data\u001b[33m:\u001b[39m { title\u001b[33m:\u001b[39m \u001b[32m'test'\u001b[39m\u001b[33m,\u001b[39m message\u001b[33m:\u001b[39m \u001b[32m'test'\u001b[39m\u001b[33m,\u001b[39m type\u001b[33m:\u001b[39m \u001b[32m'info'\u001b[39m\u001b[33m,\u001b[39m target\u001b[33m:\u001b[39m { global\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m } }\u001b[33m,\u001b[39m\n \u001b[90m 354 |\u001b[39m         })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 355 |\u001b[39m         expect(res\u001b[33m.\u001b[39mstatus())\u001b[33m.\u001b[39mtoBe(\u001b[35m401\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 356 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 357 |\u001b[39m\n \u001b[90m 358 |\u001b[39m     \u001b[90m// Admin routes\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                            "column": 30,
+                            "line": 355
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n\n  353 |             data: { title: 'test', message: 'test', type: 'info', target: { global: true } },\n  354 |         });\n> 355 |         expect(res.status()).toBe(401);\n      |                              ^\n  356 |     });\n  357 |\n  358 |     // Admin routes\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:355:30"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:33:20.516Z",
+                      "annotations": [],
+                      "attachments": [],
+                      "errorLocation": {
+                        "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                        "column": 30,
+                        "line": 355
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-585f69cedc37977ba262",
+              "file": "launch-qa.spec.ts",
+              "line": 351,
+              "column": 9
+            },
+            {
+              "title": "PUT /api/admin/users returns 401 without auth",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 13,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 200,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:363:30",
+                        "location": {
+                          "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                          "column": 30,
+                          "line": 363
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 361 |\u001b[39m             data\u001b[33m:\u001b[39m { userId\u001b[33m:\u001b[39m \u001b[32m'test'\u001b[39m\u001b[33m,\u001b[39m updates\u001b[33m:\u001b[39m { role\u001b[33m:\u001b[39m \u001b[32m'user'\u001b[39m } }\u001b[33m,\u001b[39m\n \u001b[90m 362 |\u001b[39m         })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 363 |\u001b[39m         expect(res\u001b[33m.\u001b[39mstatus())\u001b[33m.\u001b[39mtoBe(\u001b[35m401\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 364 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 365 |\u001b[39m\n \u001b[90m 366 |\u001b[39m     test(\u001b[32m'POST /api/admin/drops returns 401 without auth'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ request }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                            "column": 30,
+                            "line": 363
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n\n  361 |             data: { userId: 'test', updates: { role: 'user' } },\n  362 |         });\n> 363 |         expect(res.status()).toBe(401);\n      |                              ^\n  364 |     });\n  365 |\n  366 |     test('POST /api/admin/drops returns 401 without auth', async ({ request }) => {\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:363:30"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:33:23.241Z",
+                      "annotations": [],
+                      "attachments": [],
+                      "errorLocation": {
+                        "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                        "column": 30,
+                        "line": 363
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-5c5654b082691a20d42a",
+              "file": "launch-qa.spec.ts",
+              "line": 359,
+              "column": 9
+            },
+            {
+              "title": "POST /api/admin/drops returns 401 without auth",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 14,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 260,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:370:30",
+                        "location": {
+                          "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                          "column": 30,
+                          "line": 370
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 368 |\u001b[39m             data\u001b[33m:\u001b[39m { dropData\u001b[33m:\u001b[39m {} }\u001b[33m,\u001b[39m\n \u001b[90m 369 |\u001b[39m         })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 370 |\u001b[39m         expect(res\u001b[33m.\u001b[39mstatus())\u001b[33m.\u001b[39mtoBe(\u001b[35m401\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 371 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 372 |\u001b[39m\n \u001b[90m 373 |\u001b[39m     test(\u001b[32m'POST /api/admin/balance returns 401 without auth'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ request }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                            "column": 30,
+                            "line": 370
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n\n  368 |             data: { dropData: {} },\n  369 |         });\n> 370 |         expect(res.status()).toBe(401);\n      |                              ^\n  371 |     });\n  372 |\n  373 |     test('POST /api/admin/balance returns 401 without auth', async ({ request }) => {\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:370:30"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:33:27.812Z",
+                      "annotations": [],
+                      "attachments": [],
+                      "errorLocation": {
+                        "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                        "column": 30,
+                        "line": 370
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-762b8a6f666a00d4a67c",
+              "file": "launch-qa.spec.ts",
+              "line": 366,
+              "column": 9
+            },
+            {
+              "title": "POST /api/admin/balance returns 401 without auth",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 15,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 262,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:377:30",
+                        "location": {
+                          "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                          "column": 30,
+                          "line": 377
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 375 |\u001b[39m             data\u001b[33m:\u001b[39m { userId\u001b[33m:\u001b[39m \u001b[32m'test'\u001b[39m\u001b[33m,\u001b[39m amount\u001b[33m:\u001b[39m \u001b[35m100\u001b[39m\u001b[33m,\u001b[39m reason\u001b[33m:\u001b[39m \u001b[32m'test'\u001b[39m }\u001b[33m,\u001b[39m\n \u001b[90m 376 |\u001b[39m         })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 377 |\u001b[39m         expect(res\u001b[33m.\u001b[39mstatus())\u001b[33m.\u001b[39mtoBe(\u001b[35m401\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 378 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 379 |\u001b[39m\n \u001b[90m 380 |\u001b[39m     test(\u001b[32m'POST /api/admin/seed returns 401 without auth'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ request }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                            "column": 30,
+                            "line": 377
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n\n  375 |             data: { userId: 'test', amount: 100, reason: 'test' },\n  376 |         });\n> 377 |         expect(res.status()).toBe(401);\n      |                              ^\n  378 |     });\n  379 |\n  380 |     test('POST /api/admin/seed returns 401 without auth', async ({ request }) => {\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:377:30"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:33:27.890Z",
+                      "annotations": [],
+                      "attachments": [],
+                      "errorLocation": {
+                        "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                        "column": 30,
+                        "line": 377
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-cb02a38d2431da7d0f58",
+              "file": "launch-qa.spec.ts",
+              "line": 373,
+              "column": 9
+            },
+            {
+              "title": "POST /api/admin/seed returns 401 without auth",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 16,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 214,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:384:30",
+                        "location": {
+                          "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                          "column": 30,
+                          "line": 384
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 382 |\u001b[39m             data\u001b[33m:\u001b[39m { drops\u001b[33m:\u001b[39m [] }\u001b[33m,\u001b[39m\n \u001b[90m 383 |\u001b[39m         })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 384 |\u001b[39m         expect(res\u001b[33m.\u001b[39mstatus())\u001b[33m.\u001b[39mtoBe(\u001b[35m401\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 385 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 386 |\u001b[39m\n \u001b[90m 387 |\u001b[39m     \u001b[90m// Public route\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                            "column": 30,
+                            "line": 384
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m401\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n\n  382 |             data: { drops: [] },\n  383 |         });\n> 384 |         expect(res.status()).toBe(401);\n      |                              ^\n  385 |     });\n  386 |\n  387 |     // Public route\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:384:30"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:33:31.449Z",
+                      "annotations": [],
+                      "attachments": [],
+                      "errorLocation": {
+                        "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                        "column": 30,
+                        "line": 384
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-56f91a64c54eefd6e56f",
+              "file": "launch-qa.spec.ts",
+              "line": 380,
+              "column": 9
+            },
+            {
+              "title": "GET /api/user/check-username works without auth",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 17,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 232,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected value: \u001b[32m404\u001b[39m\nReceived array: \u001b[31m[200, 409]\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected value: \u001b[32m404\u001b[39m\nReceived array: \u001b[31m[200, 409]\u001b[39m\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:391:28",
+                        "location": {
+                          "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                          "column": 28,
+                          "line": 391
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 389 |\u001b[39m         \u001b[36mconst\u001b[39m res \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m request\u001b[33m.\u001b[39m\u001b[36mget\u001b[39m(\u001b[32m'/api/user/check-username?username=testuser123'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 390 |\u001b[39m         \u001b[90m// Should return 200 (available) or 409 (taken) ΓÇö NOT 401\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 391 |\u001b[39m         expect([\u001b[35m200\u001b[39m\u001b[33m,\u001b[39m \u001b[35m409\u001b[39m])\u001b[33m.\u001b[39mtoContain(res\u001b[33m.\u001b[39mstatus())\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 392 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 393 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 394 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                            "column": 28,
+                            "line": 391
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected value: \u001b[32m404\u001b[39m\nReceived array: \u001b[31m[200, 409]\u001b[39m\n\n  389 |         const res = await request.get('/api/user/check-username?username=testuser123');\n  390 |         // Should return 200 (available) or 409 (taken) ΓÇö NOT 401\n> 391 |         expect([200, 409]).toContain(res.status());\n      |                            ^\n  392 |     });\n  393 | });\n  394 |\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:391:28"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:33:36.655Z",
+                      "annotations": [],
+                      "attachments": [],
+                      "errorLocation": {
+                        "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                        "column": 28,
+                        "line": 391
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-598781ccbf50259211b8",
+              "file": "launch-qa.spec.ts",
+              "line": 388,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "Responsive ΓÇö Mobile Viewport",
+          "file": "launch-qa.spec.ts",
+          "line": 399,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Home page renders on mobile",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 18,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 3103,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:33:36.813Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-904a4b9c7a545f9a587b",
+              "file": "launch-qa.spec.ts",
+              "line": 402,
+              "column": 9
+            },
+            {
+              "title": "Drops page renders on mobile",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 19,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 8989,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading').first()\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading').first()\u001b[22m\n\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:421:31",
+                        "location": {
+                          "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                          "column": 31,
+                          "line": 421
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 419 |\u001b[39m         \u001b[90m// Page heading visible\u001b[39m\n \u001b[90m 420 |\u001b[39m         \u001b[36mconst\u001b[39m heading \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'heading'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 421 |\u001b[39m         \u001b[36mawait\u001b[39m expect(heading)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 422 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 423 |\u001b[39m\n \u001b[90m 424 |\u001b[39m     test(\u001b[32m'Experiences page renders on mobile'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                            "column": 31,
+                            "line": 421
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading').first()\u001b[22m\n\n\n  419 |         // Page heading visible\n  420 |         const heading = page.getByRole('heading').first();\n> 421 |         await expect(heading).toBeVisible();\n      |                               ^\n  422 |     });\n  423 |\n  424 |     test('Experiences page renders on mobile', async ({ page }) => {\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:421:31"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:33:40.346Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\test-results\\launch-qa-Responsive-ΓÇö-Mob-22139-rops-page-renders-on-mobile-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                        "column": 31,
+                        "line": 421
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-ed30bf6be3f77075e30e",
+              "file": "launch-qa.spec.ts",
+              "line": 414,
+              "column": 9
+            },
+            {
+              "title": "Experiences page renders on mobile",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 20,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 1728,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:33:46.166Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-45a6a098ae795e532725",
+              "file": "launch-qa.spec.ts",
+              "line": 424,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "Responsive ΓÇö Tablet Viewport",
+          "file": "launch-qa.spec.ts",
+          "line": 436,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Home page renders on tablet",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 18,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 2802,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:33:40.577Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-6b486e62692ee0e6196c",
+              "file": "launch-qa.spec.ts",
+              "line": 439,
+              "column": 9
+            },
+            {
+              "title": "Drops page renders on tablet",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 18,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 8656,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading').first()\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading').first()\u001b[22m\n\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:454:31",
+                        "location": {
+                          "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                          "column": 31,
+                          "line": 454
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 452 |\u001b[39m\n \u001b[90m 453 |\u001b[39m         \u001b[36mconst\u001b[39m heading \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'heading'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 454 |\u001b[39m         \u001b[36mawait\u001b[39m expect(heading)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 455 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 456 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 457 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                            "column": 31,
+                            "line": 454
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading').first()\u001b[22m\n\n\n  452 |\n  453 |         const heading = page.getByRole('heading').first();\n> 454 |         await expect(heading).toBeVisible();\n      |                               ^\n  455 |     });\n  456 | });\n  457 |\n    at C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts:454:31"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:33:43.455Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\test-results\\launch-qa-Responsive-ΓÇö-Tab-42b19-rops-page-renders-on-tablet-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final\\tests\\launch-qa.spec.ts",
+                        "column": 31,
+                        "line": 454
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-1294dadf3a4eb150ada6",
+              "file": "launch-qa.spec.ts",
+              "line": 448,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "Visual ΓÇö CSS Loaded",
+          "file": "launch-qa.spec.ts",
+          "line": 462,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Dark theme applied (background is not white)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 20,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 2724,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:33:48.720Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-8e1a85a6c823e317f4ab",
+              "file": "launch-qa.spec.ts",
+              "line": 463,
+              "column": 9
+            },
+            {
+              "title": "No broken images on home page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 21,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 2144,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:34:00.260Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-db665c1ed230ed28bd86",
+              "file": "launch-qa.spec.ts",
+              "line": 476,
+              "column": 9
+            },
+            {
+              "title": "No console errors on home page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 20,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 2984,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "Console errors found: [\n  \u001b[32m'Failed to load resource: the server responded with a status of 404 (Not Found)'\u001b[39m,\n  \u001b[32m'Failed to load resource: the server responded with a status of 404 (Not Found)'\u001b[39m,\n  \u001b[32m'Failed to load resource: the server responded with a status of 404 (Not Found)'\u001b[39m,\n  \u001b[32m'Failed to load resource: the server responded with a status of 404 (Not Found)'\u001b[39m,\n  \u001b[32m'Failed to load resource: the server responded with a status of 404 (Not Found)'\u001b[39m,\n  \u001b[32m'Failed to load resource: the server responded with a status of 404 (Not Found)'\u001b[39m,\n  \u001b[32m'Failed to load resource: the server responded with a status of 404 (Not Found)'\u001b[39m,\n  \u001b[32m'Failed to load resource: the server responded with a status of 404 (Not Found)'\u001b[39m,\n  \u001b[32m'Failed to load resource: the server responded with a status of 404 (Not Found)'\u001b[39m,\n  \u001b[32m'Failed to load resource: the server responded with a status of 404 (Not Found)'\u001b[39m,\n  \u001b[32m'Failed to load resource: the server responded with a status of 404 (Not Found)'\u001b[39m,\n  \u001b[32m'Failed to load resource: the server responded with a status of 404 (Not Found)'\u001b[39m,\n  \u001b[32m'Failed to load resource: the server responded with a status of 404 (Not Found)'\u001b[39m,\n  \u001b[32m'Failed to load resource: the server responded with a status of 404 (Not Found)'\u001b[39m,\n  \u001b[32m'Failed to load resource: the server responded with a status of 404 (Not Found)'\u001b[39m,\n  \u001b[32m'Failed to load resource: the server responded with a status of 404 (Not Found)'\u001b[39m,\n  \u001b[32m'Failed to load resource: the server responded with a status of 404 (Not Found)'\u001b[39m,\n  \u001b[32m'Failed to load resource: the server responded with a status of 404 (Not Found)'\u001b[39m,\n  \u001b[32m'Failed to load resource: the server responded with a status of 404 (Not Found)'\u001b[39m,\n  \u001b[32m'Failed to load resource: the server responded with a status of 404 (Not Found)'\u001b[39m,\n  \u001b[32m'Failed to load resource: the server responded with a status of 404 (Not Found)'\u001b[39m,\n  \u001b[32m'Failed to load resource: the server responded with a status of 404 (Not Found)'\u001b[39m\n]\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:33:51.508Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-173278d8ddf7ccd622a4",
+              "file": "launch-qa.spec.ts",
+              "line": 495,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "Accessibility Basics",
+          "file": "launch-qa.spec.ts",
+          "line": 528,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Home page has semantic HTML elements",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 22,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1678,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:34:00.371Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-272d48e5521a493b5dbf",
+              "file": "launch-qa.spec.ts",
+              "line": 529,
+              "column": 9
+            },
+            {
+              "title": "Interactive elements are keyboard accessible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 23,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 3025,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:34:02.379Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-b8a8958fe80174068df9",
+              "file": "launch-qa.spec.ts",
+              "line": 543,
+              "column": 9
+            },
+            {
+              "title": "Images have alt text",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 20,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 1317,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T01:33:54.580Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ecbe4509006e490e3679-48fee9b596ddf9304dbe",
+              "file": "launch-qa.spec.ts",
+              "line": 554,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-02-16T01:31:20.127Z",
+    "duration": 167053.353,
+    "expected": 22,
+    "skipped": 0,
+    "unexpected": 20,
+    "flaky": 0
+  }
+}

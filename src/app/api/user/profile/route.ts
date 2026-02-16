@@ -1,19 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
+import { verifyAuth, AuthError } from "@/lib/server/auth";
 
 // PUT — Update display name (from ProfilePage)
 export async function PUT(request: NextRequest) {
     try {
-        const { userId, displayName } = await request.json();
+        const caller = await verifyAuth(request);
 
-        if (!userId || !displayName) {
-            return NextResponse.json({ error: "Missing userId or displayName" }, { status: 400 });
+        const { displayName } = await request.json();
+
+        if (!displayName) {
+            return NextResponse.json({ error: "Missing displayName" }, { status: 400 });
         }
         if (!adminDb) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });
         }
 
-        const userRef = adminDb.collection("users").doc(userId);
+        // Use verified UID — user can only update their own profile
+        const userRef = adminDb.collection("users").doc(caller.uid);
         const userSnap = await userRef.get();
         if (!userSnap.exists) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -23,6 +27,9 @@ export async function PUT(request: NextRequest) {
 
         return NextResponse.json({ success: true });
     } catch (error: any) {
+        if (error instanceof AuthError) {
+            return NextResponse.json({ error: error.message }, { status: error.status });
+        }
         console.error("Profile update error:", error);
         return NextResponse.json({ error: error.message || "Update failed" }, { status: 500 });
     }
@@ -31,14 +38,16 @@ export async function PUT(request: NextRequest) {
 // POST — Onboarding submit (username, DOB, bio, avatar URL)
 export async function POST(request: NextRequest) {
     try {
-        const { userId, username, dateOfBirth, bio, photoURL } = await request.json();
+        const caller = await verifyAuth(request);
 
-        if (!userId) {
-            return NextResponse.json({ error: "Missing userId" }, { status: 400 });
-        }
         if (!adminDb) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });
         }
+
+        const { username, dateOfBirth, bio, photoURL } = await request.json();
+
+        // Use verified UID
+        const userId = caller.uid;
 
         // Validate username uniqueness if provided
         if (username) {
@@ -81,6 +90,9 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({ success: true });
     } catch (error: any) {
+        if (error instanceof AuthError) {
+            return NextResponse.json({ error: error.message }, { status: error.status });
+        }
         console.error("Onboarding error:", error);
         return NextResponse.json({ error: error.message || "Onboarding failed" }, { status: 500 });
     }

@@ -36,6 +36,7 @@ export interface Drop {
     validUntil?: number; // Timestamp (Optional - if missing, never expires)
     status: 'active' | 'expired' | 'scheduled';
     totalUnlocks: number;
+    totalClicks?: number; // Promo/external link click counter
     createdAt?: number; // Added for sort/display
 
     // Dynamic Content Fields
@@ -52,6 +53,15 @@ export interface Drop {
         size: number;
         type: string;
         dimensions?: string;
+    };
+
+    // Auto-Rotation Config
+    rotationConfig?: {
+        enabled: boolean;
+        intervalDays: number;   // total cycle length (e.g., 7 = weekly)
+        durationDays: number;   // how long each active window lasts
+        maxRotations?: number;  // optional cap (undefined = forever)
+        rotationCount: number;  // how many times it has rotated so far
     };
 }
 

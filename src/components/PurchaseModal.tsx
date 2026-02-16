@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
+import { authFetch } from "@/lib/authFetch";
 
 interface PurchaseModalProps {
     isOpen: boolean;
@@ -60,12 +61,10 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
             if (!user) throw new Error("User not authenticated");
 
             // Server-side capture & verification
-            const response = await fetch("/api/paypal/capture", {
+            const response = await authFetch("/api/paypal/capture", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     orderId,
-                    userId: user.uid,
                     expectedDrops: selectedPackage.drops,
                 }),
             });

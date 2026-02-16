@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { User } from "firebase/auth";
+import { authFetch } from "@/lib/authFetch";
 import { useNow } from "@/context/NowContext";
 import { useUserProfile } from "@/context/AuthContext";
 
@@ -68,10 +69,9 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
         setError(null);
 
         try {
-            const response = await fetch("/api/drops/unlock", {
+            const response = await authFetch("/api/drops/unlock", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId: user.uid, dropId: drop.id }),
+                body: JSON.stringify({ dropId: drop.id }),
             });
 
             const result = await response.json();
