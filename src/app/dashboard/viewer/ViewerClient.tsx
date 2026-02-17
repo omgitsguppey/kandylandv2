@@ -1,13 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { ArrowLeft, Lock, ShieldCheck, Heart, Share2, Download } from "lucide-react";
+import { ArrowLeft, Lock, ShieldCheck, Heart, Share2, Download, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Drop } from "@/types/db";
 import NextImage from "next/image";
+import { authFetch } from "@/lib/authFetch";
+import { useUI } from "@/context/UIContext";
+
+const DOWNLOAD_COST = 100;
 
 interface ViewerClientProps {
     drop: Drop | null;
@@ -15,8 +19,12 @@ interface ViewerClientProps {
 
 export function ViewerClient({ drop }: ViewerClientProps) {
     const { user, userProfile, loading: authLoading } = useAuth();
+    const { openInsufficientBalanceModal } = useUI();
     const router = useRouter();
     const [isAuthorized, setIsAuthorized] = useState(false);
+    const [contentBlobUrl, setContentBlobUrl] = useState<string | null>(null);
+    const [contentLoading, setContentLoading] = useState(false);
+    const [downloading, setDownloading] = useState(false);
 
     // Redirect if not logged in (once auth is ready)
     useEffect(() => {
@@ -34,7 +42,102 @@ export function ViewerClient({ drop }: ViewerClientProps) {
         }
     }, [drop, userProfile]);
 
-    // Skeleton for AUTH loading only (Content is already here if drop exists)
+    // Fetch content as blob URL to avoid exposing raw Firebase URLs in the DOM
+    useEffect(() => {
+        if (!isAuthorized || !drop) return;
+
+        let cancelled = false;
+
+        async function fetchContent() {
+            setContentLoading(true);
+            try {
+                const res = await authFetch(`/api/drops/content?id=${drop!.id}`);
+                if (!res.ok) throw new Error("Failed to load content");
+
+                const blob = await res.blob();
+                if (!cancelled) {
+                    const url = URL.createObjectURL(blob);
+                    setContentBlobUrl(url);
+                }
+            } catch (err) {
+                console.error("Content load error:", err);
+                if (!cancelled) {
+                    toast.error("Failed to load content");
+                }
+            } finally {
+                if (!cancelled) setContentLoading(false);
+            }
+        }
+
+        fetchContent();
+
+        return () => {
+            cancelled = true;
+            if (contentBlobUrl) {
+                URL.revokeObjectURL(contentBlobUrl);
+            }
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isAuthorized, drop?.id]);
+
+    // Cleanup blob URL on unmount
+    useEffect(() => {
+        return () => {
+            if (contentBlobUrl) {
+                URL.revokeObjectURL(contentBlobUrl);
+            }
+        };
+    }, [contentBlobUrl]);
+
+    const handleDownload = useCallback(async () => {
+        if (!drop || downloading) return;
+
+        const balance = userProfile?.gumDropsBalance ?? 0;
+        if (balance < DOWNLOAD_COST) {
+            openInsufficientBalanceModal(DOWNLOAD_COST);
+            return;
+        }
+
+        const confirmed = window.confirm(
+            `Downloading this content costs ${DOWNLOAD_COST} Gum Drops. Continue?`
+        );
+        if (!confirmed) return;
+
+        setDownloading(true);
+        try {
+            const res = await authFetch("/api/drops/download", {
+                method: "POST",
+                body: JSON.stringify({ dropId: drop.id }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.error || "Download failed");
+            }
+
+            // Trigger the actual download
+            const link = document.createElement("a");
+            link.href = data.downloadUrl;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.click();
+
+            toast.success(`Downloaded! -${DOWNLOAD_COST} Gum Drops`);
+        } catch (err: any) {
+            toast.error(err.message || "Download failed");
+        } finally {
+            setDownloading(false);
+        }
+    }, [drop, downloading, userProfile]);
+
+
+    // Prevent right-click on media
+    const preventContextMenu = (e: React.MouseEvent) => {
+        e.preventDefault();
+    };
+
+    // Skeleton for AUTH loading only
     if (authLoading) {
         return (
             <div className="max-w-4xl mx-auto pt-20 animate-pulse">
@@ -80,6 +183,9 @@ export function ViewerClient({ drop }: ViewerClientProps) {
         );
     }
 
+    // Determine content type for rendering
+    const fileType = drop.fileMetadata?.type || "";
+
     return (
         <div className="min-h-screen bg-black pb-20">
             {/* 1. Full-Width Media Viewer (Immersive) */}
@@ -95,26 +201,35 @@ export function ViewerClient({ drop }: ViewerClientProps) {
                     </Link>
                 </div>
 
-                {/* Media Container - 16:9 on mobile, max-height constraints on desktop */}
-                <div className="w-full aspect-video max-h-[85vh] mx-auto bg-zinc-900 flex items-center justify-center relative group">
-                    {drop.contentUrl ? (
+                {/* Media Container */}
+                <div
+                    className="w-full aspect-video max-h-[85vh] mx-auto bg-zinc-900 flex items-center justify-center relative group select-none"
+                    onContextMenu={preventContextMenu}
+                    style={{ WebkitUserSelect: "none", userSelect: "none" }}
+                >
+                    {contentLoading ? (
+                        <div className="flex flex-col items-center gap-3">
+                            <Loader2 className="w-10 h-10 text-brand-pink animate-spin" />
+                            <p className="text-sm text-gray-400">Loading content...</p>
+                        </div>
+                    ) : contentBlobUrl ? (
                         (() => {
-                            const type = drop.fileMetadata?.type || "";
-                            const url = drop.contentUrl;
-
-                            if (type.startsWith("video/") || url.match(/\.(mp4|webm|ogg)$/i)) {
+                            if (fileType.startsWith("video/")) {
                                 return (
                                     <video
                                         controls
-                                        controlsList="nodownload"
+                                        controlsList="nodownload noplaybackrate"
+                                        disablePictureInPicture
                                         className="w-full h-full object-contain"
                                         poster={drop.imageUrl}
                                         autoPlay
+                                        onContextMenu={preventContextMenu}
+                                        draggable={false}
                                     >
-                                        <source src={url} type={type || "video/mp4"} />
+                                        <source src={contentBlobUrl} type={fileType} />
                                     </video>
                                 );
-                            } else if (type.startsWith("audio/") || url.match(/\.(mp3|wav)$/i)) {
+                            } else if (fileType.startsWith("audio/")) {
                                 return (
                                     <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-black relative">
                                         <NextImage
@@ -126,25 +241,30 @@ export function ViewerClient({ drop }: ViewerClientProps) {
                                         <div className="relative z-10 w-48 h-48 md:w-64 md:h-64 rounded-2xl overflow-hidden shadow-2xl border border-white/10 mb-8">
                                             <NextImage src={drop.imageUrl} alt="Art" fill className="object-cover" />
                                         </div>
-                                        <audio controls controlsList="nodownload" className="relative z-10 w-[90%] max-w-md">
-                                            <source src={url} type={type || "audio/mpeg"} />
+                                        <audio
+                                            controls
+                                            controlsList="nodownload"
+                                            className="relative z-10 w-[90%] max-w-md"
+                                            onContextMenu={preventContextMenu}
+                                        >
+                                            <source src={contentBlobUrl} type={fileType} />
                                         </audio>
                                     </div>
                                 );
-                            } else if (type.startsWith("image/") || url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+                            } else if (fileType.startsWith("image/")) {
                                 return (
                                     <div className="relative w-full h-full">
-                                        <NextImage
-                                            src={url}
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img
+                                            src={contentBlobUrl}
                                             alt="Content"
-                                            fill
-                                            className="object-contain"
-                                            sizes="100vw"
+                                            className="w-full h-full object-contain"
+                                            draggable={false}
+                                            onContextMenu={preventContextMenu}
                                         />
                                     </div>
                                 );
                             } else {
-                                // Fallback for Files
                                 return (
                                     <div className="text-center p-10">
                                         <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -200,27 +320,26 @@ export function ViewerClient({ drop }: ViewerClientProps) {
                             </button>
                         </div>
 
-                        {/* 4. Secondary Download (Tertiary) */}
-                        {drop.contentUrl && (
-                            <a
-                                href={drop.contentUrl}
-                                download
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="w-full px-4 py-3 rounded-xl border border-white/10 text-gray-400 font-medium text-sm flex items-center justify-center gap-2 hover:bg-white/5 hover:text-white transition-all"
-                            >
+                        {/* 4. Paid Download */}
+                        <button
+                            onClick={handleDownload}
+                            disabled={downloading}
+                            className="w-full px-4 py-3 rounded-xl border border-brand-pink/20 bg-brand-pink/10 text-brand-pink font-medium text-sm flex items-center justify-center gap-2 hover:bg-brand-pink/20 hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {downloading ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
                                 <Download className="w-4 h-4" />
-                                <span>Download File</span>
-                            </a>
-                        )}
+                            )}
+                            <span>{downloading ? "Processing..." : `Download (${DOWNLOAD_COST} Gum Drops)`}</span>
+                        </button>
                     </div>
                 </div>
 
-                {/* 5. Retention: More Like This (Static Placeholder for now) */}
+                {/* 5. Retention: More Like This */}
                 <div className="mt-12 md:mt-20 border-t border-white/5 pt-8">
                     <h3 className="text-lg font-bold text-white mb-6">More from collection</h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 opacity-50 pointer-events-none grayscale">
-                        {/* Visual placeholders context */}
                         {[1, 2, 3, 4].map(i => (
                             <div key={i} className="aspect-square bg-white/5 rounded-xl border border-white/5" />
                         ))}

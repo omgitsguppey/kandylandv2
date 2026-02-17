@@ -46,7 +46,26 @@ export function DailyCheckIn() {
     const rewardAmount = displayStreak * 10; // 10, 20, ..., 70
 
     const handleClaim = async () => {
+        if (loading || claimed || isAlreadyClaimedToday) return;
+
         setLoading(true);
+        // Optimistic UI: Confetti and success toast immediately
+        setClaimed(true);
+
+        toast.success(`Claimed ${rewardAmount} Gum Drops!`, {
+            description: "Your balance will update in a moment.",
+            icon: "🎁"
+        });
+
+        // Trigger confetti effects
+        const end = Date.now() + 1000;
+        const colors = ['#ec4899', '#facc15'];
+        (function frame() {
+            confetti({ particleCount: 2, angle: 60, spread: 55, origin: { x: 0 }, colors: colors });
+            confetti({ particleCount: 2, angle: 120, spread: 55, origin: { x: 1 }, colors: colors });
+            if (Date.now() < end) requestAnimationFrame(frame);
+        }());
+
         try {
             const response = await authFetch("/api/checkin", {
                 method: "POST",
@@ -55,6 +74,8 @@ export function DailyCheckIn() {
             const result = await response.json();
 
             if (!response.ok) {
+                // Revert optimistic state on error
+                setClaimed(false);
                 if (result.alreadyClaimed) {
                     toast.info("Already claimed today!");
                     return;
@@ -74,38 +95,6 @@ export function DailyCheckIn() {
                     });
                 }).catch(() => { });
             }
-
-            toast.success(`Claimed ${reward} Gum Drops!`, {
-                description: `Streak: ${streak} days`,
-                icon: "🎁"
-            });
-
-            // Trigger "School Pride" side cannons
-            const end = Date.now() + 1000;
-            const colors = ['#ec4899', '#facc15'];
-
-            (function frame() {
-                confetti({
-                    particleCount: 2,
-                    angle: 60,
-                    spread: 55,
-                    origin: { x: 0 },
-                    colors: colors
-                });
-                confetti({
-                    particleCount: 2,
-                    angle: 120,
-                    spread: 55,
-                    origin: { x: 1 },
-                    colors: colors
-                });
-
-                if (Date.now() < end) {
-                    requestAnimationFrame(frame);
-                }
-            }());
-
-            setClaimed(true);
         } catch (error: any) {
             console.error("Error claiming daily reward:", error);
             toast.error(error.message || "Failed to claim reward");
@@ -113,6 +102,7 @@ export function DailyCheckIn() {
             setLoading(false);
         }
     };
+
 
     return (
         <div className="glass-panel p-6 rounded-3xl relative overflow-hidden">

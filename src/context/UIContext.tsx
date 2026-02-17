@@ -9,6 +9,10 @@ interface UIContextType {
     isAuthModalOpen: boolean;
     openAuthModal: () => void;
     closeAuthModal: () => void;
+    isInsufficientBalanceModalOpen: boolean;
+    requiredCost: number;
+    openInsufficientBalanceModal: (cost: number) => void;
+    closeInsufficientBalanceModal: () => void;
 }
 
 const UIContext = createContext<UIContextType | undefined>(undefined);
@@ -16,21 +20,32 @@ const UIContext = createContext<UIContextType | undefined>(undefined);
 export function UIProvider({ children }: { children: ReactNode }) {
     const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+    const [isInsufficientBalanceModalOpen, setIsInsufficientBalanceModalOpen] = useState(false);
+    const [requiredCost, setRequiredCost] = useState(0);
 
     const openPurchaseModal = () => setIsPurchaseModalOpen(true);
     const closePurchaseModal = () => setIsPurchaseModalOpen(false);
     const openAuthModal = () => setIsAuthModalOpen(true);
     const closeAuthModal = () => setIsAuthModalOpen(false);
 
+    const openInsufficientBalanceModal = (cost: number) => {
+        setRequiredCost(cost);
+        setIsInsufficientBalanceModalOpen(true);
+    };
+    const closeInsufficientBalanceModal = () => setIsInsufficientBalanceModalOpen(false);
+
     return (
         <UIContext.Provider value={{
             isPurchaseModalOpen, openPurchaseModal, closePurchaseModal,
-            isAuthModalOpen, openAuthModal, closeAuthModal
+            isAuthModalOpen, openAuthModal, closeAuthModal,
+            isInsufficientBalanceModalOpen, requiredCost,
+            openInsufficientBalanceModal, closeInsufficientBalanceModal
         }}>
             {children}
         </UIContext.Provider>
     );
 }
+
 
 export function useUI() {
     const context = useContext(UIContext);

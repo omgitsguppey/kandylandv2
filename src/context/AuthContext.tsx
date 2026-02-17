@@ -97,56 +97,70 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return () => unsubscribe();
     }, []);
 
-    const fetchProfile = useCallback(async () => {
-        if (!user) return;
-
-        try {
-            const profile = await fetchUserProfile(user);
-
-            if (profile) {
-                if ((profile.status === "banned" || profile.status === "suspended") && window.location.pathname !== "/") {
-                    await signOut(auth);
-                    alert(`Your account has been ${profile.status}.\nReason: ${profile.statusReason || "Violation of terms."}`);
-                    window.location.href = "/";
-                    return;
-                }
-
-                setUserProfile(profile);
-                return;
-            }
-
-            const response = await authFetch("/api/user/register", {
-                method: "POST",
-                body: JSON.stringify({
-                    displayName: user.displayName || "User",
-                }),
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to auto-create profile via API");
-            }
-
-            const refreshedProfile = await fetchUserProfile(user);
-            setUserProfile(refreshedProfile);
-        } catch (err) {
-            console.error("Error fetching profile:", err);
-        } finally {
-            setLoading(false);
-        }
-    }, [user]);
-
     useEffect(() => {
-        if (user) {
-            fetchProfile();
+        if (!user) {
+            setUserProfile(null);
+            setLoading(false);
             return;
         }
 
-        setLoading(false);
-    }, [user, fetchProfile]);
+        let unsubscribe: () => void;
+
+        const setupProfileListener = async () => {
+            const { db } = await import("@/lib/firebase-data");
+            const { doc, onSnapshot } = await import("firebase/firestore");
+
+            const profileDocRef = doc(db, "users", user.uid);
+
+            unsubscribe = onSnapshot(profileDocRef, async (snapshot) => {
+                if (snapshot.exists()) {
+                    const profile = normalizeUserProfile(snapshot.data(), user);
+
+                    if (profile && (profile.status === "banned" || profile.status === "suspended") && window.location.pathname !== "/") {
+                        await signOut(auth);
+                        alert(`Your account has been ${profile.status}.\nReason: ${profile.statusReason || "Violation of terms."}`);
+                        window.location.href = "/";
+                        return;
+                    }
+
+                    if (profile) {
+                        setUserProfile(profile);
+                        setLoading(false);
+                    }
+                } else {
+
+                    // Profile doesn't exist yet, trigger auto-registration
+                    try {
+                        const response = await authFetch("/api/user/register", {
+                            method: "POST",
+                            body: JSON.stringify({
+                                displayName: user.displayName || "User",
+                            }),
+                        });
+                        if (!response.ok) console.error("Auto-registration failed");
+                    } catch (err) {
+                        console.error("Error in auto-registration:", err);
+                    }
+                    // onSnapshot will trigger again once the doc is created
+                }
+            }, (error) => {
+                console.error("Profile listener error:", error);
+                setLoading(false);
+            });
+        };
+
+        setupProfileListener();
+
+        return () => {
+            if (unsubscribe) unsubscribe();
+        };
+    }, [user, router]);
 
     const refreshProfile = async () => {
-        await fetchProfile();
+        // No-op now as onSnapshot handles updates. 
+        // Kept for backward compatibility if any component calls it.
     };
+
 
     const signInWithGoogle = async () => {
         try {

@@ -19,28 +19,27 @@ export async function POST(request: NextRequest) {
         // Use the verified UID from the token
         const userId = caller.uid;
 
-        // 1. Fetch user profile
         const userRef = adminDb.collection("users").doc(userId);
-        const userSnap = await userRef.get();
+        const dropRef = adminDb.collection("drops").doc(dropId);
+
+        // 1 & 3. Parallel fetch user and drop data
+        const [userSnap, dropSnap] = await Promise.all([
+            userRef.get(),
+            dropRef.get()
+        ]);
+
+
         if (!userSnap.exists) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
-        const userData = userSnap.data()!;
-
-        // 2. Check if already unlocked
-        const unlockedContent: string[] = userData.unlockedContent || [];
-        if (unlockedContent.includes(dropId)) {
-            return NextResponse.json({ error: "Already unlocked", alreadyUnlocked: true }, { status: 409 });
-        }
-
-        // 3. Fetch drop
-        const dropRef = adminDb.collection("drops").doc(dropId);
-        const dropSnap = await dropRef.get();
         if (!dropSnap.exists) {
             return NextResponse.json({ error: "Drop not found" }, { status: 404 });
         }
+
+        const userData = userSnap.data()!;
         const dropData = dropSnap.data()!;
         const unlockCost = dropData.unlockCost || 0;
+
 
         // 4. Check balance
         const balance = userData.gumDropsBalance || 0;

@@ -7,6 +7,7 @@ import { Lock, Unlock, Download, Share2, Eye, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { memo } from "react";
 import { toast } from "sonner";
+import Link from "next/link";
 
 interface DashboardDropCardProps {
     drop: Drop;
@@ -79,14 +80,20 @@ function DashboardDropCardBase({ drop, isUnlocked, onClick }: DashboardDropCardP
                 <div className="flex items-center gap-2 pt-3 border-t border-white/5">
                     {isUnlocked ? (
                         <>
-                            <button className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-brand-cyan/10 text-brand-cyan text-xs font-bold hover:bg-brand-cyan/20 transition-colors border border-brand-cyan/20">
+                            <Link
+                                href={`/dashboard/viewer?id=${drop.id}`}
+                                onClick={(e) => e.stopPropagation()}
+                                className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-brand-cyan/10 text-brand-cyan text-xs font-bold hover:bg-brand-cyan/20 transition-colors border border-brand-cyan/20"
+                            >
                                 <Eye className="w-3.5 h-3.5" /> View
-                            </button>
-                            {drop.contentUrl && (
-                                <button className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-white/5 text-gray-300 text-xs font-bold hover:bg-white/10 transition-colors border border-white/5">
-                                    <Download className="w-3.5 h-3.5" /> Save
-                                </button>
-                            )}
+                            </Link>
+                            <Link
+                                href={`/dashboard/viewer?id=${drop.id}`}
+                                onClick={(e) => e.stopPropagation()}
+                                className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-white/5 text-gray-300 text-xs font-bold hover:bg-white/10 transition-colors border border-white/5"
+                            >
+                                <Download className="w-3.5 h-3.5" /> Save
+                            </Link>
                         </>
                     ) : (
                         <div className="w-full flex items-center justify-between text-xs">
@@ -108,3 +115,4 @@ function DashboardDropCardBase({ drop, isUnlocked, onClick }: DashboardDropCardP
 }
 
 export const DashboardDropCard = memo(DashboardDropCardBase);
+

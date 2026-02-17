@@ -10,7 +10,7 @@ const GlobalPurchaseModal = dynamic(() => import("@/components/GlobalPurchaseMod
 const GlobalAuthModal = dynamic(() => import("@/components/GlobalAuthModal").then((mod) => mod.GlobalAuthModal));
 const OnboardingModal = dynamic(() => import("@/components/Auth/OnboardingModal").then((mod) => mod.OnboardingModal));
 const DebugBreakpoints = dynamic(() => import("@/components/Debug/DebugBreakpoints").then((mod) => mod.DebugBreakpoints));
-
+const InsufficientBalanceModal = dynamic(() => import("@/components/InsufficientBalanceModal").then((mod) => mod.InsufficientBalanceModal));
 
 export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     return (
@@ -18,7 +18,9 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
             {children}
             <MobileBottomBar />
             <GlobalPurchaseModal />
+            <InsufficientBalanceModal />
             <GlobalAuthModal />
+
             <OnboardingModal />
             <Toaster position="top-center" theme="dark" richColors closeButton />
             <CookieBanner />

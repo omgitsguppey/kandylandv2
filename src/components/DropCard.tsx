@@ -13,6 +13,7 @@ import { User } from "firebase/auth";
 import { authFetch } from "@/lib/authFetch";
 import { useNow } from "@/context/NowContext";
 import { useUserProfile } from "@/context/AuthContext";
+import { useUI } from "@/context/UIContext";
 
 interface DropCardProps {
     drop: Drop;
@@ -62,7 +63,8 @@ const DropCardTimer = ({ timeLeft }: DropCardTimerProps) => (
 
 function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAfford = false }: DropCardProps) {
     const { now } = useNow();
-    const { refreshProfile } = useUserProfile();
+    const { userProfile } = useUserProfile();
+    const { openInsufficientBalanceModal } = useUI();
     const [timeLeft, setTimeLeft] = useState("");
     const [unlocking, setUnlocking] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -91,13 +93,10 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
 
     const handleUnlock = async () => {
         if (!user || unlocking || isUnlocked) return;
-        if (!canAfford) {
-            toast.error("Not enough Gum Drops!", {
-                description: "Purchase more from your wallet.",
-                duration: 3000,
-            });
-            setError("Not enough Gum Drops!");
-            setTimeout(() => setError(null), 3000);
+
+        const balance = userProfile?.gumDropsBalance ?? 0;
+        if (balance < drop.unlockCost) {
+            openInsufficientBalanceModal(drop.unlockCost);
             return;
         }
 
@@ -115,13 +114,10 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
             if (!response.ok) {
                 if (result.alreadyUnlocked) {
                     toast.info("Already unwrapped!");
-                    await refreshProfile();
                     return;
                 }
                 throw new Error(result.error || "Unlock failed");
             }
-
-            await refreshProfile();
 
             toast.success(`Unwrapped: ${drop.title}`, {
                 description: "Enjoy your exclusive content!",
@@ -165,29 +161,26 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
             {/* Media Area */}
             <div className="relative w-full aspect-square bg-black/40 rounded-xl md:rounded-2xl mb-2 md:mb-5 overflow-hidden group/image shadow-inner border border-white/5">
                 {isUnlocked ? (
-                    drop.contentUrl ? (
-                        <div className="w-full h-full relative">
-                            {['mp4', 'webm'].some(ext => drop.contentUrl.includes(ext)) ? (
-                                <video src={drop.contentUrl} controls className="w-full h-full object-cover" />
-                            ) : (
-                                <NextImage
-                                    src={drop.contentUrl}
-                                    alt="Unlocked Content"
-                                    fill
-                                    className="object-cover"
-                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                />
-                            )}
-                            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover/image:opacity-100 transition-opacity">
-                                <span className="font-bold text-brand-green bg-black/90 px-4 py-2 rounded-full border border-brand-green/30 shadow-lg shadow-brand-green/20">View Content</span>
+                    <div className="w-full h-full relative">
+                        {drop.imageUrl ? (
+                            <NextImage
+                                src={drop.imageUrl}
+                                alt={drop.title}
+                                fill
+                                className="object-cover"
+                                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                            />
+                        ) : (
+                            <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-brand-green/10 to-transparent text-brand-green font-bold border border-brand-green/20">
+                                <Unlock className="w-8 h-8 mb-2 opacity-50" />
+                                <span className="tracking-widest text-xs">UNWRAPPED</span>
                             </div>
+                        )}
+                        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover/image:opacity-100 transition-opacity">
+                            <span className="font-bold text-brand-green bg-black/90 px-4 py-2 rounded-full border border-brand-green/30 shadow-lg shadow-brand-green/20">View Content</span>
                         </div>
-                    ) : (
-                        <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-brand-green/10 to-transparent text-brand-green font-bold border border-brand-green/20">
-                            <Unlock className="w-8 h-8 mb-2 opacity-50" />
-                            <span className="tracking-widest text-xs">UNWRAPPED</span>
-                        </div>
-                    )
+                    </div>
+
                 ) : (
                     <div className="w-full h-full relative">
                         {drop.imageUrl ? (

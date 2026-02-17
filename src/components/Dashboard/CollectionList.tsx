@@ -87,11 +87,27 @@ export function CollectionList({ drops, userProfile }: CollectionListProps) {
                 ))}
 
                 {filteredDrops.length === 0 && (
-                    <div className="col-span-full py-12 text-center text-gray-500 border border-dashed border-white/10 rounded-2xl">
-                        <Filter className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                        <p>No drops found in this filter.</p>
+                    <div className="col-span-full py-20 text-center glass-panel border border-white/5 rounded-3xl group">
+                        <div className="w-20 h-20 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500 shadow-inner">
+                            <LayoutGrid className="w-10 h-10 text-brand-pink opacity-50" />
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-2">No drops to show</h3>
+                        <p className="text-gray-400 max-w-xs mx-auto mb-8">
+                            {filter === 'owned'
+                                ? "You haven't unwrapped any flavors yet. Head to the shop to find your next favorite!"
+                                : filter === 'locked'
+                                    ? "Great news! You've unlocked everything active. Fresh drops arriving soon!"
+                                    : "The shop is empty or all drops have expired. Check back soon!"}
+                        </p>
+                        <a
+                            href="/drops"
+                            className="inline-flex items-center gap-2 px-8 py-3 bg-brand-pink/10 border border-brand-pink/20 text-brand-pink rounded-xl font-bold hover:bg-brand-pink/20 transition-all active:scale-95"
+                        >
+                            Visit Shop
+                        </a>
                     </div>
                 )}
+
             </div>
         </div>
     );

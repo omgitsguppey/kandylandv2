@@ -1,6 +1,7 @@
 import "server-only";
 import { adminDb } from "./firebase-admin";
 import { Drop } from "@/types/db";
+import { cache } from "react";
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
@@ -91,22 +92,26 @@ async function persistDropUpdate(dropId: string, drop: Drop): Promise<void> {
     }
 }
 
-export async function getDrops(): Promise<Drop[]> {
+/**
+ * Strip sensitive fields (contentUrl) before sending a Drop to the client.
+ * This prevents raw Firebase Storage URLs from appearing in the browser DOM.
+ */
+export function sanitizeDropForClient(drop: Drop): Drop {
+    const { contentUrl, ...safe } = drop;
+    return { ...safe, contentUrl: "" } as Drop;
+}
+
+export const getDrops = cache(async (): Promise<Drop[]> => {
     try {
         if (!adminDb) return [];
-        const dropsRef = adminDb.collection("drops");
-        const snapshot = await dropsRef.orderBy("validFrom", "desc").get();
+        const snapshot = await adminDb.collection("drops").orderBy("validFrom", "desc").get();
 
-        if (snapshot.empty) {
-            return [];
-        }
+        if (snapshot.empty) return [];
 
         const now = Date.now();
-        const drops: Drop[] = [];
-
-        for (const doc of snapshot.docs) {
+        return snapshot.docs.map(doc => {
             const data = doc.data();
-            const raw: Drop = {
+            const raw = {
                 id: doc.id,
                 ...data,
                 createdAt: data.createdAt?.toMillis?.() || data.createdAt,
@@ -116,24 +121,53 @@ export async function getDrops(): Promise<Drop[]> {
 
             const { drop: resolved, needsUpdate } = resolveDropStatus(raw, now);
 
-            // Fire-and-forget: persist any status/rotation updates
             if (needsUpdate) {
                 persistDropUpdate(doc.id, resolved);
             }
 
-            drops.push(resolved);
-        }
-
-        return drops;
+            return sanitizeDropForClient(resolved);
+        });
     } catch (error) {
         console.error("Error fetching drops:", error);
         return [];
     }
-}
+});
 
 
 
-export async function getDrop(id: string): Promise<Drop | null> {
+export const getDrop = cache(async (id: string): Promise<Drop | null> => {
+    try {
+        if (!adminDb) return null;
+        const docSnap = await adminDb.collection("drops").doc(id).get();
+
+        if (!docSnap.exists) return null;
+
+        const data = docSnap.data()!;
+        const raw = {
+            id: docSnap.id,
+            ...data,
+            createdAt: data.createdAt?.toMillis?.() || data.createdAt,
+            validFrom: data.validFrom?.toMillis?.() || data.validFrom,
+            validUntil: data.validUntil?.toMillis?.() || data.validUntil,
+        } as unknown as Drop;
+
+        const { drop: resolved, needsUpdate } = resolveDropStatus(raw, Date.now());
+
+        if (needsUpdate) {
+            persistDropUpdate(docSnap.id, resolved);
+        }
+
+        return sanitizeDropForClient(resolved);
+    } catch (error) {
+        console.error("Error fetching drop:", error);
+        return null;
+    }
+});
+
+/**
+ * Server-only: fetch a drop WITH contentUrl (for API routes that need it).
+ */
+export async function getDropRaw(id: string): Promise<Drop | null> {
     try {
         if (!adminDb) return null;
         const docRef = adminDb.collection("drops").doc(id);
@@ -161,9 +195,7 @@ export async function getDrop(id: string): Promise<Drop | null> {
 
         return resolved;
     } catch (error) {
-        console.error("Error fetching drop:", error);
+        console.error("Error fetching raw drop:", error);
         return null;
     }
 }
-
-
