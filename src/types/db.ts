@@ -7,12 +7,8 @@ export interface UserProfile {
     photoURL: string | null;
     bannerUrl?: string; // Profile Banner
     bio?: string; // Creator Bio
-    socialLinks?: {
-        twitter?: string;
-        instagram?: string;
-        website?: string;
-    };
     role?: 'user' | 'creator' | 'admin'; // Default 'user'
+
     isVerified?: boolean; // Verified Creator badge
     gumDropsBalance: number;
     unlockedContent: string[]; // Array of Drop IDs

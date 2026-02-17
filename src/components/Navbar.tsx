@@ -8,7 +8,9 @@ import { ProfileDropdown } from "@/components/Navigation/ProfileDropdown";
 import { ProfileSidebar } from "@/components/Navigation/ProfileSidebar";
 import { AdminDropdown } from "@/components/Navigation/AdminDropdown";
 import { NotificationBell } from "@/components/Navigation/NotificationBell";
+import { AnimateBalance } from "@/components/Navigation/AnimateBalance";
 import { useState } from "react";
+
 import NextImage from "next/image";
 
 export function Navbar() {
@@ -41,10 +43,12 @@ export function Navbar() {
                                 <div className="hidden md:flex items-center gap-3 pl-4 pr-1.5 py-1.5 glass-button rounded-full border border-white/5">
                                     <div className="flex items-center gap-2">
                                         <Wallet className="w-4 h-4 text-brand-purple drop-shadow-[0_0_8px_rgba(139,92,246,0.5)]" />
-                                        <span className="font-mono text-brand-purple font-bold tracking-wider">
-                                            {userProfile?.gumDropsBalance || 0}
-                                        </span>
+                                        <AnimateBalance
+                                            balance={userProfile?.gumDropsBalance || 0}
+                                            className="font-mono text-brand-purple font-bold tracking-wider relative"
+                                        />
                                     </div>
+
                                     <button
                                         onClick={openPurchaseModal}
                                         className="w-7 h-7 flex items-center justify-center bg-gradient-to-br from-brand-pink to-pink-600 rounded-full text-white shadow-lg shadow-brand-pink/20 hover:scale-105 active:scale-95 transition-all"

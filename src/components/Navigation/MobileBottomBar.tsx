@@ -6,6 +6,8 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
+import { AnimateBalance } from "./AnimateBalance";
+
 
 export default function MobileBottomBar() {
     const pathname = usePathname();
@@ -22,7 +24,8 @@ export default function MobileBottomBar() {
     ];
 
     return (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 p-4 pb-6 pointer-events-none">
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 p-4 pb-8 pointer-events-none">
+
             {/* Floating Balance Badge (Dynamic Island style) - Only if logged in */}
             {user && (
                 <div className="absolute bottom-28 left-1/2 -translate-x-1/2 pointer-events-auto">
@@ -33,10 +36,12 @@ export default function MobileBottomBar() {
                         <div className="w-5 h-5 bg-brand-purple/20 rounded-full flex items-center justify-center">
                             <Wallet className="w-3 h-3 text-brand-purple" />
                         </div>
-                        <span className="font-bold text-sm text-white tabular-nums">
-                            {userProfile?.gumDropsBalance || 0}
-                        </span>
+                        <AnimateBalance
+                            balance={userProfile?.gumDropsBalance || 0}
+                            className="font-bold text-sm text-white tabular-nums relative"
+                        />
                         <div className="flex flex-col leading-none">
+
                             <span className="text-[8px] text-gray-400 font-bold uppercase tracking-wider">Add</span>
                         </div>
                     </button>

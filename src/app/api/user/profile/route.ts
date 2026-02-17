@@ -12,6 +12,7 @@ export async function PUT(request: NextRequest) {
         if (!displayName) {
             return NextResponse.json({ error: "Missing displayName" }, { status: 400 });
         }
+
         if (!adminDb) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });
         }
@@ -23,7 +24,11 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
 
-        await userRef.update({ displayName });
+        await userRef.update({
+            displayName
+        });
+
+
 
         return NextResponse.json({ success: true });
     } catch (error) {

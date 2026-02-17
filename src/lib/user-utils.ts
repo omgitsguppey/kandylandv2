@@ -27,24 +27,9 @@ export function normalizeUserProfile(raw: unknown, user: User): UserProfile | nu
         photoURL: typeof source.photoURL === "string" || source.photoURL === null ? source.photoURL : user.photoURL,
         bannerUrl: typeof source.bannerUrl === "string" ? source.bannerUrl : undefined,
         bio: typeof source.bio === "string" ? source.bio : undefined,
-        socialLinks:
-            source.socialLinks && typeof source.socialLinks === "object"
-                ? {
-                    twitter:
-                        typeof (source.socialLinks as UserProfile["socialLinks"])?.twitter === "string"
-                            ? (source.socialLinks as UserProfile["socialLinks"])?.twitter
-                            : undefined,
-                    instagram:
-                        typeof (source.socialLinks as UserProfile["socialLinks"])?.instagram === "string"
-                            ? (source.socialLinks as UserProfile["socialLinks"])?.instagram
-                            : undefined,
-                    website:
-                        typeof (source.socialLinks as UserProfile["socialLinks"])?.website === "string"
-                            ? (source.socialLinks as UserProfile["socialLinks"])?.website
-                            : undefined,
-                }
-                : undefined,
         role: source.role === "admin" || source.role === "creator" || source.role === "user" ? source.role : "user",
+
+
         isVerified: source.isVerified === true,
         gumDropsBalance: Number.isFinite(source.gumDropsBalance) ? Number(source.gumDropsBalance) : 0,
         unlockedContent: toStringArray(source.unlockedContent),

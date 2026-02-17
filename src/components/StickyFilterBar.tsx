@@ -3,6 +3,7 @@
 import { Search, Sparkles, Clock, Flame, Tag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRef, useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface FilterBarProps {
     categories: string[];
@@ -22,6 +23,12 @@ export default function StickyFilterBar({
     const [isSticky, setIsSticky] = useState(false);
     const [localSearch, setLocalSearch] = useState(searchQuery);
     const barRef = useRef<HTMLDivElement>(null);
+
+    const triggerHaptic = () => {
+        if (typeof navigator !== 'undefined' && navigator.vibrate) {
+            navigator.vibrate(5);
+        }
+    };
 
     // Sync local state with prop if it changes externally (e.g. clear)
     useEffect(() => {
@@ -77,7 +84,8 @@ export default function StickyFilterBar({
         <div
             ref={barRef}
             className={cn(
-                "sticky top-[72px] z-40 py-2 transition-all duration-300",
+                "sticky top-[88px] z-40 py-2 transition-all duration-300",
+
                 isSticky ? "bg-black/50 border-b border-white/5 backdrop-blur-sm" : "bg-transparent"
             )}
         >
@@ -104,19 +112,36 @@ export default function StickyFilterBar({
                         const isSelected = selectedCategory === cat;
 
                         return (
-                            <button
+                            <motion.button
                                 key={cat}
-                                onClick={() => onSelectCategory(cat)}
+                                onClick={() => {
+                                    triggerHaptic();
+                                    onSelectCategory(cat);
+                                }}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
                                 className={cn(
-                                    "flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border",
+                                    "relative flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border",
                                     isSelected
-                                        ? "bg-white/10 text-white border-brand-pink/50 shadow-[0_0_10px_rgba(236,72,153,0.2)]"
+                                        ? "text-white border-brand-pink/50"
                                         : "bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white"
                                 )}
                             >
+                                <AnimatePresence>
+                                    {isSelected && (
+                                        <motion.div
+                                            layoutId="active-pill"
+                                            className="absolute inset-0 bg-brand-pink/20 rounded-full -z-10 shadow-[0_0_15px_rgba(236,72,153,0.3)]"
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            exit={{ opacity: 0 }}
+                                            transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                                        />
+                                    )}
+                                </AnimatePresence>
                                 <Icon className={cn("w-3.5 h-3.5", isSelected ? "text-brand-pink" : "opacity-70")} />
                                 {cat}
-                            </button>
+                            </motion.button>
                         );
                     })}
                 </div>

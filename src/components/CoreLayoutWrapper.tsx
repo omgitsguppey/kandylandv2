@@ -11,13 +11,16 @@ const GlobalAuthModal = dynamic(() => import("@/components/GlobalAuthModal").the
 const OnboardingModal = dynamic(() => import("@/components/Auth/OnboardingModal").then((mod) => mod.OnboardingModal));
 const DebugBreakpoints = dynamic(() => import("@/components/Debug/DebugBreakpoints").then((mod) => mod.DebugBreakpoints));
 const InsufficientBalanceModal = dynamic(() => import("@/components/InsufficientBalanceModal").then((mod) => mod.InsufficientBalanceModal));
+const ScrollToTop = dynamic(() => import("@/components/Navigation/ScrollToTop").then((mod) => mod.ScrollToTop));
 
 export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     return (
         <PayPalProvider>
             {children}
             <MobileBottomBar />
+            <ScrollToTop />
             <GlobalPurchaseModal />
+
             <InsufficientBalanceModal />
             <GlobalAuthModal />
 

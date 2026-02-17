@@ -1,15 +1,27 @@
 "use client";
 
-import { useState } from "react";
-import { useAuth } from "@/context/AuthContext";
+import { useState, useEffect } from "react";
+import { useAuth, useUserProfile } from "@/context/AuthContext";
 import { updateProfile } from "firebase/auth";
 import { Button } from "@/components/ui/Button";
 import { Loader2, Save, User } from "lucide-react";
+
 import { authFetch } from "@/lib/authFetch";
+import { toast } from "sonner";
 
 export default function ProfilePage() {
     const { user } = useAuth();
-    const [displayName, setDisplayName] = useState(user?.displayName || "");
+    const { userProfile } = useUserProfile();
+    const [displayName, setDisplayName] = useState("");
+
+    useEffect(() => {
+        if (userProfile) {
+            setDisplayName(userProfile.displayName || "");
+        } else if (user) {
+            setDisplayName(user.displayName || "");
+        }
+    }, [userProfile, user]);
+
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
@@ -21,7 +33,7 @@ export default function ProfilePage() {
         setMessage(null);
 
         try {
-            // Update Auth Profile (client-side — needs auth token)
+            // Update Auth Profile (client-side)
             await updateProfile(user, {
                 displayName: displayName
             });
@@ -29,15 +41,19 @@ export default function ProfilePage() {
             // Update Firestore via server API
             const response = await authFetch("/api/user/profile", {
                 method: "PUT",
-                body: JSON.stringify({ displayName }),
+                body: JSON.stringify({
+                    displayName
+                }),
             });
 
             const result = await response.json();
             if (!response.ok) throw new Error(result.error);
 
+            toast.success("Profile updated successfully!");
             setMessage({ type: 'success', text: "Profile updated successfully!" });
         } catch (error: any) {
             console.error("Error updating profile:", error);
+            toast.error(error.message || "Failed to update profile");
             setMessage({ type: 'error', text: error.message || "Failed to update profile. Please try again." });
         } finally {
             setLoading(false);
@@ -55,11 +71,15 @@ export default function ProfilePage() {
 
             <div className="glass-panel p-8 rounded-3xl border border-white/5">
                 <div className="flex items-center gap-6 mb-8">
-                    <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-brand-pink to-brand-purple flex items-center justify-center text-3xl font-bold text-white shadow-2xl">
-                        {user?.displayName?.charAt(0).toUpperCase() || "U"}
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-brand-pink to-brand-purple flex items-center justify-center text-3xl font-bold text-white shadow-2xl relative overflow-hidden">
+                        {user?.photoURL ? (
+                            <img src={user.photoURL} alt="Avatar" className="w-full h-full object-cover" />
+                        ) : (
+                            user?.displayName?.charAt(0).toUpperCase() || "U"
+                        )}
                     </div>
                     <div>
-                        <h2 className="text-xl font-bold text-white">{user?.displayName}</h2>
+                        <h2 className="text-xl font-bold text-white">{displayName || user?.displayName}</h2>
                         <p className="text-gray-400">{user?.email}</p>
                     </div>
                 </div>
@@ -82,6 +102,7 @@ export default function ProfilePage() {
                         </div>
                     </div>
 
+
                     {message && (
                         <div className={`p-4 rounded-xl text-sm font-medium ${message.type === 'success' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20'}`}>
                             {message.text}
@@ -92,8 +113,8 @@ export default function ProfilePage() {
                         <Button
                             type="submit"
                             variant="brand"
-                            disabled={loading || displayName === user?.displayName}
-                            className="w-full sm:w-auto"
+                            disabled={loading}
+                            className="w-full sm:w-auto font-bold tracking-wide"
                         >
                             {loading ? (
                                 <>

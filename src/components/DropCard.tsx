@@ -14,6 +14,9 @@ import { authFetch } from "@/lib/authFetch";
 import { useNow } from "@/context/NowContext";
 import { useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
+import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+
 
 interface DropCardProps {
     drop: Drop;
@@ -67,7 +70,15 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
     const { openInsufficientBalanceModal } = useUI();
     const [timeLeft, setTimeLeft] = useState("");
     const [unlocking, setUnlocking] = useState(false);
+    const [imageLoaded, setImageLoaded] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    const triggerHaptic = () => {
+        if (typeof navigator !== 'undefined' && navigator.vibrate) {
+            navigator.vibrate(10);
+        }
+    };
+
 
     useEffect(() => {
         if (now < drop.validFrom) {
@@ -104,7 +115,9 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
         setError(null);
 
         try {
+            triggerHaptic();
             const response = await authFetch("/api/drops/unlock", {
+
                 method: "POST",
                 body: JSON.stringify({ dropId: drop.id }),
             });
@@ -161,15 +174,28 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
             {/* Media Area */}
             <div className="relative w-full aspect-square bg-black/40 rounded-xl md:rounded-2xl mb-2 md:mb-5 overflow-hidden group/image shadow-inner border border-white/5">
                 {isUnlocked ? (
-                    <div className="w-full h-full relative">
+                    <Link
+                        href={`/dashboard/viewer?id=${drop.id}`}
+                        className="w-full h-full relative block"
+                        onClick={triggerHaptic}
+                    >
                         {drop.imageUrl ? (
-                            <NextImage
-                                src={drop.imageUrl}
-                                alt={drop.title}
-                                fill
-                                className="object-cover"
-                                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                            />
+                            <>
+                                <NextImage
+                                    src={drop.imageUrl}
+                                    alt={drop.title}
+                                    fill
+                                    className={cn(
+                                        "object-cover transition-all duration-700",
+                                        imageLoaded ? "scale-100 blur-0" : "scale-110 blur-xl"
+                                    )}
+                                    onLoadingComplete={() => setImageLoaded(true)}
+                                    sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                                />
+                                {!imageLoaded && (
+                                    <div className="absolute inset-0 bg-white/5 animate-pulse" />
+                                )}
+                            </>
                         ) : (
                             <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-brand-green/10 to-transparent text-brand-green font-bold border border-brand-green/20">
                                 <Unlock className="w-8 h-8 mb-2 opacity-50" />
@@ -179,24 +205,35 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover/image:opacity-100 transition-opacity">
                             <span className="font-bold text-brand-green bg-black/90 px-4 py-2 rounded-full border border-brand-green/30 shadow-lg shadow-brand-green/20">View Content</span>
                         </div>
-                    </div>
+                    </Link>
+
 
                 ) : (
                     <div className="w-full h-full relative">
                         {drop.imageUrl ? (
-                            <NextImage
-                                src={drop.imageUrl}
-                                alt={drop.title}
-                                fill
-                                priority={priority}
-                                className="object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                            />
+                            <>
+                                <NextImage
+                                    src={drop.imageUrl}
+                                    alt={drop.title}
+                                    fill
+                                    priority={priority}
+                                    className={cn(
+                                        "object-cover transition-all duration-700 opacity-80 group-hover:opacity-100",
+                                        imageLoaded ? "scale-100 blur-0" : "scale-110 blur-xl"
+                                    )}
+                                    onLoadingComplete={() => setImageLoaded(true)}
+                                    sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                                />
+                                {!imageLoaded && (
+                                    <div className="absolute inset-0 bg-white/5 animate-pulse" />
+                                )}
+                            </>
                         ) : (
                             <div className="w-full h-full flex items-center justify-center text-5xl bg-zinc-900/50">🍬</div>
                         )}
                     </div>
                 )}
+
 
                 {/* Overlays */}
                 <div className="absolute top-2 left-2 md:top-3 md:left-3 flex flex-col gap-1 items-start z-10">
@@ -223,11 +260,16 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                     </div>
 
                     {isUnlocked ? (
-                        <button disabled className="px-3 py-1.5 md:px-5 md:py-2.5 rounded-lg md:rounded-xl font-bold text-xs md:text-sm bg-brand-green/10 text-brand-green flex items-center gap-1.5 md:gap-2 border border-brand-green/20 opacity-80">
+                        <Link
+                            href={`/dashboard/viewer?id=${drop.id}`}
+                            onClick={triggerHaptic}
+                            className="px-3 py-1.5 md:px-5 md:py-2.5 rounded-lg md:rounded-xl font-bold text-xs md:text-sm bg-brand-green/10 text-brand-green flex items-center gap-1.5 md:gap-2 border border-brand-green/20 hover:bg-brand-green/20 transition-all active:scale-95"
+                        >
                             <Unlock className="w-3 h-3 md:w-4 md:h-4" />
-                            Unwrapped
-                        </button>
+                            View Content
+                        </Link>
                     ) : (
+
                         <button
                             onClick={handleUnlock}
                             disabled={unlocking || !user}
@@ -240,12 +282,19 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                             )}
                         >
                             {unlocking ? (
-                                <Loader2 className="w-3 h-3 md:w-4 md:h-4 animate-spin" />
+                                <div className="flex items-center gap-2">
+                                    <Loader2 className="w-3 h-3 md:w-4 md:h-4 animate-spin" />
+                                    <span>Unwrapping...</span>
+                                </div>
                             ) : (
-                                <Lock className="w-3 h-3 md:w-4 md:h-4" />
+                                <div className="flex items-center gap-2">
+                                    <Lock className="w-3 h-3 md:w-4 md:h-4" />
+                                    <span>Unwrap</span>
+                                </div>
                             )}
-                            {error ? "Error" : "Unwrap"}
+                            {error ? "Error" : null}
                         </button>
+
                     )}
                 </div>
                 {error && (

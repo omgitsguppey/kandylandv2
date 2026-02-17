@@ -56,8 +56,9 @@ export function ProfileDropdown() {
 
             {isOpen && (
                 <div
-                    className="absolute right-0 top-full mt-2 w-64 glass-panel backdrop-blur-3xl bg-black/80 rounded-2xl p-2 shadow-2xl border border-white/10 overflow-hidden origin-top-right z-50"
+                    className="absolute right-0 top-full mt-2 w-64 bg-zinc-950 border border-white/10 rounded-2xl p-2 shadow-2xl backdrop-blur-3xl overflow-hidden origin-top-right z-50"
                 >
+
                     <div className="px-4 py-3 border-b border-white/10 mb-2">
                         <p className="text-sm font-bold text-white flex items-center gap-2">
                             My Account

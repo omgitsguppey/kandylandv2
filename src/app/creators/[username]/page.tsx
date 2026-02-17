@@ -7,7 +7,8 @@ import { db } from "@/lib/firebase-data";
 import { UserProfile, Drop } from "@/types/db";
 import { DropGrid } from "@/components/DropGrid";
 import { useAuth } from "@/context/AuthContext";
-import { Loader2, MapPin, Link as LinkIcon, Twitter, Instagram, Globe, UserPlus, UserCheck, CheckCircle2 } from "lucide-react";
+import { Loader2, MapPin, Link as LinkIcon, UserPlus, UserCheck, CheckCircle2 } from "lucide-react";
+
 import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
 
@@ -165,27 +166,9 @@ export default function CreatorProfilePage() {
                             <p className="text-gray-300 max-w-2xl text-sm md:text-base leading-relaxed mb-4">{creator.bio}</p>
                         )}
 
-                        {/* Socials */}
-                        {creator.socialLinks && (
-                            <div className="flex gap-4">
-                                {creator.socialLinks.twitter && (
-                                    <a href={creator.socialLinks.twitter} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-white transition-colors">
-                                        <Twitter className="w-5 h-5" />
-                                    </a>
-                                )}
-                                {creator.socialLinks.instagram && (
-                                    <a href={creator.socialLinks.instagram} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-white transition-colors">
-                                        <Instagram className="w-5 h-5" />
-                                    </a>
-                                )}
-                                {creator.socialLinks.website && (
-                                    <a href={creator.socialLinks.website} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-white transition-colors">
-                                        <Globe className="w-5 h-5" />
-                                    </a>
-                                )}
-                            </div>
-                        )}
                     </div>
+
+
 
                     {/* Actions */}
                     <div className="mb-4 md:mb-6 shrink-0 w-full md:w-auto">

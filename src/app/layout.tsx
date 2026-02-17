@@ -37,7 +37,8 @@ export default function RootLayout({
           <UIProvider>
             <NowProvider>
               <CoreLayoutWrapper>
-                <main className="pt-20 flex-1 relative flex flex-col">
+                <main className="pt-24 pb-32 md:pb-0 flex-1 relative flex flex-col">
+
                   {/* Background Elements */}
                   <div className="fixed inset-0 z-0 pointer-events-none">
                     <div className="absolute top-[-20%] left-[-20%] w-[50%] h-[50%] rounded-full bg-brand-pink/15 blur-[150px] animate-float transform-gpu" />

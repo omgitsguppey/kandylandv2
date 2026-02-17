@@ -63,9 +63,10 @@ export function AdminDropdown() {
             {/* Dropdown Menu */}
             <div
                 className={cn(
-                    "absolute right-0 top-full mt-2 w-56 glass-panel backdrop-blur-3xl bg-black/80 rounded-2xl p-2 shadow-2xl border border-white/10 overflow-hidden origin-top-right transition-all duration-200 z-50",
+                    "absolute right-0 top-full mt-2 w-56 bg-zinc-950 border border-white/10 rounded-2xl p-2 shadow-2xl backdrop-blur-3xl overflow-hidden origin-top-right transition-all duration-200 z-50",
                     isOpen
                         ? "opacity-100 scale-100 translate-y-0"
+
                         : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
                 )}
             >
