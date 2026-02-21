@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import { collection, getCountFromServer, query, where, getDocs, orderBy, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
-import { Users, Package, DollarSign, Activity, TrendingUp } from "lucide-react";
+import { CandyOutlineIcon as Users, CandyOutlineIcon as Package, CandyOutlineIcon as DollarSign, CandyOutlineIcon as Activity, CandyOutlineIcon as TrendingUp } from "@/components/ui/Icon";
+
 import { formatDistanceToNow } from "date-fns";
+import { Drop, Transaction } from "@/types/db";
 
 export default function AdminDashboardPage() {
     const [stats, setStats] = useState({
@@ -14,7 +16,8 @@ export default function AdminDashboardPage() {
         totalStorage: 0,
         recentSales: 0
     });
-    const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
+    const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
+    const [recentDrops, setRecentDrops] = useState<Drop[]>([]);
 
     useEffect(() => {
         async function fetchStats() {
@@ -29,24 +32,44 @@ export default function AdminDashboardPage() {
 
                 let activeCount = 0;
                 let totalBytes = 0;
+                let drops: Drop[] = [];
 
                 dropsSnap.forEach(doc => {
-                    const data = doc.data();
+                    const data = doc.data() as Drop;
+                    drops.push({ ...data, id: doc.id });
                     if (data.status === 'active') activeCount++;
                     if (data.fileMetadata?.size) {
                         totalBytes += data.fileMetadata.size;
                     }
                 });
 
-                // 2. Mock sales for now
-                // ... existing code ...
+                // Sort drops by unlocks for the "Trending" view
+                const sortedDrops = drops.sort((a, b) => (b.totalUnlocks || 0) - (a.totalUnlocks || 0)).slice(0, 5);
+                setRecentDrops(sortedDrops);
+
+                // 2. Transactions & Sales
+                const txQuery = query(collection(db, "transactions"), orderBy("timestamp", "desc"), limit(10));
+                const txSnap = await getDocs(txQuery);
+
+                let revenue = 0;
+                const txs: Transaction[] = [];
+                txSnap.forEach(doc => {
+                    const data = doc.data() as Transaction;
+                    txs.push({ ...data, id: doc.id });
+                    if (data.type === 'purchase_currency' && data.amount > 0) {
+                        // Assuming amount is in USD cents for purchase_currency, this is a rough estimation
+                        // or you can track actual USD paid separately.
+                        revenue += data.amount;
+                    }
+                });
+                setRecentTransactions(txs);
 
                 setStats({
                     totalUsers: usersSnap.data().count,
                     totalDrops: totalDrops,
                     activeDrops: activeCount,
-                    totalStorage: totalBytes, // Add to state
-                    recentSales: 1250
+                    totalStorage: totalBytes,
+                    recentSales: revenue
                 });
             } catch (err) {
                 console.error("Error fetching admin stats:", err);
@@ -88,10 +111,10 @@ export default function AdminDashboardPage() {
                     subValue={`of ${stats.totalDrops} total`}
                 />
                 <StatCard
-                    title="Revenue (Est)"
-                    value="$1,250"
+                    title="Revenue (Transactions)"
+                    value={`$${(stats.recentSales / 100).toFixed(2)}`}
                     icon={<DollarSign className="w-5 h-5 text-brand-yellow" />}
-                    trend="+8%"
+                    trend="+Live"
                     trendUp={true}
                 />
                 <StatCard
@@ -106,18 +129,27 @@ export default function AdminDashboardPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="glass-panel p-6 rounded-3xl">
                     <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-lg font-bold text-white">Recent Drops</h3>
-                        <button className="text-xs font-bold text-brand-pink hover:text-white transition-colors">View All</button>
+                        <h3 className="text-lg font-bold text-white">Trending Content</h3>
+                        <span className="text-xs font-bold text-brand-pink">Top 5 Unlocked</span>
                     </div>
                     <div className="space-y-4">
-                        {[1, 2, 3].map((i) => (
-                            <div key={i} className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-colors group">
-                                <div className="w-12 h-12 rounded-lg bg-zinc-800 flex items-center justify-center text-xl">🍬</div>
-                                <div>
-                                    <div className="font-bold text-white group-hover:text-brand-cyan transition-colors">Neon Pop Pack #{i}</div>
-                                    <div className="text-xs text-gray-500">Active • 24 Unlocks</div>
+                        {recentDrops.length === 0 ? (
+                            <div className="text-sm text-gray-500 py-4 text-center">No drops found.</div>
+                        ) : recentDrops.map((drop) => (
+                            <div key={drop.id} className="flex items-center gap-4 p-3 rounded-xl transition-colors group">
+                                <div className="w-12 h-12 rounded-lg bg-zinc-800 flex items-center justify-center text-xl overflow-hidden relative">
+                                    {drop.imageUrl ? (
+                                        <img src={drop.imageUrl} alt={drop.title} className="object-cover w-full h-full opacity-80" />
+                                    ) : "🍬"}
                                 </div>
-                                <div className="ml-auto text-xs font-mono text-gray-400">2h ago</div>
+                                <div>
+                                    <div className="font-bold text-white transition-colors line-clamp-1">{drop.title}</div>
+                                    <div className="text-xs text-gray-500 capitalize">{drop.status} • {drop.totalUnlocks || 0} Unlocks</div>
+                                </div>
+                                <div className="ml-auto flex flex-col items-end">
+                                    <div className="text-xs font-mono text-brand-purple font-bold">{drop.unlockCost} GD</div>
+                                    {drop.totalClicks !== undefined && <div className="text-[10px] text-gray-500">{drop.totalClicks} views</div>}
+                                </div>
                             </div>
                         ))}
                     </div>
@@ -132,31 +164,31 @@ export default function AdminDashboardPage() {
                         </div>
                     </div>
                     <div className="space-y-4">
-                        {/* Placeholder transactions */}
-                        <div className="flex items-center justify-between p-3 border-b border-white/5">
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-full bg-brand-yellow/10 flex items-center justify-center">
-                                    <DollarSign className="w-4 h-4 text-brand-yellow" />
+                        {recentTransactions.length === 0 ? (
+                            <div className="text-sm text-gray-500 py-4 text-center">No recent transactions.</div>
+                        ) : recentTransactions.map((tx) => {
+                            const isUnlock = tx.type === 'unlock_content';
+                            const timestamp = tx.timestamp?.toMillis ? tx.timestamp.toMillis() : Date.now();
+                            return (
+                                <div key={tx.id} className="flex items-center justify-between p-3 border-b border-white/5 last:border-0 transition-colors rounded-xl">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isUnlock ? 'bg-brand-pink/10' : 'bg-brand-yellow/10'}`}>
+                                            {isUnlock ? <Package className="w-4 h-4 text-brand-pink" /> : <DollarSign className="w-4 h-4 text-brand-yellow" />}
+                                        </div>
+                                        <div>
+                                            <div className="text-sm font-bold text-white line-clamp-1">{tx.description}</div>
+                                            <div className="text-xs text-gray-400 font-mono truncate max-w-[150px]">{tx.userId.substring(0, 8)}...</div>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col items-end">
+                                        <span className={`font-mono font-bold text-sm ${isUnlock ? 'text-gray-400' : 'text-brand-green'}`}>
+                                            {tx.amount > 0 ? '+' : ''}{tx.amount}
+                                        </span>
+                                        <span className="text-gray-500 font-mono text-[10px] whitespace-nowrap">{formatDistanceToNow(timestamp, { addSuffix: true })}</span>
+                                    </div>
                                 </div>
-                                <div>
-                                    <div className="text-sm font-bold text-white">New Purchase</div>
-                                    <div className="text-xs text-gray-400">uylus@... bought 300 Drops</div>
-                                </div>
-                            </div>
-                            <span className="text-brand-green font-mono font-bold">+$4.99</span>
-                        </div>
-                        <div className="flex items-center justify-between p-3 border-b border-white/5">
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-full bg-brand-pink/10 flex items-center justify-center">
-                                    <Package className="w-4 h-4 text-brand-pink" />
-                                </div>
-                                <div>
-                                    <div className="text-sm font-bold text-white">Content Unlocked</div>
-                                    <div className="text-xs text-gray-400">user123 unlocked "Secret Mix"</div>
-                                </div>
-                            </div>
-                            <span className="text-gray-500 font-mono text-xs">Just now</span>
-                        </div>
+                            );
+                        })}
                     </div>
                 </div>
             </div>
@@ -167,7 +199,7 @@ export default function AdminDashboardPage() {
 function StatCard({ title, value, icon, trend, trendUp, subValue }: any) {
     return (
         <div className="glass-panel p-6 rounded-3xl relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-4 opacity-50 group-hover:opacity-100 transition-opacity transform group-hover:scale-110 duration-500">
+            <div className="absolute top-0 right-0 p-4 opacity-50 transition-opacity transform duration-500">
                 <div className="p-3 bg-white/5 rounded-2xl border border-white/5 backdrop-blur-sm">
                     {icon}
                 </div>

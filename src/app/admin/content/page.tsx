@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { ref, listAll, getDownloadURL, deleteObject, uploadBytes } from "firebase/storage";
 import { storage } from "@/lib/firebase-data";
-import { Loader2, Upload, Trash2, Copy, FileIcon, Image as ImageIcon, Video, RefreshCw } from "lucide-react";
+import { CandyOutlineIcon as Loader2, CandyOutlineIcon as Upload, CandyOutlineIcon as Trash2, CandyOutlineIcon as Copy, CandyOutlineIcon as FileIcon, CandyOutlineIcon as ImageIcon, CandyOutlineIcon as Video, CandyOutlineIcon as RefreshCw } from "@/components/ui/Icon";
+
 import { Button } from "@/components/ui/Button";
 import { format } from "date-fns";
 
@@ -143,7 +144,7 @@ export default function ContentManagerPage() {
                                 </tr>
                             ) : (
                                 files.map((file) => (
-                                    <tr key={file.fullPath} className="hover:bg-white/5 transition-colors">
+                                    <tr key={file.fullPath} className="transition-colors">
                                         <td className="p-4 w-20">
                                             <div className="w-12 h-12 rounded-lg bg-black/50 overflow-hidden flex items-center justify-center border border-white/10">
                                                 {['jpg', 'jpeg', 'png', 'webp'].some(ext => file.name.toLowerCase().endsWith(ext)) ? (
@@ -161,14 +162,14 @@ export default function ContentManagerPage() {
                                             <div className="flex items-center justify-end gap-2">
                                                 <button
                                                     onClick={() => copyToClipboard(file.url)}
-                                                    className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+                                                    className="p-2 rounded-lg text-gray-400 transition-colors"
                                                     title="Copy URL"
                                                 >
                                                     <Copy className="w-4 h-4" />
                                                 </button>
                                                 <button
                                                     onClick={() => handleDelete(file.fullPath)}
-                                                    className="p-2 rounded-lg hover:bg-red-500/20 text-red-500 transition-colors"
+                                                    className="p-2 rounded-lg text-red-500 transition-colors"
                                                     title="Delete File"
                                                 >
                                                     <Trash2 className="w-4 h-4" />

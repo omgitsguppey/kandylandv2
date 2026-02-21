@@ -6,7 +6,8 @@ import { useState } from "react";
 import { DropCard } from "./DropCard";
 import { PromoCard } from "./PromoCard";
 import { Drop } from "@/types/db";
-import { Loader2 } from "lucide-react";
+import { CandyOutlineIcon as Loader2 } from "@/components/ui/Icon";
+
 import { useAuthIdentity, useUserProfile } from "@/context/AuthContext";
 import { toast } from "sonner";
 
@@ -44,7 +45,7 @@ export function DropGrid({ drops: propDrops, loading: propLoading, isSearching }
                 <div className="text-center py-24 px-6 glass-panel rounded-[2rem] max-w-2xl mx-auto border border-white/10 shadow-2xl relative overflow-hidden group">
                     <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
 
-                    <div className="w-28 h-28 bg-zinc-900 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-white/10 shadow-inner group-hover:scale-110 transition-transform duration-500 ease-out">
+                    <div className="w-28 h-28 bg-zinc-900 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-white/10 shadow-inner transition-transform duration-500 ease-out">
                         <span className="text-6xl filter drop-shadow-[0_0_15px_rgba(236,72,153,0.4)]">🍬</span>
                     </div>
 
@@ -73,7 +74,7 @@ export function DropGrid({ drops: propDrops, loading: propLoading, isSearching }
                                             description: "We'll alert you here when new drops land."
                                         });
                                     }}
-                                    className="px-10 py-5 bg-white text-black rounded-2xl font-black text-lg hover:bg-brand-pink hover:text-white transition-all transform hover:scale-105 active:scale-95 shadow-[0_10px_30px_rgba(255,255,255,0.1)]"
+                                    className="px-10 py-5 bg-white text-black rounded-2xl font-black text-lg transition-all transform active:scale-95 shadow-[0_10px_30px_rgba(255,255,255,0.1)]"
                                 >
                                     Notify Me
                                 </button>

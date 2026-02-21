@@ -5,7 +5,8 @@ import { useAuth } from "@/context/AuthContext";
 import { db } from "@/lib/firebase-data";
 import { collection, query, orderBy, limit, onSnapshot } from "firebase/firestore";
 import { Button } from "@/components/ui/Button";
-import { Loader2, Terminal, RefreshCw, Plus, PlayCircle } from "lucide-react";
+import { CandyOutlineIcon as Loader2, CandyOutlineIcon as Terminal, CandyOutlineIcon as RefreshCw, CandyOutlineIcon as Plus, CandyOutlineIcon as PlayCircle } from "@/components/ui/Icon";
+
 import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";
 
@@ -141,7 +142,7 @@ export default function DebugConsole() {
                         </thead>
                         <tbody className="divide-y divide-white/5">
                             {logs.map((log) => (
-                                <tr key={log.id} className="hover:bg-white/5">
+                                <tr key={log.id} className="">
                                     <td className="p-3 text-gray-400">{log.timestamp}</td>
                                     <td className="p-3 text-brand-cyan">{log.type}</td>
                                     <td className="p-3 text-white">{log.amount}</td>

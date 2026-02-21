@@ -1,7 +1,8 @@
 "use client";
 
 
-import { Sparkles, Star } from "lucide-react";
+import { CandyOutlineIcon as Sparkles, CandyOutlineIcon as Star } from "@/components/ui/Icon";
+
 import Link from "next/link";
 
 export default function ExperiencesPage() {
@@ -32,7 +33,7 @@ export default function ExperiencesPage() {
             >
                 <Link
                     href="/"
-                    className="bg-white text-black px-8 py-3 rounded-full font-bold hover:bg-gray-200 transition-colors inline-flex items-center gap-2"
+                    className="bg-white text-black px-8 py-3 rounded-full font-bold transition-colors inline-flex items-center gap-2"
                 >
                     Back to Home
                 </Link>

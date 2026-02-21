@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { CandyOutlineIcon as ArrowLeft } from "@/components/ui/Icon";
+
 
 export default function PrivacyPage() {
     return (
         <main className="min-h-screen bg-black text-gray-300 pt-32 pb-20 px-6">
             <div className="max-w-3xl mx-auto space-y-8">
-                <Link href="/" className="inline-flex items-center gap-2 text-brand-pink hover:text-white transition-colors">
+                <Link href="/" className="inline-flex items-center gap-2 text-brand-pink transition-colors">
                     <ArrowLeft className="w-4 h-4" />
                     Back to Home
                 </Link>

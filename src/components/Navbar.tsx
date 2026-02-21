@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useAuthIdentity, useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
-import { LogIn, Wallet, Plus } from "lucide-react";
+import { CandyOutlineIcon as LogIn, CandyOutlineIcon as Wallet, CandyOutlineIcon as Plus } from "@/components/ui/Icon";
+
 import { ProfileDropdown } from "@/components/Navigation/ProfileDropdown";
 import { ProfileSidebar } from "@/components/Navigation/ProfileSidebar";
 import { AdminDropdown } from "@/components/Navigation/AdminDropdown";
@@ -51,7 +52,7 @@ export function Navbar() {
 
                                     <button
                                         onClick={openPurchaseModal}
-                                        className="w-7 h-7 flex items-center justify-center bg-gradient-to-br from-brand-pink to-pink-600 rounded-full text-white shadow-lg shadow-brand-pink/20 hover:scale-105 active:scale-95 transition-all"
+                                        className="w-7 h-7 flex items-center justify-center bg-gradient-to-br from-brand-pink to-pink-600 rounded-full text-white shadow-lg shadow-brand-pink/20 active:scale-95 transition-all"
                                         title="Buy Gum Drops"
                                     >
                                         <Plus className="w-4 h-4" />
@@ -66,7 +67,7 @@ export function Navbar() {
                                 {/* Mobile Menu Trigger */}
                                 <button
                                     onClick={() => setIsMobileMenuOpen(true)}
-                                    className="md:hidden w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white border border-white/10 relative overflow-hidden"
+                                    className="md:hidden w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white border border-white/10 relative overflow-hidden"
                                 >
                                     {user.photoURL ? (
                                         <NextImage
@@ -86,7 +87,7 @@ export function Navbar() {
                         ) : (
                             <button
                                 onClick={openAuthModal}
-                                className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-white text-black font-bold text-sm tracking-wide shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_25px_rgba(255,255,255,0.5)] hover:scale-105 transition-all duration-300"
+                                className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-white text-black font-bold text-sm tracking-wide shadow-[0_0_20px_rgba(255,255,255,0.3)] _0_25px_rgba(255,255,255,0.5)] transition-all duration-300"
                             >
                                 <LogIn className="w-4 h-4" />
                                 Sign In

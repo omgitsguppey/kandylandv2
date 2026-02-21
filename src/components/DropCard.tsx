@@ -4,14 +4,14 @@ import { Drop } from "@/types/db";
 import { useEffect, useState, memo } from "react";
 import { formatDistanceToNow } from "date-fns";
 import NextImage from "next/image";
-import { Lock, Unlock, Clock, Loader2, AlertCircle } from "lucide-react";
+import { CandyOutlineIcon as Lock, CandyOutlineIcon as Unlock, CandyOutlineIcon as Clock, CandyOutlineIcon as Loader2, CandyOutlineIcon as AlertCircle } from "@/components/ui/Icon";
+
 import { cn } from "@/lib/utils";
 
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { User } from "firebase/auth";
 import { authFetch } from "@/lib/authFetch";
-import { useNow } from "@/context/NowContext";
 import { useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import Link from "next/link";
@@ -49,26 +49,58 @@ const DropCardBadge = ({ type, label, index = 0 }: DropCardBadgeProps) => (
 );
 
 interface DropCardTimerProps {
-    timeLeft: string;
+    validFrom: number;
+    validUntil?: number;
 }
 
-const DropCardTimer = ({ timeLeft }: DropCardTimerProps) => (
-    <div className={cn(
-        "absolute top-2 right-2 md:top-3 md:right-3 backdrop-blur-xl px-2 py-0.5 md:px-3 md:py-1.5 rounded-full text-[10px] md:text-xs font-mono font-medium flex items-center gap-1 border shadow-lg z-10",
-        timeLeft.includes("h ") || timeLeft.includes("m ")
-            ? "bg-red-500/80 text-white border-red-500/50"
-            : "bg-black/40 text-white border-white/10"
-    )}>
-        <Clock className="w-3 h-3" />
-        {timeLeft}
-    </div>
-);
+const DropCardTimer = ({ validFrom, validUntil }: DropCardTimerProps) => {
+    const [timeLeft, setTimeLeft] = useState("");
+
+    useEffect(() => {
+        const updateTimer = () => {
+            const now = Date.now();
+            if (now < validFrom) {
+                setTimeLeft(`Starts in ${formatDistanceToNow(validFrom)}`);
+            } else if (!validUntil || now < validUntil) {
+                if (!validUntil) {
+                    setTimeLeft("Forever");
+                } else {
+                    const diff = validUntil - now;
+                    if (diff > 24 * 60 * 60 * 1000) {
+                        setTimeLeft(formatDistanceToNow(validUntil, { addSuffix: true }));
+                    } else {
+                        const seconds = Math.floor((diff / 1000) % 60);
+                        const minutes = Math.floor((diff / 1000 / 60) % 60);
+                        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                        setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
+                    }
+                }
+            } else {
+                setTimeLeft("Expired");
+            }
+        };
+
+        updateTimer();
+        const interval = setInterval(updateTimer, 1000);
+        return () => clearInterval(interval);
+    }, [validFrom, validUntil]);
+
+    return (
+        <div className={cn(
+            "absolute top-2 right-2 md:top-3 md:right-3 backdrop-blur-xl px-2 py-0.5 md:px-3 md:py-1.5 rounded-full text-[10px] md:text-xs font-mono font-medium flex items-center gap-1 border shadow-lg z-10",
+            timeLeft.includes("h ") || timeLeft.includes("m ")
+                ? "bg-red-500/80 text-white border-red-500/50"
+                : "bg-black/40 text-white border-white/10"
+        )}>
+            <Clock className="w-3 h-3" />
+            {timeLeft}
+        </div>
+    );
+};
 
 function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAfford = false }: DropCardProps) {
-    const { now } = useNow();
     const { userProfile } = useUserProfile();
     const { openInsufficientBalanceModal } = useUI();
-    const [timeLeft, setTimeLeft] = useState("");
     const [unlocking, setUnlocking] = useState(false);
     const [imageLoaded, setImageLoaded] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -78,29 +110,6 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
             navigator.vibrate(10);
         }
     };
-
-
-    useEffect(() => {
-        if (now < drop.validFrom) {
-            setTimeLeft(`Starts in ${formatDistanceToNow(drop.validFrom)}`);
-        } else if (!drop.validUntil || now < drop.validUntil) {
-            if (!drop.validUntil) {
-                setTimeLeft("Forever");
-            } else {
-                const diff = drop.validUntil - now;
-                if (diff > 24 * 60 * 60 * 1000) {
-                    setTimeLeft(formatDistanceToNow(drop.validUntil, { addSuffix: true }));
-                } else {
-                    const seconds = Math.floor((diff / 1000) % 60);
-                    const minutes = Math.floor((diff / 1000 / 60) % 60);
-                    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-                    setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
-                }
-            }
-        } else {
-            setTimeLeft("Expired");
-        }
-    }, [now, drop.validFrom, drop.validUntil]);
 
     const handleUnlock = async () => {
         if (!user || unlocking || isUnlocked) return;
@@ -218,7 +227,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                                     fill
                                     priority={priority}
                                     className={cn(
-                                        "object-cover transition-all duration-700 opacity-80 group-hover:opacity-100",
+                                        "object-cover transition-all duration-700 opacity-80 ",
                                         imageLoaded ? "scale-100 blur-0" : "scale-110 blur-xl"
                                     )}
                                     onLoadingComplete={() => setImageLoaded(true)}
@@ -245,7 +254,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                     ))}
                 </div>
 
-                <DropCardTimer timeLeft={timeLeft} />
+                <DropCardTimer validFrom={drop.validFrom} validUntil={drop.validUntil} />
             </div>
 
             <div className="relative z-10">
@@ -263,7 +272,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                         <Link
                             href={`/dashboard/viewer?id=${drop.id}`}
                             onClick={triggerHaptic}
-                            className="px-3 py-1.5 md:px-5 md:py-2.5 rounded-lg md:rounded-xl font-bold text-xs md:text-sm bg-brand-green/10 text-brand-green flex items-center gap-1.5 md:gap-2 border border-brand-green/20 hover:bg-brand-green/20 transition-all active:scale-95"
+                            className="px-3 py-1.5 md:px-5 md:py-2.5 rounded-lg md:rounded-xl font-bold text-xs md:text-sm bg-brand-green/10 text-brand-green flex items-center gap-1.5 md:gap-2 border border-brand-green/20 transition-all active:scale-95"
                         >
                             <Unlock className="w-3 h-3 md:w-4 md:h-4" />
                             View Content
@@ -276,7 +285,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                             className={cn(
                                 "px-4 py-1.5 md:px-6 md:py-2.5 rounded-lg md:rounded-xl font-bold text-xs md:text-sm flex items-center gap-1.5 md:gap-2 border relative overflow-hidden",
                                 canAfford
-                                    ? "bg-white text-black border-white hover:bg-brand-pink hover:border-brand-pink hover:text-white shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:shadow-[0_0_25px_rgba(236,72,153,0.4)]"
+                                    ? "bg-white text-black border-white    shadow-[0_0_20px_rgba(255,255,255,0.15)] _0_25px_rgba(236,72,153,0.4)]"
                                     : "bg-white/5 text-gray-500 border-white/5 cursor-not-allowed",
                                 "disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-all"
                             )}

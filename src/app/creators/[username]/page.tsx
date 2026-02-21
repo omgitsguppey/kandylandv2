@@ -7,7 +7,8 @@ import { db } from "@/lib/firebase-data";
 import { UserProfile, Drop } from "@/types/db";
 import { DropGrid } from "@/components/DropGrid";
 import { useAuth } from "@/context/AuthContext";
-import { Loader2, MapPin, Link as LinkIcon, UserPlus, UserCheck, CheckCircle2 } from "lucide-react";
+import { CandyOutlineIcon as Loader2, CandyOutlineIcon as MapPin, CandyOutlineIcon as LinkIcon, CandyOutlineIcon as UserPlus, CandyOutlineIcon as UserCheck, CandyOutlineIcon as CheckCircle2 } from "@/components/ui/Icon";
+
 
 import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
@@ -175,10 +176,7 @@ export default function CreatorProfilePage() {
                         <button
                             onClick={handleFollow}
                             disabled={followLoading}
-                            className={`w-full md:w-auto px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all ${following
-                                ? "bg-white/10 text-white hover:bg-white/20"
-                                : "bg-brand-pink text-white hover:bg-brand-pink/80 shadow-lg shadow-brand-pink/20"
-                                }`}
+                            className={`w-full md:w-auto px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all ${following ? "bg-white/10 text-white " : "bg-brand-pink text-white shadow-lg shadow-brand-pink/20" }`}
                         >
                             {followLoading ? (
                                 <Loader2 className="w-5 h-5 animate-spin" />

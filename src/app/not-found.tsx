@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import { CandyIcon } from "@/components/ui/Icon";
+import { CandyOutlineIcon } from "@/components/ui/Icon";
 
 export default function NotFound() {
     return (
         <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4 text-center">
             <div className="mb-8 relative">
                 <div className="absolute inset-0 bg-brand-pink/20 blur-3xl rounded-full"></div>
-                <CandyIcon size="xl" className="opacity-50 grayscale" />
+                <CandyOutlineIcon className="w-24 h-24 text-gray-500 opacity-50 relative z-10" />
             </div>
 
             <h1 className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-600 mb-4">404</h1>

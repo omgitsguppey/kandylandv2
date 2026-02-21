@@ -1,6 +1,7 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
+import { CandyOutlineIcon as Loader2 } from "@/components/ui/Icon";
+
 
 export default function DropsLoading() {
     return (

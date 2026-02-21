@@ -4,7 +4,8 @@ import { useState, useEffect, Suspense } from "react";
 import { collection, doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Loader2, Save, Calendar, DollarSign, ArrowLeft, ChevronDown, ChevronUp, Image as ImageIcon, FileAudio } from "lucide-react";
+import { CandyOutlineIcon as Loader2, CandyOutlineIcon as Save, CandyOutlineIcon as Calendar, CandyOutlineIcon as DollarSign, CandyOutlineIcon as ArrowLeft, CandyOutlineIcon as ChevronDown, CandyOutlineIcon as ChevronUp, CandyOutlineIcon as ImageIcon, CandyOutlineIcon as FileAudio } from "@/components/ui/Icon";
+
 import { FileUpload } from "@/components/Admin/FileUpload";
 import Link from "next/link";
 import { Drop } from "@/types/db";
@@ -244,7 +245,7 @@ function DropForm() {
     return (
         <div className="max-w-xl mx-auto pb-24">
             <header className="mb-6 pt-4">
-                <Link href="/admin/drops" className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-2 transition-colors text-sm font-medium">
+                <Link href="/admin/drops" className="inline-flex items-center gap-2 text-gray-400 mb-2 transition-colors text-sm font-medium">
                     <ArrowLeft className="w-4 h-4" /> Back to Drops
                 </Link>
                 <h1 className="text-2xl font-bold text-white">{isEditMode ? "Edit Drop" : "Create Drop"}</h1>
@@ -298,7 +299,7 @@ function DropForm() {
                                         "px-3 py-1 rounded-full text-xs font-bold border transition-all",
                                         currentTags.includes(tag)
                                             ? "bg-brand-pink text-white border-brand-pink"
-                                            : "bg-white/5 text-gray-500 border-white/5 hover:bg-white/10"
+                                            : "bg-white/5 text-gray-500 border-white/5 "
                                     )}
                                 >
                                     {tag}
@@ -313,7 +314,7 @@ function DropForm() {
                     <button
                         type="button"
                         onClick={() => setUploadsOpen(!uploadsOpen)}
-                        className="w-full flex items-center justify-between p-5 hover:bg-white/5 transition-colors"
+                        className="w-full flex items-center justify-between p-5 transition-colors"
                     >
                         <div className="flex items-center gap-2 font-bold text-white text-sm">
                             <div className="flex gap-[-4px]">
@@ -426,7 +427,7 @@ function DropForm() {
                                 {...register("rotationEnabled")}
                                 className="w-4 h-4 rounded border-white/20 bg-white/5 text-brand-pink focus:ring-brand-pink/50"
                             />
-                            <span className="text-xs font-bold text-gray-500 uppercase group-hover:text-gray-300 transition-colors">
+                            <span className="text-xs font-bold text-gray-500 uppercase transition-colors">
                                 Auto-Rotate Schedule
                             </span>
                         </label>
@@ -470,7 +471,7 @@ function DropForm() {
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-brand-pink to-brand-purple font-bold text-white shadow-lg shadow-brand-pink/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-lg"
+                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-brand-pink to-brand-purple font-bold text-white shadow-lg shadow-brand-pink/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-lg"
                 >
                     {isSubmitting ? (
                         <Loader2 className="w-5 h-5 animate-spin" />

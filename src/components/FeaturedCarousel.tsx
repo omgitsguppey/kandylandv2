@@ -5,16 +5,15 @@ import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import NextImage from "next/image";
 import { formatDistanceToNow } from "date-fns";
-import { Clock, Play, ChevronRight } from "lucide-react";
+import { CandyOutlineIcon as Clock, CandyOutlineIcon as Play, CandyOutlineIcon as ChevronRight } from "@/components/ui/Icon";
+
 import Link from "next/link";
-import { useNow } from "@/context/NowContext";
 
 interface FeaturedCarouselProps {
     drops: Drop[];
 }
 
 export function FeaturedCarousel({ drops }: FeaturedCarouselProps) {
-    const { now } = useNow();
     const scrollRef = useRef<HTMLDivElement>(null);
     const [activeIndex, setActiveIndex] = useState(0);
 
@@ -47,13 +46,6 @@ export function FeaturedCarousel({ drops }: FeaturedCarouselProps) {
             >
                 {featuredDrops.map((drop, index) => {
                     const isActive = index === activeIndex;
-
-                    // Time Logic
-                    let timeLeft = "";
-                    if (now < drop.validFrom) timeLeft = `Starts in ${formatDistanceToNow(drop.validFrom)}`;
-                    else if (!drop.validUntil) timeLeft = "Forever";
-                    else if (now < drop.validUntil) timeLeft = formatDistanceToNow(drop.validUntil, { addSuffix: true });
-                    else timeLeft = "Expired";
 
                     return (
                         <div
@@ -93,7 +85,7 @@ export function FeaturedCarousel({ drops }: FeaturedCarouselProps) {
                             {/* Floating Metadata */}
                             <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-xl px-3 py-1.5 rounded-full text-xs font-mono font-bold text-white border border-white/10 flex items-center gap-2">
                                 <Clock className="w-3.5 h-3.5 text-brand-pink" />
-                                {timeLeft}
+                                <CarouselTimer validFrom={drop.validFrom} validUntil={drop.validUntil} />
                             </div>
 
                             {/* Bottom Content */}
@@ -105,7 +97,7 @@ export function FeaturedCarousel({ drops }: FeaturedCarouselProps) {
                                     <div className="px-3 py-1.5 bg-brand-purple/20 border border-brand-purple/30 rounded-lg text-brand-purple font-bold text-sm">
                                         {drop.unlockCost} Drops
                                     </div>
-                                    <button className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center hover:scale-110 active:scale-95 transition-transform shadow-[0_0_20px_rgba(255,255,255,0.4)]">
+                                    <button className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center active:scale-95 transition-transform shadow-[0_0_20px_rgba(255,255,255,0.4)]">
                                         <ChevronRight className="w-5 h-5 ml-0.5" />
                                     </button>
                                 </div>
@@ -116,5 +108,32 @@ export function FeaturedCarousel({ drops }: FeaturedCarouselProps) {
             </div>
         </div>
     );
+}
+
+function CarouselTimer({ validFrom, validUntil }: { validFrom: number, validUntil?: number }) {
+    const [timeLeft, setTimeLeft] = useState("");
+
+    useEffect(() => {
+        const updateTimer = () => {
+            const now = Date.now();
+            if (now < validFrom) {
+                setTimeLeft(`Starts in ${formatDistanceToNow(validFrom)}`);
+            } else if (!validUntil || now < validUntil) {
+                if (!validUntil) {
+                    setTimeLeft("Forever");
+                } else {
+                    setTimeLeft(formatDistanceToNow(validUntil, { addSuffix: true }));
+                }
+            } else {
+                setTimeLeft("Expired");
+            }
+        };
+
+        updateTimer();
+        const interval = setInterval(updateTimer, 1000);
+        return () => clearInterval(interval);
+    }, [validFrom, validUntil]);
+
+    return <span>{timeLeft}</span>;
 }
 

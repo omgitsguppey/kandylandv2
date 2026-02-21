@@ -1,6 +1,7 @@
 "use client";
 
-import { Search, Sparkles, Clock, Flame, Tag } from "lucide-react";
+import { CandyOutlineIcon as Search, CandyOutlineIcon as Sparkles, CandyOutlineIcon as Clock, CandyOutlineIcon as Flame, CandyOutlineIcon as Tag } from "@/components/ui/Icon";
+
 import { cn } from "@/lib/utils";
 import { useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -124,7 +125,7 @@ export default function StickyFilterBar({
                                     "relative flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border",
                                     isSelected
                                         ? "text-white border-brand-pink/50"
-                                        : "bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white"
+                                        : "bg-white/5 text-gray-400 border-white/5  "
                                 )}
                             >
                                 <AnimatePresence>

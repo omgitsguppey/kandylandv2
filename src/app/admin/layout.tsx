@@ -4,7 +4,8 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { LayoutDashboard, PlusCircle, LogOut, Package, Users, Terminal } from "lucide-react";
+import { CandyOutlineIcon as LayoutDashboard, CandyOutlineIcon as PlusCircle, CandyOutlineIcon as LogOut, CandyOutlineIcon as Package, CandyOutlineIcon as Users, CandyOutlineIcon as Terminal } from "@/components/ui/Icon";
+
 import { cn } from "@/lib/utils";
 
 const ADMIN_EMAIL = "uylusjohnson@gmail.com";

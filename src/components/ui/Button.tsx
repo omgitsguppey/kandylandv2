@@ -1,6 +1,7 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { Loader2 } from "lucide-react"
+import { CandyOutlineIcon as Loader2 } from "@/components/ui/Icon";
+
 
 export interface ButtonProps
     extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -13,12 +14,12 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ({ className, variant = "default", size = "default", isLoading, children, ...props }, ref) => {
 
         const variants = {
-            default: "bg-white text-black hover:bg-zinc-200 shadow-lg shadow-white/10",
-            outline: "border border-white/20 bg-transparent hover:bg-white/5 text-white",
-            ghost: "hover:bg-white/10 text-gray-300 hover:text-white",
+            default: "bg-white text-black  shadow-lg shadow-white/10",
+            outline: "border border-white/20 bg-transparent  text-white",
+            ghost: " text-gray-300 ",
             glass: "glass-button text-white",
-            danger: "bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20",
-            brand: "bg-gradient-to-r from-brand-pink to-brand-purple text-white shadow-lg shadow-brand-pink/20 hover:opacity-90",
+            danger: "bg-red-500/10 text-red-500  border border-red-500/20",
+            brand: "bg-gradient-to-r from-brand-pink to-brand-purple text-white shadow-lg shadow-brand-pink/20 ",
         }
 
         const sizes = {

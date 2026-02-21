@@ -5,7 +5,8 @@ import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
 import { UserProfile } from "@/types/db";
 import { format } from "date-fns";
-import { Shield, ShieldAlert, CheckCircle2, User, Search, UserCheck, UserX, Crown } from "lucide-react";
+import { CandyOutlineIcon as Shield, CandyOutlineIcon as ShieldAlert, CandyOutlineIcon as CheckCircle2, CandyOutlineIcon as User, CandyOutlineIcon as Search, CandyOutlineIcon as UserCheck, CandyOutlineIcon as UserX, CandyOutlineIcon as Crown } from "@/components/ui/Icon";
+
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
@@ -117,7 +118,7 @@ export default function AdminRosterPage() {
                         </thead>
                         <tbody className="divide-y divide-white/5">
                             {filteredUsers.map((user) => (
-                                <tr key={user.uid} className="hover:bg-white/5 transition-colors">
+                                <tr key={user.uid} className="transition-colors">
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
                                             <div className="w-10 h-10 rounded-full bg-zinc-800 overflow-hidden shrink-0">
@@ -163,7 +164,7 @@ export default function AdminRosterPage() {
                                             {user.role !== 'creator' && (
                                                 <button
                                                     onClick={() => handleRoleUpdate(user.uid, 'creator')}
-                                                    className="p-2 hover:bg-purple-500/20 text-gray-400 hover:text-purple-400 rounded-lg transition-colors"
+                                                    className="p-2 text-gray-400 rounded-lg transition-colors"
                                                     title="Promote to Creator"
                                                 >
                                                     <Crown className="w-4 h-4" />
@@ -172,7 +173,7 @@ export default function AdminRosterPage() {
                                             {user.role === 'creator' && (
                                                 <button
                                                     onClick={() => handleRoleUpdate(user.uid, 'user')}
-                                                    className="p-2 hover:bg-red-500/20 text-purple-400 hover:text-red-400 rounded-lg transition-colors"
+                                                    className="p-2 text-purple-400 rounded-lg transition-colors"
                                                     title="Demote to User"
                                                 >
                                                     <UserX className="w-4 h-4" />
@@ -185,8 +186,8 @@ export default function AdminRosterPage() {
                                                 className={cn(
                                                     "p-2 rounded-lg transition-colors",
                                                     user.isVerified
-                                                        ? "hover:bg-red-500/20 text-brand-cyan hover:text-red-400"
-                                                        : "hover:bg-brand-cyan/20 text-gray-400 hover:text-brand-cyan"
+                                                        ? " text-brand-cyan "
+                                                        : " text-gray-400 "
                                                 )}
                                                 title={user.isVerified ? "Remove Verification" : "Verify User"}
                                             >
@@ -238,14 +239,14 @@ export default function AdminRosterPage() {
                                         {user.role !== 'creator' ? (
                                             <button
                                                 onClick={() => handleRoleUpdate(user.uid, 'creator')}
-                                                className="px-3 py-1.5 bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 rounded-lg text-xs font-bold"
+                                                className="px-3 py-1.5 bg-purple-500/10 text-purple-400 rounded-lg text-xs font-bold"
                                             >
                                                 Promote
                                             </button>
                                         ) : (
                                             <button
                                                 onClick={() => handleRoleUpdate(user.uid, 'user')}
-                                                className="px-3 py-1.5 bg-zinc-800 text-gray-400 hover:bg-red-500/10 hover:text-red-400 rounded-lg text-xs font-bold"
+                                                className="px-3 py-1.5 bg-zinc-800 text-gray-400 rounded-lg text-xs font-bold"
                                             >
                                                 Demote
                                             </button>
@@ -255,8 +256,8 @@ export default function AdminRosterPage() {
                                             className={cn(
                                                 "px-3 py-1.5 rounded-lg text-xs font-bold transition-colors",
                                                 user.isVerified
-                                                    ? "bg-brand-cyan/10 text-brand-cyan hover:bg-red-500/10 hover:text-red-400"
-                                                    : "bg-zinc-800 text-gray-400 hover:bg-brand-cyan/10 hover:text-brand-cyan"
+                                                    ? "bg-brand-cyan/10 text-brand-cyan  "
+                                                    : "bg-zinc-800 text-gray-400  "
                                             )}
                                         >
                                             {user.isVerified ? "Verified" : "Verify"}

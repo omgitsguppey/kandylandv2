@@ -3,7 +3,8 @@
 import { Drop, UserProfile } from "@/types/db";
 import { useState, useMemo } from "react";
 import { DashboardDropCard } from "./DashboardDropCard";
-import { Search, Filter, LayoutGrid, List as ListIcon } from "lucide-react";
+import { CandyOutlineIcon as Search, CandyOutlineIcon as Filter, CandyOutlineIcon as LayoutGrid, CandyOutlineIcon as ListIcon } from "@/components/ui/Icon";
+
 import { cn } from "@/lib/utils";
 
 interface CollectionListProps {
@@ -50,7 +51,7 @@ export function CollectionList({ drops, userProfile }: CollectionListProps) {
                         onClick={() => setFilter('all')}
                         className={cn(
                             "px-4 py-1.5 rounded-lg text-xs font-bold transition-all",
-                            filter === 'all' ? "bg-white/10 text-white shadow-sm" : "text-gray-500 hover:text-gray-300"
+                            filter === 'all' ? "bg-white/10 text-white shadow-sm" : "text-gray-500 "
                         )}
                     >
                         All
@@ -59,7 +60,7 @@ export function CollectionList({ drops, userProfile }: CollectionListProps) {
                         onClick={() => setFilter('owned')}
                         className={cn(
                             "px-4 py-1.5 rounded-lg text-xs font-bold transition-all",
-                            filter === 'owned' ? "bg-white/10 text-white shadow-sm" : "text-gray-500 hover:text-gray-300"
+                            filter === 'owned' ? "bg-white/10 text-white shadow-sm" : "text-gray-500 "
                         )}
                     >
                         Owned
@@ -68,7 +69,7 @@ export function CollectionList({ drops, userProfile }: CollectionListProps) {
                         onClick={() => setFilter('locked')}
                         className={cn(
                             "px-4 py-1.5 rounded-lg text-xs font-bold transition-all",
-                            filter === 'locked' ? "bg-white/10 text-white shadow-sm" : "text-gray-500 hover:text-gray-300"
+                            filter === 'locked' ? "bg-white/10 text-white shadow-sm" : "text-gray-500 "
                         )}
                     >
                         Locked
@@ -88,7 +89,7 @@ export function CollectionList({ drops, userProfile }: CollectionListProps) {
 
                 {filteredDrops.length === 0 && (
                     <div className="col-span-full py-20 text-center glass-panel border border-white/5 rounded-3xl group">
-                        <div className="w-20 h-20 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500 shadow-inner">
+                        <div className="w-20 h-20 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-6 transition-transform duration-500 shadow-inner">
                             <LayoutGrid className="w-10 h-10 text-brand-pink opacity-50" />
                         </div>
                         <h3 className="text-xl font-bold text-white mb-2">No drops to show</h3>
@@ -101,7 +102,7 @@ export function CollectionList({ drops, userProfile }: CollectionListProps) {
                         </p>
                         <a
                             href="/drops"
-                            className="inline-flex items-center gap-2 px-8 py-3 bg-brand-pink/10 border border-brand-pink/20 text-brand-pink rounded-xl font-bold hover:bg-brand-pink/20 transition-all active:scale-95"
+                            className="inline-flex items-center gap-2 px-8 py-3 bg-brand-pink/10 border border-brand-pink/20 text-brand-pink rounded-xl font-bold transition-all active:scale-95"
                         >
                             Visit Shop
                         </a>

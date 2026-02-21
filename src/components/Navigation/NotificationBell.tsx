@@ -2,7 +2,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Bell, Check, Trash2, Info, CheckCircle, AlertTriangle, XCircle } from "lucide-react";
+import { CandyOutlineIcon as Bell, CandyOutlineIcon as Check, CandyOutlineIcon as Trash2, CandyOutlineIcon as Info, CandyOutlineIcon as CheckCircle, CandyOutlineIcon as AlertTriangle, CandyOutlineIcon as XCircle } from "@/components/ui/Icon";
+
 import { cn } from "@/lib/utils";
 import { useNotifications } from "@/hooks/useNotifications";
 import { formatDistanceToNow } from "date-fns";
@@ -36,7 +37,7 @@ export function NotificationBell() {
         <div className="relative" ref={dropdownRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="relative w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors text-gray-300 hover:text-white"
+                className="relative w-10 h-10 rounded-full flex items-center justify-center transition-colors text-gray-300"
             >
                 <Bell className="w-5 h-5" />
                 {unreadCount > 0 && (
@@ -58,7 +59,7 @@ export function NotificationBell() {
                     {unreadCount > 0 && (
                         <button
                             onClick={markAllAsRead}
-                            className="text-xs text-brand-pink hover:text-white transition-colors font-bold flex items-center gap-1"
+                            className="text-xs text-brand-pink transition-colors font-bold flex items-center gap-1"
                         >
                             <Check className="w-3 h-3" /> Mark all read
                         </button>
@@ -84,7 +85,7 @@ export function NotificationBell() {
                                     // The hook filters, but let's assume if it's in the list it MIGHT be unread.
                                     // Wait, the hook returns ALL notifications, we need to check read status here.
                                     // Let's trust formatting.
-                                    "hover:bg-white/5"
+                                    ""
                                 )}
                             >
                                 {/* Unread Indicator */}
@@ -102,7 +103,7 @@ export function NotificationBell() {
                                         {note.createdAt?.toDate ? formatDistanceToNow(note.createdAt.toDate(), { addSuffix: true }) : 'Just now'}
                                     </p>
                                 </div>
-                                <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="absolute right-2 top-2 opacity-0 transition-opacity">
                                     <div className="w-2 h-2 rounded-full bg-brand-pink" />
                                 </div>
                             </div>

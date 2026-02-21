@@ -2,7 +2,8 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { LogOut, LayoutDashboard, Library, Settings, X, Plus } from "lucide-react";
+import { CandyOutlineIcon as LogOut, CandyOutlineIcon as LayoutDashboard, CandyOutlineIcon as Library, CandyOutlineIcon as Settings, CandyOutlineIcon as X, CandyOutlineIcon as Plus } from "@/components/ui/Icon";
+
 import { useAuthIdentity, useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { cn } from "@/lib/utils";
@@ -67,7 +68,7 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
                                 <p className="text-xs text-gray-400">{user.email}</p>
                             </div>
                         </div>
-                        <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors text-gray-400 hover:text-white">
+                        <button onClick={onClose} className="p-2 rounded-full transition-colors text-gray-400">
                             <X className="w-5 h-5" />
                         </button>
                     </div>
@@ -84,7 +85,7 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
                                     onClose();
                                     openPurchaseModal();
                                 }}
-                                className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-pink to-purple-600 flex items-center justify-center text-white shadow-lg shadow-brand-pink/20 hover:scale-105 active:scale-95 transition-transform"
+                                className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-pink to-purple-600 flex items-center justify-center text-white shadow-lg shadow-brand-pink/20 active:scale-95 transition-transform"
                             >
                                 <Plus className="w-5 h-5" />
                             </button>
@@ -105,7 +106,7 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
                                 logout();
                                 onClose();
                             }}
-                            className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold text-red-500 bg-red-500/10 hover:bg-red-500/20 rounded-xl transition-colors"
+                            className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold text-red-500 bg-red-500/10 rounded-xl transition-colors"
                         >
                             <LogOut className="w-4 h-4" />
                             Sign Out
@@ -122,9 +123,9 @@ function SidebarItem({ href, icon, label, onClick }: { href: string; icon: React
         <Link
             href={href}
             onClick={onClick}
-            className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-all group"
+            className="flex items-center gap-3 px-4 py-3 text-gray-300 rounded-xl transition-all group"
         >
-            <span className="group-hover:text-brand-pink transition-colors">{icon}</span>
+            <span className="transition-colors">{icon}</span>
             <span className="font-medium">{label}</span>
         </Link>
     );

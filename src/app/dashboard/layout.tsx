@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { LayoutDashboard, Library, Settings, LogOut, Menu, X, Loader2 } from "lucide-react";
+import { CandyOutlineIcon as LayoutDashboard, CandyOutlineIcon as Library, CandyOutlineIcon as Settings, CandyOutlineIcon as LogOut, CandyOutlineIcon as Menu, CandyOutlineIcon as X, CandyOutlineIcon as Loader2 } from "@/components/ui/Icon";
+
 import { cn } from "@/lib/utils";
 import { DashboardProfileListener } from "@/components/DashboardProfileListener";
 

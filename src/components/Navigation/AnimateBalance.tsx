@@ -30,6 +30,7 @@ export function AnimateBalance({ balance, className }: AnimateBalanceProps) {
 
         const duration = 500;
         const startTime = performance.now();
+        let animationFrameId: number;
 
         const animate = (currentTime: number) => {
             const elapsed = currentTime - startTime;
@@ -42,14 +43,21 @@ export function AnimateBalance({ balance, className }: AnimateBalanceProps) {
             setDisplayBalance(nextValue);
 
             if (progress < 1) {
-                requestAnimationFrame(animate);
+                animationFrameId = requestAnimationFrame(animate);
             } else {
                 setDisplayBalance(end);
                 prevBalanceRef.current = end;
             }
         };
 
-        requestAnimationFrame(animate);
+        animationFrameId = requestAnimationFrame(animate);
+
+        // Cleanup: cancel the animation frame if the effect re-runs or unmounts
+        return () => {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+        };
     }, [balance]);
 
     return (

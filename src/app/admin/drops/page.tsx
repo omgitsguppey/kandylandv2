@@ -5,7 +5,8 @@ import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
 import { Drop } from "@/types/db";
 import { format } from "date-fns";
-import { Trash2, Edit, Eye, MoreHorizontal, Calendar, Clock, Lock, Package, PlusCircle } from "lucide-react";
+import { CandyOutlineIcon as Trash2, CandyOutlineIcon as Edit, CandyOutlineIcon as Eye, CandyOutlineIcon as MoreHorizontal, CandyOutlineIcon as Calendar, CandyOutlineIcon as Clock, CandyOutlineIcon as Lock, CandyOutlineIcon as Package, CandyOutlineIcon as PlusCircle } from "@/components/ui/Icon";
+
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { authFetch } from "@/lib/authFetch";
@@ -63,7 +64,7 @@ export default function AdminDropsPage() {
                 </div>
                 <Link
                     href="/admin/create"
-                    className="px-5 py-2 rounded-full bg-brand-pink font-bold text-white text-sm hover:bg-brand-pink/80 transition-colors shadow-lg shadow-brand-pink/20 flex items-center gap-2"
+                    className="px-5 py-2 rounded-full bg-brand-pink font-bold text-white text-sm transition-colors shadow-lg shadow-brand-pink/20 flex items-center gap-2"
                 >
                     <div className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center">
                         <PlusCircle className="w-3 h-3" />
@@ -100,7 +101,7 @@ export default function AdminDropsPage() {
                                 }
 
                                 return (
-                                    <tr key={drop.id} className="hover:bg-white/5 transition-colors group">
+                                    <tr key={drop.id} className="transition-colors group">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-12 h-12 rounded-lg bg-zinc-800 overflow-hidden shrink-0 border border-white/10">
@@ -137,17 +138,17 @@ export default function AdminDropsPage() {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <div className="flex items-center justify-end gap-2 opacity-0 transition-opacity">
                                                 <Link
                                                     href={`/admin/create?id=${drop.id}`}
-                                                    className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-brand-cyan transition-colors"
+                                                    className="p-2 rounded-lg text-gray-400 transition-colors"
                                                     title="Edit"
                                                 >
                                                     <Edit className="w-4 h-4" />
                                                 </Link>
                                                 <button
                                                     onClick={() => handleDelete(drop.id)}
-                                                    className="p-2 rounded-lg hover:bg-red-500/10 text-gray-400 hover:text-red-400 transition-colors"
+                                                    className="p-2 rounded-lg text-gray-400 transition-colors"
                                                     title="Delete"
                                                 >
                                                     <Trash2 className="w-4 h-4" />
@@ -203,13 +204,13 @@ export default function AdminDropsPage() {
                                     <div className="flex justify-end gap-2 pt-1">
                                         <Link
                                             href={`/admin/create?id=${drop.id}`}
-                                            className="px-3 py-1.5 rounded-lg bg-white/5 text-gray-300 text-xs font-bold hover:bg-white/10 hover:text-white transition-colors flex items-center gap-1"
+                                            className="px-3 py-1.5 rounded-lg bg-white/5 text-gray-300 text-xs font-bold transition-colors flex items-center gap-1"
                                         >
                                             <Edit className="w-3 h-3" /> Edit
                                         </Link>
                                         <button
                                             onClick={() => handleDelete(drop.id)}
-                                            className="px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 text-xs font-bold hover:bg-red-500/20 transition-colors flex items-center gap-1"
+                                            className="px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 text-xs font-bold transition-colors flex items-center gap-1"
                                         >
                                             <Trash2 className="w-3 h-3" />
                                         </button>

@@ -1,7 +1,8 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
-import { Play, Lock } from "lucide-react";
+import { CandyOutlineIcon as Play, CandyOutlineIcon as Lock } from "@/components/ui/Icon";
+
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import { Drop } from "@/types/db";
@@ -54,7 +55,7 @@ export function LibraryClient({ drops }: LibraryClientProps) {
                         You haven't unlocked any drops yet. Visit the home page to start your collection.
                     </p>
                     <Link href="/">
-                        <Button variant="brand" className="px-8 py-3 rounded-full text-lg shadow-[0_0_20px_rgba(236,72,153,0.3)] hover:shadow-[0_0_30px_rgba(236,72,153,0.5)]">
+                        <Button variant="brand" className="px-8 py-3 rounded-full text-lg shadow-[0_0_20px_rgba(236,72,153,0.3)] _0_30px_rgba(236,72,153,0.5)]">
                             Browse Drops
                         </Button>
                     </Link>
@@ -66,14 +67,14 @@ export function LibraryClient({ drops }: LibraryClientProps) {
                             key={drop.id}
                         >
                             <Link href={`/dashboard/viewer?id=${drop.id}`} className="block group">
-                                <div className="relative aspect-video rounded-2xl overflow-hidden mb-4 border border-white/10 group-hover:border-brand-pink/50 transition-colors">
+                                <div className="relative aspect-video rounded-2xl overflow-hidden mb-4 border border-white/10 transition-colors">
                                     {/* Thumbnail */}
                                     {drop.imageUrl ? (
                                         <NextImage
                                             src={drop.imageUrl}
                                             alt={drop.title}
                                             fill
-                                            className="object-cover transition-transform duration-500 group-hover:scale-105"
+                                            className="object-cover transition-transform duration-500"
                                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                         />
                                     ) : (
@@ -83,14 +84,14 @@ export function LibraryClient({ drops }: LibraryClientProps) {
                                     )}
 
                                     {/* Play Overlay */}
-                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
-                                        <div className="w-12 h-12 rounded-full bg-brand-pink flex items-center justify-center shadow-lg shadow-brand-pink/20 scale-90 group-hover:scale-100 transition-transform">
+                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 transition-opacity backdrop-blur-sm">
+                                        <div className="w-12 h-12 rounded-full bg-brand-pink flex items-center justify-center shadow-lg shadow-brand-pink/20 scale-90 transition-transform">
                                             <Play className="w-5 h-5 text-white fill-current ml-0.5" />
                                         </div>
                                     </div>
                                 </div>
 
-                                <h3 className="text-lg font-bold text-white group-hover:text-brand-pink transition-colors line-clamp-1">{drop.title}</h3>
+                                <h3 className="text-lg font-bold text-white transition-colors line-clamp-1">{drop.title}</h3>
                                 <p className="text-sm text-gray-400 line-clamp-1">{drop.description}</p>
                             </Link>
                         </div>

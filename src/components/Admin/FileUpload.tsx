@@ -3,7 +3,8 @@
 import { useState, useRef } from "react";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from "@/lib/firebase-data";
-import { Upload, X, Loader2, FileType, Image as ImageIcon } from "lucide-react";
+import { CandyOutlineIcon as Upload, CandyOutlineIcon as X, CandyOutlineIcon as Loader2, CandyOutlineIcon as FileType, CandyOutlineIcon as ImageIcon } from "@/components/ui/Icon";
+
 import { cn } from "@/lib/utils";
 
 interface FileUploadProps {
@@ -102,7 +103,7 @@ export function FileUpload({ label, folder, onUploadComplete, initialUrl, accept
                 className={cn(
                     "relative group cursor-pointer transition-all duration-200 ease-in-out",
                     "border-2 border-dashed rounded-xl p-4 flex flex-col items-center justify-center text-center",
-                    dragActive ? "border-brand-pink bg-brand-pink/5" : "border-white/10 hover:border-white/20 hover:bg-white/5",
+                    dragActive ? "border-brand-pink bg-brand-pink/5" : "border-white/10  ",
                     previewUrl ? "h-64" : "h-32"
                 )}
                 onDragEnter={handleDrag}
@@ -147,13 +148,13 @@ export function FileUpload({ label, folder, onUploadComplete, initialUrl, accept
 
                         <button
                             onClick={clearFile}
-                            className="absolute -top-2 -right-2 p-1.5 bg-red-500 rounded-full text-white shadow-lg hover:bg-red-600 transition-transform hover:scale-110"
+                            className="absolute -top-2 -right-2 p-1.5 bg-red-500 rounded-full text-white shadow-lg transition-transform"
                             title="Remove file"
                         >
                             <X className="w-4 h-4" />
                         </button>
 
-                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
+                        <div className="absolute inset-0 bg-black/60 opacity-0 transition-opacity flex items-center justify-center rounded-lg">
                             <p className="text-white font-bold text-sm">Click to Replace</p>
                         </div>
                     </div>

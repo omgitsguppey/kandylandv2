@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { X, Mail, Lock, User, Calendar, AlertCircle, Loader2 } from "lucide-react";
+import { CandyOutlineIcon as X, CandyOutlineIcon as Mail, CandyOutlineIcon as Lock, CandyOutlineIcon as User, CandyOutlineIcon as Calendar, CandyOutlineIcon as AlertCircle, CandyOutlineIcon as Loader2 } from "@/components/ui/Icon";
+
 import { useAuth } from "@/context/AuthContext";
 import { differenceInYears, parseISO } from "date-fns";
 
@@ -116,7 +117,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                         </h2>
                         <button
                             onClick={onClose}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-white rounded-full hover:bg-white/5 transition-colors"
+                            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-gray-400 rounded-full transition-colors"
                         >
                             <X className="w-5 h-5" />
                         </button>
@@ -128,7 +129,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                         <button
                             onClick={handleGoogleSignIn}
                             disabled={isLoading}
-                            className="w-full flex items-center justify-center gap-3 py-3 bg-white text-black rounded-xl font-bold hover:bg-gray-200 transition-colors disabled:opacity-50"
+                            className="w-full flex items-center justify-center gap-3 py-3 bg-white text-black rounded-xl font-bold transition-colors disabled:opacity-50"
                         >
                             {isLoading ? (
                                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -244,7 +245,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className="w-full py-3 bg-gradient-to-r from-brand-pink to-brand-purple rounded-xl text-white font-bold shadow-lg shadow-brand-pink/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:hover:scale-100"
+                                className="w-full py-3 bg-gradient-to-r from-brand-pink to-brand-purple rounded-xl text-white font-bold shadow-lg shadow-brand-pink/20 active:scale-[0.98] transition-all disabled:opacity-50 disabled:"
                             >
                                 {isLoading ? (
                                     <Loader2 className="w-5 h-5 animate-spin mx-auto" />
@@ -263,7 +264,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                                     Don't have an account?{" "}
                                     <button
                                         onClick={() => switchMode("signup")}
-                                        className="text-brand-pink hover:underline font-medium"
+                                        className="text-brand-pink font-medium"
                                     >
                                         Sign up
                                     </button>
@@ -273,7 +274,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                                     Already have an account?{" "}
                                     <button
                                         onClick={() => switchMode("signin")}
-                                        className="text-brand-pink hover:underline font-medium"
+                                        className="text-brand-pink font-medium"
                                     >
                                         Sign in
                                     </button>

@@ -3,16 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useAuthIdentity, useAuth } from "@/context/AuthContext";
-import {
-    LayoutDashboard,
-    Package,
-    PlusCircle,
-    Users,
-    Terminal,
-    LogOut,
-    ShieldCheck,
-    Shield
-} from "lucide-react";
+import { CandyOutlineIcon as LayoutDashboard, CandyOutlineIcon as Package, CandyOutlineIcon as PlusCircle, CandyOutlineIcon as Users, CandyOutlineIcon as Terminal, CandyOutlineIcon as LogOut, CandyOutlineIcon as ShieldCheck, CandyOutlineIcon as Shield } from "@/components/ui/Icon";
+
 import { cn } from "@/lib/utils";
 
 export function AdminDropdown() {
@@ -53,7 +45,7 @@ export function AdminDropdown() {
                     "flex items-center gap-2 px-3 py-1.5 rounded-full transition-all border",
                     isOpen
                         ? "bg-brand-cyan/20 text-brand-cyan border-brand-cyan/30 shadow-[0_0_15px_rgba(6,182,212,0.3)]"
-                        : "bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white"
+                        : "bg-white/5 text-gray-400 border-white/5  "
                 )}
             >
                 <ShieldCheck className="w-4 h-4" />
@@ -80,9 +72,9 @@ export function AdminDropdown() {
                             key={item.href}
                             href={item.href}
                             onClick={() => setIsOpen(false)}
-                            className="flex items-center gap-3 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 rounded-xl transition-all group"
+                            className="flex items-center gap-3 px-3 py-2 text-sm text-gray-300 rounded-xl transition-all group"
                         >
-                            <item.icon className="w-4 h-4 text-gray-400 group-hover:text-brand-cyan transition-colors" />
+                            <item.icon className="w-4 h-4 text-gray-400 transition-colors" />
                             {item.label}
                         </Link>
                     ))}
@@ -94,7 +86,7 @@ export function AdminDropdown() {
                             logout();
                             setIsOpen(false);
                         }}
-                        className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-xl transition-colors"
+                        className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-400 rounded-xl transition-colors"
                     >
                         <LogOut className="w-4 h-4" />
                         Sign Out

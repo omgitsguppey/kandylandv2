@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { User, Calendar, Camera, Check, ShieldCheck, ArrowRight, Sparkles, Loader2 } from "lucide-react";
+import { CandyOutlineIcon as User, CandyOutlineIcon as Calendar, CandyOutlineIcon as Camera, CandyOutlineIcon as Check, CandyOutlineIcon as ShieldCheck, CandyOutlineIcon as ArrowRight, CandyOutlineIcon as Sparkles, CandyOutlineIcon as Loader2 } from "@/components/ui/Icon";
+
 import { useAuth } from "@/context/AuthContext";
 import { storage } from "@/lib/firebase-data";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -219,7 +220,7 @@ export function OnboardingModal() {
                                                 <User className="w-10 h-10 text-gray-500" />
                                             )}
                                         </div>
-                                        <label className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-full">
+                                        <label className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity cursor-pointer rounded-full">
                                             <Camera className="w-6 h-6 text-white" />
                                             <input type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" />
                                         </label>
@@ -233,10 +234,7 @@ export function OnboardingModal() {
                                         <input
                                             {...register("username")}
                                             type="text"
-                                            className={`w-full bg-black/50 border rounded-xl px-8 py-3 text-white focus:outline-none transition-all ${errors.username ? "border-red-500" :
-                                                usernameAvailable === true ? "border-green-500/50 focus:border-green-500" :
-                                                    "border-white/10 focus:border-brand-pink"
-                                                }`}
+                                            className={`w-full bg-black/50 border rounded-xl px-8 py-3 text-white focus:outline-none transition-all ${errors.username ? "border-red-500" : usernameAvailable === true ? "border-green-500/50 focus:border-green-500" : "border-white/10 focus:border-brand-pink" }`}
                                             placeholder="username"
                                         />
                                         {checkingUsername && (
@@ -257,7 +255,7 @@ export function OnboardingModal() {
                             <button
                                 type="button"
                                 onClick={nextStep}
-                                className="w-full py-4 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+                                className="w-full py-4 bg-white text-black font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
                             >
                                 Next Step <ArrowRight className="w-4 h-4" />
                             </button>
@@ -291,7 +289,7 @@ export function OnboardingModal() {
                             <button
                                 type="button"
                                 onClick={nextStep}
-                                className="w-full py-4 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors"
+                                className="w-full py-4 bg-white text-black font-bold rounded-xl transition-colors"
                             >
                                 Continue
                             </button>
@@ -312,7 +310,7 @@ export function OnboardingModal() {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full py-4 bg-gradient-to-r from-brand-pink to-brand-purple text-white font-bold rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                className="w-full py-4 bg-gradient-to-r from-brand-pink to-brand-purple text-white font-bold rounded-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                             >
                                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Complete Setup"}
                             </button>

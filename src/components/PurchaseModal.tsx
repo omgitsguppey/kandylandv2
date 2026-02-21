@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { PayPalButtons, usePayPalScriptReducer, SCRIPT_LOADING_STATE, DISPATCH_ACTION } from "@paypal/react-paypal-js";
-import { X, Candy } from "lucide-react";
+import { CandyOutlineIcon as X, CandyOutlineIcon as Candy } from "@/components/ui/Icon";
+
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -131,7 +132,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                     setSuccess(false);
                                     onClose();
                                 }}
-                                className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors z-20"
+                                className="absolute top-4 right-4 p-2 rounded-full text-gray-400 transition-colors z-20"
                             >
                                 <X className="w-5 h-5" />
                             </button>
@@ -161,7 +162,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                                         "relative p-4 rounded-2xl text-left border",
                                                         isSelected
                                                             ? "bg-brand-pink/10 border-brand-pink/50 ring-1 ring-brand-pink/30 shadow-[0_0_20px_rgba(236,72,153,0.15)] scale-[1.02]"
-                                                            : "bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10"
+                                                            : "bg-white/5 border-white/5  "
                                                     )}
                                                 >
                                                     {isPopular && (
@@ -216,7 +217,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                             }}
                                         />
                                         <div className="text-[10px] text-gray-500 text-center mt-4 leading-tight">
-                                            By purchasing, you agree to our <a href="/terms" target="_blank" className="underline hover:text-white">Terms</a> and <a href="/privacy" target="_blank" className="underline hover:text-white">Privacy Policy</a>. Gum Drops are virtual items with no monetary value outside this platform.
+                                            By purchasing, you agree to our <a href="/terms" target="_blank" className="underline">Terms</a> and <a href="/privacy" target="_blank" className="underline">Privacy Policy</a>. Gum Drops are virtual items with no monetary value outside this platform.
                                         </div>
                                     </div>
 
@@ -245,7 +246,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                             setSuccess(false);
                                             onClose();
                                         }}
-                                        className="w-full py-3 rounded-xl font-bold bg-white text-black hover:bg-gray-100 transition-colors"
+                                        className="w-full py-3 rounded-xl font-bold bg-white text-black transition-colors"
                                     >
                                         Awesome
                                     </button>

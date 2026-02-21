@@ -3,7 +3,8 @@
 import { Drop } from "@/types/db";
 import NextImage from "next/image";
 import { formatDistanceToNow } from "date-fns";
-import { Lock, Unlock, Download, Share2, Eye, Clock } from "lucide-react";
+import { CandyOutlineIcon as Lock, CandyOutlineIcon as Unlock, CandyOutlineIcon as Download, CandyOutlineIcon as Share2, CandyOutlineIcon as Eye, CandyOutlineIcon as Clock } from "@/components/ui/Icon";
+
 import { cn } from "@/lib/utils";
 import { memo } from "react";
 import { toast } from "sonner";
@@ -24,7 +25,7 @@ function DashboardDropCardBase({ drop, isUnlocked, onClick }: DashboardDropCardP
 
     return (
         <div
-            className="group relative bg-white/5 border border-white/5 rounded-2xl overflow-hidden hover:bg-white/10 transition-colors"
+            className="group relative bg-white/5 border border-white/5 rounded-2xl overflow-hidden transition-colors"
             onClick={onClick}
         >
             {/* Top: Thumbnail & Status */}
@@ -34,7 +35,7 @@ function DashboardDropCardBase({ drop, isUnlocked, onClick }: DashboardDropCardP
                         src={drop.imageUrl}
                         alt={drop.title}
                         fill
-                        className="object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                        className="object-cover opacity-80 transition-opacity"
                         sizes="(max-width: 768px) 100vw, 33vw"
                     />
                 ) : (
@@ -83,14 +84,14 @@ function DashboardDropCardBase({ drop, isUnlocked, onClick }: DashboardDropCardP
                             <Link
                                 href={`/dashboard/viewer?id=${drop.id}`}
                                 onClick={(e) => e.stopPropagation()}
-                                className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-brand-cyan/10 text-brand-cyan text-xs font-bold hover:bg-brand-cyan/20 transition-colors border border-brand-cyan/20"
+                                className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-brand-cyan/10 text-brand-cyan text-xs font-bold transition-colors border border-brand-cyan/20"
                             >
                                 <Eye className="w-3.5 h-3.5" /> View
                             </Link>
                             <Link
                                 href={`/dashboard/viewer?id=${drop.id}`}
                                 onClick={(e) => e.stopPropagation()}
-                                className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-white/5 text-gray-300 text-xs font-bold hover:bg-white/10 transition-colors border border-white/5"
+                                className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-white/5 text-gray-300 text-xs font-bold transition-colors border border-white/5"
                             >
                                 <Download className="w-3.5 h-3.5" /> Save
                             </Link>
@@ -103,7 +104,7 @@ function DashboardDropCardBase({ drop, isUnlocked, onClick }: DashboardDropCardP
                     )}
                     <button
                         onClick={handleShare}
-                        className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+                        className="p-2 rounded-lg text-gray-400 transition-colors"
                         title="Share"
                     >
                         <Share2 className="w-3.5 h-3.5" />

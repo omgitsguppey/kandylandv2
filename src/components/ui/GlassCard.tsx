@@ -21,7 +21,7 @@ const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
                 className={cn(
                     "rounded-3xl relative overflow-hidden",
                     intensity === "medium" ? "glass-panel" : intensities[intensity],
-                    hoverEffect && "hover:bg-white/10 transition-colors cursor-pointer",
+                    hoverEffect && " transition-colors cursor-pointer",
                     className
                 )}
                 {...props}

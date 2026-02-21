@@ -5,7 +5,8 @@ import { UserProfile } from "@/types/db";
 import { adjustUserBalance } from "@/lib/firebase/admin-actions";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/Button";
-import { Loader2, AlertCircle } from "lucide-react";
+import { CandyOutlineIcon as Loader2, CandyOutlineIcon as AlertCircle } from "@/components/ui/Icon";
+
 import { toast } from "sonner";
 
 interface Props {

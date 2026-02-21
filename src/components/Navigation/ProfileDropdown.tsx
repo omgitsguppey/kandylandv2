@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { User, LogOut, LayoutDashboard, Library, Settings, ChevronDown } from "lucide-react";
+import { CandyOutlineIcon as User, CandyOutlineIcon as LogOut, CandyOutlineIcon as LayoutDashboard, CandyOutlineIcon as Library, CandyOutlineIcon as Settings, CandyOutlineIcon as ChevronDown } from "@/components/ui/Icon";
+
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 
@@ -30,7 +31,7 @@ export function ProfileDropdown() {
         <div className="relative" ref={dropdownRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full hover:bg-white/10 transition-colors border border-transparent hover:border-white/10"
+                className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full transition-colors border border-transparent"
             >
                 <div className="relative">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-brand-pink to-brand-purple flex items-center justify-center text-white font-bold text-sm shadow-md">
@@ -79,7 +80,7 @@ export function ProfileDropdown() {
                                 logout();
                                 setIsOpen(false);
                             }}
-                            className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-xl transition-colors"
+                            className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-400 rounded-xl transition-colors"
                         >
                             <LogOut className="w-4 h-4" />
                             Sign Out
@@ -96,9 +97,9 @@ function DropdownItem({ href, icon, label, onClick }: { href: string; icon: Reac
         <Link
             href={href}
             onClick={onClick}
-            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/10 rounded-xl transition-all group"
+            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 rounded-xl transition-all group"
         >
-            <span className="group-hover:text-brand-pink transition-colors">{icon}</span>
+            <span className="transition-colors">{icon}</span>
             {label}
         </Link>
     );

@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { collection, query, orderBy, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
 import { UserProfile } from "@/types/db";
-import { Loader2, Search, Shield, Ban, CheckCircle, AlertTriangle, Edit2, Lock, Plus } from "lucide-react";
+import { CandyOutlineIcon as Loader2, CandyOutlineIcon as Search, CandyOutlineIcon as Shield, CandyOutlineIcon as Ban, CandyOutlineIcon as CheckCircle, CandyOutlineIcon as AlertTriangle, CandyOutlineIcon as Edit2, CandyOutlineIcon as Lock, CandyOutlineIcon as Plus } from "@/components/ui/Icon";
+
 import { Button } from "@/components/ui/Button";
 import { format } from "date-fns";
 import { BalanceAdjustmentModal } from "@/components/Admin/BalanceAdjustmentModal";
@@ -222,7 +223,7 @@ export default function UserManagementPage() {
                                 </tr>
                             ) : (
                                 filteredUsers.map((user) => (
-                                    <tr key={user.uid} className="hover:bg-white/5 transition-colors">
+                                    <tr key={user.uid} className="transition-colors">
                                         <td className="p-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-lg font-bold text-gray-500 overflow-hidden">
@@ -242,10 +243,7 @@ export default function UserManagementPage() {
                                             </div>
                                         </td>
                                         <td className="p-4">
-                                            <span className={`px-2 py-1 rounded-full text-xs font-bold border capitalize ${user.role === 'admin' ? "bg-red-500/10 text-red-400 border-red-500/20" :
-                                                user.role === 'creator' ? "bg-purple-500/10 text-purple-400 border-purple-500/20" :
-                                                    "bg-gray-500/10 text-gray-400 border-gray-500/20"
-                                                }`}>
+                                            <span className={`px-2 py-1 rounded-full text-xs font-bold border capitalize ${user.role === 'admin' ? "bg-red-500/10 text-red-400 border-red-500/20" : user.role === 'creator' ? "bg-purple-500/10 text-purple-400 border-purple-500/20" : "bg-gray-500/10 text-gray-400 border-gray-500/20" }`}>
                                                 {user.role || 'user'}
                                             </span>
                                         </td>
@@ -259,7 +257,7 @@ export default function UserManagementPage() {
                                                 {user.gumDropsBalance} 🍬
                                                 <button
                                                     onClick={() => setEditBalanceUser(user)}
-                                                    className="p-1 rounded-md hover:bg-white/10 text-gray-500 hover:text-white transition-colors"
+                                                    className="p-1 rounded-md text-gray-500 transition-colors"
                                                     title="Edit Balance"
                                                 >
                                                     <Edit2 className="w-3 h-3" />
@@ -273,11 +271,11 @@ export default function UserManagementPage() {
                                             <div className="flex items-center justify-end gap-1">
                                                 {/* Role Toggles - Compact */}
                                                 {user.role !== 'creator' && (
-                                                    <button onClick={() => handleRoleUpdate(user.uid, 'creator')} className="p-1.5 hover:bg-purple-500/20 text-gray-400 hover:text-purple-400 rounded transition-colors" title="Promote"><Plus className="w-3 h-3" /></button>
+                                                    <button onClick={() => handleRoleUpdate(user.uid, 'creator')} className="p-1.5 text-gray-400 rounded transition-colors" title="Promote"><Plus className="w-3 h-3" /></button>
                                                 )}
                                                 <button
                                                     onClick={() => handleVerification(user.uid, !user.isVerified)}
-                                                    className={`p-1.5 rounded transition-colors ${user.isVerified ? "text-brand-cyan hover:bg-red-500/10 hover:text-red-400" : "text-gray-400 hover:text-brand-cyan"}`}
+                                                    className={`p-1.5 rounded transition-colors ${user.isVerified ? "text-brand-cyan " : "text-gray-400 "}`}
                                                     title="Verify"
                                                 >
                                                     <CheckCircle className="w-3 h-3" />
@@ -289,14 +287,14 @@ export default function UserManagementPage() {
                                                     <>
                                                         <button
                                                             onClick={() => { setActionUser(user); setActionType('suspend'); }}
-                                                            className="p-1.5 rounded hover:bg-orange-500/20 text-gray-400 hover:text-orange-500 transition-colors"
+                                                            className="p-1.5 rounded text-gray-400 transition-colors"
                                                             title="Suspend"
                                                         >
                                                             <AlertTriangle className="w-3 h-3" />
                                                         </button>
                                                         <button
                                                             onClick={() => { setActionUser(user); setActionType('ban'); }}
-                                                            className="p-1.5 rounded hover:bg-red-500/20 text-gray-400 hover:text-red-500 transition-colors"
+                                                            className="p-1.5 rounded text-gray-400 transition-colors"
                                                             title="Ban"
                                                         >
                                                             <Ban className="w-3 h-3" />
@@ -305,7 +303,7 @@ export default function UserManagementPage() {
                                                 ) : (
                                                     <button
                                                         onClick={() => { setActionUser(user); setActionType('activate'); }}
-                                                        className="p-1.5 rounded hover:bg-green-500/20 text-green-500 transition-colors"
+                                                        className="p-1.5 rounded text-green-500 transition-colors"
                                                         title="Reactivate"
                                                     >
                                                         <CheckCircle className="w-3 h-3" />
@@ -314,7 +312,7 @@ export default function UserManagementPage() {
 
                                                 <button
                                                     onClick={() => setContentUser(user)}
-                                                    className="p-1.5 rounded hover:bg-brand-purple/20 text-gray-400 hover:text-brand-purple transition-colors"
+                                                    className="p-1.5 rounded text-gray-400 transition-colors"
                                                     title="Content"
                                                 >
                                                     <Lock className="w-3 h-3" />
@@ -360,10 +358,7 @@ export default function UserManagementPage() {
                                 </div>
 
                                 <div className="flex items-center justify-between text-xs">
-                                    <span className={`px-1.5 py-0.5 rounded border capitalize ${user.role === 'admin' ? "bg-red-500/10 text-red-400 border-red-500/20" :
-                                        user.role === 'creator' ? "bg-purple-500/10 text-purple-400 border-purple-500/20" :
-                                            "bg-gray-500/10 text-gray-400 border-gray-500/20"
-                                        }`}>
+                                    <span className={`px-1.5 py-0.5 rounded border capitalize ${user.role === 'admin' ? "bg-red-500/10 text-red-400 border-red-500/20" : user.role === 'creator' ? "bg-purple-500/10 text-purple-400 border-purple-500/20" : "bg-gray-500/10 text-gray-400 border-gray-500/20" }`}>
                                         {user.role || 'user'}
                                     </span>
                                     <div className="font-mono text-brand-pink flex items-center gap-1">
@@ -455,7 +450,7 @@ export default function UserManagementPage() {
                                                 <button
                                                     onClick={() => handleManageContent('remove', dropId)}
                                                     disabled={contentActionProcessing}
-                                                    className="p-1 hover:text-red-500 transition-colors"
+                                                    className="p-1 transition-colors"
                                                     title="Revoke Access"
                                                 >
                                                     <Ban className="w-3 h-3" />

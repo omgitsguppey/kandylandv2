@@ -22,56 +22,56 @@ export async function POST(request: NextRequest) {
         const userRef = adminDb.collection("users").doc(userId);
         const dropRef = adminDb.collection("drops").doc(dropId);
 
-        // 1 & 3. Parallel fetch user and drop data
-        const [userSnap, dropSnap] = await Promise.all([
-            userRef.get(),
-            dropRef.get()
-        ]);
-
-
-        if (!userSnap.exists) {
-            return NextResponse.json({ error: "User not found" }, { status: 404 });
-        }
+        // 1. Fetch drop data (doesn't need to be strictly in the transaction lock)
+        const dropSnap = await dropRef.get();
         if (!dropSnap.exists) {
             return NextResponse.json({ error: "Drop not found" }, { status: 404 });
         }
 
-        const userData = userSnap.data()!;
         const dropData = dropSnap.data()!;
         const unlockCost = dropData.unlockCost || 0;
 
+        // 2. Run Atomic Transaction to prevent race conditions (e.g. double spending)
+        const result = await adminDb.runTransaction(async (transaction) => {
+            // A. Read user within the transaction lock
+            const userSnap = await transaction.get(userRef);
+            if (!userSnap.exists) {
+                throw new Error("User not found");
+            }
 
-        // 4. Check balance
-        const balance = userData.gumDropsBalance || 0;
-        if (balance < unlockCost) {
-            return NextResponse.json({ error: "Not enough Gum Drops", required: unlockCost, balance }, { status: 402 });
-        }
+            const userData = userSnap.data()!;
+            const balance = userData.gumDropsBalance || 0;
 
-        // 5. Atomic batch: deduct balance + add unlock + record transaction
-        const batch = adminDb.batch();
+            // B. Validate balance
+            if (balance < unlockCost) {
+                // We throw a specific structured error to catch and return a 402
+                throw new Error(`INSUFFICIENT_FUNDS:${unlockCost}:${balance}`);
+            }
 
-        batch.update(userRef, {
-            gumDropsBalance: FieldValue.increment(-unlockCost),
-            unlockedContent: FieldValue.arrayUnion(dropId),
+            // C. Perform Writes Atomically
+            transaction.update(userRef, {
+                gumDropsBalance: FieldValue.increment(-unlockCost),
+                unlockedContent: FieldValue.arrayUnion(dropId),
+            });
+
+            const transactionRef = adminDb.collection("transactions").doc();
+            transaction.set(transactionRef, {
+                userId,
+                type: "unlock_content",
+                amount: -unlockCost,
+                relatedDropId: dropId,
+                description: `Unlocked: ${dropData.title}`,
+                timestamp: FieldValue.serverTimestamp(),
+                verifiedServerSide: true,
+            });
+
+            // Increment totalUnlocks on the drop
+            transaction.update(dropRef, {
+                totalUnlocks: FieldValue.increment(1),
+            });
+
+            return { newBalance: balance - unlockCost };
         });
-
-        const transactionRef = adminDb.collection("transactions").doc();
-        batch.set(transactionRef, {
-            userId,
-            type: "unlock_content",
-            amount: -unlockCost,
-            relatedDropId: dropId,
-            description: `Unlocked: ${dropData.title}`,
-            timestamp: FieldValue.serverTimestamp(),
-            verifiedServerSide: true,
-        });
-
-        // Increment totalUnlocks on the drop
-        batch.update(dropRef, {
-            totalUnlocks: FieldValue.increment(1),
-        });
-
-        await batch.commit();
 
         console.log(`✅ Unlock verified: ${dropData.title} for user ${userId} (-${unlockCost} GD)`);
 
@@ -79,9 +79,22 @@ export async function POST(request: NextRequest) {
             success: true,
             title: dropData.title,
             cost: unlockCost,
-            newBalance: balance - unlockCost,
+            newBalance: result.newBalance,
         });
-    } catch (error) {
+    } catch (error: any) {
+        // Handle specific transaction errors
+        if (error.message && error.message.startsWith("INSUFFICIENT_FUNDS:")) {
+            const parts = error.message.split(":");
+            return NextResponse.json({
+                error: "Not enough Gum Drops",
+                required: parseInt(parts[1], 10),
+                balance: parseInt(parts[2], 10)
+            }, { status: 402 });
+        }
+        if (error.message === "User not found") {
+            return NextResponse.json({ error: "User not found" }, { status: 404 });
+        }
+
         return handleApiError(error, "Drops.Unlock");
     }
 }

@@ -3,7 +3,8 @@
 import { useUI } from "@/context/UIContext";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/Button";
-import { Coins, X, AlertCircle } from "lucide-react";
+import { CandyOutlineIcon as Coins, CandyOutlineIcon as X, CandyOutlineIcon as AlertCircle } from "@/components/ui/Icon";
+
 import { motion, AnimatePresence } from "framer-motion";
 
 export function InsufficientBalanceModal() {
@@ -47,7 +48,7 @@ export function InsufficientBalanceModal() {
                     <div className="p-6 text-center">
                         <button
                             onClick={closeInsufficientBalanceModal}
-                            className="absolute top-4 right-4 p-2 text-gray-500 hover:text-white transition-colors"
+                            className="absolute top-4 right-4 p-2 text-gray-500 transition-colors"
                         >
                             <X className="w-5 h-5" />
                         </button>
@@ -82,7 +83,7 @@ export function InsufficientBalanceModal() {
                             </Button>
                             <button
                                 onClick={closeInsufficientBalanceModal}
-                                className="w-full py-3 text-sm text-gray-500 hover:text-white transition-colors font-medium"
+                                className="w-full py-3 text-sm text-gray-500 transition-colors font-medium"
                             >
                                 Maybe later
                             </button>

@@ -1,7 +1,8 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
-import { Ban, LogOut } from "lucide-react";
+import { CandyOutlineIcon as Ban, CandyOutlineIcon as LogOut } from "@/components/ui/Icon";
+
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -44,7 +45,7 @@ export default function BannedPage() {
 
                 <button
                     onClick={() => logout().then(() => router.push("/"))}
-                    className="w-full py-4 rounded-xl bg-white text-black font-bold hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+                    className="w-full py-4 rounded-xl bg-white text-black font-bold transition-colors flex items-center justify-center gap-2"
                 >
                     <LogOut className="w-5 h-5" />
                     Sign Out

@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { Button } from "@/components/ui/Button";
-import { CandyIcon } from "@/components/ui/Icon";
+import { CandyOutlineIcon } from "@/components/ui/Icon";
 import Link from "next/link";
 import { useAuthIdentity } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
@@ -24,8 +24,7 @@ export default function Hero() {
             <div className="relative z-10 text-center w-full max-w-7xl mx-auto px-4 md:px-8">
                 <div className="mb-4 md:mb-8 flex justify-center">
                     <div className="p-4 md:p-8 relative">
-                        <div className="absolute inset-0 bg-white/5 rounded-full blur-3xl"></div>
-                        <CandyIcon size="xl" className="drop-shadow-[0_0_30px_rgba(255,255,255,0.3)] scale-75 md:scale-100" />
+                        <CandyOutlineIcon className="w-24 h-24 text-brand-purple drop-shadow-[0_0_30px_rgba(178,140,255,0.4)] md:scale-125" />
                     </div>
                 </div>
 
@@ -58,7 +57,7 @@ export default function Hero() {
                             Unwrap Now
                         </Button>
                     )}
-                    <Button size="lg" variant="glass" className="rounded-full px-8 py-3 w-full sm:w-auto text-base md:text-lg hover:bg-white/10">
+                    <Button size="lg" variant="glass" className="rounded-full px-8 py-3 w-full sm:w-auto text-base md:text-lg">
                         What&apos;s a KandyDrop?
                     </Button>
                 </div>

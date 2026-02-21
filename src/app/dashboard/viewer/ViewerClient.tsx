@@ -4,7 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { ArrowLeft, Lock, ShieldCheck, Heart, Share2, Download, Loader2 } from "lucide-react";
+import { CandyOutlineIcon as ArrowLeft, CandyOutlineIcon as Lock, CandyOutlineIcon as ShieldCheck, CandyOutlineIcon as Heart, CandyOutlineIcon as Share2, CandyOutlineIcon as Download, CandyOutlineIcon as Loader2 } from "@/components/ui/Icon";
+
 import { toast } from "sonner";
 import { Drop } from "@/types/db";
 import NextImage from "next/image";
@@ -158,7 +159,7 @@ export function ViewerClient({ drop }: ViewerClientProps) {
         return (
             <div className="text-center py-20 pt-32">
                 <h2 className="text-xl font-bold text-white mb-2">Drop Not Found</h2>
-                <Link href="/dashboard/library" className="text-brand-pink hover:underline">Back to Library</Link>
+                <Link href="/dashboard/library" className="text-brand-pink">Back to Library</Link>
             </div>
         );
     }
@@ -175,7 +176,7 @@ export function ViewerClient({ drop }: ViewerClientProps) {
                 </p>
                 <Link
                     href="/"
-                    className="px-6 py-3 rounded-full bg-white text-black font-bold hover:bg-gray-200 transition-colors"
+                    className="px-6 py-3 rounded-full bg-white text-black font-bold transition-colors"
                 >
                     Go to Marketplace
                 </Link>
@@ -194,7 +195,7 @@ export function ViewerClient({ drop }: ViewerClientProps) {
                 <div className="absolute top-4 left-4 z-20">
                     <Link
                         href="/dashboard"
-                        className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/50 backdrop-blur-md text-white/80 hover:text-white hover:bg-black/70 transition-all border border-white/10 text-sm font-medium"
+                        className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/50 backdrop-blur-md text-white/80 transition-all border border-white/10 text-sm font-medium"
                     >
                         <ArrowLeft className="w-4 h-4" />
                         <span className="hidden md:inline">Library</span>
@@ -264,6 +265,23 @@ export function ViewerClient({ drop }: ViewerClientProps) {
                                         />
                                     </div>
                                 );
+                            } else if (fileType === "application/pdf") {
+                                return (
+                                    <div className="w-full h-[85vh] bg-white rounded-md overflow-hidden">
+                                        <object
+                                            data={contentBlobUrl}
+                                            type="application/pdf"
+                                            className="w-full h-full"
+                                        >
+                                            <p className="p-4 text-black text-center">
+                                                Your browser doesn't support built-in PDF viewing.
+                                                <a href={contentBlobUrl} className="text-brand-purple ml-2 underline" download>
+                                                    Download Instead
+                                                </a>
+                                            </p>
+                                        </object>
+                                    </div>
+                                );
                             } else {
                                 return (
                                     <div className="text-center p-10">
@@ -306,11 +324,11 @@ export function ViewerClient({ drop }: ViewerClientProps) {
                     <div className="flex flex-col gap-3 w-full md:w-auto min-w-[200px]">
                         {/* Primary Actions Row */}
                         <div className="flex items-center gap-2">
-                            <button className="flex-1 px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold transition-colors flex items-center justify-center gap-2 border border-white/5">
+                            <button className="flex-1 px-4 py-3 rounded-xl bg-white/10 text-white font-bold transition-colors flex items-center justify-center gap-2 border border-white/5">
                                 <Heart className="w-5 h-5" /> <span className="text-sm">Like</span>
                             </button>
                             <button
-                                className="flex-1 px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold transition-colors flex items-center justify-center gap-2 border border-white/5"
+                                className="flex-1 px-4 py-3 rounded-xl bg-white/10 text-white font-bold transition-colors flex items-center justify-center gap-2 border border-white/5"
                                 onClick={() => {
                                     navigator.clipboard.writeText(window.location.href);
                                     toast.success("Link copied!");
@@ -324,7 +342,7 @@ export function ViewerClient({ drop }: ViewerClientProps) {
                         <button
                             onClick={handleDownload}
                             disabled={downloading}
-                            className="w-full px-4 py-3 rounded-xl border border-brand-pink/20 bg-brand-pink/10 text-brand-pink font-medium text-sm flex items-center justify-center gap-2 hover:bg-brand-pink/20 hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full px-4 py-3 rounded-xl border border-brand-pink/20 bg-brand-pink/10 text-brand-pink font-medium text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {downloading ? (
                                 <Loader2 className="w-4 h-4 animate-spin" />

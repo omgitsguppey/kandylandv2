@@ -6,29 +6,6 @@ interface IconProps {
     size?: "sm" | "md" | "lg" | "xl";
 }
 
-export function CandyIcon({ className, size = "md" }: IconProps) {
-    const sizes = {
-        sm: "w-5 h-5",
-        md: "w-10 h-10",
-        lg: "w-16 h-16",
-        xl: "w-24 h-24"
-    };
-
-    return (
-        <div className={cn("relative flex items-center justify-center", sizes[size], className)}>
-            {/* Wrapper for rotation/animation */}
-            <div className="relative w-full h-full animate-float">
-                {/* Main Candy Body - Diagonal Stripe Effect */}
-                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-brand-pink via-brand-purple to-brand-cyan shadow-[0_0_15px_rgba(236,72,153,0.5)] overflow-hidden border border-white/20">
-                    <div className="absolute top-0 left-1/4 w-1/4 h-full bg-white/20 -skew-x-12 blur-[1px]"></div>
-                    <div className="absolute top-0 right-1/4 w-1/4 h-full bg-white/10 -skew-x-12 blur-[1px]"></div>
-                </div>
-                {/* Shine */}
-                <div className="absolute top-1/4 left-1/4 w-1/4 h-1/4 bg-white/60 rounded-full blur-[2px]"></div>
-            </div>
-        </div>
-    );
-}
 
 export function GumDropIcon({ className, size = "md" }: IconProps) {
     const sizes = {
@@ -50,5 +27,20 @@ export function GumDropIcon({ className, size = "md" }: IconProps) {
                 <div className="absolute top-[20%] left-[30%] w-[15%] h-[10%] bg-white/70 rounded-full blur-[1px]"></div>
             </div>
         </div>
+    );
+}
+
+export function CandyOutlineIcon(props: React.SVGProps<SVGSVGElement>) {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24" height="24" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+            {...props}
+        >
+            <circle cx="12" cy="12" r="4" />
+            <path d="M15 10l6-4-2 6 2 6-6-4" />
+            <path d="M9 14l-6 4 2-6-2-6 6 4" />
+        </svg>
     );
 }

@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { differenceInHours, isSameDay } from "date-fns";
-import { Gift, Loader2, CheckCircle, Calendar } from "lucide-react";
+import { CandyOutlineIcon as Gift, CandyOutlineIcon as Loader2, CandyOutlineIcon as CheckCircle, CandyOutlineIcon as Calendar } from "@/components/ui/Icon";
+
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -165,7 +166,7 @@ export function DailyCheckIn() {
                         variant="brand"
                         onClick={handleClaim}
                         disabled={loading}
-                        className="w-full py-6 text-lg rounded-xl shadow-[0_0_20px_rgba(236,72,153,0.3)] hover:shadow-[0_0_30px_rgba(236,72,153,0.5)]"
+                        className="w-full py-6 text-lg rounded-xl shadow-[0_0_20px_rgba(236,72,153,0.3)] _0_30px_rgba(236,72,153,0.5)]"
                     >
                         {loading ? (
                             <Loader2 className="w-5 h-5 animate-spin" />

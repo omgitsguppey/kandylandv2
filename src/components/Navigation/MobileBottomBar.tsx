@@ -1,6 +1,7 @@
 "use client";
 
-import { Home, Candy, Wallet, Search, Sparkles } from "lucide-react";
+import { CandyOutlineIcon as Home, CandyOutlineIcon as Candy, CandyOutlineIcon as Wallet, CandyOutlineIcon as Search, CandyOutlineIcon as Sparkles } from "@/components/ui/Icon";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -59,7 +60,7 @@ export default function MobileBottomBar() {
                             href={item.href}
                             className={cn(
                                 "flex flex-col items-center gap-1 p-2 rounded-xl transition-all duration-300 w-16 active:scale-90",
-                                isActive ? "text-brand-pink" : "text-gray-500 hover:text-white"
+                                isActive ? "text-brand-pink" : "text-gray-500 "
                             )}
                             onClick={() => {
                                 // Simple haptic feedback if available
@@ -85,7 +86,7 @@ export default function MobileBottomBar() {
                         if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
                         openPurchaseModal();
                     }}
-                    className="flex flex-col items-center gap-1 p-2 rounded-xl w-16 text-brand-purple hover:text-white transition-colors active:scale-90"
+                    className="flex flex-col items-center gap-1 p-2 rounded-xl w-16 text-brand-purple transition-colors active:scale-90"
                 >
                     <div className="p-1 rounded-lg bg-brand-purple/10">
                         <Wallet className="w-6 h-6" />

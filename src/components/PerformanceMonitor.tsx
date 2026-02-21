@@ -30,7 +30,7 @@ export function PerformanceMonitor() {
 
     return (
         <div className="fixed bottom-4 left-4 z-[9999] pointer-events-none">
-            <div className="bg-black/80 backdrop-blur-md rounded-lg p-3 border border-white/10 text-[10px] font-mono shadow-2xl pointer-events-auto opacity-70 hover:opacity-100 transition-opacity">
+            <div className="bg-black/80 backdrop-blur-md rounded-lg p-3 border border-white/10 text-[10px] font-mono shadow-2xl pointer-events-auto opacity-70 transition-opacity">
                 <h4 className="text-white font-bold mb-1 border-b border-white/10 pb-1">Core Web Vitals</h4>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1">
                     <MetricRow label="FCP" value={metrics.FCP} threshold={1800} />

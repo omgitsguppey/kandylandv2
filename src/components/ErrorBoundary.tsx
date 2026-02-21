@@ -1,7 +1,8 @@
 "use client";
 
 import { Component, ErrorInfo, ReactNode } from "react";
-import { AlertCircle, RefreshCw } from "lucide-react";
+import { CandyOutlineIcon as AlertCircle, CandyOutlineIcon as RefreshCw } from "@/components/ui/Icon";
+
 
 interface Props {
     children?: ReactNode;
@@ -49,7 +50,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
                         <button
                             onClick={() => window.location.reload()}
-                            className="inline-flex items-center gap-2 px-6 py-3 bg-white text-black rounded-xl font-bold hover:bg-gray-200 transition-colors"
+                            className="inline-flex items-center gap-2 px-6 py-3 bg-white text-black rounded-xl font-bold transition-colors"
                         >
                             <RefreshCw className="w-4 h-4" />
                             Reload Page
