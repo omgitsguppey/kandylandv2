@@ -7,7 +7,7 @@ import { CandyOutlineIcon as X, CandyOutlineIcon as Candy } from "@/components/u
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import confetti from "canvas-confetti";
+
 import { authFetch } from "@/lib/authFetch";
 
 interface PurchaseModalProps {
@@ -94,7 +94,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
             }
 
             // Celebrate
-            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            import("canvas-confetti").then((mod) => mod.default({ particleCount: 100, spread: 70, origin: { y: 0.6 } }));
 
             setSuccess(true);
             toast.success(`${result.drops || selectedPackage.drops} Gum Drops added!`);

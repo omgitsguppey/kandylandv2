@@ -8,7 +8,7 @@ import { CandyOutlineIcon as Gift, CandyOutlineIcon as Loader2, CandyOutlineIcon
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import confetti from "canvas-confetti";
+
 import { authFetch } from "@/lib/authFetch";
 
 export function DailyCheckIn() {
@@ -59,13 +59,17 @@ export function DailyCheckIn() {
         });
 
         // Trigger confetti effects
-        const end = Date.now() + 1000;
-        const colors = ['#ec4899', '#facc15'];
-        (function frame() {
-            confetti({ particleCount: 2, angle: 60, spread: 55, origin: { x: 0 }, colors: colors });
-            confetti({ particleCount: 2, angle: 120, spread: 55, origin: { x: 1 }, colors: colors });
-            if (Date.now() < end) requestAnimationFrame(frame);
-        }());
+        // Trigger confetti effects lazily
+        import("canvas-confetti").then((confettiModule) => {
+            const launchConfetti = confettiModule.default;
+            const end = Date.now() + 1000;
+            const colors = ['#ec4899', '#facc15'];
+            (function frame() {
+                launchConfetti({ particleCount: 2, angle: 60, spread: 55, origin: { x: 0 }, colors: colors });
+                launchConfetti({ particleCount: 2, angle: 120, spread: 55, origin: { x: 1 }, colors: colors });
+                if (Date.now() < end) requestAnimationFrame(frame);
+            }());
+        });
 
         try {
             const response = await authFetch("/api/checkin", {

@@ -9,7 +9,6 @@ import { CandyOutlineIcon as Lock, CandyOutlineIcon as Unlock, CandyOutlineIcon 
 import { cn } from "@/lib/utils";
 
 import { toast } from "sonner";
-import confetti from "canvas-confetti";
 import { User } from "firebase/auth";
 import { authFetch } from "@/lib/authFetch";
 import { useUserProfile } from "@/context/AuthContext";
@@ -147,11 +146,13 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                 duration: 4000
             });
 
-            confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: ['#ec4899', '#06b6d4', '#facc15']
+            import("canvas-confetti").then((mod) => {
+                mod.default({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#ec4899', '#06b6d4', '#facc15']
+                });
             });
 
             if (typeof window !== "undefined") {

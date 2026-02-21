@@ -240,7 +240,7 @@ export function ViewerClient({ drop }: ViewerClientProps) {
                                             className="object-cover opacity-30 blur-3xl"
                                         />
                                         <div className="relative z-10 w-48 h-48 md:w-64 md:h-64 rounded-2xl overflow-hidden shadow-2xl border border-white/10 mb-8">
-                                            <NextImage src={drop.imageUrl} alt="Art" fill className="object-cover" />
+                                            <NextImage src={drop.imageUrl} alt="Art" fill priority className="object-cover" />
                                         </div>
                                         <audio
                                             controls
