@@ -27,7 +27,7 @@ export default function DashboardClient({ drops }: DashboardClientProps) {
     // Skeleton UI
     if (loading) {
         return (
-            <main className="min-h-screen pt-24 px-4 pb-24 md:pb-12 max-w-7xl mx-auto animate-pulse">
+            <main className="min-h-screen pt-24 px-4 pb-24 md:pb-12 max-w-7xl mx-auto">
                 <header className="mb-8 md:mb-12">
                     <div className="h-10 w-3/4 md:w-1/2 bg-white/10 rounded-xl mb-4" />
                     <div className="h-5 w-1/3 bg-white/5 rounded-lg" />
