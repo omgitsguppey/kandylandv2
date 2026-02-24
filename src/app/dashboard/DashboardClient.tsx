@@ -5,7 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { DailyCheckIn } from "@/components/Dashboard/DailyCheckIn";
 import { CollectionList } from "@/components/Dashboard/CollectionList";
 import { redirect } from "next/navigation";
-import { CandyOutlineIcon as Loader2, CandyOutlineIcon as Package, CandyOutlineIcon as Star, CandyOutlineIcon as ArrowRight } from "@/components/ui/Icon";
+import { Loader2, Package, Star, ArrowRight } from "lucide-react";
 
 import Link from "next/link";
 

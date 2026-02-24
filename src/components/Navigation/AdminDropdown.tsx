@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useAuthIdentity, useAuth } from "@/context/AuthContext";
-import { CandyOutlineIcon as LayoutDashboard, CandyOutlineIcon as Package, CandyOutlineIcon as PlusCircle, CandyOutlineIcon as Users, CandyOutlineIcon as Terminal, CandyOutlineIcon as LogOut, CandyOutlineIcon as ShieldCheck, CandyOutlineIcon as Shield } from "@/components/ui/Icon";
+import { LayoutDashboard, Package, PlusCircle, Users, Terminal, LogOut, ShieldCheck, Shield } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 

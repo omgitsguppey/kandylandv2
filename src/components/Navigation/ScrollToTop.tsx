@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CandyOutlineIcon as ArrowUp } from "@/components/ui/Icon";
+import { ArrowUp } from "lucide-react";
 
 import { motion, AnimatePresence } from "framer-motion";
 

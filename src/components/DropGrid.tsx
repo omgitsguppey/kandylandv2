@@ -6,7 +6,7 @@ import { useState } from "react";
 import { DropCard } from "./DropCard";
 import { PromoCard } from "./PromoCard";
 import { Drop } from "@/types/db";
-import { CandyOutlineIcon as Loader2 } from "@/components/ui/Icon";
+import { Loader2 } from "lucide-react";
 
 import { useAuthIdentity, useUserProfile } from "@/context/AuthContext";
 import { toast } from "sonner";

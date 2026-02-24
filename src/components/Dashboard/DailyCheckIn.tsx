@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { differenceInHours, isSameDay } from "date-fns";
-import { CandyOutlineIcon as Gift, CandyOutlineIcon as Loader2, CandyOutlineIcon as CheckCircle, CandyOutlineIcon as Calendar } from "@/components/ui/Icon";
+import { Gift, Loader2, CheckCircle, Calendar } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";

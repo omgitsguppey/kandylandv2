@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { CandyOutlineIcon as User, CandyOutlineIcon as LogOut, CandyOutlineIcon as LayoutDashboard, CandyOutlineIcon as Library, CandyOutlineIcon as Settings, CandyOutlineIcon as ChevronDown } from "@/components/ui/Icon";
+import { User, LogOut, LayoutDashboard, Library, Settings, ChevronDown } from "lucide-react";
 
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";

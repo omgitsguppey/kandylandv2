@@ -5,7 +5,7 @@ import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
 import { UserProfile } from "@/types/db";
 import { format } from "date-fns";
-import { CandyOutlineIcon as Shield, CandyOutlineIcon as ShieldAlert, CandyOutlineIcon as CheckCircle2, CandyOutlineIcon as User, CandyOutlineIcon as Search, CandyOutlineIcon as UserCheck, CandyOutlineIcon as UserX, CandyOutlineIcon as Crown } from "@/components/ui/Icon";
+import { Shield, ShieldAlert, CheckCircle2, User, Search, UserCheck, UserX, Crown } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";

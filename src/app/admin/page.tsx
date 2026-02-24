@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { collection, getCountFromServer, query, where, getDocs, orderBy, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
-import { CandyOutlineIcon as Users, CandyOutlineIcon as Package, CandyOutlineIcon as DollarSign, CandyOutlineIcon as Activity, CandyOutlineIcon as TrendingUp } from "@/components/ui/Icon";
+import { Users, Package, DollarSign, Activity, TrendingUp } from "lucide-react";
 
 import { formatDistanceToNow } from "date-fns";
 import { Drop, Transaction } from "@/types/db";

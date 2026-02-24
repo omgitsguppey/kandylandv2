@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { collection, doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
 import { useRouter, useSearchParams } from "next/navigation";
-import { CandyOutlineIcon as Loader2, CandyOutlineIcon as Save, CandyOutlineIcon as Calendar, CandyOutlineIcon as DollarSign, CandyOutlineIcon as ArrowLeft, CandyOutlineIcon as ChevronDown, CandyOutlineIcon as ChevronUp, CandyOutlineIcon as ImageIcon, CandyOutlineIcon as FileAudio } from "@/components/ui/Icon";
+import { Loader2, Save, Calendar, DollarSign, ArrowLeft, ChevronDown, ChevronUp, ImageIcon, FileAudio } from "lucide-react";
 
 import { FileUpload } from "@/components/Admin/FileUpload";
 import Link from "next/link";

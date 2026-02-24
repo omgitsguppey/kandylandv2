@@ -3,7 +3,7 @@
 import { useUI } from "@/context/UIContext";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/Button";
-import { CandyOutlineIcon as Coins, CandyOutlineIcon as X, CandyOutlineIcon as AlertCircle } from "@/components/ui/Icon";
+import { Coins, X, AlertCircle } from "lucide-react";
 
 import { motion, AnimatePresence } from "framer-motion";
 

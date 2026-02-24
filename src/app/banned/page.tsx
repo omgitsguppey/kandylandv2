@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
-import { CandyOutlineIcon as Ban, CandyOutlineIcon as LogOut } from "@/components/ui/Icon";
+import { Ban, LogOut } from "lucide-react";
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";

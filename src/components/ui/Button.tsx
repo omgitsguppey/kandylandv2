@@ -1,6 +1,6 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { CandyOutlineIcon as Loader2 } from "@/components/ui/Icon";
+import { Loader2 } from "lucide-react";
 
 
 export interface ButtonProps

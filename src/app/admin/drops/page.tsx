@@ -5,7 +5,7 @@ import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
 import { Drop } from "@/types/db";
 import { format } from "date-fns";
-import { CandyOutlineIcon as Trash2, CandyOutlineIcon as Edit, CandyOutlineIcon as Eye, CandyOutlineIcon as MoreHorizontal, CandyOutlineIcon as Calendar, CandyOutlineIcon as Clock, CandyOutlineIcon as Lock, CandyOutlineIcon as Package, CandyOutlineIcon as PlusCircle } from "@/components/ui/Icon";
+import { Trash2, Edit, Eye, MoreHorizontal, Calendar, Clock, Lock, Package, PlusCircle } from "lucide-react";
 
 import Link from "next/link";
 import { cn } from "@/lib/utils";

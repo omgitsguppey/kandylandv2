@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { Button } from "@/components/ui/Button";
-import { CandyOutlineIcon } from "@/components/ui/Icon";
+import { CandyIcon } from "@/components/ui/Icon";
 import Link from "next/link";
 import { useAuthIdentity } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
@@ -21,10 +21,10 @@ export default function Hero() {
             </div>
 
             {/* Parallax Content */}
-            <div className="relative z-10 text-center w-full max-w-7xl mx-auto px-4 md:px-8">
+            <div className="relative z-10 text-center w-full max-w-7xl mx-auto px-4 md:px-8" style={{ transform: "scale(var(--responsive-scale))", transformOrigin: "center top" }}>
                 <div className="mb-4 md:mb-8 flex justify-center">
                     <div className="p-4 md:p-8 relative">
-                        <CandyOutlineIcon className="w-24 h-24 text-brand-purple drop-shadow-[0_0_30px_rgba(178,140,255,0.4)] md:scale-125" />
+                        <CandyIcon className="w-24 h-24 text-brand-purple drop-shadow-[0_0_30px_rgba(178,140,255,0.4)] md:scale-125" />
                     </div>
                 </div>
 

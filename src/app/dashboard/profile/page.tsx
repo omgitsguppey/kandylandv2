@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useAuth, useUserProfile } from "@/context/AuthContext";
 import { updateProfile } from "firebase/auth";
 import { Button } from "@/components/ui/Button";
-import { CandyOutlineIcon as Loader2, CandyOutlineIcon as Save, CandyOutlineIcon as User } from "@/components/ui/Icon";
+import { Loader2, Save, User } from "lucide-react";
 
 
 import { authFetch } from "@/lib/authFetch";

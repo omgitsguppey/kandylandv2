@@ -1,7 +1,7 @@
 "use client";
 
 
-import { CandyOutlineIcon as Sparkles, CandyOutlineIcon as Star } from "@/components/ui/Icon";
+import { Sparkles, Star } from "lucide-react";
 
 import Link from "next/link";
 

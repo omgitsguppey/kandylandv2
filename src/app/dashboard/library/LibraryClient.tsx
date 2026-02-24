@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
-import { CandyOutlineIcon as Play, CandyOutlineIcon as Lock } from "@/components/ui/Icon";
+import { Play, Lock } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
