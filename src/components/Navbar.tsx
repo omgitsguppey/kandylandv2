@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useAuthIdentity, useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
-import { CandyOutlineIcon as LogIn, CandyOutlineIcon as Wallet, CandyOutlineIcon as Plus } from "@/components/ui/Icon";
+import { LogIn, Wallet, Plus } from "lucide-react";
 
 import { ProfileDropdown } from "@/components/Navigation/ProfileDropdown";
 import { ProfileSidebar } from "@/components/Navigation/ProfileSidebar";
@@ -26,7 +26,7 @@ export function Navbar() {
     return (
         <>
             <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4">
-                <div className="max-w-7xl mx-auto glass-panel backdrop-blur-3xl bg-white/10 rounded-full px-6 py-3 flex items-center justify-between">
+                <div className="max-w-7xl mx-auto bg-transparent rounded-full border border-white/10 px-6 py-3 flex items-center justify-between">
                     <Link href="/" className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-pink to-brand-cyan">
                         KandyDrops
                     </Link>

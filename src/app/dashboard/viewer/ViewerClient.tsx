@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { CandyOutlineIcon as ArrowLeft, CandyOutlineIcon as Lock, CandyOutlineIcon as ShieldCheck, CandyOutlineIcon as Heart, CandyOutlineIcon as Share2, CandyOutlineIcon as Download, CandyOutlineIcon as Loader2 } from "@/components/ui/Icon";
+import { ArrowLeft, Lock, ShieldCheck, Heart, Share2, Download, Loader2 } from "lucide-react";
 
 import { toast } from "sonner";
 import { Drop } from "@/types/db";
@@ -26,6 +26,9 @@ export function ViewerClient({ drop }: ViewerClientProps) {
     const [contentBlobUrl, setContentBlobUrl] = useState<string | null>(null);
     const [contentLoading, setContentLoading] = useState(false);
     const [downloading, setDownloading] = useState(false);
+
+    const videoFallbackTypes = ["video/mp4", "video/webm", "video/ogg"];
+    const audioFallbackTypes = ["audio/mpeg", "audio/mp4", "audio/wav", "audio/ogg", "audio/webm"];
 
     // Redirect if not logged in (once auth is ready)
     useEffect(() => {
@@ -228,6 +231,9 @@ export function ViewerClient({ drop }: ViewerClientProps) {
                                         draggable={false}
                                     >
                                         <source src={contentBlobUrl} type={fileType} />
+                                        {videoFallbackTypes.filter((type) => type !== fileType).map((type) => (
+                                            <source key={type} src={contentBlobUrl} type={type} />
+                                        ))}
                                     </video>
                                 );
                             } else if (fileType.startsWith("audio/")) {
@@ -249,6 +255,9 @@ export function ViewerClient({ drop }: ViewerClientProps) {
                                             onContextMenu={preventContextMenu}
                                         >
                                             <source src={contentBlobUrl} type={fileType} />
+                                            {audioFallbackTypes.filter((type) => type !== fileType).map((type) => (
+                                                <source key={type} src={contentBlobUrl} type={type} />
+                                            ))}
                                         </audio>
                                     </div>
                                 );

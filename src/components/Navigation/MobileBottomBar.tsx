@@ -1,6 +1,6 @@
 "use client";
 
-import { CandyOutlineIcon as Home, CandyOutlineIcon as Candy, CandyOutlineIcon as Wallet, CandyOutlineIcon as Search, CandyOutlineIcon as Sparkles } from "@/components/ui/Icon";
+import { Home, Candy, Wallet, Search, Sparkles } from "lucide-react";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -49,7 +49,7 @@ export default function MobileBottomBar() {
                 </div>
             )}
 
-            <nav className="pointer-events-auto bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl flex items-center justify-around p-2 shadow-2xl shadow-black/50">
+            <nav className="pointer-events-auto bg-black/55 border border-white/10 rounded-2xl flex items-center justify-around p-2 shadow-xl shadow-black/40">
                 {navItems.map((item) => {
                     const isActive = pathname === item.href;
                     const Icon = item.icon;

@@ -3,7 +3,7 @@
 import { Drop } from "@/types/db";
 import NextImage from "next/image";
 import { formatDistanceToNow } from "date-fns";
-import { CandyOutlineIcon as Lock, CandyOutlineIcon as Unlock, CandyOutlineIcon as Download, CandyOutlineIcon as Share2, CandyOutlineIcon as Eye, CandyOutlineIcon as Clock } from "@/components/ui/Icon";
+import { Lock, Unlock, Download, Share2, Eye, Clock } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { memo } from "react";

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { CandyOutlineIcon as X, CandyOutlineIcon as Mail, CandyOutlineIcon as Lock, CandyOutlineIcon as User, CandyOutlineIcon as Calendar, CandyOutlineIcon as AlertCircle, CandyOutlineIcon as Loader2 } from "@/components/ui/Icon";
+import { X, Mail, Lock, User, Calendar, AlertCircle, Loader2 } from "lucide-react";
 
 import { useAuth } from "@/context/AuthContext";
 import { differenceInYears, parseISO } from "date-fns";

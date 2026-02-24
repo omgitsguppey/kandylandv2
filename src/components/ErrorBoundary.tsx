@@ -1,7 +1,7 @@
 "use client";
 
 import { Component, ErrorInfo, ReactNode } from "react";
-import { CandyOutlineIcon as AlertCircle, CandyOutlineIcon as RefreshCw } from "@/components/ui/Icon";
+import { AlertCircle, RefreshCw } from "lucide-react";
 
 
 interface Props {

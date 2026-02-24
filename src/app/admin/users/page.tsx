@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { collection, query, orderBy, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
 import { UserProfile } from "@/types/db";
-import { CandyOutlineIcon as Loader2, CandyOutlineIcon as Search, CandyOutlineIcon as Shield, CandyOutlineIcon as Ban, CandyOutlineIcon as CheckCircle, CandyOutlineIcon as AlertTriangle, CandyOutlineIcon as Edit2, CandyOutlineIcon as Lock, CandyOutlineIcon as Plus } from "@/components/ui/Icon";
+import { Loader2, Search, Shield, Ban, CheckCircle, AlertTriangle, Edit2, Lock, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import { format } from "date-fns";

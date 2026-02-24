@@ -3,7 +3,7 @@
 import { Drop, UserProfile } from "@/types/db";
 import { useState, useMemo } from "react";
 import { DashboardDropCard } from "./DashboardDropCard";
-import { CandyOutlineIcon as Search, CandyOutlineIcon as Filter, CandyOutlineIcon as LayoutGrid, CandyOutlineIcon as ListIcon } from "@/components/ui/Icon";
+import { Search, Filter, LayoutGrid, ListIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 

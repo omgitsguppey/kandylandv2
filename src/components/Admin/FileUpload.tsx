@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from "@/lib/firebase-data";
-import { CandyOutlineIcon as Upload, CandyOutlineIcon as X, CandyOutlineIcon as Loader2, CandyOutlineIcon as FileType, CandyOutlineIcon as ImageIcon } from "@/components/ui/Icon";
+import { Upload, X, Loader2, FileType, ImageIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 

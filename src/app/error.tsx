@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { Button } from "@/components/ui/Button";
-import { CandyOutlineIcon as AlertCircle } from "@/components/ui/Icon";
+import { AlertCircle } from "lucide-react";
 
 
 export default function Error({

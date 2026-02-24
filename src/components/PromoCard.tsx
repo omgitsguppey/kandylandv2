@@ -1,7 +1,7 @@
 import { Drop } from "@/types/db";
 import { cn } from "@/lib/utils";
 import { authFetch } from "@/lib/authFetch";
-import { CandyOutlineIcon as ArrowUpRight } from "@/components/ui/Icon";
+import { ArrowUpRight } from "lucide-react";
 
 import NextImage from "next/image";
 

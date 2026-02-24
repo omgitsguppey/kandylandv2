@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { CandyOutlineIcon as Bell, CandyOutlineIcon as Check, CandyOutlineIcon as Trash2, CandyOutlineIcon as Info, CandyOutlineIcon as CheckCircle, CandyOutlineIcon as AlertTriangle, CandyOutlineIcon as XCircle } from "@/components/ui/Icon";
+import { Bell, Check, Trash2, Info, CheckCircle, AlertTriangle, XCircle } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { useNotifications } from "@/hooks/useNotifications";

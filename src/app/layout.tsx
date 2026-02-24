@@ -28,8 +28,7 @@ export const metadata: Metadata = {
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  userScalable: true,
 };
 
 export default function RootLayout({
@@ -39,7 +38,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="antialiased min-h-[100dvh] bg-black text-white selection:bg-brand-pink selection:text-white flex flex-col overflow-x-hidden">
+      <body className="antialiased min-h-[100dvh] app-bg text-white selection:bg-brand-pink selection:text-white flex flex-col overflow-x-hidden">
         <AuthProvider>
           <UIProvider>
             <NowProvider>
@@ -48,8 +47,8 @@ export default function RootLayout({
 
                   {/* Background Elements */}
                   <div className="fixed inset-0 z-0 pointer-events-none">
-                    <div className="absolute top-[-20%] left-[-20%] w-[50%] h-[50%] rounded-full bg-brand-pink/15 blur-[150px]" />
-                    <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-brand-cyan/20 blur-[120px]" />
+                    <div className="absolute top-[-15%] left-[-10%] w-[55vw] h-[55vw] rounded-full bg-brand-pink/18 blur-[170px]" />
+                    <div className="absolute bottom-[-20%] right-[-8%] w-[50vw] h-[50vw] rounded-full bg-brand-cyan/18 blur-[150px]" />
                   </div>
 
                   {/* Content */}

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { CandyOutlineIcon as User, CandyOutlineIcon as Calendar, CandyOutlineIcon as Camera, CandyOutlineIcon as Check, CandyOutlineIcon as ShieldCheck, CandyOutlineIcon as ArrowRight, CandyOutlineIcon as Sparkles, CandyOutlineIcon as Loader2 } from "@/components/ui/Icon";
+import { User, Calendar, Camera, Check, ShieldCheck, ArrowRight, Sparkles, Loader2 } from "lucide-react";
 
 import { useAuth } from "@/context/AuthContext";
 import { storage } from "@/lib/firebase-data";

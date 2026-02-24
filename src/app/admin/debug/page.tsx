@@ -5,7 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { db } from "@/lib/firebase-data";
 import { collection, query, orderBy, limit, onSnapshot } from "firebase/firestore";
 import { Button } from "@/components/ui/Button";
-import { CandyOutlineIcon as Loader2, CandyOutlineIcon as Terminal, CandyOutlineIcon as RefreshCw, CandyOutlineIcon as Plus, CandyOutlineIcon as PlayCircle } from "@/components/ui/Icon";
+import { Loader2, Terminal, RefreshCw, Plus, PlayCircle } from "lucide-react";
 
 import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";

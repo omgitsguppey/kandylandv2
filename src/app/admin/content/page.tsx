@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { ref, listAll, getDownloadURL, deleteObject, uploadBytes } from "firebase/storage";
 import { storage } from "@/lib/firebase-data";
-import { CandyOutlineIcon as Loader2, CandyOutlineIcon as Upload, CandyOutlineIcon as Trash2, CandyOutlineIcon as Copy, CandyOutlineIcon as FileIcon, CandyOutlineIcon as ImageIcon, CandyOutlineIcon as Video, CandyOutlineIcon as RefreshCw } from "@/components/ui/Icon";
+import { Loader2, Upload, Trash2, Copy, FileIcon, ImageIcon, Video, RefreshCw } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import { format } from "date-fns";

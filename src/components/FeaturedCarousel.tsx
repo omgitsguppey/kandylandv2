@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import NextImage from "next/image";
 import { formatDistanceToNow } from "date-fns";
-import { CandyOutlineIcon as Clock, CandyOutlineIcon as Play, CandyOutlineIcon as ChevronRight } from "@/components/ui/Icon";
+import { Clock, Play, ChevronRight } from "lucide-react";
 
 import Link from "next/link";
 

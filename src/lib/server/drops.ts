@@ -1,6 +1,7 @@
 import "server-only";
 import { adminDb } from "./firebase-admin";
 import { Drop } from "@/types/db";
+import { normalizeDropRecord } from "@/lib/drop-normalizers";
 import { cache } from "react";
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -110,15 +111,7 @@ export const getDrops = cache(async (): Promise<Drop[]> => {
 
         const now = Date.now();
         return snapshot.docs.map(doc => {
-            const data = doc.data();
-            const raw = {
-                id: doc.id,
-                ...data,
-                createdAt: data.createdAt?.toMillis?.() || data.createdAt,
-                validFrom: data.validFrom?.toMillis?.() || data.validFrom,
-                validUntil: data.validUntil?.toMillis?.() || data.validUntil,
-            } as unknown as Drop;
-
+            const raw = normalizeDropRecord(doc.data(), doc.id);
             const { drop: resolved, needsUpdate } = resolveDropStatus(raw, now);
 
             if (needsUpdate) {
@@ -142,15 +135,7 @@ export const getDrop = cache(async (id: string): Promise<Drop | null> => {
 
         if (!docSnap.exists) return null;
 
-        const data = docSnap.data()!;
-        const raw = {
-            id: docSnap.id,
-            ...data,
-            createdAt: data.createdAt?.toMillis?.() || data.createdAt,
-            validFrom: data.validFrom?.toMillis?.() || data.validFrom,
-            validUntil: data.validUntil?.toMillis?.() || data.validUntil,
-        } as unknown as Drop;
-
+        const raw = normalizeDropRecord(docSnap.data(), docSnap.id);
         const { drop: resolved, needsUpdate } = resolveDropStatus(raw, Date.now());
 
         if (needsUpdate) {
@@ -177,15 +162,7 @@ export async function getDropRaw(id: string): Promise<Drop | null> {
             return null;
         }
 
-        const data = docSnap.data()!;
-        const raw: Drop = {
-            id: docSnap.id,
-            ...data,
-            createdAt: data.createdAt?.toMillis?.() || data.createdAt,
-            validFrom: data.validFrom?.toMillis?.() || data.validFrom,
-            validUntil: data.validUntil?.toMillis?.() || data.validUntil,
-        } as unknown as Drop;
-
+        const raw = normalizeDropRecord(docSnap.data(), docSnap.id);
         const now = Date.now();
         const { drop: resolved, needsUpdate } = resolveDropStatus(raw, now);
 

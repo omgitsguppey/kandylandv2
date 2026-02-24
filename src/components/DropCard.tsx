@@ -4,7 +4,7 @@ import { Drop } from "@/types/db";
 import { useEffect, useState, memo } from "react";
 import { formatDistanceToNow } from "date-fns";
 import NextImage from "next/image";
-import { CandyOutlineIcon as Lock, CandyOutlineIcon as Unlock, CandyOutlineIcon as Clock, CandyOutlineIcon as Loader2, CandyOutlineIcon as AlertCircle } from "@/components/ui/Icon";
+import { Lock, Unlock, Clock, Loader2, AlertCircle } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 

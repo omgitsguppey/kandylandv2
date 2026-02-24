@@ -7,7 +7,7 @@ import { db } from "@/lib/firebase-data";
 import { UserProfile, Drop } from "@/types/db";
 import { DropGrid } from "@/components/DropGrid";
 import { useAuth } from "@/context/AuthContext";
-import { CandyOutlineIcon as Loader2, CandyOutlineIcon as MapPin, CandyOutlineIcon as LinkIcon, CandyOutlineIcon as UserPlus, CandyOutlineIcon as UserCheck, CandyOutlineIcon as CheckCircle2 } from "@/components/ui/Icon";
+import { Loader2, MapPin, LinkIcon, UserPlus, UserCheck, CheckCircle2 } from "lucide-react";
 
 
 import { toast } from "sonner";

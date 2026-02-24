@@ -1,6 +1,6 @@
 "use client";
 
-import { CandyOutlineIcon as Search, CandyOutlineIcon as Sparkles, CandyOutlineIcon as Clock, CandyOutlineIcon as Flame, CandyOutlineIcon as Tag } from "@/components/ui/Icon";
+import { Search, Sparkles, Clock, Flame, Tag } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { useRef, useState, useEffect } from "react";

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CandyOutlineIcon as ArrowLeft } from "@/components/ui/Icon";
+import { ArrowLeft } from "lucide-react";
 
 
 export default function PrivacyPage() {
