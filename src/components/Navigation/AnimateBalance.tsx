@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useSpring, useTransform } from "framer-motion";
 import { useEffect, useState, useRef } from "react";
 
 interface AnimateBalanceProps {
@@ -9,70 +9,40 @@ interface AnimateBalanceProps {
 }
 
 export function AnimateBalance({ balance, className }: AnimateBalanceProps) {
-    const [displayBalance, setDisplayBalance] = useState(balance);
     const [isIncreased, setIsIncreased] = useState(false);
     const [isDecreased, setIsDecreased] = useState(false);
     const prevBalanceRef = useRef(balance);
 
+    // Use framer-motion's spring for smooth, un-interruptable number interpolation
+    const springValue = useSpring(balance, {
+        stiffness: 100,
+        damping: 30,
+        mass: 1
+    });
+
+    const displayBalance = useTransform(springValue, (current) => Math.floor(current));
+
     useEffect(() => {
+        // Trigger the spring animation
+        springValue.set(balance);
+
+        // Handle the +/- badges
         if (balance > prevBalanceRef.current) {
             setIsIncreased(true);
-            setTimeout(() => setIsIncreased(false), 2000);
+            const timeout = setTimeout(() => setIsIncreased(false), 2000);
+            prevBalanceRef.current = balance;
+            return () => clearTimeout(timeout);
         } else if (balance < prevBalanceRef.current) {
             setIsDecreased(true);
-            setTimeout(() => setIsDecreased(false), 2000);
+            const timeout = setTimeout(() => setIsDecreased(false), 2000);
+            prevBalanceRef.current = balance;
+            return () => clearTimeout(timeout);
         }
-
-        // Count animation
-        const start = displayBalance;
-        const end = balance;
-        if (start === end) return;
-
-        const duration = 500;
-        const startTime = performance.now();
-        let animationFrameId: number;
-
-        const animate = (currentTime: number) => {
-            const elapsed = currentTime - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-
-            // Ease out quad
-            const easedProgress = progress * (2 - progress);
-            const nextValue = Math.floor(start + (end - start) * easedProgress);
-
-            setDisplayBalance(nextValue);
-
-            if (progress < 1) {
-                animationFrameId = requestAnimationFrame(animate);
-            } else {
-                setDisplayBalance(end);
-                prevBalanceRef.current = end;
-            }
-        };
-
-        animationFrameId = requestAnimationFrame(animate);
-
-        // Cleanup: cancel the animation frame if the effect re-runs or unmounts
-        return () => {
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
-            }
-        };
-    }, [balance]);
+    }, [balance, springValue]);
 
     return (
         <span className={className}>
-            <AnimatePresence mode="wait">
-                <motion.span
-                    key={displayBalance}
-                    initial={{ y: isIncreased ? -10 : isDecreased ? 10 : 0, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: isIncreased ? 10 : isDecreased ? -10 : 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                >
-                    {displayBalance}
-                </motion.span>
-            </AnimatePresence>
+            <motion.span>{displayBalance}</motion.span>
 
             <AnimatePresence>
                 {isIncreased && (

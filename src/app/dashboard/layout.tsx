@@ -7,7 +7,6 @@ import { useAuth } from "@/context/AuthContext";
 import { LayoutDashboard, Library, Settings, LogOut, Menu, X, Loader2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { DashboardProfileListener } from "@/components/DashboardProfileListener";
 
 export default function DashboardLayout({
     children,
@@ -35,8 +34,6 @@ export default function DashboardLayout({
 
     return (
         <div className="flex-1 w-full relative">
-            {/* Listener for Realtime Profile Updates in Dashboard */}
-            <DashboardProfileListener />
 
             <div className="w-full">
                 {children}
