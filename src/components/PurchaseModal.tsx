@@ -140,7 +140,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                       })}
                     </div>
 
-                    <div className="w-full min-h-[150px] relative z-10">
+                    <div className="w-full relative z-10">
                       {!PAYPAL_READY ? (
                         <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-3 text-xs text-yellow-200">
                           PayPal is not configured. Set client IDs for sandbox/live before taking payments.

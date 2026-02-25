@@ -27,29 +27,7 @@ export default function MobileBottomBar() {
     return (
         <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 p-4 pointer-events-none" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}>
 
-            {/* Floating Balance Badge (Dynamic Island style) - Only if logged in */}
-            {user && (
-                <div className="absolute bottom-28 left-1/2 -translate-x-1/2 pointer-events-auto">
-                    <button
-                        onClick={openPurchaseModal}
-                        className="bg-black/80 backdrop-blur-xl border border-brand-purple/30 pl-3 pr-4 py-1.5 rounded-full flex items-center gap-2 shadow-[0_4px_20px_rgba(139,92,246,0.2)]"
-                    >
-                        <div className="w-5 h-5 bg-brand-purple/20 rounded-full flex items-center justify-center">
-                            <Wallet className="w-3 h-3 text-brand-purple" />
-                        </div>
-                        <AnimateBalance
-                            balance={userProfile?.gumDropsBalance || 0}
-                            className="font-bold text-sm text-white tabular-nums relative"
-                        />
-                        <div className="flex flex-col leading-none">
-
-                            <span className="text-[8px] text-gray-400 font-bold uppercase tracking-wider">Add</span>
-                        </div>
-                    </button>
-                </div>
-            )}
-
-            <nav className="pointer-events-auto bg-black/55 backdrop-blur-xl border border-white/10 rounded-2xl flex items-center justify-around p-2 shadow-xl shadow-black/40" style={{ WebkitBackdropFilter: 'blur(20px)' }}>
+            <nav className="pointer-events-auto bg-black/55 backdrop-blur-xl border border-white/10 rounded-full flex items-center justify-around p-2 shadow-xl shadow-black/40" style={{ WebkitBackdropFilter: 'blur(20px)' }}>
                 {navItems.map((item) => {
                     const isActive = pathname === item.href;
                     const Icon = item.icon;

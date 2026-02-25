@@ -142,14 +142,14 @@ export default function AdminDropsPage() {
                                             <div className="flex items-center justify-end gap-2 opacity-0 transition-opacity">
                                                 <Link
                                                     href={`/admin/create?id=${drop.id}`}
-                                                    className="p-2 rounded-lg text-gray-400 transition-colors"
+                                                    className="p-2.5 rounded-full bg-black text-white hover:bg-white/10 transition-colors border border-white/10"
                                                     title="Edit"
                                                 >
                                                     <Edit className="w-4 h-4" />
                                                 </Link>
                                                 <button
                                                     onClick={() => handleDelete(drop.id)}
-                                                    className="p-2 rounded-lg text-gray-400 transition-colors"
+                                                    className="p-2.5 rounded-full bg-black text-red-500 hover:bg-red-500/10 transition-colors border border-white/10"
                                                     title="Delete"
                                                 >
                                                     <Trash2 className="w-4 h-4" />
@@ -205,13 +205,13 @@ export default function AdminDropsPage() {
                                     <div className="flex justify-end gap-2 pt-1">
                                         <Link
                                             href={`/admin/create?id=${drop.id}`}
-                                            className="px-3 py-1.5 rounded-lg bg-white/5 text-gray-300 text-xs font-bold transition-colors flex items-center gap-1"
+                                            className="px-3 py-1.5 rounded-full bg-black border border-white/10 text-white text-xs font-bold transition-colors flex items-center gap-1 hover:bg-white/10"
                                         >
                                             <Edit className="w-3 h-3" /> Edit
                                         </Link>
                                         <button
                                             onClick={() => handleDelete(drop.id)}
-                                            className="px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 text-xs font-bold transition-colors flex items-center gap-1"
+                                            className="px-3 py-1.5 rounded-full bg-black border border-white/10 text-red-500 text-xs font-bold transition-colors flex items-center gap-1 hover:bg-red-500/10"
                                         >
                                             <Trash2 className="w-3 h-3" />
                                         </button>

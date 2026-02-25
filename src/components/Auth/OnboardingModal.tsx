@@ -274,12 +274,12 @@ export function OnboardingModal() {
 
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold text-gray-300">Date of Birth</label>
-                                    <div className="relative">
+                                    <div className="relative w-full overflow-hidden rounded-xl bg-black/50 border border-white/10">
                                         <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                                         <input
                                             {...register("dateOfBirth")}
                                             type="date"
-                                            className="w-full bg-black/50 border border-white/10 rounded-xl px-12 py-3 text-white focus:outline-none focus:border-brand-pink transition-all [color-scheme:dark]"
+                                            className="w-full min-w-0 bg-transparent pl-12 pr-4 py-3 text-white focus:outline-none focus:border-brand-pink transition-all [color-scheme:dark]"
                                         />
                                     </div>
                                     {errors.dateOfBirth && (
