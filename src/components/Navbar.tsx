@@ -25,7 +25,7 @@ export function Navbar() {
 
     return (
         <>
-            <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4">
+            <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4 transition-all" style={{ paddingTop: 'calc(1rem + env(safe-area-inset-top))' }}>
                 <div className="max-w-7xl mx-auto bg-transparent rounded-full border border-white/10 px-6 py-3 flex items-center justify-between">
                     <Link href="/" className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-pink to-brand-cyan">
                         KandyDrops

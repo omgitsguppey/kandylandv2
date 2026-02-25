@@ -1,0 +1,37 @@
+{
+    "version": 1.1,
+    "atDirectives": [
+        {
+            "name": "@theme",
+            "description": "Use the `@theme` directive to configure design variables."
+        },
+        {
+            "name": "@tailwind",
+            "description": "Use the `@tailwind` directive to insert Tailwind's `base`, `components`, `utilities` and `screens` styles into your CSS."
+        },
+        {
+            "name": "@plugin",
+            "description": "Use the `@plugin` directive to include plugins."
+        },
+        {
+            "name": "@config",
+            "description": "Use the `@config` directive to import a configuration file."
+        },
+        {
+            "name": "@custom-variant",
+            "description": "Use the `@custom-variant` directive to declare a custom variant."
+        },
+        {
+            "name": "@utility",
+            "description": "Use the `@utility` directive to create custom utilities."
+        },
+        {
+            "name": "@variant",
+            "description": "Use the `@variant` directive to declare a variant."
+        },
+        {
+            "name": "@source",
+            "description": "Use the `@source` directive to specify the path to a source file."
+        }
+    ]
+}

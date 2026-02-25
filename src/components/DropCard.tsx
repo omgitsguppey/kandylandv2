@@ -203,7 +203,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                                     sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
                                 />
                                 {!imageLoaded && (
-                                    <div className="absolute inset-0 bg-white/5" />
+                                    <div className="absolute inset-0 bg-zinc-800 animate-pulse" />
                                 )}
                             </>
                         ) : (
@@ -235,7 +235,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                                     sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
                                 />
                                 {!imageLoaded && (
-                                    <div className="absolute inset-0 bg-white/5" />
+                                    <div className="absolute inset-0 bg-zinc-800 animate-pulse" />
                                 )}
                             </>
                         ) : (

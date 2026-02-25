@@ -23,6 +23,15 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "KandyDrops | Exclusive Digital Content",
   description: "Get Gum Drops, Unlock Content, Feel the Rush.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "KandyDrops",
+  },
+  icons: {
+    apple: "/candy-main.svg",
+  },
 };
 
 export const viewport = {
@@ -44,12 +53,6 @@ export default function RootLayout({
             <NowProvider>
               <CoreLayoutWrapper>
                 <main className="pt-24 pb-32 md:pb-0 flex-1 relative flex flex-col overflow-x-hidden">
-
-                  {/* Background Elements */}
-                  <div className="fixed inset-0 z-0 pointer-events-none">
-                    <div className="absolute top-[-15%] left-[-10%] w-[55vw] h-[55vw] rounded-full bg-brand-pink/18 blur-[170px]" />
-                    <div className="absolute bottom-[-20%] right-[-8%] w-[50vw] h-[50vw] rounded-full bg-brand-cyan/18 blur-[150px]" />
-                  </div>
 
                   {/* Content */}
                   <div className="relative z-10 flex-1 w-full">

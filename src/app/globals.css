@@ -59,26 +59,7 @@ body {
 }
 
 .app-bg {
-  background:
-    radial-gradient(circle at 12% 8%, rgba(178, 140, 255, 0.2), transparent 38%),
-    radial-gradient(circle at 88% 92%, rgba(178, 140, 255, 0.16), transparent 34%),
-    #000;
-}
-
-:root {
-  --responsive-scale: 1;
-}
-
-@media (max-width: 1024px) {
-  :root {
-    --responsive-scale: 0.98;
-  }
-}
-
-@media (max-width: 640px) {
-  :root {
-    --responsive-scale: 0.95;
-  }
+  background: #000000;
 }
 
 .glass-panel {

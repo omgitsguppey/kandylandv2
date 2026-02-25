@@ -28,5 +28,5 @@ export function GumDropIcon({ className, size = 'md' }: IconProps) {
 }
 
 export function CandyIcon({ className }: { className?: string }) {
-  return <NextImage src="/candy-main.svg" alt="Candy" width={96} height={96} className={cn('object-contain', className)} priority />;
+  return <NextImage src="/candy-3d-glass.png" alt="Candy" width={96} height={96} className={cn('object-contain', className)} priority />;
 }

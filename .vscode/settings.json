@@ -1,4 +1,7 @@
 {
     "terminal.integrated.enableVisualBell": true,
-    "terminal.integrated.gpuAcceleration": "on"
+    "terminal.integrated.gpuAcceleration": "on",
+    "css.customData": [
+        ".vscode/tailwind.json"
+    ]
 }

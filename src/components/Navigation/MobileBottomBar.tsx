@@ -25,7 +25,7 @@ export default function MobileBottomBar() {
     ];
 
     return (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 p-4 pb-8 pointer-events-none">
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 p-4 pointer-events-none" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}>
 
             {/* Floating Balance Badge (Dynamic Island style) - Only if logged in */}
             {user && (
@@ -49,7 +49,7 @@ export default function MobileBottomBar() {
                 </div>
             )}
 
-            <nav className="pointer-events-auto bg-black/55 border border-white/10 rounded-2xl flex items-center justify-around p-2 shadow-xl shadow-black/40">
+            <nav className="pointer-events-auto bg-black/55 backdrop-blur-xl border border-white/10 rounded-2xl flex items-center justify-around p-2 shadow-xl shadow-black/40" style={{ WebkitBackdropFilter: 'blur(20px)' }}>
                 {navItems.map((item) => {
                     const isActive = pathname === item.href;
                     const Icon = item.icon;
@@ -59,7 +59,7 @@ export default function MobileBottomBar() {
                             key={item.label}
                             href={item.href}
                             className={cn(
-                                "flex flex-col items-center gap-1 p-2 rounded-xl transition-all duration-300 w-16 active:scale-90",
+                                "flex flex-col items-center gap-1 p-2 rounded-xl transition-all duration-300 w-16 active:scale-95",
                                 isActive ? "text-brand-pink" : "text-gray-500 "
                             )}
                             onClick={() => {
@@ -86,7 +86,7 @@ export default function MobileBottomBar() {
                         if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
                         openPurchaseModal();
                     }}
-                    className="flex flex-col items-center gap-1 p-2 rounded-xl w-16 text-brand-purple transition-colors active:scale-90"
+                    className="flex flex-col items-center gap-1 p-2 rounded-xl w-16 text-brand-purple transition-all duration-300 active:scale-95"
                 >
                     <div className="p-1 rounded-lg bg-brand-purple/10">
                         <Wallet className="w-6 h-6" />
