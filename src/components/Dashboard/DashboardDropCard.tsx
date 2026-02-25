@@ -3,7 +3,7 @@
 import { Drop } from "@/types/db";
 import NextImage from "next/image";
 import { formatDistanceToNow } from "date-fns";
-import { Lock, Unlock, Download, Share2, Eye, Clock } from "lucide-react";
+import { Lock, Unlock, Share2, Eye, Clock } from "lucide-react";
 
 
 import { memo } from "react";
@@ -87,13 +87,6 @@ function DashboardDropCardBase({ drop, isUnlocked, onClick }: DashboardDropCardP
                                 className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-brand-cyan/10 text-brand-cyan text-xs font-bold transition-colors border border-brand-cyan/20"
                             >
                                 <Eye className="w-3.5 h-3.5" /> View
-                            </Link>
-                            <Link
-                                href={`/dashboard/viewer?id=${drop.id}`}
-                                onClick={(e) => e.stopPropagation()}
-                                className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-white/5 text-gray-300 text-xs font-bold transition-colors border border-white/5"
-                            >
-                                <Download className="w-3.5 h-3.5" /> Save
                             </Link>
                         </>
                     ) : (

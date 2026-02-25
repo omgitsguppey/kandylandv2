@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { ArrowLeft, Lock, ShieldCheck, Heart, Share2, Download, Loader2, ShoppingBag } from "lucide-react";
+import { ArrowLeft, Lock, ShieldCheck, Heart, Share2, Loader2, ShoppingBag } from "lucide-react";
 
 import { toast } from "sonner";
 import { Drop } from "@/types/db";
@@ -13,7 +13,7 @@ import { authFetch } from "@/lib/authFetch";
 import { useUI } from "@/context/UIContext";
 import { cn } from "@/lib/utils";
 
-const DOWNLOAD_COST = 100;
+
 
 interface ViewerClientProps {
     drop: Drop | null;
@@ -106,7 +106,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     const [contentBlobUrl, setContentBlobUrl] = useState<string | null>(null);
     const [resolvedContent, setResolvedContent] = useState<ResolvedContent>({ kind: "unknown", mimeType: "" });
     const [contentLoading, setContentLoading] = useState(false);
-    const [downloading, setDownloading] = useState(false);
+
     const [isSecurityTriggered, setIsSecurityTriggered] = useState(false);
 
     const videoFallbackTypes = ["video/mp4", "video/webm", "video/ogg"];
@@ -239,48 +239,6 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
             cancelled = true;
         };
     }, [isAuthorized, drop]);
-
-    const handleDownload = useCallback(async () => {
-        if (!drop || downloading) return;
-
-        const balance = typeof userProfile?.gumDropsBalance === "number" ? userProfile.gumDropsBalance : 0;
-        if (balance < DOWNLOAD_COST) {
-            openInsufficientBalanceModal(DOWNLOAD_COST);
-            return;
-        }
-
-        const confirmed = window.confirm(
-            `Downloading this content costs ${DOWNLOAD_COST} Gum Drops. Continue?`
-        );
-        if (!confirmed) return;
-
-        setDownloading(true);
-        try {
-            const res = await authFetch("/api/drops/download", {
-                method: "POST",
-                body: JSON.stringify({ dropId: drop.id }),
-            });
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                throw new Error(data.error || "Download failed");
-            }
-
-            // Trigger the actual download
-            const link = document.createElement("a");
-            link.href = data.downloadUrl;
-            link.target = "_blank";
-            link.rel = "noopener noreferrer";
-            link.click();
-
-            toast.success(`Downloaded! -${DOWNLOAD_COST} Gum Drops`);
-        } catch (err: any) {
-            toast.error(err.message || "Download failed");
-        } finally {
-            setDownloading(false);
-        }
-    }, [drop, downloading, openInsufficientBalanceModal, userProfile?.gumDropsBalance]);
 
 
     // Prevent right-click on media
@@ -450,9 +408,6 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                         >
                                             <p className="p-4 text-black text-center">
                                                 Your browser doesn't support built-in PDF viewing.
-                                                <a href={contentBlobUrl} className="text-brand-purple ml-2 underline" download>
-                                                    Download Instead
-                                                </a>
                                             </p>
                                         </object>
                                     </div>
@@ -522,19 +477,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                             <span>Browse More Drops</span>
                         </Link>
 
-                        {/* 4. Paid Download */}
-                        <button
-                            onClick={handleDownload}
-                            disabled={downloading}
-                            className="w-full px-4 py-3 rounded-xl border border-brand-pink/20 bg-brand-pink/10 text-brand-pink font-medium text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {downloading ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                                <Download className="w-4 h-4" />
-                            )}
-                            <span>{downloading ? "Processing..." : `Download (${DOWNLOAD_COST} Gum Drops)`}</span>
-                        </button>
+
                     </div>
                 </div>
 
