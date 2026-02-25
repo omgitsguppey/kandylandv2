@@ -153,6 +153,9 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                           createOrder={(_data, actions) =>
                             actions.order.create({
                               intent: "CAPTURE",
+                              application_context: {
+                                shipping_preference: "NO_SHIPPING",
+                              },
                               purchase_units: [
                                 {
                                   description: `${selectedPackage.drops} Gum Drops - Virtual Currency`,
