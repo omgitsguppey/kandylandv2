@@ -68,7 +68,19 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
                                 <p className="text-xs text-gray-400">{user.email}</p>
                             </div>
                         </div>
-                        <button onClick={onClose} className="p-2 rounded-full transition-colors text-gray-400">
+                    </div>
+                    <div className="flex items-center gap-1">
+                        <button
+                            onClick={() => {
+                                logout();
+                                onClose();
+                            }}
+                            className="p-2 rounded-full transition-colors text-red-400 hover:bg-red-500/10 hover:text-red-300"
+                            title="Sign Out"
+                        >
+                            <LogOut className="w-5 h-5" />
+                        </button>
+                        <button onClick={onClose} className="p-2 rounded-full transition-colors text-gray-400 hover:bg-white/5 hover:text-white" title="Close">
                             <X className="w-5 h-5" />
                         </button>
                     </div>
@@ -99,20 +111,9 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
                         <SidebarItem href="/dashboard/profile" icon={<Settings className="w-5 h-5" />} label="Settings" onClick={onClose} />
                     </nav>
 
-                    {/* Footer */}
-                    <div className="p-6 border-t border-white/10" style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom))' }}>
-                        <button
-                            onClick={() => {
-                                logout();
-                                onClose();
-                            }}
-                            className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold text-red-500 bg-red-500/10 rounded-xl transition-colors"
-                        >
-                            <LogOut className="w-4 h-4" />
-                            Sign Out
-                        </button>
-                    </div>
-                </div>
+                    {/* Footer - Spacer for Safe Area */}
+                    <div className="h-[env(safe-area-inset-bottom)]" />
+                </div >
             </>
         ) : null
     );
