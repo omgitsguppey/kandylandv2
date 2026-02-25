@@ -129,7 +129,7 @@ export function FeaturedCarousel({ drops }: FeaturedCarouselProps) {
                                         </div>
                                     ) : (
                                         <div className="px-3 py-1.5 bg-brand-purple/20 border border-brand-purple/30 rounded-lg text-brand-purple font-bold text-sm whitespace-nowrap shrink-0">
-                                            {drop.unlockCost} Drops
+                                            {drop.unlockCost} GD
                                         </div>
                                     )}
                                     <button className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center active:scale-95 transition-transform shadow-[0_0_20px_rgba(255,255,255,0.4)]">

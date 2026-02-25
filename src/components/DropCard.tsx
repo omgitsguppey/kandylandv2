@@ -272,7 +272,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
 
                 <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-1 md:gap-2 px-2 py-1 md:px-3 md:py-1.5 bg-brand-purple/10 rounded-lg border border-brand-purple/20 shrink-0">
-                        <span className="text-brand-purple font-bold text-[10px] md:text-sm tracking-wide whitespace-nowrap">{drop.unlockCost} Drops</span>
+                        <span className="text-brand-purple font-bold text-[10px] md:text-sm tracking-wide whitespace-nowrap">{drop.unlockCost} GD</span>
                     </div>
 
                     {isUnlocked ? (
