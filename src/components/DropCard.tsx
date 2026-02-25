@@ -271,7 +271,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                 </div>
 
                 <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-1 md:gap-2 px-2 py-1 md:px-3 md:py-1.5 bg-brand-purple/10 rounded-lg border border-brand-purple/20">
+                    <div className="flex items-center gap-1 md:gap-2 px-2 py-1 md:px-3 md:py-1.5 bg-brand-purple/10 rounded-lg border border-brand-purple/20 shrink-0">
                         <span className="text-brand-purple font-bold text-[10px] md:text-sm tracking-wide whitespace-nowrap">{drop.unlockCost} Drops</span>
                     </div>
 
@@ -279,7 +279,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                         <Link
                             href={`/dashboard/viewer?id=${drop.id}`}
                             onClick={triggerHaptic}
-                            className="px-3 py-1.5 md:px-5 md:py-2.5 rounded-lg md:rounded-xl font-bold text-xs md:text-sm bg-brand-green/10 text-brand-green flex items-center gap-1.5 md:gap-2 border border-brand-green/20 transition-all active:scale-95"
+                            className="px-3 py-1.5 md:px-5 md:py-2.5 rounded-lg md:rounded-xl font-bold text-xs md:text-sm bg-brand-green/10 text-brand-green flex items-center justify-center min-w-0 flex-1 whitespace-nowrap gap-1.5 md:gap-2 border border-brand-green/20 transition-all active:scale-95"
                         >
                             <Unlock className="w-3 h-3 md:w-4 md:h-4" />
                             View Content
@@ -290,7 +290,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                             onClick={handleUnlock}
                             disabled={unlocking || !user}
                             className={cn(
-                                "px-4 py-1.5 md:px-6 md:py-2.5 rounded-lg md:rounded-xl font-bold text-xs md:text-sm flex items-center gap-1.5 md:gap-2 border relative overflow-hidden",
+                                "px-3 py-1.5 md:px-5 md:py-2.5 rounded-lg md:rounded-xl font-bold text-xs md:text-sm flex items-center justify-center min-w-0 flex-1 whitespace-nowrap gap-1.5 md:gap-2 border relative overflow-hidden",
                                 canAfford
                                     ? "bg-white text-black border-white    shadow-[0_0_20px_rgba(255,255,255,0.15)] _0_25px_rgba(236,72,153,0.4)]"
                                     : "bg-white/5 text-gray-500 border-white/5 cursor-not-allowed",

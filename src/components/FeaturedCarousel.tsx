@@ -124,11 +124,11 @@ export function FeaturedCarousel({ drops }: FeaturedCarouselProps) {
 
                                 <div className="pt-2 flex items-center gap-3">
                                     {userProfile?.unlockedContent?.includes(drop.id) ? (
-                                        <div className="px-3 py-1.5 bg-brand-green/20 border border-brand-green/30 rounded-lg text-brand-green font-bold text-sm flex items-center gap-1">
+                                        <div className="px-3 py-1.5 bg-brand-green/20 border border-brand-green/30 rounded-lg text-brand-green font-bold text-sm flex items-center gap-1 whitespace-nowrap shrink-0">
                                             View Content
                                         </div>
                                     ) : (
-                                        <div className="px-3 py-1.5 bg-brand-purple/20 border border-brand-purple/30 rounded-lg text-brand-purple font-bold text-sm">
+                                        <div className="px-3 py-1.5 bg-brand-purple/20 border border-brand-purple/30 rounded-lg text-brand-purple font-bold text-sm whitespace-nowrap shrink-0">
                                             {drop.unlockCost} Drops
                                         </div>
                                     )}
