@@ -98,7 +98,7 @@ const DropCardTimer = ({ validFrom, validUntil }: DropCardTimerProps) => {
 };
 
 function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAfford = false }: DropCardProps) {
-    const { userProfile } = useUserProfile();
+    const { userProfile, setUserProfile } = useUserProfile();
     const { openInsufficientBalanceModal } = useUI();
     const [unlocking, setUnlocking] = useState(false);
     const [imageLoaded, setImageLoaded] = useState(false);
@@ -145,6 +145,15 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                 icon: "🔓",
                 duration: 4000
             });
+
+            // Optimistic hot-reload of UserProfile state to bypass any listener latency
+            if (userProfile) {
+                setUserProfile({
+                    ...userProfile,
+                    gumDropsBalance: result.newBalance !== undefined ? result.newBalance : userProfile.gumDropsBalance - drop.unlockCost,
+                    unlockedContent: [...(userProfile.unlockedContent || []), drop.id]
+                });
+            }
 
             import("canvas-confetti").then((mod) => {
                 mod.default({

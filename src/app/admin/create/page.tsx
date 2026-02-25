@@ -155,7 +155,7 @@ function DropForm() {
         try {
             // Parse datetime-local inputs as CST → UTC ms
             const validFrom = fromCSTInput(data.validFrom);
-            let validUntil: number | undefined = undefined;
+            let validUntil: number | null = null;
 
             if (data.validUntil) {
                 validUntil = fromCSTInput(data.validUntil);

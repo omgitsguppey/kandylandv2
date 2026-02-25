@@ -11,11 +11,13 @@ const ALLOWED_DROP_FIELDS = [
     "totalUnlocks", "totalClicks", "rotationConfig", "creatorId",
 ];
 
+import { revalidatePath } from "next/cache";
+
 function sanitizeDropData(raw: Record<string, any>): Record<string, any> {
     const sanitized: Record<string, any> = {};
     for (const key of ALLOWED_DROP_FIELDS) {
         if (raw[key] !== undefined) {
-            sanitized[key] = raw[key];
+            sanitized[key] = raw[key] === null ? FieldValue.delete() : raw[key];
         }
     }
     return sanitized;
@@ -41,6 +43,10 @@ export async function POST(request: NextRequest) {
             ...sanitized,
             createdAt: FieldValue.serverTimestamp(),
         });
+
+        revalidatePath("/drops");
+        revalidatePath("/");
+        revalidatePath("/dashboard");
 
         return NextResponse.json({ success: true, id: docRef.id });
     } catch (error) {
@@ -70,6 +76,10 @@ export async function PUT(request: NextRequest) {
         const dropRef = adminDb.collection("drops").doc(dropId);
         await dropRef.update(sanitized);
 
+        revalidatePath("/drops");
+        revalidatePath("/");
+        revalidatePath("/dashboard");
+
         return NextResponse.json({ success: true });
     } catch (error) {
         return handleApiError(error, "Admin.Drops.PUT");
@@ -97,6 +107,10 @@ export async function DELETE(request: NextRequest) {
         }
 
         await dropRef.delete();
+
+        revalidatePath("/drops");
+        revalidatePath("/");
+        revalidatePath("/dashboard");
 
         return NextResponse.json({ success: true });
     } catch (error) {
