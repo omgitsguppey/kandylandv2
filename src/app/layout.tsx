@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { UIProvider } from "@/context/UIContext";
-import { NowProvider } from "@/context/NowContext";
 import { Navbar } from "@/components/Navbar";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { CoreLayoutWrapper } from "@/components/CoreLayoutWrapper";
@@ -50,22 +49,20 @@ export default function RootLayout({
       <body className="antialiased min-h-[100dvh] app-bg text-white selection:bg-brand-pink selection:text-white flex flex-col">
         <AuthProvider>
           <UIProvider>
-            <NowProvider>
-              <CoreLayoutWrapper>
-                <main className="pt-24 pb-32 md:pb-0 flex-1 relative flex flex-col overflow-x-hidden">
+            <CoreLayoutWrapper>
+              <main className="pt-24 pb-32 md:pb-0 flex-1 relative flex flex-col overflow-x-hidden">
 
-                  {/* Content */}
-                  <div className="relative z-10 flex-1 w-full">
-                    <Navbar />
-                    <ErrorBoundary>
-                      {children}
-                    </ErrorBoundary>
-                  </div>
-                </main>
-                <Analytics />
-                <SpeedInsights />
-              </CoreLayoutWrapper>
-            </NowProvider>
+                {/* Content */}
+                <div className="relative z-10 flex-1 w-full">
+                  <Navbar />
+                  <ErrorBoundary>
+                    {children}
+                  </ErrorBoundary>
+                </div>
+              </main>
+              <Analytics />
+              <SpeedInsights />
+            </CoreLayoutWrapper>
           </UIProvider>
         </AuthProvider>
       </body>

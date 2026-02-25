@@ -21,13 +21,31 @@ export function FeaturedCarousel({ drops }: FeaturedCarouselProps) {
     // For now, let's take up to 5 drops that are active
     const featuredDrops = drops.slice(0, 5);
 
+    const scrollTimeoutRef = useRef<number | null>(null);
+
     const handleScroll = () => {
         if (!scrollRef.current) return;
-        const scrollLeft = scrollRef.current.scrollLeft;
-        const width = scrollRef.current.offsetWidth; // approximate card width + gap
-        const index = Math.round(scrollLeft / (width * 0.8)); // 0.8 is card width ratio
-        setActiveIndex(index);
+
+        if (scrollTimeoutRef.current !== null) {
+            window.cancelAnimationFrame(scrollTimeoutRef.current);
+        }
+
+        scrollTimeoutRef.current = window.requestAnimationFrame(() => {
+            if (!scrollRef.current) return;
+            const scrollLeft = scrollRef.current.scrollLeft;
+            const width = scrollRef.current.offsetWidth;
+            const index = Math.round(scrollLeft / (width * 0.8));
+            setActiveIndex(index);
+        });
     };
+
+    useEffect(() => {
+        return () => {
+            if (scrollTimeoutRef.current !== null) {
+                window.cancelAnimationFrame(scrollTimeoutRef.current);
+            }
+        };
+    }, []);
 
     if (featuredDrops.length === 0) return null;
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, useMemo } from "react";
 
 interface UIContextType {
     isPurchaseModalOpen: boolean;
@@ -34,13 +34,20 @@ export function UIProvider({ children }: { children: ReactNode }) {
     };
     const closeInsufficientBalanceModal = () => setIsInsufficientBalanceModalOpen(false);
 
+    const contextValue = useMemo(() => ({
+        isPurchaseModalOpen, openPurchaseModal, closePurchaseModal,
+        isAuthModalOpen, openAuthModal, closeAuthModal,
+        isInsufficientBalanceModalOpen, requiredCost,
+        openInsufficientBalanceModal, closeInsufficientBalanceModal
+    }), [
+        isPurchaseModalOpen,
+        isAuthModalOpen,
+        isInsufficientBalanceModalOpen,
+        requiredCost
+    ]);
+
     return (
-        <UIContext.Provider value={{
-            isPurchaseModalOpen, openPurchaseModal, closePurchaseModal,
-            isAuthModalOpen, openAuthModal, closeAuthModal,
-            isInsufficientBalanceModalOpen, requiredCost,
-            openInsufficientBalanceModal, closeInsufficientBalanceModal
-        }}>
+        <UIContext.Provider value={contextValue}>
             {children}
         </UIContext.Provider>
     );
