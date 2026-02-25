@@ -7,6 +7,7 @@ import { Loader2, Upload, Trash2, Copy, FileIcon, ImageIcon, Video, RefreshCw } 
 
 import { Button } from "@/components/ui/Button";
 import { format } from "date-fns";
+import Image from "next/image";
 
 interface StorageFile {
     name: string;
@@ -146,9 +147,9 @@ export default function ContentManagerPage() {
                                 files.map((file) => (
                                     <tr key={file.fullPath} className="transition-colors">
                                         <td className="p-4 w-20">
-                                            <div className="w-12 h-12 rounded-lg bg-black/50 overflow-hidden flex items-center justify-center border border-white/10">
+                                            <div className="w-12 h-12 rounded-lg bg-black/50 overflow-hidden flex items-center justify-center border border-white/10 relative">
                                                 {['jpg', 'jpeg', 'png', 'webp'].some(ext => file.name.toLowerCase().endsWith(ext)) ? (
-                                                    <img src={file.url} alt={file.name} className="w-full h-full object-cover" />
+                                                    <Image src={file.url} alt={file.name} fill sizes="48px" className="object-cover" />
                                                 ) : (
                                                     getFileIcon(file.name)
                                                 )}

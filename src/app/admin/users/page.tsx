@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { format } from "date-fns";
 import { BalanceAdjustmentModal } from "@/components/Admin/BalanceAdjustmentModal";
 import { authFetch } from "@/lib/authFetch";
-
+import Image from "next/image";
 
 export default function UserManagementPage() {
     const [users, setUsers] = useState<UserProfile[]>([]);
@@ -226,9 +226,9 @@ export default function UserManagementPage() {
                                     <tr key={user.uid} className="transition-colors">
                                         <td className="p-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-lg font-bold text-gray-500 overflow-hidden">
+                                                <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-lg font-bold text-gray-500 overflow-hidden relative">
                                                     {user.photoURL ? (
-                                                        <img src={user.photoURL} alt={user.displayName || "User"} className="w-full h-full object-cover" />
+                                                        <Image src={user.photoURL} alt={user.displayName || "User"} fill sizes="40px" className="object-cover" />
                                                     ) : (
                                                         (user.displayName?.[0] || user.email?.[0] || "?").toUpperCase()
                                                     )}
@@ -243,7 +243,7 @@ export default function UserManagementPage() {
                                             </div>
                                         </td>
                                         <td className="p-4">
-                                            <span className={`px-2 py-1 rounded-full text-xs font-bold border capitalize ${user.role === 'admin' ? "bg-red-500/10 text-red-400 border-red-500/20" : user.role === 'creator' ? "bg-purple-500/10 text-purple-400 border-purple-500/20" : "bg-gray-500/10 text-gray-400 border-gray-500/20" }`}>
+                                            <span className={`px-2 py-1 rounded-full text-xs font-bold border capitalize ${user.role === 'admin' ? "bg-red-500/10 text-red-400 border-red-500/20" : user.role === 'creator' ? "bg-purple-500/10 text-purple-400 border-purple-500/20" : "bg-gray-500/10 text-gray-400 border-gray-500/20"}`}>
                                                 {user.role || 'user'}
                                             </span>
                                         </td>
@@ -336,9 +336,9 @@ export default function UserManagementPage() {
                 ) : (
                     filteredUsers.map((user) => (
                         <div key={user.uid} className="p-4 flex gap-4 items-start">
-                            <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-lg font-bold text-gray-500 overflow-hidden shrink-0">
+                            <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-lg font-bold text-gray-500 overflow-hidden shrink-0 relative">
                                 {user.photoURL ? (
-                                    <img src={user.photoURL} alt={user.displayName || "User"} className="w-full h-full object-cover" />
+                                    <Image src={user.photoURL} alt={user.displayName || "User"} fill sizes="48px" className="object-cover" />
                                 ) : (
                                     (user.displayName?.[0] || user.email?.[0] || "?").toUpperCase()
                                 )}
@@ -358,7 +358,7 @@ export default function UserManagementPage() {
                                 </div>
 
                                 <div className="flex items-center justify-between text-xs">
-                                    <span className={`px-1.5 py-0.5 rounded border capitalize ${user.role === 'admin' ? "bg-red-500/10 text-red-400 border-red-500/20" : user.role === 'creator' ? "bg-purple-500/10 text-purple-400 border-purple-500/20" : "bg-gray-500/10 text-gray-400 border-gray-500/20" }`}>
+                                    <span className={`px-1.5 py-0.5 rounded border capitalize ${user.role === 'admin' ? "bg-red-500/10 text-red-400 border-red-500/20" : user.role === 'creator' ? "bg-purple-500/10 text-purple-400 border-purple-500/20" : "bg-gray-500/10 text-gray-400 border-gray-500/20"}`}>
                                         {user.role || 'user'}
                                     </span>
                                     <div className="font-mono text-brand-pink flex items-center gap-1">

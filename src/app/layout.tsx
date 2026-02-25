@@ -38,12 +38,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="antialiased min-h-[100dvh] app-bg text-white selection:bg-brand-pink selection:text-white flex flex-col overflow-x-hidden">
+      <body className="antialiased min-h-[100dvh] app-bg text-white selection:bg-brand-pink selection:text-white flex flex-col">
         <AuthProvider>
           <UIProvider>
             <NowProvider>
               <CoreLayoutWrapper>
-                <main className="pt-24 pb-32 md:pb-0 flex-1 relative flex flex-col">
+                <main className="pt-24 pb-32 md:pb-0 flex-1 relative flex flex-col overflow-x-hidden">
 
                   {/* Background Elements */}
                   <div className="fixed inset-0 z-0 pointer-events-none">

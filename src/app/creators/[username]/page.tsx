@@ -12,6 +12,7 @@ import { Loader2, MapPin, LinkIcon, UserPlus, UserCheck, CheckCircle2 } from "lu
 
 import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
+import Image from "next/image";
 
 
 export default function CreatorProfilePage() {
@@ -135,7 +136,7 @@ export default function CreatorProfilePage() {
             {/* Banner */}
             <div className="h-48 md:h-64 bg-zinc-800 relative overflow-hidden group">
                 {creator.bannerUrl ? (
-                    <img src={creator.bannerUrl} alt="Banner" className="w-full h-full object-cover" />
+                    <Image src={creator.bannerUrl} alt="Banner" fill priority className="object-cover" />
                 ) : (
                     <div className="w-full h-full bg-gradient-to-r from-brand-pink/20 to-brand-purple/20" />
                 )}
@@ -145,9 +146,9 @@ export default function CreatorProfilePage() {
             <div className="container mx-auto px-4 -mt-20 relative z-10">
                 <div className="flex flex-col md:flex-row items-end md:items-end gap-6 mb-8">
                     {/* Avatar */}
-                    <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-black bg-zinc-800 overflow-hidden shrink-0 shadow-2xl">
+                    <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-black bg-zinc-800 overflow-hidden shrink-0 shadow-2xl relative">
                         {creator.photoURL ? (
-                            <img src={creator.photoURL} alt={creator.displayName || ""} className="w-full h-full object-cover" />
+                            <Image src={creator.photoURL} alt={creator.displayName || ""} fill sizes="160px" priority className="object-cover" />
                         ) : (
                             <div className="w-full h-full flex items-center justify-center text-4xl">👤</div>
                         )}
@@ -176,7 +177,7 @@ export default function CreatorProfilePage() {
                         <button
                             onClick={handleFollow}
                             disabled={followLoading}
-                            className={`w-full md:w-auto px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all ${following ? "bg-white/10 text-white " : "bg-brand-pink text-white shadow-lg shadow-brand-pink/20" }`}
+                            className={`w-full md:w-auto px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all ${following ? "bg-white/10 text-white " : "bg-brand-pink text-white shadow-lg shadow-brand-pink/20"}`}
                         >
                             {followLoading ? (
                                 <Loader2 className="w-5 h-5 animate-spin" />

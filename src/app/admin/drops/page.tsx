@@ -11,6 +11,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";
+import Image from "next/image";
 
 export default function AdminDropsPage() {
     const [drops, setDrops] = useState<Drop[]>([]);
@@ -104,9 +105,9 @@ export default function AdminDropsPage() {
                                     <tr key={drop.id} className="transition-colors group">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 rounded-lg bg-zinc-800 overflow-hidden shrink-0 border border-white/10">
+                                                <div className="w-12 h-12 rounded-lg bg-zinc-800 overflow-hidden shrink-0 border border-white/10 relative">
                                                     {drop.imageUrl ? (
-                                                        <img src={drop.imageUrl} alt={drop.title} className="w-full h-full object-cover" />
+                                                        <Image src={drop.imageUrl} alt={drop.title} fill sizes="48px" className="object-cover" />
                                                     ) : (
                                                         <div className="w-full h-full flex items-center justify-center text-xl">🍬</div>
                                                     )}
@@ -181,7 +182,7 @@ export default function AdminDropsPage() {
                             <div key={drop.id} className="p-4 flex gap-4 items-start active:bg-white/5 transition-colors">
                                 <div className="w-16 h-16 rounded-xl bg-zinc-800 overflow-hidden shrink-0 border border-white/10 relative">
                                     {drop.imageUrl ? (
-                                        <img src={drop.imageUrl} alt={drop.title} className="w-full h-full object-cover" />
+                                        <Image src={drop.imageUrl} alt={drop.title} fill sizes="64px" className="object-cover" />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-2xl">🍬</div>
                                     )}

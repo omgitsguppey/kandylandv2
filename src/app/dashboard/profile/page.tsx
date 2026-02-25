@@ -9,6 +9,7 @@ import { Loader2, Save, User } from "lucide-react";
 
 import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";
+import Image from "next/image";
 
 export default function ProfilePage() {
     const { user } = useAuth();
@@ -74,7 +75,7 @@ export default function ProfilePage() {
                 <div className="flex items-center gap-6 mb-8">
                     <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-brand-pink to-brand-purple flex items-center justify-center text-3xl font-bold text-white shadow-2xl relative overflow-hidden">
                         {user?.photoURL ? (
-                            <img src={user.photoURL} alt="Avatar" className="w-full h-full object-cover" />
+                            <Image src={user.photoURL} alt="Avatar" fill sizes="80px" className="object-cover" />
                         ) : (
                             user?.displayName?.charAt(0).toUpperCase() || "U"
                         )}

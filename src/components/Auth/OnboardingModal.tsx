@@ -12,6 +12,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { toast } from "sonner";
 import { differenceInYears, parseISO } from "date-fns";
 import { authFetch } from "@/lib/authFetch";
+import Image from "next/image";
 
 // Validation Schema
 const onboardingSchema = z.object({
@@ -213,9 +214,9 @@ export function OnboardingModal() {
                             <div className="space-y-4">
                                 <div className="flex justify-center">
                                     <div className="relative group">
-                                        <div className="w-24 h-24 rounded-full overflow-hidden bg-black border-2 border-white/10 flex items-center justify-center">
+                                        <div className="w-24 h-24 rounded-full overflow-hidden bg-black border-2 border-white/10 flex items-center justify-center relative">
                                             {avatarPreview || user?.photoURL ? (
-                                                <img src={avatarPreview || user?.photoURL || ""} alt="Avatar" className="w-full h-full object-cover" />
+                                                <Image src={avatarPreview || user?.photoURL || ""} alt="Avatar" fill sizes="96px" className="object-cover" />
                                             ) : (
                                                 <User className="w-10 h-10 text-gray-500" />
                                             )}
@@ -234,7 +235,7 @@ export function OnboardingModal() {
                                         <input
                                             {...register("username")}
                                             type="text"
-                                            className={`w-full bg-black/50 border rounded-xl px-8 py-3 text-white focus:outline-none transition-all ${errors.username ? "border-red-500" : usernameAvailable === true ? "border-green-500/50 focus:border-green-500" : "border-white/10 focus:border-brand-pink" }`}
+                                            className={`w-full bg-black/50 border rounded-xl px-8 py-3 text-white focus:outline-none transition-all ${errors.username ? "border-red-500" : usernameAvailable === true ? "border-green-500/50 focus:border-green-500" : "border-white/10 focus:border-brand-pink"}`}
                                             placeholder="username"
                                         />
                                         {checkingUsername && (

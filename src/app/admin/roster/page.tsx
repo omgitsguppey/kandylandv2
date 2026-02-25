@@ -10,6 +10,7 @@ import { Shield, ShieldAlert, CheckCircle2, User, Search, UserCheck, UserX, Crow
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
+import Image from "next/image";
 
 export default function AdminRosterPage() {
     const [users, setUsers] = useState<UserProfile[]>([]);
@@ -121,9 +122,9 @@ export default function AdminRosterPage() {
                                 <tr key={user.uid} className="transition-colors">
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-zinc-800 overflow-hidden shrink-0">
+                                            <div className="w-10 h-10 rounded-full bg-zinc-800 overflow-hidden shrink-0 relative">
                                                 {user.photoURL ? (
-                                                    <img src={user.photoURL} alt={user.username || ""} className="w-full h-full object-cover" />
+                                                    <Image src={user.photoURL} alt={user.username || ""} fill sizes="40px" className="object-cover" />
                                                 ) : (
                                                     <User className="w-full h-full p-2 text-gray-500" />
                                                 )}
@@ -205,9 +206,9 @@ export default function AdminRosterPage() {
                 <div className="md:hidden flex flex-col divide-y divide-white/5">
                     {filteredUsers.map((user) => (
                         <div key={user.uid} className="p-4 flex gap-4 items-start">
-                            <div className="w-12 h-12 rounded-full bg-zinc-800 overflow-hidden shrink-0 border border-white/10">
+                            <div className="w-12 h-12 rounded-full bg-zinc-800 overflow-hidden shrink-0 border border-white/10 relative">
                                 {user.photoURL ? (
-                                    <img src={user.photoURL} alt={user.username || ""} className="w-full h-full object-cover" />
+                                    <Image src={user.photoURL} alt={user.username || ""} fill sizes="48px" className="object-cover" />
                                 ) : (
                                     <User className="w-full h-full p-2 text-gray-500" />
                                 )}

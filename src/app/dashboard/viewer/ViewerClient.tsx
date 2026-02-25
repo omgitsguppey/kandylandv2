@@ -264,11 +264,11 @@ export function ViewerClient({ drop }: ViewerClientProps) {
                             } else if (fileType.startsWith("image/")) {
                                 return (
                                     <div className="relative w-full h-full">
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img
+                                        <NextImage
                                             src={contentBlobUrl}
                                             alt="Content"
-                                            className="w-full h-full object-contain"
+                                            fill
+                                            className="object-contain"
                                             draggable={false}
                                             onContextMenu={preventContextMenu}
                                         />
