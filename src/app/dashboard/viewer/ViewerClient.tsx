@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
@@ -20,18 +20,101 @@ interface ViewerClientProps {
     allDrops?: Drop[];
 }
 
+type ContentKind = "video" | "audio" | "image" | "pdf" | "unknown";
+
+interface ResolvedContent {
+    kind: ContentKind;
+    mimeType: string;
+}
+
+const MIME_TYPE_WITHOUT_PARAMETERS = /^[a-z0-9!#$&^_.+-]+\/[a-z0-9!#$&^_.+-]+$/;
+const GENERIC_BINARY_MIME_TYPES = new Set([
+    "application/octet-stream",
+    "binary/octet-stream",
+    "application/x-download",
+    "application/force-download",
+]);
+
+function normalizeMimeType(input: string | undefined): string {
+    if (!input) return "";
+
+    const value = input.trim().toLowerCase();
+    if (!value) return "";
+
+    const [typeWithoutParameters] = value.split(";");
+    const normalized = typeWithoutParameters.trim();
+
+    if (!MIME_TYPE_WITHOUT_PARAMETERS.test(normalized)) {
+        return "";
+    }
+
+    return normalized;
+}
+
+function resolveContentKind(mimeType: string): ContentKind {
+    if (mimeType.startsWith("video/")) return "video";
+    if (mimeType.startsWith("audio/")) return "audio";
+    if (mimeType.startsWith("image/")) return "image";
+    if (mimeType === "application/pdf") return "pdf";
+    return "unknown";
+}
+
+function resolveContent(blobType: string, metadataType?: string): ResolvedContent {
+    const normalizedBlobType = normalizeMimeType(blobType);
+    const normalizedMetadataType = normalizeMimeType(metadataType);
+
+    const blobKind = resolveContentKind(normalizedBlobType);
+    const metadataKind = resolveContentKind(normalizedMetadataType);
+
+    const blobTypeIsSpecific = normalizedBlobType !== "" && !GENERIC_BINARY_MIME_TYPES.has(normalizedBlobType);
+
+    // Blob MIME comes from the fetched payload and should be the primary source when specific.
+    if (blobTypeIsSpecific && blobKind !== "unknown") {
+        return {
+            kind: blobKind,
+            mimeType: normalizedBlobType,
+        };
+    }
+
+    // Storage providers sometimes respond with generic binary MIME values.
+    // In that case we intentionally fall back to trusted metadata collected at upload time.
+    if (metadataKind !== "unknown") {
+        return {
+            kind: metadataKind,
+            mimeType: normalizedMetadataType,
+        };
+    }
+
+    if (blobTypeIsSpecific) {
+        return {
+            kind: blobKind,
+            mimeType: normalizedBlobType,
+        };
+    }
+
+    return {
+        kind: "unknown",
+        mimeType: "",
+    };
+}
+
 export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     const { user, userProfile, loading: authLoading } = useAuth();
     const { openInsufficientBalanceModal } = useUI();
     const router = useRouter();
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [contentBlobUrl, setContentBlobUrl] = useState<string | null>(null);
+    const [resolvedContent, setResolvedContent] = useState<ResolvedContent>({ kind: "unknown", mimeType: "" });
     const [contentLoading, setContentLoading] = useState(false);
     const [downloading, setDownloading] = useState(false);
     const [isSecurityTriggered, setIsSecurityTriggered] = useState(false);
+    const contentBlobRef = useRef<string | null>(null);
 
     const videoFallbackTypes = ["video/mp4", "video/webm", "video/ogg"];
     const audioFallbackTypes = ["audio/mpeg", "audio/mp4", "audio/wav", "audio/ogg", "audio/webm"];
+    const unlockedDropIds = useMemo(() => (
+        Array.isArray(userProfile?.unlockedContent) ? userProfile.unlockedContent : []
+    ), [userProfile?.unlockedContent]);
 
     // Redirect if not logged in (once auth is ready)
     useEffect(() => {
@@ -42,12 +125,24 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
 
     // Check authorization
     useEffect(() => {
-        if (drop && userProfile?.unlockedContent?.includes(drop.id)) {
+        if (drop && unlockedDropIds.includes(drop.id)) {
             setIsAuthorized(true);
         } else {
             setIsAuthorized(false);
         }
-    }, [drop, userProfile]);
+    }, [drop, unlockedDropIds]);
+
+    useEffect(() => {
+        if (isAuthorized) return;
+
+        if (contentBlobRef.current) {
+            URL.revokeObjectURL(contentBlobRef.current);
+            contentBlobRef.current = null;
+        }
+
+        setContentBlobUrl(null);
+        setResolvedContent({ kind: "unknown", mimeType: "" });
+    }, [isAuthorized]);
 
     // Security Hooks for Anti-Ripping
     useEffect(() => {
@@ -101,22 +196,32 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     useEffect(() => {
         if (!isAuthorized || !drop) return;
 
+        const currentDrop = drop;
         let cancelled = false;
 
         async function fetchContent() {
             setContentLoading(true);
             try {
-                const res = await authFetch(`/api/drops/content?id=${drop!.id}`);
+                const res = await authFetch(`/api/drops/content?id=${currentDrop.id}`);
                 if (!res.ok) throw new Error("Failed to load content");
 
                 const blob = await res.blob();
                 if (!cancelled) {
+                    const nextResolvedContent = resolveContent(blob.type, currentDrop.fileMetadata?.type);
                     const url = URL.createObjectURL(blob);
+
+                    if (contentBlobRef.current) {
+                        URL.revokeObjectURL(contentBlobRef.current);
+                    }
+
+                    contentBlobRef.current = url;
                     setContentBlobUrl(url);
+                    setResolvedContent(nextResolvedContent);
                 }
             } catch (err) {
                 console.error("Content load error:", err);
                 if (!cancelled) {
+                    setResolvedContent({ kind: "unknown", mimeType: "" });
                     toast.error("Failed to load content");
                 }
             } finally {
@@ -128,26 +233,27 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
 
         return () => {
             cancelled = true;
-            if (contentBlobUrl) {
-                URL.revokeObjectURL(contentBlobUrl);
+            if (contentBlobRef.current) {
+                URL.revokeObjectURL(contentBlobRef.current);
+                contentBlobRef.current = null;
             }
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isAuthorized, drop?.id]);
+    }, [isAuthorized, drop]);
 
     // Cleanup blob URL on unmount
     useEffect(() => {
         return () => {
-            if (contentBlobUrl) {
-                URL.revokeObjectURL(contentBlobUrl);
+            if (contentBlobRef.current) {
+                URL.revokeObjectURL(contentBlobRef.current);
+                contentBlobRef.current = null;
             }
         };
-    }, [contentBlobUrl]);
+    }, []);
 
     const handleDownload = useCallback(async () => {
         if (!drop || downloading) return;
 
-        const balance = userProfile?.gumDropsBalance ?? 0;
+        const balance = typeof userProfile?.gumDropsBalance === "number" ? userProfile.gumDropsBalance : 0;
         if (balance < DOWNLOAD_COST) {
             openInsufficientBalanceModal(DOWNLOAD_COST);
             return;
@@ -184,7 +290,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         } finally {
             setDownloading(false);
         }
-    }, [drop, downloading, userProfile]);
+    }, [drop, downloading, openInsufficientBalanceModal, userProfile?.gumDropsBalance]);
 
 
     // Prevent right-click on media
@@ -238,12 +344,9 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         );
     }
 
-    // Determine content type for rendering
-    const fileType = drop.fileMetadata?.type || "";
-
     // Calculate retention drops
     const retentionDrops = (allDrops || [])
-        .filter(d => userProfile?.unlockedContent?.includes(d.id) && d.id !== drop.id)
+        .filter((d) => unlockedDropIds.includes(d.id) && d.id !== drop.id)
         .slice(0, 4);
 
     return (
@@ -290,7 +393,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                         </div>
                     ) : contentBlobUrl ? (
                         (() => {
-                            if (fileType.startsWith("video/")) {
+                            if (resolvedContent.kind === "video") {
                                 return (
                                     <video
                                         controls
@@ -304,13 +407,13 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                         onContextMenu={preventContextMenu}
                                         draggable={false}
                                     >
-                                        <source src={contentBlobUrl} type={fileType} />
-                                        {videoFallbackTypes.filter((type) => type !== fileType).map((type) => (
+                                        <source src={contentBlobUrl} type={resolvedContent.mimeType} />
+                                        {videoFallbackTypes.filter((type) => type !== resolvedContent.mimeType).map((type) => (
                                             <source key={type} src={contentBlobUrl} type={type} />
                                         ))}
                                     </video>
                                 );
-                            } else if (fileType.startsWith("audio/")) {
+                            } else if (resolvedContent.kind === "audio") {
                                 return (
                                     <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-black relative">
                                         <NextImage
@@ -328,27 +431,26 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                             className="relative z-10 w-[90%] max-w-md"
                                             onContextMenu={preventContextMenu}
                                         >
-                                            <source src={contentBlobUrl} type={fileType} />
-                                            {audioFallbackTypes.filter((type) => type !== fileType).map((type) => (
+                                            <source src={contentBlobUrl} type={resolvedContent.mimeType} />
+                                            {audioFallbackTypes.filter((type) => type !== resolvedContent.mimeType).map((type) => (
                                                 <source key={type} src={contentBlobUrl} type={type} />
                                             ))}
                                         </audio>
                                     </div>
                                 );
-                            } else if (fileType.startsWith("image/")) {
+                            } else if (resolvedContent.kind === "image") {
                                 return (
                                     <div className="relative w-full h-full">
-                                        <NextImage
+                                        <img
                                             src={contentBlobUrl}
                                             alt="Content"
-                                            fill
-                                            className="object-contain"
+                                            className="w-full h-full object-contain"
                                             draggable={false}
                                             onContextMenu={preventContextMenu}
                                         />
                                     </div>
                                 );
-                            } else if (fileType === "application/pdf") {
+                            } else if (resolvedContent.kind === "pdf") {
                                 return (
                                     <div className="w-full h-[85vh] bg-white rounded-md overflow-hidden">
                                         <object
