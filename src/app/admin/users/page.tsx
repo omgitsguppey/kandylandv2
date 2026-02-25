@@ -4,11 +4,12 @@ import { useState, useEffect } from "react";
 import { collection, query, orderBy, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
 import { UserProfile } from "@/types/db";
-import { Loader2, Search, Shield, Ban, CheckCircle, AlertTriangle, Edit2, Lock, Plus } from "lucide-react";
+import { Loader2, Search, Shield, Ban, CheckCircle, AlertTriangle, Edit2, Lock, Plus, ScrollText } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import { format } from "date-fns";
 import { BalanceAdjustmentModal } from "@/components/Admin/BalanceAdjustmentModal";
+import { TransactionHistoryModal } from "@/components/Admin/TransactionHistoryModal";
 import { authFetch } from "@/lib/authFetch";
 import Image from "next/image";
 
@@ -23,6 +24,7 @@ export default function UserManagementPage() {
 
     // Balance Editing State
     const [editBalanceUser, setEditBalanceUser] = useState<UserProfile | null>(null);
+    const [historyUser, setHistoryUser] = useState<UserProfile | null>(null);
 
     useEffect(() => {
         fetchUsers();
@@ -258,15 +260,22 @@ export default function UserManagementPage() {
                                                 {user.gumDropsBalance} 🍬
                                                 <button
                                                     onClick={() => setEditBalanceUser(user)}
-                                                    className="p-1 rounded-md text-gray-500 transition-colors"
+                                                    className="p-1 rounded-md text-gray-500 hover:text-white transition-colors"
                                                     title="Edit Balance"
                                                 >
                                                     <Edit2 className="w-3 h-3" />
                                                 </button>
+                                                <button
+                                                    onClick={() => setHistoryUser(user)}
+                                                    className="p-1 rounded-md text-gray-500 hover:text-white transition-colors"
+                                                    title="View History"
+                                                >
+                                                    <ScrollText className="w-3 h-3" />
+                                                </button>
                                             </div>
                                         </td>
                                         <td className="p-4 text-gray-500 text-sm">
-                                            {format(user.createdAt, 'MMM d, yyyy')}
+                                            {format((user.createdAt as any)?.toMillis?.() || user.createdAt || Date.now(), 'MMM d, yyyy')}
                                         </td>
                                         <td className="p-4 text-sm">
                                             {(user.securityFlags?.ripAttempts ?? 0) > 0 ? (
@@ -382,7 +391,8 @@ export default function UserManagementPage() {
                                     </div>
                                     <div className="font-mono text-brand-pink flex items-center gap-1">
                                         {user.gumDropsBalance} 🍬
-                                        <button onClick={() => setEditBalanceUser(user)}><Edit2 className="w-3 h-3 text-gray-500" /></button>
+                                        <button onClick={() => setEditBalanceUser(user)}><Edit2 className="w-3 h-3 text-gray-500 hover:text-white" /></button>
+                                        <button onClick={() => setHistoryUser(user)}><ScrollText className="w-3 h-3 text-gray-500 hover:text-white" /></button>
                                     </div>
                                 </div>
 
@@ -405,8 +415,8 @@ export default function UserManagementPage() {
                 )}
             </div>
 
-            {/* Action Modal (Same as existing, no changes needed here mostly but ensuring it closes properly) */}
-            {(actionType || editBalanceUser) && (
+            {/* Action Modals */}
+            {(actionType || editBalanceUser || contentUser || historyUser) && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
                     {actionType && actionUser && (
                         <div className="bg-zinc-900 border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl">
@@ -450,6 +460,12 @@ export default function UserManagementPage() {
                             onSuccess={(newBalance) => {
                                 setUsers(users.map(u => u.uid === editBalanceUser.uid ? { ...u, gumDropsBalance: newBalance } : u));
                             }}
+                        />
+                    )}
+                    {historyUser && (
+                        <TransactionHistoryModal
+                            user={historyUser}
+                            onClose={() => setHistoryUser(null)}
                         />
                     )}
                     {contentUser && (
