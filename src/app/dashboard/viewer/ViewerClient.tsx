@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { ArrowLeft, Lock, ShieldCheck, Heart, Share2, Download, Loader2 } from "lucide-react";
+import { ArrowLeft, Lock, ShieldCheck, Heart, Share2, Download, Loader2, ShoppingBag } from "lucide-react";
 
 import { toast } from "sonner";
 import { Drop } from "@/types/db";
@@ -264,7 +264,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                 {/* Media Container */}
                 <div
                     className={cn(
-                        "w-full aspect-video max-h-[85vh] mx-auto bg-zinc-900 flex items-center justify-center relative group select-none transition-all duration-300",
+                        "w-full min-h-[50vh] max-h-[85vh] mx-auto bg-zinc-900 flex items-center justify-center relative group select-none transition-all duration-300",
                         isSecurityTriggered ? "blur-2xl grayscale" : ""
                     )}
                     onContextMenu={preventContextMenu}
@@ -296,9 +296,11 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                         controls
                                         controlsList="nodownload noplaybackrate"
                                         disablePictureInPicture
-                                        className="w-full h-full object-contain"
+                                        className="w-full h-full max-h-[85vh] object-contain"
                                         poster={drop.imageUrl}
                                         autoPlay
+                                        playsInline
+                                        preload="auto"
                                         onContextMenu={preventContextMenu}
                                         draggable={false}
                                     >
@@ -405,19 +407,28 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                     <div className="flex flex-col gap-3 w-full md:w-auto min-w-[200px]">
                         {/* Primary Actions Row */}
                         <div className="flex items-center gap-2">
-                            <button className="flex-1 px-4 py-3 rounded-xl bg-white/10 text-white font-bold transition-colors flex items-center justify-center gap-2 border border-white/5">
-                                <Heart className="w-5 h-5" /> <span className="text-sm">Like</span>
+                            <button className="flex-1 px-4 py-3 rounded-xl bg-white/10 text-white font-bold transition-transform active:scale-95 flex items-center justify-center gap-2 border border-white/5">
+                                <Heart className="w-4 h-4" /> <span className="text-sm">Like</span>
                             </button>
                             <button
-                                className="flex-1 px-4 py-3 rounded-xl bg-white/10 text-white font-bold transition-colors flex items-center justify-center gap-2 border border-white/5"
+                                className="flex-1 px-4 py-3 rounded-xl bg-white/10 text-white font-bold transition-transform active:scale-95 flex items-center justify-center gap-2 border border-white/5"
                                 onClick={() => {
                                     navigator.clipboard.writeText(window.location.href);
                                     toast.success("Link copied!");
                                 }}
                             >
-                                <Share2 className="w-5 h-5" /> <span className="text-sm">Share</span>
+                                <Share2 className="w-4 h-4" /> <span className="text-sm">Share</span>
                             </button>
                         </div>
+
+                        {/* Navigation Loop */}
+                        <Link
+                            href="/drops"
+                            className="w-full px-4 py-3 rounded-xl bg-white text-black font-black text-sm flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.2)] mt-1"
+                        >
+                            <ShoppingBag className="w-4 h-4" />
+                            <span>Browse More Drops</span>
+                        </Link>
 
                         {/* 4. Paid Download */}
                         <button
