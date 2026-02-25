@@ -6,7 +6,6 @@ import { LogOut, LayoutDashboard, Library, Settings, X, Plus } from "lucide-reac
 
 import { useAuthIdentity, useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
-import { cn } from "@/lib/utils";
 
 interface ProfileSidebarProps {
     isOpen: boolean;

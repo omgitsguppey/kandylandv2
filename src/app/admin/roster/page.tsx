@@ -5,7 +5,7 @@ import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
 import { UserProfile } from "@/types/db";
 import { format } from "date-fns";
-import { Shield, ShieldAlert, CheckCircle2, User, Search, UserCheck, UserX, Crown } from "lucide-react";
+import { CheckCircle2, User, Search, UserX, Crown } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";

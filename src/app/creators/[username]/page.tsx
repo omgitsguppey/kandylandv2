@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
 import { UserProfile, Drop } from "@/types/db";
 import { DropGrid } from "@/components/DropGrid";
 import { useAuth } from "@/context/AuthContext";
-import { Loader2, MapPin, LinkIcon, UserPlus, UserCheck, CheckCircle2 } from "lucide-react";
+import { Loader2, UserPlus, UserCheck, CheckCircle2 } from "lucide-react";
 
 
 import { toast } from "sonner";

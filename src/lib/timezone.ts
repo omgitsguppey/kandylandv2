@@ -57,7 +57,6 @@ export function fromCSTInput(datetimeLocal: string): number {
     }).formatToParts(refDate);
 
     const cstHour = Number(cstParts.find(p => p.type === "hour")?.value ?? 0);
-    const cstMinute = Number(cstParts.find(p => p.type === "minute")?.value ?? 0);
     const cstDay = Number(cstParts.find(p => p.type === "day")?.value ?? 1);
 
     // Calculate offset: UTC hour - CST hour (adjusting for day boundary)

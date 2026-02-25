@@ -5,7 +5,7 @@ import NextImage from "next/image";
 import { formatDistanceToNow } from "date-fns";
 import { Lock, Unlock, Download, Share2, Eye, Clock } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+
 import { memo } from "react";
 import { toast } from "sonner";
 import Link from "next/link";

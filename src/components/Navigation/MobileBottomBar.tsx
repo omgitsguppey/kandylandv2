@@ -1,18 +1,16 @@
 "use client";
 
-import { Home, Candy, Wallet, Search, Sparkles } from "lucide-react";
+import { Home, Candy, Wallet, Sparkles } from "lucide-react";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/context/AuthContext";
+
 import { useUI } from "@/context/UIContext";
-import { AnimateBalance } from "./AnimateBalance";
 
 
 export default function MobileBottomBar() {
     const pathname = usePathname();
-    const { user, userProfile } = useAuth();
     const { openPurchaseModal } = useUI();
 
     // Hide on desktop (md and up) and on admin pages

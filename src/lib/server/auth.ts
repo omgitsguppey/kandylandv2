@@ -1,6 +1,6 @@
 import "server-only";
 import { NextRequest, NextResponse } from "next/server";
-import { adminAuth, adminDb } from "./firebase-admin";
+import { adminAuth } from "./firebase-admin";
 
 export interface AuthResult {
     uid: string;

@@ -6,7 +6,7 @@ import { storage } from "@/lib/firebase-data";
 import { Loader2, Upload, Trash2, Copy, FileIcon, ImageIcon, Video, RefreshCw } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
-import { format } from "date-fns";
+
 import Image from "next/image";
 
 interface StorageFile {
@@ -148,8 +148,10 @@ export default function ContentManagerPage() {
                                     <tr key={file.fullPath} className="transition-colors">
                                         <td className="p-4 w-20">
                                             <div className="w-12 h-12 rounded-lg bg-black/50 overflow-hidden flex items-center justify-center border border-white/10 relative">
-                                                {['jpg', 'jpeg', 'png', 'webp'].some(ext => file.name.toLowerCase().endsWith(ext)) ? (
+                                                {['jpg', 'jpeg', 'png', 'webp', 'gif'].some(ext => file.name.toLowerCase().endsWith(ext)) ? (
                                                     <Image src={file.url} alt={file.name} fill sizes="48px" className="object-cover" />
+                                                ) : ['mp4', 'webm', 'ogg', 'mov'].some(ext => file.name.toLowerCase().endsWith(ext)) ? (
+                                                    <video src={file.url} className="w-full h-full object-cover" muted loop playsInline />
                                                 ) : (
                                                     getFileIcon(file.name)
                                                 )}

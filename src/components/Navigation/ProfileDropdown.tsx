@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { User, LogOut, LayoutDashboard, Library, Settings, ChevronDown } from "lucide-react";
+import { LogOut, LayoutDashboard, Library, Settings, ChevronDown } from "lucide-react";
 
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";

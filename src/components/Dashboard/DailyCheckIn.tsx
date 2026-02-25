@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { differenceInHours, isSameDay } from "date-fns";
-import { Gift, Loader2, CheckCircle, Calendar } from "lucide-react";
+import { Gift, Loader2, CheckCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
@@ -88,7 +88,7 @@ export function DailyCheckIn() {
                 throw new Error(result.error || "Check-in failed");
             }
 
-            const { reward, streak } = result;
+            const { reward } = result;
 
             // Analytics
             if (typeof window !== "undefined") {
@@ -139,7 +139,6 @@ export function DailyCheckIn() {
                         // Let's rely on 'currentStreak' from DB.
 
                         const isActive = day <= currentStreak;
-                        const isToday = day === (currentStreak + (isAlreadyClaimedToday ? 0 : 1));
                         // Edge case: if streak > 7 (looping), simpler visualization needed or reset?
                         // We reset at 8.
 

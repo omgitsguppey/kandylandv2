@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useMemo, useCallback, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useMemo, ReactNode } from "react";
 import {
     onAuthStateChanged,
     User,
@@ -59,21 +59,6 @@ function ensureAuthPersistence() {
 }
 
 
-async function fetchUserProfile(user: User): Promise<UserProfile | null> {
-    const [{ db }, { doc, getDoc }] = await Promise.all([
-        import("@/lib/firebase-data"),
-        import("firebase/firestore"),
-    ]);
-
-    const profileDocRef = doc(db, "users", user.uid);
-    const profileSnapshot = await getDoc(profileDocRef);
-
-    if (!profileSnapshot.exists()) {
-        return null;
-    }
-
-    return normalizeUserProfile(profileSnapshot.data(), user);
-}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);

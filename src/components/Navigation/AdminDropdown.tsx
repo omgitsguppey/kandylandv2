@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useAuthIdentity, useAuth } from "@/context/AuthContext";
-import { LayoutDashboard, Package, PlusCircle, Users, Terminal, LogOut, ShieldCheck, Shield } from "lucide-react";
+import { LayoutDashboard, Package, PlusCircle, Users, Terminal, LogOut, ShieldCheck } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 

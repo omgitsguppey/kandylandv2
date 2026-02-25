@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Bell, Check, Trash2, Info, CheckCircle, AlertTriangle, XCircle } from "lucide-react";
+import { Bell, Check, Info, CheckCircle, AlertTriangle, XCircle } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { useNotifications } from "@/hooks/useNotifications";

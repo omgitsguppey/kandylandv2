@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
@@ -108,7 +108,6 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     const [contentLoading, setContentLoading] = useState(false);
     const [downloading, setDownloading] = useState(false);
     const [isSecurityTriggered, setIsSecurityTriggered] = useState(false);
-    const contentBlobRef = useRef<string | null>(null);
 
     const videoFallbackTypes = ["video/mp4", "video/webm", "video/ogg"];
     const audioFallbackTypes = ["audio/mpeg", "audio/mp4", "audio/wav", "audio/ogg", "audio/webm"];
@@ -134,11 +133,6 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
 
     useEffect(() => {
         if (isAuthorized) return;
-
-        if (contentBlobRef.current) {
-            URL.revokeObjectURL(contentBlobRef.current);
-            contentBlobRef.current = null;
-        }
 
         setContentBlobUrl(null);
         setResolvedContent({ kind: "unknown", mimeType: "" });
@@ -192,7 +186,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         };
     }, [isAuthorized, drop]);
 
-    // Fetch content as blob URL to avoid exposing raw Firebase URLs in the DOM
+    // Fetch content directly to avoid massive Blob memory allocations
     useEffect(() => {
         if (!isAuthorized || !drop) return;
 
@@ -202,20 +196,30 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         async function fetchContent() {
             setContentLoading(true);
             try {
-                const res = await authFetch(`/api/drops/content?id=${currentDrop.id}`);
+                const res = await authFetch(`/api/drops/content?id=${currentDrop.id}`, {
+                    headers: {
+                        Accept: "application/json",
+                    },
+                });
+
                 if (!res.ok) throw new Error("Failed to load content");
 
-                const blob = await res.blob();
-                if (!cancelled) {
-                    const nextResolvedContent = resolveContent(blob.type, currentDrop.fileMetadata?.type);
-                    const url = URL.createObjectURL(blob);
+                const data = await res.json();
+                if (!data.url) throw new Error("No URL returned");
 
-                    if (contentBlobRef.current) {
-                        URL.revokeObjectURL(contentBlobRef.current);
+                if (!cancelled) {
+                    let guessedMimeType = currentDrop.fileMetadata?.type || "";
+                    if (!guessedMimeType) {
+                        const lowerUrl = data.url.toLowerCase();
+                        if (lowerUrl.includes(".mp4") || lowerUrl.includes(".webm") || lowerUrl.includes(".mov")) guessedMimeType = "video/mp4";
+                        else if (lowerUrl.includes(".jpg") || lowerUrl.includes(".jpeg") || lowerUrl.includes(".png") || lowerUrl.includes(".webp") || lowerUrl.includes(".gif")) guessedMimeType = "image/jpeg";
+                        else if (lowerUrl.includes(".mp3") || lowerUrl.includes(".wav") || lowerUrl.includes(".ogg")) guessedMimeType = "audio/mpeg";
+                        else if (lowerUrl.includes(".pdf")) guessedMimeType = "application/pdf";
                     }
 
-                    contentBlobRef.current = url;
-                    setContentBlobUrl(url);
+                    const nextResolvedContent = resolveContent(guessedMimeType, currentDrop.fileMetadata?.type);
+
+                    setContentBlobUrl(data.url);
                     setResolvedContent(nextResolvedContent);
                 }
             } catch (err) {
@@ -233,22 +237,8 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
 
         return () => {
             cancelled = true;
-            if (contentBlobRef.current) {
-                URL.revokeObjectURL(contentBlobRef.current);
-                contentBlobRef.current = null;
-            }
         };
     }, [isAuthorized, drop]);
-
-    // Cleanup blob URL on unmount
-    useEffect(() => {
-        return () => {
-            if (contentBlobRef.current) {
-                URL.revokeObjectURL(contentBlobRef.current);
-                contentBlobRef.current = null;
-            }
-        };
-    }, []);
 
     const handleDownload = useCallback(async () => {
         if (!drop || downloading) return;

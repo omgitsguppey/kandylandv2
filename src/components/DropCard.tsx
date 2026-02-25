@@ -14,9 +14,6 @@ import { authFetch } from "@/lib/authFetch";
 import { useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
-
-
 interface DropCardProps {
     drop: Drop;
     priority?: boolean;

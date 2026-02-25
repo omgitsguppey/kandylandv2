@@ -1,5 +1,4 @@
 import { Drop } from "@/types/db";
-import { cn } from "@/lib/utils";
 import { authFetch } from "@/lib/authFetch";
 import { ArrowUpRight } from "lucide-react";
 

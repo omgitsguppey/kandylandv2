@@ -23,7 +23,6 @@ const signUpSchema = signInSchema.extend({
     }, "You must be 18+ to join KandyDrops"),
 });
 
-type SignInFormData = z.infer<typeof signInSchema>;
 type SignUpFormData = z.infer<typeof signUpSchema>;
 
 interface AuthModalProps {

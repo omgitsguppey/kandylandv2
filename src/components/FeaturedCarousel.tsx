@@ -5,9 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import NextImage from "next/image";
 import { formatDistanceToNow } from "date-fns";
-import { Clock, Play, ChevronRight } from "lucide-react";
-
-import Link from "next/link";
+import { Clock, ChevronRight } from "lucide-react";
 
 interface FeaturedCarouselProps {
     drops: Drop[];

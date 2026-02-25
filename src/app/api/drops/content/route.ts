@@ -51,6 +51,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "No content available" }, { status: 404 });
     }
 
+    if (request.headers.get("accept") === "application/json") {
+      return NextResponse.json({ url: dropData.data.contentUrl });
+    }
+
     return NextResponse.redirect(dropData.data.contentUrl);
   } catch (error) {
     return handleApiError(error, "Drops.Content");

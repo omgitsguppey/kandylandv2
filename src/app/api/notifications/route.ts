@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { verifyAuth, verifyAdmin, AuthError, handleApiError } from "@/lib/server/auth";
+import { verifyAuth, verifyAdmin, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 
 // POST — Send notification (admin-only)

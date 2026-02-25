@@ -1,8 +1,5 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
-
-
 export default function DropsLoading() {
     return (
         <main className="min-h-screen bg-black pt-24 md:pt-32 px-4 md:px-8 max-w-7xl mx-auto pb-24">

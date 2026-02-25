@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from "@/lib/firebase-data";
-import { Upload, X, Loader2, FileType, ImageIcon } from "lucide-react";
+import { Upload, X, Loader2, FileType } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -133,16 +133,23 @@ export function FileUpload({ label, folder, onUploadComplete, initialUrl, accept
                     </div>
                 ) : previewUrl ? (
                     <div className="relative w-full h-full flex flex-col items-center justify-center">
-                        {accept?.startsWith("image/") ? (
+                        {accept?.startsWith("image/") || previewUrl.match(/\.(jpeg|jpg|gif|png|webp)(\?|$)/i) ? (
                             <img
                                 src={previewUrl}
                                 alt="Preview"
                                 className="w-full h-full object-contain rounded-lg"
                             />
+                        ) : accept?.startsWith("video/") || previewUrl.match(/\.(mp4|webm|ogg|mov)(\?|$)/i) ? (
+                            <video
+                                src={previewUrl}
+                                controls
+                                muted
+                                className="w-full h-full object-contain rounded-lg"
+                            />
                         ) : (
                             <div className="flex flex-col items-center gap-2 text-brand-green">
                                 <FileType className="w-12 h-12" />
-                                <span className="text-sm font-mono truncate max-w-[200px]">{previewUrl.split('/').pop()}</span>
+                                <span className="text-sm font-mono truncate max-w-[200px]">{previewUrl.split('/').pop()?.split('?')[0]}</span>
                             </div>
                         )}
 

@@ -5,9 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { DailyCheckIn } from "@/components/Dashboard/DailyCheckIn";
 import { CollectionList } from "@/components/Dashboard/CollectionList";
 import { redirect } from "next/navigation";
-import { Loader2, Package, Star, ArrowRight } from "lucide-react";
-
-import Link from "next/link";
+import { Star } from "lucide-react";
 
 import { Drop } from "@/types/db";
 
