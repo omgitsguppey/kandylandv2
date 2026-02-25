@@ -4,21 +4,31 @@ import { Drop } from "@/types/db";
 type TimestampLike = { toMillis: () => number };
 
 function isTimestampLike(value: unknown): value is TimestampLike {
-  if (typeof value !== "object" || value === null || !("toMillis" in value)) {
+  if (typeof value !== "object" || value === null) {
     return false;
   }
 
-  const candidate = value as { toMillis?: unknown };
-  if (typeof candidate.toMillis !== "function") {
-    return false;
+  const candidate = value as Record<string, unknown>;
+
+  // Check for fully instantiated Timestamp
+  if (typeof candidate.toMillis === "function") {
+    try {
+      const result = candidate.toMillis();
+      return typeof result === "number" && Number.isFinite(result);
+    } catch {
+      return false;
+    }
   }
 
-  try {
-    const result = candidate.toMillis();
-    return typeof result === "number" && Number.isFinite(result);
-  } catch {
-    return false;
+  // Check for raw REST API format {_seconds, _nanoseconds} or {seconds, nanoseconds}
+  if (
+    (typeof candidate._seconds === "number" && typeof candidate._nanoseconds === "number") ||
+    (typeof candidate.seconds === "number" && typeof candidate.nanoseconds === "number")
+  ) {
+    return true;
   }
+
+  return false;
 }
 
 const rotationSchema = z.object({
@@ -43,11 +53,11 @@ const dropSchema = z.object({
   contentUrl: z.string().default(""),
   unlockCost: z.number().nonnegative().default(0),
   validFrom: z.number().finite(),
-  validUntil: z.number().finite().optional(),
+  validUntil: z.number().finite().nullable().optional(),
   status: z.enum(["active", "expired", "scheduled"]).default("scheduled"),
   totalUnlocks: z.number().int().nonnegative().default(0),
   totalClicks: z.number().int().nonnegative().optional(),
-  createdAt: z.number().finite().optional(),
+  createdAt: z.number().finite().nullable().optional(),
   type: z.enum(["content", "promo", "external"]).optional(),
   ctaText: z.string().optional(),
   actionUrl: z.string().optional(),
@@ -59,8 +69,9 @@ const dropSchema = z.object({
       type: z.string(),
       dimensions: z.string().optional(),
     })
+    .nullable()
     .optional(),
-  rotationConfig: rotationSchema.optional(),
+  rotationConfig: rotationSchema.nullable().optional(),
 });
 
 const dropRecordSchema = z.object({
@@ -72,11 +83,11 @@ const dropRecordSchema = z.object({
   contentUrl: z.string().optional(),
   unlockCost: z.number().optional(),
   validFrom: timestampSchema,
-  validUntil: timestampSchema.optional(),
+  validUntil: timestampSchema.nullable().optional(),
   status: z.enum(["active", "expired", "scheduled"]).optional(),
   totalUnlocks: z.number().optional(),
   totalClicks: z.number().optional(),
-  createdAt: timestampSchema.optional(),
+  createdAt: timestampSchema.nullable().optional(),
   type: z.enum(["content", "promo", "external"]).optional(),
   ctaText: z.string().optional(),
   actionUrl: z.string().optional(),
@@ -88,8 +99,9 @@ const dropRecordSchema = z.object({
       type: z.string(),
       dimensions: z.string().optional(),
     })
+    .nullable()
     .optional(),
-  rotationConfig: rotationSchema.optional(),
+  rotationConfig: rotationSchema.nullable().optional(),
 });
 
 function toMillis(value: z.infer<typeof timestampSchema>): number {
@@ -97,7 +109,20 @@ function toMillis(value: z.infer<typeof timestampSchema>): number {
     return value;
   }
 
-  return value.toMillis();
+  const candidate = value as Record<string, any>;
+  if (typeof candidate.toMillis === "function") {
+    return candidate.toMillis();
+  }
+
+  if (typeof candidate._seconds === "number") {
+    return candidate._seconds * 1000;
+  }
+
+  if (typeof candidate.seconds === "number") {
+    return candidate.seconds * 1000;
+  }
+
+  return 0; // Fallback
 }
 
 export function normalizeDropRecord(raw: unknown, id: string): Drop {
@@ -105,7 +130,7 @@ export function normalizeDropRecord(raw: unknown, id: string): Drop {
   return dropSchema.parse({
     ...parsed,
     validFrom: toMillis(parsed.validFrom),
-    validUntil: parsed.validUntil !== undefined ? toMillis(parsed.validUntil) : undefined,
-    createdAt: parsed.createdAt !== undefined ? toMillis(parsed.createdAt) : undefined,
+    validUntil: parsed.validUntil != null ? toMillis(parsed.validUntil) : null,
+    createdAt: parsed.createdAt != null ? toMillis(parsed.createdAt) : null,
   }) as Drop;
 }
