@@ -40,7 +40,7 @@ export function PromoCard({ drop }: PromoCardProps) {
                         src={drop.imageUrl}
                         alt={drop.title}
                         fill
-                        className="object-cover transition-transform duration-700 opacity-90"
+                        className="object-contain bg-black transition-transform duration-700 opacity-90"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                 ) : (

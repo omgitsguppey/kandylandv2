@@ -21,15 +21,17 @@ function resolveDropStatus(drop: Drop, now: number): { drop: Drop; needsUpdate: 
         // Check if we've hit the max rotation cap
         const atCap = rc.maxRotations !== undefined && rc.rotationCount >= rc.maxRotations;
 
-        if (!atCap) {
-            // Calculate the gap between active windows
-            const gapDays = rc.intervalDays - rc.durationDays;
-            const gapMs = Math.max(0, gapDays) * MS_PER_DAY;
-            const durationMs = rc.durationDays * MS_PER_DAY;
+        if (!atCap && resolved.validFrom && resolved.validUntil) {
+            // Calculate active duration dynamically from original dates
+            const durationMs = resolved.validUntil - resolved.validFrom;
 
-            // How many full cycles have we missed since the last validUntil?
+            // Calculate gap between active windows
+            const gapDays = rc.intervalDays;
+            const gapMs = Math.max(0, gapDays) * MS_PER_DAY;
+
+            // How many full cycles (duration + gap) have we missed since the last validUntil?
             const elapsed = now - resolved.validUntil;
-            const cycleMs = rc.intervalDays * MS_PER_DAY;
+            const cycleMs = durationMs + gapMs;
             const missedCycles = Math.floor(elapsed / cycleMs);
 
             // Jump forward to the correct cycle

@@ -4,8 +4,11 @@ import { Drop } from "@/types/db";
 import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import NextImage from "next/image";
+import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { Clock, ChevronRight } from "lucide-react";
+
+import { useUserProfile } from "@/context/AuthContext";
 
 interface FeaturedCarouselProps {
     drops: Drop[];
@@ -14,6 +17,7 @@ interface FeaturedCarouselProps {
 export function FeaturedCarousel({ drops }: FeaturedCarouselProps) {
     const scrollRef = useRef<HTMLDivElement>(null);
     const [activeIndex, setActiveIndex] = useState(0);
+    const { userProfile } = useUserProfile();
 
     // Filter relevant drops (e.g. Hot or explicitly featured, or just recent)
     // For now, let's take up to 5 drops that are active
@@ -64,19 +68,28 @@ export function FeaturedCarousel({ drops }: FeaturedCarouselProps) {
                     const isActive = index === activeIndex;
 
                     return (
-                        <div
+                        <Link
+                            href={`#drop-${drop.id}`}
                             key={drop.id}
                             className={cn(
-                                "snap-center shrink-0 w-[85vw] md:w-[400px] aspect-[4/3] rounded-3xl relative overflow-hidden transition-all duration-500 ease-out border border-white/10 group",
+                                "snap-center shrink-0 w-[85vw] md:w-[400px] aspect-[4/3] rounded-3xl relative overflow-hidden transition-all duration-500 ease-out border border-white/10 group block",
                                 isActive ? "scale-100 shadow-[0_0_30px_rgba(236,72,153,0.3)] border-brand-pink/30" : "scale-95 opacity-70"
                             )}
+                            onClick={(e) => {
+                                // Provide smooth scrolling for in-page anchors
+                                const target = document.getElementById(`drop-${drop.id}`);
+                                if (target) {
+                                    e.preventDefault();
+                                    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                }
+                            }}
                         >
                             {/* Background Image */}
                             <NextImage
                                 src={drop.imageUrl || "/placeholder.jpg"}
                                 alt={drop.title}
                                 fill
-                                className="object-cover"
+                                className="object-contain bg-black"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
 
@@ -110,15 +123,21 @@ export function FeaturedCarousel({ drops }: FeaturedCarouselProps) {
                                 <p className="text-sm text-gray-300 line-clamp-2">{drop.description}</p>
 
                                 <div className="pt-2 flex items-center gap-3">
-                                    <div className="px-3 py-1.5 bg-brand-purple/20 border border-brand-purple/30 rounded-lg text-brand-purple font-bold text-sm">
-                                        {drop.unlockCost} Drops
-                                    </div>
+                                    {userProfile?.unlockedContent?.includes(drop.id) ? (
+                                        <div className="px-3 py-1.5 bg-brand-green/20 border border-brand-green/30 rounded-lg text-brand-green font-bold text-sm flex items-center gap-1">
+                                            View Content
+                                        </div>
+                                    ) : (
+                                        <div className="px-3 py-1.5 bg-brand-purple/20 border border-brand-purple/30 rounded-lg text-brand-purple font-bold text-sm">
+                                            {drop.unlockCost} Drops
+                                        </div>
+                                    )}
                                     <button className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center active:scale-95 transition-transform shadow-[0_0_20px_rgba(255,255,255,0.4)]">
                                         <ChevronRight className="w-5 h-5 ml-0.5" />
                                     </button>
                                 </div>
                             </div>
-                        </div>
+                        </Link>
                     );
                 })}
             </div>

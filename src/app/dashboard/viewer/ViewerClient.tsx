@@ -555,7 +555,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                                 src={retentionDrop.imageUrl}
                                                 alt={retentionDrop.title}
                                                 fill
-                                                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                                className="object-contain bg-black group-hover:scale-105 transition-transform duration-500"
                                             />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center text-3xl">🍬</div>

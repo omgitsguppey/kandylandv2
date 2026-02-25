@@ -107,7 +107,7 @@ export default function AdminDropsPage() {
                                             <div className="flex items-center gap-4">
                                                 <div className="w-12 h-12 rounded-lg bg-zinc-800 overflow-hidden shrink-0 border border-white/10 relative">
                                                     {drop.imageUrl ? (
-                                                        <Image src={drop.imageUrl} alt={drop.title} fill sizes="48px" className="object-cover" />
+                                                        <Image src={drop.imageUrl} alt={drop.title} fill sizes="48px" className="object-contain bg-black" />
                                                     ) : (
                                                         <div className="w-full h-full flex items-center justify-center text-xl">🍬</div>
                                                     )}
@@ -182,7 +182,7 @@ export default function AdminDropsPage() {
                             <div key={drop.id} className="p-4 flex gap-4 items-start active:bg-white/5 transition-colors">
                                 <div className="w-16 h-16 rounded-xl bg-zinc-800 overflow-hidden shrink-0 border border-white/10 relative">
                                     {drop.imageUrl ? (
-                                        <Image src={drop.imageUrl} alt={drop.title} fill sizes="64px" className="object-cover" />
+                                        <Image src={drop.imageUrl} alt={drop.title} fill sizes="64px" className="object-contain bg-black" />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-2xl">🍬</div>
                                     )}

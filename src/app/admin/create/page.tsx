@@ -39,7 +39,6 @@ const dropSchema = z.object({
     // Auto-Rotation
     rotationEnabled: z.boolean().optional(),
     rotationIntervalDays: z.coerce.number().min(1).optional(),
-    rotationDurationDays: z.coerce.number().min(1).optional(),
     rotationMaxRotations: z.coerce.number().min(1).optional().or(z.literal("")).transform(v => v === "" ? undefined : v),
 });
 
@@ -80,7 +79,6 @@ function DropForm() {
             fileMetadata: null,
             rotationEnabled: false,
             rotationIntervalDays: 7,
-            rotationDurationDays: 3,
             rotationMaxRotations: undefined,
             ...getDefaultCSTDates()
         }
@@ -113,7 +111,6 @@ function DropForm() {
                     if (data.rotationConfig) {
                         setValue("rotationEnabled", data.rotationConfig.enabled);
                         setValue("rotationIntervalDays", data.rotationConfig.intervalDays);
-                        setValue("rotationDurationDays", data.rotationConfig.durationDays);
                         if (data.rotationConfig.maxRotations) {
                             setValue("rotationMaxRotations", data.rotationConfig.maxRotations);
                         }
@@ -180,7 +177,6 @@ function DropForm() {
             const rotationConfig = data.rotationEnabled ? {
                 enabled: true,
                 intervalDays: data.rotationIntervalDays || 7,
-                durationDays: data.rotationDurationDays || 3,
                 maxRotations: data.rotationMaxRotations || undefined,
                 rotationCount: 0,
             } : undefined;
@@ -227,6 +223,8 @@ function DropForm() {
                 if (!response.ok) throw new Error(result.error);
             }
 
+            // Immediately force a router cache refresh to clear old drop arrays
+            router.refresh();
             router.push("/admin/drops");
         } catch (error: any) {
             console.error("Error saving drop:", error);
@@ -433,20 +431,11 @@ function DropForm() {
                         </label>
 
                         {rotationEnabled && (
-                            <div className="mt-3 grid grid-cols-3 gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                            <div className="mt-3 grid grid-cols-2 gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
                                 <div className="space-y-1">
-                                    <label className="text-xs text-gray-400 block">Cycle (days)</label>
+                                    <label className="text-xs text-gray-400 block">Gap Between Cycles (days)</label>
                                     <input
                                         {...register("rotationIntervalDays")}
-                                        type="number"
-                                        min="1"
-                                        className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-brand-purple/50"
-                                    />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-xs text-gray-400 block">Active (days)</label>
-                                    <input
-                                        {...register("rotationDurationDays")}
                                         type="number"
                                         min="1"
                                         className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-brand-purple/50"

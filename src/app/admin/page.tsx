@@ -139,7 +139,7 @@ export default function AdminDashboardPage() {
                             <div key={drop.id} className="flex items-center gap-4 p-3 rounded-xl transition-colors group">
                                 <div className="w-12 h-12 rounded-lg bg-zinc-800 flex items-center justify-center text-xl overflow-hidden relative">
                                     {drop.imageUrl ? (
-                                        <img src={drop.imageUrl} alt={drop.title} className="object-cover w-full h-full opacity-80" />
+                                        <img src={drop.imageUrl} alt={drop.title} className="object-contain bg-black w-full h-full opacity-80" />
                                     ) : "🍬"}
                                 </div>
                                 <div>

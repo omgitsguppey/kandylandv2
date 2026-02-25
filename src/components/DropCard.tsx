@@ -202,7 +202,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                                     alt={drop.title}
                                     fill
                                     className={cn(
-                                        "object-cover transition-all duration-700",
+                                        "object-contain bg-black transition-all duration-700",
                                         imageLoaded ? "scale-100 blur-0" : "scale-110 blur-xl"
                                     )}
                                     onLoadingComplete={() => setImageLoaded(true)}
@@ -234,7 +234,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                                     fill
                                     priority={priority}
                                     className={cn(
-                                        "object-cover transition-all duration-700 opacity-80 ",
+                                        "object-contain bg-black transition-all duration-700 opacity-80 ",
                                         imageLoaded ? "scale-100 blur-0" : "scale-110 blur-xl"
                                     )}
                                     onLoadingComplete={() => setImageLoaded(true)}

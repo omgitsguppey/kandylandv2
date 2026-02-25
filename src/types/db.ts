@@ -61,8 +61,7 @@ export interface Drop {
     // Auto-Rotation Config
     rotationConfig?: {
         enabled: boolean;
-        intervalDays: number;   // total cycle length (e.g., 7 = weekly)
-        durationDays: number;   // how long each active window lasts
+        intervalDays: number;   // gap length (e.g., 7 = 7 days between drops)
         maxRotations?: number;  // optional cap (undefined = forever)
         rotationCount: number;  // how many times it has rotated so far
     };

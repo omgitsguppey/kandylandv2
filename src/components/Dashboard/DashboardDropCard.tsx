@@ -35,7 +35,7 @@ function DashboardDropCardBase({ drop, isUnlocked, onClick }: DashboardDropCardP
                         src={drop.imageUrl}
                         alt={drop.title}
                         fill
-                        className="object-cover opacity-80 transition-opacity"
+                        className="object-contain bg-black opacity-80 transition-opacity"
                         sizes="(max-width: 768px) 100vw, 33vw"
                     />
                 ) : (

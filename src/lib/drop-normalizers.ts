@@ -33,10 +33,9 @@ function isTimestampLike(value: unknown): value is TimestampLike {
 
 const rotationSchema = z.object({
   enabled: z.boolean(),
-  intervalDays: z.number().int().nonnegative(),
-  durationDays: z.number().int().nonnegative(),
-  maxRotations: z.number().int().nonnegative().optional(),
-  rotationCount: z.number().int().nonnegative(),
+  intervalDays: z.number().min(0),
+  maxRotations: z.number().optional(),
+  rotationCount: z.number().min(0),
 });
 
 const timestampSchema = z.union([

@@ -99,6 +99,8 @@ export function DropGrid({ drops: propDrops, loading: propLoading, isSearching }
                 return (
                     <div
                         key={drop.id}
+                        id={`drop-${drop.id}`}
+                        className="scroll-mt-32 transition-all"
                     >
                         {(drop.type === 'promo' || drop.type === 'external') ? (
                             <PromoCard drop={drop} />

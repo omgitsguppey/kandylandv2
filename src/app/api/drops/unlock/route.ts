@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAuth, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
+import { revalidatePath } from "next/cache";
 
 export async function POST(request: NextRequest) {
     try {
@@ -74,6 +75,10 @@ export async function POST(request: NextRequest) {
         });
 
         console.log(`✅ Unlock verified: ${dropData.title} for user ${userId} (-${unlockCost} GD)`);
+
+        // Bust the global drops cache to reflect the new unlock count and personal unlock states
+        revalidatePath("/drops");
+        revalidatePath("/dashboard");
 
         return NextResponse.json({
             success: true,
