@@ -38,12 +38,12 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
                 {/* Backdrop */}
                 <div
                     onClick={onClose}
-                    className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm"
+                    className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm"
                 />
 
                 {/* Sidebar */}
                 <div
-                    className="fixed top-0 right-0 bottom-0 w-[85vw] max-w-sm z-[70] bg-zinc-900 border-l border-white/10 flex flex-col shadow-2xl"
+                    className="fixed top-0 right-0 bottom-0 w-[85vw] max-w-sm z-[110] bg-zinc-900 border-l border-white/10 flex flex-col shadow-2xl"
                 >
                     {/* Header */}
                     <div className="p-6 border-b border-white/10 flex items-center justify-between">
@@ -100,7 +100,7 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
                     </nav>
 
                     {/* Footer */}
-                    <div className="p-6 border-t border-white/10">
+                    <div className="p-6 border-t border-white/10" style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom))' }}>
                         <button
                             onClick={() => {
                                 logout();

@@ -25,7 +25,7 @@ export default function MobileBottomBar() {
     ];
 
     return (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 p-4 pointer-events-none" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}>
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 p-4 pointer-events-none" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}>
 
             <nav className="pointer-events-auto bg-black/55 backdrop-blur-xl border border-white/10 rounded-full flex items-center justify-around p-2 shadow-xl shadow-black/40" style={{ WebkitBackdropFilter: 'blur(20px)' }}>
                 {navItems.map((item) => {
