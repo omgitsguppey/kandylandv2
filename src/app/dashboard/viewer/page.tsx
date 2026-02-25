@@ -1,4 +1,4 @@
-import { getDrop } from "@/lib/server/drops";
+import { getDrop, getDrops } from "@/lib/server/drops";
 import { ViewerClient } from "./ViewerClient";
 
 interface PageProps {
@@ -10,6 +10,7 @@ export default async function ViewerPage({ searchParams }: PageProps) {
     const id = typeof params.id === 'string' ? params.id : undefined;
 
     const drop = id ? await getDrop(id) : null;
+    const allDrops = await getDrops();
 
-    return <ViewerClient drop={drop} />;
+    return <ViewerClient drop={drop} allDrops={allDrops} />;
 }

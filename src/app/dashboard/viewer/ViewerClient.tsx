@@ -11,14 +11,16 @@ import { Drop } from "@/types/db";
 import NextImage from "next/image";
 import { authFetch } from "@/lib/authFetch";
 import { useUI } from "@/context/UIContext";
+import { cn } from "@/lib/utils";
 
 const DOWNLOAD_COST = 100;
 
 interface ViewerClientProps {
     drop: Drop | null;
+    allDrops?: Drop[];
 }
 
-export function ViewerClient({ drop }: ViewerClientProps) {
+export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     const { user, userProfile, loading: authLoading } = useAuth();
     const { openInsufficientBalanceModal } = useUI();
     const router = useRouter();
@@ -26,6 +28,7 @@ export function ViewerClient({ drop }: ViewerClientProps) {
     const [contentBlobUrl, setContentBlobUrl] = useState<string | null>(null);
     const [contentLoading, setContentLoading] = useState(false);
     const [downloading, setDownloading] = useState(false);
+    const [isSecurityTriggered, setIsSecurityTriggered] = useState(false);
 
     const videoFallbackTypes = ["video/mp4", "video/webm", "video/ogg"];
     const audioFallbackTypes = ["audio/mpeg", "audio/mp4", "audio/wav", "audio/ogg", "audio/webm"];
@@ -45,6 +48,54 @@ export function ViewerClient({ drop }: ViewerClientProps) {
             setIsAuthorized(false);
         }
     }, [drop, userProfile]);
+
+    // Security Hooks for Anti-Ripping
+    useEffect(() => {
+        if (!isAuthorized || !drop) return;
+
+        const logViolation = async (reason: string) => {
+            setIsSecurityTriggered(true);
+            try {
+                // Fire and forget telemetry
+                authFetch("/api/security/log-attempt", {
+                    method: "POST",
+                    body: JSON.stringify({ dropId: drop.id, reason }),
+                }).catch(console.error);
+            } catch (err) { }
+
+            // Auto unblur after 5 seconds to reduce annoyance for false positives
+            setTimeout(() => {
+                setIsSecurityTriggered(false);
+            }, 5000);
+        };
+
+        const handleKeyDown = (e: KeyboardEvent) => {
+            // macOS: Cmd+Shift+3/4/5
+            const isMacScreenshot = e.metaKey && e.shiftKey && (e.key === '3' || e.key === '4' || e.key === '5');
+            // Windows: Win+Shift+S
+            const isWinScreenshot = e.metaKey && e.shiftKey && e.key.toLowerCase() === 's';
+            // Global: PrintScreen
+            const isPrintScreen = e.key === 'PrintScreen' || e.code === 'PrintScreen';
+
+            if (isMacScreenshot || isWinScreenshot || isPrintScreen) {
+                logViolation("screenshot_hotkey");
+            }
+        };
+
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                logViolation("window_blur");
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
+        };
+    }, [isAuthorized, drop]);
 
     // Fetch content as blob URL to avoid exposing raw Firebase URLs in the DOM
     useEffect(() => {
@@ -190,6 +241,11 @@ export function ViewerClient({ drop }: ViewerClientProps) {
     // Determine content type for rendering
     const fileType = drop.fileMetadata?.type || "";
 
+    // Calculate retention drops
+    const retentionDrops = (allDrops || [])
+        .filter(d => userProfile?.unlockedContent?.includes(d.id) && d.id !== drop.id)
+        .slice(0, 4);
+
     return (
         <div className="min-h-screen bg-black pb-20">
             {/* 1. Full-Width Media Viewer (Immersive) */}
@@ -207,10 +263,26 @@ export function ViewerClient({ drop }: ViewerClientProps) {
 
                 {/* Media Container */}
                 <div
-                    className="w-full aspect-video max-h-[85vh] mx-auto bg-zinc-900 flex items-center justify-center relative group select-none"
+                    className={cn(
+                        "w-full aspect-video max-h-[85vh] mx-auto bg-zinc-900 flex items-center justify-center relative group select-none transition-all duration-300",
+                        isSecurityTriggered ? "blur-2xl grayscale" : ""
+                    )}
                     onContextMenu={preventContextMenu}
-                    style={{ WebkitUserSelect: "none", userSelect: "none" }}
+                    style={{ WebkitUserSelect: "none", userSelect: "none", WebkitUserDrag: "none" } as any}
                 >
+                    {/* Security Warning Overlay */}
+                    {isSecurityTriggered && (
+                        <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
+                            <div className="bg-black/90 px-8 py-6 rounded-3xl flex flex-col items-center gap-4 border border-red-500/50 shadow-[0_0_50px_rgba(239,68,68,0.3)]">
+                                <ShieldCheck className="w-12 h-12 text-red-500 animate-pulse" />
+                                <div className="text-center">
+                                    <p className="text-white font-black tracking-widest text-xl mb-1">CONTENT PROTECTED</p>
+                                    <p className="text-sm text-red-400 font-medium">Recording capture detected.</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {contentLoading ? (
                         <div className="flex flex-col items-center gap-3">
                             <Loader2 className="w-10 h-10 text-brand-pink animate-spin" />
@@ -364,15 +436,34 @@ export function ViewerClient({ drop }: ViewerClientProps) {
                 </div>
 
                 {/* 5. Retention: More Like This */}
-                <div className="mt-12 md:mt-20 border-t border-white/5 pt-8">
-                    <h3 className="text-lg font-bold text-white mb-6">More from collection</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 opacity-50 pointer-events-none grayscale">
-                        {[1, 2, 3, 4].map(i => (
-                            <div key={i} className="aspect-square bg-white/5 rounded-xl border border-white/5" />
-                        ))}
+                {retentionDrops.length > 0 && (
+                    <div className="mt-12 md:mt-20 border-t border-white/5 pt-8">
+                        <h3 className="text-lg font-bold text-white mb-6">More from your collection</h3>
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                            {retentionDrops.map((retentionDrop) => (
+                                <Link
+                                    key={retentionDrop.id}
+                                    href={`/dashboard/viewer?id=${retentionDrop.id}`}
+                                    className="group block"
+                                >
+                                    <div className="aspect-square bg-zinc-900 rounded-xl border border-white/5 overflow-hidden relative mb-2">
+                                        {retentionDrop.imageUrl ? (
+                                            <NextImage
+                                                src={retentionDrop.imageUrl}
+                                                alt={retentionDrop.title}
+                                                fill
+                                                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-3xl">🍬</div>
+                                        )}
+                                    </div>
+                                    <p className="text-sm font-bold text-white line-clamp-1 group-hover:text-brand-pink transition-colors">{retentionDrop.title}</p>
+                                </Link>
+                            ))}
+                        </div>
                     </div>
-                    <p className="text-center text-xs text-gray-600 mt-4">Exploring collection coming soon...</p>
-                </div>
+                )}
             </div>
         </div>
     );

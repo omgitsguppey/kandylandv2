@@ -205,19 +205,20 @@ export default function UserManagementPage() {
                                 <th className="p-4 font-medium">Status</th>
                                 <th className="p-4 font-medium">Balance</th>
                                 <th className="p-4 font-medium">Joined</th>
+                                <th className="p-4 font-medium">Security</th>
                                 <th className="p-4 font-medium text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
                             {loading ? (
                                 <tr>
-                                    <td colSpan={6} className="p-8 text-center">
+                                    <td colSpan={7} className="p-8 text-center">
                                         <Loader2 className="w-6 h-6 text-brand-pink animate-spin mx-auto" />
                                     </td>
                                 </tr>
                             ) : filteredUsers.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} className="p-8 text-center text-gray-500">
+                                    <td colSpan={7} className="p-8 text-center text-gray-500">
                                         No users found matching "{searchQuery}"
                                     </td>
                                 </tr>
@@ -266,6 +267,16 @@ export default function UserManagementPage() {
                                         </td>
                                         <td className="p-4 text-gray-500 text-sm">
                                             {format(user.createdAt, 'MMM d, yyyy')}
+                                        </td>
+                                        <td className="p-4 text-sm">
+                                            {(user.securityFlags?.ripAttempts ?? 0) > 0 ? (
+                                                <div className="flex items-center gap-1 text-red-500 font-bold bg-red-500/10 px-2 py-1 rounded-full w-fit border border-red-500/20" title={`Last violation: ${user.securityFlags?.lastViolationReason || 'Unknown'}`}>
+                                                    <AlertTriangle className="w-3 h-3" />
+                                                    {user.securityFlags!.ripAttempts} Flags
+                                                </div>
+                                            ) : (
+                                                <span className="text-gray-600 font-medium">Clean</span>
+                                            )}
                                         </td>
                                         <td className="p-4 text-right">
                                             <div className="flex items-center justify-end gap-1">
@@ -358,9 +369,17 @@ export default function UserManagementPage() {
                                 </div>
 
                                 <div className="flex items-center justify-between text-xs">
-                                    <span className={`px-1.5 py-0.5 rounded border capitalize ${user.role === 'admin' ? "bg-red-500/10 text-red-400 border-red-500/20" : user.role === 'creator' ? "bg-purple-500/10 text-purple-400 border-purple-500/20" : "bg-gray-500/10 text-gray-400 border-gray-500/20"}`}>
-                                        {user.role || 'user'}
-                                    </span>
+                                    <div className="flex items-center gap-2">
+                                        <span className={`px-1.5 py-0.5 rounded border capitalize ${user.role === 'admin' ? "bg-red-500/10 text-red-400 border-red-500/20" : user.role === 'creator' ? "bg-purple-500/10 text-purple-400 border-purple-500/20" : "bg-gray-500/10 text-gray-400 border-gray-500/20"}`}>
+                                            {user.role || 'user'}
+                                        </span>
+                                        {(user.securityFlags?.ripAttempts ?? 0) > 0 && (
+                                            <div className="flex items-center gap-1 text-red-500 font-bold bg-red-500/10 px-1.5 py-0.5 rounded border border-red-500/20" title={`Last violation: ${user.securityFlags?.lastViolationReason || 'Unknown'}`}>
+                                                <AlertTriangle className="w-3 h-3" />
+                                                {user.securityFlags!.ripAttempts} Flags
+                                            </div>
+                                        )}
+                                    </div>
                                     <div className="font-mono text-brand-pink flex items-center gap-1">
                                         {user.gumDropsBalance} 🍬
                                         <button onClick={() => setEditBalanceUser(user)}><Edit2 className="w-3 h-3 text-gray-500" /></button>

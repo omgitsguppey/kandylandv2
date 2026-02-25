@@ -18,6 +18,13 @@ export interface UserProfile {
     streakCount?: number; // Current daily streak
     status?: 'active' | 'suspended' | 'banned'; // User account status
     statusReason?: string; // Reason for suspension/ban
+
+    securityFlags?: {
+        ripAttempts: number;
+        lastViolation?: string; // ISO date
+        lastViolationReason?: string; // e.g. 'screenshot_hotkey', 'window_blur'
+        lastViolationDropId?: string;
+    };
 }
 
 export interface Drop {
