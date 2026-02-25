@@ -50,9 +50,11 @@ export default function Hero() {
                             Unwrap Now
                         </Button>
                     )}
-                    <Button size="lg" variant="glass" className="rounded-full px-8 py-3 w-full sm:w-auto text-base md:text-lg">
-                        What&apos;s a KandyDrop?
-                    </Button>
+                    <Link href="/faq" className="w-full sm:w-auto">
+                        <Button size="lg" variant="glass" className="rounded-full px-8 py-3 w-full text-base md:text-lg">
+                            What&apos;s a KandyDrop?
+                        </Button>
+                    </Link>
                 </div>
             </div>
 
