@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
@@ -10,7 +10,6 @@ import { toast } from "sonner";
 import { Drop } from "@/types/db";
 import NextImage from "next/image";
 import { authFetch } from "@/lib/authFetch";
-import { useUI } from "@/context/UIContext";
 import { cn } from "@/lib/utils";
 
 
@@ -100,7 +99,6 @@ function resolveContent(blobType: string, metadataType?: string): ResolvedConten
 
 export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     const { user, userProfile, loading: authLoading } = useAuth();
-    const { openInsufficientBalanceModal } = useUI();
     const router = useRouter();
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [contentBlobUrl, setContentBlobUrl] = useState<string | null>(null);
