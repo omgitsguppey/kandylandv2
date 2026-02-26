@@ -7,7 +7,8 @@ import { db } from "@/lib/firebase-data";
 import { UserProfile, Drop } from "@/types/db";
 import { DropGrid } from "@/components/DropGrid";
 import { useAuth } from "@/context/AuthContext";
-import { Loader2, UserPlus, UserCheck, CheckCircle2 } from "lucide-react";
+import { useUI } from "@/context/UIContext";
+import { Loader2, UserPlus, UserCheck, CheckCircle2, Lock } from "lucide-react";
 
 
 import { toast } from "sonner";
@@ -17,7 +18,8 @@ import Image from "next/image";
 
 export default function CreatorProfilePage() {
     const params = useParams();
-    const { user: currentUser, userProfile: currentUserProfile } = useAuth();
+    const { user: currentUser, userProfile: currentUserProfile, loading: authLoading } = useAuth();
+    const { openAuthModal } = useUI();
     const username = params.username as string;
 
     const [creator, setCreator] = useState<UserProfile | null>(null);
@@ -202,7 +204,31 @@ export default function CreatorProfilePage() {
                     </div>
 
                     {drops.length > 0 ? (
-                        <DropGrid drops={drops} />
+                        <div className="relative">
+                            {!authLoading && !currentUser && (
+                                <div className="absolute inset-0 z-50 flex items-center justify-center pt-10 pb-20 glass-panel !bg-black/60 backdrop-blur-md rounded-3xl m-2 border border-white/5">
+                                    <div className="flex flex-col items-center text-center p-8 max-w-md animate-in fade-in zoom-in duration-500">
+                                        <div className="w-20 h-20 rounded-full bg-brand-pink/20 flex items-center justify-center mb-6 border border-brand-pink/30 shadow-[0_0_30px_rgba(236,72,153,0.3)]">
+                                            <Lock className="w-10 h-10 text-brand-pink" />
+                                        </div>
+                                        <h3 className="text-3xl font-black text-white mb-4 tracking-tight">Members Only</h3>
+                                        <p className="text-gray-400 font-medium mb-8 leading-relaxed">
+                                            Sign in to preview and unwrap this creator's exclusive drops.
+                                        </p>
+                                        <button
+                                            onClick={openAuthModal}
+                                            className="px-8 py-4 w-full rounded-xl bg-white text-black font-black text-lg transition-transform hover:scale-105 active:scale-95 shadow-[0_0_40px_rgba(255,255,255,0.2)]"
+                                        >
+                                            Sign Up / Sign In
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className={!authLoading && !currentUser ? "opacity-30 pointer-events-none select-none grayscale transition-all duration-700" : ""}>
+                                <DropGrid drops={drops} />
+                            </div>
+                        </div>
                     ) : (
                         <div className="text-center py-20 bg-white/5 rounded-3xl border border-white/5 border-dashed">
                             <p className="text-gray-400">This creator hasn't dropped anything yet.</p>
