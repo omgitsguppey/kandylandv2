@@ -20,7 +20,8 @@ const PAYPAL_ENV = process.env.PAYPAL_ENV === "production" ? "production" : "san
 const PAYPAL_BASE_URL = PAYPAL_ENV === "production" ? "https://api-m.paypal.com" : "https://api-m.sandbox.paypal.com";
 
 function getPayPalCredentials() {
-  const clientId = PAYPAL_ENV === "production" ? process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE : process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_SANDBOX;
+  const clientId =
+    PAYPAL_ENV === "production" ? process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE : process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_SANDBOX;
   const clientSecret = PAYPAL_ENV === "production" ? process.env.PAYPAL_CLIENT_SECRET_LIVE : process.env.PAYPAL_CLIENT_SECRET_SANDBOX;
   if (!clientId || !clientSecret) throw new Error("PayPal credentials not configured");
   return { clientId, clientSecret };
@@ -101,24 +102,43 @@ export async function POST(request: NextRequest) {
 
     if (!adminDb) return NextResponse.json({ error: "Database not available" }, { status: 500 });
 
-    const existingTx = await adminDb.collection("transactions").where("paymentId", "==", orderId).where("status", "==", "completed").limit(1).get();
-    if (!existingTx.empty) return NextResponse.json({ success: true, drops: dropsToCredit, duplicate: true }, { status: 200 });
+    const paymentLockRef = adminDb.collection("paymentLocks").doc(orderId);
+    const userRef = adminDb.collection("users").doc(userId);
 
-    const batch = adminDb.batch();
-    batch.update(adminDb.collection("users").doc(userId), { gumDropsBalance: FieldValue.increment(dropsToCredit) });
-    batch.set(adminDb.collection("transactions").doc(), {
-      userId,
-      type: "purchase",
-      amount: dropsToCredit,
-      cost: Number.parseFloat(paidAmountStr),
-      currency: "USD",
-      paymentId: orderId,
-      paypalCaptureId: capture.id,
-      status: "completed",
-      timestamp: FieldValue.serverTimestamp(),
-      verifiedServerSide: true,
+    const result = await adminDb.runTransaction(async (transaction) => {
+      const existingLock = await transaction.get(paymentLockRef);
+      if (existingLock.exists) {
+        return { duplicate: true };
+      }
+
+      transaction.update(userRef, { gumDropsBalance: FieldValue.increment(dropsToCredit) });
+      transaction.set(adminDb.collection("transactions").doc(), {
+        userId,
+        type: "purchase",
+        amount: dropsToCredit,
+        cost: Number.parseFloat(paidAmountStr),
+        currency: "USD",
+        paymentId: orderId,
+        paypalCaptureId: capture.id,
+        status: "completed",
+        timestamp: FieldValue.serverTimestamp(),
+        verifiedServerSide: true,
+      });
+
+      transaction.set(paymentLockRef, {
+        orderId,
+        userId,
+        drops: dropsToCredit,
+        captureId: capture.id ?? null,
+        createdAt: FieldValue.serverTimestamp(),
+      });
+
+      return { duplicate: false };
     });
-    await batch.commit();
+
+    if (result.duplicate) {
+      return NextResponse.json({ success: true, drops: dropsToCredit, duplicate: true }, { status: 200 });
+    }
 
     return NextResponse.json({ success: true, drops: dropsToCredit });
   } catch (error) {
