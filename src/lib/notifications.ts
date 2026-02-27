@@ -1,15 +1,14 @@
 
 import { authFetch } from "@/lib/authFetch";
+import { DropNotificationContext, NotificationTarget, NotificationType } from "@/lib/notification-contracts";
 
 export interface NotificationPayload {
     title: string;
     message: string;
-    type: 'info' | 'success' | 'warning' | 'error';
-    target: {
-        global: boolean;
-        userIds?: string[];
-    };
+    type: NotificationType;
+    target: NotificationTarget;
     link?: string;
+    dropContext?: DropNotificationContext;
 }
 
 export async function sendNotification(payload: NotificationPayload) {

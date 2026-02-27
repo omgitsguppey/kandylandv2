@@ -226,7 +226,7 @@ export default function CreatorProfilePage() {
                             )}
 
                             <div className={!authLoading && !currentUser ? "opacity-30 pointer-events-none select-none grayscale transition-all duration-700" : ""}>
-                                <DropGrid drops={drops} />
+                                <DropGrid drops={drops} onSelectDrop={() => {}} />
                             </div>
                         </div>
                     ) : (
