@@ -52,6 +52,7 @@ export async function POST(request: NextRequest) {
             displayName: displayName || "User",
             gumDropsBalance: welcomeBonus ? 100 : 0,
             unlockedContent: [],
+            unlockedContentTimestamps: {},
             createdAt: FieldValue.serverTimestamp(),
         };
 

@@ -3,11 +3,10 @@
 import { Drop } from "@/types/db";
 import NextImage from "next/image";
 import { formatDistanceToNow } from "date-fns";
-import { Lock, Unlock, Share2, Eye, Clock } from "lucide-react";
+import { Lock, Unlock, Eye, Clock } from "lucide-react";
 
 
 import { memo } from "react";
-import { toast } from "sonner";
 import Link from "next/link";
 
 interface DashboardDropCardProps {
@@ -17,15 +16,10 @@ interface DashboardDropCardProps {
 }
 
 function DashboardDropCardBase({ drop, isUnlocked, onClick }: DashboardDropCardProps) {
-    const handleShare = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        navigator.clipboard.writeText(`${window.location.origin}/#drop-${drop.id}`);
-        toast.success("Link copied to clipboard");
-    };
 
     return (
         <div
-            className="group relative bg-white/5 border border-white/5 rounded-2xl overflow-hidden transition-colors"
+            className="group relative bg-white/5 border border-white/5 rounded-2xl overflow-hidden transition-colors hover:border-white/15"
             onClick={onClick}
         >
             {/* Top: Thumbnail & Status */}
@@ -84,7 +78,7 @@ function DashboardDropCardBase({ drop, isUnlocked, onClick }: DashboardDropCardP
                             <Link
                                 href={`/dashboard/viewer?id=${drop.id}`}
                                 onClick={(e) => e.stopPropagation()}
-                                className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-brand-cyan/10 text-brand-cyan text-xs font-bold transition-colors border border-brand-cyan/20"
+                                className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-brand-cyan/10 text-brand-cyan text-xs font-bold transition-colors border border-brand-cyan/20 hover:bg-brand-cyan/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan/40"
                             >
                                 <Eye className="w-3.5 h-3.5" /> View
                             </Link>
@@ -95,13 +89,6 @@ function DashboardDropCardBase({ drop, isUnlocked, onClick }: DashboardDropCardP
                             <span className="text-gray-500">To Unlock</span>
                         </div>
                     )}
-                    <button
-                        onClick={handleShare}
-                        className="p-2 rounded-lg text-gray-400 transition-colors"
-                        title="Share"
-                    >
-                        <Share2 className="w-3.5 h-3.5" />
-                    </button>
                 </div>
             </div>
         </div>
@@ -109,4 +96,3 @@ function DashboardDropCardBase({ drop, isUnlocked, onClick }: DashboardDropCardP
 }
 
 export const DashboardDropCard = memo(DashboardDropCardBase);
-

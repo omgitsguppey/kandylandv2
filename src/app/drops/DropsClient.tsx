@@ -9,7 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { Lock } from "lucide-react";
 
-const CATEGORIES = ["All", "New", "Ending Soon", "Hottest", "Rare"];
+const CATEGORIES = ["All", "New", "Ending Soon", "Hottest", "Sweet", "Spicy", "RAW"];
 
 interface DropsClientProps {
     initialDrops: Drop[];
@@ -47,6 +47,10 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
                     const timeB = b.validUntil || Number.MAX_SAFE_INTEGER;
                     return timeA - timeB;
                 });
+            } else if (selectedCategory === "Hottest") {
+                result = [...result].sort((a, b) => (b.totalUnlocks || 0) - (a.totalUnlocks || 0));
+            } else {
+                result = result.filter((drop) => Array.isArray(drop.tags) && drop.tags.includes(selectedCategory));
             }
         }
 
@@ -58,7 +62,7 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
 
             {/* Page Header */}
             <div className="mb-12 md:mb-16 flex flex-col items-center text-center">
-                <h1 className="text-4xl md:text-6xl font-black tracking-tighter text-white/90 mb-3 drop-shadow-xl">
+                <h1 className="text-4xl md:text-6xl font-black tracking-tight text-white/90 mb-3 drop-shadow-xl">
                     KandyDrops by iKandy
                 </h1>
                 <p className="text-base md:text-lg text-gray-400 font-medium max-w-lg mx-auto leading-relaxed">
@@ -84,11 +88,13 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
 
             {/* Drops Grid */}
             <div className="mt-8 min-h-[500px]">
-                <div className="flex items-center justify-between mb-8 px-4 md:px-0">
+                <div className="flex items-center justify-between mb-8 px-4 md:px-0 gap-3">
                     <h2 className="text-2xl font-bold text-white tracking-tight">
                         {searchQuery ? `Search Results: "${searchQuery}"` : selectedCategory === "All" ? "All KandyDrops" : `${selectedCategory} Drops`}
                     </h2>
-                    <span className="text-gray-500 text-sm font-mono">{filteredDrops.length} items</span>
+                    <span className="text-gray-500 text-xs md:text-sm font-mono px-2.5 py-1 rounded-full border border-white/10 bg-white/[0.03]">
+                        {filteredDrops.length} items
+                    </span>
                 </div>
 
                 {/* Conditional Auth Blur Gate */}
@@ -105,7 +111,7 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
                                 </p>
                                 <button
                                     onClick={openAuthModal}
-                                    className="px-8 py-4 w-full rounded-xl bg-white text-black font-black text-lg transition-transform hover:scale-105 active:scale-95 shadow-[0_0_40px_rgba(255,255,255,0.2)]"
+                                    className="px-8 py-4 w-full rounded-xl bg-white text-black font-black text-lg transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_40px_rgba(255,255,255,0.2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
                                 >
                                     Sign Up / Sign In
                                 </button>
@@ -113,7 +119,7 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
                         </div>
                     )}
 
-                    <div className={!authLoading && !user ? "opacity-30 pointer-events-none select-none grayscale transition-all duration-700" : ""}>
+                    <div className={!authLoading && !user ? "opacity-30 pointer-events-none select-none grayscale transition-opacity duration-500" : ""}>
                         {/* We pass 'false' for loading because data is already here from server */}
                         <DropGrid drops={filteredDrops} loading={false} isSearching={!!searchQuery} />
                     </div>

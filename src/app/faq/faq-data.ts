@@ -1,11 +1,11 @@
 export type FAQEntry = {
-  q: string;
-  a: string;
+  readonly q: string;
+  readonly a: string;
 };
 
 export type FAQSection = {
-  category: string;
-  questions: FAQEntry[];
+  readonly category: string;
+  readonly questions: readonly FAQEntry[];
 };
 
 export const FAQ_SECTIONS: readonly FAQSection[] = [

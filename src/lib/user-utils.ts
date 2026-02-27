@@ -15,6 +15,19 @@ export function normalizeUserProfile(raw: unknown, user: User): UserProfile | nu
     const toStringArray = (value: unknown) =>
         Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string") : [];
 
+    const toStringNumberRecord = (value: unknown): Record<string, number> => {
+        if (!value || typeof value !== "object" || Array.isArray(value)) {
+            return {};
+        }
+
+        const entries = Object.entries(value as Record<string, unknown>);
+        const normalizedEntries = entries
+            .filter(([key, entry]) => typeof key === "string" && Number.isFinite(entry))
+            .map(([key, entry]) => [key, Number(entry)] as const);
+
+        return Object.fromEntries(normalizedEntries);
+    };
+
     return {
         uid: typeof source.uid === "string" ? source.uid : user.uid,
         email: typeof source.email === "string" || source.email === null ? source.email : user.email,
@@ -33,6 +46,7 @@ export function normalizeUserProfile(raw: unknown, user: User): UserProfile | nu
         isVerified: source.isVerified === true,
         gumDropsBalance: Number.isFinite(source.gumDropsBalance) ? Number(source.gumDropsBalance) : 0,
         unlockedContent: toStringArray(source.unlockedContent),
+        unlockedContentTimestamps: toStringNumberRecord(source.unlockedContentTimestamps),
         following: toStringArray(source.following),
         createdAt: Number.isFinite(source.createdAt) ? Number(source.createdAt) : Date.now(),
         lastCheckIn: Number.isFinite(source.lastCheckIn) ? Number(source.lastCheckIn) : undefined,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import { ChevronDown, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { FAQSection } from "./faq-data";
@@ -9,30 +9,60 @@ type FAQClientProps = {
   sections: readonly FAQSection[];
 };
 
+type SearchableFAQEntry = {
+  readonly q: string;
+  readonly a: string;
+  readonly qNormalized: string;
+  readonly aNormalized: string;
+};
+
+type SearchableFAQSection = {
+  readonly category: string;
+  readonly questions: readonly SearchableFAQEntry[];
+};
+
 function normalizeQuery(input: string): string {
   return input.trim().toLowerCase();
 }
 
+function buildSearchableSections(sections: readonly FAQSection[]): readonly SearchableFAQSection[] {
+  return sections.map((section) => ({
+    category: section.category,
+    questions: section.questions.map((item) => ({
+      q: item.q,
+      a: item.a,
+      qNormalized: item.q.toLowerCase(),
+      aNormalized: item.a.toLowerCase(),
+    })),
+  }));
+}
+
 export function FAQClient({ sections }: FAQClientProps) {
   const [query, setQuery] = useState("");
+  const deferredQuery = useDeferredValue(query);
+
+  const searchableSections = useMemo(() => buildSearchableSections(sections), [sections]);
 
   const filteredSections = useMemo(() => {
-    const normalizedQuery = normalizeQuery(query);
+    const normalizedQuery = normalizeQuery(deferredQuery);
     if (!normalizedQuery) {
-      return sections;
+      return searchableSections;
     }
 
-    return sections
+    return searchableSections
       .map((section) => ({
-        ...section,
-        questions: section.questions.filter((item) => {
-          const question = item.q.toLowerCase();
-          const answer = item.a.toLowerCase();
-          return question.includes(normalizedQuery) || answer.includes(normalizedQuery);
-        }),
+        category: section.category,
+        questions: section.questions.filter(
+          (item) => item.qNormalized.includes(normalizedQuery) || item.aNormalized.includes(normalizedQuery)
+        ),
       }))
       .filter((section) => section.questions.length > 0);
-  }, [query, sections]);
+  }, [deferredQuery, searchableSections]);
+
+  const totalVisibleQuestions = useMemo(
+    () => filteredSections.reduce((count, section) => count + section.questions.length, 0),
+    [filteredSections]
+  );
 
   return (
     <>
@@ -42,20 +72,24 @@ export function FAQClient({ sections }: FAQClientProps) {
         </div>
         <input
           type="search"
+          aria-label="Search frequently asked questions"
           placeholder="Search for answers..."
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          className="w-full bg-white/5 border border-white/10 rounded-full py-4 pl-12 pr-6 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-pink/50 transition-all font-medium"
+          className="w-full bg-white/5 border border-white/10 rounded-full py-4 pl-12 pr-6 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-pink/40 focus:border-brand-pink/40 transition-colors font-medium"
         />
+        <p className="mt-3 text-xs text-gray-500 text-center" aria-live="polite">
+          Showing {totalVisibleQuestions} question{totalVisibleQuestions === 1 ? "" : "s"}
+        </p>
       </div>
 
       {filteredSections.length === 0 ? (
         <div className="text-center py-20 text-gray-500 font-medium">No questions found matching "{query}"</div>
       ) : (
-        <div className="space-y-16">
+        <div className="space-y-14 md:space-y-16">
           {filteredSections.map((section) => (
             <section key={section.category} className="space-y-4">
-              <h2 className="text-2xl font-bold text-brand-pink mb-6 flex items-center gap-2">
+              <h2 className="text-2xl font-bold text-brand-pink mb-6 flex items-center gap-2 tracking-tight">
                 <span className="w-8 h-px bg-brand-pink/50" />
                 {section.category}
               </h2>
@@ -65,15 +99,15 @@ export function FAQClient({ sections }: FAQClientProps) {
                   <details
                     key={`${section.category}-${faq.q}`}
                     className={cn(
-                      "group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] hover:border-brand-pink/30 transition-all duration-300",
+                      "group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] hover:border-brand-pink/30 hover:bg-white/[0.03] transition-colors duration-200 focus-within:ring-2 focus-within:ring-brand-pink/30 [contain:layout_paint_style]",
                       "open:border-brand-pink/50 open:bg-white/[0.04]"
                     )}
                   >
-                    <summary className="list-none cursor-pointer px-5 md:px-6 py-5 md:py-6 flex items-center justify-between gap-4">
+                    <summary className="list-none [&::-webkit-details-marker]:hidden cursor-pointer select-none px-5 md:px-6 py-5 md:py-6 flex items-center justify-between gap-4">
                       <h3 className="text-base md:text-lg font-semibold text-white">{faq.q}</h3>
-                      <ChevronDown className="w-5 h-5 text-gray-400 group-open:text-brand-pink transition-transform duration-300 group-open:rotate-180 flex-shrink-0" />
+                      <ChevronDown className="w-5 h-5 text-gray-400 group-open:text-brand-pink transition-transform duration-200 group-open:rotate-180 flex-shrink-0" />
                     </summary>
-                    <div className="px-5 md:px-6 pb-5 md:pb-6 pt-0">
+                    <div className="px-5 md:px-6 pb-5 md:pb-6 pt-0 [content-visibility:auto]">
                       <div className="w-full h-px bg-white/5 mb-4" />
                       <p className="text-sm md:text-base text-gray-400 leading-relaxed font-medium">{faq.a}</p>
                     </div>
