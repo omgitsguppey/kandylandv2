@@ -1,7 +1,5 @@
 "use client";
 
-
-
 import { useState } from "react";
 import { DropCard } from "./DropCard";
 import { PromoCard } from "./PromoCard";
@@ -10,16 +8,19 @@ import { Loader2 } from "lucide-react";
 
 import { useAuthIdentity, useUserProfile } from "@/context/AuthContext";
 import { toast } from "sonner";
+import { getDropCardWidthClass, getSupportedDropAspectRatio } from "@/lib/drop-presentation";
 
 interface DropGridProps {
     drops?: Drop[];
     loading?: boolean;
     isSearching?: boolean;
+    onSelectDrop: (drop: Drop) => void;
 }
 
-export function DropGrid({ drops: propDrops, loading: propLoading, isSearching }: DropGridProps) {
+export function DropGrid({ drops: propDrops, loading: propLoading, isSearching, onSelectDrop }: DropGridProps) {
     const { user } = useAuthIdentity();
     const { userProfile } = useUserProfile();
+    const [notified, setNotified] = useState(false);
 
     const drops = propDrops || [];
     const loading = propLoading || false;
@@ -32,14 +33,9 @@ export function DropGrid({ drops: propDrops, loading: propLoading, isSearching }
         );
     }
 
-
-
     if (drops.length === 0) {
-        const [notified, setNotified] = useState(false);
-
         return (
             <div className="relative isolate">
-                {/* Decorative background blur */}
                 <div className="absolute inset-0 -z-10 bg-brand-pink/5 blur-[120px] rounded-full scale-75" />
 
                 <div className="text-center py-24 px-6 glass-panel rounded-[2rem] max-w-2xl mx-auto border border-white/10 shadow-2xl relative overflow-hidden group">
@@ -89,19 +85,15 @@ export function DropGrid({ drops: propDrops, loading: propLoading, isSearching }
         )
     }
 
-
     return (
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 pb-20 md:pb-0">
+        <div className="flex flex-wrap gap-3 md:gap-5 pb-20 md:pb-0 justify-center md:justify-start items-stretch">
             {drops.map((drop, index) => {
                 const isUnlocked = userProfile?.unlockedContent?.includes(drop.id);
                 const canAfford = (userProfile?.gumDropsBalance || 0) >= drop.unlockCost;
+                const cardWidthClass = getDropCardWidthClass(getSupportedDropAspectRatio(drop));
 
                 return (
-                    <div
-                        key={drop.id}
-                        id={`drop-${drop.id}`}
-                        className="scroll-mt-32 transition-all"
-                    >
+                    <div key={drop.id} id={`drop-${drop.id}`} className={`scroll-mt-32 transition-all ${cardWidthClass}`}>
                         {(drop.type === 'promo' || drop.type === 'external') ? (
                             <PromoCard drop={drop} />
                         ) : (
@@ -111,6 +103,7 @@ export function DropGrid({ drops: propDrops, loading: propLoading, isSearching }
                                 user={user}
                                 isUnlocked={isUnlocked}
                                 canAfford={canAfford}
+                                onPreview={onSelectDrop}
                             />
                         )}
                     </div>

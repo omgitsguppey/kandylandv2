@@ -69,6 +69,9 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
                         </div>
                     </div>
                     <div className="flex items-center gap-1">
+                        <Link href="/dashboard/profile" onClick={onClose} className="p-2 rounded-full transition-colors text-gray-300 hover:bg-white/5" title="Settings">
+                            <Settings className="w-5 h-5" />
+                        </Link>
                         <button
                             onClick={() => {
                                 logout();

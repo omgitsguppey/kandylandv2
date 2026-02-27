@@ -14,12 +14,14 @@ import { authFetch } from "@/lib/authFetch";
 import { useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import Link from "next/link";
+
 interface DropCardProps {
     drop: Drop;
     priority?: boolean;
     user: User | null;
     isUnlocked?: boolean;
     canAfford?: boolean;
+    onPreview: (drop: Drop) => void;
 }
 
 interface DropCardBadgeProps {
@@ -44,12 +46,7 @@ const DropCardBadge = ({ type, label, index = 0 }: DropCardBadgeProps) => (
     </div>
 );
 
-interface DropCardTimerProps {
-    validFrom: number;
-    validUntil?: number;
-}
-
-const DropCardTimer = ({ validFrom, validUntil }: DropCardTimerProps) => {
+function DropCardTimer({ validFrom, validUntil }: { validFrom: number; validUntil?: number }) {
     const [timeLeft, setTimeLeft] = useState("");
 
     useEffect(() => {
@@ -57,23 +54,24 @@ const DropCardTimer = ({ validFrom, validUntil }: DropCardTimerProps) => {
             const now = Date.now();
             if (now < validFrom) {
                 setTimeLeft(`Starts in ${formatDistanceToNow(validFrom)}`);
-            } else if (!validUntil || now < validUntil) {
-                if (!validUntil) {
-                    setTimeLeft("Forever");
-                } else {
-                    const diff = validUntil - now;
-                    if (diff > 24 * 60 * 60 * 1000) {
-                        setTimeLeft(formatDistanceToNow(validUntil, { addSuffix: true }));
-                    } else {
-                        const seconds = Math.floor((diff / 1000) % 60);
-                        const minutes = Math.floor((diff / 1000 / 60) % 60);
-                        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-                        setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
-                    }
-                }
-            } else {
-                setTimeLeft("Expired");
+                return;
             }
+
+            if (!validUntil) {
+                setTimeLeft("Forever");
+                return;
+            }
+
+            if (now >= validUntil) {
+                setTimeLeft("Expired");
+                return;
+            }
+
+            const diff = validUntil - now;
+            const seconds = Math.floor((diff / 1000) % 60);
+            const minutes = Math.floor((diff / 1000 / 60) % 60);
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            setTimeLeft(diff > 24 * 60 * 60 * 1000 ? formatDistanceToNow(validUntil, { addSuffix: true }) : `${hours}h ${minutes}m ${seconds}s`);
         };
 
         updateTimer();
@@ -83,18 +81,18 @@ const DropCardTimer = ({ validFrom, validUntil }: DropCardTimerProps) => {
 
     return (
         <div className={cn(
-            "absolute top-2 right-2 md:top-3 md:right-3 backdrop-blur-xl px-2 py-0.5 md:px-3 md:py-1.5 rounded-full text-[10px] md:text-xs font-mono font-medium flex items-center gap-1 border shadow-lg z-10",
+            "absolute top-3 right-3 backdrop-blur-xl px-3 py-1.5 rounded-xl text-xs md:text-sm font-mono font-semibold flex items-center gap-1.5 border shadow-lg z-10",
             timeLeft.includes("h ") || timeLeft.includes("m ")
-                ? "bg-red-500/80 text-white border-red-500/50"
-                : "bg-black/40 text-white border-white/10"
+                ? "bg-red-500/85 text-white border-red-500/60"
+                : "bg-black/60 text-white border-white/20"
         )}>
-            <Clock className="w-3 h-3" />
+            <Clock className="w-3.5 h-3.5" />
             {timeLeft}
         </div>
     );
-};
+}
 
-function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAfford = false }: DropCardProps) {
+function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAfford = false, onPreview }: DropCardProps) {
     const { userProfile, setUserProfile } = useUserProfile();
     const { openInsufficientBalanceModal } = useUI();
     const [unlocking, setUnlocking] = useState(false);
@@ -122,7 +120,6 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
         try {
             triggerHaptic();
             const response = await authFetch("/api/drops/unlock", {
-
                 method: "POST",
                 body: JSON.stringify({ dropId: drop.id }),
             });
@@ -143,7 +140,6 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                 duration: 4000
             });
 
-            // Optimistic hot-reload of UserProfile state to bypass any listener latency
             if (userProfile) {
                 const currentUnlocked = Array.isArray(userProfile.unlockedContent) ? userProfile.unlockedContent : [];
                 const nextUnlockedContent = currentUnlocked.includes(drop.id) ? currentUnlocked : [...currentUnlocked, drop.id];
@@ -159,27 +155,6 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                     },
                 });
             }
-
-            import("canvas-confetti").then((mod) => {
-                mod.default({
-                    particleCount: 100,
-                    spread: 70,
-                    origin: { y: 0.6 },
-                    colors: ['#ec4899', '#06b6d4', '#facc15']
-                });
-            });
-
-            if (typeof window !== "undefined") {
-                import("firebase/analytics").then(({ getAnalytics, logEvent }) => {
-                    const analytics = getAnalytics();
-                    logEvent(analytics, "spend_virtual_currency", {
-                        value: drop.unlockCost,
-                        virtual_currency_name: "Gum Drops",
-                        item_name: drop.title
-                    });
-                }).catch(() => { });
-            }
-
         } catch (err: any) {
             console.error("Unwrap failed:", err);
             toast.error("Unwrap failed", {
@@ -192,75 +167,33 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
     };
 
     return (
-        <div className="group relative p-2 md:p-6 rounded-2xl md:rounded-3xl glass-panel overflow-hidden">
+        <div className="group relative p-2 md:p-5 rounded-2xl md:rounded-3xl glass-panel overflow-hidden h-full">
             <div className="absolute inset-0 bg-gradient-to-br from-brand-pink/5 via-transparent to-brand-cyan/5 pointer-events-none" />
 
-            {/* Media Area */}
-            <div className="relative w-full aspect-square bg-black/40 rounded-xl md:rounded-2xl mb-2 md:mb-5 overflow-hidden group/image shadow-inner border border-white/5">
-                {isUnlocked ? (
-                    <Link
-                        href={`/dashboard/viewer?id=${drop.id}`}
-                        className="w-full h-full relative block"
-                        onClick={triggerHaptic}
-                    >
-                        {drop.imageUrl ? (
-                            <>
-                                <NextImage
-                                    src={drop.imageUrl}
-                                    alt={drop.title}
-                                    fill
-                                    className={cn(
-                                        "object-contain bg-black transition-all duration-700",
-                                        imageLoaded ? "scale-100 blur-0" : "scale-110 blur-xl"
-                                    )}
-                                    onLoadingComplete={() => setImageLoaded(true)}
-                                    sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                                />
-                                {!imageLoaded && (
-                                    <div className="absolute inset-0 bg-zinc-800 animate-pulse" />
-                                )}
-                            </>
-                        ) : (
-                            <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-brand-green/10 to-transparent text-brand-green font-bold border border-brand-green/20">
-                                <Unlock className="w-8 h-8 mb-2 opacity-50" />
-                                <span className="tracking-widest text-xs">UNWRAPPED</span>
-                            </div>
+            <button onClick={() => onPreview(drop)} className="relative w-full h-[190px] md:h-[210px] bg-black/40 rounded-xl md:rounded-2xl mb-3 md:mb-5 overflow-hidden group/image shadow-inner border border-white/5 text-left">
+                {drop.imageUrl ? (
+                    <>
+                        <NextImage
+                            src={drop.imageUrl}
+                            alt={drop.title}
+                            fill
+                            priority={priority}
+                            className={cn(
+                                "object-contain bg-black transition-all duration-700 opacity-85",
+                                imageLoaded ? "scale-100 blur-0" : "scale-110 blur-xl"
+                            )}
+                            onLoadingComplete={() => setImageLoaded(true)}
+                            sizes="(max-width: 768px) 45vw, 360px"
+                        />
+                        {!imageLoaded && (
+                            <div className="absolute inset-0 bg-zinc-800 animate-pulse" />
                         )}
-                        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover/image:opacity-100 transition-opacity">
-                            <span className="font-bold text-brand-green bg-black/90 px-4 py-2 rounded-full border border-brand-green/30 shadow-lg shadow-brand-green/20">View Content</span>
-                        </div>
-                    </Link>
-
-
+                    </>
                 ) : (
-                    <div className="w-full h-full relative">
-                        {drop.imageUrl ? (
-                            <>
-                                <NextImage
-                                    src={drop.imageUrl}
-                                    alt={drop.title}
-                                    fill
-                                    priority={priority}
-                                    className={cn(
-                                        "object-contain bg-black transition-all duration-700 opacity-80 ",
-                                        imageLoaded ? "scale-100 blur-0" : "scale-110 blur-xl"
-                                    )}
-                                    onLoadingComplete={() => setImageLoaded(true)}
-                                    sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                                />
-                                {!imageLoaded && (
-                                    <div className="absolute inset-0 bg-zinc-800 animate-pulse" />
-                                )}
-                            </>
-                        ) : (
-                            <div className="w-full h-full flex items-center justify-center text-5xl bg-zinc-900/50">🍬</div>
-                        )}
-                    </div>
+                    <div className="w-full h-full flex items-center justify-center text-5xl bg-zinc-900/50">🍬</div>
                 )}
 
-
-                {/* Overlays */}
-                <div className="absolute top-2 left-2 md:top-3 md:left-3 flex flex-col gap-1 items-start z-10">
+                <div className="absolute top-3 left-3 flex flex-col gap-1 items-start z-10">
                     {drop.totalUnlocks > 50 && !isUnlocked && (
                         <DropCardBadge type="hot" label="Hot" />
                     )}
@@ -270,7 +203,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                 </div>
 
                 <DropCardTimer validFrom={drop.validFrom} validUntil={drop.validUntil} />
-            </div>
+            </button>
 
             <div className="relative z-10">
                 <div className="mb-2 md:mb-4">
@@ -293,32 +226,29 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                             View Content
                         </Link>
                     ) : (
-
                         <button
                             onClick={handleUnlock}
                             disabled={unlocking || !user}
                             className={cn(
                                 "px-3 py-1.5 md:px-5 md:py-2.5 rounded-lg md:rounded-xl font-bold text-xs md:text-sm flex items-center justify-center min-w-0 flex-1 whitespace-nowrap gap-1.5 md:gap-2 border relative overflow-hidden",
                                 canAfford
-                                    ? "bg-white text-black border-white    shadow-[0_0_20px_rgba(255,255,255,0.15)] _0_25px_rgba(236,72,153,0.4)]"
+                                    ? "bg-white text-black border-white"
                                     : "bg-white/5 text-gray-500 border-white/5 cursor-not-allowed",
                                 "disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-all"
                             )}
                         >
                             {unlocking ? (
-                                <div className="flex items-center gap-2">
+                                <>
                                     <Loader2 className="w-3 h-3 md:w-4 md:h-4 animate-spin" />
                                     <span>Unwrapping...</span>
-                                </div>
+                                </>
                             ) : (
-                                <div className="flex items-center gap-2">
+                                <>
                                     <Lock className="w-3 h-3 md:w-4 md:h-4" />
                                     <span>Unwrap</span>
-                                </div>
+                                </>
                             )}
-                            {error ? "Error" : null}
                         </button>
-
                     )}
                 </div>
                 {error && (
@@ -332,4 +262,3 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
 }
 
 export const DropCard = memo(DropCardBase);
-

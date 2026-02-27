@@ -3,6 +3,23 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAuth, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 
+function normalizeUsername(value: unknown): string | null {
+    if (typeof value !== "string") {
+        return null;
+    }
+
+    const normalized = value.trim().toLowerCase();
+    if (normalized.length < 3 || !/^[a-z0-9_]+$/.test(normalized)) {
+        return null;
+    }
+
+    return normalized;
+}
+
+function buildFallbackUsername(uid: string): string {
+    return `user_${uid.slice(0, 8).toLowerCase()}`;
+}
+
 export async function POST(request: NextRequest) {
     try {
         const caller = await verifyAuth(request);
@@ -13,29 +30,22 @@ export async function POST(request: NextRequest) {
 
         const { username, dateOfBirth, displayName, welcomeBonus } = await request.json();
 
-        // Check if profile already exists
         const userRef = adminDb.collection("users").doc(caller.uid);
         const existingSnap = await userRef.get();
         if (existingSnap.exists) {
             return NextResponse.json({ success: true, existing: true });
         }
 
-        // Validate username uniqueness if provided
-        if (username) {
-            if (username.length < 3 || !/^[a-z0-9_]+$/.test(username)) {
-                return NextResponse.json({ error: "Invalid username format" }, { status: 400 });
-            }
-            const existing = await adminDb
-                .collection("users")
-                .where("username", "==", username)
-                .limit(1)
-                .get();
-            if (!existing.empty) {
-                return NextResponse.json({ error: "Username already taken" }, { status: 409 });
-            }
+        let normalizedUsername = normalizeUsername(username);
+        if (!normalizedUsername) {
+            normalizedUsername = buildFallbackUsername(caller.uid);
         }
 
-        // Validate age if DOB provided
+        const existing = await adminDb.collection("users").where("username", "==", normalizedUsername).limit(1).get();
+        if (!existing.empty) {
+            normalizedUsername = `${normalizedUsername}_${caller.uid.slice(0, 4).toLowerCase()}`;
+        }
+
         if (dateOfBirth) {
             const dob = new Date(dateOfBirth);
             const ageDiff = Date.now() - dob.getTime();
@@ -46,18 +56,22 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        const newProfile: Record<string, any> = {
+        const newProfile: Record<string, unknown> = {
             uid: caller.uid,
             email: caller.email,
             displayName: displayName || "User",
+            username: normalizedUsername,
             gumDropsBalance: welcomeBonus ? 100 : 0,
             unlockedContent: [],
             unlockedContentTimestamps: {},
+            notificationSettings: {
+                inAppEnabled: true,
+                browserPushEnabled: false,
+            },
             createdAt: FieldValue.serverTimestamp(),
         };
 
-        if (username) newProfile.username = username;
-        if (dateOfBirth) newProfile.dob = dateOfBirth;
+        if (dateOfBirth) newProfile.dateOfBirth = dateOfBirth;
 
         await userRef.set(newProfile, { merge: true });
 

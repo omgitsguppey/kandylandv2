@@ -39,6 +39,7 @@ function buildSearchableSections(sections: readonly FAQSection[]): readonly Sear
 
 export function FAQClient({ sections }: FAQClientProps) {
   const [query, setQuery] = useState("");
+  const [openQuestionKey, setOpenQuestionKey] = useState<string | null>(null);
   const deferredQuery = useDeferredValue(query);
 
   const searchableSections = useMemo(() => buildSearchableSections(sections), [sections]);
@@ -95,24 +96,34 @@ export function FAQClient({ sections }: FAQClientProps) {
               </h2>
 
               <div className="grid gap-4">
-                {section.questions.map((faq) => (
-                  <details
-                    key={`${section.category}-${faq.q}`}
-                    className={cn(
-                      "group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] hover:border-brand-pink/30 hover:bg-white/[0.03] transition-colors duration-200 focus-within:ring-2 focus-within:ring-brand-pink/30 [contain:layout_paint_style]",
-                      "open:border-brand-pink/50 open:bg-white/[0.04]"
-                    )}
-                  >
-                    <summary className="list-none [&::-webkit-details-marker]:hidden cursor-pointer select-none px-5 md:px-6 py-5 md:py-6 flex items-center justify-between gap-4">
-                      <h3 className="text-base md:text-lg font-semibold text-white">{faq.q}</h3>
-                      <ChevronDown className="w-5 h-5 text-gray-400 group-open:text-brand-pink transition-transform duration-200 group-open:rotate-180 flex-shrink-0" />
-                    </summary>
-                    <div className="px-5 md:px-6 pb-5 md:pb-6 pt-0 [content-visibility:auto]">
-                      <div className="w-full h-px bg-white/5 mb-4" />
-                      <p className="text-sm md:text-base text-gray-400 leading-relaxed font-medium">{faq.a}</p>
+                {section.questions.map((faq) => {
+                  const faqKey = `${section.category}-${faq.q}`;
+                  const isOpen = openQuestionKey === faqKey;
+
+                  return (
+                    <div
+                      key={faqKey}
+                      className={cn(
+                        "overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] hover:border-brand-pink/30 transition-colors duration-200",
+                        isOpen && "border-brand-pink/50 bg-white/[0.04]"
+                      )}
+                    >
+                      <button
+                        onClick={() => setOpenQuestionKey((prev) => (prev === faqKey ? null : faqKey))}
+                        className="w-full text-left px-5 md:px-6 py-5 md:py-6 flex items-center justify-between gap-4"
+                      >
+                        <h3 className="text-base md:text-lg font-semibold text-white">{faq.q}</h3>
+                        <ChevronDown className={cn("w-5 h-5 text-gray-400 transition-transform duration-200", isOpen && "rotate-180 text-brand-pink")} />
+                      </button>
+                      {isOpen && (
+                        <div className="px-5 md:px-6 pb-5 md:pb-6 pt-0">
+                          <div className="w-full h-px bg-white/5 mb-4" />
+                          <p className="text-sm md:text-base text-gray-400 leading-relaxed font-medium">{faq.a}</p>
+                        </div>
+                      )}
                     </div>
-                  </details>
-                ))}
+                  );
+                })}
               </div>
             </section>
           ))}

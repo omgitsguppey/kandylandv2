@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAuth, verifyAdmin, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
+import { normalizeNotificationCreatePayload } from "@/lib/notification-contracts";
 
 // POST — Send notification (admin-only)
 export async function POST(request: NextRequest) {
@@ -12,19 +13,19 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });
         }
 
-        const payload = await request.json();
-        const { title, message, type, target, link } = payload;
+        const payload = normalizeNotificationCreatePayload(await request.json());
 
-        if (!title || !message || !type || !target) {
-            return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+        if (!payload) {
+            return NextResponse.json({ error: "Invalid notification payload" }, { status: 400 });
         }
 
         await adminDb.collection("notifications").add({
-            title,
-            message,
-            type,
-            target,
-            link: link || null,
+            title: payload.title,
+            message: payload.message,
+            type: payload.type,
+            target: payload.target,
+            link: payload.link || null,
+            dropContext: payload.dropContext || null,
             createdAt: FieldValue.serverTimestamp(),
             readBy: [],
         });
