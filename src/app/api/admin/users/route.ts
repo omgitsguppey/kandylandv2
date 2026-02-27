@@ -56,9 +56,15 @@ export async function POST(request: NextRequest) {
         const userRef = adminDb.collection("users").doc(userId);
 
         if (action === "add") {
-            await userRef.update({ unlockedContent: FieldValue.arrayUnion(dropId) });
+            await userRef.update({
+                unlockedContent: FieldValue.arrayUnion(dropId),
+                [`unlockedContentTimestamps.${dropId}`]: Date.now(),
+            });
         } else if (action === "remove") {
-            await userRef.update({ unlockedContent: FieldValue.arrayRemove(dropId) });
+            await userRef.update({
+                unlockedContent: FieldValue.arrayRemove(dropId),
+                [`unlockedContentTimestamps.${dropId}`]: FieldValue.delete(),
+            });
         } else {
             return NextResponse.json({ error: "Invalid action" }, { status: 400 });
         }

@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { ArrowLeft, Lock, ShieldCheck, Heart, Share2, Loader2, ShoppingBag } from "lucide-react";
+import { ArrowLeft, Lock, ShieldCheck, Loader2, ShoppingBag } from "lucide-react";
 
 import { toast } from "sonner";
 import { Drop } from "@/types/db";
@@ -97,6 +97,28 @@ function resolveContent(blobType: string, metadataType?: string): ResolvedConten
     };
 }
 
+function formatUnwrappedLabel(unwrappedAt: number | null): string {
+    if (!Number.isFinite(unwrappedAt) || !unwrappedAt) {
+        return "Unwrapped";
+    }
+
+    return `Unwrapped ${new Date(unwrappedAt).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+    })}`;
+}
+
+function sanitizeDropTags(tags: unknown): Array<"Sweet" | "Spicy" | "RAW"> {
+    if (!Array.isArray(tags)) {
+        return [];
+    }
+
+    return tags.filter(
+        (tag): tag is "Sweet" | "Spicy" | "RAW" => tag === "Sweet" || tag === "Spicy" || tag === "RAW"
+    );
+}
+
 export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     const { user, userProfile, loading: authLoading } = useAuth();
     const router = useRouter();
@@ -112,6 +134,21 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     const unlockedDropIds = useMemo(() => (
         Array.isArray(userProfile?.unlockedContent) ? userProfile.unlockedContent : []
     ), [userProfile?.unlockedContent]);
+
+    const unwrappedAt = useMemo(() => {
+        if (!drop || !userProfile?.unlockedContentTimestamps) {
+            return null;
+        }
+
+        const raw = userProfile.unlockedContentTimestamps[drop.id];
+        if (!Number.isFinite(raw)) {
+            return null;
+        }
+
+        return Math.floor(raw);
+    }, [drop, userProfile?.unlockedContentTimestamps]);
+
+    const previewTags = useMemo(() => sanitizeDropTags(drop?.tags), [drop?.tags]);
 
     // Redirect if not logged in (once auth is ready)
     useEffect(() => {
@@ -437,8 +474,21 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                             <span className="px-2 py-0.5 rounded bg-white/10 border border-white/5 text-brand-pink font-mono uppercase tracking-wider">
                                 #{drop.id.slice(0, 4)}
                             </span>
+                            {previewTags.map((tag) => (
+                                <span
+                                    key={tag}
+                                    className={cn(
+                                        "px-2 py-0.5 rounded border text-[11px] font-semibold uppercase tracking-wide",
+                                        tag === "Sweet" && "bg-pink-500/20 text-pink-300 border-pink-500/30",
+                                        tag === "Spicy" && "bg-red-500/20 text-red-300 border-red-500/30",
+                                        tag === "RAW" && "bg-zinc-800/80 text-white border-white/20"
+                                    )}
+                                >
+                                    {tag}
+                                </span>
+                            ))}
                             <span>•</span>
-                            <span>Unlocked Just Now</span>
+                            <span>{formatUnwrappedLabel(unwrappedAt)}</span>
                         </div>
                         <h1 className="text-2xl md:text-4xl font-bold text-white mb-3 leading-tight">
                             {drop.title}
@@ -448,25 +498,8 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                         </p>
                     </div>
 
-                    {/* 3. Engagement & Actions */}
+                    {/* 3. Navigation */}
                     <div className="flex flex-col gap-3 w-full md:w-auto min-w-[200px]">
-                        {/* Primary Actions Row */}
-                        <div className="flex items-center gap-2">
-                            <button className="flex-1 px-4 py-3 rounded-xl bg-white/10 text-white font-bold transition-transform active:scale-95 flex items-center justify-center gap-2 border border-white/5">
-                                <Heart className="w-4 h-4" /> <span className="text-sm">Like</span>
-                            </button>
-                            <button
-                                className="flex-1 px-4 py-3 rounded-xl bg-white/10 text-white font-bold transition-transform active:scale-95 flex items-center justify-center gap-2 border border-white/5"
-                                onClick={() => {
-                                    navigator.clipboard.writeText(window.location.href);
-                                    toast.success("Link copied!");
-                                }}
-                            >
-                                <Share2 className="w-4 h-4" /> <span className="text-sm">Share</span>
-                            </button>
-                        </div>
-
-                        {/* Navigation Loop */}
                         <Link
                             href="/drops"
                             className="w-full px-4 py-3 rounded-xl bg-white text-black font-black text-sm flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.2)] mt-1"
@@ -474,8 +507,6 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                             <ShoppingBag className="w-4 h-4" />
                             <span>Browse More Drops</span>
                         </Link>
-
-
                     </div>
                 </div>
 

@@ -12,6 +12,7 @@ export interface UserProfile {
     isVerified?: boolean; // Verified Creator badge
     gumDropsBalance: number;
     unlockedContent: string[]; // Array of Drop IDs
+    unlockedContentTimestamps?: Record<string, number>; // Drop ID -> unwrap timestamp (ms)
     following?: string[]; // Array of Creator UIDs
     createdAt: number; // Timestamp
     lastCheckIn?: number; // Timestamp of last daily reward claim

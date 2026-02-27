@@ -46,30 +46,33 @@ export function CollectionList({ drops, userProfile }: CollectionListProps) {
                 </div>
 
                 {/* Filter Controls */}
-                <div className="flex items-center bg-white/5 rounded-xl p-1 self-start md:self-auto border border-white/5">
+                <div className="flex items-center bg-white/5 rounded-xl p-1 self-start md:self-auto border border-white/5" role="group" aria-label="Filter drops by ownership">
                     <button
                         onClick={() => setFilter('all')}
+                        aria-pressed={filter === 'all'}
                         className={cn(
-                            "px-4 py-1.5 rounded-lg text-xs font-bold transition-all",
-                            filter === 'all' ? "bg-white/10 text-white shadow-sm" : "text-gray-500 "
+                            "px-4 py-1.5 rounded-lg text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-pink/40",
+                            filter === 'all' ? "bg-white/10 text-white shadow-sm" : "text-gray-500 hover:text-gray-300"
                         )}
                     >
                         All
                     </button>
                     <button
                         onClick={() => setFilter('owned')}
+                        aria-pressed={filter === 'owned'}
                         className={cn(
-                            "px-4 py-1.5 rounded-lg text-xs font-bold transition-all",
-                            filter === 'owned' ? "bg-white/10 text-white shadow-sm" : "text-gray-500 "
+                            "px-4 py-1.5 rounded-lg text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-pink/40",
+                            filter === 'owned' ? "bg-white/10 text-white shadow-sm" : "text-gray-500 hover:text-gray-300"
                         )}
                     >
                         Owned
                     </button>
                     <button
                         onClick={() => setFilter('locked')}
+                        aria-pressed={filter === 'locked'}
                         className={cn(
-                            "px-4 py-1.5 rounded-lg text-xs font-bold transition-all",
-                            filter === 'locked' ? "bg-white/10 text-white shadow-sm" : "text-gray-500 "
+                            "px-4 py-1.5 rounded-lg text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-pink/40",
+                            filter === 'locked' ? "bg-white/10 text-white shadow-sm" : "text-gray-500 hover:text-gray-300"
                         )}
                     >
                         Locked
@@ -102,7 +105,7 @@ export function CollectionList({ drops, userProfile }: CollectionListProps) {
                         </p>
                         <a
                             href="/drops"
-                            className="inline-flex items-center gap-2 px-8 py-3 bg-brand-pink/10 border border-brand-pink/20 text-brand-pink rounded-xl font-bold transition-all active:scale-95"
+                            className="inline-flex items-center gap-2 px-8 py-3 bg-brand-pink/10 border border-brand-pink/20 text-brand-pink rounded-xl font-bold transition-colors hover:bg-brand-pink/15 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-pink/40"
                         >
                             Visit Shop
                         </a>

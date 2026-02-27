@@ -54,16 +54,21 @@ export async function POST(request: NextRequest) {
       );
 
       if (unlockedContent.has(dropId)) {
-        return { newBalance: balance, alreadyUnlocked: true };
+        const existingUnwrappedRaw = Number((userData.unlockedContentTimestamps as Record<string, unknown> | undefined)?.[dropId]);
+        const existingUnwrappedAt = Number.isFinite(existingUnwrappedRaw) ? Math.floor(existingUnwrappedRaw) : null;
+        return { newBalance: balance, alreadyUnlocked: true, unwrappedAt: existingUnwrappedAt };
       }
 
       if (balance < unlockCost) {
         throw new Error(`INSUFFICIENT_FUNDS:${unlockCost}:${balance}`);
       }
 
+      const unwrappedAt = Date.now();
+
       transaction.update(userRef, {
         gumDropsBalance: FieldValue.increment(-unlockCost),
         unlockedContent: FieldValue.arrayUnion(dropId),
+        [`unlockedContentTimestamps.${dropId}`]: unwrappedAt,
       });
 
       const transactionRef = adminDb.collection("transactions").doc();
@@ -81,7 +86,7 @@ export async function POST(request: NextRequest) {
         totalUnlocks: FieldValue.increment(1),
       });
 
-      return { newBalance: balance - unlockCost, alreadyUnlocked: false };
+      return { newBalance: balance - unlockCost, alreadyUnlocked: false, unwrappedAt };
     });
 
     revalidatePath("/drops");
@@ -93,6 +98,7 @@ export async function POST(request: NextRequest) {
       cost: unlockCost,
       newBalance: result.newBalance,
       alreadyUnlocked: result.alreadyUnlocked,
+      unwrappedAt: result.unwrappedAt ?? null,
     });
   } catch (error: any) {
     if (error.message && error.message.startsWith("INSUFFICIENT_FUNDS:")) {

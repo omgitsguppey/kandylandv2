@@ -145,10 +145,18 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
 
             // Optimistic hot-reload of UserProfile state to bypass any listener latency
             if (userProfile) {
+                const currentUnlocked = Array.isArray(userProfile.unlockedContent) ? userProfile.unlockedContent : [];
+                const nextUnlockedContent = currentUnlocked.includes(drop.id) ? currentUnlocked : [...currentUnlocked, drop.id];
+                const unwrappedAt = Number.isFinite(result.unwrappedAt) ? Math.floor(result.unwrappedAt) : Date.now();
+
                 setUserProfile({
                     ...userProfile,
                     gumDropsBalance: result.newBalance !== undefined ? result.newBalance : userProfile.gumDropsBalance - drop.unlockCost,
-                    unlockedContent: [...(userProfile.unlockedContent || []), drop.id]
+                    unlockedContent: nextUnlockedContent,
+                    unlockedContentTimestamps: {
+                        ...(userProfile.unlockedContentTimestamps || {}),
+                        [drop.id]: unwrappedAt,
+                    },
                 });
             }
 

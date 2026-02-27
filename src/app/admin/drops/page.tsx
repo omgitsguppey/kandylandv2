@@ -65,7 +65,7 @@ export default function AdminDropsPage() {
                 </div>
                 <Link
                     href="/admin/create"
-                    className="px-5 py-2 rounded-full bg-brand-pink font-bold text-white text-sm transition-colors shadow-lg shadow-brand-pink/20 flex items-center gap-2"
+                    className="px-5 py-2 rounded-full bg-brand-pink font-bold text-white text-sm transition-colors shadow-lg shadow-brand-pink/20 flex items-center gap-2 whitespace-nowrap"
                 >
                     <div className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center">
                         <PlusCircle className="w-3 h-3" />
