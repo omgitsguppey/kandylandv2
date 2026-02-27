@@ -5,17 +5,27 @@ import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
 import { Drop } from "@/types/db";
 import { format } from "date-fns";
-import { Trash2, Edit, Calendar, Clock, Package, PlusCircle } from "lucide-react";
+import { Trash2, Edit, Calendar, Clock, Package, PlusCircle, BellRing } from "lucide-react";
 
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";
 import Image from "next/image";
+import { sendNotification } from "@/lib/notifications";
+
+interface DropNotificationDraft {
+    dropId: string;
+    title: string;
+    imageUrl: string;
+    message: string;
+}
 
 export default function AdminDropsPage() {
     const [drops, setDrops] = useState<Drop[]>([]);
     const [loading, setLoading] = useState(true);
+    const [notificationDraft, setNotificationDraft] = useState<DropNotificationDraft | null>(null);
+    const [sendingNotification, setSendingNotification] = useState(false);
 
     useEffect(() => {
         const q = query(collection(db, "drops"), orderBy("validFrom", "desc"));
@@ -48,6 +58,63 @@ export default function AdminDropsPage() {
         }
     };
 
+    const openNotificationDraft = (drop: Drop) => {
+        if (!drop.imageUrl) {
+            toast.error("Drop needs a preview image before sending a drop notification.");
+            return;
+        }
+
+        setNotificationDraft({
+            dropId: drop.id,
+            title: drop.title,
+            imageUrl: drop.imageUrl,
+            message: "",
+        });
+    };
+
+    const handleSendDropNotification = async () => {
+        if (!notificationDraft || sendingNotification) {
+            return;
+        }
+
+        const message = notificationDraft.message.trim();
+
+        if (!message) {
+            toast.error("Please enter a message.");
+            return;
+        }
+
+        if (message.length > 150) {
+            toast.error("Message must be 150 characters or less.");
+            return;
+        }
+
+        setSendingNotification(true);
+
+        const result = await sendNotification({
+            title: "New drop update",
+            message,
+            type: "info",
+            target: { global: true, userIds: [] },
+            dropContext: {
+                dropId: notificationDraft.dropId,
+                dropTitle: notificationDraft.title,
+                previewImageUrl: notificationDraft.imageUrl,
+            },
+            link: `/drops`,
+        });
+
+        setSendingNotification(false);
+
+        if (!result.success) {
+            toast.error("Failed to send notification.");
+            return;
+        }
+
+        toast.success("Drop notification sent.");
+        setNotificationDraft(null);
+    };
+
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
@@ -75,7 +142,6 @@ export default function AdminDropsPage() {
             </header>
 
             <div className="glass-panel rounded-3xl overflow-hidden">
-                {/* Desktop Table - Hidden on Mobile */}
                 <div className="hidden md:block">
                     <table className="w-full text-left">
                         <thead className="bg-white/5 border-b border-white/5 text-gray-400 text-xs uppercase tracking-wider">
@@ -114,7 +180,7 @@ export default function AdminDropsPage() {
                                                 </div>
                                                 <div>
                                                     <div className="font-bold text-white">{drop.title}</div>
-                                                    <div className="text-xs text-gray-500 line-clamp-1 max-w-[200px]">{drop.description}</div>
+                                                    <div className="text-xs text-gray-500 mt-1">{drop.id}</div>
                                                 </div>
                                             </div>
                                         </td>
@@ -139,7 +205,14 @@ export default function AdminDropsPage() {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <div className="flex items-center justify-end gap-2 opacity-0 transition-opacity">
+                                            <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button
+                                                    onClick={() => openNotificationDraft(drop)}
+                                                    className="p-2.5 rounded-full bg-black text-gray-200 hover:bg-white/10 transition-colors border border-white/10"
+                                                    title="Send drop notification"
+                                                >
+                                                    <BellRing className="w-4 h-4" />
+                                                </button>
                                                 <Link
                                                     href={`/admin/create?id=${drop.id}`}
                                                     className="p-2.5 rounded-full bg-black text-white hover:bg-white/10 transition-colors border border-white/10"
@@ -163,7 +236,6 @@ export default function AdminDropsPage() {
                     </table>
                 </div>
 
-                {/* Mobile Card Layout - Visible on Mobile */}
                 <div className="md:hidden flex flex-col divide-y divide-white/5">
                     {drops.map((drop) => {
                         const now = Date.now();
@@ -203,6 +275,12 @@ export default function AdminDropsPage() {
                                     </div>
 
                                     <div className="flex justify-end gap-2 pt-1">
+                                        <button
+                                            onClick={() => openNotificationDraft(drop)}
+                                            className="px-3 py-1.5 rounded-full bg-black border border-white/10 text-gray-200 text-xs font-bold transition-colors flex items-center gap-1 hover:bg-white/10"
+                                        >
+                                            <BellRing className="w-3 h-3" /> Notify
+                                        </button>
                                         <Link
                                             href={`/admin/create?id=${drop.id}`}
                                             className="px-3 py-1.5 rounded-full bg-black border border-white/10 text-white text-xs font-bold transition-colors flex items-center gap-1 hover:bg-white/10"
@@ -229,6 +307,48 @@ export default function AdminDropsPage() {
                     </div>
                 )}
             </div>
+
+            {notificationDraft && (
+                <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="w-full max-w-md glass-panel rounded-3xl border border-white/10 p-5">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-white/10 bg-black shrink-0">
+                                <Image src={notificationDraft.imageUrl} alt={notificationDraft.title} fill sizes="48px" className="object-cover" />
+                            </div>
+                            <div>
+                                <p className="text-xs uppercase text-gray-400 tracking-wider">Drop notification</p>
+                                <p className="text-sm font-semibold text-white truncate">{notificationDraft.title}</p>
+                            </div>
+                        </div>
+
+                        <textarea
+                            value={notificationDraft.message}
+                            onChange={(event) => setNotificationDraft((prev) => prev ? { ...prev, message: event.target.value.slice(0, 150) } : prev)}
+                            placeholder="Write a short update for this drop..."
+                            className="w-full h-28 bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder:text-gray-500 resize-none"
+                        />
+                        <div className="mt-2 text-right text-xs text-gray-400">
+                            {notificationDraft.message.length}/150
+                        </div>
+
+                        <div className="flex items-center justify-end gap-2 mt-5">
+                            <button
+                                onClick={() => setNotificationDraft(null)}
+                                className="px-4 py-2 rounded-full border border-white/15 text-sm text-gray-300"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSendDropNotification}
+                                disabled={sendingNotification}
+                                className="px-4 py-2 rounded-full bg-white text-black font-semibold text-sm disabled:opacity-50"
+                            >
+                                {sendingNotification ? "Sending..." : "Send"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div >
     );
 }
