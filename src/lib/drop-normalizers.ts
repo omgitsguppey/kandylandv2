@@ -71,6 +71,7 @@ const dropSchema = z.object({
     .nullable()
     .optional(),
   rotationConfig: rotationSchema.nullable().optional(),
+  mediaCounts: z.object({ images: z.number().int().nonnegative(), videos: z.number().int().nonnegative() }).optional(),
 });
 
 const dropRecordSchema = z.object({
@@ -101,6 +102,7 @@ const dropRecordSchema = z.object({
     .nullable()
     .optional(),
   rotationConfig: rotationSchema.nullable().optional(),
+  mediaCounts: z.object({ images: z.number().int().nonnegative(), videos: z.number().int().nonnegative() }).optional(),
 });
 
 function toMillis(value: z.infer<typeof timestampSchema>): number {

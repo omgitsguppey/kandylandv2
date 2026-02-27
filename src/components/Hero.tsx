@@ -6,6 +6,7 @@ import { Candy } from "lucide-react";
 import Link from "next/link";
 import { useAuthIdentity } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
+import { HomeDropTicker } from "@/components/HomeDropTicker";
 
 export default function Hero() {
     const { user } = useAuthIdentity();
@@ -56,6 +57,9 @@ export default function Hero() {
                         </Button>
                     </Link>
                 </div>
+
+                <p className="text-xs text-gray-500 mt-3">Most active members unwrap at least once every 24 hours.</p>
+                <HomeDropTicker />
             </div>
 
         </section>

@@ -60,12 +60,17 @@ export function ProfileDropdown() {
                     className="absolute right-0 top-full mt-2 w-64 bg-zinc-950 border border-white/10 rounded-2xl p-2 shadow-2xl backdrop-blur-3xl overflow-hidden origin-top-right z-50"
                 >
 
-                    <div className="px-4 py-3 border-b border-white/10 mb-2">
-                        <p className="text-sm font-bold text-white flex items-center gap-2">
-                            My Account
-                            {isAdmin && <span className="text-xs text-brand-cyan">(Admin)</span>}
-                        </p>
-                        <p className="text-xs text-gray-400 truncate">{user.email}</p>
+                    <div className="px-4 py-3 border-b border-white/10 mb-2 flex items-start justify-between gap-2">
+                        <div>
+                            <p className="text-sm font-bold text-white flex items-center gap-2">
+                                My Account
+                                {isAdmin && <span className="text-xs text-brand-cyan">(Admin)</span>}
+                            </p>
+                            <p className="text-xs text-gray-400 truncate">{user.email}</p>
+                        </div>
+                        <Link href="/dashboard/profile" onClick={() => setIsOpen(false)} className="p-2 rounded-full bg-white/5 border border-white/10" title="Settings">
+                            <Settings className="w-4 h-4 text-gray-300" />
+                        </Link>
                     </div>
 
                     <nav className="space-y-1">

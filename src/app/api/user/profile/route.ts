@@ -2,33 +2,80 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAuth, handleApiError } from "@/lib/server/auth";
 
-// PUT — Update display name (from ProfilePage)
+function normalizeUsername(value: unknown): string | null {
+    if (typeof value !== "string") {
+        return null;
+    }
+
+    const normalized = value.trim().toLowerCase();
+    if (normalized.length < 3 || !/^[a-z0-9_]+$/.test(normalized)) {
+        return null;
+    }
+
+    return normalized;
+}
+
+function normalizeNotificationSettings(value: unknown): { inAppEnabled: boolean; browserPushEnabled: boolean } | null {
+    if (!value || typeof value !== "object") {
+        return null;
+    }
+
+    const source = value as { inAppEnabled?: unknown; browserPushEnabled?: unknown };
+
+    return {
+        inAppEnabled: source.inAppEnabled !== false,
+        browserPushEnabled: source.browserPushEnabled === true,
+    };
+}
+
 export async function PUT(request: NextRequest) {
     try {
         const caller = await verifyAuth(request);
-
-        const { displayName } = await request.json();
-
-        if (!displayName) {
-            return NextResponse.json({ error: "Missing displayName" }, { status: 400 });
-        }
 
         if (!adminDb) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });
         }
 
-        // Use verified UID — user can only update their own profile
+        const payload = await request.json();
+        const updates: Record<string, unknown> = {};
+
+        if (typeof payload.displayName === "string" && payload.displayName.trim().length > 0) {
+            updates.displayName = payload.displayName.trim();
+        }
+
+        if (payload.username !== undefined) {
+            const normalizedUsername = normalizeUsername(payload.username);
+            if (!normalizedUsername) {
+                return NextResponse.json({ error: "Invalid username format" }, { status: 400 });
+            }
+
+            const existing = await adminDb.collection("users").where("username", "==", normalizedUsername).limit(1).get();
+            if (!existing.empty && existing.docs[0].id !== caller.uid) {
+                return NextResponse.json({ error: "Username already taken" }, { status: 409 });
+            }
+
+            updates.username = normalizedUsername;
+        }
+
+        if (payload.notificationSettings !== undefined) {
+            const normalizedNotificationSettings = normalizeNotificationSettings(payload.notificationSettings);
+            if (!normalizedNotificationSettings) {
+                return NextResponse.json({ error: "Invalid notification settings" }, { status: 400 });
+            }
+            updates.notificationSettings = normalizedNotificationSettings;
+        }
+
+        if (Object.keys(updates).length === 0) {
+            return NextResponse.json({ error: "No valid updates provided" }, { status: 400 });
+        }
+
         const userRef = adminDb.collection("users").doc(caller.uid);
         const userSnap = await userRef.get();
         if (!userSnap.exists) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
 
-        await userRef.update({
-            displayName
-        });
-
-
+        await userRef.update(updates);
 
         return NextResponse.json({ success: true });
     } catch (error) {
@@ -36,7 +83,6 @@ export async function PUT(request: NextRequest) {
     }
 }
 
-// POST — Onboarding submit (username, DOB, bio, avatar URL)
 export async function POST(request: NextRequest) {
     try {
         const caller = await verifyAuth(request);
@@ -46,29 +92,19 @@ export async function POST(request: NextRequest) {
         }
 
         const { username, dateOfBirth, bio, photoURL } = await request.json();
-
-        // Use verified UID
         const userId = caller.uid;
 
-        // Validate username uniqueness if provided
         if (username) {
-            if (username.length < 3 || !/^[a-z0-9_]+$/.test(username)) {
+            const normalized = normalizeUsername(username);
+            if (!normalized) {
                 return NextResponse.json({ error: "Invalid username format" }, { status: 400 });
             }
-            const existing = await adminDb
-                .collection("users")
-                .where("username", "==", username)
-                .limit(1)
-                .get();
-            if (!existing.empty) {
-                const existingId = existing.docs[0].id;
-                if (existingId !== userId) {
-                    return NextResponse.json({ error: "Username already taken" }, { status: 409 });
-                }
+            const existing = await adminDb.collection("users").where("username", "==", normalized).limit(1).get();
+            if (!existing.empty && existing.docs[0].id !== userId) {
+                return NextResponse.json({ error: "Username already taken" }, { status: 409 });
             }
         }
 
-        // Validate age if DOB provided
         if (dateOfBirth) {
             const dob = new Date(dateOfBirth);
             const ageDiff = Date.now() - dob.getTime();
@@ -79,9 +115,8 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        // Build update object
-        const updates: Record<string, any> = {};
-        if (username) updates.username = username;
+        const updates: Record<string, unknown> = {};
+        if (username) updates.username = normalizeUsername(username);
         if (dateOfBirth) updates.dateOfBirth = dateOfBirth;
         if (bio !== undefined) updates.bio = bio;
         if (photoURL) updates.photoURL = photoURL;

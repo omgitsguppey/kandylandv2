@@ -20,6 +20,11 @@ export interface UserProfile {
     status?: 'active' | 'suspended' | 'banned'; // User account status
     statusReason?: string; // Reason for suspension/ban
 
+    notificationSettings?: {
+        inAppEnabled: boolean;
+        browserPushEnabled: boolean;
+    };
+
     securityFlags?: {
         ripAttempts: number;
         lastViolation?: string; // ISO date
@@ -57,6 +62,10 @@ export interface Drop {
         size: number;
         type: string;
         dimensions?: string;
+    };
+    mediaCounts?: {
+        images: number;
+        videos: number;
     };
 
     // Auto-Rotation Config
