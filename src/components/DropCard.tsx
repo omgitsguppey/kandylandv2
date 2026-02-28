@@ -170,7 +170,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
         <div className="group relative p-2 md:p-5 rounded-2xl md:rounded-3xl glass-panel overflow-hidden h-full">
             <div className="absolute inset-0 bg-gradient-to-br from-brand-pink/5 via-transparent to-brand-cyan/5 pointer-events-none" />
 
-            <button onClick={() => onPreview(drop)} className="relative w-full h-[190px] md:h-[210px] bg-black/40 rounded-xl md:rounded-2xl mb-3 md:mb-5 overflow-hidden group/image shadow-inner border border-white/5 text-left">
+            <button onClick={() => onPreview(drop)} className="relative w-full aspect-square bg-black/40 rounded-xl md:rounded-2xl mb-3 md:mb-5 overflow-hidden group/image shadow-inner border border-white/5 text-left">
                 {drop.imageUrl ? (
                     <>
                         <NextImage

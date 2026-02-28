@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { PayPalButtons, usePayPalScriptReducer, SCRIPT_LOADING_STATE, DISPATCH_ACTION } from "@paypal/react-paypal-js";
+import { PayPalButtons } from "@paypal/react-paypal-js";
 import { X, Candy } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
@@ -23,9 +23,10 @@ const PACKAGES: PurchasePackage[] = [
   { drops: 2500, price: 20.0, label: "Ultimate Kandy (+500 Bonus)" },
 ];
 
-const PAYPAL_READY = Boolean(
-  process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_SANDBOX || process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE
-);
+const PAYPAL_READY = [
+  process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_SANDBOX,
+  process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE,
+].some((clientId) => (clientId?.trim().length ?? 0) > 0);
 
 export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   const { user } = useAuth();
@@ -34,20 +35,14 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const [{ isResolved, isPending }, dispatch] = usePayPalScriptReducer();
 
   useEffect(() => {
-    if (isOpen) {
-      if (!isResolved && !isPending && dispatch) {
-        dispatch({ type: DISPATCH_ACTION.LOADING_STATUS, value: SCRIPT_LOADING_STATE.PENDING });
-      }
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    document.body.style.overflow = isOpen ? "hidden" : "";
 
-    return () => { document.body.style.overflow = ""; }
-  }, [isOpen, isResolved, isPending, dispatch]);
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   const closeModal = useCallback(() => {
     setSuccess(false);
