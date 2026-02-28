@@ -8,7 +8,6 @@ import { Loader2 } from "lucide-react";
 
 import { useAuthIdentity, useUserProfile } from "@/context/AuthContext";
 import { toast } from "sonner";
-import { getDropCardWidthClass, getSupportedDropAspectRatio } from "@/lib/drop-presentation";
 
 interface DropGridProps {
     drops?: Drop[];
@@ -86,14 +85,12 @@ export function DropGrid({ drops: propDrops, loading: propLoading, isSearching, 
     }
 
     return (
-        <div className="flex flex-wrap gap-3 md:gap-5 pb-20 md:pb-0 justify-center md:justify-start items-stretch">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5 pb-20 md:pb-0 items-stretch">
             {drops.map((drop, index) => {
                 const isUnlocked = userProfile?.unlockedContent?.includes(drop.id);
                 const canAfford = (userProfile?.gumDropsBalance || 0) >= drop.unlockCost;
-                const cardWidthClass = getDropCardWidthClass(getSupportedDropAspectRatio(drop));
-
                 return (
-                    <div key={drop.id} id={`drop-${drop.id}`} className={`scroll-mt-32 transition-all ${cardWidthClass}`}>
+                    <div key={drop.id} id={`drop-${drop.id}`} className="scroll-mt-32 h-full">
                         {(drop.type === 'promo' || drop.type === 'external') ? (
                             <PromoCard drop={drop} />
                         ) : (

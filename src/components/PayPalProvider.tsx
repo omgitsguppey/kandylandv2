@@ -8,8 +8,10 @@ const clientId = environment === "production"
   ? process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE
   : process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_SANDBOX;
 
+const normalizedClientId = clientId?.trim() ?? "";
+
 const initialOptions = {
-  clientId: clientId || "",
+  clientId: normalizedClientId || "sb",
   currency: "USD",
   intent: "capture",
   disableFunding: "credit,card",
@@ -20,5 +22,5 @@ interface PayPalProviderProps {
 }
 
 export function PayPalProvider({ children }: PayPalProviderProps) {
-  return <PayPalScriptProvider options={initialOptions} deferLoading>{children}</PayPalScriptProvider>;
+  return <PayPalScriptProvider options={initialOptions}>{children}</PayPalScriptProvider>;
 }

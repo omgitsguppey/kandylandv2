@@ -28,7 +28,7 @@ export default function DropsLoading() {
                     <div className="h-4 w-20 bg-white/5 rounded-lg" />
                 </div>
 
-                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
                     {[1, 2, 3, 4, 5, 6].map((i) => (
                         <div key={i} className="glass-panel p-4 md:p-6 rounded-2xl md:rounded-3xl border border-white/5 min-h-[350px]">
                             <div className="aspect-square bg-white/5 rounded-xl md:rounded-2xl mb-4" />
