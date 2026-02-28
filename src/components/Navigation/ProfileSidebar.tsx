@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, type ReactNode } from "react";
 import Link from "next/link";
 import { LogOut, LayoutDashboard, Library, Settings, X, Plus } from "lucide-react";
 
@@ -12,6 +12,13 @@ interface ProfileSidebarProps {
     onClose: () => void;
 }
 
+interface SidebarItemProps {
+    href: string;
+    icon: ReactNode;
+    label: string;
+    onClick: () => void;
+}
+
 export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
     const { user, logout } = useAuthIdentity();
     const { userProfile } = useUserProfile();
@@ -19,80 +26,80 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
 
     const isAdmin = user?.email === "uylusjohnson@gmail.com";
 
-    // Prevent body scroll when open
     useEffect(() => {
-        if (isOpen) {
-            document.body.style.overflow = "hidden";
-        } else {
+        document.body.style.overflow = isOpen ? "hidden" : "unset";
+        return () => {
             document.body.style.overflow = "unset";
-        }
-        return () => { document.body.style.overflow = "unset"; };
+        };
     }, [isOpen]);
 
-    if (!user) return null;
+    if (!user || !isOpen) return null;
+
+    const displayName = typeof user.displayName === "string" && user.displayName.trim().length > 0 ? user.displayName : "User";
+    const email = typeof user.email === "string" && user.email.trim().length > 0 ? user.email : "No email";
+    const profileInitial = displayName.charAt(0).toUpperCase();
+    const gumDropsBalance = typeof userProfile?.gumDropsBalance === "number" && Number.isFinite(userProfile.gumDropsBalance)
+        ? userProfile.gumDropsBalance
+        : 0;
 
     return (
-        isOpen ? (
-            <>
-                {/* Backdrop */}
-                <div
-                    onClick={onClose}
-                    className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm"
-                />
+        <>
+            <div
+                onClick={onClose}
+                className="fixed inset-0 z-[100] bg-black/50"
+                aria-hidden
+            />
 
-                {/* Sidebar */}
-                <div
-                    className="fixed top-0 right-0 bottom-0 w-[85vw] max-w-sm z-[110] bg-zinc-900 border-l border-white/10 flex flex-col shadow-2xl"
-                >
-                    {/* Header */}
-                    <div className="p-6 border-b border-white/10 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="relative">
-                                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-pink to-brand-purple flex items-center justify-center text-white font-bold shadow-lg">
-                                    {user.displayName?.charAt(0).toUpperCase() || "U"}
+            <aside className="fixed top-0 right-0 bottom-0 w-[85vw] max-w-sm z-[110] bg-[#0b0b10] border-l border-white/10 rounded-l-2xl shadow-2xl shadow-black/50 overflow-hidden">
+                <div className="h-full overflow-y-auto">
+                    <div className="sticky top-0 z-20 bg-[#0b0b10]/95 backdrop-blur-md border-b border-white/10 px-4 md:px-5 pt-[max(env(safe-area-inset-top),1rem)] pb-4">
+                        <div className="flex items-start justify-between gap-3">
+                            <div className="flex items-center gap-3 min-w-0">
+                                <div className="relative shrink-0">
+                                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-pink to-brand-purple flex items-center justify-center text-white font-bold shadow-lg">
+                                        {profileInitial}
+                                    </div>
+                                    {isAdmin ? <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-brand-cyan rounded-full border-2 border-black" /> : null}
                                 </div>
-                                {isAdmin && (
-                                    <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-brand-cyan rounded-full border-2 border-black" />
-                                )}
+                                <div className="min-w-0">
+                                    <div className="flex items-center gap-2">
+                                        <h3 className="font-bold text-white truncate">{displayName}</h3>
+                                        {isAdmin ? (
+                                            <span className="px-1.5 py-0.5 rounded-full bg-brand-cyan/20 text-brand-cyan text-[10px] font-bold border border-brand-cyan/30">ADMIN</span>
+                                        ) : null}
+                                    </div>
+                                    <p className="text-xs text-gray-400 truncate">{email}</p>
+                                </div>
                             </div>
-                            <div>
-                                <div className="flex items-center gap-2">
-                                    <h3 className="font-bold text-white mb-0.5">{user.displayName}</h3>
-                                    {isAdmin && (
-                                        <span className="px-1.5 py-0.5 rounded-full bg-brand-cyan/20 text-brand-cyan text-[10px] font-bold border border-brand-cyan/30">
-                                            ADMIN
-                                        </span>
-                                    )}
-                                </div>
-                                <p className="text-xs text-gray-400">{user.email}</p>
+
+                            <div className="flex items-center gap-2 shrink-0">
+                                <button
+                                    onClick={() => {
+                                        logout();
+                                        onClose();
+                                    }}
+                                    className="h-11 px-3 rounded-xl border border-red-500/30 text-red-300 bg-red-500/10 hover:bg-red-500/15 transition-colors flex items-center gap-1.5"
+                                    title="Sign Out"
+                                >
+                                    <LogOut className="w-4 h-4" />
+                                    <span className="text-xs font-semibold">Log out</span>
+                                </button>
+                                <button
+                                    onClick={onClose}
+                                    className="w-11 h-11 rounded-xl border border-white/10 text-gray-200 hover:bg-white/5 transition-colors flex items-center justify-center"
+                                    title="Close"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
                             </div>
                         </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                        <Link href="/dashboard/profile" onClick={onClose} className="p-2 rounded-full transition-colors text-gray-300 hover:bg-white/5" title="Settings">
-                            <Settings className="w-5 h-5" />
-                        </Link>
-                        <button
-                            onClick={() => {
-                                logout();
-                                onClose();
-                            }}
-                            className="p-2 rounded-full transition-colors text-red-400 hover:bg-red-500/10 hover:text-red-300"
-                            title="Sign Out"
-                        >
-                            <LogOut className="w-5 h-5" />
-                        </button>
-                        <button onClick={onClose} className="p-2 rounded-full transition-colors text-gray-400 hover:bg-white/5 hover:text-white" title="Close">
-                            <X className="w-5 h-5" />
-                        </button>
-                    </div>
 
-                    {/* Wallet Section */}
-                    <div className="p-6">
-                        <div className="glass-panel bg-white/5 rounded-2xl p-4 flex items-center justify-between mb-2">
+                    <div className="px-4 md:px-5 py-5 space-y-5">
+                        <div className="glass-panel bg-white/5 rounded-2xl p-4 flex items-center justify-between">
                             <div>
                                 <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">My Stash</p>
-                                <p className="text-2xl font-bold text-brand-purple">{userProfile?.gumDropsBalance || 0} <span className="text-sm text-gray-400 font-normal">Drops</span></p>
+                                <p className="text-2xl font-bold text-brand-purple">{gumDropsBalance} <span className="text-sm text-gray-400 font-normal">Drops</span></p>
                             </div>
                             <button
                                 onClick={() => {
@@ -104,29 +111,27 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
                                 <Plus className="w-5 h-5" />
                             </button>
                         </div>
+
+                        <nav className="space-y-1">
+                            <SidebarItem href="/dashboard" icon={<LayoutDashboard className="w-5 h-5" />} label="Dashboard" onClick={onClose} />
+                            <SidebarItem href="/dashboard/library" icon={<Library className="w-5 h-5" />} label="My KandyDrops" onClick={onClose} />
+                            <SidebarItem href="/dashboard/profile" icon={<Settings className="w-5 h-5" />} label="Settings" onClick={onClose} />
+                        </nav>
                     </div>
 
-                    {/* Navigation */}
-                    <nav className="flex-1 px-4 space-y-1">
-                        <SidebarItem href="/dashboard" icon={<LayoutDashboard className="w-5 h-5" />} label="Dashboard" onClick={onClose} />
-                        <SidebarItem href="/dashboard/library" icon={<Library className="w-5 h-5" />} label="My KandyDrops" onClick={onClose} />
-                        <SidebarItem href="/dashboard/profile" icon={<Settings className="w-5 h-5" />} label="Settings" onClick={onClose} />
-                    </nav>
-
-                    {/* Footer - Spacer for Safe Area */}
                     <div className="h-[env(safe-area-inset-bottom)]" />
-                </div >
-            </>
-        ) : null
+                </div>
+            </aside>
+        </>
     );
 }
 
-function SidebarItem({ href, icon, label, onClick }: { href: string; icon: React.ReactNode; label: string; onClick: () => void }) {
+function SidebarItem({ href, icon, label, onClick }: SidebarItemProps) {
     return (
         <Link
             href={href}
             onClick={onClick}
-            className="flex items-center gap-3 px-4 py-3 text-gray-300 rounded-xl transition-all group"
+            className="flex items-center gap-3 px-4 py-3 text-gray-300 rounded-xl transition-all group hover:bg-white/5"
         >
             <span className="transition-colors">{icon}</span>
             <span className="font-medium">{label}</span>
