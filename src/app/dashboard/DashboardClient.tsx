@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { DailyCheckIn } from "@/components/Dashboard/DailyCheckIn";
 import { CollectionList } from "@/components/Dashboard/CollectionList";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Star } from "lucide-react";
 
 import { Drop } from "@/types/db";
@@ -15,12 +15,13 @@ interface DashboardClientProps {
 
 export default function DashboardClient({ drops }: DashboardClientProps) {
     const { user, userProfile, loading } = useAuth();
+    const router = useRouter();
 
     useEffect(() => {
         if (!loading && !user) {
-            redirect("/");
+            router.push("/");
         }
-    }, [user, loading]);
+    }, [user, loading, router]);
 
     // Skeleton UI
     if (loading) {

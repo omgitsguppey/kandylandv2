@@ -72,10 +72,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
 
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+            console.info("[AuthProvider] onAuthStateChanged", {
+                uid: currentUser?.uid ?? null,
+                isLoading: false,
+            });
             setUser(currentUser);
-            if (!currentUser) {
+            setLoading(false);
+
+            if (currentUser === null) {
                 setUserProfile(null);
-                setLoading(false);
             }
         });
 
@@ -139,7 +144,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return () => {
             if (unsubscribe) unsubscribe();
         };
-    }, [user, router]);
+    }, [user]);
 
     const refreshProfile = async () => {
         // No-op now as onSnapshot handles updates. 
@@ -194,6 +199,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     const logout = async () => {
+        console.info("[AuthProvider] logout called");
         await signOut(auth);
         router.push("/");
     };
