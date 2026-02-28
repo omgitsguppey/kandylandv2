@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
         const transactionRef = adminDb.collection("transactions").doc();
         batch.set(transactionRef, {
             userId,
-            type: "purchase_currency",
+            type: "daily_reward",
             amount: reward,
             description: `Daily Check-in: Day ${nextStreak}`,
             timestamp: FieldValue.serverTimestamp(),
