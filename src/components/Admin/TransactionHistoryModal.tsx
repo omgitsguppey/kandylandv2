@@ -7,6 +7,7 @@ import { db } from "@/lib/firebase-data";
 import { Button } from "@/components/ui/Button";
 import { Loader2, ScrollText, ArrowDownLeft, ArrowUpRight, TrendingUp } from "lucide-react";
 import { format } from "date-fns";
+import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 
 interface Props {
     user: UserProfile | null;
@@ -23,18 +24,44 @@ export function TransactionHistoryModal({ user, onClose }: Props) {
         const fetchHistory = async () => {
             setLoading(true);
             try {
-                const q = query(
+                const indexedQuery = query(
                     collection(db, "transactions"),
                     where("userId", "==", user.uid),
                     orderBy("timestamp", "desc"),
                     limit(30)
                 );
 
-                const snapshot = await getDocs(q);
-                const txs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Transaction));
+                const snapshot = await getDocs(indexedQuery);
+                const txs = snapshot.docs
+                    .map((doc) => {
+                        try {
+                            return normalizeTransactionRecord(doc.data(), doc.id);
+                        } catch {
+                            return null;
+                        }
+                    })
+                    .filter((entry): entry is Transaction => entry !== null);
                 setTransactions(txs);
             } catch (error) {
-                console.error("Error fetching transactions:", error);
+                // Fallback for environments where the userId+timestamp composite index does not exist yet.
+                try {
+                    const fallbackQuery = query(collection(db, "transactions"), where("userId", "==", user.uid), limit(30));
+                    const fallbackSnapshot = await getDocs(fallbackQuery);
+                    const txs = fallbackSnapshot.docs
+                        .map((doc) => {
+                            try {
+                                return normalizeTransactionRecord(doc.data(), doc.id);
+                            } catch {
+                                return null;
+                            }
+                        })
+                        .filter((entry): entry is Transaction => entry !== null)
+                        .sort((a, b) => b.timestamp - a.timestamp);
+                    setTransactions(txs);
+                } catch (fallbackError) {
+                    console.error("Error fetching transactions:", fallbackError);
+                    setTransactions([]);
+                }
             } finally {
                 setLoading(false);
             }
@@ -45,11 +72,9 @@ export function TransactionHistoryModal({ user, onClose }: Props) {
 
     if (!user) return null;
 
-    const formatTxTime = (ts: any) => {
-        if (!ts) return "Unknown";
-        // Handle Firestore Timestamp
-        const ms = ts.toMillis ? ts.toMillis() : (typeof ts === 'number' ? ts : Date.now());
-        return format(ms, 'MMM d, h:mm a');
+    const formatTxTime = (timestampMs: number) => {
+        if (!Number.isFinite(timestampMs) || timestampMs <= 0) return "Unknown";
+        return format(timestampMs, "MMM d, h:mm a");
     };
 
     return (
@@ -81,7 +106,7 @@ export function TransactionHistoryModal({ user, onClose }: Props) {
                             No transactions found for this user.
                         </div>
                     ) : (
-                        transactions.map(tx => {
+                        transactions.map((tx) => {
                             const isPositive = tx.amount > 0;
                             const isZero = tx.amount === 0;
 
@@ -89,12 +114,14 @@ export function TransactionHistoryModal({ user, onClose }: Props) {
                                 <div key={tx.id} className="flex items-center justify-between bg-black/40 border border-white/5 p-3 rounded-xl hover:bg-white/5 transition-colors">
                                     <div className="flex-1 min-w-0 pr-4">
                                         <div className="flex items-center gap-2 mb-1">
-                                            {tx.type === 'admin_adjustment' ? (
+                                            {tx.type === "admin_adjustment" ? (
                                                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20 capitalize">Admin</span>
-                                            ) : tx.type === 'unlock_content' ? (
+                                            ) : tx.type === "unlock_content" ? (
                                                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20 capitalize">Unlock</span>
-                                            ) : tx.type === 'purchase_currency' ? (
+                                            ) : tx.type === "purchase_currency" ? (
                                                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-green-500/10 text-green-400 border border-green-500/20 capitalize">Purchase</span>
+                                            ) : tx.type === "daily_reward" ? (
+                                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 capitalize">Reward</span>
                                             ) : (
                                                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-500/10 text-gray-400 border border-gray-500/20 capitalize">{tx.type}</span>
                                             )}
@@ -105,9 +132,9 @@ export function TransactionHistoryModal({ user, onClose }: Props) {
                                         </p>
                                     </div>
 
-                                    <div className={`flex items-center gap-1 font-mono font-bold shrink-0 ${isPositive ? 'text-green-400' : isZero ? 'text-gray-400' : 'text-red-400'}`}>
+                                    <div className={`flex items-center gap-1 font-mono font-bold shrink-0 ${isPositive ? "text-green-400" : isZero ? "text-gray-400" : "text-red-400"}`}>
                                         {isPositive ? <ArrowUpRight className="w-4 h-4" /> : isZero ? <TrendingUp className="w-4 h-4 text-gray-500" /> : <ArrowDownLeft className="w-4 h-4" />}
-                                        {isPositive ? '+' : ''}{tx.amount}
+                                        {isPositive ? "+" : ""}{tx.amount}
                                     </div>
                                 </div>
                             );
