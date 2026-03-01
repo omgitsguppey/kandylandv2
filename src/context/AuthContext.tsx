@@ -74,14 +74,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             console.info("[AuthProvider] onAuthStateChanged", {
                 uid: currentUser?.uid ?? null,
-                isLoading: false,
+                isLoading: currentUser !== null,
             });
             setUser(currentUser);
-            setLoading(false);
 
             if (currentUser === null) {
                 setUserProfile(null);
+                setLoading(false);
+                return;
             }
+
+            setLoading(true);
         });
 
         return () => unsubscribe();
@@ -93,6 +96,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setLoading(false);
             return;
         }
+
+        setLoading(true);
 
         let unsubscribe: () => void;
 
@@ -115,8 +120,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
                     if (profile) {
                         setUserProfile(profile);
-                        setLoading(false);
                     }
+
+                    setLoading(false);
                 } else {
 
                     // Profile doesn't exist yet, trigger auto-registration
@@ -132,6 +138,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         console.error("Error in auto-registration:", err);
                     }
                     // onSnapshot will trigger again once the doc is created
+                    setLoading(false);
                 }
             }, (error) => {
                 console.error("Profile listener error:", error);
