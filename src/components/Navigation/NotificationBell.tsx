@@ -78,7 +78,7 @@ export function NotificationBell() {
                         </div>
                     ) : (
                         notifications.map((note) => {
-                            const isUnread = user ? !note.readBy.includes(user.uid) : false;
+                            const isUnread = user ? !(note.readBy || []).includes(user.uid) : false;
                             return (
                                 <div
                                     key={note.id}
@@ -108,14 +108,18 @@ export function NotificationBell() {
 
                                     {note.dropContext && (
                                         <div className="border-t border-white/10 bg-black/30 px-3 py-2.5 flex items-center gap-3">
-                                            <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-white/10 shrink-0 bg-black">
-                                                <Image
-                                                    src={note.dropContext.previewImageUrl}
-                                                    alt={note.dropContext.dropTitle}
-                                                    fill
-                                                    sizes="48px"
-                                                    className="object-cover"
-                                                />
+                                            <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-white/10 shrink-0 bg-black flex items-center justify-center">
+                                                {note.dropContext.previewImageUrl ? (
+                                                    <Image
+                                                        src={note.dropContext.previewImageUrl}
+                                                        alt={note.dropContext.dropTitle || "Drop Preview"}
+                                                        fill
+                                                        sizes="48px"
+                                                        className="object-cover"
+                                                    />
+                                                ) : (
+                                                    <span className="text-xl">🍬</span>
+                                                )}
                                             </div>
                                             <div className="min-w-0">
                                                 <p className="text-[10px] uppercase tracking-wider text-gray-400">Drop Preview</p>

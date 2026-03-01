@@ -46,7 +46,10 @@ export function DailyCheckIn() {
     const baseNextCheckInMs = lastCheckInMs > 0 ? lastCheckInMs + CHECK_IN_INTERVAL_MS : 0;
     const nextCheckInMs = nextCheckInOverrideMs ?? baseNextCheckInMs;
 
+    const [isMounted, setIsMounted] = useState(false);
+
     useEffect(() => {
+        setIsMounted(true);
         const timerId = window.setInterval(() => {
             setNowMs(Date.now());
         }, 1000);
@@ -141,6 +144,20 @@ export function DailyCheckIn() {
             setLoading(false);
         }
     };
+
+    if (!isMounted) {
+        return (
+            <div className="glass-panel p-6 rounded-3xl relative overflow-hidden h-64 animate-pulse">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-brand-purple/10 rounded-full blur-[50px] pointer-events-none" />
+                <div className="relative z-10 h-full flex flex-col justify-between">
+                    <div>
+                        <div className="h-8 w-48 bg-white/10 rounded-lg mb-2" />
+                        <div className="h-4 w-32 bg-white/5 rounded-md" />
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="glass-panel p-6 rounded-3xl relative overflow-hidden">
