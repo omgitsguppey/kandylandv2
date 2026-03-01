@@ -21,12 +21,16 @@ const PAYPAL_BASE_URL = "https://api-m.paypal.com";
 function getPayPalCredentials() {
   const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE;
   const clientSecret = process.env.PAYPAL_CLIENT_SECRET_LIVE;
-  if (!clientId || !clientSecret) throw new Error("PayPal credentials not configured");
   return { clientId, clientSecret };
 }
 
 async function getPayPalAccessToken(): Promise<string> {
   const { clientId, clientSecret } = getPayPalCredentials();
+
+  if (!clientId || !clientSecret) {
+    throw new Error("PayPal credentials not configured. Please add NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE and PAYPAL_CLIENT_SECRET_LIVE to your environment variables.");
+  }
+
   const auth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
   const response = await fetch(`${PAYPAL_BASE_URL}/v1/oauth2/token`, {
     method: "POST",
