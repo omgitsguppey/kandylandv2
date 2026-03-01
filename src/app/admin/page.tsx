@@ -1,33 +1,64 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { collection, onSnapshot, orderBy, query, limit } from "firebase/firestore";
+import { collection, onSnapshot, orderBy, query, limit, where } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
 import { Users, Package, DollarSign, Activity, MousePointerClick } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Drop, Transaction, UserProfile } from "@/types/db";
+import { normalizeDropRecord } from "@/lib/drop-normalizers";
+import { getTransactionRevenueCents, normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 
 export default function AdminDashboardPage() {
     const [users, setUsers] = useState<UserProfile[]>([]);
     const [drops, setDrops] = useState<Drop[]>([]);
     const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [purchaseRevenueCents, setPurchaseRevenueCents] = useState(0);
 
     useEffect(() => {
         const unsubs = [
             onSnapshot(collection(db, "users"), (snapshot) => {
                 const list: UserProfile[] = [];
-                snapshot.forEach((doc) => list.push(doc.data() as UserProfile));
+                snapshot.forEach((doc) => {
+                    const normalized = normalizeDashboardUserProfile(doc.id, doc.data());
+                    if (normalized) {
+                        list.push(normalized);
+                    }
+                });
                 setUsers(list);
             }),
             onSnapshot(collection(db, "drops"), (snapshot) => {
                 const list: Drop[] = [];
-                snapshot.forEach((doc) => list.push({ ...(doc.data() as Drop), id: doc.id }));
+                snapshot.forEach((doc) => {
+                    try {
+                        list.push(normalizeDropRecord(doc.data(), doc.id));
+                    } catch {
+                        // Skip malformed records to keep dashboard stable.
+                    }
+                });
                 setDrops(list);
             }),
             onSnapshot(query(collection(db, "transactions"), orderBy("timestamp", "desc"), limit(20)), (snapshot) => {
                 const list: Transaction[] = [];
-                snapshot.forEach((doc) => list.push({ ...(doc.data() as Transaction), id: doc.id }));
+                snapshot.forEach((doc) => {
+                    try {
+                        list.push(normalizeTransactionRecord(doc.data(), doc.id));
+                    } catch {
+                        // Skip malformed records to keep dashboard stable.
+                    }
+                });
                 setTransactions(list);
+            }),
+            onSnapshot(query(collection(db, "transactions"), where("type", "in", ["purchase_currency", "purchase"])), (snapshot) => {
+                let revenueCents = 0;
+                snapshot.forEach((doc) => {
+                    try {
+                        revenueCents += getTransactionRevenueCents(normalizeTransactionRecord(doc.data(), doc.id));
+                    } catch {
+                        // Ignore malformed purchase records.
+                    }
+                });
+                setPurchaseRevenueCents(revenueCents);
             }),
         ];
 
@@ -39,14 +70,11 @@ export default function AdminDashboardPage() {
         const activeDrops = drops.filter((drop) => drop.status === "active").length;
         const totalDrops = drops.length;
         const totalStorage = drops.reduce((sum, drop) => sum + (drop.fileMetadata?.size || 0), 0);
-        const grossRevenueCents = transactions
-            .filter((tx) => tx.type === "purchase_currency" && tx.amount > 0)
-            .reduce((sum, tx) => sum + tx.amount, 0);
         const totalUnwraps = drops.reduce((sum, drop) => sum + (drop.totalUnlocks || 0), 0);
         const totalViews = drops.reduce((sum, drop) => sum + (drop.totalClicks || 0), 0);
 
-        return { totalUsers, activeDrops, totalDrops, totalStorage, grossRevenueCents, totalUnwraps, totalViews };
-    }, [users, drops, transactions]);
+        return { totalUsers, activeDrops, totalDrops, totalStorage, grossRevenueCents: purchaseRevenueCents, totalUnwraps, totalViews };
+    }, [users, drops, purchaseRevenueCents]);
 
     const topDrops = useMemo(() => [...drops].sort((a, b) => (b.totalUnlocks || 0) - (a.totalUnlocks || 0)).slice(0, 5), [drops]);
 
@@ -60,7 +88,7 @@ export default function AdminDashboardPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
                 <StatCard title="Total Users" value={String(stats.totalUsers)} icon={<Users className="w-5 h-5 text-brand-cyan" />} subValue="Live user count" />
                 <StatCard title="Active Drops" value={String(stats.activeDrops)} icon={<Activity className="w-5 h-5 text-brand-green" />} subValue={`of ${stats.totalDrops} total`} />
-                <StatCard title="Purchase Revenue" value={`$${(stats.grossRevenueCents / 100).toFixed(2)}`} icon={<DollarSign className="w-5 h-5 text-brand-yellow" />} subValue="Transactions only" />
+                <StatCard title="Purchase Revenue" value={`$${(stats.grossRevenueCents / 100).toFixed(2)}`} icon={<DollarSign className="w-5 h-5 text-brand-yellow" />} subValue="Completed purchases" />
                 <StatCard title="Drop Views" value={stats.totalViews.toLocaleString()} icon={<MousePointerClick className="w-5 h-5 text-brand-purple" />} subValue="Tracked through drops click events" />
                 <StatCard title="Total Unwraps" value={stats.totalUnwraps.toLocaleString()} icon={<Package className="w-5 h-5 text-brand-pink" />} subValue="Successful unlocks" />
                 <StatCard title="Storage Used" value={formatBytes(stats.totalStorage)} icon={<Package className="w-5 h-5 text-brand-blue" />} subValue="Uploaded drop assets" />
@@ -96,9 +124,7 @@ export default function AdminDashboardPage() {
                         {transactions.length === 0 ? (
                             <div className="text-sm text-gray-500 py-4 text-center">No recent transactions.</div>
                         ) : transactions.map((tx) => {
-                            const timestamp = tx.timestamp && typeof (tx.timestamp as any).toMillis === "function"
-                                ? (tx.timestamp as any).toMillis()
-                                : Date.now();
+                            const timestamp = tx.timestamp > 0 ? tx.timestamp : Date.now();
                             return (
                                 <div key={tx.id} className="flex items-center justify-between border-b border-white/5 pb-3 last:border-0">
                                     <div>
@@ -139,4 +165,29 @@ function formatBytes(bytes: number, decimals = 2) {
     const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+}
+
+function normalizeDashboardUserProfile(id: string, raw: unknown): UserProfile | null {
+    if (!raw || typeof raw !== "object") {
+        return null;
+    }
+
+    const source = raw as Record<string, unknown>;
+    const rawUnlocked = source.unlockedContent;
+    const unlockedContent = Array.isArray(rawUnlocked) ? rawUnlocked.filter((entry): entry is string => typeof entry === "string") : [];
+
+    const rawStatus = source.status;
+    const status = rawStatus === "active" || rawStatus === "suspended" || rawStatus === "banned" ? rawStatus : "active";
+
+    return {
+        uid: typeof source.uid === "string" ? source.uid : id,
+        email: typeof source.email === "string" || source.email === null ? source.email : null,
+        displayName: typeof source.displayName === "string" || source.displayName === null ? source.displayName : null,
+        photoURL: typeof source.photoURL === "string" || source.photoURL === null ? source.photoURL : null,
+        gumDropsBalance: typeof source.gumDropsBalance === "number" && Number.isFinite(source.gumDropsBalance) ? source.gumDropsBalance : 0,
+        unlockedContent,
+        createdAt: typeof source.createdAt === "number" && Number.isFinite(source.createdAt) ? source.createdAt : 0,
+        status,
+        role: source.role === "admin" || source.role === "creator" || source.role === "user" ? source.role : "user",
+    };
 }

@@ -114,9 +114,10 @@ export async function POST(request: NextRequest) {
       transaction.update(userRef, { gumDropsBalance: FieldValue.increment(dropsToCredit) });
       transaction.set(adminDb.collection("transactions").doc(), {
         userId,
-        type: "purchase",
+        type: "purchase_currency",
         amount: dropsToCredit,
         cost: Number.parseFloat(paidAmountStr),
+        description: `Purchased ${dropsToCredit} Gum Drops`,
         currency: "USD",
         paymentId: orderId,
         paypalCaptureId: capture.id,

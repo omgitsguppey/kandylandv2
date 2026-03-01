@@ -81,8 +81,10 @@ export interface Transaction {
     id: string;
     userId: string;
     amount: number;
-    type: 'purchase_currency' | 'unlock_content' | 'admin_adjustment';
+    type: 'purchase_currency' | 'unlock_content' | 'admin_adjustment' | 'daily_reward';
     relatedDropId?: string; // If unlocking content
     description: string;
     timestamp: number | any; // Firestore Timestamp or number
+    cost?: number; // USD cost for purchase transactions
+    currency?: string;
 }
