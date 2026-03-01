@@ -11,6 +11,7 @@ import { Drop } from "@/types/db";
 import NextImage from "next/image";
 import { authFetch } from "@/lib/authFetch";
 import { cn } from "@/lib/utils";
+import { ContentViewer, ViewerMediaItem } from "@/components/ContentViewer";
 
 
 
@@ -124,6 +125,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     const router = useRouter();
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [contentBlobUrl, setContentBlobUrl] = useState<string | null>(null);
+    const [viewerOpen, setViewerOpen] = useState(false);
     const [resolvedContent, setResolvedContent] = useState<ResolvedContent>({ kind: "unknown", mimeType: "" });
     const [contentLoading, setContentLoading] = useState(false);
 
@@ -149,6 +151,22 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     }, [drop, userProfile?.unlockedContentTimestamps]);
 
     const previewTags = useMemo(() => sanitizeDropTags(drop?.tags), [drop?.tags]);
+
+    const viewerItems = useMemo<ViewerMediaItem[]>(() => {
+        if (!drop || !contentBlobUrl) {
+            return [];
+        }
+
+        const mediaType = resolvedContent.kind === "video" ? "video" : "image";
+
+        return [{
+            id: drop.id,
+            url: contentBlobUrl,
+            type: mediaType,
+            alt: drop.title,
+        }];
+    }, [contentBlobUrl, drop, resolvedContent.kind]);
+
 
     // Redirect if not logged in (once auth is ready)
     useEffect(() => {
@@ -350,7 +368,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                 {/* Media Container */}
                 <div
                     className={cn(
-                        "w-full min-h-[50vh] max-h-[85vh] mx-auto bg-zinc-900 flex items-center justify-center relative group select-none transition-all duration-300",
+                        "w-full min-h-[38vh] max-h-[70vh] max-w-5xl mx-auto bg-zinc-900 flex items-center justify-center relative group select-none transition-all duration-300 rounded-2xl border border-white/10 overflow-hidden",
                         isSecurityTriggered ? "blur-2xl grayscale" : ""
                     )}
                     onContextMenu={preventContextMenu}
@@ -379,10 +397,11 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                             if (resolvedContent.kind === "video") {
                                 return (
                                     <video
+                                        onDoubleClick={() => setViewerOpen(true)}
                                         controls
                                         controlsList="nodownload noplaybackrate"
                                         disablePictureInPicture
-                                        className="w-full h-full max-h-[85vh] object-contain"
+                                        className="w-full h-full max-h-[70vh] object-contain bg-black"
                                         poster={drop.imageUrl}
                                         autoPlay
                                         playsInline
@@ -423,7 +442,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                 );
                             } else if (resolvedContent.kind === "image") {
                                 return (
-                                    <div className="relative w-full h-full">
+                                    <button type="button" onClick={() => setViewerOpen(true)} className="relative w-full h-full bg-black">
                                         <img
                                             src={contentBlobUrl}
                                             alt="Content"
@@ -431,7 +450,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                             draggable={false}
                                             onContextMenu={preventContextMenu}
                                         />
-                                    </div>
+                                    </button>
                                 );
                             } else if (resolvedContent.kind === "pdf") {
                                 return (
@@ -540,6 +559,13 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                     </div>
                 )}
             </div>
+
+            <ContentViewer
+                items={viewerItems}
+                isOpen={viewerOpen}
+                initialIndex={0}
+                onClose={() => setViewerOpen(false)}
+            />
         </div>
     );
 }

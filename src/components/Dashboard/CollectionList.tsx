@@ -1,11 +1,29 @@
 "use client";
 
 import { Drop, UserProfile } from "@/types/db";
-import { useState, useMemo } from "react";
-import { DashboardDropCard } from "./DashboardDropCard";
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { LayoutGrid } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { OwnedDropGalleryCard } from "./OwnedDropGalleryCard";
+
+type Ratio = "1:1" | "16:9" | "9:16";
+
+function getRatio(drop: Drop): Ratio {
+    const raw = drop.fileMetadata?.dimensions;
+    if (raw === "16:9" || raw === "9:16" || raw === "1:1") {
+        return raw;
+    }
+    return "1:1";
+}
+
+function getItemSpanClass(drop: Drop): string {
+    const ratio = getRatio(drop);
+    if (ratio === "16:9") return "col-span-4";
+    if (ratio === "9:16") return "col-span-2";
+    return "col-span-3";
+}
 
 interface CollectionListProps {
     drops: Drop[];
@@ -13,30 +31,30 @@ interface CollectionListProps {
 }
 
 export function CollectionList({ drops, userProfile }: CollectionListProps) {
-    const [filter, setFilter] = useState<'all' | 'owned' | 'locked'>('all');
+    const [filter, setFilter] = useState<"all" | "owned" | "locked">("all");
+    const router = useRouter();
 
     const { ownedIds, ownedCount, lockedCount } = useMemo(() => {
-        const ids = new Set(userProfile?.unlockedContent || []);
-        const owned = drops.filter(d => ids.has(d.id)).length;
+        const rawUnlocked = userProfile?.unlockedContent;
+        const unlockedList = Array.isArray(rawUnlocked) ? rawUnlocked : [];
+        const ids = new Set(unlockedList);
+        const owned = drops.filter((drop) => ids.has(drop.id)).length;
         const locked = drops.length - owned;
         return { ownedIds: ids, ownedCount: owned, lockedCount: locked };
-    }, [drops, userProfile]);
+    }, [drops, userProfile?.unlockedContent]);
 
     const filteredDrops = useMemo(() => {
-        if (filter === 'owned') return drops.filter(d => ownedIds.has(d.id));
-        if (filter === 'locked') return drops.filter(d => !ownedIds.has(d.id));
+        if (filter === "owned") return drops.filter((drop) => ownedIds.has(drop.id));
+        if (filter === "locked") return drops.filter((drop) => !ownedIds.has(drop.id));
         return drops;
     }, [drops, filter, ownedIds]);
 
     return (
-        <div className="space-y-6">
-            {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                 <div>
-                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                        My KandyDrops
-                    </h2>
-                    <div className="text-sm text-gray-400 font-medium mt-1">
+                    <h2 className="text-xl font-bold text-white">My KandyDrops</h2>
+                    <div className="text-xs text-gray-400 font-medium mt-1">
                         <span className="text-brand-pink">{ownedCount} Owned</span>
                         <span className="mx-2">·</span>
                         <span>{lockedCount} Locked</span>
@@ -45,73 +63,61 @@ export function CollectionList({ drops, userProfile }: CollectionListProps) {
                     </div>
                 </div>
 
-                {/* Filter Controls */}
                 <div className="flex items-center bg-white/5 rounded-xl p-1 self-start md:self-auto border border-white/5" role="group" aria-label="Filter drops by ownership">
-                    <button
-                        onClick={() => setFilter('all')}
-                        aria-pressed={filter === 'all'}
-                        className={cn(
-                            "px-4 py-1.5 rounded-lg text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-pink/40",
-                            filter === 'all' ? "bg-white/10 text-white shadow-sm" : "text-gray-500 hover:text-gray-300"
-                        )}
-                    >
-                        All
-                    </button>
-                    <button
-                        onClick={() => setFilter('owned')}
-                        aria-pressed={filter === 'owned'}
-                        className={cn(
-                            "px-4 py-1.5 rounded-lg text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-pink/40",
-                            filter === 'owned' ? "bg-white/10 text-white shadow-sm" : "text-gray-500 hover:text-gray-300"
-                        )}
-                    >
-                        Owned
-                    </button>
-                    <button
-                        onClick={() => setFilter('locked')}
-                        aria-pressed={filter === 'locked'}
-                        className={cn(
-                            "px-4 py-1.5 rounded-lg text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-pink/40",
-                            filter === 'locked' ? "bg-white/10 text-white shadow-sm" : "text-gray-500 hover:text-gray-300"
-                        )}
-                    >
-                        Locked
-                    </button>
+                    {(["all", "owned", "locked"] as const).map((option) => (
+                        <button
+                            key={option}
+                            onClick={() => setFilter(option)}
+                            aria-pressed={filter === option}
+                            className={cn(
+                                "px-4 py-1.5 rounded-lg text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-pink/40 capitalize",
+                                filter === option ? "bg-white/10 text-white shadow-sm" : "text-gray-500 hover:text-gray-300"
+                            )}
+                        >
+                            {option}
+                        </button>
+                    ))}
                 </div>
             </div>
 
-            {/* Content Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {filteredDrops.map((drop) => (
-                    <DashboardDropCard
-                        key={drop.id}
-                        drop={drop}
-                        isUnlocked={ownedIds.has(drop.id)}
-                    />
-                ))}
+            <div className="grid grid-cols-6 gap-3 md:gap-4">
+                {filteredDrops.map((drop) => {
+                    const unlocked = ownedIds.has(drop.id);
+                    return (
+                        <div key={drop.id} className={getItemSpanClass(drop)}>
+                            <OwnedDropGalleryCard
+                                drop={drop}
+                                isUnlocked={unlocked}
+                                onOpen={() => {
+                                    if (unlocked) {
+                                        router.push(`/dashboard/viewer?id=${drop.id}`);
+                                        return;
+                                    }
+                                    router.push("/drops");
+                                }}
+                            />
+                        </div>
+                    );
+                })}
 
                 {filteredDrops.length === 0 && (
-                    <div className="col-span-full py-20 text-center glass-panel border border-white/5 rounded-3xl group">
-                        <div className="w-20 h-20 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-6 transition-transform duration-500 shadow-inner">
+                    <div className="col-span-full py-16 text-center glass-panel border border-white/5 rounded-3xl">
+                        <div className="w-20 h-20 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-inner">
                             <LayoutGrid className="w-10 h-10 text-brand-pink opacity-50" />
                         </div>
                         <h3 className="text-xl font-bold text-white mb-2">No drops to show</h3>
-                        <p className="text-gray-400 max-w-xs mx-auto mb-8">
-                            {filter === 'owned'
-                                ? "You haven't unwrapped any flavors yet. Head to the shop to find your next favorite!"
-                                : filter === 'locked'
-                                    ? "Great news! You've unlocked everything active. Fresh drops arriving soon!"
-                                    : "The shop is empty or all drops have expired. Check back soon!"}
+                        <p className="text-gray-400 max-w-xs mx-auto mb-8 text-sm">
+                            {filter === "owned"
+                                ? "You haven't unwrapped any flavors yet."
+                                : filter === "locked"
+                                    ? "Great news! You've unlocked everything active."
+                                    : "The shop is empty or all drops have expired."}
                         </p>
-                        <a
-                            href="/drops"
-                            className="inline-flex items-center gap-2 px-8 py-3 bg-brand-pink/10 border border-brand-pink/20 text-brand-pink rounded-xl font-bold transition-colors hover:bg-brand-pink/15 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-pink/40"
-                        >
+                        <a href="/drops" className="inline-flex items-center gap-2 px-8 py-3 bg-brand-pink/10 border border-brand-pink/20 text-brand-pink rounded-xl font-bold">
                             Visit Shop
                         </a>
                     </div>
                 )}
-
             </div>
         </div>
     );
