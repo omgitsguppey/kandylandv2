@@ -10,8 +10,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 import { authFetch } from "@/lib/authFetch";
-
-const CHECK_IN_INTERVAL_MS = 24 * 60 * 60 * 1000;
+import { getCSTDayBoundaries } from "@/lib/timezone";
 
 function normalizeTimestamp(value: unknown): number {
     if (!Number.isFinite(value)) {
@@ -43,7 +42,7 @@ export function DailyCheckIn() {
     const lastCheckInMs = normalizeTimestamp(userProfile.lastCheckIn);
     const currentStreak = Number.isFinite(userProfile.streakCount) ? Math.max(0, Number(userProfile.streakCount)) : 0;
 
-    const baseNextCheckInMs = lastCheckInMs > 0 ? lastCheckInMs + CHECK_IN_INTERVAL_MS : 0;
+    const baseNextCheckInMs = lastCheckInMs > 0 ? getCSTDayBoundaries(lastCheckInMs).endOfDay : 0;
     const nextCheckInMs = nextCheckInOverrideMs ?? baseNextCheckInMs;
 
     useEffect(() => {
@@ -87,7 +86,7 @@ export function DailyCheckIn() {
 
         setLoading(true);
         setClaimed(true);
-        setNextCheckInOverrideMs(Date.now() + CHECK_IN_INTERVAL_MS);
+        setNextCheckInOverrideMs(getCSTDayBoundaries(Date.now()).endOfDay);
 
         toast.success(`Claimed ${rewardAmount} Gum Drops!`, {
             description: "Your balance will update in a moment.",
