@@ -47,7 +47,11 @@ async function capturePayPalOrder(orderId: string): Promise<Record<string, unkno
   const accessToken = await getPayPalAccessToken();
   const response = await fetch(`${PAYPAL_BASE_URL}/v2/checkout/orders/${orderId}/capture`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+      "PayPal-Request-Id": `capture_${orderId}`
+    },
   });
   if (!response.ok) throw new Error(`PayPal capture failed: ${response.status}`);
   return (await response.json()) as Record<string, unknown>;

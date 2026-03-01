@@ -154,21 +154,21 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                           forceReRender={[selectedPriceKey]}
                           style={{ layout: "vertical", color: "white", shape: "rect", label: "pay", height: 48 }}
                           disabled={processing}
-                          createOrder={(_data, actions) =>
-                            actions.order.create({
-                              intent: "CAPTURE",
-                              application_context: {
-                                shipping_preference: "NO_SHIPPING",
-                              },
-                              purchase_units: [
-                                {
-                                  description: `${selectedPackage.drops} Gum Drops - Virtual Currency`,
-                                  amount: { currency_code: "USD", value: selectedPriceKey },
-                                  custom_id: `${user?.uid || "guest"}:${selectedPackage.drops}`,
-                                },
-                              ],
-                            })
-                          }
+                          createOrder={async () => {
+                            const response = await authFetch("/api/paypal/create", {
+                              method: "POST",
+                              body: JSON.stringify({ expectedDrops: selectedPackage.drops }),
+                            });
+
+                            const order = await response.json();
+
+                            if (!response.ok) {
+                              toast.error(order.error || "Failed to initialize payment.");
+                              throw new Error(order.error || "Failed to initialize payment.");
+                            }
+
+                            return order.id;
+                          }}
                           onApprove={async (data) => {
                             if (data.orderID) await handleApprove(data.orderID);
                           }}
