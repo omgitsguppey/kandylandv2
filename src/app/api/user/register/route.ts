@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });
         }
 
-        const { username, dateOfBirth, displayName, welcomeBonus } = await request.json();
+        const { username, dateOfBirth, displayName } = await request.json();
 
         const userRef = adminDb.collection("users").doc(caller.uid);
         const existingSnap = await userRef.get();
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
             email: caller.email,
             displayName: displayName || "User",
             username: normalizedUsername,
-            gumDropsBalance: welcomeBonus ? 100 : 0,
+            gumDropsBalance: 0,
             unlockedContent: [],
             unlockedContentTimestamps: {},
             notificationSettings: {
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
 
         await userRef.set(newProfile, { merge: true });
 
-        return NextResponse.json({ success: true, welcomeBonus: welcomeBonus ? 100 : 0 });
+        return NextResponse.json({ success: true, welcomeBonus: 0 });
     } catch (error) {
         return handleApiError(error, "User.Register");
     }

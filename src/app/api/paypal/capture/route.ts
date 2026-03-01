@@ -16,7 +16,7 @@ const VALID_PACKAGES: Record<string, number> = {
   "20.00": 2500,
 };
 
-const PAYPAL_ENV = process.env.PAYPAL_ENV === "production" ? "production" : "sandbox";
+const PAYPAL_ENV = process.env.PAYPAL_ENV === "production" || process.env.NEXT_PUBLIC_PAYPAL_ENV === "production" ? "production" : "sandbox";
 const PAYPAL_BASE_URL = PAYPAL_ENV === "production" ? "https://api-m.paypal.com" : "https://api-m.sandbox.paypal.com";
 
 function getPayPalCredentials() {
