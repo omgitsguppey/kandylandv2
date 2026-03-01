@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, memo, useCallback, useMemo } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -9,7 +9,7 @@ import { Loader2, Save, Calendar, DollarSign, ArrowLeft, ImageIcon, FileAudio, C
 import { AssetUploader, UploadAspectRatio } from "@/components/Admin/AssetUploader";
 import Link from "next/link";
 import { Drop } from "@/types/db";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler, useWatch, FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { cn } from "@/lib/utils";
@@ -50,6 +50,83 @@ interface UploadedAsset {
     size: number;
 }
 
+interface FilesAndAssetsSectionProps {
+    uploadsOpen: boolean;
+    onToggle: () => void;
+    coverAspectRatio: UploadAspectRatio;
+    contentAspectRatio: UploadAspectRatio;
+    onCoverAspectRatioChange: (ratio: UploadAspectRatio) => void;
+    onContentAspectRatioChange: (ratio: UploadAspectRatio) => void;
+    imageUrl: string;
+    contentUrl: string;
+    contentType?: string;
+    onCoverAssetsChange: (assets: UploadedAsset[]) => void;
+    onContentAssetsChange: (assets: UploadedAsset[]) => void;
+    errors: FieldErrors<DropFormData>;
+}
+
+const FilesAndAssetsSection = memo(function FilesAndAssetsSection({
+    uploadsOpen,
+    onToggle,
+    coverAspectRatio,
+    contentAspectRatio,
+    onCoverAspectRatioChange,
+    onContentAspectRatioChange,
+    imageUrl,
+    contentUrl,
+    contentType,
+    onCoverAssetsChange,
+    onContentAssetsChange,
+    errors,
+}: FilesAndAssetsSectionProps) {
+    return (
+        <div className="glass-panel rounded-3xl overflow-hidden">
+            <button
+                type="button"
+                onClick={onToggle}
+                className="w-full flex items-center justify-between p-4"
+            >
+                <div className="flex items-center gap-2 font-bold text-white text-sm">
+                    <ImageIcon className="w-4 h-4 text-brand-cyan" />
+                    <FileAudio className="w-4 h-4 text-brand-pink" />
+                    Files & Assets
+                </div>
+                {uploadsOpen ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
+            </button>
+
+            {uploadsOpen ? (
+                <div className="p-4 pt-0 border-t border-white/5 space-y-3">
+                    <AssetUploader
+                        label="Cover"
+                        folder="drops/images"
+                        accept=".jpg,.jpeg,.png,.webp,.heic,.gif,.mp4,image/*,video/mp4"
+                        helperText="Supports JPG, PNG, WEBP, HEIC, GIF, MP4"
+                        aspectRatio={coverAspectRatio}
+                        onAspectRatioChange={onCoverAspectRatioChange}
+                        initialUrl={imageUrl}
+                        onChange={onCoverAssetsChange}
+                    />
+                    {errors.imageUrl && <p className="text-red-400 text-xs">{errors.imageUrl.message}</p>}
+
+                    <AssetUploader
+                        label="Content"
+                        folder="drops/content"
+                        multiple
+                        accept=".jpg,.jpeg,.png,.webp,.heic,.gif,.mp4,.zip,image/*,video/mp4,application/zip,application/x-zip-compressed"
+                        helperText="Upload one or more media/zip assets"
+                        aspectRatio={contentAspectRatio}
+                        onAspectRatioChange={onContentAspectRatioChange}
+                        initialUrl={contentUrl}
+                        initialType={contentType}
+                        onChange={onContentAssetsChange}
+                    />
+                    {errors.contentUrl && <p className="text-red-400 text-xs">{errors.contentUrl.message}</p>}
+                </div>
+            ) : null}
+        </div>
+    );
+});
+
 function DropForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -65,7 +142,7 @@ function DropForm() {
         register,
         handleSubmit,
         setValue,
-        watch,
+        control,
         formState: { errors, isSubmitting }
     } = useForm<DropFormData>({
         resolver: zodResolver(dropSchema) as any,
@@ -88,9 +165,13 @@ function DropForm() {
         }
     });
 
-    const dropType = watch("type");
-    const currentTags = watch("tags") || [];
-    const rotationEnabled = watch("rotationEnabled");
+    const dropType = useWatch({ control, name: "type" });
+    const watchedTags = useWatch({ control, name: "tags" });
+    const currentTags = useMemo(() => watchedTags || [], [watchedTags]);
+    const rotationEnabled = useWatch({ control, name: "rotationEnabled" });
+    const imageUrl = useWatch({ control, name: "imageUrl" }) || "";
+    const contentUrl = useWatch({ control, name: "contentUrl" }) || "";
+    const fileMetadata = useWatch({ control, name: "fileMetadata" });
 
     useEffect(() => {
         if (!dropId) return;
@@ -139,12 +220,12 @@ function DropForm() {
         fetchDrop();
     }, [dropId, router, setValue]);
 
-    const handleCoverAssetsChange = (assets: UploadedAsset[]) => {
+    const handleCoverAssetsChange = useCallback((assets: UploadedAsset[]) => {
         const primary = assets[0];
         setValue("imageUrl", primary?.url || "", { shouldValidate: true });
-    };
+    }, [setValue]);
 
-    const handleContentAssetsChange = (assets: UploadedAsset[]) => {
+    const handleContentAssetsChange = useCallback((assets: UploadedAsset[]) => {
         const primary = assets[0];
         setValue("contentUrl", primary?.url || "", { shouldValidate: true });
 
@@ -157,14 +238,18 @@ function DropForm() {
         } else {
             setValue("fileMetadata", null, { shouldValidate: false });
         }
-    };
+    }, [contentAspectRatio, setValue]);
 
-    const toggleTag = (tag: string) => {
+    const handleToggleUploads = useCallback(() => {
+        setUploadsOpen((prev) => !prev);
+    }, []);
+
+    const toggleTag = useCallback((tag: string) => {
         const newTags = currentTags.includes(tag)
             ? currentTags.filter(t => t !== tag)
             : [...currentTags, tag];
         setValue("tags", newTags);
-    };
+    }, [currentTags, setValue]);
 
     const onSubmit: SubmitHandler<DropFormData> = async (data) => {
         try {
@@ -309,50 +394,20 @@ function DropForm() {
                     </div>
                 </div>
 
-                <div className="glass-panel rounded-3xl overflow-hidden">
-                    <button
-                        type="button"
-                        onClick={() => setUploadsOpen((prev) => !prev)}
-                        className="w-full flex items-center justify-between p-4"
-                    >
-                        <div className="flex items-center gap-2 font-bold text-white text-sm">
-                            <ImageIcon className="w-4 h-4 text-brand-cyan" />
-                            <FileAudio className="w-4 h-4 text-brand-pink" />
-                            Files & Assets
-                        </div>
-                        {uploadsOpen ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
-                    </button>
-
-                    {uploadsOpen && (
-                        <div className="p-4 pt-0 border-t border-white/5 space-y-3">
-                            <AssetUploader
-                                label="Cover"
-                                folder="drops/images"
-                                accept=".jpg,.jpeg,.png,.webp,.heic,.gif,.mp4,image/*,video/mp4"
-                                helperText="Supports JPG, PNG, WEBP, HEIC, GIF, MP4"
-                                aspectRatio={coverAspectRatio}
-                                onAspectRatioChange={setCoverAspectRatio}
-                                initialUrl={watch("imageUrl")}
-                                onChange={handleCoverAssetsChange}
-                            />
-                            {errors.imageUrl && <p className="text-red-400 text-xs">{errors.imageUrl.message}</p>}
-
-                            <AssetUploader
-                                label="Content"
-                                folder="drops/content"
-                                multiple
-                                accept=".jpg,.jpeg,.png,.webp,.heic,.gif,.mp4,.zip,image/*,video/mp4,application/zip,application/x-zip-compressed"
-                                helperText="Upload one or more media/zip assets"
-                                aspectRatio={contentAspectRatio}
-                                onAspectRatioChange={setContentAspectRatio}
-                                initialUrl={watch("contentUrl")}
-                                initialType={watch("fileMetadata")?.type}
-                                onChange={handleContentAssetsChange}
-                            />
-                            {errors.contentUrl && <p className="text-red-400 text-xs">{errors.contentUrl.message}</p>}
-                        </div>
-                    )}
-                </div>
+                <FilesAndAssetsSection
+                    uploadsOpen={uploadsOpen}
+                    onToggle={handleToggleUploads}
+                    coverAspectRatio={coverAspectRatio}
+                    contentAspectRatio={contentAspectRatio}
+                    onCoverAspectRatioChange={setCoverAspectRatio}
+                    onContentAspectRatioChange={setContentAspectRatio}
+                    imageUrl={imageUrl}
+                    contentUrl={contentUrl}
+                    contentType={fileMetadata?.type}
+                    onCoverAssetsChange={handleCoverAssetsChange}
+                    onContentAssetsChange={handleContentAssetsChange}
+                    errors={errors}
+                />
 
                 <div className="glass-panel p-4 rounded-3xl space-y-3">
                     <h3 className="text-sm font-bold text-white">Pricing & Schedule</h3>

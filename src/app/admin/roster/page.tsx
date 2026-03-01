@@ -1,282 +1,368 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
+import { useEffect, useMemo, useState } from "react";
+import { collection, onSnapshot, orderBy, query, QueryDocumentSnapshot, DocumentData } from "firebase/firestore";
+import Link from "next/link";
+import Image from "next/image";
+import { CheckCircle2, Search, User, UserX } from "lucide-react";
 import { db } from "@/lib/firebase-data";
-import { UserProfile } from "@/types/db";
-import { format } from "date-fns";
-import { CheckCircle2, User, Search, UserX, Crown } from "lucide-react";
-
+import { authFetch } from "@/lib/authFetch";
+import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { authFetch } from "@/lib/authFetch";
-import Image from "next/image";
+
+type RosterRole = "user" | "creator" | "admin";
+type RosterStatus = "active" | "suspended" | "banned";
+
+interface RosterEntry {
+    uid: string;
+    displayName: string;
+    email: string;
+    username: string;
+    photoURL: string | null;
+    role: RosterRole;
+    status: RosterStatus;
+    isVerified: boolean;
+    createdAt: number;
+}
+
+const PAGE_SIZE = 25;
+const ADMIN_EMAIL = "uylusjohnson@gmail.com";
+
+function normalizeRosterEntry(doc: QueryDocumentSnapshot<DocumentData>): RosterEntry | null {
+    const raw = doc.data();
+    if (!raw || typeof raw !== "object") {
+        return null;
+    }
+
+    const source = raw as Record<string, unknown>;
+    const uid = typeof source.uid === "string" && source.uid.trim().length > 0 ? source.uid : doc.id;
+    if (!uid) {
+        return null;
+    }
+
+    const displayName = typeof source.displayName === "string" && source.displayName.trim().length > 0
+        ? source.displayName.trim()
+        : "Unknown user";
+    const email = typeof source.email === "string" && source.email.trim().length > 0
+        ? source.email.trim()
+        : "No email";
+    const username = typeof source.username === "string" && source.username.trim().length > 0
+        ? source.username.trim()
+        : "";
+    const photoURL = typeof source.photoURL === "string" && source.photoURL.trim().length > 0
+        ? source.photoURL.trim()
+        : null;
+
+    const role = source.role === "admin" || source.role === "creator" || source.role === "user"
+        ? source.role
+        : "user";
+    const status = source.status === "suspended" || source.status === "banned" || source.status === "active"
+        ? source.status
+        : "active";
+
+    const createdAt = Number.isFinite(source.createdAt) ? Number(source.createdAt) : 0;
+
+    return {
+        uid,
+        displayName,
+        email,
+        username,
+        photoURL,
+        role,
+        status,
+        isVerified: source.isVerified === true,
+        createdAt,
+    };
+}
+
+function initialsFor(name: string): string {
+    const parts = name.split(" ").filter(Boolean);
+    if (parts.length === 0) return "U";
+    const initials = parts.slice(0, 2).map((segment) => segment[0]?.toUpperCase() || "").join("");
+    return initials || "U";
+}
 
 export default function AdminRosterPage() {
-    const [users, setUsers] = useState<UserProfile[]>([]);
-    const [filteredUsers, setFilteredUsers] = useState<UserProfile[]>([]);
+    const { user, userProfile, loading: authLoading } = useAuth();
+    const [users, setUsers] = useState<RosterEntry[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
+    const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
+    const isAdmin = userProfile?.role === "admin" || user?.email === ADMIN_EMAIL;
 
     useEffect(() => {
-        const q = query(collection(db, "users"), orderBy("createdAt", "desc"));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const usersData: UserProfile[] = [];
-            snapshot.forEach((doc) => {
-                usersData.push({ ...doc.data() } as UserProfile);
-            });
-            setUsers(usersData);
-            setFilteredUsers(usersData);
-            setLoading(false);
-        });
+        if (authLoading || !isAdmin) {
+            return;
+        }
+
+        const rosterQuery = query(collection(db, "users"), orderBy("createdAt", "desc"));
+        const unsubscribe = onSnapshot(
+            rosterQuery,
+            (snapshot) => {
+                const normalized = snapshot.docs
+                    .map((entryDoc) => normalizeRosterEntry(entryDoc))
+                    .filter((entry): entry is RosterEntry => entry !== null);
+                setUsers(normalized);
+                setError(null);
+                setLoading(false);
+            },
+            (snapshotError) => {
+                console.error("Failed to load roster", snapshotError);
+                setError("Unable to load roster right now. Please try again shortly.");
+                setLoading(false);
+            }
+        );
 
         return () => unsubscribe();
-    }, []);
+    }, [authLoading, isAdmin]);
 
-    useEffect(() => {
-        if (!searchTerm) {
-            setFilteredUsers(users);
-        } else {
-            const lower = searchTerm.toLowerCase();
-            setFilteredUsers(users.filter(u =>
-                (u.username || "").toLowerCase().includes(lower) ||
-                (u.email || "").toLowerCase().includes(lower) ||
-                (u.displayName || "").toLowerCase().includes(lower)
-            ));
+    const filteredUsers = useMemo(() => {
+        const normalizedSearch = searchTerm.trim().toLowerCase();
+        if (!normalizedSearch) {
+            return users;
         }
+
+        return users.filter((entry) =>
+            entry.displayName.toLowerCase().includes(normalizedSearch)
+            || entry.email.toLowerCase().includes(normalizedSearch)
+            || entry.username.toLowerCase().includes(normalizedSearch)
+            || entry.uid.toLowerCase().includes(normalizedSearch)
+        );
     }, [searchTerm, users]);
 
-    const handleRoleUpdate = async (uid: string, newRole: 'user' | 'creator' | 'admin') => {
+    useEffect(() => {
+        setVisibleCount(PAGE_SIZE);
+    }, [searchTerm]);
+
+    const visibleUsers = useMemo(() => filteredUsers.slice(0, visibleCount), [filteredUsers, visibleCount]);
+    const hasMore = visibleCount < filteredUsers.length;
+
+    const handleRoleUpdate = async (uid: string, role: RosterRole) => {
         try {
             const response = await authFetch("/api/admin/users", {
                 method: "PUT",
-                body: JSON.stringify({ userId: uid, updates: { role: newRole } }),
+                body: JSON.stringify({ userId: uid, updates: { role } }),
             });
             const result = await response.json();
-            if (!response.ok) throw new Error(result.error);
-            toast.success(`Role updated to ${newRole}`);
-        } catch (error: any) {
-            console.error(error);
-            toast.error(error.message || "Failed to update role");
+            if (!response.ok) {
+                throw new Error(typeof result.error === "string" ? result.error : "Failed to update role");
+            }
+            toast.success(`Role updated to ${role}`);
+        } catch (updateError) {
+            console.error("Role update failed", updateError);
+            toast.error("Could not update role. Please try again.");
         }
     };
 
-    const handleVerification = async (uid: string, isVerified: boolean) => {
-        try {
-            const response = await authFetch("/api/admin/users", {
-                method: "PUT",
-                body: JSON.stringify({ userId: uid, updates: { isVerified } }),
-            });
-            const result = await response.json();
-            if (!response.ok) throw new Error(result.error);
-            toast.success(isVerified ? "User verified" : "Verification removed");
-        } catch (error: any) {
-            console.error(error);
-            toast.error(error.message || "Failed to update verification");
-        }
-    };
-
-    if (loading) {
+    if (authLoading) {
         return (
-            <div className="flex items-center justify-center min-h-[400px]">
+            <div className="flex items-center justify-center min-h-[300px]">
                 <div className="w-8 h-8 rounded-full border-2 border-brand-pink border-t-transparent animate-spin" />
             </div>
         );
     }
 
+    if (!isAdmin) {
+        return (
+            <div className="glass-panel rounded-2xl p-6 text-center text-gray-300">
+                Access denied.
+            </div>
+        );
+    }
+
     return (
-        <div>
-            <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div className="space-y-5">
+            <header className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                 <div>
-                    <h1 className="text-3xl font-bold text-white mb-2">Roster Management</h1>
-                    <p className="text-gray-400">Manage users, creators, and verification status.</p>
+                    <h1 className="text-2xl md:text-3xl font-bold text-white">Roster</h1>
+                    <p className="text-gray-400 text-sm">Manage user roles and review account status.</p>
                 </div>
 
-                <div className="relative w-full md:w-64">
+                <div className="relative w-full md:w-72">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                     <input
                         type="text"
-                        placeholder="Search users..."
                         value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-black/40 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-white focus:outline-none focus:border-brand-pink transition-colors"
+                        onChange={(event) => setSearchTerm(event.target.value)}
+                        placeholder="Search by name, email, username"
+                        className="w-full bg-black/40 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-white text-sm focus:outline-none focus:border-brand-pink"
                     />
                 </div>
             </header>
 
-            <div className="glass-panel rounded-3xl overflow-hidden">
-                {/* Desktop Table */}
-                <div className="hidden md:block">
-                    <table className="w-full text-left">
-                        <thead className="bg-white/5 border-b border-white/5 text-gray-400 text-xs uppercase tracking-wider">
-                            <tr>
-                                <th className="px-6 py-4 font-bold">User</th>
-                                <th className="px-6 py-4 font-bold">Role</th>
-                                <th className="px-6 py-4 font-bold">Status</th>
-                                <th className="px-6 py-4 font-bold">Joined</th>
-                                <th className="px-6 py-4 font-bold text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-white/5">
-                            {filteredUsers.map((user) => (
-                                <tr key={user.uid} className="transition-colors">
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-zinc-800 overflow-hidden shrink-0 relative">
-                                                {user.photoURL ? (
-                                                    <Image src={user.photoURL} alt={user.username || ""} fill sizes="40px" className="object-cover" />
-                                                ) : (
-                                                    <User className="w-full h-full p-2 text-gray-500" />
-                                                )}
-                                            </div>
-                                            <div>
-                                                <div className="flex items-center gap-1 font-bold text-white">
-                                                    {user.displayName || "Unknown"}
-                                                    {user.isVerified && <CheckCircle2 className="w-4 h-4 text-brand-cyan" />}
-                                                </div>
-                                                <div className="text-xs text-gray-500">@{user.username || "no-username"}</div>
-                                                <div className="text-xs text-gray-600">{user.email}</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <span className={cn(
-                                            "px-2 py-1 rounded-full text-xs font-bold border capitalize",
-                                            user.role === 'admin' ? "bg-red-500/10 text-red-400 border-red-500/20" :
-                                                user.role === 'creator' ? "bg-purple-500/10 text-purple-400 border-purple-500/20" :
-                                                    "bg-gray-500/10 text-gray-400 border-gray-500/20"
-                                        )}>
-                                            {user.role || 'user'}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-2">
-                                            <div className="px-2 py-0.5 rounded bg-zinc-800 text-xs font-mono text-brand-yellow">
-                                                {user.gumDropsBalance} GD
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-400">
-                                        {user.createdAt ? format(user.createdAt, "MMM d, yyyy") : "-"}
-                                    </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <div className="flex items-center justify-end gap-2">
-                                            {/* Role Toggles */}
-                                            {user.role !== 'creator' && (
-                                                <button
-                                                    onClick={() => handleRoleUpdate(user.uid, 'creator')}
-                                                    className="p-2 text-gray-400 rounded-lg transition-colors"
-                                                    title="Promote to Creator"
-                                                >
-                                                    <Crown className="w-4 h-4" />
-                                                </button>
-                                            )}
-                                            {user.role === 'creator' && (
-                                                <button
-                                                    onClick={() => handleRoleUpdate(user.uid, 'user')}
-                                                    className="p-2 text-purple-400 rounded-lg transition-colors"
-                                                    title="Demote to User"
-                                                >
-                                                    <UserX className="w-4 h-4" />
-                                                </button>
-                                            )}
-
-                                            {/* Verification Toggle */}
-                                            <button
-                                                onClick={() => handleVerification(user.uid, !user.isVerified)}
-                                                className={cn(
-                                                    "p-2 rounded-lg transition-colors",
-                                                    user.isVerified
-                                                        ? " text-brand-cyan "
-                                                        : " text-gray-400 "
-                                                )}
-                                                title={user.isVerified ? "Remove Verification" : "Verify User"}
-                                            >
-                                                <CheckCircle2 className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-
-                {/* Mobile Card Layout */}
-                <div className="md:hidden flex flex-col divide-y divide-white/5">
-                    {filteredUsers.map((user) => (
-                        <div key={user.uid} className="p-4 flex gap-4 items-start">
-                            <div className="w-12 h-12 rounded-full bg-zinc-800 overflow-hidden shrink-0 border border-white/10 relative">
-                                {user.photoURL ? (
-                                    <Image src={user.photoURL} alt={user.username || ""} fill sizes="48px" className="object-cover" />
-                                ) : (
-                                    <User className="w-full h-full p-2 text-gray-500" />
-                                )}
-                            </div>
-                            <div className="flex-1 min-w-0 space-y-2">
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <div className="flex items-center gap-1 font-bold text-white text-sm">
-                                            {user.displayName || "Unknown"}
-                                            {user.isVerified && <CheckCircle2 className="w-3 h-3 text-brand-cyan" />}
-                                        </div>
-                                        <div className="text-xs text-gray-500">@{user.username || "no-username"}</div>
-                                    </div>
-                                    <span className={cn(
-                                        "px-2 py-0.5 rounded-full text-[10px] font-bold border capitalize",
-                                        user.role === 'admin' ? "bg-red-500/10 text-red-400 border-red-500/20" :
-                                            user.role === 'creator' ? "bg-purple-500/10 text-purple-400 border-purple-500/20" :
-                                                "bg-gray-500/10 text-gray-400 border-gray-500/20"
-                                    )}>
-                                        {user.role || 'user'}
-                                    </span>
-                                </div>
-
-                                <div className="text-xs text-brand-pink">{user.email}</div>
-
-                                <div className="flex items-center justify-between pt-2">
-                                    <div className="text-xs font-mono text-brand-yellow">{user.gumDropsBalance} GD</div>
-                                    <div className="flex gap-2">
-                                        {user.role !== 'creator' ? (
-                                            <button
-                                                onClick={() => handleRoleUpdate(user.uid, 'creator')}
-                                                className="px-3 py-1.5 bg-purple-500/10 text-purple-400 rounded-lg text-xs font-bold"
-                                            >
-                                                Promote
-                                            </button>
-                                        ) : (
-                                            <button
-                                                onClick={() => handleRoleUpdate(user.uid, 'user')}
-                                                className="px-3 py-1.5 bg-zinc-800 text-gray-400 rounded-lg text-xs font-bold"
-                                            >
-                                                Demote
-                                            </button>
-                                        )}
-                                        <button
-                                            onClick={() => handleVerification(user.uid, !user.isVerified)}
-                                            className={cn(
-                                                "px-3 py-1.5 rounded-lg text-xs font-bold transition-colors",
-                                                user.isVerified
-                                                    ? "bg-brand-cyan/10 text-brand-cyan  "
-                                                    : "bg-zinc-800 text-gray-400  "
-                                            )}
-                                        >
-                                            {user.isVerified ? "Verified" : "Verify"}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
-                {filteredUsers.length === 0 && (
-                    <div className="p-12 text-center text-gray-500">
-                        <UserX className="w-12 h-12 mx-auto mb-4 opacity-20" />
-                        <p>No users found matching your search.</p>
+            <div className="glass-panel rounded-2xl overflow-hidden border border-white/10">
+                {loading ? (
+                    <div className="flex items-center justify-center min-h-[260px]">
+                        <div className="w-8 h-8 rounded-full border-2 border-brand-pink border-t-transparent animate-spin" />
                     </div>
+                ) : error ? (
+                    <div className="p-8 text-center text-gray-300">{error}</div>
+                ) : filteredUsers.length === 0 ? (
+                    <div className="p-8 text-center text-gray-400 inline-flex flex-col items-center gap-2 w-full">
+                        <UserX className="w-10 h-10 opacity-30" />
+                        <p>No roster entries yet.</p>
+                    </div>
+                ) : (
+                    <>
+                        <div className="hidden md:block overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead className="bg-white/5 border-b border-white/10 text-xs uppercase tracking-wider text-gray-400">
+                                    <tr>
+                                        <th className="px-4 py-3 font-semibold">User</th>
+                                        <th className="px-4 py-3 font-semibold">Email</th>
+                                        <th className="px-4 py-3 font-semibold">Role</th>
+                                        <th className="px-4 py-3 font-semibold">Status</th>
+                                        <th className="px-4 py-3 font-semibold text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-white/5">
+                                    {visibleUsers.map((entry) => (
+                                        <tr key={entry.uid}>
+                                            <td className="px-4 py-3">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-full bg-zinc-800 border border-white/10 overflow-hidden flex items-center justify-center text-xs font-bold text-gray-300 relative">
+                                                        {entry.photoURL ? (
+                                                            <Image src={entry.photoURL} alt={entry.displayName} fill sizes="40px" className="object-cover" />
+                                                        ) : (
+                                                            initialsFor(entry.displayName)
+                                                        )}
+                                                    </div>
+                                                    <div className="min-w-0">
+                                                        <div className="text-sm font-semibold text-white truncate inline-flex items-center gap-1">
+                                                            {entry.displayName}
+                                                            {entry.isVerified ? <CheckCircle2 className="w-3 h-3 text-brand-cyan" /> : null}
+                                                        </div>
+                                                        <div className="text-xs text-gray-500 truncate">{entry.username ? `@${entry.username}` : entry.uid}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-4 py-3 text-sm text-gray-300">{entry.email}</td>
+                                            <td className="px-4 py-3">
+                                                <span className={cn(
+                                                    "px-2 py-1 rounded-full text-xs border capitalize",
+                                                    entry.role === "admin"
+                                                        ? "bg-red-500/10 border-red-500/20 text-red-400"
+                                                        : entry.role === "creator"
+                                                            ? "bg-purple-500/10 border-purple-500/20 text-purple-400"
+                                                            : "bg-gray-500/10 border-gray-500/20 text-gray-400"
+                                                )}>
+                                                    {entry.role}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <span className={cn(
+                                                    "px-2 py-1 rounded-full text-xs border capitalize",
+                                                    entry.status === "active"
+                                                        ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                                                        : "bg-amber-500/10 border-amber-500/20 text-amber-400"
+                                                )}>
+                                                    {entry.status}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <div className="flex justify-end items-center gap-2">
+                                                    <select
+                                                        className="bg-black/40 border border-white/10 rounded-lg text-xs text-gray-200 px-2 py-1"
+                                                        value={entry.role}
+                                                        onChange={(event) => handleRoleUpdate(entry.uid, event.target.value as RosterRole)}
+                                                    >
+                                                        <option value="user">User</option>
+                                                        <option value="creator">Creator</option>
+                                                        <option value="admin">Admin</option>
+                                                    </select>
+                                                    {entry.username ? (
+                                                        <Link
+                                                            href={`/creators/${entry.username}`}
+                                                            className="text-xs px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-gray-200"
+                                                        >
+                                                            View profile
+                                                        </Link>
+                                                    ) : (
+                                                        <span className="text-xs text-gray-500">No profile route</span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div className="md:hidden divide-y divide-white/5">
+                            {visibleUsers.map((entry) => (
+                                <div key={entry.uid} className="p-4 space-y-3">
+                                    <div className="flex gap-3 items-center">
+                                        <div className="w-11 h-11 rounded-full bg-zinc-800 border border-white/10 overflow-hidden flex items-center justify-center text-xs font-bold text-gray-300 relative">
+                                            {entry.photoURL ? (
+                                                <Image src={entry.photoURL} alt={entry.displayName} fill sizes="44px" className="object-cover" />
+                                            ) : (
+                                                initialsFor(entry.displayName)
+                                            )}
+                                        </div>
+                                        <div className="min-w-0">
+                                            <div className="text-sm font-semibold text-white inline-flex items-center gap-1">
+                                                {entry.displayName}
+                                                {entry.isVerified ? <CheckCircle2 className="w-3 h-3 text-brand-cyan" /> : null}
+                                            </div>
+                                            <div className="text-xs text-gray-500 truncate">{entry.email}</div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs text-gray-400">Role</span>
+                                        <select
+                                            className="bg-black/40 border border-white/10 rounded-lg text-xs text-gray-200 px-2 py-1"
+                                            value={entry.role}
+                                            onChange={(event) => handleRoleUpdate(entry.uid, event.target.value as RosterRole)}
+                                        >
+                                            <option value="user">User</option>
+                                            <option value="creator">Creator</option>
+                                            <option value="admin">Admin</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs text-gray-400">Status</span>
+                                        <span className={cn(
+                                            "px-2 py-1 rounded-full text-xs border capitalize",
+                                            entry.status === "active"
+                                                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                                                : "bg-amber-500/10 border-amber-500/20 text-amber-400"
+                                        )}>
+                                            {entry.status}
+                                        </span>
+                                    </div>
+
+                                    {entry.username ? (
+                                        <Link
+                                            href={`/creators/${entry.username}`}
+                                            className="inline-flex items-center gap-1 text-xs px-2 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-200"
+                                        >
+                                            <User className="w-3 h-3" />
+                                            View profile
+                                        </Link>
+                                    ) : null}
+                                </div>
+                            ))}
+                        </div>
+                    </>
                 )}
             </div>
+
+            {hasMore ? (
+                <div className="flex justify-center">
+                    <button
+                        type="button"
+                        onClick={() => setVisibleCount((prev) => prev + PAGE_SIZE)}
+                        className="px-4 py-2 rounded-xl text-sm font-semibold border border-white/10 bg-white/5 text-gray-200"
+                    >
+                        Load more
+                    </button>
+                </div>
+            ) : null}
         </div>
     );
 }
