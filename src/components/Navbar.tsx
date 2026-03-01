@@ -82,7 +82,7 @@ export function Navbar() {
                                         />
                                     ) : (
                                         <span className="font-bold text-sm bg-gradient-to-tr from-brand-pink to-brand-purple bg-clip-text text-transparent">
-                                            {user.displayName?.charAt(0).toUpperCase()}
+                                            {user.displayName?.charAt(0)?.toUpperCase() || "U"}
                                         </span>
                                     )}
                                 </button>

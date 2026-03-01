@@ -36,7 +36,7 @@ export function ProfileDropdown() {
             >
                 <div className="relative">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-brand-pink to-brand-purple flex items-center justify-center text-white font-bold text-sm shadow-md">
-                        {user.displayName?.charAt(0).toUpperCase() || "U"}
+                        {user.displayName?.charAt(0)?.toUpperCase() || "U"}
                     </div>
                     {isAdmin && (
                         <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-brand-cyan rounded-full border-2 border-black" title="Admin User" />

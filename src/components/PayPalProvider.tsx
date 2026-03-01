@@ -3,15 +3,12 @@
 import { PayPalScriptProvider, ReactPayPalScriptOptions } from "@paypal/react-paypal-js";
 import { ReactNode } from "react";
 
-const environment = process.env.NEXT_PUBLIC_PAYPAL_ENV === "production" ? "production" : "sandbox";
-const clientId = environment === "production"
-  ? process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE
-  : process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_SANDBOX;
+const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE;
 
 const normalizedClientId = clientId?.trim() ?? "";
 
 const initialOptions: ReactPayPalScriptOptions = {
-  clientId: normalizedClientId || "sb",
+  clientId: normalizedClientId || "test", // 'test' prevents instant crash if empty, but ensures it can't run a real sb transaction
   currency: "USD",
   intent: "capture",
   disableFunding: "credit,card",

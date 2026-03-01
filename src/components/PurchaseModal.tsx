@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
 import { motion, AnimatePresence } from "framer-motion";
-import { usePaypalClient } from "@/hooks/usePaypalClient";
+// import removed
 
 interface PurchaseModalProps {
   isOpen: boolean;
@@ -24,10 +24,7 @@ const PACKAGES: PurchasePackage[] = [
   { drops: 2500, price: 20.0, label: "Ultimate Kandy (+500 Bonus)" },
 ];
 
-const PAYPAL_READY = [
-  process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_SANDBOX,
-  process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE,
-].some((clientId) => (clientId?.trim().length ?? 0) > 0);
+const PAYPAL_READY = (process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE?.trim().length ?? 0) > 0;
 
 export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   const { user } = useAuth();
@@ -35,20 +32,16 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const { ensureReady, ready: paypalReady, loading: paypalLoading, failed: paypalFailed } = usePaypalClient(isOpen);
-
+  const paypalReady = true;
+  const paypalLoading = false;
+  const paypalFailed = false;
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
-
-    if (isOpen) {
-      ensureReady();
-    }
-
     return () => {
       document.body.style.overflow = "";
     };
-  }, [ensureReady, isOpen]);
+  }, [isOpen]);
 
   const closeModal = useCallback(() => {
     setSuccess(false);
@@ -144,7 +137,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                     <div className="w-full relative z-10">
                       {!PAYPAL_READY ? (
                         <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-3 text-xs text-yellow-200">
-                          PayPal is not configured. Set client IDs for sandbox/live before taking payments.
+                          PayPal is not configured. Real payments require NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE to be set.
                         </div>
                       ) : paypalFailed ? (
                         <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">

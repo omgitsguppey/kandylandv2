@@ -1,14 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Lock } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Drop } from "@/types/db";
 import { OwnedDropGalleryCard } from "@/components/Dashboard/OwnedDropGalleryCard";
-import { ContentViewer, ViewerMediaItem } from "@/components/ContentViewer";
 
 type Ratio = "1:1" | "16:9" | "9:16";
 
@@ -33,31 +33,12 @@ interface LibraryClientProps {
 
 export function LibraryClient({ drops }: LibraryClientProps) {
     const { userProfile, loading: authLoading } = useAuth();
-    const [viewerIndex, setViewerIndex] = useState(0);
-    const [viewerOpen, setViewerOpen] = useState(false);
-
     const unlockedIds = useMemo(() => {
         const source = userProfile?.unlockedContent;
         return Array.isArray(source) ? new Set(source) : new Set<string>();
     }, [userProfile?.unlockedContent]);
 
-    const unlockedDrops = useMemo(() => drops.filter((drop) => unlockedIds.has(drop.id)), [drops, unlockedIds]);
-
-    const mediaItems = useMemo<ViewerMediaItem[]>(() => {
-        return unlockedDrops.map((drop) => {
-            const type = drop.fileMetadata?.type?.startsWith("video/") ? "video" : "image";
-            const url = type === "video" && typeof drop.contentUrl === "string" && drop.contentUrl.length > 0
-                ? drop.contentUrl
-                : drop.imageUrl;
-
-            return {
-                id: drop.id,
-                url,
-                type,
-                alt: drop.title,
-            };
-        });
-    }, [unlockedDrops]);
+    const router = useRouter();
 
     if (authLoading) {
         return (
@@ -84,7 +65,7 @@ export function LibraryClient({ drops }: LibraryClientProps) {
                 <p className="text-gray-400 text-sm">Your unlocked gallery.</p>
             </header>
 
-            {unlockedDrops.length === 0 ? (
+            {drops.filter((d) => unlockedIds.has(d.id)).length === 0 ? (
                 <div className="glass-panel p-12 rounded-3xl text-center border border-white/5">
                     <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
                         <Lock className="w-8 h-8 text-gray-500" />
@@ -101,14 +82,13 @@ export function LibraryClient({ drops }: LibraryClientProps) {
                 </div>
             ) : (
                 <div className="grid grid-cols-6 gap-3 md:gap-4">
-                    {unlockedDrops.map((drop, idx) => (
+                    {drops.filter((d) => unlockedIds.has(d.id)).map((drop) => (
                         <div key={drop.id} className={getItemSpanClass(drop)}>
                             <OwnedDropGalleryCard
                                 drop={drop}
                                 isUnlocked
                                 onOpen={() => {
-                                    setViewerIndex(idx);
-                                    setViewerOpen(true);
+                                    router.push(`/dashboard/viewer?id=${drop.id}`);
                                 }}
                             />
                         </div>
@@ -116,12 +96,6 @@ export function LibraryClient({ drops }: LibraryClientProps) {
                 </div>
             )}
 
-            <ContentViewer
-                items={mediaItems}
-                initialIndex={viewerIndex}
-                isOpen={viewerOpen}
-                onClose={() => setViewerOpen(false)}
-            />
         </div>
     );
 }

@@ -16,13 +16,11 @@ const VALID_PACKAGES: Record<string, number> = {
   "20.00": 2500,
 };
 
-const PAYPAL_ENV = process.env.PAYPAL_ENV === "production" || process.env.NEXT_PUBLIC_PAYPAL_ENV === "production" ? "production" : "sandbox";
-const PAYPAL_BASE_URL = PAYPAL_ENV === "production" ? "https://api-m.paypal.com" : "https://api-m.sandbox.paypal.com";
+const PAYPAL_BASE_URL = "https://api-m.paypal.com";
 
 function getPayPalCredentials() {
-  const clientId =
-    PAYPAL_ENV === "production" ? process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE : process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_SANDBOX;
-  const clientSecret = PAYPAL_ENV === "production" ? process.env.PAYPAL_CLIENT_SECRET_LIVE : process.env.PAYPAL_CLIENT_SECRET_SANDBOX;
+  const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE;
+  const clientSecret = process.env.PAYPAL_CLIENT_SECRET_LIVE;
   if (!clientId || !clientSecret) throw new Error("PayPal credentials not configured");
   return { clientId, clientSecret };
 }
