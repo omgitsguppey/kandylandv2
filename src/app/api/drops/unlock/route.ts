@@ -26,19 +26,20 @@ export async function POST(request: NextRequest) {
     const userRef = adminDb.collection("users").doc(userId);
     const dropRef = adminDb.collection("drops").doc(dropId);
 
-    const dropSnap = await dropRef.get();
-    if (!dropSnap.exists) {
-      return NextResponse.json({ error: "Drop not found" }, { status: 404 });
-    }
-
-    const dropData = dropSnap.data() ?? {};
-    const parsedUnlockCost = Number(dropData.unlockCost);
-    if (!Number.isFinite(parsedUnlockCost) || parsedUnlockCost < 0) {
-      return NextResponse.json({ error: "Invalid drop configuration" }, { status: 400 });
-    }
-    const unlockCost = Math.floor(parsedUnlockCost);
-
     const result = await adminDb.runTransaction(async (transaction) => {
+      // Must read from dropRef INSIDE transaction!
+      const dropSnap = await transaction.get(dropRef);
+      if (!dropSnap.exists) {
+        throw new Error("Drop not found");
+      }
+
+      const dropData = dropSnap.data() ?? {};
+      const parsedUnlockCost = Number(dropData.unlockCost);
+      if (!Number.isFinite(parsedUnlockCost) || parsedUnlockCost < 0) {
+        throw new Error("Invalid drop configuration");
+      }
+      const unlockCost = Math.floor(parsedUnlockCost);
+
       const userSnap = await transaction.get(userRef);
       if (!userSnap.exists) {
         throw new Error("User not found");
@@ -86,7 +87,7 @@ export async function POST(request: NextRequest) {
         totalUnlocks: FieldValue.increment(1),
       });
 
-      return { newBalance: balance - unlockCost, alreadyUnlocked: false, unwrappedAt };
+      return { newBalance: balance - unlockCost, alreadyUnlocked: false, unwrappedAt, cost: unlockCost, title: typeof dropData.title === "string" ? dropData.title : "Drop" };
     });
 
     revalidatePath("/drops");
@@ -94,8 +95,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      title: typeof dropData.title === "string" ? dropData.title : "Drop",
-      cost: unlockCost,
+      title: result.title,
+      cost: result.cost,
       newBalance: result.newBalance,
       alreadyUnlocked: result.alreadyUnlocked,
       unwrappedAt: result.unwrappedAt ?? null,

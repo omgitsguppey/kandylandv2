@@ -15,69 +15,74 @@ export async function POST(request: NextRequest) {
         // Use the verified UID from the token, not from the request body
         const userId = caller.uid;
 
-        // 1. Fetch user profile
+        // 1. Fetch user profile and process check-in inside an atomic transaction
         const userRef = adminDb.collection("users").doc(userId);
-        const userSnap = await userRef.get();
-        if (!userSnap.exists) {
-            return NextResponse.json({ error: "User not found" }, { status: 404 });
-        }
-        const userData = userSnap.data()!;
 
-        const now = Date.now();
-        const lastCheckIn = userData.lastCheckIn || 0;
-        const currentStreak = userData.streakCount || 0;
+        const result = await adminDb.runTransaction(async (transaction) => {
+            const userSnap = await transaction.get(userRef);
+            if (!userSnap.exists) {
+                throw new Error("User not found");
+            }
 
-        // 2. Check if already claimed today (CST day boundaries)
-        const { startOfDay, endOfDay } = getCSTDayBoundaries(now);
-        const isSameDay = lastCheckIn >= startOfDay && lastCheckIn < endOfDay;
+            const userData = userSnap.data()!;
+            const now = Date.now();
+            const lastCheckIn = userData.lastCheckIn || 0;
+            const currentStreak = userData.streakCount || 0;
 
-        if (isSameDay && lastCheckIn > 0) {
+            // 2. Check if already claimed today (CST day boundaries)
+            const { startOfDay, endOfDay } = getCSTDayBoundaries(now);
+            const isSameDay = lastCheckIn >= startOfDay && lastCheckIn < endOfDay;
+
+            if (isSameDay && lastCheckIn > 0) {
+                return { alreadyClaimed: true, reward: 0, nextStreak: currentStreak };
+            }
+
+            // 3. Calculate streak
+            const hoursSinceLast = lastCheckIn > 0 ? (now - lastCheckIn) / (1000 * 60 * 60) : Infinity;
+            let nextStreak: number;
+
+            if (hoursSinceLast > 48) {
+                nextStreak = 1;
+            } else {
+                nextStreak = currentStreak + 1;
+            }
+
+            if (currentStreak >= 7) {
+                nextStreak = 1;
+            }
+
+            const reward = nextStreak * 10;
+
+            // 4. Atomic update: balance + streak + transaction history
+            transaction.update(userRef, {
+                gumDropsBalance: FieldValue.increment(reward),
+                lastCheckIn: now,
+                streakCount: nextStreak,
+            });
+
+            const transactionRef = adminDb.collection("transactions").doc();
+            transaction.set(transactionRef, {
+                userId,
+                type: "daily_reward",
+                amount: reward,
+                description: `Daily Check-in: Day ${nextStreak}`,
+                timestamp: FieldValue.serverTimestamp(),
+                verifiedServerSide: true,
+            });
+
+            return { alreadyClaimed: false, reward, nextStreak };
+        });
+
+        if (result.alreadyClaimed) {
             return NextResponse.json({ error: "Already claimed today", alreadyClaimed: true }, { status: 409 });
         }
 
-        // 3. Calculate streak
-        const hoursSinceLast = lastCheckIn > 0 ? (now - lastCheckIn) / (1000 * 60 * 60) : Infinity;
-        let nextStreak: number;
-
-        if (hoursSinceLast > 48) {
-            nextStreak = 1;
-        } else {
-            nextStreak = currentStreak + 1;
-        }
-
-        if (currentStreak >= 7) {
-            nextStreak = 1;
-        }
-
-        const reward = nextStreak * 10;
-
-        // 4. Atomic batch: update balance + streak + transaction
-        const batch = adminDb.batch();
-
-        batch.update(userRef, {
-            gumDropsBalance: FieldValue.increment(reward),
-            lastCheckIn: now,
-            streakCount: nextStreak,
-        });
-
-        const transactionRef = adminDb.collection("transactions").doc();
-        batch.set(transactionRef, {
-            userId,
-            type: "daily_reward",
-            amount: reward,
-            description: `Daily Check-in: Day ${nextStreak}`,
-            timestamp: FieldValue.serverTimestamp(),
-            verifiedServerSide: true,
-        });
-
-        await batch.commit();
-
-        console.log(`✅ Check-in verified: Day ${nextStreak} (+${reward} GD) for user ${userId}`);
+        console.log(`✅ Check-in verified: Day ${result.nextStreak} (+${result.reward} GD) for user ${userId}`);
 
         return NextResponse.json({
             success: true,
-            reward,
-            streak: nextStreak,
+            reward: result.reward,
+            streak: result.nextStreak,
         });
     } catch (error) {
         return handleApiError(error, "Checkin.POST");
