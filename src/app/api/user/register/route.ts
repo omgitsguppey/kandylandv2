@@ -67,6 +67,15 @@ export async function POST(request: NextRequest) {
             notificationSettings: {
                 inAppEnabled: true,
                 browserPushEnabled: false,
+                newDropAlerts: true,
+                expiringSoonAlerts: true,
+            },
+            privacySettings: {
+                allowRecommendations: true,
+                showInAnonymousStats: true,
+            },
+            accountSettings: {
+                timezone: "Auto",
             },
             createdAt: FieldValue.serverTimestamp(),
         };

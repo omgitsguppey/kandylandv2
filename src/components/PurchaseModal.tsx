@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePaypalClient } from "@/hooks/usePaypalClient";
 
 interface PurchaseModalProps {
   isOpen: boolean;
@@ -34,15 +35,20 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const { ensureReady, ready: paypalReady, loading: paypalLoading, failed: paypalFailed } = usePaypalClient(isOpen);
 
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
 
+    if (isOpen) {
+      ensureReady();
+    }
+
     return () => {
       document.body.style.overflow = "";
     };
-  }, [isOpen]);
+  }, [ensureReady, isOpen]);
 
   const closeModal = useCallback(() => {
     setSuccess(false);
@@ -139,6 +145,15 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                       {!PAYPAL_READY ? (
                         <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-3 text-xs text-yellow-200">
                           PayPal is not configured. Set client IDs for sandbox/live before taking payments.
+                        </div>
+                      ) : paypalFailed ? (
+                        <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">
+                          We couldn't load PayPal right now. Close and reopen Wallet to retry.
+                        </div>
+                      ) : !paypalReady || paypalLoading ? (
+                        <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                          <div className="h-4 w-32 bg-white/10 rounded mb-3 animate-pulse" />
+                          <div className="h-12 w-full bg-white/10 rounded-lg animate-pulse" />
                         </div>
                       ) : (
                         <PayPalButtons

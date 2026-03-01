@@ -62,6 +62,10 @@ export function getDropCardWidthClass(aspectRatio: SupportedAspectRatio): string
   }
 }
 
+export function getAspectRatioCssValue(aspectRatio: SupportedAspectRatio): string {
+  return aspectRatio.replace(":", " / ");
+}
+
 export function getDropMediaSummary(drop: Drop): { imageCount: number; videoCount: number } {
   const mediaCounts = drop.mediaCounts;
   if (mediaCounts && Number.isFinite(mediaCounts.images) && Number.isFinite(mediaCounts.videos)) {

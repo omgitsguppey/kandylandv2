@@ -13,6 +13,9 @@ interface UIContextType {
     requiredCost: number;
     openInsufficientBalanceModal: (cost: number) => void;
     closeInsufficientBalanceModal: () => void;
+    isProfileSidebarOpen: boolean;
+    openProfileSidebar: () => void;
+    closeProfileSidebar: () => void;
 }
 
 const UIContext = createContext<UIContextType | undefined>(undefined);
@@ -22,6 +25,7 @@ export function UIProvider({ children }: { children: ReactNode }) {
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [isInsufficientBalanceModalOpen, setIsInsufficientBalanceModalOpen] = useState(false);
     const [requiredCost, setRequiredCost] = useState(0);
+    const [isProfileSidebarOpen, setIsProfileSidebarOpen] = useState(false);
 
     const openPurchaseModal = () => setIsPurchaseModalOpen(true);
     const closePurchaseModal = () => setIsPurchaseModalOpen(false);
@@ -33,17 +37,21 @@ export function UIProvider({ children }: { children: ReactNode }) {
         setIsInsufficientBalanceModalOpen(true);
     };
     const closeInsufficientBalanceModal = () => setIsInsufficientBalanceModalOpen(false);
+    const openProfileSidebar = () => setIsProfileSidebarOpen(true);
+    const closeProfileSidebar = () => setIsProfileSidebarOpen(false);
 
     const contextValue = useMemo(() => ({
         isPurchaseModalOpen, openPurchaseModal, closePurchaseModal,
         isAuthModalOpen, openAuthModal, closeAuthModal,
         isInsufficientBalanceModalOpen, requiredCost,
-        openInsufficientBalanceModal, closeInsufficientBalanceModal
+        openInsufficientBalanceModal, closeInsufficientBalanceModal,
+        isProfileSidebarOpen, openProfileSidebar, closeProfileSidebar
     }), [
         isPurchaseModalOpen,
         isAuthModalOpen,
         isInsufficientBalanceModalOpen,
-        requiredCost
+        requiredCost,
+        isProfileSidebarOpen
     ]);
 
     return (

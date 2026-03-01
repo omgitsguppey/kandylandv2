@@ -23,6 +23,17 @@ export interface UserProfile {
     notificationSettings?: {
         inAppEnabled: boolean;
         browserPushEnabled: boolean;
+        newDropAlerts: boolean;
+        expiringSoonAlerts: boolean;
+    };
+
+    privacySettings?: {
+        allowRecommendations: boolean;
+        showInAnonymousStats: boolean;
+    };
+
+    accountSettings?: {
+        timezone: string;
     };
 
     securityFlags?: {
