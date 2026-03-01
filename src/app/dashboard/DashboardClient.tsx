@@ -26,7 +26,7 @@ export default function DashboardClient({ drops }: DashboardClientProps) {
     // Skeleton UI
     if (loading) {
         return (
-            <main className="min-h-screen pt-24 px-4 pb-24 md:pb-12 max-w-7xl mx-auto">
+            <div className="w-full px-4 max-w-7xl mx-auto">
                 <header className="mb-8 md:mb-12">
                     <div className="h-10 w-3/4 md:w-1/2 bg-white/10 rounded-xl mb-4" />
                     <div className="h-5 w-1/3 bg-white/5 rounded-lg" />
@@ -41,14 +41,14 @@ export default function DashboardClient({ drops }: DashboardClientProps) {
                         <div className="h-[400px] bg-white/5 rounded-3xl" /> {/* Collection Skeleton */}
                     </div>
                 </div>
-            </main>
+            </div>
         );
     }
 
     if (!user) return null; // Handled by redirect
 
     return (
-        <div className="w-full px-4 pb-32 md:pb-12 max-w-7xl mx-auto">
+        <div className="w-full px-4 max-w-7xl mx-auto">
             <header className="mb-8 md:mb-12">
                 <h1 className="text-3xl md:text-5xl font-bold text-white mb-2">Welcome back, {userProfile?.displayName || "Collector"}</h1>
                 <p className="text-gray-400">Manage your collection and earn rewards.</p>

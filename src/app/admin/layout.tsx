@@ -39,7 +39,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="flex-1 w-full bg-transparent pb-20 md:pb-0">
+    <div className="flex-1 w-full bg-transparent">
       <main className="w-full p-3 md:p-8">
         <div className="max-w-7xl mx-auto">
           <div className="mb-4 md:mb-6 overflow-x-auto rounded-2xl border border-white/10 bg-black/30 p-2">

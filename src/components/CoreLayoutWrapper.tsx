@@ -15,6 +15,7 @@ const OnboardingModal = dynamic(() => import("@/components/Auth/OnboardingModal"
 const DebugBreakpoints = dynamic(() => import("@/components/Debug/DebugBreakpoints").then((mod) => mod.DebugBreakpoints));
 const InsufficientBalanceModal = dynamic(() => import("@/components/InsufficientBalanceModal").then((mod) => mod.InsufficientBalanceModal));
 const ScrollToTop = dynamic(() => import("@/components/Navigation/ScrollToTop").then((mod) => mod.ScrollToTop));
+const AutoScrollToTop = dynamic(() => import("@/components/Navigation/AutoScrollToTop").then((mod) => mod.AutoScrollToTop));
 
 export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     useEffect(() => {
@@ -27,6 +28,7 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
             {children}
             <MobileBottomBar />
             <ScrollToTop />
+            <AutoScrollToTop />
             <GlobalPurchaseModal />
 
             <InsufficientBalanceModal />

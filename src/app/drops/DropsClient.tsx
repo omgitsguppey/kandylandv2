@@ -132,7 +132,7 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
     }, [sourceDrops, searchQuery, selectedCategory]);
 
     return (
-        <main className="min-h-screen bg-black selection:bg-brand-pink/30 pt-24 md:pt-32 px-4 md:px-8 max-w-7xl mx-auto pb-24">
+        <div className="w-full selection:bg-brand-pink/30 px-4 md:px-8 max-w-7xl mx-auto">
             <div className="mb-4 md:mb-6">
                 <KandyDropsAccountOverview
                     state={accountOverview.state}
@@ -214,6 +214,6 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
             </div>
 
             <DropPreviewModal drop={previewDrop} onClose={() => setPreviewDrop(null)} />
-        </main>
+        </div>
     );
 }

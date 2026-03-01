@@ -2,7 +2,7 @@
 
 export default function DropsLoading() {
     return (
-        <main className="min-h-screen bg-black pt-24 md:pt-32 px-4 md:px-8 max-w-7xl mx-auto pb-24">
+        <div className="w-full px-4 md:px-8 max-w-7xl mx-auto">
             {/* Page Header Skeleton */}
             <div className="mb-12 md:mb-16 flex flex-col items-center text-center">
                 <div className="h-10 md:h-16 w-64 md:w-96 bg-white/5 rounded-2xl mb-4" />
@@ -42,6 +42,6 @@ export default function DropsLoading() {
                     ))}
                 </div>
             </div>
-        </main>
+        </div>
     );
 }

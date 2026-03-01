@@ -246,7 +246,7 @@ export default function ProfilePage() {
     };
 
     return (
-        <div className="max-w-2xl mx-auto px-1 pb-32 md:pb-20">
+        <div className="w-full px-4 max-w-2xl mx-auto">
             <header className="mb-5">
                 <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-pink to-brand-cyan">Profile Settings</h1>
                 <p className="text-gray-400 text-sm mt-1">Manage account identity, notifications, privacy, and security.</p>

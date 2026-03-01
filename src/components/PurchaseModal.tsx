@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { PayPalButtons } from "@paypal/react-paypal-js";
+import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
 import { X, Candy } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
@@ -32,8 +32,9 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const paypalReady = true;
-  const paypalLoading = false;
+  const [{ isPending }] = usePayPalScriptReducer();
+  const paypalReady = PAYPAL_READY;
+  const paypalLoading = isPending;
   const paypalFailed = false;
 
   useEffect(() => {

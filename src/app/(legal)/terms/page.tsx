@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 
 export default function TermsPage() {
     return (
-        <main className="min-h-screen bg-black text-gray-300 pt-32 pb-20 px-6">
+        <div className="w-full text-gray-300 px-6">
             <div className="max-w-3xl mx-auto space-y-8">
                 <Link href="/" className="inline-flex items-center gap-2 text-brand-pink transition-colors">
                     <ArrowLeft className="w-4 h-4" />
@@ -72,6 +72,6 @@ export default function TermsPage() {
                     </p>
                 </section>
             </div>
-        </main>
+        </div>
     );
 }

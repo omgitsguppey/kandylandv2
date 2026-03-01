@@ -20,7 +20,7 @@ interface PayPalProviderProps {
 
 export function PayPalProvider({ children }: PayPalProviderProps) {
   return (
-    <PayPalScriptProvider options={initialOptions} deferLoading>
+    <PayPalScriptProvider options={initialOptions}>
       {children}
     </PayPalScriptProvider>
   );

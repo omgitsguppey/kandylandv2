@@ -3,7 +3,7 @@ import { FAQ_SECTIONS } from "./faq-data";
 
 export default function FAQPage() {
   return (
-    <div className="min-h-screen bg-black pt-24 pb-20 relative overflow-hidden">
+    <div className="w-full relative overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[400px] bg-brand-pink/20 blur-[120px] rounded-full pointer-events-none opacity-50" />
 
       <div className="max-w-4xl mx-auto px-4 md:px-8 relative z-10">

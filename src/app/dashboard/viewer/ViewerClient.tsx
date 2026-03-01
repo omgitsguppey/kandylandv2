@@ -351,7 +351,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         .slice(0, 4);
 
     return (
-        <div className="min-h-screen bg-black pb-20">
+        <div className="w-full bg-black">
             {/* 1. Full-Width Media Viewer (Immersive) */}
             <div className="w-full bg-black relative">
                 {/* Back Button Overlay */}
