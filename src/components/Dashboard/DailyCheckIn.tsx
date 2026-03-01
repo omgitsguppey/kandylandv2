@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { differenceInHours, isSameDay } from "date-fns";
+import { differenceInHours } from "date-fns";
 import { Gift, Loader2, CheckCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
@@ -11,62 +11,96 @@ import { toast } from "sonner";
 
 import { authFetch } from "@/lib/authFetch";
 
+const CHECK_IN_INTERVAL_MS = 24 * 60 * 60 * 1000;
+
+function normalizeTimestamp(value: unknown): number {
+    if (!Number.isFinite(value)) {
+        return 0;
+    }
+
+    const timestamp = Number(value);
+    return timestamp > 0 ? Math.floor(timestamp) : 0;
+}
+
+function formatCountdown(remainingMs: number): string {
+    const totalSeconds = Math.max(0, Math.floor(remainingMs / 1000));
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    return [hours, minutes, seconds].map((segment) => String(segment).padStart(2, "0")).join(":");
+}
+
 export function DailyCheckIn() {
     const { user, userProfile } = useAuth();
     const [loading, setLoading] = useState(false);
     const [claimed, setClaimed] = useState(false);
+    const [nowMs, setNowMs] = useState(Date.now());
+    const [nextCheckInOverrideMs, setNextCheckInOverrideMs] = useState<number | null>(null);
 
     if (!user || !userProfile) return null;
 
-    const now = Date.now();
-    const lastCheckIn = userProfile.lastCheckIn || 0;
-    const currentStreak = userProfile.streakCount || 0;
+    const lastCheckInMs = normalizeTimestamp(userProfile.lastCheckIn);
+    const currentStreak = Number.isFinite(userProfile.streakCount) ? Math.max(0, Number(userProfile.streakCount)) : 0;
 
-    // Logic:
-    // 1. Can claim if last check-in was NOT today.
-    // 2. Streak continues if last check-in was yesterday (or today).
-    // 3. Streak resets if last check-in was before yesterday.
+    const baseNextCheckInMs = lastCheckInMs > 0 ? lastCheckInMs + CHECK_IN_INTERVAL_MS : 0;
+    const nextCheckInMs = nextCheckInOverrideMs ?? baseNextCheckInMs;
 
-    const isAlreadyClaimedToday = isSameDay(lastCheckIn, now);
+    useEffect(() => {
+        const timerId = window.setInterval(() => {
+            setNowMs(Date.now());
+        }, 1000);
 
-    // Calculate potential streak for TODAY/NEXT CLAIM
+        return () => {
+            window.clearInterval(timerId);
+        };
+    }, []);
+
+    useEffect(() => {
+        setClaimed(false);
+        setNextCheckInOverrideMs(null);
+    }, [lastCheckInMs]);
+
+    const remainingMs = useMemo(() => {
+        if (nextCheckInMs <= 0) {
+            return 0;
+        }
+
+        return Math.max(0, nextCheckInMs - nowMs);
+    }, [nextCheckInMs, nowMs]);
+
+    const canCheckIn = remainingMs <= 0 && !claimed;
+
     let nextStreak = currentStreak + 1;
+    const hoursSinceLast = differenceInHours(nowMs, lastCheckInMs);
 
-    // Check if streak was broken (more than 24h + buffer since last claim, effectively if filtered by day)
-    // Simple logic: if difference in days > 1, reset.
-    // Actually, simpler: if (now - lastCheckIn) > 48 hours, it's definitely broken.
-    // But precise "yesterday" check is better.
-    const hoursSinceLast = differenceInHours(now, lastCheckIn);
-
-    if (hoursSinceLast > 48 && lastCheckIn !== 0) {
-        nextStreak = 1; // Reset streak
+    if (hoursSinceLast > 48 && lastCheckInMs !== 0) {
+        nextStreak = 1;
     }
 
-    // Cap streak visual/reward at 7
     const displayStreak = Math.min(nextStreak, 7);
-    const rewardAmount = displayStreak * 10; // 10, 20, ..., 70
+    const rewardAmount = displayStreak * 10;
+    const nextRewardAmount = (currentStreak >= 7 ? 1 : currentStreak + 1) * 10;
 
     const handleClaim = async () => {
-        if (loading || claimed || isAlreadyClaimedToday) return;
+        if (loading || claimed || !canCheckIn) return;
 
         setLoading(true);
-        // Optimistic UI: Confetti and success toast immediately
         setClaimed(true);
+        setNextCheckInOverrideMs(Date.now() + CHECK_IN_INTERVAL_MS);
 
         toast.success(`Claimed ${rewardAmount} Gum Drops!`, {
             description: "Your balance will update in a moment.",
             icon: "🎁"
         });
 
-        // Trigger confetti effects
-        // Trigger confetti effects lazily
         import("canvas-confetti").then((confettiModule) => {
             const launchConfetti = confettiModule.default;
             const end = Date.now() + 1000;
-            const colors = ['#ec4899', '#facc15'];
+            const colors = ["#ec4899", "#facc15"];
             (function frame() {
-                launchConfetti({ particleCount: 2, angle: 60, spread: 55, origin: { x: 0 }, colors: colors });
-                launchConfetti({ particleCount: 2, angle: 120, spread: 55, origin: { x: 1 }, colors: colors });
+                launchConfetti({ particleCount: 2, angle: 60, spread: 55, origin: { x: 0 }, colors });
+                launchConfetti({ particleCount: 2, angle: 120, spread: 55, origin: { x: 1 }, colors });
                 if (Date.now() < end) requestAnimationFrame(frame);
             }());
         });
@@ -79,8 +113,8 @@ export function DailyCheckIn() {
             const result = await response.json();
 
             if (!response.ok) {
-                // Revert optimistic state on error
                 setClaimed(false);
+                setNextCheckInOverrideMs(null);
                 if (result.alreadyClaimed) {
                     toast.info("Already claimed today!");
                     return;
@@ -88,9 +122,8 @@ export function DailyCheckIn() {
                 throw new Error(result.error || "Check-in failed");
             }
 
-            const { reward } = result;
+            const reward = Number.isFinite(result.reward) ? Number(result.reward) : rewardAmount;
 
-            // Analytics
             if (typeof window !== "undefined") {
                 import("firebase/analytics").then(({ getAnalytics, logEvent }) => {
                     const analytics = getAnalytics();
@@ -100,18 +133,17 @@ export function DailyCheckIn() {
                     });
                 }).catch(() => { });
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : "Failed to claim reward";
             console.error("Error claiming daily reward:", error);
-            toast.error(error.message || "Failed to claim reward");
+            toast.error(message);
         } finally {
             setLoading(false);
         }
     };
 
-
     return (
         <div className="glass-panel p-6 rounded-3xl relative overflow-hidden">
-            {/* Background Glow */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-brand-purple/10 rounded-full blur-[50px] pointer-events-none" />
 
             <div className="relative z-10">
@@ -123,24 +155,14 @@ export function DailyCheckIn() {
                         <p className="text-gray-400 text-sm">Check in daily to earn Gum Drops!</p>
                     </div>
                     <div className="text-right">
-                        <div className="text-3xl font-bold text-brand-purple">{isAlreadyClaimedToday ? currentStreak : (displayStreak > 7 ? 1 : displayStreak)}<span className="text-base text-gray-500">/7</span></div>
+                        <div className="text-3xl font-bold text-brand-purple">{canCheckIn ? displayStreak : currentStreak}<span className="text-base text-gray-500">/7</span></div>
                         <div className="text-xs text-brand-purple font-bold uppercase tracking-wider">Day Streak</div>
                     </div>
                 </div>
 
-                {/* Week Visualization */}
-                <div className="flex justify-between gap-1 mb-8">
+                <div className="flex justify-between gap-1 mb-4">
                     {[1, 2, 3, 4, 5, 6, 7].map((day) => {
-                        // Determine state of each day dot
-                        // If streak is 3: Days 1, 2, 3 are filled.
-                        // But we want to show progress.
-                        // User's current streak is `currentStreak`.
-                        // If claiming for tomorrow (nextStreak), visually it's the next one.
-                        // Let's rely on 'currentStreak' from DB.
-
                         const isActive = day <= currentStreak;
-                        // Edge case: if streak > 7 (looping), simpler visualization needed or reset?
-                        // We reset at 8.
 
                         return (
                             <div key={day} className="flex flex-col items-center gap-2 flex-1">
@@ -159,22 +181,26 @@ export function DailyCheckIn() {
                     })}
                 </div>
 
-                {isAlreadyClaimedToday ? (
+                <p className="mb-6 text-sm font-medium text-gray-300">
+                    {canCheckIn ? "You can check in now." : `Next check-in available in ${formatCountdown(remainingMs)}`}
+                </p>
+
+                {!canCheckIn ? (
                     <div className="w-full py-4 rounded-xl bg-white/5 border border-white/5 text-center text-gray-400 font-medium flex items-center justify-center gap-2">
                         <CheckCircle className="w-5 h-5 text-brand-green" />
-                        Come back tomorrow for {((currentStreak >= 7 ? 1 : currentStreak + 1) * 10)} Drops!
+                        Come back tomorrow for {nextRewardAmount} Drops!
                     </div>
                 ) : (
                     <Button
                         variant="brand"
                         onClick={handleClaim}
                         disabled={loading}
-                        className="w-full py-6 text-lg rounded-xl shadow-[0_0_20px_rgba(236,72,153,0.3)] _0_30px_rgba(236,72,153,0.5)]"
+                        className="w-full py-6 text-lg rounded-xl text-white shadow-[0_0_20px_rgba(236,72,153,0.3)] _0_30px_rgba(236,72,153,0.5)]"
                     >
                         {loading ? (
                             <Loader2 className="w-5 h-5 animate-spin" />
                         ) : (
-                            <>Claim <span className="text-brand-purple mx-1">{rewardAmount}</span> Gum Drops</>
+                            <>Claim <span className="text-white mx-1">{rewardAmount}</span> Gum Drops</>
                         )}
                     </Button>
                 )}
