@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Lock } from "lucide-react";
 
@@ -10,6 +10,7 @@ import { Drop } from "@/types/db";
 import { OwnedDropGalleryCard } from "@/components/Dashboard/OwnedDropGalleryCard";
 import { ContentViewer, ViewerMediaItem } from "@/components/ContentViewer";
 import { getGalleryAspectRatio, getGallerySpanClass } from "@/components/Dashboard/gallery-layout";
+import { authFetch } from "@/lib/authFetch";
 
 interface LibraryClientProps {
     drops: Drop[];
@@ -19,6 +20,7 @@ export function LibraryClient({ drops }: LibraryClientProps) {
     const { userProfile, loading: authLoading } = useAuth();
     const [viewerIndex, setViewerIndex] = useState(0);
     const [viewerOpen, setViewerOpen] = useState(false);
+    const [contentUrlsById, setContentUrlsById] = useState<Record<string, string>>({});
 
     const unlockedIds = useMemo(() => {
         const source = userProfile?.unlockedContent;
@@ -27,12 +29,75 @@ export function LibraryClient({ drops }: LibraryClientProps) {
 
     const unlockedDrops = useMemo(() => drops.filter((drop) => unlockedIds.has(drop.id)), [drops, unlockedIds]);
 
+    useEffect(() => {
+        const dropIds = new Set(unlockedDrops.map((drop) => drop.id));
+        setContentUrlsById((prev) => {
+            const entries = Object.entries(prev).filter(([dropId]) => dropIds.has(dropId));
+            return Object.fromEntries(entries);
+        });
+    }, [unlockedDrops]);
+
+    useEffect(() => {
+        let cancelled = false;
+        const unresolvedDrops = unlockedDrops.filter((drop) => !contentUrlsById[drop.id]);
+
+        if (unresolvedDrops.length === 0) {
+            return;
+        }
+
+        const fetchUrls = async () => {
+            const resolvedEntries = await Promise.all(
+                unresolvedDrops.map(async (drop): Promise<[string, string] | null> => {
+                    try {
+                        const response = await authFetch(`/api/drops/content?id=${drop.id}`, {
+                            headers: {
+                                Accept: "application/json",
+                            },
+                        });
+
+                        if (!response.ok) {
+                            return null;
+                        }
+
+                        const data = await response.json();
+                        if (typeof data?.url !== "string" || data.url.length === 0) {
+                            return null;
+                        }
+
+                        return [drop.id, data.url];
+                    } catch {
+                        return null;
+                    }
+                })
+            );
+
+            if (cancelled) {
+                return;
+            }
+
+            const nextEntries = resolvedEntries.filter((entry): entry is [string, string] => Array.isArray(entry));
+            if (nextEntries.length === 0) {
+                return;
+            }
+
+            setContentUrlsById((prev) => ({
+                ...prev,
+                ...Object.fromEntries(nextEntries),
+            }));
+        };
+
+        fetchUrls();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [contentUrlsById, unlockedDrops]);
+
     const mediaItems = useMemo<ViewerMediaItem[]>(() => {
         return unlockedDrops.map((drop) => {
             const type = drop.fileMetadata?.type?.startsWith("video/") ? "video" : "image";
-            const url = type === "video" && typeof drop.contentUrl === "string" && drop.contentUrl.length > 0
-                ? drop.contentUrl
-                : drop.imageUrl;
+            const resolvedUrl = contentUrlsById[drop.id];
+            const url = typeof resolvedUrl === "string" && resolvedUrl.length > 0 ? resolvedUrl : drop.imageUrl;
 
             return {
                 id: drop.id,
@@ -42,7 +107,7 @@ export function LibraryClient({ drops }: LibraryClientProps) {
                 posterUrl: typeof drop.imageUrl === "string" && drop.imageUrl.length > 0 ? drop.imageUrl : undefined,
             };
         });
-    }, [unlockedDrops]);
+    }, [contentUrlsById, unlockedDrops]);
 
     if (authLoading) {
         return (
