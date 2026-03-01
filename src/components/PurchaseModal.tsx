@@ -24,7 +24,7 @@ const PACKAGES: PurchasePackage[] = [
   { drops: 2500, price: 20.0, label: "Ultimate Kandy (+500 Bonus)" },
 ];
 
-const PAYPAL_READY = (process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE?.trim().length ?? 0) > 0;
+const PAYPAL_READY = (process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE?.trim()?.length ?? 0) > 0;
 
 export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   const { user } = useAuth();
