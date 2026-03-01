@@ -12,19 +12,21 @@ export default function ExperiencesPage() {
     return (
         <div className="min-h-[calc(100dvh-11rem)] md:min-h-[calc(100dvh-5rem)] w-full bg-black text-center overflow-hidden px-4 py-10 md:py-14">
             <div className="max-w-3xl mx-auto">
-                <div className="mb-6 relative">
+                <div className="mb-5 relative">
                     <div className="absolute inset-0 bg-brand-pink/20 blur-3xl rounded-full" />
                     <div className="w-24 h-24 bg-brand-pink/10 border border-brand-pink/30 rounded-3xl flex items-center justify-center relative z-10 mx-auto shadow-[0_0_50px_rgba(236,72,153,0.3)]">
                         <Sparkles className="w-12 h-12 text-brand-pink" />
                     </div>
                 </div>
 
-                <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tighter">
+                <h1 className="text-4xl md:text-5xl font-bold text-white mb-3 tracking-tighter">
                     Exclusive <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-pink to-brand-purple">Experiences</span>
                 </h1>
 
-                <p className="text-gray-400 max-w-md mx-auto mb-8 text-lg">
-                    Get ready for immersive events, VIP access, and interactive moments. The candy shop is expanding.
+                <p className="text-gray-400 max-w-md mx-auto mb-6 text-sm md:text-base leading-snug">
+                    Earn free Gum Drops just for showing up.
+                    <br className="hidden sm:block" />
+                    New ways to stack rewards are on the way.
                 </p>
 
                 <div className="text-left mb-6">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
 import { X, Images, Video, Clock, Lock, Unlock, Loader2 } from "lucide-react";
@@ -139,10 +140,10 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-[80]" aria-modal="true" role="dialog">
+  const modalContent = (
+    <div className="fixed inset-0 z-[120]" aria-modal="true" role="dialog">
       <button
-        className="absolute inset-0 bg-black/70 backdrop-blur-md"
+        className="absolute inset-0 bg-black/75 backdrop-blur-md"
         onClick={onClose}
         aria-label="Close drop preview"
       />
@@ -233,4 +234,10 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
       </div>
     </div>
   );
+
+  if (typeof document === "undefined") {
+    return modalContent;
+  }
+
+  return createPortal(modalContent, document.body);
 }
