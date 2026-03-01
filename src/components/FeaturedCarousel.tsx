@@ -23,6 +23,16 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
     const featuredDrops = useMemo(() => drops.slice(0, 5), [drops]);
 
     useEffect(() => {
+        setActiveIndex((prev) => {
+            if (featuredDrops.length === 0) {
+                return 0;
+            }
+
+            return Math.min(prev, featuredDrops.length - 1);
+        });
+    }, [featuredDrops.length]);
+
+    useEffect(() => {
         if (featuredDrops.length <= 1) {
             return;
         }
@@ -40,7 +50,8 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
 
     if (featuredDrops.length === 0) return null;
 
-    const activeDrop = featuredDrops[activeIndex];
+    const safeActiveIndex = Math.min(activeIndex, featuredDrops.length - 1);
+    const activeDrop = featuredDrops[safeActiveIndex];
     const aspectRatio = getSupportedDropAspectRatio(activeDrop);
 
     return (
@@ -97,7 +108,7 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
                     <button
                         key={drop.id}
                         onClick={() => setActiveIndex(index)}
-                        className={cn("h-2.5 rounded-full transition-all", index === activeIndex ? "w-7 bg-brand-pink" : "w-2.5 bg-white/25")}
+                        className={cn("h-2.5 rounded-full transition-all", index === safeActiveIndex ? "w-7 bg-brand-pink" : "w-2.5 bg-white/25")}
                         aria-label={`Go to featured drop ${index + 1}`}
                     />
                 ))}
