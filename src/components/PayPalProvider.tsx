@@ -1,6 +1,6 @@
 "use client";
 
-import { PayPalScriptProvider } from "@paypal/react-paypal-js";
+import { PayPalScriptProvider, ReactPayPalScriptOptions } from "@paypal/react-paypal-js";
 import { ReactNode } from "react";
 
 const environment = process.env.NEXT_PUBLIC_PAYPAL_ENV === "production" ? "production" : "sandbox";
@@ -10,7 +10,7 @@ const clientId = environment === "production"
 
 const normalizedClientId = clientId?.trim() ?? "";
 
-const initialOptions = {
+const initialOptions: ReactPayPalScriptOptions = {
   clientId: normalizedClientId || "sb",
   currency: "USD",
   intent: "capture",
@@ -22,5 +22,9 @@ interface PayPalProviderProps {
 }
 
 export function PayPalProvider({ children }: PayPalProviderProps) {
-  return <PayPalScriptProvider options={initialOptions}>{children}</PayPalScriptProvider>;
+  return (
+    <PayPalScriptProvider options={initialOptions} deferLoading>
+      {children}
+    </PayPalScriptProvider>
+  );
 }

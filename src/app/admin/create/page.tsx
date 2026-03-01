@@ -4,9 +4,9 @@ import { useState, useEffect, Suspense } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Loader2, Save, Calendar, DollarSign, ArrowLeft, ChevronDown, ChevronUp, ImageIcon, FileAudio } from "lucide-react";
+import { Loader2, Save, Calendar, DollarSign, ArrowLeft, ImageIcon, FileAudio, ChevronDown, ChevronUp } from "lucide-react";
 
-import { FileUpload } from "@/components/Admin/FileUpload";
+import { AssetUploader, UploadAspectRatio } from "@/components/Admin/AssetUploader";
 import Link from "next/link";
 import { Drop } from "@/types/db";
 import { useForm, SubmitHandler } from "react-hook-form";
@@ -16,8 +16,6 @@ import { cn } from "@/lib/utils";
 import { authFetch } from "@/lib/authFetch";
 import { getDefaultCSTDates, toCSTString, fromCSTInput } from "@/lib/timezone";
 
-
-// Validation Schema
 const dropSchema = z.object({
     title: z.string().min(3, "Title is too short"),
     description: z.string().min(10, "Description is too short"),
@@ -28,15 +26,14 @@ const dropSchema = z.object({
     validUntil: z.string().optional().or(z.literal("")),
     type: z.enum(["content", "promo", "external"]),
     tags: z.array(z.string()).optional(),
-    // Optional/Dynamic fields
     ctaText: z.string().optional(),
     actionUrl: z.string().optional(),
     accentColor: z.string().optional(),
     fileMetadata: z.object({
         size: z.number(),
-        type: z.string()
+        type: z.string(),
+        dimensions: z.string().optional(),
     }).nullable().optional(),
-    // Auto-Rotation
     rotationEnabled: z.boolean().optional(),
     rotationIntervalDays: z.coerce.number().min(1).optional(),
     rotationMaxRotations: z.coerce.number().min(1).optional().or(z.literal("")).transform(v => v === "" ? undefined : v),
@@ -46,6 +43,13 @@ type DropFormData = z.infer<typeof dropSchema>;
 
 const AVAILABLE_TAGS = ["Sweet", "Spicy", "RAW"];
 
+interface UploadedAsset {
+    id: string;
+    url: string;
+    type: string;
+    size: number;
+}
+
 function DropForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -53,10 +57,10 @@ function DropForm() {
     const isEditMode = !!dropId;
     const [fetching, setFetching] = useState(isEditMode);
 
-    // UI State
     const [uploadsOpen, setUploadsOpen] = useState(true);
+    const [coverAspectRatio, setCoverAspectRatio] = useState<UploadAspectRatio>("1:1");
+    const [contentAspectRatio, setContentAspectRatio] = useState<UploadAspectRatio>("1:1");
 
-    // React Hook Form
     const {
         register,
         handleSubmit,
@@ -92,12 +96,13 @@ function DropForm() {
         if (!dropId) return;
 
         async function fetchDrop() {
+            const targetDropId = dropId;
+            if (!targetDropId) return;
             try {
-                const docRef = doc(db, "drops", dropId!);
+                const docRef = doc(db, "drops", targetDropId);
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) {
                     const data = docSnap.data() as Drop;
-                    // Populate form
                     setValue("title", data.title);
                     setValue("description", data.description);
                     setValue("imageUrl", data.imageUrl);
@@ -107,7 +112,6 @@ function DropForm() {
                     if (data.validUntil) {
                         setValue("validUntil", toCSTString(data.validUntil));
                     }
-                    // Load rotation config
                     if (data.rotationConfig) {
                         setValue("rotationEnabled", data.rotationConfig.enabled);
                         setValue("rotationIntervalDays", data.rotationConfig.intervalDays);
@@ -131,13 +135,27 @@ function DropForm() {
                 setFetching(false);
             }
         }
+
         fetchDrop();
     }, [dropId, router, setValue]);
 
-    const handleUploadComplete = (field: "imageUrl" | "contentUrl") => (url: string, metadata?: { size: number, type: string }) => {
-        setValue(field, url, { shouldValidate: true });
-        if (field === "contentUrl" && metadata) {
-            setValue("fileMetadata", metadata);
+    const handleCoverAssetsChange = (assets: UploadedAsset[]) => {
+        const primary = assets[0];
+        setValue("imageUrl", primary?.url || "", { shouldValidate: true });
+    };
+
+    const handleContentAssetsChange = (assets: UploadedAsset[]) => {
+        const primary = assets[0];
+        setValue("contentUrl", primary?.url || "", { shouldValidate: true });
+
+        if (primary) {
+            setValue("fileMetadata", {
+                size: primary.size,
+                type: primary.type,
+                dimensions: contentAspectRatio,
+            }, { shouldValidate: true });
+        } else {
+            setValue("fileMetadata", null, { shouldValidate: false });
         }
     };
 
@@ -150,7 +168,6 @@ function DropForm() {
 
     const onSubmit: SubmitHandler<DropFormData> = async (data) => {
         try {
-            // Parse datetime-local inputs as CST → UTC ms
             const validFrom = fromCSTInput(data.validFrom);
             let validUntil: number | null = null;
 
@@ -162,18 +179,9 @@ function DropForm() {
                 }
             }
 
-            // Determine status based on current time vs CST-parsed dates
             const now = Date.now();
-            let status: string;
-            if (now < validFrom) {
-                status = "scheduled";
-            } else if (validUntil && now >= validUntil) {
-                status = "expired";
-            } else {
-                status = "active";
-            }
+            const status = now < validFrom ? "scheduled" : validUntil && now >= validUntil ? "expired" : "active";
 
-            // Build rotation config if enabled
             const rotationConfig = data.rotationEnabled ? {
                 enabled: true,
                 intervalDays: data.rotationIntervalDays || 7,
@@ -181,7 +189,7 @@ function DropForm() {
                 rotationCount: 0,
             } : undefined;
 
-            const dropData: Record<string, any> = {
+            const dropData: Record<string, unknown> = {
                 title: data.title,
                 description: data.description,
                 imageUrl: data.imageUrl,
@@ -205,7 +213,7 @@ function DropForm() {
             if (isEditMode) {
                 const response = await authFetch("/api/admin/drops", {
                     method: "PUT",
-                    body: JSON.stringify({ dropId: dropId!, dropData }),
+                    body: JSON.stringify({ dropId, dropData }),
                 });
                 const result = await response.json();
                 if (!response.ok) throw new Error(result.error);
@@ -223,12 +231,12 @@ function DropForm() {
                 if (!response.ok) throw new Error(result.error);
             }
 
-            // Immediately force a router cache refresh to clear old drop arrays
             router.refresh();
             router.push("/admin/drops");
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : "Failed to save drop.";
             console.error("Error saving drop:", error);
-            alert(error.message || "Failed to save drop. Check console.");
+            alert(message);
         }
     };
 
@@ -241,19 +249,16 @@ function DropForm() {
     }
 
     return (
-        <div className="max-w-xl mx-auto pb-24">
-            <header className="mb-6 pt-4">
-                <Link href="/admin/drops" className="inline-flex items-center gap-2 text-gray-400 mb-2 transition-colors text-sm font-medium">
+        <div className="max-w-xl mx-auto pb-32">
+            <header className="mb-4 pt-3">
+                <Link href="/admin/drops" className="inline-flex items-center gap-2 text-gray-400 mb-2 text-sm font-medium">
                     <ArrowLeft className="w-4 h-4" /> Back to Drops
                 </Link>
                 <h1 className="text-2xl font-bold text-white">{isEditMode ? "Edit Drop" : "Create Drop"}</h1>
             </header>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-
-                {/* Main Info - Simplified container */}
-                <div className="glass-panel p-5 rounded-3xl space-y-4">
-                    {/* Title */}
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <div className="glass-panel p-4 rounded-3xl space-y-4">
                     <div>
                         <input
                             {...register("title")}
@@ -264,7 +269,6 @@ function DropForm() {
                         {errors.title && <p className="text-red-400 text-xs mt-1">{errors.title.message}</p>}
                     </div>
 
-                    {/* Description */}
                     <div>
                         <textarea
                             {...register("description")}
@@ -275,18 +279,16 @@ function DropForm() {
                         {errors.description && <p className="text-red-400 text-xs mt-1">{errors.description.message}</p>}
                     </div>
 
-                    {/* Compact Drop Type & Tags Row */}
                     <div className="flex flex-col gap-3">
                         <select
                             {...register("type")}
-                            className="w-full bg-white/5 border border-white/5 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:bg-white/10 transition-all"
+                            className="w-full bg-white/5 border border-white/5 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:bg-white/10"
                         >
                             <option value="content">Content Drop</option>
                             <option value="promo">Promo / Ad</option>
                             <option value="external">External Link</option>
                         </select>
 
-                        {/* Tags */}
                         <div className="flex flex-wrap gap-2">
                             {AVAILABLE_TAGS.map(tag => (
                                 <button
@@ -294,10 +296,10 @@ function DropForm() {
                                     type="button"
                                     onClick={() => toggleTag(tag)}
                                     className={cn(
-                                        "px-3 py-1 rounded-full text-xs font-bold border transition-all",
+                                        "px-3 py-1 rounded-full text-xs font-bold border",
                                         currentTags.includes(tag)
                                             ? "bg-brand-pink text-white border-brand-pink"
-                                            : "bg-white/5 text-gray-500 border-white/5 "
+                                            : "bg-white/5 text-gray-500 border-white/5"
                                     )}
                                 >
                                     {tag}
@@ -307,56 +309,132 @@ function DropForm() {
                     </div>
                 </div>
 
-                {/* Collapsible Uploads Section */}
                 <div className="glass-panel rounded-3xl overflow-hidden">
                     <button
                         type="button"
-                        onClick={() => setUploadsOpen(!uploadsOpen)}
-                        className="w-full flex items-center justify-between p-5 transition-colors"
+                        onClick={() => setUploadsOpen((prev) => !prev)}
+                        className="w-full flex items-center justify-between p-4"
                     >
                         <div className="flex items-center gap-2 font-bold text-white text-sm">
-                            <div className="flex gap-[-4px]">
-                                <ImageIcon className="w-4 h-4 text-brand-cyan" />
-                                <FileAudio className="w-4 h-4 text-brand-pink -ml-1" />
-                            </div>
+                            <ImageIcon className="w-4 h-4 text-brand-cyan" />
+                            <FileAudio className="w-4 h-4 text-brand-pink" />
                             Files & Assets
                         </div>
                         {uploadsOpen ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
                     </button>
 
                     {uploadsOpen && (
-                        <div className="p-5 pt-0 border-t border-white/5 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in slide-in-from-top-2 duration-200">
-                            <div className="space-y-1">
-                                <FileUpload
-                                    label="Cover"
-                                    folder="drops/images"
-                                    accept="image/*"
-                                    helperText="1:1 Ratio"
-                                    initialUrl={watch("imageUrl")}
-                                    onUploadComplete={handleUploadComplete("imageUrl")}
-                                />
-                                {errors.imageUrl && <p className="text-red-400 text-xs">{errors.imageUrl.message}</p>}
-                            </div>
+                        <div className="p-4 pt-0 border-t border-white/5 space-y-3">
+                            <AssetUploader
+                                label="Cover"
+                                folder="drops/images"
+                                accept=".jpg,.jpeg,.png,.webp,.heic,.gif,.mp4,image/*,video/mp4"
+                                helperText="Supports JPG, PNG, WEBP, HEIC, GIF, MP4"
+                                aspectRatio={coverAspectRatio}
+                                onAspectRatioChange={setCoverAspectRatio}
+                                initialUrl={watch("imageUrl")}
+                                onChange={handleCoverAssetsChange}
+                            />
+                            {errors.imageUrl && <p className="text-red-400 text-xs">{errors.imageUrl.message}</p>}
 
+                            <AssetUploader
+                                label="Content"
+                                folder="drops/content"
+                                multiple
+                                accept=".jpg,.jpeg,.png,.webp,.heic,.gif,.mp4,.zip,image/*,video/mp4,application/zip,application/x-zip-compressed"
+                                helperText="Upload one or more media/zip assets"
+                                aspectRatio={contentAspectRatio}
+                                onAspectRatioChange={setContentAspectRatio}
+                                initialUrl={watch("contentUrl")}
+                                initialType={watch("fileMetadata")?.type}
+                                onChange={handleContentAssetsChange}
+                            />
+                            {errors.contentUrl && <p className="text-red-400 text-xs">{errors.contentUrl.message}</p>}
+                        </div>
+                    )}
+                </div>
+
+                <div className="glass-panel p-4 rounded-3xl space-y-3">
+                    <h3 className="text-sm font-bold text-white">Pricing & Schedule</h3>
+
+                    <div className="space-y-1">
+                        <label className="text-xs font-bold text-gray-500 flex items-center gap-1 uppercase">
+                            <DollarSign className="w-3 h-3" /> Cost (Drops)
+                        </label>
+                        <input
+                            {...register("unlockCost")}
+                            type="number"
+                            min="0"
+                            inputMode="numeric"
+                            className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-white font-mono text-base focus:outline-none focus:border-brand-purple/50"
+                        />
+                        <p className="text-[11px] text-gray-500">Minimum 0 Drops</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                            <label className="text-xs font-bold text-gray-500 flex items-center gap-1 uppercase">
+                                <Calendar className="w-3 h-3" /> Start (CST)
+                            </label>
+                            <input
+                                {...register("validFrom")}
+                                type="datetime-local"
+                                className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-brand-cyan/50 [color-scheme:dark]"
+                            />
+                        </div>
+                        <div className="space-y-1">
+                            <label className="text-xs font-bold text-gray-500 flex items-center gap-1 uppercase">
+                                <Calendar className="w-3 h-3" /> End (CST)
+                            </label>
+                            <input
+                                {...register("validUntil")}
+                                type="datetime-local"
+                                className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-brand-cyan/50 [color-scheme:dark]"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="glass-panel p-4 rounded-3xl space-y-3">
+                    <h3 className="text-sm font-bold text-white">Auto-Rotate</h3>
+                    <label className="flex items-center gap-3 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            {...register("rotationEnabled")}
+                            className="w-4 h-4 rounded border-white/20 bg-white/5 text-brand-pink focus:ring-brand-pink/50"
+                        />
+                        <span className="text-xs font-bold text-gray-500 uppercase">Auto-Rotate Schedule</span>
+                    </label>
+
+                    {rotationEnabled && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
                             <div className="space-y-1">
-                                <FileUpload
-                                    label="Content"
-                                    folder="drops/content"
-                                    helperText="Zip/Media"
-                                    initialUrl={watch("contentUrl")}
-                                    onUploadComplete={handleUploadComplete("contentUrl")}
+                                <label className="text-xs text-gray-400 block">Gap Between Cycles (days)</label>
+                                <input
+                                    {...register("rotationIntervalDays")}
+                                    type="number"
+                                    min="1"
+                                    className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-brand-purple/50"
                                 />
-                                {errors.contentUrl && <p className="text-red-400 text-xs">{errors.contentUrl.message}</p>}
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-xs text-gray-400 block">Max rotations</label>
+                                <input
+                                    {...register("rotationMaxRotations")}
+                                    type="number"
+                                    min="1"
+                                    placeholder="∞"
+                                    className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-brand-purple/50 placeholder:text-gray-600"
+                                />
                             </div>
                         </div>
                     )}
                 </div>
 
-                {/* Dynamic Fields (Conditional) */}
-                {dropType !== 'content' && (
-                    <div className="glass-panel p-5 rounded-3xl space-y-4 animate-in fade-in zoom-in-95">
+                {dropType !== "content" && (
+                    <div className="glass-panel p-4 rounded-3xl space-y-3 animate-in fade-in zoom-in-95">
                         <h3 className="text-xs font-bold text-gray-500 uppercase">Action Settings</h3>
-                        <div className="grid grid-cols-1 gap-4">
+                        <div className="space-y-3">
                             <div>
                                 <label className="text-xs text-gray-400 mb-1 block">Button Text</label>
                                 <input
@@ -379,97 +457,16 @@ function DropForm() {
                     </div>
                 )}
 
-
-                {/* Cost & Schedule - Compact Grid */}
-                <div className="glass-panel p-5 rounded-3xl space-y-4">
-                    <div className="space-y-1">
-                        <label className="text-xs font-bold text-gray-500 flex items-center gap-1 uppercase">
-                            <DollarSign className="w-3 h-3" /> Cost (Drops)
-                        </label>
-                        <input
-                            {...register("unlockCost")}
-                            type="number"
-                            min="0"
-                            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white font-mono text-lg focus:outline-none focus:border-brand-purple/50 transition-all"
-                        />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1">
-                            <label className="text-xs font-bold text-gray-500 flex items-center gap-1 uppercase">
-                                <Calendar className="w-3 h-3" /> Start (CST)
-                            </label>
-                            <input
-                                {...register("validFrom")}
-                                type="datetime-local"
-                                className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-xs focus:outline-none focus:border-brand-cyan/50 transition-all [color-scheme:dark]"
-                            />
-                        </div>
-                        <div className="space-y-1">
-                            <label className="text-xs font-bold text-gray-500 flex items-center gap-1 uppercase">
-                                <Calendar className="w-3 h-3" /> End (CST)
-                            </label>
-                            <input
-                                {...register("validUntil")}
-                                type="datetime-local"
-                                className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-xs focus:outline-none focus:border-brand-cyan/50 transition-all [color-scheme:dark]"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Auto-Rotation Config */}
-                    <div className="mt-4 pt-4 border-t border-white/5">
-                        <label className="flex items-center gap-3 cursor-pointer group">
-                            <input
-                                type="checkbox"
-                                {...register("rotationEnabled")}
-                                className="w-4 h-4 rounded border-white/20 bg-white/5 text-brand-pink focus:ring-brand-pink/50"
-                            />
-                            <span className="text-xs font-bold text-gray-500 uppercase transition-colors">
-                                Auto-Rotate Schedule
-                            </span>
-                        </label>
-
-                        {rotationEnabled && (
-                            <div className="mt-3 grid grid-cols-2 gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
-                                <div className="space-y-1">
-                                    <label className="text-xs text-gray-400 block">Gap Between Cycles (days)</label>
-                                    <input
-                                        {...register("rotationIntervalDays")}
-                                        type="number"
-                                        min="1"
-                                        className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-brand-purple/50"
-                                    />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-xs text-gray-400 block">Max rotations</label>
-                                    <input
-                                        {...register("rotationMaxRotations")}
-                                        type="number"
-                                        min="1"
-                                        placeholder="∞"
-                                        className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-brand-purple/50 placeholder:text-gray-600"
-                                    />
-                                </div>
-                            </div>
-                        )}
-                    </div>
+                <div className="sticky bottom-[calc(68px+env(safe-area-inset-bottom))] z-10">
+                    <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="w-full py-3 rounded-2xl bg-gradient-to-r from-brand-pink to-brand-purple font-bold text-white shadow-lg shadow-brand-pink/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                        {isSubmitting ? "Saving..." : isEditMode ? "Update Drop" : "Create Drop"}
+                    </button>
                 </div>
-
-                {/* Submit Button */}
-                <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-brand-pink to-brand-purple font-bold text-white shadow-lg shadow-brand-pink/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-lg"
-                >
-                    {isSubmitting ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : (
-                        <Save className="w-5 h-5" />
-                    )}
-                    {isSubmitting ? "Saving..." : isEditMode ? "Update Drop" : "Create Drop"}
-                </button>
-
             </form>
         </div>
     );

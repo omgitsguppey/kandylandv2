@@ -2,17 +2,22 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { X, Images, Video, Clock } from "lucide-react";
+import Link from "next/link";
+import { X, Images, Video, Clock, Lock, Unlock, Loader2 } from "lucide-react";
 import { Drop } from "@/types/db";
-import { getDropMediaSummary } from "@/lib/drop-presentation";
+import { getAspectRatioCssValue, getDropMediaSummary, getSupportedDropAspectRatio } from "@/lib/drop-presentation";
 import { formatDistanceToNow } from "date-fns";
+import { useUnwrapCounter } from "@/hooks/useUnwrapCounter";
+import { useAuth, useUserProfile } from "@/context/AuthContext";
+import { useUI } from "@/context/UIContext";
+import { authFetch } from "@/lib/authFetch";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface DropPreviewModalProps {
   drop: Drop | null;
   onClose: () => void;
 }
-
-const MAX_FOMO_COUNT = 17088;
 
 function getTimerLabel(validFrom: number, validUntil?: number): string {
   const now = Date.now();
@@ -32,68 +37,198 @@ function getTimerLabel(validFrom: number, validUntil?: number): string {
 }
 
 export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
-  const [fomoCount, setFomoCount] = useState(0);
+  const { user } = useAuth();
+  const { userProfile, setUserProfile } = useUserProfile();
+  const { openAuthModal, openInsufficientBalanceModal } = useUI();
+  const [unlocking, setUnlocking] = useState(false);
 
   const mediaSummary = useMemo(() => (drop ? getDropMediaSummary(drop) : { imageCount: 0, videoCount: 0 }), [drop]);
   const timerLabel = useMemo(() => (drop ? getTimerLabel(drop.validFrom, drop.validUntil) : ""), [drop]);
+  const aspectRatio = useMemo(() => (drop ? getSupportedDropAspectRatio(drop) : "1:1"), [drop]);
+  const ratioStyle = useMemo(() => ({ aspectRatio: getAspectRatioCssValue(aspectRatio) }), [aspectRatio]);
+
+  const fomoCount = useUnwrapCounter(drop?.id ?? null, drop?.totalUnlocks ?? 0, drop?.createdAt);
+  const isUnlocked = !!(drop && Array.isArray(userProfile?.unlockedContent) && userProfile.unlockedContent.includes(drop.id));
+  const canAfford = (userProfile?.gumDropsBalance ?? 0) >= (drop?.unlockCost ?? 0);
 
   useEffect(() => {
     if (!drop) {
       return;
     }
 
-    const baseCount = Math.min(MAX_FOMO_COUNT, Math.max(0, drop.totalUnlocks || 0));
-    setFomoCount(baseCount);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
 
-    const interval = window.setInterval(() => {
-      setFomoCount((current) => {
-        if (current >= MAX_FOMO_COUNT) {
-          return MAX_FOMO_COUNT;
-        }
-
-        const step = Math.floor(Math.random() * 11) + 1;
-        return Math.min(MAX_FOMO_COUNT, current + step);
-      });
-    }, 900);
-
-    return () => window.clearInterval(interval);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
   }, [drop]);
 
   if (!drop) {
     return null;
   }
 
+  const triggerHaptic = () => {
+    if (typeof navigator !== "undefined" && navigator.vibrate) {
+      navigator.vibrate(10);
+    }
+  };
+
+  const handleUnwrap = async () => {
+    if (unlocking || isUnlocked) {
+      return;
+    }
+
+    if (!user) {
+      onClose();
+      openAuthModal();
+      return;
+    }
+
+    const balance = userProfile?.gumDropsBalance ?? 0;
+    if (balance < drop.unlockCost) {
+      onClose();
+      openInsufficientBalanceModal(drop.unlockCost);
+      return;
+    }
+
+    setUnlocking(true);
+
+    try {
+      triggerHaptic();
+      const response = await authFetch("/api/drops/unlock", {
+        method: "POST",
+        body: JSON.stringify({ dropId: drop.id }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        if (result.alreadyUnlocked) {
+          toast.info("Already unwrapped!");
+          return;
+        }
+        throw new Error(result.error || "Unlock failed");
+      }
+
+      toast.success(`Unwrapped: ${drop.title}`, {
+        description: "Enjoy your exclusive content!",
+        icon: "🔓",
+        duration: 4000,
+      });
+
+      if (userProfile) {
+        const currentUnlocked = Array.isArray(userProfile.unlockedContent) ? userProfile.unlockedContent : [];
+        const nextUnlockedContent = currentUnlocked.includes(drop.id) ? currentUnlocked : [...currentUnlocked, drop.id];
+        const unwrappedAt = Number.isFinite(result.unwrappedAt) ? Math.floor(result.unwrappedAt) : Date.now();
+
+        setUserProfile({
+          ...userProfile,
+          gumDropsBalance: result.newBalance !== undefined ? result.newBalance : userProfile.gumDropsBalance - drop.unlockCost,
+          unlockedContent: nextUnlockedContent,
+          unlockedContentTimestamps: {
+            ...(userProfile.unlockedContentTimestamps || {}),
+            [drop.id]: unwrappedAt,
+          },
+        });
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Please try again later.";
+      toast.error("Unwrap failed", { description: message });
+    } finally {
+      setUnlocking(false);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-[80] bg-black/70 backdrop-blur-md p-4 md:p-8 flex items-center justify-center" onClick={onClose}>
-      <div className="w-full max-w-3xl glass-panel rounded-3xl overflow-hidden border border-white/10" onClick={(event) => event.stopPropagation()}>
-        <div className="relative w-full h-[260px] md:h-[380px] bg-black">
-          <Image src={drop.imageUrl} alt={drop.title} fill sizes="(max-width: 768px) 100vw, 900px" className="object-contain" />
-          <button onClick={onClose} className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-white">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+    <div className="fixed inset-0 z-[80]" aria-modal="true" role="dialog">
+      <button
+        className="absolute inset-0 bg-black/70 backdrop-blur-md"
+        onClick={onClose}
+        aria-label="Close drop preview"
+      />
 
-        <div className="p-5 md:p-7 space-y-5">
-          <div className="flex flex-wrap items-center gap-3 text-xs md:text-sm font-semibold">
-            <span className="px-3 py-1 rounded-full bg-brand-purple/15 border border-brand-purple/30 text-brand-purple flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5" /> {timerLabel}
-            </span>
-            <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-200 flex items-center gap-1.5">
-              <Images className="w-3.5 h-3.5" /> {mediaSummary.imageCount} images
-            </span>
-            <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-200 flex items-center gap-1.5">
-              <Video className="w-3.5 h-3.5" /> {mediaSummary.videoCount} videos
-            </span>
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 top-12 sm:top-8 flex items-end justify-center px-2 sm:px-4">
+        <div className="pointer-events-auto w-full max-w-2xl max-h-full overflow-hidden rounded-t-3xl bg-[#0D0D12] border border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.55)]">
+          <div className="flex h-full max-h-[92vh] flex-col">
+            <div className="relative shrink-0 px-4 pt-3 pb-2 sm:px-5">
+              <div className="mx-auto h-1.5 w-12 rounded-full bg-white/20" />
+              <button
+                onClick={onClose}
+                className="absolute right-4 top-2.5 h-11 w-11 rounded-full border border-white/15 bg-white/5 text-gray-200 flex items-center justify-center"
+                aria-label="Close"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-28 sm:px-5">
+              <div className="mx-auto w-full max-w-xl rounded-2xl border border-white/10 bg-[#15151D] p-2" style={ratioStyle}>
+                <div className="relative h-full w-full overflow-hidden rounded-xl bg-[#15151D]">
+                  <Image
+                    src={drop.imageUrl}
+                    alt={drop.title}
+                    fill
+                    sizes="(max-width: 768px) 95vw, 640px"
+                    className="object-cover object-center"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-4 flex flex-wrap items-center gap-2 text-xs font-semibold">
+                <span className="px-3 py-1 rounded-full bg-brand-purple/15 border border-brand-purple/30 text-brand-purple flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5" /> {timerLabel}
+                </span>
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-200 flex items-center gap-1.5">
+                  <Images className="w-3.5 h-3.5" /> {mediaSummary.imageCount} images
+                </span>
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-200 flex items-center gap-1.5">
+                  <Video className="w-3.5 h-3.5" /> {mediaSummary.videoCount} videos
+                </span>
+              </div>
+
+              <div className="mt-4 space-y-3 pb-3">
+                <h3 className="text-2xl font-black tracking-tight text-white">{drop.title}</h3>
+                <p className="text-sm leading-relaxed text-gray-300">{drop.description}</p>
+                <p className="text-base font-semibold text-[#b28cff]">
+                  {fomoCount.toLocaleString()} people have unwrapped before you!
+                </p>
+              </div>
+            </div>
+
+            <div className="shrink-0 border-t border-white/10 bg-[#0D0D12]/95 px-4 pb-[calc(env(safe-area-inset-bottom)+0.85rem)] pt-3 sm:px-5">
+              {isUnlocked ? (
+                <Link
+                  href={`/dashboard/viewer?id=${drop.id}`}
+                  onClick={triggerHaptic}
+                  className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-green text-black font-bold"
+                >
+                  <Unlock className="h-4 w-4" />
+                  View Content
+                </Link>
+              ) : (
+                <button
+                  onClick={handleUnwrap}
+                  disabled={unlocking}
+                  className={cn(
+                    "flex h-12 w-full items-center justify-center gap-2 rounded-xl font-bold transition active:scale-[0.99]",
+                    canAfford ? "bg-white text-black" : "bg-brand-pink text-white"
+                  )}
+                >
+                  {unlocking ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Unwrapping...
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="h-4 w-4" />
+                      {canAfford ? `Unwrap for ${drop.unlockCost} GD` : `Need ${drop.unlockCost} GD — Top up wallet`}
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
           </div>
-
-          <div>
-            <h3 className="text-2xl font-bold text-white mb-2">{drop.title}</h3>
-            <p className="text-gray-400">{drop.description}</p>
-          </div>
-
-          <p className="text-lg md:text-xl font-semibold text-[#b28cff]">
-            {fomoCount.toLocaleString()} people have unwrapped before you!
-          </p>
         </div>
       </div>
     </div>

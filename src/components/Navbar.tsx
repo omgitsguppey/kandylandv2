@@ -10,16 +10,19 @@ import { ProfileSidebar } from "@/components/Navigation/ProfileSidebar";
 import { AdminDropdown } from "@/components/Navigation/AdminDropdown";
 import { NotificationBell } from "@/components/Navigation/NotificationBell";
 import { AnimateBalance } from "@/components/Navigation/AnimateBalance";
-import { useState } from "react";
 
 import NextImage from "next/image";
 
 export function Navbar() {
     const { user } = useAuthIdentity();
     const { userProfile } = useUserProfile();
-    const { openPurchaseModal, openAuthModal } = useUI();
-    // UI States
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const {
+        openPurchaseModal,
+        openAuthModal,
+        isProfileSidebarOpen,
+        openProfileSidebar,
+        closeProfileSidebar,
+    } = useUI();
 
     // Navbar is now global
 
@@ -66,7 +69,7 @@ export function Navbar() {
 
                                 {/* Mobile Menu Trigger */}
                                 <button
-                                    onClick={() => setIsMobileMenuOpen(true)}
+                                    onClick={openProfileSidebar}
                                     className="md:hidden w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white border border-white/10 relative overflow-hidden"
                                 >
                                     {user.photoURL ? (
@@ -98,7 +101,7 @@ export function Navbar() {
             </nav>
 
             {/* Mobile Sidebar */}
-            <ProfileSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+            <ProfileSidebar isOpen={isProfileSidebarOpen} onClose={closeProfileSidebar} />
 
         </>
     );

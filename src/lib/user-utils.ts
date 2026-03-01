@@ -56,6 +56,17 @@ export function normalizeUserProfile(raw: unknown, user: User): UserProfile | nu
         notificationSettings: {
             inAppEnabled: source.notificationSettings?.inAppEnabled !== false,
             browserPushEnabled: source.notificationSettings?.browserPushEnabled === true,
+            newDropAlerts: source.notificationSettings?.newDropAlerts !== false,
+            expiringSoonAlerts: source.notificationSettings?.expiringSoonAlerts !== false,
+        },
+        privacySettings: {
+            allowRecommendations: source.privacySettings?.allowRecommendations !== false,
+            showInAnonymousStats: source.privacySettings?.showInAnonymousStats !== false,
+        },
+        accountSettings: {
+            timezone: typeof source.accountSettings?.timezone === "string" && source.accountSettings.timezone.trim().length > 0
+                ? source.accountSettings.timezone.trim()
+                : "Auto",
         },
     };
 }

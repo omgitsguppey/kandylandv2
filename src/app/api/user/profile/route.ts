@@ -2,6 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAuth, handleApiError } from "@/lib/server/auth";
 
+const ALLOWED_TIMEZONES = new Set([
+    "Auto",
+    "UTC",
+    "America/New_York",
+    "America/Chicago",
+    "America/Denver",
+    "America/Los_Angeles",
+    "Europe/London",
+    "Europe/Berlin",
+    "Asia/Tokyo",
+]);
+
 function normalizeUsername(value: unknown): string | null {
     if (typeof value !== "string") {
         return null;
@@ -15,17 +27,66 @@ function normalizeUsername(value: unknown): string | null {
     return normalized;
 }
 
-function normalizeNotificationSettings(value: unknown): { inAppEnabled: boolean; browserPushEnabled: boolean } | null {
+function normalizeNotificationSettings(value: unknown): {
+    inAppEnabled: boolean;
+    browserPushEnabled: boolean;
+    newDropAlerts: boolean;
+    expiringSoonAlerts: boolean;
+} | null {
     if (!value || typeof value !== "object") {
         return null;
     }
 
-    const source = value as { inAppEnabled?: unknown; browserPushEnabled?: unknown };
+    const source = value as {
+        inAppEnabled?: unknown;
+        browserPushEnabled?: unknown;
+        newDropAlerts?: unknown;
+        expiringSoonAlerts?: unknown;
+    };
 
     return {
         inAppEnabled: source.inAppEnabled !== false,
         browserPushEnabled: source.browserPushEnabled === true,
+        newDropAlerts: source.newDropAlerts !== false,
+        expiringSoonAlerts: source.expiringSoonAlerts !== false,
     };
+}
+
+function normalizePrivacySettings(value: unknown): {
+    allowRecommendations: boolean;
+    showInAnonymousStats: boolean;
+} | null {
+    if (!value || typeof value !== "object") {
+        return null;
+    }
+
+    const source = value as {
+        allowRecommendations?: unknown;
+        showInAnonymousStats?: unknown;
+    };
+
+    return {
+        allowRecommendations: source.allowRecommendations !== false,
+        showInAnonymousStats: source.showInAnonymousStats !== false,
+    };
+}
+
+function normalizeAccountSettings(value: unknown): { timezone: string } | null {
+    if (!value || typeof value !== "object") {
+        return null;
+    }
+
+    const source = value as { timezone?: unknown };
+    if (typeof source.timezone !== "string") {
+        return null;
+    }
+
+    const normalizedTimezone = source.timezone.trim();
+    if (!ALLOWED_TIMEZONES.has(normalizedTimezone)) {
+        return null;
+    }
+
+    return { timezone: normalizedTimezone };
 }
 
 export async function PUT(request: NextRequest) {
@@ -63,6 +124,22 @@ export async function PUT(request: NextRequest) {
                 return NextResponse.json({ error: "Invalid notification settings" }, { status: 400 });
             }
             updates.notificationSettings = normalizedNotificationSettings;
+        }
+
+        if (payload.privacySettings !== undefined) {
+            const normalizedPrivacySettings = normalizePrivacySettings(payload.privacySettings);
+            if (!normalizedPrivacySettings) {
+                return NextResponse.json({ error: "Invalid privacy settings" }, { status: 400 });
+            }
+            updates.privacySettings = normalizedPrivacySettings;
+        }
+
+        if (payload.accountSettings !== undefined) {
+            const normalizedAccountSettings = normalizeAccountSettings(payload.accountSettings);
+            if (!normalizedAccountSettings) {
+                return NextResponse.json({ error: "Invalid account settings" }, { status: 400 });
+            }
+            updates.accountSettings = normalizedAccountSettings;
         }
 
         if (Object.keys(updates).length === 0) {
