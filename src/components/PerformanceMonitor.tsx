@@ -5,8 +5,8 @@ import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 
 export function PerformanceMonitor() {
-    const { user } = useAuth();
-    const isAdmin = user?.email === "uylusjohnson@gmail.com";
+    const { user, userProfile } = useAuth();
+    const isAdmin = userProfile?.role === "admin";
     const [metrics, setMetrics] = useState<Record<string, number>>({});
 
     useReportWebVitals((metric) => {

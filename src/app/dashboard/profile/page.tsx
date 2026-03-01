@@ -265,9 +265,6 @@ export default function ProfilePage() {
                         <div className="min-w-0">
                             <p className="text-lg font-bold text-white truncate">{profileName}</p>
                             <p className="text-sm text-gray-400 truncate">{profileEmail}</p>
-                            <button type="button" onClick={handleChangeAvatar} className="mt-1 text-xs text-brand-cyan hover:underline inline-flex items-center gap-1">
-                                <Camera className="h-3 w-3" /> Change photo
-                            </button>
                         </div>
                     </div>
 
@@ -339,12 +336,6 @@ export default function ProfilePage() {
                         icon={<Bell className="h-4 w-4 text-brand-purple" />}
                     />
                     <ToggleRow
-                        label="Browser / PWA notifications"
-                        checked={formState.browserPushEnabled}
-                        onChange={(value) => updateForm("browserPushEnabled", value)}
-                        icon={<Bell className="h-4 w-4 text-brand-purple" />}
-                    />
-                    <ToggleRow
                         label="New drop alerts"
                         checked={formState.newDropAlerts}
                         onChange={(value) => updateForm("newDropAlerts", value)}
@@ -356,16 +347,6 @@ export default function ProfilePage() {
                         onChange={(value) => updateForm("expiringSoonAlerts", value)}
                         icon={<Bell className="h-4 w-4 text-brand-purple" />}
                     />
-
-                    {formState.browserPushEnabled ? (
-                        <Button type="button" variant="glass" onClick={requestBrowserNotifications} className="w-full sm:w-auto">
-                            Enable in browser
-                        </Button>
-                    ) : null}
-
-                    <p className="text-[11px] text-gray-500">
-                        Browser notifications may still require device/browser permissions.
-                    </p>
                 </SectionCard>
 
                 <SectionCard title="Privacy & Tracking">
@@ -383,11 +364,8 @@ export default function ProfilePage() {
 
                 <SectionCard title="Security">
                     <div className="flex flex-col gap-2">
-                        <Button type="button" variant="glass" onClick={handleSignOutAllSessions} className="justify-center">
-                            <LogOut className="w-4 h-4 mr-2" /> Sign out of all sessions
-                        </Button>
-                        <Button type="button" variant="ghost" onClick={handleRequestDeletion} className="justify-center border border-red-500/40 text-red-300 hover:bg-red-500/10">
-                            <ShieldAlert className="w-4 h-4 mr-2" /> Request account deletion
+                        <Button type="button" variant="glass" onClick={logout} className="justify-center">
+                            <LogOut className="w-4 h-4 mr-2" /> Sign out
                         </Button>
                     </div>
                 </SectionCard>

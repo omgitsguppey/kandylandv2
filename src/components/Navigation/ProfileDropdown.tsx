@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { LogOut, LayoutDashboard, Library, Settings, ChevronDown } from "lucide-react";
 
-import { useAuth } from "@/context/AuthContext";
+import { useAuth, useUserProfile } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 
 export function ProfileDropdown() {
@@ -12,7 +12,8 @@ export function ProfileDropdown() {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
-    const isAdmin = user?.email === "uylusjohnson@gmail.com";
+    const { userProfile } = useUserProfile();
+    const isAdmin = userProfile?.role === "admin";
 
     // Close on click outside
     useEffect(() => {

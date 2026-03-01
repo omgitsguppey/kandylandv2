@@ -44,6 +44,26 @@ export async function POST(request: NextRequest) {
             createdAt: FieldValue.serverTimestamp(),
         });
 
+        // Automatically issue an internal notification so global users see the red bell badge
+        try {
+            await adminDb.collection("notifications").add({
+                title: "New Drop Live 🔥",
+                message: `${sanitized.title} is now available in the drops collection!`,
+                type: "success",
+                target: { global: true, userIds: [] },
+                link: "/drops",
+                dropContext: sanitized.imageUrl ? {
+                    dropId: docRef.id,
+                    dropTitle: sanitized.title,
+                    previewImageUrl: sanitized.imageUrl
+                } : null,
+                createdAt: FieldValue.serverTimestamp(),
+                readBy: []
+            });
+        } catch (notifError) {
+            console.error("Non-fatal: Failed to generate global notification for new drop", notifError);
+        }
+
         revalidatePath("/drops");
         revalidatePath("/");
         revalidatePath("/dashboard");

@@ -14,6 +14,7 @@ import { useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import Link from "next/link";
 import { SupportedAspectRatio, getSupportedDropAspectRatio } from "@/lib/drop-presentation";
+import { trackEvent } from "@/lib/analytics";
 
 interface DropCardProps {
     drop: Drop;
@@ -209,7 +210,14 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
     if (resolvedRatio === "9:16") {
         return (
             <div className="group relative p-1.5 md:p-3 rounded-2xl md:rounded-3xl glass-panel overflow-hidden h-full">
-                <button onClick={() => onPreview(drop)} className="relative w-full rounded-xl md:rounded-2xl overflow-hidden border border-white/10 bg-black text-left" style={ratioStyle}>
+                <button
+                    onClick={() => {
+                        trackEvent("drop_clicked", { dropId: drop.id, title: drop.title });
+                        fetch(`/api/drops/${drop.id}/click`, { method: "POST" }).catch(() => { });
+                        onPreview(drop);
+                    }}
+                    className="relative w-full rounded-xl md:rounded-2xl overflow-hidden border border-white/10 bg-black text-left" style={ratioStyle}
+                >
                     <NextImage
                         src={drop.imageUrl || "/placeholder.jpg"}
                         alt={drop.title}
@@ -241,7 +249,11 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
             <div className="absolute inset-0 bg-gradient-to-br from-brand-pink/5 via-transparent to-brand-cyan/5 pointer-events-none" />
 
             <button
-                onClick={() => onPreview(drop)}
+                onClick={() => {
+                    trackEvent("drop_clicked", { dropId: drop.id, title: drop.title });
+                    fetch(`/api/drops/${drop.id}/click`, { method: "POST" }).catch(() => { });
+                    onPreview(drop);
+                }}
                 className="relative w-full bg-black/40 rounded-xl md:rounded-2xl mb-3 md:mb-4 overflow-hidden group/image shadow-inner border border-white/5 text-left"
                 style={ratioStyle}
             >

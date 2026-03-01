@@ -2,19 +2,18 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { useAuthIdentity, useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 import { LayoutDashboard, Package, PlusCircle, Users, Terminal, LogOut, ShieldCheck } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
 export function AdminDropdown() {
-    const { user } = useAuthIdentity();
-    const { logout } = useAuth();
+    const { userProfile, logout } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     // Strict Admin Check
-    const isAdmin = user?.email === "uylusjohnson@gmail.com";
+    const isAdmin = userProfile?.role === "admin";
 
     // Close on click outside
     useEffect(() => {

@@ -43,7 +43,9 @@ export function NotificationBell() {
             >
                 <Bell className="w-5 h-5" />
                 {unreadCount > 0 && (
-                    <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-brand-pink rounded-full border-2 border-black animate-pulse" />
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-brand-pink rounded-full border-2 border-black flex items-center justify-center text-[9px] font-black text-white px-1 shadow-sm transition-transform duration-300 scale-in-center">
+                        {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
                 )}
             </button>
 

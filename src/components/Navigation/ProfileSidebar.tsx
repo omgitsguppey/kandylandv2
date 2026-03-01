@@ -24,7 +24,7 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
     const { userProfile } = useUserProfile();
     const { openPurchaseModal } = useUI();
 
-    const isAdmin = user?.email === "uylusjohnson@gmail.com";
+    const isAdmin = userProfile?.role === "admin";
 
     useEffect(() => {
         document.body.style.overflow = isOpen ? "hidden" : "unset";

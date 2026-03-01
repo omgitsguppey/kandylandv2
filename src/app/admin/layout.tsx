@@ -7,7 +7,6 @@ import Link from "next/link";
 import { LayoutDashboard, PlusCircle, Package, Users, Terminal, ListChecks } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const ADMIN_EMAIL = "uylusjohnson@gmail.com";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Home", icon: LayoutDashboard },
@@ -19,14 +18,14 @@ const NAV_ITEMS = [
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { user, loading: authLoading } = useAuth();
+  const { user, userProfile, loading: authLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
     if (!authLoading) {
-      if (!user || user.email !== ADMIN_EMAIL) router.push("/");
+      if (!user || userProfile?.role !== "admin") router.push("/");
       else setIsAuthorized(true);
     }
   }, [user, authLoading, router]);

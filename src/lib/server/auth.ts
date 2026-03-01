@@ -1,6 +1,6 @@
 import "server-only";
 import { NextRequest, NextResponse } from "next/server";
-import { adminAuth } from "./firebase-admin";
+import { adminAuth, adminDb } from "./firebase-admin";
 
 export interface AuthResult {
     uid: string;
@@ -42,11 +42,19 @@ export async function verifyAuth(request: NextRequest): Promise<AuthResult> {
 export async function verifyAdmin(request: NextRequest): Promise<AuthResult> {
     const authResult = await verifyAuth(request);
 
-    if (!authResult.isAdmin) {
+    if (!adminDb) {
+        throw new AuthError("Database not available", 500);
+    }
+
+    const userDoc = await adminDb.collection("users").doc(authResult.uid).get();
+    const userData = userDoc.data();
+
+    if (!userDoc.exists || userData?.role !== "admin") {
         throw new AuthError("Admin access required", 403);
     }
 
-    return authResult;
+    // Set isAdmin on the returned object so callers know it passed the DB check
+    return { ...authResult, isAdmin: true };
 }
 
 /**

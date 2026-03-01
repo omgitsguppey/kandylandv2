@@ -97,10 +97,19 @@ export function ContentViewer({ items, initialIndex = 0, isOpen, onClose }: Cont
                             src={activeItem.url}
                             controls
                             playsInline
+                            controlsList="nodownload noplaybackrate"
+                            disablePictureInPicture
+                            onContextMenu={(e) => e.preventDefault()}
                             className="h-full w-full object-contain bg-black"
                         />
                     ) : (
-                        <img src={activeItem.url} alt={activeItem.alt} className="h-full w-full object-contain bg-black" />
+                        <img
+                            src={activeItem.url}
+                            alt={activeItem.alt}
+                            className="h-full w-full object-contain bg-black"
+                            draggable={false}
+                            onContextMenu={(e) => e.preventDefault()}
+                        />
                     )}
                 </div>
 

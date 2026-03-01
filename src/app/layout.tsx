@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { UIProvider } from "@/context/UIContext";
-import { Navbar } from "@/components/Navbar";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { CoreLayoutWrapper } from "@/components/CoreLayoutWrapper";
 import { Analytics } from "@vercel/analytics/react";
@@ -54,7 +53,6 @@ export default function RootLayout({
 
                 {/* Content */}
                 <div className="relative z-10 flex-1 w-full">
-                  <Navbar />
                   <ErrorBoundary>
                     {children}
                   </ErrorBoundary>

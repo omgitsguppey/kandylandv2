@@ -231,10 +231,10 @@ export default function AdminRosterPage() {
                                                         )}
                                                     </div>
                                                     <div className="min-w-0">
-                                                        <div className="text-sm font-semibold text-white truncate inline-flex items-center gap-1">
+                                                        <Link href={`/admin/user/${entry.uid}`} className="text-sm font-semibold text-white truncate inline-flex items-center gap-1 hover:text-brand-cyan transition-colors">
                                                             {entry.displayName}
                                                             {entry.isVerified ? <CheckCircle2 className="w-3 h-3 text-brand-cyan" /> : null}
-                                                        </div>
+                                                        </Link>
                                                         <div className="text-xs text-gray-500 truncate">{entry.username ? `@${entry.username}` : entry.uid}</div>
                                                     </div>
                                                 </div>
@@ -273,6 +273,12 @@ export default function AdminRosterPage() {
                                                         <option value="creator">Creator</option>
                                                         <option value="admin">Admin</option>
                                                     </select>
+                                                    <Link
+                                                        href={`/admin/user/${entry.uid}`}
+                                                        className="text-xs px-2 py-1 rounded-lg bg-brand-pink/10 border border-brand-pink/20 text-brand-pink font-bold hover:bg-brand-pink/20 transition-colors"
+                                                    >
+                                                        Analytics
+                                                    </Link>
                                                     {entry.username ? (
                                                         <Link
                                                             href={`/creators/${entry.username}`}
@@ -280,9 +286,7 @@ export default function AdminRosterPage() {
                                                         >
                                                             View profile
                                                         </Link>
-                                                    ) : (
-                                                        <span className="text-xs text-gray-500">No profile route</span>
-                                                    )}
+                                                    ) : null}
                                                 </div>
                                             </td>
                                         </tr>
