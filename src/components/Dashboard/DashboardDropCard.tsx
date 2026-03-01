@@ -7,7 +7,6 @@ import { Lock, Unlock, Eye, Clock } from "lucide-react";
 
 
 import { memo } from "react";
-import Link from "next/link";
 
 interface DashboardDropCardProps {
     drop: Drop;
@@ -75,13 +74,16 @@ function DashboardDropCardBase({ drop, isUnlocked, onClick }: DashboardDropCardP
                 <div className="flex items-center gap-2 pt-3 border-t border-white/5">
                     {isUnlocked ? (
                         <>
-                            <Link
-                                href={`/dashboard/viewer?id=${drop.id}`}
-                                onClick={(e) => e.stopPropagation()}
+                            <button
+                                type="button"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onClick?.();
+                                }}
                                 className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-brand-cyan/10 text-brand-cyan text-xs font-bold transition-colors border border-brand-cyan/20 hover:bg-brand-cyan/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan/40"
                             >
                                 <Eye className="w-3.5 h-3.5" /> View
-                            </Link>
+                            </button>
                         </>
                     ) : (
                         <div className="w-full flex items-center justify-between text-xs">

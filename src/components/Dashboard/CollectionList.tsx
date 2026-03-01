@@ -7,6 +7,7 @@ import { LayoutGrid } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { OwnedDropGalleryCard } from "./OwnedDropGalleryCard";
+import { DropPreviewModal } from "@/components/DropPreviewModal";
 
 type Ratio = "1:1" | "16:9" | "9:16";
 
@@ -32,7 +33,7 @@ interface CollectionListProps {
 
 export function CollectionList({ drops, userProfile }: CollectionListProps) {
     const [filter, setFilter] = useState<"all" | "owned" | "locked">("all");
-    const router = useRouter();
+    const [selectedPreviewDrop, setSelectedPreviewDrop] = useState<Drop | null>(null);
 
     const { ownedIds, ownedCount, lockedCount } = useMemo(() => {
         const rawUnlocked = userProfile?.unlockedContent;
@@ -88,13 +89,7 @@ export function CollectionList({ drops, userProfile }: CollectionListProps) {
                             <OwnedDropGalleryCard
                                 drop={drop}
                                 isUnlocked={unlocked}
-                                onOpen={() => {
-                                    if (unlocked) {
-                                        router.push(`/dashboard/viewer?id=${drop.id}`);
-                                        return;
-                                    }
-                                    router.push("/drops");
-                                }}
+                                onOpen={() => setSelectedPreviewDrop(drop)}
                             />
                         </div>
                     );
@@ -119,6 +114,8 @@ export function CollectionList({ drops, userProfile }: CollectionListProps) {
                     </div>
                 )}
             </div>
+
+            <DropPreviewModal drop={selectedPreviewDrop} onClose={() => setSelectedPreviewDrop(null)} />
         </div>
     );
 }
