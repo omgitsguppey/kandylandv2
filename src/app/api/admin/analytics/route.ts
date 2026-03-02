@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
             // Realtime report gives active users in the last 30 minutes
             const [response] = await analyticsClient.runRealtimeReport({
                 property: `properties/${propertyId}`,
-                metrics: [{ name: "activeUsers" }],
+                metrics: [{ name: "activeUsers" }, { name: "screenPageViews" }],
                 dimensions: [{ name: "minutesAgo" }],
             });
 
@@ -55,14 +55,17 @@ export async function GET(request: NextRequest) {
             // Map the past 30 minutes. Fill missing minutes with 0.
             const liveData = Array.from({ length: 30 }, (_, i) => ({
                 minute: i,
-                users: 0
+                users: 0,
+                views: 0
             }));
 
             rows.forEach(row => {
                 const minAgo = parseInt(row.dimensionValues?.[0]?.value || "0", 10);
                 const usersCount = parseInt(row.metricValues?.[0]?.value || "0", 10);
+                const viewsCount = parseInt(row.metricValues?.[1]?.value || "0", 10);
                 if (minAgo < 30) {
                     liveData[minAgo].users = usersCount;
+                    liveData[minAgo].views = viewsCount;
                 }
             });
 
@@ -87,7 +90,14 @@ export async function GET(request: NextRequest) {
             const [response] = await analyticsClient.runReport({
                 property: `properties/${propertyId}`,
                 dateRanges: [{ startDate, endDate: "today" }],
-                metrics: [{ name: "activeUsers" }, { name: "screenPageViews" }, { name: "sessions" }],
+                metrics: [
+                    { name: "activeUsers" },
+                    { name: "screenPageViews" },
+                    { name: "sessions" },
+                    { name: "newUsers" },
+                    { name: "averageSessionDuration" },
+                    { name: "engagementRate" }
+                ],
                 dimensions: [{ name: "date" }],
                 orderBys: [{
                     dimension: { dimensionName: "date" },
@@ -110,6 +120,9 @@ export async function GET(request: NextRequest) {
                     users: parseInt(row.metricValues?.[0]?.value || "0", 10),
                     views: parseInt(row.metricValues?.[1]?.value || "0", 10),
                     sessions: parseInt(row.metricValues?.[2]?.value || "0", 10),
+                    newUsers: parseInt(row.metricValues?.[3]?.value || "0", 10),
+                    avgSessionDuration: parseFloat(row.metricValues?.[4]?.value || "0"),
+                    engagementRate: parseFloat(row.metricValues?.[5]?.value || "0"),
                 };
             });
 
@@ -117,6 +130,9 @@ export async function GET(request: NextRequest) {
                 users: chartData.reduce((acc, curr) => acc + curr.users, 0),
                 views: chartData.reduce((acc, curr) => acc + curr.views, 0),
                 sessions: chartData.reduce((acc, curr) => acc + curr.sessions, 0),
+                newUsers: chartData.reduce((acc, curr) => acc + curr.newUsers, 0),
+                avgSessionDuration: chartData.length > 0 ? chartData.reduce((acc, curr) => acc + curr.avgSessionDuration, 0) / chartData.length : 0,
+                engagementRate: chartData.length > 0 ? chartData.reduce((acc, curr) => acc + curr.engagementRate, 0) / chartData.length : 0,
             };
 
             return NextResponse.json({

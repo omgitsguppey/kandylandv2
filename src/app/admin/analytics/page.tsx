@@ -19,7 +19,7 @@ export default function AdminAnalyticsPage() {
     // Data states
     const [chartData, setChartData] = useState<any[]>([]);
     const [liveData, setLiveData] = useState<any[]>([]);
-    const [totals, setTotals] = useState({ users: 0, views: 0, sessions: 0 });
+    const [totals, setTotals] = useState({ users: 0, views: 0, sessions: 0, newUsers: 0, avgSessionDuration: 0, engagementRate: 0 });
     const [liveActive, setLiveActive] = useState(0);
 
     const loadData = async (currentFilter: TimeFilter) => {
@@ -44,7 +44,7 @@ export default function AdminAnalyticsPage() {
                 setLiveActive(data.totalActive || 0);
             } else {
                 setChartData(data.data || []);
-                setTotals(data.totals || { users: 0, views: 0, sessions: 0 });
+                setTotals(data.totals || { users: 0, views: 0, sessions: 0, newUsers: 0, avgSessionDuration: 0, engagementRate: 0 });
             }
         } catch (err: any) {
             setError(err.message);
@@ -117,8 +117,8 @@ export default function AdminAnalyticsPage() {
                             key={f}
                             onClick={() => setFilter(f)}
                             className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${filter === f
-                                    ? "bg-brand-pink text-white shadow-lg"
-                                    : "text-gray-400 hover:text-white"
+                                ? "bg-brand-pink text-white shadow-lg"
+                                : "text-gray-400 hover:text-white"
                                 }`}
                         >
                             {f === "live" ? "Live" : f === "all" ? "All Time" : f.toUpperCase()}
@@ -155,15 +155,16 @@ export default function AdminAnalyticsPage() {
                             <p className="text-sm text-gray-500">Currently active on the platform (Past 30 mins)</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                            {/* Primary Metrics (Lavender) */}
                             <div className="glass-panel p-6 rounded-3xl border border-white/10">
                                 <div className="flex items-center gap-3 mb-4">
-                                    <div className="w-8 h-8 rounded-full bg-brand-cyan/20 text-brand-cyan flex items-center justify-center">
+                                    <div className="w-8 h-8 rounded-full bg-brand-pink/20 text-brand-pink flex items-center justify-center">
                                         <Users className="w-4 h-4" />
                                     </div>
                                     <p className="text-sm font-medium text-gray-400">Unique Users</p>
                                 </div>
-                                <h3 className="text-4xl font-bold text-white tracking-tight">{totals.users.toLocaleString()}</h3>
+                                <h3 className="text-4xl font-bold text-brand-pink tracking-tight">{totals.users.toLocaleString()}</h3>
                             </div>
                             <div className="glass-panel p-6 rounded-3xl border border-white/10">
                                 <div className="flex items-center gap-3 mb-4">
@@ -172,16 +173,45 @@ export default function AdminAnalyticsPage() {
                                     </div>
                                     <p className="text-sm font-medium text-gray-400">Page Views</p>
                                 </div>
-                                <h3 className="text-4xl font-bold text-white tracking-tight">{totals.views.toLocaleString()}</h3>
+                                <h3 className="text-4xl font-bold text-brand-pink tracking-tight">{totals.views.toLocaleString()}</h3>
                             </div>
+
+                            {/* Secondary Metrics (White) */}
                             <div className="glass-panel p-6 rounded-3xl border border-white/10">
                                 <div className="flex items-center gap-3 mb-4">
-                                    <div className="w-8 h-8 rounded-full bg-brand-yellow/20 text-brand-yellow flex items-center justify-center">
+                                    <div className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center">
                                         <Activity className="w-4 h-4" />
                                     </div>
                                     <p className="text-sm font-medium text-gray-400">Total Sessions</p>
                                 </div>
                                 <h3 className="text-4xl font-bold text-white tracking-tight">{totals.sessions.toLocaleString()}</h3>
+                            </div>
+                            <div className="glass-panel p-6 rounded-3xl border border-white/10">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center">
+                                        <Users className="w-4 h-4" />
+                                    </div>
+                                    <p className="text-sm font-medium text-gray-400">New Users</p>
+                                </div>
+                                <h3 className="text-4xl font-bold text-white tracking-tight">{totals.newUsers.toLocaleString()}</h3>
+                            </div>
+                            <div className="glass-panel p-6 rounded-3xl border border-white/10">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center">
+                                        <Activity className="w-4 h-4" />
+                                    </div>
+                                    <p className="text-sm font-medium text-gray-400">Engagement</p>
+                                </div>
+                                <h3 className="text-4xl font-bold text-white tracking-tight">{(totals.engagementRate * 100).toFixed(1)}%</h3>
+                            </div>
+                            <div className="glass-panel p-6 rounded-3xl border border-white/10">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center">
+                                        <Activity className="w-4 h-4" />
+                                    </div>
+                                    <p className="text-sm font-medium text-gray-400">Avg Duration</p>
+                                </div>
+                                <h3 className="text-4xl font-bold text-white tracking-tight">{Math.floor(totals.avgSessionDuration / 60)}m {Math.round(totals.avgSessionDuration % 60)}s</h3>
                             </div>
                         </div>
                     )}
@@ -220,12 +250,12 @@ export default function AdminAnalyticsPage() {
                                     <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                         <defs>
                                             <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.3} />
-                                                <stop offset="95%" stopColor="#06b6d4" stopOpacity={0} />
+                                                <stop offset="5%" stopColor="#b28cff" stopOpacity={0.3} />
+                                                <stop offset="95%" stopColor="#b28cff" stopOpacity={0} />
                                             </linearGradient>
-                                            <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#ec4899" stopOpacity={0.3} />
-                                                <stop offset="95%" stopColor="#ec4899" stopOpacity={0} />
+                                            <linearGradient id="colorSessions" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#ffffff" stopOpacity={0.3} />
+                                                <stop offset="95%" stopColor="#ffffff" stopOpacity={0} />
                                             </linearGradient>
                                         </defs>
                                         <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
@@ -239,8 +269,8 @@ export default function AdminAnalyticsPage() {
                                         />
                                         <YAxis stroke="#ffffff40" fontSize={12} tickLine={false} axisLine={false} />
                                         <Tooltip content={<CustomTooltip />} />
-                                        <Area type="monotone" dataKey="views" name="Page Views" stroke="#ec4899" strokeWidth={3} fillOpacity={1} fill="url(#colorViews)" />
-                                        <Area type="monotone" dataKey="users" name="Unique Users" stroke="#06b6d4" strokeWidth={3} fillOpacity={1} fill="url(#colorUsers)" />
+                                        <Area type="monotone" dataKey="users" name="Unique Users" stroke="#b28cff" strokeWidth={3} fillOpacity={1} fill="url(#colorUsers)" />
+                                        <Area type="monotone" dataKey="sessions" name="Sessions" stroke="#ffffff" strokeWidth={3} fillOpacity={1} fill="url(#colorSessions)" />
                                     </AreaChart>
                                 )}
                             </ResponsiveContainer>
