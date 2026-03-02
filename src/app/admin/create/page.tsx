@@ -325,6 +325,18 @@ function DropForm() {
         }
     };
 
+    const onError = (errors: FieldErrors<DropFormData>) => {
+        const errorMessages = Object.values(errors)
+            .map(e => e?.message)
+            .filter(Boolean) as string[];
+
+        if (errorMessages.length > 0) {
+            alert(`Cannot submit drop due to missing or invalid fields:\n\n- ${errorMessages.join("\n- ")}\n\n(Did you remember to click the small "Upload" button on your selected files?)`);
+        } else {
+            alert("Please check the form for errors. Ensure all selected files have been fully uploaded.");
+        }
+    };
+
     if (fetching) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
@@ -342,7 +354,7 @@ function DropForm() {
                 <h1 className="text-2xl font-bold text-white">{isEditMode ? "Edit Drop" : "Create Drop"}</h1>
             </header>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-4">
                 <div className="glass-panel p-4 rounded-3xl space-y-4">
                     <div>
                         <input
