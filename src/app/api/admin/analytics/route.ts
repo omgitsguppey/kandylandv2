@@ -17,6 +17,7 @@ if (clientEmail && privateKey) {
         credentials: {
             client_email: clientEmail,
             private_key: privateKey,
+            project_id: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
         },
     });
 } else {
@@ -26,7 +27,7 @@ if (clientEmail && privateKey) {
 
 export async function GET(request: NextRequest) {
     try {
-        // await verifyAdmin(request);
+        await verifyAdmin(request);
 
         const searchParams = request.nextUrl.searchParams;
         const type = searchParams.get("type"); // "historical" or "realtime"
