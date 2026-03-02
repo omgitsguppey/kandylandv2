@@ -14,7 +14,7 @@ import { useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import Link from "next/link";
 import { SupportedAspectRatio, getSupportedDropAspectRatio } from "@/lib/drop-presentation";
-import { trackEvent } from "@/lib/analytics";
+
 
 interface DropCardProps {
     drop: Drop;
@@ -212,7 +212,6 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
             <div className="group relative p-1.5 md:p-3 rounded-2xl md:rounded-3xl glass-panel overflow-hidden h-full">
                 <button
                     onClick={() => {
-                        trackEvent("drop_clicked", { dropId: drop.id, title: drop.title });
                         fetch(`/api/drops/${drop.id}/click`, { method: "POST" }).catch(() => { });
                         onPreview(drop);
                     }}
@@ -250,7 +249,6 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
 
             <button
                 onClick={() => {
-                    trackEvent("drop_clicked", { dropId: drop.id, title: drop.title });
                     fetch(`/api/drops/${drop.id}/click`, { method: "POST" }).catch(() => { });
                     onPreview(drop);
                 }}

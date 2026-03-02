@@ -127,15 +127,6 @@ export function DailyCheckIn() {
 
             const reward = Number.isFinite(result.reward) ? Number(result.reward) : rewardAmount;
 
-            if (typeof window !== "undefined") {
-                import("firebase/analytics").then(({ getAnalytics, logEvent }) => {
-                    const analytics = getAnalytics();
-                    logEvent(analytics, "earn_virtual_currency", {
-                        virtual_currency_name: "Gum Drops",
-                        value: reward
-                    });
-                }).catch(() => { });
-            }
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : "Failed to claim reward";
             console.error("Error claiming daily reward:", error);

@@ -5,8 +5,6 @@ import { AuthProvider } from "@/context/AuthContext";
 import { UIProvider } from "@/context/UIContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { CoreLayoutWrapper } from "@/components/CoreLayoutWrapper";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -58,8 +56,6 @@ export default function RootLayout({
                   </ErrorBoundary>
                 </div>
               </main>
-              <Analytics />
-              <SpeedInsights />
             </CoreLayoutWrapper>
           </UIProvider>
         </AuthProvider>

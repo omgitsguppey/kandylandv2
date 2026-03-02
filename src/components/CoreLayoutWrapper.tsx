@@ -4,7 +4,6 @@ import { PayPalProvider } from "@/components/PayPalProvider";
 import { Toaster } from "sonner";
 import CookieBanner from "@/components/CookieBanner";
 import dynamic from "next/dynamic";
-import { initializeAnalytics } from "@/lib/analytics";
 import { useEffect } from "react";
 
 const MobileBottomBar = dynamic(() => import("@/components/Navigation/MobileBottomBar"));
@@ -19,7 +18,6 @@ const AutoScrollToTop = dynamic(() => import("@/components/Navigation/AutoScroll
 
 export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     useEffect(() => {
-        initializeAnalytics();
     }, []);
 
     return (
