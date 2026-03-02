@@ -72,10 +72,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
 
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-            console.info("[AuthProvider] onAuthStateChanged", {
-                uid: currentUser?.uid ?? null,
-                isLoading: false,
-            });
             setUser(currentUser);
             setLoading(false);
 
@@ -199,7 +195,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     const logout = async () => {
-        console.info("[AuthProvider] logout called");
         await signOut(auth);
         router.push("/");
     };

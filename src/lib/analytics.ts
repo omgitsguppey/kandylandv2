@@ -11,7 +11,6 @@ export async function initializeAnalytics() {
         const supported = await isSupported();
         if (supported) {
             analyticsInstance = getAnalytics(app);
-            console.log("Firebase Analytics securely initialized.");
         }
     }
 }

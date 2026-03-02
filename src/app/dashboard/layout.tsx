@@ -3,6 +3,8 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { NotificationPromptBanner } from "@/components/Dashboard/NotificationPromptBanner";
+
 export default function DashboardLayout({
     children,
 }: {
@@ -27,7 +29,7 @@ export default function DashboardLayout({
 
     return (
         <div className="flex-1 w-full relative">
-
+            <NotificationPromptBanner />
             <div className="w-full">
                 {children}
             </div>

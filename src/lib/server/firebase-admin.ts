@@ -16,9 +16,7 @@ if (!admin.apps.length) {
                 }),
                 projectId: projectId
             });
-            console.log("Firebase Admin Initialized with Service Account Cert.");
         } else {
-            console.warn("⚠️ Firebase Service Account Missing. Attempting applicationDefault().");
             admin.initializeApp({
                 credential: admin.credential.applicationDefault(),
                 projectId: projectId

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAdmin, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
+import { sendGlobalDropNotification } from "@/lib/server/push-notifications";
 
 // Whitelist of allowed drop fields to prevent arbitrary writes
 const ALLOWED_DROP_FIELDS = [
@@ -44,24 +45,13 @@ export async function POST(request: NextRequest) {
             createdAt: FieldValue.serverTimestamp(),
         });
 
-        // Automatically issue an internal notification so global users see the red bell badge
-        try {
-            await adminDb.collection("notifications").add({
-                title: "New Drop Live 🔥",
-                message: `${sanitized.title} is now available in the drops collection!`,
-                type: "success",
-                target: { global: true, userIds: [] },
-                link: "/drops",
-                dropContext: sanitized.imageUrl ? {
-                    dropId: docRef.id,
-                    dropTitle: sanitized.title,
-                    previewImageUrl: sanitized.imageUrl
-                } : null,
-                createdAt: FieldValue.serverTimestamp(),
-                readBy: []
-            });
-        } catch (notifError) {
-            console.error("Non-fatal: Failed to generate global notification for new drop", notifError);
+        // Automatically issue a global notification and Web Push ONLY if immediately active
+        if (sanitized.status === "active") {
+            try {
+                await sendGlobalDropNotification(sanitized.title, docRef.id, sanitized.imageUrl);
+            } catch (notifError) {
+                console.error("Non-fatal: Failed to generate global notification for new drop", notifError);
+            }
         }
 
         revalidatePath("/drops");

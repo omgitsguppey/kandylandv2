@@ -3,6 +3,7 @@ import { adminDb } from "./firebase-admin";
 import { Drop } from "@/types/db";
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
 import { cache } from "react";
+import { sendGlobalDropNotification } from "./push-notifications";
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
@@ -118,6 +119,9 @@ export const getDrops = cache(async (): Promise<Drop[]> => {
 
             if (needsUpdate) {
                 persistDropUpdate(doc.id, resolved);
+                if (raw.status === "scheduled" && resolved.status === "active") {
+                    sendGlobalDropNotification(resolved.title, doc.id, resolved.imageUrl);
+                }
             }
 
             return sanitizeDropForClient(resolved);
@@ -142,6 +146,9 @@ export const getDrop = cache(async (id: string): Promise<Drop | null> => {
 
         if (needsUpdate) {
             persistDropUpdate(docSnap.id, resolved);
+            if (raw.status === "scheduled" && resolved.status === "active") {
+                sendGlobalDropNotification(resolved.title, docSnap.id, resolved.imageUrl);
+            }
         }
 
         return sanitizeDropForClient(resolved);
@@ -170,6 +177,9 @@ export async function getDropRaw(id: string): Promise<Drop | null> {
 
         if (needsUpdate) {
             persistDropUpdate(docSnap.id, resolved);
+            if (raw.status === "scheduled" && resolved.status === "active") {
+                sendGlobalDropNotification(resolved.title, docSnap.id, resolved.imageUrl);
+            }
         }
 
         return resolved;
