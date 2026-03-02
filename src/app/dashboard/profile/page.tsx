@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useAuth, useUserProfile } from "@/context/AuthContext";
 import { updateProfile } from "firebase/auth";
 import { Button } from "@/components/ui/Button";
-import { Loader2, Save, User, AtSign, Bell, Globe, ShieldAlert, Mail, Camera, LogOut } from "lucide-react";
+import { Loader2, Save, User, AtSign, Bell, Globe, ShieldAlert, Mail, Camera, LogOut, Download, Trash2 } from "lucide-react";
 
 import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";
@@ -144,6 +144,8 @@ export default function ProfilePage() {
     const [formState, setFormState] = useState<ProfileSettingsFormState>(normalizedInitialState);
     const [saving, setSaving] = useState(false);
     const [saveFeedback, setSaveFeedback] = useState<string | null>(null);
+    const [isDownloading, setIsDownloading] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
         setFormState(normalizedInitialState);
@@ -236,13 +238,55 @@ export default function ProfilePage() {
         await logout();
     };
 
-    const handleRequestDeletion = () => {
-        const confirmed = window.confirm("Are you sure you want to request account deletion? This cannot be undone without support.");
+    const handleRequestDeletion = async () => {
+        const confirmed = window.confirm("Are you incredibly sure? This will permanently delete your account, your KandyDrops collection, and your entire data profile. This cannot be undone.");
         if (!confirmed) {
             return;
         }
 
-        toast.info("Account deletion request flow will be available soon. Please contact support for now.");
+        setIsDeleting(true);
+        try {
+            const response = await authFetch("/api/user/delete", { method: "DELETE" });
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Failed to delete account");
+            }
+
+            toast.success("Account permanently deleted.");
+            await logout(); // Kick them out immediately
+        } catch (error: any) {
+            toast.error(error.message);
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
+    const handleDownloadData = async () => {
+        setIsDownloading(true);
+        try {
+            const response = await authFetch("/api/user/data", { method: "GET" });
+
+            if (!response.ok) {
+                throw new Error("Failed to generate data export");
+            }
+
+            // Create a blob from the JSON response
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.style.display = "none";
+            a.href = url;
+            a.download = `kandydrops_data_export_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            toast.success("Data export downloaded securely.");
+        } catch (error: any) {
+            toast.error(error.message);
+        } finally {
+            setIsDownloading(false);
+        }
     };
 
     return (
@@ -362,11 +406,22 @@ export default function ProfilePage() {
                     />
                 </SectionCard>
 
-                <SectionCard title="Security">
-                    <div className="flex flex-col gap-2">
-                        <Button type="button" variant="glass" onClick={logout} className="justify-center">
-                            <LogOut className="w-4 h-4 mr-2" /> Sign out
+                <SectionCard title="Data & Security">
+                    <div className="flex flex-col gap-3">
+                        <Button type="button" variant="glass" onClick={handleDownloadData} disabled={isDownloading} className="justify-center border-white/20 hover:bg-white/10">
+                            {isDownloading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}
+                            Download My Data
                         </Button>
+                        <Button type="button" variant="glass" onClick={logout} className="justify-center border-white/20 hover:bg-white/10">
+                            <LogOut className="w-4 h-4 mr-2 text-gray-400" /> Sign out
+                        </Button>
+                        <div className="pt-4 mt-2 border-t border-red-500/20">
+                            <Button type="button" variant="glass" onClick={handleRequestDeletion} disabled={isDeleting} className="w-full text-red-500 justify-center border-red-500/20 hover:bg-red-500/10">
+                                {isDeleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
+                                Delete Account
+                            </Button>
+                            <p className="text-xs text-gray-500 text-center mt-2">Permenantly deletes your profile and all collected drops.</p>
+                        </div>
                     </div>
                 </SectionCard>
 
