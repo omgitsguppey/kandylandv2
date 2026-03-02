@@ -22,9 +22,13 @@ env:
     value: production
   - variable: GA_PROPERTY_ID
     value: "524442937"
+  - variable: FIREBASE_CLIENT_EMAIL
+    value: "firebase-adminsdk-fbsvc@kandydrops-by-ikandy.iam.gserviceaccount.com"
 
 secrets:
   - variable: NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE
     secret: NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE
   - variable: PAYPAL_CLIENT_SECRET_LIVE
     secret: PAYPAL_CLIENT_SECRET_LIVE
+  - variable: FIREBASE_PRIVATE_KEY
+    secret: FIREBASE_PRIVATE_KEY
