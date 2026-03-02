@@ -71,10 +71,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
-            setLoading(false);
 
             if (currentUser === null) {
                 setUserProfile(null);
+                setLoading(false);
             }
         });
 
@@ -121,7 +121,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                                 displayName: user.displayName || "User",
                             }),
                         });
-                    } catch (err) { }
+                        // Do not set loading false here immediately; let the onSnapshot retry handle it 
+                        // when the creation resolves.
+                    } catch (err) {
+                        setLoading(false);
+                    }
                     // onSnapshot will trigger again once the doc is created
                 }
             }, () => {

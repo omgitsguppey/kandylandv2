@@ -51,11 +51,25 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "No content available" }, { status: 404 });
     }
 
-    if (request.headers.get("accept") === "application/json") {
-      return NextResponse.json({ url: dropData.data.contentUrl });
-    }
+    // Proxy the stream natively to hide the raw Firebase Storage URL
+    const contentRes = await fetch(dropData.data.contentUrl, {
+      headers: {
+        range: request.headers.get("range") || "",
+      },
+      // Important to explicitly avoid caching the payload on the Next.js edge
+      cache: "no-store",
+    });
 
-    return NextResponse.redirect(dropData.data.contentUrl);
+    // Pipe upstream headers downstream (Content-Type, Content-Length, Content-Range, Accept-Ranges, etc)
+    const headers = new Headers(contentRes.headers);
+    headers.set("Content-Disposition", "inline");
+
+    // Return the literal byte stream safely proxied through Next.js
+    return new NextResponse(contentRes.body, {
+      status: contentRes.status,
+      statusText: contentRes.statusText,
+      headers,
+    });
   } catch (error) {
     return handleApiError(error, "Drops.Content");
   }

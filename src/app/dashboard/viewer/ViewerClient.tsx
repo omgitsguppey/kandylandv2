@@ -10,8 +10,10 @@ import { toast } from "sonner";
 import { Drop } from "@/types/db";
 import NextImage from "next/image";
 import { authFetch } from "@/lib/authFetch";
+import { auth } from "@/lib/firebase";
 import { cn } from "@/lib/utils";
 import { ContentViewer, ViewerMediaItem } from "@/components/ContentViewer";
+import { sendGAEvent } from "@next/third-parties/google";
 
 
 
@@ -249,36 +251,27 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         async function fetchContent() {
             setContentLoading(true);
             try {
-                const res = await authFetch(`/api/drops/content?id=${currentDrop.id}`, {
-                    headers: {
-                        Accept: "application/json",
-                    },
-                });
+                const token = await auth.currentUser?.getIdToken();
+                if (!token) throw new Error("Not authenticated");
 
-                if (!res.ok) throw new Error("Failed to load content");
-
-                const data = await res.json();
-                if (!data.url) throw new Error("No URL returned");
+                const proxyUrl = `/api/drops/content?id=${currentDrop.id}&token=${token}`;
 
                 if (!cancelled) {
                     let guessedMimeType = currentDrop.fileMetadata?.type || "";
+
                     if (!guessedMimeType) {
-                        const lowerUrl = data.url.toLowerCase();
-                        if (lowerUrl.includes(".mp4") || lowerUrl.includes(".webm") || lowerUrl.includes(".mov")) guessedMimeType = "video/mp4";
-                        else if (lowerUrl.includes(".jpg") || lowerUrl.includes(".jpeg") || lowerUrl.includes(".png") || lowerUrl.includes(".webp") || lowerUrl.includes(".gif")) guessedMimeType = "image/jpeg";
-                        else if (lowerUrl.includes(".mp3") || lowerUrl.includes(".wav") || lowerUrl.includes(".ogg")) guessedMimeType = "audio/mpeg";
-                        else if (lowerUrl.includes(".pdf")) guessedMimeType = "application/pdf";
+                        guessedMimeType = "video/mp4"; // Default fallback
                     }
 
                     const nextResolvedContent = resolveContent(guessedMimeType, currentDrop.fileMetadata?.type);
 
-                    setContentBlobUrl(data.url);
+                    setContentBlobUrl(proxyUrl);
                     setResolvedContent(nextResolvedContent);
                 }
             } catch (err) {
                 if (!cancelled) {
                     setResolvedContent({ kind: "unknown", mimeType: "" });
-                    toast.error("Failed to load content");
+                    toast.error("Failed to load content securely");
                 }
             } finally {
                 if (!cancelled) setContentLoading(false);
@@ -407,6 +400,12 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                         preload="auto"
                                         onContextMenu={preventContextMenu}
                                         draggable={false}
+                                        onPlay={() => {
+                                            sendGAEvent("event", "video_played", {
+                                                content_id: drop.id,
+                                                video_title: drop.title
+                                            });
+                                        }}
                                     >
                                         <source src={contentBlobUrl} type={resolvedContent.mimeType} />
                                         {videoFallbackTypes.filter((type) => type !== resolvedContent.mimeType).map((type) => (

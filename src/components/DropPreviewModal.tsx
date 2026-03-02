@@ -14,6 +14,7 @@ import { useUI } from "@/context/UIContext";
 import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { sendGAEvent } from "@next/third-parties/google";
 
 interface DropPreviewModalProps {
   drop: Drop | null;
@@ -115,6 +116,12 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
         description: "Enjoy your exclusive content!",
         icon: "🔓",
         duration: 4000,
+      });
+
+      sendGAEvent("event", "unlock_content", {
+        content_id: drop.id,
+        content_type: "gumdrops_drop",
+        value: drop.unlockCost,
       });
 
       if (userProfile) {

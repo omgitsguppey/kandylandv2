@@ -14,13 +14,17 @@ export interface AuthResult {
  */
 export async function verifyAuth(request: NextRequest): Promise<AuthResult> {
     const authHeader = request.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-        throw new AuthError("Missing or invalid Authorization header", 401);
+    let idToken = "";
+
+    if (authHeader?.startsWith("Bearer ")) {
+        idToken = authHeader.split("Bearer ")[1];
+    } else {
+        const { searchParams } = new URL(request.url);
+        idToken = searchParams.get("token") || "";
     }
 
-    const idToken = authHeader.split("Bearer ")[1];
     if (!idToken) {
-        throw new AuthError("Missing token", 401);
+        throw new AuthError("Missing or invalid token", 401);
     }
 
     try {

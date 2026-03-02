@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
 import { motion, AnimatePresence } from "framer-motion";
-// import removed
+import { sendGAEvent } from "@next/third-parties/google";
 
 interface PurchaseModalProps {
   isOpen: boolean;
@@ -74,6 +74,18 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
 
       setSuccess(true);
       toast.success(`${result.drops || selectedPackage.drops} Gum Drops added!`);
+
+      sendGAEvent("event", "purchase", {
+        transaction_id: orderId,
+        value: selectedPackage.price,
+        currency: "USD",
+        items: [{
+          item_id: `gumdrops_${selectedPackage.drops}`,
+          item_name: selectedPackage.label,
+          price: selectedPackage.price,
+          quantity: 1
+        }]
+      });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Purchase failed. Please contact support.";
       setError(message);

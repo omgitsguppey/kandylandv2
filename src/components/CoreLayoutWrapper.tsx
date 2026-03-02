@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 import CookieBanner from "@/components/CookieBanner";
 import dynamic from "next/dynamic";
 import { useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 const MobileBottomBar = dynamic(() => import("@/components/Navigation/MobileBottomBar"));
 const Navbar = dynamic(() => import("@/components/Navbar").then((mod) => mod.Navbar));
@@ -17,8 +18,17 @@ const ScrollToTop = dynamic(() => import("@/components/Navigation/ScrollToTop").
 const AutoScrollToTop = dynamic(() => import("@/components/Navigation/AutoScrollToTop").then((mod) => mod.AutoScrollToTop));
 
 export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
+    const { userProfile } = useAuth();
+
     useEffect(() => {
-    }, []);
+        if (typeof window !== "undefined" && (window as any).gtag) {
+            if (userProfile?.role) {
+                (window as any).gtag("set", "user_properties", {
+                    user_role: userProfile.role,
+                });
+            }
+        }
+    }, [userProfile?.role]);
 
     return (
         <PayPalProvider>
