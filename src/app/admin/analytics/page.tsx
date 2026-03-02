@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { authFetch } from "@/lib/authFetch";
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     BarChart, Bar, Cell
 } from 'recharts';
-import { Loader2, Users, Eye, Activity, RefreshCw, BarChart3, MapPin } from "lucide-react";
+import { Loader2, Users, Eye, Activity, RefreshCw, BarChart3, MapPin, Trophy, FileText, BarChart2 } from "lucide-react";
 
 type TimeFilter = "live" | "24h" | "7d" | "30d" | "all";
 
@@ -17,12 +16,11 @@ export default function AdminAnalyticsPage() {
     const [needsSetup, setNeedsSetup] = useState(false);
 
     // Data states
-    const [chartData, setChartData] = useState<any[]>([]);
-    const [liveData, setLiveData] = useState<any[]>([]);
-    const [totals, setTotals] = useState({ users: 0, views: 0, sessions: 0, newUsers: 0, avgSessionDuration: 0, engagementRate: 0 });
     const [liveActive, setLiveActive] = useState(0);
     const [eventsData, setEventsData] = useState<any>({});
     const [geoData, setGeoData] = useState<any[]>([]);
+    const [pagesData, setPagesData] = useState<any[]>([]);
+    const [topDropsData, setTopDropsData] = useState<any[]>([]);
 
     const loadData = async (currentFilter: TimeFilter) => {
         setLoading(true);
@@ -49,6 +47,8 @@ export default function AdminAnalyticsPage() {
                 setTotals(data.totals || { users: 0, views: 0, sessions: 0, newUsers: 0, avgSessionDuration: 0, engagementRate: 0 });
                 setEventsData(data.events || {});
                 setGeoData(data.geo || []);
+                setPagesData(data.pages || []);
+                setTopDropsData(data.topDrops || []);
             }
         } catch (err: any) {
             setError(err.message);
@@ -159,70 +159,70 @@ export default function AdminAnalyticsPage() {
                             <p className="text-sm text-gray-500">Currently active on the platform (Past 30 mins)</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-6">
                             {/* Primary Metrics (Lavender) */}
-                            <div className="glass-panel p-6 rounded-3xl border border-white/10">
+                            <div className="glass-panel p-4 md:p-6 rounded-2xl md:rounded-3xl border border-white/10 col-span-1 lg:col-span-2">
                                 <div className="flex items-center gap-3 mb-4">
                                     <div className="w-8 h-8 rounded-full bg-brand-pink/20 text-brand-pink flex items-center justify-center">
                                         <Users className="w-4 h-4" />
                                     </div>
                                     <p className="text-sm font-medium text-gray-400">Unique Users</p>
                                 </div>
-                                <h3 className="text-4xl font-bold text-brand-pink tracking-tight">{totals.users.toLocaleString()}</h3>
+                                <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-brand-pink tracking-tight">{totals.users.toLocaleString()}</h3>
                             </div>
-                            <div className="glass-panel p-6 rounded-3xl border border-white/10">
+                            <div className="glass-panel p-4 md:p-6 rounded-2xl md:rounded-3xl border border-white/10 col-span-1 lg:col-span-2">
                                 <div className="flex items-center gap-3 mb-4">
                                     <div className="w-8 h-8 rounded-full bg-brand-pink/20 text-brand-pink flex items-center justify-center">
                                         <Eye className="w-4 h-4" />
                                     </div>
                                     <p className="text-sm font-medium text-gray-400">Page Views</p>
                                 </div>
-                                <h3 className="text-4xl font-bold text-brand-pink tracking-tight">{totals.views.toLocaleString()}</h3>
+                                <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-brand-pink tracking-tight">{totals.views.toLocaleString()}</h3>
                             </div>
 
                             {/* Secondary Metrics (White) */}
-                            <div className="glass-panel p-6 rounded-3xl border border-white/10">
+                            <div className="glass-panel p-4 md:p-6 rounded-2xl md:rounded-3xl border border-white/10 col-span-1 lg:col-span-2">
                                 <div className="flex items-center gap-3 mb-4">
                                     <div className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center">
                                         <Activity className="w-4 h-4" />
                                     </div>
                                     <p className="text-sm font-medium text-gray-400">Total Sessions</p>
                                 </div>
-                                <h3 className="text-4xl font-bold text-white tracking-tight">{totals.sessions.toLocaleString()}</h3>
+                                <h3 className="text-2xl md:text-3xl font-bold text-white tracking-tight">{totals.sessions.toLocaleString()}</h3>
                             </div>
-                            <div className="glass-panel p-6 rounded-3xl border border-white/10">
+                            <div className="glass-panel p-4 md:p-6 rounded-2xl md:rounded-3xl border border-white/10 col-span-1">
                                 <div className="flex items-center gap-3 mb-4">
                                     <div className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center">
                                         <Users className="w-4 h-4" />
                                     </div>
                                     <p className="text-sm font-medium text-gray-400">New Users</p>
                                 </div>
-                                <h3 className="text-4xl font-bold text-white tracking-tight">{totals.newUsers.toLocaleString()}</h3>
+                                <h3 className="text-2xl md:text-3xl font-bold text-white tracking-tight">{totals.newUsers.toLocaleString()}</h3>
                             </div>
-                            <div className="glass-panel p-6 rounded-3xl border border-white/10">
+                            <div className="glass-panel p-4 md:p-6 rounded-2xl md:rounded-3xl border border-white/10 col-span-1">
                                 <div className="flex items-center gap-3 mb-4">
                                     <div className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center">
                                         <Activity className="w-4 h-4" />
                                     </div>
                                     <p className="text-sm font-medium text-gray-400">Engagement</p>
                                 </div>
-                                <h3 className="text-4xl font-bold text-white tracking-tight">{(totals.engagementRate * 100).toFixed(1)}%</h3>
+                                <h3 className="text-2xl md:text-3xl font-bold text-white tracking-tight">{(totals.engagementRate * 100).toFixed(1)}%</h3>
                             </div>
-                            <div className="glass-panel p-6 rounded-3xl border border-white/10">
+                            <div className="glass-panel p-4 md:p-6 rounded-2xl md:rounded-3xl border border-white/10 col-span-1 lg:col-span-3">
                                 <div className="flex items-center gap-3 mb-4">
                                     <div className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center">
                                         <Activity className="w-4 h-4" />
                                     </div>
                                     <p className="text-sm font-medium text-gray-400">Avg Duration</p>
                                 </div>
-                                <h3 className="text-4xl font-bold text-white tracking-tight">{Math.floor(totals.avgSessionDuration / 60)}m {Math.round(totals.avgSessionDuration % 60)}s</h3>
+                                <h3 className="text-2xl md:text-3xl font-bold text-white tracking-tight">{Math.floor(totals.avgSessionDuration / 60)}m {Math.round(totals.avgSessionDuration % 60)}s</h3>
                             </div>
                         </div>
                     )}
 
                     {/* Main Chart */}
-                    <div className="glass-panel p-4 md:p-8 rounded-[2rem] border border-white/10">
-                        <div className="flex items-center justify-between mb-8">
+                    <div className="glass-panel p-4 md:p-8 rounded-3xl md:rounded-[2rem] border border-white/10">
+                        <div className="flex items-center justify-between mb-4 md:mb-8">
                             <h3 className="text-lg font-bold text-white">
                                 {filter === "live" ? "Live User Traffic (Past 30m)" : "Engagement Trends"}
                             </h3>
@@ -283,25 +283,25 @@ export default function AdminAnalyticsPage() {
 
                     {/* Additional Metrics Row */}
                     {filter !== "live" && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mt-6">
                             {/* Conversion Funnel */}
-                            <div className="glass-panel p-6 rounded-[2rem] border border-white/10">
-                                <div className="flex items-center gap-2 mb-6">
+                            <div className="glass-panel p-4 md:p-6 rounded-3xl border border-white/10 flex flex-col">
+                                <div className="flex items-center gap-2 mb-4 md:mb-6">
                                     <BarChart3 className="w-5 h-5 text-brand-pink" />
-                                    <h3 className="text-lg font-bold text-white">Drop Conversion Funnel</h3>
+                                    <h3 className="text-base md:text-lg font-bold text-white">Drop Conversions</h3>
                                 </div>
-                                <div className="h-[250px] w-full">
+                                <div className="flex-1 min-h-[200px] w-full">
                                     <ResponsiveContainer width="100%" height="100%">
                                         <BarChart
                                             data={[
                                                 { name: "Drop Views", value: eventsData.view_drop_details || 0, color: "#b28cff" },
                                                 { name: "Unlocks", value: eventsData.unlock_drop_success || 0, color: "#06b6d4" }
                                             ]}
-                                            margin={{ top: 20, right: 20, left: -20, bottom: 0 }}
+                                            margin={{ top: 20, right: 10, left: -20, bottom: 0 }}
                                         >
                                             <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
-                                            <XAxis dataKey="name" stroke="#ffffff40" fontSize={12} tickLine={false} axisLine={false} />
-                                            <YAxis stroke="#ffffff40" fontSize={12} tickLine={false} axisLine={false} />
+                                            <XAxis dataKey="name" stroke="#ffffff40" fontSize={10} tickLine={false} axisLine={false} />
+                                            <YAxis stroke="#ffffff40" fontSize={10} tickLine={false} axisLine={false} />
                                             <Tooltip content={<CustomTooltip />} cursor={{ fill: '#ffffff05' }} />
                                             <Bar dataKey="value" name="Count" radius={[6, 6, 0, 0]}>
                                                 {
@@ -315,26 +315,84 @@ export default function AdminAnalyticsPage() {
                                 </div>
                             </div>
 
-                            {/* Geography */}
-                            <div className="glass-panel p-6 rounded-[2rem] border border-white/10">
-                                <div className="flex items-center gap-2 mb-6">
-                                    <MapPin className="w-5 h-5 text-brand-cyan" />
-                                    <h3 className="text-lg font-bold text-white">Top Active Regions</h3>
+                            {/* Top Drops Leaderboard */}
+                            <div className="glass-panel p-4 md:p-6 rounded-3xl border border-white/10 flex flex-col lg:col-span-2">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <Trophy className="w-5 h-5 text-yellow-400" />
+                                    <h3 className="text-base md:text-lg font-bold text-white">Top Performing Drops</h3>
                                 </div>
-                                <div className="space-y-3 overflow-y-auto max-h-[250px] pr-2 custom-scrollbar">
+                                <div className="flex-1 overflow-x-auto custom-scrollbar flex flex-col min-h-[200px]">
+                                    <table className="w-full text-left border-collapse min-w-[400px]">
+                                        <thead>
+                                            <tr className="border-b border-white/10 text-xs text-gray-400">
+                                                <th className="font-medium pb-3 pr-4">Drop ID</th>
+                                                <th className="font-medium pb-3 pr-4 text-right">Views</th>
+                                                <th className="font-medium pb-3 pr-4 text-right">Unlocks</th>
+                                                <th className="font-medium pb-3 text-right">Conversion Rate</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {topDropsData.length > 0 ? topDropsData.map((drop, idx) => (
+                                                <tr key={idx} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                                                    <td className="py-3 pr-4 text-sm font-bold text-white truncate max-w-[120px]">{drop.dropId}</td>
+                                                    <td className="py-3 pr-4 text-sm text-brand-pink text-right">{drop.views.toLocaleString()}</td>
+                                                    <td className="py-3 pr-4 text-sm text-brand-cyan text-right">{drop.unlocks.toLocaleString()}</td>
+                                                    <td className="py-3 text-sm text-gray-300 text-right">
+                                                        {drop.views > 0 ? Math.round((drop.unlocks / drop.views) * 100) : 0}%
+                                                    </td>
+                                                </tr>
+                                            )) : (
+                                                <tr>
+                                                    <td colSpan={4} className="py-8 text-center text-sm text-gray-500">No drop engagement tracked yet.</td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            {/* Page Views */}
+                            <div className="glass-panel p-4 md:p-6 rounded-3xl border border-white/10 flex flex-col lg:col-span-2">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <FileText className="w-5 h-5 text-blue-400" />
+                                    <h3 className="text-base md:text-lg font-bold text-white">Top Pages</h3>
+                                </div>
+                                <div className="space-y-2 overflow-y-auto max-h-[250px] pr-2 custom-scrollbar">
+                                    {pagesData.length > 0 ? pagesData.map((page, idx) => (
+                                        <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                                            <p className="font-mono text-xs md:text-sm text-white truncate max-w-[70%]">{page.path}</p>
+                                            <div className="px-3 py-1 bg-white/10 text-white rounded-lg font-bold text-xs md:text-sm">
+                                                {page.views.toLocaleString()} <span className="text-gray-400 ml-1 font-normal text-xs">views</span>
+                                            </div>
+                                        </div>
+                                    )) : (
+                                        <div className="h-full flex items-center justify-center text-sm text-gray-500 py-10">
+                                            No page view data available.
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Geography */}
+                            <div className="glass-panel p-4 md:p-6 rounded-3xl border border-white/10 flex flex-col">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <MapPin className="w-5 h-5 text-brand-cyan" />
+                                    <h3 className="text-base md:text-lg font-bold text-white">Top Active Regions</h3>
+                                </div>
+                                <div className="space-y-2 overflow-y-auto max-h-[250px] pr-2 custom-scrollbar">
                                     {geoData && geoData.length > 0 ? geoData.map((geo, idx) => (
                                         <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10">
                                             <div>
-                                                <p className="font-bold text-white text-sm">{geo.city}</p>
-                                                <p className="text-xs text-gray-400">{geo.country}</p>
+                                                <p className="font-bold text-white text-xs md:text-sm">{geo.city}</p>
+                                                <p className="text-[10px] md:text-xs text-gray-400">{geo.country}</p>
                                             </div>
-                                            <div className="px-3 py-1 bg-brand-cyan/20 text-brand-cyan rounded-lg font-bold text-sm">
+                                            <div className="px-2 md:px-3 py-1 bg-brand-cyan/20 text-brand-cyan rounded-lg font-bold text-xs md:text-sm">
                                                 {geo.users.toLocaleString()}
                                             </div>
                                         </div>
                                     )) : (
                                         <div className="h-full flex items-center justify-center text-sm text-gray-500 py-10">
-                                            No geolocation data available yet.
+                                            No geolocation data available.
                                         </div>
                                     )}
                                 </div>

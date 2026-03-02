@@ -90,7 +90,9 @@ export async function GET(request: NextRequest) {
             const [
                 [response],
                 [eventsResponse],
-                [geoResponse]
+                [geoResponse],
+                [pagesResponse],
+                [dropsResponse]
             ] = await Promise.all([
                 analyticsClient.runReport({
                     property: `properties/${propertyId}`,
@@ -130,6 +132,29 @@ export async function GET(request: NextRequest) {
                     dimensions: [{ name: "country" }, { name: "city" }],
                     orderBys: [{ metric: { metricName: "activeUsers" }, desc: true }],
                     limit: 15
+                }),
+                analyticsClient.runReport({
+                    property: `properties/${propertyId}`,
+                    dateRanges: [{ startDate, endDate: "today" }],
+                    metrics: [{ name: "screenPageViews" }],
+                    dimensions: [{ name: "pagePath" }],
+                    orderBys: [{ metric: { metricName: "screenPageViews" }, desc: true }],
+                    limit: 15
+                }),
+                analyticsClient.runReport({
+                    property: `properties/${propertyId}`,
+                    dateRanges: [{ startDate, endDate: "today" }],
+                    metrics: [{ name: "eventCount" }],
+                    dimensions: [{ name: "customEvent:drop_id" }, { name: "eventName" }],
+                    dimensionFilter: {
+                        filter: {
+                            fieldName: "eventName",
+                            inListFilter: {
+                                values: ["view_drop_details", "unlock_drop_success"]
+                            }
+                        }
+                    },
+                    limit: 50
                 })
             ]);
 
@@ -176,12 +201,47 @@ export async function GET(request: NextRequest) {
                 users: parseInt(row.metricValues?.[0]?.value || "0", 10)
             }));
 
+            const pagesData = (pagesResponse.rows || []).map(row => ({
+                path: row.dimensionValues?.[0]?.value || "/",
+                views: parseInt(row.metricValues?.[0]?.value || "0", 10)
+            }));
+
+            // Aggregate drop interactions. A drop object will have: { id, views, unlocks }
+            const dropMap = new Map<string, { views: number; unlocks: number }>();
+            (dropsResponse.rows || []).forEach(row => {
+                const dropId = row.dimensionValues?.[0]?.value;
+                const eventName = row.dimensionValues?.[1]?.value;
+                const count = parseInt(row.metricValues?.[0]?.value || "0", 10);
+
+                if (!dropId || dropId === "(not set)") return;
+
+                const current = dropMap.get(dropId) || { views: 0, unlocks: 0 };
+                if (eventName === "view_drop_details") {
+                    current.views += count;
+                } else if (eventName === "unlock_drop_success") {
+                    current.unlocks += count;
+                }
+                dropMap.set(dropId, current);
+            });
+
+            // Convert to array and sort by views for the Top Drops chart
+            const dropsData = Array.from(dropMap.entries())
+                .map(([id, stats]) => ({
+                    dropId: id,
+                    views: stats.views,
+                    unlocks: stats.unlocks
+                }))
+                .sort((a, b) => b.views - a.views)
+                .slice(0, 15);
+
             return NextResponse.json({
                 success: true,
                 data: chartData,
                 totals,
                 events: eventsData,
-                geo: geoData
+                geo: geoData,
+                pages: pagesData,
+                topDrops: dropsData
             });
         }
 
