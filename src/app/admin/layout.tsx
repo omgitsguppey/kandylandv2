@@ -4,12 +4,13 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { LayoutDashboard, PlusCircle, Package, Users, Terminal, ListChecks } from "lucide-react";
+import { LayoutDashboard, PlusCircle, Package, Users, Terminal, ListChecks, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Home", icon: LayoutDashboard },
+  { href: "/admin/analytics", label: "Analytics", icon: TrendingUp },
   { href: "/admin/drops", label: "Drops", icon: Package },
   { href: "/admin/create", label: "Create", icon: PlusCircle },
   { href: "/admin/users", label: "Users", icon: Users },

@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { collection, onSnapshot, orderBy, query, limit, where } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
-import { Users, Package, DollarSign, Activity, MousePointerClick } from "lucide-react";
+import { Users, Package, DollarSign, Activity, ChevronRight, TrendingUp } from "lucide-react";
+import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { Drop, Transaction, UserProfile } from "@/types/db";
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
@@ -80,19 +81,48 @@ export default function AdminDashboardPage() {
 
     return (
         <div>
-            <header className="mb-10">
-                <h1 className="text-3xl font-bold text-white mb-2">Admin Analytics</h1>
-                <p className="text-gray-400">Live product health and retention signals based on real app activity.</p>
+            <header className="mb-8 flex items-center justify-between">
+                <div>
+                    <h1 className="text-3xl font-bold text-white mb-2">Admin Dashboard</h1>
+                    <p className="text-gray-400">Quick overview and recent platform activity.</p>
+                </div>
             </header>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                <StatCard title="Total Users" value={String(stats.totalUsers)} icon={<Users className="w-5 h-5 text-brand-cyan" />} subValue="Live user count" />
-                <StatCard title="Active Drops" value={String(stats.activeDrops)} icon={<Activity className="w-5 h-5 text-brand-green" />} subValue={`of ${stats.totalDrops} total`} />
-                <StatCard title="Purchase Revenue" value={`$${(stats.grossRevenueCents / 100).toFixed(2)}`} icon={<DollarSign className="w-5 h-5 text-brand-yellow" />} subValue="Completed purchases" />
-                <StatCard title="Drop Views" value={stats.totalViews.toLocaleString()} icon={<MousePointerClick className="w-5 h-5 text-brand-purple" />} subValue="Tracked through drops click events" />
-                <StatCard title="Total Unwraps" value={stats.totalUnwraps.toLocaleString()} icon={<Package className="w-5 h-5 text-brand-pink" />} subValue="Successful unlocks" />
-                <StatCard title="Storage Used" value={formatBytes(stats.totalStorage)} icon={<Package className="w-5 h-5 text-brand-blue" />} subValue="Uploaded drop assets" />
-            </div>
+            <Link href="/admin/analytics" className="block w-full rounded-3xl overflow-hidden glass-panel border border-white/10 group mb-12 hover:border-brand-pink/50 transition-colors">
+                <div className="bg-gradient-to-r from-brand-pink/10 to-transparent p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-brand-pink/20 text-brand-pink flex items-center justify-center shrink-0">
+                            <TrendingUp className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <h2 className="text-xl font-bold text-white group-hover:text-brand-pink transition-colors">Core Metrics Hub</h2>
+                            <p className="text-sm text-gray-400">Tap to dive deep into real-time users and historical retention charts</p>
+                        </div>
+                    </div>
+                    <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center shrink-0 group-hover:bg-brand-pink group-hover:text-white transition-colors">
+                        <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-white" />
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-white/5">
+                    <div className="bg-black/60 p-5 backdrop-blur-md">
+                        <p className="text-xs text-gray-400 flex items-center gap-2 mb-1"><Users className="w-3 h-3 text-brand-cyan" /> Accounts</p>
+                        <p className="text-2xl font-bold text-white">{stats.totalUsers}</p>
+                    </div>
+                    <div className="bg-black/60 p-5 backdrop-blur-md">
+                        <p className="text-xs text-gray-400 flex items-center gap-2 mb-1"><Activity className="w-3 h-3 text-brand-green" /> Active / All Drops</p>
+                        <p className="text-2xl font-bold text-white">{stats.activeDrops} / {stats.totalDrops}</p>
+                    </div>
+                    <div className="bg-black/60 p-5 backdrop-blur-md hidden md:block">
+                        <p className="text-xs text-gray-400 flex items-center gap-2 mb-1"><DollarSign className="w-3 h-3 text-brand-yellow" /> Lifetime Rev</p>
+                        <p className="text-2xl font-bold text-white font-mono">${(stats.grossRevenueCents / 100).toFixed(2)}</p>
+                    </div>
+                    <div className="bg-black/60 p-5 backdrop-blur-md">
+                        <p className="text-xs text-gray-400 flex items-center gap-2 mb-1"><Package className="w-3 h-3 text-brand-pink" /> Unwraps</p>
+                        <p className="text-2xl font-bold text-white">{stats.totalUnwraps.toLocaleString()}</p>
+                    </div>
+                </div>
+            </Link>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="glass-panel p-6 rounded-3xl">
@@ -141,19 +171,6 @@ export default function AdminDashboardPage() {
                     </div>
                 </div>
             </div>
-        </div>
-    );
-}
-
-function StatCard({ title, value, icon, subValue }: { title: string; value: string; icon: React.ReactNode; subValue: string }) {
-    return (
-        <div className="glass-panel p-6 rounded-3xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-4 opacity-60">
-                <div className="p-3 bg-white/5 rounded-2xl border border-white/5">{icon}</div>
-            </div>
-            <p className="text-sm font-medium text-gray-400 mb-1">{title}</p>
-            <h3 className="text-3xl font-bold text-white tracking-tight mb-2">{value}</h3>
-            <span className="text-xs text-gray-500">{subValue}</span>
         </div>
     );
 }
