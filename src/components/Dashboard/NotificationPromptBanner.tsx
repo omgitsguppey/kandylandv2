@@ -45,7 +45,7 @@ export function NotificationPromptBanner() {
     if (!isVisible) return null;
 
     return (
-        <div className="bg-brand-purple/20 border-b border-brand-purple/30 backdrop-blur-md sticky top-0 z-50">
+        <div className="bg-black/90 border-b border-white/10 backdrop-blur-xl sticky top-0 z-50">
             <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-brand-pink/20 rounded-full">

@@ -82,7 +82,6 @@ export function NotificationBell() {
                             return (
                                 <div
                                     key={note.id}
-                                    onClick={() => markAsRead(note.id)}
                                     className={cn(
                                         "rounded-2xl transition-colors cursor-pointer border overflow-hidden",
                                         isUnread
@@ -97,7 +96,13 @@ export function NotificationBell() {
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-start justify-between gap-2">
                                                 <p className="text-sm font-semibold text-white leading-tight mb-1">{note.title}</p>
-                                                {isUnread && <div className="w-2 h-2 rounded-full bg-brand-pink mt-1 shrink-0" />}
+                                                {isUnread && (
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); markAsRead(note.id); }}
+                                                        className="w-2 h-2 rounded-full bg-brand-pink mt-1 shrink-0 hover:bg-white transition-colors cursor-pointer"
+                                                        title="Mark as read"
+                                                    />
+                                                )}
                                             </div>
                                             <p className="text-xs text-gray-300 line-clamp-2 leading-relaxed">{note.message}</p>
                                             <p className="text-[10px] text-gray-500 mt-2 font-mono">
