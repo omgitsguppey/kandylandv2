@@ -1,0 +1,114 @@
+extend type Mutation {
+  """
+  ✨ Insert a single `AIInteraction` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  aIInteraction_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: AIInteraction_Data!
+  ): AIInteraction_KeyOutput! @fdc_generated(from: "AIInteraction", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert `AIInteraction` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  aIInteraction_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [AIInteraction_Data!]!
+  ): [AIInteraction_KeyOutput!]! @fdc_generated(from: "AIInteraction", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert or update a single `AIInteraction` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AIInteraction`.
+  """
+  aIInteraction_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: AIInteraction_Data!
+  ): AIInteraction_KeyOutput! @fdc_generated(from: "AIInteraction", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update `AIInteraction` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AIInteraction`.
+  """
+  aIInteraction_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [AIInteraction_Data!]!
+  ): [AIInteraction_KeyOutput!]! @fdc_generated(from: "AIInteraction", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Update a single `AIInteraction` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `AIInteraction` or `null` if not found.
+  """
+  aIInteraction_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AIInteraction_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AIInteraction_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: AIInteraction_Data!
+  ): AIInteraction_KeyOutput @fdc_generated(from: "AIInteraction", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update `AIInteraction` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  aIInteraction_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: AIInteraction_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: AIInteraction_Data!
+  ): Int! @fdc_generated(from: "AIInteraction", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Delete a single `AIInteraction` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  aIInteraction_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AIInteraction_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AIInteraction_FirstRow
+  ): AIInteraction_KeyOutput @fdc_generated(from: "AIInteraction", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete `AIInteraction` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  aIInteraction_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: AIInteraction_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "AIInteraction", purpose: DELETE_MULTIPLE)
+}

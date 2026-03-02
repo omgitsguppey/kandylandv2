@@ -1,0 +1,449 @@
+"""
+✨ `AIInteraction_KeyOutput` returns the primary key fields of table type `AIInteraction`.
+
+It has the same format as `AIInteraction_Key`, but is only used as mutation return value.
+"""
+scalar AIInteraction_KeyOutput
+"""
+✨ Generated data input type for table 'AIInteraction'. It includes all necessary fields for creating or upserting rows into table.
+"""
+input AIInteraction_Data {
+  """
+  ✨ Generated from Field `AIInteraction`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `AIInteraction`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+  """
+  ✨ Generated from Field `AIInteraction`.`completionTokens` of type `Int`
+  """
+  completionTokens: Int
+  """
+  ✨ `_expr` server value variant of `completionTokens` (✨ Generated from Field `AIInteraction`.`completionTokens` of type `Int`)
+  """
+  completionTokens_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `completionTokens` (✨ Generated from Field `AIInteraction`.`completionTokens` of type `Int`)
+  """
+  completionTokens_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AIInteraction`.`createdAt` of type `Date!`
+  """
+  createdAt: Date
+  """
+  ✨ `_date` server value variant of `createdAt` (✨ Generated from Field `AIInteraction`.`createdAt` of type `Date!`)
+  """
+  createdAt_date: Date_Relative
+  """
+  ✨ `_expr` server value variant of `createdAt` (✨ Generated from Field `AIInteraction`.`createdAt` of type `Date!`)
+  """
+  createdAt_expr: Date_Expr
+  """
+  ✨ `_update` server value variant of `createdAt` (✨ Generated from Field `AIInteraction`.`createdAt` of type `Date!`)
+  """
+  createdAt_update: [Date_Update!]
+  """
+  ✨ Generated from Field `AIInteraction`.`latencyMs` of type `Int!`
+  """
+  latencyMs: Int
+  """
+  ✨ `_expr` server value variant of `latencyMs` (✨ Generated from Field `AIInteraction`.`latencyMs` of type `Int!`)
+  """
+  latencyMs_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `latencyMs` (✨ Generated from Field `AIInteraction`.`latencyMs` of type `Int!`)
+  """
+  latencyMs_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AIInteraction`.`modelUsed` of type `String!`
+  """
+  modelUsed: String
+  """
+  ✨ `_expr` server value variant of `modelUsed` (✨ Generated from Field `AIInteraction`.`modelUsed` of type `String!`)
+  """
+  modelUsed_expr: String_Expr
+  """
+  ✨ Generated from Field `AIInteraction`.`promptContent` of type `String!`
+  """
+  promptContent: String
+  """
+  ✨ `_expr` server value variant of `promptContent` (✨ Generated from Field `AIInteraction`.`promptContent` of type `String!`)
+  """
+  promptContent_expr: String_Expr
+  """
+  ✨ Generated from Field `AIInteraction`.`promptTokens` of type `Int`
+  """
+  promptTokens: Int
+  """
+  ✨ `_expr` server value variant of `promptTokens` (✨ Generated from Field `AIInteraction`.`promptTokens` of type `Int`)
+  """
+  promptTokens_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `promptTokens` (✨ Generated from Field `AIInteraction`.`promptTokens` of type `Int`)
+  """
+  promptTokens_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AIInteraction`.`responseContent` of type `String!`
+  """
+  responseContent: String
+  """
+  ✨ `_expr` server value variant of `responseContent` (✨ Generated from Field `AIInteraction`.`responseContent` of type `String!`)
+  """
+  responseContent_expr: String_Expr
+  """
+  ✨ Generated from Field `AIInteraction`.`userId` of type `String!`
+  """
+  userId: String
+  """
+  ✨ `_expr` server value variant of `userId` (✨ Generated from Field `AIInteraction`.`userId` of type `String!`)
+  """
+  userId_expr: String_Expr
+}
+"""
+✨ Generated filter input type for table 'AIInteraction'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input AIInteraction_Filter {
+  """
+  Apply multiple filter conditions using `AND` logic.
+  """
+  _and: [AIInteraction_Filter!]
+  """
+  Negate the result of the provided filter condition.
+  """
+  _not: AIInteraction_Filter
+  """
+  Apply multiple filter conditions using `OR` logic.
+  """
+  _or: [AIInteraction_Filter!]
+  """
+  ✨ Generated from Field `AIInteraction`.`id` of type `UUID!`
+  """
+  id: UUID_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`completionTokens` of type `Int`
+  """
+  completionTokens: Int_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`createdAt` of type `Date!`
+  """
+  createdAt: Date_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`latencyMs` of type `Int!`
+  """
+  latencyMs: Int_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`modelUsed` of type `String!`
+  """
+  modelUsed: String_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`promptContent` of type `String!`
+  """
+  promptContent: String_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`promptTokens` of type `Int`
+  """
+  promptTokens: Int_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`responseContent` of type `String!`
+  """
+  responseContent: String_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`userId` of type `String!`
+  """
+  userId: String_Filter
+}
+"""
+✨ Generated first-row input type for table 'AIInteraction'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
+"""
+input AIInteraction_FirstRow {
+  """
+  Order the result by the specified fields.
+  """
+  orderBy: [AIInteraction_Order!]
+  """
+  Filters rows based on the specified conditions.
+  """
+  where: AIInteraction_Filter
+}
+"""
+✨ Generated having input type for table 'AIInteraction'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input AIInteraction_Having {
+  """
+  Apply multiple Having conditions using `AND` logic.
+  """
+  _and: [AIInteraction_Having!]
+  """
+  Whether to apply DISTINCT to the aggregate function.
+  """
+  _distinct: Boolean
+  """
+  Negate the result of the provided Having condition.
+  """
+  _not: AIInteraction_Having
+  """
+  Apply multiple Having conditions using `OR` logic.
+  """
+  _or: [AIInteraction_Having!]
+  """
+  ✨ Generated from Field `AIInteraction`.`_count` of type `Int!`
+  """
+  _count: Int_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`completionTokens_count` of type `Int!`
+  """
+  completionTokens_count: Int_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`createdAt_count` of type `Int!`
+  """
+  createdAt_count: Int_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`id_count` of type `Int!`
+  """
+  id_count: Int_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`latencyMs_count` of type `Int!`
+  """
+  latencyMs_count: Int_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`modelUsed_count` of type `Int!`
+  """
+  modelUsed_count: Int_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`promptContent_count` of type `Int!`
+  """
+  promptContent_count: Int_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`promptTokens_count` of type `Int!`
+  """
+  promptTokens_count: Int_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`responseContent_count` of type `Int!`
+  """
+  responseContent_count: Int_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`userId_count` of type `Int!`
+  """
+  userId_count: Int_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`completionTokens_sum` of type `Int`
+  """
+  completionTokens_sum: Int_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`latencyMs_sum` of type `Int`
+  """
+  latencyMs_sum: Int_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`promptTokens_sum` of type `Int`
+  """
+  promptTokens_sum: Int_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`completionTokens_avg` of type `Float`
+  """
+  completionTokens_avg: Float_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`latencyMs_avg` of type `Float`
+  """
+  latencyMs_avg: Float_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`promptTokens_avg` of type `Float`
+  """
+  promptTokens_avg: Float_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`completionTokens_min` of type `Int`
+  """
+  completionTokens_min: Int_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`createdAt_min` of type `Date`
+  """
+  createdAt_min: Date_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`latencyMs_min` of type `Int`
+  """
+  latencyMs_min: Int_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`promptTokens_min` of type `Int`
+  """
+  promptTokens_min: Int_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`completionTokens_max` of type `Int`
+  """
+  completionTokens_max: Int_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`createdAt_max` of type `Date`
+  """
+  createdAt_max: Date_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`latencyMs_max` of type `Int`
+  """
+  latencyMs_max: Int_Filter
+  """
+  ✨ Generated from Field `AIInteraction`.`promptTokens_max` of type `Int`
+  """
+  promptTokens_max: Int_Filter
+}
+"""
+✨ Generated key input type for table 'AIInteraction'. It represents the primary key fields used to uniquely identify a row in the table.
+"""
+input AIInteraction_Key {
+  """
+  ✨ Generated from Field `AIInteraction`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `AIInteraction`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+}
+"""
+✨ Generated list filter input type for table 'AIInteraction'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
+"""
+input AIInteraction_ListFilter {
+  """
+  The desired number of objects that match the condition (defaults to at least one).
+  """
+  count: Int_Filter = {gt:0}
+  """
+  Condition of the related objects to filter for.
+  """
+  exist: AIInteraction_Filter
+}
+"""
+✨ Generated order input type for table 'AIInteraction'. This input defines the sorting order of rows in query results based on one or more fields.
+"""
+input AIInteraction_Order {
+  """
+  ✨ Generated from Field `AIInteraction`.`id` of type `UUID!`
+  """
+  id: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`completionTokens` of type `Int`
+  """
+  completionTokens: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`createdAt` of type `Date!`
+  """
+  createdAt: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`latencyMs` of type `Int!`
+  """
+  latencyMs: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`modelUsed` of type `String!`
+  """
+  modelUsed: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`promptContent` of type `String!`
+  """
+  promptContent: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`promptTokens` of type `Int`
+  """
+  promptTokens: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`responseContent` of type `String!`
+  """
+  responseContent: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`userId` of type `String!`
+  """
+  userId: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`_count` of type `Int!`
+  """
+  _count: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`completionTokens_count` of type `Int!`
+  """
+  completionTokens_count: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`createdAt_count` of type `Int!`
+  """
+  createdAt_count: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`id_count` of type `Int!`
+  """
+  id_count: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`latencyMs_count` of type `Int!`
+  """
+  latencyMs_count: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`modelUsed_count` of type `Int!`
+  """
+  modelUsed_count: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`promptContent_count` of type `Int!`
+  """
+  promptContent_count: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`promptTokens_count` of type `Int!`
+  """
+  promptTokens_count: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`responseContent_count` of type `Int!`
+  """
+  responseContent_count: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`userId_count` of type `Int!`
+  """
+  userId_count: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`completionTokens_sum` of type `Int`
+  """
+  completionTokens_sum: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`latencyMs_sum` of type `Int`
+  """
+  latencyMs_sum: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`promptTokens_sum` of type `Int`
+  """
+  promptTokens_sum: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`completionTokens_avg` of type `Float`
+  """
+  completionTokens_avg: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`latencyMs_avg` of type `Float`
+  """
+  latencyMs_avg: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`promptTokens_avg` of type `Float`
+  """
+  promptTokens_avg: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`completionTokens_min` of type `Int`
+  """
+  completionTokens_min: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`createdAt_min` of type `Date`
+  """
+  createdAt_min: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`latencyMs_min` of type `Int`
+  """
+  latencyMs_min: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`promptTokens_min` of type `Int`
+  """
+  promptTokens_min: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`completionTokens_max` of type `Int`
+  """
+  completionTokens_max: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`createdAt_max` of type `Date`
+  """
+  createdAt_max: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`latencyMs_max` of type `Int`
+  """
+  latencyMs_max: OrderDirection
+  """
+  ✨ Generated from Field `AIInteraction`.`promptTokens_max` of type `Int`
+  """
+  promptTokens_max: OrderDirection
+}
