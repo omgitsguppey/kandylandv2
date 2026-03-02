@@ -38,14 +38,6 @@ export function DailyCheckIn() {
     const [nowMs, setNowMs] = useState(Date.now());
     const [nextCheckInOverrideMs, setNextCheckInOverrideMs] = useState<number | null>(null);
 
-    if (!user || !userProfile) return null;
-
-    const lastCheckInMs = normalizeTimestamp(userProfile.lastCheckIn);
-    const currentStreak = Number.isFinite(userProfile.streakCount) ? Math.max(0, Number(userProfile.streakCount)) : 0;
-
-    const baseNextCheckInMs = lastCheckInMs > 0 ? lastCheckInMs + CHECK_IN_INTERVAL_MS : 0;
-    const nextCheckInMs = nextCheckInOverrideMs ?? baseNextCheckInMs;
-
     const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
@@ -59,6 +51,12 @@ export function DailyCheckIn() {
         };
     }, []);
 
+    const lastCheckInMs = normalizeTimestamp(userProfile?.lastCheckIn);
+    const currentStreak = Number.isFinite(userProfile?.streakCount) ? Math.max(0, Number(userProfile?.streakCount)) : 0;
+
+    const baseNextCheckInMs = lastCheckInMs > 0 ? lastCheckInMs + CHECK_IN_INTERVAL_MS : 0;
+    const nextCheckInMs = nextCheckInOverrideMs ?? baseNextCheckInMs;
+
     useEffect(() => {
         setClaimed(false);
         setNextCheckInOverrideMs(null);
@@ -71,6 +69,8 @@ export function DailyCheckIn() {
 
         return Math.max(0, nextCheckInMs - nowMs);
     }, [nextCheckInMs, nowMs]);
+
+    if (!user || !userProfile) return null;
 
     const canCheckIn = remainingMs <= 0 && !claimed;
 
