@@ -24,9 +24,15 @@ export default function Error({
             </div>
 
             <h2 className="text-2xl font-bold text-white mb-4">Something went wrong!</h2>
-            <p className="text-gray-400 max-w-md mb-8">
+            <p className="text-gray-400 max-w-md mb-4">
                 We encountered an unexpected issue. Please try refreshing the page.
             </p>
+
+            <div className="bg-black/50 p-4 rounded-lg text-left mb-8 overflow-auto max-h-40 border border-white/5 w-full max-w-md">
+                <p className="font-mono text-xs text-red-400 break-all">
+                    {error.message || "Unknown Error"}
+                </p>
+            </div>
 
             <div className="flex gap-4">
                 <Button variant="glass" onClick={() => window.location.reload()}>
