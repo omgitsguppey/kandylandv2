@@ -15,13 +15,13 @@ env:
   - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
     value: kandydrops-by-ikandy.firebasestorage.app
   - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
-    value: 588753156317
+    value: "588753156317"
   - variable: NEXT_PUBLIC_FIREBASE_APP_ID
     value: 1:588753156317:web:4e0e8419f4ac21cc918334
   - variable: NEXT_PUBLIC_PAYPAL_ENV
     value: production
   - variable: GA_PROPERTY_ID
-    value: 524442937
+    value: "524442937"
 
 secrets:
   - variable: NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE
