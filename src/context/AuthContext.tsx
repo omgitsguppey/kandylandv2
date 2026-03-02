@@ -67,9 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const router = useRouter();
 
     useEffect(() => {
-        ensureAuthPersistence().catch((error) => {
-            console.error("Auth persistence failed:", error);
-        });
+        ensureAuthPersistence().catch(() => { });
 
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
@@ -123,14 +121,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                                 displayName: user.displayName || "User",
                             }),
                         });
-                        if (!response.ok) console.error("Auto-registration failed");
-                    } catch (err) {
-                        console.error("Error in auto-registration:", err);
-                    }
+                    } catch (err) { }
                     // onSnapshot will trigger again once the doc is created
                 }
-            }, (error) => {
-                console.error("Profile listener error:", error);
+            }, () => {
                 setLoading(false);
             });
         };
@@ -159,7 +153,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             router.push("/dashboard");
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : "Login failed";
-            console.error("Login failed", error);
             toast.error(message);
         }
     };

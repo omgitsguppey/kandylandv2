@@ -276,7 +276,6 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                     setResolvedContent(nextResolvedContent);
                 }
             } catch (err) {
-                console.error("Content load error:", err);
                 if (!cancelled) {
                     setResolvedContent({ kind: "unknown", mimeType: "" });
                     toast.error("Failed to load content");

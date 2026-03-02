@@ -38,14 +38,12 @@ export function useDrops(statusFilter: string[] | null = ["active", "scheduled"]
           setDrops(dropsData);
           setLoading(false);
         } catch (parseError) {
-          console.error("Invalid drop payload:", parseError);
           setError("Failed to load drops.");
           setDrops([]);
           setLoading(false);
         }
       },
       (err) => {
-        console.error("Error fetching drops:", err);
         setError("Failed to load drops.");
         setLoading(false);
       }

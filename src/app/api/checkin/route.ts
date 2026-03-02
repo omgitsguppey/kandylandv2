@@ -77,8 +77,6 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Already claimed today", alreadyClaimed: true }, { status: 409 });
         }
 
-        console.log(`✅ Check-in verified: Day ${result.nextStreak} (+${result.reward} GD) for user ${userId}`);
-
         return NextResponse.json({
             success: true,
             reward: result.reward,
