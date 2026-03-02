@@ -12,6 +12,8 @@ import { User } from "firebase/auth";
 import { authFetch } from "@/lib/authFetch";
 import { useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
+import { getAnalytics, logEvent } from "firebase/analytics";
+import { app } from "@/lib/firebase";
 import Link from "next/link";
 import { SupportedAspectRatio, getSupportedDropAspectRatio } from "@/lib/drop-presentation";
 
@@ -99,6 +101,23 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
     const [unlocking, setUnlocking] = useState(false);
     const [imageLoaded, setImageLoaded] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [hasTrackedView, setHasTrackedView] = useState(false);
+
+    useEffect(() => {
+        if (!hasTrackedView) {
+            try {
+                const analytics = getAnalytics(app);
+                logEvent(analytics, 'view_drop_details', {
+                    drop_id: drop.id,
+                    drop_category: drop.type,
+                    is_unlocked: !!isUnlocked
+                });
+            } catch (err) {
+                // Ignore tracking init failures
+            }
+            setHasTrackedView(true);
+        }
+    }, [hasTrackedView, drop.id, drop.type, isUnlocked]);
 
     const resolvedRatio = aspectRatio ?? getSupportedDropAspectRatio(drop);
     const ratioStyle = { aspectRatio: resolvedRatio.replace(":", " / ") };
@@ -140,6 +159,17 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                     return;
                 }
                 throw new Error(result.error || "Unlock failed");
+            }
+
+            try {
+                const analytics = getAnalytics(app);
+                logEvent(analytics, 'unlock_drop_success', {
+                    drop_id: drop.id,
+                    drop_category: drop.type,
+                    unlock_cost: drop.unlockCost || 0
+                });
+            } catch (err) {
+                // Ignore tracking failures
             }
 
             toast.success(`Unwrapped: ${drop.title}`, {

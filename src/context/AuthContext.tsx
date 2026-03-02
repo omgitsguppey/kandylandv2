@@ -18,6 +18,8 @@ import { normalizeUserProfile } from "@/lib/user-utils";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
+import { getAnalytics, logEvent } from "firebase/analytics";
+import { app } from "@/lib/firebase";
 
 interface AuthIdentityContextType {
     user: User | null;
@@ -153,6 +155,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             provider.setCustomParameters({ prompt: "select_account" });
 
             await signInWithPopup(auth, provider);
+
+            try {
+                const analytics = getAnalytics(app);
+                logEvent(analytics, 'user_login', { method: 'google' });
+            } catch (err) { }
+
             toast.success("Welcome back!");
             router.push("/dashboard");
         } catch (error: unknown) {
@@ -164,6 +172,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const signInWithEmail = async (email: string, pass: string) => {
         await ensureAuthPersistence();
         await signInWithEmailAndPassword(auth, email, pass);
+
+        try {
+            const analytics = getAnalytics(app);
+            logEvent(analytics, 'user_login', { method: 'email' });
+        } catch (err) { }
+
         toast.success("Welcome back!");
         router.push("/dashboard");
     };
@@ -186,6 +200,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const result = (await response.json()) as { error?: string };
             throw new Error(result.error || "Registration failed");
         }
+
+        try {
+            const analytics = getAnalytics(app);
+            logEvent(analytics, 'user_login', { method: 'email_signup' });
+        } catch (err) { }
 
         toast.success("Account created! +100 Gum Drops");
         router.push("/dashboard");

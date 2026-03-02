@@ -8,8 +8,9 @@ import { Gift, Loader2, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-
 import { authFetch } from "@/lib/authFetch";
+import { getAnalytics, logEvent } from "firebase/analytics";
+import { app } from "@/lib/firebase";
 
 const CHECK_IN_INTERVAL_MS = 24 * 60 * 60 * 1000;
 
@@ -126,6 +127,16 @@ export function DailyCheckIn() {
             }
 
             const reward = Number.isFinite(result.reward) ? Number(result.reward) : rewardAmount;
+
+            try {
+                const analytics = getAnalytics(app);
+                logEvent(analytics, 'daily_check_in_claim', {
+                    streak_count: displayStreak,
+                    gum_drops_awarded: reward
+                });
+            } catch (err) {
+                // Ignore tracking failures
+            }
 
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : "Failed to claim reward";
