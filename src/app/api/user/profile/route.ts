@@ -14,18 +14,7 @@ const ALLOWED_TIMEZONES = new Set([
     "Asia/Tokyo",
 ]);
 
-function normalizeUsername(value: unknown): string | null {
-    if (typeof value !== "string") {
-        return null;
-    }
-
-    const normalized = value.trim().toLowerCase();
-    if (normalized.length < 3 || !/^[a-z0-9_]+$/.test(normalized)) {
-        return null;
-    }
-
-    return normalized;
-}
+import { normalizeUsername } from "@/lib/server/user-utils";
 
 function normalizeNotificationSettings(value: unknown): {
     inAppEnabled: boolean;

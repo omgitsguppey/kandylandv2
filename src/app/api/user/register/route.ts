@@ -3,18 +3,7 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAuth, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 
-function normalizeUsername(value: unknown): string | null {
-    if (typeof value !== "string") {
-        return null;
-    }
-
-    const normalized = value.trim().toLowerCase();
-    if (normalized.length < 3 || !/^[a-z0-9_]+$/.test(normalized)) {
-        return null;
-    }
-
-    return normalized;
-}
+import { normalizeUsername } from "@/lib/server/user-utils";
 
 function buildFallbackUsername(uid: string): string {
     return `user_${uid.slice(0, 8).toLowerCase()}`;
