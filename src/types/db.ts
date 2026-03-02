@@ -98,4 +98,5 @@ export interface Transaction {
     timestamp: number | any; // Firestore Timestamp or number
     cost?: number; // USD cost for purchase transactions
     currency?: string;
+    status?: 'completed' | 'failed' | 'pending';
 }

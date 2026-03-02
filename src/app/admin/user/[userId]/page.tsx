@@ -12,10 +12,7 @@ import { normalizeUserProfile } from "@/lib/user-utils";
 import { UserProfile, Transaction } from "@/types/db";
 import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 
-// Specific transaction type for local rendering with resolved timestamps
-interface DetailedTransaction extends Transaction {
-    resolvedStatus: "completed" | "failed" | "pending";
-}
+
 
 export default function AdminUserAnalyticsPage() {
     const params = useParams();
@@ -25,7 +22,7 @@ export default function AdminUserAnalyticsPage() {
     const userId = params?.userId as string;
 
     const [targetUser, setTargetUser] = useState<UserProfile | null>(null);
-    const [transactions, setTransactions] = useState<DetailedTransaction[]>([]);
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -55,7 +52,7 @@ export default function AdminUserAnalyticsPage() {
                 );
 
                 const txDocs = await getDocs(txQuery);
-                const txList: DetailedTransaction[] = [];
+                const txList: Transaction[] = [];
 
                 txDocs.forEach((tDoc) => {
                     try {
@@ -69,7 +66,7 @@ export default function AdminUserAnalyticsPage() {
 
                         txList.push({
                             ...normalized,
-                            resolvedStatus: status
+                            status: status
                         });
                     } catch (e) {
                         console.warn("Skipping malformed transaction", e);
@@ -112,10 +109,10 @@ export default function AdminUserAnalyticsPage() {
     }
 
     const totalSpent = transactions
-        .filter(t => t.resolvedStatus === "completed" && (t.type === "purchase_currency" || (t.type as string) === "purchase"))
+        .filter(t => t.status === "completed" && (t.type === "purchase_currency" || (t.type as string) === "purchase"))
         .reduce((sum, t) => sum + (t.amount > 0 ? t.amount : 0), 0);
 
-    const failedTxCount = transactions.filter(t => t.resolvedStatus === "failed").length;
+    const failedTxCount = transactions.filter(t => t.status === "failed").length;
 
     return (
         <div className="max-w-5xl mx-auto space-y-6 pb-20">
@@ -211,7 +208,7 @@ export default function AdminUserAnalyticsPage() {
                                                 <span className="text-xs font-bold text-gray-400">Log</span>
                                             )}
 
-                                            {tx.resolvedStatus === "failed" && (
+                                            {tx.status === "failed" && (
                                                 <span className="text-[9px] text-red-500 font-bold uppercase flex items-center gap-1"><Ban className="w-2 h-2" /> Failed</span>
                                             )}
                                         </div>

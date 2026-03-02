@@ -20,6 +20,7 @@ const transactionRecordSchema = z.object({
   timestamp: z.unknown().optional(),
   cost: z.number().finite().nonnegative().optional(),
   currency: z.string().optional(),
+  status: z.enum(["completed", "failed", "pending"]).optional(),
 });
 
 function normalizeTimestamp(value: unknown): number {
@@ -77,6 +78,7 @@ export function normalizeTransactionRecord(raw: unknown, id: string): Transactio
     timestamp: normalizeTimestamp(parsed.timestamp),
     cost: parsed.cost,
     currency: parsed.currency,
+    status: parsed.status as any,
   };
 }
 

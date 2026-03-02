@@ -114,6 +114,9 @@ export function TransactionHistoryModal({ user, onClose }: Props) {
                                 <div key={tx.id} className="flex items-center justify-between bg-black/40 border border-white/5 p-3 rounded-xl hover:bg-white/5 transition-colors">
                                     <div className="flex-1 min-w-0 pr-4">
                                         <div className="flex items-center gap-2 mb-1">
+                                            {tx.status === "failed" && (
+                                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/10 text-red-500 border border-red-500/20 capitalize">Failed</span>
+                                            )}
                                             {tx.type === "admin_adjustment" ? (
                                                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20 capitalize">Admin</span>
                                             ) : tx.type === "unlock_content" ? (
