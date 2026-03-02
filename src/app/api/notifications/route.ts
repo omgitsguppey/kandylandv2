@@ -3,6 +3,7 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAuth, verifyAdmin, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 import { normalizeNotificationCreatePayload } from "@/lib/notification-contracts";
+import { broadcastFCM } from "@/lib/server/fcm-utils";
 
 // POST — Send notification (admin-only)
 export async function POST(request: NextRequest) {
@@ -29,6 +30,11 @@ export async function POST(request: NextRequest) {
             createdAt: FieldValue.serverTimestamp(),
             readBy: [],
         });
+
+        if (payload.target.global) {
+            // Push custom FCM message linking back to Drops library
+            await broadcastFCM(payload.title, payload.message, payload.link || "/drops");
+        }
 
         return NextResponse.json({ success: true });
     } catch (error) {
