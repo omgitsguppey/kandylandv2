@@ -20,6 +20,8 @@ env:
     value: 1:588753156317:web:4e0e8419f4ac21cc918334
   - variable: NEXT_PUBLIC_PAYPAL_ENV
     value: production
+  - variable: GA_PROPERTY_ID
+    value: 524442937
 
 secrets:
   - variable: NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE
