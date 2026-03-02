@@ -23,8 +23,8 @@ export default function DashboardClient({ drops }: DashboardClientProps) {
         }
     }, [user, loading, router]);
 
-    // Skeleton UI
-    if (loading) {
+    // Skeleton UI while waiting for user state or profile data
+    if (loading || (user && !userProfile)) {
         return (
             <div className="w-full px-4 max-w-7xl mx-auto">
                 <header className="mb-8 md:mb-12">
