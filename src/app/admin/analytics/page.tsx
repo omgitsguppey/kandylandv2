@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import { authFetch } from "@/lib/authFetch";
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-    BarChart, Bar
+    BarChart, Bar, Cell
 } from 'recharts';
-import { Loader2, Users, Eye, Activity, RefreshCw } from "lucide-react";
+import { Loader2, Users, Eye, Activity, RefreshCw, BarChart3, MapPin } from "lucide-react";
 
 type TimeFilter = "live" | "24h" | "7d" | "30d" | "all";
 
@@ -21,6 +21,8 @@ export default function AdminAnalyticsPage() {
     const [liveData, setLiveData] = useState<any[]>([]);
     const [totals, setTotals] = useState({ users: 0, views: 0, sessions: 0, newUsers: 0, avgSessionDuration: 0, engagementRate: 0 });
     const [liveActive, setLiveActive] = useState(0);
+    const [eventsData, setEventsData] = useState<any>({});
+    const [geoData, setGeoData] = useState<any[]>([]);
 
     const loadData = async (currentFilter: TimeFilter) => {
         setLoading(true);
@@ -45,6 +47,8 @@ export default function AdminAnalyticsPage() {
             } else {
                 setChartData(data.data || []);
                 setTotals(data.totals || { users: 0, views: 0, sessions: 0, newUsers: 0, avgSessionDuration: 0, engagementRate: 0 });
+                setEventsData(data.events || {});
+                setGeoData(data.geo || []);
             }
         } catch (err: any) {
             setError(err.message);
@@ -276,6 +280,67 @@ export default function AdminAnalyticsPage() {
                             </ResponsiveContainer>
                         </div>
                     </div>
+
+                    {/* Additional Metrics Row */}
+                    {filter !== "live" && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Conversion Funnel */}
+                            <div className="glass-panel p-6 rounded-[2rem] border border-white/10">
+                                <div className="flex items-center gap-2 mb-6">
+                                    <BarChart3 className="w-5 h-5 text-brand-pink" />
+                                    <h3 className="text-lg font-bold text-white">Drop Conversion Funnel</h3>
+                                </div>
+                                <div className="h-[250px] w-full">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart
+                                            data={[
+                                                { name: "Drop Views", value: eventsData.view_drop_details || 0, color: "#b28cff" },
+                                                { name: "Unlocks", value: eventsData.unlock_drop_success || 0, color: "#06b6d4" }
+                                            ]}
+                                            margin={{ top: 20, right: 20, left: -20, bottom: 0 }}
+                                        >
+                                            <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
+                                            <XAxis dataKey="name" stroke="#ffffff40" fontSize={12} tickLine={false} axisLine={false} />
+                                            <YAxis stroke="#ffffff40" fontSize={12} tickLine={false} axisLine={false} />
+                                            <Tooltip content={<CustomTooltip />} cursor={{ fill: '#ffffff05' }} />
+                                            <Bar dataKey="value" name="Count" radius={[6, 6, 0, 0]}>
+                                                {
+                                                    [0, 1].map((entry, index) => (
+                                                        <Cell key={`cell-${index}`} fill={index === 0 ? "#b28cff" : "#06b6d4"} />
+                                                    ))
+                                                }
+                                            </Bar>
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </div>
+
+                            {/* Geography */}
+                            <div className="glass-panel p-6 rounded-[2rem] border border-white/10">
+                                <div className="flex items-center gap-2 mb-6">
+                                    <MapPin className="w-5 h-5 text-brand-cyan" />
+                                    <h3 className="text-lg font-bold text-white">Top Active Regions</h3>
+                                </div>
+                                <div className="space-y-3 overflow-y-auto max-h-[250px] pr-2 custom-scrollbar">
+                                    {geoData && geoData.length > 0 ? geoData.map((geo, idx) => (
+                                        <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10">
+                                            <div>
+                                                <p className="font-bold text-white text-sm">{geo.city}</p>
+                                                <p className="text-xs text-gray-400">{geo.country}</p>
+                                            </div>
+                                            <div className="px-3 py-1 bg-brand-cyan/20 text-brand-cyan rounded-lg font-bold text-sm">
+                                                {geo.users.toLocaleString()}
+                                            </div>
+                                        </div>
+                                    )) : (
+                                        <div className="h-full flex items-center justify-center text-sm text-gray-500 py-10">
+                                            No geolocation data available yet.
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
         </div>

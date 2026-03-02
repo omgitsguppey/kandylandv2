@@ -87,23 +87,51 @@ export async function GET(request: NextRequest) {
             else if (period === "7d") startDate = "7daysAgo";
             else if (period === "all") startDate = "365daysAgo";
 
-            const [response] = await analyticsClient.runReport({
-                property: `properties/${propertyId}`,
-                dateRanges: [{ startDate, endDate: "today" }],
-                metrics: [
-                    { name: "activeUsers" },
-                    { name: "screenPageViews" },
-                    { name: "sessions" },
-                    { name: "newUsers" },
-                    { name: "averageSessionDuration" },
-                    { name: "engagementRate" }
-                ],
-                dimensions: [{ name: "date" }],
-                orderBys: [{
-                    dimension: { dimensionName: "date" },
-                    desc: false
-                }]
-            });
+            const [
+                [response],
+                [eventsResponse],
+                [geoResponse]
+            ] = await Promise.all([
+                analyticsClient.runReport({
+                    property: `properties/${propertyId}`,
+                    dateRanges: [{ startDate, endDate: "today" }],
+                    metrics: [
+                        { name: "activeUsers" },
+                        { name: "screenPageViews" },
+                        { name: "sessions" },
+                        { name: "newUsers" },
+                        { name: "averageSessionDuration" },
+                        { name: "engagementRate" }
+                    ],
+                    dimensions: [{ name: "date" }],
+                    orderBys: [{
+                        dimension: { dimensionName: "date" },
+                        desc: false
+                    }]
+                }),
+                analyticsClient.runReport({
+                    property: `properties/${propertyId}`,
+                    dateRanges: [{ startDate, endDate: "today" }],
+                    metrics: [{ name: "eventCount" }],
+                    dimensions: [{ name: "eventName" }],
+                    dimensionFilter: {
+                        filter: {
+                            fieldName: "eventName",
+                            inListFilter: {
+                                values: ["view_drop_details", "unlock_drop_success", "user_login", "daily_check_in_claim"]
+                            }
+                        }
+                    }
+                }),
+                analyticsClient.runReport({
+                    property: `properties/${propertyId}`,
+                    dateRanges: [{ startDate, endDate: "today" }],
+                    metrics: [{ name: "activeUsers" }],
+                    dimensions: [{ name: "country" }, { name: "city" }],
+                    orderBys: [{ metric: { metricName: "activeUsers" }, desc: true }],
+                    limit: 15
+                })
+            ]);
 
             const rows = response.rows || [];
 
@@ -135,10 +163,25 @@ export async function GET(request: NextRequest) {
                 engagementRate: chartData.length > 0 ? chartData.reduce((acc, curr) => acc + curr.engagementRate, 0) / chartData.length : 0,
             };
 
+            const eventsData = (eventsResponse.rows || []).reduce((acc: any, row) => {
+                const eventName = row.dimensionValues?.[0]?.value || "unknown";
+                const count = parseInt(row.metricValues?.[0]?.value || "0", 10);
+                acc[eventName] = count;
+                return acc;
+            }, {});
+
+            const geoData = (geoResponse.rows || []).map(row => ({
+                country: row.dimensionValues?.[0]?.value || "Unknown",
+                city: row.dimensionValues?.[1]?.value || "Unknown",
+                users: parseInt(row.metricValues?.[0]?.value || "0", 10)
+            }));
+
             return NextResponse.json({
                 success: true,
                 data: chartData,
-                totals
+                totals,
+                events: eventsData,
+                geo: geoData
             });
         }
 
