@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
+import { trackServerEvent } from "@/lib/server/analytics";
+import { verifyAuth } from "@/lib/server/auth";
 
 export async function POST(
     request: NextRequest,
@@ -9,6 +11,15 @@ export async function POST(
     try {
         const params = await context.params;
         const { dropId } = params;
+
+        let userId: string | undefined = undefined;
+        try {
+            // Attempt to resolve the caller for stitched GA4 sessions
+            const caller = await verifyAuth(request);
+            if (caller) userId = caller.uid;
+        } catch (authErr) {
+            // Fails gracefully for anonymous clicks
+        }
 
         if (!dropId) {
             return NextResponse.json({ error: "Missing dropId" }, { status: 400 });
@@ -20,7 +31,14 @@ export async function POST(
 
         const dropRef = adminDb.collection("drops").doc(dropId);
 
-        // Use a transaction/update to safely increment the click count
+        // 1. Send Explicit Timestamp to GA4 Server-to-Server Protocol
+        await trackServerEvent("drop_clicked", {
+            dropId: dropId,
+            action: "click",
+            source: "backend_api"
+        }, userId);
+
+        // 2. Safely increment the public UI count
         await dropRef.update({
             totalClicks: FieldValue.increment(1)
         });
