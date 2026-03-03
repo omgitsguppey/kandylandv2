@@ -11,6 +11,8 @@
     "promote-admin": "tsx scripts/promote-admin.ts"
   },
   "dependencies": {
+    "@dataconnect/admin-generated": "file:src/dataconnect-admin-generated",
+    "@dataconnect/generated": "file:src/dataconnect-generated",
     "@google-analytics/data": "^5.2.1",
     "@hookform/resolvers": "^5.2.2",
     "@next/bundle-analyzer": "^16.1.6",

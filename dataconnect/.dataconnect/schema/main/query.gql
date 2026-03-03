@@ -1,8 +1,8 @@
 extend type Query {
   """
-  ✨ Look up a single `AIInteraction` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  ✨ Look up a single `AiInteraction` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
   """
-  aIInteraction(
+  aiInteraction(
     """
     The unique ID of the object.
     """
@@ -11,26 +11,26 @@ extend type Query {
     """
     The key used to identify the object.
     """
-    key: AIInteraction_Key
+    key: AiInteraction_Key
 
     """
     Fetch the first row based on the filters and ordering.
     """
-    first: AIInteraction_FirstRow
-  ): AIInteraction @fdc_generated(from: "AIInteraction", purpose: QUERY_SINGLE)
+    first: AiInteraction_FirstRow
+  ): AiInteraction @fdc_generated(from: "AiInteraction", purpose: QUERY_SINGLE)
   """
-  ✨ List `AIInteraction` objects in the table and return selected fields, optionally filtered by `where` conditions
+  ✨ List `AiInteraction` objects in the table and return selected fields, optionally filtered by `where` conditions
   """
-  aIInteractions(
+  aiInteractions(
     """
     Filter condition to narrow down the query results.
     """
-    where: AIInteraction_Filter
+    where: AiInteraction_Filter
 
     """
     Order the query results by specific fields.
     """
-    orderBy: [AIInteraction_Order!]
+    orderBy: [AiInteraction_Order!]
 
     """
     Number of rows to skip before starting to return the results.
@@ -50,6 +50,6 @@ extend type Query {
     """
     Filter condition to apply to the groups of aggregate queries.
     """
-    having: AIInteraction_Having
-  ): [AIInteraction!]! @fdc_generated(from: "AIInteraction", purpose: QUERY_MULTIPLE)
+    having: AiInteraction_Having
+  ): [AiInteraction!]! @fdc_generated(from: "AiInteraction", purpose: QUERY_MULTIPLE)
 }

@@ -1,44 +1,44 @@
 extend type Mutation {
   """
-  ✨ Insert a single `AIInteraction` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  ✨ Insert a single `AiInteraction` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
   """
-  aIInteraction_insert(
+  aiInteraction_insert(
     """
     Data object to insert into the table.
     """
-    data: AIInteraction_Data!
-  ): AIInteraction_KeyOutput! @fdc_generated(from: "AIInteraction", purpose: INSERT_SINGLE)
+    data: AiInteraction_Data!
+  ): AiInteraction_KeyOutput! @fdc_generated(from: "AiInteraction", purpose: INSERT_SINGLE)
   """
-  ✨ Insert `AIInteraction` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  ✨ Insert `AiInteraction` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
   """
-  aIInteraction_insertMany(
+  aiInteraction_insertMany(
     """
     List of data objects to insert into the table.
     """
-    data: [AIInteraction_Data!]!
-  ): [AIInteraction_KeyOutput!]! @fdc_generated(from: "AIInteraction", purpose: INSERT_MULTIPLE)
+    data: [AiInteraction_Data!]!
+  ): [AiInteraction_KeyOutput!]! @fdc_generated(from: "AiInteraction", purpose: INSERT_MULTIPLE)
   """
-  ✨ Insert or update a single `AIInteraction` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AIInteraction`.
+  ✨ Insert or update a single `AiInteraction` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AiInteraction`.
   """
-  aIInteraction_upsert(
+  aiInteraction_upsert(
     """
     Data object to insert or update if it already exists.
     """
-    data: AIInteraction_Data!
-  ): AIInteraction_KeyOutput! @fdc_generated(from: "AIInteraction", purpose: UPSERT_SINGLE)
+    data: AiInteraction_Data!
+  ): AiInteraction_KeyOutput! @fdc_generated(from: "AiInteraction", purpose: UPSERT_SINGLE)
   """
-  ✨ Insert or update `AIInteraction` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AIInteraction`.
+  ✨ Insert or update `AiInteraction` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AiInteraction`.
   """
-  aIInteraction_upsertMany(
+  aiInteraction_upsertMany(
     """
     List of data objects to insert or update if it already exists.
     """
-    data: [AIInteraction_Data!]!
-  ): [AIInteraction_KeyOutput!]! @fdc_generated(from: "AIInteraction", purpose: UPSERT_MULTIPLE)
+    data: [AiInteraction_Data!]!
+  ): [AiInteraction_KeyOutput!]! @fdc_generated(from: "AiInteraction", purpose: UPSERT_MULTIPLE)
   """
-  ✨ Update a single `AIInteraction` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `AIInteraction` or `null` if not found.
+  ✨ Update a single `AiInteraction` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `AiInteraction` or `null` if not found.
   """
-  aIInteraction_update(
+  aiInteraction_update(
     """
     The unique ID of the object.
     """
@@ -47,26 +47,26 @@ extend type Mutation {
     """
     The key used to identify the object.
     """
-    key: AIInteraction_Key
+    key: AiInteraction_Key
 
     """
     Fetch the first row based on the filters and ordering.
     """
-    first: AIInteraction_FirstRow
+    first: AiInteraction_FirstRow
 
     """
     Data object containing fields to be updated.
     """
-    data: AIInteraction_Data!
-  ): AIInteraction_KeyOutput @fdc_generated(from: "AIInteraction", purpose: UPDATE_SINGLE)
+    data: AiInteraction_Data!
+  ): AiInteraction_KeyOutput @fdc_generated(from: "AiInteraction", purpose: UPDATE_SINGLE)
   """
-  ✨ Update `AIInteraction` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  ✨ Update `AiInteraction` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
   """
-  aIInteraction_updateMany(
+  aiInteraction_updateMany(
     """
     Filter condition to specify which rows to update.
     """
-    where: AIInteraction_Filter
+    where: AiInteraction_Filter
 
     """
     Set to true to update all rows.
@@ -76,12 +76,12 @@ extend type Mutation {
     """
     Data object containing fields to update.
     """
-    data: AIInteraction_Data!
-  ): Int! @fdc_generated(from: "AIInteraction", purpose: UPDATE_MULTIPLE)
+    data: AiInteraction_Data!
+  ): Int! @fdc_generated(from: "AiInteraction", purpose: UPDATE_MULTIPLE)
   """
-  ✨ Delete a single `AIInteraction` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  ✨ Delete a single `AiInteraction` based on `id`, `key` or `first` and return its key (or `null` if not found).
   """
-  aIInteraction_delete(
+  aiInteraction_delete(
     """
     The unique ID of the object.
     """
@@ -90,25 +90,25 @@ extend type Mutation {
     """
     The key used to identify the object.
     """
-    key: AIInteraction_Key
+    key: AiInteraction_Key
 
     """
     Fetch the first row based on the filters and ordering.
     """
-    first: AIInteraction_FirstRow
-  ): AIInteraction_KeyOutput @fdc_generated(from: "AIInteraction", purpose: DELETE_SINGLE)
+    first: AiInteraction_FirstRow
+  ): AiInteraction_KeyOutput @fdc_generated(from: "AiInteraction", purpose: DELETE_SINGLE)
   """
-  ✨ Delete `AIInteraction` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  ✨ Delete `AiInteraction` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
   """
-  aIInteraction_deleteMany(
+  aiInteraction_deleteMany(
     """
     Filter condition to specify which rows to delete.
     """
-    where: AIInteraction_Filter
+    where: AiInteraction_Filter
 
     """
     Set to true to delete all rows.
     """
     all: Boolean = false
-  ): Int! @fdc_generated(from: "AIInteraction", purpose: DELETE_MULTIPLE)
+  ): Int! @fdc_generated(from: "AiInteraction", purpose: DELETE_MULTIPLE)
 }

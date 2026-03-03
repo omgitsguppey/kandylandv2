@@ -1,181 +1,181 @@
-extend type AIInteraction {
+extend type AiInteraction {
   """
   Implicit metadata field that cannot be written. It provides extra information about query results.
   """
-  _metadata: _Metadata @fdc_generated(from: "AIInteraction", purpose: METADATA_FIELD)
+  _metadata: _Metadata @fdc_generated(from: "AiInteraction", purpose: METADATA_FIELD)
   """
-  ✨ Count the number of rows in the `AIInteraction` table.
+  ✨ Count the number of rows in the `AiInteraction` table.
   """
-  _count: Int! @fdc_generated(from: "AIInteraction.", purpose: QUERY_COUNT)
+  _count: Int! @fdc_generated(from: "AiInteraction.", purpose: QUERY_COUNT)
   """
-  ✨ Count the number of rows in the `AIInteraction` table where the `completionTokens` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  ✨ Count the number of rows in the `AiInteraction` table where the `completionTokens` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
   completionTokens_count(
     """
     Set to true to count the number of distinct values.
     """
     distinct: Boolean = false
-  ): Int! @fdc_generated(from: "AIInteraction.completionTokens", purpose: QUERY_COUNT)
+  ): Int! @fdc_generated(from: "AiInteraction.completionTokens", purpose: QUERY_COUNT)
   """
-  ✨ Count the number of rows in the `AIInteraction` table where the `createdAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  ✨ Count the number of rows in the `AiInteraction` table where the `createdAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
   createdAt_count(
     """
     Set to true to count the number of distinct values.
     """
     distinct: Boolean = false
-  ): Int! @fdc_generated(from: "AIInteraction.createdAt", purpose: QUERY_COUNT)
+  ): Int! @fdc_generated(from: "AiInteraction.createdAt", purpose: QUERY_COUNT)
   """
-  ✨ Count the number of rows in the `AIInteraction` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  ✨ Count the number of rows in the `AiInteraction` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
   id_count(
     """
     Set to true to count the number of distinct values.
     """
     distinct: Boolean = false
-  ): Int! @fdc_generated(from: "AIInteraction.id", purpose: QUERY_COUNT)
+  ): Int! @fdc_generated(from: "AiInteraction.id", purpose: QUERY_COUNT)
   """
-  ✨ Count the number of rows in the `AIInteraction` table where the `latencyMs` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  ✨ Count the number of rows in the `AiInteraction` table where the `latencyMs` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
   latencyMs_count(
     """
     Set to true to count the number of distinct values.
     """
     distinct: Boolean = false
-  ): Int! @fdc_generated(from: "AIInteraction.latencyMs", purpose: QUERY_COUNT)
+  ): Int! @fdc_generated(from: "AiInteraction.latencyMs", purpose: QUERY_COUNT)
   """
-  ✨ Count the number of rows in the `AIInteraction` table where the `modelUsed` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  ✨ Count the number of rows in the `AiInteraction` table where the `modelUsed` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
   modelUsed_count(
     """
     Set to true to count the number of distinct values.
     """
     distinct: Boolean = false
-  ): Int! @fdc_generated(from: "AIInteraction.modelUsed", purpose: QUERY_COUNT)
+  ): Int! @fdc_generated(from: "AiInteraction.modelUsed", purpose: QUERY_COUNT)
   """
-  ✨ Count the number of rows in the `AIInteraction` table where the `promptContent` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  ✨ Count the number of rows in the `AiInteraction` table where the `promptContent` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
   promptContent_count(
     """
     Set to true to count the number of distinct values.
     """
     distinct: Boolean = false
-  ): Int! @fdc_generated(from: "AIInteraction.promptContent", purpose: QUERY_COUNT)
+  ): Int! @fdc_generated(from: "AiInteraction.promptContent", purpose: QUERY_COUNT)
   """
-  ✨ Count the number of rows in the `AIInteraction` table where the `promptTokens` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  ✨ Count the number of rows in the `AiInteraction` table where the `promptTokens` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
   promptTokens_count(
     """
     Set to true to count the number of distinct values.
     """
     distinct: Boolean = false
-  ): Int! @fdc_generated(from: "AIInteraction.promptTokens", purpose: QUERY_COUNT)
+  ): Int! @fdc_generated(from: "AiInteraction.promptTokens", purpose: QUERY_COUNT)
   """
-  ✨ Count the number of rows in the `AIInteraction` table where the `responseContent` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  ✨ Count the number of rows in the `AiInteraction` table where the `responseContent` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
   responseContent_count(
     """
     Set to true to count the number of distinct values.
     """
     distinct: Boolean = false
-  ): Int! @fdc_generated(from: "AIInteraction.responseContent", purpose: QUERY_COUNT)
+  ): Int! @fdc_generated(from: "AiInteraction.responseContent", purpose: QUERY_COUNT)
   """
-  ✨ Count the number of rows in the `AIInteraction` table where the `userId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  ✨ Count the number of rows in the `AiInteraction` table where the `userId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
   userId_count(
     """
     Set to true to count the number of distinct values.
     """
     distinct: Boolean = false
-  ): Int! @fdc_generated(from: "AIInteraction.userId", purpose: QUERY_COUNT)
+  ): Int! @fdc_generated(from: "AiInteraction.userId", purpose: QUERY_COUNT)
   """
-  ✨ Sum the `completionTokens` field in the `AIInteraction` table.
+  ✨ Sum the `completionTokens` field in the `AiInteraction` table.
   """
   completionTokens_sum(
     """
     Set to true to sum the distinct values.
     """
     distinct: Boolean = false
-  ): Int @fdc_generated(from: "AIInteraction.completionTokens", purpose: QUERY_SUM)
+  ): Int @fdc_generated(from: "AiInteraction.completionTokens", purpose: QUERY_SUM)
   """
-  ✨ Sum the `latencyMs` field in the `AIInteraction` table.
+  ✨ Sum the `latencyMs` field in the `AiInteraction` table.
   """
   latencyMs_sum(
     """
     Set to true to sum the distinct values.
     """
     distinct: Boolean = false
-  ): Int @fdc_generated(from: "AIInteraction.latencyMs", purpose: QUERY_SUM)
+  ): Int @fdc_generated(from: "AiInteraction.latencyMs", purpose: QUERY_SUM)
   """
-  ✨ Sum the `promptTokens` field in the `AIInteraction` table.
+  ✨ Sum the `promptTokens` field in the `AiInteraction` table.
   """
   promptTokens_sum(
     """
     Set to true to sum the distinct values.
     """
     distinct: Boolean = false
-  ): Int @fdc_generated(from: "AIInteraction.promptTokens", purpose: QUERY_SUM)
+  ): Int @fdc_generated(from: "AiInteraction.promptTokens", purpose: QUERY_SUM)
   """
-  ✨ Average the `completionTokens` field in the `AIInteraction` table.
+  ✨ Average the `completionTokens` field in the `AiInteraction` table.
   """
   completionTokens_avg(
     """
     Set to true to average the distinct values.
     """
     distinct: Boolean = false
-  ): Float @fdc_generated(from: "AIInteraction.completionTokens", purpose: QUERY_AVG)
+  ): Float @fdc_generated(from: "AiInteraction.completionTokens", purpose: QUERY_AVG)
   """
-  ✨ Average the `latencyMs` field in the `AIInteraction` table.
+  ✨ Average the `latencyMs` field in the `AiInteraction` table.
   """
   latencyMs_avg(
     """
     Set to true to average the distinct values.
     """
     distinct: Boolean = false
-  ): Float @fdc_generated(from: "AIInteraction.latencyMs", purpose: QUERY_AVG)
+  ): Float @fdc_generated(from: "AiInteraction.latencyMs", purpose: QUERY_AVG)
   """
-  ✨ Average the `promptTokens` field in the `AIInteraction` table.
+  ✨ Average the `promptTokens` field in the `AiInteraction` table.
   """
   promptTokens_avg(
     """
     Set to true to average the distinct values.
     """
     distinct: Boolean = false
-  ): Float @fdc_generated(from: "AIInteraction.promptTokens", purpose: QUERY_AVG)
+  ): Float @fdc_generated(from: "AiInteraction.promptTokens", purpose: QUERY_AVG)
   """
-  ✨ Minimum of the `completionTokens` field in the `AIInteraction` table.
+  ✨ Minimum of the `completionTokens` field in the `AiInteraction` table.
   """
-  completionTokens_min: Int @fdc_generated(from: "AIInteraction.completionTokens", purpose: QUERY_MIN)
+  completionTokens_min: Int @fdc_generated(from: "AiInteraction.completionTokens", purpose: QUERY_MIN)
   """
-  ✨ Minimum of the `createdAt` field in the `AIInteraction` table.
+  ✨ Minimum of the `createdAt` field in the `AiInteraction` table.
   """
-  createdAt_min: Date @fdc_generated(from: "AIInteraction.createdAt", purpose: QUERY_MIN)
+  createdAt_min: Date @fdc_generated(from: "AiInteraction.createdAt", purpose: QUERY_MIN)
   """
-  ✨ Minimum of the `latencyMs` field in the `AIInteraction` table.
+  ✨ Minimum of the `latencyMs` field in the `AiInteraction` table.
   """
-  latencyMs_min: Int @fdc_generated(from: "AIInteraction.latencyMs", purpose: QUERY_MIN)
+  latencyMs_min: Int @fdc_generated(from: "AiInteraction.latencyMs", purpose: QUERY_MIN)
   """
-  ✨ Minimum of the `promptTokens` field in the `AIInteraction` table.
+  ✨ Minimum of the `promptTokens` field in the `AiInteraction` table.
   """
-  promptTokens_min: Int @fdc_generated(from: "AIInteraction.promptTokens", purpose: QUERY_MIN)
+  promptTokens_min: Int @fdc_generated(from: "AiInteraction.promptTokens", purpose: QUERY_MIN)
   """
-  ✨ Maximum of the `completionTokens` field in the `AIInteraction` table.
+  ✨ Maximum of the `completionTokens` field in the `AiInteraction` table.
   """
-  completionTokens_max: Int @fdc_generated(from: "AIInteraction.completionTokens", purpose: QUERY_MAX)
+  completionTokens_max: Int @fdc_generated(from: "AiInteraction.completionTokens", purpose: QUERY_MAX)
   """
-  ✨ Maximum of the `createdAt` field in the `AIInteraction` table.
+  ✨ Maximum of the `createdAt` field in the `AiInteraction` table.
   """
-  createdAt_max: Date @fdc_generated(from: "AIInteraction.createdAt", purpose: QUERY_MAX)
+  createdAt_max: Date @fdc_generated(from: "AiInteraction.createdAt", purpose: QUERY_MAX)
   """
-  ✨ Maximum of the `latencyMs` field in the `AIInteraction` table.
+  ✨ Maximum of the `latencyMs` field in the `AiInteraction` table.
   """
-  latencyMs_max: Int @fdc_generated(from: "AIInteraction.latencyMs", purpose: QUERY_MAX)
+  latencyMs_max: Int @fdc_generated(from: "AiInteraction.latencyMs", purpose: QUERY_MAX)
   """
-  ✨ Maximum of the `promptTokens` field in the `AIInteraction` table.
+  ✨ Maximum of the `promptTokens` field in the `AiInteraction` table.
   """
-  promptTokens_max: Int @fdc_generated(from: "AIInteraction.promptTokens", purpose: QUERY_MAX)
+  promptTokens_max: Int @fdc_generated(from: "AiInteraction.promptTokens", purpose: QUERY_MAX)
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "AIInteraction.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "AiInteraction.id", purpose: GLOBAL_ID)
 }

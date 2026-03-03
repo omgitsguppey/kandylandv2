@@ -1,0 +1,19 @@
+mutation CreateAiInteraction(
+  $userId: String!
+  $modelUsed: String!
+  $promptContent: String!
+  $responseContent: String!
+  $promptTokens: Int
+  $completionTokens: Int
+  $latencyMs: Int!
+) @auth(level: USER) {
+  aiInteraction_insert(data: {
+    userId: $userId
+    modelUsed: $modelUsed
+    promptContent: $promptContent
+    responseContent: $responseContent
+    promptTokens: $promptTokens
+    completionTokens: $completionTokens
+    latencyMs: $latencyMs
+  })
+}

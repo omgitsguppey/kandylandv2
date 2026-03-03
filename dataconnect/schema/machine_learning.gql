@@ -1,7 +1,7 @@
 # Machine Learning Interaction Tracking Schema
 # Stores AI prompt/response pairs for analytics and future model fine-tuning
 
-type AIInteraction @table(name: "ai_interactions") {
+type AiInteraction @table {
   id: UUID! @default(expr: "uuidV4()")
   userId: String!
   modelUsed: String!

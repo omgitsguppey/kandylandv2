@@ -1,5 +1,8 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
+import { getAI, getGenerativeModel, VertexAIBackend } from "firebase/ai";
+import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
+import type { AppCheck } from "firebase/app-check";
 
 const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -13,23 +16,39 @@ const firebaseConfig = {
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 
-// Initialize the Vertex AI Gemini API backend service (Firebase AI Logic)
-import { getAI, getGenerativeModel, VertexAIBackend } from "firebase/ai";
+let ai: ReturnType<typeof getAI> | undefined;
+let model: ReturnType<typeof getGenerativeModel> | undefined;
+let appCheck: AppCheck | undefined;
 
-let ai;
-let model;
-
-// Ensure we only initialize AI logic on the client-side to prevent SSR Node errors with Web APIs if not polyfilled
+// Client-only initializations (App Check, AI Logic)
 if (typeof window !== "undefined") {
+    // --- Firebase App Check (ReCaptcha Enterprise) ---
+    try {
+        // Enable debug token in development so local requests aren't rejected
+        if (process.env.NODE_ENV === "development") {
+            (self as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+        }
+
+        const recaptchaKey = process.env.NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_SITE_KEY;
+        if (recaptchaKey) {
+            appCheck = initializeAppCheck(app, {
+                provider: new ReCaptchaV3Provider(recaptchaKey),
+                isTokenAutoRefreshEnabled: true,
+            });
+        }
+    } catch (error) {
+        console.warn("Firebase App Check failed to initialize:", error);
+    }
+
+    // --- Firebase AI Logic (Gemini) ---
     try {
         ai = getAI(app, { backend: new VertexAIBackend() });
-        // Use gemini-2.5-flash-lite as the stable baseline for 2026
         model = getGenerativeModel(ai, { model: "gemini-2.5-flash-lite" });
     } catch (error) {
         console.warn("Firebase AI Logic failed to initialize on client:", error);
     }
 }
 
-export { app, auth, ai, model };
+export { app, auth, ai, model, appCheck };
 
 export const SITE_ORIGIN = "https://kandydrops-by-ikandy.web.app";
