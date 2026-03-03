@@ -24,6 +24,10 @@ env:
     value: "524442937"
   - variable: NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_SITE_KEY
     value: 6LcVzn0sAAAAAAvUIFe_D5Fo_viWyMl7OUgSDXs0
+  - variable: GA_MEASUREMENT_ID
+    value: G-V8PWC2L31H
+  - variable: GA_API_SECRET
+    secret: GA_API_SECRET
 
 secrets:
   - variable: NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE
