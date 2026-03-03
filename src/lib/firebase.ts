@@ -1,7 +1,7 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getAI, getGenerativeModel, VertexAIBackend } from "firebase/ai";
-import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
 import type { AppCheck } from "firebase/app-check";
 
 const firebaseConfig = {
@@ -22,7 +22,7 @@ let appCheck: AppCheck | undefined;
 
 // Client-only initializations (App Check, AI Logic)
 if (typeof window !== "undefined") {
-    // --- Firebase App Check (ReCaptcha V3) ---
+    // --- Firebase App Check (ReCaptcha Enterprise) ---
     try {
         // Enable debug token in development so local requests aren't rejected
         if (process.env.NODE_ENV === "development") {
@@ -32,7 +32,7 @@ if (typeof window !== "undefined") {
         const recaptchaKey = process.env.NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_SITE_KEY;
         if (recaptchaKey) {
             appCheck = initializeAppCheck(app, {
-                provider: new ReCaptchaV3Provider(recaptchaKey),
+                provider: new ReCaptchaEnterpriseProvider(recaptchaKey),
                 isTokenAutoRefreshEnabled: true,
             });
         }
