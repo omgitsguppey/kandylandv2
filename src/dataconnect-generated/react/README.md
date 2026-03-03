@@ -229,7 +229,6 @@ The `CreateAiInteraction` Mutation requires an argument of type `CreateAiInterac
 
 ```javascript
 export interface CreateAiInteractionVariables {
-  userId: string;
   modelUsed: string;
   promptContent: string;
   responseContent: string;
@@ -285,7 +284,6 @@ export default function CreateAiInteractionComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useCreateAiInteraction` Mutation requires an argument of type `CreateAiInteractionVariables`:
   const createAiInteractionVars: CreateAiInteractionVariables = {
-    userId: ..., 
     modelUsed: ..., 
     promptContent: ..., 
     responseContent: ..., 
@@ -295,7 +293,7 @@ export default function CreateAiInteractionComponent() {
   };
   mutation.mutate(createAiInteractionVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ userId: ..., modelUsed: ..., promptContent: ..., responseContent: ..., promptTokens: ..., completionTokens: ..., latencyMs: ..., });
+  mutation.mutate({ modelUsed: ..., promptContent: ..., responseContent: ..., promptTokens: ..., completionTokens: ..., latencyMs: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {

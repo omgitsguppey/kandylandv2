@@ -18,7 +18,6 @@ export interface CreateAiInteractionData {
 }
 
 export interface CreateAiInteractionVariables {
-  userId: string;
   modelUsed: string;
   promptContent: string;
   responseContent: string;

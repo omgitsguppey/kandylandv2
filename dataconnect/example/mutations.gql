@@ -1,5 +1,4 @@
 mutation CreateAiInteraction(
-  $userId: String!
   $modelUsed: String!
   $promptContent: String!
   $responseContent: String!
@@ -8,7 +7,7 @@ mutation CreateAiInteraction(
   $latencyMs: Int!
 ) @auth(level: USER) {
   aiInteraction_insert(data: {
-    userId: $userId
+    userId_expr: "auth.uid"
     modelUsed: $modelUsed
     promptContent: $promptContent
     responseContent: $responseContent

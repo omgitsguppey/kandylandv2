@@ -208,7 +208,6 @@ The `CreateAiInteraction` mutation requires an argument of type `CreateAiInterac
 
 ```typescript
 export interface CreateAiInteractionVariables {
-  userId: string;
   modelUsed: string;
   promptContent: string;
   responseContent: string;
@@ -234,7 +233,6 @@ import { connectorConfig, createAiInteraction, CreateAiInteractionVariables } fr
 
 // The `CreateAiInteraction` mutation requires an argument of type `CreateAiInteractionVariables`:
 const createAiInteractionVars: CreateAiInteractionVariables = {
-  userId: ..., 
   modelUsed: ..., 
   promptContent: ..., 
   responseContent: ..., 
@@ -247,7 +245,7 @@ const createAiInteractionVars: CreateAiInteractionVariables = {
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await createAiInteraction(createAiInteractionVars);
 // Variables can be defined inline as well.
-const { data } = await createAiInteraction({ userId: ..., modelUsed: ..., promptContent: ..., responseContent: ..., promptTokens: ..., completionTokens: ..., latencyMs: ..., });
+const { data } = await createAiInteraction({ modelUsed: ..., promptContent: ..., responseContent: ..., promptTokens: ..., completionTokens: ..., latencyMs: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -270,7 +268,6 @@ import { connectorConfig, createAiInteractionRef, CreateAiInteractionVariables }
 
 // The `CreateAiInteraction` mutation requires an argument of type `CreateAiInteractionVariables`:
 const createAiInteractionVars: CreateAiInteractionVariables = {
-  userId: ..., 
   modelUsed: ..., 
   promptContent: ..., 
   responseContent: ..., 
@@ -282,7 +279,7 @@ const createAiInteractionVars: CreateAiInteractionVariables = {
 // Call the `createAiInteractionRef()` function to get a reference to the mutation.
 const ref = createAiInteractionRef(createAiInteractionVars);
 // Variables can be defined inline as well.
-const ref = createAiInteractionRef({ userId: ..., modelUsed: ..., promptContent: ..., responseContent: ..., promptTokens: ..., completionTokens: ..., latencyMs: ..., });
+const ref = createAiInteractionRef({ modelUsed: ..., promptContent: ..., responseContent: ..., promptTokens: ..., completionTokens: ..., latencyMs: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
