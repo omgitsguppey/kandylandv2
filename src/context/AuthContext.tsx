@@ -12,14 +12,13 @@ import {
     browserLocalPersistence,
     signOut,
 } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, app } from "@/lib/firebase";
 import { UserProfile } from "@/types/db";
 import { normalizeUserProfile } from "@/lib/user-utils";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
 import { getAnalytics, logEvent } from "firebase/analytics";
-import { app } from "@/lib/firebase";
 
 interface AuthIdentityContextType {
     user: User | null;

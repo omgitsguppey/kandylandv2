@@ -3,6 +3,7 @@ import { z } from "zod";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAuth, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
+import { trackServerEvent } from "@/lib/server/analytics";
 
 const bodySchema = z.object({
   orderId: z.string().min(1),
@@ -160,6 +161,14 @@ export async function POST(request: NextRequest) {
         captureId: capture.id ?? null,
         createdAt: FieldValue.serverTimestamp(),
       });
+
+      // Track server-side event for analytics
+      trackServerEvent("purchase_verified", {
+        transaction_id: orderId,
+        value: Number.parseFloat(paidAmountStr),
+        currency: "USD",
+        items_count: dropsToCredit,
+      }, userId).catch(err => console.error("Server-side tracking failed:", err));
 
       return { duplicate: false };
     });

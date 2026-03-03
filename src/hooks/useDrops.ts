@@ -34,7 +34,21 @@ export function useDrops(statusFilter: string[] | null = ["active", "scheduled"]
       dropsQuery,
       (snapshot) => {
         try {
-          const dropsData: Drop[] = snapshot.docs.map((dropDoc) => normalizeDropRecord(dropDoc.data(), dropDoc.id));
+          const now = Date.now();
+          const dropsData: Drop[] = snapshot.docs
+            .map((dropDoc) => normalizeDropRecord(dropDoc.data(), dropDoc.id))
+            .filter((drop) => {
+              // Real-time client-side expiration filter
+              if (drop.status === "active" && drop.validUntil && now >= drop.validUntil) {
+                return false;
+              }
+              // Real-time client-side scheduled-to-active filter
+              if (drop.status === "scheduled" && drop.validFrom && now < drop.validFrom) {
+                // Keep it for now, it will become active later
+                return true;
+              }
+              return true;
+            });
           setDrops(dropsData);
           setLoading(false);
         } catch (parseError) {
@@ -49,7 +63,30 @@ export function useDrops(statusFilter: string[] | null = ["active", "scheduled"]
       }
     );
 
-    return () => unsubscribe();
+    // Periodic check to expire drops that are already in the list
+    const timer = setInterval(() => {
+      const now = Date.now();
+      setDrops((currentDrops) => {
+        let changed = false;
+        const nextDrops = currentDrops.filter((drop) => {
+          if (drop.status === "active" && drop.validUntil && now >= drop.validUntil) {
+            changed = true;
+            return false;
+          }
+          if (drop.status === "scheduled" && drop.validFrom && now >= drop.validFrom) {
+            // Ideally we'd change status to active here, but we'll wait for the next snapshot
+            // unless we want to "fudge" it client-side.
+          }
+          return true;
+        });
+        return changed ? nextDrops : currentDrops;
+      });
+    }, 10000); // Check every 10 seconds
+
+    return () => {
+      unsubscribe();
+      clearInterval(timer);
+    };
   }, [filterKey]);
 
   return { drops, loading, error };
