@@ -27,7 +27,6 @@ interface RosterEntry {
 }
 
 const PAGE_SIZE = 25;
-const ADMIN_EMAIL = "uylusjohnson@gmail.com";
 
 function normalizeRosterEntry(doc: QueryDocumentSnapshot<DocumentData>): RosterEntry | null {
     const raw = doc.data();
@@ -91,7 +90,7 @@ export default function AdminRosterPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
-    const isAdmin = userProfile?.role === "admin" || user?.email === ADMIN_EMAIL;
+    const isAdmin = userProfile?.role === "admin";
 
     useEffect(() => {
         if (authLoading || !isAdmin) {
