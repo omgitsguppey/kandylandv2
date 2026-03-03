@@ -22,7 +22,7 @@ let appCheck: AppCheck | undefined;
 
 // Client-only initializations (App Check, AI Logic)
 if (typeof window !== "undefined") {
-    // --- Firebase App Check (ReCaptcha Enterprise) ---
+    // --- Firebase App Check (ReCaptcha V3) ---
     try {
         // Enable debug token in development so local requests aren't rejected
         if (process.env.NODE_ENV === "development") {

@@ -6,6 +6,7 @@ import {
     BarChart, Bar, Cell
 } from 'recharts';
 import { Loader2, Users, Eye, Activity, RefreshCw, BarChart3, MapPin, Trophy, FileText, BarChart2 } from "lucide-react";
+import { authFetch } from "@/lib/authFetch";
 
 type TimeFilter = "live" | "24h" | "7d" | "30d" | "all";
 
@@ -17,6 +18,9 @@ export default function AdminAnalyticsPage() {
 
     // Data states
     const [liveActive, setLiveActive] = useState(0);
+    const [liveData, setLiveData] = useState<any[]>([]);
+    const [chartData, setChartData] = useState<any[]>([]);
+    const [totals, setTotals] = useState<any>({ users: 0, views: 0, sessions: 0, newUsers: 0, avgSessionDuration: 0, engagementRate: 0 });
     const [eventsData, setEventsData] = useState<any>({});
     const [geoData, setGeoData] = useState<any[]>([]);
     const [pagesData, setPagesData] = useState<any[]>([]);
