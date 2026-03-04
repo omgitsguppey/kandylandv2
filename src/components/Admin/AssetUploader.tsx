@@ -6,6 +6,8 @@ import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { storage } from "@/lib/firebase-data";
 import { cn } from "@/lib/utils";
 import Cropper, { Area } from "react-easy-crop";
+import { app } from "@/lib/firebase";
+import { getAnalytics, logEvent } from "firebase/analytics";
 
 export type UploadAspectRatio = "1:1" | "16:9" | "9:16";
 
@@ -160,6 +162,11 @@ export function AssetUploader({
     setAssets((current) => current.map((item) => item.id === target.id ? { ...item, uploading: true } : item));
 
     try {
+      const analytics = getAnalytics(app);
+      logEvent(analytics, 'asset_upload_started', { kind: target.kind });
+    } catch (e) { }
+
+    try {
       const originalFile = target.file;
       let uploadBlob: Blob = originalFile;
       let uploadExtension = originalFile.name.split(".").pop() || "bin";
@@ -179,6 +186,11 @@ export function AssetUploader({
       });
 
       const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+      try {
+        const analytics = getAnalytics(app);
+        logEvent(analytics, 'asset_upload_success', { kind: target.kind, format: uploadExtension });
+      } catch (e) { }
+
       setAssets((current) => current.map((item) => item.id === target.id
         ? {
           ...item,
@@ -190,6 +202,10 @@ export function AssetUploader({
         : item));
     } catch (error) {
       console.error("Asset upload failed", error);
+      try {
+        const analytics = getAnalytics(app);
+        logEvent(analytics, 'asset_upload_failed', { kind: target.kind, error: error instanceof Error ? error.message : "unknown" });
+      } catch (e) { }
       setAssets((current) => current.map((item) => item.id === target.id ? { ...item, uploading: false } : item));
     }
   }, [disableCrop, folder]);

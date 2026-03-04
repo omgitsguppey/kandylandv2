@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     const dropRef = adminDb.collection("drops").doc(dropId);
 
     const result = await adminDb.runTransaction(async (transaction) => {
-      // Must read from dropRef INSIDE transaction!
+      // --- READ PHASE: All reads must happen before any writes ---
       const dropSnap = await transaction.get(dropRef);
       if (!dropSnap.exists) {
         throw new Error("Drop not found");
@@ -67,6 +67,9 @@ export async function POST(request: NextRequest) {
       }
 
       const unwrappedAt = Date.now();
+      const transactionRef = adminDb.collection("transactions").doc();
+
+      // --- WRITE PHASE: Mutations only occur after all conditions are met ---
 
       transaction.update(userRef, {
         gumDropsBalance: FieldValue.increment(-unlockCost),
@@ -74,7 +77,6 @@ export async function POST(request: NextRequest) {
         [`unlockedContentTimestamps.${dropId}`]: unwrappedAt,
       });
 
-      const transactionRef = adminDb.collection("transactions").doc();
       transaction.set(transactionRef, {
         userId,
         type: "unlock_content",

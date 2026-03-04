@@ -38,7 +38,7 @@ export function RecentTransactionsPanel() {
                 {transactions.length === 0 ? (
                     <div className="text-sm text-gray-500 py-4 text-center">No recent transactions.</div>
                 ) : transactions.map((tx) => {
-                    const timestamp = tx.timestamp > 0 ? tx.timestamp : Date.now();
+                    const timestamp = (tx.timestamp as number) > 0 ? (tx.timestamp as number) : Date.now();
                     return (
                         <div key={tx.id} className="flex items-center justify-between border-b border-white/5 pb-3 last:border-0">
                             <div>

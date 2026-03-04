@@ -196,7 +196,7 @@ export default function AdminUserAnalyticsPage() {
                                         <div className="min-w-0 flex-1">
                                             <div className="text-sm font-bold text-white line-clamp-1">{tx.description || tType}</div>
                                             <div className="text-[10px] text-gray-500 font-mono mt-1">
-                                                {formatDistanceToNow(tx.timestamp > 0 ? tx.timestamp : Date.now(), { addSuffix: true })}
+                                                {formatDistanceToNow((tx.timestamp as number) > 0 ? (tx.timestamp as number) : Date.now(), { addSuffix: true })}
                                             </div>
                                         </div>
                                         <div className="flex flex-col items-end gap-1 ml-4 shrink-0">

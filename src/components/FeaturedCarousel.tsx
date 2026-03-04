@@ -76,7 +76,7 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
 
     if (featuredDrops.length === 0) return null;
 
-    const activeDrop = featuredDrops[activeIndex];
+    const activeDrop = featuredDrops[activeIndex] || featuredDrops[0];
     const activeAspectRatio = getSupportedDropAspectRatio(activeDrop);
 
     const onTouchStart: TouchEventHandler<HTMLDivElement> = (event) => {

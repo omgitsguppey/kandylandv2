@@ -56,7 +56,7 @@ export function TransactionHistoryModal({ user, onClose }: Props) {
                             }
                         })
                         .filter((entry): entry is Transaction => entry !== null)
-                        .sort((a, b) => b.timestamp - a.timestamp);
+                        .sort((a, b) => (b.timestamp as number) - (a.timestamp as number));
                     setTransactions(txs);
                 } catch (fallbackError) {
                     console.error("Error fetching transactions:", fallbackError);
@@ -128,7 +128,7 @@ export function TransactionHistoryModal({ user, onClose }: Props) {
                                             ) : (
                                                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-500/10 text-gray-400 border border-gray-500/20 capitalize">{tx.type}</span>
                                             )}
-                                            <span className="text-xs text-gray-500 whitespace-nowrap">{formatTxTime(tx.timestamp)}</span>
+                                            <span className="text-xs text-gray-500 whitespace-nowrap">{formatTxTime(tx.timestamp as number)}</span>
                                         </div>
                                         <p className="text-sm text-gray-300 truncate" title={tx.description}>
                                             {tx.description || "No description"}

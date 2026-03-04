@@ -164,51 +164,72 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             toast.success("Welcome back!");
             router.push("/dashboard");
         } catch (error: unknown) {
+            try {
+                const analytics = getAnalytics(app);
+                logEvent(analytics, 'login_failure', { method: 'google', error: error instanceof Error ? error.message : "unknown" });
+            } catch (err) { }
             const message = error instanceof Error ? error.message : "Login failed";
             toast.error(message);
+            throw error;
         }
     };
 
     const signInWithEmail = async (email: string, pass: string) => {
-        await ensureAuthPersistence();
-        await signInWithEmailAndPassword(auth, email, pass);
-
         try {
-            const analytics = getAnalytics(app);
-            logEvent(analytics, 'user_login', { method: 'email' });
-        } catch (err) { }
+            await ensureAuthPersistence();
+            await signInWithEmailAndPassword(auth, email, pass);
 
-        toast.success("Welcome back!");
-        router.push("/dashboard");
+            try {
+                const analytics = getAnalytics(app);
+                logEvent(analytics, 'user_login', { method: 'email' });
+            } catch (err) { }
+
+            toast.success("Welcome back!");
+            router.push("/dashboard");
+        } catch (error: unknown) {
+            try {
+                const analytics = getAnalytics(app);
+                logEvent(analytics, 'login_failure', { method: 'email', error: error instanceof Error ? error.message : "unknown" });
+            } catch (err) { }
+            throw error;
+        }
     };
 
     const signUpWithEmail = async (email: string, pass: string, username: string, dob: string) => {
-        await ensureAuthPersistence();
-        await createUserWithEmailAndPassword(auth, email, pass);
-
-        const response = await authFetch("/api/user/register", {
-            method: "POST",
-            body: JSON.stringify({
-                displayName: username,
-                username: username.replace(/\s+/g, "").toLowerCase(),
-                dateOfBirth: dob,
-                welcomeBonus: true,
-                referredBy: typeof window !== "undefined" ? sessionStorage.getItem("kandy_referral") : undefined,
-            }),
-        });
-
-        if (!response.ok) {
-            const result = (await response.json()) as { error?: string };
-            throw new Error(result.error || "Registration failed");
-        }
-
         try {
-            const analytics = getAnalytics(app);
-            logEvent(analytics, 'user_login', { method: 'email_signup' });
-        } catch (err) { }
+            await ensureAuthPersistence();
+            await createUserWithEmailAndPassword(auth, email, pass);
 
-        toast.success("Account created! +100 Gum Drops");
-        router.push("/dashboard");
+            const response = await authFetch("/api/user/register", {
+                method: "POST",
+                body: JSON.stringify({
+                    displayName: username,
+                    username: username.replace(/\s+/g, "").toLowerCase(),
+                    dateOfBirth: dob,
+                    welcomeBonus: true,
+                    referredBy: typeof window !== "undefined" ? sessionStorage.getItem("kandy_referral") : undefined,
+                }),
+            });
+
+            if (!response.ok) {
+                const result = (await response.json()) as { error?: string };
+                throw new Error(result.error || "Registration failed");
+            }
+
+            try {
+                const analytics = getAnalytics(app);
+                logEvent(analytics, 'user_login', { method: 'email_signup' });
+            } catch (err) { }
+
+            toast.success("Account created! +100 Gum Drops");
+            router.push("/dashboard");
+        } catch (error: unknown) {
+            try {
+                const analytics = getAnalytics(app);
+                logEvent(analytics, 'login_failure', { method: 'email_signup', error: error instanceof Error ? error.message : "unknown" });
+            } catch (err) { }
+            throw error;
+        }
     };
 
     const logout = async () => {

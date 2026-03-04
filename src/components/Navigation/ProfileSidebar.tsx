@@ -6,6 +6,8 @@ import { LogOut, LayoutDashboard, Library, Settings, X, Plus, History } from "lu
 
 import { useAuthIdentity, useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
+import { app } from "@/lib/firebase";
+import { getAnalytics, logEvent } from "firebase/analytics";
 
 interface ProfileSidebarProps {
     isOpen: boolean;
@@ -128,10 +130,18 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
 }
 
 function SidebarItem({ href, icon, label, onClick }: SidebarItemProps) {
+    const handleClick = () => {
+        try {
+            const analytics = getAnalytics(app);
+            logEvent(analytics, 'navigation_click', { destination: href, source: 'profile_sidebar' });
+        } catch (e) { }
+        onClick();
+    };
+
     return (
         <Link
             href={href}
-            onClick={onClick}
+            onClick={handleClick}
             className="flex items-center gap-3 px-4 py-3 text-gray-300 rounded-xl transition-all group hover:bg-white/5"
         >
             <span className="transition-colors">{icon}</span>

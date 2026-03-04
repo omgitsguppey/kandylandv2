@@ -91,7 +91,7 @@ export function RecentActivityFeed() {
                                         {tx.description && ` - ${tx.description}`}
                                     </p>
                                     <p className="text-[10px] text-gray-400">
-                                        {tx.timestamp ? formatDistanceToNow(new Date(tx.timestamp), { addSuffix: true }) : "Just now"}
+                                        {tx.timestamp ? formatDistanceToNow(new Date(tx.timestamp as number), { addSuffix: true }) : "Just now"}
                                     </p>
                                 </div>
                             </div>

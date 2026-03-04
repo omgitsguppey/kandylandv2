@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useAuthIdentity, useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { LogIn, Wallet, Plus } from "lucide-react";
+import { app } from "@/lib/firebase";
+import { getAnalytics, logEvent } from "firebase/analytics";
 
 import { ProfileDropdown } from "@/components/Navigation/ProfileDropdown";
 import { ProfileSidebar } from "@/components/Navigation/ProfileSidebar";
@@ -30,7 +32,12 @@ export function Navbar() {
         <>
             <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4 transition-all" style={{ paddingTop: 'calc(1rem + env(safe-area-inset-top))' }}>
                 <div className="max-w-7xl mx-auto bg-black/55 backdrop-blur-xl border border-white/10 rounded-full px-6 py-3 flex items-center justify-between shadow-xl shadow-black/40" style={{ WebkitBackdropFilter: 'blur(20px)' }}>
-                    <Link href="/" className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-brand-purple">
+                    <Link href="/" onClick={() => {
+                        try {
+                            const analytics = getAnalytics(app);
+                            logEvent(analytics, 'navigation_click', { destination: '/', source: 'navbar_logo' });
+                        } catch (e) { }
+                    }} className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-brand-purple">
                         KandyDrops
                     </Link>
 

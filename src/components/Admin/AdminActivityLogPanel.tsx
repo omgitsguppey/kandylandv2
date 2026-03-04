@@ -31,7 +31,7 @@ export function AdminActivityLogPanel() {
                 }
             });
             // Sort client side since we dropped orderBy from the query to avoid missing composite index errors
-            list.sort((a, b) => b.timestamp - a.timestamp);
+            list.sort((a, b) => (b.timestamp as number) - (a.timestamp as number));
             setLogs(list.slice(0, 10)); // keep last 10
             setLoading(false);
         }, (error) => {
@@ -71,7 +71,7 @@ export function AdminActivityLogPanel() {
                                         Admin Adjustment
                                     </p>
                                     <span className="text-[10px] text-gray-500 whitespace-nowrap ml-3">
-                                        {formatDistanceToNow(log.timestamp, { addSuffix: true })}
+                                        {formatDistanceToNow(log.timestamp as number, { addSuffix: true })}
                                     </span>
                                 </div>
                                 <p className="text-xs text-brand-purple mb-1">

@@ -104,20 +104,20 @@ export async function POST(request: NextRequest) {
 
     const parsed = captureSchema.parse(captureData);
     if (parsed.status !== "COMPLETED") {
-      await logFailedTransaction(userId, orderId, expectedDrops, "Payment was not completed initially in PayPal");
+      logFailedTransaction(userId, orderId, expectedDrops, "Payment was not completed initially in PayPal");
       return NextResponse.json({ error: "Payment was not completed" }, { status: 400 });
     }
 
     const capture = parsed.purchase_units[0]?.payments.captures[0];
     if (!capture || capture.amount.currency_code !== "USD") {
-      await logFailedTransaction(userId, orderId, expectedDrops, "Invalid currency or missing capture data");
+      logFailedTransaction(userId, orderId, expectedDrops, "Invalid currency or missing capture data");
       return NextResponse.json({ error: "Invalid payment data" }, { status: 400 });
     }
 
     const paidAmountStr = Number.parseFloat(capture.amount.value).toFixed(2);
     const dropsToCredit = VALID_PACKAGES[paidAmountStr];
     if (!dropsToCredit || dropsToCredit !== expectedDrops) {
-      await logFailedTransaction(userId, orderId, expectedDrops, `Package mismatch: paid ${paidAmountStr} for expected ${expectedDrops} drops`);
+      logFailedTransaction(userId, orderId, expectedDrops, `Package mismatch: paid ${paidAmountStr} for expected ${expectedDrops} drops`);
       return NextResponse.json({ error: "Payment package mismatch" }, { status: 400 });
     }
 
@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
     if (customId) {
       const [capturedUserId] = customId.split(":");
       if (capturedUserId !== userId) {
-        await logFailedTransaction(userId, orderId, expectedDrops, "User identity mismatch in capture payload");
+        logFailedTransaction(userId, orderId, expectedDrops, "User identity mismatch in capture payload");
         return NextResponse.json({ error: "User verification failed" }, { status: 403 });
       }
     }

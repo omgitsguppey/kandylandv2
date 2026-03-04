@@ -14,6 +14,8 @@ import { differenceInYears, parseISO } from "date-fns";
 import { authFetch } from "@/lib/authFetch";
 import Image from "next/image";
 import { mutate } from "swr";
+import { app } from "@/lib/firebase";
+import { getAnalytics, logEvent } from "firebase/analytics";
 
 // Validation Schema
 const onboardingSchema = z.object({
@@ -72,6 +74,13 @@ export function OnboardingModal() {
             const missingDob = !userProfile.dateOfBirth;
 
             if (missingUsername || missingDob) {
+                if (!isOpen) { // Only log on initial modal trigger
+                    try {
+                        const analytics = getAnalytics(app);
+                        logEvent(analytics, 'onboarding_started');
+                        logEvent(analytics, 'onboarding_step_viewed', { step: 1 });
+                    } catch (e) { }
+                }
                 setIsOpen(true);
                 if (missingUsername && user.displayName) {
                     const clean = user.displayName.replace(/\s+/g, '').toLowerCase();
@@ -138,7 +147,15 @@ export function OnboardingModal() {
             valid = await trigger("dateOfBirth");
         }
 
-        if (valid) setStep(prev => prev + 1);
+        if (valid) {
+            setStep((prev) => {
+                try {
+                    const analytics = getAnalytics(app);
+                    logEvent(analytics, 'onboarding_step_viewed', { step: prev + 1 });
+                } catch (e) { }
+                return prev + 1;
+            });
+        }
     };
 
     const onSubmit = async (data: OnboardingFormData) => {
@@ -153,6 +170,10 @@ export function OnboardingModal() {
                 const storageRef = ref(storage, `users/${user.uid}/avatar_${Date.now()}`);
                 await uploadBytes(storageRef, avatarFile);
                 photoURL = await getDownloadURL(storageRef);
+                try {
+                    const analytics = getAnalytics(app);
+                    logEvent(analytics, 'avatar_uploaded');
+                } catch (e) { }
             }
 
             // Submit to server API
@@ -168,6 +189,11 @@ export function OnboardingModal() {
 
             const result = await response.json();
             if (!response.ok) throw new Error(result.error || "Profile save failed");
+
+            try {
+                const analytics = getAnalytics(app);
+                logEvent(analytics, 'onboarding_complete');
+            } catch (e) { }
 
             setShowSuccess(true);
             setTimeout(() => {
