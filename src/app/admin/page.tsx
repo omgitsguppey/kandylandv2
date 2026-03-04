@@ -17,18 +17,18 @@ export default function AdminDashboardPage() {
                 </div>
             </header>
 
-            <Link href="/admin/analytics" className="block w-full rounded-3xl overflow-hidden glass-panel border border-white/10 group mb-12 hover:border-brand-pink/50 transition-colors">
-                <div className="bg-gradient-to-r from-brand-pink/10 to-transparent p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <Link href="/admin/analytics" className="block w-full rounded-3xl overflow-hidden glass-panel border border-white/10 group mb-12 hover:border-brand-purple/50 transition-colors">
+                <div className="bg-gradient-to-r from-brand-purple/10 to-transparent p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-brand-pink/20 text-brand-pink flex items-center justify-center shrink-0">
+                        <div className="w-12 h-12 rounded-2xl bg-brand-purple/20 text-brand-purple flex items-center justify-center shrink-0">
                             <TrendingUp className="w-6 h-6" />
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-white group-hover:text-brand-pink transition-colors">Core Metrics Hub</h2>
+                            <h2 className="text-xl font-bold text-white group-hover:text-brand-purple transition-colors">Core Metrics Hub</h2>
                             <p className="text-sm text-gray-400">Tap to dive deep into real-time users and historical retention charts</p>
                         </div>
                     </div>
-                    <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center shrink-0 group-hover:bg-brand-pink group-hover:text-white transition-colors">
+                    <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center shrink-0 group-hover:bg-brand-purple group-hover:text-white transition-colors">
                         <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-white" />
                     </div>
                 </div>

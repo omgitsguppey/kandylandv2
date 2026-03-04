@@ -84,21 +84,21 @@ export function TransactionHistoryModal({ user, onClose }: Props) {
                 <div className="flex items-center justify-between mb-6 shrink-0">
                     <div>
                         <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                            <ScrollText className="w-5 h-5 text-brand-pink" />
+                            <ScrollText className="w-5 h-5 text-brand-purple" />
                             History: {user.displayName || "User"}
                         </h3>
                         <p className="text-sm text-gray-400 mt-1">Showing last 30 transactions</p>
                     </div>
                     <div className="bg-white/5 border border-white/10 px-3 py-1.5 rounded-xl text-center">
                         <span className="block text-[10px] font-bold text-gray-500 uppercase">Balance</span>
-                        <span className="font-mono font-bold text-brand-pink">{user.gumDropsBalance || 0} 🍬</span>
+                        <span className="font-mono font-bold text-brand-purple">{user.gumDropsBalance || 0} 🍬</span>
                     </div>
                 </div>
 
                 <div className="flex-1 overflow-y-auto mb-6 pr-2 -mr-2 space-y-3 custom-scrollbar">
                     {loading ? (
                         <div className="py-12 flex justify-center">
-                            <Loader2 className="w-6 h-6 animate-spin text-brand-pink" />
+                            <Loader2 className="w-6 h-6 animate-spin text-brand-purple" />
                         </div>
                     ) : transactions.length === 0 ? (
                         <div className="text-center py-12 bg-white/5 rounded-xl border border-white/5 text-gray-500 text-sm">

@@ -39,7 +39,7 @@ function DashboardDropCardBase({ drop, isUnlocked, onClick }: DashboardDropCardP
                 {/* Status Badge */}
                 <div className="absolute top-2 right-2">
                     {isUnlocked ? (
-                        <div className="bg-brand-green/90 backdrop-blur-md px-2 py-0.5 rounded-full text-[10px] font-bold text-white flex items-center gap-1 shadow-sm border border-brand-green/20">
+                        <div className="bg-brand-purple/90 backdrop-blur-md px-2 py-0.5 rounded-full text-[10px] font-bold text-white flex items-center gap-1 shadow-sm border border-brand-purple/20">
                             <Unlock className="w-3 h-3" /> Owned
                         </div>
                     ) : (
@@ -78,7 +78,7 @@ function DashboardDropCardBase({ drop, isUnlocked, onClick }: DashboardDropCardP
                             <Link
                                 href={`/dashboard/viewer?id=${drop.id}`}
                                 onClick={(e) => e.stopPropagation()}
-                                className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-brand-cyan/10 text-brand-cyan text-xs font-bold transition-colors border border-brand-cyan/20 hover:bg-brand-cyan/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan/40"
+                                className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-brand-purple/10 text-brand-purple text-xs font-bold transition-colors border border-brand-purple/20 hover:bg-brand-purple/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple/40"
                             >
                                 <Eye className="w-3.5 h-3.5" /> View
                             </Link>

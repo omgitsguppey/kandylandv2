@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
+import { checkRateLimit, STANDARD } from "@/lib/server/rate-limit";
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
 import { sanitizeDropForClient } from "@/lib/server/drops";
 import { Drop } from "@/types/db";
@@ -9,6 +10,8 @@ export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
     try {
+        await checkRateLimit(request, "drops/feed", STANDARD);
+
         if (!adminDb) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });
         }

@@ -61,7 +61,7 @@ export default function DebugConsole() {
     return (
         <div className="space-y-6">
             <div className="flex items-center gap-3 mb-6">
-                <Terminal className="w-8 h-8 text-brand-cyan" />
+                <Terminal className="w-8 h-8 text-brand-purple" />
                 <h1 className="text-3xl font-bold text-white">Debug Console</h1>
             </div>
 
@@ -69,7 +69,7 @@ export default function DebugConsole() {
                 {/* Simulation Tools */}
                 <div className="glass-panel p-6 rounded-2xl border border-white/5 space-y-4">
                     <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                        <PlayCircle className="w-5 h-5 text-brand-pink" />
+                        <PlayCircle className="w-5 h-5 text-brand-purple" />
                         Simulate Actions
                     </h2>
 
@@ -144,7 +144,7 @@ export default function DebugConsole() {
                             {logs.map((log) => (
                                 <tr key={log.id} className="">
                                     <td className="p-3 text-gray-400">{log.timestamp}</td>
-                                    <td className="p-3 text-brand-cyan">{log.type}</td>
+                                    <td className="p-3 text-brand-purple">{log.type}</td>
                                     <td className="p-3 text-white">{log.amount}</td>
                                     <td className="p-3 text-gray-500 truncate max-w-[100px]" title={log.userId}>{log.userId}</td>
                                     <td className="p-3 text-gray-300">{log.description}</td>

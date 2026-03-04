@@ -45,7 +45,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="antialiased min-h-[100dvh] app-bg text-white selection:bg-brand-pink selection:text-white flex flex-col">
+      <body className="antialiased min-h-[100dvh] app-bg text-white selection:bg-brand-purple selection:text-white flex flex-col">
         <AuthProvider>
           <SWRProvider>
             <UIProvider>

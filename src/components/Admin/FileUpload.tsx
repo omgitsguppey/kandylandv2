@@ -103,7 +103,7 @@ export function FileUpload({ label, folder, onUploadComplete, initialUrl, accept
                 className={cn(
                     "relative group cursor-pointer transition-all duration-200 ease-in-out",
                     "border-2 border-dashed rounded-xl p-4 flex flex-col items-center justify-center text-center",
-                    dragActive ? "border-brand-pink bg-brand-pink/5" : "border-white/10  ",
+                    dragActive ? "border-brand-purple bg-brand-purple/5" : "border-white/10  ",
                     previewUrl ? "h-64" : "h-32"
                 )}
                 onDragEnter={handleDrag}
@@ -122,10 +122,10 @@ export function FileUpload({ label, folder, onUploadComplete, initialUrl, accept
 
                 {isUploading ? (
                     <div className="w-full max-w-xs space-y-2">
-                        <Loader2 className="w-8 h-8 animate-spin text-brand-pink mx-auto" />
+                        <Loader2 className="w-8 h-8 animate-spin text-brand-purple mx-auto" />
                         <div className="h-2 bg-white/10 rounded-full overflow-hidden">
                             <div
-                                className="h-full bg-brand-pink transition-all duration-300"
+                                className="h-full bg-brand-purple transition-all duration-300"
                                 style={{ width: `${progress}%` }}
                             />
                         </div>
@@ -147,7 +147,7 @@ export function FileUpload({ label, folder, onUploadComplete, initialUrl, accept
                                 className="w-full h-full object-contain rounded-lg"
                             />
                         ) : (
-                            <div className="flex flex-col items-center gap-2 text-brand-green">
+                            <div className="flex flex-col items-center gap-2 text-brand-purple">
                                 <FileType className="w-12 h-12" />
                                 <span className="text-sm font-mono truncate max-w-[200px]">{previewUrl.split('/').pop()?.split('?')[0]}</span>
                             </div>
@@ -171,7 +171,7 @@ export function FileUpload({ label, folder, onUploadComplete, initialUrl, accept
                             <Upload className="w-5 h-5 text-gray-400" />
                         </div>
                         <div className="text-sm text-gray-400">
-                            <span className="text-brand-pink font-bold">Click to upload</span> or drag and drop
+                            <span className="text-brand-purple font-bold">Click to upload</span> or drag and drop
                         </div>
                         {helperText && <p className="text-xs text-gray-500">{helperText}</p>}
                     </div>

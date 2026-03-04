@@ -22,8 +22,8 @@ export default function DashboardLayout({
     if (loading || !user) {
         return (
             <div className="min-h-screen bg-black flex flex-col items-center justify-center">
-                <div className="w-10 h-10 rounded-full border-[3px] border-brand-pink/20 border-t-brand-pink animate-spin mb-4" />
-                <p className="text-brand-pink/80 text-sm tracking-widest uppercase font-medium mt-2">Please wait</p>
+                <div className="w-10 h-10 rounded-full border-[3px] border-brand-purple/20 border-t-brand-purple animate-spin mb-4" />
+                <p className="text-brand-purple/80 text-sm tracking-widest uppercase font-medium mt-2">Please wait</p>
             </div>
         );
     }

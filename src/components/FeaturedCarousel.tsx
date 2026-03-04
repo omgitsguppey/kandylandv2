@@ -169,7 +169,7 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
 
                                 <div className="pt-2 flex items-center gap-3">
                                     {userProfile?.unlockedContent?.includes(drop.id) ? (
-                                        <div className="px-3 py-1.5 bg-brand-green/20 border border-brand-green/30 rounded-lg text-brand-green font-bold text-sm">View Content</div>
+                                        <div className="px-3 py-1.5 bg-brand-purple/20 border border-brand-purple/30 rounded-lg text-brand-purple font-bold text-sm">View Content</div>
                                     ) : (
                                         <div className="px-3 py-1.5 bg-brand-purple/20 border border-brand-purple/30 rounded-lg text-brand-purple font-bold text-sm">
                                             {drop.unlockCost} GD
@@ -193,7 +193,7 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
                             setActiveIndex(index);
                             resetAutoAdvance();
                         }}
-                        className={cn("h-2.5 rounded-full transition-all", index === activeIndex ? "w-7 bg-brand-pink" : "w-2.5 bg-white/25")}
+                        className={cn("h-2.5 rounded-full transition-all", index === activeIndex ? "w-7 bg-brand-purple" : "w-2.5 bg-white/25")}
                         aria-label={`Go to featured drop ${index + 1}`}
                         aria-current={index === activeIndex}
                     />
@@ -214,7 +214,7 @@ function TimerWithProgress({ validFrom, validUntil }: { validFrom: number; valid
                     isUrgent ? "bg-red-500/75 border-red-300/60" : "bg-black/65 border-white/20"
                 )}
             >
-                <Clock className="w-3.5 h-3.5 text-brand-pink" />
+                <Clock className="w-3.5 h-3.5 text-brand-purple" />
                 <span>{label}</span>
             </div>
             <LifetimeProgressBar progressPercent={progressPercent} isUrgent={isUrgent} />
@@ -228,7 +228,7 @@ function LifetimeProgressBar({ progressPercent, isUrgent }: { progressPercent: n
             <div
                 className={cn(
                     "h-full rounded-full transition-[width] duration-700 ease-out",
-                    isUrgent ? "bg-gradient-to-r from-brand-orange via-brand-pink to-red-400" : "bg-gradient-to-r from-brand-cyan via-brand-purple to-brand-pink"
+                    isUrgent ? "bg-gradient-to-r from-brand-orange via-brand-purple to-red-400" : "bg-gradient-to-r from-brand-purple via-brand-purple to-brand-purple"
                 )}
                 style={{ width: `${progressPercent}%` }}
             />

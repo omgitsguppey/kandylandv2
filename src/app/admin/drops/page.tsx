@@ -151,7 +151,7 @@ export default function AdminDropsPage() {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <div className="w-8 h-8 rounded-full border-2 border-brand-pink border-t-transparent animate-spin" />
+                <div className="w-8 h-8 rounded-full border-2 border-brand-purple border-t-transparent animate-spin" />
             </div>
         );
     }
@@ -165,7 +165,7 @@ export default function AdminDropsPage() {
                 </div>
                 <Link
                     href="/admin/create"
-                    className="px-5 py-2 rounded-full bg-brand-pink font-bold text-white text-sm transition-colors shadow-lg shadow-brand-pink/20 flex items-center gap-2 whitespace-nowrap"
+                    className="px-5 py-2 rounded-full bg-brand-purple font-bold text-white text-sm transition-colors shadow-lg shadow-brand-purple/20 flex items-center gap-2 whitespace-nowrap"
                 >
                     <div className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center">
                         <PlusCircle className="w-3 h-3" />
@@ -176,7 +176,7 @@ export default function AdminDropsPage() {
 
             <div className="glass-panel rounded-3xl overflow-hidden">
                 {selectedDropIds.size > 0 && (
-                    <div className="bg-brand-pink/10 px-6 py-4 flex items-center justify-between border-b border-brand-pink/20">
+                    <div className="bg-brand-purple/10 px-6 py-4 flex items-center justify-between border-b border-brand-purple/20">
                         <span className="text-white font-bold">{selectedDropIds.size} item(s) selected</span>
                         <div className="flex items-center gap-3">
                             <button onClick={handleBulkDelete} className="text-xs font-bold text-white bg-red-500 hover:bg-red-600 px-4 py-2 rounded-full transition-colors border border-red-500/20 flex gap-2 items-center">
@@ -194,7 +194,7 @@ export default function AdminDropsPage() {
                                         type="checkbox"
                                         checked={drops.length > 0 && selectedDropIds.size === drops.length}
                                         onChange={toggleAll}
-                                        className="w-4 h-4 rounded border-white/20 bg-black/50 accent-brand-pink cursor-pointer"
+                                        className="w-4 h-4 rounded border-white/20 bg-black/50 accent-brand-purple cursor-pointer"
                                     />
                                 </th>
                                 <th className="px-6 py-4 font-bold">Drop Details</th>
@@ -212,10 +212,10 @@ export default function AdminDropsPage() {
 
                                 if (now < drop.validFrom) {
                                     status = "scheduled";
-                                    statusColor = "bg-brand-yellow/10 text-brand-yellow border-brand-yellow/20";
+                                    statusColor = "bg-brand-purple/10 text-brand-purple border-brand-purple/20";
                                 } else if (!drop.validUntil || now < drop.validUntil) {
                                     status = "active";
-                                    statusColor = "bg-brand-green/10 text-brand-green border-brand-green/20";
+                                    statusColor = "bg-brand-purple/10 text-brand-purple border-brand-purple/20";
                                 }
 
                                 return (
@@ -225,7 +225,7 @@ export default function AdminDropsPage() {
                                                 type="checkbox"
                                                 checked={selectedDropIds.has(drop.id)}
                                                 onChange={() => toggleSelection(drop.id)}
-                                                className="w-4 h-4 rounded border-white/20 bg-black/50 accent-brand-pink cursor-pointer"
+                                                className="w-4 h-4 rounded border-white/20 bg-black/50 accent-brand-purple cursor-pointer"
                                             />
                                         </td>
                                         <td className="px-6 py-4">
@@ -254,7 +254,7 @@ export default function AdminDropsPage() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <div className="flex items-center gap-1 font-mono font-bold text-brand-yellow">
+                                            <div className="flex items-center gap-1 font-mono font-bold text-brand-purple">
                                                 {drop.unlockCost}
                                             </div>
                                         </td>
@@ -303,10 +303,10 @@ export default function AdminDropsPage() {
 
                         if (now < drop.validFrom) {
                             status = "scheduled";
-                            statusColor = "bg-brand-yellow/10 text-brand-yellow border-brand-yellow/20";
+                            statusColor = "bg-brand-purple/10 text-brand-purple border-brand-purple/20";
                         } else if (!drop.validUntil || now < drop.validUntil) {
                             status = "active";
-                            statusColor = "bg-brand-green/10 text-brand-green border-brand-green/20";
+                            statusColor = "bg-brand-purple/10 text-brand-purple border-brand-purple/20";
                         }
 
                         return (
@@ -318,7 +318,7 @@ export default function AdminDropsPage() {
                                         <div className="w-full h-full flex items-center justify-center text-2xl">🍬</div>
                                     )}
                                     <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm p-0.5 text-center">
-                                        <span className="text-[10px] font-bold text-brand-yellow">{drop.unlockCost}</span>
+                                        <span className="text-[10px] font-bold text-brand-purple">{drop.unlockCost}</span>
                                     </div>
                                 </div>
                                 <div className="flex-1 min-w-0 space-y-2">

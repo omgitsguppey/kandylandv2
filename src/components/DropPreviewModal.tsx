@@ -225,7 +225,7 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
                 <Link
                   href={`/dashboard/viewer?id=${drop.id}`}
                   onClick={triggerHaptic}
-                  className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-green text-black font-bold"
+                  className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-purple text-black font-bold"
                 >
                   <Unlock className="h-4 w-4" />
                   View Content
@@ -236,7 +236,7 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
                   disabled={unlocking}
                   className={cn(
                     "flex h-12 w-full items-center justify-center gap-2 rounded-xl font-bold transition active:scale-[0.99]",
-                    canAfford ? "bg-white text-black" : "bg-brand-pink text-white"
+                    canAfford ? "bg-white text-black" : "bg-brand-purple text-white"
                   )}
                 >
                   {unlocking ? (

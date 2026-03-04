@@ -107,7 +107,7 @@ function ToggleRow({
             <button
                 type="button"
                 onClick={() => onChange(!checked)}
-                className={`relative h-6 w-11 rounded-full transition ${checked ? "bg-brand-pink" : "bg-white/20"}`}
+                className={`relative h-6 w-11 rounded-full transition ${checked ? "bg-brand-purple" : "bg-white/20"}`}
                 aria-label={`${label} toggle`}
                 aria-pressed={checked}
             >
@@ -321,7 +321,7 @@ export default function ProfilePage() {
     return (
         <div className="w-full px-4 max-w-2xl mx-auto">
             <header className="mb-5">
-                <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-pink to-brand-cyan">Profile Settings</h1>
+                <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-brand-purple">Profile Settings</h1>
                 <p className="text-gray-400 text-sm mt-1">Manage account identity, notifications, privacy, and security.</p>
             </header>
 
@@ -452,8 +452,8 @@ export default function ProfilePage() {
                 </SectionCard>
 
                 <SectionCard title="Refer a Friend">
-                    <div className="rounded-xl border border-brand-pink/20 bg-brand-pink/5 p-4 flex flex-col gap-3">
-                        <p className="text-sm text-gray-300">Invite your friends! You both get <strong className="text-brand-pink">25 Gum Drops</strong> when they sign up.</p>
+                    <div className="rounded-xl border border-brand-purple/20 bg-brand-purple/5 p-4 flex flex-col gap-3">
+                        <p className="text-sm text-gray-300">Invite your friends! You both get <strong className="text-brand-purple">25 Gum Drops</strong> when they sign up.</p>
                         <div className="flex gap-2">
                             <input
                                 type="text"

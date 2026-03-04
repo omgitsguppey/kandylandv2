@@ -20,7 +20,8 @@ const dropSchema = z.object({
     title: z.string().min(3, "Title is too short"),
     description: z.string().min(10, "Description is too short"),
     imageUrl: z.string().url("Cover image is required"),
-    contentUrl: z.string().url("Content file is required"),
+    contentUrl: z.string().url().optional().or(z.literal("")),
+    contentUrls: z.array(z.string().url()).min(1, "At least one content file is required"),
     unlockCost: z.coerce.number().min(0, "Cost cannot be negative"),
     validFrom: z.string(),
     validUntil: z.string().optional().or(z.literal("")),
@@ -87,8 +88,8 @@ const FilesAndAssetsSection = memo(function FilesAndAssetsSection({
                 className="w-full flex items-center justify-between p-4"
             >
                 <div className="flex items-center gap-2 font-bold text-white text-sm">
-                    <ImageIcon className="w-4 h-4 text-brand-cyan" />
-                    <FileAudio className="w-4 h-4 text-brand-pink" />
+                    <ImageIcon className="w-4 h-4 text-brand-purple" />
+                    <FileAudio className="w-4 h-4 text-brand-purple" />
                     Files & Assets
                 </div>
                 {uploadsOpen ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
@@ -113,12 +114,13 @@ const FilesAndAssetsSection = memo(function FilesAndAssetsSection({
                         folder="drops/content"
                         multiple
                         accept=".jpg,.jpeg,.png,.webp,.heic,.gif,.mp4,.zip,image/*,video/mp4,application/zip,application/x-zip-compressed"
-                        helperText="Upload one or more media/zip assets"
+                        helperText="Upload one or more media/zip assets (up to 50)"
                         aspectRatio={contentAspectRatio}
                         onAspectRatioChange={onContentAspectRatioChange}
                         initialUrl={contentUrl}
                         initialType={contentType}
                         onChange={onContentAssetsChange}
+                        disableCrop={true}
                     />
                     {errors.contentUrl && <p className="text-red-400 text-xs">{errors.contentUrl.message}</p>}
                 </div>
@@ -151,6 +153,7 @@ function DropForm() {
             description: "",
             imageUrl: "",
             contentUrl: "",
+            contentUrls: [],
             unlockCost: 100,
             type: "content",
             tags: [],
@@ -187,7 +190,8 @@ function DropForm() {
                     setValue("title", data.title);
                     setValue("description", data.description);
                     setValue("imageUrl", data.imageUrl);
-                    setValue("contentUrl", data.contentUrl);
+                    setValue("contentUrl", data.contentUrl || "");
+                    setValue("contentUrls", data.contentUrls || (data.contentUrl ? [data.contentUrl] : []));
                     setValue("unlockCost", data.unlockCost);
                     setValue("validFrom", toCSTString(data.validFrom));
                     if (data.validUntil) {
@@ -226,9 +230,11 @@ function DropForm() {
     }, [setValue]);
 
     const handleContentAssetsChange = useCallback((assets: UploadedAsset[]) => {
-        const primary = assets[0];
-        setValue("contentUrl", primary?.url || "", { shouldValidate: true });
+        const urls = assets.map(a => a.url);
+        setValue("contentUrl", urls[0] || "", { shouldValidate: true });
+        setValue("contentUrls", urls, { shouldValidate: true });
 
+        const primary = assets[0];
         if (primary) {
             setValue("fileMetadata", {
                 size: primary.size,
@@ -279,6 +285,7 @@ function DropForm() {
                 description: data.description,
                 imageUrl: data.imageUrl,
                 contentUrl: data.contentUrl,
+                contentUrls: data.contentUrls,
                 unlockCost: data.unlockCost,
                 validFrom,
                 validUntil,
@@ -395,7 +402,7 @@ function DropForm() {
                                     className={cn(
                                         "px-3 py-1 rounded-full text-xs font-bold border",
                                         currentTags.includes(tag)
-                                            ? "bg-brand-pink text-white border-brand-pink"
+                                            ? "bg-brand-purple text-white border-brand-purple"
                                             : "bg-white/5 text-gray-500 border-white/5"
                                     )}
                                 >
@@ -446,7 +453,7 @@ function DropForm() {
                             <input
                                 {...register("validFrom")}
                                 type="datetime-local"
-                                className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-brand-cyan/50 [color-scheme:dark]"
+                                className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-brand-purple/50 [color-scheme:dark]"
                             />
                         </div>
                         <div className="space-y-1">
@@ -456,7 +463,7 @@ function DropForm() {
                             <input
                                 {...register("validUntil")}
                                 type="datetime-local"
-                                className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-brand-cyan/50 [color-scheme:dark]"
+                                className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-brand-purple/50 [color-scheme:dark]"
                             />
                         </div>
                     </div>
@@ -468,7 +475,7 @@ function DropForm() {
                         <input
                             type="checkbox"
                             {...register("rotationEnabled")}
-                            className="w-4 h-4 rounded border-white/20 bg-white/5 text-brand-pink focus:ring-brand-pink/50"
+                            className="w-4 h-4 rounded border-white/20 bg-white/5 text-brand-purple focus:ring-brand-purple/50"
                         />
                         <span className="text-xs font-bold text-gray-500 uppercase">Auto-Rotate Schedule</span>
                     </label>
@@ -508,7 +515,7 @@ function DropForm() {
                                     {...register("ctaText")}
                                     type="text"
                                     placeholder="Visit Shop"
-                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-brand-pink/50"
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-brand-purple/50"
                                 />
                             </div>
                             <div>
@@ -517,7 +524,7 @@ function DropForm() {
                                     {...register("actionUrl")}
                                     type="url"
                                     placeholder="https://..."
-                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-brand-pink/50"
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-brand-purple/50"
                                 />
                             </div>
                         </div>
@@ -528,7 +535,7 @@ function DropForm() {
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full py-3 rounded-2xl bg-gradient-to-r from-brand-pink to-brand-purple font-bold text-white shadow-lg shadow-brand-pink/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full py-3 rounded-2xl bg-gradient-to-r from-brand-purple to-brand-purple font-bold text-white shadow-lg shadow-brand-purple/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                         {isSubmitting ? "Saving..." : isEditMode ? "Update Drop" : "Create Drop"}

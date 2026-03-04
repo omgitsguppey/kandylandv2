@@ -56,16 +56,16 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
                         <div className="flex items-start justify-between gap-3">
                             <div className="flex items-center gap-3 min-w-0">
                                 <div className="relative shrink-0">
-                                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-pink to-brand-purple flex items-center justify-center text-white font-bold shadow-lg">
+                                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-purple to-brand-purple flex items-center justify-center text-white font-bold shadow-lg">
                                         {profileInitial}
                                     </div>
-                                    {isAdmin ? <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-brand-cyan rounded-full border-2 border-black" /> : null}
+                                    {isAdmin ? <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-brand-purple rounded-full border-2 border-black" /> : null}
                                 </div>
                                 <div className="min-w-0">
                                     <div className="flex items-center gap-2">
                                         <h3 className="font-bold text-white truncate">{displayName}</h3>
                                         {isAdmin ? (
-                                            <span className="px-1.5 py-0.5 rounded-full bg-brand-cyan/20 text-brand-cyan text-[10px] font-bold border border-brand-cyan/30">ADMIN</span>
+                                            <span className="px-1.5 py-0.5 rounded-full bg-brand-purple/20 text-brand-purple text-[10px] font-bold border border-brand-purple/30">ADMIN</span>
                                         ) : null}
                                     </div>
                                     <p className="text-xs text-gray-400 truncate">{email}</p>
@@ -106,7 +106,7 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
                                     onClose();
                                     openPurchaseModal();
                                 }}
-                                className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-pink to-purple-600 flex items-center justify-center text-white shadow-lg shadow-brand-pink/20 active:scale-95 transition-transform"
+                                className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-purple to-purple-600 flex items-center justify-center text-white shadow-lg shadow-brand-purple/20 active:scale-95 transition-transform"
                             >
                                 <Plus className="w-5 h-5" />
                             </button>

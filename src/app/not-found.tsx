@@ -6,7 +6,7 @@ export default function NotFound() {
     return (
         <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4 text-center">
             <div className="mb-8 relative">
-                <div className="absolute inset-0 bg-brand-pink/20 blur-3xl rounded-full"></div>
+                <div className="absolute inset-0 bg-brand-purple/20 blur-3xl rounded-full"></div>
                 <CandyIcon className="w-24 h-24 text-gray-500 opacity-50 relative z-10" />
             </div>
 

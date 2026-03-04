@@ -118,7 +118,7 @@ export default function CreatorProfilePage() {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[50vh]">
-                <Loader2 className="w-8 h-8 animate-spin text-brand-pink" />
+                <Loader2 className="w-8 h-8 animate-spin text-brand-purple" />
             </div>
         );
     }
@@ -140,7 +140,7 @@ export default function CreatorProfilePage() {
                 {creator.bannerUrl ? (
                     <Image src={creator.bannerUrl} alt="Banner" fill priority className="object-cover" />
                 ) : (
-                    <div className="w-full h-full bg-gradient-to-r from-brand-pink/20 to-brand-purple/20" />
+                    <div className="w-full h-full bg-gradient-to-r from-brand-purple/20 to-brand-purple/20" />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
             </div>
@@ -161,10 +161,10 @@ export default function CreatorProfilePage() {
                         <div className="flex flex-wrap items-center gap-2 mb-1">
                             <h1 className="text-3xl font-bold text-white">{creator.displayName}</h1>
                             {creator.isVerified && (
-                                <CheckCircle2 className="w-5 h-5 text-brand-cyan shrink-0" />
+                                <CheckCircle2 className="w-5 h-5 text-brand-purple shrink-0" />
                             )}
                         </div>
-                        <p className="text-brand-pink font-medium mb-3">@{creator.username}</p>
+                        <p className="text-brand-purple font-medium mb-3">@{creator.username}</p>
 
                         {creator.bio && (
                             <p className="text-gray-300 max-w-2xl text-sm md:text-base leading-relaxed mb-4">{creator.bio}</p>
@@ -179,7 +179,7 @@ export default function CreatorProfilePage() {
                         <button
                             onClick={handleFollow}
                             disabled={followLoading}
-                            className={`w-full md:w-auto px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all ${following ? "bg-white/10 text-white " : "bg-brand-pink text-white shadow-lg shadow-brand-pink/20"}`}
+                            className={`w-full md:w-auto px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all ${following ? "bg-white/10 text-white " : "bg-brand-purple text-white shadow-lg shadow-brand-purple/20"}`}
                         >
                             {followLoading ? (
                                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -208,8 +208,8 @@ export default function CreatorProfilePage() {
                             {!authLoading && !currentUser && (
                                 <div className="absolute inset-0 z-50 flex items-center justify-center pt-10 pb-20 glass-panel !bg-black/60 backdrop-blur-md rounded-3xl m-2 border border-white/5">
                                     <div className="flex flex-col items-center text-center p-8 max-w-md animate-in fade-in zoom-in duration-500">
-                                        <div className="w-20 h-20 rounded-full bg-brand-pink/20 flex items-center justify-center mb-6 border border-brand-pink/30 shadow-[0_0_30px_rgba(236,72,153,0.3)]">
-                                            <Lock className="w-10 h-10 text-brand-pink" />
+                                        <div className="w-20 h-20 rounded-full bg-brand-purple/20 flex items-center justify-center mb-6 border border-brand-purple/30 shadow-[0_0_30px_rgba(236,72,153,0.3)]">
+                                            <Lock className="w-10 h-10 text-brand-purple" />
                                         </div>
                                         <h3 className="text-3xl font-black text-white mb-4 tracking-tight">Members Only</h3>
                                         <p className="text-gray-400 font-medium mb-8 leading-relaxed">

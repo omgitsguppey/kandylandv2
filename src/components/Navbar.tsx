@@ -30,7 +30,7 @@ export function Navbar() {
         <>
             <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4 transition-all" style={{ paddingTop: 'calc(1rem + env(safe-area-inset-top))' }}>
                 <div className="max-w-7xl mx-auto bg-black/55 backdrop-blur-xl border border-white/10 rounded-full px-6 py-3 flex items-center justify-between shadow-xl shadow-black/40" style={{ WebkitBackdropFilter: 'blur(20px)' }}>
-                    <Link href="/" className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-pink to-brand-cyan">
+                    <Link href="/" className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-brand-purple">
                         KandyDrops
                     </Link>
 
@@ -55,7 +55,7 @@ export function Navbar() {
 
                                     <button
                                         onClick={openPurchaseModal}
-                                        className="w-7 h-7 flex items-center justify-center bg-gradient-to-br from-brand-pink to-pink-600 rounded-full text-white shadow-lg shadow-brand-pink/20 active:scale-95 transition-all"
+                                        className="w-7 h-7 flex items-center justify-center bg-gradient-to-br from-brand-purple to-pink-600 rounded-full text-white shadow-lg shadow-brand-purple/20 active:scale-95 transition-all"
                                         title="Buy Gum Drops"
                                     >
                                         <Plus className="w-4 h-4" />
@@ -81,7 +81,7 @@ export function Navbar() {
                                             sizes="40px"
                                         />
                                     ) : (
-                                        <span className="font-bold text-sm bg-gradient-to-tr from-brand-pink to-brand-purple bg-clip-text text-transparent">
+                                        <span className="font-bold text-sm bg-gradient-to-tr from-brand-purple to-brand-purple bg-clip-text text-transparent">
                                             {user.displayName?.charAt(0)?.toUpperCase() || "U"}
                                         </span>
                                     )}

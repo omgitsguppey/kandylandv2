@@ -43,7 +43,7 @@ export function AdminDropdown() {
                 className={cn(
                     "flex items-center gap-2 px-3 py-1.5 rounded-full transition-all border",
                     isOpen
-                        ? "bg-brand-cyan/20 text-brand-cyan border-brand-cyan/30 shadow-[0_0_15px_rgba(6,182,212,0.3)]"
+                        ? "bg-brand-purple/20 text-brand-purple border-brand-purple/30 shadow-[0_0_15px_rgba(6,182,212,0.3)]"
                         : "bg-white/5 text-gray-400 border-white/5  "
                 )}
             >
@@ -62,7 +62,7 @@ export function AdminDropdown() {
                 )}
             >
                 <div className="px-4 py-2 border-b border-white/10 mb-2">
-                    <p className="text-xs font-bold text-brand-cyan uppercase tracking-wider">Admin Console</p>
+                    <p className="text-xs font-bold text-brand-purple uppercase tracking-wider">Admin Console</p>
                 </div>
 
                 <nav className="space-y-1">

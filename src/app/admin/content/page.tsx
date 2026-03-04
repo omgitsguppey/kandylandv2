@@ -89,8 +89,8 @@ export default function ContentManagerPage() {
 
     const getFileIcon = (filename: string) => {
         const ext = filename.split('.').pop()?.toLowerCase();
-        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext || '')) return <ImageIcon className="w-5 h-5 text-brand-pink" />;
-        if (['mp4', 'mov', 'webm'].includes(ext || '')) return <Video className="w-5 h-5 text-brand-cyan" />;
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext || '')) return <ImageIcon className="w-5 h-5 text-brand-purple" />;
+        if (['mp4', 'mov', 'webm'].includes(ext || '')) return <Video className="w-5 h-5 text-brand-purple" />;
         return <FileIcon className="w-5 h-5 text-gray-500" />;
     };
 
@@ -134,7 +134,7 @@ export default function ContentManagerPage() {
                             {loading && files.length === 0 ? (
                                 <tr>
                                     <td colSpan={3} className="p-8 text-center">
-                                        <Loader2 className="w-6 h-6 text-brand-pink animate-spin mx-auto" />
+                                        <Loader2 className="w-6 h-6 text-brand-purple animate-spin mx-auto" />
                                     </td>
                                 </tr>
                             ) : files.length === 0 ? (

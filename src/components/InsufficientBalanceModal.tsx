@@ -55,14 +55,14 @@ export function InsufficientBalanceModal() {
                             <X className="w-5 h-5" />
                         </button>
 
-                        <div className="w-16 h-16 bg-brand-pink/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-brand-pink/20">
-                            <Coins className="w-8 h-8 text-brand-pink" />
+                        <div className="w-16 h-16 bg-brand-purple/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-brand-purple/20">
+                            <Coins className="w-8 h-8 text-brand-purple" />
                         </div>
 
                         <h2 className="text-xl font-bold text-white mb-2">Not Enough Gum Drops</h2>
                         <p className="text-gray-400 text-sm mb-6">
                             This action costs <span className="text-white font-bold">{requiredCost}</span> Gum Drops.
-                            You currently have <span className="text-brand-pink font-bold">{currentBalance}</span>.
+                            You currently have <span className="text-brand-purple font-bold">{currentBalance}</span>.
                         </p>
 
                         <div className="bg-white/5 rounded-2xl p-4 mb-6 flex items-center gap-3 text-left border border-white/5">
@@ -90,7 +90,7 @@ export function InsufficientBalanceModal() {
                                     toast.info(`Purchasing exactly ${missingAmount} GD coming soon!`, { icon: "🛠️" });
                                 }}
                                 variant="brand"
-                                className="w-full py-6 rounded-2xl text-lg font-bold shadow-[0_0_20px_rgba(236,72,153,0.3)] bg-gradient-to-r from-brand-pink to-brand-purple"
+                                className="w-full py-6 rounded-2xl text-lg font-bold shadow-[0_0_20px_rgba(236,72,153,0.3)] bg-gradient-to-r from-brand-purple to-brand-purple"
                             >
                                 Exact Amount ({missingAmount} GD)
                             </Button>
@@ -111,7 +111,7 @@ export function InsufficientBalanceModal() {
                     </div>
 
                     {/* Footer decoration */}
-                    <div className="h-1 bg-gradient-to-r from-brand-pink via-brand-purple to-brand-cyan" />
+                    <div className="h-1 bg-gradient-to-r from-brand-purple via-brand-purple to-brand-purple" />
                 </motion.div>
             </div>
         </AnimatePresence>

@@ -38,7 +38,7 @@ export function HomeDropTicker() {
       </div>
       {!user && (
         <div className="mt-3 text-center">
-          <button onClick={openAuthModal} className="text-sm text-brand-pink font-semibold underline underline-offset-4">
+          <button onClick={openAuthModal} className="text-sm text-brand-purple font-semibold underline underline-offset-4">
             Sign up to start unwrapping
           </button>
         </div>

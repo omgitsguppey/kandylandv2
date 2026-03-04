@@ -89,7 +89,7 @@ function DropCardTimer({ validUntil }: { validUntil?: number }) {
 
     return (
         <div className="inline-flex items-center gap-1 rounded-lg border border-white/20 bg-black/60 px-2.5 py-1 text-[10px] md:text-xs font-mono font-semibold text-white">
-            <Clock className="h-3 w-3 text-brand-pink" />
+            <Clock className="h-3 w-3 text-brand-purple" />
             <span>{timeLeft}</span>
         </div>
     );
@@ -208,7 +208,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
         <Link
             href={`/dashboard/viewer?id=${drop.id}`}
             onClick={triggerHaptic}
-            className="px-3 py-1.5 md:px-5 md:py-2.5 rounded-lg md:rounded-xl font-bold text-xs md:text-sm bg-brand-green/10 text-brand-green flex items-center justify-center w-full whitespace-nowrap gap-1.5 md:gap-2 border border-brand-green/20 transition-all active:scale-95"
+            className="px-3 py-1.5 md:px-5 md:py-2.5 rounded-lg md:rounded-xl font-bold text-xs md:text-sm bg-brand-purple/10 text-brand-purple flex items-center justify-center w-full whitespace-nowrap gap-1.5 md:gap-2 border border-brand-purple/20 transition-all active:scale-95"
         >
             <Unlock className="w-3 h-3 md:w-4 md:h-4" />
             View Content
@@ -275,7 +275,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
 
     return (
         <div className="group relative p-2 md:p-5 rounded-2xl md:rounded-3xl glass-panel overflow-hidden h-full">
-            <div className="absolute inset-0 bg-gradient-to-br from-brand-pink/5 via-transparent to-brand-cyan/5 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-br from-brand-purple/5 via-transparent to-brand-purple/5 pointer-events-none" />
 
             <button
                 onClick={() => {

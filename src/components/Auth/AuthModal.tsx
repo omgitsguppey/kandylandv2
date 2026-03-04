@@ -150,7 +150,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 <div className="w-full max-w-md bg-zinc-900 border border-white/10 rounded-3xl shadow-2xl pointer-events-auto overflow-hidden">
                     {/* Header */}
                     <div className="relative p-6 border-b border-white/5">
-                        <h2 className="text-2xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-brand-pink to-brand-cyan">
+                        <h2 className="text-2xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-brand-purple">
                             {mode === "signin" ? "Welcome Back" : mode === "signup" ? "Join the Drop" : "Reset Password"}
                         </h2>
                         <button
@@ -207,7 +207,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                         {mode === "forgot_password" ? (
                             resetSent ? (
                                 <div className="space-y-6 text-center">
-                                    <div className="mx-auto w-12 h-12 bg-brand-green/20 text-brand-green flex items-center justify-center rounded-full">
+                                    <div className="mx-auto w-12 h-12 bg-brand-purple/20 text-brand-purple flex items-center justify-center rounded-full">
                                         <Mail className="w-6 h-6" />
                                     </div>
                                     <div>
@@ -234,7 +234,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                                                 name="resetEmail"
                                                 type="email"
                                                 required
-                                                className="w-full bg-black/50 border border-white/10 rounded-xl px-10 py-3 text-white focus:outline-none focus:border-brand-pink transition-colors"
+                                                className="w-full bg-black/50 border border-white/10 rounded-xl px-10 py-3 text-white focus:outline-none focus:border-brand-purple transition-colors"
                                                 placeholder="Enter your email"
                                             />
                                         </div>
@@ -248,7 +248,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                                     <button
                                         type="submit"
                                         disabled={isLoading}
-                                        className="w-full py-3 bg-gradient-to-r from-brand-pink to-brand-purple rounded-xl text-white font-bold shadow-lg shadow-brand-pink/20 active:scale-[0.98] transition-all disabled:opacity-50"
+                                        className="w-full py-3 bg-gradient-to-r from-brand-purple to-brand-purple rounded-xl text-white font-bold shadow-lg shadow-brand-purple/20 active:scale-[0.98] transition-all disabled:opacity-50"
                                     >
                                         {isLoading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : "Send Reset Link"}
                                     </button>
@@ -273,7 +273,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                                                 <input
                                                     {...register("username")}
                                                     type="text"
-                                                    className="w-full bg-black/50 border border-white/10 rounded-xl px-10 py-3 text-white focus:outline-none focus:border-brand-pink transition-colors"
+                                                    className="w-full bg-black/50 border border-white/10 rounded-xl px-10 py-3 text-white focus:outline-none focus:border-brand-purple transition-colors"
                                                     placeholder="Create a username"
                                                 />
                                             </div>
@@ -289,7 +289,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                                                 <input
                                                     {...register("dob")}
                                                     type="date"
-                                                    className="w-full bg-black/50 border border-white/10 rounded-xl px-10 py-3 text-white focus:outline-none focus:border-brand-pink transition-colors [color-scheme:dark]"
+                                                    className="w-full bg-black/50 border border-white/10 rounded-xl px-10 py-3 text-white focus:outline-none focus:border-brand-purple transition-colors [color-scheme:dark]"
                                                 />
                                             </div>
                                             {errors.dob && (
@@ -307,7 +307,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                                         <input
                                             {...register("email")}
                                             type="email"
-                                            className="w-full bg-black/50 border border-white/10 rounded-xl px-10 py-3 text-white focus:outline-none focus:border-brand-pink transition-colors"
+                                            className="w-full bg-black/50 border border-white/10 rounded-xl px-10 py-3 text-white focus:outline-none focus:border-brand-purple transition-colors"
                                             placeholder="Enter your email"
                                         />
                                     </div>
@@ -323,7 +323,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                                         <input
                                             {...register("password")}
                                             type="password"
-                                            className="w-full bg-black/50 border border-white/10 rounded-xl px-10 py-3 text-white focus:outline-none focus:border-brand-pink transition-colors"
+                                            className="w-full bg-black/50 border border-white/10 rounded-xl px-10 py-3 text-white focus:outline-none focus:border-brand-purple transition-colors"
                                             placeholder="••••••••"
                                         />
                                     </div>
@@ -335,7 +335,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                                             <button
                                                 type="button"
                                                 onClick={() => switchMode("forgot_password")}
-                                                className="text-xs text-gray-400 hover:text-brand-pink transition-colors"
+                                                className="text-xs text-gray-400 hover:text-brand-purple transition-colors"
                                             >
                                                 Forgot password?
                                             </button>
@@ -353,7 +353,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="w-full py-3 bg-gradient-to-r from-brand-pink to-brand-purple rounded-xl text-white font-bold shadow-lg shadow-brand-pink/20 active:scale-[0.98] transition-all disabled:opacity-50 disabled:"
+                                    className="w-full py-3 bg-gradient-to-r from-brand-purple to-brand-purple rounded-xl text-white font-bold shadow-lg shadow-brand-purple/20 active:scale-[0.98] transition-all disabled:opacity-50 disabled:"
                                 >
                                     {isLoading ? (
                                         <Loader2 className="w-5 h-5 animate-spin mx-auto" />
@@ -373,7 +373,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                                         Don't have an account?{" "}
                                         <button
                                             onClick={() => switchMode("signup")}
-                                            className="text-brand-pink font-medium"
+                                            className="text-brand-purple font-medium"
                                         >
                                             Sign up
                                         </button>
@@ -383,7 +383,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                                         Already have an account?{" "}
                                         <button
                                             onClick={() => switchMode("signin")}
-                                            className="text-brand-pink font-medium"
+                                            className="text-brand-purple font-medium"
                                         >
                                             Sign in
                                         </button>

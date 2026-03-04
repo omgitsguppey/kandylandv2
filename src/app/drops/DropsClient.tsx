@@ -152,7 +152,7 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
     }, [sourceDrops, searchQuery, selectedCategory]);
 
     return (
-        <div className="w-full selection:bg-brand-pink/30 px-4 md:px-8 max-w-7xl mx-auto">
+        <div className="w-full selection:bg-brand-purple/30 px-4 md:px-8 max-w-7xl mx-auto">
             <div className="mb-4 md:mb-6">
                 <KandyDropsAccountOverview
                     state={accountOverview.state}
@@ -210,8 +210,8 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
                     {!authLoading && !user && (
                         <div className="absolute inset-0 z-50 flex items-center justify-center pt-20 pb-40 glass-panel !bg-black/60 backdrop-blur-md rounded-3xl m-2 border border-white/5">
                             <div className="flex flex-col items-center text-center p-8 max-w-md animate-in fade-in zoom-in duration-500">
-                                <div className="w-20 h-20 rounded-full bg-brand-pink/20 flex items-center justify-center mb-6 border border-brand-pink/30 shadow-[0_0_30px_rgba(236,72,153,0.3)]">
-                                    <Lock className="w-10 h-10 text-brand-pink" />
+                                <div className="w-20 h-20 rounded-full bg-brand-purple/20 flex items-center justify-center mb-6 border border-brand-purple/30 shadow-[0_0_30px_rgba(236,72,153,0.3)]">
+                                    <Lock className="w-10 h-10 text-brand-purple" />
                                 </div>
                                 <h3 className="text-3xl font-black text-white mb-4 tracking-tight">Members Only</h3>
                                 <p className="text-gray-400 font-medium mb-8 leading-relaxed">
@@ -233,7 +233,7 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
                         {/* Sentinel for infinite scrolling */}
                         <div ref={observerRef} className="h-10 mt-8 flex items-center justify-center">
                             {isLoadingMore && (
-                                <div className="w-6 h-6 rounded-full border-2 border-brand-pink border-t-transparent animate-spin" />
+                                <div className="w-6 h-6 rounded-full border-2 border-brand-purple border-t-transparent animate-spin" />
                             )}
                             {isReachingEnd && filteredDrops.length > 0 && (
                                 <p className="text-gray-500 text-sm font-medium">You've reached the end of the line.</p>

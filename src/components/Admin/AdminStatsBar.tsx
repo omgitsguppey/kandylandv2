@@ -84,19 +84,19 @@ export function AdminStatsBar() {
     return (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-white/5">
             <div className="bg-black/60 p-5 backdrop-blur-md">
-                <p className="text-xs text-gray-400 flex items-center gap-2 mb-1"><Users className="w-3 h-3 text-brand-cyan" /> Accounts</p>
+                <p className="text-xs text-gray-400 flex items-center gap-2 mb-1"><Users className="w-3 h-3 text-brand-purple" /> Accounts</p>
                 <p className="text-2xl font-bold text-white">{stats.totalUsers}</p>
             </div>
             <div className="bg-black/60 p-5 backdrop-blur-md">
-                <p className="text-xs text-gray-400 flex items-center gap-2 mb-1"><Activity className="w-3 h-3 text-brand-green" /> Active / All Drops</p>
+                <p className="text-xs text-gray-400 flex items-center gap-2 mb-1"><Activity className="w-3 h-3 text-brand-purple" /> Active / All Drops</p>
                 <p className="text-2xl font-bold text-white">{stats.activeDrops} / {stats.totalDrops}</p>
             </div>
             <div className="bg-black/60 p-5 backdrop-blur-md hidden md:block">
-                <p className="text-xs text-gray-400 flex items-center gap-2 mb-1"><DollarSign className="w-3 h-3 text-brand-yellow" /> Lifetime Rev</p>
+                <p className="text-xs text-gray-400 flex items-center gap-2 mb-1"><DollarSign className="w-3 h-3 text-brand-purple" /> Lifetime Rev</p>
                 <p className="text-2xl font-bold text-white font-mono">${(stats.grossRevenueCents / 100).toFixed(2)}</p>
             </div>
             <div className="bg-black/60 p-5 backdrop-blur-md">
-                <p className="text-xs text-gray-400 flex items-center gap-2 mb-1"><Package className="w-3 h-3 text-brand-pink" /> Unwraps</p>
+                <p className="text-xs text-gray-400 flex items-center gap-2 mb-1"><Package className="w-3 h-3 text-brand-purple" /> Unwraps</p>
                 <p className="text-2xl font-bold text-white">{stats.totalUnwraps.toLocaleString()}</p>
             </div>
         </div>

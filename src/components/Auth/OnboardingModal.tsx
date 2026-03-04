@@ -188,17 +188,17 @@ export function OnboardingModal() {
             <div className="w-full max-w-lg bg-zinc-900 border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
 
                 {/* Header */}
-                <div className="p-8 border-b border-white/5 bg-gradient-to-r from-brand-pink/10 to-transparent">
+                <div className="p-8 border-b border-white/5 bg-gradient-to-r from-brand-purple/10 to-transparent">
                     <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2 bg-brand-pink/20 rounded-lg">
-                            <Sparkles className="w-6 h-6 text-brand-pink" />
+                        <div className="p-2 bg-brand-purple/20 rounded-lg">
+                            <Sparkles className="w-6 h-6 text-brand-purple" />
                         </div>
                         <h2 className="text-2xl font-bold text-white">Welcome to KandyDrops</h2>
                     </div>
                     <div className="flex justify-between items-end">
                         <p className="text-gray-400">Let's set up your profile to get you started.</p>
                         {!showSuccess && (
-                            <span className="text-xs font-bold text-brand-pink bg-brand-pink/10 px-2 py-1 rounded-md">
+                            <span className="text-xs font-bold text-brand-purple bg-brand-purple/10 px-2 py-1 rounded-md">
                                 Step {step} of 3
                             </span>
                         )}
@@ -209,7 +209,7 @@ export function OnboardingModal() {
                         {[1, 2, 3].map((s) => (
                             <div
                                 key={s}
-                                className={`h-1 flex-1 rounded-full transition-colors ${s <= step ? 'bg-brand-pink' : 'bg-white/10'}`}
+                                className={`h-1 flex-1 rounded-full transition-colors ${s <= step ? 'bg-brand-purple' : 'bg-white/10'}`}
                             />
                         ))}
                     </div>
@@ -219,9 +219,9 @@ export function OnboardingModal() {
                 <div className="p-8 overflow-y-auto">
                     {showSuccess ? (
                         <div className="flex flex-col items-center justify-center py-12 text-center space-y-4 animate-in fade-in zoom-in duration-500">
-                            <div className="w-20 h-20 bg-brand-pink/20 text-brand-pink rounded-full flex items-center justify-center mb-4 relative">
+                            <div className="w-20 h-20 bg-brand-purple/20 text-brand-purple rounded-full flex items-center justify-center mb-4 relative">
                                 <Sparkles className="w-10 h-10 animate-bounce" />
-                                <div className="absolute inset-0 bg-brand-pink/20 rounded-full animate-ping" />
+                                <div className="absolute inset-0 bg-brand-purple/20 rounded-full animate-ping" />
                             </div>
                             <h3 className="text-2xl font-bold text-white">All Set!</h3>
                             <p className="text-gray-400">Taking you to your dashboard...</p>
@@ -255,7 +255,7 @@ export function OnboardingModal() {
                                             <input
                                                 {...register("username")}
                                                 type="text"
-                                                className={`w-full bg-black/50 border rounded-xl px-8 py-3 text-white focus:outline-none transition-all ${errors.username ? "border-red-500" : usernameAvailable === true ? "border-green-500/50 focus:border-green-500" : "border-white/10 focus:border-brand-pink"}`}
+                                                className={`w-full bg-black/50 border rounded-xl px-8 py-3 text-white focus:outline-none transition-all ${errors.username ? "border-red-500" : usernameAvailable === true ? "border-green-500/50 focus:border-green-500" : "border-white/10 focus:border-brand-purple"}`}
                                                 placeholder="username"
                                             />
                                             {checkingUsername && (
@@ -285,9 +285,9 @@ export function OnboardingModal() {
                             {/* Step 2: Identity */}
                             <div className={step === 2 ? "block space-y-6" : "hidden"}>
                                 <div className="space-y-4">
-                                    <div className="p-4 bg-brand-pink/10 rounded-xl border border-brand-pink/20 flex gap-3">
-                                        <ShieldCheck className="w-6 h-6 text-brand-pink shrink-0" />
-                                        <p className="text-sm text-brand-pink/80">
+                                    <div className="p-4 bg-brand-purple/10 rounded-xl border border-brand-purple/20 flex gap-3">
+                                        <ShieldCheck className="w-6 h-6 text-brand-purple shrink-0" />
+                                        <p className="text-sm text-brand-purple/80">
                                             We need your birth date to comply with age restrictions. This will not be public.
                                         </p>
                                     </div>
@@ -299,7 +299,7 @@ export function OnboardingModal() {
                                             <input
                                                 {...register("dateOfBirth")}
                                                 type="date"
-                                                className="w-full min-w-0 bg-transparent pl-12 pr-4 py-3 text-white focus:outline-none focus:border-brand-pink transition-all [color-scheme:dark]"
+                                                className="w-full min-w-0 bg-transparent pl-12 pr-4 py-3 text-white focus:outline-none focus:border-brand-purple transition-all [color-scheme:dark]"
                                             />
                                         </div>
                                         {errors.dateOfBirth && (
@@ -325,13 +325,13 @@ export function OnboardingModal() {
                                         {...register("bio")}
                                         placeholder="I love synthwave and neon lights..."
                                         rows={4}
-                                        className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-brand-pink transition-all resize-none"
+                                        className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-brand-purple transition-all resize-none"
                                     />
                                 </div>
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="w-full py-4 bg-gradient-to-r from-brand-pink to-brand-purple text-white font-bold rounded-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                    className="w-full py-4 bg-gradient-to-r from-brand-purple to-brand-purple text-white font-bold rounded-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                                 >
                                     {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Complete Setup"}
                                 </button>

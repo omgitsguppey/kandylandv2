@@ -67,7 +67,7 @@ export function DropGrid({ drops: propDrops, loading: propLoading, isSearching, 
         return (
             <div className="w-full py-16 md:py-24">
                 <div className="relative max-w-2xl mx-auto text-center px-6 py-12 md:py-16 rounded-[2rem] glass-panel border border-white/10 overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-brand-pink/10 via-transparent to-brand-cyan/10 pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-brand-purple/10 via-transparent to-brand-purple/10 pointer-events-none" />
                     <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
 
                     <div className="w-28 h-28 bg-zinc-900 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-white/10 shadow-inner transition-transform duration-500 ease-out">
@@ -87,7 +87,7 @@ export function DropGrid({ drops: propDrops, loading: propLoading, isSearching, 
                     {!isSearching && (
                         <div className="flex flex-col items-center gap-4">
                             {notified ? (
-                                <div className="flex items-center gap-2 bg-brand-green/10 border border-brand-green/20 text-brand-green px-8 py-4 rounded-2xl font-bold animate-in zoom-in duration-300">
+                                <div className="flex items-center gap-2 bg-brand-purple/10 border border-brand-purple/20 text-brand-purple px-8 py-4 rounded-2xl font-bold animate-in zoom-in duration-300">
                                     <span className="text-xl">✅</span>
                                     <span>You'll be notified on-site!</span>
                                 </div>

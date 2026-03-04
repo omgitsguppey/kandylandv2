@@ -6,7 +6,7 @@ export default function PrivacyPage() {
     return (
         <div className="w-full text-gray-300 px-6">
             <div className="max-w-3xl mx-auto space-y-8">
-                <Link href="/" className="inline-flex items-center gap-2 text-brand-pink transition-colors">
+                <Link href="/" className="inline-flex items-center gap-2 text-brand-purple transition-colors">
                     <ArrowLeft className="w-4 h-4" />
                     Back to Home
                 </Link>

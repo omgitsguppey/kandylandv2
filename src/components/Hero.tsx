@@ -29,7 +29,7 @@ export default function Hero() {
 
                 <p className="text-gray-400 font-medium max-w-xl md:max-w-3xl mx-auto mb-6 md:mb-10 leading-relaxed" style={{ fontSize: 'clamp(1rem, 2vw, 1.5rem)' }}>
                     <span className="flex items-center gap-2 font-medium justify-center">
-                        <span className="w-2 h-2 rounded-full bg-brand-green" />
+                        <span className="w-2 h-2 rounded-full bg-brand-purple" />
                         <span className="text-white">Collect. Unwrap. Own the moment.</span>
                     </span>
                 </p>

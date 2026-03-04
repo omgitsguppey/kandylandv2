@@ -25,12 +25,12 @@ export function DebugBreakpoints() {
     return (
         <div className="fixed bottom-4 left-4 z-[9999] pointer-events-none flex flex-col gap-1 items-start font-mono text-xs font-bold">
             {/* Pixel Dimensions */}
-            <div className="bg-black/80 text-brand-pink px-2 py-1 rounded border border-white/10 backdrop-blur-md shadow-xl">
+            <div className="bg-black/80 text-brand-purple px-2 py-1 rounded border border-white/10 backdrop-blur-md shadow-xl">
                 {dimensions.width}px <span className="text-gray-500">x</span> {dimensions.height}px
             </div>
 
             {/* Breakpoint Badge */}
-            <div className="bg-black/80 text-brand-cyan px-2 py-1 rounded border border-white/10 backdrop-blur-md shadow-xl">
+            <div className="bg-black/80 text-brand-purple px-2 py-1 rounded border border-white/10 backdrop-blur-md shadow-xl">
                 <span className="sm:hidden">xs (mobile)</span>
                 <span className="hidden sm:block md:hidden">sm (large mobile)</span>
                 <span className="hidden md:block lg:hidden">md (tablet)</span>

@@ -20,7 +20,7 @@ export default function Home() {
   if (loading || user) {
     return (
       <div className="absolute inset-0 overflow-hidden flex flex-col items-center justify-center z-10">
-        <div className="w-8 h-8 rounded-full border-2 border-brand-pink border-t-transparent animate-spin" />
+        <div className="w-8 h-8 rounded-full border-2 border-brand-purple border-t-transparent animate-spin" />
       </div>
     );
   }

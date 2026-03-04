@@ -19,7 +19,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             ghost: " text-gray-300 ",
             glass: "glass-button text-white",
             danger: "bg-red-500/10 text-red-500  border border-red-500/20",
-            brand: "bg-gradient-to-r from-brand-pink to-brand-purple text-white shadow-lg shadow-brand-pink/20 ",
+            brand: "bg-gradient-to-r from-brand-purple to-brand-purple text-white shadow-lg shadow-brand-purple/20 ",
         }
 
         const sizes = {

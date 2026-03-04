@@ -57,11 +57,11 @@ export default function DashboardClient({ drops }: DashboardClientProps) {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
-                                <div className="text-2xl font-bold text-brand-pink">{userProfile?.gumDropsBalance || 0}</div>
+                                <div className="text-2xl font-bold text-brand-purple">{userProfile?.gumDropsBalance || 0}</div>
                                 <div className="text-xs text-gray-500 uppercase font-bold">Gum Drops</div>
                             </div>
                             <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
-                                <div className="text-2xl font-bold text-brand-cyan">{userProfile?.unlockedContent?.length || 0}</div>
+                                <div className="text-2xl font-bold text-brand-purple">{userProfile?.unlockedContent?.length || 0}</div>
                                 <div className="text-xs text-gray-500 uppercase font-bold">Unlocked</div>
                             </div>
                         </div>

@@ -3,11 +3,7 @@
 @theme {
   /* Brand Color Palette */
   --color-brand-dark: #000000;
-  --color-brand-pink: #ec4899;
-  --color-brand-cyan: #06b6d4;
-  --color-brand-yellow: #eab308;
   --color-brand-purple: #b28cff;
-  --color-brand-green: #14e682;
 }
 
 :root {

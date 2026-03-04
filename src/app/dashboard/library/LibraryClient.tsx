@@ -59,7 +59,7 @@ export function LibraryClient({ drops }: LibraryClientProps) {
     return (
         <div>
             <header className="mb-6">
-                <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-pink to-brand-cyan mb-1">
+                <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-brand-purple mb-1">
                     My KandyDrops
                 </h1>
                 <p className="text-gray-400 text-sm">Your unlocked gallery.</p>

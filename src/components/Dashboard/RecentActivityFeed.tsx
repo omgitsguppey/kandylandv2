@@ -57,12 +57,12 @@ export function RecentActivityFeed() {
     return (
         <div className="glass-panel p-6 rounded-3xl mt-6 lg:mt-8">
             <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                <Activity className="w-5 h-5 text-brand-cyan" /> Recent Activity
+                <Activity className="w-5 h-5 text-brand-purple" /> Recent Activity
             </h3>
 
             {loading ? (
                 <div className="flex items-center justify-center py-8">
-                    <Loader2 className="w-6 h-6 animate-spin text-brand-cyan/50" />
+                    <Loader2 className="w-6 h-6 animate-spin text-brand-purple/50" />
                 </div>
             ) : transactions.length === 0 ? (
                 <div className="text-center py-6 text-gray-500 text-sm">
@@ -73,8 +73,8 @@ export function RecentActivityFeed() {
                     {transactions.map(tx => (
                         <div key={tx.id} className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/5">
                             <div className="flex items-center gap-3">
-                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${tx.type === 'purchase_currency' ? 'bg-brand-green/20 text-brand-green' :
-                                    tx.type === 'daily_reward' ? 'bg-brand-pink/20 text-brand-pink' :
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${tx.type === 'purchase_currency' ? 'bg-brand-purple/20 text-brand-purple' :
+                                    tx.type === 'daily_reward' ? 'bg-brand-purple/20 text-brand-purple' :
                                         'bg-brand-purple/20 text-brand-purple'
                                     }`}>
                                     {tx.type === 'purchase_currency' || tx.type === 'daily_reward' || tx.type === 'admin_adjustment' ? (
@@ -96,7 +96,7 @@ export function RecentActivityFeed() {
                                 </div>
                             </div>
                             <div className={`font-bold text-sm ${['purchase_currency', 'daily_reward', 'admin_adjustment'].includes(tx.type)
-                                ? 'text-brand-green'
+                                ? 'text-brand-purple'
                                 : 'text-white'
                                 }`}>
                                 {['purchase_currency', 'daily_reward', 'admin_adjustment'].includes(tx.type) ? '+' : '-'}{tx.amount} GD

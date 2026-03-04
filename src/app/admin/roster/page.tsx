@@ -159,7 +159,7 @@ export default function AdminRosterPage() {
     if (authLoading) {
         return (
             <div className="flex items-center justify-center min-h-[300px]">
-                <div className="w-8 h-8 rounded-full border-2 border-brand-pink border-t-transparent animate-spin" />
+                <div className="w-8 h-8 rounded-full border-2 border-brand-purple border-t-transparent animate-spin" />
             </div>
         );
     }
@@ -187,7 +187,7 @@ export default function AdminRosterPage() {
                         value={searchTerm}
                         onChange={(event) => setSearchTerm(event.target.value)}
                         placeholder="Search by name, email, username"
-                        className="w-full bg-black/40 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-white text-sm focus:outline-none focus:border-brand-pink"
+                        className="w-full bg-black/40 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-white text-sm focus:outline-none focus:border-brand-purple"
                     />
                 </div>
             </header>
@@ -195,7 +195,7 @@ export default function AdminRosterPage() {
             <div className="glass-panel rounded-2xl overflow-hidden border border-white/10">
                 {loading ? (
                     <div className="flex items-center justify-center min-h-[260px]">
-                        <div className="w-8 h-8 rounded-full border-2 border-brand-pink border-t-transparent animate-spin" />
+                        <div className="w-8 h-8 rounded-full border-2 border-brand-purple border-t-transparent animate-spin" />
                     </div>
                 ) : error ? (
                     <div className="p-8 text-center text-gray-300">{error}</div>
@@ -230,9 +230,9 @@ export default function AdminRosterPage() {
                                                         )}
                                                     </div>
                                                     <div className="min-w-0">
-                                                        <Link href={`/admin/user/${entry.uid}`} className="text-sm font-semibold text-white truncate inline-flex items-center gap-1 hover:text-brand-cyan transition-colors">
+                                                        <Link href={`/admin/user/${entry.uid}`} className="text-sm font-semibold text-white truncate inline-flex items-center gap-1 hover:text-brand-purple transition-colors">
                                                             {entry.displayName}
-                                                            {entry.isVerified ? <CheckCircle2 className="w-3 h-3 text-brand-cyan" /> : null}
+                                                            {entry.isVerified ? <CheckCircle2 className="w-3 h-3 text-brand-purple" /> : null}
                                                         </Link>
                                                         <div className="text-xs text-gray-500 truncate">{entry.username ? `@${entry.username}` : entry.uid}</div>
                                                     </div>
@@ -274,7 +274,7 @@ export default function AdminRosterPage() {
                                                     </select>
                                                     <Link
                                                         href={`/admin/user/${entry.uid}`}
-                                                        className="text-xs px-2 py-1 rounded-lg bg-brand-pink/10 border border-brand-pink/20 text-brand-pink font-bold hover:bg-brand-pink/20 transition-colors"
+                                                        className="text-xs px-2 py-1 rounded-lg bg-brand-purple/10 border border-brand-purple/20 text-brand-purple font-bold hover:bg-brand-purple/20 transition-colors"
                                                     >
                                                         Analytics
                                                     </Link>
@@ -308,7 +308,7 @@ export default function AdminRosterPage() {
                                         <div className="min-w-0">
                                             <div className="text-sm font-semibold text-white inline-flex items-center gap-1">
                                                 {entry.displayName}
-                                                {entry.isVerified ? <CheckCircle2 className="w-3 h-3 text-brand-cyan" /> : null}
+                                                {entry.isVerified ? <CheckCircle2 className="w-3 h-3 text-brand-purple" /> : null}
                                             </div>
                                             <div className="text-xs text-gray-500 truncate">{entry.email}</div>
                                         </div>

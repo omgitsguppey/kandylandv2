@@ -312,7 +312,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         return (
             <div className="text-center py-20 pt-32">
                 <h2 className="text-xl font-bold text-white mb-2">Drop Not Found</h2>
-                <Link href="/dashboard/library" className="text-brand-pink">Back to Library</Link>
+                <Link href="/dashboard/library" className="text-brand-purple">Back to Library</Link>
             </div>
         );
     }
@@ -369,7 +369,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                     {isSecurityTriggered && (
                         <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none bg-black/40 backdrop-blur-sm">
                             <div className="bg-zinc-900/90 px-6 py-5 rounded-3xl flex flex-col items-center gap-3 border border-white/10 shadow-xl">
-                                <ShieldCheck className="w-10 h-10 text-brand-pink animate-pulse" />
+                                <ShieldCheck className="w-10 h-10 text-brand-purple animate-pulse" />
                                 <div className="text-center">
                                     <p className="text-white font-bold text-lg mb-0.5">Content Protected</p>
                                     <p className="text-xs text-gray-400 font-medium">Capture or recording detected.</p>
@@ -381,7 +381,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                     <div className={cn("w-full h-full flex items-center justify-center transition-all duration-500", isSecurityTriggered ? "blur-xl opacity-50" : "")}>
                         {contentLoading ? (
                             <div className="flex flex-col items-center gap-3">
-                                <Loader2 className="w-10 h-10 text-brand-pink animate-spin" />
+                                <Loader2 className="w-10 h-10 text-brand-purple animate-spin" />
                                 <p className="text-sm text-gray-400">Loading content...</p>
                             </div>
                         ) : contentBlobUrl ? (
@@ -489,7 +489,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                     {/* Title & Metadata */}
                     <div className="flex-1">
                         <div className="flex items-center gap-3 text-xs md:text-sm text-gray-400 mb-2">
-                            <span className="px-2 py-0.5 rounded bg-white/10 border border-white/5 text-brand-pink font-mono uppercase tracking-wider">
+                            <span className="px-2 py-0.5 rounded bg-white/10 border border-white/5 text-brand-purple font-mono uppercase tracking-wider">
                                 #{drop.id.slice(0, 4)}
                             </span>
                             {previewTags.map((tag) => (
@@ -561,7 +561,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                             <div className="w-full h-full flex items-center justify-center text-3xl">🍬</div>
                                         )}
                                     </div>
-                                    <p className="text-sm font-bold text-white line-clamp-1 group-hover:text-brand-pink transition-colors">{retentionDrop.title}</p>
+                                    <p className="text-sm font-bold text-white line-clamp-1 group-hover:text-brand-purple transition-colors">{retentionDrop.title}</p>
                                 </Link>
                             ))}
                         </div>

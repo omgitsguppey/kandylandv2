@@ -86,7 +86,7 @@ export default function AdminAnalyticsPage() {
                 </p>
                 <div className="glass-panel p-6 rounded-2xl text-left max-w-lg w-full">
                     <p className="text-sm font-bold text-white mb-2">Required .env.local additions:</p>
-                    <pre className="bg-black border border-white/10 p-4 rounded-xl text-xs text-brand-pink overflow-x-auto">
+                    <pre className="bg-black border border-white/10 p-4 rounded-xl text-xs text-brand-purple overflow-x-auto">
                         GA_PROPERTY_ID=&quot;123456789&quot;
                     </pre>
                 </div>
@@ -107,7 +107,7 @@ export default function AdminAnalyticsPage() {
                             key={f}
                             onClick={() => setFilter(f)}
                             className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${filter === f
-                                ? "bg-brand-pink text-white shadow-lg"
+                                ? "bg-brand-purple text-white shadow-lg"
                                 : "text-gray-400 hover:text-white"
                                 }`}
                         >
@@ -119,7 +119,7 @@ export default function AdminAnalyticsPage() {
 
             {isLoading && !data ? (
                 <div className="flex items-center justify-center h-64">
-                    <Loader2 className="w-8 h-8 text-brand-pink animate-spin" />
+                    <Loader2 className="w-8 h-8 text-brand-purple animate-spin" />
                 </div>
             ) : error && !needsSetup ? (
                 <div className="p-6 rounded-3xl bg-red-500/10 border border-red-500/20 text-center">
@@ -135,10 +135,10 @@ export default function AdminAnalyticsPage() {
                         <div className="glass-panel p-8 rounded-[2rem] border border-white/10 relative overflow-hidden group">
                             <div className="absolute top-6 right-6 flex items-center gap-2">
                                 <span className="relative flex h-3 w-3">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-cyan opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-cyan"></span>
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-purple opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-purple"></span>
                                 </span>
-                                <span className="text-xs text-brand-cyan font-bold uppercase tracking-wider">Updates live</span>
+                                <span className="text-xs text-brand-purple font-bold uppercase tracking-wider">Updates live</span>
                             </div>
                             <p className="text-gray-400 font-medium mb-1">Active Users</p>
                             <h2 className="text-6xl md:text-8xl font-black text-white tracking-tighter mb-4">{liveActive}</h2>
@@ -149,21 +149,21 @@ export default function AdminAnalyticsPage() {
                             {/* Primary Metrics (Lavender) */}
                             <div className="glass-panel p-4 md:p-6 rounded-2xl md:rounded-3xl border border-white/10 col-span-1 lg:col-span-2">
                                 <div className="flex items-center gap-3 mb-4">
-                                    <div className="w-8 h-8 rounded-full bg-brand-pink/20 text-brand-pink flex items-center justify-center">
+                                    <div className="w-8 h-8 rounded-full bg-brand-purple/20 text-brand-purple flex items-center justify-center">
                                         <Users className="w-4 h-4" />
                                     </div>
                                     <p className="text-sm font-medium text-gray-400">Unique Users</p>
                                 </div>
-                                <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-brand-pink tracking-tight">{totals.users.toLocaleString()}</h3>
+                                <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-brand-purple tracking-tight">{totals.users.toLocaleString()}</h3>
                             </div>
                             <div className="glass-panel p-4 md:p-6 rounded-2xl md:rounded-3xl border border-white/10 col-span-1 lg:col-span-2">
                                 <div className="flex items-center gap-3 mb-4">
-                                    <div className="w-8 h-8 rounded-full bg-brand-pink/20 text-brand-pink flex items-center justify-center">
+                                    <div className="w-8 h-8 rounded-full bg-brand-purple/20 text-brand-purple flex items-center justify-center">
                                         <Eye className="w-4 h-4" />
                                     </div>
                                     <p className="text-sm font-medium text-gray-400">Page Views</p>
                                 </div>
-                                <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-brand-pink tracking-tight">{totals.views.toLocaleString()}</h3>
+                                <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-brand-purple tracking-tight">{totals.views.toLocaleString()}</h3>
                             </div>
 
                             {/* Secondary Metrics (White) */}
@@ -273,7 +273,7 @@ export default function AdminAnalyticsPage() {
                             {/* Conversion Funnel */}
                             <div className="glass-panel p-4 md:p-6 rounded-3xl border border-white/10 flex flex-col">
                                 <div className="flex items-center gap-2 mb-4 md:mb-6">
-                                    <BarChart3 className="w-5 h-5 text-brand-pink" />
+                                    <BarChart3 className="w-5 h-5 text-brand-purple" />
                                     <h3 className="text-base md:text-lg font-bold text-white">Drop Conversions</h3>
                                 </div>
                                 <div className="flex-1 min-h-[200px] w-full">
@@ -321,8 +321,8 @@ export default function AdminAnalyticsPage() {
                                             {topDropsData.length > 0 ? topDropsData.map((drop, idx) => (
                                                 <tr key={idx} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                                                     <td className="py-3 pr-4 text-sm font-bold text-white truncate max-w-[120px]">{drop.dropId}</td>
-                                                    <td className="py-3 pr-4 text-sm text-brand-pink text-right">{drop.views.toLocaleString()}</td>
-                                                    <td className="py-3 pr-4 text-sm text-brand-cyan text-right">{drop.unlocks.toLocaleString()}</td>
+                                                    <td className="py-3 pr-4 text-sm text-brand-purple text-right">{drop.views.toLocaleString()}</td>
+                                                    <td className="py-3 pr-4 text-sm text-brand-purple text-right">{drop.unlocks.toLocaleString()}</td>
                                                     <td className="py-3 text-sm text-gray-300 text-right">
                                                         {drop.views > 0 ? Math.round((drop.unlocks / drop.views) * 100) : 0}%
                                                     </td>
@@ -362,7 +362,7 @@ export default function AdminAnalyticsPage() {
                             {/* Geography */}
                             <div className="glass-panel p-4 md:p-6 rounded-3xl border border-white/10 flex flex-col">
                                 <div className="flex items-center gap-2 mb-4">
-                                    <MapPin className="w-5 h-5 text-brand-cyan" />
+                                    <MapPin className="w-5 h-5 text-brand-purple" />
                                     <h3 className="text-base md:text-lg font-bold text-white">Top Active Regions</h3>
                                 </div>
                                 <div className="space-y-2 overflow-y-auto max-h-[250px] pr-2 custom-scrollbar">
@@ -372,7 +372,7 @@ export default function AdminAnalyticsPage() {
                                                 <p className="font-bold text-white text-xs md:text-sm">{geo.city}</p>
                                                 <p className="text-[10px] md:text-xs text-gray-400">{geo.country}</p>
                                             </div>
-                                            <div className="px-2 md:px-3 py-1 bg-brand-cyan/20 text-brand-cyan rounded-lg font-bold text-xs md:text-sm">
+                                            <div className="px-2 md:px-3 py-1 bg-brand-purple/20 text-brand-purple rounded-lg font-bold text-xs md:text-sm">
                                                 {geo.users.toLocaleString()}
                                             </div>
                                         </div>

@@ -95,14 +95,14 @@ export default function StickyFilterBar({
                 {/* Search Input */}
                 <div className="relative w-full md:w-64 group">
                     <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                        <Search className="w-4 h-4 text-gray-500 group-focus-within:text-brand-pink transition-colors" />
+                        <Search className="w-4 h-4 text-gray-500 group-focus-within:text-brand-purple transition-colors" />
                     </div>
                     <input
                         type="text"
                         placeholder="Search drops..."
                         value={localSearch}
                         onChange={handleSearchChange}
-                        className="w-full bg-white/5 border border-white/10 rounded-full py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:bg-white/10 focus:border-brand-pink/50 transition-all"
+                        className="w-full bg-white/5 border border-white/10 rounded-full py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:bg-white/10 focus:border-brand-purple/50 transition-all"
                     />
                 </div>
 
@@ -124,7 +124,7 @@ export default function StickyFilterBar({
                                 className={cn(
                                     "relative flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border",
                                     isSelected
-                                        ? "text-white border-brand-pink/50"
+                                        ? "text-white border-brand-purple/50"
                                         : "bg-white/5 text-gray-400 border-white/5  "
                                 )}
                             >
@@ -132,7 +132,7 @@ export default function StickyFilterBar({
                                     {isSelected && (
                                         <motion.div
                                             layoutId="active-pill"
-                                            className="absolute inset-0 bg-brand-pink/20 rounded-full -z-10 shadow-[0_0_15px_rgba(236,72,153,0.3)]"
+                                            className="absolute inset-0 bg-brand-purple/20 rounded-full -z-10 shadow-[0_0_15px_rgba(236,72,153,0.3)]"
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
                                             exit={{ opacity: 0 }}
@@ -140,7 +140,7 @@ export default function StickyFilterBar({
                                         />
                                     )}
                                 </AnimatePresence>
-                                <Icon className={cn("w-3.5 h-3.5", isSelected ? "text-brand-pink" : "opacity-70")} />
+                                <Icon className={cn("w-3.5 h-3.5", isSelected ? "text-brand-purple" : "opacity-70")} />
                                 {cat}
                             </motion.button>
                         );

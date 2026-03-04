@@ -78,7 +78,7 @@ export function normalizeTransactionRecord(raw: unknown, id: string): Transactio
     timestamp: normalizeTimestamp(parsed.timestamp),
     cost: parsed.cost,
     currency: parsed.currency,
-    status: parsed.status as any,
+    status: parsed.status as "completed" | "failed" | "pending" | undefined,
   };
 }
 

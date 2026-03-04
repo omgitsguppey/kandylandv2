@@ -48,8 +48,8 @@ export function NotificationPromptBanner() {
         <div className="bg-black/90 border-b border-white/10 backdrop-blur-xl sticky top-0 z-50">
             <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                    <div className="p-2 bg-brand-pink/20 rounded-full">
-                        <Bell className="w-4 h-4 text-brand-pink" />
+                    <div className="p-2 bg-brand-purple/20 rounded-full">
+                        <Bell className="w-4 h-4 text-brand-purple" />
                     </div>
                     <p className="text-sm text-brand-purple-light font-medium">
                         Never miss a Kandy Drop! <span className="hidden md:inline text-gray-400">Enable notifications to be alerted when exclusive drops go live.</span>
@@ -58,7 +58,7 @@ export function NotificationPromptBanner() {
                 <div className="flex items-center gap-2 shrink-0">
                     <button
                         onClick={handleEnable}
-                        className="text-xs font-bold text-white bg-brand-pink hover:bg-brand-purple px-4 py-2 rounded-full transition-colors"
+                        className="text-xs font-bold text-white bg-brand-purple hover:bg-brand-purple px-4 py-2 rounded-full transition-colors"
                     >
                         Enable
                     </button>

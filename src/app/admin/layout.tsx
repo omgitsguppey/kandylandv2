@@ -34,7 +34,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (authLoading || !isAuthorized) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 rounded-full border-2 border-brand-pink border-t-transparent animate-spin" />
+        <div className="w-8 h-8 rounded-full border-2 border-brand-purple border-t-transparent animate-spin" />
       </div>
     );
   }
@@ -54,7 +54,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     href={item.href}
                     className={cn(
                       "inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs md:text-sm font-medium border",
-                      active ? "bg-brand-pink/20 border-brand-pink/40 text-white" : "bg-white/5 border-white/10 text-gray-300"
+                      active ? "bg-brand-purple/20 border-brand-purple/40 text-white" : "bg-white/5 border-white/10 text-gray-300"
                     )}
                   >
                     <Icon className="w-4 h-4" /> {item.label}

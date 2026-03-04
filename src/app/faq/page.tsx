@@ -4,7 +4,7 @@ import { FAQ_SECTIONS } from "./faq-data";
 export default function FAQPage() {
   return (
     <div className="w-full relative overflow-hidden">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[400px] bg-brand-pink/20 blur-[120px] rounded-full pointer-events-none opacity-50" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[400px] bg-brand-purple/20 blur-[120px] rounded-full pointer-events-none opacity-50" />
 
       <div className="max-w-4xl mx-auto px-4 md:px-8 relative z-10">
         <div className="text-center mb-10">
@@ -17,7 +17,7 @@ export default function FAQPage() {
         <FAQClient sections={FAQ_SECTIONS} />
 
         <div className="mt-24 text-center glass-panel p-8 rounded-3xl border border-white/10 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-brand-pink/10 via-brand-purple/10 to-brand-cyan/10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-brand-purple/10 via-brand-purple/10 to-brand-purple/10" />
           <div className="relative z-10">
             <h3 className="text-2xl font-bold text-white mb-2">Still have questions?</h3>
             <p className="text-gray-400 mb-6 max-w-md mx-auto">

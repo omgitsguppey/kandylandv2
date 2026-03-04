@@ -169,7 +169,7 @@ export function DailyCheckIn() {
                 <div className="flex items-center justify-between mb-6">
                     <div>
                         <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                            <Gift className="w-6 h-6 text-brand-pink" /> Daily Rewards
+                            <Gift className="w-6 h-6 text-brand-purple" /> Daily Rewards
                         </h2>
                         <p className="text-gray-400 text-sm">Check in daily to earn Gum Drops!</p>
                     </div>
@@ -187,7 +187,7 @@ export function DailyCheckIn() {
                             <div key={day} className="flex flex-col items-center gap-2 flex-1">
                                 <div className={cn(
                                     "w-full h-1.5 rounded-full transition-all",
-                                    isActive ? "bg-brand-pink shadow-[0_0_10px_#ec4899]" : "bg-white/10"
+                                    isActive ? "bg-brand-purple shadow-[0_0_10px_#ec4899]" : "bg-white/10"
                                 )} />
                                 <span className={cn(
                                     "text-xs font-bold",
@@ -206,7 +206,7 @@ export function DailyCheckIn() {
 
                 {!canCheckIn ? (
                     <div className="w-full py-4 rounded-xl bg-white/5 border border-white/5 text-center text-gray-400 font-medium flex items-center justify-center gap-2">
-                        <CheckCircle className="w-5 h-5 text-brand-green" />
+                        <CheckCircle className="w-5 h-5 text-brand-purple" />
                         Come back tomorrow for {nextRewardAmount} Drops!
                     </div>
                 ) : (

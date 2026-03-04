@@ -47,7 +47,7 @@ export function OwnedDropGalleryCard({ drop, isUnlocked, onOpen }: OwnedDropGall
                     <span className={cn(
                         "mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border",
                         isUnlocked
-                            ? "bg-brand-green/20 text-brand-green border-brand-green/30"
+                            ? "bg-brand-purple/20 text-brand-purple border-brand-purple/30"
                             : "bg-white/10 text-gray-300 border-white/20"
                     )}>
                         {isUnlocked ? <Unlock className="w-3 h-3" /> : <Lock className="w-3 h-3" />}

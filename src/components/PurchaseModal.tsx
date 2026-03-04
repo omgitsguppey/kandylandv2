@@ -116,7 +116,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                 {!success ? (
                   <div>
                     <div className="text-center mb-8">
-                      <div className="w-16 h-16 bg-gradient-to-tr from-brand-pink to-brand-purple rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg shadow-brand-pink/20">
+                      <div className="w-16 h-16 bg-gradient-to-tr from-brand-purple to-brand-purple rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg shadow-brand-purple/20">
                         <Candy className="w-8 h-8 text-white drop-shadow-md" />
                       </div>
                       <h2 className="text-2xl font-bold text-white mb-1 tracking-tight">Get Gum Drops</h2>
@@ -134,14 +134,14 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                             className={cn(
                               "relative p-4 rounded-2xl text-left border",
                               isSelected
-                                ? "bg-brand-pink/10 border-brand-pink/50 ring-1 ring-brand-pink/30 shadow-[0_0_20px_rgba(236,72,153,0.15)] scale-[1.02]"
+                                ? "bg-brand-purple/10 border-brand-purple/50 ring-1 ring-brand-purple/30 shadow-[0_0_20px_rgba(236,72,153,0.15)] scale-[1.02]"
                                 : "bg-white/5 border-white/5"
                             )}
                           >
-                            {isPopular && <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-brand-cyan to-blue-500 text-[10px] font-bold px-2 py-0.5 rounded-full text-white">Best Value</span>}
+                            {isPopular && <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-brand-purple to-blue-500 text-[10px] font-bold px-2 py-0.5 rounded-full text-white">Best Value</span>}
                             <div className="font-bold text-lg text-white mb-0.5">{pkg.drops}</div>
                             <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">{pkg.label}</div>
-                            <div className={cn("font-bold", isSelected ? "text-brand-pink" : "text-white")}>${pkg.price}</div>
+                            <div className={cn("font-bold", isSelected ? "text-brand-purple" : "text-white")}>${pkg.price}</div>
                           </button>
                         );
                       })}
@@ -193,8 +193,8 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                   </div>
                 ) : (
                   <div className="text-center py-10">
-                    <div className="w-20 h-20 bg-brand-green/20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(20,230,130,0.3)]">
-                      <Candy className="w-10 h-10 text-brand-green drop-shadow-md" />
+                    <div className="w-20 h-20 bg-brand-purple/20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(20,230,130,0.3)]">
+                      <Candy className="w-10 h-10 text-brand-purple drop-shadow-md" />
                     </div>
                     <h3 className="text-3xl font-bold text-white mb-2 tracking-tight">All Set!</h3>
                     <p className="text-gray-400 mb-8 max-w-[200px] mx-auto">You&apos;ve added <strong>{selectedPackage.drops} Gum Drops</strong> to your stash.</p>

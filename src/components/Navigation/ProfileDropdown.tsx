@@ -35,18 +35,18 @@ export function ProfileDropdown() {
                 className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full transition-colors border border-transparent"
             >
                 <div className="relative">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-brand-pink to-brand-purple flex items-center justify-center text-white font-bold text-sm shadow-md">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-brand-purple to-brand-purple flex items-center justify-center text-white font-bold text-sm shadow-md">
                         {user.displayName?.charAt(0)?.toUpperCase() || "U"}
                     </div>
                     {isAdmin && (
-                        <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-brand-cyan rounded-full border-2 border-black" title="Admin User" />
+                        <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-brand-purple rounded-full border-2 border-black" title="Admin User" />
                     )}
                 </div>
                 <div className="hidden md:flex flex-col items-start text-xs">
                     <div className="flex items-center gap-2">
                         <span className="font-bold text-white leading-tight">{user.displayName}</span>
                         {isAdmin && (
-                            <span className="px-1.5 py-0.5 rounded-full bg-brand-cyan/20 text-brand-cyan text-[10px] font-bold border border-brand-cyan/30">
+                            <span className="px-1.5 py-0.5 rounded-full bg-brand-purple/20 text-brand-purple text-[10px] font-bold border border-brand-purple/30">
                                 ADMIN
                             </span>
                         )}
@@ -65,7 +65,7 @@ export function ProfileDropdown() {
                         <div>
                             <p className="text-sm font-bold text-white flex items-center gap-2">
                                 My Account
-                                {isAdmin && <span className="text-xs text-brand-cyan">(Admin)</span>}
+                                {isAdmin && <span className="text-xs text-brand-purple">(Admin)</span>}
                             </p>
                             <p className="text-xs text-gray-400 truncate">{user.email}</p>
                         </div>

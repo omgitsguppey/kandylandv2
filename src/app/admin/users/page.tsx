@@ -179,7 +179,7 @@ export default function UserManagementPage() {
                     <p className="text-gray-400">Manage accounts, roles, balance, and content access.</p>
                 </div>
                 <div className="glass-panel px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-mono text-gray-400">
-                    <Shield className="w-4 h-4 text-brand-pink" />
+                    <Shield className="w-4 h-4 text-brand-purple" />
                     <span>{users.length} Total Users</span>
                 </div>
             </div>
@@ -215,7 +215,7 @@ export default function UserManagementPage() {
                             {loading ? (
                                 <tr>
                                     <td colSpan={7} className="p-8 text-center">
-                                        <Loader2 className="w-6 h-6 text-brand-pink animate-spin mx-auto" />
+                                        <Loader2 className="w-6 h-6 text-brand-purple animate-spin mx-auto" />
                                     </td>
                                 </tr>
                             ) : filteredUsers.length === 0 ? (
@@ -239,7 +239,7 @@ export default function UserManagementPage() {
                                                 <div>
                                                     <div className="flex items-center gap-1 font-bold text-white">
                                                         {user.displayName || "No Name"}
-                                                        {user.isVerified && <CheckCircle className="w-3 h-3 text-brand-cyan" />}
+                                                        {user.isVerified && <CheckCircle className="w-3 h-3 text-brand-purple" />}
                                                     </div>
                                                     <div className="text-xs text-gray-500">{user.email}</div>
                                                 </div>
@@ -255,7 +255,7 @@ export default function UserManagementPage() {
                                                 {(user.status || 'active').toUpperCase()}
                                             </span>
                                         </td>
-                                        <td className="p-4 font-mono text-brand-pink">
+                                        <td className="p-4 font-mono text-brand-purple">
                                             <div className="flex items-center gap-2">
                                                 {user.gumDropsBalance} 🍬
                                                 <button
@@ -295,7 +295,7 @@ export default function UserManagementPage() {
                                                 )}
                                                 <button
                                                     onClick={() => handleVerification(user.uid, !user.isVerified)}
-                                                    className={`p-1.5 rounded transition-colors ${user.isVerified ? "text-brand-cyan " : "text-gray-400 "}`}
+                                                    className={`p-1.5 rounded transition-colors ${user.isVerified ? "text-brand-purple " : "text-gray-400 "}`}
                                                     title="Verify"
                                                 >
                                                     <CheckCircle className="w-3 h-3" />
@@ -350,7 +350,7 @@ export default function UserManagementPage() {
             {/* Mobile Card Layout */}
             <div className="md:hidden flex flex-col divide-y divide-white/5 glass-panel rounded-2xl border border-white/5">
                 {loading ? (
-                    <div className="p-8 text-center"><Loader2 className="w-6 h-6 text-brand-pink animate-spin mx-auto" /></div>
+                    <div className="p-8 text-center"><Loader2 className="w-6 h-6 text-brand-purple animate-spin mx-auto" /></div>
                 ) : filteredUsers.length === 0 ? (
                     <div className="p-8 text-center text-gray-500">No users found.</div>
                 ) : (
@@ -368,7 +368,7 @@ export default function UserManagementPage() {
                                     <div>
                                         <div className="flex items-center gap-1 font-bold text-white text-sm">
                                             {user.displayName || "No Name"}
-                                            {user.isVerified && <CheckCircle className="w-3 h-3 text-brand-cyan" />}
+                                            {user.isVerified && <CheckCircle className="w-3 h-3 text-brand-purple" />}
                                         </div>
                                         <div className="text-xs text-gray-500">{user.email}</div>
                                     </div>
@@ -389,7 +389,7 @@ export default function UserManagementPage() {
                                             </div>
                                         )}
                                     </div>
-                                    <div className="font-mono text-brand-pink flex items-center gap-1">
+                                    <div className="font-mono text-brand-purple flex items-center gap-1">
                                         {user.gumDropsBalance} 🍬
                                         <button onClick={() => setEditBalanceUser(user)}><Edit2 className="w-3 h-3 text-gray-500 hover:text-white" /></button>
                                         <button onClick={() => setHistoryUser(user)}><ScrollText className="w-3 h-3 text-gray-500 hover:text-white" /></button>
@@ -403,7 +403,7 @@ export default function UserManagementPage() {
                                         <button onClick={() => handleRoleUpdate(user.uid, 'user')} className="px-3 py-1.5 bg-zinc-800 text-gray-400 rounded-lg text-xs font-bold">Demote</button>
                                     )}
 
-                                    <button onClick={() => handleVerification(user.uid, !user.isVerified)} className={`px-3 py-1.5 rounded-lg text-xs font-bold ${user.isVerified ? "bg-brand-cyan/10 text-brand-cyan" : "bg-zinc-800 text-gray-400"}`}>
+                                    <button onClick={() => handleVerification(user.uid, !user.isVerified)} className={`px-3 py-1.5 rounded-lg text-xs font-bold ${user.isVerified ? "bg-brand-purple/10 text-brand-purple" : "bg-zinc-800 text-gray-400"}`}>
                                         {user.isVerified ? "Verified" : "Verify"}
                                     </button>
 
@@ -432,7 +432,7 @@ export default function UserManagementPage() {
                                 <div className="mb-6">
                                     <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Reason</label>
                                     <textarea
-                                        className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:border-brand-pink outline-none resize-none h-24"
+                                        className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:border-brand-purple outline-none resize-none h-24"
                                         placeholder={`Reason for ${actionType}...`}
                                         value={reason}
                                         onChange={(e) => setReason(e.target.value)}
@@ -501,7 +501,7 @@ export default function UserManagementPage() {
                                 <div className="flex gap-2">
                                     <input
                                         type="text"
-                                        className="w-full bg-black/50 border border-white/10 rounded-xl p-2 text-white focus:border-brand-pink outline-none text-sm"
+                                        className="w-full bg-black/50 border border-white/10 rounded-xl p-2 text-white focus:border-brand-purple outline-none text-sm"
                                         placeholder="Enter Drop ID..."
                                         value={contentInput}
                                         onChange={(e) => setContentInput(e.target.value)}

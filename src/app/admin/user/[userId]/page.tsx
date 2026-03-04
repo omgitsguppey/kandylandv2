@@ -89,7 +89,7 @@ export default function AdminUserAnalyticsPage() {
     if (authLoading || loading) {
         return (
             <div className="flex items-center justify-center min-h-[300px]">
-                <div className="w-8 h-8 rounded-full border-2 border-brand-pink border-t-transparent animate-spin" />
+                <div className="w-8 h-8 rounded-full border-2 border-brand-purple border-t-transparent animate-spin" />
             </div>
         );
     }
@@ -103,7 +103,7 @@ export default function AdminUserAnalyticsPage() {
             <div className="p-8 text-center text-gray-300">
                 <AlertCircle className="w-8 h-8 text-red-500 mx-auto mb-4" />
                 <p>{error}</p>
-                <button onClick={() => router.back()} className="mt-4 text-brand-cyan underline">Go back</button>
+                <button onClick={() => router.back()} className="mt-4 text-brand-purple underline">Go back</button>
             </div>
         );
     }
@@ -140,14 +140,14 @@ export default function AdminUserAnalyticsPage() {
                             {targetUser.status !== "active" && <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-500/20 text-red-500 uppercase border border-red-500/20">{targetUser.status}</span>}
                         </h1>
                         <p className="text-sm text-gray-400 font-mono mt-1">{targetUser.email || "No email"} • {targetUser.uid}</p>
-                        <p className="text-xs text-brand-cyan/80 mt-2 flex items-center gap-1"><CalendarDays className="w-3 h-3" /> Joined {format(targetUser.createdAt, "PPP")}</p>
+                        <p className="text-xs text-brand-purple/80 mt-2 flex items-center gap-1"><CalendarDays className="w-3 h-3" /> Joined {format(targetUser.createdAt, "PPP")}</p>
                     </div>
                 </div>
 
                 <div className="flex bg-black/40 rounded-2xl p-4 gap-8 border border-white/5">
                     <div>
                         <p className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Current Balance</p>
-                        <p className="text-2xl font-black text-brand-pink">{targetUser.gumDropsBalance}</p>
+                        <p className="text-2xl font-black text-brand-purple">{targetUser.gumDropsBalance}</p>
                     </div>
                     <div>
                         <p className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Total Drops</p>
@@ -160,13 +160,13 @@ export default function AdminUserAnalyticsPage() {
                 {/* Analytics Summary */}
                 <div className="glass-panel p-6 rounded-3xl border border-white/5">
                     <h3 className="text-sm font-bold text-white flex items-center gap-2 mb-4">
-                        <Activity className="w-4 h-4 text-brand-cyan" /> Behavior Profile
+                        <Activity className="w-4 h-4 text-brand-purple" /> Behavior Profile
                     </h3>
 
                     <div className="space-y-4">
                         <div className="flex justify-between items-center py-2 border-b border-white/5">
                             <span className="text-sm text-gray-400">Total Purchase Volume</span>
-                            <span className="text-sm font-bold text-brand-green">${(totalSpent / 100).toFixed(2)}</span>
+                            <span className="text-sm font-bold text-brand-purple">${(totalSpent / 100).toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between items-center py-2 border-b border-white/5">
                             <span className="text-sm text-gray-400">Failed Transactions</span>
@@ -203,7 +203,7 @@ export default function AdminUserAnalyticsPage() {
                                             {tx.type === "unlock_content" ? (
                                                 <span className="text-xs font-bold text-zinc-400 bg-zinc-800 px-2 py-0.5 rounded-md border border-white/10">{tx.amount} GD</span>
                                             ) : tType === "purchase_currency" || tType === "purchase" ? (
-                                                <span className="text-xs font-bold text-brand-green bg-brand-green/10 px-2 py-0.5 rounded-md border border-brand-green/20">+${((tx.amount > 0 ? tx.amount : 0) / 100).toFixed(2)}</span>
+                                                <span className="text-xs font-bold text-brand-purple bg-brand-purple/10 px-2 py-0.5 rounded-md border border-brand-purple/20">+${((tx.amount > 0 ? tx.amount : 0) / 100).toFixed(2)}</span>
                                             ) : (
                                                 <span className="text-xs font-bold text-gray-400">Log</span>
                                             )}

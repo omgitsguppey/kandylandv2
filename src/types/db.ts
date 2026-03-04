@@ -50,7 +50,8 @@ export interface Drop {
     title: string;
     description: string;
     imageUrl: string;
-    contentUrl: string; // The secret content to unlock
+    contentUrl: string; // Legacy fallback or preview content
+    contentUrls?: string[]; // Up to 50 media payloads
     unlockCost: number;
     validFrom: number; // Timestamp
     validUntil?: number; // Timestamp (Optional - if missing, never expires)

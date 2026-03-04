@@ -87,7 +87,7 @@ export function BalanceAdjustmentModal({ user, onClose, onSuccess }: Props) {
                             <input
                                 type="number"
                                 autoFocus
-                                className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:border-brand-pink outline-none font-mono text-lg"
+                                className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:border-brand-purple outline-none font-mono text-lg"
                                 value={amount}
                                 onChange={(e) => setAmount(e.target.value)}
                                 placeholder="0"
@@ -97,7 +97,7 @@ export function BalanceAdjustmentModal({ user, onClose, onSuccess }: Props) {
                             <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Reason</label>
                             <input
                                 type="text"
-                                className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:border-brand-pink outline-none text-sm h-[52px]"
+                                className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:border-brand-purple outline-none text-sm h-[52px]"
                                 value={reason}
                                 onChange={(e) => setReason(e.target.value)}
                                 placeholder="e.g. Refund"

@@ -50,7 +50,7 @@ export function AnimateBalance({ balance, className }: AnimateBalanceProps) {
                         initial={{ opacity: 0, y: 0 }}
                         animate={{ opacity: 1, y: -20 }}
                         exit={{ opacity: 0 }}
-                        className="absolute -top-1 right-0 text-brand-green text-[10px] font-bold"
+                        className="absolute -top-1 right-0 text-brand-purple text-[10px] font-bold"
                     >
                         +{balance - prevBalanceRef.current}
                     </motion.span>

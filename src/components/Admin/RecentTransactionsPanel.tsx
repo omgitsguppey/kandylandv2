@@ -46,7 +46,7 @@ export function RecentTransactionsPanel() {
                                 <div className="text-xs text-gray-500">{tx.userId.slice(0, 8)}…</div>
                             </div>
                             <div className="text-right">
-                                <div className="text-sm font-mono text-brand-green">{tx.amount > 0 ? "+" : ""}{tx.amount}</div>
+                                <div className="text-sm font-mono text-brand-purple">{tx.amount > 0 ? "+" : ""}{tx.amount}</div>
                                 <div className="text-[10px] text-gray-500">{formatDistanceToNow(timestamp, { addSuffix: true })}</div>
                             </div>
                         </div>
