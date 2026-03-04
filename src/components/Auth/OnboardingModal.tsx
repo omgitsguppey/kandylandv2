@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { differenceInYears, parseISO } from "date-fns";
 import { authFetch } from "@/lib/authFetch";
 import Image from "next/image";
+import { mutate } from "swr";
 
 // Validation Schema
 const onboardingSchema = z.object({
@@ -170,6 +171,7 @@ export function OnboardingModal() {
 
             setShowSuccess(true);
             setTimeout(() => {
+                mutate(() => true, undefined, { revalidate: true });
                 setIsOpen(false);
             }, 2000);
 

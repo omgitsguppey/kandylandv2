@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { checkRateLimit, RELAXED } from "@/lib/server/rate-limit";
+import { handleApiError } from "@/lib/server/auth";
 
 export async function GET(request: NextRequest) {
     try {
@@ -22,7 +23,6 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json({ available: snap.empty });
     } catch (error: unknown) {
-        console.error("Username check error:", error);
-        return NextResponse.json({ error: "Check failed" }, { status: 500 });
+        return handleApiError(error, "User.CheckUsername");
     }
 }

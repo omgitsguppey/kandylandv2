@@ -72,10 +72,22 @@ export function handleApiError(error: any, context: string) {
     if (error instanceof AuthError) {
         return NextResponse.json({ error: error.message }, { status: error.status });
     }
-    console.error(`[API ERROR] ${context}:`, error);
+    const status = error instanceof AuthError ? error.status : 500;
+
+    // Structured JSON logging for telemetry/LogRocket/Sentry interception
+    console.error(JSON.stringify({
+        level: "error",
+        tag: "API_ERROR",
+        context,
+        status,
+        message: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : undefined,
+        raw: String(error)
+    }));
+
     return NextResponse.json(
         { error: error instanceof Error ? error.message : "Internal server error" },
-        { status: 500 }
+        { status }
     );
 }
 

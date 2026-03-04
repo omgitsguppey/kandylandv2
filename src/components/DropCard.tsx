@@ -1,9 +1,10 @@
 "use client";
 
 import { Drop } from "@/types/db";
-import { useEffect, useState, memo } from "react";
+import { getSimulatedUnwrapsToday } from "@/lib/unwrap-simulator";
+import { useEffect, useState, memo, useMemo } from "react";
 import NextImage from "next/image";
-import { Lock, Unlock, Clock, Loader2, AlertCircle } from "lucide-react";
+import { Lock, Unlock, Clock, Loader2, AlertCircle, Eye } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -102,6 +103,9 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
     const [imageLoaded, setImageLoaded] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [hasTrackedView, setHasTrackedView] = useState(false);
+
+    // Compute deterministic simulative unwraps
+    const simulativeUnwraps = useMemo(() => getSimulatedUnwrapsToday(drop.id), [drop.id]);
 
     useEffect(() => {
         if (!hasTrackedView) {
@@ -239,13 +243,13 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
 
     if (resolvedRatio === "9:16") {
         return (
-            <div className="group relative p-1.5 md:p-3 rounded-2xl md:rounded-3xl glass-panel overflow-hidden h-full">
+            <div className="group relative p-1.5 md:p-3 rounded-2xl md:rounded-3xl glass-panel overflow-hidden h-full flex flex-col">
                 <button
                     onClick={() => {
                         fetch(`/api/drops/${drop.id}/click`, { method: "POST" }).catch(() => { });
                         onPreview(drop);
                     }}
-                    className="relative w-full rounded-xl md:rounded-2xl overflow-hidden border border-white/10 bg-black text-left" style={ratioStyle}
+                    className="relative w-full rounded-xl md:rounded-2xl overflow-hidden border border-white/10 bg-black text-left flex-shrink-0" style={ratioStyle}
                 >
                     <NextImage
                         src={drop.imageUrl || "/placeholder.jpg"}
@@ -262,12 +266,20 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                         <p className="text-[10px] font-bold text-white line-clamp-2 leading-tight">{drop.title}</p>
                     </div>
                 </button>
-                <div className="mt-2 space-y-2">
-                    <DropCardTimer validUntil={drop.validUntil} />
-                    <div className="inline-flex px-2 py-1 rounded-md border border-brand-purple/20 bg-brand-purple/10 text-brand-purple font-bold text-[10px] w-fit">
-                        {drop.unlockCost} GD
+                <div className="mt-2 flex flex-col gap-2 flex-grow justify-between">
+                    <div className="flex flex-col gap-2 items-start">
+                        <DropCardTimer validUntil={drop.validUntil} />
+                        <div className="inline-flex px-2 py-1 rounded-md border border-brand-purple/20 bg-brand-purple/10 text-brand-purple font-bold text-[10px] w-fit">
+                            {drop.unlockCost} GD
+                        </div>
                     </div>
-                    {ctaButton}
+                    <div className="space-y-1.5 w-full">
+                        {ctaButton}
+                        <div className="flex items-center justify-center gap-1 opacity-60 text-[9px] font-medium text-white/80">
+                            <Eye className="w-2.5 h-2.5" />
+                            <span>{simulativeUnwraps} unwrapped today</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         );
@@ -320,7 +332,13 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                     <div className="flex items-center gap-1 md:gap-2 px-2 py-1 md:px-3 md:py-1.5 bg-brand-purple/10 rounded-lg border border-brand-purple/20 w-fit">
                         <span className="text-brand-purple font-bold text-[10px] md:text-sm tracking-wide whitespace-nowrap">{drop.unlockCost} GD</span>
                     </div>
-                    {ctaButton}
+                    <div className="space-y-1.5 w-full">
+                        {ctaButton}
+                        <div className="flex items-center justify-center gap-1 opacity-60 text-[9px] font-medium text-white/80">
+                            <Eye className="w-2.5 h-2.5" />
+                            <span>{simulativeUnwraps} unwrapped today</span>
+                        </div>
+                    </div>
                 </div>
 
                 {error && (

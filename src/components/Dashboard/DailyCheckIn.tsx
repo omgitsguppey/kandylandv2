@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { app } from "@/lib/firebase";
+import { getCSTDayBoundaries } from "@/lib/timezone";
 
 const CHECK_IN_INTERVAL_MS = 24 * 60 * 60 * 1000;
 
@@ -55,7 +56,17 @@ export function DailyCheckIn() {
     const lastCheckInMs = normalizeTimestamp(userProfile?.lastCheckIn);
     const currentStreak = Number.isFinite(userProfile?.streakCount) ? Math.max(0, Number(userProfile?.streakCount)) : 0;
 
-    const baseNextCheckInMs = lastCheckInMs > 0 ? lastCheckInMs + CHECK_IN_INTERVAL_MS : 0;
+    // Utilize the shared CST boundary logic to find exactly when the CURRENT day ends for the user
+    const { startOfDay, endOfDay } = useMemo(() => {
+        // We need to fallback to a simple boundary check locally. 
+        // We can just query timezone boundaries using the exported timezone lib
+        return getCSTDayBoundaries(nowMs);
+    }, [nowMs]);
+
+    const isClaimedToday = lastCheckInMs >= startOfDay && lastCheckInMs < endOfDay;
+
+    // If claimed today, the next available check-in is exactly at `endOfDay` (Midnight CST)
+    const baseNextCheckInMs = isClaimedToday ? endOfDay : 0;
     const nextCheckInMs = nextCheckInOverrideMs ?? baseNextCheckInMs;
 
     useEffect(() => {
@@ -64,20 +75,20 @@ export function DailyCheckIn() {
     }, [lastCheckInMs]);
 
     const remainingMs = useMemo(() => {
-        if (nextCheckInMs <= 0) {
+        if (nextCheckInMs <= 0 || nextCheckInMs <= nowMs) {
             return 0;
         }
-
-        return Math.max(0, nextCheckInMs - nowMs);
+        return nextCheckInMs - nowMs;
     }, [nextCheckInMs, nowMs]);
 
     if (!user || !userProfile) return null;
 
-    const canCheckIn = remainingMs <= 0 && !claimed;
+    const canCheckIn = remainingMs <= 0 && !claimed && !isClaimedToday;
 
     let nextStreak = currentStreak + 1;
     const hoursSinceLast = differenceInHours(nowMs, lastCheckInMs);
 
+    // If more than 48 hours have passed since the last check-in, streak resets
     if (hoursSinceLast > 48 && lastCheckInMs !== 0) {
         nextStreak = 1;
     }

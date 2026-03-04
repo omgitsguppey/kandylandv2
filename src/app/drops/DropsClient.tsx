@@ -11,6 +11,7 @@ import { Lock } from "lucide-react";
 import { DropPreviewModal } from "@/components/DropPreviewModal";
 import { useDrops } from "@/hooks/useDrops";
 import { KandyDropsAccountOverview, AccountOverviewState } from "@/components/KandyDropsAccountOverview";
+import { GuestBlurOverlay } from "@/components/Auth/GuestBlurOverlay";
 import { useEffect, useRef } from "react";
 
 const CATEGORIES = ["All", "New", "Ending Soon", "Hottest", "Sweet", "Spicy", "RAW"];
@@ -169,10 +170,6 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
                         openProfileSidebar();
                     }}
                     onWalletPress={() => {
-                        if (!user) {
-                            openAuthModal();
-                            return;
-                        }
                         openPurchaseModal();
                     }}
                 />
@@ -207,27 +204,7 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
                 </div>
 
                 <div className="relative">
-                    {!authLoading && !user && (
-                        <div className="absolute inset-0 z-50 flex items-center justify-center pt-20 pb-40 glass-panel !bg-black/60 backdrop-blur-md rounded-3xl m-2 border border-white/5">
-                            <div className="flex flex-col items-center text-center p-8 max-w-md animate-in fade-in zoom-in duration-500">
-                                <div className="w-20 h-20 rounded-full bg-brand-purple/20 flex items-center justify-center mb-6 border border-brand-purple/30 shadow-[0_0_30px_rgba(236,72,153,0.3)]">
-                                    <Lock className="w-10 h-10 text-brand-purple" />
-                                </div>
-                                <h3 className="text-3xl font-black text-white mb-4 tracking-tight">Members Only</h3>
-                                <p className="text-gray-400 font-medium mb-8 leading-relaxed">
-                                    Sign in or create an account to preview, unwrap, and collect exclusive KandyDrops from your favorite creators.
-                                </p>
-                                <button
-                                    onClick={openAuthModal}
-                                    className="px-8 py-4 w-full rounded-xl bg-white text-black font-black text-lg transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                                >
-                                    Sign Up / Sign In
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    <div className={!authLoading && !user ? "opacity-30 pointer-events-none select-none grayscale transition-opacity duration-500" : ""}>
+                    <GuestBlurOverlay>
                         <DropGrid drops={filteredDrops} loading={false} isSearching={!!searchQuery} onSelectDrop={setPreviewDrop} />
 
                         {/* Sentinel for infinite scrolling */}
@@ -239,7 +216,7 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
                                 <p className="text-gray-500 text-sm font-medium">You've reached the end of the line.</p>
                             )}
                         </div>
-                    </div>
+                    </GuestBlurOverlay>
                 </div>
             </div>
 

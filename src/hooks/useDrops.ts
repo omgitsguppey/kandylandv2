@@ -29,12 +29,11 @@ export function useDrops(
     return data ? data.flatMap(page => page.drops) : [];
   }, [data]);
 
-  // Handle client-side expiration out of the active set
+  // Handle client-side expiration out of the active set efficiently
   useEffect(() => {
     setClientDrops(swrDrops);
 
-    // Periodic check to expire drops that are already in the list
-    const timer = setInterval(() => {
+    const sweepExpired = () => {
       const now = Date.now();
       setClientDrops((currentDrops) => {
         let changed = false;
@@ -47,9 +46,16 @@ export function useDrops(
         });
         return changed ? nextDrops : currentDrops;
       });
-    }, 10000); // Check every 10 seconds
+    };
 
-    return () => clearInterval(timer);
+    // Sweep strictly on window focus or visibility transitions instead of continuous heavy polling
+    window.addEventListener("focus", sweepExpired);
+    document.addEventListener("visibilitychange", sweepExpired);
+
+    return () => {
+      window.removeEventListener("focus", sweepExpired);
+      document.removeEventListener("visibilitychange", sweepExpired);
+    };
   }, [swrDrops]);
 
 

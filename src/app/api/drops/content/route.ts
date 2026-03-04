@@ -22,6 +22,8 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const dropId = searchParams.get("id");
+    const indexStr = searchParams.get("index");
+    const mediaIndex = indexStr ? parseInt(indexStr, 10) : 0;
 
     if (!dropId) {
       return NextResponse.json({ error: "Missing id parameter" }, { status: 400 });
@@ -48,13 +50,27 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "You do not own this content" }, { status: 403 });
     }
 
-    const dropData = z.object({ contentUrl: z.string().min(1) }).safeParse(dropSnap.data());
-    if (!dropData.success) {
+    const dropDataReq = z.object({
+      contentUrl: z.string().optional(),
+      contentUrls: z.array(z.string()).optional()
+    }).safeParse(dropSnap.data());
+
+    if (!dropDataReq.success) {
       return NextResponse.json({ error: "No content available" }, { status: 404 });
     }
 
+    const availableUrls = dropDataReq.data.contentUrls?.length
+      ? dropDataReq.data.contentUrls
+      : (dropDataReq.data.contentUrl ? [dropDataReq.data.contentUrl] : []);
+
+    const targetUrl = availableUrls[mediaIndex];
+
+    if (!targetUrl) {
+      return NextResponse.json({ error: "Content index out of bounds" }, { status: 404 });
+    }
+
     // Proxy the stream natively to hide the raw Firebase Storage URL
-    const contentRes = await fetch(dropData.data.contentUrl, {
+    const contentRes = await fetch(targetUrl, {
       headers: {
         range: request.headers.get("range") || "",
       },

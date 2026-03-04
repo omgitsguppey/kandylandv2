@@ -23,8 +23,8 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         if (typeof window !== "undefined") {
             // Track user properties in GA
-            if ((window as any).gtag && userProfile?.role) {
-                (window as any).gtag("set", "user_properties", {
+            if (window.gtag && userProfile?.role) {
+                window.gtag("set", "user_properties", {
                     user_role: userProfile.role,
                 });
             }

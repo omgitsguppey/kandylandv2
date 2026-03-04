@@ -12,6 +12,7 @@ import Image from "next/image";
 import { storage } from "@/lib/firebase-data";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { SITE_ORIGIN } from "@/lib/firebase";
+import { mutate } from "swr";
 
 const TIMEZONE_OPTIONS = [
     "Auto",
@@ -252,9 +253,11 @@ export default function ProfilePage() {
             await updateProfile(user, { photoURL: downloadUrl });
 
             toast.success("Avatar updated successfully! Refreshing...");
+
+            // Revalidate SWR caches globally instead of doing a hard reload
             setTimeout(() => {
-                window.location.reload();
-            }, 1000);
+                mutate(() => true, undefined, { revalidate: true });
+            }, 500);
         } catch (error: any) {
             toast.error("Failed to upload avatar: " + error.message);
         } finally {

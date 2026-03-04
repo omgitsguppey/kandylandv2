@@ -14,6 +14,8 @@ import { auth } from "@/lib/firebase";
 import { cn } from "@/lib/utils";
 import { ContentViewer, ViewerMediaItem } from "@/components/ContentViewer";
 import { sendGAEvent } from "@next/third-parties/google";
+import { getSimulatedUnwrapsToday } from "@/lib/unwrap-simulator";
+import { Eye } from "lucide-react";
 
 
 
@@ -154,6 +156,18 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
 
     const previewTags = useMemo(() => sanitizeDropTags(drop?.tags), [drop?.tags]);
 
+    const simulativeUnwraps = useMemo(() => {
+        if (!drop) return 0;
+        return getSimulatedUnwrapsToday(drop.id);
+    }, [drop]);
+
+    const [activeIndex, setActiveIndex] = useState(0);
+
+    const availableUrls = useMemo(() => {
+        if (!drop) return [];
+        return drop.contentUrls?.length ? drop.contentUrls : (drop.contentUrl ? [drop.contentUrl] : []);
+    }, [drop]);
+
     const viewerItems = useMemo<ViewerMediaItem[]>(() => {
         if (!drop || !contentBlobUrl) {
             return [];
@@ -162,12 +176,12 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         const mediaType = resolvedContent.kind === "video" ? "video" : "image";
 
         return [{
-            id: drop.id,
+            id: `${drop.id}-${activeIndex}`,
             url: contentBlobUrl,
             type: mediaType,
             alt: drop.title,
         }];
-    }, [contentBlobUrl, drop, resolvedContent.kind]);
+    }, [contentBlobUrl, drop, resolvedContent.kind, activeIndex]);
 
 
     // Redirect if not logged in (once auth is ready)
@@ -254,7 +268,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                 const token = await auth.currentUser?.getIdToken();
                 if (!token) throw new Error("Not authenticated");
 
-                const proxyUrl = `/api/drops/content?id=${currentDrop.id}&token=${token}`;
+                const proxyUrl = `/api/drops/content?id=${currentDrop.id}&token=${token}&index=${activeIndex}`;
 
                 if (!cancelled) {
                     let guessedMimeType = currentDrop.fileMetadata?.type || "";
@@ -283,7 +297,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         return () => {
             cancelled = true;
         };
-    }, [isAuthorized, drop]);
+    }, [isAuthorized, drop, activeIndex]);
 
 
     // Prevent right-click on media
@@ -480,6 +494,39 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                         )}
                     </div>
                 </div>
+
+                {/* 1.5 Multi-File Thumbnail Slider */}
+                {availableUrls.length > 1 && (
+                    <div className="w-full max-w-5xl mx-auto px-4 mt-4">
+                        <div className="flex items-center gap-3 overflow-x-auto pb-4 pt-1 px-1 touch-pan-x snap-x hide-scrollbar scroll-smooth">
+                            {availableUrls.map((_, idx) => (
+                                <button
+                                    key={`thumb-${idx}`}
+                                    onClick={() => setActiveIndex(idx)}
+                                    className={cn(
+                                        "relative flex-none w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden border-2 transition-all transform snap-center",
+                                        activeIndex === idx
+                                            ? "border-brand-purple scale-110 shadow-[0_0_15px_rgba(178,140,255,0.4)] z-10"
+                                            : "border-white/10 opacity-50 hover:opacity-100 hover:border-white/30"
+                                    )}
+                                >
+                                    <div className="absolute inset-0 bg-black flex items-center justify-center text-xs font-bold text-white/50">
+                                        {idx + 1}
+                                    </div>
+                                    <NextImage
+                                        src={drop.imageUrl}
+                                        alt={`Thumbnail ${idx + 1}`}
+                                        fill
+                                        className="object-cover opacity-30"
+                                    />
+                                </button>
+                            ))}
+                        </div>
+                        <p className="text-center text-xs text-gray-500 w-full mt-[-8px]">
+                            {activeIndex + 1} of {availableUrls.length} files
+                        </p>
+                    </div>
+                )}
             </div>
 
             {/* 2. Content Info & Engagement */}
@@ -488,7 +535,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
 
                     {/* Title & Metadata */}
                     <div className="flex-1">
-                        <div className="flex items-center gap-3 text-xs md:text-sm text-gray-400 mb-2">
+                        <div className="flex flex-wrap items-center gap-3 text-xs md:text-sm text-gray-400 mb-2">
                             <span className="px-2 py-0.5 rounded bg-white/10 border border-white/5 text-brand-purple font-mono uppercase tracking-wider">
                                 #{drop.id.slice(0, 4)}
                             </span>
@@ -505,8 +552,13 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                     {tag}
                                 </span>
                             ))}
-                            <span>•</span>
+                            <span className="opacity-50">•</span>
                             <span>{formatUnwrappedLabel(unwrappedAt)}</span>
+                            <span className="opacity-50">•</span>
+                            <div className="flex items-center gap-1.5 text-white/80 font-medium bg-white/5 px-2 py-0.5 rounded-full border border-white/10">
+                                <Eye className="w-3.5 h-3.5 text-brand-purple" />
+                                <span>{simulativeUnwraps} unwrapped today</span>
+                            </div>
                         </div>
                         <h1 className="text-2xl md:text-4xl font-bold text-white mb-3 leading-tight">
                             {drop.title}

@@ -16,7 +16,7 @@ interface AnalyticsResponse {
     error?: string;
     // Live fields
     totalActive?: number;
-    data?: any[];
+    data?: Array<{ minute?: string; users?: number; date?: string; sessions?: number }>;
     // Historical fields
     totals?: { users: number; views: number; sessions: number; newUsers: number; avgSessionDuration: number; engagementRate: number };
     events?: Record<string, number>;
@@ -44,7 +44,7 @@ export default function AdminAnalyticsPage() {
         },
     );
 
-    const needsSetup = (error as any)?.info?.requiresSetup;
+    const needsSetup = (error as { info?: { requiresSetup?: boolean } })?.info?.requiresSetup;
 
     // Derive values from SWR data
     const liveActive = data?.totalActive ?? 0;
@@ -56,12 +56,18 @@ export default function AdminAnalyticsPage() {
     const pagesData = data?.pages ?? [];
     const topDropsData = data?.topDrops ?? [];
 
-    const CustomTooltip = ({ active, payload, label }: any) => {
+    interface TooltipPayload {
+        name: string;
+        value: number;
+        color: string;
+    }
+
+    const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: TooltipPayload[]; label?: string }) => {
         if (active && payload && payload.length) {
             return (
                 <div className="bg-black/90 border border-white/10 p-3 rounded-xl shadow-2xl backdrop-blur-md">
                     <p className="text-gray-400 text-xs mb-2 font-medium">{label}</p>
-                    {payload.map((entry: any, index: number) => (
+                    {payload.map((entry: TooltipPayload, index: number) => (
                         <div key={index} className="flex items-center gap-2 text-sm font-bold my-1">
                             <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
                             <span className="text-white capitalize">{entry.name}:</span>
