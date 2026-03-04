@@ -66,11 +66,11 @@ export function InsufficientBalanceModal() {
                         </p>
 
                         <div className="bg-white/5 rounded-2xl p-4 mb-6 flex items-center gap-3 text-left border border-white/5">
-                            <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0 border border-amber-500/20">
-                                <AlertCircle className="w-5 h-5 text-amber-500" />
+                            <div className="w-10 h-10 rounded-xl bg-brand-purple/10 flex items-center justify-center shrink-0 border border-brand-purple/20">
+                                <AlertCircle className="w-5 h-5 text-brand-purple" />
                             </div>
                             <div>
-                                <p className="text-[10px] uppercase font-bold text-amber-500/80 tracking-wider">Shortfall</p>
+                                <p className="text-[10px] uppercase font-bold text-brand-purple/80 tracking-wider">Shortfall</p>
                                 <p className="text-white font-mono font-bold">{missingAmount} Gum Drops needed</p>
                             </div>
                         </div>

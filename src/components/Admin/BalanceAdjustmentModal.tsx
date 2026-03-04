@@ -67,7 +67,7 @@ export function BalanceAdjustmentModal({ user, onClose, onSuccess }: Props) {
                 <p className="text-gray-400 mb-6">
                     Update Gum Drops for <strong>{user.displayName || user.email}</strong>.
                     <br />
-                    <span className="text-xs text-amber-500 flex items-center gap-1 mt-1">
+                    <span className="text-xs text-brand-purple flex items-center gap-1 mt-1">
                         <AlertCircle className="w-3 h-3" />
                         Actions are permanent and logged.
                     </span>
@@ -108,7 +108,7 @@ export function BalanceAdjustmentModal({ user, onClose, onSuccess }: Props) {
                     {/* Preview */}
                     <div className="bg-black/50 p-3 rounded-xl border border-white/10 flex justify-between items-center">
                         <span className="text-xs font-bold text-gray-500 uppercase">New Balance</span>
-                        <span className={`font-mono text-xl font-bold ${adjustment > 0 ? "text-green-400" : adjustment < 0 ? "text-red-400" : "text-gray-400"}`}>
+                        <span className={`font-mono text-xl font-bold ${adjustment > 0 ? "text-brand-purple" : adjustment < 0 ? "text-red-400" : "text-gray-400"}`}>
                             {finalBalance} 🍬
                         </span>
                     </div>

@@ -257,7 +257,7 @@ export function OnboardingModal() {
                                             <input
                                                 {...register("username")}
                                                 type="text"
-                                                className={`w-full bg-black/50 border rounded-xl px-8 py-3 text-white focus:outline-none transition-all ${errors.username ? "border-red-500" : usernameAvailable === true ? "border-green-500/50 focus:border-green-500" : "border-white/10 focus:border-brand-purple"}`}
+                                                className={`w-full bg-black/50 border rounded-xl px-8 py-3 text-white focus:outline-none transition-all ${errors.username ? "border-red-500" : usernameAvailable === true ? "border-brand-purple/50 focus:border-brand-purple" : "border-white/10 focus:border-brand-purple"}`}
                                                 placeholder="username"
                                             />
                                             {checkingUsername && (
@@ -271,7 +271,7 @@ export function OnboardingModal() {
                                             <p className="text-xs text-red-400">Username already taken.</p>
                                         )}
                                         {!errors.username && usernameAvailable === true && (
-                                            <p className="text-xs text-green-400">Username available!</p>
+                                            <p className="text-xs text-brand-purple">Username available!</p>
                                         )}
                                     </div>
                                 </div>

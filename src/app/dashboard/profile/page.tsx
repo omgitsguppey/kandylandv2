@@ -526,7 +526,7 @@ export default function ProfilePage() {
                             {saving ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Saving...</> : <><Save className="w-4 h-4 mr-2" />Save Changes</>}
                         </Button>
                         {saveFeedback ? (
-                            <p className={`mt-2 text-xs ${saveFeedback === "Changes saved" ? "text-green-400" : "text-red-400"}`}>
+                            <p className={`mt-2 text-xs ${saveFeedback === "Changes saved" ? "text-brand-purple" : "text-red-400"}`}>
                                 {saveFeedback}
                             </p>
                         ) : null}

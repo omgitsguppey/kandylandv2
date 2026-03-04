@@ -151,7 +151,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
 
                       <div className="w-full relative z-10">
                         {!PAYPAL_READY ? (
-                          <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-3 text-xs text-yellow-200">
+                          <div className="rounded-xl border border-brand-purple/30 bg-brand-purple/10 p-3 text-xs text-brand-purple">
                             PayPal is not configured. Real payments require NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE to be set.
                           </div>
                         ) : paypalFailed ? (

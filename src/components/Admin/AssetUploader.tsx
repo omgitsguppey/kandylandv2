@@ -339,10 +339,10 @@ export function AssetUploader({
                   </p>
                 ) : !asset.uploadUrl ? (
                   !showCropper && ( // Non-image or disableCrop should be uploading automatically. If stopped, show pending.
-                    <p className="text-[10px] text-yellow-500 font-bold text-center pt-1">Pending...</p>
+                    <p className="text-[10px] text-brand-purple font-bold text-center pt-1">Pending...</p>
                   )
                 ) : (
-                  <p className="text-[10px] text-green-400 font-bold text-center pt-1">Success</p>
+                  <p className="text-[10px] text-brand-purple font-bold text-center pt-1">Success</p>
                 )}
               </div>
             ))}

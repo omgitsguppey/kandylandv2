@@ -255,8 +255,8 @@ export default function AdminRosterPage() {
                                                 <span className={cn(
                                                     "px-2 py-1 rounded-full text-xs border capitalize",
                                                     entry.status === "active"
-                                                        ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-                                                        : "bg-amber-500/10 border-amber-500/20 text-amber-400"
+                                                        ? "bg-brand-purple/10 border-brand-purple/20 text-brand-purple"
+                                                        : "bg-white/5 border-white/10 text-gray-400"
                                                 )}>
                                                     {entry.status}
                                                 </span>
@@ -332,8 +332,8 @@ export default function AdminRosterPage() {
                                         <span className={cn(
                                             "px-2 py-1 rounded-full text-xs border capitalize",
                                             entry.status === "active"
-                                                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-                                                : "bg-amber-500/10 border-amber-500/20 text-amber-400"
+                                                ? "bg-brand-purple/10 border-brand-purple/20 text-brand-purple"
+                                                : "bg-white/5 border-white/10 text-gray-400"
                                         )}>
                                             {entry.status}
                                         </span>

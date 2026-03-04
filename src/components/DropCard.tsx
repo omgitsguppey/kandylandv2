@@ -42,8 +42,8 @@ const DropCardBadge = ({ label, compact = false }: DropCardBadgeProps) => (
             "backdrop-blur-md rounded-full font-bold text-white shadow-lg border w-fit",
             compact ? "px-2 py-0.5 text-[9px]" : "px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-xs",
             "bg-brand-purple/80 border-white/10",
-            label === "Sweet" && "bg-pink-500/80",
-            label === "Spicy" && "bg-red-500/80",
+            label === "Sweet" && "bg-brand-purple/90",
+            label === "Spicy" && "bg-white/20 border-white/20",
             label === "RAW" && "bg-zinc-800/80 border-white/20"
         )}
     >

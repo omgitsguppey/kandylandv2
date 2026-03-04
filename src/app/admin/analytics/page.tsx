@@ -310,7 +310,7 @@ export default function AdminAnalyticsPage() {
                             {/* Top Drops Leaderboard */}
                             <div className="glass-panel p-4 md:p-6 rounded-3xl border border-white/10 flex flex-col lg:col-span-2">
                                 <div className="flex items-center gap-2 mb-4">
-                                    <Trophy className="w-5 h-5 text-yellow-400" />
+                                    <Trophy className="w-5 h-5 text-brand-purple" />
                                     <h3 className="text-base md:text-lg font-bold text-white">Top Performing Drops</h3>
                                 </div>
                                 <div className="flex-1 overflow-x-auto custom-scrollbar flex flex-col min-h-[200px]">
@@ -346,7 +346,7 @@ export default function AdminAnalyticsPage() {
                             {/* Page Views */}
                             <div className="glass-panel p-4 md:p-6 rounded-3xl border border-white/10 flex flex-col lg:col-span-2">
                                 <div className="flex items-center gap-2 mb-4">
-                                    <FileText className="w-5 h-5 text-blue-400" />
+                                    <FileText className="w-5 h-5 text-brand-purple" />
                                     <h3 className="text-base md:text-lg font-bold text-white">Top Pages</h3>
                                 </div>
                                 <div className="space-y-2 overflow-y-auto max-h-[250px] pr-2 custom-scrollbar">

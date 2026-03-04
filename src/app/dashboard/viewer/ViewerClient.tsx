@@ -544,8 +544,8 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                     key={tag}
                                     className={cn(
                                         "px-2 py-0.5 rounded border text-[11px] font-semibold uppercase tracking-wide",
-                                        tag === "Sweet" && "bg-pink-500/20 text-pink-300 border-pink-500/30",
-                                        tag === "Spicy" && "bg-red-500/20 text-red-300 border-red-500/30",
+                                        tag === "Sweet" && "bg-brand-purple/20 text-brand-purple border-brand-purple/30",
+                                        tag === "Spicy" && "bg-white/10 text-white border-white/20",
                                         tag === "RAW" && "bg-zinc-800/80 text-white border-white/20"
                                     )}
                                 >

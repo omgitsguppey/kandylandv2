@@ -166,8 +166,8 @@ export default function UserManagementPage() {
     const getStatusColor = (status?: string) => {
         switch (status) {
             case 'banned': return 'text-red-500 bg-red-500/10 border-red-500/20';
-            case 'suspended': return 'text-orange-500 bg-orange-500/10 border-orange-500/20';
-            default: return 'text-green-500 bg-green-500/10 border-green-500/20';
+            case 'suspended': return 'text-brand-purple bg-brand-purple/10 border-brand-purple/20';
+            default: return 'text-brand-purple bg-brand-purple/10 border-brand-purple/20';
         }
     };
 
@@ -323,7 +323,7 @@ export default function UserManagementPage() {
                                                 ) : (
                                                     <button
                                                         onClick={() => { setActionUser(user); setActionType('activate'); }}
-                                                        className="p-1.5 rounded text-green-500 transition-colors"
+                                                        className="p-1.5 rounded text-brand-purple transition-colors"
                                                         title="Reactivate"
                                                     >
                                                         <CheckCircle className="w-3 h-3" />

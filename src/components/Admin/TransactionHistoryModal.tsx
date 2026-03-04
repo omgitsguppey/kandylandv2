@@ -118,13 +118,13 @@ export function TransactionHistoryModal({ user, onClose }: Props) {
                                                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/10 text-red-500 border border-red-500/20 capitalize">Failed</span>
                                             )}
                                             {tx.type === "admin_adjustment" ? (
-                                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20 capitalize">Admin</span>
+                                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-purple/10 text-brand-purple border border-brand-purple/20 capitalize">Admin</span>
                                             ) : tx.type === "unlock_content" ? (
                                                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20 capitalize">Unlock</span>
                                             ) : tx.type === "purchase_currency" ? (
-                                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-green-500/10 text-green-400 border border-green-500/20 capitalize">Purchase</span>
+                                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-purple/10 text-brand-purple border border-brand-purple/20 capitalize">Purchase</span>
                                             ) : tx.type === "daily_reward" ? (
-                                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 capitalize">Reward</span>
+                                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-purple/10 text-brand-purple border border-brand-purple/20 capitalize">Reward</span>
                                             ) : (
                                                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-500/10 text-gray-400 border border-gray-500/20 capitalize">{tx.type}</span>
                                             )}
@@ -135,7 +135,7 @@ export function TransactionHistoryModal({ user, onClose }: Props) {
                                         </p>
                                     </div>
 
-                                    <div className={`flex items-center gap-1 font-mono font-bold shrink-0 ${isPositive ? "text-green-400" : isZero ? "text-gray-400" : "text-red-400"}`}>
+                                    <div className={`flex items-center gap-1 font-mono font-bold shrink-0 ${isPositive ? "text-brand-purple" : isZero ? "text-gray-400" : "text-red-400"}`}>
                                         {isPositive ? <ArrowUpRight className="w-4 h-4" /> : isZero ? <TrendingUp className="w-4 h-4 text-gray-500" /> : <ArrowDownLeft className="w-4 h-4" />}
                                         {isPositive ? "+" : ""}{tx.amount}
                                     </div>
