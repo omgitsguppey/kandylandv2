@@ -1,0 +1,6 @@
+﻿src/app/api/user/profile/route.ts(18,35): error TS2307: Cannot find module '@/lib/server/user-utils' or its corresponding type declarations.
+src/app/api/user/register/route.ts(5,35): error TS2307: Cannot find module '@/lib/server/user-utils' or its corresponding type declarations.
+src/components/Dashboard/RecentActivityFeed.tsx(91,45): error TS2339: Property 'metadata' does not exist on type 'Transaction'.
+src/components/Dashboard/RecentActivityFeed.tsx(91,77): error TS2339: Property 'metadata' does not exist on type 'Transaction'.
+src/components/Dashboard/RecentActivityFeed.tsx(94,45): error TS2339: Property 'createdAt' does not exist on type 'Transaction'.
+src/components/Dashboard/RecentActivityFeed.tsx(94,80): error TS2339: Property 'createdAt' does not exist on type 'Transaction'.

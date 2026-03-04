@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAuth, handleApiError } from "@/lib/server/auth";
+import { checkRateLimit, RELAXED } from "@/lib/server/rate-limit";
 
 const userContentSchema = z.object({
   unlockedContent: z.array(z.string()).default([]),
@@ -16,6 +17,7 @@ const userContentSchema = z.object({
  */
 export async function GET(request: NextRequest) {
   try {
+    checkRateLimit(request, "drops/content", RELAXED);
     const caller = await verifyAuth(request);
 
     const { searchParams } = new URL(request.url);

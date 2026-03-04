@@ -2,6 +2,17 @@ import { User } from "firebase/auth";
 import { UserProfile } from "@/types/db";
 
 /**
+ * Normalizes a username by trimming, lowercasing, and allowing only alphanumerics/underscores.
+ * Returns null if the resulting username is invalid (empty or too long).
+ */
+export function normalizeUsername(raw: unknown): string | null {
+    if (typeof raw !== "string") return null;
+    const cleaned = raw.trim().toLowerCase().replace(/[^a-z0-px_]/g, "");
+    if (cleaned.length < 3 || cleaned.length > 20) return null;
+    return cleaned;
+}
+
+/**
  * Normalizes a raw Firestore user document into a typed UserProfile.
  * Merges data from the Firebase User object where applicable.
  */

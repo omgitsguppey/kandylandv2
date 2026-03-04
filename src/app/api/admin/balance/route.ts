@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAdmin, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
+import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
 
 // POST — Adjust user balance (admin-only)
 export async function POST(request: NextRequest) {
     try {
+        checkRateLimit(request, "admin/balance", ADMIN);
         const admin = await verifyAdmin(request);
 
         const { userId, amount, reason } = await request.json();

@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAuth, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
+import { checkRateLimit, STANDARD } from "@/lib/server/rate-limit";
 
 export async function POST(request: NextRequest) {
     try {
+        checkRateLimit(request, "user/follow", STANDARD);
         const caller = await verifyAuth(request);
 
         const { targetUserId, action } = await request.json();

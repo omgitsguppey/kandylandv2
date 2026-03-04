@@ -4,10 +4,12 @@ import { verifyAuth, verifyAdmin, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 import { normalizeNotificationCreatePayload } from "@/lib/notification-contracts";
 import { broadcastFCM } from "@/lib/server/fcm-utils";
+import { checkRateLimit, STANDARD } from "@/lib/server/rate-limit";
 
 // POST — Send notification (admin-only)
 export async function POST(request: NextRequest) {
     try {
+        checkRateLimit(request, "notifications", STANDARD);
         await verifyAdmin(request);
 
         if (!adminDb) {
@@ -45,6 +47,7 @@ export async function POST(request: NextRequest) {
 // PUT — Mark notification as read
 export async function PUT(request: NextRequest) {
     try {
+        checkRateLimit(request, "notifications", STANDARD);
         const caller = await verifyAuth(request);
 
         const { notificationId } = await request.json();

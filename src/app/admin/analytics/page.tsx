@@ -1,78 +1,60 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     BarChart, Bar, Cell
 } from 'recharts';
-import { Loader2, Users, Eye, Activity, RefreshCw, BarChart3, MapPin, Trophy, FileText, BarChart2 } from "lucide-react";
-import { authFetch } from "@/lib/authFetch";
+import { Loader2, Users, Eye, Activity, RefreshCw, BarChart3, MapPin, Trophy, FileText } from "lucide-react";
+import { useAuthSWR } from "@/hooks/useAuthSWR";
 
 type TimeFilter = "live" | "24h" | "7d" | "30d" | "all";
 
+interface AnalyticsResponse {
+    success: boolean;
+    requiresSetup?: boolean;
+    error?: string;
+    // Live fields
+    totalActive?: number;
+    data?: any[];
+    // Historical fields
+    totals?: { users: number; views: number; sessions: number; newUsers: number; avgSessionDuration: number; engagementRate: number };
+    events?: Record<string, number>;
+    geo?: { country: string; city: string; users: number }[];
+    pages?: { path: string; views: number }[];
+    topDrops?: { dropId: string; views: number; unlocks: number }[];
+}
+
+function buildUrl(filter: TimeFilter): string {
+    return filter === "live"
+        ? `/api/admin/analytics?type=realtime`
+        : `/api/admin/analytics?type=historical&period=${filter}`;
+}
+
 export default function AdminAnalyticsPage() {
     const [filter, setFilter] = useState<TimeFilter>("30d");
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [needsSetup, setNeedsSetup] = useState(false);
 
-    // Data states
-    const [liveActive, setLiveActive] = useState(0);
-    const [liveData, setLiveData] = useState<any[]>([]);
-    const [chartData, setChartData] = useState<any[]>([]);
-    const [totals, setTotals] = useState<any>({ users: 0, views: 0, sessions: 0, newUsers: 0, avgSessionDuration: 0, engagementRate: 0 });
-    const [eventsData, setEventsData] = useState<any>({});
-    const [geoData, setGeoData] = useState<any[]>([]);
-    const [pagesData, setPagesData] = useState<any[]>([]);
-    const [topDropsData, setTopDropsData] = useState<any[]>([]);
+    const { data, error, isLoading, mutate } = useAuthSWR<AnalyticsResponse>(
+        buildUrl(filter),
+        {
+            // Poll every 30s when viewing live data
+            refreshInterval: filter === "live" ? 30_000 : 0,
+            // Keep previous data visible while revalidating
+            keepPreviousData: true,
+        },
+    );
 
-    const loadData = async (currentFilter: TimeFilter) => {
-        setLoading(true);
-        setError(null);
-        try {
-            const isLive = currentFilter === "live";
-            const url = isLive
-                ? `/api/admin/analytics?type=realtime`
-                : `/api/admin/analytics?type=historical&period=${currentFilter}`;
+    const needsSetup = (error as any)?.info?.requiresSetup;
 
-            const response = await authFetch(url);
-            const data = await response.json();
-
-            if (!response.ok) {
-                if (data.requiresSetup) setNeedsSetup(true);
-                throw new Error(data.error || "Failed to load analytics");
-            }
-
-            if (isLive) {
-                setLiveData(data.data || []);
-                setLiveActive(data.totalActive || 0);
-            } else {
-                setChartData(data.data || []);
-                setTotals(data.totals || { users: 0, views: 0, sessions: 0, newUsers: 0, avgSessionDuration: 0, engagementRate: 0 });
-                setEventsData(data.events || {});
-                setGeoData(data.geo || []);
-                setPagesData(data.pages || []);
-                setTopDropsData(data.topDrops || []);
-            }
-        } catch (err: any) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        loadData(filter);
-
-        let interval: NodeJS.Timeout;
-        if (filter === "live") {
-            // Poll every 30 seconds for live data
-            interval = setInterval(() => loadData("live"), 30000);
-        }
-        return () => {
-            if (interval) clearInterval(interval);
-        };
-    }, [filter]);
+    // Derive values from SWR data
+    const liveActive = data?.totalActive ?? 0;
+    const liveData = filter === "live" ? (data?.data ?? []) : [];
+    const chartData = filter !== "live" ? (data?.data ?? []) : [];
+    const totals = data?.totals ?? { users: 0, views: 0, sessions: 0, newUsers: 0, avgSessionDuration: 0, engagementRate: 0 };
+    const eventsData = data?.events ?? {};
+    const geoData = data?.geo ?? [];
+    const pagesData = data?.pages ?? [];
+    const topDropsData = data?.topDrops ?? [];
 
     const CustomTooltip = ({ active, payload, label }: any) => {
         if (active && payload && payload.length) {
@@ -105,7 +87,7 @@ export default function AdminAnalyticsPage() {
                 <div className="glass-panel p-6 rounded-2xl text-left max-w-lg w-full">
                     <p className="text-sm font-bold text-white mb-2">Required .env.local additions:</p>
                     <pre className="bg-black border border-white/10 p-4 rounded-xl text-xs text-brand-pink overflow-x-auto">
-                        GA_PROPERTY_ID="123456789"
+                        GA_PROPERTY_ID=&quot;123456789&quot;
                     </pre>
                 </div>
             </div>
@@ -135,14 +117,14 @@ export default function AdminAnalyticsPage() {
                 </div>
             </header>
 
-            {loading && !chartData.length && !liveData.length ? (
+            {isLoading && !data ? (
                 <div className="flex items-center justify-center h-64">
                     <Loader2 className="w-8 h-8 text-brand-pink animate-spin" />
                 </div>
-            ) : error ? (
+            ) : error && !needsSetup ? (
                 <div className="p-6 rounded-3xl bg-red-500/10 border border-red-500/20 text-center">
-                    <p className="text-red-400">{error}</p>
-                    <button onClick={() => loadData(filter)} className="mt-4 px-4 py-2 bg-red-500/20 rounded-full text-xs font-bold text-red-300 hover:bg-red-500/30 transition-colors">
+                    <p className="text-red-400">{error.message}</p>
+                    <button onClick={() => mutate()} className="mt-4 px-4 py-2 bg-red-500/20 rounded-full text-xs font-bold text-red-300 hover:bg-red-500/30 transition-colors">
                         Retry
                     </button>
                 </div>
@@ -231,8 +213,8 @@ export default function AdminAnalyticsPage() {
                                 {filter === "live" ? "Live User Traffic (Past 30m)" : "Engagement Trends"}
                             </h3>
                             {filter === "live" && (
-                                <button onClick={() => loadData("live")} className="p-2 bg-white/5 hover:bg-white/10 rounded-full transition-colors hidden md:block" title="Manual refresh">
-                                    <RefreshCw className={`w-4 h-4 text-gray-400 ${loading ? 'animate-spin' : ''}`} />
+                                <button onClick={() => mutate()} className="p-2 bg-white/5 hover:bg-white/10 rounded-full transition-colors hidden md:block" title="Manual refresh">
+                                    <RefreshCw className={`w-4 h-4 text-gray-400 ${isLoading ? 'animate-spin' : ''}`} />
                                 </button>
                             )}
                         </div>

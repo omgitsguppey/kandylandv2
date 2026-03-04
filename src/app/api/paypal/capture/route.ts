@@ -4,6 +4,7 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAuth, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 import { trackServerEvent } from "@/lib/server/analytics";
+import { checkRateLimit, STRICT } from "@/lib/server/rate-limit";
 
 const bodySchema = z.object({
   orderId: z.string().min(1),
@@ -77,6 +78,7 @@ async function logFailedTransaction(userId: string, orderId: string, expectedDro
 
 export async function POST(request: NextRequest) {
   try {
+    checkRateLimit(request, "paypal/capture", STRICT);
     const caller = await verifyAuth(request);
     const userId = caller.uid;
     const { orderId, expectedDrops } = bodySchema.parse(await request.json());

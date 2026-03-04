@@ -9,34 +9,40 @@ import { X, Mail, Lock, User, Calendar, AlertCircle, Loader2 } from "lucide-reac
 import { useAuth } from "@/context/AuthContext";
 import { differenceInYears, parseISO } from "date-fns";
 
-// Validation Schemas
-const signInSchema = z.object({
+// Validation Schema — unified shape with conditional validation for sign-up fields
+const authFormSchema = z.object({
     email: z.string().email("Invalid email address"),
     password: z.string().min(6, "Password must be at least 6 characters"),
+    username: z.string().optional(),
+    dob: z.string().optional(),
 });
 
-const signUpSchema = signInSchema.extend({
-    username: z.string().min(3, "Username must be at least 3 characters"),
-    dob: z.string().refine((val) => {
-        const age = differenceInYears(new Date(), parseISO(val));
-        return age >= 18;
-    }, "You must be 18+ to join KandyDrops"),
-});
-
-type SignUpFormData = z.infer<typeof signUpSchema>;
+type AuthFormData = z.infer<typeof authFormSchema>;
 
 interface AuthModalProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
-type AuthMode = "signin" | "signup";
+type AuthMode = "signin" | "signup" | "forgot_password";
 
 export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     const { signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth();
     const [mode, setMode] = useState<AuthMode>("signin");
     const [isLoading, setIsLoading] = useState(false);
     const [authError, setAuthError] = useState<string | null>(null);
+    const [resetSent, setResetSent] = useState(false);
+
+    // Build the schema dynamically: sign-up adds required username + dob with age check
+    const activeSchema = mode === "signup"
+        ? authFormSchema.extend({
+            username: z.string().min(3, "Username must be at least 3 characters"),
+            dob: z.string().refine((val) => {
+                const age = differenceInYears(new Date(), parseISO(val));
+                return age >= 18;
+            }, "You must be 18+ to join KandyDrops"),
+        })
+        : authFormSchema;
 
     // React Hook Form
     const {
@@ -45,14 +51,15 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         formState: { errors },
         reset,
         clearErrors
-    } = useForm<SignUpFormData>({
-        resolver: zodResolver(mode === "signin" ? signInSchema : signUpSchema) as any,
-        mode: "onBlur" // Validate on blur for better UX
+    } = useForm<AuthFormData>({
+        resolver: zodResolver(activeSchema),
+        mode: "onBlur"
     });
 
     const switchMode = (newMode: AuthMode) => {
         setMode(newMode);
         setAuthError(null);
+        setResetSent(false);
         clearErrors();
         reset();
     };
@@ -63,14 +70,14 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         try {
             await signInWithGoogle();
             onClose();
-        } catch (err: any) {
-            setAuthError(err.message || "Failed to sign in with Google.");
+        } catch (err: unknown) {
+            setAuthError(err instanceof Error ? err.message : "Failed to sign in with Google.");
         } finally {
             setIsLoading(false);
         }
     };
 
-    const onSubmit = async (data: SignUpFormData) => {
+    const onSubmit = async (data: AuthFormData) => {
         setIsLoading(true);
         setAuthError(null);
 
@@ -82,14 +89,46 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             }
             onClose();
             reset();
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error(err);
-            if (err.code === "auth/email-already-in-use") {
+            const firebaseErr = err as { code?: string; message?: string };
+            if (firebaseErr.code === "auth/email-already-in-use") {
                 setAuthError("Email is already registered.");
-            } else if (err.code === "auth/invalid-credential") {
+            } else if (firebaseErr.code === "auth/invalid-credential") {
                 setAuthError("Invalid email or password.");
             } else {
-                setAuthError(err.message || "Authentication failed. Please try again.");
+                setAuthError(firebaseErr.message || "Authentication failed. Please try again.");
+            }
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handlePasswordReset = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const email = (e.currentTarget.elements.namedItem("resetEmail") as HTMLInputElement).value;
+        if (!email) {
+            setAuthError("Please enter your email address.");
+            return;
+        }
+
+        setIsLoading(true);
+        setAuthError(null);
+        try {
+            const { sendPasswordResetEmail, getAuth } = await import("firebase/auth");
+            const { auth } = await import("@/lib/firebase");
+            // If the app is using a custom auth object from context we should use that, 
+            // but the standard firebase method is directly on the auth instance
+            await sendPasswordResetEmail(auth || getAuth(), email);
+            setResetSent(true);
+        } catch (err: unknown) {
+            console.error("Password reset error:", err);
+            const firebaseErr = err as { code?: string; message?: string };
+            if (firebaseErr.code === "auth/user-not-found") {
+                // For security, don't reveal if user exists, just show success
+                setResetSent(true);
+            } else {
+                setAuthError(firebaseErr.message || "Failed to send reset email.");
             }
         } finally {
             setIsLoading(false);
@@ -112,7 +151,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     {/* Header */}
                     <div className="relative p-6 border-b border-white/5">
                         <h2 className="text-2xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-brand-pink to-brand-cyan">
-                            {mode === "signin" ? "Welcome Back" : "Join the Drop"}
+                            {mode === "signin" ? "Welcome Back" : mode === "signup" ? "Join the Drop" : "Reset Password"}
                         </h2>
                         <button
                             onClick={onClose}
@@ -164,122 +203,194 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                             </div>
                         </div>
 
-                        {/* Email Form */}
-                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                            {mode === "signup" && (
-                                <>
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium text-gray-400">Username</label>
-                                        <div className="relative">
-                                            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                                            <input
-                                                {...register("username")}
-                                                type="text"
-                                                className="w-full bg-black/50 border border-white/10 rounded-xl px-10 py-3 text-white focus:outline-none focus:border-brand-pink transition-colors"
-                                                placeholder="Create a username"
-                                            />
-                                        </div>
-                                        {errors.username && (
-                                            <p className="text-red-400 text-xs pl-1">{errors.username.message}</p>
-                                        )}
+                        {/* Forgot Password Flow */}
+                        {mode === "forgot_password" ? (
+                            resetSent ? (
+                                <div className="space-y-6 text-center">
+                                    <div className="mx-auto w-12 h-12 bg-brand-green/20 text-brand-green flex items-center justify-center rounded-full">
+                                        <Mail className="w-6 h-6" />
                                     </div>
-
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium text-gray-400">Date of Birth</label>
-                                        <div className="relative">
-                                            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                                            <input
-                                                {...register("dob")}
-                                                type="date"
-                                                className="w-full bg-black/50 border border-white/10 rounded-xl px-10 py-3 text-white focus:outline-none focus:border-brand-pink transition-colors [color-scheme:dark]"
-                                            />
-                                        </div>
-                                        {errors.dob && (
-                                            <p className="text-red-400 text-xs pl-1">{errors.dob.message}</p>
-                                        )}
-                                        <p className="text-xs text-gray-500 pl-1">Must be 18 or older to join.</p>
+                                    <div>
+                                        <h3 className="text-lg font-bold text-white mb-2">Check your inbox</h3>
+                                        <p className="text-gray-400 text-sm">We've sent a password reset link to your email address.</p>
                                     </div>
-                                </>
-                            )}
-
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-400">Email</label>
-                                <div className="relative">
-                                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                                    <input
-                                        {...register("email")}
-                                        type="email"
-                                        className="w-full bg-black/50 border border-white/10 rounded-xl px-10 py-3 text-white focus:outline-none focus:border-brand-pink transition-colors"
-                                        placeholder="Enter your email"
-                                    />
-                                </div>
-                                {errors.email && (
-                                    <p className="text-red-400 text-xs pl-1">{errors.email.message}</p>
-                                )}
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-400">Password</label>
-                                <div className="relative">
-                                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                                    <input
-                                        {...register("password")}
-                                        type="password"
-                                        className="w-full bg-black/50 border border-white/10 rounded-xl px-10 py-3 text-white focus:outline-none focus:border-brand-pink transition-colors"
-                                        placeholder="••••••••"
-                                    />
-                                </div>
-                                {errors.password && (
-                                    <p className="text-red-400 text-xs pl-1">{errors.password.message}</p>
-                                )}
-                            </div>
-
-                            {authError && (
-                                <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-start gap-2 text-red-200 text-sm">
-                                    <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
-                                    <span>{authError}</span>
-                                </div>
-                            )}
-
-                            <button
-                                type="submit"
-                                disabled={isLoading}
-                                className="w-full py-3 bg-gradient-to-r from-brand-pink to-brand-purple rounded-xl text-white font-bold shadow-lg shadow-brand-pink/20 active:scale-[0.98] transition-all disabled:opacity-50 disabled:"
-                            >
-                                {isLoading ? (
-                                    <Loader2 className="w-5 h-5 animate-spin mx-auto" />
-                                ) : mode === "signin" ? (
-                                    "Sign In"
-                                ) : (
-                                    "Create Account"
-                                )}
-                            </button>
-                        </form>
-
-                        {/* Footer / Toggle */}
-                        <div className="text-center text-sm text-gray-400">
-                            {mode === "signin" ? (
-                                <p>
-                                    Don't have an account?{" "}
-                                    <button
-                                        onClick={() => switchMode("signup")}
-                                        className="text-brand-pink font-medium"
-                                    >
-                                        Sign up
-                                    </button>
-                                </p>
-                            ) : (
-                                <p>
-                                    Already have an account?{" "}
                                     <button
                                         onClick={() => switchMode("signin")}
-                                        className="text-brand-pink font-medium"
+                                        className="w-full py-3 bg-white/10 hover:bg-white/20 rounded-xl text-white font-bold transition-colors"
                                     >
-                                        Sign in
+                                        Back to Sign In
                                     </button>
-                                </p>
-                            )}
-                        </div>
+                                </div>
+                            ) : (
+                                <form onSubmit={handlePasswordReset} className="space-y-4">
+                                    <p className="text-sm text-gray-400 text-center mb-6">
+                                        Enter your email address and we'll send you a link to reset your password.
+                                    </p>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-gray-400">Email</label>
+                                        <div className="relative">
+                                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                            <input
+                                                name="resetEmail"
+                                                type="email"
+                                                required
+                                                className="w-full bg-black/50 border border-white/10 rounded-xl px-10 py-3 text-white focus:outline-none focus:border-brand-pink transition-colors"
+                                                placeholder="Enter your email"
+                                            />
+                                        </div>
+                                    </div>
+                                    {authError && (
+                                        <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-start gap-2 text-red-200 text-sm">
+                                            <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                                            <span>{authError}</span>
+                                        </div>
+                                    )}
+                                    <button
+                                        type="submit"
+                                        disabled={isLoading}
+                                        className="w-full py-3 bg-gradient-to-r from-brand-pink to-brand-purple rounded-xl text-white font-bold shadow-lg shadow-brand-pink/20 active:scale-[0.98] transition-all disabled:opacity-50"
+                                    >
+                                        {isLoading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : "Send Reset Link"}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => switchMode("signin")}
+                                        className="w-full py-3 bg-transparent text-gray-400 hover:text-white font-bold transition-colors"
+                                    >
+                                        Back to Sign In
+                                    </button>
+                                </form>
+                            )
+                        ) : (
+                            /* Email Sign-In / Sign-Up Form */
+                            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                                {mode === "signup" && (
+                                    <>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-medium text-gray-400">Username</label>
+                                            <div className="relative">
+                                                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                                <input
+                                                    {...register("username")}
+                                                    type="text"
+                                                    className="w-full bg-black/50 border border-white/10 rounded-xl px-10 py-3 text-white focus:outline-none focus:border-brand-pink transition-colors"
+                                                    placeholder="Create a username"
+                                                />
+                                            </div>
+                                            {errors.username && (
+                                                <p className="text-red-400 text-xs pl-1">{errors.username.message}</p>
+                                            )}
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-medium text-gray-400">Date of Birth</label>
+                                            <div className="relative">
+                                                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                                <input
+                                                    {...register("dob")}
+                                                    type="date"
+                                                    className="w-full bg-black/50 border border-white/10 rounded-xl px-10 py-3 text-white focus:outline-none focus:border-brand-pink transition-colors [color-scheme:dark]"
+                                                />
+                                            </div>
+                                            {errors.dob && (
+                                                <p className="text-red-400 text-xs pl-1">{errors.dob.message}</p>
+                                            )}
+                                            <p className="text-xs text-gray-500 pl-1">Must be 18 or older to join.</p>
+                                        </div>
+                                    </>
+                                )}
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-400">Email</label>
+                                    <div className="relative">
+                                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                        <input
+                                            {...register("email")}
+                                            type="email"
+                                            className="w-full bg-black/50 border border-white/10 rounded-xl px-10 py-3 text-white focus:outline-none focus:border-brand-pink transition-colors"
+                                            placeholder="Enter your email"
+                                        />
+                                    </div>
+                                    {errors.email && (
+                                        <p className="text-red-400 text-xs pl-1">{errors.email.message}</p>
+                                    )}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-400">Password</label>
+                                    <div className="relative">
+                                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                        <input
+                                            {...register("password")}
+                                            type="password"
+                                            className="w-full bg-black/50 border border-white/10 rounded-xl px-10 py-3 text-white focus:outline-none focus:border-brand-pink transition-colors"
+                                            placeholder="••••••••"
+                                        />
+                                    </div>
+                                    {errors.password && (
+                                        <p className="text-red-400 text-xs pl-1">{errors.password.message}</p>
+                                    )}
+                                    {mode === "signin" && (
+                                        <div className="flex justify-end mt-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => switchMode("forgot_password")}
+                                                className="text-xs text-gray-400 hover:text-brand-pink transition-colors"
+                                            >
+                                                Forgot password?
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {authError && (
+                                    <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-start gap-2 text-red-200 text-sm">
+                                        <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                                        <span>{authError}</span>
+                                    </div>
+                                )}
+
+                                <button
+                                    type="submit"
+                                    disabled={isLoading}
+                                    className="w-full py-3 bg-gradient-to-r from-brand-pink to-brand-purple rounded-xl text-white font-bold shadow-lg shadow-brand-pink/20 active:scale-[0.98] transition-all disabled:opacity-50 disabled:"
+                                >
+                                    {isLoading ? (
+                                        <Loader2 className="w-5 h-5 animate-spin mx-auto" />
+                                    ) : mode === "signin" ? (
+                                        "Sign In"
+                                    ) : (
+                                        "Create Account"
+                                    )}
+                                </button>
+                            </form>
+                        )}
+                        {/* Footer / Toggle */}
+                        {mode !== "forgot_password" && (
+                            <div className="text-center text-sm text-gray-400">
+                                {mode === "signin" ? (
+                                    <p>
+                                        Don't have an account?{" "}
+                                        <button
+                                            onClick={() => switchMode("signup")}
+                                            className="text-brand-pink font-medium"
+                                        >
+                                            Sign up
+                                        </button>
+                                    </p>
+                                ) : (
+                                    <p>
+                                        Already have an account?{" "}
+                                        <button
+                                            onClick={() => switchMode("signin")}
+                                            className="text-brand-pink font-medium"
+                                        >
+                                            Sign in
+                                        </button>
+                                    </p>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

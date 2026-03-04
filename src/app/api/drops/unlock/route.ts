@@ -4,6 +4,7 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAuth, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 import { revalidatePath } from "next/cache";
+import { checkRateLimit, STRICT } from "@/lib/server/rate-limit";
 
 const unlockRequestSchema = z.object({
   dropId: z
@@ -15,6 +16,7 @@ const unlockRequestSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    checkRateLimit(request, "drops/unlock", STRICT);
     const caller = await verifyAuth(request);
     const { dropId } = unlockRequestSchema.parse(await request.json());
 
@@ -101,9 +103,10 @@ export async function POST(request: NextRequest) {
       alreadyUnlocked: result.alreadyUnlocked,
       unwrappedAt: result.unwrappedAt ?? null,
     });
-  } catch (error: any) {
-    if (error.message && error.message.startsWith("INSUFFICIENT_FUNDS:")) {
-      const parts = error.message.split(":");
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "";
+    if (message.startsWith("INSUFFICIENT_FUNDS:")) {
+      const parts = message.split(":");
       return NextResponse.json(
         {
           error: "Not enough Gum Drops",
@@ -114,7 +117,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (error.message === "User not found") {
+    if (message === "User not found") {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 

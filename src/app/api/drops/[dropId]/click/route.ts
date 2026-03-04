@@ -3,12 +3,14 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { verifyAuth } from "@/lib/server/auth";
+import { checkRateLimit, RELAXED } from "@/lib/server/rate-limit";
 
 export async function POST(
     request: NextRequest,
     context: { params: Promise<{ dropId: string }> }
 ) {
     try {
+        checkRateLimit(request, "drops/click", RELAXED);
         const params = await context.params;
         const { dropId } = params;
 

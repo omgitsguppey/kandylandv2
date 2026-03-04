@@ -3,9 +3,11 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAuth, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 import { getCSTDayBoundaries } from "@/lib/timezone";
+import { checkRateLimit, STRICT } from "@/lib/server/rate-limit";
 
 export async function POST(request: NextRequest) {
     try {
+        checkRateLimit(request, "checkin", STRICT);
         const caller = await verifyAuth(request);
 
         if (!adminDb) {

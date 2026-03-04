@@ -1,6 +1,7 @@
 import "server-only";
 import { NextRequest, NextResponse } from "next/server";
 import { adminAuth, adminDb } from "./firebase-admin";
+import { RateLimitError, buildRateLimitResponse } from "./rate-limit";
 
 export interface AuthResult {
     uid: string;
@@ -65,6 +66,9 @@ export async function verifyAdmin(request: NextRequest): Promise<AuthResult> {
  * Standard API error handler for route handlers.
  */
 export function handleApiError(error: any, context: string) {
+    if (error instanceof RateLimitError) {
+        return buildRateLimitResponse(error);
+    }
     if (error instanceof AuthError) {
         return NextResponse.json({ error: error.message }, { status: error.status });
     }

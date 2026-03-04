@@ -296,7 +296,11 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                             onLoadingComplete={() => setImageLoaded(true)}
                             sizes={resolvedRatio === "16:9" ? "(max-width: 768px) 100vw, 720px" : "(max-width: 768px) 50vw, 360px"}
                         />
-                        {!imageLoaded && <div className="absolute inset-0 bg-zinc-800 animate-pulse" />}
+                        {!imageLoaded && (
+                            <div className="absolute inset-0 bg-zinc-800/80 overflow-hidden">
+                                <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+                            </div>
+                        )}
                     </>
                 ) : (
                     <div className="w-full h-full flex items-center justify-center text-5xl bg-zinc-900/50">🍬</div>

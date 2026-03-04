@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { DailyCheckIn } from "@/components/Dashboard/DailyCheckIn";
 import { CollectionList } from "@/components/Dashboard/CollectionList";
-import { useRouter } from "next/navigation";
+import { RecentActivityFeed } from "@/components/Dashboard/RecentActivityFeed";
 import { Star } from "lucide-react";
 
 import { Drop } from "@/types/db";
@@ -15,16 +14,9 @@ interface DashboardClientProps {
 
 export default function DashboardClient({ drops }: DashboardClientProps) {
     const { user, userProfile, loading } = useAuth();
-    const router = useRouter();
 
-    useEffect(() => {
-        if (!loading && !user) {
-            router.push("/");
-        }
-    }, [user, loading, router]);
-
-    // Skeleton UI while waiting for user state or profile data
-    if (loading || (user && !userProfile)) {
+    // Skeleton UI while waiting for profile data (auth is already guarded by layout.tsx)
+    if (loading || !userProfile) {
         return (
             <div className="w-full px-4 max-w-7xl mx-auto">
                 <header className="mb-8 md:mb-12">
@@ -45,8 +37,6 @@ export default function DashboardClient({ drops }: DashboardClientProps) {
         );
     }
 
-    if (!user) return null; // Handled by redirect
-
     return (
         <div className="w-full px-4 max-w-7xl mx-auto">
             <header className="mb-8 md:mb-12">
@@ -64,6 +54,7 @@ export default function DashboardClient({ drops }: DashboardClientProps) {
                         <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                             <Star className="w-5 h-5 text-brand-purple" /> Your Stats
                         </h3>
+
                         <div className="grid grid-cols-2 gap-4">
                             <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
                                 <div className="text-2xl font-bold text-brand-pink">{userProfile?.gumDropsBalance || 0}</div>
@@ -75,6 +66,8 @@ export default function DashboardClient({ drops }: DashboardClientProps) {
                             </div>
                         </div>
                     </div>
+
+                    <RecentActivityFeed />
                 </div>
 
                 {/* Right Column: Collection / Activity */}

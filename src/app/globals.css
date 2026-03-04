@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
 @theme {
-  /* Unified Lavender Purple Theme */
+  /* Brand Color Palette */
   --color-brand-dark: #000000;
-  --color-brand-pink: #b28cff;
-  --color-brand-cyan: #b28cff;
-  --color-brand-yellow: #b28cff;
+  --color-brand-pink: #ec4899;
+  --color-brand-cyan: #06b6d4;
+  --color-brand-yellow: #eab308;
   --color-brand-purple: #b28cff;
-  --color-brand-green: #b28cff;
+  --color-brand-green: #14e682;
 }
 
 :root {

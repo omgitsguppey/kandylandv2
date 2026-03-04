@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAuth, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
-
-import { normalizeUsername } from "@/lib/server/user-utils";
+import { normalizeUsername } from "@/lib/user-utils";
+import { checkRateLimit, STRICT } from "@/lib/server/rate-limit";
 
 function buildFallbackUsername(uid: string): string {
     return `user_${uid.slice(0, 8).toLowerCase()}`;
@@ -11,6 +11,7 @@ function buildFallbackUsername(uid: string): string {
 
 export async function POST(request: NextRequest) {
     try {
+        checkRateLimit(request, "user/register", STRICT);
         const caller = await verifyAuth(request);
 
         if (!adminDb) {
@@ -50,7 +51,7 @@ export async function POST(request: NextRequest) {
             email: caller.email,
             displayName: displayName || "User",
             username: normalizedUsername,
-            gumDropsBalance: 0,
+            gumDropsBalance: 50,
             unlockedContent: [],
             unlockedContentTimestamps: {},
             notificationSettings: {
@@ -73,7 +74,7 @@ export async function POST(request: NextRequest) {
 
         await userRef.set(newProfile, { merge: true });
 
-        return NextResponse.json({ success: true, welcomeBonus: 0 });
+        return NextResponse.json({ success: true, welcomeBonus: 50 });
     } catch (error) {
         return handleApiError(error, "User.Register");
     }

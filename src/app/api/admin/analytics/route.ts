@@ -4,6 +4,7 @@ export const fetchCache = 'force-no-store';
 import { NextRequest, NextResponse } from "next/server";
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
 import { verifyAdmin, handleApiError } from "@/lib/server/auth";
+import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
 
 const propertyId = process.env.GA_PROPERTY_ID;
 const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
@@ -27,6 +28,7 @@ if (clientEmail && privateKey) {
 
 export async function GET(request: NextRequest) {
     try {
+        checkRateLimit(request, "admin/analytics", ADMIN);
         await verifyAdmin(request);
 
         const searchParams = request.nextUrl.searchParams;
@@ -188,7 +190,7 @@ export async function GET(request: NextRequest) {
                 engagementRate: chartData.length > 0 ? chartData.reduce((acc, curr) => acc + curr.engagementRate, 0) / chartData.length : 0,
             };
 
-            const eventsData = (eventsResponse.rows || []).reduce((acc: any, row) => {
+            const eventsData = (eventsResponse.rows || []).reduce((acc: Record<string, number>, row) => {
                 const eventName = row.dimensionValues?.[0]?.value || "unknown";
                 const count = parseInt(row.metricValues?.[0]?.value || "0", 10);
                 acc[eventName] = count;

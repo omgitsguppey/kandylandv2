@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAuth, handleApiError } from "@/lib/server/auth";
+import { checkRateLimit, STANDARD } from "@/lib/server/rate-limit";
 
 const ALLOWED_TIMEZONES = new Set([
     "Auto",
@@ -14,7 +15,7 @@ const ALLOWED_TIMEZONES = new Set([
     "Asia/Tokyo",
 ]);
 
-import { normalizeUsername } from "@/lib/server/user-utils";
+import { normalizeUsername } from "@/lib/user-utils";
 
 function normalizeNotificationSettings(value: unknown): {
     inAppEnabled: boolean;
@@ -80,6 +81,7 @@ function normalizeAccountSettings(value: unknown): { timezone: string } | null {
 
 export async function PUT(request: NextRequest) {
     try {
+        checkRateLimit(request, "user/profile", STANDARD);
         const caller = await verifyAuth(request);
 
         if (!adminDb) {
@@ -151,6 +153,7 @@ export async function PUT(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
     try {
+        checkRateLimit(request, "user/profile", STANDARD);
         const caller = await verifyAuth(request);
 
         if (!adminDb) {

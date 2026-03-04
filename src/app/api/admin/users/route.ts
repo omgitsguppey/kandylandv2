@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAdmin, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
+import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
 
 // PUT — Update user status/role (admin-only)
 export async function PUT(request: NextRequest) {
     try {
+        checkRateLimit(request, "admin/users", ADMIN);
         await verifyAdmin(request);
 
         const { userId, updates } = await request.json();
@@ -19,7 +21,7 @@ export async function PUT(request: NextRequest) {
 
         // Whitelist allowed fields to prevent arbitrary writes
         const allowedFields = ["role", "isVerified", "status", "statusReason"];
-        const sanitized: Record<string, any> = {};
+        const sanitized: Record<string, unknown> = {};
         for (const key of allowedFields) {
             if (updates[key] !== undefined) {
                 sanitized[key] = updates[key];
@@ -42,6 +44,7 @@ export async function PUT(request: NextRequest) {
 // POST — Manage user content (add/remove unlocked drops, admin-only)
 export async function POST(request: NextRequest) {
     try {
+        checkRateLimit(request, "admin/users", ADMIN);
         await verifyAdmin(request);
 
         const { userId, action, dropId } = await request.json();

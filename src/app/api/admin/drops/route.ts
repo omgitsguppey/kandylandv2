@@ -3,6 +3,7 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAdmin, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 import { sendGlobalDropNotification } from "@/lib/server/push-notifications";
+import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
 
 // Whitelist of allowed drop fields to prevent arbitrary writes
 const ALLOWED_DROP_FIELDS = [
@@ -14,8 +15,8 @@ const ALLOWED_DROP_FIELDS = [
 
 import { revalidatePath } from "next/cache";
 
-function sanitizeDropData(raw: Record<string, any>): Record<string, any> {
-    const sanitized: Record<string, any> = {};
+function sanitizeDropData(raw: Record<string, unknown>): Record<string, unknown> {
+    const sanitized: Record<string, unknown> = {};
     for (const key of ALLOWED_DROP_FIELDS) {
         if (raw[key] !== undefined) {
             sanitized[key] = raw[key] === null ? FieldValue.delete() : raw[key];
@@ -27,6 +28,7 @@ function sanitizeDropData(raw: Record<string, any>): Record<string, any> {
 // POST — Create a new drop (admin-only)
 export async function POST(request: NextRequest) {
     try {
+        checkRateLimit(request, "admin/drops", ADMIN);
         await verifyAdmin(request);
 
         const body = await request.json();
@@ -48,7 +50,7 @@ export async function POST(request: NextRequest) {
         // Automatically issue a global notification and Web Push ONLY if immediately active
         if (sanitized.status === "active") {
             try {
-                await sendGlobalDropNotification(sanitized.title, docRef.id, sanitized.imageUrl);
+                await sendGlobalDropNotification(sanitized.title as string, docRef.id, sanitized.imageUrl as string);
             } catch (notifError) {
                 console.error("Non-fatal: Failed to generate global notification for new drop", notifError);
             }
@@ -67,6 +69,7 @@ export async function POST(request: NextRequest) {
 // PUT — Update an existing drop (admin-only)
 export async function PUT(request: NextRequest) {
     try {
+        checkRateLimit(request, "admin/drops", ADMIN);
         await verifyAdmin(request);
 
         const { dropId, dropData } = await request.json();
@@ -99,6 +102,7 @@ export async function PUT(request: NextRequest) {
 // DELETE — Delete a drop (admin-only)
 export async function DELETE(request: NextRequest) {
     try {
+        checkRateLimit(request, "admin/drops", ADMIN);
         await verifyAdmin(request);
 
         const { dropId } = await request.json();

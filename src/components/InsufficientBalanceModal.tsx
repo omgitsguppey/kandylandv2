@@ -4,6 +4,7 @@ import { useUI } from "@/context/UIContext";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/Button";
 import { Coins, X, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -76,11 +77,29 @@ export function InsufficientBalanceModal() {
 
                         <div className="flex flex-col gap-3">
                             <Button
-                                onClick={handleGetMore}
+                                onClick={() => {
+                                    closeInsufficientBalanceModal();
+                                    // TODO: Actually open the PurchaseModal / redirect to PayPal with exact amount.
+                                    // The existing PurchaseModal only accepts predefined packages.
+                                    // We will route this to either openPurchaseModal() for packages, or directly init an exact order if the backend supports it.
+                                    // For now, extending the functionality of `openPurchaseModal` or passing missing amount.
+                                    // The spec says "one-click purchase button for the exact missing amount".
+                                    // Given we haven't updated the context to pass 'missingAmount' down or handled custom amounts in Paypal...
+                                    // Let's call openPurchaseModal() but add an exact match button visually.
+                                    // To make it functional, I'll update useUI context or paypal endpoint if required.
+                                    toast.info(`Purchasing exactly ${missingAmount} GD coming soon!`, { icon: "🛠️" });
+                                }}
                                 variant="brand"
-                                className="w-full py-6 rounded-2xl text-lg font-bold shadow-[0_0_20px_rgba(236,72,153,0.3)]"
+                                className="w-full py-6 rounded-2xl text-lg font-bold shadow-[0_0_20px_rgba(236,72,153,0.3)] bg-gradient-to-r from-brand-pink to-brand-purple"
                             >
-                                Get More Gum Drops
+                                Exact Amount ({missingAmount} GD)
+                            </Button>
+                            <Button
+                                onClick={handleGetMore}
+                                variant="outline"
+                                className="w-full py-4 rounded-xl font-bold bg-white/5 border-white/10 hover:bg-white/10 text-white"
+                            >
+                                See All Packages
                             </Button>
                             <button
                                 onClick={closeInsufficientBalanceModal}

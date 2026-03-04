@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, Candy, Wallet, Sparkles } from "lucide-react";
+import { Home, Candy, Wallet, Sparkles, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -8,6 +8,7 @@ import { useUI } from "@/context/UIContext";
 
 const NAV_ITEMS = [
     { label: "Home", href: "/", icon: Home },
+    { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { label: "Drops", href: "/drops", icon: Candy },
     { label: "Experiences", href: "/experiences", icon: Sparkles },
 ] as const;

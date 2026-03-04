@@ -33,6 +33,7 @@ export function OnboardingModal() {
     const [isOpen, setIsOpen] = useState(false);
     const [step, setStep] = useState(1); // 1: Profile, 2: Identity, 3: Creator
     const [loading, setLoading] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
 
     // Avatar state is handled separately as it involves file upload/preview logic
     // that is easier to manage outside of simple text input registration for now,
@@ -167,8 +168,10 @@ export function OnboardingModal() {
             const result = await response.json();
             if (!response.ok) throw new Error(result.error || "Profile save failed");
 
-            toast.success("Profile Setup Complete!", { icon: "🎉" });
-            setIsOpen(false);
+            setShowSuccess(true);
+            setTimeout(() => {
+                setIsOpen(false);
+            }, 2000);
 
         } catch (error: any) {
             console.error("Onboarding Error:", error);
@@ -192,7 +195,14 @@ export function OnboardingModal() {
                         </div>
                         <h2 className="text-2xl font-bold text-white">Welcome to KandyDrops</h2>
                     </div>
-                    <p className="text-gray-400">Let's set up your profile to get you started.</p>
+                    <div className="flex justify-between items-end">
+                        <p className="text-gray-400">Let's set up your profile to get you started.</p>
+                        {!showSuccess && (
+                            <span className="text-xs font-bold text-brand-pink bg-brand-pink/10 px-2 py-1 rounded-md">
+                                Step {step} of 3
+                            </span>
+                        )}
+                    </div>
 
                     {/* Progress */}
                     <div className="flex gap-2 mt-6">
@@ -207,117 +217,128 @@ export function OnboardingModal() {
 
                 {/* Content */}
                 <div className="p-8 overflow-y-auto">
-                    <form onSubmit={handleSubmit(onSubmit)}>
+                    {showSuccess ? (
+                        <div className="flex flex-col items-center justify-center py-12 text-center space-y-4 animate-in fade-in zoom-in duration-500">
+                            <div className="w-20 h-20 bg-brand-pink/20 text-brand-pink rounded-full flex items-center justify-center mb-4 relative">
+                                <Sparkles className="w-10 h-10 animate-bounce" />
+                                <div className="absolute inset-0 bg-brand-pink/20 rounded-full animate-ping" />
+                            </div>
+                            <h3 className="text-2xl font-bold text-white">All Set!</h3>
+                            <p className="text-gray-400">Taking you to your dashboard...</p>
+                        </div>
+                    ) : (
+                        <form onSubmit={handleSubmit(onSubmit)}>
 
-                        {/* Step 1: Profile & Username */}
-                        <div className={step === 1 ? "block space-y-6" : "hidden"}>
-                            <div className="space-y-4">
-                                <div className="flex justify-center">
-                                    <div className="relative group">
-                                        <div className="w-24 h-24 rounded-full overflow-hidden bg-black border-2 border-white/10 flex items-center justify-center relative">
-                                            {avatarPreview || user?.photoURL ? (
-                                                <Image src={avatarPreview || user?.photoURL || ""} alt="Avatar" fill sizes="96px" className="object-cover" />
-                                            ) : (
-                                                <User className="w-10 h-10 text-gray-500" />
+                            {/* Step 1: Profile & Username */}
+                            <div className={step === 1 ? "block space-y-6" : "hidden"}>
+                                <div className="space-y-4">
+                                    <div className="flex justify-center">
+                                        <div className="relative group">
+                                            <div className="w-24 h-24 rounded-full overflow-hidden bg-black border-2 border-white/10 flex items-center justify-center relative">
+                                                {avatarPreview || user?.photoURL ? (
+                                                    <Image src={avatarPreview || user?.photoURL || ""} alt="Avatar" fill sizes="96px" className="object-cover" />
+                                                ) : (
+                                                    <User className="w-10 h-10 text-gray-500" />
+                                                )}
+                                            </div>
+                                            <label className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity cursor-pointer rounded-full">
+                                                <Camera className="w-6 h-6 text-white" />
+                                                <input type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" />
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-gray-300">Choose a Username</label>
+                                        <div className="relative">
+                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">@</span>
+                                            <input
+                                                {...register("username")}
+                                                type="text"
+                                                className={`w-full bg-black/50 border rounded-xl px-8 py-3 text-white focus:outline-none transition-all ${errors.username ? "border-red-500" : usernameAvailable === true ? "border-green-500/50 focus:border-green-500" : "border-white/10 focus:border-brand-pink"}`}
+                                                placeholder="username"
+                                            />
+                                            {checkingUsername && (
+                                                <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-gray-400" />
                                             )}
                                         </div>
-                                        <label className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity cursor-pointer rounded-full">
-                                            <Camera className="w-6 h-6 text-white" />
-                                            <input type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" />
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-gray-300">Choose a Username</label>
-                                    <div className="relative">
-                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">@</span>
-                                        <input
-                                            {...register("username")}
-                                            type="text"
-                                            className={`w-full bg-black/50 border rounded-xl px-8 py-3 text-white focus:outline-none transition-all ${errors.username ? "border-red-500" : usernameAvailable === true ? "border-green-500/50 focus:border-green-500" : "border-white/10 focus:border-brand-pink"}`}
-                                            placeholder="username"
-                                        />
-                                        {checkingUsername && (
-                                            <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-gray-400" />
+                                        {errors.username && (
+                                            <p className="text-xs text-red-400">{errors.username.message}</p>
+                                        )}
+                                        {!errors.username && usernameAvailable === false && (
+                                            <p className="text-xs text-red-400">Username already taken.</p>
+                                        )}
+                                        {!errors.username && usernameAvailable === true && (
+                                            <p className="text-xs text-green-400">Username available!</p>
                                         )}
                                     </div>
-                                    {errors.username && (
-                                        <p className="text-xs text-red-400">{errors.username.message}</p>
-                                    )}
-                                    {!errors.username && usernameAvailable === false && (
-                                        <p className="text-xs text-red-400">Username already taken.</p>
-                                    )}
-                                    {!errors.username && usernameAvailable === true && (
-                                        <p className="text-xs text-green-400">Username available!</p>
-                                    )}
                                 </div>
+                                <button
+                                    type="button"
+                                    onClick={nextStep}
+                                    className="w-full py-4 bg-white text-black font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
+                                >
+                                    Next Step <ArrowRight className="w-4 h-4" />
+                                </button>
                             </div>
-                            <button
-                                type="button"
-                                onClick={nextStep}
-                                className="w-full py-4 bg-white text-black font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
-                            >
-                                Next Step <ArrowRight className="w-4 h-4" />
-                            </button>
-                        </div>
 
-                        {/* Step 2: Identity */}
-                        <div className={step === 2 ? "block space-y-6" : "hidden"}>
-                            <div className="space-y-4">
-                                <div className="p-4 bg-brand-pink/10 rounded-xl border border-brand-pink/20 flex gap-3">
-                                    <ShieldCheck className="w-6 h-6 text-brand-pink shrink-0" />
-                                    <p className="text-sm text-brand-pink/80">
-                                        We need your birth date to comply with age restrictions. This will not be public.
-                                    </p>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-gray-300">Date of Birth</label>
-                                    <div className="relative w-full overflow-hidden rounded-xl bg-black/50 border border-white/10">
-                                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                                        <input
-                                            {...register("dateOfBirth")}
-                                            type="date"
-                                            className="w-full min-w-0 bg-transparent pl-12 pr-4 py-3 text-white focus:outline-none focus:border-brand-pink transition-all [color-scheme:dark]"
-                                        />
+                            {/* Step 2: Identity */}
+                            <div className={step === 2 ? "block space-y-6" : "hidden"}>
+                                <div className="space-y-4">
+                                    <div className="p-4 bg-brand-pink/10 rounded-xl border border-brand-pink/20 flex gap-3">
+                                        <ShieldCheck className="w-6 h-6 text-brand-pink shrink-0" />
+                                        <p className="text-sm text-brand-pink/80">
+                                            We need your birth date to comply with age restrictions. This will not be public.
+                                        </p>
                                     </div>
-                                    {errors.dateOfBirth && (
-                                        <p className="text-xs text-red-400">{errors.dateOfBirth.message}</p>
-                                    )}
+
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-gray-300">Date of Birth</label>
+                                        <div className="relative w-full overflow-hidden rounded-xl bg-black/50 border border-white/10">
+                                            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                            <input
+                                                {...register("dateOfBirth")}
+                                                type="date"
+                                                className="w-full min-w-0 bg-transparent pl-12 pr-4 py-3 text-white focus:outline-none focus:border-brand-pink transition-all [color-scheme:dark]"
+                                            />
+                                        </div>
+                                        {errors.dateOfBirth && (
+                                            <p className="text-xs text-red-400">{errors.dateOfBirth.message}</p>
+                                        )}
+                                    </div>
                                 </div>
+                                <button
+                                    type="button"
+                                    onClick={nextStep}
+                                    className="w-full py-4 bg-white text-black font-bold rounded-xl transition-colors"
+                                >
+                                    Continue
+                                </button>
                             </div>
-                            <button
-                                type="button"
-                                onClick={nextStep}
-                                className="w-full py-4 bg-white text-black font-bold rounded-xl transition-colors"
-                            >
-                                Continue
-                            </button>
-                        </div>
 
-                        {/* Step 3: Creator */}
-                        <div className={step === 3 ? "block space-y-6" : "hidden"}>
-                            <div className="space-y-4">
-                                <h3 className="text-lg font-bold text-white">Add a Bio (Optional)</h3>
-                                <p className="text-sm text-gray-400">Tell others a bit about yourself.</p>
-                                <textarea
-                                    {...register("bio")}
-                                    placeholder="I love synthwave and neon lights..."
-                                    rows={4}
-                                    className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-brand-pink transition-all resize-none"
-                                />
+                            {/* Step 3: Creator */}
+                            <div className={step === 3 ? "block space-y-6" : "hidden"}>
+                                <div className="space-y-4">
+                                    <h3 className="text-lg font-bold text-white">Add a Bio (Optional)</h3>
+                                    <p className="text-sm text-gray-400">Tell others a bit about yourself.</p>
+                                    <textarea
+                                        {...register("bio")}
+                                        placeholder="I love synthwave and neon lights..."
+                                        rows={4}
+                                        className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-brand-pink transition-all resize-none"
+                                    />
+                                </div>
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full py-4 bg-gradient-to-r from-brand-pink to-brand-purple text-white font-bold rounded-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                >
+                                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Complete Setup"}
+                                </button>
                             </div>
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="w-full py-4 bg-gradient-to-r from-brand-pink to-brand-purple text-white font-bold rounded-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-                            >
-                                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Complete Setup"}
-                            </button>
-                        </div>
 
-                    </form>
+                        </form>
+                    )}
                 </div>
             </div>
         </div>

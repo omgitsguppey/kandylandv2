@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { verifyAuth, handleApiError } from "@/lib/server/auth";
+import { checkRateLimit, STRICT } from "@/lib/server/rate-limit";
 
 const bodySchema = z.object({
     expectedDrops: z.number().int().positive(),
@@ -42,6 +43,7 @@ async function getPayPalAccessToken(): Promise<string> {
 
 export async function POST(request: NextRequest) {
     try {
+        checkRateLimit(request, "paypal/create", STRICT);
         const caller = await verifyAuth(request);
         const userId = caller.uid;
         const { expectedDrops } = bodySchema.parse(await request.json());

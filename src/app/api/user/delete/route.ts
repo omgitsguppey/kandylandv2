@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAuth, handleApiError } from "@/lib/server/auth";
 import { adminDb, adminAuth } from "@/lib/server/firebase-admin";
+import { checkRateLimit, STRICT } from "@/lib/server/rate-limit";
 
 export async function DELETE(request: NextRequest) {
     try {
+        checkRateLimit(request, "user/delete", STRICT);
         const authResult = await verifyAuth(request);
         const { uid } = authResult;
 

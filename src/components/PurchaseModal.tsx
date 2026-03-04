@@ -15,11 +15,11 @@ interface PurchaseModalProps {
   onClose: () => void;
 }
 
-type PurchasePackage = { drops: number; price: number; label: string };
+type PurchasePackage = { drops: number; price: number; label: string; isPopular?: boolean };
 
 const PACKAGES: PurchasePackage[] = [
   { drops: 100, price: 1.0, label: "Starter Pack" },
-  { drops: 550, price: 5.0, label: "Fan Pack (+50 Bonus)" },
+  { drops: 550, price: 5.0, label: "Fan Pack (+50 Bonus)", isPopular: true },
   { drops: 1100, price: 10.0, label: "Premium Stash (+100 Bonus)" },
   { drops: 2500, price: 20.0, label: "Ultimate Kandy (+500 Bonus)" },
 ];

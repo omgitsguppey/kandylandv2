@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
-import { X, Images, Video, Clock, Lock, Unlock, Loader2 } from "lucide-react";
+import { X, Images, Video, Clock, Lock, Unlock, Loader2, Share2 } from "lucide-react";
 import { Drop } from "@/types/db";
 import { getAspectRatioCssValue, getDropMediaSummary, getSupportedDropAspectRatio } from "@/lib/drop-presentation";
 import { formatDistanceToNow } from "date-fns";
@@ -147,6 +147,14 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
     }
   };
 
+  const handleShare = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const url = `${window.location.origin}/dashboard/viewer?id=${drop.id}`;
+    navigator.clipboard.writeText(url)
+      .then(() => toast.success("Link copied to clipboard!"))
+      .catch(() => toast.error("Failed to copy link"));
+  };
+
   const modalContent = (
     <div className="fixed inset-0 z-[120]" aria-modal="true" role="dialog">
       <button
@@ -160,13 +168,22 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
           <div className="flex h-full max-h-[92vh] flex-col">
             <div className="relative shrink-0 px-4 pt-3 pb-2 sm:px-5">
               <div className="mx-auto h-1.5 w-12 rounded-full bg-white/20" />
-              <button
-                onClick={onClose}
-                className="absolute right-4 top-2.5 h-11 w-11 rounded-full border border-white/15 bg-white/5 text-gray-200 flex items-center justify-center"
-                aria-label="Close"
-              >
-                <X className="h-5 w-5" />
-              </button>
+              <div className="absolute right-4 top-2.5 flex items-center gap-2">
+                <button
+                  onClick={handleShare}
+                  className="h-11 w-11 rounded-full border border-white/15 bg-white/5 text-gray-200 flex items-center justify-center hover:bg-white/10 transition-colors"
+                  aria-label="Share"
+                >
+                  <Share2 className="h-5 w-5" />
+                </button>
+                <button
+                  onClick={onClose}
+                  className="h-11 w-11 rounded-full border border-white/15 bg-white/5 text-gray-200 flex items-center justify-center hover:bg-white/10 transition-colors"
+                  aria-label="Close"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
             </div>
 
             <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-28 sm:px-5">
