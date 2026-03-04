@@ -11,7 +11,7 @@ import { Lock } from "lucide-react";
 import { DropPreviewModal } from "@/components/DropPreviewModal";
 import { useDrops } from "@/hooks/useDrops";
 import { KandyDropsAccountOverview, AccountOverviewState } from "@/components/KandyDropsAccountOverview";
-import { GuestBlurOverlay } from "@/components/Auth/GuestBlurOverlay";
+import { GuestComponentBlur } from "@/components/Auth/GuestComponentBlur";
 import { useEffect, useRef } from "react";
 
 const CATEGORIES = ["All", "New", "Ending Soon", "Hottest", "Sweet", "Spicy", "RAW"];
@@ -185,7 +185,9 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
 
             {!searchQuery && selectedCategory === "All" && (
                 <div className="mt-6">
-                    <FeaturedCarousel drops={sourceDrops} onSelectDrop={setPreviewDrop} />
+                    <GuestComponentBlur actionText="Unlock Carousel">
+                        <FeaturedCarousel drops={sourceDrops} onSelectDrop={setPreviewDrop} />
+                    </GuestComponentBlur>
                 </div>
             )}
 
@@ -203,8 +205,8 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
                     <p className="text-sm text-gray-400">The fastest unwrappers usually return daily. New content can sell out quickly.</p>
                 </div>
 
-                <div className="relative">
-                    <GuestBlurOverlay>
+                <div className="relative border border-white/5 bg-white/[0.01] rounded-[2.5rem] p-2 md:p-6">
+                    <GuestComponentBlur actionText="Unlock Library">
                         <DropGrid drops={filteredDrops} loading={false} isSearching={!!searchQuery} onSelectDrop={setPreviewDrop} />
 
                         {/* Sentinel for infinite scrolling */}
@@ -216,7 +218,7 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
                                 <p className="text-gray-500 text-sm font-medium">You've reached the end of the line.</p>
                             )}
                         </div>
-                    </GuestBlurOverlay>
+                    </GuestComponentBlur>
                 </div>
             </div>
 

@@ -14,9 +14,21 @@ const eslintConfig = [
     ...compat.extends("plugin:tailwindcss/recommended"),
     ...compat.extends("plugin:jsx-a11y/recommended"),
     {
+        plugins: {
+            import: (await import("eslint-plugin-import")).default,
+        },
         rules: {
             "tailwindcss/no-custom-classname": "off",
             "tailwindcss/classnames-order": "warn",
+            "import/no-unresolved": ["error", { ignore: ["^@/"] }],
+            "import/no-duplicates": "warn",
+        },
+        settings: {
+            "import/resolver": {
+                typescript: {
+                    alwaysTryTypes: true,
+                },
+            },
         },
     },
 ];

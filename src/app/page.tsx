@@ -8,16 +8,18 @@ import { HowItWorks } from "@/components/Landing/HowItWorks";
 import { LivePreviews } from "@/components/Landing/LivePreviews";
 
 export default function Home() {
-  const { user, loading } = useAuth();
+  const { user, userProfile, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (!loading && user) {
-      router.replace("/dashboard");
+      if (userProfile?.role !== "admin") {
+        router.replace("/dashboard");
+      }
     }
-  }, [loading, router, user]);
+  }, [loading, router, user, userProfile]);
 
-  if (loading || user) {
+  if (loading || (user && userProfile?.role !== "admin")) {
     return (
       <div className="absolute inset-0 overflow-hidden flex flex-col items-center justify-center z-10">
         <div className="w-8 h-8 rounded-full border-2 border-brand-purple border-t-transparent animate-spin" />

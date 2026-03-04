@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
 import { motion, AnimatePresence } from "framer-motion";
 import { sendGAEvent } from "@next/third-parties/google";
-import { GuestBlurOverlay } from "@/components/Auth/GuestBlurOverlay";
+import { GuestComponentBlur } from "@/components/Auth/GuestComponentBlur";
 
 interface PurchaseModalProps {
   isOpen: boolean;
@@ -114,7 +114,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                   <X className="w-5 h-5" />
                 </button>
 
-                <GuestBlurOverlay className="min-h-[400px]">
+                <GuestComponentBlur actionText="Sign in to Purchase">
                   {!success ? (
                     <div>
                       <div className="text-center mb-8 pt-4">
@@ -203,7 +203,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                       <button onClick={closeModal} className="w-full py-3 rounded-xl font-bold bg-white text-black transition-colors">Awesome</button>
                     </div>
                   )}
-                </GuestBlurOverlay>
+                </GuestComponentBlur>
               </motion.div>
             </div>
           </div>

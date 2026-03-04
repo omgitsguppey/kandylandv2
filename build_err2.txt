@@ -1,0 +1,33 @@
+﻿Γû▓ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+System.Management.Automation.RemoteException
+> Build error occurred
+Error: Turbopack build failed with 1 errors:
+./src/components/PurchaseModal.tsx:12:1
+Module not found: Can't resolve '@/components/Auth/GuestBlurOverlay'
+[0m [90m 10 |[39m [36mimport[39m { motion[33m,[39m [33mAnimatePresence[39m } [36mfrom[39m [32m"framer-motion"[39m[33m;[39m
+ [90m 11 |[39m [36mimport[39m { sendGAEvent } [36mfrom[39m [32m"@next/third-parties/google"[39m[33m;[39m
+[31m[1m>[22m[39m[90m 12 |[39m [36mimport[39m { [33mGuestBlurOverlay[39m } [36mfrom[39m [32m"@/components/Auth/GuestBlurOverlay"[39m[33m;[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 13 |[39m
+ [90m 14 |[39m [36minterface[39m [33mPurchaseModalProps[39m {
+ [90m 15 |[39m   isOpen[33m:[39m boolean[33m;[39m[0m
+System.Management.Automation.RemoteException
+Import map: aliased to relative './src/components/Auth/GuestBlurOverlay' inside of [project]/
+System.Management.Automation.RemoteException
+System.Management.Automation.RemoteException
+Import trace:
+  Client Component Browser:
+    ./src/components/PurchaseModal.tsx [Client Component Browser]
+    ./src/components/GlobalPurchaseModal.tsx [Client Component Browser]
+    ./src/components/CoreLayoutWrapper.tsx [Client Component Browser]
+    ./src/components/CoreLayoutWrapper.tsx [Server Component]
+    ./src/app/layout.tsx [Server Component]
+System.Management.Automation.RemoteException
+https://nextjs.org/docs/messages/module-not-found
+System.Management.Automation.RemoteException
+System.Management.Automation.RemoteException
+    at <unknown> (./src/components/PurchaseModal.tsx:12:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)

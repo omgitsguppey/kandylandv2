@@ -4,6 +4,7 @@ import { Home, Candy, Wallet, Sparkles, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { app } from "@/lib/firebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
@@ -23,6 +24,7 @@ function triggerHaptic() {
 
 export default function MobileBottomBar() {
     const pathname = usePathname();
+    const { user, userProfile } = useAuth();
     const { openPurchaseModal, isPurchaseModalOpen } = useUI();
 
     if (pathname?.startsWith("/admin")) {
@@ -39,6 +41,13 @@ export default function MobileBottomBar() {
                 style={{ WebkitBackdropFilter: "blur(20px)" }}
             >
                 {NAV_ITEMS.map((item) => {
+                    const isAdmin = userProfile?.role === "admin";
+                    const isGuest = !user;
+
+                    // Role-based visibility
+                    if (item.label === "Dashboard" && isGuest) return null;
+                    if (item.label === "Home" && !isGuest && !isAdmin) return null;
+
                     const Icon = item.icon;
                     const isActive = pathname === item.href;
 

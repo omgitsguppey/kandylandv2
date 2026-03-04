@@ -150,8 +150,8 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 <div className="w-full max-w-md bg-zinc-900 border border-white/10 rounded-3xl shadow-2xl pointer-events-auto overflow-hidden">
                     {/* Header */}
                     <div className="relative p-6 border-b border-white/5">
-                        <h2 className="text-2xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-brand-purple">
-                            {mode === "signin" ? "Welcome Back" : mode === "signup" ? "Join the Drop" : "Reset Password"}
+                        <h2 className="text-2xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-purple-400">
+                            {mode === "signin" ? "Welcome Back" : mode === "signup" ? "Get iKandy" : "Reset Password"}
                         </h2>
                         <button
                             onClick={onClose}
@@ -248,7 +248,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                                     <button
                                         type="submit"
                                         disabled={isLoading}
-                                        className="w-full py-3 bg-gradient-to-r from-brand-purple to-brand-purple rounded-xl text-white font-bold shadow-lg shadow-brand-purple/20 active:scale-[0.98] transition-all disabled:opacity-50"
+                                        className="w-full py-3 bg-brand-purple rounded-xl text-black font-bold shadow-lg shadow-brand-purple/20 active:scale-[0.98] transition-all disabled:opacity-50 hover:bg-white"
                                     >
                                         {isLoading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : "Send Reset Link"}
                                     </button>
@@ -353,14 +353,14 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="w-full py-3 bg-gradient-to-r from-brand-purple to-brand-purple rounded-xl text-white font-bold shadow-lg shadow-brand-purple/20 active:scale-[0.98] transition-all disabled:opacity-50 disabled:"
+                                    className="w-full py-3 bg-brand-purple rounded-xl text-black font-extrabold shadow-lg shadow-brand-purple/20 active:scale-[0.98] transition-all disabled:opacity-50 hover:bg-white text-lg tracking-tight"
                                 >
                                     {isLoading ? (
                                         <Loader2 className="w-5 h-5 animate-spin mx-auto" />
                                     ) : mode === "signin" ? (
                                         "Sign In"
                                     ) : (
-                                        "Create Account"
+                                        "Unlock Access"
                                     )}
                                 </button>
                             </form>

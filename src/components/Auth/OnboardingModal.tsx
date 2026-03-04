@@ -221,10 +221,10 @@ export function OnboardingModal() {
                         <div className="p-2 bg-brand-purple/20 rounded-lg">
                             <Sparkles className="w-6 h-6 text-brand-purple" />
                         </div>
-                        <h2 className="text-2xl font-bold text-white">Welcome to KandyDrops</h2>
+                        <h2 className="text-2xl font-bold tracking-tight text-white">Your iKandy Profile</h2>
                     </div>
-                    <div className="flex justify-between items-end">
-                        <p className="text-gray-400">Let's set up your profile to get you started.</p>
+                    <div className="flex justify-between items-end mt-1">
+                        <p className="text-gray-400 text-sm">Set up your identity to start unwrapping exclusive content.</p>
                         {!showSuccess && (
                             <span className="text-xs font-bold text-brand-purple bg-brand-purple/10 px-2 py-1 rounded-md">
                                 Step {step} of 3
@@ -304,7 +304,7 @@ export function OnboardingModal() {
                                 <button
                                     type="button"
                                     onClick={nextStep}
-                                    className="w-full py-4 bg-white text-black font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
+                                    className="w-full py-4 bg-brand-purple text-black font-extrabold rounded-xl hover:bg-white transition-colors flex items-center justify-center gap-2"
                                 >
                                     Next Step <ArrowRight className="w-4 h-4" />
                                 </button>
@@ -338,7 +338,7 @@ export function OnboardingModal() {
                                 <button
                                     type="button"
                                     onClick={nextStep}
-                                    className="w-full py-4 bg-white text-black font-bold rounded-xl transition-colors"
+                                    className="w-full py-4 bg-brand-purple hover:bg-white text-black font-extrabold rounded-xl transition-colors"
                                 >
                                     Continue
                                 </button>
@@ -359,7 +359,7 @@ export function OnboardingModal() {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="w-full py-4 bg-gradient-to-r from-brand-purple to-brand-purple text-white font-bold rounded-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                    className="w-full py-4 bg-brand-purple text-black hover:bg-white font-extrabold rounded-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                                 >
                                     {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Complete Setup"}
                                 </button>

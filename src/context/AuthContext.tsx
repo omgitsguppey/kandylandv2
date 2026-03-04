@@ -15,10 +15,9 @@ import {
 import { auth, app } from "@/lib/firebase";
 import { UserProfile } from "@/types/db";
 import { normalizeUserProfile } from "@/lib/user-utils";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
-import { getAnalytics, logEvent } from "firebase/analytics";
 
 interface AuthIdentityContextType {
     user: User | null;
@@ -66,6 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
+    const pathname = usePathname();
 
     useEffect(() => {
         ensureAuthPersistence().catch(() => { });
@@ -156,18 +156,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             await signInWithPopup(auth, provider);
 
-            try {
-                const analytics = getAnalytics(app);
-                logEvent(analytics, 'user_login', { method: 'google' });
-            } catch (err) { }
-
             toast.success("Welcome back!");
-            router.push("/dashboard");
+            if (pathname === "/") {
+                router.push("/dashboard");
+            }
         } catch (error: unknown) {
-            try {
-                const analytics = getAnalytics(app);
-                logEvent(analytics, 'login_failure', { method: 'google', error: error instanceof Error ? error.message : "unknown" });
-            } catch (err) { }
             const message = error instanceof Error ? error.message : "Login failed";
             toast.error(message);
             throw error;
@@ -179,18 +172,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             await ensureAuthPersistence();
             await signInWithEmailAndPassword(auth, email, pass);
 
-            try {
-                const analytics = getAnalytics(app);
-                logEvent(analytics, 'user_login', { method: 'email' });
-            } catch (err) { }
 
             toast.success("Welcome back!");
-            router.push("/dashboard");
+            if (pathname === "/") {
+                router.push("/dashboard");
+            }
         } catch (error: unknown) {
-            try {
-                const analytics = getAnalytics(app);
-                logEvent(analytics, 'login_failure', { method: 'email', error: error instanceof Error ? error.message : "unknown" });
-            } catch (err) { }
             throw error;
         }
     };
@@ -216,18 +203,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 throw new Error(result.error || "Registration failed");
             }
 
-            try {
-                const analytics = getAnalytics(app);
-                logEvent(analytics, 'user_login', { method: 'email_signup' });
-            } catch (err) { }
 
             toast.success("Account created! +100 Gum Drops");
-            router.push("/dashboard");
+            if (pathname === "/") {
+                router.push("/dashboard");
+            }
         } catch (error: unknown) {
-            try {
-                const analytics = getAnalytics(app);
-                logEvent(analytics, 'login_failure', { method: 'email_signup', error: error instanceof Error ? error.message : "unknown" });
-            } catch (err) { }
             throw error;
         }
     };

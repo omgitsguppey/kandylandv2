@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["lucide-react", "date-fns", "framer-motion"],
   },
-  // Output: "export" removed to enable Dynamic SSR / Image Optimization
+  serverExternalPackages: ["firebase-admin"],
   images: {
     // Unoptimized: true removed to allow Next.js server-side optimization
     remotePatterns: [
