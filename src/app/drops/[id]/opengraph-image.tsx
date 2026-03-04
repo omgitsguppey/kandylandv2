@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { getDropRaw } from "@/lib/server/drops";
 
-export const runtime = "edge"; // Next.js edge runtime for fast OG generation
+export const runtime = "nodejs"; // firebase-admin requires Node.js runtime
 export const alt = "KandyDrops exclusive content preview";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -16,7 +16,7 @@ export default async function Image({ params }: { params: { id: string } }) {
                     <div style={{
                         display: "flex", background: "#09090b", width: "100%", height: "100%", flexDirection: "column", alignItems: "center", justifyContent: "center"
                     }}>
-                        <h1 style={{ color: "#ec4899", fontSize: 64, fontWeight: "bold" }}>Drop Not Found</h1>
+                        <h1 style={{ color: "#b28cff", fontSize: 64, fontWeight: "bold" }}>Drop Not Found</h1>
                         <p style={{ color: "#a1a1aa", fontSize: 32 }}>KandyDrops</p>
                     </div>
                 ),
@@ -57,7 +57,7 @@ export default async function Image({ params }: { params: { id: string } }) {
                             <div style={{
                                 display: "flex", background: "rgba(236, 72, 153, 0.2)",
                                 border: "2px solid rgba(236, 72, 153, 0.5)", borderRadius: 40,
-                                padding: "10px 30px", fontSize: 36, fontWeight: "bold", color: "#ec4899"
+                                padding: "10px 30px", fontSize: 36, fontWeight: "bold", color: "#b28cff"
                             }}>
                                 Unlock for {drop.unlockCost} GD
                             </div>
