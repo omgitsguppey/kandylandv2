@@ -5,6 +5,7 @@ import { ChevronRight, TrendingUp } from "lucide-react";
 import { AdminStatsBar } from "@/components/Admin/AdminStatsBar";
 import { TopDropsPanel } from "@/components/Admin/TopDropsPanel";
 import { RecentTransactionsPanel } from "@/components/Admin/RecentTransactionsPanel";
+import { AdminActivityLogPanel } from "@/components/Admin/AdminActivityLogPanel";
 
 export default function AdminDashboardPage() {
     return (
@@ -38,6 +39,7 @@ export default function AdminDashboardPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <TopDropsPanel />
                 <RecentTransactionsPanel />
+                <AdminActivityLogPanel />
             </div>
         </div>
     );

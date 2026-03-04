@@ -11,6 +11,7 @@ import { Lock } from "lucide-react";
 import { DropPreviewModal } from "@/components/DropPreviewModal";
 import { useDrops } from "@/hooks/useDrops";
 import { KandyDropsAccountOverview, AccountOverviewState } from "@/components/KandyDropsAccountOverview";
+import { useEffect, useRef } from "react";
 
 const CATEGORIES = ["All", "New", "Ending Soon", "Hottest", "Sweet", "Spicy", "RAW"];
 
@@ -83,7 +84,26 @@ function buildAccountOverviewViewModel(params: {
 export function DropsClient({ initialDrops }: DropsClientProps) {
     const { user, userProfile, loading: authLoading } = useAuth();
     const { openAuthModal, openPurchaseModal, openProfileSidebar } = useUI();
-    const { drops: liveDrops } = useDrops(["active", "scheduled"]);
+    const { drops: liveDrops, size, setSize, isLoadingMore, isReachingEnd } = useDrops(["active", "scheduled"], initialDrops);
+
+    const observerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && !isLoadingMore && !isReachingEnd) {
+                    setSize(size + 1);
+                }
+            },
+            { rootMargin: "200px" }
+        );
+
+        if (observerRef.current) {
+            observer.observe(observerRef.current);
+        }
+
+        return () => observer.disconnect();
+    }, [isLoadingMore, isReachingEnd, size, setSize]);
 
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("All");
@@ -209,6 +229,16 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
 
                     <div className={!authLoading && !user ? "opacity-30 pointer-events-none select-none grayscale transition-opacity duration-500" : ""}>
                         <DropGrid drops={filteredDrops} loading={false} isSearching={!!searchQuery} onSelectDrop={setPreviewDrop} />
+
+                        {/* Sentinel for infinite scrolling */}
+                        <div ref={observerRef} className="h-10 mt-8 flex items-center justify-center">
+                            {isLoadingMore && (
+                                <div className="w-6 h-6 rounded-full border-2 border-brand-pink border-t-transparent animate-spin" />
+                            )}
+                            {isReachingEnd && filteredDrops.length > 0 && (
+                                <p className="text-gray-500 text-sm font-medium">You've reached the end of the line.</p>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

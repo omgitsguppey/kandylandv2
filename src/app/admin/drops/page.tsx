@@ -23,6 +23,7 @@ interface DropNotificationDraft {
 
 export default function AdminDropsPage() {
     const [drops, setDrops] = useState<Drop[]>([]);
+    const [selectedDropIds, setSelectedDropIds] = useState<Set<string>>(new Set());
     const [loading, setLoading] = useState(true);
     const [notificationDraft, setNotificationDraft] = useState<DropNotificationDraft | null>(null);
     const [sendingNotification, setSendingNotification] = useState(false);
@@ -54,6 +55,38 @@ export default function AdminDropsPage() {
             } catch (err: any) {
                 console.error("Error deleting drop:", err);
                 toast.error(err.message || "Failed to delete drop.");
+            }
+        }
+    };
+
+    const toggleSelection = (id: string) => {
+        setSelectedDropIds((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    };
+
+    const toggleAll = () => {
+        if (selectedDropIds.size === drops.length && drops.length > 0) {
+            setSelectedDropIds(new Set());
+        } else {
+            setSelectedDropIds(new Set(drops.map((d) => d.id)));
+        }
+    };
+
+    const handleBulkDelete = async () => {
+        if (selectedDropIds.size === 0) return;
+        if (confirm(`Are you sure you want to delete ${selectedDropIds.size} drop(s)? This cannot be undone.`)) {
+            try {
+                const limit = Array.from(selectedDropIds);
+                await Promise.all(limit.map(id => authFetch("/api/admin/drops", { method: "DELETE", body: JSON.stringify({ dropId: id }) })));
+                toast.success(`Successfully deleted ${selectedDropIds.size} drop(s).`);
+                setSelectedDropIds(new Set());
+            } catch (err: any) {
+                console.error("Error bulk deleting drops:", err);
+                toast.error("One or more drops failed to delete.");
             }
         }
     };
@@ -142,10 +175,28 @@ export default function AdminDropsPage() {
             </header>
 
             <div className="glass-panel rounded-3xl overflow-hidden">
+                {selectedDropIds.size > 0 && (
+                    <div className="bg-brand-pink/10 px-6 py-4 flex items-center justify-between border-b border-brand-pink/20">
+                        <span className="text-white font-bold">{selectedDropIds.size} item(s) selected</span>
+                        <div className="flex items-center gap-3">
+                            <button onClick={handleBulkDelete} className="text-xs font-bold text-white bg-red-500 hover:bg-red-600 px-4 py-2 rounded-full transition-colors border border-red-500/20 flex gap-2 items-center">
+                                <Trash2 className="w-4 h-4" /> Bulk Delete
+                            </button>
+                        </div>
+                    </div>
+                )}
                 <div className="hidden md:block">
                     <table className="w-full text-left">
                         <thead className="bg-white/5 border-b border-white/5 text-gray-400 text-xs uppercase tracking-wider">
                             <tr>
+                                <th className="px-6 py-4 w-12">
+                                    <input
+                                        type="checkbox"
+                                        checked={drops.length > 0 && selectedDropIds.size === drops.length}
+                                        onChange={toggleAll}
+                                        className="w-4 h-4 rounded border-white/20 bg-black/50 accent-brand-pink cursor-pointer"
+                                    />
+                                </th>
                                 <th className="px-6 py-4 font-bold">Drop Details</th>
                                 <th className="px-6 py-4 font-bold">Schedule</th>
                                 <th className="px-6 py-4 font-bold">Cost</th>
@@ -168,7 +219,15 @@ export default function AdminDropsPage() {
                                 }
 
                                 return (
-                                    <tr key={drop.id} className="transition-colors group">
+                                    <tr key={drop.id} className="transition-colors group hover:bg-white/5 cursor-pointer" onClick={() => toggleSelection(drop.id)}>
+                                        <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedDropIds.has(drop.id)}
+                                                onChange={() => toggleSelection(drop.id)}
+                                                className="w-4 h-4 rounded border-white/20 bg-black/50 accent-brand-pink cursor-pointer"
+                                            />
+                                        </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-12 h-12 rounded-lg bg-zinc-800 overflow-hidden shrink-0 border border-white/10 relative">

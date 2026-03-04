@@ -21,11 +21,19 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     const { userProfile } = useAuth();
 
     useEffect(() => {
-        if (typeof window !== "undefined" && (window as any).gtag) {
-            if (userProfile?.role) {
+        if (typeof window !== "undefined") {
+            // Track user properties in GA
+            if ((window as any).gtag && userProfile?.role) {
                 (window as any).gtag("set", "user_properties", {
                     user_role: userProfile.role,
                 });
+            }
+
+            // Capture and store referral code from URL
+            const params = new URLSearchParams(window.location.search);
+            const refCode = params.get("ref");
+            if (refCode) {
+                sessionStorage.setItem("kandy_referral", refCode);
             }
         }
     }, [userProfile?.role]);

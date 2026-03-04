@@ -60,8 +60,26 @@ export function ContentViewer({ items, initialIndex = 0, isOpen, onClose }: Cont
     const goPrev = () => setIndex((prev) => (prev - 1 + itemCount) % itemCount);
     const goNext = () => setIndex((prev) => (prev + 1) % itemCount);
 
+    const [touchStartX, setTouchStartX] = useState<number | null>(null);
+    const handleTouchStart = (e: React.TouchEvent) => setTouchStartX(e.touches[0].clientX);
+    const handleTouchEnd = (e: React.TouchEvent) => {
+        if (touchStartX === null || !canNavigate) return;
+        const diff = touchStartX - e.changedTouches[0].clientX;
+        if (Math.abs(diff) > 50) {
+            if (diff > 0) goNext();
+            else goPrev();
+        }
+        setTouchStartX(null);
+    };
+
     const modal = (
-        <div className="fixed inset-0 z-[130]" role="dialog" aria-modal="true">
+        <div
+            className="fixed inset-0 z-[130]"
+            role="dialog"
+            aria-modal="true"
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+        >
             <button
                 type="button"
                 onClick={onClose}

@@ -120,6 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                             method: "POST",
                             body: JSON.stringify({
                                 displayName: user.displayName || "User",
+                                referredBy: typeof window !== "undefined" ? sessionStorage.getItem("kandy_referral") : undefined,
                             }),
                         });
                         // Do not set loading false here immediately; let the onSnapshot retry handle it 
@@ -192,6 +193,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 username: username.replace(/\s+/g, "").toLowerCase(),
                 dateOfBirth: dob,
                 welcomeBonus: true,
+                referredBy: typeof window !== "undefined" ? sessionStorage.getItem("kandy_referral") : undefined,
             }),
         });
 

@@ -2,6 +2,7 @@
 
 import { Component, ErrorInfo, ReactNode } from "react";
 import { AlertCircle, RefreshCw } from "lucide-react";
+import { captureException } from "@/lib/monitoring";
 
 
 interface Props {
@@ -25,6 +26,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
     public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
         console.error("Uncaught error:", error, errorInfo);
+        captureException(error, { componentStack: errorInfo.componentStack });
     }
 
     public render() {

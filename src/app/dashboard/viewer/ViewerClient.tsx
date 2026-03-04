@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { ArrowLeft, Lock, ShieldCheck, Loader2, ShoppingBag } from "lucide-react";
+import { ArrowLeft, Lock, ShieldCheck, Loader2, ShoppingBag, Download } from "lucide-react";
 
 import { toast } from "sonner";
 import { Drop } from "@/types/db";
@@ -360,124 +360,125 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                 {/* Media Container */}
                 <div
                     className={cn(
-                        "w-full min-h-[38vh] max-h-[70vh] max-w-5xl mx-auto bg-zinc-900 flex items-center justify-center relative group select-none transition-all duration-300 rounded-2xl border border-white/10 overflow-hidden",
-                        isSecurityTriggered ? "blur-2xl grayscale" : ""
+                        "w-full min-h-[38vh] max-h-[70vh] max-w-5xl mx-auto bg-zinc-900 flex items-center justify-center relative group select-none transition-all duration-300 rounded-2xl border border-white/10 overflow-hidden"
                     )}
                     onContextMenu={preventContextMenu}
                     style={{ WebkitUserSelect: "none", userSelect: "none", WebkitUserDrag: "none" } as any}
                 >
                     {/* Security Warning Overlay */}
                     {isSecurityTriggered && (
-                        <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
-                            <div className="bg-black/90 px-8 py-6 rounded-3xl flex flex-col items-center gap-4 border border-red-500/50 shadow-[0_0_50px_rgba(239,68,68,0.3)]">
-                                <ShieldCheck className="w-12 h-12 text-red-500 animate-pulse" />
+                        <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none bg-black/40 backdrop-blur-sm">
+                            <div className="bg-zinc-900/90 px-6 py-5 rounded-3xl flex flex-col items-center gap-3 border border-white/10 shadow-xl">
+                                <ShieldCheck className="w-10 h-10 text-brand-pink animate-pulse" />
                                 <div className="text-center">
-                                    <p className="text-white font-black tracking-widest text-xl mb-1">CONTENT PROTECTED</p>
-                                    <p className="text-sm text-red-400 font-medium">Recording capture detected.</p>
+                                    <p className="text-white font-bold text-lg mb-0.5">Content Protected</p>
+                                    <p className="text-xs text-gray-400 font-medium">Capture or recording detected.</p>
                                 </div>
                             </div>
                         </div>
                     )}
 
-                    {contentLoading ? (
-                        <div className="flex flex-col items-center gap-3">
-                            <Loader2 className="w-10 h-10 text-brand-pink animate-spin" />
-                            <p className="text-sm text-gray-400">Loading content...</p>
-                        </div>
-                    ) : contentBlobUrl ? (
-                        (() => {
-                            if (resolvedContent.kind === "video") {
-                                return (
-                                    <video
-                                        onDoubleClick={() => setViewerOpen(true)}
-                                        controls
-                                        controlsList="nodownload noplaybackrate"
-                                        disablePictureInPicture
-                                        className="w-full h-full max-h-[70vh] object-contain bg-black"
-                                        poster={drop.imageUrl}
-                                        autoPlay
-                                        playsInline
-                                        preload="auto"
-                                        onContextMenu={preventContextMenu}
-                                        draggable={false}
-                                        onPlay={() => {
-                                            sendGAEvent("event", "video_played", {
-                                                content_id: drop.id,
-                                                video_title: drop.title
-                                            });
-                                        }}
-                                    >
-                                        <source src={contentBlobUrl} type={resolvedContent.mimeType} />
-                                        {videoFallbackTypes.filter((type) => type !== resolvedContent.mimeType).map((type) => (
-                                            <source key={type} src={contentBlobUrl} type={type} />
-                                        ))}
-                                    </video>
-                                );
-                            } else if (resolvedContent.kind === "audio") {
-                                return (
-                                    <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-black relative">
-                                        <NextImage
-                                            src={drop.imageUrl}
-                                            alt="Album Art"
-                                            fill
-                                            className="object-cover opacity-30 blur-3xl"
-                                        />
-                                        <div className="relative z-10 w-48 h-48 md:w-64 md:h-64 rounded-2xl overflow-hidden shadow-2xl border border-white/10 mb-8">
-                                            <NextImage src={drop.imageUrl} alt="Art" fill priority className="object-cover" />
-                                        </div>
-                                        <audio
+                    <div className={cn("w-full h-full flex items-center justify-center transition-all duration-500", isSecurityTriggered ? "blur-xl opacity-50" : "")}>
+                        {contentLoading ? (
+                            <div className="flex flex-col items-center gap-3">
+                                <Loader2 className="w-10 h-10 text-brand-pink animate-spin" />
+                                <p className="text-sm text-gray-400">Loading content...</p>
+                            </div>
+                        ) : contentBlobUrl ? (
+                            (() => {
+                                if (resolvedContent.kind === "video") {
+                                    return (
+                                        <video
+                                            onDoubleClick={() => setViewerOpen(true)}
                                             controls
-                                            controlsList="nodownload"
-                                            className="relative z-10 w-[90%] max-w-md"
+                                            controlsList="nodownload noplaybackrate"
+                                            disablePictureInPicture
+                                            className="w-full h-full max-h-[70vh] object-contain bg-black"
+                                            poster={drop.imageUrl}
+                                            autoPlay
+                                            playsInline
+                                            preload="auto"
                                             onContextMenu={preventContextMenu}
+                                            draggable={false}
+                                            onPlay={() => {
+                                                sendGAEvent("event", "video_played", {
+                                                    content_id: drop.id,
+                                                    video_title: drop.title
+                                                });
+                                            }}
                                         >
                                             <source src={contentBlobUrl} type={resolvedContent.mimeType} />
-                                            {audioFallbackTypes.filter((type) => type !== resolvedContent.mimeType).map((type) => (
+                                            {videoFallbackTypes.filter((type) => type !== resolvedContent.mimeType).map((type) => (
                                                 <source key={type} src={contentBlobUrl} type={type} />
                                             ))}
-                                        </audio>
-                                    </div>
-                                );
-                            } else if (resolvedContent.kind === "image") {
-                                return (
-                                    <button type="button" onClick={() => setViewerOpen(true)} className="relative w-full h-full bg-black">
-                                        <img
-                                            src={contentBlobUrl}
-                                            alt="Content"
-                                            className="w-full h-full object-contain"
-                                            draggable={false}
-                                            onContextMenu={preventContextMenu}
-                                        />
-                                    </button>
-                                );
-                            } else if (resolvedContent.kind === "pdf") {
-                                return (
-                                    <div className="w-full h-[85vh] bg-white rounded-md overflow-hidden">
-                                        <object
-                                            data={contentBlobUrl}
-                                            type="application/pdf"
-                                            className="w-full h-full"
-                                        >
-                                            <p className="p-4 text-black text-center">
-                                                Your browser doesn't support built-in PDF viewing.
-                                            </p>
-                                        </object>
-                                    </div>
-                                );
-                            } else {
-                                return (
-                                    <div className="text-center p-10">
-                                        <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
-                                            <ShieldCheck className="w-10 h-10 text-gray-400" />
+                                        </video>
+                                    );
+                                } else if (resolvedContent.kind === "audio") {
+                                    return (
+                                        <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-black relative">
+                                            <NextImage
+                                                src={drop.imageUrl}
+                                                alt="Album Art"
+                                                fill
+                                                className="object-cover opacity-30 blur-3xl"
+                                            />
+                                            <div className="relative z-10 w-48 h-48 md:w-64 md:h-64 rounded-2xl overflow-hidden shadow-2xl border border-white/10 mb-8">
+                                                <NextImage src={drop.imageUrl} alt="Art" fill priority className="object-cover" />
+                                            </div>
+                                            <audio
+                                                controls
+                                                controlsList="nodownload"
+                                                className="relative z-10 w-[90%] max-w-md"
+                                                onContextMenu={preventContextMenu}
+                                            >
+                                                <source src={contentBlobUrl} type={resolvedContent.mimeType} />
+                                                {audioFallbackTypes.filter((type) => type !== resolvedContent.mimeType).map((type) => (
+                                                    <source key={type} src={contentBlobUrl} type={type} />
+                                                ))}
+                                            </audio>
                                         </div>
-                                        <p className="text-gray-400">File Preview Not Available</p>
-                                    </div>
-                                );
-                            }
-                        })()
-                    ) : (
-                        <div className="text-gray-500">Content Unavailable</div>
-                    )}
+                                    );
+                                } else if (resolvedContent.kind === "image") {
+                                    return (
+                                        <button type="button" onClick={() => setViewerOpen(true)} className="relative w-full h-full bg-black">
+                                            <img
+                                                src={contentBlobUrl}
+                                                alt="Content"
+                                                className="w-full h-full object-contain"
+                                                draggable={false}
+                                                onContextMenu={preventContextMenu}
+                                            />
+                                        </button>
+                                    );
+                                } else if (resolvedContent.kind === "pdf") {
+                                    return (
+                                        <div className="w-full h-[85vh] bg-white rounded-md overflow-hidden">
+                                            <object
+                                                data={contentBlobUrl}
+                                                type="application/pdf"
+                                                className="w-full h-full"
+                                            >
+                                                <p className="p-4 text-black text-center">
+                                                    Your browser doesn't support built-in PDF viewing.
+                                                </p>
+                                            </object>
+                                        </div>
+                                    );
+                                } else {
+                                    return (
+                                        <div className="text-center p-10">
+                                            <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                <ShieldCheck className="w-10 h-10 text-gray-400" />
+                                            </div>
+                                            <p className="text-gray-400">File Preview Not Available</p>
+                                        </div>
+                                    );
+                                }
+                            })()
+                        ) : (
+                            <div className="text-gray-500">Content Unavailable</div>
+                        )}
+                    </div>
                 </div>
             </div>
 
@@ -517,6 +518,16 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
 
                     {/* 3. Navigation */}
                     <div className="flex flex-col gap-3 w-full md:w-auto min-w-[200px]">
+                        {user.uid === drop.creatorId && contentBlobUrl && (
+                            <a
+                                href={contentBlobUrl}
+                                download={drop.title}
+                                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-sm flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-sm mt-1 hover:bg-white/10"
+                            >
+                                <Download className="w-4 h-4" />
+                                <span>Download Source</span>
+                            </a>
+                        )}
                         <Link
                             href="/drops"
                             className="w-full px-4 py-3 rounded-xl bg-white text-black font-black text-sm flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.2)] mt-1"

@@ -9,6 +9,9 @@ import { Loader2, Save, User, AtSign, Bell, Globe, ShieldAlert, Mail, Camera, Lo
 import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";
 import Image from "next/image";
+import { storage } from "@/lib/firebase-data";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { SITE_ORIGIN } from "@/lib/firebase";
 
 const TIMEZONE_OPTIONS = [
     "Auto",
@@ -146,6 +149,7 @@ export default function ProfilePage() {
     const [saveFeedback, setSaveFeedback] = useState<string | null>(null);
     const [isDownloading, setIsDownloading] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
     useEffect(() => {
         setFormState(normalizedInitialState);
@@ -229,8 +233,33 @@ export default function ProfilePage() {
         }
     };
 
-    const handleChangeAvatar = () => {
-        toast.info("Avatar upload is coming soon.");
+    const handleChangeAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !user) return;
+
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error("Image must be less than 5MB");
+            return;
+        }
+
+        setIsUploadingAvatar(true);
+        try {
+            const ext = file.name.split('.').pop() || 'jpg';
+            const storageRef = ref(storage, `avatars/${user.uid}.${ext}`);
+            await uploadBytes(storageRef, file);
+            const downloadUrl = await getDownloadURL(storageRef);
+
+            await updateProfile(user, { photoURL: downloadUrl });
+
+            toast.success("Avatar updated successfully! Refreshing...");
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        } catch (error: any) {
+            toast.error("Failed to upload avatar: " + error.message);
+        } finally {
+            setIsUploadingAvatar(false);
+        }
     };
 
     const handleSignOutAllSessions = async () => {
@@ -299,7 +328,23 @@ export default function ProfilePage() {
             <form onSubmit={handleSave} className="space-y-4">
                 <SectionCard title="Profile">
                     <div className="flex items-center gap-4">
-                        <div className="relative h-20 w-20 rounded-full overflow-hidden border border-white/10 bg-black/40 shrink-0">
+                        <div className="group relative h-20 w-20 rounded-full overflow-hidden border border-white/10 bg-black/40 shrink-0 cursor-pointer">
+                            <input
+                                type="file"
+                                accept="image/*"
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                onChange={handleChangeAvatar}
+                                disabled={isUploadingAvatar}
+                            />
+                            {isUploadingAvatar ? (
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-20">
+                                    <Loader2 className="w-6 h-6 animate-spin text-white" />
+                                </div>
+                            ) : (
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity z-0">
+                                    <Camera className="w-6 h-6 text-white" />
+                                </div>
+                            )}
                             {user?.photoURL ? (
                                 <Image src={user.photoURL} alt="Avatar" fill sizes="80px" className="object-cover" />
                             ) : (
@@ -406,6 +451,49 @@ export default function ProfilePage() {
                     />
                 </SectionCard>
 
+                <SectionCard title="Refer a Friend">
+                    <div className="rounded-xl border border-brand-pink/20 bg-brand-pink/5 p-4 flex flex-col gap-3">
+                        <p className="text-sm text-gray-300">Invite your friends! You both get <strong className="text-brand-pink">25 Gum Drops</strong> when they sign up.</p>
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                readOnly
+                                value={`${SITE_ORIGIN}?ref=${user?.uid || ""}`}
+                                className="flex-1 bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-white text-sm"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    navigator.clipboard.writeText(`${SITE_ORIGIN}?ref=${user?.uid || ""}`);
+                                    toast.success("Referral link copied!");
+                                }}
+                                className="px-4 py-2 bg-white text-black font-bold rounded-xl active:scale-95 transition-transform text-sm whitespace-nowrap"
+                            >
+                                Copy Link
+                            </button>
+                        </div>
+                    </div>
+                </SectionCard>
+
+                <SectionCard title="Account Stats">
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="rounded-xl border border-white/5 bg-black/25 p-4 flex flex-col justify-center items-center text-center">
+                            <span className="text-2xl font-black text-white">{userProfile?.gumDropsBalance || 0}</span>
+                            <span className="text-xs text-gray-400 font-medium mt-1">Gum Drops Held</span>
+                        </div>
+                        <div className="rounded-xl border border-white/5 bg-black/25 p-4 flex flex-col justify-center items-center text-center">
+                            <span className="text-2xl font-black text-white">{userProfile?.unlockedContent?.length || 0}</span>
+                            <span className="text-xs text-gray-400 font-medium mt-1">Drops Unlocked</span>
+                        </div>
+                        <div className="col-span-2 rounded-xl border border-white/5 bg-black/25 p-4 flex flex-col justify-center items-center text-center">
+                            <span className="text-lg font-bold text-white">
+                                {userProfile?.createdAt ? new Date(userProfile.createdAt).toLocaleDateString([], { month: 'long', year: 'numeric' }) : "Recently"}
+                            </span>
+                            <span className="text-xs text-gray-400 font-medium mt-1">Member Since</span>
+                        </div>
+                    </div>
+                </SectionCard>
+
                 <SectionCard title="Data & Security">
                     <div className="flex flex-col gap-3">
                         <Button type="button" variant="glass" onClick={handleDownloadData} disabled={isDownloading} className="justify-center border-white/20 hover:bg-white/10">
@@ -415,15 +503,19 @@ export default function ProfilePage() {
                         <Button type="button" variant="glass" onClick={logout} className="justify-center border-white/20 hover:bg-white/10">
                             <LogOut className="w-4 h-4 mr-2 text-gray-400" /> Sign out
                         </Button>
-                        <div className="pt-4 mt-2 border-t border-red-500/20">
-                            <Button type="button" variant="glass" onClick={handleRequestDeletion} disabled={isDeleting} className="w-full text-red-500 justify-center border-red-500/20 hover:bg-red-500/10">
-                                {isDeleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
-                                Delete Account
-                            </Button>
-                            <p className="text-xs text-gray-500 text-center mt-2">Permenantly deletes your profile and all collected drops.</p>
-                        </div>
                     </div>
                 </SectionCard>
+
+                <section className="rounded-2xl border border-red-500/30 bg-red-500/5 p-4 md:p-5 space-y-4">
+                    <h2 className="text-base md:text-lg font-bold text-red-500 flex items-center gap-2">
+                        <ShieldAlert className="w-5 h-5" /> Danger Zone
+                    </h2>
+                    <p className="text-sm text-red-400/80 mb-4">Are you incredibly sure? This will permanently delete your account, your KandyDrops collection, and your entire data profile. This cannot be undone.</p>
+                    <Button type="button" variant="glass" onClick={handleRequestDeletion} disabled={isDeleting} className="w-full text-red-500 justify-center border-red-500/30 hover:bg-red-500/10 hover:border-red-500/50 transition-colors">
+                        {isDeleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
+                        Delete Account
+                    </Button>
+                </section>
 
                 <div className="sticky bottom-[calc(68px+env(safe-area-inset-bottom))] z-10 pt-1">
                     <div className="rounded-2xl border border-white/10 bg-black/70 backdrop-blur-md p-3">

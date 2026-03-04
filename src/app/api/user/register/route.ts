@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });
         }
 
-        const { username, dateOfBirth, displayName } = await request.json();
+        const { username, dateOfBirth, displayName, referredBy } = await request.json();
 
         const userRef = adminDb.collection("users").doc(caller.uid);
         const existingSnap = await userRef.get();
@@ -73,6 +73,36 @@ export async function POST(request: NextRequest) {
         if (dateOfBirth) newProfile.dateOfBirth = dateOfBirth;
 
         await userRef.set(newProfile, { merge: true });
+
+        // Handle referral logic
+        if (referredBy && typeof referredBy === "string" && referredBy !== caller.uid) {
+            try {
+                const referrerRef = adminDb.collection("users").doc(referredBy);
+                const referrerSnap = await referrerRef.get();
+                if (referrerSnap.exists) {
+                    // Update referrer balance
+                    await referrerRef.update({
+                        gumDropsBalance: FieldValue.increment(25)
+                    });
+
+                    // Create transaction record for referrer
+                    const transactionRef = adminDb.collection("transactions").doc();
+                    await transactionRef.set({
+                        userId: referredBy,
+                        type: "referral_bonus",
+                        amount: 25,
+                        timestamp: Date.now(),
+                        description: `Referral bonus for inviting ${displayName || "a new user"}`,
+                        metadata: {
+                            referredUserId: caller.uid
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error("Failed to process referral bonus:", err);
+                // Do not fail registration if referral processing fails
+            }
+        }
 
         return NextResponse.json({ success: true, welcomeBonus: 50 });
     } catch (error) {
