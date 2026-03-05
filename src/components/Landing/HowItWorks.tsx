@@ -2,10 +2,19 @@
 
 import { useUI } from "@/context/UIContext";
 import { Lock, Eye, Heart, Zap } from "lucide-react";
-import { EditableImage } from "@/components/Admin/EditableImage";
+import Image from "next/image";
+import { useDrops } from "@/hooks/useDrops";
 
 export function HowItWorks() {
     const { openAuthModal } = useUI();
+    const { drops } = useDrops();
+
+    const curatedImages = [
+        drops[0]?.imageUrl || "/placeholder-square.jpg",
+        drops[1]?.imageUrl || "/placeholder-square.jpg",
+        drops[2]?.imageUrl || "/placeholder-square.jpg",
+        drops[3]?.imageUrl || "/placeholder-square.jpg",
+    ];
 
     const features = [
         {
@@ -70,32 +79,44 @@ export function HowItWorks() {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-4">
-                                <EditableImage
-                                    id="landing-how-1"
-                                    defaultSrc="/placeholder-square.jpg" // Will fall back to whatever is available
-                                    alt="Creator content"
-                                    className="w-full aspect-[4/5] rounded-3xl object-cover border border-white/10"
-                                />
-                                <EditableImage
-                                    id="landing-how-2"
-                                    defaultSrc="/placeholder-square.jpg"
-                                    alt="Creator content"
-                                    className="w-full aspect-square rounded-3xl object-cover border border-white/10"
-                                />
+                                <div className="relative w-full aspect-[4/5] rounded-3xl overflow-hidden border border-white/10 bg-zinc-900">
+                                    <Image
+                                        src={curatedImages[0]}
+                                        alt="Creator content"
+                                        fill
+                                        sizes="(max-width: 768px) 50vw, 25vw"
+                                        className="object-cover"
+                                    />
+                                </div>
+                                <div className="relative w-full aspect-square rounded-3xl overflow-hidden border border-white/10 bg-zinc-900">
+                                    <Image
+                                        src={curatedImages[1]}
+                                        alt="Creator content"
+                                        fill
+                                        sizes="(max-width: 768px) 50vw, 25vw"
+                                        className="object-cover"
+                                    />
+                                </div>
                             </div>
                             <div className="space-y-4 mt-8">
-                                <EditableImage
-                                    id="landing-how-3"
-                                    defaultSrc="/placeholder-square.jpg"
-                                    alt="Creator content"
-                                    className="w-full aspect-square rounded-3xl object-cover border border-white/10"
-                                />
-                                <EditableImage
-                                    id="landing-how-4"
-                                    defaultSrc="/placeholder-square.jpg"
-                                    alt="Creator content"
-                                    className="w-full aspect-[4/5] rounded-3xl object-cover border border-white/10"
-                                />
+                                <div className="relative w-full aspect-square rounded-3xl overflow-hidden border border-white/10 bg-zinc-900">
+                                    <Image
+                                        src={curatedImages[2]}
+                                        alt="Creator content"
+                                        fill
+                                        sizes="(max-width: 768px) 50vw, 25vw"
+                                        className="object-cover"
+                                    />
+                                </div>
+                                <div className="relative w-full aspect-[4/5] rounded-3xl overflow-hidden border border-white/10 bg-zinc-900">
+                                    <Image
+                                        src={curatedImages[3]}
+                                        alt="Creator content"
+                                        fill
+                                        sizes="(max-width: 768px) 50vw, 25vw"
+                                        className="object-cover"
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
