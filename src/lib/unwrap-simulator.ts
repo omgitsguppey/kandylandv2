@@ -100,3 +100,22 @@ export function getSimulatedUnwrapsToday(dropId: string | undefined | null): num
 
     return currentUnwraps;
 }
+
+/**
+ * Retrieves a large, simulated platform-wide "Unwraps Today" count.
+ * Used for the Landing Page Hero Activity Ticker to build instant FOMO.
+ * Base starting parameters: 120-340 (Midnight)
+ * Peak EOD parameters: 9400-15800 (11PM)
+ */
+export function getSimulatedPlatformUnwrapsToday(): number {
+    const { hour, daySeed } = getCSTTime();
+
+    // Use a hardcoded generic ID string to ensure a distinct deterministic seed from drops
+    const baseline = generateDeterministicBase("PLATFORM_TOTAL", daySeed, 120, 340);
+    const peakCap = generateDeterministicBase("PLATFORM_TOTAL", daySeed, 9400, 15800);
+
+    const progress = hour / 23; 
+    const currentFactor = Math.pow(progress, 1.3); // Slightly faster initial curve than individual drops
+    
+    return Math.floor(baseline + (peakCap - baseline) * currentFactor);
+}

@@ -8,6 +8,8 @@ import { useAuthIdentity } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { HomeDropTicker } from "@/components/HomeDropTicker";
 import { EditableImage } from "@/components/Admin/EditableImage";
+import { getSimulatedPlatformUnwrapsToday } from "@/lib/unwrap-simulator";
+import { useEffect, useState } from "react";
 
 export default function Hero() {
     const { user } = useAuthIdentity();
@@ -65,6 +67,10 @@ export default function Hero() {
                         </Link>
                     </div>
 
+                    <div className="pt-2 pb-2">
+                        <ActivityTicker />
+                    </div>
+
                     <div className="pt-4 border-t border-white/10 w-4/5 pt-8">
                         <p className="text-sm text-gray-400 font-medium mb-4">Latest Unwraps</p>
                         <HomeDropTicker />
@@ -103,5 +109,35 @@ export default function Hero() {
                 </div>
             </div>
         </section>
+    );
+}
+
+function ActivityTicker() {
+    const [platformCount, setPlatformCount] = useState(0);
+
+    useEffect(() => {
+        // Hydrate only on client so the server doesn't mismatch CST timezone
+        setPlatformCount(getSimulatedPlatformUnwrapsToday());
+
+        // Update every 5 minutes just in case they leave it open
+        const interval = setInterval(() => {
+            setPlatformCount(getSimulatedPlatformUnwrapsToday());
+        }, 300000);
+
+        return () => clearInterval(interval);
+    }, []);
+
+    if (!platformCount) return null;
+
+    return (
+        <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/10 shadow-lg backdrop-blur-md">
+            <div className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+            </div>
+            <span className="text-sm font-semibold text-white/90">
+                🚀 <span className="text-white font-bold">{platformCount.toLocaleString()}</span> users are unwrapping drops right now
+            </span>
+        </div>
     );
 }

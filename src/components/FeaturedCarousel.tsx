@@ -4,8 +4,9 @@ import { Drop } from "@/types/db";
 import { useState, useRef, useEffect, useMemo, useCallback, type TouchEventHandler } from "react";
 import { cn } from "@/lib/utils";
 import NextImage from "next/image";
-import { Clock, ChevronRight } from "lucide-react";
+import { Clock, ChevronRight, Eye } from "lucide-react";
 import { getSupportedDropAspectRatio } from "@/lib/drop-presentation";
+import { getSimulatedUnwrapsToday } from "@/lib/unwrap-simulator";
 
 import { useUserProfile } from "@/context/AuthContext";
 
@@ -166,8 +167,12 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
                                 <h3 className="text-2xl font-bold text-white leading-tight">{drop.title}</h3>
                                 <p className="text-sm text-gray-300 line-clamp-2">{drop.description}</p>
 
+                                <div className="flex items-center gap-1.5 opacity-80 text-xs font-semibold text-white/90 pb-1">
+                                    <Eye className="w-3.5 h-3.5 text-[#b28cff]" />
+                                    <span>{getSimulatedUnwrapsToday(drop.id)} unwrapped today</span>
+                                </div>
 
-                                <div className="pt-2 flex items-center gap-3">
+                                <div className="pt-1 flex items-center gap-3">
                                     {userProfile?.unlockedContent?.includes(drop.id) ? (
                                         <div className="px-3 py-1.5 bg-brand-purple/20 border border-brand-purple/30 rounded-lg text-brand-purple font-bold text-sm">View Content</div>
                                     ) : (
