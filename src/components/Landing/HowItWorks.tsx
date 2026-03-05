@@ -2,7 +2,7 @@
 
 import { useUI } from "@/context/UIContext";
 import { Lock, Eye, Heart, Zap } from "lucide-react";
-import Image from "next/image";
+import { EditableImage } from "@/components/Admin/EditableImage";
 import { useDrops } from "@/hooks/useDrops";
 
 export function HowItWorks() {
@@ -79,44 +79,40 @@ export function HowItWorks() {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-4">
-                                <div className="relative w-full aspect-[4/5] rounded-3xl overflow-hidden border border-white/10 bg-zinc-900">
-                                    <Image
-                                        src={curatedImages[0]}
-                                        alt="Creator content"
-                                        fill
-                                        sizes="(max-width: 768px) 50vw, 25vw"
-                                        className="object-cover"
-                                    />
-                                </div>
-                                <div className="relative w-full aspect-square rounded-3xl overflow-hidden border border-white/10 bg-zinc-900">
-                                    <Image
-                                        src={curatedImages[1]}
-                                        alt="Creator content"
-                                        fill
-                                        sizes="(max-width: 768px) 50vw, 25vw"
-                                        className="object-cover"
-                                    />
-                                </div>
+                                <EditableImage
+                                    id="landing-hero-1"
+                                    defaultSrc={curatedImages[0]}
+                                    alt="Creator content"
+                                    fill
+                                    sizes="(max-width: 768px) 50vw, 25vw"
+                                    className="relative w-full aspect-[4/5] rounded-3xl overflow-hidden border border-white/10 bg-zinc-900"
+                                />
+                                <EditableImage
+                                    id="landing-hero-2"
+                                    defaultSrc={curatedImages[1]}
+                                    alt="Creator content"
+                                    fill
+                                    sizes="(max-width: 768px) 50vw, 25vw"
+                                    className="relative w-full aspect-square rounded-3xl overflow-hidden border border-white/10 bg-zinc-900"
+                                />
                             </div>
                             <div className="space-y-4 mt-8">
-                                <div className="relative w-full aspect-square rounded-3xl overflow-hidden border border-white/10 bg-zinc-900">
-                                    <Image
-                                        src={curatedImages[2]}
-                                        alt="Creator content"
-                                        fill
-                                        sizes="(max-width: 768px) 50vw, 25vw"
-                                        className="object-cover"
-                                    />
-                                </div>
-                                <div className="relative w-full aspect-[4/5] rounded-3xl overflow-hidden border border-white/10 bg-zinc-900">
-                                    <Image
-                                        src={curatedImages[3]}
-                                        alt="Creator content"
-                                        fill
-                                        sizes="(max-width: 768px) 50vw, 25vw"
-                                        className="object-cover"
-                                    />
-                                </div>
+                                <EditableImage
+                                    id="landing-hero-3"
+                                    defaultSrc={curatedImages[2]}
+                                    alt="Creator content"
+                                    fill
+                                    sizes="(max-width: 768px) 50vw, 25vw"
+                                    className="relative w-full aspect-square rounded-3xl overflow-hidden border border-white/10 bg-zinc-900"
+                                />
+                                <EditableImage
+                                    id="landing-hero-4"
+                                    defaultSrc={curatedImages[3]}
+                                    alt="Creator content"
+                                    fill
+                                    sizes="(max-width: 768px) 50vw, 25vw"
+                                    className="relative w-full aspect-[4/5] rounded-3xl overflow-hidden border border-white/10 bg-zinc-900"
+                                />
                             </div>
                         </div>
                     </div>
