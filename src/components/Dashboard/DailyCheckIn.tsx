@@ -81,9 +81,7 @@ export function DailyCheckIn() {
         return nextCheckInMs - nowMs;
     }, [nextCheckInMs, nowMs]);
 
-    if (!user || !userProfile) return null;
-
-    const canCheckIn = remainingMs <= 0 && !claimed && !isClaimedToday;
+    const canCheckIn = remainingMs <= 0 && !claimed && !isClaimedToday && !!user;
 
     let nextStreak = currentStreak + 1;
     const hoursSinceLast = differenceInHours(nowMs, lastCheckInMs);

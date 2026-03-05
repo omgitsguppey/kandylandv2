@@ -185,9 +185,7 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
 
             {!searchQuery && selectedCategory === "All" && (
                 <div className="mt-6">
-                    <GuestComponentBlur actionText="Unlock Carousel">
-                        <FeaturedCarousel drops={sourceDrops} onSelectDrop={setPreviewDrop} />
-                    </GuestComponentBlur>
+                    <FeaturedCarousel drops={sourceDrops} onSelectDrop={setPreviewDrop} />
                 </div>
             )}
 
@@ -206,19 +204,17 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
                 </div>
 
                 <div className="relative border border-white/5 bg-white/[0.01] rounded-[2.5rem] p-2 md:p-6">
-                    <GuestComponentBlur actionText="Unlock Library">
-                        <DropGrid drops={filteredDrops} loading={false} isSearching={!!searchQuery} onSelectDrop={setPreviewDrop} />
+                    <DropGrid drops={filteredDrops} loading={false} isSearching={!!searchQuery} onSelectDrop={setPreviewDrop} />
 
-                        {/* Sentinel for infinite scrolling */}
-                        <div ref={observerRef} className="h-10 mt-8 flex items-center justify-center">
-                            {isLoadingMore && (
-                                <div className="w-6 h-6 rounded-full border-2 border-brand-purple border-t-transparent animate-spin" />
-                            )}
-                            {isReachingEnd && filteredDrops.length > 0 && (
-                                <p className="text-gray-500 text-sm font-medium">You've reached the end of the line.</p>
-                            )}
-                        </div>
-                    </GuestComponentBlur>
+                    {/* Sentinel for infinite scrolling */}
+                    <div ref={observerRef} className="h-10 mt-8 flex items-center justify-center">
+                        {isLoadingMore && (
+                            <div className="w-6 h-6 rounded-full border-2 border-brand-purple border-t-transparent animate-spin" />
+                        )}
+                        {isReachingEnd && filteredDrops.length > 0 && (
+                            <p className="text-gray-500 text-sm font-medium">You've reached the end of the line.</p>
+                        )}
+                    </div>
                 </div>
             </div>
 

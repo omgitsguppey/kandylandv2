@@ -5,6 +5,7 @@ import { Sparkles, Gift, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { DailyCheckIn } from "@/components/Dashboard/DailyCheckIn";
 import { useUI } from "@/context/UIContext";
+import { GuestComponentBlur } from "@/components/Auth/GuestComponentBlur";
 
 export default function ExperiencesPage() {
     const { openPurchaseModal } = useUI();
@@ -30,7 +31,9 @@ export default function ExperiencesPage() {
                 </p>
 
                 <div className="text-left mb-6">
-                    <DailyCheckIn />
+                    <GuestComponentBlur actionText="Sign In To Play">
+                        <DailyCheckIn />
+                    </GuestComponentBlur>
                 </div>
 
                 <div className="glass-panel rounded-3xl p-6 md:p-8 text-left relative overflow-hidden mb-8">

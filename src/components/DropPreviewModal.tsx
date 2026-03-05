@@ -198,6 +198,22 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
                     sizes="(max-width: 768px) 95vw, 640px"
                     className="object-cover object-center"
                   />
+                  {!user && (
+                    <button
+                      onClick={() => {
+                        onClose();
+                        openAuthModal();
+                      }}
+                      className="absolute inset-0 z-10 bg-black/40 backdrop-blur-xl flex flex-col items-center justify-center p-4 transition-all hover:bg-black/50 group"
+                    >
+                      <div className="bg-black/60 p-4 rounded-3xl border border-white/10 shadow-2xl flex flex-col items-center justify-center gap-3 text-center max-w-[200px] transition-transform group-hover:scale-105">
+                        <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center border border-white/10">
+                          <Lock className="w-5 h-5 text-white" />
+                        </div>
+                        <span className="text-white font-bold text-sm leading-tight">Sign in to unwrap and view this collection</span>
+                      </div>
+                    </button>
+                  )}
                 </div>
               </div>
 
