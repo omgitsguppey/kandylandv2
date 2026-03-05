@@ -238,13 +238,19 @@ export async function GET(request: NextRequest) {
                 .slice(0, 15);
 
             // --- NEW: Firestore Aggregations ---
-            // 1. Commerce: Transaction totals (USD Revenue vs GD Spent)
-            const transactionsSnapshot = await adminDb.collection("transactions").get();
+            // 1. Commerce: Transaction totals (USD Revenue vs GD Spent) AND feed
+            const transactionsSnapshot = await adminDb.collection("transactions")
+                .orderBy("timestamp", "desc")
+                .limit(50)
+                .get();
+
             let totalRevenueCents = 0; // Purchase amount (USD cents)
             let totalGdSpent = 0; // Unlocks amount (GD)
+            const rawTransactions: any[] = [];
 
             transactionsSnapshot.docs.forEach((doc: any) => {
                 const tx = doc.data();
+                rawTransactions.push({ id: doc.id, ...tx });
                 if (tx.type === "purchase_currency" && tx.status === "completed") {
                     totalRevenueCents += (tx.cost || 0); // Assuming cost is in cents based on standard Stripe/PayPal integration
                 } else if (tx.type === "unlock_content") {
@@ -254,7 +260,8 @@ export async function GET(request: NextRequest) {
 
             const commerce = {
                 revenueUsd: totalRevenueCents / 100, // Format to standard USD 
-                gdSpent: totalGdSpent
+                gdSpent: totalGdSpent,
+                feed: rawTransactions
             };
 
             // 2. Security: User Security Flags
@@ -277,6 +284,22 @@ export async function GET(request: NextRequest) {
             }).filter((log: any) => log.ripAttempts > 0);
             // --- END NEW ---
 
+            // 3. Deep Tracker Sessions (Raw Event Trace)
+            const deepTrackerSnapshot = await adminDb.collection("analytics_sessions")
+                .orderBy("createdAt", "desc")
+                .limit(50)
+                .get();
+
+            const rawEvents: any[] = [];
+            deepTrackerSnapshot.docs.forEach((doc: any) => {
+                const sessionData = doc.data();
+                if (sessionData.events && Array.isArray(sessionData.events)) {
+                    rawEvents.push(...sessionData.events);
+                }
+            });
+            // Sort combined events descending by time
+            rawEvents.sort((a, b) => b.timestamp - a.timestamp);
+
             return NextResponse.json({
                 success: true,
                 data: chartData,
@@ -286,7 +309,8 @@ export async function GET(request: NextRequest) {
                 pages: pagesData,
                 topDrops: dropsData,
                 commerce,
-                security: securityLogs
+                security: securityLogs,
+                rawEvents: rawEvents.slice(0, 200) // Cap to 200 for client memory safety
             });
         }
 

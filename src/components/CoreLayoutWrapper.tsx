@@ -16,6 +16,7 @@ const DebugBreakpoints = dynamic(() => import("@/components/Debug/DebugBreakpoin
 const InsufficientBalanceModal = dynamic(() => import("@/components/InsufficientBalanceModal").then((mod) => mod.InsufficientBalanceModal));
 const ScrollToTop = dynamic(() => import("@/components/Navigation/ScrollToTop").then((mod) => mod.ScrollToTop));
 const AutoScrollToTop = dynamic(() => import("@/components/Navigation/AutoScrollToTop").then((mod) => mod.AutoScrollToTop));
+const DeepTracker = dynamic(() => import("@/components/Analytics/DeepTracker").then((mod) => mod.DeepTracker), { ssr: false });
 
 export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     const { userProfile } = useAuth();
@@ -40,6 +41,7 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
 
     return (
         <PayPalProvider>
+            <DeepTracker />
             <Navbar />
             {children}
             <MobileBottomBar />

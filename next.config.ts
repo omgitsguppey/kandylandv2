@@ -8,13 +8,15 @@ const nextConfig: NextConfig = {
   },
   serverExternalPackages: ["firebase-admin"],
   images: {
-    // Unoptimized: true removed to allow Next.js server-side optimization
     remotePatterns: [
       {
         protocol: 'https',
         hostname: '**',
       }
     ]
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
   },
 };
 

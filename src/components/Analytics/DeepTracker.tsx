@@ -1,0 +1,188 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { usePathname } from "next/navigation";
+
+interface TelemetryEvent {
+    type: "click" | "hover" | "scroll" | "visibility";
+    timestamp: number;
+    path: string;
+    targetId?: string;
+    targetTag?: string;
+    targetText?: string;
+    x?: number;
+    y?: number;
+    scrollDepthPercent?: number;
+    durationMs?: number;
+}
+
+export function DeepTracker() {
+    const { user } = useAuth();
+    const pathname = usePathname();
+    const eventQueue = useRef<TelemetryEvent[]>([]);
+    const lastScrollDepth = useRef<number>(0);
+    const hoverStart = useRef<Record<string, number>>({});
+
+    useEffect(() => {
+        // Skip tracking completely within the admin dashboard to keep stats clean
+        if (pathname?.startsWith("/admin")) return;
+
+        let trackingInterval: number;
+
+        const flushQueue = () => {
+            if (eventQueue.current.length === 0) return;
+
+            let kSessionId = sessionStorage.getItem("kandy_session_id");
+            if (!kSessionId) {
+                kSessionId = Math.random().toString(36).substring(2, 15);
+                sessionStorage.setItem("kandy_session_id", kSessionId);
+            }
+
+            const payload = {
+                uid: user?.uid || "anonymous",
+                sessionId: kSessionId,
+                events: [...eventQueue.current],
+            };
+
+            // Clear immediately to prevent duplicate sends
+            eventQueue.current = [];
+
+            // Use sendBeacon for reliable delivery even during page unload
+            const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
+            if (navigator?.sendBeacon) {
+                navigator.sendBeacon("/api/analytics/ingest", blob);
+            } else {
+                fetch("/api/analytics/ingest", {
+                    method: "POST",
+                    body: blob,
+                    keepalive: true,
+                }).catch(() => { });
+            }
+        };
+
+        const pushEvent = (event: TelemetryEvent) => {
+            // Cap queue size just in case network dies, prevents memory leaks
+            if (eventQueue.current.length > 500) {
+                eventQueue.current.shift();
+            }
+            eventQueue.current.push(event);
+        };
+
+        const handleClick = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            const closestInteractive = target.closest('button, a, input, [role="button"]');
+            const interactiveTarget = (closestInteractive || target) as HTMLElement;
+
+            pushEvent({
+                type: "click",
+                timestamp: Date.now(),
+                path: pathname || "/",
+                targetId: interactiveTarget.id || undefined,
+                targetTag: interactiveTarget.tagName,
+                targetText: interactiveTarget.innerText?.slice(0, 50) || interactiveTarget.getAttribute("aria-label")?.slice(0, 50) || undefined,
+                x: e.clientX,
+                y: e.clientY,
+            });
+        };
+
+        const handleScroll = () => {
+            const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            if (docHeight <= 0) return;
+
+            const scrollTop = window.scrollY || document.documentElement.scrollTop;
+            const scrollPercent = Math.round((scrollTop / docHeight) * 100);
+
+            // Only log if they scrolled significantly deeper (10% increments)
+            if (scrollPercent > lastScrollDepth.current + 10) {
+                lastScrollDepth.current = scrollPercent;
+                pushEvent({
+                    type: "scroll",
+                    timestamp: Date.now(),
+                    path: pathname || "/",
+                    scrollDepthPercent: scrollPercent,
+                });
+            }
+        };
+
+        let lastScrollTime = 0;
+        const throttledScroll = () => {
+            const now = Date.now();
+            if (now - lastScrollTime > 500) { // Throttle scroll checks to 500ms
+                handleScroll();
+                lastScrollTime = now;
+            }
+        };
+
+        // Track long hovers (interest indicators)
+        const handleMouseOver = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            const interactiveTarget = target.closest('button, a, [title]') as HTMLElement;
+            if (!interactiveTarget) return;
+
+            const key = interactiveTarget.id || interactiveTarget.innerText?.slice(0, 20) || interactiveTarget.tagName;
+            hoverStart.current[key] = Date.now();
+        };
+
+        const handleMouseOut = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            const interactiveTarget = target.closest('button, a, [title]') as HTMLElement;
+            if (!interactiveTarget) return;
+
+            const key = interactiveTarget.id || interactiveTarget.innerText?.slice(0, 20) || interactiveTarget.tagName;
+            const startStr = hoverStart.current[key];
+
+            if (startStr) {
+                const duration = Date.now() - startStr;
+                delete hoverStart.current[key];
+
+                // Only log if hovered for more than 1 second
+                if (duration > 1000) {
+                    pushEvent({
+                        type: "hover",
+                        timestamp: Date.now(),
+                        path: pathname || "/",
+                        targetId: interactiveTarget.id || undefined,
+                        targetTag: interactiveTarget.tagName,
+                        targetText: interactiveTarget.innerText?.slice(0, 50) || undefined,
+                        durationMs: duration,
+                    });
+                }
+            }
+        };
+
+        const handleVisibilityChange = () => {
+            pushEvent({
+                type: "visibility",
+                timestamp: Date.now(),
+                path: pathname || "/",
+                targetText: document.visibilityState,
+            });
+
+            if (document.visibilityState === "hidden") {
+                flushQueue();
+            }
+        };
+
+        document.addEventListener("click", handleClick, { capture: true, passive: true });
+        window.addEventListener("scroll", throttledScroll, { passive: true });
+        document.addEventListener("mouseover", handleMouseOver, { passive: true });
+        document.addEventListener("mouseout", handleMouseOut, { passive: true });
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+
+        // Flush telemetry every 15 seconds
+        trackingInterval = window.setInterval(flushQueue, 15000);
+
+        return () => {
+            document.removeEventListener("click", handleClick, { capture: true });
+            window.removeEventListener("scroll", throttledScroll);
+            document.removeEventListener("mouseover", handleMouseOver);
+            document.removeEventListener("mouseout", handleMouseOut);
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
+            clearInterval(trackingInterval);
+            flushQueue(); // Final flush on unmount
+        };
+    }, [user?.uid, pathname]);
+
+    return null; // Silent component
+}
