@@ -39,13 +39,13 @@ export interface ListAiInteractionsData {
   } & AiInteraction_Key)[];
 }
 
-/** Generated Node Admin SDK operation action function for the 'CreateAiInteraction' Mutation. Allow users to execute without passing in DataConnect. */
-export function createAiInteraction(dc: DataConnect, vars: CreateAiInteractionVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<CreateAiInteractionData>>;
-/** Generated Node Admin SDK operation action function for the 'CreateAiInteraction' Mutation. Allow users to pass in custom DataConnect instances. */
-export function createAiInteraction(vars: CreateAiInteractionVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<CreateAiInteractionData>>;
-
 /** Generated Node Admin SDK operation action function for the 'ListAiInteractions' Query. Allow users to execute without passing in DataConnect. */
 export function listAiInteractions(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListAiInteractionsData>>;
 /** Generated Node Admin SDK operation action function for the 'ListAiInteractions' Query. Allow users to pass in custom DataConnect instances. */
 export function listAiInteractions(options?: OperationOptions): Promise<ExecuteOperationResponse<ListAiInteractionsData>>;
+
+/** Generated Node Admin SDK operation action function for the 'CreateAiInteraction' Mutation. Allow users to execute without passing in DataConnect. */
+export function createAiInteraction(dc: DataConnect, vars: CreateAiInteractionVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<CreateAiInteractionData>>;
+/** Generated Node Admin SDK operation action function for the 'CreateAiInteraction' Mutation. Allow users to pass in custom DataConnect instances. */
+export function createAiInteraction(vars: CreateAiInteractionVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<CreateAiInteractionData>>;
 

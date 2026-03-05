@@ -4,7 +4,14 @@ import { useState, useEffect, useMemo } from "react";
 import useSWRInfinite from "swr/infinite";
 import { Drop } from "@/types/db";
 
-const fetcher = (url: string) => fetch(url).then(res => res.json());
+const fetcher = async (url: string) => {
+  const res = await fetch(url);
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.error || `HTTP error! status: ${res.status}`);
+  }
+  return json;
+};
 
 export function useDrops(
   statusFilter: string[] | null = ["active", "scheduled"],
@@ -26,7 +33,7 @@ export function useDrops(
   });
 
   const swrDrops: Drop[] = useMemo(() => {
-    return data ? data.flatMap(page => page.drops) : [];
+    return data ? data.flatMap(page => page?.drops || []) : [];
   }, [data]);
 
   // Handle client-side expiration out of the active set efficiently
