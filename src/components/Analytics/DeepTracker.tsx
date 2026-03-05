@@ -11,6 +11,7 @@ interface TelemetryEvent {
     targetId?: string;
     targetTag?: string;
     targetText?: string;
+    dropId?: string;
     x?: number;
     y?: number;
     scrollDepthPercent?: number;
@@ -81,6 +82,7 @@ export function DeepTracker() {
                 targetId: interactiveTarget.id || undefined,
                 targetTag: interactiveTarget.tagName,
                 targetText: interactiveTarget.innerText?.slice(0, 50) || interactiveTarget.getAttribute("aria-label")?.slice(0, 50) || undefined,
+                dropId: interactiveTarget.getAttribute("data-drop-id") || undefined,
                 x: e.clientX,
                 y: e.clientY,
             });
@@ -114,27 +116,40 @@ export function DeepTracker() {
             }
         };
 
-        // Track long hovers (interest indicators)
+        // Track long hovers (interest indicators) globally but cache current hover to avoid duplicate DOM traversal
+        let currentHoverTarget: HTMLElement | null = null;
+        let currentHoverKey: string | null = null;
+
         const handleMouseOver = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
-            const interactiveTarget = target.closest('button, a, [title]') as HTMLElement;
-            if (!interactiveTarget) return;
+            // Early exit if moving within the same interactive parent
+            if (currentHoverTarget && currentHoverTarget.contains(target)) return;
 
-            const key = interactiveTarget.id || interactiveTarget.innerText?.slice(0, 20) || interactiveTarget.tagName;
+            const interactiveTarget = target.closest('button, a, [title], [data-drop-id]') as HTMLElement;
+            if (!interactiveTarget) {
+                // Clear caching if moved out to a non-interactive element
+                currentHoverTarget = null;
+                return;
+            }
+
+            currentHoverTarget = interactiveTarget;
+            const key = interactiveTarget.id || interactiveTarget.getAttribute("data-drop-id") || interactiveTarget.innerText?.slice(0, 20) || interactiveTarget.tagName;
+            currentHoverKey = key;
             hoverStart.current[key] = Date.now();
         };
 
         const handleMouseOut = (e: MouseEvent) => {
-            const target = e.target as HTMLElement;
-            const interactiveTarget = target.closest('button, a, [title]') as HTMLElement;
-            if (!interactiveTarget) return;
+            if (!currentHoverTarget || !currentHoverKey) return;
 
-            const key = interactiveTarget.id || interactiveTarget.innerText?.slice(0, 20) || interactiveTarget.tagName;
-            const startStr = hoverStart.current[key];
+            // If the mouse is moving to a child of the current interactive target, ignore it.
+            const relatedTarget = e.relatedTarget as Node | null;
+            if (relatedTarget && currentHoverTarget.contains(relatedTarget)) return;
+
+            const startStr = hoverStart.current[currentHoverKey];
 
             if (startStr) {
                 const duration = Date.now() - startStr;
-                delete hoverStart.current[key];
+                delete hoverStart.current[currentHoverKey];
 
                 // Only log if hovered for more than 1 second
                 if (duration > 1000) {
@@ -142,13 +157,16 @@ export function DeepTracker() {
                         type: "hover",
                         timestamp: Date.now(),
                         path: pathname || "/",
-                        targetId: interactiveTarget.id || undefined,
-                        targetTag: interactiveTarget.tagName,
-                        targetText: interactiveTarget.innerText?.slice(0, 50) || undefined,
+                        targetId: currentHoverTarget.id || undefined,
+                        targetTag: currentHoverTarget.tagName,
+                        targetText: currentHoverTarget.innerText?.slice(0, 50) || undefined,
+                        dropId: currentHoverTarget.getAttribute("data-drop-id") || undefined,
                         durationMs: duration,
                     });
                 }
             }
+            currentHoverTarget = null;
+            currentHoverKey = null;
         };
 
         const handleVisibilityChange = () => {

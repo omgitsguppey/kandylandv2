@@ -285,18 +285,23 @@ export async function GET(request: NextRequest) {
             // --- END NEW ---
 
             // 3. Deep Tracker Sessions (Raw Event Trace)
+            // Limit to only 5 recent session buckets to prevent massive payload over the wire
             const deepTrackerSnapshot = await adminDb.collection("analytics_sessions")
                 .orderBy("createdAt", "desc")
-                .limit(50)
+                .limit(5)
                 .get();
 
             const rawEvents: any[] = [];
-            deepTrackerSnapshot.docs.forEach((doc: any) => {
+            for (const doc of deepTrackerSnapshot.docs) {
                 const sessionData = doc.data();
                 if (sessionData.events && Array.isArray(sessionData.events)) {
                     rawEvents.push(...sessionData.events);
                 }
-            });
+                // Break early once we hit our cap to save CPU and memory
+                if (rawEvents.length >= 200) {
+                    break;
+                }
+            }
             // Sort combined events descending by time
             rawEvents.sort((a, b) => b.timestamp - a.timestamp);
 
@@ -310,7 +315,7 @@ export async function GET(request: NextRequest) {
                 topDrops: dropsData,
                 commerce,
                 security: securityLogs,
-                rawEvents: rawEvents.slice(0, 200) // Cap to 200 for client memory safety
+                rawEvents: rawEvents.slice(0, 200) // Ensure strictly capped
             });
         }
 

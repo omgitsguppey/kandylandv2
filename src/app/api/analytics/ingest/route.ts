@@ -1,58 +1,63 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
+import { FieldValue } from "firebase-admin/firestore";
+import { z } from "zod";
 
 export const dynamic = "force-dynamic";
 
+const TelemetryEventSchema = z.object({
+    type: z.enum(["click", "hover", "scroll", "visibility"]),
+    timestamp: z.number(),
+    path: z.string().max(250),
+    targetId: z.string().max(100).optional(),
+    targetTag: z.string().max(50).optional(),
+    targetText: z.string().max(100).optional(), // 100 char limit prevents DB bloat
+    x: z.number().optional(),
+    y: z.number().optional(),
+    scrollDepthPercent: z.number().min(0).max(100).optional(),
+    durationMs: z.number().max(86400000).optional(),
+});
+
+const PayloadSchema = z.object({
+    sessionId: z.string().min(1).max(100),
+    uid: z.string().max(100).optional().default("anonymous"),
+    events: z.array(TelemetryEventSchema).max(200), // Cap events to 200 per payload
+});
+
 export async function POST(request: NextRequest) {
     try {
-        const payload = await request.json();
+        const rawPayload = await request.json();
+        const parsed = PayloadSchema.safeParse(rawPayload);
 
-        if (!payload.sessionId || !Array.isArray(payload.events) || payload.events.length === 0) {
+        if (!parsed.success || parsed.data.events.length === 0) {
+            console.warn("Telemetry ingestion validation failed or empty payload", !parsed.success ? parsed.error : "empty events array");
             return NextResponse.json({ success: true, ignored: true });
         }
 
-        const sessionId = payload.sessionId;
-        const uid = payload.uid || "anonymous";
+        const { sessionId, uid, events } = parsed.data;
 
         // Group events by a unique minute-bucket to prevent writing thousands of tiny docs.
-        // E.g. sessionId_2024-03-05T12:05
         const now = new Date();
         const minuteBucket = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}-${String(now.getUTCDate()).padStart(2, '0')}T${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}`;
 
         const docId = `${sessionId}_${minuteBucket}`;
         const docRef = adminDb.collection("analytics_sessions").doc(docId);
 
-        // We use set with merge: true to append/update the bucket without overwriting other events in the same minute
-        await adminDb.runTransaction(async (transaction) => {
-            const docSnapshot = await transaction.get(docRef);
+        // We use set with merge: true to ensure the base document exists
+        await docRef.set({
+            sessionId,
+            uid,
+            minuteBucket,
+            createdAt: FieldValue.serverTimestamp(), // Use server timestamp to standardize
+        }, { merge: true });
 
-            if (!docSnapshot.exists) {
-                transaction.set(docRef, {
-                    sessionId,
-                    uid,
-                    minuteBucket,
-                    createdAt: Date.now(),
-                    events: payload.events,
-                    eventCount: payload.events.length
-                });
-            } else {
-                const existingData = docSnapshot.data();
-                const combinedEvents = [...(existingData?.events || []), ...payload.events];
-
-                // Optional cap per minute-bucket to prevent absolute explosion (e.g. infinite loop scroll bug)
-                if (combinedEvents.length > 2000) {
-                    combinedEvents.splice(0, combinedEvents.length - 2000);
-                }
-
-                transaction.update(docRef, {
-                    events: combinedEvents,
-                    eventCount: combinedEvents.length,
-                    updatedAt: Date.now()
-                });
-            }
+        // Update with arrayUnion avoids the massive contention of transactions while guaranteeing all events are appended
+        await docRef.update({
+            events: FieldValue.arrayUnion(...events),
+            updatedAt: FieldValue.serverTimestamp()
         });
 
-        return NextResponse.json({ success: true, processed: payload.events.length });
+        return NextResponse.json({ success: true, processed: events.length });
     } catch (error) {
         console.error("Telemetry ingestion failed:", error);
         // Fail silently to the client to avoid console spam for analytics

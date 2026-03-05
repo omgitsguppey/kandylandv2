@@ -118,10 +118,10 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
         duration: 4000,
       });
 
-      sendGAEvent("event", "unlock_content", {
-        content_id: drop.id,
-        content_type: "gumdrops_drop",
+      sendGAEvent("event", "spend_virtual_currency", {
         value: drop.unlockCost,
+        virtual_currency_name: "Gum Drops",
+        item_name: drop.title,
       });
 
       if (userProfile) {
