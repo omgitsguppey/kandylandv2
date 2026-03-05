@@ -165,7 +165,7 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
                             <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6 space-y-2 text-left">
                                 <h3 className="text-2xl font-bold text-white leading-tight">{drop.title}</h3>
                                 <p className="text-sm text-gray-300 line-clamp-2">{drop.description}</p>
-                                <ActivityTicker count={totalUnwraps} />
+
 
                                 <div className="pt-2 flex items-center gap-3">
                                     {userProfile?.unlockedContent?.includes(drop.id) ? (

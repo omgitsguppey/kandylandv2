@@ -26,8 +26,12 @@ export function useDrops(
     return `/api/drops?limit=12&cursor=${previousPageData.nextCursor}`;
   };
 
+  const fallback = useMemo(() => {
+    return initialData ? [{ drops: initialData, nextCursor: initialData.length === 12 ? initialData[11].validFrom : null }] : undefined;
+  }, [initialData]);
+
   const { data, error, size, setSize, isValidating } = useSWRInfinite(getKey, fetcher, {
-    fallbackData: initialData ? [{ drops: initialData, nextCursor: initialData.length === 12 ? initialData[11].validFrom : null }] : undefined,
+    fallbackData: fallback,
     revalidateFirstPage: false,
     revalidateOnFocus: false,
   });
