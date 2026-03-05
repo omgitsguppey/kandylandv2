@@ -163,10 +163,10 @@ export async function GET(request: NextRequest) {
                 analyticsClient.runReport({
                     property: `properties/${propertyId}`,
                     dateRanges: [{ startDate, endDate: "today" }],
-                    metrics: [{ name: "screenPageViews" }],
+                    metrics: [{ name: "screenPageViews" }, { name: "averageSessionDuration" }, { name: "engagementRate" }],
                     dimensions: [{ name: "pagePath" }],
                     orderBys: [{ metric: { metricName: "screenPageViews" }, desc: true }],
-                    limit: 15
+                    limit: 25
                 }),
                 analyticsClient.runReport({
                     property: `properties/${propertyId}`,
@@ -230,7 +230,9 @@ export async function GET(request: NextRequest) {
 
             const pagesData = (pagesResponse.rows || []).map(row => ({
                 path: row.dimensionValues?.[0]?.value || "/",
-                views: parseInt(row.metricValues?.[0]?.value || "0", 10)
+                views: parseInt(row.metricValues?.[0]?.value || "0", 10),
+                avgTime: parseFloat(row.metricValues?.[1]?.value || "0"),
+                engagementRate: parseFloat(row.metricValues?.[2]?.value || "0")
             }));
 
             // Aggregate drop interactions. A drop object will have: { id, views, unlocks }

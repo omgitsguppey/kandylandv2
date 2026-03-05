@@ -11,7 +11,7 @@ import Image from "next/image";
 
 type TimeFilter = "live" | "24h" | "7d" | "30d" | "all";
 type ViewTab = "operations" | "audience" | "commerce" | "security";
-type DrillDownState = null | "liveActive" | "uniqueUsers" | "pageViews" | "revenue" | "conversion";
+type DrillDownState = null | "liveActive" | "uniqueUsers" | "pageViews" | "revenue" | "conversion" | "engagement" | "avgTime";
 
 interface SecurityLog {
     uid: string;
@@ -35,7 +35,7 @@ interface AnalyticsResponse {
     totals?: { users: number; views: number; sessions: number; newUsers: number; avgSessionDuration: number; engagementRate: number };
     events?: Record<string, number>;
     geo?: { country: string; city: string; users: number }[];
-    pages?: { path: string; views: number }[];
+    pages?: { path: string; views: number; avgTime?: number; engagementRate?: number }[];
     topDrops?: { dropId: string; views: number; unlocks: number }[];
     // Firestore fields
     commerce?: { revenueUsd: number; gdSpent: number; feed?: any[] };
@@ -321,6 +321,126 @@ export default function AdminAnalyticsPage() {
                                 </div>
                             )}
 
+                            {activeDrillDown === "engagement" && (
+                                <div className="glass-panel p-6 rounded-3xl border border-white/10">
+                                    <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                                        <Activity className="w-5 h-5 text-brand-purple" /> Engagement Insights
+                                    </h2>
+                                    <div className="space-y-6">
+                                        {/* Trend Graph */}
+                                        <div className="h-[200px] w-full mt-4 bg-white/5 rounded-2xl p-4 border border-white/5">
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <AreaChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                                                    <defs>
+                                                        <linearGradient id="colorEngArea" x1="0" y1="0" x2="0" y2="1">
+                                                            <stop offset="5%" stopColor="#b28cff" stopOpacity={0.3} />
+                                                            <stop offset="95%" stopColor="#b28cff" stopOpacity={0} />
+                                                        </linearGradient>
+                                                    </defs>
+                                                    <XAxis dataKey="date" stroke="#ffffff20" fontSize={10} tickLine={false} axisLine={false} minTickGap={30} />
+                                                    <YAxis stroke="#ffffff20" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(value) => `${(value * 100).toFixed(0)}%`} />
+                                                    <Tooltip content={<CustomTooltip />} />
+                                                    <Area type="monotone" dataKey="engagementRate" name="Engagement Rate" stroke="#b28cff" strokeWidth={3} fillOpacity={1} fill="url(#colorEngArea)" />
+                                                </AreaChart>
+                                            </ResponsiveContainer>
+                                        </div>
+
+                                        {/* Drop Insights */}
+                                        <div>
+                                            <h3 className="text-sm font-bold text-white mb-3">Top Drops Conversion <span className="text-[10px] text-gray-500 font-normal ml-2">(Unlocks / Views)</span></h3>
+                                            <div className="space-y-2">
+                                                {topDropsData && topDropsData.length > 0 ? topDropsData.map((drop, idx) => {
+                                                    const conv = drop.views > 0 ? (drop.unlocks / drop.views) * 100 : 0;
+                                                    return (
+                                                        <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
+                                                            <div className="flex items-center gap-3 w-1/2">
+                                                                <span className="text-sm text-gray-300 font-mono truncate">{drop.dropId}</span>
+                                                            </div>
+                                                            <div className="text-right flex items-center gap-4">
+                                                                <span className="text-[10px] text-gray-500">{drop.views.toLocaleString()} views</span>
+                                                                <span className="text-white font-bold min-w-12 text-right text-brand-purple">{conv.toFixed(1)}%</span>
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                }) : (
+                                                    <p className="text-sm text-gray-500 py-4">Insufficient drop data.</p>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Page Insights */}
+                                        <div>
+                                            <h3 className="text-sm font-bold text-white mb-3">Top Pages Engagement</h3>
+                                            <div className="space-y-2">
+                                                {pagesData && pagesData.length > 0 ? pagesData.map((page, idx) => (
+                                                    <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
+                                                        <div className="flex items-center gap-3 w-2/3">
+                                                            <div className="w-5 h-5 rounded-md bg-brand-purple/20 flex items-center justify-center text-[9px] text-brand-purple font-bold shrink-0">{idx + 1}</div>
+                                                            <span className="text-sm text-gray-300 font-mono truncate">{page.path}</span>
+                                                        </div>
+                                                        <div className="text-right">
+                                                            <span className="text-white font-bold">{((page.engagementRate || 0) * 100).toFixed(1)}%</span>
+                                                        </div>
+                                                    </div>
+                                                )) : (
+                                                    <p className="text-sm text-gray-500 py-4">Insufficient page data.</p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {activeDrillDown === "avgTime" && (
+                                <div className="glass-panel p-6 rounded-3xl border border-white/10">
+                                    <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                                        <Clock className="w-5 h-5 text-brand-purple" /> Session Duration Insights
+                                    </h2>
+                                    <div className="space-y-6">
+                                        {/* Trend Graph */}
+                                        <div className="h-[200px] w-full mt-4 bg-white/5 rounded-2xl p-4 border border-white/5">
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <AreaChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                                                    <defs>
+                                                        <linearGradient id="colorTimeArea" x1="0" y1="0" x2="0" y2="1">
+                                                            <stop offset="5%" stopColor="#b28cff" stopOpacity={0.3} />
+                                                            <stop offset="95%" stopColor="#b28cff" stopOpacity={0} />
+                                                        </linearGradient>
+                                                    </defs>
+                                                    <XAxis dataKey="date" stroke="#ffffff20" fontSize={10} tickLine={false} axisLine={false} minTickGap={30} />
+                                                    <YAxis stroke="#ffffff20" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(value) => `${Math.floor(value / 60)}m`} />
+                                                    <Tooltip content={<CustomTooltip />} />
+                                                    <Area type="monotone" dataKey="avgSessionDuration" name="Avg Secs" stroke="#b28cff" strokeWidth={3} fillOpacity={1} fill="url(#colorTimeArea)" />
+                                                </AreaChart>
+                                            </ResponsiveContainer>
+                                        </div>
+
+                                        {/* Page Insights */}
+                                        <div>
+                                            <h3 className="text-sm font-bold text-white mb-3">Top Pages Average Time</h3>
+                                            <div className="space-y-2">
+                                                {pagesData && pagesData.length > 0 ? pagesData.map((page, idx) => (
+                                                    <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
+                                                        <div className="flex items-center gap-3 w-2/3">
+                                                            <div className="w-5 h-5 rounded-md bg-brand-purple/20 flex items-center justify-center text-[9px] text-brand-purple font-bold shrink-0">{idx + 1}</div>
+                                                            <span className="text-sm text-gray-300 font-mono truncate">{page.path}</span>
+                                                        </div>
+                                                        <div className="text-right flex items-center gap-4">
+                                                            <span className="text-[10px] text-gray-500">{page.views?.toLocaleString()} views</span>
+                                                            <span className="text-white font-bold text-brand-purple min-w-16 text-right">
+                                                                {Math.floor((page.avgTime || 0) / 60)}m {Math.round((page.avgTime || 0) % 60)}s
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                )) : (
+                                                    <p className="text-sm text-gray-500 py-4">Insufficient page data.</p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
                             {activeDrillDown === "revenue" && (
                                 <div className="glass-panel p-6 rounded-3xl border border-[#00ffcc]/30">
                                     <h2 className="text-xl font-bold text-[#00ffcc] mb-4 flex items-center gap-2">
@@ -451,16 +571,16 @@ export default function AdminAnalyticsPage() {
                                             <p className="text-[10px] md:text-xs text-brand-purple font-bold tracking-wider uppercase mb-1">Page Views</p>
                                             <h3 className="text-2xl md:text-4xl font-bold text-white tracking-tight">{totals.views.toLocaleString()}</h3>
                                         </button>
-                                        <div className="glass-panel p-4 md:p-6 rounded-3xl border border-white/10">
+                                        <button onClick={() => setActiveDrillDown("engagement")} className="text-left glass-panel p-4 md:p-6 rounded-3xl border border-white/10 hover:bg-white/[0.02] transition-colors">
                                             <Activity className="w-5 h-5 text-gray-400 mb-2" />
-                                            <p className="text-[10px] md:text-xs text-gray-400 font-bold tracking-wider uppercase mb-1">Engagement</p>
+                                            <p className="text-[10px] md:text-xs text-brand-purple font-bold tracking-wider uppercase mb-1">Engagement</p>
                                             <h3 className="text-xl md:text-3xl font-bold text-white tracking-tight">{(totals.engagementRate * 100).toFixed(1)}%</h3>
-                                        </div>
-                                        <div className="glass-panel p-4 md:p-6 rounded-3xl border border-white/10">
+                                        </button>
+                                        <button onClick={() => setActiveDrillDown("avgTime")} className="text-left glass-panel p-4 md:p-6 rounded-3xl border border-white/10 hover:bg-white/[0.02] transition-colors">
                                             <Clock className="w-5 h-5 text-gray-400 mb-2" />
-                                            <p className="text-[10px] md:text-xs text-gray-400 font-bold tracking-wider uppercase mb-1">Avg Time</p>
+                                            <p className="text-[10px] md:text-xs text-brand-purple font-bold tracking-wider uppercase mb-1">Avg Time</p>
                                             <h3 className="text-xl md:text-3xl font-bold text-white tracking-tight">{Math.floor(totals.avgSessionDuration / 60)}m {Math.round(totals.avgSessionDuration % 60)}s</h3>
-                                        </div>
+                                        </button>
                                     </div>
 
                                     <div className="glass-panel p-4 rounded-3xl border border-white/10">
