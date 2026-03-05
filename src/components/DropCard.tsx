@@ -130,6 +130,10 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
         ? drop.tags.find((tag) => CATEGORY_TAGS.has(tag))
         : undefined;
 
+    if (drop.validUntil && Date.now() > drop.validUntil && !isUnlocked) {
+        return null;
+    }
+
     const triggerHaptic = () => {
         if (typeof navigator !== "undefined" && navigator.vibrate) {
             navigator.vibrate(10);

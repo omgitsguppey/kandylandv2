@@ -41,11 +41,7 @@ export async function GET(request: NextRequest) {
 
         snapshot.forEach((doc) => {
             const raw = normalizeDropRecord(doc.data(), doc.id);
-            // Quick client-side sanity filter
-            if (raw.status === "active" && raw.validUntil && now >= raw.validUntil) {
-                // Ignore expired drops caught in the query window
-                return;
-            }
+            // Let expired drops pass through so the client can filter or show them based on user ownership
             drops.push(sanitizeDropForClient(raw));
             nextCursor = raw.validFrom; // update next cursor to the last processed validFrom
         });

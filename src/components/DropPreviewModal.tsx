@@ -4,17 +4,17 @@ import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
-import { X, Images, Video, Clock, Lock, Unlock, Loader2, Share2 } from "lucide-react";
+import { X, Images, Video, Clock, Lock, Unlock, Loader2, Share2, Eye } from "lucide-react";
 import { Drop } from "@/types/db";
 import { getAspectRatioCssValue, getDropMediaSummary, getSupportedDropAspectRatio } from "@/lib/drop-presentation";
 import { formatDistanceToNow } from "date-fns";
-import { useUnwrapCounter } from "@/hooks/useUnwrapCounter";
 import { useAuth, useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { sendGAEvent } from "@next/third-parties/google";
+import { getSimulatedUnwrapsToday } from "@/lib/unwrap-simulator";
 
 interface DropPreviewModalProps {
   drop: Drop | null;
@@ -49,7 +49,7 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
   const aspectRatio = useMemo(() => (drop ? getSupportedDropAspectRatio(drop) : "1:1"), [drop]);
   const ratioStyle = useMemo(() => ({ aspectRatio: getAspectRatioCssValue(aspectRatio) }), [aspectRatio]);
 
-  const fomoCount = useUnwrapCounter(drop?.id ?? null, drop?.totalUnlocks ?? 0, drop?.createdAt);
+  const simulativeUnwraps = useMemo(() => drop ? getSimulatedUnwrapsToday(drop.id) : 0, [drop?.id]);
   const isUnlocked = !!(drop && Array.isArray(userProfile?.unlockedContent) && userProfile.unlockedContent.includes(drop.id));
   const canAfford = (userProfile?.gumDropsBalance ?? 0) >= (drop?.unlockCost ?? 0);
 
@@ -169,13 +169,15 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
             <div className="relative shrink-0 px-4 pt-3 pb-2 sm:px-5">
               <div className="mx-auto h-1.5 w-12 rounded-full bg-white/20" />
               <div className="absolute right-4 top-2.5 flex items-center gap-2">
-                <button
-                  onClick={handleShare}
-                  className="h-11 w-11 rounded-full border border-white/15 bg-white/5 text-gray-200 flex items-center justify-center hover:bg-white/10 transition-colors"
-                  aria-label="Share"
-                >
-                  <Share2 className="h-5 w-5" />
-                </button>
+                {isUnlocked && (
+                  <button
+                    onClick={handleShare}
+                    className="h-11 w-11 rounded-full border border-white/15 bg-white/5 text-gray-200 flex items-center justify-center hover:bg-white/10 transition-colors"
+                    aria-label="Share"
+                  >
+                    <Share2 className="h-5 w-5" />
+                  </button>
+                )}
                 <button
                   onClick={onClose}
                   className="h-11 w-11 rounded-full border border-white/15 bg-white/5 text-gray-200 flex items-center justify-center hover:bg-white/10 transition-colors"
@@ -203,20 +205,28 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
                 <span className="px-3 py-1 rounded-full bg-brand-purple/15 border border-brand-purple/30 text-brand-purple flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5" /> {timerLabel}
                 </span>
-                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-200 flex items-center gap-1.5">
-                  <Images className="w-3.5 h-3.5" /> {mediaSummary.imageCount} images
-                </span>
-                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-200 flex items-center gap-1.5">
-                  <Video className="w-3.5 h-3.5" /> {mediaSummary.videoCount} videos
-                </span>
+                {(() => {
+                  const numFiles = Array.isArray(drop.contentUrls) && drop.contentUrls.length > 0
+                    ? drop.contentUrls.length
+                    : (drop.contentUrl ? 1 : 0);
+                  if (numFiles > 0) {
+                    return (
+                      <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-200 flex items-center gap-1.5">
+                        <Images className="w-3.5 h-3.5" /> +{numFiles} {numFiles === 1 ? 'File' : 'Files'}
+                      </span>
+                    );
+                  }
+                  return null;
+                })()}
               </div>
 
               <div className="mt-4 space-y-3 pb-3">
                 <h3 className="text-2xl font-black tracking-tight text-white">{drop.title}</h3>
                 <p className="text-sm leading-relaxed text-gray-300">{drop.description}</p>
-                <p className="text-base font-semibold text-[#b28cff]">
-                  {fomoCount.toLocaleString()} people have unwrapped before you!
-                </p>
+                <div className="flex items-center gap-1.5 text-sm font-semibold text-[#b28cff]">
+                  <Eye className="w-4 h-4" />
+                  {simulativeUnwraps} unwrapped today
+                </div>
               </div>
             </div>
 
