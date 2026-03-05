@@ -493,18 +493,21 @@ export default function AdminAnalyticsPage() {
                                     {newSecurityViolations > 0 && (
                                         <button
                                             onClick={() => setActiveTab("security")}
-                                            className="w-full flex items-center justify-between p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-left active:scale-[0.98] transition-all"
+                                            className="w-full flex items-center justify-between p-4 md:p-5 rounded-3xl bg-red-500/10 border border-red-500/40 text-left active:scale-[0.98] transition-all relative overflow-hidden group shadow-[0_0_30px_-10px_rgba(239,68,68,0.3)]"
                                         >
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
-                                                    <AlertTriangle className="w-5 h-5 text-red-500" />
+                                            <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-red-500/50 to-transparent" />
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-12 h-12 rounded-2xl bg-red-500/20 flex items-center justify-center border border-red-500/30 shrink-0 shadow-[0_0_15px_-3px_rgba(239,68,68,0.4)]">
+                                                    <AlertTriangle className="w-6 h-6 text-red-500 group-hover:animate-pulse" />
                                                 </div>
                                                 <div>
-                                                    <p className="text-red-400 font-bold text-sm">Action Required</p>
-                                                    <p className="text-red-400/80 text-xs">{newSecurityViolations} new security violations in the last 24h.</p>
+                                                    <p className="text-red-400 font-bold text-sm uppercase tracking-wider mb-0.5 flex items-center gap-2">
+                                                        Action Required <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span></span>
+                                                    </p>
+                                                    <p className="text-red-300/80 text-xs">{newSecurityViolations} new security violations detected in the last 24h.</p>
                                                 </div>
                                             </div>
-                                            <span className="text-red-500 text-xs font-bold underline">Review</span>
+                                            <span className="text-red-500 text-xs font-bold px-3 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 whitespace-nowrap hidden sm:block">Review Logs &rarr;</span>
                                         </button>
                                     )}
 
@@ -726,38 +729,38 @@ export default function AdminAnalyticsPage() {
                                         {securityData.length > 0 ? securityData.map((log) => {
                                             const isNew = (new Date().getTime() - new Date(log.lastViolation).getTime()) / (1000 * 60 * 60) < 24;
                                             return (
-                                                <div key={log.uid} className={`glass-panel p-4 rounded-2xl border ${isNew ? 'border-red-500/40' : 'border-white/5'}`}>
-                                                    <div className="flex items-start justify-between gap-3">
+                                                <div key={log.uid} className={`glass-panel p-4 rounded-3xl border ${isNew ? 'border-red-500/40 bg-red-500/5' : 'border-white/5 bg-black/40'}`}>
+                                                    <div className="flex flex-col sm:flex-row gap-4 justify-between items-start">
                                                         <div className="flex items-center gap-3">
-                                                            <div className="relative w-10 h-10 rounded-full bg-zinc-800 shrink-0 border border-white/10 overflow-hidden">
+                                                            <div className="relative w-12 h-12 rounded-full bg-zinc-800 shrink-0 border border-white/10 overflow-hidden shadow-inner flex items-center justify-center">
                                                                 {log.photoURL ? (
                                                                     <Image src={log.photoURL} alt={log.username} fill className="object-cover" />
                                                                 ) : (
-                                                                    <div className="w-full h-full flex items-center justify-center text-xs text-gray-500">{log.username[0]?.toUpperCase()}</div>
+                                                                    <span className="text-xl text-gray-500 font-bold">{log.username[0]?.toUpperCase()}</span>
                                                                 )}
                                                             </div>
                                                             <div>
                                                                 <div className="flex items-center gap-2">
-                                                                    <p className="text-sm font-bold text-white truncate max-w-[120px] md:max-w-[200px]">{log.username}</p>
-                                                                    {isNew && <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-red-500 text-white uppercase tracking-wider">New</span>}
+                                                                    <p className="text-base font-bold text-white max-w-[150px] md:max-w-xs truncate">{log.username}</p>
+                                                                    {isNew && <span className="px-2 py-0.5 rounded text-[9px] font-black bg-red-500 text-white shadow-sm uppercase tracking-widest">New</span>}
                                                                 </div>
-                                                                <p className="text-[10px] text-gray-500 font-mono mt-0.5">{log.uid?.slice(0, 10) || "Unknown"}...</p>
+                                                                <p className="text-xs text-gray-500 font-mono mt-0.5 select-all">{log.uid}</p>
                                                             </div>
                                                         </div>
-                                                        <div className="text-right">
-                                                            <p className="text-xs font-bold text-red-400">{log.ripAttempts} violations</p>
-                                                            <p className="text-[10px] text-gray-500 mt-0.5">{new Date(log.lastViolation).toLocaleDateString()}</p>
+                                                        <div className="text-left sm:text-right mt-2 sm:mt-0 w-full sm:w-auto">
+                                                            <p className="text-sm font-black text-red-400 flex items-center sm:justify-end gap-1.5"><ShieldAlert className="w-3.5 h-3.5" />{log.ripAttempts} violations</p>
+                                                            <p className="text-[11px] text-gray-500 mt-1 flex items-center sm:justify-end gap-1"><Clock className="w-3 h-3" />{new Date(log.lastViolation).toLocaleString()}</p>
                                                         </div>
                                                     </div>
 
-                                                    <div className="mt-4 pt-4 border-t border-white/5 grid grid-cols-2 gap-2">
-                                                        <div>
-                                                            <p className="text-[9px] text-gray-500 uppercase font-bold tracking-wider mb-0.5">Vector</p>
-                                                            <p className="text-xs text-white font-mono">{log.lastViolationReason}</p>
+                                                    <div className="mt-4 pt-4 border-t border-white/10 grid grid-cols-2 gap-4">
+                                                        <div className="bg-black/30 p-3 rounded-2xl border border-white/5">
+                                                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1 flex items-center gap-1"><Activity className="w-3 h-3" />Vector</p>
+                                                            <p className="text-xs text-red-300 font-mono break-words">{log.lastViolationReason}</p>
                                                         </div>
-                                                        <div>
-                                                            <p className="text-[9px] text-gray-500 uppercase font-bold tracking-wider mb-0.5">Target</p>
-                                                            <p className="text-xs text-brand-purple font-mono truncate">{log.lastViolationDropId || "Unknown"}</p>
+                                                        <div className="bg-black/30 p-3 rounded-2xl border border-white/5">
+                                                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1 flex items-center gap-1"><MapPin className="w-3 h-3" />Target</p>
+                                                            <p className="text-xs text-brand-purple font-mono truncate">{log.lastViolationDropId || "N/A"}</p>
                                                         </div>
                                                     </div>
                                                 </div>
