@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminDb } from "@/lib/server/firebase-admin";
+import { adminDb, adminStorage } from "@/lib/server/firebase-admin";
 import { verifyAdmin, handleApiError } from "@/lib/server/auth";
-import { storage } from "@/lib/firebase-data";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 function isImageFormat(mimeType: string) {
     return ["image/jpeg", "image/png", "image/gif", "image/webp"].includes(mimeType);
@@ -35,14 +33,18 @@ export async function POST(request: NextRequest) {
         const extension = file.type.split('/')[1] || 'jpg';
         const fileName = `landing/assets/${key}_${timestamp}.${extension}`;
 
-        // Using the client SDK storage on server (firebase-data)
-        const storageRef = ref(storage, fileName);
-        await uploadBytes(storageRef, buffer, {
-            contentType: file.type,
-            cacheControl: 'public, max-age=31536000'
+        const bucket = adminStorage.bucket();
+        const fileRef = bucket.file(fileName);
+
+        await fileRef.save(buffer, {
+            metadata: {
+                contentType: file.type,
+                cacheControl: 'public, max-age=31536000'
+            }
         });
 
-        const downloadURL = await getDownloadURL(storageRef);
+        // Use the standard Firebase Storage public URL format
+        const downloadURL = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(fileName)}?alt=media`;
 
         // Update settings in Firestore
         const landingSettingsRef = adminDb.collection("settings").doc("landing");
