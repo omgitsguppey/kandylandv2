@@ -29,6 +29,7 @@ interface AnalyticsResponse {
     error?: string;
     // Live fields
     totalActive?: number;
+    deepTrackerActive?: number;
     data?: Array<{ minute?: string; users?: number; date?: string; sessions?: number }>;
     // Historical fields
     totals?: { users: number; views: number; sessions: number; newUsers: number; avgSessionDuration: number; engagementRate: number };
@@ -75,6 +76,7 @@ export default function AdminAnalyticsPage() {
 
     // Derived Data
     const liveActive = data?.totalActive ?? 0;
+    const deepTrackerActive = data?.deepTrackerActive ?? 0;
     const liveData = filter === "live" ? (data?.data ?? []) : [];
     const chartData = filter !== "live" ? (data?.data ?? []) : [];
     const totals = data?.totals ?? { users: 0, views: 0, sessions: 0, newUsers: 0, avgSessionDuration: 0, engagementRate: 0 };
@@ -218,9 +220,21 @@ export default function AdminAnalyticsPage() {
                             {/* DRILL DOWN VIEWS */}
                             {activeDrillDown === "liveActive" && (
                                 <div className="glass-panel p-6 rounded-3xl border border-white/10">
-                                    <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                                        <Activity className="w-5 h-5 text-brand-purple" /> Raw Event Trace Log
-                                    </h2>
+                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                                        <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                                            <Activity className="w-5 h-5 text-brand-purple" /> Raw Event Trace Log
+                                        </h2>
+                                        <div className="flex gap-3">
+                                            <div className="px-3 py-1.5 rounded-lg bg-black/50 border border-white/10 text-center">
+                                                <p className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">DeepTracker</p>
+                                                <p className="text-lg font-bold text-brand-purple">{deepTrackerActive}</p>
+                                            </div>
+                                            <div className="px-3 py-1.5 rounded-lg bg-black/50 border border-white/10 text-center">
+                                                <p className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">GA4</p>
+                                                <p className="text-lg font-bold text-white">{liveActive}</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <p className="text-gray-400 text-sm mb-6">Passive telemetry ingestion from Deep Tracker. (Note: In production, this pulls directly from the firestore <code>analytics_sessions</code> collection).</p>
                                     <div className="space-y-3 font-mono text-xs text-left max-h-[60vh] overflow-y-auto custom-scrollbar pr-2">
                                         {rawEvents.length > 0 ? rawEvents.map((log, i) => {
@@ -386,8 +400,19 @@ export default function AdminAnalyticsPage() {
                                             <span className="text-[10px] text-brand-purple font-bold tracking-widest uppercase">Live</span>
                                         </div>
                                         <p className="text-gray-400 font-medium text-sm mb-2 mt-4">Active Users</p>
-                                        <h2 className="text-8xl md:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-500 tracking-tighter mb-2">{liveActive}</h2>
-                                        <p className="text-xs text-gray-500 flex items-center gap-1"><Clock className="w-3 h-3" /> Past 30 minutes</p>
+                                        <div className="flex items-baseline justify-center gap-4 mb-2">
+                                            <h2 className="text-8xl md:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-b from-brand-purple to-brand-purple/50 tracking-tighter">{deepTrackerActive}</h2>
+                                        </div>
+                                        <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4 mt-2">
+                                            <div className="flex items-center gap-1.5 bg-black/50 px-3 py-1.5 rounded-full border border-white/10">
+                                                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse shrink-0" />
+                                                <span className="text-[11px] font-bold text-gray-300 tracking-wider">DEEPTRACKER <span className="text-gray-500">(PRIMARY)</span></span>
+                                            </div>
+                                            <div className="flex items-center gap-1.5 bg-black/50 px-3 py-1.5 rounded-full border border-white/10">
+                                                <span className="text-[11px] font-bold text-gray-400 tracking-wider">GA4: <span className="text-white">{liveActive}</span></span>
+                                            </div>
+                                        </div>
+                                        <p className="text-xs text-gray-500 flex items-center gap-1 mt-4"><Clock className="w-3 h-3" /> Unique users past 30 minutes</p>
 
                                         <div className="w-full h-[120px] mt-8">
                                             <ResponsiveContainer width="100%" height="100%">

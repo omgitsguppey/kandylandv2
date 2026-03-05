@@ -46,14 +46,24 @@ export async function GET(request: NextRequest) {
         // Removed old !analyticsClient check since ADC is supported on App Hosting
 
         if (type === "realtime") {
-            // Realtime report gives active users in the last 30 minutes
-            const [response] = await analyticsClient.runRealtimeReport({
+            const thirtyMinsAgo = Date.now() - 30 * 60 * 1000;
+
+            // 1. Get true Deduplicated Total Active Users from GA4
+            const [totalActiveResponse] = await analyticsClient.runRealtimeReport({
+                property: `properties/${propertyId}`,
+                metrics: [{ name: "activeUsers" }],
+            });
+
+            const totalActive = parseInt(totalActiveResponse.rows?.[0]?.metricValues?.[0]?.value || "0", 10);
+
+            // 2. Get the 1-minute discrete interval chart data
+            const [intervalResponse] = await analyticsClient.runRealtimeReport({
                 property: `properties/${propertyId}`,
                 metrics: [{ name: "activeUsers" }, { name: "screenPageViews" }],
                 dimensions: [{ name: "minutesAgo" }],
             });
 
-            const rows = response.rows || [];
+            const rows = intervalResponse.rows || [];
 
             // Map the past 30 minutes. Fill missing minutes with 0.
             const liveData = Array.from({ length: 30 }, (_, i) => ({
@@ -75,11 +85,25 @@ export async function GET(request: NextRequest) {
             // Sort so that 29 minutes ago is first, 0 minutes ago (now) is last
             liveData.sort((a, b) => b.minute - a.minute);
 
-            const totalActive = rows.reduce((acc, row) => acc + parseInt(row.metricValues?.[0]?.value || "0", 10), 0);
+            // 3. Get native DeepTracker Internal Live Users
+            const sessionsQuery = await adminDb.collection("analytics_sessions")
+                .where("createdAt", ">=", thirtyMinsAgo)
+                .get();
+
+            const uniqueDeepTrackerUsers = new Set<string>();
+            sessionsQuery.docs.forEach(doc => {
+                const sessionData = doc.data();
+                if (sessionData.uid) {
+                    uniqueDeepTrackerUsers.add(sessionData.uid);
+                }
+            });
+
+            const deepTrackerActive = uniqueDeepTrackerUsers.size;
 
             return NextResponse.json({
                 success: true,
                 totalActive,
+                deepTrackerActive,
                 data: liveData
             });
         }
