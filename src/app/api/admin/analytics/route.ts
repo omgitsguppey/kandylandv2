@@ -4,6 +4,7 @@ export const fetchCache = 'force-no-store';
 import { NextRequest, NextResponse } from "next/server";
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
 import { verifyAdmin, handleApiError } from "@/lib/server/auth";
+import { adminDb } from "@/lib/server/firebase-admin";
 import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
 
 const propertyId = process.env.GA_PROPERTY_ID;
@@ -236,6 +237,46 @@ export async function GET(request: NextRequest) {
                 .sort((a, b) => b.views - a.views)
                 .slice(0, 15);
 
+            // --- NEW: Firestore Aggregations ---
+            // 1. Commerce: Transaction totals (USD Revenue vs GD Spent)
+            const transactionsSnapshot = await adminDb.collection("transactions").get();
+            let totalRevenueCents = 0; // Purchase amount (USD cents)
+            let totalGdSpent = 0; // Unlocks amount (GD)
+
+            transactionsSnapshot.docs.forEach((doc: any) => {
+                const tx = doc.data();
+                if (tx.type === "purchase_currency" && tx.status === "completed") {
+                    totalRevenueCents += (tx.cost || 0); // Assuming cost is in cents based on standard Stripe/PayPal integration
+                } else if (tx.type === "unlock_content") {
+                    totalGdSpent += (tx.amount || 0);
+                }
+            });
+
+            const commerce = {
+                revenueUsd: totalRevenueCents / 100, // Format to standard USD 
+                gdSpent: totalGdSpent
+            };
+
+            // 2. Security: User Security Flags
+            const usersWithFlagsSnapshot = await adminDb.collection("users")
+                .orderBy("securityFlags.lastViolation", "desc")
+                .limit(50)
+                .get();
+
+            const securityLogs = usersWithFlagsSnapshot.docs.map((doc: any) => {
+                const data = doc.data();
+                return {
+                    uid: doc.id,
+                    username: data.username || data.displayName || "Unknown User",
+                    photoURL: data.photoURL,
+                    ripAttempts: data.securityFlags?.ripAttempts || 0,
+                    lastViolation: data.securityFlags?.lastViolation || null,
+                    lastViolationReason: data.securityFlags?.lastViolationReason || "Unknown",
+                    lastViolationDropId: data.securityFlags?.lastViolationDropId || null
+                };
+            }).filter((log: any) => log.ripAttempts > 0);
+            // --- END NEW ---
+
             return NextResponse.json({
                 success: true,
                 data: chartData,
@@ -243,7 +284,9 @@ export async function GET(request: NextRequest) {
                 events: eventsData,
                 geo: geoData,
                 pages: pagesData,
-                topDrops: dropsData
+                topDrops: dropsData,
+                commerce,
+                security: securityLogs
             });
         }
 
