@@ -36,15 +36,22 @@ export async function POST(request: NextRequest) {
         const bucket = adminStorage.bucket();
         const fileRef = bucket.file(fileName);
 
+        // Firebase Client SDK automatically mints download tokens, but the Admin SDK does not.
+        // We must manually generate a token to make the file publicly readable via the standard URL format.
+        const downloadToken = crypto.randomUUID();
+
         await fileRef.save(buffer, {
             metadata: {
                 contentType: file.type,
-                cacheControl: 'public, max-age=31536000'
+                cacheControl: 'public, max-age=31536000',
+                metadata: {
+                    firebaseStorageDownloadTokens: downloadToken
+                }
             }
         });
 
-        // Use the standard Firebase Storage public URL format
-        const downloadURL = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(fileName)}?alt=media`;
+        // Use the standard Firebase Storage public URL format with the minted token
+        const downloadURL = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(fileName)}?alt=media&token=${downloadToken}`;
 
         // Update settings in Firestore
         const landingSettingsRef = adminDb.collection("settings").doc("landing");
