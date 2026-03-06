@@ -79,5 +79,16 @@ export function normalizeUserProfile(raw: unknown, user: User): UserProfile | nu
                 ? source.accountSettings.timezone.trim()
                 : "Auto",
         },
+        dailyTasksState: source.dailyTasksState ? {
+            lastResetMs: Number(source.dailyTasksState.lastResetMs) || 0,
+            tasks: Array.isArray(source.dailyTasksState.tasks)
+                ? source.dailyTasksState.tasks.map((t: any) => ({
+                    id: String(t.id),
+                    progress: Number(t.progress) || 0,
+                    claimed: Boolean(t.claimed)
+                }))
+                : [],
+            completedOneTimeTasks: toStringArray(source.dailyTasksState.completedOneTimeTasks)
+        } : undefined,
     };
 }
