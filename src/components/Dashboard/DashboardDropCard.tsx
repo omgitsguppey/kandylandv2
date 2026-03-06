@@ -40,7 +40,7 @@ function DashboardDropCardBase({ drop, isUnlocked, onClick }: DashboardDropCardP
     const FileCountChip = () => {
         if (fileCounts.images === 0 && fileCounts.videos === 0) return null;
         return (
-            <div className="bg-black/40 backdrop-blur-md px-2 py-0.5 rounded-full text-[10px] font-bold text-white flex items-center gap-2 shadow-sm border border-white/10">
+            <div className="bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-bold text-white flex items-center gap-2 shadow-xl border border-white/20 z-30">
                 {fileCounts.images > 0 && (
                     <div className="flex items-center gap-1">
                         <ImageIcon className="w-3 h-3" />

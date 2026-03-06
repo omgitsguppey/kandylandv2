@@ -62,7 +62,7 @@ const FileCountChip = ({ images, videos, compact = false }: FileCountChipProps) 
 
     return (
         <div className={cn(
-            "backdrop-blur-md rounded-full font-bold text-white shadow-lg border border-white/10 flex items-center gap-2 bg-black/40",
+            "backdrop-blur-md rounded-full font-bold text-white shadow-xl border border-white/20 flex items-center gap-2 bg-black/60 z-30",
             compact ? "px-2 py-0.5 text-[9px] gap-1.5" : "px-3 py-1 text-[10px] md:text-xs"
         )}>
             {images > 0 && (

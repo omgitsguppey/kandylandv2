@@ -64,7 +64,7 @@ export function OwnedDropGalleryCard({ drop, isUnlocked, onOpen }: OwnedDropGall
 
                 {/* File Count Chip */}
                 {(fileCounts.images > 0 || fileCounts.videos > 0) && (
-                    <div className="absolute top-2 right-2 flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-1.5 py-0.5 rounded-full text-[9px] font-bold text-white border border-white/10">
+                    <div className="absolute top-2 right-2 flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-2 py-1 rounded-full text-[10px] font-bold text-white border border-white/20 z-30 shadow-xl">
                         {fileCounts.images > 0 && (
                             <div className="flex items-center gap-0.5">
                                 <ImageIcon className="w-2.5 h-2.5" />

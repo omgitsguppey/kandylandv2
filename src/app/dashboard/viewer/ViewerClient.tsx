@@ -164,7 +164,10 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
 
     const availableUrls = useMemo(() => {
         if (!drop) return [];
-        return drop.contentUrls?.length ? drop.contentUrls : (drop.contentUrl ? [drop.contentUrl] : []);
+        // Support both legacy contentUrl and modern contentUrls
+        const urls = drop.contentUrls?.length ? [...drop.contentUrls] : (drop.contentUrl ? [drop.contentUrl] : []);
+        // Remove duplicates or empty strings
+        return Array.from(new Set(urls.filter(url => typeof url === 'string' && url.length > 0)));
     }, [drop]);
 
     const viewerItems = useMemo<ViewerMediaItem[]>(() => {
@@ -495,8 +498,8 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
 
                 {/* 1.5 Multi-File Thumbnail Slider */}
                 {availableUrls.length > 1 && (
-                    <div className="w-full max-w-5xl mx-auto px-4 mt-4">
-                        <div className="flex items-center gap-3 overflow-x-auto pb-4 pt-1 px-1 touch-pan-x snap-x hide-scrollbar scroll-smooth">
+                    <div className="w-full max-w-5xl mx-auto px-4 mt-6">
+                        <div className="flex items-center gap-4 overflow-x-auto pb-6 pt-2 px-2 touch-pan-x snap-x hide-scrollbar scroll-smooth">
                             {availableUrls.map((_, idx) => (
                                 <button
                                     key={`thumb-${idx}`}
