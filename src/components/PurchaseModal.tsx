@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
-import { X, Candy } from "lucide-react";
+import { X, Candy, Minus, Plus } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -20,7 +20,7 @@ type PurchasePackage = { drops: number; price: number; label: string; isPopular?
 
 const PACKAGES: PurchasePackage[] = [
   { drops: 100, price: 1.0, label: "Starter Pack" },
-  { drops: 550, price: 5.0, label: "Fan Pack (+50 Bonus)", isPopular: true },
+  { drops: 550, price: 5.0, label: "Fan Pack (+50 Bonus)" },
   { drops: 1100, price: 10.0, label: "Premium Stash (+100 Bonus)" },
   { drops: 2500, price: 20.0, label: "Ultimate Kandy (+500 Bonus)" },
 ];
@@ -30,6 +30,7 @@ const PAYPAL_READY = (process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE?.trim()?.len
 export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   const { user } = useAuth();
   const [selectedPackage, setSelectedPackage] = useState<PurchasePackage>(PACKAGES[1]);
+  const [customDrops, setCustomDrops] = useState<number>(5000);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -140,13 +141,79 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                   : "bg-white/5 border-white/5"
                               )}
                             >
-                              {isPopular && <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-brand-purple to-blue-500 text-[10px] font-bold px-2 py-0.5 rounded-full text-white">Best Value</span>}
                               <div className="font-bold text-lg text-white mb-0.5">{pkg.drops}</div>
                               <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">{pkg.label}</div>
                               <div className={cn("font-bold", isSelected ? "text-brand-purple" : "text-white")}>${pkg.price}</div>
                             </button>
                           );
                         })}
+                      </div>
+
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => setSelectedPackage({ drops: customDrops, price: (customDrops / 1000) * 5, label: "Custom VIP" })}
+                        className={cn(
+                          "relative w-full p-4 mb-8 rounded-2xl text-left border flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-all cursor-pointer",
+                          selectedPackage.label === "Custom VIP"
+                            ? "bg-brand-purple/10 border-brand-purple/50 ring-1 ring-brand-purple/30 shadow-[0_0_20px_rgba(236,72,153,0.15)] scale-[1.02]"
+                            : "bg-white/5 border-white/5 hover:bg-white/10"
+                        )}
+                      >
+                        <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-brand-purple to-blue-500 text-[10px] font-bold px-3 py-[3px] rounded-full text-white shadow-lg">Best Value</span>
+
+                        <div>
+                          <div className="font-bold text-lg text-white mb-0.5">{customDrops.toLocaleString()}</div>
+                          <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Custom VIP</div>
+                          <div className={cn("font-bold", selectedPackage.label === "Custom VIP" ? "text-brand-purple" : "text-white")}>
+                            ${((customDrops / 1000) * 5).toFixed(2)}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 bg-black/40 rounded-xl p-1.5 border border-white/10 ml-auto mr-auto md:ml-0 md:mr-0">
+                          <div
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setCustomDrops(prev => {
+                                const newVal = Math.max(5000, prev - 1000);
+                                if (selectedPackage.label === "Custom VIP") {
+                                  setSelectedPackage({ drops: newVal, price: (newVal / 1000) * 5, label: "Custom VIP" });
+                                }
+                                return newVal;
+                              });
+                            }}
+                            className={cn(
+                              "w-10 h-10 rounded-lg flex flex-col items-center justify-center text-white transition-colors cursor-pointer",
+                              customDrops <= 5000 ? "opacity-30 cursor-not-allowed bg-white/5" : "bg-white/10 hover:bg-white/20"
+                            )}
+                          >
+                            <Minus className="w-4 h-4" />
+                          </div>
+
+                          <div className="w-16 text-center text-sm font-bold text-white flex flex-col">
+                            <span>{customDrops / 1000}k</span>
+                            <span className="text-[9px] text-gray-400 tracking-wider">DROPS</span>
+                          </div>
+
+                          <div
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setCustomDrops(prev => {
+                                const newVal = Math.min(100000, prev + 1000);
+                                if (selectedPackage.label === "Custom VIP") {
+                                  setSelectedPackage({ drops: newVal, price: (newVal / 1000) * 5, label: "Custom VIP" });
+                                }
+                                return newVal;
+                              });
+                            }}
+                            className={cn(
+                              "w-10 h-10 rounded-lg flex items-center justify-center text-white transition-colors cursor-pointer",
+                              customDrops >= 100000 ? "opacity-30 cursor-not-allowed bg-brand-purple/30" : "bg-brand-purple/80 hover:bg-brand-purple"
+                            )}
+                          >
+                            <Plus className="w-5 h-5 font-bold" />
+                          </div>
+                        </div>
                       </div>
 
                       <div className="w-full relative z-10">

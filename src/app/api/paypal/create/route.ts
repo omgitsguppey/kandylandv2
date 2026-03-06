@@ -48,14 +48,24 @@ export async function POST(request: NextRequest) {
         const userId = caller.uid;
         const { expectedDrops } = bodySchema.parse(await request.json());
 
-        // 1. Validate the requested amount strictly against our server definitions
-        const packageEntry = Object.entries(VALID_PACKAGES).find(([_, drops]) => drops === expectedDrops);
+        // 1. Validate the requested amount securely
+        let validPrice: string | null = null;
 
-        if (!packageEntry) {
+        // Mathematical dynamic VIP tier between 5,000 and 100,000 in 1k increments
+        if (expectedDrops >= 5000 && expectedDrops <= 100000 && expectedDrops % 1000 === 0) {
+            validPrice = ((expectedDrops / 1000) * 5).toFixed(2);
+        }
+        // Fallback to strict predefined packages constraints
+        else {
+            const packageEntry = Object.entries(VALID_PACKAGES).find(([_, drops]) => drops === expectedDrops);
+            if (packageEntry) validPrice = packageEntry[0];
+        }
+
+        if (!validPrice) {
             return NextResponse.json({ error: "Invalid drop package requested" }, { status: 400 });
         }
 
-        const price = packageEntry[0];
+        const price = validPrice;
 
         // 2. Obtain PayPal Access Token
         const accessToken = await getPayPalAccessToken();

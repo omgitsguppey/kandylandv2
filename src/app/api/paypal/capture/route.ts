@@ -115,11 +115,25 @@ export async function POST(request: NextRequest) {
     }
 
     const paidAmountStr = Number.parseFloat(capture.amount.value).toFixed(2);
-    const dropsToCredit = VALID_PACKAGES[paidAmountStr];
-    if (!dropsToCredit || dropsToCredit !== expectedDrops) {
+
+    // Strict backend secondary verification
+    let expectedPrice: string | null = null;
+    let dropsToCredit: number | null = null;
+
+    if (expectedDrops >= 5000 && expectedDrops <= 100000 && expectedDrops % 1000 === 0) {
+      expectedPrice = ((expectedDrops / 1000) * 5).toFixed(2);
+    } else {
+      const packageEntry = Object.entries(VALID_PACKAGES).find(([_, drops]) => drops === expectedDrops);
+      if (packageEntry) expectedPrice = packageEntry[0];
+    }
+
+    // Ensures the package exists / mathematical logic is met, AND that the exact price matches PayPal
+    if (!expectedPrice || paidAmountStr !== expectedPrice) {
       logFailedTransaction(userId, orderId, expectedDrops, `Package mismatch: paid ${paidAmountStr} for expected ${expectedDrops} drops`);
       return NextResponse.json({ error: "Payment package mismatch" }, { status: 400 });
     }
+
+    dropsToCredit = expectedDrops;
 
     const customId = capture.custom_id || parsed.purchase_units[0]?.custom_id;
     if (customId) {
