@@ -4,7 +4,7 @@ import { Drop } from "@/types/db";
 import { useState, useRef, useEffect, useMemo, useCallback, type TouchEventHandler } from "react";
 import { cn } from "@/lib/utils";
 import NextImage from "next/image";
-import { Clock, ChevronRight, Eye } from "lucide-react";
+import { Clock, ChevronRight, Eye, Image as ImageIcon, Film } from "lucide-react";
 import { getSupportedDropAspectRatio } from "@/lib/drop-presentation";
 import { getSimulatedUnwrapsToday } from "@/lib/unwrap-simulator";
 
@@ -132,6 +132,22 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
                 {featuredDrops.map((drop, index) => {
                     const isActive = index === activeIndex;
                     const totalUnwraps = typeof drop.totalUnlocks === "number" && Number.isFinite(drop.totalUnlocks) ? Math.max(0, Math.floor(drop.totalUnlocks)) : 0;
+
+                    let images = 0;
+                    let videos = 0;
+                    if (drop.mediaCounts) {
+                        images = drop.mediaCounts.images;
+                        videos = drop.mediaCounts.videos;
+                    } else {
+                        const urls = drop.contentUrls || (drop.contentUrl ? [drop.contentUrl] : []);
+                        urls.forEach(url => {
+                            const lowerUrl = url.toLowerCase();
+                            if (lowerUrl.match(/\.(mp4|webm|ogg|mov)$/)) videos++;
+                            else if (lowerUrl.match(/\.(jpg|jpeg|png|gif|webp)$/)) images++;
+                            else images++; // Assume image fallback
+                        });
+                    }
+
                     return (
                         <button
                             key={drop.id}
@@ -155,8 +171,27 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
 
-                            <div className="absolute top-4 left-4 bg-black/55 backdrop-blur-xl px-2.5 py-1 rounded-full text-[10px] uppercase tracking-[0.14em] font-bold text-white border border-white/20">
-                                Featured Drop
+                            <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+                                <div className="bg-black/55 backdrop-blur-xl px-2.5 py-1 rounded-full text-[10px] uppercase tracking-[0.14em] font-bold text-white border border-white/20">
+                                    Featured Drop
+                                </div>
+
+                                {(images > 0 || videos > 0) && (
+                                    <div className="bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-bold text-white border border-white/20 flex items-center gap-1.5 shadow-lg">
+                                        {images > 0 && (
+                                            <div className="flex items-center gap-0.5">
+                                                <ImageIcon className="w-3 h-3 text-gray-300" />
+                                                <span>{images}</span>
+                                            </div>
+                                        )}
+                                        {videos > 0 && (
+                                            <div className="flex items-center gap-0.5 ml-0.5">
+                                                <Film className="w-3 h-3 text-gray-300" />
+                                                <span>{videos}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="absolute top-4 right-4 z-20">

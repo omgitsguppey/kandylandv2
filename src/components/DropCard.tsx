@@ -4,7 +4,7 @@ import { Drop } from "@/types/db";
 import { getSimulatedUnwrapsToday } from "@/lib/unwrap-simulator";
 import { useEffect, useState, memo, useMemo } from "react";
 import NextImage from "next/image";
-import { Lock, Unlock, Clock, Loader2, AlertCircle, Eye } from "lucide-react";
+import { Lock, Unlock, Clock, Loader2, AlertCircle, Eye, Image as ImageIcon, Film } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -126,10 +126,34 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
     const resolvedRatio = aspectRatio ?? getSupportedDropAspectRatio(drop);
     const ratioStyle = { aspectRatio: resolvedRatio.replace(":", " / ") };
 
-    const primaryCategory = Array.isArray(drop.tags)
-        ? drop.tags.find((tag) => CATEGORY_TAGS.has(tag))
-        : undefined;
+    const displayedTags = useMemo(() => {
+        return (drop.tags || []).filter((tag) => CATEGORY_TAGS.has(tag)).slice(0, 3);
+    }, [drop.tags]);
 
+    const fileCounts = useMemo(() => {
+        if (drop.mediaCounts) return drop.mediaCounts;
+
+        let images = 0;
+        let videos = 0;
+
+        const urls = drop.contentUrls || [];
+        if (urls.length > 0) {
+            urls.forEach(url => {
+                const lowerUrl = url.toLowerCase();
+                if (lowerUrl.match(/\.(mp4|webm|ogg|mov)$/)) videos++;
+                else if (lowerUrl.match(/\.(jpg|jpeg|png|gif|webp)$/)) images++;
+                else images++; // Assume image if unknown for now based on legacy KandyDrops behavior
+            });
+        } else if (drop.contentUrl) {
+            const lowerUrl = drop.contentUrl.toLowerCase();
+            if (lowerUrl.match(/\.(mp4|webm|ogg|mov)$/)) videos++;
+            else images++;
+        }
+
+        return { images, videos };
+    }, [drop.contentUrls, drop.contentUrl, drop.mediaCounts]);
+
+    // Handle unlocking flow
     if (drop.validUntil && Date.now() > drop.validUntil && !isUnlocked) {
         return null;
     }
@@ -266,7 +290,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                     <div className="absolute bottom-1.5 left-1.5 right-1.5 space-y-1">
-                        {primaryCategory ? <DropCardBadge label={primaryCategory} compact /> : null}
+                        {displayedTags.length > 0 ? <DropCardBadge label={displayedTags[0]} compact /> : null}
                         <p className="text-[10px] font-bold text-white line-clamp-2 leading-tight">{drop.title}</p>
                     </div>
                 </button>
@@ -324,7 +348,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
             </button>
 
             <div className="relative z-10 space-y-2 md:space-y-3">
-                {primaryCategory ? <DropCardBadge label={primaryCategory} /> : null}
+                {displayedTags.length > 0 ? <DropCardBadge label={displayedTags[0]} /> : null}
                 <DropCardTimer validUntil={drop.validUntil} />
 
                 <div>
