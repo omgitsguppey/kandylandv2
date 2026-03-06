@@ -3,7 +3,9 @@
 import { Drop } from "@/types/db";
 import NextImage from "next/image";
 import { formatDistanceToNow } from "date-fns";
-import { Lock, Unlock, Eye, Clock } from "lucide-react";
+import { Lock, Unlock, Eye, Clock, Image as ImageIcon, Film } from "lucide-react";
+import { useMemo } from "react";
+import { cn } from "@/lib/utils";
 
 
 import { memo } from "react";
@@ -16,6 +18,44 @@ interface DashboardDropCardProps {
 }
 
 function DashboardDropCardBase({ drop, isUnlocked, onClick }: DashboardDropCardProps) {
+    const fileCounts = useMemo(() => {
+        if (drop.mediaCounts) return drop.mediaCounts;
+        let images = 0;
+        let videos = 0;
+        const urls = drop.contentUrls || [];
+        if (urls.length > 0) {
+            urls.forEach(url => {
+                const lowerUrl = url.toLowerCase();
+                if (lowerUrl.match(/\.(mp4|webm|ogg|mov)$/)) videos++;
+                else images++;
+            });
+        } else if (drop.contentUrl) {
+            const lowerUrl = drop.contentUrl.toLowerCase();
+            if (lowerUrl.match(/\.(mp4|webm|ogg|mov)$/)) videos++;
+            else images++;
+        }
+        return { images, videos };
+    }, [drop.contentUrls, drop.contentUrl, drop.mediaCounts]);
+
+    const FileCountChip = () => {
+        if (fileCounts.images === 0 && fileCounts.videos === 0) return null;
+        return (
+            <div className="bg-black/40 backdrop-blur-md px-2 py-0.5 rounded-full text-[10px] font-bold text-white flex items-center gap-2 shadow-sm border border-white/10">
+                {fileCounts.images > 0 && (
+                    <div className="flex items-center gap-1">
+                        <ImageIcon className="w-3 h-3" />
+                        <span>{fileCounts.images}</span>
+                    </div>
+                )}
+                {fileCounts.videos > 0 && (
+                    <div className="flex items-center gap-1">
+                        <Film className="w-3 h-3" />
+                        <span>{fileCounts.videos}</span>
+                    </div>
+                )}
+            </div>
+        );
+    };
 
     return (
         <div
@@ -48,6 +88,11 @@ function DashboardDropCardBase({ drop, isUnlocked, onClick }: DashboardDropCardP
                         </div>
                     )}
                 </div>
+
+                {/* File Count Chip */}
+                <div className="absolute bottom-2 left-2">
+                    <FileCountChip />
+                </div>
             </div>
 
             {/* Middle: Content Info */}
@@ -74,15 +119,13 @@ function DashboardDropCardBase({ drop, isUnlocked, onClick }: DashboardDropCardP
                 {/* Bottom: Action Row */}
                 <div className="flex items-center gap-2 pt-3 border-t border-white/5">
                     {isUnlocked ? (
-                        <>
-                            <Link
-                                href={`/dashboard/viewer?id=${drop.id}`}
-                                onClick={(e) => e.stopPropagation()}
-                                className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-brand-purple/10 text-brand-purple text-xs font-bold transition-colors border border-brand-purple/20 hover:bg-brand-purple/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple/40"
-                            >
-                                <Eye className="w-3.5 h-3.5" /> View
-                            </Link>
-                        </>
+                        <Link
+                            href={`/dashboard/viewer?id=${drop.id}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-brand-purple/10 text-brand-purple text-xs font-bold transition-colors border border-brand-purple/20 hover:bg-brand-purple/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple/40"
+                        >
+                            <Eye className="w-3.5 h-3.5" /> View
+                        </Link>
                     ) : (
                         <div className="w-full flex items-center justify-between text-xs">
                             <span className="text-brand-purple font-bold">{drop.unlockCost} GD</span>

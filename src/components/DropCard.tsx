@@ -51,6 +51,36 @@ const DropCardBadge = ({ label, compact = false }: DropCardBadgeProps) => (
     </div>
 );
 
+interface FileCountChipProps {
+    images: number;
+    videos: number;
+    compact?: boolean;
+}
+
+const FileCountChip = ({ images, videos, compact = false }: FileCountChipProps) => {
+    if (images === 0 && videos === 0) return null;
+
+    return (
+        <div className={cn(
+            "backdrop-blur-md rounded-full font-bold text-white shadow-lg border border-white/10 flex items-center gap-2 bg-black/40",
+            compact ? "px-2 py-0.5 text-[9px] gap-1.5" : "px-3 py-1 text-[10px] md:text-xs"
+        )}>
+            {images > 0 && (
+                <div className="flex items-center gap-1">
+                    <ImageIcon className={compact ? "w-2.5 h-2.5" : "w-3 h-3 md:w-3.5 md:h-3.5"} />
+                    <span>{images}</span>
+                </div>
+            )}
+            {videos > 0 && (
+                <div className="flex items-center gap-1">
+                    <Film className={compact ? "w-2.5 h-2.5" : "w-3 h-3 md:w-3.5 md:h-3.5"} />
+                    <span>{videos}</span>
+                </div>
+            )}
+        </div>
+    );
+};
+
 function DropCardTimer({ validUntil }: { validUntil?: number }) {
     const [timeLeft, setTimeLeft] = useState("Ends soon");
 
@@ -289,6 +319,9 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                         sizes="(max-width: 768px) 25vw, 180px"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                    <div className="absolute top-1.5 right-1.5 z-10">
+                        <FileCountChip images={fileCounts.images} videos={fileCounts.videos} compact />
+                    </div>
                     <div className="absolute bottom-1.5 left-1.5 right-1.5 space-y-1">
                         {displayedTags.length > 0 ? <DropCardBadge label={displayedTags[0]} compact /> : null}
                         <p className="text-[10px] font-bold text-white line-clamp-2 leading-tight">{drop.title}</p>
@@ -345,6 +378,9 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                 ) : (
                     <div className="w-full h-full flex items-center justify-center text-5xl bg-zinc-900/50">🍬</div>
                 )}
+                <div className="absolute top-2 md:top-3 right-2 md:right-3 z-10 transition-transform group-hover/image:scale-110">
+                    <FileCountChip images={fileCounts.images} videos={fileCounts.videos} />
+                </div>
             </button>
 
             <div className="relative z-10 space-y-2 md:space-y-3">

@@ -4,7 +4,8 @@ import NextImage from "next/image";
 import { Drop } from "@/types/db";
 import { cn } from "@/lib/utils";
 import { getAspectRatioCssValue, getSupportedDropAspectRatio } from "@/lib/drop-presentation";
-import { Lock, Unlock } from "lucide-react";
+import { Lock, Unlock, Image as ImageIcon, Film } from "lucide-react";
+import { useMemo } from "react";
 
 interface OwnedDropGalleryCardProps {
     drop: Drop;
@@ -15,6 +16,25 @@ interface OwnedDropGalleryCardProps {
 export function OwnedDropGalleryCard({ drop, isUnlocked, onOpen }: OwnedDropGalleryCardProps) {
     const ratio = getSupportedDropAspectRatio(drop);
     const ratioStyle = { aspectRatio: getAspectRatioCssValue(ratio) };
+
+    const fileCounts = useMemo(() => {
+        if (drop.mediaCounts) return drop.mediaCounts;
+        let images = 0;
+        let videos = 0;
+        const urls = drop.contentUrls || [];
+        if (urls.length > 0) {
+            urls.forEach(url => {
+                const lowerUrl = url.toLowerCase();
+                if (lowerUrl.match(/\.(mp4|webm|ogg|mov)$/)) videos++;
+                else images++;
+            });
+        } else if (drop.contentUrl) {
+            const lowerUrl = drop.contentUrl.toLowerCase();
+            if (lowerUrl.match(/\.(mp4|webm|ogg|mov)$/)) videos++;
+            else images++;
+        }
+        return { images, videos };
+    }, [drop.contentUrls, drop.contentUrl, drop.mediaCounts]);
 
     return (
         <button
@@ -40,6 +60,24 @@ export function OwnedDropGalleryCard({ drop, isUnlocked, onOpen }: OwnedDropGall
                     />
                 ) : (
                     <div className="h-full w-full flex items-center justify-center text-3xl">🍬</div>
+                )}
+
+                {/* File Count Chip */}
+                {(fileCounts.images > 0 || fileCounts.videos > 0) && (
+                    <div className="absolute top-2 right-2 flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-1.5 py-0.5 rounded-full text-[9px] font-bold text-white border border-white/10">
+                        {fileCounts.images > 0 && (
+                            <div className="flex items-center gap-0.5">
+                                <ImageIcon className="w-2.5 h-2.5" />
+                                <span>{fileCounts.images}</span>
+                            </div>
+                        )}
+                        {fileCounts.videos > 0 && (
+                            <div className="flex items-center gap-0.5">
+                                <Film className="w-2.5 h-2.5" />
+                                <span>{fileCounts.videos}</span>
+                            </div>
+                        )}
+                    </div>
                 )}
 
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2">

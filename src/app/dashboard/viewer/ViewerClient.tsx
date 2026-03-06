@@ -129,7 +129,6 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     const router = useRouter();
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [contentBlobUrl, setContentBlobUrl] = useState<string | null>(null);
-    const [viewerOpen, setViewerOpen] = useState(false);
     const [resolvedContent, setResolvedContent] = useState<ResolvedContent>({ kind: "unknown", mimeType: "" });
     const [contentLoading, setContentLoading] = useState(false);
 
@@ -403,7 +402,6 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                 if (resolvedContent.kind === "video") {
                                     return (
                                         <video
-                                            onDoubleClick={() => setViewerOpen(true)}
                                             controls
                                             controlsList="nodownload noplaybackrate"
                                             disablePictureInPicture
@@ -454,7 +452,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                     );
                                 } else if (resolvedContent.kind === "image") {
                                     return (
-                                        <button type="button" onClick={() => setViewerOpen(true)} className="relative w-full h-full bg-black">
+                                        <div className="relative w-full h-full bg-black">
                                             <img
                                                 src={contentBlobUrl}
                                                 alt="Content"
@@ -462,7 +460,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                                 draggable={false}
                                                 onContextMenu={preventContextMenu}
                                             />
-                                        </button>
+                                        </div>
                                     );
                                 } else if (resolvedContent.kind === "pdf") {
                                     return (
@@ -620,13 +618,6 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                     </div>
                 )}
             </div>
-
-            <ContentViewer
-                items={viewerItems}
-                isOpen={viewerOpen}
-                initialIndex={0}
-                onClose={() => setViewerOpen(false)}
-            />
         </div>
     );
 }
