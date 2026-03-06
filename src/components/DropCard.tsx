@@ -134,8 +134,12 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
     const [error, setError] = useState<string | null>(null);
     const [hasTrackedView, setHasTrackedView] = useState(false);
 
-    // Compute deterministic simulative unwraps
-    const simulativeUnwraps = useMemo(() => getSimulatedUnwrapsToday(drop.id), [drop.id]);
+    // Compute deterministic simulative unwraps (client-side only to avoid hydration mismatches)
+    const [simulativeUnwraps, setSimulativeUnwraps] = useState(0);
+
+    useEffect(() => {
+        setSimulativeUnwraps(getSimulatedUnwrapsToday(drop.id));
+    }, [drop.id]);
 
     useEffect(() => {
         if (!hasTrackedView) {

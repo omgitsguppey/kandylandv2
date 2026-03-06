@@ -129,9 +129,37 @@ function toMillis(value: z.infer<typeof timestampSchema>): number {
 }
 
 export function normalizeDropRecord(raw: unknown, id: string): Drop {
-  const parsed = dropRecordSchema.parse({ ...(raw as Record<string, unknown>), id });
+  const data = raw as Record<string, unknown>;
+  const parsed = dropRecordSchema.parse({ ...data, id });
+
+  // Calculate mediaCounts fallback if missing
+  let mediaCounts = parsed.mediaCounts;
+  if (!mediaCounts) {
+    let images = 0;
+    let videos = 0;
+    const urls = parsed.contentUrls || [];
+    const contentUrl = parsed.contentUrl || "";
+
+    if (urls.length > 0) {
+      urls.forEach(url => {
+        const lowerUrl = url.toLowerCase();
+        if (lowerUrl.match(/\.(mp4|webm|ogg|mov)(\?|$)/)) videos++;
+        else images++;
+      });
+    } else if (contentUrl) {
+      const lowerUrl = contentUrl.toLowerCase();
+      if (lowerUrl.match(/\.(mp4|webm|ogg|mov)(\?|$)/)) videos++;
+      else images++;
+    }
+
+    if (images > 0 || videos > 0) {
+      mediaCounts = { images, videos };
+    }
+  }
+
   return dropSchema.parse({
     ...parsed,
+    mediaCounts,
     validFrom: toMillis(parsed.validFrom),
     validUntil: parsed.validUntil != null ? toMillis(parsed.validUntil) : null,
     createdAt: parsed.createdAt != null ? toMillis(parsed.createdAt) : null,

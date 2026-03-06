@@ -155,9 +155,12 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
 
     const previewTags = useMemo(() => sanitizeDropTags(drop?.tags), [drop?.tags]);
 
-    const simulativeUnwraps = useMemo(() => {
-        if (!drop) return 0;
-        return getSimulatedUnwrapsToday(drop.id);
+    const [simulativeUnwraps, setSimulativeUnwraps] = useState(0);
+
+    useEffect(() => {
+        if (drop) {
+            setSimulativeUnwraps(getSimulatedUnwrapsToday(drop.id));
+        }
     }, [drop]);
 
     const [activeIndex, setActiveIndex] = useState(0);

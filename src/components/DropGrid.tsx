@@ -43,21 +43,21 @@ export function DropGrid({ drops: propDrops, loading: propLoading, isSearching, 
 
     const getGridSpanClass = (ratio: "1:1" | "16:9" | "9:16") => {
         if (ratio === "16:9") {
-            return "col-span-4";
+            return "col-span-2 sm:col-span-2 md:col-span-3 lg:col-span-4";
         }
 
         if (ratio === "9:16") {
             return "col-span-1";
         }
 
-        return "col-span-2";
+        return "col-span-1 md:col-span-1 lg:col-span-2";
     };
 
     if (loading) {
         return (
-            <div className="grid grid-cols-4 gap-3 md:gap-5 pb-20 md:pb-0">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5 pb-20 md:pb-0">
                 {Array.from({ length: 8 }).map((_, idx) => (
-                    <div key={idx} className="col-span-2 h-[240px] md:h-[360px] rounded-2xl bg-white/5 animate-pulse" />
+                    <div key={idx} className="col-span-1 h-[240px] md:h-[360px] rounded-2xl bg-white/5 animate-pulse" />
                 ))}
             </div>
         );
@@ -113,7 +113,7 @@ export function DropGrid({ drops: propDrops, loading: propLoading, isSearching, 
     }
 
     return (
-        <div className="grid grid-cols-4 gap-3 md:gap-5 pb-20 md:pb-0 items-start">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5 pb-20 md:pb-0 items-start">
             {dropEntries.map(({ drop, aspectRatio }, index) => {
                 const isUnlocked = userProfile?.unlockedContent?.includes(drop.id);
                 const canAfford = (userProfile?.gumDropsBalance || 0) >= drop.unlockCost;

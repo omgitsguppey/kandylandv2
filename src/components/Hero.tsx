@@ -32,14 +32,14 @@ export default function Hero() {
                         PREMIUM DIGITAL EXPERIENCES
                     </div>
 
-                    <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tighter text-white leading-[1.1]">
+                    <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tighter text-white leading-[1.1]">
                         Unwrap<br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-purple to-purple-400">
                             Exclusive
                         </span> Content.
                     </h1>
 
-                    <p className="text-xl text-gray-400 leading-relaxed font-medium">
+                    <p className="text-lg sm:text-xl text-gray-400 leading-relaxed font-medium">
                         Connect intimately with your favorite creators like Jessi Ray and Bloomytrip. Unlock private collections, exclusive media, and unique experiences you won't find anywhere else.
                     </p>
 
@@ -71,7 +71,7 @@ export default function Hero() {
                         <ActivityTicker />
                     </div>
 
-                    <div className="pt-4 border-t border-white/10 w-4/5 pt-8">
+                    <div className="pt-4 border-t border-white/10 w-full md:w-4/5 pt-8">
                         <p className="text-sm text-gray-400 font-medium mb-4">Latest Unwraps</p>
                         <HomeDropTicker />
                     </div>

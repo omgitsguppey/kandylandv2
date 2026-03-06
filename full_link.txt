@@ -1,0 +1,1 @@
+9 FAILED_PRECONDITION: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/kandydrops-by-ikandy/firestore/indexes?create_composite=ClJwcm9qZWN0cy9rYW5keWRyb3BzLWJ5LWlrYW5keS9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvZHJvcHMvaW5kZXhlcy9fEAEaCgoGc3RhdHVzEAEaDQoJdmFsaWRGcm9tEAEaDAoIX19uYW1lX18QAQ
