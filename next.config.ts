@@ -15,10 +15,6 @@ const nextConfig: NextConfig = {
       }
     ]
   },
-  // @ts-expect-error - eslint is a valid Next.js config property but missing from this exact type definition
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
 };
 
 const withBundleAnalyzerConfig = withBundleAnalyzer({

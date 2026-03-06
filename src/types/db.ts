@@ -42,6 +42,16 @@ export interface UserProfile {
         lastViolationReason?: string; // e.g. 'screenshot_hotkey', 'window_blur'
         lastViolationDropId?: string;
     };
+
+    dailyTasksState?: {
+        lastResetMs: number;
+        tasks: {
+            id: string;
+            progress: number;
+            claimed: boolean;
+        }[];
+        completedOneTimeTasks: string[];
+    };
 }
 
 export interface Drop {

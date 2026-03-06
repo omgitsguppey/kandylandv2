@@ -41,18 +41,6 @@ export interface ListAiInteractionsData {
   } & AiInteraction_Key)[];
 }
 
-interface ListAiInteractionsRef {
-  /* Allow users to create refs without passing in DataConnect */
-  (): QueryRef<ListAiInteractionsData, undefined>;
-  /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect): QueryRef<ListAiInteractionsData, undefined>;
-  operationName: string;
-}
-export const listAiInteractionsRef: ListAiInteractionsRef;
-
-export function listAiInteractions(): QueryPromise<ListAiInteractionsData, undefined>;
-export function listAiInteractions(dc: DataConnect): QueryPromise<ListAiInteractionsData, undefined>;
-
 interface CreateAiInteractionRef {
   /* Allow users to create refs without passing in DataConnect */
   (vars: CreateAiInteractionVariables): MutationRef<CreateAiInteractionData, CreateAiInteractionVariables>;
@@ -64,4 +52,16 @@ export const createAiInteractionRef: CreateAiInteractionRef;
 
 export function createAiInteraction(vars: CreateAiInteractionVariables): MutationPromise<CreateAiInteractionData, CreateAiInteractionVariables>;
 export function createAiInteraction(dc: DataConnect, vars: CreateAiInteractionVariables): MutationPromise<CreateAiInteractionData, CreateAiInteractionVariables>;
+
+interface ListAiInteractionsRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<ListAiInteractionsData, undefined>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect): QueryRef<ListAiInteractionsData, undefined>;
+  operationName: string;
+}
+export const listAiInteractionsRef: ListAiInteractionsRef;
+
+export function listAiInteractions(): QueryPromise<ListAiInteractionsData, undefined>;
+export function listAiInteractions(dc: DataConnect): QueryPromise<ListAiInteractionsData, undefined>;
 

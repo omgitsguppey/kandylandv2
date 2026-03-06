@@ -7,18 +7,6 @@ const connectorConfig = {
 };
 exports.connectorConfig = connectorConfig;
 
-const listAiInteractionsRef = (dc) => {
-  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
-  dcInstance._useGeneratedSdk();
-  return queryRef(dcInstance, 'ListAiInteractions');
-}
-listAiInteractionsRef.operationName = 'ListAiInteractions';
-exports.listAiInteractionsRef = listAiInteractionsRef;
-
-exports.listAiInteractions = function listAiInteractions(dc) {
-  return executeQuery(listAiInteractionsRef(dc));
-};
-
 const createAiInteractionRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
@@ -29,4 +17,16 @@ exports.createAiInteractionRef = createAiInteractionRef;
 
 exports.createAiInteraction = function createAiInteraction(dcOrVars, vars) {
   return executeMutation(createAiInteractionRef(dcOrVars, vars));
+};
+
+const listAiInteractionsRef = (dc) => {
+  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ListAiInteractions');
+}
+listAiInteractionsRef.operationName = 'ListAiInteractions';
+exports.listAiInteractionsRef = listAiInteractionsRef;
+
+exports.listAiInteractions = function listAiInteractions(dc) {
+  return executeQuery(listAiInteractionsRef(dc));
 };
