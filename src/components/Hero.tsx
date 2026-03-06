@@ -24,89 +24,56 @@ export default function Hero() {
                 <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-brand-purple/10 rounded-full blur-[100px] mix-blend-screen animate-pulse" style={{ animationDuration: '7s' }} />
             </div>
 
-            <div className="relative z-10 w-full max-w-7xl mx-auto px-8 sm:px-6 lg:px-8">
-                <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
-                    {/* Left Content */}
-                    <div className="text-left space-y-8 w-full max-w-2xl min-w-0">
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-purple/10 border border-brand-purple/20 text-brand-purple text-sm font-bold tracking-wide">
-                            <Sparkles className="w-4 h-4" />
-                            PREMIUM DIGITAL EXPERIENCES
-                        </div>
-
-                        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tighter text-white leading-[1.1]">
-                            Unwrap<br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-purple to-purple-400">
-                                Exclusive
-                            </span> Content.
-                        </h1>
-
-                        <p className="text-lg sm:text-xl text-gray-400 leading-relaxed font-medium">
-                            Connect intimately with your favorite creators like Jessi Ray and Bloomytrip. Unlock private collections, exclusive media, and unique experiences you won't find anywhere else.
-                        </p>
-
-                        <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                            {user ? (
-                                <Link href="/dashboard" className="w-full sm:w-auto">
-                                    <Button size="lg" variant="brand" className="w-full rounded-2xl px-6 py-4 md:px-10 md:py-6 text-base md:text-lg font-bold shadow-[0_0_30px_rgba(178,140,255,0.4)] hover:shadow-[0_0_40px_rgba(178,140,255,0.6)] transition-all">
-                                        Go to Dashboard <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2" />
-                                    </Button>
-                                </Link>
-                            ) : (
-                                <Button
-                                    onClick={openAuthModal}
-                                    size="lg"
-                                    variant="brand"
-                                    className="w-full sm:w-auto rounded-2xl px-6 py-4 md:px-10 md:py-6 text-base md:text-lg font-bold shadow-[0_0_30px_rgba(178,140,255,0.4)] hover:shadow-[0_0_40px_rgba(178,140,255,0.6)] transition-all"
-                                >
-                                    Get iKandy <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2" />
-                                </Button>
-                            )}
-                            <Link href="/faq" className="w-full sm:w-auto">
-                                <Button size="lg" variant="glass" className="w-full rounded-2xl px-6 py-4 md:px-8 md:py-6 text-base md:text-lg font-bold border-white/10 hover:bg-white/5">
-                                    See How It Works
-                                </Button>
-                            </Link>
-                        </div>
-
-                        <div className="pt-2 pb-2">
-                            <ActivityTicker />
-                        </div>
-
-                        <div className="pt-8 border-t border-white/10 w-full lg:w-4/5">
-                            <p className="text-sm text-gray-400 font-medium mb-4">Latest Unwraps</p>
-                            <HomeDropTicker />
-                        </div>
+            <div className="relative z-10 w-full max-w-7xl mx-auto px-8 sm:px-6 lg:px-8 flex flex-col items-center text-center">
+                {/* Left Content */}
+                <div className="space-y-8 w-full max-w-2xl min-w-0 flex flex-col items-center">
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-purple/10 border border-brand-purple/20 text-brand-purple text-sm font-bold tracking-wide">
+                        <Sparkles className="w-4 h-4" />
+                        PREMIUM DIGITAL EXPERIENCES
                     </div>
 
-                    {/* Right Content - Editable Hero Graphic */}
-                    <div className="relative w-full aspect-[4/5] lg:aspect-square flex justify-center items-center group perspective-1000 mt-8 lg:mt-0 overflow-hidden min-w-0">
-                        <div className="absolute inset-4 bg-brand-purple/20 rounded-[3rem] blur-3xl transform group-hover:scale-105 transition-transform duration-700" />
+                    <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tighter text-white leading-[1.1]">
+                        Unwrap<br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-purple to-purple-400">
+                            Exclusive
+                        </span> Content.
+                    </h1>
 
-                        {/* The editable hero image placeholder */}
-                        <EditableImage
-                            id="landing-hero-main"
-                            alt="KandyDrops Experience Showcase"
-                            defaultSrc="/placeholder-drop-1.jpg" // Will fall back to whatever default img exists, admin can change to gif/image
-                            className="w-full h-full rounded-[2.5rem] shadow-2xl border border-white/10 overflow-hidden transform rotate-2 group-hover:rotate-0 transition-all duration-500 z-10 block"
-                            fill
-                            priority
-                            sizes="(max-width: 768px) 100vw, 50vw"
-                        />
+                    <p className="text-lg sm:text-xl text-gray-400 leading-relaxed font-medium">
+                        Connect intimately with your favorite creators like Jessi Ray and Bloomytrip. Unlock private collections, exclusive media, and unique experiences you won't find anywhere else.
+                    </p>
 
-                        {/* Decorative floating elements */}
-                        <EditableImage
-                            id="landing-hero-float-1"
-                            alt="Creator Jessi Ray"
-                            defaultSrc="/placeholder-drop-2.jpg"
-                            className="absolute -left-6 bottom-12 w-32 h-40 rounded-2xl border border-white/20 shadow-2xl z-20 transform -rotate-6 group-hover:-translate-y-4 group-hover:-translate-x-2 transition-transform duration-700"
-                        />
+                    <div className="flex flex-col sm:flex-row gap-4 pt-4 justify-center">
+                        {user ? (
+                            <Link href="/dashboard" className="w-full sm:w-auto">
+                                <Button size="lg" variant="brand" className="w-full rounded-2xl px-6 py-4 md:px-10 md:py-6 text-base md:text-lg font-bold shadow-[0_0_30px_rgba(178,140,255,0.4)] hover:shadow-[0_0_40px_rgba(178,140,255,0.6)] transition-all">
+                                    Go to Dashboard <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2" />
+                                </Button>
+                            </Link>
+                        ) : (
+                            <Button
+                                onClick={openAuthModal}
+                                size="lg"
+                                variant="brand"
+                                className="w-full sm:w-auto rounded-2xl px-6 py-4 md:px-10 md:py-6 text-base md:text-lg font-bold shadow-[0_0_30px_rgba(178,140,255,0.4)] hover:shadow-[0_0_40px_rgba(178,140,255,0.6)] transition-all"
+                            >
+                                Get iKandy <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2" />
+                            </Button>
+                        )}
+                        <Link href="/faq" className="w-full sm:w-auto">
+                            <Button size="lg" variant="glass" className="w-full rounded-2xl px-6 py-4 md:px-8 md:py-6 text-base md:text-lg font-bold border-white/10 hover:bg-white/5">
+                                See How It Works
+                            </Button>
+                        </Link>
+                    </div>
 
-                        <EditableImage
-                            id="landing-hero-float-2"
-                            alt="Creator Bloomytrip"
-                            defaultSrc="/placeholder-drop-3.jpg"
-                            className="absolute -right-4 top-20 w-36 h-36 rounded-[2rem] border border-white/20 shadow-2xl z-20 transform rotate-12 group-hover:-translate-y-6 group-hover:translate-x-4 transition-transform duration-700"
-                        />
+                    <div className="pt-2 pb-2">
+                        <ActivityTicker />
+                    </div>
+
+                    <div className="pt-8 border-t border-white/10 w-full lg:w-4/5">
+                        <p className="text-sm text-gray-400 font-medium mb-4">Latest Unwraps</p>
+                        <HomeDropTicker />
                     </div>
                 </div>
             </div>

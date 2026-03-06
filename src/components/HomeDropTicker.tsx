@@ -33,16 +33,8 @@ export function HomeDropTicker() {
   return (
     <div className="mt-6 md:mt-8">
       <div className="overflow-hidden rounded-2xl border border-white/10 bg-black/40 p-3 relative">
-        {!user && <div className="absolute inset-0 backdrop-blur-md bg-black/35 z-10" />}
         {renderTrack()}
       </div>
-      {!user && (
-        <div className="mt-3 text-center">
-          <button onClick={openAuthModal} className="text-sm text-brand-purple font-semibold underline underline-offset-4">
-            Sign up to start unwrapping
-          </button>
-        </div>
-      )}
       <style jsx>{`
         @keyframes ticker {
           from { transform: translateX(0); }
