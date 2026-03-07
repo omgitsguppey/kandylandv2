@@ -1,0 +1,91 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "KandyDrops" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - button "Sign In" [ref=e6]:
+        - img [ref=e7]
+        - text: Sign In
+  - main [ref=e10]:
+    - generic [ref=e13]:
+      - generic [ref=e14]:
+        - img [ref=e18]
+        - heading "Exclusive Experiences" [level=1] [ref=e21]
+        - paragraph [ref=e22]: Earn free Gum Drops just for showing up. Complete daily tasks to stack your rewards.
+      - generic [ref=e24]:
+        - generic [ref=e26]:
+          - img [ref=e28]
+          - generic [ref=e31]: Sign In To Play
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - heading "Daily Rewards" [level=2]:
+                      - img
+                      - text: Daily Rewards
+                    - paragraph: Check in daily to earn Gum Drops!
+                  - generic:
+                    - generic: 0/7
+                    - generic: Day Streak
+                - generic:
+                  - generic:
+                    - generic: "10"
+                  - generic:
+                    - generic: "20"
+                  - generic:
+                    - generic: "30"
+                  - generic:
+                    - generic: "40"
+                  - generic:
+                    - generic: "50"
+                  - generic:
+                    - generic: "60"
+                  - generic:
+                    - generic: "70"
+                - paragraph: Next check-in available in 00:00:00
+                - generic:
+                  - img
+                  - text: Come back tomorrow for 10 Drops!
+        - button "Sign in to view" [ref=e32] [cursor=pointer]
+      - button "Buy More Gumdrops" [ref=e34]:
+        - text: Buy More Gumdrops
+        - img [ref=e35]
+  - navigation [ref=e37]:
+    - link "Home" [ref=e38] [cursor=pointer]:
+      - /url: /
+      - img [ref=e39]
+      - generic [ref=e42]: Home
+    - link "Drops" [ref=e43] [cursor=pointer]:
+      - /url: /drops
+      - img [ref=e44]
+      - generic [ref=e48]: Drops
+    - link "Experiences" [ref=e49] [cursor=pointer]:
+      - /url: /experiences
+      - img [ref=e50]
+      - generic [ref=e53]: Experiences
+    - button "Wallet" [ref=e54]:
+      - img [ref=e55]
+      - generic [ref=e58]: Wallet
+  - region "Notifications alt+T"
+  - generic [ref=e59]:
+    - generic [ref=e60]: This website uses cookies to enhance the user experience and track interactions for improvement. By continuing, you verify you are over 18.
+    - button "Accept cookies" [ref=e62] [cursor=pointer]: I Understand
+  - generic:
+    - generic: 393px x 727px
+    - generic: xs (mobile)
+  - button "Open Next.js Dev Tools" [ref=e68] [cursor=pointer]:
+    - generic [ref=e71]:
+      - text: Compiling
+      - generic [ref=e72]:
+        - generic [ref=e73]: .
+        - generic [ref=e74]: .
+        - generic [ref=e75]: .
+  - iframe [ref=e76]:
+    
+  - alert [ref=e77]
+```

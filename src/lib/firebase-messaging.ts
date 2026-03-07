@@ -5,7 +5,7 @@ export const requestFirebaseNotificationPermission = async () => {
     try {
         const supported = await isSupported();
         if (!supported) {
-            console.log("Firebase Messaging not supported in this browser.");
+            console.warn("Firebase Messaging not supported in this browser. (Note: iOS Safari requires 'Add to Home Screen')");
             return null;
         }
 

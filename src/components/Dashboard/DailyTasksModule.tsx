@@ -18,6 +18,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
+import { isIOSNonStandalone } from "@/lib/browser-utils";
 
 interface Task {
     id: string;
@@ -149,8 +150,16 @@ export function DailyTasksModule() {
         }
     };
 
+
     const handleAction = async (taskId: string) => {
         if (taskId === 'enable_notifications') {
+            if (isIOSNonStandalone()) {
+                toast.error("To enable notifications on iOS, please add this app to your Home Screen first (Share > Add to Home Screen).", {
+                    duration: 6000
+                });
+                return;
+            }
+
             if ('Notification' in window) {
                 const permission = await Notification.requestPermission();
                 if (permission === 'granted') {
@@ -159,7 +168,7 @@ export function DailyTasksModule() {
                     toast.error("Notification permission denied");
                 }
             } else {
-                toast.error("Notifications not supported on this device");
+                toast.error("Notifications not supported on this device. Try adding to Home Screen if on iOS.");
             }
         } else if (taskId === 'give_feedback') {
             setShowFeedbackModal(true);

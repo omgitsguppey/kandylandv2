@@ -1,0 +1,27 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "KandyDrops" [ref=e4]:
+        - /url: /
+      - button "Sign In" [ref=e6]:
+        - img [ref=e7]
+        - text: Sign In
+  - main [ref=e10]
+  - region "Notifications alt+T"
+  - generic:
+    - generic: 0px x 0px
+    - generic:
+      - generic: xl (wide)
+  - button "Open Next.js Dev Tools" [ref=e19] [cursor=pointer]:
+    - generic [ref=e22]:
+      - text: Compiling
+      - generic [ref=e23]:
+        - generic [ref=e24]: .
+        - generic [ref=e25]: .
+        - generic [ref=e26]: .
+  - iframe [ref=e27]:
+    
+```
