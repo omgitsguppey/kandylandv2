@@ -1,0 +1,197 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "KandyDrops" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - button "Sign In" [active] [ref=e6]:
+        - img [ref=e7]
+        - text: Sign In
+  - main [ref=e10]:
+    - generic [ref=e12]:
+      - generic [ref=e18]:
+        - generic [ref=e19]:
+          - img [ref=e20]
+          - text: PREMIUM DIGITAL EXPERIENCES
+        - heading "Unwrap Exclusive Content." [level=1] [ref=e23]:
+          - text: Unwrap
+          - text: Exclusive Content.
+        - paragraph [ref=e24]: Connect intimately with your favorite creators like Jessi Ray and Bloomytrip. Unlock private collections, exclusive media, and unique experiences you won't find anywhere else.
+        - generic [ref=e25]:
+          - button "Get iKandy" [ref=e26]:
+            - text: Get iKandy
+            - img [ref=e27]
+          - link "See How It Works" [ref=e29] [cursor=pointer]:
+            - /url: /faq
+            - button "See How It Works" [ref=e30]
+        - generic [ref=e36]: 🚀 6,352 users are unwrapping drops right now
+        - generic [ref=e37]:
+          - paragraph [ref=e38]: Latest Unwraps
+          - generic [ref=e41]:
+            - generic [ref=e42]:
+              - img "Jessi Ray’s Hersheys Kisses 🍫" [ref=e44]
+              - generic [ref=e45]:
+                - paragraph [ref=e46]: Jessi Ray’s Hersheys Kisses 🍫
+                - paragraph [ref=e47]: 1000 GD
+            - generic [ref=e48]:
+              - img "Jessi Ray’s Blueberry Lace Bundle 🫐" [ref=e50]
+              - generic [ref=e51]:
+                - paragraph [ref=e52]: Jessi Ray’s Blueberry Lace Bundle 🫐
+                - paragraph [ref=e53]: 1800 GD
+            - generic [ref=e54]:
+              - img "Bloomytrip’s Peach & Natural 🍑" [ref=e56]
+              - generic [ref=e57]:
+                - paragraph [ref=e58]: Bloomytrip’s Peach & Natural 🍑
+                - paragraph [ref=e59]: 1000 GD
+            - generic [ref=e60]:
+              - img "Bloomytrip’s Gummy Bounce 🍮" [ref=e62]
+              - generic [ref=e63]:
+                - paragraph [ref=e64]: Bloomytrip’s Gummy Bounce 🍮
+                - paragraph [ref=e65]: 1000 GD
+            - generic [ref=e66]:
+              - img "Jessi Ray’s Hersheys Kisses 🍫" [ref=e68]
+              - generic [ref=e69]:
+                - paragraph [ref=e70]: Jessi Ray’s Hersheys Kisses 🍫
+                - paragraph [ref=e71]: 1000 GD
+            - generic [ref=e72]:
+              - img "Jessi Ray’s Blueberry Lace Bundle 🫐" [ref=e74]
+              - generic [ref=e75]:
+                - paragraph [ref=e76]: Jessi Ray’s Blueberry Lace Bundle 🫐
+                - paragraph [ref=e77]: 1800 GD
+            - generic [ref=e78]:
+              - img "Bloomytrip’s Peach & Natural 🍑" [ref=e80]
+              - generic [ref=e81]:
+                - paragraph [ref=e82]: Bloomytrip’s Peach & Natural 🍑
+                - paragraph [ref=e83]: 1000 GD
+            - generic [ref=e84]:
+              - img "Bloomytrip’s Gummy Bounce 🍮" [ref=e86]
+              - generic [ref=e87]:
+                - paragraph [ref=e88]: Bloomytrip’s Gummy Bounce 🍮
+                - paragraph [ref=e89]: 1000 GD
+      - generic [ref=e92]:
+        - generic [ref=e93]:
+          - heading "How the Drops Work" [level=2] [ref=e94]
+          - paragraph [ref=e95]: Straightforward access to premium digital collections.
+        - generic [ref=e96]:
+          - generic [ref=e97]:
+            - img [ref=e99]
+            - heading "Discover Exclusives" [level=3] [ref=e102]
+            - paragraph [ref=e103]: Find private drops from top creators that are securely locked away.
+          - generic [ref=e104]:
+            - img [ref=e106]
+            - heading "Get Gum Drops" [level=3] [ref=e108]
+            - paragraph [ref=e109]: Load up your wallet with our sitewide currency, Gum Drops.
+          - generic [ref=e110]:
+            - img [ref=e112]
+            - heading "Unwrap Access" [level=3] [ref=e115]
+            - paragraph [ref=e116]: Spend your GD to instantly unlock full access to the hidden media permanently.
+          - generic [ref=e117]:
+            - img [ref=e119]
+            - heading "Own the Experience" [level=3] [ref=e121]
+            - paragraph [ref=e122]: Once unwrapped, it's in your library forever. Re-experience it anytime.
+        - generic [ref=e126]:
+          - generic [ref=e127]:
+            - heading "Curated by top-tier talent." [level=3] [ref=e128]
+            - paragraph [ref=e129]: Our platform is home to creators who push boundaries. Discover the unseen side of Jessi Ray and the exclusive archives of Bloomytrip, available only right here on KandyDrops.
+            - button "Browse the Catalog" [ref=e130]
+          - generic [ref=e131]:
+            - generic [ref=e132]:
+              - img "Creator content" [ref=e134]
+              - img "Creator content" [ref=e136]
+            - generic [ref=e137]:
+              - img "Creator content" [ref=e139]
+              - img "Creator content" [ref=e141]
+      - generic [ref=e143]:
+        - heading "A Premium Library" [level=2] [ref=e144]
+        - paragraph [ref=e145]: Whether it's raw backstage footage, exclusive galleries, or intimate vlogs, our library interface makes unwrapping and organizing your stash a beautiful experience.
+        - generic [ref=e146] [cursor=pointer]:
+          - button "Tap To Unlock" [ref=e148]:
+            - img [ref=e149]
+            - text: Tap To Unlock
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - img "Mockup element"
+              - generic:
+                - generic:
+                  - generic:
+                    - img "Mockup element"
+              - generic:
+                - generic:
+                  - generic:
+                    - img "Mockup element"
+              - generic:
+                - generic:
+                  - generic:
+                    - img "Mockup element"
+        - generic [ref=e152]:
+          - heading "Ready for a taste?" [level=3] [ref=e153]
+          - paragraph [ref=e154]: Join thousands of others currently unwrapping KandyDrops right now.
+          - button "Create Your Free Profile" [ref=e155]:
+            - text: Create Your Free Profile
+            - img [ref=e156]
+      - paragraph [ref=e159]: © 2026 KandyDrops. All rights reserved.
+  - navigation [ref=e160]:
+    - link "Home" [ref=e161] [cursor=pointer]:
+      - /url: /
+      - img [ref=e162]
+      - generic [ref=e165]: Home
+    - link "Drops" [ref=e166] [cursor=pointer]:
+      - /url: /drops
+      - img [ref=e167]
+      - generic [ref=e171]: Drops
+    - link "Experiences" [ref=e172] [cursor=pointer]:
+      - /url: /experiences
+      - img [ref=e173]
+      - generic [ref=e176]: Experiences
+    - button "Wallet" [ref=e177]:
+      - img [ref=e178]
+      - generic [ref=e181]: Wallet
+  - generic [ref=e183]:
+    - generic [ref=e184]:
+      - heading "Welcome Back" [level=2] [ref=e185]
+      - button [ref=e186]:
+        - img [ref=e187]
+    - generic [ref=e190]:
+      - button "Continue with Google" [ref=e191]:
+        - img [ref=e192]
+        - text: Continue with Google
+      - generic [ref=e201]: Or continue with email
+      - generic [ref=e202]:
+        - generic [ref=e203]:
+          - text: Email
+          - generic [ref=e204]:
+            - img [ref=e205]
+            - textbox "Enter your email" [ref=e208]
+        - generic [ref=e209]:
+          - text: Password
+          - generic [ref=e210]:
+            - img [ref=e211]
+            - textbox "••••••••" [ref=e214]
+          - button "Forgot password?" [ref=e216]
+        - button "Sign In" [ref=e217]
+      - paragraph [ref=e219]:
+        - text: Don't have an account?
+        - button "Sign up" [ref=e220]
+  - region "Notifications alt+T"
+  - generic [ref=e221]:
+    - generic [ref=e222]: This website uses cookies to enhance the user experience and track interactions for improvement. By continuing, you verify you are over 18.
+    - button "Accept cookies" [ref=e224] [cursor=pointer]: I Understand
+  - generic:
+    - generic: 393px x 727px
+    - generic: xs (mobile)
+  - button "Open Next.js Dev Tools" [ref=e230] [cursor=pointer]:
+    - generic [ref=e233]:
+      - text: Compiling
+      - generic [ref=e234]:
+        - generic [ref=e235]: .
+        - generic [ref=e236]: .
+        - generic [ref=e237]: .
+  - iframe [ref=e238]:
+    
+  - alert [ref=e239]
+```

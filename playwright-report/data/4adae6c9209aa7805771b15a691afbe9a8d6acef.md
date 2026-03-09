@@ -1,0 +1,60 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "KandyDrops" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - button "Sign In" [ref=e6]:
+        - img [ref=e7]
+        - text: Sign In
+  - main [ref=e10]:
+    - generic [ref=e13]:
+      - link "Back to Home" [ref=e14] [cursor=pointer]:
+        - /url: /
+        - img [ref=e15]
+        - text: Back to Home
+      - heading "Terms of Service" [level=1] [ref=e17]
+      - paragraph [ref=e18]: "Last Updated: February 12, 2026"
+      - generic [ref=e19]:
+        - heading "1. Introduction" [level=2] [ref=e20]
+        - paragraph [ref=e21]: Welcome to KandyDrops. These Terms of Service ("Terms") govern your access to and use of the KandyDrops platform. By accessing or using the Service, you agree to be bound by these Terms.
+        - paragraph [ref=e22]:
+          - strong [ref=e23]: KandyDrops is operated by iKandy
+          - text: ", a wholly-owned subsidiary of **Dollars not Sense**. throughout these Terms, \"we\", \"us\", and \"our\" refer to iKandy."
+      - generic [ref=e24]:
+        - heading "2. Platform Nature" [level=2] [ref=e25]
+        - paragraph [ref=e26]:
+          - text: KandyDrops is a
+          - strong [ref=e27]: digital access platform
+          - text: . We provide the infrastructure for Creators to share content with Users.
+          - strong [ref=e28]: We do not create, sell, or own the content
+          - text: provided by Creators on the platform. We act solely as a facilitator for access.
+      - generic [ref=e29]:
+        - heading "3. Virtual Currency (\"Gum Drops\")" [level=2] [ref=e30]
+        - paragraph [ref=e31]:
+          - text: "\"Gum Drops\" are a limited, non-transferable, revocable license to access digital content on our platform."
+          - strong [ref=e32]: Gum Drops are NOT real currency
+          - text: ", have no monetary value, and cannot be redeemed for cash or refunded once purchased."
+        - paragraph [ref=e33]: We reserve the right to modify, suspend, or terminate the Gum Drops system at any time without liability.
+      - generic [ref=e34]:
+        - heading "4. User Conduct" [level=2] [ref=e35]
+        - paragraph [ref=e36]: You agree not to misuse the Service or help anyone else do so. You are solely responsible for your interactions with other users and Creators.
+      - generic [ref=e37]:
+        - heading "5. Disclaimer of Warranties" [level=2] [ref=e38]
+        - paragraph [ref=e39]: The Service is provided "AS IS" and "AS AVAILABLE". iKandy explicitly disclaims all warranties of any kind, whether express or implied.
+      - generic [ref=e40]:
+        - heading "6. Limitation of Liability" [level=2] [ref=e41]
+        - paragraph [ref=e42]: To the maximum extent permitted by law, iKandy and Dollars not Sense shall not be liable for any indirect, incidental, special, consequential, or punitive damages.
+      - generic [ref=e43]:
+        - heading "7. Contact" [level=2] [ref=e44]
+        - paragraph [ref=e45]: For legal inquiries, please contact us at legal@kandydrops.com.
+  - region "Notifications alt+T"
+  - generic:
+    - generic: 0px x 0px
+    - generic:
+      - generic: xl (wide)
+  - button "Open Next.js Dev Tools" [ref=e51] [cursor=pointer]:
+    - img [ref=e52]
+```
