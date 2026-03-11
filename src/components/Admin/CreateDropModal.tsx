@@ -4,6 +4,7 @@ import { useState, useEffect, memo, useCallback, useMemo } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
 import { Loader2, Save, Calendar, DollarSign, X, ImageIcon, FileAudio, ChevronDown, ChevronUp } from "lucide-react";
+import * as Dialog from "@radix-ui/react-dialog";
 
 import { AssetUploader, UploadAspectRatio } from "@/components/Admin/AssetUploader";
 import { Drop } from "@/types/db";
@@ -348,174 +349,186 @@ export function CreateDropModal({ isOpen, onClose, dropId, onSuccess }: CreateDr
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-            <div className="w-full max-w-2xl bg-[#0a0a0a] border border-white/10 rounded-3xl overflow-hidden relative max-h-[90vh] flex flex-col shadow-2xl">
-                <header className="p-4 md:p-6 border-b border-white/10 flex items-center justify-between shrink-0 bg-black/50 sticky top-0 z-10 backdrop-blur-md">
-                    <h2 className="text-xl font-bold text-white shrink-0">{isEditMode ? "Edit Drop" : "Create Drop"}</h2>
-                    <button
-                        onClick={onClose}
-                        className="p-2 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors border border-transparent hover:border-white/10"
+        <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
+            <Dialog.Portal>
+                <Dialog.Overlay className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm" />
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+                    <Dialog.Content
+                        className="w-full max-w-2xl bg-[#0a0a0a] border border-white/10 rounded-3xl overflow-hidden relative max-h-[90vh] flex flex-col shadow-2xl focus:outline-none focus:ring-2 focus:ring-brand-purple/50"
+                        aria-describedby={undefined}
                     >
-                        <X className="w-5 h-5" />
-                    </button>
-                </header>
+                        <header className="p-4 md:p-6 border-b border-white/10 flex items-center justify-between shrink-0 bg-black/50 sticky top-0 z-10 backdrop-blur-md">
+                            <Dialog.Title className="text-xl font-bold text-white shrink-0">
+                                {isEditMode ? "Edit Drop" : "Create Drop"}
+                            </Dialog.Title>
+                            <Dialog.Close asChild>
+                                <button
+                                    onClick={onClose}
+                                    className="p-2 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors border border-transparent hover:border-white/10"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </Dialog.Close>
+                        </header>
 
-                <div className="p-4 md:p-6 overflow-y-auto flex-1 custom-scrollbar">
-                    {fetching ? (
-                        <div className="flex items-center justify-center min-h-[300px]">
-                            <Loader2 className="w-8 h-8 animate-spin text-white" />
-                        </div>
-                    ) : (
-                        <form id="create-drop-form" onSubmit={handleSubmit(onSubmit, onError)} className="space-y-4">
-                            <div className="glass-panel p-4 rounded-3xl space-y-4 shadow-lg border-white/5 bg-white/[0.02]">
-                                <div>
-                                    <input
-                                        {...register("title")}
-                                        type="text"
-                                        placeholder="Drop Title"
-                                        className="w-full bg-transparent border-none p-0 text-xl font-bold text-white placeholder:text-gray-600 focus:ring-0"
-                                    />
-                                    {errors.title && <p className="text-red-400 text-xs mt-1">{errors.title.message}</p>}
+                        <div className="p-4 md:p-6 overflow-y-auto flex-1 custom-scrollbar">
+                            {fetching ? (
+                                <div className="flex items-center justify-center min-h-[300px]">
+                                    <Loader2 className="w-8 h-8 animate-spin text-white" />
                                 </div>
-
-                                <div>
-                                    <textarea
-                                        {...register("description")}
-                                        placeholder="Describe what's inside..."
-                                        rows={3}
-                                        className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-brand-purple/50 transition-all resize-none shadow-inner"
-                                    />
-                                    {errors.description && <p className="text-red-400 text-xs mt-1">{errors.description.message}</p>}
-                                </div>
-
-                                <div className="flex flex-col gap-3">
-                                    <select
-                                        {...register("type")}
-                                        className="w-full bg-black/40 border border-white/5 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-brand-purple/50"
-                                    >
-                                        <option value="content">Content Drop</option>
-                                        <option value="promo">Promo / Ad</option>
-                                        <option value="external">External Link</option>
-                                    </select>
-
-                                    <div className="flex flex-wrap gap-2">
-                                        {AVAILABLE_TAGS.map(tag => (
-                                            <button
-                                                key={tag}
-                                                type="button"
-                                                onClick={() => toggleTag(tag)}
-                                                className={cn(
-                                                    "px-3 py-1 rounded-full text-xs font-bold border",
-                                                    currentTags.includes(tag)
-                                                        ? "bg-brand-purple text-white border-brand-purple shadow-[0_0_10px_rgba(236,72,153,0.3)]"
-                                                        : "bg-white/5 text-gray-500 border-white/5 hover:bg-white/10"
-                                                )}
-                                            >
-                                                {tag}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <FilesAndAssetsSection
-                                uploadsOpen={uploadsOpen}
-                                onToggle={handleToggleUploads}
-                                coverAspectRatio={coverAspectRatio}
-                                contentAspectRatio={contentAspectRatio}
-                                onCoverAspectRatioChange={setCoverAspectRatio}
-                                onContentAspectRatioChange={setContentAspectRatio}
-                                imageUrl={imageUrl}
-                                contentUrl={contentUrl}
-                                contentType={fileMetadata?.type}
-                                onCoverAssetsChange={handleCoverAssetsChange}
-                                onContentAssetsChange={handleContentAssetsChange}
-                                errors={errors}
-                            />
-
-                            <div className="glass-panel p-4 rounded-3xl space-y-3 shadow-lg border-white/5 bg-white/[0.02]">
-                                <h3 className="text-sm font-bold text-white">Pricing & Schedule</h3>
-
-                                <div className="space-y-1">
-                                    <label className="text-xs font-bold text-gray-500 flex items-center gap-1 uppercase">
-                                        <DollarSign className="w-3 h-3" /> Cost (Drops)
-                                    </label>
-                                    <input
-                                        {...register("unlockCost")}
-                                        type="number"
-                                        min="0"
-                                        inputMode="numeric"
-                                        className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-white font-mono text-base focus:outline-none focus:border-brand-purple/50 shadow-inner"
-                                    />
-                                    <p className="text-[11px] text-gray-500">Minimum 0 Drops</p>
-                                </div>
-
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-2">
-                                    <div className="space-y-1">
-                                        <label className="text-xs font-bold text-gray-500 flex items-center gap-1 uppercase">
-                                            <Calendar className="w-3 h-3" /> Start (CST)
-                                        </label>
-                                        <input
-                                            {...register("validFrom")}
-                                            type="datetime-local"
-                                            className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-brand-purple/50 shadow-inner [color-scheme:dark]"
-                                        />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <label className="text-xs font-bold text-gray-500 flex items-center gap-1 uppercase">
-                                            <Calendar className="w-3 h-3" /> End (CST)
-                                        </label>
-                                        <input
-                                            {...register("validUntil")}
-                                            type="datetime-local"
-                                            className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-brand-purple/50 shadow-inner [color-scheme:dark]"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            {dropType !== "content" && (
-                                <div className="glass-panel p-4 rounded-3xl space-y-3 animate-in fade-in zoom-in-95 shadow-lg border-white/5 bg-white/[0.02]">
-                                    <h3 className="text-xs font-bold text-gray-500 uppercase">Action Settings</h3>
-                                    <div className="space-y-3">
+                            ) : (
+                                <form id="create-drop-form" onSubmit={handleSubmit(onSubmit, onError)} className="space-y-4">
+                                    <div className="glass-panel p-4 rounded-3xl space-y-4 shadow-lg border-white/5 bg-white/[0.02]">
                                         <div>
-                                            <label className="text-xs text-gray-400 mb-1 block">Button Text</label>
                                             <input
-                                                {...register("ctaText")}
+                                                {...register("title")}
                                                 type="text"
-                                                placeholder="Visit Shop"
-                                                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-brand-purple/50 shadow-inner"
+                                                placeholder="Drop Title"
+                                                className="w-full bg-transparent border-none p-0 text-xl font-bold text-white placeholder:text-gray-600 focus:ring-0"
                                             />
+                                            {errors.title && <p className="text-red-400 text-xs mt-1">{errors.title.message}</p>}
                                         </div>
+
                                         <div>
-                                            <label className="text-xs text-gray-400 mb-1 block">URL</label>
-                                            <input
-                                                {...register("actionUrl")}
-                                                type="url"
-                                                placeholder="https://..."
-                                                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-brand-purple/50 shadow-inner"
+                                            <textarea
+                                                {...register("description")}
+                                                placeholder="Describe what's inside..."
+                                                rows={3}
+                                                className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-brand-purple/50 transition-all resize-none shadow-inner"
                                             />
+                                            {errors.description && <p className="text-red-400 text-xs mt-1">{errors.description.message}</p>}
+                                        </div>
+
+                                        <div className="flex flex-col gap-3">
+                                            <select
+                                                {...register("type")}
+                                                className="w-full bg-black/40 border border-white/5 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-brand-purple/50"
+                                            >
+                                                <option value="content">Content Drop</option>
+                                                <option value="promo">Promo / Ad</option>
+                                                <option value="external">External Link</option>
+                                            </select>
+
+                                            <div className="flex flex-wrap gap-2">
+                                                {AVAILABLE_TAGS.map(tag => (
+                                                    <button
+                                                        key={tag}
+                                                        type="button"
+                                                        onClick={() => toggleTag(tag)}
+                                                        className={cn(
+                                                            "px-3 py-1 rounded-full text-xs font-bold border",
+                                                            currentTags.includes(tag)
+                                                                ? "bg-brand-purple text-white border-brand-purple shadow-[0_0_10px_rgba(236,72,153,0.3)]"
+                                                                : "bg-white/5 text-gray-500 border-white/5 hover:bg-white/10"
+                                                        )}
+                                                    >
+                                                        {tag}
+                                                    </button>
+                                                ))}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            )}
-                        </form>
-                    )}
-                </div>
 
-                <div className="p-4 md:p-6 border-t border-white/10 shrink-0 bg-black/50 backdrop-blur-md">
-                    <button
-                        type="submit"
-                        form="create-drop-form"
-                        disabled={isSubmitting || fetching}
-                        className="w-full py-3.5 rounded-xl bg-gradient-to-r from-brand-purple to-[#d946ef] font-bold text-white shadow-[0_0_20px_rgba(236,72,153,0.3)] hover:shadow-[0_0_25px_rgba(236,72,153,0.4)] active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                    >
-                        {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                        {isSubmitting ? "Saving..." : isEditMode ? "Update Drop" : "Create Drop"}
-                    </button>
+                                    <FilesAndAssetsSection
+                                        uploadsOpen={uploadsOpen}
+                                        onToggle={handleToggleUploads}
+                                        coverAspectRatio={coverAspectRatio}
+                                        contentAspectRatio={contentAspectRatio}
+                                        onCoverAspectRatioChange={setCoverAspectRatio}
+                                        onContentAspectRatioChange={setContentAspectRatio}
+                                        imageUrl={imageUrl}
+                                        contentUrl={contentUrl}
+                                        contentType={fileMetadata?.type}
+                                        onCoverAssetsChange={handleCoverAssetsChange}
+                                        onContentAssetsChange={handleContentAssetsChange}
+                                        errors={errors}
+                                    />
+
+                                    <div className="glass-panel p-4 rounded-3xl space-y-3 shadow-lg border-white/5 bg-white/[0.02]">
+                                        <h3 className="text-sm font-bold text-white">Pricing & Schedule</h3>
+
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-bold text-gray-500 flex items-center gap-1 uppercase">
+                                                <DollarSign className="w-3 h-3" /> Cost (Drops)
+                                            </label>
+                                            <input
+                                                {...register("unlockCost")}
+                                                type="number"
+                                                min="0"
+                                                inputMode="numeric"
+                                                className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-white font-mono text-base focus:outline-none focus:border-brand-purple/50 shadow-inner"
+                                            />
+                                            <p className="text-[11px] text-gray-500">Minimum 0 Drops</p>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-2">
+                                            <div className="space-y-1">
+                                                <label className="text-xs font-bold text-gray-500 flex items-center gap-1 uppercase">
+                                                    <Calendar className="w-3 h-3" /> Start (CST)
+                                                </label>
+                                                <input
+                                                    {...register("validFrom")}
+                                                    type="datetime-local"
+                                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-brand-purple/50 shadow-inner [color-scheme:dark]"
+                                                />
+                                            </div>
+                                            <div className="space-y-1">
+                                                <label className="text-xs font-bold text-gray-500 flex items-center gap-1 uppercase">
+                                                    <Calendar className="w-3 h-3" /> End (CST)
+                                                </label>
+                                                <input
+                                                    {...register("validUntil")}
+                                                    type="datetime-local"
+                                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-brand-purple/50 shadow-inner [color-scheme:dark]"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {dropType !== "content" && (
+                                        <div className="glass-panel p-4 rounded-3xl space-y-3 animate-in fade-in zoom-in-95 shadow-lg border-white/5 bg-white/[0.02]">
+                                            <h3 className="text-xs font-bold text-gray-500 uppercase">Action Settings</h3>
+                                            <div className="space-y-3">
+                                                <div>
+                                                    <label className="text-xs text-gray-400 mb-1 block">Button Text</label>
+                                                    <input
+                                                        {...register("ctaText")}
+                                                        type="text"
+                                                        placeholder="Visit Shop"
+                                                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-brand-purple/50 shadow-inner"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="text-xs text-gray-400 mb-1 block">URL</label>
+                                                    <input
+                                                        {...register("actionUrl")}
+                                                        type="url"
+                                                        placeholder="https://..."
+                                                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-brand-purple/50 shadow-inner"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </form>
+                            )}
+                        </div>
+
+                        <div className="p-4 md:p-6 border-t border-white/10 shrink-0 bg-black/50 backdrop-blur-md">
+                            <button
+                                type="submit"
+                                form="create-drop-form"
+                                disabled={isSubmitting || fetching}
+                                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-brand-purple to-[#d946ef] font-bold text-white shadow-[0_0_20px_rgba(236,72,153,0.3)] hover:shadow-[0_0_25px_rgba(236,72,153,0.4)] active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                            >
+                                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                                {isSubmitting ? "Saving..." : isEditMode ? "Update Drop" : "Create Drop"}
+                            </button>
+                        </div>
+                    </Dialog.Content>
                 </div>
-            </div>
-        </div>
+            </Dialog.Portal>
+        </Dialog.Root>
     );
 }
 

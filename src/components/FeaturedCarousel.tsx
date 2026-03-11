@@ -1,7 +1,8 @@
 "use client";
 
 import { Drop } from "@/types/db";
-import { useState, useRef, useEffect, useMemo, useCallback, type TouchEventHandler } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import useEmblaCarousel from "embla-carousel-react";
 import { cn } from "@/lib/utils";
 import NextImage from "next/image";
 import { Clock, ChevronRight, Eye, Image as ImageIcon, Film } from "lucide-react";
@@ -18,41 +19,33 @@ interface FeaturedCarouselProps {
 type SwipeDirection = "prev" | "next";
 
 const AUTO_ADVANCE_MS = 5000;
-const SWIPE_THRESHOLD_PX = 50;
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
 export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps) {
     const [activeIndex, setActiveIndex] = useState(0);
     const { userProfile } = useUserProfile();
     const intervalRef = useRef<number | null>(null);
-    const touchStartXRef = useRef<number | null>(null);
-    const touchCurrentXRef = useRef<number | null>(null);
+    const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, watchDrag: true });
 
     const featuredDrops = useMemo(() => drops.slice(0, 5), [drops]);
 
-    const moveSlide = useCallback((direction: SwipeDirection) => {
-        setActiveIndex((prev) => {
-            if (direction === "next") {
-                return (prev + 1) % featuredDrops.length;
-            }
-
-            return (prev - 1 + featuredDrops.length) % featuredDrops.length;
-        });
-    }, [featuredDrops.length]);
+    const onSelect = useCallback(() => {
+        if (!emblaApi) return;
+        setActiveIndex(emblaApi.selectedScrollSnap());
+    }, [emblaApi, setActiveIndex]);
 
     useEffect(() => {
-        if (activeIndex >= featuredDrops.length) {
-            setActiveIndex(0);
-        }
-    }, [activeIndex, featuredDrops.length]);
+        if (!emblaApi) return;
+        onSelect();
+        emblaApi.on("select", onSelect);
+        emblaApi.on("reInit", onSelect);
+    }, [emblaApi, onSelect]);
 
     useEffect(() => {
-        if (featuredDrops.length <= 1) {
-            return;
-        }
+        if (!emblaApi || featuredDrops.length <= 1) return;
 
         intervalRef.current = window.setInterval(() => {
-            moveSlide("next");
+            emblaApi.scrollNext();
         }, AUTO_ADVANCE_MS);
 
         return () => {
@@ -60,7 +53,7 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
                 window.clearInterval(intervalRef.current);
             }
         };
-    }, [featuredDrops.length, moveSlide]);
+    }, [emblaApi, featuredDrops.length]);
 
     const resetAutoAdvance = useCallback(() => {
         if (intervalRef.current) {
@@ -68,46 +61,17 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
             intervalRef.current = null;
         }
 
-        if (featuredDrops.length > 1) {
+        if (emblaApi && featuredDrops.length > 1) {
             intervalRef.current = window.setInterval(() => {
-                moveSlide("next");
+                emblaApi.scrollNext();
             }, AUTO_ADVANCE_MS);
         }
-    }, [featuredDrops.length, moveSlide]);
+    }, [emblaApi, featuredDrops.length]);
 
     if (featuredDrops.length === 0) return null;
 
     const activeDrop = featuredDrops[activeIndex] || featuredDrops[0];
     const activeAspectRatio = getSupportedDropAspectRatio(activeDrop);
-
-    const onTouchStart: TouchEventHandler<HTMLDivElement> = (event) => {
-        touchStartXRef.current = event.touches[0]?.clientX ?? null;
-        touchCurrentXRef.current = touchStartXRef.current;
-    };
-
-    const onTouchMove: TouchEventHandler<HTMLDivElement> = (event) => {
-        touchCurrentXRef.current = event.touches[0]?.clientX ?? null;
-    };
-
-    const onTouchEnd: TouchEventHandler<HTMLDivElement> = () => {
-        if (touchStartXRef.current === null || touchCurrentXRef.current === null || featuredDrops.length <= 1) {
-            return;
-        }
-
-        const deltaX = touchCurrentXRef.current - touchStartXRef.current;
-
-        if (Math.abs(deltaX) < SWIPE_THRESHOLD_PX) {
-            return;
-        }
-
-        if (deltaX < 0) {
-            moveSlide("next");
-        } else {
-            moveSlide("prev");
-        }
-
-        resetAutoAdvance();
-    };
 
     return (
         <div className="w-full mb-8 space-y-4">
@@ -118,111 +82,110 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
 
             <div
                 className={cn(
-                    "w-full rounded-3xl relative overflow-hidden border border-white/10 group block mx-auto touch-pan-y",
+                    "w-full rounded-3xl relative overflow-hidden border border-white/10 group block mx-auto",
                     "shadow-[0_20px_50px_rgba(236,72,153,0.22)]",
                     activeAspectRatio === "16:9" && "max-w-[720px]",
                     activeAspectRatio === "1:1" && "max-w-[620px]",
                     activeAspectRatio === "9:16" && "max-w-[420px]"
                 )}
                 style={{ aspectRatio: activeAspectRatio.replace(":", " / ") }}
-                onTouchStart={onTouchStart}
-                onTouchMove={onTouchMove}
-                onTouchEnd={onTouchEnd}
+                ref={emblaRef}
             >
-                {featuredDrops.map((drop, index) => {
-                    const isActive = index === activeIndex;
-                    const totalUnwraps = typeof drop.totalUnlocks === "number" && Number.isFinite(drop.totalUnlocks) ? Math.max(0, Math.floor(drop.totalUnlocks)) : 0;
+                <div className="flex w-full h-full">
+                    {featuredDrops.map((drop, index) => {
+                        const isActive = index === activeIndex;
+                        const totalUnwraps = typeof drop.totalUnlocks === "number" && Number.isFinite(drop.totalUnlocks) ? Math.max(0, Math.floor(drop.totalUnlocks)) : 0;
 
-                    let images = 0;
-                    let videos = 0;
-                    if (drop.mediaCounts) {
-                        images = drop.mediaCounts.images;
-                        videos = drop.mediaCounts.videos;
-                    } else {
-                        const urls = drop.contentUrls || (drop.contentUrl ? [drop.contentUrl] : []);
-                        urls.forEach(url => {
-                            const lowerUrl = url.toLowerCase();
-                            if (lowerUrl.match(/\.(mp4|webm|ogg|mov)$/)) videos++;
-                            else if (lowerUrl.match(/\.(jpg|jpeg|png|gif|webp)$/)) images++;
-                            else images++; // Assume image fallback
-                        });
-                    }
+                        let images = 0;
+                        let videos = 0;
+                        if (drop.mediaCounts) {
+                            images = drop.mediaCounts.images;
+                            videos = drop.mediaCounts.videos;
+                        } else {
+                            const urls = drop.contentUrls || (drop.contentUrl ? [drop.contentUrl] : []);
+                            urls.forEach(url => {
+                                const lowerUrl = url.toLowerCase();
+                                if (lowerUrl.match(/\.(mp4|webm|ogg|mov)$/)) videos++;
+                                else if (lowerUrl.match(/\.(jpg|jpeg|png|gif|webp)$/)) images++;
+                                else images++; // Assume image fallback
+                            });
+                        }
 
-                    return (
-                        <button
-                            key={drop.id}
-                            onClick={() => onSelectDrop(drop)}
-                            type="button"
-                            className={cn(
-                                "absolute inset-0 block w-full h-full transition-all duration-300 ease-out",
-                                isActive ? "opacity-100 translate-x-0 z-20" : index < activeIndex ? "opacity-0 -translate-x-4 z-10" : "opacity-0 translate-x-4 z-10",
-                                !isActive && "pointer-events-none"
-                            )}
-                            aria-hidden={!isActive}
-                            tabIndex={isActive ? 0 : -1}
-                        >
-                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(236,72,153,0.30),transparent_45%)] z-0" />
-                            <NextImage
-                                src={drop.imageUrl || "/placeholder.jpg"}
-                                alt={drop.title}
-                                fill
-                                className="object-cover object-center bg-black"
-                                sizes="(max-width: 768px) 100vw, 720px"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
+                        return (
+                            <div
+                                key={drop.id}
+                                className="relative flex-[0_0_100%] min-w-0 w-full h-full transition-opacity duration-300"
+                            >
+                                <button
+                                    onClick={() => onSelectDrop(drop)}
+                                    type="button"
+                                    className="absolute inset-0 block w-full h-full"
+                                    tabIndex={isActive ? 0 : -1}
+                                >
+                                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(236,72,153,0.30),transparent_45%)] z-0" />
+                                    <NextImage
+                                        src={drop.imageUrl || "/placeholder.jpg"}
+                                        alt={drop.title}
+                                        fill
+                                        className="object-cover object-center bg-black"
+                                        sizes="(max-width: 768px) 100vw, 720px"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
 
-                            <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-                                <div className="bg-black/55 backdrop-blur-xl px-2.5 py-1 rounded-full text-[10px] uppercase tracking-[0.14em] font-bold text-white border border-white/20">
-                                    Featured Drop
-                                </div>
-
-                                {(images > 0 || videos > 0) && (
-                                    <div className="bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-bold text-white border border-white/20 flex items-center gap-1.5 shadow-lg">
-                                        {images > 0 && (
-                                            <div className="flex items-center gap-0.5">
-                                                <ImageIcon className="w-3 h-3 text-gray-300" />
-                                                <span>{images}</span>
-                                            </div>
-                                        )}
-                                        {videos > 0 && (
-                                            <div className="flex items-center gap-0.5 ml-0.5">
-                                                <Film className="w-3 h-3 text-gray-300" />
-                                                <span>{videos}</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="absolute top-4 right-4 z-20">
-                                <TimerWithProgress validFrom={drop.validFrom} validUntil={drop.validUntil} />
-                            </div>
-
-                            <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6 space-y-2 text-left">
-                                <h3 className="text-2xl font-bold text-white leading-tight">{drop.title}</h3>
-                                <p className="text-sm text-gray-300 line-clamp-2">{drop.description}</p>
-
-                                <div className="flex items-center gap-1.5 opacity-80 text-xs font-semibold text-white/90 pb-1">
-                                    <Eye className="w-3.5 h-3.5 text-[#b28cff]" />
-                                    <span>{getSimulatedUnwrapsToday(drop.id)} unwrapped today</span>
-                                </div>
-
-                                <div className="pt-1 flex items-center gap-3">
-                                    {userProfile?.unlockedContent?.includes(drop.id) ? (
-                                        <div className="px-3 py-1.5 bg-brand-purple/20 border border-brand-purple/30 rounded-lg text-brand-purple font-bold text-sm">View Content</div>
-                                    ) : (
-                                        <div className="px-3 py-1.5 bg-brand-purple/20 border border-brand-purple/30 rounded-lg text-brand-purple font-bold text-sm">
-                                            {drop.unlockCost} GD
+                                    <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+                                        <div className="bg-black/55 backdrop-blur-xl px-2.5 py-1 rounded-full text-[10px] uppercase tracking-[0.14em] font-bold text-white border border-white/20">
+                                            Featured Drop
                                         </div>
-                                    )}
-                                    <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center shadow-[0_0_20px_rgba(255,255,255,0.4)]">
-                                        <ChevronRight className="w-5 h-5 ml-0.5" />
+
+                                        {(images > 0 || videos > 0) && (
+                                            <div className="bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-bold text-white border border-white/20 flex items-center gap-1.5 shadow-lg">
+                                                {images > 0 && (
+                                                    <div className="flex items-center gap-0.5">
+                                                        <ImageIcon className="w-3 h-3 text-gray-300" />
+                                                        <span>{images}</span>
+                                                    </div>
+                                                )}
+                                                {videos > 0 && (
+                                                    <div className="flex items-center gap-0.5 ml-0.5">
+                                                        <Film className="w-3 h-3 text-gray-300" />
+                                                        <span>{videos}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
-                                </div>
+
+                                    <div className="absolute top-4 right-4 z-20">
+                                        <TimerWithProgress validFrom={drop.validFrom} validUntil={drop.validUntil} />
+                                    </div>
+
+                                    <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6 space-y-2 text-left">
+                                        <h3 className="text-2xl font-bold text-white leading-tight">{drop.title}</h3>
+                                        <p className="text-sm text-gray-300 line-clamp-2">{drop.description}</p>
+
+                                        <div className="flex items-center gap-1.5 opacity-80 text-xs font-semibold text-white/90 pb-1">
+                                            <Eye className="w-3.5 h-3.5 text-[#b28cff]" />
+                                            <span>{getSimulatedUnwrapsToday(drop.id)} unwrapped today</span>
+                                        </div>
+
+                                        <div className="pt-1 flex items-center gap-3">
+                                            {userProfile?.unlockedContent?.includes(drop.id) ? (
+                                                <div className="px-3 py-1.5 bg-brand-purple/20 border border-brand-purple/30 rounded-lg text-brand-purple font-bold text-sm">View Content</div>
+                                            ) : (
+                                                <div className="px-3 py-1.5 bg-brand-purple/20 border border-brand-purple/30 rounded-lg text-brand-purple font-bold text-sm">
+                                                    {drop.unlockCost} GD
+                                                </div>
+                                            )}
+                                            <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center shadow-[0_0_20px_rgba(255,255,255,0.4)]">
+                                                <ChevronRight className="w-5 h-5 ml-0.5" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </button>
                             </div>
-                        </button>
-                    );
-                })}
+                        );
+                    })}
+                </div>
             </div>
 
             <div className="flex justify-center gap-2">
@@ -230,7 +193,7 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
                     <button
                         key={drop.id}
                         onClick={() => {
-                            setActiveIndex(index);
+                            if (emblaApi) emblaApi.scrollTo(index);
                             resetAutoAdvance();
                         }}
                         className={cn("h-2.5 rounded-full transition-all", index === activeIndex ? "w-7 bg-brand-purple" : "w-2.5 bg-white/25")}

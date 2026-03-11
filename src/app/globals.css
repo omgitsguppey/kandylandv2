@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import "react-loading-skeleton/dist/skeleton.css";
+@plugin "@tailwindcss/typography";
 
 @theme {
   /* Brand Color Palette */

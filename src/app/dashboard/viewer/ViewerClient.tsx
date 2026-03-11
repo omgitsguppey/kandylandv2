@@ -16,6 +16,8 @@ import { ContentViewer, ViewerMediaItem } from "@/components/ContentViewer";
 import { sendGAEvent } from "@next/third-parties/google";
 import { getSimulatedUnwrapsToday } from "@/lib/unwrap-simulator";
 import { Eye } from "lucide-react";
+import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
+import useEmblaCarousel from "embla-carousel-react";
 
 
 
@@ -164,6 +166,12 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     }, [drop]);
 
     const [activeIndex, setActiveIndex] = useState(0);
+    const [emblaRef, emblaApi] = useEmblaCarousel({ dragFree: true, containScroll: "trimSnaps" });
+
+    useEffect(() => {
+        if (!emblaApi) return;
+        emblaApi.scrollTo(activeIndex);
+    }, [emblaApi, activeIndex]);
 
     const availableUrls = useMemo(() => {
         if (!drop) return [];
@@ -313,15 +321,19 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     // Skeleton for AUTH loading only
     if (authLoading) {
         return (
-            <div className="max-w-4xl mx-auto pt-20 animate-pulse">
-                <div className="flex justify-between mb-6">
-                    <div className="h-4 w-24 bg-white/10 rounded" />
-                    <div className="h-6 w-32 bg-white/10 rounded-full" />
+            <SkeletonTheme baseColor="#1a1a1a" highlightColor="#2a2a2a">
+                <div className="max-w-4xl mx-auto pt-20">
+                    <div className="flex justify-between mb-6">
+                        <Skeleton width={100} height={16} />
+                        <Skeleton width={128} height={24} borderRadius={9999} />
+                    </div>
+                    <div className="mb-8">
+                        <Skeleton height={400} borderRadius={24} />
+                    </div>
+                    <Skeleton height={32} width="50%" className="mb-4" />
+                    <Skeleton count={2} height={16} className="mb-2" />
                 </div>
-                <div className="aspect-video bg-white/5 rounded-3xl mb-8" />
-                <div className="h-8 w-1/2 bg-white/10 rounded mb-4" />
-                <div className="h-4 w-3/4 bg-white/5 rounded" />
-            </div>
+            </SkeletonTheme>
         );
     }
 
@@ -502,29 +514,31 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                 {/* 1.5 Multi-File Thumbnail Slider */}
                 {availableUrls.length > 1 && (
                     <div className="w-full max-w-5xl mx-auto px-4 mt-6">
-                        <div className="flex items-center gap-4 overflow-x-auto pb-6 pt-2 px-2 touch-pan-x snap-x hide-scrollbar scroll-smooth">
-                            {availableUrls.map((_, idx) => (
-                                <button
-                                    key={`thumb-${idx}`}
-                                    onClick={() => setActiveIndex(idx)}
-                                    className={cn(
-                                        "relative flex-none w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden border-2 transition-all transform snap-center",
-                                        activeIndex === idx
-                                            ? "border-brand-purple scale-110 shadow-[0_0_15px_rgba(178,140,255,0.4)] z-10"
-                                            : "border-white/10 opacity-50 hover:opacity-100 hover:border-white/30"
-                                    )}
-                                >
-                                    <div className="absolute inset-0 bg-black flex items-center justify-center text-xs font-bold text-white/50">
-                                        {idx + 1}
-                                    </div>
-                                    <NextImage
-                                        src={drop.imageUrl}
-                                        alt={`Thumbnail ${idx + 1}`}
-                                        fill
-                                        className="object-cover opacity-30"
-                                    />
-                                </button>
-                            ))}
+                        <div className="overflow-hidden pb-6 pt-2 px-2" ref={emblaRef}>
+                            <div className="flex gap-4">
+                                {availableUrls.map((_, idx) => (
+                                    <button
+                                        key={`thumb-${idx}`}
+                                        onClick={() => setActiveIndex(idx)}
+                                        className={cn(
+                                            "relative flex-[0_0_auto] w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden border-2 transition-all transform",
+                                            activeIndex === idx
+                                                ? "border-brand-purple scale-110 shadow-[0_0_15px_rgba(178,140,255,0.4)] z-10"
+                                                : "border-white/10 opacity-50 hover:opacity-100 hover:border-white/30"
+                                        )}
+                                    >
+                                        <div className="absolute inset-0 bg-black flex items-center justify-center text-xs font-bold text-white/50 z-20 pointer-events-none">
+                                            {idx + 1}
+                                        </div>
+                                        <NextImage
+                                            src={drop.imageUrl}
+                                            alt={`Thumbnail ${idx + 1}`}
+                                            fill
+                                            className="object-cover opacity-30 pointer-events-none"
+                                        />
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                         <p className="text-center text-xs text-gray-500 w-full mt-[-8px]">
                             {activeIndex + 1} of {availableUrls.length} files
@@ -567,9 +581,11 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                         <h1 className="text-2xl md:text-4xl font-bold text-white mb-3 leading-tight">
                             {drop.title}
                         </h1>
-                        <p className="text-gray-400 leading-relaxed text-sm md:text-base max-w-2xl">
-                            {drop.description}
-                        </p>
+                        <div className="prose prose-invert prose-purple max-w-2xl">
+                            <p className="text-gray-400 leading-relaxed text-sm md:text-base">
+                                {drop.description}
+                            </p>
+                        </div>
                     </div>
 
                     {/* 3. Navigation */}
