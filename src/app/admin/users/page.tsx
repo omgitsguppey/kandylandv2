@@ -289,8 +289,11 @@ export default function UserManagementPage() {
                                                         </div>
                                                         <div>
                                                             <div className="flex items-center gap-1 font-bold text-white">
-                                                                {user.displayName || "No Name"}
+                                                                {user.username ? `@${user.username}` : user.displayName || "No Name"}
                                                                 {user.isVerified && <CheckCircle className="w-3 h-3 text-brand-purple" />}
+                                                            </div>
+                                                            <div className="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-0.5">
+                                                                {user.username ? user.displayName : user.uid.slice(0, 8)}
                                                             </div>
                                                             <div className="text-xs text-gray-500">{user.email}</div>
                                                         </div>
@@ -387,10 +390,13 @@ export default function UserManagementPage() {
                                             <div className="flex justify-between items-start">
                                                 <div className="truncate">
                                                     <div className="flex items-center gap-1.5 font-bold text-white text-base">
-                                                        <span className="truncate">{user.displayName || "No Name"}</span>
+                                                        <span className="truncate">{user.username ? `@${user.username}` : user.displayName || "No Name"}</span>
                                                         {user.isVerified && <CheckCircle className="w-4 h-4 text-brand-purple shrink-0" />}
                                                     </div>
-                                                    <div className="text-xs text-gray-400 font-mono truncate">{user.email}</div>
+                                                    <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider truncate mb-0.5">
+                                                        {user.username ? user.displayName : user.uid.slice(0, 8)}
+                                                    </div>
+                                                    <div className="text-[10px] text-gray-500 font-mono truncate">{user.email}</div>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-2 mt-2">
@@ -596,7 +602,7 @@ export default function UserManagementPage() {
                     {contentUser && (
                         <div className="bg-zinc-900 border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl">
                             <h3 className="text-xl font-bold text-white mb-2">Manage Content</h3>
-                            <p className="text-gray-400 mb-6">Unlocked drops for <strong>{contentUser.displayName || contentUser.email}</strong>.</p>
+                            <p className="text-gray-400 mb-6">Unlocked drops for <strong>{contentUser.username ? `@${contentUser.username}` : contentUser.displayName || contentUser.email}</strong>.</p>
                             <div className="mb-6">
                                 <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Unlocked Drops ({contentUser.unlockedContent?.length || 0})</label>
                                 <div className="max-h-40 overflow-y-auto space-y-2 mb-4">
@@ -628,7 +634,7 @@ export default function UserManagementPage() {
                                 <Shield className="w-5 h-5 text-red-500" /> Security Dossier
                             </h3>
                             <p className="text-gray-400 mb-6 flex items-center gap-2">
-                                Target: <span className="text-white font-bold">{securityDetailsUser.displayName || securityDetailsUser.email}</span>
+                                Target: <span className="text-white font-bold">{securityDetailsUser.username ? `@${securityDetailsUser.username}` : securityDetailsUser.displayName || securityDetailsUser.email}</span>
                             </p>
 
                             <div className="space-y-4 mb-6">
