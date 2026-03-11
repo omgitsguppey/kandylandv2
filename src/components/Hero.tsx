@@ -32,7 +32,7 @@ export default function Hero() {
                         PREMIUM DIGITAL EXPERIENCES
                     </div>
 
-                    <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tighter text-white leading-[1.1]">
+                    <h1 className="text-[clamp(2.5rem,8vw,4.5rem)] lg:text-7xl font-extrabold tracking-tighter text-white leading-[1.1]">
                         Unwrap<br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-purple to-purple-400">
                             Exclusive
@@ -99,12 +99,12 @@ function ActivityTicker() {
     if (!platformCount) return null;
 
     return (
-        <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/10 shadow-lg backdrop-blur-md">
-            <div className="relative flex h-2 w-2">
+        <div className="inline-flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/5 border border-white/10 shadow-lg backdrop-blur-md max-w-[95vw] overflow-hidden">
+            <div className="relative flex h-2 w-2 shrink-0">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
             </div>
-            <span className="text-sm font-semibold text-white/90">
+            <span className="text-[11px] sm:text-sm font-semibold text-white/90 whitespace-nowrap overflow-hidden text-ellipsis">
                 🚀 <span className="text-white font-bold">{platformCount.toLocaleString()}</span> users are unwrapping drops right now
             </span>
         </div>

@@ -54,7 +54,7 @@ export function LivePreviews() {
 
                 <div className="mt-24 space-y-6">
                     <h3 className="text-3xl font-bold text-white">Ready for a taste?</h3>
-                    <p className="text-gray-400">Join thousands of others currently unwrapping KandyDrops right now.</p>
+                    <p className="text-sm sm:text-base text-gray-400 max-w-xs sm:max-w-none mx-auto leading-relaxed">Join thousands of others currently unwrapping KandyDrops right now.</p>
                     <button onClick={openAuthModal} className="mt-4 px-10 py-5 bg-gradient-to-r from-brand-purple to-purple-500 text-white font-extrabold rounded-2xl shadow-xl hover:shadow-[0_0_40px_rgba(178,140,255,0.5)] transition-all flex justify-center items-center gap-2 w-full sm:w-auto mx-auto active:scale-[0.98]">
                         Create Your Free Profile <ArrowRight className="w-5 h-5" />
                     </button>
