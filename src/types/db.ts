@@ -93,14 +93,6 @@ export interface Drop {
         images: number;
         videos: number;
     };
-
-    // Auto-Rotation Config
-    rotationConfig?: {
-        enabled: boolean;
-        intervalDays: number;   // gap length (e.g., 7 = 7 days between drops)
-        maxRotations?: number;  // optional cap (undefined = forever)
-        rotationCount: number;  // how many times it has rotated so far
-    };
 }
 
 export interface Transaction {

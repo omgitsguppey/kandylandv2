@@ -10,7 +10,7 @@ const ALLOWED_DROP_FIELDS = [
     "title", "description", "imageUrl", "contentUrl", "contentUrls", "unlockCost",
     "validFrom", "validUntil", "status", "type", "tags",
     "ctaText", "actionUrl", "accentColor", "fileMetadata", "mediaCounts",
-    "totalUnlocks", "totalClicks", "rotationConfig", "creatorId",
+    "creatorId",
 ];
 
 import { revalidatePath } from "next/cache";

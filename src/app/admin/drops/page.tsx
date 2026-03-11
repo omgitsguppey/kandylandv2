@@ -254,14 +254,14 @@ export default function AdminDropsPage() {
                         <tbody className="divide-y divide-white/5">
                             {drops.map((drop) => {
                                 const now = Date.now();
-                                let status = "expired";
+                                let displayStatus = "expired";
                                 let statusColor = "bg-red-500/10 text-red-400 border-red-500/20";
 
                                 if (now < drop.validFrom) {
-                                    status = "scheduled";
+                                    displayStatus = "queued";
                                     statusColor = "bg-brand-purple/10 text-brand-purple border-brand-purple/20";
                                 } else if (!drop.validUntil || now < drop.validUntil) {
-                                    status = "active";
+                                    displayStatus = "active";
                                     statusColor = "bg-brand-purple/10 text-brand-purple border-brand-purple/20";
                                 }
 
@@ -313,7 +313,7 @@ export default function AdminDropsPage() {
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={cn("px-2.5 py-1 rounded-full text-xs font-bold border capitalize", statusColor)}>
-                                                {status}
+                                                {displayStatus}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-right">
@@ -375,14 +375,14 @@ export default function AdminDropsPage() {
                 <div className="md:hidden flex flex-col divide-y divide-white/5">
                     {drops.map((drop) => {
                         const now = Date.now();
-                        let status = "expired";
+                        let displayStatus = "expired";
                         let statusColor = "bg-red-500/10 text-red-400 border-red-500/20";
 
                         if (now < drop.validFrom) {
-                            status = "scheduled";
+                            displayStatus = "queued";
                             statusColor = "bg-brand-purple/10 text-brand-purple border-brand-purple/20";
                         } else if (!drop.validUntil || now < drop.validUntil) {
-                            status = "active";
+                            displayStatus = "active";
                             statusColor = "bg-brand-purple/10 text-brand-purple border-brand-purple/20";
                         }
 
@@ -402,7 +402,7 @@ export default function AdminDropsPage() {
                                     <div className="flex justify-between items-start">
                                         <h3 className="font-bold text-white truncate pr-2">{drop.title}</h3>
                                         <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-bold border capitalize shrink-0", statusColor)}>
-                                            {status}
+                                            {displayStatus}
                                         </span>
                                     </div>
                                     <div className="text-xs text-gray-400 flex items-center gap-3">

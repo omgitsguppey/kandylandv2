@@ -70,7 +70,6 @@ const dropSchema = z.object({
     })
     .nullable()
     .optional(),
-  rotationConfig: rotationSchema.nullable().optional(),
   mediaCounts: z.object({ images: z.number().int().nonnegative(), videos: z.number().int().nonnegative() }).optional(),
   contentUrls: z.array(z.string()).optional(),
 });
@@ -102,7 +101,6 @@ const dropRecordSchema = z.object({
     })
     .nullable()
     .optional(),
-  rotationConfig: rotationSchema.nullable().optional(),
   mediaCounts: z.object({ images: z.number().int().nonnegative(), videos: z.number().int().nonnegative() }).optional(),
   contentUrls: z.array(z.string()).optional(),
 });

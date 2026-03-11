@@ -16,47 +16,7 @@ function resolveDropStatus(drop: Drop, now: number): { drop: Drop; needsUpdate: 
     let needsUpdate = false;
     let resolved = { ...drop };
 
-    // Auto-rotation: if enabled and the current window has expired
-    const rc = resolved.rotationConfig;
-    if (rc?.enabled && resolved.validUntil && now >= resolved.validUntil) {
-        // Check if we've hit the max rotation cap
-        const atCap = rc.maxRotations !== undefined && rc.rotationCount >= rc.maxRotations;
-
-        if (!atCap && resolved.validFrom && resolved.validUntil) {
-            // Calculate active duration dynamically from original dates
-            const durationMs = resolved.validUntil - resolved.validFrom;
-
-            // Calculate gap between active windows
-            const gapDays = rc.intervalDays;
-            const gapMs = Math.max(0, gapDays) * MS_PER_DAY;
-
-            // How many full cycles (duration + gap) have we missed since the last validUntil?
-            const elapsed = now - resolved.validUntil;
-            const cycleMs = durationMs + gapMs;
-            const missedCycles = Math.floor(elapsed / cycleMs);
-
-            // Jump forward to the correct cycle
-            const newValidFrom = resolved.validUntil + gapMs + (missedCycles * cycleMs);
-            const newValidUntil = newValidFrom + durationMs;
-            const newRotationCount = rc.rotationCount + 1 + missedCycles;
-
-            // Check cap again after accounting for missed cycles
-            const finalCount = rc.maxRotations !== undefined
-                ? Math.min(newRotationCount, rc.maxRotations)
-                : newRotationCount;
-
-            resolved = {
-                ...resolved,
-                validFrom: newValidFrom,
-                validUntil: newValidUntil,
-                rotationConfig: {
-                    ...rc,
-                    rotationCount: finalCount,
-                },
-            };
-            needsUpdate = true;
-        }
-    }
+    // Auto-rotation logic has been officially deprecated. Time is linear now.
 
     // Compute live status from dates
     if (now < resolved.validFrom) {
@@ -83,12 +43,7 @@ async function persistDropUpdate(dropId: string, drop: Drop): Promise<void> {
     try {
         const updateData: Record<string, any> = { status: drop.status };
 
-        // If rotation happened, also update dates and config
-        if (drop.rotationConfig) {
-            updateData.validFrom = drop.validFrom;
-            updateData.validUntil = drop.validUntil;
-            updateData.rotationConfig = drop.rotationConfig;
-        }
+        // Rotation logic officially deprecated. No longer appending timeline modifications.
 
         await adminDb.collection("drops").doc(dropId).update(updateData);
     } catch (err) {
