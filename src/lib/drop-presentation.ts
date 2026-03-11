@@ -67,6 +67,7 @@ export function getAspectRatioCssValue(aspectRatio: SupportedAspectRatio): strin
 }
 
 export function getDropMediaSummary(drop: Drop): { imageCount: number; videoCount: number } {
+  // 1. Prefer explicitly saved counts
   const mediaCounts = drop.mediaCounts;
   if (mediaCounts && Number.isFinite(mediaCounts.images) && Number.isFinite(mediaCounts.videos)) {
     return {
@@ -75,6 +76,48 @@ export function getDropMediaSummary(drop: Drop): { imageCount: number; videoCoun
     };
   }
 
+  // 2. Fallback: Parse `contentUrls` array directly for legacy drops missing explicit metrics.
+  // Must strip `?alt=media&token=...` Firebase storage parameters before Regex matching.
+  const urlsToCheck = drop.contentUrls && drop.contentUrls.length > 0
+    ? drop.contentUrls
+    : (drop.contentUrl ? [drop.contentUrl] : []);
+
+  if (urlsToCheck.length > 0) {
+    let imageCount = 0;
+    let videoCount = 0;
+
+    urlsToCheck.forEach(url => {
+      if (!url) return;
+
+      try {
+        // Attempt to strip query parameters to expose clean extension
+        const urlObj = new URL(url);
+        const pathname = urlObj.pathname.toLowerCase();
+
+        if (pathname.match(/\.(mp4|webm|ogg|mov)$/)) {
+          videoCount++;
+        } else if (pathname.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
+          imageCount++;
+        } else {
+          // If the extension is totally obfuscated but the core type is known
+          if (drop.fileMetadata?.type?.startsWith("video/") && videoCount === 0 && imageCount === 0) {
+            videoCount++;
+          } else {
+            imageCount++; // Default optimistic fallback
+          }
+        }
+      } catch (e) {
+        // URL parsing failed (relative path?), just use simple string matching
+        const lowerUrl = url.split('?')[0].toLowerCase();
+        if (lowerUrl.match(/\.(mp4|webm|ogg|mov)$/)) videoCount++;
+        else imageCount++;
+      }
+    });
+
+    return { imageCount, videoCount };
+  }
+
+  // 3. Absolute Fallback: Single file MIME type guessing
   const type = drop.fileMetadata?.type ?? "";
   if (type.startsWith("video/")) {
     return { imageCount: 0, videoCount: 1 };

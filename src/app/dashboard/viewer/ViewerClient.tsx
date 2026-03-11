@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { ArrowLeft, Lock, ShieldCheck, Loader2, ShoppingBag, Download } from "lucide-react";
+import { ArrowLeft, Lock, ShieldCheck, Loader2, ShoppingBag, Download, Video, Images } from "lucide-react";
 
 import { toast } from "sonner";
 import { Drop } from "@/types/db";
@@ -282,9 +282,26 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                 if (!token) throw new Error("Not authenticated");
 
                 const proxyUrl = `/api/drops/content?id=${currentDrop.id}&token=${token}&index=${activeIndex}`;
+                const targetUrl = availableUrls[activeIndex];
 
                 if (!cancelled) {
                     let guessedMimeType = currentDrop.fileMetadata?.type || "";
+
+                    // If we have a target URL, try strictly parsing it's extension first. 
+                    // This handles heterogeneous arrays (e.g., [img.jpg, video.mp4]) where the first fileMetadata.type shouldn't blindly dictate the rest.
+                    if (targetUrl) {
+                        try {
+                            const urlObj = new URL(targetUrl);
+                            const pathname = urlObj.pathname.toLowerCase();
+                            if (pathname.match(/\.(mp4|webm|ogg|mov)$/)) {
+                                guessedMimeType = "video/mp4";
+                            } else if (pathname.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
+                                guessedMimeType = "image/jpeg";
+                            }
+                        } catch (e) {
+                            // Ignore parse errors, fallback to default.
+                        }
+                    }
 
                     if (!guessedMimeType) {
                         guessedMimeType = "video/mp4"; // Default fallback
@@ -516,28 +533,45 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                     <div className="w-full max-w-5xl mx-auto px-4 mt-6">
                         <div className="overflow-hidden pb-6 pt-2 px-2" ref={emblaRef}>
                             <div className="flex gap-4">
-                                {availableUrls.map((_, idx) => (
-                                    <button
-                                        key={`thumb-${idx}`}
-                                        onClick={() => setActiveIndex(idx)}
-                                        className={cn(
-                                            "relative flex-[0_0_auto] w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden border-2 transition-all transform",
-                                            activeIndex === idx
-                                                ? "border-brand-purple scale-110 shadow-[0_0_15px_rgba(178,140,255,0.4)] z-10"
-                                                : "border-white/10 opacity-50 hover:opacity-100 hover:border-white/30"
-                                        )}
-                                    >
-                                        <div className="absolute inset-0 bg-black flex items-center justify-center text-xs font-bold text-white/50 z-20 pointer-events-none">
-                                            {idx + 1}
-                                        </div>
-                                        <NextImage
-                                            src={drop.imageUrl}
-                                            alt={`Thumbnail ${idx + 1}`}
-                                            fill
-                                            className="object-cover opacity-30 pointer-events-none"
-                                        />
-                                    </button>
-                                ))}
+                                {availableUrls.map((url, idx) => {
+                                    // Predict if thumbnail should be an image or if it's a video
+                                    let isVideo = false;
+                                    try {
+                                        const parsed = new URL(url).pathname.toLowerCase();
+                                        if (parsed.match(/\.(mp4|webm|ogg|mov)$/)) isVideo = true;
+                                    } catch (e) { }
+
+                                    // Authenticate proxy route directly for images to allow previews
+                                    const thumbUrl = !isVideo && user
+                                        ? `/api/drops/content?id=${drop.id}&index=${idx}`
+                                        : drop.imageUrl;
+
+                                    return (
+                                        <button
+                                            key={`thumb-${idx}`}
+                                            onClick={() => setActiveIndex(idx)}
+                                            className={cn(
+                                                "relative flex-[0_0_auto] w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden border-2 transition-all transform",
+                                                activeIndex === idx
+                                                    ? "border-brand-purple scale-110 shadow-[0_0_15px_rgba(178,140,255,0.4)] z-10"
+                                                    : "border-white/10 opacity-50 hover:opacity-100 hover:border-white/30"
+                                            )}
+                                        >
+                                            <div className="absolute top-1 right-1 bg-black/60 rounded-full p-0.5 z-30">
+                                                {isVideo ? <Video className="w-3 h-3 text-white" /> : <Images className="w-3 h-3 text-white" />}
+                                            </div>
+                                            <div className="absolute inset-x-0 bottom-0 top-auto bg-gradient-to-t from-black via-black/50 to-transparent flex items-end justify-center pb-0.5 text-[9px] font-bold text-white/50 z-20 pointer-events-none h-6">
+                                                {idx + 1}
+                                            </div>
+                                            <NextImage
+                                                src={thumbUrl}
+                                                alt={`Thumbnail ${idx + 1}`}
+                                                fill
+                                                className="object-cover opacity-60 pointer-events-none bg-zinc-900"
+                                            />
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
                         <p className="text-center text-xs text-gray-500 w-full mt-[-8px]">
