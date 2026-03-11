@@ -9,8 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
-import { getAnalytics, logEvent } from "firebase/analytics";
-import { app } from "@/lib/firebase";
+import { trackEvent } from "@/lib/telemetry";
 import { getCSTDayBoundaries } from "@/lib/timezone";
 
 const CHECK_IN_INTERVAL_MS = 24 * 60 * 60 * 1000;
@@ -137,15 +136,10 @@ export function DailyCheckIn() {
 
             const reward = Number.isFinite(result.reward) ? Number(result.reward) : rewardAmount;
 
-            try {
-                const analytics = getAnalytics(app);
-                logEvent(analytics, 'daily_check_in_claim', {
-                    streak_count: displayStreak,
-                    gum_drops_awarded: reward
-                });
-            } catch (err) {
-                // Ignore tracking failures
-            }
+            trackEvent('daily_check_in_claim', {
+                streak_count: displayStreak,
+                gum_drops_awarded: reward
+            });
 
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : "Failed to claim reward";
@@ -171,7 +165,7 @@ export function DailyCheckIn() {
     }
 
     return (
-        <div className="glass-panel p-6 rounded-3xl relative overflow-hidden">
+        <div className="glass-panel p-6 rounded-3xl relative overflow-hidden" data-onboarding-target="daily-reward">
             <div className="absolute top-0 right-0 w-32 h-32 bg-brand-purple/10 rounded-full blur-[50px] pointer-events-none" />
 
             <div className="relative z-10">

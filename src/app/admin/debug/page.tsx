@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { db } from "@/lib/firebase-data";
-import { collection, query, orderBy, limit, onSnapshot } from "firebase/firestore";
+import { collection, query, orderBy, limit, onSnapshot, getDocs, where } from "firebase/firestore";
 import { Button } from "@/components/ui/Button";
 import { Loader2, Terminal, RefreshCw, Plus, PlayCircle } from "lucide-react";
 
@@ -19,12 +19,34 @@ export default function DebugConsole() {
     // Real-time Logs
     useEffect(() => {
         const q = query(collection(db, "transactions"), orderBy("timestamp", "desc"), limit(20));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const newLogs = snapshot.docs.map(doc => ({
+        const unsubscribe = onSnapshot(q, async (snapshot) => {
+            const newLogs: any[] = snapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data(),
                 timestamp: doc.data().timestamp?.toDate().toLocaleString() || "Pending..."
             }));
+
+            const userIds = Array.from(new Set(newLogs.map(log => log.userId).filter(Boolean)));
+
+            if (userIds.length > 0) {
+                try {
+                    const usersQuery = query(collection(db, "users"), where("__name__", "in", userIds.slice(0, 30)));
+                    const usersSnapshot = await getDocs(usersQuery);
+                    const userMap: Record<string, string> = {};
+                    usersSnapshot.forEach(userDoc => {
+                        userMap[userDoc.id] = userDoc.data().username || userDoc.data().displayName || "Unknown";
+                    });
+
+                    newLogs.forEach(log => {
+                        if (log.userId && userMap[log.userId]) {
+                            log.username = userMap[log.userId];
+                        }
+                    });
+                } catch (error) {
+                    console.error("Failed to map usernames:", error);
+                }
+            }
+
             setLogs(newLogs);
         });
         return () => unsubscribe();
@@ -146,7 +168,9 @@ export default function DebugConsole() {
                                     <td className="p-3 text-gray-400">{log.timestamp}</td>
                                     <td className="p-3 text-brand-purple">{log.type}</td>
                                     <td className="p-3 text-white">{log.amount}</td>
-                                    <td className="p-3 text-gray-500 truncate max-w-[100px]" title={log.userId}>{log.userId}</td>
+                                    <td className="p-3 text-gray-500 font-bold truncate max-w-[100px]" title={log.userId}>
+                                        {log.username ? `@${log.username}` : log.userId}
+                                    </td>
                                     <td className="p-3 text-gray-300">{log.description}</td>
                                 </tr>
                             ))}

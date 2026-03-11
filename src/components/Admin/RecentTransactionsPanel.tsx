@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { collection, onSnapshot, orderBy, query, limit } from "firebase/firestore";
+import { useEffect, useState, useRef } from "react";
+import { collection, onSnapshot, orderBy, query, limit, getDocs, where } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
 import { Transaction } from "@/types/db";
 import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
@@ -12,17 +12,46 @@ import { formatDistanceToNow } from "date-fns";
  * Owns its own onSnapshot subscription scoped to recent transactions.
  */
 export function RecentTransactionsPanel() {
-    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [transactions, setTransactions] = useState<(Transaction & { username?: string })[]>([]);
+    const userMapCache = useRef<Record<string, string>>({});
 
     useEffect(() => {
         const unsub = onSnapshot(
             query(collection(db, "transactions"), orderBy("timestamp", "desc"), limit(20)),
-            (snapshot) => {
+            async (snapshot) => {
                 const list: Transaction[] = [];
+                const requiredUids = new Set<string>();
+
                 snapshot.forEach((doc) => {
-                    try { list.push(normalizeTransactionRecord(doc.data(), doc.id)); } catch { /* skip malformed */ }
+                    try {
+                        const tx = normalizeTransactionRecord(doc.data(), doc.id);
+                        list.push(tx);
+                        if (tx.userId) requiredUids.add(tx.userId);
+                    } catch { /* skip malformed */ }
                 });
-                setTransactions(list);
+
+                const missingUids = Array.from(requiredUids).filter(uid => !userMapCache.current[uid]);
+
+                if (missingUids.length > 0) {
+                    try {
+                        for (let i = 0; i < missingUids.length; i += 30) {
+                            const chunk = missingUids.slice(i, i + 30);
+                            const usersSnap = await getDocs(query(collection(db, "users"), where("__name__", "in", chunk)));
+                            usersSnap.forEach(uDoc => {
+                                userMapCache.current[uDoc.id] = uDoc.data().username || uDoc.data().displayName || "Unknown";
+                            });
+                        }
+                    } catch (e) {
+                        console.error("Failed to fetch user mappings:", e);
+                    }
+                }
+
+                const mappedList = list.map(tx => ({
+                    ...tx,
+                    username: userMapCache.current[tx.userId]
+                }));
+
+                setTransactions(mappedList);
             },
         );
         return () => unsub();
@@ -43,7 +72,7 @@ export function RecentTransactionsPanel() {
                         <div key={tx.id} className="flex items-center justify-between border-b border-white/5 pb-3 last:border-0">
                             <div>
                                 <div className="text-sm font-semibold text-white line-clamp-1">{tx.description}</div>
-                                <div className="text-xs text-gray-500">{tx.userId.slice(0, 8)}…</div>
+                                <div className="text-xs text-brand-purple font-medium">{tx.username ? `@${tx.username}` : `${tx.userId.slice(0, 8)}…`}</div>
                             </div>
                             <div className="text-right">
                                 <div className="text-sm font-mono text-brand-purple">{tx.amount > 0 ? "+" : ""}{tx.amount}</div>

@@ -6,6 +6,7 @@ import { AdminStatsBar } from "@/components/Admin/AdminStatsBar";
 import { TopDropsPanel } from "@/components/Admin/TopDropsPanel";
 import { RecentTransactionsPanel } from "@/components/Admin/RecentTransactionsPanel";
 import { AdminActivityLogPanel } from "@/components/Admin/AdminActivityLogPanel";
+import { AdminAnalyticsCharts } from "@/components/Admin/AdminAnalyticsCharts";
 
 export default function AdminDashboardPage() {
     return (
@@ -36,10 +37,14 @@ export default function AdminDashboardPage() {
                 <AdminStatsBar />
             </Link>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <AdminAnalyticsCharts />
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
                 <TopDropsPanel />
                 <RecentTransactionsPanel />
-                <AdminActivityLogPanel />
+                <div className="lg:col-span-2">
+                    <AdminActivityLogPanel />
+                </div>
             </div>
         </div>
     );

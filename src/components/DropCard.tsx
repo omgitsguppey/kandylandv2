@@ -13,8 +13,7 @@ import { User } from "firebase/auth";
 import { authFetch } from "@/lib/authFetch";
 import { useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
-import { getAnalytics, logEvent } from "firebase/analytics";
-import { app } from "@/lib/firebase";
+import { trackEvent } from "@/lib/telemetry";
 import Link from "next/link";
 import { SupportedAspectRatio, getSupportedDropAspectRatio } from "@/lib/drop-presentation";
 
@@ -83,6 +82,8 @@ const FileCountChip = ({ images, videos, compact = false }: FileCountChipProps) 
 
 function DropCardTimer({ validUntil }: { validUntil?: number }) {
     const [timeLeft, setTimeLeft] = useState("Ends soon");
+    const [isUrgent, setIsUrgent] = useState(false);
+    const [isCritical, setIsCritical] = useState(false);
 
     useEffect(() => {
         const updateTimer = () => {
@@ -92,13 +93,17 @@ function DropCardTimer({ validUntil }: { validUntil?: number }) {
             }
 
             const msLeft = Math.max(0, validUntil - Date.now());
+            const ONE_HOUR_MS = 60 * 60 * 1000;
+            const ONE_DAY_MS = 24 * ONE_HOUR_MS;
+
+            setIsUrgent(msLeft > 0 && msLeft <= ONE_DAY_MS);
+            setIsCritical(msLeft > 0 && msLeft <= ONE_HOUR_MS);
 
             if (msLeft === 0) {
                 setTimeLeft("Expired");
                 return;
             }
 
-            const ONE_DAY_MS = 24 * 60 * 60 * 1000;
             if (msLeft >= ONE_DAY_MS) {
                 const days = Math.ceil(msLeft / ONE_DAY_MS);
                 setTimeLeft(`Ends in ${days} day${days === 1 ? "" : "s"}`);
@@ -119,8 +124,13 @@ function DropCardTimer({ validUntil }: { validUntil?: number }) {
     }, [validUntil]);
 
     return (
-        <div className="inline-flex items-center gap-1 rounded-lg border border-white/20 bg-black/60 px-2.5 py-1 text-[10px] md:text-xs font-mono font-semibold text-white">
-            <Clock className="h-3 w-3 text-brand-purple" />
+        <div className={cn(
+            "inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-[10px] md:text-xs font-mono font-bold transition-colors",
+            isCritical ? "bg-red-500/10 border-red-500/30 text-red-500 animate-pulse" :
+                isUrgent ? "bg-orange-500/10 border-orange-500/30 text-orange-400" :
+                    "border-white/20 bg-black/60 text-white"
+        )}>
+            <Clock className={cn("h-3 w-3", isCritical ? "text-red-500" : isUrgent ? "text-orange-400" : "text-brand-purple")} />
             <span>{timeLeft}</span>
         </div>
     );
@@ -143,16 +153,11 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
 
     useEffect(() => {
         if (!hasTrackedView) {
-            try {
-                const analytics = getAnalytics(app);
-                logEvent(analytics, 'view_drop_details', {
-                    drop_id: drop.id,
-                    drop_category: drop.type,
-                    is_unlocked: !!isUnlocked
-                });
-            } catch (err) {
-                // Ignore tracking init failures
-            }
+            trackEvent('view_drop_details', {
+                drop_id: drop.id,
+                drop_category: drop.type,
+                is_unlocked: !!isUnlocked
+            });
             setHasTrackedView(true);
         }
     }, [hasTrackedView, drop.id, drop.type, isUnlocked]);
@@ -227,16 +232,11 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                 throw new Error(result.error || "Unlock failed");
             }
 
-            try {
-                const analytics = getAnalytics(app);
-                logEvent(analytics, 'unlock_drop_success', {
-                    drop_id: drop.id,
-                    drop_category: drop.type,
-                    unlock_cost: drop.unlockCost || 0
-                });
-            } catch (err) {
-                // Ignore tracking failures
-            }
+            trackEvent('unlock_drop_success', {
+                drop_id: drop.id,
+                drop_category: drop.type,
+                unlock_cost: drop.unlockCost || 0
+            });
 
             toast.success(`Unwrapped: ${drop.title}`, {
                 description: "Enjoy your exclusive content!",
@@ -274,9 +274,9 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
         <Link
             href={`/dashboard/viewer?id=${drop.id}`}
             onClick={triggerHaptic}
-            className="px-3 py-1.5 md:px-5 md:py-2.5 rounded-lg md:rounded-xl font-bold text-xs md:text-sm bg-brand-purple/10 text-brand-purple flex items-center justify-center w-full whitespace-nowrap gap-1.5 md:gap-2 border border-brand-purple/20 transition-all active:scale-95"
+            className="px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl font-bold text-[11px] md:text-xs bg-brand-purple/10 text-brand-purple flex items-center justify-center w-full whitespace-nowrap gap-1.5 border border-brand-purple/20 transition-all active:scale-95"
         >
-            <Unlock className="w-3 h-3 md:w-4 md:h-4" />
+            <Unlock className="w-3 h-3" />
             View Content
         </Link>
     ) : (
@@ -284,19 +284,19 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
             onClick={handleUnlock}
             disabled={unlocking || !user}
             className={cn(
-                "px-3 py-1.5 md:px-5 md:py-2.5 rounded-lg md:rounded-xl font-bold text-xs md:text-sm flex items-center justify-center w-full whitespace-nowrap gap-1.5 md:gap-2 border relative overflow-hidden",
+                "px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl font-bold text-[11px] md:text-xs flex items-center justify-center w-full whitespace-nowrap gap-1.5 border relative overflow-hidden",
                 canAfford ? "bg-white text-black border-white" : "bg-white/5 text-gray-500 border-white/5 cursor-not-allowed",
                 "disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-all"
             )}
         >
             {unlocking ? (
                 <>
-                    <Loader2 className="w-3 h-3 md:w-4 md:h-4 animate-spin" />
+                    <Loader2 className="w-3 h-3 animate-spin" />
                     <span>Unwrapping...</span>
                 </>
             ) : (
                 <>
-                    <Lock className="w-3 h-3 md:w-4 md:h-4" />
+                    <Lock className="w-3 h-3" />
                     <span>Unwrap</span>
                 </>
             )}
@@ -351,7 +351,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
     }
 
     return (
-        <div className="group relative p-2 md:p-5 rounded-2xl md:rounded-3xl glass-panel overflow-hidden h-full">
+        <div className="group relative p-2 md:p-3 rounded-2xl md:rounded-3xl glass-panel overflow-hidden h-full flex flex-col">
             <div className="absolute inset-0 bg-gradient-to-br from-brand-purple/5 via-transparent to-brand-purple/5 pointer-events-none" />
 
             <button
@@ -359,7 +359,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                     fetch(`/api/drops/${drop.id}/click`, { method: "POST" }).catch(() => { });
                     onPreview(drop);
                 }}
-                className="relative w-full bg-black/40 rounded-xl md:rounded-2xl mb-3 md:mb-4 overflow-hidden group/image shadow-inner border border-white/5 text-left"
+                className="relative w-full bg-black/40 rounded-xl md:rounded-2xl mb-2 md:mb-3 overflow-hidden group/image shadow-inner border border-white/5 text-left flex-shrink-0"
                 style={ratioStyle}
             >
                 {drop.imageUrl ? (
@@ -392,20 +392,22 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                 <DropCardTimer validUntil={drop.validUntil} />
 
                 <div>
-                    <h3 className="text-sm md:text-xl font-bold text-white mb-0.5 md:mb-1 leading-tight tracking-tight">{drop.title}</h3>
-                    <p className="text-[10px] md:text-sm text-gray-400 line-clamp-2 font-medium leading-relaxed">{drop.description}</p>
+                    <h3 className="text-sm md:text-base font-bold text-white mb-0.5 md:mb-1 leading-tight tracking-tight line-clamp-1">{drop.title}</h3>
+                    <p className="text-[10px] md:text-xs text-gray-400 line-clamp-1 font-medium leading-relaxed">{drop.description}</p>
                 </div>
 
-                <div className="flex flex-col items-start gap-2 md:gap-3">
-                    <div className="flex items-center gap-1 md:gap-2 px-2 py-1 md:px-3 md:py-1.5 bg-brand-purple/10 rounded-lg border border-brand-purple/20 w-fit">
-                        <span className="text-brand-purple font-bold text-[10px] md:text-sm tracking-wide whitespace-nowrap">{drop.unlockCost} GD</span>
-                    </div>
-                    <div className="space-y-1.5 w-full">
-                        {ctaButton}
-                        <div className="flex items-center justify-center gap-1 opacity-60 text-[9px] font-medium text-white/80">
-                            <Eye className="w-2.5 h-2.5" />
-                            <span>{simulativeUnwraps} unwrapped today</span>
+                <div className="flex flex-col items-start gap-1.5 md:gap-2 mt-auto pt-1">
+                    <div className="flex items-center justify-between w-full">
+                        <div className="flex items-center gap-1 md:gap-2 px-2 py-1 bg-brand-purple/10 rounded-lg border border-brand-purple/20">
+                            <span className="text-brand-purple font-bold text-[10px] md:text-xs tracking-wide whitespace-nowrap">{drop.unlockCost} GD</span>
                         </div>
+                        <div className="flex items-center gap-1 opacity-60 text-[9px] font-medium text-white/80">
+                            <Eye className="w-2.5 h-2.5" />
+                            <span>{simulativeUnwraps}</span>
+                        </div>
+                    </div>
+                    <div className="w-full">
+                        {ctaButton}
                     </div>
                 </div>
 

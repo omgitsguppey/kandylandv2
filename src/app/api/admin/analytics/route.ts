@@ -284,11 +284,7 @@ export async function GET(request: NextRequest) {
                 }
             });
 
-            const commerce = {
-                revenueUsd: totalRevenueCents / 100, // Format to standard USD 
-                gdSpent: totalGdSpent,
-                feed: rawTransactions
-            };
+            // Delaying commerce object creation until users are fetched
 
             // 2. Security: User Security Flags
             const usersWithFlagsSnapshot = await adminDb.collection("users")
@@ -330,6 +326,50 @@ export async function GET(request: NextRequest) {
             }
             // Sort combined events descending by time
             rawEvents.sort((a, b) => b.timestamp - a.timestamp);
+            const slicedEvents = rawEvents.slice(0, 200);
+
+            // --- User Resolution Mapping ---
+            const userUids = new Set<string>();
+            rawTransactions.forEach(tx => {
+                if (tx.userId) userUids.add(tx.userId);
+            });
+            slicedEvents.forEach(evt => {
+                if (evt.uid && evt.uid !== 'anonymous' && evt.uid !== 'anon') userUids.add(evt.uid);
+            });
+
+            const userMap: Record<string, { username: string, photoURL: string }> = {};
+            const uidArray = Array.from(userUids);
+            if (uidArray.length > 0) {
+                for (let i = 0; i < uidArray.length; i += 30) {
+                    const chunk = uidArray.slice(i, i + 30);
+                    const usersSnapshot = await adminDb.collection("users").where("__name__", "in", chunk).get();
+                    usersSnapshot.docs.forEach((doc: any) => {
+                        const data = doc.data();
+                        userMap[doc.id] = {
+                            username: data.username || data.displayName || "Unknown User",
+                            photoURL: data.photoURL || ""
+                        };
+                    });
+                }
+            }
+
+            const mappedCommerceFeed = rawTransactions.map(tx => ({
+                ...tx,
+                username: tx.userId ? (userMap[tx.userId]?.username || tx.userId) : "Unknown User",
+                userPhoto: tx.userId ? (userMap[tx.userId]?.photoURL || "") : ""
+            }));
+
+            const mappedEvents = slicedEvents.map(evt => ({
+                ...evt,
+                username: evt.uid && evt.uid !== 'anonymous' && evt.uid !== 'anon' ? (userMap[evt.uid]?.username || evt.uid) : "Guest",
+                userPhoto: evt.uid && evt.uid !== 'anonymous' && evt.uid !== 'anon' ? (userMap[evt.uid]?.photoURL || "") : ""
+            }));
+
+            const commerce = {
+                revenueUsd: totalRevenueCents / 100,
+                gdSpent: totalGdSpent,
+                feed: mappedCommerceFeed
+            };
 
             return NextResponse.json({
                 success: true,
@@ -341,7 +381,7 @@ export async function GET(request: NextRequest) {
                 topDrops: dropsData,
                 commerce,
                 security: securityLogs,
-                rawEvents: rawEvents.slice(0, 200) // Ensure strictly capped
+                rawEvents: mappedEvents // Send strictly capped & mapped events
             });
         }
 

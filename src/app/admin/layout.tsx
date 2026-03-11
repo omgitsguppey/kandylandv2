@@ -12,7 +12,6 @@ const NAV_ITEMS = [
   { href: "/admin", label: "Home", icon: LayoutDashboard },
   { href: "/admin/analytics", label: "Analytics", icon: TrendingUp },
   { href: "/admin/drops", label: "Drops", icon: Package },
-  { href: "/admin/create", label: "Create", icon: PlusCircle },
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/roster", label: "Roster", icon: ListChecks },
   { href: "/admin/debug", label: "Debug", icon: Terminal },

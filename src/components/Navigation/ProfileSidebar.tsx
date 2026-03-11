@@ -6,8 +6,7 @@ import { LogOut, LayoutDashboard, Library, Settings, X, Plus, History } from "lu
 
 import { useAuthIdentity, useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
-import { app } from "@/lib/firebase";
-import { getAnalytics, logEvent } from "firebase/analytics";
+import { trackEvent } from "@/lib/telemetry";
 
 interface ProfileSidebarProps {
     isOpen: boolean;
@@ -131,10 +130,7 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
 
 function SidebarItem({ href, icon, label, onClick }: SidebarItemProps) {
     const handleClick = () => {
-        try {
-            const analytics = getAnalytics(app);
-            logEvent(analytics, 'navigation_click', { destination: href, source: 'profile_sidebar' });
-        } catch (e) { }
+        trackEvent('navigation_click', { destination: href, source: 'profile_sidebar' });
         onClick();
     };
 

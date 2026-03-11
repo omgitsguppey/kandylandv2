@@ -2,6 +2,7 @@
 
 import { useDeferredValue, useMemo, useState } from "react";
 import { ChevronDown, Search } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import type { FAQSection } from "./faq-data";
 
@@ -101,27 +102,39 @@ export function FAQClient({ sections }: FAQClientProps) {
                   const isOpen = openQuestionKey === faqKey;
 
                   return (
-                    <div
+                    <motion.div
+                      layout
                       key={faqKey}
                       className={cn(
-                        "overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] hover:border-brand-purple/30 transition-colors duration-200",
-                        isOpen && "border-brand-purple/50 bg-white/[0.04]"
+                        "overflow-hidden rounded-2xl border transition-all duration-300",
+                        isOpen
+                          ? "border-brand-purple/40 bg-brand-purple/[0.05] shadow-[0_0_20px_rgba(164,118,255,0.1)]"
+                          : "border-white/10 bg-white/[0.02] hover:border-brand-purple/30 glass-panel"
                       )}
                     >
                       <button
                         onClick={() => setOpenQuestionKey((prev) => (prev === faqKey ? null : faqKey))}
                         className="w-full text-left px-5 md:px-6 py-5 md:py-6 flex items-center justify-between gap-4"
                       >
-                        <h3 className="text-base md:text-lg font-semibold text-white">{faq.q}</h3>
-                        <ChevronDown className={cn("w-5 h-5 text-gray-400 transition-transform duration-200", isOpen && "rotate-180 text-brand-purple")} />
+                        <h3 className={cn("text-base md:text-lg font-semibold transition-colors duration-300", isOpen ? "text-brand-purple" : "text-white")}>{faq.q}</h3>
+                        <ChevronDown className={cn("w-5 h-5 transition-transform duration-300 flex-shrink-0", isOpen ? "rotate-180 text-brand-purple" : "text-gray-400")} />
                       </button>
-                      {isOpen && (
-                        <div className="px-5 md:px-6 pb-5 md:pb-6 pt-0">
-                          <div className="w-full h-px bg-white/5 mb-4" />
-                          <p className="text-sm md:text-base text-gray-400 leading-relaxed font-medium">{faq.a}</p>
-                        </div>
-                      )}
-                    </div>
+                      <AnimatePresence initial={false}>
+                        {isOpen && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.3, ease: "easeInOut" }}
+                          >
+                            <div className="px-5 md:px-6 pb-5 md:pb-6 pt-0">
+                              <div className="w-full h-px bg-white/10 mb-4" />
+                              <p className="text-sm md:text-base text-gray-300 leading-relaxed font-medium">{faq.a}</p>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </motion.div>
                   );
                 })}
               </div>

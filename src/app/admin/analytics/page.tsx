@@ -49,6 +49,8 @@ interface AnalyticsResponse {
         scrollDepthPercent?: number;
         path: string;
         uid: string;
+        username?: string;
+        userPhoto?: string;
         timestamp: number
     }>;
 }
@@ -259,7 +261,9 @@ export default function AdminAnalyticsPage() {
                                                     </div>
                                                     <div className="text-right shrink-0 min-w-16">
                                                         <span className="text-gray-500 block">{timeStr}</span>
-                                                        <span className="text-[#00ffcc] text-[10px] opacity-50 truncate max-w-[80px] block">{!log.uid || log.uid === 'anonymous' ? 'anon' : log.uid.slice(0, 6)}</span>
+                                                        <span className="text-[#00ffcc] text-[10px] font-bold opacity-80 truncate max-w-[80px] block" title={log.uid}>
+                                                            {log.username || (!log.uid || log.uid === 'anonymous' ? 'anon' : log.uid.slice(0, 6))}
+                                                        </span>
                                                     </div>
                                                 </div>
                                             )
@@ -468,7 +472,7 @@ export default function AdminAnalyticsPage() {
                                                         <p className={`font-bold ${isPurchase ? 'text-[#00ffcc]' : isUnlock ? 'text-brand-purple' : 'text-gray-400'}`}>
                                                             {amountStr}
                                                         </p>
-                                                        <p className="text-gray-500 text-[10px]">{tx.id?.slice(0, 10) || "Tx"}...</p>
+                                                        <p className="text-gray-500 font-bold text-[10px]">@{tx.username || "Unknown"}</p>
                                                     </div>
                                                     <div className="text-right">
                                                         <p className="text-white">

@@ -30,6 +30,7 @@ export default function AdminDropsPage() {
     const [sendingNotification, setSendingNotification] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [editingDropId, setEditingDropId] = useState<string | null>(null);
+    const [duplicatingDropId, setDuplicatingDropId] = useState<string | null>(null);
 
     const [queueIds, setQueueIds] = useState<Set<string>>(new Set());
 
@@ -206,6 +207,7 @@ export default function AdminDropsPage() {
                     <button
                         onClick={() => {
                             setEditingDropId(null);
+                            setDuplicatingDropId(null);
                             setIsCreateModalOpen(true);
                         }}
                         className="px-5 py-2 rounded-full bg-brand-purple font-bold text-white text-sm transition-colors shadow-lg shadow-brand-purple/20 flex items-center gap-2 whitespace-nowrap"
@@ -244,6 +246,7 @@ export default function AdminDropsPage() {
                                 <th className="px-6 py-4 font-bold">Drop Details</th>
                                 <th className="px-6 py-4 font-bold">Schedule</th>
                                 <th className="px-6 py-4 font-bold">Cost</th>
+                                <th className="px-6 py-4 font-bold">Performance</th>
                                 <th className="px-6 py-4 font-bold">Status</th>
                                 <th className="px-6 py-4 font-bold text-right">Actions</th>
                             </tr>
@@ -303,6 +306,12 @@ export default function AdminDropsPage() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
+                                            <div className="text-sm">
+                                                <div className="text-white font-bold">{drop.totalUnlocks || 0} <span className="text-gray-500 font-normal">Unwraps</span></div>
+                                                <div className="text-xs text-gray-500 mt-0.5">{drop.totalClicks || 0} Clicks</div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
                                             <span className={cn("px-2.5 py-1 rounded-full text-xs font-bold border capitalize", statusColor)}>
                                                 {status}
                                             </span>
@@ -324,7 +333,21 @@ export default function AdminDropsPage() {
                                                     <BellRing className="w-4 h-4" />
                                                 </button>
                                                 <button
-                                                    onClick={() => {
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setEditingDropId(null);
+                                                        setDuplicatingDropId(drop.id);
+                                                        setIsCreateModalOpen(true);
+                                                    }}
+                                                    className="px-3 py-1.5 rounded-full bg-black border border-white/10 text-white text-xs font-bold transition-colors flex items-center gap-1 hover:bg-white/10"
+                                                    title="Duplicate"
+                                                >
+                                                    Duplicate
+                                                </button>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setDuplicatingDropId(null);
                                                         setEditingDropId(drop.id);
                                                         setIsCreateModalOpen(true);
                                                     }}
@@ -385,6 +408,7 @@ export default function AdminDropsPage() {
                                     <div className="text-xs text-gray-400 flex items-center gap-3">
                                         <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {format(drop.validFrom, "MMM d")}</span>
                                         <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {format(drop.validFrom, "HH:mm")}</span>
+                                        <span className="flex items-center gap-1 text-brand-purple font-bold ml-auto">{drop.totalUnlocks || 0} Unwraps</span>
                                     </div>
 
                                     <div className="flex justify-end gap-2 pt-1">
@@ -474,10 +498,15 @@ export default function AdminDropsPage() {
 
             <CreateDropModal
                 isOpen={isCreateModalOpen}
-                onClose={() => setIsCreateModalOpen(false)}
+                onClose={() => {
+                    setIsCreateModalOpen(false);
+                    setDuplicatingDropId(null);
+                }}
                 dropId={editingDropId}
+                duplicateFromId={duplicatingDropId}
                 onSuccess={() => {
                     setIsCreateModalOpen(false);
+                    setDuplicatingDropId(null);
                 }}
             />
         </div >

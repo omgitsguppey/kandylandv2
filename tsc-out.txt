@@ -1,0 +1,1 @@
+src/app/api/telemetry/track/route.ts(4,10): error TS2305: Module '"@/lib/server/firebase-admin"' has no exported member 'initAdmin'.

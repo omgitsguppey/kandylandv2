@@ -14,8 +14,7 @@ import { differenceInYears, parseISO } from "date-fns";
 import { authFetch } from "@/lib/authFetch";
 import Image from "next/image";
 import { mutate } from "swr";
-import { app } from "@/lib/firebase";
-import { getAnalytics, logEvent } from "firebase/analytics";
+import { trackEvent } from "@/lib/telemetry";
 
 // Validation Schema
 const onboardingSchema = z.object({
@@ -76,9 +75,8 @@ export function OnboardingModal() {
             if (missingUsername || missingDob) {
                 if (!isOpen) { // Only log on initial modal trigger
                     try {
-                        const analytics = getAnalytics(app);
-                        logEvent(analytics, 'onboarding_started');
-                        logEvent(analytics, 'onboarding_step_viewed', { step: 1 });
+                        trackEvent('onboarding_started');
+                        trackEvent('onboarding_step_viewed', { step: 1 });
                     } catch (e) { }
                 }
                 setIsOpen(true);
@@ -150,8 +148,7 @@ export function OnboardingModal() {
         if (valid) {
             setStep((prev) => {
                 try {
-                    const analytics = getAnalytics(app);
-                    logEvent(analytics, 'onboarding_step_viewed', { step: prev + 1 });
+                    trackEvent('onboarding_step_viewed', { step: prev + 1 });
                 } catch (e) { }
                 return prev + 1;
             });
@@ -171,8 +168,7 @@ export function OnboardingModal() {
                 await uploadBytes(storageRef, avatarFile);
                 photoURL = await getDownloadURL(storageRef);
                 try {
-                    const analytics = getAnalytics(app);
-                    logEvent(analytics, 'avatar_uploaded');
+                    trackEvent('avatar_uploaded');
                 } catch (e) { }
             }
 
@@ -191,8 +187,7 @@ export function OnboardingModal() {
             if (!response.ok) throw new Error(result.error || "Profile save failed");
 
             try {
-                const analytics = getAnalytics(app);
-                logEvent(analytics, 'onboarding_complete');
+                trackEvent('onboarding_complete');
             } catch (e) { }
 
             setShowSuccess(true);

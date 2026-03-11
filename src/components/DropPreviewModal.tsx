@@ -153,7 +153,7 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
         <Dialog.Overlay className="fixed inset-0 z-[120] bg-black/75 backdrop-blur-md" />
         <div className="fixed inset-x-0 bottom-0 top-12 sm:top-8 z-[120] flex items-end justify-center px-2 sm:px-4 pointer-events-none">
           <Dialog.Content
-            className="pointer-events-auto w-full max-w-2xl max-h-full overflow-hidden rounded-t-3xl bg-[#0D0D12] border border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.55)] focus:outline-none"
+            className="pointer-events-auto w-full max-w-2xl max-h-full overflow-hidden rounded-t-[2.5rem] sm:rounded-3xl bg-[#0A0A0F] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(164,118,255,0.15),rgba(0,0,0,0))] border border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.55)] focus:outline-none relative ring-1 ring-white/5"
             aria-describedby={undefined}
           >
             <Dialog.Title className="sr-only">Preview Drop</Dialog.Title>
@@ -183,14 +183,14 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
               </div>
 
               <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-28 sm:px-5">
-                <div className="mx-auto w-full max-w-xl rounded-2xl border border-white/10 bg-[#15151D] p-2" style={ratioStyle}>
-                  <div className="relative h-full w-full overflow-hidden rounded-xl bg-[#15151D]">
+                <div className="mx-auto w-full max-w-xl rounded-2xl border border-white/10 bg-[#15151D]/50 p-2 shadow-inner" style={ratioStyle}>
+                  <div className="relative h-full w-full overflow-hidden rounded-xl bg-black">
                     <Image
                       src={drop.imageUrl}
                       alt={drop.title}
                       fill
                       sizes="(max-width: 768px) 95vw, 640px"
-                      className="object-cover object-center"
+                      className="object-cover object-center opacity-90"
                     />
                     {!user && (
                       <button
@@ -198,13 +198,13 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
                           onClose();
                           openAuthModal();
                         }}
-                        className="absolute inset-0 z-10 bg-black/40 backdrop-blur-xl flex flex-col items-center justify-center p-4 transition-all hover:bg-black/50 group"
+                        className="absolute inset-0 z-10 bg-black/50 backdrop-blur-xl flex flex-col items-center justify-center p-4 transition-all hover:bg-black/60 group focus:outline-none"
                       >
-                        <div className="bg-black/60 p-4 rounded-3xl border border-white/10 shadow-2xl flex flex-col items-center justify-center gap-3 text-center max-w-[200px] transition-transform group-hover:scale-105">
-                          <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center border border-white/10">
-                            <Lock className="w-5 h-5 text-white" />
+                        <div className="bg-black/80 p-5 rounded-3xl border border-white/15 shadow-[0_0_30px_rgba(164,118,255,0.1)] flex flex-col items-center justify-center gap-3 text-center max-w-[220px] transition-transform group-hover:scale-105">
+                          <div className="w-14 h-14 bg-white/5 rounded-full flex items-center justify-center border border-white/10 shadow-inner">
+                            <Lock className="w-6 h-6 text-white" />
                           </div>
-                          <span className="text-white font-bold text-sm leading-tight">Sign in to unwrap and view this collection</span>
+                          <span className="text-white font-bold text-sm leading-tight">Sign in to Unwrap this collection</span>
                         </div>
                       </button>
                     )}
@@ -241,14 +241,14 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
                 </div>
               </div>
 
-              <div className="shrink-0 border-t border-white/10 bg-[#0D0D12]/95 px-4 pb-[calc(env(safe-area-inset-bottom)+0.85rem)] pt-3 sm:px-5">
+              <div className="shrink-0 border-t border-white/10 bg-[#0A0A0F]/95 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-4 sm:px-5 backdrop-blur-md">
                 {isUnlocked ? (
                   <Link
                     href={`/dashboard/viewer?id=${drop.id}`}
                     onClick={triggerHaptic}
-                    className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-purple text-black font-bold"
+                    className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand-purple text-black font-bold text-lg hover:bg-[#b28cff] transition-colors active:scale-95 shadow-[0_0_20px_rgba(164,118,255,0.4)]"
                   >
-                    <Unlock className="h-4 w-4" />
+                    <Unlock className="h-5 w-5" />
                     View Content
                   </Link>
                 ) : (
@@ -256,18 +256,18 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
                     onClick={handleUnwrap}
                     disabled={unlocking}
                     className={cn(
-                      "flex h-12 w-full items-center justify-center gap-2 rounded-xl font-bold transition active:scale-[0.99]",
-                      canAfford ? "bg-white text-black" : "bg-brand-purple text-white"
+                      "flex h-14 w-full items-center justify-center gap-2 rounded-2xl font-bold text-lg transition-all active:scale-95 shadow-lg border relative overflow-hidden",
+                      canAfford ? "bg-white text-black border-white hover:bg-gray-100 shadow-[0_0_20px_rgba(255,255,255,0.3)]" : "bg-white/5 text-gray-500 border-white/10 shadow-none"
                     )}
                   >
                     {unlocking ? (
                       <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <Loader2 className="h-5 w-5 animate-spin" />
                         Unwrapping...
                       </>
                     ) : (
                       <>
-                        <Lock className="h-4 w-4" />
+                        <Lock className="h-5 w-5" />
                         {canAfford ? `Unwrap for ${drop.unlockCost} GD` : `Need ${drop.unlockCost} GD — Top up wallet`}
                       </>
                     )}

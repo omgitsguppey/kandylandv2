@@ -192,7 +192,7 @@ export default function AdminRosterPage() {
                 </div>
             </header>
 
-            <div className="glass-panel rounded-2xl overflow-hidden border border-white/10">
+            <div className="rounded-2xl overflow-hidden">
                 {loading ? (
                     <div className="flex items-center justify-center min-h-[260px]">
                         <div className="w-8 h-8 rounded-full border-2 border-brand-purple border-t-transparent animate-spin" />
@@ -205,153 +205,94 @@ export default function AdminRosterPage() {
                         <p>No roster entries yet.</p>
                     </div>
                 ) : (
-                    <>
-                        <div className="hidden md:block overflow-x-auto">
-                            <table className="w-full text-left">
-                                <thead className="bg-white/5 border-b border-white/10 text-xs uppercase tracking-wider text-gray-400">
-                                    <tr>
-                                        <th className="px-4 py-3 font-semibold">User</th>
-                                        <th className="px-4 py-3 font-semibold">Email</th>
-                                        <th className="px-4 py-3 font-semibold">Role</th>
-                                        <th className="px-4 py-3 font-semibold">Status</th>
-                                        <th className="px-4 py-3 font-semibold text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-white/5">
-                                    {visibleUsers.map((entry) => (
-                                        <tr key={entry.uid}>
-                                            <td className="px-4 py-3">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-full bg-zinc-800 border border-white/10 overflow-hidden flex items-center justify-center text-xs font-bold text-gray-300 relative">
-                                                        {entry.photoURL ? (
-                                                            <Image src={entry.photoURL} alt={entry.displayName} fill sizes="40px" className="object-cover" />
-                                                        ) : (
-                                                            initialsFor(entry.displayName)
-                                                        )}
-                                                    </div>
-                                                    <div className="min-w-0">
-                                                        <Link href={`/admin/user/${entry.uid}`} className="text-sm font-semibold text-white truncate inline-flex items-center gap-1 hover:text-brand-purple transition-colors">
-                                                            {entry.displayName}
-                                                            {entry.isVerified ? <CheckCircle2 className="w-3 h-3 text-brand-purple" /> : null}
-                                                        </Link>
-                                                        <div className="text-xs text-gray-500 truncate">{entry.username ? `@${entry.username}` : entry.uid}</div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-4 py-3 text-sm text-gray-300">{entry.email}</td>
-                                            <td className="px-4 py-3">
-                                                <span className={cn(
-                                                    "px-2 py-1 rounded-full text-xs border capitalize",
-                                                    entry.role === "admin"
-                                                        ? "bg-red-500/10 border-red-500/20 text-red-400"
-                                                        : entry.role === "creator"
-                                                            ? "bg-purple-500/10 border-purple-500/20 text-purple-400"
-                                                            : "bg-gray-500/10 border-gray-500/20 text-gray-400"
-                                                )}>
-                                                    {entry.role}
-                                                </span>
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                <span className={cn(
-                                                    "px-2 py-1 rounded-full text-xs border capitalize",
-                                                    entry.status === "active"
-                                                        ? "bg-brand-purple/10 border-brand-purple/20 text-brand-purple"
-                                                        : "bg-white/5 border-white/10 text-gray-400"
-                                                )}>
-                                                    {entry.status}
-                                                </span>
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                <div className="flex justify-end items-center gap-2">
-                                                    <select
-                                                        className="bg-black/40 border border-white/10 rounded-lg text-xs text-gray-200 px-2 py-1"
-                                                        value={entry.role}
-                                                        onChange={(event) => handleRoleUpdate(entry.uid, event.target.value as RosterRole)}
-                                                    >
-                                                        <option value="user">User</option>
-                                                        <option value="creator">Creator</option>
-                                                        <option value="admin">Admin</option>
-                                                    </select>
-                                                    <Link
-                                                        href={`/admin/user/${entry.uid}`}
-                                                        className="text-xs px-2 py-1 rounded-lg bg-brand-purple/10 border border-brand-purple/20 text-brand-purple font-bold hover:bg-brand-purple/20 transition-colors"
-                                                    >
-                                                        Analytics
-                                                    </Link>
-                                                    {entry.username ? (
-                                                        <Link
-                                                            href={`/creators/${entry.username}`}
-                                                            className="text-xs px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-gray-200"
-                                                        >
-                                                            View profile
-                                                        </Link>
-                                                    ) : null}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 p-4 md:p-6 bg-black/20">
+                        {visibleUsers.map((entry) => {
+                            const isAdminUser = entry.role === "admin";
+                            const isCreator = entry.role === "creator";
 
-                        <div className="md:hidden divide-y divide-white/5">
-                            {visibleUsers.map((entry) => (
-                                <div key={entry.uid} className="p-4 space-y-3">
-                                    <div className="flex gap-3 items-center">
-                                        <div className="w-11 h-11 rounded-full bg-zinc-800 border border-white/10 overflow-hidden flex items-center justify-center text-xs font-bold text-gray-300 relative">
-                                            {entry.photoURL ? (
-                                                <Image src={entry.photoURL} alt={entry.displayName} fill sizes="44px" className="object-cover" />
-                                            ) : (
-                                                initialsFor(entry.displayName)
-                                            )}
-                                        </div>
-                                        <div className="min-w-0">
-                                            <div className="text-sm font-semibold text-white inline-flex items-center gap-1">
-                                                {entry.displayName}
-                                                {entry.isVerified ? <CheckCircle2 className="w-3 h-3 text-brand-purple" /> : null}
+                            return (
+                                <div key={entry.uid} className={`glass-panel rounded-3xl p-5 border relative overflow-hidden group transition-all hover:-translate-y-1 ${isAdminUser ? "border-red-500/30 hover:shadow-[0_0_30px_-5px_rgba(239,68,68,0.3)] bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-red-500/10 via-black to-black" :
+                                        isCreator ? "border-brand-purple/30 hover:shadow-[0_0_30px_-5px_rgba(178,140,255,0.3)] bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-purple/10 via-black to-black" :
+                                            "border-white/10 hover:border-white/20 bg-black/40"
+                                    }`}>
+                                    {/* Card Header */}
+                                    <div className="flex items-start justify-between mb-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-lg relative overflow-hidden shrink-0 border shadow-inner ${isAdminUser ? 'border-red-500/50 bg-red-500/20 text-red-500' :
+                                                    isCreator ? 'border-brand-purple/50 bg-brand-purple/20 text-brand-purple' :
+                                                        'border-white/10 bg-zinc-800 text-gray-400'
+                                                }`}>
+                                                {entry.photoURL ? (
+                                                    <Image src={entry.photoURL} alt={entry.displayName} fill sizes="48px" className="object-cover" />
+                                                ) : (
+                                                    initialsFor(entry.displayName)
+                                                )}
                                             </div>
-                                            <div className="text-xs text-gray-500 truncate">{entry.email}</div>
+                                            <div>
+                                                <Link href={`/admin/user/${entry.uid}`} className="text-sm font-black text-white truncate inline-flex items-center gap-1 hover:text-brand-purple transition-colors max-w-[140px]">
+                                                    {entry.displayName}
+                                                    {entry.isVerified ? <CheckCircle2 className="w-3.5 h-3.5 text-brand-purple shrink-0" /> : null}
+                                                </Link>
+                                                <div className="text-[10px] text-gray-500 font-mono truncate max-w-[140px]">{entry.username ? `@${entry.username}` : entry.email}</div>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-xs text-gray-400">Role</span>
-                                        <select
-                                            className="bg-black/40 border border-white/10 rounded-lg text-xs text-gray-200 px-2 py-1"
-                                            value={entry.role}
-                                            onChange={(event) => handleRoleUpdate(entry.uid, event.target.value as RosterRole)}
-                                        >
-                                            <option value="user">User</option>
-                                            <option value="creator">Creator</option>
-                                            <option value="admin">Admin</option>
-                                        </select>
+                                    {/* Account Information */}
+                                    <div className="space-y-3">
+                                        <div className="flex justify-between items-center bg-black/50 px-3 py-2 rounded-xl border border-white/5">
+                                            <span className="text-gray-500 font-bold uppercase tracking-wider text-[9px]">Permission Level</span>
+                                            <select
+                                                className={`bg-transparent text-xs font-bold uppercase tracking-wider outline-none transition-colors appearance-none text-right cursor-pointer ${isAdminUser ? "text-red-400" :
+                                                        isCreator ? "text-brand-purple" :
+                                                            "text-gray-300"
+                                                    }`}
+                                                value={entry.role}
+                                                onChange={(event) => handleRoleUpdate(entry.uid, event.target.value as RosterRole)}
+                                            >
+                                                <option value="user" className="bg-black">User</option>
+                                                <option value="creator" className="bg-black text-brand-purple">Creator</option>
+                                                <option value="admin" className="bg-black text-red-500">Admin</option>
+                                            </select>
+                                        </div>
+
+                                        <div className="flex justify-between items-center bg-black/50 px-3 py-2 rounded-xl border border-white/5">
+                                            <span className="text-gray-500 font-bold uppercase tracking-wider text-[9px]">Status</span>
+                                            <span className={cn(
+                                                "text-[10px] font-black uppercase tracking-widest",
+                                                entry.status === "active" ? "text-green-500" : "text-red-500 opacity-80"
+                                            )}>
+                                                {entry.status}
+                                            </span>
+                                        </div>
                                     </div>
 
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-xs text-gray-400">Status</span>
-                                        <span className={cn(
-                                            "px-2 py-1 rounded-full text-xs border capitalize",
-                                            entry.status === "active"
-                                                ? "bg-brand-purple/10 border-brand-purple/20 text-brand-purple"
-                                                : "bg-white/5 border-white/10 text-gray-400"
-                                        )}>
-                                            {entry.status}
-                                        </span>
-                                    </div>
-
-                                    {entry.username ? (
+                                    {/* Card Footer Actions */}
+                                    <div className="mt-4 pt-4 border-t border-white/5 grid grid-cols-2 gap-2">
                                         <Link
-                                            href={`/creators/${entry.username}`}
-                                            className="inline-flex items-center gap-1 text-xs px-2 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-200"
+                                            href={`/admin/user/${entry.uid}`}
+                                            className="flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-wider py-2 rounded-xl bg-white/5 border border-white/10 text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
                                         >
-                                            <User className="w-3 h-3" />
-                                            View profile
+                                            Analytics
                                         </Link>
-                                    ) : null}
+                                        {entry.username ? (
+                                            <Link
+                                                href={`/creators/${entry.username}`}
+                                                className="flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-wider py-2 rounded-xl bg-brand-purple/10 border border-brand-purple/20 text-brand-purple hover:bg-brand-purple/20 transition-colors"
+                                            >
+                                                <User className="w-3 h-3" />
+                                                Profile
+                                            </Link>
+                                        ) : (
+                                            <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-wider py-2 rounded-xl bg-black/40 border border-white/5 text-gray-600 cursor-not-allowed">
+                                                No Profile
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                            ))}
-                        </div>
-                    </>
+                            );
+                        })}
+                    </div>
                 )}
             </div>
 

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { collection, query, orderBy, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
 import { UserProfile } from "@/types/db";
-import { Loader2, Search, Shield, Ban, CheckCircle, AlertTriangle, Edit2, Lock, Plus, ScrollText, MessageSquare } from "lucide-react";
+import { Loader2, Search, Shield, Ban, CheckCircle, AlertTriangle, Edit2, Lock, Plus, ScrollText, MessageSquare, DollarSign } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import { format } from "date-fns";
@@ -26,6 +26,8 @@ export default function UserManagementPage() {
     const [viewMode, setViewMode] = useState<'users' | 'feedback'>('users');
     const [feedback, setFeedback] = useState<any[]>([]);
     const [loadingFeedback, setLoadingFeedback] = useState(false);
+
+    const [securityDetailsUser, setSecurityDetailsUser] = useState<UserProfile | null>(null);
 
     // Balance Editing State
     const [editBalanceUser, setEditBalanceUser] = useState<UserProfile | null>(null);
@@ -316,10 +318,14 @@ export default function UserManagementPage() {
                                                 </td>
                                                 <td className="p-4 text-sm">
                                                     {(user.securityFlags?.ripAttempts ?? 0) > 0 ? (
-                                                        <div className="flex items-center gap-1 text-red-500 font-bold bg-red-500/10 px-2 py-1 rounded-full w-fit border border-red-500/20" title={`Last violation: ${user.securityFlags?.lastViolationReason || 'Unknown'}`}>
+                                                        <button
+                                                            onClick={() => setSecurityDetailsUser(user)}
+                                                            className="flex items-center gap-1 text-red-500 font-bold bg-red-500/10 px-2 py-1 rounded-full w-fit border border-red-500/20 hover:bg-red-500/20 transition-colors"
+                                                            title={`View Dossier`}
+                                                        >
                                                             <AlertTriangle className="w-3 h-3" />
                                                             {user.securityFlags!.ripAttempts} Flags
-                                                        </div>
+                                                        </button>
                                                     ) : (
                                                         <span className="text-gray-600 font-medium">Clean</span>
                                                     )}
@@ -357,63 +363,116 @@ export default function UserManagementPage() {
                     </div>
 
                     {/* Mobile Card Layout */}
-                    <div className="md:hidden flex flex-col divide-y divide-white/5 glass-panel rounded-2xl border border-white/5">
+                    <div className="md:hidden flex flex-col gap-4">
                         {loading ? (
-                            <div className="p-8 text-center"><Loader2 className="w-6 h-6 text-brand-purple animate-spin mx-auto" /></div>
+                            <div className="p-8 text-center glass-panel rounded-2xl"><Loader2 className="w-6 h-6 text-brand-purple animate-spin mx-auto" /></div>
                         ) : filteredUsers.length === 0 ? (
-                            <div className="p-8 text-center text-gray-500">No users found.</div>
+                            <div className="p-8 text-center text-gray-500 glass-panel rounded-2xl">No users found.</div>
                         ) : (
                             filteredUsers.map((user) => (
-                                <div key={user.uid} className="p-4 flex gap-4 items-start">
-                                    <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-lg font-bold text-gray-500 overflow-hidden shrink-0 relative">
-                                        {user.photoURL ? (
-                                            <Image src={user.photoURL} alt={user.displayName || "User"} fill sizes="48px" className="object-cover" />
-                                        ) : (
-                                            (user.displayName?.[0] || user.email?.[0] || "?").toUpperCase()
-                                        )}
-                                    </div>
-                                    <div className="flex-1 min-w-0 space-y-2">
-                                        <div className="flex justify-between items-start">
-                                            <div>
-                                                <div className="flex items-center gap-1 font-bold text-white text-sm">
-                                                    {user.displayName || "No Name"}
-                                                    {user.isVerified && <CheckCircle className="w-3 h-3 text-brand-purple" />}
-                                                </div>
-                                                <div className="text-xs text-gray-500">{user.email}</div>
-                                            </div>
-                                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border capitalize ${getStatusColor(user.status)}`}>
-                                                {user.status || 'active'}
-                                            </span>
+                                <div key={user.uid} className="glass-panel p-4 rounded-2xl border border-white/10 flex flex-col gap-4 relative overflow-hidden group">
+                                    {/* Background Accent based on Role/Status */}
+                                    <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl -z-10 opacity-20 ${user.status === 'banned' ? 'bg-red-500' : user.role === 'admin' ? 'bg-red-500' : user.role === 'creator' ? 'bg-brand-purple' : 'bg-white'}`} />
+
+                                    {/* Header: Avatar, Name, Role, Status */}
+                                    <div className="flex gap-4 items-center">
+                                        <div className="w-14 h-14 rounded-full bg-zinc-800 flex items-center justify-center text-xl font-bold text-gray-500 overflow-hidden shrink-0 relative border border-white/10 shadow-inner">
+                                            {user.photoURL ? (
+                                                <Image src={user.photoURL} alt={user.displayName || "User"} fill sizes="56px" className="object-cover" />
+                                            ) : (
+                                                (user.displayName?.[0] || user.email?.[0] || "?").toUpperCase()
+                                            )}
                                         </div>
-                                        <div className="flex items-center justify-between text-xs">
-                                            <div className="flex items-center gap-2">
-                                                <span className={`px-1.5 py-0.5 rounded border capitalize ${user.role === 'admin' ? "bg-red-500/10 text-red-400 border-red-500/20" : user.role === 'creator' ? "bg-purple-500/10 text-purple-400 border-purple-500/20" : "bg-gray-500/10 text-gray-400 border-gray-500/20"}`}>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex justify-between items-start">
+                                                <div className="truncate">
+                                                    <div className="flex items-center gap-1.5 font-bold text-white text-base">
+                                                        <span className="truncate">{user.displayName || "No Name"}</span>
+                                                        {user.isVerified && <CheckCircle className="w-4 h-4 text-brand-purple shrink-0" />}
+                                                    </div>
+                                                    <div className="text-xs text-gray-400 font-mono truncate">{user.email}</div>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-2 mt-2">
+                                                <span className={`px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider ${user.role === 'admin' ? "bg-red-500/10 text-red-400 border-red-500/30" : user.role === 'creator' ? "bg-purple-500/10 text-purple-400 border-purple-500/30" : "bg-gray-500/10 text-gray-400 border-gray-500/30"}`}>
                                                     {user.role || 'user'}
                                                 </span>
-                                                {(user.securityFlags?.ripAttempts ?? 0) > 0 && (
-                                                    <div className="flex items-center gap-1 text-red-500 font-bold bg-red-500/10 px-1.5 py-0.5 rounded border border-red-500/20" title={`Last violation: ${user.securityFlags?.lastViolationReason || 'Unknown'}`}>
-                                                        <AlertTriangle className="w-3 h-3" />
-                                                        {user.securityFlags!.ripAttempts} Flags
-                                                    </div>
-                                                )}
+                                                <span className={`px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider ${getStatusColor(user.status)}`}>
+                                                    {user.status || 'active'}
+                                                </span>
                                             </div>
-                                            <div className="font-mono text-brand-purple flex items-center gap-1">
+                                        </div>
+                                    </div>
+
+                                    {/* Metrics / Quick Stats */}
+                                    <div className="grid grid-cols-2 gap-3 p-3 bg-black/40 rounded-xl border border-white/5">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-xs text-gray-500 font-bold uppercase"><ScrollText className="w-3 h-3 inline mr-1" />Joined</span>
+                                            <span className="text-sm font-mono text-gray-300">
+                                                {format((user.createdAt as any)?.toMillis?.() || user.createdAt || Date.now(), 'MM/dd/yy')}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-xs text-gray-500 font-bold uppercase"><DollarSign className="w-3 h-3 inline mr-1" />Balance</span>
+                                            <span className="text-sm font-mono text-brand-purple font-bold">
                                                 {user.gumDropsBalance} 🍬
-                                                <button onClick={() => setEditBalanceUser(user)}><Edit2 className="w-3 h-3 text-gray-500 hover:text-white" /></button>
-                                                <button onClick={() => setHistoryUser(user)}><ScrollText className="w-3 h-3 text-gray-500 hover:text-white" /></button>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Security Flag (Full Width Button if flags exist) */}
+                                    {(user.securityFlags?.ripAttempts ?? 0) > 0 ? (
+                                        <button
+                                            onClick={() => setSecurityDetailsUser(user)}
+                                            className="w-full flex items-center justify-between bg-red-500/10 border border-red-500/30 p-3 rounded-xl hover:bg-red-500/20 active:scale-[0.98] transition-all"
+                                        >
+                                            <div className="flex items-center gap-2 text-red-500 font-bold text-sm">
+                                                <AlertTriangle className="w-4 h-4 animate-pulse duration-1000" />
+                                                <span>{user.securityFlags!.ripAttempts} Security Flags</span>
                                             </div>
+                                            <span className="text-xs font-bold text-red-400 bg-red-500/20 px-2 py-1 rounded-full uppercase tracking-wider">Review Request</span>
+                                        </button>
+                                    ) : null}
+
+                                    {/* Action Grid */}
+                                    <div className="grid grid-cols-4 gap-2 mt-1">
+                                        <button onClick={() => setEditBalanceUser(user)} className="flex flex-col items-center justify-center p-3 bg-white/5 hover:bg-brand-purple/20 border border-white/10 rounded-xl transition-colors text-gray-400 hover:text-brand-purple hover:border-brand-purple/50 group">
+                                            <Edit2 className="w-5 h-5 mb-1 group-active:scale-95 transition-transform" />
+                                            <span className="text-[10px] font-bold uppercase tracking-wider">Balance</span>
+                                        </button>
+                                        <button onClick={() => setContentUser(user)} className="flex flex-col items-center justify-center p-3 bg-white/5 hover:bg-blue-500/20 border border-white/10 rounded-xl transition-colors text-gray-400 hover:text-blue-400 hover:border-blue-500/50 group">
+                                            <Lock className="w-5 h-5 mb-1 group-active:scale-95 transition-transform" />
+                                            <span className="text-[10px] font-bold uppercase tracking-wider">Content</span>
+                                        </button>
+                                        <button onClick={() => setHistoryUser(user)} className="flex flex-col items-center justify-center p-3 bg-white/5 hover:bg-gray-500/20 border border-white/10 rounded-xl transition-colors text-gray-400 hover:text-white hover:border-white/50 group">
+                                            <ScrollText className="w-5 h-5 mb-1 group-active:scale-95 transition-transform" />
+                                            <span className="text-[10px] font-bold uppercase tracking-wider">History</span>
+                                        </button>
+                                        <button onClick={() => { setActionUser(user); setActionType('ban'); }} className="flex flex-col items-center justify-center p-3 bg-white/5 hover:bg-red-500/20 border border-white/10 rounded-xl transition-colors text-gray-400 hover:text-red-500 hover:border-red-500/50 group">
+                                            <Ban className="w-5 h-5 mb-1 group-active:scale-95 transition-transform" />
+                                            <span className="text-[10px] font-bold uppercase tracking-wider">Ban</span>
+                                        </button>
+                                    </div>
+
+                                    {/* Sub Actions (Roles & Verification) */}
+                                    <div className="flex gap-2 w-full pt-1">
+                                        <div className="flex-1">
+                                            <select
+                                                value={user.role || 'user'}
+                                                onChange={(e) => handleRoleUpdate(user.uid, e.target.value as any)}
+                                                className="w-full bg-black/50 border border-white/10 rounded-xl p-2.5 text-xs text-brand-purple font-bold uppercase tracking-wider appearance-none text-center outline-none focus:border-brand-purple hover:bg-black/80 transition-colors"
+                                            >
+                                                <option value="user">User Role</option>
+                                                <option value="creator">Creator Role</option>
+                                                <option value="admin">Admin Role</option>
+                                            </select>
                                         </div>
-                                        <div className="flex justify-end gap-2 pt-2 border-t border-white/5">
-                                            {user.role !== 'creator' ? (
-                                                <button onClick={() => handleRoleUpdate(user.uid, 'creator')} className="px-3 py-1.5 bg-purple-500/10 text-purple-400 rounded-lg text-xs font-bold">Promote</button>
-                                            ) : (
-                                                <button onClick={() => handleRoleUpdate(user.uid, 'user')} className="px-3 py-1.5 bg-zinc-800 text-gray-400 rounded-lg text-xs font-bold">Demote</button>
-                                            )}
-                                            <button onClick={() => handleVerification(user.uid, !user.isVerified)} className={`px-3 py-1.5 rounded-lg text-xs font-bold ${user.isVerified ? "bg-brand-purple/10 text-brand-purple" : "bg-zinc-800 text-gray-400"}`}>
-                                                {user.isVerified ? "Verified" : "Verify"}
-                                            </button>
-                                            <button onClick={() => setContentUser(user)} className="p-1.5 bg-zinc-800 text-gray-400 rounded-lg"><Lock className="w-4 h-4" /></button>
-                                        </div>
+                                        <button
+                                            onClick={() => handleVerification(user.uid, !user.isVerified)}
+                                            className={`flex-1 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors border ${user.isVerified ? "bg-brand-purple/10 text-brand-purple border-brand-purple/20" : "bg-zinc-800 text-gray-400 border-white/5"}`}
+                                        >
+                                            {user.isVerified ? "Verified" : "Verify Badge"}
+                                        </button>
                                     </div>
                                 </div>
                             ))
@@ -485,7 +544,7 @@ export default function UserManagementPage() {
             )}
 
             {/* Action Modals */}
-            {(actionType || editBalanceUser || contentUser || historyUser) && (
+            {(actionType || editBalanceUser || contentUser || historyUser || securityDetailsUser) && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
                     {actionType && actionUser && (
                         <div className="bg-zinc-900 border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl">
@@ -560,6 +619,62 @@ export default function UserManagementPage() {
                             </div>
                             <div className="flex justify-end">
                                 <Button variant="ghost" onClick={() => { setContentUser(null); setContentInput(""); }}>Close</Button>
+                            </div>
+                        </div>
+                    )}
+                    {securityDetailsUser && (
+                        <div className="bg-zinc-900 border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl">
+                            <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+                                <Shield className="w-5 h-5 text-red-500" /> Security Dossier
+                            </h3>
+                            <p className="text-gray-400 mb-6 flex items-center gap-2">
+                                Target: <span className="text-white font-bold">{securityDetailsUser.displayName || securityDetailsUser.email}</span>
+                            </p>
+
+                            <div className="space-y-4 mb-6">
+                                <div className="bg-black/50 p-4 rounded-xl border border-white/5">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="text-xs text-gray-500 font-bold uppercase">Total Violations</span>
+                                        <span className="text-lg font-black text-red-500">{securityDetailsUser.securityFlags?.ripAttempts || 0}</span>
+                                    </div>
+                                    {securityDetailsUser.securityFlags?.lastViolation && (
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-xs text-gray-500 font-bold uppercase">Last Incident</span>
+                                            <span className="text-sm font-mono text-gray-300">
+                                                {format(new Date(securityDetailsUser.securityFlags.lastViolation), 'MMM d, yyyy h:mm a')}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="bg-red-500/10 p-4 rounded-xl border border-red-500/20">
+                                    <span className="text-xs text-red-400 font-bold uppercase block mb-1">Violation Vector</span>
+                                    <p className="text-sm text-red-300 font-mono break-words">
+                                        {securityDetailsUser.securityFlags?.lastViolationReason || "Unknown Method"}
+                                    </p>
+                                </div>
+
+                                {securityDetailsUser.securityFlags?.lastViolationDropId && (
+                                    <div className="bg-white/5 p-4 rounded-xl border border-white/5">
+                                        <span className="text-xs text-gray-500 font-bold uppercase block mb-1">Target Asset (Drop ID)</span>
+                                        <p className="text-sm text-brand-purple font-mono break-all">
+                                            {securityDetailsUser.securityFlags.lastViolationDropId}
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+                                <Button variant="ghost" onClick={() => setSecurityDetailsUser(null)}>Close Dossier</Button>
+                                {(!securityDetailsUser.status || securityDetailsUser.status === 'active') && (
+                                    <Button variant="danger" onClick={() => {
+                                        setSecurityDetailsUser(null);
+                                        setActionUser(securityDetailsUser);
+                                        setActionType('ban');
+                                    }}>
+                                        Immediate Ban
+                                    </Button>
+                                )}
                             </div>
                         </div>
                     )}

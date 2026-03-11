@@ -6,8 +6,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
-import { app } from "@/lib/firebase";
-import { getAnalytics, logEvent } from "firebase/analytics";
+import { trackEvent } from "@/lib/telemetry";
 
 const NAV_ITEMS = [
     { label: "Home", href: "/", icon: Home },
@@ -55,12 +54,10 @@ export default function MobileBottomBar() {
                         <Link
                             key={item.label}
                             href={item.href}
+                            data-onboarding-target={`${item.label.toLowerCase()}-nav`}
                             onClick={() => {
                                 triggerHaptic();
-                                try {
-                                    const analytics = getAnalytics(app);
-                                    logEvent(analytics, 'navigation_click', { destination: item.href, source: 'mobile_bottom_bar' });
-                                } catch (e) { }
+                                trackEvent('navigation_click', { destination: item.href, source: 'mobile_bottom_bar' });
                             }}
                             className={cn(
                                 "flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-2 py-1.5 transition-colors active:scale-95",

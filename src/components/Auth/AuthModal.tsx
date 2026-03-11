@@ -360,7 +360,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                                     ) : mode === "signin" ? (
                                         "Sign In"
                                     ) : (
-                                        "Unlock Access"
+                                        "Sign Up & Unwrap"
                                     )}
                                 </button>
                             </form>

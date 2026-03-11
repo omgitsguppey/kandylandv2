@@ -254,54 +254,77 @@ export default function ManageQueuePage() {
                                     }
 
                                     return (
-                                        <div key={`${dropId}-${index}`} className="flex items-center gap-4 p-3 rounded-xl bg-black/40 border border-white/5 hover:bg-white/5 transition-colors group">
-                                            <div className="text-gray-500 cursor-grab active:cursor-grabbing opacity-50 group-hover:opacity-100">
-                                                <GripVertical className="w-5 h-5" />
+                                        <div key={`${dropId}-${index}`} className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-xl bg-black/40 border border-white/5 hover:bg-white/5 transition-colors group relative">
+
+                                            <div className="flex w-full sm:w-auto items-center gap-3">
+                                                {/* Drag handle */}
+                                                <div className="text-gray-500 cursor-grab active:cursor-grabbing opacity-50 group-hover:opacity-100 p-2 -ml-2 hover:text-white hover:bg-white/5 rounded-lg transition-all hidden sm:block">
+                                                    <GripVertical className="w-6 h-6" />
+                                                </div>
+
+                                                <div className="w-16 h-16 sm:w-14 sm:h-14 rounded-xl bg-zinc-800 border border-white/10 overflow-hidden relative shrink-0 shadow-inner">
+                                                    {drop.imageUrl ? (
+                                                        <NextImage src={drop.imageUrl} alt={drop.title} fill sizes="64px" className="object-cover" />
+                                                    ) : null}
+                                                </div>
+
+                                                <div className="flex-1 min-w-0 sm:hidden">
+                                                    <h3 className="font-bold text-white text-base truncate">{drop.title}</h3>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <span className="text-[10px] font-bold tracking-widest uppercase bg-brand-purple/20 text-brand-purple px-2 py-0.5 rounded border border-brand-purple/20">
+                                                            Slot {index + 1}
+                                                        </span>
+                                                    </div>
+                                                </div>
                                             </div>
 
-                                            <div className="w-12 h-12 rounded-lg bg-zinc-800 border border-white/10 overflow-hidden relative shrink-0">
-                                                {drop.imageUrl ? (
-                                                    <NextImage src={drop.imageUrl} alt={drop.title} fill sizes="48px" className="object-cover" />
-                                                ) : null}
-                                            </div>
-
-                                            <div className="flex-1 min-w-0">
-                                                <h3 className="font-bold text-white text-sm truncate">{drop.title}</h3>
+                                            <div className="flex-1 min-w-0 hidden sm:block">
+                                                <h3 className="font-bold text-white text-base truncate">{drop.title}</h3>
                                                 <div className="flex items-center gap-2 mt-1">
-                                                    <span className="text-xs bg-brand-purple/20 text-brand-purple px-2 py-0.5 rounded border border-brand-purple/20 font-mono">
+                                                    <span className="text-[10px] font-bold tracking-widest uppercase bg-brand-purple/20 text-brand-purple px-2 py-0.5 rounded border border-brand-purple/20">
                                                         Slot {index + 1}
                                                     </span>
                                                     {sim && (
-                                                        <span className="text-xs text-gray-400 flex items-center gap-1">
-                                                            <Calendar className="w-3 h-3" /> Est: Day {Math.floor(index / config.dropsPerDay) + 1} @ {sim.timeStr}
+                                                        <span className="text-xs text-gray-400 flex items-center gap-1 font-medium">
+                                                            <Calendar className="w-3.5 h-3.5 text-brand-purple/70" /> {format(sim.date, 'MMM d')} @ {sim.timeStr}
                                                         </span>
                                                     )}
                                                 </div>
                                             </div>
 
-                                            <div className="flex items-center gap-1 shrink-0">
-                                                <div className="flex flex-col gap-1">
+                                            {sim && (
+                                                <div className="sm:hidden w-full bg-black/50 p-2.5 rounded-lg border border-white/5">
+                                                    <span className="text-xs text-gray-400 flex justify-between items-center font-medium">
+                                                        <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-brand-purple/70" /> Projected Release</span>
+                                                        <span className="text-white font-mono bg-white/5 px-2 py-1 rounded-md">{format(sim.date, 'MMM d')} @ {sim.timeStr}</span>
+                                                    </span>
+                                                </div>
+                                            )}
+
+                                            <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto mt-1 sm:mt-0 pt-3 sm:pt-0 border-t border-white/5 sm:border-0 shrink-0 gap-2">
+                                                <div className="flex gap-2">
                                                     <button
                                                         onClick={() => moveDrop(index, 'up')}
                                                         disabled={index === 0}
-                                                        className="p-1 rounded bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 disabled:opacity-30 transition-colors"
+                                                        className="p-2 sm:p-1.5 rounded-lg sm:rounded bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 disabled:opacity-30 transition-colors flex items-center justify-center w-12 sm:w-8 h-12 sm:h-8"
                                                     >
-                                                        <ArrowUp className="w-4 h-4" />
+                                                        <ArrowUp className="w-5 h-5 sm:w-4 sm:h-4" />
                                                     </button>
                                                     <button
                                                         onClick={() => moveDrop(index, 'down')}
                                                         disabled={index === config.queue.length - 1}
-                                                        className="p-1 rounded bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 disabled:opacity-30 transition-colors"
+                                                        className="p-2 sm:p-1.5 rounded-lg sm:rounded bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 disabled:opacity-30 transition-colors flex items-center justify-center w-12 sm:w-8 h-12 sm:h-8"
                                                     >
-                                                        <ArrowDown className="w-4 h-4" />
+                                                        <ArrowDown className="w-5 h-5 sm:w-4 sm:h-4" />
                                                     </button>
                                                 </div>
                                                 <button
                                                     onClick={() => removeDrop(index)}
-                                                    className="p-2 ml-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-colors"
+                                                    className="p-2 sm:p-2 sm:ml-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 hover:text-red-300 transition-colors flex items-center justify-center w-12 sm:w-auto h-12 sm:h-auto font-bold uppercase"
                                                     title="Remove from queue"
                                                 >
                                                     <Trash2 className="w-5 h-5" />
+                                                    <span className="hidden sm:inline-block ml-2 text-xs font-bold uppercase tracking-wider">Remove</span>
                                                 </button>
                                             </div>
                                         </div>

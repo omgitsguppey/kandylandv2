@@ -130,10 +130,11 @@ export interface CreateDropModalProps {
     isOpen: boolean;
     onClose: () => void;
     dropId?: string | null;
+    duplicateFromId?: string | null;
     onSuccess: () => void;
 }
 
-export function CreateDropModal({ isOpen, onClose, dropId, onSuccess }: CreateDropModalProps) {
+export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSuccess }: CreateDropModalProps) {
     const isEditMode = !!dropId;
     const [fetching, setFetching] = useState(isEditMode);
 
@@ -194,7 +195,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, onSuccess }: CreateDr
             return;
         }
 
-        if (!dropId) {
+        if (!dropId && !duplicateFromId) {
             setFetching(false);
             return;
         }
@@ -202,20 +203,29 @@ export function CreateDropModal({ isOpen, onClose, dropId, onSuccess }: CreateDr
         setFetching(true);
         async function fetchDrop() {
             try {
-                const docRef = doc(db, "drops", dropId as string);
+                const docRef = doc(db, "drops", (dropId || duplicateFromId) as string);
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) {
                     const data = docSnap.data() as Drop;
-                    setValue("title", data.title);
+                    setValue("title", data.title + (duplicateFromId ? " (Copy)" : ""));
                     setValue("description", data.description);
                     setValue("imageUrl", data.imageUrl);
                     setValue("contentUrl", data.contentUrl || "");
                     setValue("contentUrls", data.contentUrls || (data.contentUrl ? [data.contentUrl] : []));
                     setValue("unlockCost", data.unlockCost);
-                    setValue("validFrom", toCSTString(data.validFrom));
-                    if (data.validUntil) {
-                        setValue("validUntil", toCSTString(data.validUntil));
+
+                    if (dropId) {
+                        setValue("validFrom", toCSTString(data.validFrom));
+                        if (data.validUntil) {
+                            setValue("validUntil", toCSTString(data.validUntil));
+                        }
+                    } else {
+                        // Inherit current time for duplication
+                        const defaults = getDefaultCSTDates();
+                        setValue("validFrom", defaults.validFrom);
+                        setValue("validUntil", defaults.validUntil);
                     }
+
                     setValue("type", data.type || "content");
                     setValue("tags", data.tags || []);
                     setValue("ctaText", data.ctaText || "");
@@ -234,7 +244,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, onSuccess }: CreateDr
         }
 
         fetchDrop();
-    }, [isOpen, dropId, reset, setValue, onClose]);
+    }, [isOpen, dropId, duplicateFromId, reset, setValue, onClose]);
 
     const handleCoverAssetsChange = useCallback((assets: UploadedAsset[]) => {
         const primary = assets[0];

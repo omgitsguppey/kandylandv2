@@ -3,16 +3,24 @@
 import { useState, useMemo } from "react";
 import { DropGrid } from "@/components/DropGrid";
 import StickyFilterBar from "@/components/StickyFilterBar";
-import { FeaturedCarousel } from "@/components/FeaturedCarousel";
 import { Drop } from "@/types/db";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { Lock } from "lucide-react";
-import { DropPreviewModal } from "@/components/DropPreviewModal";
 import { useDrops } from "@/hooks/useDrops";
 import { KandyDropsAccountOverview, AccountOverviewState } from "@/components/KandyDropsAccountOverview";
 import { GuestComponentBlur } from "@/components/Auth/GuestComponentBlur";
 import { useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
+
+const FeaturedCarousel = dynamic(() => import("@/components/FeaturedCarousel").then(mod => mod.FeaturedCarousel), {
+    ssr: false,
+    loading: () => <div className="h-64 sm:h-80 md:h-[400px] w-full rounded-[2.5rem] bg-zinc-900/50 animate-pulse border border-white/10" />
+});
+
+const DropPreviewModal = dynamic(() => import("@/components/DropPreviewModal").then(mod => mod.DropPreviewModal), {
+    ssr: false
+});
 
 const CATEGORIES = ["All", "New", "Ending Soon", "Hottest", "Sweet", "Spicy", "RAW"];
 
