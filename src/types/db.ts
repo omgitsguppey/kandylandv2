@@ -19,7 +19,10 @@ export interface UserProfile {
     streakCount?: number; // Current daily streak
     status?: 'active' | 'suspended' | 'banned'; // User account status
     statusReason?: string; // Reason for suspension/ban
-
+    onboardingCompleted?: boolean; // Tracking if new user completed the flow
+    preferences?: {
+        flavor: string; // 'Sweet', 'Spicy', 'RAW'
+    };
     notificationSettings?: {
         inAppEnabled: boolean;
         browserPushEnabled: boolean;

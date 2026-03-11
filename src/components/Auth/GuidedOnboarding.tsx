@@ -17,7 +17,7 @@ type HighlightRect = {
 };
 
 export function GuidedOnboarding() {
-    const { user, profile } = useAuth();
+    const { user, userProfile: profile } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
 
@@ -266,62 +266,62 @@ export function GuidedOnboarding() {
                     {/* Spotlight Tooltips */}
                     {highlightRect && currentStep > 1 && (
                         <motion.div
-                            key={\`tooltip-\${currentStep}\`}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ delay: 0.2 }}
-                    style={{
-                        position: "absolute",
-                        // Place tooltip dynamically relative to highlight box
-                        top: highlightRect.top < window.innerHeight / 2
-                            ? highlightRect.top + highlightRect.height + 40
-                            : highlightRect.top - 200,
-                        left: "50%",
-                        width: "90%",
-                        maxWidth: "340px",
-                        transform: "translateX(-50%)"
-                    }}
-                    className="glass-panel p-6 rounded-3xl border border-white/20 shadow-2xl text-center z-50 bg-black/80 backdrop-blur-xl"
+                            key={`tooltip-${currentStep}`}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ delay: 0.2 }}
+                            style={{
+                                position: "absolute",
+                                // Place tooltip dynamically relative to highlight box
+                                top: highlightRect.top < window.innerHeight / 2
+                                    ? highlightRect.top + highlightRect.height + 40
+                                    : highlightRect.top - 200,
+                                left: "50%",
+                                width: "90%",
+                                maxWidth: "340px",
+                                transform: "translateX(-50%)"
+                            }}
+                            className="glass-panel p-6 rounded-3xl border border-white/20 shadow-2xl text-center z-50 bg-black/80 backdrop-blur-xl"
                         >
-                    {currentStep === 2 && (
-                        <>
-                            <div className="w-12 h-12 bg-brand-purple/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                                <Sparkles className="w-6 h-6 text-brand-purple" />
-                            </div>
-                            <h3 className="text-xl font-bold text-white mb-2">The Hunt Begins</h3>
-                            <p className="text-sm text-gray-300 mb-6 leading-relaxed">This is where the magic lives. Dive into the <b>Drops</b> tab to unwrap limited-edition, exclusive content.</p>
-                        </>
-                    )}
-                    {currentStep === 3 && (
-                        <>
-                            <div className="w-12 h-12 bg-pink-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                                <Flame className="w-6 h-6 text-pink-400" />
-                            </div>
-                            <h3 className="text-xl font-bold text-white mb-2">Daily Ritual</h3>
-                            <p className="text-sm text-gray-300 mb-6 leading-relaxed">Consistency pays off. Check in right here every day to stack free <b>Gum Drops</b> to spend on premium unwraps.</p>
-                        </>
-                    )}
-                    {currentStep === 4 && (
-                        <>
-                            <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                                <BellRing className="w-6 h-6 text-orange-400" />
-                            </div>
-                            <h3 className="text-xl font-bold text-white mb-2">Absolute Scarcity</h3>
-                            <p className="text-sm text-gray-300 mb-6 leading-relaxed">Explore <b>Experiences</b> for VIP perks. But remember, Drops are fleeting. Once they're gone, they may never return. <span className="text-orange-400 font-bold block mt-2">Enable notifications below so you never miss a moment.</span></p>
-                        </>
-                    )}
+                            {currentStep === 2 && (
+                                <>
+                                    <div className="w-12 h-12 bg-brand-purple/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                                        <Sparkles className="w-6 h-6 text-brand-purple" />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-white mb-2">The Hunt Begins</h3>
+                                    <p className="text-sm text-gray-300 mb-6 leading-relaxed">This is where the magic lives. Dive into the <b>Drops</b> tab to unwrap limited-edition, exclusive content.</p>
+                                </>
+                            )}
+                            {currentStep === 3 && (
+                                <>
+                                    <div className="w-12 h-12 bg-pink-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                                        <Flame className="w-6 h-6 text-pink-400" />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-white mb-2">Daily Ritual</h3>
+                                    <p className="text-sm text-gray-300 mb-6 leading-relaxed">Consistency pays off. Check in right here every day to stack free <b>Gum Drops</b> to spend on premium unwraps.</p>
+                                </>
+                            )}
+                            {currentStep === 4 && (
+                                <>
+                                    <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                                        <BellRing className="w-6 h-6 text-orange-400" />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-white mb-2">Absolute Scarcity</h3>
+                                    <p className="text-sm text-gray-300 mb-6 leading-relaxed">Explore <b>Experiences</b> for VIP perks. But remember, Drops are fleeting. Once they're gone, they may never return. <span className="text-orange-400 font-bold block mt-2">Enable notifications below so you never miss a moment.</span></p>
+                                </>
+                            )}
 
-                    <button
-                        onClick={handleNext}
-                        className="w-full py-3 rounded-xl bg-white text-black font-bold active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-                    >
-                        {currentStep === 4 ? "Finish & Enable Notifications" : "Got it!"} <ChevronRight className="w-4 h-4" />
-                    </button>
-                </motion.div>
+                            <button
+                                onClick={handleNext}
+                                className="w-full py-3 rounded-xl bg-white text-black font-bold active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                            >
+                                {currentStep === 4 ? "Finish & Enable Notifications" : "Got it!"} <ChevronRight className="w-4 h-4" />
+                            </button>
+                        </motion.div>
                     )}
-            </AnimatePresence>
+                </AnimatePresence>
+            </div>
         </div>
-        </div >
     );
 }
