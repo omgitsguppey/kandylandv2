@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
-import { X, Images, Video, Clock, Lock, Unlock, Loader2, Share2, Eye } from "lucide-react";
+import { X, Images, Video, Clock, Lock, Unlock, Loader2, Share2, Eye, Wallet } from "lucide-react";
 import { Drop } from "@/types/db";
 import { getAspectRatioCssValue, getDropMediaSummary, getSupportedDropAspectRatio } from "@/lib/drop-presentation";
 import { formatDistanceToNow } from "date-fns";
@@ -42,8 +42,17 @@ function getTimerLabel(validFrom: number, validUntil?: number): string {
 export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
   const { user } = useAuth();
   const { userProfile, setUserProfile } = useUserProfile();
-  const { openAuthModal, openInsufficientBalanceModal } = useUI();
+  const { openAuthModal, openPurchaseModal } = useUI();
   const [unlocking, setUnlocking] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout>;
+    if (confirming) {
+      timeout = setTimeout(() => setConfirming(false), 3500);
+    }
+    return () => clearTimeout(timeout);
+  }, [confirming]);
 
   const mediaSummary = useMemo(() => (drop ? getDropMediaSummary(drop) : { imageCount: 0, videoCount: 0 }), [drop]);
   const timerLabel = useMemo(() => (drop ? getTimerLabel(drop.validFrom, drop.validUntil) : ""), [drop]);
@@ -78,10 +87,17 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
     const balance = userProfile?.gumDropsBalance ?? 0;
     if (balance < drop.unlockCost) {
       onClose();
-      openInsufficientBalanceModal(drop.unlockCost);
+      openPurchaseModal();
       return;
     }
 
+    if (!confirming) {
+      setConfirming(true);
+      triggerHaptic();
+      return;
+    }
+
+    setConfirming(false);
     setUnlocking(true);
 
     try {
@@ -254,10 +270,13 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
                 ) : (
                   <button
                     onClick={handleUnwrap}
-                    disabled={unlocking}
+                    disabled={unlocking || (!user && canAfford)}
                     className={cn(
                       "flex h-14 w-full items-center justify-center gap-2 rounded-2xl font-bold text-lg transition-all active:scale-95 shadow-lg border relative overflow-hidden",
-                      canAfford ? "bg-white text-black border-white hover:bg-gray-100 shadow-[0_0_20px_rgba(255,255,255,0.3)]" : "bg-white/5 text-gray-500 border-white/10 shadow-none"
+                      !canAfford ? "bg-brand-purple text-black border-brand-purple hover:bg-[#b28cff] shadow-[0_0_20px_rgba(164,118,255,0.4)]"
+                        : confirming ? "bg-orange-500 text-white border-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.4)]"
+                          : "bg-white text-black border-white hover:bg-gray-100 shadow-[0_0_20px_rgba(255,255,255,0.3)]",
+                      "disabled:opacity-50 disabled:cursor-not-allowed"
                     )}
                   >
                     {unlocking ? (
@@ -265,10 +284,20 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
                         <Loader2 className="h-5 w-5 animate-spin" />
                         Unwrapping...
                       </>
+                    ) : !canAfford ? (
+                      <>
+                        <Wallet className="h-5 w-5" />
+                        Get more Gumdrops
+                      </>
+                    ) : confirming ? (
+                      <>
+                        <Lock className="h-5 w-5" />
+                        Confirm {drop.unlockCost} GD?
+                      </>
                     ) : (
                       <>
                         <Lock className="h-5 w-5" />
-                        {canAfford ? `Unwrap for ${drop.unlockCost} GD` : `Need ${drop.unlockCost} GD — Top up wallet`}
+                        Unwrap for {drop.unlockCost} GD
                       </>
                     )}
                   </button>

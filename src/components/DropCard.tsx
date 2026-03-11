@@ -4,7 +4,7 @@ import { Drop } from "@/types/db";
 import { getSimulatedUnwrapsToday } from "@/lib/unwrap-simulator";
 import { useEffect, useState, memo, useMemo } from "react";
 import NextImage from "next/image";
-import { Lock, Unlock, Clock, Loader2, AlertCircle, Eye, Image as ImageIcon, Film } from "lucide-react";
+import { Lock, Unlock, Clock, Loader2, AlertCircle, Eye, Image as ImageIcon, Film, Wallet } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -138,8 +138,9 @@ function DropCardTimer({ validUntil }: { validUntil?: number }) {
 
 function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAfford = false, onPreview, aspectRatio }: DropCardProps) {
     const { userProfile, setUserProfile } = useUserProfile();
-    const { openInsufficientBalanceModal } = useUI();
+    const { openPurchaseModal } = useUI();
     const [unlocking, setUnlocking] = useState(false);
+    const [confirming, setConfirming] = useState(false);
     const [imageLoaded, setImageLoaded] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [hasTrackedView, setHasTrackedView] = useState(false);
@@ -150,6 +151,14 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
     useEffect(() => {
         setSimulativeUnwraps(getSimulatedUnwrapsToday(drop.id));
     }, [drop.id]);
+
+    useEffect(() => {
+        let timeout: ReturnType<typeof setTimeout>;
+        if (confirming) {
+            timeout = setTimeout(() => setConfirming(false), 3500);
+        }
+        return () => clearTimeout(timeout);
+    }, [confirming]);
 
     useEffect(() => {
         if (!hasTrackedView) {
@@ -208,10 +217,17 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
 
         const balance = userProfile?.gumDropsBalance ?? 0;
         if (balance < drop.unlockCost) {
-            openInsufficientBalanceModal(drop.unlockCost);
+            openPurchaseModal();
             return;
         }
 
+        if (!confirming) {
+            setConfirming(true);
+            triggerHaptic();
+            return;
+        }
+
+        setConfirming(false);
         setUnlocking(true);
         setError(null);
 
@@ -282,17 +298,29 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
     ) : (
         <button
             onClick={handleUnlock}
-            disabled={unlocking || !user}
+            disabled={unlocking || (!user && canAfford)}
             className={cn(
-                "px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl font-bold text-[11px] md:text-xs flex items-center justify-center w-full whitespace-nowrap gap-1.5 border relative overflow-hidden",
-                canAfford ? "bg-white text-black border-white" : "bg-white/5 text-gray-500 border-white/5 cursor-not-allowed",
-                "disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-all"
+                "px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl font-bold text-[11px] md:text-xs flex items-center justify-center w-full whitespace-nowrap gap-1.5 border relative overflow-hidden transition-all active:scale-95 shadow-lg",
+                !canAfford ? "bg-brand-purple text-black border-brand-purple hover:bg-[#b28cff] shadow-[0_0_15px_rgba(164,118,255,0.3)]"
+                    : confirming ? "bg-orange-500 text-white border-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.4)]"
+                        : "bg-white text-black border-white hover:bg-gray-100",
+                "disabled:opacity-50 disabled:cursor-not-allowed"
             )}
         >
             {unlocking ? (
                 <>
                     <Loader2 className="w-3 h-3 animate-spin" />
                     <span>Unwrapping...</span>
+                </>
+            ) : !canAfford ? (
+                <>
+                    <Wallet className="w-3 h-3" />
+                    <span>Get more Gumdrops</span>
+                </>
+            ) : confirming ? (
+                <>
+                    <Lock className="w-3 h-3" />
+                    <span>Confirm {drop.unlockCost} GD?</span>
                 </>
             ) : (
                 <>
@@ -332,18 +360,20 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                     </div>
                 </button>
                 <div className="mt-2 flex flex-col gap-2 flex-grow justify-between">
-                    <div className="flex flex-col gap-2 items-start">
-                        <DropCardTimer validUntil={drop.validUntil} />
-                        <div className="inline-flex px-2 py-1 rounded-md border border-brand-purple/20 bg-brand-purple/10 text-brand-purple font-bold text-[10px] w-fit">
-                            {drop.unlockCost} GD
+                    <div className="space-y-2 w-full">
+                        <div className="flex items-center justify-between w-full">
+                            <div className="inline-flex px-2 py-1 rounded-md border border-brand-purple/20 bg-brand-purple/10 text-brand-purple font-bold text-[10px] w-fit">
+                                {drop.unlockCost} GD
+                            </div>
+                            <div className="flex items-center gap-1 opacity-60 text-[9px] font-medium text-white/80">
+                                <Eye className="w-2.5 h-2.5" />
+                                <span>{simulativeUnwraps}</span>
+                            </div>
                         </div>
-                    </div>
-                    <div className="space-y-1.5 w-full">
                         {ctaButton}
-                        <div className="flex items-center justify-center gap-1 opacity-60 text-[9px] font-medium text-white/80">
-                            <Eye className="w-2.5 h-2.5" />
-                            <span>{simulativeUnwraps} unwrapped today</span>
-                        </div>
+                    </div>
+                    <div className="mt-auto pt-1">
+                        <DropCardTimer validUntil={drop.validUntil} />
                     </div>
                 </div>
             </div>
