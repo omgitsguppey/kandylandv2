@@ -33,3 +33,45 @@ export async function sendGlobalDropNotification(dropTitle: string, dropId: stri
         "/dashboard"
     );
 }
+
+export async function sendTargetedDropNotification(
+    dropTitle: string,
+    dropId: string,
+    imageUrl: string | undefined,
+    isReturn: boolean = false,
+    excludedUserIds: string[] = []
+) {
+    if (!adminDb) return;
+
+    const title = isReturn ? `Drop Returned 🔥` : `New Drop Live 🔥`;
+    const message = isReturn
+        ? `Oh, snap! ${dropTitle} is back! Don't miss out this time!`
+        : `${dropTitle} is now available in the drops collection!`;
+
+    try {
+        await adminDb.collection("notifications").add({
+            title,
+            message,
+            type: "success",
+            target: { global: true, excludedUserIds: excludedUserIds, userIds: [] },
+            link: "/dashboard",
+            dropContext: imageUrl ? {
+                dropId,
+                dropTitle,
+                previewImageUrl: imageUrl
+            } : null,
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            readBy: []
+        });
+    } catch (err) {
+        console.error("In-app targeted notification failed", err);
+    }
+
+    // Web push - ideally we'd filter web pushes by exclusions, but FCM topics are global.
+    // Future enhancement: Send targeted FCM pushes only to eligible tokens
+    await broadcastFCM(
+        "Kandy Drops",
+        message,
+        "/dashboard"
+    );
+}

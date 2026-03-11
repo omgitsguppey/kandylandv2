@@ -19,6 +19,9 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
 import { isIOSNonStandalone } from "@/lib/browser-utils";
+import { requestFirebaseNotificationPermission } from "@/lib/firebase-messaging";
+import { doc, updateDoc, arrayUnion } from "firebase/firestore";
+import { db } from "@/lib/firebase-data";
 
 interface Task {
     id: string;
@@ -32,7 +35,7 @@ const TASK_DEFS: Record<string, { title: string; subtitle: string; icon: any; ma
         subtitle: "Stay updated on new drops and events",
         icon: Bell,
         maxProgress: 1,
-        reward: 100
+        reward: 1000
     },
     'unwrap_drops': {
         title: "Unwrap 2 Drops",
@@ -110,17 +113,26 @@ export function DailyTasksModule() {
     const calculateProgress = (taskId: string, savedProgress: number) => {
         if (!userProfile) return 0;
 
+        const now = new Date();
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+
         switch (taskId) {
             case 'streak_30':
                 return Math.min(userProfile.streakCount || 0, 30);
             case 'unwrap_drops':
                 // Calculate today's unwraps from timestamps
-                const now = new Date();
-                const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
                 const unwraps = Object.values(userProfile.unlockedContentTimestamps || {})
                     .filter(ts => ts >= startOfDay).length;
                 return Math.min(unwraps, 2);
+            case 'share_drop':
+                const sharedTodayMs = userProfile.dailyTasksState?.sharedToday || 0;
+                return sharedTodayMs >= startOfDay ? 1 : savedProgress;
+            case 'enable_notifications':
+                const fcmTokens = (userProfile as any).fcmTokens || [];
+                return fcmTokens.length > 0 ? 1 : savedProgress;
+            // give_feedback is handled by backend state currently, or we can assume it's done if completedOneTimeTasks has it.
             default:
+                if (userProfile.dailyTasksState?.completedOneTimeTasks?.includes(taskId)) return 1;
                 return savedProgress;
         }
     };
@@ -152,6 +164,8 @@ export function DailyTasksModule() {
 
 
     const handleAction = async (taskId: string) => {
+        if (!userProfile) return;
+
         if (taskId === 'enable_notifications') {
             if (isIOSNonStandalone()) {
                 toast.error("To enable notifications on iOS, please add this app to your Home Screen first (Share > Add to Home Screen).", {
@@ -161,11 +175,24 @@ export function DailyTasksModule() {
             }
 
             if ('Notification' in window) {
-                const permission = await Notification.requestPermission();
-                if (permission === 'granted') {
-                    handleClaim(taskId);
-                } else {
-                    toast.error("Notification permission denied");
+                try {
+                    const token = await requestFirebaseNotificationPermission();
+                    if (token) {
+                        try {
+                            const userRef = doc(db, "users", userProfile.uid);
+                            await updateDoc(userRef, {
+                                fcmTokens: arrayUnion(token)
+                            });
+                        } catch (docErr) {
+                            console.error("Failed to save fcmToken", docErr);
+                        }
+                        handleClaim(taskId);
+                    } else {
+                        toast.error("Notification permission denied or unsupported");
+                    }
+                } catch (err) {
+                    console.error("Notification request error", err);
+                    toast.error("Failed to request notification permission");
                 }
             } else {
                 toast.error("Notifications not supported on this device. Try adding to Home Screen if on iOS.");

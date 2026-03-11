@@ -38,6 +38,10 @@ export function useNotifications() {
                     return;
                 }
 
+                if (normalized.target.excludedUserIds && normalized.target.excludedUserIds.includes(user.uid)) {
+                    return;
+                }
+
                 if (normalized.target.global || normalized.target.userIds.includes(user.uid)) {
                     scopedNotifications.push(normalized);
                 }

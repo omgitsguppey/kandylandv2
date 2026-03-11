@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
+import { collection, query, orderBy, onSnapshot, doc, DocumentSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
 import { Drop } from "@/types/db";
 import { format } from "date-fns";
-import { Trash2, Edit, Calendar, Clock, Package, PlusCircle, BellRing } from "lucide-react";
+import { Trash2, Edit, Calendar, Clock, Package, PlusCircle, BellRing, Repeat } from "lucide-react";
 
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -13,6 +13,7 @@ import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";
 import Image from "next/image";
 import { sendNotification } from "@/lib/notifications";
+import { CreateDropModal } from "@/components/Admin/CreateDropModal";
 
 interface DropNotificationDraft {
     dropId: string;
@@ -27,6 +28,10 @@ export default function AdminDropsPage() {
     const [loading, setLoading] = useState(true);
     const [notificationDraft, setNotificationDraft] = useState<DropNotificationDraft | null>(null);
     const [sendingNotification, setSendingNotification] = useState(false);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [editingDropId, setEditingDropId] = useState<string | null>(null);
+
+    const [queueIds, setQueueIds] = useState<Set<string>>(new Set());
 
     useEffect(() => {
         const q = query(collection(db, "drops"), orderBy("validFrom", "desc"));
@@ -40,6 +45,19 @@ export default function AdminDropsPage() {
         });
 
         return () => unsubscribe();
+    }, []);
+
+    useEffect(() => {
+        // Listen to the queue doc to update the UI chips dynamically
+        const docRef = doc(db, "adminSettings", "dropQueue");
+        const unsubQueue = onSnapshot(docRef, (docSnap: DocumentSnapshot) => {
+            if (docSnap.exists() && docSnap.data().queue) {
+                setQueueIds(new Set(docSnap.data().queue as string[]));
+            } else {
+                setQueueIds(new Set());
+            }
+        });
+        return () => unsubQueue();
     }, []);
 
     const handleDelete = async (id: string) => {
@@ -88,6 +106,21 @@ export default function AdminDropsPage() {
                 console.error("Error bulk deleting drops:", err);
                 toast.error("One or more drops failed to delete.");
             }
+        }
+    };
+
+    const toggleAutoQueue = async (dropId: string) => {
+        try {
+            const response = await authFetch("/api/admin/queue/toggle", {
+                method: "POST",
+                body: JSON.stringify({ dropId }),
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error);
+            toast.success(result.added ? "Added to Queue" : "Removed from Queue");
+        } catch (err: any) {
+            console.error("Error toggling queue:", err);
+            toast.error(err.message || "Failed to toggle queue state.");
         }
     };
 
@@ -163,15 +196,26 @@ export default function AdminDropsPage() {
                     <h1 className="text-3xl font-bold text-white mb-2">Manage Drops</h1>
                     <p className="text-gray-400">View and manage all content drops.</p>
                 </div>
-                <Link
-                    href="/admin/create"
-                    className="px-5 py-2 rounded-full bg-brand-purple font-bold text-white text-sm transition-colors shadow-lg shadow-brand-purple/20 flex items-center gap-2 whitespace-nowrap"
-                >
-                    <div className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center">
-                        <PlusCircle className="w-3 h-3" />
-                    </div>
-                    Create Drop
-                </Link>
+                <div className="flex items-center gap-3">
+                    <Link
+                        href="/admin/queue"
+                        className="px-5 py-2 rounded-full bg-white/10 font-bold text-white text-sm hover:bg-white/20 transition-colors border border-white/10 flex items-center gap-2 whitespace-nowrap"
+                    >
+                        Manage Queue
+                    </Link>
+                    <button
+                        onClick={() => {
+                            setEditingDropId(null);
+                            setIsCreateModalOpen(true);
+                        }}
+                        className="px-5 py-2 rounded-full bg-brand-purple font-bold text-white text-sm transition-colors shadow-lg shadow-brand-purple/20 flex items-center gap-2 whitespace-nowrap"
+                    >
+                        <div className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center">
+                            <PlusCircle className="w-3 h-3" />
+                        </div>
+                        Create Drop
+                    </button>
+                </div>
             </header>
 
             <div className="glass-panel rounded-3xl overflow-hidden">
@@ -266,19 +310,29 @@ export default function AdminDropsPage() {
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <button
+                                                    onClick={() => toggleAutoQueue(drop.id)}
+                                                    className={cn("p-2.5 rounded-full text-white hover:bg-white/10 transition-colors border border-white/10", queueIds.has(drop.id) ? "bg-brand-purple/20 border-brand-purple/30 text-brand-purple" : "bg-black")}
+                                                    title={queueIds.has(drop.id) ? "Remove from Queue" : "Auto-Queue"}
+                                                >
+                                                    <Repeat className="w-4 h-4" />
+                                                </button>
+                                                <button
                                                     onClick={() => openNotificationDraft(drop)}
                                                     className="p-2.5 rounded-full bg-black text-gray-200 hover:bg-white/10 transition-colors border border-white/10"
                                                     title="Send drop notification"
                                                 >
                                                     <BellRing className="w-4 h-4" />
                                                 </button>
-                                                <Link
-                                                    href={`/admin/create?id=${drop.id}`}
+                                                <button
+                                                    onClick={() => {
+                                                        setEditingDropId(drop.id);
+                                                        setIsCreateModalOpen(true);
+                                                    }}
                                                     className="p-2.5 rounded-full bg-black text-white hover:bg-white/10 transition-colors border border-white/10"
                                                     title="Edit"
                                                 >
                                                     <Edit className="w-4 h-4" />
-                                                </Link>
+                                                </button>
                                                 <button
                                                     onClick={() => handleDelete(drop.id)}
                                                     className="p-2.5 rounded-full bg-black text-red-500 hover:bg-red-500/10 transition-colors border border-white/10"
@@ -335,17 +389,26 @@ export default function AdminDropsPage() {
 
                                     <div className="flex justify-end gap-2 pt-1">
                                         <button
+                                            onClick={() => toggleAutoQueue(drop.id)}
+                                            className={cn("px-3 py-1.5 rounded-full border border-white/10 text-xs font-bold transition-colors flex items-center gap-1 hover:bg-white/10", queueIds.has(drop.id) ? "bg-brand-purple/20 border-brand-purple/30 text-brand-purple" : "bg-black text-gray-200")}
+                                        >
+                                            <Repeat className="w-3 h-3" /> Queue
+                                        </button>
+                                        <button
                                             onClick={() => openNotificationDraft(drop)}
                                             className="px-3 py-1.5 rounded-full bg-black border border-white/10 text-gray-200 text-xs font-bold transition-colors flex items-center gap-1 hover:bg-white/10"
                                         >
                                             <BellRing className="w-3 h-3" /> Notify
                                         </button>
-                                        <Link
-                                            href={`/admin/create?id=${drop.id}`}
+                                        <button
+                                            onClick={() => {
+                                                setEditingDropId(drop.id);
+                                                setIsCreateModalOpen(true);
+                                            }}
                                             className="px-3 py-1.5 rounded-full bg-black border border-white/10 text-white text-xs font-bold transition-colors flex items-center gap-1 hover:bg-white/10"
                                         >
                                             <Edit className="w-3 h-3" /> Edit
-                                        </Link>
+                                        </button>
                                         <button
                                             onClick={() => handleDelete(drop.id)}
                                             className="px-3 py-1.5 rounded-full bg-black border border-white/10 text-red-500 text-xs font-bold transition-colors flex items-center gap-1 hover:bg-red-500/10"
@@ -408,6 +471,15 @@ export default function AdminDropsPage() {
                     </div>
                 </div>
             )}
+
+            <CreateDropModal
+                isOpen={isCreateModalOpen}
+                onClose={() => setIsCreateModalOpen(false)}
+                dropId={editingDropId}
+                onSuccess={() => {
+                    setIsCreateModalOpen(false);
+                }}
+            />
         </div >
     );
 }

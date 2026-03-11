@@ -83,7 +83,7 @@ export function DailyCheckIn() {
 
     const canCheckIn = remainingMs <= 0 && !claimed && !isClaimedToday && !!user;
 
-    let nextStreak = currentStreak + 1;
+    let nextStreak = currentStreak >= 7 ? 1 : currentStreak + 1;
     const hoursSinceLast = differenceInHours(nowMs, lastCheckInMs);
 
     // If more than 48 hours have passed since the last check-in, streak resets
@@ -93,7 +93,7 @@ export function DailyCheckIn() {
 
     const displayStreak = Math.min(nextStreak, 7);
     const rewardAmount = displayStreak * 10;
-    const nextRewardAmount = (currentStreak >= 7 ? 1 : currentStreak + 1) * 10;
+    const nextRewardAmount = (nextStreak >= 7 ? 1 : nextStreak + 1) * 10;
 
     const handleClaim = async () => {
         if (loading || claimed || !canCheckIn) return;

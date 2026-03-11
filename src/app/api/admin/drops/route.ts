@@ -7,9 +7,9 @@ import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
 
 // Whitelist of allowed drop fields to prevent arbitrary writes
 const ALLOWED_DROP_FIELDS = [
-    "title", "description", "imageUrl", "contentUrl", "unlockCost",
+    "title", "description", "imageUrl", "contentUrl", "contentUrls", "unlockCost",
     "validFrom", "validUntil", "status", "type", "tags",
-    "ctaText", "actionUrl", "accentColor", "fileMetadata",
+    "ctaText", "actionUrl", "accentColor", "fileMetadata", "mediaCounts",
     "totalUnlocks", "totalClicks", "rotationConfig", "creatorId",
 ];
 

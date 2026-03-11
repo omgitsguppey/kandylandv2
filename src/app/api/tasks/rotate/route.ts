@@ -7,7 +7,7 @@ import { UserProfile } from '@/types/db';
 import { Transaction } from 'firebase-admin/firestore';
 
 const TASK_BANK = [
-    { id: 'enable_notifications', type: 'one-time', maxProgress: 1, reward: 100 },
+    { id: 'enable_notifications', type: 'daily', maxProgress: 1, reward: 1000 },
     { id: 'unwrap_drops', type: 'daily', maxProgress: 2, reward: 1000 },
     { id: 'streak_30', type: 'daily', maxProgress: 30, reward: 10000 },
     { id: 'give_feedback', type: 'one-time', maxProgress: 1, reward: 1000 },

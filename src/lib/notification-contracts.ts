@@ -7,6 +7,7 @@ export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
 export interface NotificationTarget {
   global: boolean;
   userIds: string[];
+  excludedUserIds?: string[];
 }
 
 export interface DropNotificationContext {
@@ -56,14 +57,18 @@ export function normalizeNotificationDoc(id: string, data: UnknownNotificationDo
   const createdAt = data.createdAt instanceof Timestamp ? data.createdAt : null;
   const readBy = Array.isArray(data.readBy) ? data.readBy.filter((entry): entry is string => typeof entry === "string") : [];
 
-  const targetObj = (data.target && typeof data.target === "object") ? data.target as { global?: unknown; userIds?: unknown } : null;
+  const targetObj = (data.target && typeof data.target === "object") ? data.target as { global?: unknown; userIds?: unknown; excludedUserIds?: unknown } : null;
   const userIds = Array.isArray(targetObj?.userIds)
     ? targetObj.userIds.filter((entry): entry is string => typeof entry === "string")
+    : [];
+  const excludedUserIds = Array.isArray(targetObj?.excludedUserIds)
+    ? targetObj.excludedUserIds.filter((entry): entry is string => typeof entry === "string")
     : [];
 
   const target: NotificationTarget = {
     global: targetObj?.global === true,
     userIds,
+    excludedUserIds,
   };
 
   const dropContext = normalizeDropContext(data.dropContext);
@@ -159,13 +164,17 @@ function normalizeTarget(value: unknown): NotificationTarget | null {
     return null;
   }
 
-  const source = value as { global?: unknown; userIds?: unknown };
+  const source = value as { global?: unknown; userIds?: unknown; excludedUserIds?: unknown };
   const userIds = Array.isArray(source.userIds)
     ? source.userIds.filter((entry): entry is string => typeof entry === "string")
+    : [];
+  const excludedUserIds = Array.isArray(source.excludedUserIds)
+    ? source.excludedUserIds.filter((entry): entry is string => typeof entry === "string")
     : [];
 
   return {
     global: source.global === true,
     userIds,
+    excludedUserIds,
   };
 }

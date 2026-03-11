@@ -51,6 +51,7 @@ export interface UserProfile {
             claimed: boolean;
         }[];
         completedOneTimeTasks: string[];
+        sharedToday?: number;
     };
 }
 

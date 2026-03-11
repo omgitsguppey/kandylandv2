@@ -151,7 +151,11 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
     e.stopPropagation();
     const url = `${window.location.origin}/dashboard/viewer?id=${drop.id}`;
     navigator.clipboard.writeText(url)
-      .then(() => toast.success("Link copied to clipboard!"))
+      .then(() => {
+        toast.success("Link copied to clipboard!");
+        // Track share for daily tasks
+        authFetch("/api/tasks/track-share", { method: "POST" }).catch(console.error);
+      })
       .catch(() => toast.error("Failed to copy link"));
   };
 

@@ -12,7 +12,7 @@ const claimSchema = z.object({
 });
 
 const TASK_BANK = [
-    { id: 'enable_notifications', type: 'one-time', maxProgress: 1, reward: 100 },
+    { id: 'enable_notifications', type: 'daily', maxProgress: 1, reward: 1000 },
     { id: 'unwrap_drops', type: 'daily', maxProgress: 2, reward: 1000 },
     { id: 'streak_30', type: 'daily', maxProgress: 30, reward: 10000 },
     { id: 'give_feedback', type: 'one-time', maxProgress: 1, reward: 1000 },
@@ -74,6 +74,35 @@ export async function POST(req: NextRequest) {
                     if (timestamp >= startOfDay) todayUnwraps++;
                 });
                 if (todayUnwraps < 2) throw new Error("Unwrap requirement not met");
+            }
+            else if (taskId === 'enable_notifications') {
+                const tokens = (userData as any).fcmTokens || [];
+                if (tokens.length === 0) throw new Error("Notifications not enabled");
+            }
+            else if (taskId === 'share_drop') {
+                if (!userData.dailyTasksState || userData.dailyTasksState.sharedToday !== startOfDay) {
+                    throw new Error("Share requirement not met");
+                }
+            }
+            else if (taskId === 'give_feedback') {
+                const feedbackDocs = await t.get(adminDb.collection('platform_feedback').where('userId', '==', uid).limit(1));
+                if (feedbackDocs.empty) throw new Error("Feedback requirement not met");
+            }
+            else if (taskId === 'unlock_spicy') {
+                const unwraps = (userData.unlockedContentTimestamps || {}) as Record<string, number>;
+                const todayDropIds = Object.keys(unwraps).filter(key => unwraps[key] >= startOfDay);
+
+                if (todayDropIds.length === 0) throw new Error("Spicy Drop requirement not met");
+
+                // Get all drops unlocked today
+                const dropsData = await t.getAll(...todayDropIds.map(id => adminDb.collection('drops').doc(id)));
+                const hasSpicy = dropsData.some(doc => {
+                    if (!doc.exists) return false;
+                    const tags = doc.data()?.tags || [];
+                    return tags.includes('Spicy');
+                });
+
+                if (!hasSpicy) throw new Error("Spicy Drop requirement not met");
             }
 
             // Apply Reward

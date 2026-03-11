@@ -110,7 +110,13 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [previewDrop, setPreviewDrop] = useState<Drop | null>(null);
 
-    const sourceDrops = liveDrops.length > 0 ? liveDrops : initialDrops;
+    const sourceDrops = useMemo(() => {
+        const drops = liveDrops.length > 0 ? liveDrops : initialDrops;
+        if (!userProfile?.unlockedContent || !Array.isArray(userProfile.unlockedContent)) {
+            return drops;
+        }
+        return drops.filter(drop => !userProfile.unlockedContent!.includes(drop.id));
+    }, [liveDrops, initialDrops, userProfile?.unlockedContent]);
 
     const accountOverview = useMemo(() => buildAccountOverviewViewModel({
         authLoading,
