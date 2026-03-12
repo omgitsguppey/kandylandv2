@@ -33,6 +33,11 @@ interface ResolvedContent {
     mimeType: string;
 }
 
+interface ThumbnailItem {
+    src: string | null;
+    kind: ContentKind;
+}
+
 const MIME_TYPE_WITHOUT_PARAMETERS = /^[a-z0-9!#$&^_.+-]+\/[a-z0-9!#$&^_.+-]+$/;
 const GENERIC_BINARY_MIME_TYPES = new Set([
     "application/octet-stream",
@@ -104,6 +109,101 @@ function resolveContent(blobType: string, metadataType?: string): ResolvedConten
     };
 }
 
+function inferMimeTypeFromUrl(url: string, fallbackMimeType?: string): string {
+    try {
+        const pathname = new URL(url).pathname.toLowerCase();
+
+        if (pathname.match(/\.(mp4|m4v|mov)$/)) return "video/mp4";
+        if (pathname.match(/\.(webm)$/)) return "video/webm";
+        if (pathname.match(/\.(ogg|ogv)$/)) return "video/ogg";
+        if (pathname.match(/\.(mp3)$/)) return "audio/mpeg";
+        if (pathname.match(/\.(m4a|aac)$/)) return "audio/mp4";
+        if (pathname.match(/\.(wav)$/)) return "audio/wav";
+        if (pathname.match(/\.(jpg|jpeg)$/)) return "image/jpeg";
+        if (pathname.match(/\.(png)$/)) return "image/png";
+        if (pathname.match(/\.(gif)$/)) return "image/gif";
+        if (pathname.match(/\.(webp)$/)) return "image/webp";
+        if (pathname.match(/\.(pdf)$/)) return "application/pdf";
+    } catch {
+        // Fall back to metadata MIME below.
+    }
+
+    return fallbackMimeType || "";
+}
+
+function createVideoThumbnail(videoUrl: string): Promise<string | null> {
+    return new Promise((resolve) => {
+        const video = document.createElement("video");
+        let settled = false;
+
+        const finish = (value: string | null) => {
+            if (settled) {
+                return;
+            }
+
+            settled = true;
+            window.clearTimeout(timeoutId);
+            video.pause();
+            video.removeAttribute("src");
+            video.load();
+            resolve(value);
+        };
+
+        const drawFrame = () => {
+            if (!video.videoWidth || !video.videoHeight) {
+                finish(null);
+                return;
+            }
+
+            const canvas = document.createElement("canvas");
+            const maxEdge = 320;
+
+            if (video.videoWidth >= video.videoHeight) {
+                canvas.width = maxEdge;
+                canvas.height = Math.max(1, Math.round(maxEdge * (video.videoHeight / video.videoWidth)));
+            } else {
+                canvas.height = maxEdge;
+                canvas.width = Math.max(1, Math.round(maxEdge * (video.videoWidth / video.videoHeight)));
+            }
+
+            const context = canvas.getContext("2d");
+            if (!context) {
+                finish(null);
+                return;
+            }
+
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            finish(canvas.toDataURL("image/jpeg", 0.82));
+        };
+
+        const timeoutId = window.setTimeout(() => finish(null), 12000);
+
+        video.preload = "metadata";
+        video.muted = true;
+        video.playsInline = true;
+        video.crossOrigin = "anonymous";
+        video.addEventListener("error", () => finish(null), { once: true });
+        video.addEventListener("seeked", drawFrame, { once: true });
+        video.addEventListener("loadeddata", () => {
+            const targetTime = Number.isFinite(video.duration) && video.duration > 0.1 ? 0.1 : 0;
+
+            if (targetTime <= 0) {
+                drawFrame();
+                return;
+            }
+
+            try {
+                video.currentTime = targetTime;
+            } catch {
+                drawFrame();
+            }
+        }, { once: true });
+
+        video.src = videoUrl;
+        video.load();
+    });
+}
+
 function formatUnwrappedLabel(unwrappedAt: number | null): string {
     if (!Number.isFinite(unwrappedAt) || !unwrappedAt) {
         return "Unwrapped";
@@ -133,6 +233,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     const [contentBlobUrl, setContentBlobUrl] = useState<string | null>(null);
     const [resolvedContent, setResolvedContent] = useState<ResolvedContent>({ kind: "unknown", mimeType: "" });
     const [contentLoading, setContentLoading] = useState(false);
+    const [thumbnailItems, setThumbnailItems] = useState<ThumbnailItem[]>([]);
 
     const [isSecurityTriggered, setIsSecurityTriggered] = useState(false);
 
@@ -285,23 +386,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                 const targetUrl = availableUrls[activeIndex];
 
                 if (!cancelled) {
-                    let guessedMimeType = currentDrop.fileMetadata?.type || "";
-
-                    // If we have a target URL, try strictly parsing it's extension first. 
-                    // This handles heterogeneous arrays (e.g., [img.jpg, video.mp4]) where the first fileMetadata.type shouldn't blindly dictate the rest.
-                    if (targetUrl) {
-                        try {
-                            const urlObj = new URL(targetUrl);
-                            const pathname = urlObj.pathname.toLowerCase();
-                            if (pathname.match(/\.(mp4|webm|ogg|mov)$/)) {
-                                guessedMimeType = "video/mp4";
-                            } else if (pathname.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
-                                guessedMimeType = "image/jpeg";
-                            }
-                        } catch (e) {
-                            // Ignore parse errors, fallback to default.
-                        }
-                    }
+                    let guessedMimeType = inferMimeTypeFromUrl(targetUrl || "", currentDrop.fileMetadata?.type || "");
 
                     if (!guessedMimeType) {
                         guessedMimeType = "video/mp4"; // Default fallback
@@ -327,7 +412,58 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         return () => {
             cancelled = true;
         };
-    }, [isAuthorized, drop, activeIndex]);
+    }, [activeIndex, availableUrls, isAuthorized, drop]);
+
+    useEffect(() => {
+        if (!isAuthorized || !drop || availableUrls.length === 0) {
+            setThumbnailItems([]);
+            return;
+        }
+
+        const currentDrop = drop;
+        let cancelled = false;
+
+        async function buildThumbnails() {
+            const token = await auth.currentUser?.getIdToken();
+            if (!token) {
+                if (!cancelled) {
+                    setThumbnailItems([]);
+                }
+                return;
+            }
+
+            const nextItems = await Promise.all(availableUrls.map(async (url, idx) => {
+                const guessedMimeType = inferMimeTypeFromUrl(url, currentDrop.fileMetadata?.type || "");
+                const kind = resolveContent(guessedMimeType, currentDrop.fileMetadata?.type).kind;
+                const secureUrl = `/api/drops/content?id=${currentDrop.id}&token=${encodeURIComponent(token)}&index=${idx}`;
+
+                if (kind === "image") {
+                    return { src: secureUrl, kind };
+                }
+
+                if (kind === "video") {
+                    const thumbnail = await createVideoThumbnail(secureUrl);
+                    return { src: thumbnail, kind };
+                }
+
+                return { src: currentDrop.imageUrl, kind };
+            }));
+
+            if (!cancelled) {
+                setThumbnailItems(nextItems);
+            }
+        }
+
+        buildThumbnails().catch(() => {
+            if (!cancelled) {
+                setThumbnailItems([]);
+            }
+        });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [availableUrls, drop, isAuthorized]);
 
 
     // Prevent right-click on media
@@ -437,6 +573,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                 if (resolvedContent.kind === "video") {
                                     return (
                                         <video
+                                            key={`viewer-video-${contentBlobUrl}`}
                                             controls
                                             controlsList="nodownload noplaybackrate"
                                             disablePictureInPicture
@@ -473,6 +610,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                                 <NextImage src={drop.imageUrl} alt="Art" fill priority className="object-cover" />
                                             </div>
                                             <audio
+                                                key={`viewer-audio-${contentBlobUrl}`}
                                                 controls
                                                 controlsList="nodownload"
                                                 className="relative z-10 w-[90%] max-w-md"
@@ -489,6 +627,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                     return (
                                         <div className="relative w-full h-full bg-black">
                                             <img
+                                                key={`viewer-image-${contentBlobUrl}`}
                                                 src={contentBlobUrl}
                                                 alt="Content"
                                                 className="w-full h-full object-contain"
@@ -501,6 +640,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                     return (
                                         <div className="w-full h-[85vh] bg-white rounded-md overflow-hidden">
                                             <object
+                                                key={`viewer-pdf-${contentBlobUrl}`}
                                                 data={contentBlobUrl}
                                                 type="application/pdf"
                                                 className="w-full h-full"
@@ -534,21 +674,14 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                         <div className="overflow-hidden pb-6 pt-2 px-2" ref={emblaRef}>
                             <div className="flex gap-4">
                                 {availableUrls.map((url, idx) => {
-                                    // Predict if thumbnail should be an image or if it's a video
-                                    let isVideo = false;
-                                    try {
-                                        const parsed = new URL(url).pathname.toLowerCase();
-                                        if (parsed.match(/\.(mp4|webm|ogg|mov)$/)) isVideo = true;
-                                    } catch (e) { }
-
-                                    // Authenticate proxy route directly for images to allow previews
-                                    const thumbUrl = !isVideo && user
-                                        ? `/api/drops/content?id=${drop.id}&index=${idx}`
-                                        : drop.imageUrl;
+                                    const thumbnail = thumbnailItems[idx];
+                                    const isVideo = thumbnail?.kind === "video";
+                                    const isImage = thumbnail?.kind === "image";
 
                                     return (
                                         <button
                                             key={`thumb-${idx}`}
+                                            type="button"
                                             onClick={() => setActiveIndex(idx)}
                                             className={cn(
                                                 "relative flex-[0_0_auto] w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden border-2 transition-all transform",
@@ -563,12 +696,18 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                             <div className="absolute inset-x-0 bottom-0 top-auto bg-gradient-to-t from-black via-black/50 to-transparent flex items-end justify-center pb-0.5 text-[9px] font-bold text-white/50 z-20 pointer-events-none h-6">
                                                 {idx + 1}
                                             </div>
-                                            <NextImage
-                                                src={thumbUrl}
-                                                alt={`Thumbnail ${idx + 1}`}
-                                                fill
-                                                className="object-cover opacity-60 pointer-events-none bg-zinc-900"
-                                            />
+                                            {thumbnail?.src ? (
+                                                <img
+                                                    src={thumbnail.src}
+                                                    alt={`Thumbnail ${idx + 1}`}
+                                                    className="h-full w-full object-cover opacity-80 pointer-events-none bg-zinc-900"
+                                                    draggable={false}
+                                                />
+                                            ) : (
+                                                <div className="flex h-full w-full items-center justify-center bg-zinc-900 text-white/60">
+                                                    {isVideo ? <Video className="w-4 h-4" /> : isImage ? <Images className="w-4 h-4" /> : <Images className="w-4 h-4" />}
+                                                </div>
+                                            )}
                                         </button>
                                     );
                                 })}

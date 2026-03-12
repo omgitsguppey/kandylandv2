@@ -102,7 +102,8 @@ export function DailyCheckIn() {
 
     const displayStreak = Math.min(nextStreak, 7);
     const rewardAmount = displayStreak * 10;
-    const nextRewardAmount = (nextStreak >= 7 ? 1 : nextStreak + 1) * 10;
+    const effectiveCurrentStreak = claimed && !isClaimedToday ? displayStreak : currentStreak;
+    const nextRewardAmount = (effectiveCurrentStreak >= 7 ? 1 : effectiveCurrentStreak + 1) * 10;
 
     const handleClaim = async () => {
         if (loading || claimed || !canCheckIn) return;
