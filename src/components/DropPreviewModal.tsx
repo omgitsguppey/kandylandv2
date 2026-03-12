@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { sendGAEvent } from "@next/third-parties/google";
 import { getSimulatedUnwrapsToday } from "@/lib/unwrap-simulator";
 import * as Dialog from "@radix-ui/react-dialog";
+import { trackEvent } from "@/lib/telemetry";
 
 interface DropPreviewModalProps {
   drop: Drop | null;
@@ -63,6 +64,18 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
   const isUnlocked = !!(drop && Array.isArray(userProfile?.unlockedContent) && userProfile.unlockedContent.includes(drop.id));
   const canAfford = (userProfile?.gumDropsBalance ?? 0) >= (drop?.unlockCost ?? 0);
 
+  useEffect(() => {
+    if (!drop) {
+      return;
+    }
+
+    trackEvent("drop_preview_opened", {
+      drop_id: drop.id,
+      drop_category: drop.type,
+      is_unlocked: isUnlocked,
+    });
+  }, [drop, isUnlocked]);
+
   if (!drop) {
     return null;
   }
@@ -94,6 +107,11 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
     if (!confirming) {
       setConfirming(true);
       triggerHaptic();
+      trackEvent("drop_unlock_attempted", {
+        drop_id: drop.id,
+        drop_category: drop.type,
+        unlock_cost: drop.unlockCost,
+      });
       return;
     }
 
@@ -127,6 +145,11 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
         virtual_currency_name: "Gum Drops",
         item_name: drop.title,
       });
+      trackEvent("unlock_drop_success", {
+        drop_id: drop.id,
+        drop_category: drop.type,
+        unlock_cost: drop.unlockCost,
+      });
 
       if (userProfile) {
         const currentUnlocked = Array.isArray(userProfile.unlockedContent) ? userProfile.unlockedContent : [];
@@ -157,6 +180,10 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
     navigator.clipboard.writeText(url)
       .then(() => {
         toast.success("Link copied to clipboard!");
+        trackEvent("drop_share_copied", {
+          drop_id: drop.id,
+          drop_category: drop.type,
+        });
         // Track share for daily tasks
         authFetch("/api/tasks/track-share", { method: "POST" }).catch(console.error);
       })

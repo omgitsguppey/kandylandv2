@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import Image from "next/image";
 import { sendNotification } from "@/lib/notifications";
 import { CreateDropModal } from "@/components/Admin/CreateDropModal";
+import { normalizeDropRecord } from "@/lib/drop-normalizers";
 
 interface DropNotificationDraft {
     dropId: string;
@@ -33,15 +34,28 @@ export default function AdminDropsPage() {
     const [duplicatingDropId, setDuplicatingDropId] = useState<string | null>(null);
 
     const [queueIds, setQueueIds] = useState<Set<string>>(new Set());
+    const [legacyQueueIds, setLegacyQueueIds] = useState<Set<string>>(new Set());
 
     useEffect(() => {
         const q = query(collection(db, "drops"), orderBy("validFrom", "desc"));
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const dropsData: Drop[] = [];
+            const nextLegacyQueueIds = new Set<string>();
             snapshot.forEach((doc) => {
-                dropsData.push({ id: doc.id, ...doc.data() } as Drop);
+                const raw = doc.data() as Record<string, unknown>;
+                try {
+                    dropsData.push(normalizeDropRecord(raw, doc.id));
+                } catch {
+                    dropsData.push({ id: doc.id, ...raw } as Drop);
+                }
+
+                const rotationConfig = raw.rotationConfig as Record<string, unknown> | undefined;
+                if (rotationConfig?.enabled === true) {
+                    nextLegacyQueueIds.add(doc.id);
+                }
             });
             setDrops(dropsData);
+            setLegacyQueueIds(nextLegacyQueueIds);
             setLoading(false);
         });
 
@@ -254,12 +268,13 @@ export default function AdminDropsPage() {
                         <tbody className="divide-y divide-white/5">
                             {drops.map((drop) => {
                                 const now = Date.now();
+                                const isQueueManaged = queueIds.has(drop.id) || legacyQueueIds.has(drop.id);
                                 let displayStatus = "expired";
                                 let statusColor = "bg-red-500/10 text-red-400 border-red-500/20";
 
                                 if (now < drop.validFrom) {
-                                    displayStatus = "queued";
-                                    statusColor = "bg-brand-purple/10 text-brand-purple border-brand-purple/20";
+                                    displayStatus = "scheduled";
+                                    statusColor = "bg-white/10 text-white border-white/15";
                                 } else if (!drop.validUntil || now < drop.validUntil) {
                                     displayStatus = "active";
                                     statusColor = "bg-brand-purple/10 text-brand-purple border-brand-purple/20";
@@ -320,8 +335,8 @@ export default function AdminDropsPage() {
                                             <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <button
                                                     onClick={() => toggleAutoQueue(drop.id)}
-                                                    className={cn("p-2.5 rounded-full text-white hover:bg-white/10 transition-colors border border-white/10", queueIds.has(drop.id) ? "bg-brand-purple/20 border-brand-purple/30 text-brand-purple" : "bg-black")}
-                                                    title={queueIds.has(drop.id) ? "Remove from Queue" : "Auto-Queue"}
+                                                    className={cn("p-2.5 rounded-full text-white hover:bg-white/10 transition-colors border border-white/10", isQueueManaged ? "bg-brand-purple/20 border-brand-purple/30 text-brand-purple" : "bg-black")}
+                                                    title={isQueueManaged ? "Remove from Queue" : "Add to Queue"}
                                                 >
                                                     <Repeat className="w-4 h-4" />
                                                 </button>
@@ -375,12 +390,13 @@ export default function AdminDropsPage() {
                 <div className="md:hidden flex flex-col divide-y divide-white/5">
                     {drops.map((drop) => {
                         const now = Date.now();
+                        const isQueueManaged = queueIds.has(drop.id) || legacyQueueIds.has(drop.id);
                         let displayStatus = "expired";
                         let statusColor = "bg-red-500/10 text-red-400 border-red-500/20";
 
                         if (now < drop.validFrom) {
-                            displayStatus = "queued";
-                            statusColor = "bg-brand-purple/10 text-brand-purple border-brand-purple/20";
+                            displayStatus = "scheduled";
+                            statusColor = "bg-white/10 text-white border-white/15";
                         } else if (!drop.validUntil || now < drop.validUntil) {
                             displayStatus = "active";
                             statusColor = "bg-brand-purple/10 text-brand-purple border-brand-purple/20";
@@ -414,7 +430,7 @@ export default function AdminDropsPage() {
                                     <div className="flex justify-end gap-2 pt-1">
                                         <button
                                             onClick={() => toggleAutoQueue(drop.id)}
-                                            className={cn("px-3 py-1.5 rounded-full border border-white/10 text-xs font-bold transition-colors flex items-center gap-1 hover:bg-white/10", queueIds.has(drop.id) ? "bg-brand-purple/20 border-brand-purple/30 text-brand-purple" : "bg-black text-gray-200")}
+                                            className={cn("px-3 py-1.5 rounded-full border border-white/10 text-xs font-bold transition-colors flex items-center gap-1 hover:bg-white/10", isQueueManaged ? "bg-brand-purple/20 border-brand-purple/30 text-brand-purple" : "bg-black text-gray-200")}
                                         >
                                             <Repeat className="w-3 h-3" /> Queue
                                         </button>

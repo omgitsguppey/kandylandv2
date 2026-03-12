@@ -13,8 +13,10 @@ import { authFetch } from "@/lib/authFetch";
 import { cn } from "@/lib/utils";
 import { sendGAEvent } from "@next/third-parties/google";
 import { getSimulatedUnwrapsToday } from "@/lib/unwrap-simulator";
+import { getDropAssetCount } from "@/lib/drop-presentation";
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import useEmblaCarousel from "embla-carousel-react";
+import { trackEvent } from "@/lib/telemetry";
 
 
 
@@ -104,28 +106,6 @@ function resolveContent(blobType: string, metadataType?: string): ResolvedConten
         kind: "unknown",
         mimeType: "",
     };
-}
-
-function inferMimeTypeFromUrl(url: string, fallbackMimeType?: string): string {
-    try {
-        const pathname = new URL(url).pathname.toLowerCase();
-
-        if (pathname.match(/\.(mp4|m4v|mov)$/)) return "video/mp4";
-        if (pathname.match(/\.(webm)$/)) return "video/webm";
-        if (pathname.match(/\.(ogg|ogv)$/)) return "video/ogg";
-        if (pathname.match(/\.(mp3)$/)) return "audio/mpeg";
-        if (pathname.match(/\.(m4a|aac)$/)) return "audio/mp4";
-        if (pathname.match(/\.(wav)$/)) return "audio/wav";
-        if (pathname.match(/\.(jpg|jpeg)$/)) return "image/jpeg";
-        if (pathname.match(/\.(png)$/)) return "image/png";
-        if (pathname.match(/\.(gif)$/)) return "image/gif";
-        if (pathname.match(/\.(webp)$/)) return "image/webp";
-        if (pathname.match(/\.(pdf)$/)) return "application/pdf";
-    } catch {
-        // Fall back to metadata MIME below.
-    }
-
-    return fallbackMimeType || "";
 }
 
 function createVideoThumbnail(videoUrl: string): Promise<string | null> {
@@ -245,6 +225,8 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     const [thumbnailItems, setThumbnailItems] = useState<ThumbnailItem[]>([]);
     const contentObjectUrlRef = useRef<string | null>(null);
     const thumbnailObjectUrlsRef = useRef<string[]>([]);
+    const hasTrackedViewerOpenRef = useRef<string | null>(null);
+    const lastTrackedAssetRef = useRef<string | null>(null);
 
     const [isSecurityTriggered, setIsSecurityTriggered] = useState(false);
 
@@ -294,26 +276,62 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         emblaApi.scrollTo(activeIndex);
     }, [emblaApi, activeIndex]);
 
-    const availableUrls = useMemo(() => {
-        if (!drop) return [];
-        // Support both legacy contentUrl and modern contentUrls
-        const urls = drop.contentUrls?.length ? [...drop.contentUrls] : (drop.contentUrl ? [drop.contentUrl] : []);
-        // Remove duplicates or empty strings
-        return Array.from(new Set(urls.filter(url => typeof url === 'string' && url.length > 0)));
+    const assetCount = useMemo(() => {
+        return drop ? getDropAssetCount(drop) : 0;
     }, [drop]);
+
+    useEffect(() => {
+        if (!drop || !isAuthorized) {
+            hasTrackedViewerOpenRef.current = null;
+            return;
+        }
+
+        if (hasTrackedViewerOpenRef.current === drop.id) {
+            return;
+        }
+
+        hasTrackedViewerOpenRef.current = drop.id;
+        trackEvent("viewer_opened", {
+            drop_id: drop.id,
+            drop_category: drop.type,
+            content_count: assetCount,
+        });
+    }, [assetCount, drop, isAuthorized]);
 
     useEffect(() => {
         setActiveIndex(0);
     }, [drop?.id]);
 
     useEffect(() => {
-        if (availableUrls.length === 0) {
+        if (assetCount === 0) {
             setActiveIndex(0);
             return;
         }
 
-        setActiveIndex((previous) => Math.min(previous, availableUrls.length - 1));
-    }, [availableUrls.length]);
+        setActiveIndex((previous) => Math.min(previous, assetCount - 1));
+    }, [assetCount]);
+
+    useEffect(() => {
+        if (!drop || !isAuthorized || assetCount <= 1) {
+            lastTrackedAssetRef.current = null;
+            return;
+        }
+
+        const assetKey = `${drop.id}:${activeIndex}`;
+        if (lastTrackedAssetRef.current === assetKey) {
+            return;
+        }
+
+        if (lastTrackedAssetRef.current !== null) {
+            trackEvent("viewer_asset_changed", {
+                drop_id: drop.id,
+                asset_index: activeIndex + 1,
+                asset_total: assetCount,
+            });
+        }
+
+        lastTrackedAssetRef.current = assetKey;
+    }, [activeIndex, assetCount, drop, isAuthorized]);
 
     // Redirect if not logged in (once auth is ready)
     useEffect(() => {
@@ -396,10 +414,9 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         if (!isAuthorized || !drop) return;
 
         const currentDrop = drop;
-        const targetUrl = availableUrls[activeIndex];
         let cancelled = false;
 
-        if (!targetUrl) {
+        if (activeIndex >= assetCount) {
             revokeObjectUrl(contentObjectUrlRef.current);
             contentObjectUrlRef.current = null;
             setContentBlobUrl(null);
@@ -424,7 +441,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                     let guessedMimeType = normalizeMimeType(response.headers.get("content-type") || blob.type);
 
                     if (!guessedMimeType) {
-                        guessedMimeType = inferMimeTypeFromUrl(targetUrl, currentDrop.fileMetadata?.type || "");
+                        guessedMimeType = currentDrop.fileMetadata?.type || "";
                     }
 
                     if (!guessedMimeType) {
@@ -458,10 +475,10 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         return () => {
             cancelled = true;
         };
-    }, [activeIndex, availableUrls, isAuthorized, drop]);
+    }, [activeIndex, assetCount, isAuthorized, drop]);
 
     useEffect(() => {
-        if (!isAuthorized || !drop || availableUrls.length === 0) {
+        if (!isAuthorized || !drop || assetCount === 0) {
             thumbnailObjectUrlsRef.current.forEach((url) => revokeObjectUrl(url));
             thumbnailObjectUrlsRef.current = [];
             setThumbnailItems([]);
@@ -473,34 +490,32 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         const nextObjectUrls: string[] = [];
 
         async function buildThumbnails() {
-            const nextItems = await Promise.all(availableUrls.map(async (url, idx) => {
-                const guessedMimeType = inferMimeTypeFromUrl(url, currentDrop.fileMetadata?.type || "");
-                const kind = resolveContent(guessedMimeType, currentDrop.fileMetadata?.type).kind;
-
+            const nextItems = await Promise.all(Array.from({ length: assetCount }, async (_, idx) => {
                 try {
                     const response = await fetchSecureContent(currentDrop.id, idx);
                     if (!response.ok) {
-                        return { src: currentDrop.imageUrl, kind };
+                        return { src: currentDrop.imageUrl, kind: resolveContent(currentDrop.fileMetadata?.type || "", currentDrop.fileMetadata?.type).kind };
                     }
 
                     const blob = await response.blob();
+                    const resolved = resolveContent(response.headers.get("content-type") || blob.type, currentDrop.fileMetadata?.type);
                     const objectUrl = URL.createObjectURL(blob);
 
-                    if (kind === "image") {
+                    if (resolved.kind === "image") {
                         nextObjectUrls.push(objectUrl);
-                        return { src: objectUrl, kind };
+                        return { src: objectUrl, kind: resolved.kind };
                     }
 
-                    if (kind === "video") {
+                    if (resolved.kind === "video") {
                         const thumbnail = await createVideoThumbnail(objectUrl);
                         revokeObjectUrl(objectUrl);
-                        return { src: thumbnail, kind };
+                        return { src: thumbnail, kind: resolved.kind };
                     }
 
                     revokeObjectUrl(objectUrl);
-                    return { src: currentDrop.imageUrl, kind };
+                    return { src: currentDrop.imageUrl, kind: resolved.kind };
                 } catch {
-                    return { src: currentDrop.imageUrl, kind };
+                    return { src: currentDrop.imageUrl, kind: resolveContent(currentDrop.fileMetadata?.type || "", currentDrop.fileMetadata?.type).kind };
                 }
             }));
 
@@ -525,7 +540,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         return () => {
             cancelled = true;
         };
-    }, [availableUrls, drop, isAuthorized]);
+    }, [assetCount, drop, isAuthorized]);
 
 
     // Prevent right-click on media
@@ -588,29 +603,37 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         .filter((d) => unlockedDropIds.includes(d.id) && d.id !== drop.id)
         .slice(0, 4);
 
+    const hasThumbnailRail = assetCount > 1;
+    const viewerStageHeight = hasThumbnailRail
+        ? "clamp(20rem, calc(100dvh - 14rem - env(safe-area-inset-top) - env(safe-area-inset-bottom)), 44rem)"
+        : "clamp(20rem, calc(100dvh - 13rem - env(safe-area-inset-top) - env(safe-area-inset-bottom)), 44rem)";
+
     return (
         <div className="w-full bg-black">
             {/* 1. Full-Width Media Viewer (Immersive) */}
-            <div className="w-full bg-black relative">
-                {/* Back Button Overlay */}
-                <div className="absolute top-4 left-4 z-20">
-                    <Link
-                        href="/dashboard"
-                        className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/50 backdrop-blur-md text-white/80 transition-all border border-white/10 text-sm font-medium"
-                    >
-                        <ArrowLeft className="w-4 h-4" />
-                        <span className="hidden md:inline">Library</span>
-                    </Link>
-                </div>
-
+            <section
+                className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 pb-2 md:px-6"
+                style={{ height: viewerStageHeight }}
+            >
                 {/* Media Container */}
                 <div
                     className={cn(
-                        "w-full min-h-[38vh] max-h-[70vh] max-w-5xl mx-auto bg-zinc-900 flex items-center justify-center relative group select-none transition-all duration-300 rounded-2xl border border-white/10 overflow-hidden"
+                        "relative min-h-0 flex-1 rounded-2xl border border-white/10 bg-zinc-900 overflow-hidden transition-all duration-300 select-none"
                     )}
                     onContextMenu={preventContextMenu}
                     style={{ WebkitUserSelect: "none", userSelect: "none", WebkitUserDrag: "none" } as any}
                 >
+                    {/* Back Button Overlay */}
+                    <div className="absolute top-4 left-4 z-20">
+                        <Link
+                            href="/dashboard"
+                            className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/50 backdrop-blur-md text-white/80 transition-all border border-white/10 text-sm font-medium"
+                        >
+                            <ArrowLeft className="w-4 h-4" />
+                            <span className="hidden md:inline">Library</span>
+                        </Link>
+                    </div>
+
                     {/* Security Warning Overlay */}
                     {isSecurityTriggered && (
                         <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none bg-black/40 backdrop-blur-sm">
@@ -624,7 +647,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                         </div>
                     )}
 
-                    <div className={cn("w-full h-full flex items-center justify-center transition-all duration-500", isSecurityTriggered ? "blur-xl opacity-50" : "")}>
+                    <div className={cn("flex h-full w-full items-center justify-center transition-all duration-500", isSecurityTriggered ? "blur-xl opacity-50" : "")}>
                         {contentLoading ? (
                             <div className="flex flex-col items-center gap-3">
                                 <Loader2 className="w-10 h-10 text-brand-purple animate-spin" />
@@ -639,7 +662,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                             controls
                                             controlsList="nodownload noplaybackrate"
                                             disablePictureInPicture
-                                            className="w-full h-full max-h-[70vh] object-contain bg-black"
+                                            className="h-full w-full object-contain bg-black"
                                             poster={drop.imageUrl}
                                             autoPlay
                                             playsInline
@@ -661,21 +684,21 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                     );
                                 } else if (resolvedContent.kind === "audio") {
                                     return (
-                                        <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-black relative">
+                                        <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-gray-900 to-black px-6 py-8">
                                             <NextImage
                                                 src={drop.imageUrl}
                                                 alt="Album Art"
                                                 fill
                                                 className="object-cover opacity-30 blur-3xl"
                                             />
-                                            <div className="relative z-10 w-48 h-48 md:w-64 md:h-64 rounded-2xl overflow-hidden shadow-2xl border border-white/10 mb-8">
+                                            <div className="relative z-10 mb-6 h-36 w-36 overflow-hidden rounded-2xl border border-white/10 shadow-2xl sm:h-44 sm:w-44 md:h-56 md:w-56">
                                                 <NextImage src={drop.imageUrl} alt="Art" fill priority className="object-cover" />
                                             </div>
                                             <audio
                                                 key={`viewer-audio-${contentBlobUrl}`}
                                                 controls
                                                 controlsList="nodownload"
-                                                className="relative z-10 w-[90%] max-w-md"
+                                                className="relative z-10 w-full max-w-md"
                                                 onContextMenu={preventContextMenu}
                                             >
                                                 <source src={contentBlobUrl} type={resolvedContent.mimeType} />
@@ -687,7 +710,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                     );
                                 } else if (resolvedContent.kind === "image") {
                                     return (
-                                        <div className="relative w-full h-full bg-black">
+                                        <div className="relative h-full w-full bg-black">
                                             <NextImage
                                                 key={`viewer-image-${contentBlobUrl}`}
                                                 src={contentBlobUrl}
@@ -703,7 +726,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                     );
                                 } else if (resolvedContent.kind === "pdf") {
                                     return (
-                                        <div className="w-full h-[85vh] bg-white rounded-md overflow-hidden">
+                                        <div className="h-full w-full overflow-hidden rounded-md bg-white">
                                             <object
                                                 key={`viewer-pdf-${contentBlobUrl}`}
                                                 data={contentBlobUrl}
@@ -718,11 +741,13 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                     );
                                 } else {
                                     return (
-                                        <div className="text-center p-10">
-                                            <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                <ShieldCheck className="w-10 h-10 text-gray-400" />
+                                        <div className="flex h-full w-full items-center justify-center text-center p-10">
+                                            <div>
+                                                <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                    <ShieldCheck className="w-10 h-10 text-gray-400" />
+                                                </div>
+                                                <p className="text-gray-400">File Preview Not Available</p>
                                             </div>
-                                            <p className="text-gray-400">File Preview Not Available</p>
                                         </div>
                                     );
                                 }
@@ -734,11 +759,11 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                 </div>
 
                 {/* 1.5 Multi-File Thumbnail Slider */}
-                {availableUrls.length > 1 && (
-                    <div className="w-full max-w-5xl mx-auto px-4 mt-6">
-                        <div className="overflow-hidden pb-6 pt-2 px-2" ref={emblaRef}>
-                            <div className="flex gap-4">
-                                {availableUrls.map((_, idx) => {
+                {hasThumbnailRail ? (
+                    <div className="shrink-0">
+                        <div className="overflow-hidden px-2 pt-1" ref={emblaRef}>
+                            <div className="flex gap-4 pb-2">
+                                {Array.from({ length: assetCount }).map((_, idx) => {
                                     const thumbnail = thumbnailItems[idx];
                                     const isVideo = thumbnail?.kind === "video";
                                     const isImage = thumbnail?.kind === "image";
@@ -751,7 +776,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                             className={cn(
                                                 "relative flex-[0_0_auto] w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden border-2 transition-all transform",
                                                 activeIndex === idx
-                                                    ? "border-brand-purple scale-110 shadow-[0_0_15px_rgba(178,140,255,0.4)] z-10"
+                                                    ? "border-brand-purple scale-105 shadow-[0_0_15px_rgba(178,140,255,0.4)] z-10"
                                                     : "border-white/10 opacity-50 hover:opacity-100 hover:border-white/30"
                                             )}
                                         >
@@ -781,12 +806,12 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                 })}
                             </div>
                         </div>
-                        <p className="text-center text-xs text-gray-500 w-full mt-[-8px]">
-                            {activeIndex + 1} of {availableUrls.length} files
+                        <p className="text-center text-xs text-gray-500">
+                            {activeIndex + 1} of {assetCount} files
                         </p>
                     </div>
-                )}
-            </div>
+                ) : null}
+            </section>
 
             {/* 2. Content Info & Engagement */}
             <div className="max-w-4xl mx-auto px-4 mt-6 md:mt-8">
@@ -835,6 +860,12 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                             <a
                                 href={contentBlobUrl}
                                 download={drop.title}
+                                onClick={() => {
+                                    trackEvent("viewer_source_downloaded", {
+                                        drop_id: drop.id,
+                                        drop_category: drop.type,
+                                    });
+                                }}
                                 className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-sm flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-sm mt-1 hover:bg-white/10"
                             >
                                 <Download className="w-4 h-4" />

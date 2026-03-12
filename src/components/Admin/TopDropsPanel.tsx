@@ -30,7 +30,7 @@ export function TopDropsPanel() {
     );
 
     return (
-        <div className="glass-panel p-6 rounded-3xl">
+        <div className="glass-panel p-4 md:p-6 rounded-3xl border border-white/10">
             <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-white">Top Performing Drops</h3>
                 <span className="text-xs text-gray-400">By unwrap count</span>
@@ -39,8 +39,8 @@ export function TopDropsPanel() {
                 {topDrops.length === 0 ? (
                     <div className="text-sm text-gray-500 py-4 text-center">No drops found.</div>
                 ) : topDrops.map((drop) => (
-                    <div key={drop.id} className="flex items-center justify-between rounded-xl border border-white/5 p-3">
-                        <div>
+                    <div key={drop.id} className="flex items-center justify-between gap-3 rounded-2xl border border-white/5 bg-black/30 p-3">
+                        <div className="min-w-0">
                             <div className="font-bold text-white line-clamp-1">{drop.title}</div>
                             <div className="text-xs text-gray-500">{drop.totalUnlocks || 0} unwraps • {drop.totalClicks || 0} clicks</div>
                         </div>

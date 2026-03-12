@@ -56,8 +56,11 @@ async function persistDropUpdate(dropId: string, drop: Drop): Promise<void> {
  * This prevents raw Firebase Storage URLs from appearing in the browser DOM.
  */
 export function sanitizeDropForClient(drop: Drop): Drop {
-    const { contentUrl, ...safe } = drop;
-    return { ...safe, contentUrl: "" } as Drop;
+    const safeContentUrls = Array.isArray(drop.contentUrls)
+        ? drop.contentUrls.map(() => "")
+        : (drop.contentUrl ? [""] : []);
+    const { contentUrl, contentUrls, ...safe } = drop;
+    return { ...safe, contentUrl: "", contentUrls: safeContentUrls } as Drop;
 }
 
 export const getDrops = cache(async (): Promise<Drop[]> => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
 import { X, Candy, Minus, Plus } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
@@ -10,6 +10,7 @@ import { authFetch } from "@/lib/authFetch";
 import { motion, AnimatePresence } from "framer-motion";
 import { sendGAEvent } from "@next/third-parties/google";
 import { GuestComponentBlur } from "@/components/Auth/GuestComponentBlur";
+import { trackEvent } from "@/lib/telemetry";
 
 interface PurchaseModalProps {
   isOpen: boolean;
@@ -38,6 +39,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   const paypalReady = PAYPAL_READY;
   const paypalLoading = isPending;
   const paypalFailed = false;
+  const hasTrackedOpenRef = useRef(false);
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
@@ -45,6 +47,18 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
       document.body.style.overflow = "";
     };
   }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen && !hasTrackedOpenRef.current) {
+      trackEvent("wallet_opened", {
+        package_label: selectedPackage.label,
+        package_drops: selectedPackage.drops,
+        package_price: selectedPackage.price,
+      });
+    }
+
+    hasTrackedOpenRef.current = isOpen;
+  }, [isOpen, selectedPackage.drops, selectedPackage.label, selectedPackage.price]);
 
   const closeModal = useCallback(() => {
     setSuccess(false);
@@ -88,9 +102,19 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
           quantity: 1
         }]
       });
+      trackEvent("gumdrops_purchase_completed", {
+        package_label: selectedPackage.label,
+        package_drops: selectedPackage.drops,
+        package_price: selectedPackage.price,
+      });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Purchase failed. Please contact support.";
       setError(message);
+      trackEvent("gumdrops_purchase_failed", {
+        package_label: selectedPackage.label,
+        package_drops: selectedPackage.drops,
+        package_price: selectedPackage.price,
+      });
       toast.error("Purchase failed", { description: message });
     } finally {
       setProcessing(false);
@@ -133,7 +157,14 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                           return (
                             <button
                               key={pkg.drops}
-                              onClick={() => setSelectedPackage(pkg)}
+                              onClick={() => {
+                                setSelectedPackage(pkg);
+                                trackEvent("purchase_package_selected", {
+                                  package_label: pkg.label,
+                                  package_drops: pkg.drops,
+                                  package_price: pkg.price,
+                                });
+                              }}
                               className={cn(
                                 "relative p-4 rounded-2xl text-left border flex flex-col justify-center",
                                 isSelected
@@ -153,7 +184,15 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                       <div
                         role="button"
                         tabIndex={0}
-                        onClick={() => setSelectedPackage({ drops: customDrops, price: (customDrops / 1000) * 5, label: "Gum Drop Bundle" })}
+                        onClick={() => {
+                          const bundle = { drops: customDrops, price: (customDrops / 1000) * 5, label: "Gum Drop Bundle" };
+                          setSelectedPackage(bundle);
+                          trackEvent("purchase_package_selected", {
+                            package_label: bundle.label,
+                            package_drops: bundle.drops,
+                            package_price: bundle.price,
+                          });
+                        }}
                         className={cn(
                           "relative w-full p-3 mb-6 rounded-2xl text-left border flex flex-row items-center justify-between gap-3 transition-all cursor-pointer",
                           selectedPackage.label === "Gum Drop Bundle"
@@ -236,6 +275,11 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                             style={{ layout: "vertical", color: "white", shape: "rect", label: "pay", height: 48 }}
                             disabled={processing}
                             createOrder={async () => {
+                              trackEvent("begin_checkout", {
+                                package_label: selectedPackage.label,
+                                package_drops: selectedPackage.drops,
+                                package_price: selectedPackage.price,
+                              });
                               const response = await authFetch("/api/paypal/create", {
                                 method: "POST",
                                 body: JSON.stringify({ expectedDrops: selectedPackage.drops }),

@@ -73,21 +73,21 @@ export function AdminAnalyticsCharts() {
 
     if (loading) {
         return (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                <div className="h-80 bg-white/5 animate-pulse rounded-3xl border border-white/10" />
-                <div className="h-80 bg-white/5 animate-pulse rounded-3xl border border-white/10" />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
+                <div className="h-72 md:h-80 bg-white/5 animate-pulse rounded-3xl border border-white/10" />
+                <div className="h-72 md:h-80 bg-white/5 animate-pulse rounded-3xl border border-white/10" />
             </div>
         );
     }
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            <div className="glass-panel p-6 rounded-3xl border border-white/10">
-                <h3 className="text-white font-bold mb-6 flex items-center gap-2">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
+            <div className="glass-panel p-4 md:p-6 rounded-3xl border border-white/10">
+                <h3 className="text-white font-bold mb-4 md:mb-6 flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-brand-purple shadow-[0_0_10px_#d946ef]" />
                     30-Day Revenue
                 </h3>
-                <div className="h-64 w-full">
+                <div className="h-56 md:h-64 w-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={chartData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
                             <defs>
@@ -110,12 +110,12 @@ export function AdminAnalyticsCharts() {
                 </div>
             </div>
 
-            <div className="glass-panel p-6 rounded-3xl border border-white/10">
-                <h3 className="text-white font-bold mb-6 flex items-center gap-2">
+            <div className="glass-panel p-4 md:p-6 rounded-3xl border border-white/10">
+                <h3 className="text-white font-bold mb-4 md:mb-6 flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-pink-500 shadow-[0_0_10px_#ec4899]" />
                     30-Day Unwraps
                 </h3>
-                <div className="h-64 w-full">
+                <div className="h-56 md:h-64 w-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={chartData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />

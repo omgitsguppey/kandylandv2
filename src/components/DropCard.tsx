@@ -15,7 +15,7 @@ import { useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { trackEvent } from "@/lib/telemetry";
 import Link from "next/link";
-import { SupportedAspectRatio, getSupportedDropAspectRatio } from "@/lib/drop-presentation";
+import { SupportedAspectRatio, getDropMediaSummary, getSupportedDropAspectRatio } from "@/lib/drop-presentation";
 
 
 interface DropCardProps {
@@ -143,7 +143,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
     const [confirming, setConfirming] = useState(false);
     const [imageLoaded, setImageLoaded] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [hasTrackedView, setHasTrackedView] = useState(false);
+    const [hasTrackedImpression, setHasTrackedImpression] = useState(false);
 
     // Compute deterministic simulative unwraps (client-side only to avoid hydration mismatches)
     const [simulativeUnwraps, setSimulativeUnwraps] = useState(0);
@@ -161,15 +161,15 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
     }, [confirming]);
 
     useEffect(() => {
-        if (!hasTrackedView) {
-            trackEvent('view_drop_details', {
+        if (!hasTrackedImpression) {
+            trackEvent("drop_card_impression", {
                 drop_id: drop.id,
                 drop_category: drop.type,
-                is_unlocked: !!isUnlocked
+                is_unlocked: !!isUnlocked,
             });
-            setHasTrackedView(true);
+            setHasTrackedImpression(true);
         }
-    }, [hasTrackedView, drop.id, drop.type, isUnlocked]);
+    }, [drop.id, drop.type, hasTrackedImpression, isUnlocked]);
 
     const resolvedRatio = aspectRatio ?? getSupportedDropAspectRatio(drop);
     const ratioStyle = { aspectRatio: resolvedRatio.replace(":", " / ") };
@@ -179,27 +179,12 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
     }, [drop.tags]);
 
     const fileCounts = useMemo(() => {
-        if (drop.mediaCounts) return drop.mediaCounts;
-
-        let images = 0;
-        let videos = 0;
-
-        const urls = drop.contentUrls || [];
-        if (urls.length > 0) {
-            urls.forEach(url => {
-                const lowerUrl = url.toLowerCase();
-                if (lowerUrl.match(/\.(mp4|webm|ogg|mov)$/)) videos++;
-                else if (lowerUrl.match(/\.(jpg|jpeg|png|gif|webp)$/)) images++;
-                else images++; // Assume image if unknown for now based on legacy KandyDrops behavior
-            });
-        } else if (drop.contentUrl) {
-            const lowerUrl = drop.contentUrl.toLowerCase();
-            if (lowerUrl.match(/\.(mp4|webm|ogg|mov)$/)) videos++;
-            else images++;
-        }
-
-        return { images, videos };
-    }, [drop.contentUrls, drop.contentUrl, drop.mediaCounts]);
+        const summary = getDropMediaSummary(drop);
+        return {
+            images: summary.imageCount,
+            videos: summary.videoCount,
+        };
+    }, [drop]);
 
     // Handle unlocking flow
     if (drop.validUntil && Date.now() > drop.validUntil && !isUnlocked) {
@@ -210,6 +195,16 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
         if (typeof navigator !== "undefined" && navigator.vibrate) {
             navigator.vibrate(10);
         }
+    };
+
+    const handlePreviewOpen = () => {
+        trackEvent("view_drop_details", {
+            drop_id: drop.id,
+            drop_category: drop.type,
+            is_unlocked: !!isUnlocked,
+        });
+        fetch(`/api/drops/${drop.id}/click`, { method: "POST" }).catch(() => { });
+        onPreview(drop);
     };
 
     const handleUnlock = async () => {
@@ -336,8 +331,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
             <div className="group relative p-1.5 md:p-3 rounded-2xl md:rounded-3xl glass-panel overflow-hidden h-full flex flex-col">
                 <button
                     onClick={() => {
-                        fetch(`/api/drops/${drop.id}/click`, { method: "POST" }).catch(() => { });
-                        onPreview(drop);
+                        handlePreviewOpen();
                     }}
                     className="relative w-full rounded-xl md:rounded-2xl overflow-hidden border border-white/10 bg-black text-left flex-shrink-0" style={ratioStyle}
                 >
@@ -386,8 +380,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
 
             <button
                 onClick={() => {
-                    fetch(`/api/drops/${drop.id}/click`, { method: "POST" }).catch(() => { });
-                    onPreview(drop);
+                    handlePreviewOpen();
                 }}
                 className="relative w-full bg-black/40 rounded-xl md:rounded-2xl mb-2 md:mb-3 overflow-hidden group/image shadow-inner border border-white/5 text-left flex-shrink-0"
                 style={ratioStyle}

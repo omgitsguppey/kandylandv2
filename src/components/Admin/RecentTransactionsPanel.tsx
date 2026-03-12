@@ -69,7 +69,7 @@ export function RecentTransactionsPanel() {
     }, []);
 
     return (
-        <div className="glass-panel p-6 rounded-3xl">
+        <div className="glass-panel p-4 md:p-6 rounded-3xl border border-white/10">
             <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-white">Recent Transactions</h3>
                 <span className="text-xs text-gray-400">Realtime</span>

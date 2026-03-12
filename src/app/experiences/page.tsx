@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { Sparkles, Gift, ArrowRight } from "lucide-react";
 
 import Link from "next/link";
@@ -7,9 +8,14 @@ import { DailyCheckIn } from "@/components/Dashboard/DailyCheckIn";
 import { DailyTasksModule } from "@/components/Dashboard/DailyTasksModule";
 import { useUI } from "@/context/UIContext";
 import { GuestComponentBlur } from "@/components/Auth/GuestComponentBlur";
+import { trackEvent } from "@/lib/telemetry";
 
 export default function ExperiencesPage() {
     const { openPurchaseModal } = useUI();
+
+    useEffect(() => {
+        trackEvent("experience_hub_viewed");
+    }, []);
 
     return (
         <div className="min-h-[calc(100dvh-11rem)] md:min-h-[calc(100dvh-5rem)] w-full bg-black text-center overflow-hidden px-4 py-10 md:py-14" data-onboarding-page="experiences">

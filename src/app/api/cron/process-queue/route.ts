@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { FieldValue } from "firebase-admin/firestore";
-import { sendGlobalDropNotification } from "@/lib/server/push-notifications";
-import { addDays, parse, startOfDay, isAfter, set } from "date-fns";
+import { addDays, startOfDay, set } from "date-fns";
+import { getResolvedQueueConfig } from "@/lib/server/drop-queue";
 
 // This cron job should be called periodically (e.g. daily/hourly)
 export async function GET(request: NextRequest) {
@@ -11,19 +10,7 @@ export async function GET(request: NextRequest) {
         const authHeader = request.headers.get('authorization');
         if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) return NextResponse.json({error: "Unauthorized"}, {status: 401});
 
-        const queueDocRef = adminDb.collection("adminSettings").doc("dropQueue");
-        const queueSnap = await queueDocRef.get();
-
-        if (!queueSnap.exists) {
-            return NextResponse.json({ message: "No queue config found" });
-        }
-
-        const config = queueSnap.data() as {
-            queue: string[];
-            dropsPerDay: number;
-            cooldownDays: number;
-            timesPerDay: string[];
-        };
+        const config = await getResolvedQueueConfig();
 
         if (!config.queue || config.queue.length === 0) {
             return NextResponse.json({ message: "Queue is empty" });

@@ -39,26 +39,52 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="flex-1 w-full bg-transparent">
-      <main className="w-full p-3 md:p-8">
+      <main className="w-full px-3 py-3 md:p-8">
         <div className="max-w-7xl mx-auto">
-          <div className="mb-4 md:mb-6 overflow-x-auto rounded-2xl border border-white/10 bg-black/30 p-2">
-            <div className="flex gap-2 min-w-max">
-              {NAV_ITEMS.map((item) => {
-                const Icon = item.icon;
-                const active = pathname === item.href;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      "inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs md:text-sm font-medium border",
-                      active ? "bg-brand-purple/20 border-brand-purple/40 text-white" : "bg-white/5 border-white/10 text-gray-300"
-                    )}
-                  >
-                    <Icon className="w-4 h-4" /> {item.label}
-                  </Link>
-                );
-              })}
+          <div className="mb-4 md:mb-6 sticky top-20 z-30">
+            <div className="rounded-[1.75rem] border border-white/10 bg-black/60 p-2.5 backdrop-blur-xl shadow-xl shadow-black/20">
+              <div className="mb-2 px-1 md:hidden">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Admin Console</p>
+              </div>
+              <div className="grid grid-cols-3 gap-2 md:hidden">
+                {NAV_ITEMS.map((item) => {
+                  const Icon = item.icon;
+                  const active = pathname === item.href;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={cn(
+                        "rounded-2xl border px-3 py-3 text-left transition-colors",
+                        active ? "bg-brand-purple/15 border-brand-purple/40 text-white" : "bg-white/5 border-white/10 text-gray-300"
+                      )}
+                    >
+                      <Icon className={cn("mb-2 h-4 w-4", active ? "text-brand-purple" : "text-gray-400")} />
+                      <div className="text-[11px] font-bold leading-tight">{item.label}</div>
+                    </Link>
+                  );
+                })}
+              </div>
+              <div className="hidden overflow-x-auto md:block">
+                <div className="flex gap-2 min-w-max">
+                  {NAV_ITEMS.map((item) => {
+                    const Icon = item.icon;
+                    const active = pathname === item.href;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={cn(
+                          "inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs md:text-sm font-medium border",
+                          active ? "bg-brand-purple/20 border-brand-purple/40 text-white" : "bg-white/5 border-white/10 text-gray-300"
+                        )}
+                      >
+                        <Icon className="w-4 h-4" /> {item.label}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
           {children}

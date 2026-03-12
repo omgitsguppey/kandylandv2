@@ -126,28 +126,42 @@ function toMillis(value: z.infer<typeof timestampSchema>): number {
   return 0; // Fallback
 }
 
+function classifyLegacyUrl(url: string, fallbackMimeType?: string): "image" | "video" {
+  const normalizedFallback = fallbackMimeType?.toLowerCase() || "";
+
+  try {
+    const pathname = new URL(url).pathname.toLowerCase();
+    if (pathname.match(/\.(mp4|m4v|mov|webm|ogg|ogv)$/)) return "video";
+    if (pathname.match(/\.(jpg|jpeg|png|gif|webp|heic|bmp|avif)$/)) return "image";
+  } catch {
+    const lowerUrl = url.split("?")[0].toLowerCase();
+    if (lowerUrl.match(/\.(mp4|m4v|mov|webm|ogg|ogv)$/)) return "video";
+    if (lowerUrl.match(/\.(jpg|jpeg|png|gif|webp|heic|bmp|avif)$/)) return "image";
+  }
+
+  return normalizedFallback.startsWith("video/") ? "video" : "image";
+}
+
 export function normalizeDropRecord(raw: unknown, id: string): Drop {
   const data = raw as Record<string, unknown>;
   const parsed = dropRecordSchema.parse({ ...data, id });
+  const normalizedContentUrls = parsed.contentUrls?.length
+    ? Array.from(new Set(parsed.contentUrls.filter((url) => typeof url === "string" && url.length > 0)))
+    : (parsed.contentUrl ? [parsed.contentUrl] : []);
 
   // Calculate mediaCounts fallback if missing
   let mediaCounts = parsed.mediaCounts;
   if (!mediaCounts) {
     let images = 0;
     let videos = 0;
-    const urls = parsed.contentUrls || [];
-    const contentUrl = parsed.contentUrl || "";
+    const urls = normalizedContentUrls;
 
     if (urls.length > 0) {
       urls.forEach(url => {
-        const lowerUrl = url.toLowerCase();
-        if (lowerUrl.match(/\.(mp4|webm|ogg|mov)(\?|$)/)) videos++;
+        const kind = classifyLegacyUrl(url, parsed.fileMetadata?.type);
+        if (kind === "video") videos++;
         else images++;
       });
-    } else if (contentUrl) {
-      const lowerUrl = contentUrl.toLowerCase();
-      if (lowerUrl.match(/\.(mp4|webm|ogg|mov)(\?|$)/)) videos++;
-      else images++;
     }
 
     if (images > 0 || videos > 0) {
@@ -157,6 +171,8 @@ export function normalizeDropRecord(raw: unknown, id: string): Drop {
 
   return dropSchema.parse({
     ...parsed,
+    contentUrl: normalizedContentUrls[0] || parsed.contentUrl || "",
+    contentUrls: normalizedContentUrls,
     mediaCounts,
     validFrom: toMillis(parsed.validFrom),
     validUntil: parsed.validUntil != null ? toMillis(parsed.validUntil) : null,

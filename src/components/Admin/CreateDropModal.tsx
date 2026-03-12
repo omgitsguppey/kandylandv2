@@ -48,6 +48,43 @@ interface UploadedAsset {
     size: number;
 }
 
+function inferAssetTypeFromUrl(url: string, fallbackType?: string): string {
+    const normalizedFallback = fallbackType?.toLowerCase() || "application/octet-stream";
+
+    try {
+        const pathname = new URL(url).pathname.toLowerCase();
+        if (pathname.match(/\.(mp4|m4v|mov|webm|ogg|ogv)$/)) return "video/mp4";
+        if (pathname.match(/\.(jpg|jpeg)$/)) return "image/jpeg";
+        if (pathname.match(/\.(png)$/)) return "image/png";
+        if (pathname.match(/\.(gif)$/)) return "image/gif";
+        if (pathname.match(/\.(webp)$/)) return "image/webp";
+    } catch {
+        const lowerUrl = url.split("?")[0].toLowerCase();
+        if (lowerUrl.match(/\.(mp4|m4v|mov|webm|ogg|ogv)$/)) return "video/mp4";
+        if (lowerUrl.match(/\.(jpg|jpeg)$/)) return "image/jpeg";
+        if (lowerUrl.match(/\.(png)$/)) return "image/png";
+        if (lowerUrl.match(/\.(gif)$/)) return "image/gif";
+        if (lowerUrl.match(/\.(webp)$/)) return "image/webp";
+    }
+
+    return normalizedFallback;
+}
+
+function summarizeMediaCounts(assets: UploadedAsset[], fallbackType?: string) {
+    return assets.reduce(
+        (counts, asset) => {
+            const type = inferAssetTypeFromUrl(asset.url, asset.type || fallbackType);
+            if (type.startsWith("video/")) {
+                counts.videos += 1;
+            } else {
+                counts.images += 1;
+            }
+            return counts;
+        },
+        { images: 0, videos: 0 },
+    );
+}
+
 interface FilesAndAssetsSectionProps {
     uploadsOpen: boolean;
     onToggle: () => void;
@@ -58,6 +95,7 @@ interface FilesAndAssetsSectionProps {
     imageUrl: string;
     contentUrl: string;
     contentType?: string;
+    initialContentAssets: UploadedAsset[];
     onCoverAssetsChange: (assets: UploadedAsset[]) => void;
     onContentAssetsChange: (assets: UploadedAsset[]) => void;
     errors: FieldErrors<DropFormData>;
@@ -73,6 +111,7 @@ const FilesAndAssetsSection = memo(function FilesAndAssetsSection({
     imageUrl,
     contentUrl,
     contentType,
+    initialContentAssets,
     onCoverAssetsChange,
     onContentAssetsChange,
     errors,
@@ -114,12 +153,15 @@ const FilesAndAssetsSection = memo(function FilesAndAssetsSection({
                         helperText="Upload one or more media/zip assets (up to 50)"
                         aspectRatio={contentAspectRatio}
                         onAspectRatioChange={onContentAspectRatioChange}
+                        initialAssets={initialContentAssets}
                         initialUrl={contentUrl}
                         initialType={contentType}
                         onChange={onContentAssetsChange}
                         disableCrop={true}
                     />
-                    {errors.contentUrl && <p className="text-red-400 text-xs">{errors.contentUrl.message}</p>}
+                    {(errors.contentUrls || errors.contentUrl) && (
+                        <p className="text-red-400 text-xs">{errors.contentUrls?.message || errors.contentUrl?.message}</p>
+                    )}
                 </div>
             ) : null}
         </div>
@@ -137,6 +179,7 @@ export interface CreateDropModalProps {
 export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSuccess }: CreateDropModalProps) {
     const isEditMode = !!dropId;
     const [fetching, setFetching] = useState(isEditMode);
+    const [contentAssets, setContentAssets] = useState<UploadedAsset[]>([]);
 
     const [uploadsOpen, setUploadsOpen] = useState(true);
     const [coverAspectRatio, setCoverAspectRatio] = useState<UploadAspectRatio>("1:1");
@@ -177,6 +220,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
 
     useEffect(() => {
         if (!isOpen) {
+            setContentAssets([]);
             reset({
                 title: "",
                 description: "",
@@ -207,11 +251,14 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) {
                     const data = docSnap.data() as Drop;
+                    const existingContentUrls = Array.isArray(data.contentUrls) && data.contentUrls.length > 0
+                        ? data.contentUrls
+                        : (data.contentUrl ? [data.contentUrl] : []);
                     setValue("title", data.title + (duplicateFromId ? " (Copy)" : ""));
                     setValue("description", data.description);
                     setValue("imageUrl", data.imageUrl);
-                    setValue("contentUrl", data.contentUrl || "");
-                    setValue("contentUrls", data.contentUrls || (data.contentUrl ? [data.contentUrl] : []));
+                    setValue("contentUrl", existingContentUrls[0] || "");
+                    setValue("contentUrls", existingContentUrls);
                     setValue("unlockCost", data.unlockCost);
 
                     if (dropId) {
@@ -232,6 +279,12 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                     setValue("actionUrl", data.actionUrl || "");
                     setValue("accentColor", data.accentColor || "#ec4899");
                     setValue("fileMetadata", data.fileMetadata || null);
+                    setContentAssets(existingContentUrls.map((url, index) => ({
+                        id: `existing-${index}-${url}`,
+                        url,
+                        type: inferAssetTypeFromUrl(url, data.fileMetadata?.type),
+                        size: index === 0 ? data.fileMetadata?.size || 0 : 0,
+                    })));
                 } else {
                     toast.error("Drop not found!");
                     onClose();
@@ -252,6 +305,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
     }, [setValue]);
 
     const handleContentAssetsChange = useCallback((assets: UploadedAsset[]) => {
+        setContentAssets(assets);
         const urls = assets.map(a => a.url);
         setValue("contentUrl", urls[0] || "", { shouldValidate: true });
         setValue("contentUrls", urls, { shouldValidate: true });
@@ -311,6 +365,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                 actionUrl: data.actionUrl,
                 accentColor: data.accentColor,
                 fileMetadata: data.fileMetadata,
+                mediaCounts: summarizeMediaCounts(contentAssets, data.fileMetadata?.type),
             };
 
             if (isEditMode) {
@@ -449,6 +504,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                         imageUrl={imageUrl}
                                         contentUrl={contentUrl}
                                         contentType={fileMetadata?.type}
+                                        initialContentAssets={contentAssets}
                                         onCoverAssetsChange={handleCoverAssetsChange}
                                         onContentAssetsChange={handleContentAssetsChange}
                                         errors={errors}

@@ -66,6 +66,36 @@ export function getAspectRatioCssValue(aspectRatio: SupportedAspectRatio): strin
   return aspectRatio.replace(":", " / ");
 }
 
+function classifyUrlKind(url: string, fallbackMimeType?: string): "image" | "video" {
+  const normalizedFallback = fallbackMimeType?.toLowerCase() || "";
+
+  try {
+    const pathname = new URL(url).pathname.toLowerCase();
+    if (pathname.match(/\.(mp4|m4v|mov|webm|ogg|ogv)$/)) return "video";
+    if (pathname.match(/\.(jpg|jpeg|png|gif|webp|heic|bmp|avif)$/)) return "image";
+  } catch {
+    const lowerUrl = url.split("?")[0].toLowerCase();
+    if (lowerUrl.match(/\.(mp4|m4v|mov|webm|ogg|ogv)$/)) return "video";
+    if (lowerUrl.match(/\.(jpg|jpeg|png|gif|webp|heic|bmp|avif)$/)) return "image";
+  }
+
+  return normalizedFallback.startsWith("video/") ? "video" : "image";
+}
+
+export function getDropAssetCount(drop: Pick<Drop, "contentUrl" | "contentUrls" | "mediaCounts">): number {
+  if (Array.isArray(drop.contentUrls) && drop.contentUrls.length > 0) {
+    return drop.contentUrls.length;
+  }
+
+  if (drop.contentUrl) {
+    return 1;
+  }
+
+  const imageCount = drop.mediaCounts?.images ?? 0;
+  const videoCount = drop.mediaCounts?.videos ?? 0;
+  return Math.max(0, imageCount + videoCount);
+}
+
 export function getDropMediaSummary(drop: Drop): { imageCount: number; videoCount: number } {
   // 1. Prefer explicitly saved counts
   const mediaCounts = drop.mediaCounts;
@@ -88,29 +118,11 @@ export function getDropMediaSummary(drop: Drop): { imageCount: number; videoCoun
 
     urlsToCheck.forEach(url => {
       if (!url) return;
-
-      try {
-        // Attempt to strip query parameters to expose clean extension
-        const urlObj = new URL(url);
-        const pathname = urlObj.pathname.toLowerCase();
-
-        if (pathname.match(/\.(mp4|webm|ogg|mov)$/)) {
-          videoCount++;
-        } else if (pathname.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
-          imageCount++;
-        } else {
-          // If the extension is totally obfuscated but the core type is known
-          if (drop.fileMetadata?.type?.startsWith("video/") && videoCount === 0 && imageCount === 0) {
-            videoCount++;
-          } else {
-            imageCount++; // Default optimistic fallback
-          }
-        }
-      } catch (e) {
-        // URL parsing failed (relative path?), just use simple string matching
-        const lowerUrl = url.split('?')[0].toLowerCase();
-        if (lowerUrl.match(/\.(mp4|webm|ogg|mov)$/)) videoCount++;
-        else imageCount++;
+      const kind = classifyUrlKind(url, drop.fileMetadata?.type);
+      if (kind === "video") {
+        videoCount++;
+      } else {
+        imageCount++;
       }
     });
 

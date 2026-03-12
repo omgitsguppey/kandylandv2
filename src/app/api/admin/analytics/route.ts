@@ -13,6 +13,26 @@ const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
 
 // Initialize with explicit credentials if available, otherwise fallback to Default Application Credentials
 let analyticsClient: BetaAnalyticsDataClient;
+const ANALYTICS_EVENT_NAMES = [
+    "auth_google_sign_in_success",
+    "auth_modal_opened",
+    "auth_sign_in_success",
+    "auth_sign_up_success",
+    "begin_checkout",
+    "daily_check_in_claim",
+    "drop_card_impression",
+    "drop_preview_opened",
+    "drop_share_copied",
+    "experience_hub_viewed",
+    "guided_onboarding_completed",
+    "gumdrops_purchase_completed",
+    "purchase",
+    "unlock_drop_success",
+    "view_drop_details",
+    "viewer_asset_changed",
+    "viewer_opened",
+    "wallet_opened",
+];
 
 if (clientEmail && privateKey) {
     analyticsClient = new BetaAnalyticsDataClient({
@@ -120,6 +140,7 @@ export async function GET(request: NextRequest) {
                 [geoResponse],
                 [pagesResponse],
                 [dropsResponse],
+                [devicesResponse],
                 [onboardingResponse]
             ] = await Promise.all([
                 analyticsClient.runReport({
@@ -148,7 +169,7 @@ export async function GET(request: NextRequest) {
                         filter: {
                             fieldName: "eventName",
                             inListFilter: {
-                                values: ["view_drop_details", "unlock_drop_success", "user_login", "daily_check_in_claim", "guided_onboarding_completed"]
+                                values: ANALYTICS_EVENT_NAMES
                             }
                         }
                     }
@@ -183,6 +204,18 @@ export async function GET(request: NextRequest) {
                         }
                     },
                     limit: 50
+                }),
+                analyticsClient.runReport({
+                    property: `properties/${propertyId}`,
+                    dateRanges: [{ startDate, endDate: "today" }],
+                    metrics: [
+                        { name: "activeUsers" },
+                        { name: "sessions" },
+                        { name: "engagementRate" }
+                    ],
+                    dimensions: [{ name: "deviceCategory" }],
+                    orderBys: [{ metric: { metricName: "activeUsers" }, desc: true }],
+                    limit: 3
                 }),
                 analyticsClient.runReport({
                     property: `properties/${propertyId}`,
@@ -238,10 +271,24 @@ export async function GET(request: NextRequest) {
                 return acc;
             }, {});
 
+            const eventBreakdown = (eventsResponse.rows || [])
+                .map((row) => ({
+                    eventName: row.dimensionValues?.[0]?.value || "unknown",
+                    count: parseInt(row.metricValues?.[0]?.value || "0", 10),
+                }))
+                .sort((a, b) => b.count - a.count);
+
             const geoData = (geoResponse.rows || []).map(row => ({
                 country: row.dimensionValues?.[0]?.value || "Unknown",
                 city: row.dimensionValues?.[1]?.value || "Unknown",
                 users: parseInt(row.metricValues?.[0]?.value || "0", 10)
+            }));
+
+            const devices = (devicesResponse.rows || []).map((row) => ({
+                device: row.dimensionValues?.[0]?.value || "unknown",
+                users: parseInt(row.metricValues?.[0]?.value || "0", 10),
+                sessions: parseInt(row.metricValues?.[1]?.value || "0", 10),
+                engagementRate: parseFloat(row.metricValues?.[2]?.value || "0"),
             }));
 
             const pagesData = (pagesResponse.rows || []).map(row => ({
@@ -387,6 +434,23 @@ export async function GET(request: NextRequest) {
                 feed: mappedCommerceFeed
             };
 
+            const purchases = Math.max(eventsData.gumdrops_purchase_completed || 0, eventsData.purchase || 0);
+            const funnel = {
+                authModalOpens: eventsData.auth_modal_opened || 0,
+                authSignIns: (eventsData.auth_sign_in_success || 0) + (eventsData.auth_google_sign_in_success || 0),
+                authSignUps: eventsData.auth_sign_up_success || 0,
+                previewOpens: eventsData.drop_preview_opened || 0,
+                viewerOpens: eventsData.viewer_opened || 0,
+                assetSwitches: eventsData.viewer_asset_changed || 0,
+                unlocks: eventsData.unlock_drop_success || 0,
+                shares: eventsData.drop_share_copied || 0,
+                walletOpens: eventsData.wallet_opened || 0,
+                checkoutStarts: eventsData.begin_checkout || 0,
+                purchases,
+                checkIns: eventsData.daily_check_in_claim || 0,
+                experienceViews: eventsData.experience_hub_viewed || 0,
+            };
+
             // Calculate Onboarding Analytics
             let totalOnboardingCompletions = 0;
             let totalOnboardingSeconds = 0;
@@ -414,6 +478,9 @@ export async function GET(request: NextRequest) {
                 data: chartData,
                 totals,
                 events: eventsData,
+                eventBreakdown,
+                devices,
+                funnel,
                 geo: geoData,
                 pages: pagesData,
                 topDrops: dropsData,

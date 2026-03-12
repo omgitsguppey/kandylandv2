@@ -37,6 +37,7 @@ interface AssetUploaderProps {
   helperText?: string;
   folder: string;
   multiple?: boolean;
+  initialAssets?: UploadedAsset[];
   initialUrl?: string;
   initialType?: string;
   aspectRatio: UploadAspectRatio;
@@ -64,7 +65,19 @@ function isCanvasImageType(type: string): boolean {
   return /image\/(jpeg|jpg|png|webp|gif)/i.test(type);
 }
 
-function createInitialAssets(initialUrl?: string, initialType?: string): AssetDraft[] {
+function createInitialAssets(initialAssets?: UploadedAsset[], initialUrl?: string, initialType?: string): AssetDraft[] {
+  if (Array.isArray(initialAssets) && initialAssets.length > 0) {
+    return initialAssets.map((asset, index) => ({
+      id: asset.id || `initial-${index}-${asset.url}`,
+      kind: asset.type?.startsWith("video/") ? "video" : asset.type?.startsWith("image/") ? "image" : "file",
+      uploadUrl: asset.url,
+      previewUrl: asset.url,
+      uploadType: asset.type || "application/octet-stream",
+      uploadSize: asset.size || 0,
+      uploading: false,
+    }));
+  }
+
   if (!initialUrl) {
     return [];
   }
@@ -125,6 +138,7 @@ export function AssetUploader({
   helperText,
   folder,
   multiple = false,
+  initialAssets,
   initialUrl,
   initialType,
   aspectRatio,
@@ -133,21 +147,21 @@ export function AssetUploader({
   accept,
   disableCrop = false,
 }: AssetUploaderProps) {
-  const [assets, setAssets] = useState<AssetDraft[]>(() => createInitialAssets(initialUrl, initialType));
+  const [assets, setAssets] = useState<AssetDraft[]>(() => createInitialAssets(initialAssets, initialUrl, initialType));
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
 
   useEffect(() => {
-    if (!initialUrl) return;
+    if ((!initialUrl || initialUrl.length === 0) && (!initialAssets || initialAssets.length === 0)) return;
 
     const syncInitialAsset = window.setTimeout(() => {
-      setAssets((current) => current.length > 0 ? current : createInitialAssets(initialUrl, initialType));
+      setAssets((current) => current.length > 0 ? current : createInitialAssets(initialAssets, initialUrl, initialType));
     }, 0);
 
     return () => window.clearTimeout(syncInitialAsset);
-  }, [initialType, initialUrl]);
+  }, [initialAssets, initialType, initialUrl]);
 
   useEffect(() => {
     const normalized = assets
@@ -269,23 +283,30 @@ export function AssetUploader({
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-2">
         <label className="text-sm font-semibold text-gray-200">{label}</label>
-        {!disableCrop && (
-          <div className="flex items-center gap-1 rounded-full border border-white/10 bg-black/40 p-1">
-            {RATIO_OPTIONS.map((ratio) => (
-              <button
-                key={ratio}
-                type="button"
-                onClick={() => onAspectRatioChange(ratio)}
-                className={cn(
-                  "rounded-full px-2 py-1 text-[10px] font-semibold transition-colors",
-                  aspectRatio === ratio ? "bg-brand-purple text-white" : "text-gray-400 hover:text-white"
-                )}
-              >
-                {ratio}
-              </button>
-            ))}
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {assets.length > 0 ? (
+            <span className="rounded-full border border-white/10 bg-black/40 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-400">
+              {assets.length} {assets.length === 1 ? "file" : "files"}
+            </span>
+          ) : null}
+          {!disableCrop && (
+            <div className="flex items-center gap-1 rounded-full border border-white/10 bg-black/40 p-1">
+              {RATIO_OPTIONS.map((ratio) => (
+                <button
+                  key={ratio}
+                  type="button"
+                  onClick={() => onAspectRatioChange(ratio)}
+                  className={cn(
+                    "rounded-full px-2 py-1 text-[10px] font-semibold transition-colors",
+                    aspectRatio === ratio ? "bg-brand-purple text-white" : "text-gray-400 hover:text-white"
+                  )}
+                >
+                  {ratio}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="rounded-2xl border border-white/10 bg-black/30 p-3 space-y-3">

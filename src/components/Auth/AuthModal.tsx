@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -8,6 +8,7 @@ import { X, Mail, Lock, User, Calendar, AlertCircle, Loader2 } from "lucide-reac
 
 import { useAuth } from "@/context/AuthContext";
 import { differenceInYears, parseISO } from "date-fns";
+import { trackEvent } from "@/lib/telemetry";
 
 // Validation Schema - unified shape with conditional validation for sign-up fields
 const authFormSchema = z.object({
@@ -32,6 +33,15 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [authError, setAuthError] = useState<string | null>(null);
     const [resetSent, setResetSent] = useState(false);
+    const wasOpenRef = useRef(false);
+
+    useEffect(() => {
+        if (isOpen && !wasOpenRef.current) {
+            trackEvent("auth_modal_opened", { mode });
+        }
+
+        wasOpenRef.current = isOpen;
+    }, [isOpen, mode]);
 
     const activeSchema = mode === "signup"
         ? authFormSchema.extend({
@@ -60,15 +70,19 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         setResetSent(false);
         clearErrors();
         reset();
+        trackEvent("auth_mode_switched", { from_mode: mode, to_mode: newMode });
     };
 
     const handleGoogleSignIn = async () => {
         setIsLoading(true);
         setAuthError(null);
+        trackEvent("auth_google_sign_in_attempted");
         try {
             await signInWithGoogle();
+            trackEvent("auth_google_sign_in_success");
             onClose();
         } catch (err: unknown) {
+            trackEvent("auth_google_sign_in_failed");
             setAuthError(err instanceof Error ? err.message : "Failed to sign in with Google.");
         } finally {
             setIsLoading(false);
@@ -81,15 +95,22 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
         try {
             if (mode === "signup") {
+                trackEvent("auth_sign_up_attempted");
                 await signUpWithEmail(data.email, data.password, data.username!, data.dob!);
+                trackEvent("auth_sign_up_success");
             } else {
+                trackEvent("auth_sign_in_attempted");
                 await signInWithEmail(data.email, data.password);
+                trackEvent("auth_sign_in_success");
             }
             onClose();
             reset();
         } catch (err: unknown) {
             console.error(err);
             const firebaseErr = err as { code?: string; message?: string };
+            trackEvent(mode === "signup" ? "auth_sign_up_failed" : "auth_sign_in_failed", {
+                error_code: firebaseErr.code || "unknown",
+            });
             if (firebaseErr.code === "auth/email-already-in-use") {
                 setAuthError("Email is already registered.");
             } else if (firebaseErr.code === "auth/invalid-credential") {
@@ -112,17 +133,23 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
         setIsLoading(true);
         setAuthError(null);
+        trackEvent("password_reset_requested");
         try {
             const { sendPasswordResetEmail, getAuth } = await import("firebase/auth");
             const { auth } = await import("@/lib/firebase");
             await sendPasswordResetEmail(auth || getAuth(), email);
+            trackEvent("password_reset_sent");
             setResetSent(true);
         } catch (err: unknown) {
             console.error("Password reset error:", err);
             const firebaseErr = err as { code?: string; message?: string };
             if (firebaseErr.code === "auth/user-not-found") {
+                trackEvent("password_reset_sent");
                 setResetSent(true);
             } else {
+                trackEvent("password_reset_failed", {
+                    error_code: firebaseErr.code || "unknown",
+                });
                 setAuthError(firebaseErr.message || "Failed to send reset email.");
             }
         } finally {

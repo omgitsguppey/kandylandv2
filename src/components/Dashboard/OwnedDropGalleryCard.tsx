@@ -3,7 +3,7 @@
 import NextImage from "next/image";
 import { Drop } from "@/types/db";
 import { cn } from "@/lib/utils";
-import { getAspectRatioCssValue, getSupportedDropAspectRatio } from "@/lib/drop-presentation";
+import { getAspectRatioCssValue, getDropMediaSummary, getSupportedDropAspectRatio } from "@/lib/drop-presentation";
 import { Lock, Unlock, Image as ImageIcon, Film } from "lucide-react";
 import { useMemo } from "react";
 
@@ -18,23 +18,12 @@ export function OwnedDropGalleryCard({ drop, isUnlocked, onOpen }: OwnedDropGall
     const ratioStyle = { aspectRatio: getAspectRatioCssValue(ratio) };
 
     const fileCounts = useMemo(() => {
-        if (drop.mediaCounts) return drop.mediaCounts;
-        let images = 0;
-        let videos = 0;
-        const urls = drop.contentUrls || [];
-        if (urls.length > 0) {
-            urls.forEach(url => {
-                const lowerUrl = url.toLowerCase();
-                if (lowerUrl.match(/\.(mp4|webm|ogg|mov)$/)) videos++;
-                else images++;
-            });
-        } else if (drop.contentUrl) {
-            const lowerUrl = drop.contentUrl.toLowerCase();
-            if (lowerUrl.match(/\.(mp4|webm|ogg|mov)$/)) videos++;
-            else images++;
-        }
-        return { images, videos };
-    }, [drop.contentUrls, drop.contentUrl, drop.mediaCounts]);
+        const summary = getDropMediaSummary(drop);
+        return {
+            images: summary.imageCount,
+            videos: summary.videoCount,
+        };
+    }, [drop]);
 
     return (
         <button

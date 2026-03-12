@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAdmin, handleApiError } from "@/lib/server/auth";
-import { FieldValue } from "firebase-admin/firestore";
 import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
+import { getResolvedQueueConfig, setDropQueueMembership } from "@/lib/server/drop-queue";
 
 export async function POST(request: NextRequest) {
     try {
@@ -15,23 +14,10 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Missing dropId" }, { status: 400 });
         }
 
-        const docRef = adminDb.collection("adminSettings").doc("dropQueue");
-        const docSnap = await docRef.get();
-        let queue: string[] = [];
-
-        if (docSnap.exists) {
-            queue = docSnap.data()?.queue || [];
-        }
-
-        const isQueued = queue.includes(dropId);
-
-        if (isQueued) {
-            await docRef.set({ queue: FieldValue.arrayRemove(dropId) }, { merge: true });
-            return NextResponse.json({ success: true, added: false });
-        } else {
-            await docRef.set({ queue: FieldValue.arrayUnion(dropId) }, { merge: true });
-            return NextResponse.json({ success: true, added: true });
-        }
+        const queueConfig = await getResolvedQueueConfig();
+        const isQueued = queueConfig.queue.includes(dropId);
+        await setDropQueueMembership(dropId, !isQueued);
+        return NextResponse.json({ success: true, added: !isQueued });
     } catch (error) {
         return handleApiError(error, "Admin.Queue.Toggle");
     }

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAuth, handleApiError } from "@/lib/server/auth";
 import { checkRateLimit, RELAXED } from "@/lib/server/rate-limit";
+import { normalizeDropRecord } from "@/lib/drop-normalizers";
 
 const userContentSchema = z.object({
   unlockedContent: z.array(z.string()).default([]),
@@ -50,18 +51,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "You do not own this content" }, { status: 403 });
     }
 
-    const dropDataReq = z.object({
-      contentUrl: z.string().optional(),
-      contentUrls: z.array(z.string()).optional()
-    }).safeParse(dropSnap.data());
-
-    if (!dropDataReq.success) {
+    let dropRecord;
+    try {
+      dropRecord = normalizeDropRecord(dropSnap.data(), dropId);
+    } catch {
       return NextResponse.json({ error: "No content available" }, { status: 404 });
     }
 
-    const availableUrls = dropDataReq.data.contentUrls?.length
-      ? dropDataReq.data.contentUrls
-      : (dropDataReq.data.contentUrl ? [dropDataReq.data.contentUrl] : []);
+    const availableUrls = Array.isArray(dropRecord.contentUrls) && dropRecord.contentUrls.length > 0
+      ? dropRecord.contentUrls
+      : (dropRecord.contentUrl ? [dropRecord.contentUrl] : []);
 
     const targetUrl = availableUrls[mediaIndex];
 
