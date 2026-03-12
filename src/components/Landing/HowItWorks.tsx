@@ -40,45 +40,45 @@ export function HowItWorks() {
     ];
 
     return (
-        <section className="py-24 bg-black relative border-t border-white/5">
+        <section className="py-16 sm:py-24 bg-black relative border-t border-white/5">
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#b28cff05_1px,transparent_1px),linear-gradient(to_bottom,#b28cff05_1px,transparent_1px)] bg-[size:4rem_4rem]" />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
-                <div className="text-center max-w-3xl mx-auto mb-16">
-                    <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-6">How the Drops Work</h2>
-                    <p className="text-lg text-gray-400">Straightforward access to premium digital collections.</p>
+                <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-4 sm:mb-6">How the Drops Work</h2>
+                    <p className="text-base sm:text-lg text-gray-400">Straightforward access to premium digital collections.</p>
                 </div>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8 mb-12 sm:mb-20">
                     {features.map((f, i) => (
-                        <div key={i} className="bg-zinc-950 border border-white/5 rounded-3xl p-8 hover:bg-zinc-900 transition-colors group">
-                            <div className="w-16 h-16 rounded-2xl bg-brand-purple/10 flex items-center justify-center mb-6 border border-brand-purple/20 group-hover:scale-110 transition-transform">
+                        <div key={i} className="bg-zinc-950 border border-white/5 rounded-3xl p-5 sm:p-8 hover:bg-zinc-900 transition-colors group">
+                            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-brand-purple/10 flex items-center justify-center mb-4 sm:mb-6 border border-brand-purple/20 group-hover:scale-110 transition-transform">
                                 {f.icon}
                             </div>
-                            <h3 className="text-xl font-bold text-white mb-3">{f.title}</h3>
+                            <h3 className="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-3">{f.title}</h3>
                             <p className="text-gray-400 leading-relaxed text-sm">{f.description}</p>
                         </div>
                     ))}
                 </div>
 
                 {/* Creator Showcase Grid */}
-                <div className="bg-zinc-900 rounded-[3rem] p-8 md:p-12 border border-brand-purple/10 relative overflow-hidden">
+                <div className="bg-zinc-900 rounded-[2rem] sm:rounded-[3rem] p-5 sm:p-8 md:p-12 border border-brand-purple/10 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-96 h-96 bg-brand-purple/10 blur-[100px] rounded-full" />
                     <div className="absolute bottom-0 left-0 w-96 h-96 bg-brand-purple/5 blur-[100px] rounded-full" />
 
-                    <div className="grid md:grid-cols-2 gap-12 items-center relative z-10">
-                        <div className="space-y-6">
-                            <h3 className="text-3xl md:text-4xl font-extrabold text-white">Curated by top-tier talent.</h3>
-                            <p className="text-gray-400 text-lg leading-relaxed">
+                    <div className="grid md:grid-cols-2 gap-8 sm:gap-12 items-center relative z-10">
+                        <div className="space-y-5 sm:space-y-6">
+                            <h3 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">Curated by top-tier talent.</h3>
+                            <p className="text-gray-400 text-base sm:text-lg leading-relaxed">
                                 Our platform is home to creators who push boundaries. Discover the unseen side of <span className="text-brand-purple font-bold">Jessi Ray</span> and the exclusive archives of <span className="text-brand-purple font-bold">Bloomytrip</span>, available only right here on KandyDrops.
                             </p>
-                            <button onClick={openAuthModal} className="mt-4 px-8 py-4 bg-white hover:bg-gray-200 text-black font-extrabold rounded-xl transition-colors">
+                            <button onClick={openAuthModal} className="mt-2 sm:mt-4 w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-white hover:bg-gray-200 text-black font-extrabold rounded-xl transition-colors">
                                 Browse the Catalog
                             </button>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                            <div className="space-y-3 sm:space-y-4">
                                 <EditableImage
                                     id="landing-hero-1"
                                     defaultSrc={curatedImages[0]}
@@ -96,7 +96,7 @@ export function HowItWorks() {
                                     className="relative w-full aspect-square rounded-3xl overflow-hidden border border-white/10 bg-zinc-900"
                                 />
                             </div>
-                            <div className="space-y-4 mt-8">
+                            <div className="space-y-3 sm:space-y-4 mt-5 sm:mt-8">
                                 <EditableImage
                                     id="landing-hero-3"
                                     defaultSrc={curatedImages[2]}

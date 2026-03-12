@@ -20,9 +20,9 @@ function getRatio(drop: Drop): Ratio {
 
 function getItemSpanClass(drop: Drop): string {
     const ratio = getRatio(drop);
-    if (ratio === "16:9") return "col-span-4";
-    if (ratio === "9:16") return "col-span-2";
-    return "col-span-3";
+    if (ratio === "16:9") return "col-span-1 sm:col-span-4";
+    if (ratio === "9:16") return "col-span-1 sm:col-span-2";
+    return "col-span-1 sm:col-span-3";
 }
 
 interface CollectionListProps {
@@ -54,7 +54,7 @@ export function CollectionList({ drops, userProfile }: CollectionListProps) {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                 <div>
                     <h2 className="text-xl font-bold text-white">My KandyDrops</h2>
-                    <div className="text-xs text-gray-400 font-medium mt-1">
+                    <div className="text-[11px] sm:text-xs text-gray-400 font-medium mt-1 flex flex-wrap items-center">
                         <span className="text-brand-purple">{ownedCount} Owned</span>
                         <span className="mx-2">·</span>
                         <span>{lockedCount} Locked</span>
@@ -63,14 +63,14 @@ export function CollectionList({ drops, userProfile }: CollectionListProps) {
                     </div>
                 </div>
 
-                <div className="flex items-center bg-white/5 rounded-xl p-1 self-start md:self-auto border border-white/5" role="group" aria-label="Filter drops by ownership">
+                <div className="flex w-full sm:w-auto items-center bg-white/5 rounded-xl p-1 self-stretch md:self-auto border border-white/5" role="group" aria-label="Filter drops by ownership">
                     {(["all", "owned", "locked"] as const).map((option) => (
                         <button
                             key={option}
                             onClick={() => setFilter(option)}
                             aria-pressed={filter === option}
                             className={cn(
-                                "px-4 py-1.5 rounded-lg text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple/40 capitalize",
+                                "flex-1 sm:flex-none px-3 sm:px-4 py-2 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple/40 capitalize",
                                 filter === option ? "bg-white/10 text-white shadow-sm" : "text-gray-500 hover:text-gray-300"
                             )}
                         >
@@ -80,7 +80,7 @@ export function CollectionList({ drops, userProfile }: CollectionListProps) {
                 </div>
             </div>
 
-            <div className="grid grid-cols-6 gap-3 md:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-6 gap-2.5 sm:gap-3 md:gap-4">
                 {filteredDrops.map((drop) => {
                     const unlocked = ownedIds.has(drop.id);
                     return (

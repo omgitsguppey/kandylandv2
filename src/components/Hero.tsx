@@ -1,15 +1,15 @@
 "use client";
 
 import { useRef } from "react";
-import { Button } from "@/components/ui/Button";
+import { useEffect, useState } from "react";
 import { Sparkles, ArrowRight } from "lucide-react";
 import Link from "next/link";
+
+import { Button } from "@/components/ui/Button";
 import { useAuthIdentity } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { HomeDropTicker } from "@/components/HomeDropTicker";
-import { EditableImage } from "@/components/Admin/EditableImage";
 import { getSimulatedPlatformUnwrapsToday } from "@/lib/unwrap-simulator";
-import { useEffect, useState } from "react";
 
 export default function Hero() {
     const { user } = useAuthIdentity();
@@ -17,33 +17,33 @@ export default function Hero() {
     const ref = useRef(null);
 
     return (
-        <section ref={ref} className="relative min-h-[90vh] flex flex-col justify-center pt-24 pb-12 w-full overflow-hidden">
-            {/* Background Effects */}
+        <section ref={ref} className="relative min-h-[78vh] sm:min-h-[90vh] flex flex-col justify-center pt-20 sm:pt-24 pb-10 sm:pb-12 w-full overflow-hidden">
             <div className="absolute inset-0 z-0 opacity-40">
-                <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-brand-purple/20 rounded-full blur-[120px] mix-blend-screen animate-pulse" style={{ animationDuration: '4s' }} />
-                <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-brand-purple/10 rounded-full blur-[100px] mix-blend-screen animate-pulse" style={{ animationDuration: '7s' }} />
+                <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-brand-purple/20 rounded-full blur-[120px] mix-blend-screen animate-pulse" style={{ animationDuration: "4s" }} />
+                <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-brand-purple/10 rounded-full blur-[100px] mix-blend-screen animate-pulse" style={{ animationDuration: "7s" }} />
             </div>
 
-            <div className="relative z-10 w-full max-w-7xl mx-auto px-8 sm:px-6 lg:px-8 flex flex-col items-center text-center">
-                {/* Left Content */}
-                <div className="space-y-8 w-full max-w-2xl min-w-0 flex flex-col items-center">
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-purple/10 border border-brand-purple/20 text-brand-purple text-sm font-bold tracking-wide">
+            <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center">
+                <div className="space-y-5 sm:space-y-8 w-full max-w-2xl min-w-0 flex flex-col items-center">
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-purple/10 border border-brand-purple/20 text-brand-purple text-[10px] sm:text-sm font-bold tracking-wide">
                         <Sparkles className="w-4 h-4" />
                         PREMIUM DIGITAL EXPERIENCES
                     </div>
 
-                    <h1 className="text-[clamp(2.5rem,8vw,4.5rem)] lg:text-7xl font-extrabold tracking-tighter text-white leading-[1.1]">
-                        Unwrap<br />
+                    <h1 className="text-[clamp(2.15rem,10vw,4.5rem)] lg:text-7xl font-extrabold tracking-tighter text-white leading-[1.02] sm:leading-[1.1]">
+                        Unwrap
+                        <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-purple to-purple-400">
                             Exclusive
-                        </span> Content.
+                        </span>{" "}
+                        Content.
                     </h1>
 
-                    <p className="text-lg sm:text-xl text-gray-400 leading-relaxed font-medium">
+                    <p className="max-w-xl text-base sm:text-xl text-gray-400 leading-relaxed font-medium">
                         Connect intimately with your favorite creators like Jessi Ray and Bloomytrip. Unlock private collections, exclusive media, and unique experiences you won't find anywhere else.
                     </p>
 
-                    <div className="flex flex-col sm:flex-row gap-4 pt-4 justify-center">
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2 sm:pt-4 justify-center w-full sm:w-auto">
                         {user ? (
                             <Link href="/dashboard" className="w-full sm:w-auto">
                                 <Button size="lg" variant="brand" className="w-full rounded-2xl px-6 py-4 md:px-10 md:py-6 text-base md:text-lg font-bold shadow-[0_0_30px_rgba(178,140,255,0.4)] hover:shadow-[0_0_40px_rgba(178,140,255,0.6)] transition-all">
@@ -71,7 +71,7 @@ export default function Hero() {
                         <ActivityTicker />
                     </div>
 
-                    <div className="pt-8 border-t border-white/10 w-full lg:w-4/5">
+                    <div className="pt-5 sm:pt-8 border-t border-white/10 w-full lg:w-4/5">
                         <p className="text-sm text-gray-400 font-medium mb-4">Latest Unwraps</p>
                         <HomeDropTicker />
                     </div>
@@ -85,10 +85,8 @@ function ActivityTicker() {
     const [platformCount, setPlatformCount] = useState(0);
 
     useEffect(() => {
-        // Hydrate only on client so the server doesn't mismatch CST timezone
         setPlatformCount(getSimulatedPlatformUnwrapsToday());
 
-        // Update every 5 minutes just in case they leave it open
         const interval = setInterval(() => {
             setPlatformCount(getSimulatedPlatformUnwrapsToday());
         }, 300000);
@@ -104,8 +102,8 @@ function ActivityTicker() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
             </div>
-            <span className="text-[11px] sm:text-sm font-semibold text-white/90 whitespace-nowrap overflow-hidden text-ellipsis">
-                🚀 <span className="text-white font-bold">{platformCount.toLocaleString()}</span> users are unwrapping drops right now
+            <span className="text-[10px] sm:text-sm font-semibold text-white/90 whitespace-nowrap overflow-hidden text-ellipsis">
+                Live now: <span className="text-white font-bold">{platformCount.toLocaleString()}</span> users are unwrapping drops
             </span>
         </div>
     );

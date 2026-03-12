@@ -29,15 +29,15 @@ export function Navbar() {
 
     return (
         <>
-            <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4 transition-all" style={{ paddingTop: 'calc(1rem + env(safe-area-inset-top))' }}>
-                <div className="max-w-7xl mx-auto bg-black/55 backdrop-blur-xl border border-white/10 rounded-full px-6 py-3 flex items-center justify-between shadow-xl shadow-black/40" style={{ WebkitBackdropFilter: 'blur(20px)' }}>
+            <nav className="fixed top-0 left-0 right-0 z-50 px-3 sm:px-6 py-3 sm:py-4 transition-all" style={{ paddingTop: 'calc(0.75rem + env(safe-area-inset-top))' }}>
+                <div className="max-w-7xl mx-auto bg-black/55 backdrop-blur-xl border border-white/10 rounded-full px-3.5 sm:px-6 py-2 sm:py-3 flex items-center justify-between shadow-xl shadow-black/40" style={{ WebkitBackdropFilter: 'blur(20px)' }}>
                     <Link href="/" onClick={() => {
                         trackEvent('navigation_click', { destination: '/', source: 'navbar_logo' });
-                    }} className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-brand-purple">
+                    }} className="text-lg sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-brand-purple">
                         KandyDrops
                     </Link>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 sm:gap-4">
                         {user ? (
                             <>
                                 {/* Admin Dropdown (Desktop & Mobile) - Protected internally */}
@@ -73,7 +73,7 @@ export function Navbar() {
                                 {/* Mobile Menu Trigger */}
                                 <button
                                     onClick={openProfileSidebar}
-                                    className="md:hidden w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white border border-white/10 relative overflow-hidden"
+                                    className="md:hidden w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-white border border-white/10 relative overflow-hidden"
                                 >
                                     {user.photoURL ? (
                                         <NextImage
@@ -93,7 +93,7 @@ export function Navbar() {
                         ) : (
                             <button
                                 onClick={openAuthModal}
-                                className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-white text-black font-bold text-sm tracking-wide shadow-[0_0_20px_rgba(255,255,255,0.3)] _0_25px_rgba(255,255,255,0.5)] transition-all duration-300"
+                                className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-2.5 rounded-full bg-white text-black font-bold text-xs sm:text-sm tracking-wide shadow-[0_0_20px_rgba(255,255,255,0.3)] _0_25px_rgba(255,255,255,0.5)] transition-all duration-300"
                             >
                                 <LogIn className="w-4 h-4" />
                                 Sign In

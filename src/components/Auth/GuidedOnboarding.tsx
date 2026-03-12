@@ -176,7 +176,6 @@ export function GuidedOnboarding() {
 
     // Spotlight rendering params
     const spotlightPadding = 16;
-    const cw = typeof window !== 'undefined' ? window.innerWidth : 1000;
     const ch = typeof window !== 'undefined' ? window.innerHeight : 1000;
 
     // Dynamic Clip-Path for the blurred backdrop
@@ -333,7 +332,7 @@ export function GuidedOnboarding() {
                     )}
 
                     {/* DYNAMIC HIGHLIGHT TOOLTIPS (Steps 1-4) */}
-                    {highlightRect && currentStep > 0 && currentStep < 5 && (
+                    {(currentStep > 0 && currentStep < 5 && (highlightRect || currentStep === 4)) && (
                         <motion.div
                             key={`tooltip-${currentStep}`}
                             initial={{ opacity: 0, y: 15 }}
@@ -342,14 +341,17 @@ export function GuidedOnboarding() {
                             transition={{ delay: 0.3, type: "spring", damping: 25 }}
                             style={{
                                 position: "absolute",
-                                // Dynamically place below or above the highlight depending on screen space
-                                top: highlightRect.top < ch / 2
-                                    ? highlightRect.top + highlightRect.height + 40
-                                    : highlightRect.top - 240,
+                                top: !highlightRect || currentStep === 4
+                                    ? "50%"
+                                    : highlightRect.top < ch / 2
+                                        ? highlightRect.top + highlightRect.height + 40
+                                        : highlightRect.top - 240,
                                 left: "50%",
                                 width: "92%",
                                 maxWidth: "340px",
-                                transform: "translateX(-50%)"
+                                transform: !highlightRect || currentStep === 4
+                                    ? "translate(-50%, -50%)"
+                                    : "translateX(-50%)"
                             }}
                             className="glass-panel p-5 sm:p-6 rounded-3xl border border-white/20 shadow-2xl text-center z-50 bg-black/95 backdrop-blur-2xl pointer-events-auto"
                         >
