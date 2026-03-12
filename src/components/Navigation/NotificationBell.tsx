@@ -23,87 +23,100 @@ interface NotificationNote {
     };
 }
 
-function NotificationItem({ note, user, markAsRead }: { note: NotificationNote; user: User | null; markAsRead: (id: string) => void }) {
-    const isUnread = user ? !(note.readBy || []).includes(user.uid) : false;
+import { useRouter } from "next/navigation";
+
+function NotificationItem({ note, user, markAsRead, closeDropdown }: { note: NotificationNote; user: User | null; markAsRead: (id: string) => void; closeDropdown: () => void }) {
+    // Notifications are only unread now due to the filtering logic, but we keep this for safety
+    const isUnread = true;
     const [isExpanded, setIsExpanded] = useState(false);
+    const router = useRouter();
 
     const getIcon = (type: string) => {
         switch (type) {
-            case "success": return <CheckCircle className="w-3 h-3 text-brand-purple" />;
-            case "warning": return <AlertTriangle className="w-3 h-3 text-brand-purple" />;
-            case "error": return <XCircle className="w-3 h-3 text-red-500" />;
-            default: return <Info className="w-3 h-3 text-brand-purple" />;
+            case "success": return <CheckCircle className="w-4 h-4 text-brand-purple" />;
+            case "warning": return <AlertTriangle className="w-4 h-4 text-brand-purple" />;
+            case "error": return <XCircle className="w-4 h-4 text-red-500" />;
+            default: return <Info className="w-4 h-4 text-brand-purple" />;
+        }
+    };
+
+    const handleContainerClick = () => {
+        if (!isExpanded) {
+            setIsExpanded(true);
+        } else if (note.dropContext) {
+            // Take to drops page if it has a drop context and is expanded
+            router.push('/drops');
+            closeDropdown();
+        } else {
+            setIsExpanded(false);
         }
     };
 
     return (
         <div
+            onClick={handleContainerClick}
             className={cn(
-                "rounded-lg transition-colors border overflow-hidden",
+                "rounded-lg transition-colors border overflow-hidden cursor-pointer",
                 isUnread
-                    ? "bg-white/[0.06] border-white/15"
+                    ? "bg-white/[0.06] border-white/15 hover:bg-white/[0.08]"
                     : "bg-black/30 border-white/5"
             )}
         >
-            <div className="px-2.5 py-2 flex gap-2 items-start">
+            <div className="px-3 py-2.5 flex gap-3 items-start">
                 <div className="mt-0.5 shrink-0">
                     {getIcon(note.type)}
                 </div>
                 <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-1.5">
-                        <p className="text-[11px] font-semibold text-white leading-tight">{note.title}</p>
+                    <div className="flex items-start justify-between gap-2">
+                        <p className="text-sm font-semibold text-white leading-tight">{note.title}</p>
                         {isUnread && (
                             <button
                                 onClick={(e) => { e.stopPropagation(); markAsRead(note.id); }}
-                                className="text-[8px] font-bold text-brand-purple shrink-0 hover:text-white transition-colors bg-brand-purple/10 px-1.5 py-0.5 rounded-full flex items-center gap-0.5"
+                                className="text-[10px] font-bold text-brand-purple shrink-0 hover:text-white transition-colors bg-brand-purple/10 px-2 py-1 rounded-full flex items-center gap-1"
                                 title="Mark as read"
                             >
-                                <Check className="w-2 h-2" /> Read
+                                <Check className="w-2.5 h-2.5" /> Read
                             </button>
                         )}
                     </div>
 
-                    <div
-                        className="cursor-pointer group"
-                        onClick={() => setIsExpanded(!isExpanded)}
-                    >
-                        <p className={cn(
-                            "text-[10px] text-gray-400 leading-snug transition-all mt-0.5",
-                            !isExpanded && "line-clamp-2"
-                        )}>
-                            {note.message}
-                        </p>
-                        {note.message && note.message.length > 80 && (
-                            <div className="flex items-center gap-0.5 mt-0.5 text-[8px] text-gray-500 group-hover:text-gray-300 transition-colors">
-                                {isExpanded ? <><ChevronUp className="w-2.5 h-2.5" /> Less</> : <><ChevronDown className="w-2.5 h-2.5" /> More</>}
-                            </div>
-                        )}
-                    </div>
-
-                    <p className="text-[8px] text-gray-500 mt-1 font-mono">
+                    <p className="text-[10px] text-gray-500 mt-1 font-mono">
                         {note.createdAt?.toDate ? formatDistanceToNow(note.createdAt.toDate(), { addSuffix: true }) : "Just now"}
                     </p>
+
+                    {isExpanded && (
+                        <div className="mt-2 animate-in fade-in slide-in-from-top-1">
+                            <p className="text-xs text-gray-400 leading-snug">
+                                {note.message}
+                            </p>
+                        </div>
+                    )}
                 </div>
             </div>
 
-            {note.dropContext && (
-                <div className="border-t border-white/5 bg-black/40 px-2.5 py-1.5 flex items-center gap-2">
-                    <div className="relative w-6 h-6 rounded-md overflow-hidden border border-white/10 shrink-0 bg-black flex items-center justify-center">
-                        {note.dropContext.previewImageUrl ? (
-                            <Image
-                                src={note.dropContext.previewImageUrl}
-                                alt={note.dropContext.dropTitle || "Drop Preview"}
-                                fill
-                                sizes="24px"
-                                className="object-cover"
-                            />
-                        ) : (
-                            <span className="text-[10px]">🍬</span>
-                        )}
-                    </div>
-                    <div className="min-w-0">
-                        <p className="text-[8px] uppercase tracking-wider text-gray-500">Drop</p>
-                        <p className="text-[10px] text-white font-medium truncate">{note.dropContext.dropTitle}</p>
+            {note.dropContext && isExpanded && (
+                <div 
+                    className="border-t border-white/5 bg-black/40 px-3 py-2 flex items-center justify-between gap-2 hover:bg-white/5 transition-colors cursor-pointer"
+                    onClick={(e) => { e.stopPropagation(); router.push('/drops'); }}
+                >
+                    <div className="flex items-center gap-2 min-w-0">
+                        <div className="relative w-8 h-8 rounded-md overflow-hidden border border-white/10 shrink-0 bg-black flex items-center justify-center">
+                            {note.dropContext.previewImageUrl ? (
+                                <Image
+                                    src={note.dropContext.previewImageUrl}
+                                    alt={note.dropContext.dropTitle || "Drop Preview"}
+                                    fill
+                                    sizes="32px"
+                                    className="object-cover"
+                                />
+                            ) : (
+                                <span className="text-xs">🍬</span>
+                            )}
+                        </div>
+                        <div className="min-w-0">
+                            <p className="text-[9px] uppercase tracking-wider text-brand-purple font-bold">View Drop</p>
+                            <p className="text-xs text-white font-medium truncate">{note.dropContext.dropTitle}</p>
+                        </div>
                     </div>
                 </div>
             )}
@@ -136,7 +149,7 @@ export function NotificationBell() {
             >
                 <Bell className="w-5 h-5" />
                 {unreadCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-brand-purple rounded-full border-2 border-black flex items-center justify-center text-[9px] font-black text-white px-1 shadow-sm transition-transform duration-300 scale-in-center">
+                    <span className="absolute -top-1 -right-1 min-w-[20px] h-[20px] bg-brand-purple rounded-full border border-white/20 backdrop-blur-md flex items-center justify-center text-[10px] font-black text-white px-1 shadow-lg transition-transform duration-300 scale-in-center">
                         {unreadCount > 9 ? "9+" : unreadCount}
                     </span>
                 )}
@@ -144,7 +157,7 @@ export function NotificationBell() {
 
             <div
                 className={cn(
-                    "absolute right-0 top-full mt-3 w-72 md:w-80 bg-black/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl shadow-black/70 overflow-hidden origin-top-right transition-all duration-200 z-50 flex flex-col max-h-[75vh]",
+                    "absolute right-0 top-full mt-3 w-72 md:w-80 bg-black/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl shadow-black/70 overflow-hidden origin-top-right transition-all duration-200 z-50 flex flex-col max-h-[400px]",
                     isOpen
                         ? "opacity-100 scale-100 translate-y-0"
                         : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
@@ -176,6 +189,7 @@ export function NotificationBell() {
                                 note={note as NotificationNote}
                                 user={user}
                                 markAsRead={markAsRead}
+                                closeDropdown={() => setIsOpen(false)}
                             />
                         ))
                     )}

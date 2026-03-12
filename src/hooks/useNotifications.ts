@@ -42,6 +42,17 @@ export function useNotifications() {
                     return;
                 }
 
+                // When users sign up (or generally), ensure notifications older than 7 days do not appear
+                const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+                if (normalized.createdAt && normalized.createdAt.toMillis() < sevenDaysAgo) {
+                    return;
+                }
+
+                // When notifications are marked as read, remove them from the notification tab
+                if (normalized.readBy.includes(user.uid)) {
+                    return;
+                }
+
                 if (normalized.target.global || normalized.target.userIds.includes(user.uid)) {
                     scopedNotifications.push(normalized);
                 }
@@ -54,44 +65,29 @@ export function useNotifications() {
         return () => unsubscribe();
     }, [user]);
 
+    // Unread count is simply the length now, since strictly unread notifications are present
     const unreadCount = useMemo(
-        () => (user ? notifications.filter((notification) => !notification.readBy.includes(user.uid)).length : 0),
+        () => (user ? notifications.length : 0),
         [notifications, user]
     );
 
     const markAsRead = async (id: string) => {
         if (!user) return;
 
-        setNotifications((prev) => prev.map((notification) => {
-            if (notification.id !== id || notification.readBy.includes(user.uid)) {
-                return notification;
-            }
-
-            return { ...notification, readBy: [...notification.readBy, user.uid] };
-        }));
-
+        setNotifications((prev) => prev.filter((notification) => notification.id !== id));
         await markNotificationAsRead(id);
     };
 
     const markAllAsRead = async () => {
         if (!user) return;
 
-        const unreadIds = notifications
-            .filter((notification) => !notification.readBy.includes(user.uid))
-            .map((notification) => notification.id);
+        const unreadIds = notifications.map((notification) => notification.id);
 
         if (unreadIds.length === 0) {
             return;
         }
 
-        setNotifications((prev) => prev.map((notification) => {
-            if (notification.readBy.includes(user.uid)) {
-                return notification;
-            }
-
-            return { ...notification, readBy: [...notification.readBy, user.uid] };
-        }));
-
+        setNotifications([]);
         await Promise.all(unreadIds.map((id) => markNotificationAsRead(id)));
     };
 
