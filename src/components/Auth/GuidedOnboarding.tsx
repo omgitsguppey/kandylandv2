@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
 import { ChevronRight, BellRing, Sparkles, Droplets, Flame, Gift } from "lucide-react";
 import { trackEvent } from "@/lib/telemetry";
@@ -59,25 +59,47 @@ export function GuidedOnboarding() {
         const completedLocally = completionStorageKey
             ? window.localStorage.getItem(completionStorageKey) === "true"
             : false;
-        const hasLegacyCompletionSignal = Boolean(
-            profile.lastCheckIn ||
-            profile.preferences?.flavor ||
-            (profile.unlockedContent?.length ?? 0) > 0
-        );
-        const shouldTreatAsComplete = profile.onboardingCompleted === true || completedLocally || hasLegacyCompletionSignal;
-
-        if (shouldTreatAsComplete) {
-            if (profile.onboardingCompleted !== true) {
-                setDoc(doc(db, "users", user.uid), { onboardingCompleted: true }, { merge: true }).catch(() => { });
-            }
+        if (profile.onboardingCompleted === true || completedLocally) {
             setIsVisible(false);
             return;
         }
 
-        if (profile.username && !isVisible) {
-            setMountTime(Date.now());
-            setIsVisible(true);
-        }
+        let cancelled = false;
+
+        const hydrateLegacyCompletion = async () => {
+            try {
+                const legacyProfileRef = doc(db, "users", user.uid, "profile", "default");
+                const legacyProfileSnap = await getDoc(legacyProfileRef);
+                const legacyCompleted = legacyProfileSnap.exists() && legacyProfileSnap.data()?.onboardingCompleted === true;
+
+                if (cancelled) return;
+
+                if (legacyCompleted) {
+                    if (completionStorageKey) {
+                        window.localStorage.setItem(completionStorageKey, "true");
+                    }
+                    await setDoc(doc(db, "users", user.uid), { onboardingCompleted: true }, { merge: true }).catch(() => { });
+                    setIsVisible(false);
+                    return;
+                }
+
+                if (profile.username && !isVisible) {
+                    setMountTime(Date.now());
+                    setIsVisible(true);
+                }
+            } catch {
+                if (!cancelled && profile.username && !isVisible) {
+                    setMountTime(Date.now());
+                    setIsVisible(true);
+                }
+            }
+        };
+
+        hydrateLegacyCompletion();
+
+        return () => {
+            cancelled = true;
+        };
     }, [completionStorageKey, isVisible, profile, user]);
 
     // Track targets dynamically based on the step
@@ -355,7 +377,7 @@ export function GuidedOnboarding() {
                     )}
 
                     {/* DYNAMIC HIGHLIGHT TOOLTIPS (Steps 1-4) */}
-                    {(currentStep > 0 && currentStep < 5 && (highlightRect || currentStep === 4)) && (
+                    {currentStep > 0 && currentStep < 5 && (
                         <motion.div
                             key={`tooltip-${currentStep}`}
                             initial={{ opacity: 0, y: 15 }}
@@ -364,22 +386,18 @@ export function GuidedOnboarding() {
                             transition={{ delay: 0.3, type: "spring", damping: 25 }}
                             style={{
                                 position: "absolute",
+                                left: `${Math.max((((typeof window !== "undefined" ? window.innerWidth : 393) * 0.92) > 340
+                                    ? ((typeof window !== "undefined" ? window.innerWidth : 393) - 340) / 2
+                                    : ((typeof window !== "undefined" ? window.innerWidth : 393) * 0.04)), 12)}px`,
+                                width: `${Math.min((typeof window !== "undefined" ? window.innerWidth : 393) * 0.92, 340)}px`,
                                 top: isMobileViewport
                                     ? "auto"
                                     : !highlightRect || currentStep === 4
-                                    ? "50%"
+                                    ? `${Math.max((ch - 260) / 2, 24)}px`
                                     : highlightRect.top < ch / 2
                                         ? highlightRect.top + highlightRect.height + 40
                                         : highlightRect.top - 240,
-                                left: "50%",
-                                width: "92%",
-                                maxWidth: "340px",
                                 bottom: isMobileViewport ? "calc(env(safe-area-inset-bottom) + 5.5rem)" : "auto",
-                                transform: isMobileViewport
-                                    ? "translateX(-50%)"
-                                    : !highlightRect || currentStep === 4
-                                    ? "translate(-50%, -50%)"
-                                    : "translateX(-50%)"
                             }}
                             className="glass-panel p-5 sm:p-6 rounded-3xl border border-white/20 shadow-2xl text-center z-50 bg-black/95 backdrop-blur-2xl pointer-events-auto"
                         >
