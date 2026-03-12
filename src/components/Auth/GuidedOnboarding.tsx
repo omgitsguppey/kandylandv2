@@ -25,6 +25,26 @@ export function GuidedOnboarding() {
         username: "",
         preference: ""
     });
+    const [isCheckingIn, setIsCheckingIn] = useState(false);
+
+    // Scroll Lock on Mount
+    useEffect(() => {
+        if (isVisible) {
+            document.body.style.overflow = 'hidden';
+            document.body.style.position = 'fixed';
+            document.body.style.width = '100%';
+        } else {
+            document.body.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.width = '';
+        }
+
+        return () => {
+            document.body.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.width = '';
+        };
+    }, [isVisible]);
 
     const [highlightRect, setHighlightRect] = useState<HighlightRect | null>(null);
 
@@ -97,14 +117,33 @@ export function GuidedOnboarding() {
         }
     };
 
+    const handleCheckInAndContinue = async () => {
+        setIsCheckingIn(true);
+        try {
+            // Attempt to check-in locally to satisfy the requirement
+            // It uses the standard fetch interceptor or native fetch wrapper available in app
+            // We use standard fetch with Authorization if authFetch is complex to import
+            const token = await user?.getIdToken();
+            if (token) {
+                await fetch("/api/checkin", {
+                    method: "POST",
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+            }
+        } catch (error) {
+            console.error(error); // Proceed anyway if it fails to prevent arbitrary soft-locks
+        } finally {
+            setIsCheckingIn(false);
+            handleNext();
+        }
+    };
+
     const completeOnboarding = async () => {
         if (!user) return;
         try {
             await updateDoc(doc(db, "users", user.uid, "profile"), {
                 onboardingCompleted: true,
                 preferences: { flavor: stepData.preference || "Sweet" },
-                // Prompt browser push implicitly when they hit finish, assuming OS handles permission hook 
-                // Alternatively, this can integrate natively with your useNotifications hook.
             });
             setIsVisible(false);
         } catch (error) {
@@ -180,19 +219,19 @@ export function GuidedOnboarding() {
 
                     {/* STEP 1: Flavor Curating */}
                     {currentStep === 0 && (
-                        <div className="absolute inset-0 flex items-center justify-center p-4">
+                        <div className="absolute inset-0 flex items-center justify-center p-3 sm:p-4">
                             <motion.div
                                 key="step0"
                                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95, y: -20, filter: "blur(10px)" }}
                                 transition={{ duration: 0.4 }}
-                                className="glass-panel p-6 md:p-8 rounded-[2rem] max-w-sm w-full shadow-2xl border border-white/10 relative overflow-hidden pointer-events-auto bg-black/80 backdrop-blur-xl"
+                                className="glass-panel p-5 md:p-6 rounded-3xl w-[92%] sm:w-[90%] max-w-sm max-h-[85vh] overflow-y-auto custom-scrollbar shadow-2xl border border-white/10 relative pointer-events-auto bg-black/80 backdrop-blur-xl"
                             >
-                                <h2 className="text-2xl font-bold text-white mb-2 text-center text-transparent bg-clip-text bg-gradient-to-br from-white to-gray-400">Curate Your Cravings</h2>
-                                <p className="text-gray-400 text-sm mb-6 text-center leading-relaxed">Customize your experience to see the drops you desire most.</p>
+                                <h2 className="text-xl sm:text-2xl font-bold text-white mb-2 text-center text-transparent bg-clip-text bg-gradient-to-br from-white to-gray-400">Curate Your Cravings</h2>
+                                <p className="text-gray-400 text-xs sm:text-sm mb-5 text-center leading-relaxed">Customize your experience to see the drops you desire most.</p>
 
-                                <div className="space-y-3 mb-6">
+                                <div className="space-y-2 mb-5">
                                     <button
                                         onClick={() => setStepData({ ...stepData, preference: "Sweet" })}
                                         className={`w-full p-4 rounded-2xl border text-left transition-all group flex items-start gap-4 ${stepData.preference === "Sweet" ? "bg-pink-500/10 border-pink-500 shadow-[0_0_20px_rgba(236,72,153,0.15)]" : "bg-white/5 border-white/10 hover:bg-white/10"}`}
@@ -259,19 +298,19 @@ export function GuidedOnboarding() {
                                     ? highlightRect.top + highlightRect.height + 40
                                     : highlightRect.top - 240,
                                 left: "50%",
-                                width: "90%",
+                                width: "92%",
                                 maxWidth: "340px",
                                 transform: "translateX(-50%)"
                             }}
-                            className="glass-panel p-6 rounded-3xl border border-white/20 shadow-2xl text-center z-50 bg-black/80 backdrop-blur-xl pointer-events-auto"
+                            className="glass-panel p-5 sm:p-6 rounded-3xl border border-white/20 shadow-2xl text-center z-50 bg-black/95 backdrop-blur-2xl pointer-events-auto"
                         >
                             {currentStep === 1 && (
                                 <>
                                     <div className="w-12 h-12 bg-pink-500/20 rounded-full flex items-center justify-center mx-auto mb-3 border border-pink-500/30">
                                         <Gift className="w-6 h-6 text-pink-400" />
                                     </div>
-                                    <h3 className="text-xl font-bold text-white mb-2">The Daily Ritual</h3>
-                                    <p className="text-sm text-gray-300 mb-6 leading-relaxed">Consistency pays off. Check in right here every day to stack free <b>Gum Drops</b> to spend on premium unwraps without spending real cash.</p>
+                                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2">The Daily Ritual</h3>
+                                    <p className="text-xs sm:text-sm text-gray-300 mb-5 leading-relaxed">Consistency pays off. Stack free <b>Gum Drops</b> to spend on premium unwraps without spending real cash. Claim your first drop right now to continue!</p>
                                 </>
                             )}
                             {currentStep === 2 && (
@@ -279,8 +318,8 @@ export function GuidedOnboarding() {
                                     <div className="w-12 h-12 bg-[#E6E6FA]/20 rounded-full flex items-center justify-center mx-auto mb-3 border border-[#E6E6FA]/30">
                                         <Sparkles className="w-6 h-6 text-[#E6E6FA]" />
                                     </div>
-                                    <h3 className="text-xl font-bold text-white mb-2">The Hunt Begins</h3>
-                                    <p className="text-sm text-gray-300 mb-6 leading-relaxed">This is where the magic lives. Dive into the <b>Drops</b> tab to unwrap and watch your exclusive, limited-edition content.</p>
+                                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2">The Hunt Begins</h3>
+                                    <p className="text-xs sm:text-sm text-gray-300 mb-5 leading-relaxed">This is where the magic lives. Dive into the <b>Drops</b> tab to unwrap and watch your exclusive, limited-edition content.</p>
                                 </>
                             )}
                             {currentStep === 3 && (
@@ -288,8 +327,8 @@ export function GuidedOnboarding() {
                                     <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-3 border border-orange-500/30">
                                         <Flame className="w-6 h-6 text-orange-400" />
                                     </div>
-                                    <h3 className="text-xl font-bold text-white mb-2">Absolute Scarcity</h3>
-                                    <p className="text-sm text-gray-300 mb-6 leading-relaxed">Drops are fleeting. <b className="text-red-400">Once they're gone, they may never return.</b> Enable notifications so you never miss a rush or experience.</p>
+                                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2">More ways to Unwrap</h3>
+                                    <p className="text-xs sm:text-sm text-gray-300 mb-5 leading-relaxed">Experiences are a way to connect with your favorite creators and earn <b>free gumdrops</b> to unwrap more exclusive content.</p>
                                 </>
                             )}
                             {currentStep === 4 && (
@@ -297,17 +336,27 @@ export function GuidedOnboarding() {
                                     <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-3 border border-purple-500/30">
                                         <BellRing className="w-6 h-6 text-purple-400" />
                                     </div>
-                                    <h3 className="text-xl font-bold text-white mb-2">VIP Experiences</h3>
-                                    <p className="text-sm text-gray-300 mb-6 leading-relaxed">Step beyond the drops. Unlock the highest tier of access, direct connections, and VIP perks precisely here.</p>
+                                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2">Absolute Scarcity</h3>
+                                    <p className="text-xs sm:text-sm text-gray-300 mb-5 leading-relaxed">Drops are fleeting. <b className="text-[#E6E6FA]">Once they're gone, they may never return.</b> Enable notifications so you never miss a rush or experience.</p>
                                 </>
                             )}
 
-                            <button
-                                onClick={handleNext}
-                                className="w-full py-3.5 rounded-xl bg-[#E6E6FA] text-black font-extrabold active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(230,230,250,0.3)]"
-                            >
-                                {currentStep === 4 ? "Enable Notifications & Finish" : "Got it!"} <ChevronRight className="w-5 h-5" />
-                            </button>
+                            {currentStep === 1 ? (
+                                <button
+                                    onClick={handleCheckInAndContinue}
+                                    disabled={isCheckingIn}
+                                    className="w-full py-3.5 rounded-xl bg-brand-purple text-white font-extrabold active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(236,72,153,0.4)] disabled:opacity-50"
+                                >
+                                    {isCheckingIn ? "Checking In..." : "Check In & Continue"} <ChevronRight className="w-5 h-5" />
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={handleNext}
+                                    className="w-full py-3.5 rounded-xl bg-[#E6E6FA] text-black font-extrabold active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(230,230,250,0.3)]"
+                                >
+                                    {currentStep === 4 ? "Enable Notifications & Finish" : "Got it!"} <ChevronRight className="w-5 h-5" />
+                                </button>
+                            )}
                         </motion.div>
                     )}
                 </AnimatePresence>
