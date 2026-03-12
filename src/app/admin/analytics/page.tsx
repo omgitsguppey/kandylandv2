@@ -8,6 +8,7 @@ import {
 import { Loader2, Users, Eye, Activity, RefreshCw, BarChart3, MapPin, Trophy, FileText, DollarSign, ShieldAlert, Clock, AlertTriangle } from "lucide-react";
 import { useAuthSWR } from "@/hooks/useAuthSWR";
 import Image from "next/image";
+import { AdminOnboardingAnalytics } from "@/components/Admin/AdminOnboardingAnalytics";
 
 type TimeFilter = "live" | "24h" | "7d" | "30d" | "all";
 type ViewTab = "operations" | "audience" | "commerce" | "security";
@@ -636,6 +637,9 @@ export default function AdminAnalyticsPage() {
                                             )}
                                         </div>
                                     </div>
+                                    
+                                    {/* Onboarding Metrics Table injection */}
+                                    <AdminOnboardingAnalytics />
                                 </div>
                             )}
 

@@ -119,7 +119,8 @@ export async function GET(request: NextRequest) {
                 [eventsResponse],
                 [geoResponse],
                 [pagesResponse],
-                [dropsResponse]
+                [dropsResponse],
+                [onboardingResponse]
             ] = await Promise.all([
                 analyticsClient.runReport({
                     property: `properties/${propertyId}`,
@@ -147,7 +148,7 @@ export async function GET(request: NextRequest) {
                         filter: {
                             fieldName: "eventName",
                             inListFilter: {
-                                values: ["view_drop_details", "unlock_drop_success", "user_login", "daily_check_in_claim"]
+                                values: ["view_drop_details", "unlock_drop_success", "user_login", "daily_check_in_claim", "guided_onboarding_completed"]
                             }
                         }
                     }
@@ -182,6 +183,21 @@ export async function GET(request: NextRequest) {
                         }
                     },
                     limit: 50
+                }),
+                analyticsClient.runReport({
+                    property: `properties/${propertyId}`,
+                    dateRanges: [{ startDate, endDate: "today" }],
+                    metrics: [{ name: "eventCount" }],
+                    dimensions: [{ name: "customEvent:durationSeconds" }],
+                    dimensionFilter: {
+                        filter: {
+                            fieldName: "eventName",
+                            stringFilter: {
+                                value: "guided_onboarding_completed",
+                                matchType: "EXACT"
+                            }
+                        }
+                    }
                 })
             ]);
 
@@ -371,6 +387,28 @@ export async function GET(request: NextRequest) {
                 feed: mappedCommerceFeed
             };
 
+            // Calculate Onboarding Analytics
+            let totalOnboardingCompletions = 0;
+            let totalOnboardingSeconds = 0;
+            const onboardingRows = onboardingResponse.rows || [];
+            
+            onboardingRows.forEach(row => {
+                const durationRaw = row.dimensionValues?.[0]?.value || "(not set)";
+                const count = parseInt(row.metricValues?.[0]?.value || "0", 10);
+                
+                if (durationRaw !== "(not set)") {
+                    const secs = parseInt(durationRaw, 10);
+                    if (!isNaN(secs)) {
+                        totalOnboardingSeconds += (secs * count);
+                        totalOnboardingCompletions += count;
+                    }
+                }
+            });
+            
+            const avgOnboardingDuration = totalOnboardingCompletions > 0 
+                ? Math.round(totalOnboardingSeconds / totalOnboardingCompletions) 
+                : 0;
+
             return NextResponse.json({
                 success: true,
                 data: chartData,
@@ -381,7 +419,8 @@ export async function GET(request: NextRequest) {
                 topDrops: dropsData,
                 commerce,
                 security: securityLogs,
-                rawEvents: mappedEvents // Send strictly capped & mapped events
+                onboardingStats: { completions: totalOnboardingCompletions, avgDuration: avgOnboardingDuration },
+                rawEvents: mappedEvents
             });
         }
 

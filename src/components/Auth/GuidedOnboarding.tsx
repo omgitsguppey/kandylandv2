@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
 import { ChevronRight, BellRing, Sparkles, Droplets, Flame, Gift } from "lucide-react";
+import { trackEvent } from "@/lib/telemetry";
 
 type HighlightRect = {
     top: number;
@@ -26,6 +27,8 @@ export function GuidedOnboarding() {
         preference: ""
     });
     const [isCheckingIn, setIsCheckingIn] = useState(false);
+    const [isCompleting, setIsCompleting] = useState(false);
+    const [mountTime, setMountTime] = useState(0);
 
     // Scroll Lock on Mount
     useEffect(() => {
@@ -52,11 +55,12 @@ export function GuidedOnboarding() {
     useEffect(() => {
         if (user && profile && profile.onboardingCompleted !== true) {
             // Only trigger if they actually have a username (meaning OnboardingModal finished)
-            if (profile.username) {
+            if (profile.username && !isVisible) {
+                setMountTime(Date.now());
                 setIsVisible(true);
             }
         }
-    }, [user, profile]);
+    }, [user, profile, isVisible]);
 
     // Track targets dynamically based on the step
     const updateHighlight = useCallback(() => {
@@ -110,10 +114,8 @@ export function GuidedOnboarding() {
     }, [isVisible, pathname, currentStep, router]);
 
     const handleNext = () => {
-        if (currentStep < 4) {
+        if (currentStep < 5) {
             setCurrentStep(prev => prev + 1);
-        } else {
-            completeOnboarding();
         }
     };
 
@@ -139,16 +141,34 @@ export function GuidedOnboarding() {
     };
 
     const completeOnboarding = async () => {
-        if (!user) return;
+        if (!user || isCompleting) return;
+        setIsCompleting(true);
         try {
+            // Attempt to fetch the reward natively from backend
+            const token = await user.getIdToken();
+            await fetch("/api/user/complete-onboarding", {
+                method: "POST",
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            // Write preferences locally to Firestore to reflect intent 
             await updateDoc(doc(db, "users", user.uid, "profile"), {
-                onboardingCompleted: true,
                 preferences: { flavor: stepData.preference || "Sweet" },
             });
+
+            // Track completion event with duration
+            const durationSeconds = mountTime ? Math.round((Date.now() - mountTime) / 1000) : 0;
+            try {
+                trackEvent("guided_onboarding_completed", { durationSeconds });
+            } catch (e) { }
+
             setIsVisible(false);
+            router.push('/drops');
         } catch (error) {
             console.error("Error completing onboarding:", error);
-            setIsVisible(false);
+            setIsVisible(false); // Failsafe close
+        } finally {
+            setIsCompleting(false);
         }
     };
 
@@ -283,8 +303,37 @@ export function GuidedOnboarding() {
                         </div>
                     )}
 
+                            {/* STEP 5: Completion & Reward */}
+                    {currentStep === 5 && (
+                        <div className="absolute inset-0 flex items-center justify-center p-3 sm:p-4">
+                            <motion.div
+                                key="step5"
+                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: -20, filter: "blur(10px)" }}
+                                transition={{ duration: 0.4 }}
+                                className="glass-panel p-6 sm:p-8 rounded-3xl w-[92%] sm:w-[90%] max-w-sm max-h-[85vh] overflow-y-auto custom-scrollbar shadow-[0_0_50px_rgba(236,72,153,0.3)] border border-pink-500/30 relative pointer-events-auto bg-black/95 backdrop-blur-2xl text-center"
+                            >
+                                <div className="w-20 h-20 bg-pink-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-pink-500/30 animate-pulse">
+                                    <Gift className="w-10 h-10 text-pink-400" />
+                                </div>
+                                <h2 className="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-pink-400 to-purple-400 mb-4 tracking-tight">You're All Set!</h2>
+                                <p className="text-gray-300 text-sm sm:text-base mb-2 leading-relaxed font-medium">We've given you <b className="text-pink-400 text-lg">50 Gumdrops</b> to get you started!</p>
+                                <p className="text-gray-400 text-xs sm:text-sm mb-8 leading-relaxed">Dive into the Drops feed to unlock your first exclusive experience.</p>
+
+                                <button
+                                    onClick={completeOnboarding}
+                                    disabled={isCompleting}
+                                    className="w-full py-4 rounded-xl bg-gradient-to-r from-brand-purple to-pink-500 text-white font-extrabold text-lg shadow-[0_0_20px_rgba(236,72,153,0.4)] disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
+                                >
+                                    {isCompleting ? "Finishing..." : "Unwrap KandyDrops"} <ChevronRight className="w-6 h-6" />
+                                </button>
+                            </motion.div>
+                        </div>
+                    )}
+
                     {/* DYNAMIC HIGHLIGHT TOOLTIPS (Steps 1-4) */}
-                    {highlightRect && currentStep > 0 && (
+                    {highlightRect && currentStep > 0 && currentStep < 5 && (
                         <motion.div
                             key={`tooltip-${currentStep}`}
                             initial={{ opacity: 0, y: 15 }}
@@ -354,7 +403,7 @@ export function GuidedOnboarding() {
                                     onClick={handleNext}
                                     className="w-full py-3.5 rounded-xl bg-[#E6E6FA] text-black font-extrabold active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(230,230,250,0.3)]"
                                 >
-                                    {currentStep === 4 ? "Enable Notifications & Finish" : "Got it!"} <ChevronRight className="w-5 h-5" />
+                                    {currentStep === 4 ? "Got it!" : "Got it!"} <ChevronRight className="w-5 h-5" />
                                 </button>
                             )}
                         </motion.div>
