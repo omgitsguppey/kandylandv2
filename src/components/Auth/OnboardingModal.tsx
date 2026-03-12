@@ -69,21 +69,28 @@ export function OnboardingModal() {
 
     useEffect(() => {
         if (user && userProfile) {
-            const missingUsername = !userProfile.username;
-            const missingDob = !userProfile.dateOfBirth;
+            // Profile exists but onboarding isn't finished
+            if (userProfile.onboardingCompleted !== true) {
+                // If they haven't chosen a username/dob natively via AuthModal yet
+                const missingUsername = !userProfile.username;
+                const missingDob = !userProfile.dateOfBirth;
 
-            if (missingUsername || missingDob) {
-                if (!isOpen) { // Only log on initial modal trigger
-                    try {
-                        trackEvent('onboarding_started');
-                        trackEvent('onboarding_step_viewed', { step: 1 });
-                    } catch (e) { }
-                }
-                setIsOpen(true);
-                if (missingUsername && user.displayName) {
-                    const clean = user.displayName.replace(/\s+/g, '').toLowerCase();
-                    setValue("username", clean);
-                    checkUsernameAvailability(clean);
+                if (missingUsername || missingDob) {
+                    if (!isOpen) {
+                        try {
+                            trackEvent('onboarding_started');
+                            trackEvent('onboarding_step_viewed', { step: 1 });
+                        } catch (e) { }
+                    }
+                    setIsOpen(true);
+                    if (missingUsername && user.displayName) {
+                        const clean = user.displayName.replace(/\s+/g, '').toLowerCase();
+                        setValue("username", clean);
+                        checkUsernameAvailability(clean);
+                    }
+                } else {
+                    // They skipped the OnboardingModal (maybe entered details in AuthModal), but Guided is still waiting.
+                    setIsOpen(false);
                 }
             } else {
                 setIsOpen(false);

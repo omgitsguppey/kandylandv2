@@ -1,12 +1,10 @@
-"use client";
-
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
-import { ChevronRight, BellRing, Sparkles, Droplets, Flame } from "lucide-react";
+import { ChevronRight, BellRing, Sparkles, Droplets, Flame, Gift } from "lucide-react";
 
 type HighlightRect = {
     top: number;
@@ -32,28 +30,29 @@ export function GuidedOnboarding() {
 
     // Initial trigger
     useEffect(() => {
-        if (user && profile && profile.onboardingCompleted === false) {
-            setIsVisible(true);
-            if (profile.displayName && !stepData.username) {
-                setStepData(s => ({ ...s, username: profile.displayName || "" }));
+        if (user && profile && profile.onboardingCompleted !== true) {
+            // Only trigger if they actually have a username (meaning OnboardingModal finished)
+            if (profile.username) {
+                setIsVisible(true);
             }
         }
     }, [user, profile]);
 
     // Track targets dynamically based on the step
     const updateHighlight = useCallback(() => {
-        if (!isVisible || currentStep < 2) {
+        if (!isVisible || currentStep < 1) {
             setHighlightRect(null);
             return;
         }
 
         let targetId = "";
-        if (currentStep === 2) targetId = "drops-nav"; // Step 3: The Hunt
-        else if (currentStep === 3) targetId = "daily-reward"; // Step 4: Daily Ritual
-        else if (currentStep === 4) targetId = "experiences-nav"; // Step 5: Scarcity & Experiences
+        if (currentStep === 1) targetId = "daily-reward"; // Step 2: Daily Check-in
+        else if (currentStep === 2) targetId = "drops-nav"; // Step 3: Drops Tab
+        else if (currentStep === 3) targetId = "experiences-nav"; // Step 4: Experiences (Scarcity)
+        // Step 5 doesn't need a highlight (or can point to Notifications settings, assuming standard flow)
 
         if (targetId) {
-            // Must delay slightly for DOM rendering
+            // Delay slightly for DOM rendering
             setTimeout(() => {
                 const element = document.querySelector(`[data-onboarding-target="${targetId}"]`);
                 if (element) {
@@ -63,10 +62,13 @@ export function GuidedOnboarding() {
                         left: rect.left,
                         width: rect.width,
                         height: rect.height,
-                        rx: targetId.includes('nav') ? 100 : 24 // Circle for nav, rounded rect for card
+                        rx: targetId.includes('nav') ? 100 : 24
                     });
                     // scroll into view
                     element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                    // Fallback to null if element not found yet
+                    setHighlightRect(null);
                 }
             }, 300);
         } else {
@@ -82,7 +84,7 @@ export function GuidedOnboarding() {
 
     // Redirect logic to ensure they're on the dashboard where targets exist
     useEffect(() => {
-        if (isVisible && pathname !== '/dashboard' && currentStep >= 2) {
+        if (isVisible && pathname !== '/dashboard' && currentStep >= 1) {
             router.push('/dashboard');
         }
     }, [isVisible, pathname, currentStep, router]);
@@ -100,8 +102,9 @@ export function GuidedOnboarding() {
         try {
             await updateDoc(doc(db, "users", user.uid, "profile"), {
                 onboardingCompleted: true,
-                displayName: stepData.username || profile?.displayName || "New Collector",
-                preferences: { flavor: stepData.preference }
+                preferences: { flavor: stepData.preference || "Sweet" },
+                // Prompt browser push implicitly when they hit finish, assuming OS handles permission hook 
+                // Alternatively, this can integrate natively with your useNotifications hook.
             });
             setIsVisible(false);
         } catch (error) {
@@ -113,210 +116,197 @@ export function GuidedOnboarding() {
     if (!isVisible) return null;
 
     // Spotlight rendering params
-    const spotlightPadding = 12;
+    const spotlightPadding = 16;
+    const cw = typeof window !== 'undefined' ? window.innerWidth : 1000;
+    const ch = typeof window !== 'undefined' ? window.innerHeight : 1000;
+
+    // Dynamic Clip-Path for the blurred backdrop
+    const clipPathStyle = highlightRect ? {
+        clipPath: `polygon(
+            0% 0%, 0% 100%, 100% 100%, 100% 0%, 0% 0%,
+            ${highlightRect.left - spotlightPadding}px 0%,
+            ${highlightRect.left - spotlightPadding}px ${highlightRect.top - spotlightPadding}px,
+            ${highlightRect.left + highlightRect.width + spotlightPadding}px ${highlightRect.top - spotlightPadding}px,
+            ${highlightRect.left + highlightRect.width + spotlightPadding}px ${highlightRect.top + highlightRect.height + spotlightPadding}px,
+            ${highlightRect.left - spotlightPadding}px ${highlightRect.top + highlightRect.height + spotlightPadding}px,
+            ${highlightRect.left - spotlightPadding}px 0%
+        )`
+    } : {};
 
     return (
-        <div className="fixed inset-0 z-[100] pointer-events-auto overflow-hidden">
-            {/* Base Backdrop Blur Layer */}
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-all duration-700"
-            />
+        <div className="fixed inset-0 z-[100] pointer-events-auto overflow-hidden flex items-center justify-center">
 
-            {/* Subtractive Spotlight Ring */}
+            {/* Blurred Backdrop - Full screen when no highlight, punched out when highlight exists */}
+            {highlightRect ? (
+                // Use a standard radial knockout or polygon path for true masking
+                <motion.div
+                    className="absolute inset-0 bg-black/50 backdrop-blur-md transition-all duration-500 ease-in-out"
+                    style={clipPathStyle}
+                />
+            ) : (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="absolute inset-0 bg-black/60 backdrop-blur-md transition-opacity duration-700"
+                />
+            )}
+
+            {/* Glowing Lavender Ring */}
             <AnimatePresence>
                 {highlightRect && (
-                    <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 10 }}>
-                        <defs>
-                            <mask id="spotlight-mask">
-                                <rect width="100%" height="100%" fill="white" />
-                                <motion.rect
-                                    animate={{
-                                        x: highlightRect.left - spotlightPadding,
-                                        y: highlightRect.top - spotlightPadding,
-                                        width: highlightRect.width + spotlightPadding * 2,
-                                        height: highlightRect.height + spotlightPadding * 2,
-                                    }}
-                                    transition={{ type: "spring", stiffness: 100, damping: 20 }}
-                                    rx={highlightRect.rx || highlightRect.height / 2}
-                                    fill="black"
-                                />
-                            </mask>
-                        </defs>
-                        {/* Dimmer overlay that gets punched out */}
-                        <rect width="100%" height="100%" fill="rgba(0,0,0,0.5)" mask="url(#spotlight-mask)" />
-
-                        {/* Glowing ring stroke */}
-                        <motion.rect
-                            animate={{
-                                x: highlightRect.left - spotlightPadding,
-                                y: highlightRect.top - spotlightPadding,
-                                width: highlightRect.width + spotlightPadding * 2,
-                                height: highlightRect.height + spotlightPadding * 2,
-                            }}
-                            transition={{ type: "spring", stiffness: 100, damping: 20 }}
-                            rx={highlightRect.rx || highlightRect.height / 2}
-                            fill="none"
-                            stroke="rgba(217, 70, 239, 0.8)" /* Brand purple */
-                            strokeWidth="3"
-                            className="shadow-[0_0_20px_rgba(217,70,239,0.5)] drop-shadow-[0_0_15px_rgba(168,85,247,0.8)] filter"
-                        />
-                    </svg>
+                    <motion.div
+                        initial={{ opacity: 0, scale: 1.1 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ type: "spring", stiffness: 100, damping: 20 }}
+                        className="absolute border-[3px] border-[#E6E6FA] pointer-events-none shadow-[0_0_25px_rgba(230,230,250,0.6)] z-10"
+                        style={{
+                            top: highlightRect.top - spotlightPadding,
+                            left: highlightRect.left - spotlightPadding,
+                            width: highlightRect.width + spotlightPadding * 2,
+                            height: highlightRect.height + spotlightPadding * 2,
+                            borderRadius: highlightRect.rx || highlightRect.height / 2,
+                        }}
+                    >
+                        {/* Inner pulse */}
+                        <div className="absolute inset-0 rounded-inherit ring-4 ring-[#E6E6FA]/20 animate-pulse" style={{ borderRadius: 'inherit' }} />
+                    </motion.div>
                 )}
             </AnimatePresence>
 
-            <div className="absolute inset-0 flex items-center justify-center p-4" style={{ zIndex: 20 }}>
+            {/* Tooltip & Content Positioning */}
+            <div className="absolute inset-0 z-20 pointer-events-none">
                 <AnimatePresence mode="wait">
+
+                    {/* STEP 1: Flavor Curating */}
                     {currentStep === 0 && (
-                        <motion.div
-                            key="step0"
-                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: -20, filter: "blur(10px)" }}
-                            transition={{ duration: 0.4 }}
-                            className="glass-panel p-8 rounded-[2rem] max-w-sm w-full mx-auto shadow-2xl border border-white/10 relative overflow-hidden"
-                        >
-                            <div className="absolute inset-0 bg-gradient-to-br from-brand-purple/20 to-transparent opacity-50 pointer-events-none" />
-                            <h2 className="text-3xl font-bold text-white mb-2 relative z-10 text-transparent bg-clip-text bg-gradient-to-br from-white to-gray-400">Welcome.</h2>
-                            <p className="text-gray-400 text-sm mb-8 relative z-10 leading-relaxed">Before we begin the hunt for KandyDrops, what should we call you in the vault?</p>
-
-                            <input
-                                type="text"
-                                placeholder="Choose your Username"
-                                value={stepData.username}
-                                onChange={(e) => setStepData({ ...stepData, username: e.target.value })}
-                                maxLength={20}
-                                className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-white font-bold mb-6 focus:outline-none focus:border-brand-purple focus:ring-1 focus:ring-brand-purple shadow-inner transition-all relative z-10"
-                            />
-
-                            <button
-                                onClick={handleNext}
-                                disabled={!stepData.username.trim()}
-                                className="w-full py-4 rounded-2xl bg-gradient-to-r from-brand-purple to-pink-500 font-bold text-white shadow-[0_0_20px_rgba(236,72,153,0.3)] disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.98] transition-all relative z-10"
+                        <div className="absolute inset-0 flex items-center justify-center p-4">
+                            <motion.div
+                                key="step0"
+                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: -20, filter: "blur(10px)" }}
+                                transition={{ duration: 0.4 }}
+                                className="glass-panel p-6 md:p-8 rounded-[2rem] max-w-sm w-full shadow-2xl border border-white/10 relative overflow-hidden pointer-events-auto bg-black/80 backdrop-blur-xl"
                             >
-                                Enter Vault <ChevronRight className="w-4 h-4 ml-1" />
-                            </button>
-                        </motion.div>
+                                <h2 className="text-2xl font-bold text-white mb-2 text-center text-transparent bg-clip-text bg-gradient-to-br from-white to-gray-400">Curate Your Cravings</h2>
+                                <p className="text-gray-400 text-sm mb-6 text-center leading-relaxed">Customize your experience to see the drops you desire most.</p>
+
+                                <div className="space-y-3 mb-6">
+                                    <button
+                                        onClick={() => setStepData({ ...stepData, preference: "Sweet" })}
+                                        className={`w-full p-4 rounded-2xl border text-left transition-all group flex items-start gap-4 ${stepData.preference === "Sweet" ? "bg-pink-500/10 border-pink-500 shadow-[0_0_20px_rgba(236,72,153,0.15)]" : "bg-white/5 border-white/10 hover:bg-white/10"}`}
+                                    >
+                                        <div className={`p-2.5 rounded-full ${stepData.preference === "Sweet" ? "bg-pink-500 text-white" : "bg-white/10 text-gray-400"}`}>
+                                            <Sparkles className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <h3 className={`font-bold text-sm ${stepData.preference === "Sweet" ? "text-pink-400" : "text-white"}`}>Sweet</h3>
+                                            <p className="text-xs text-gray-400 mt-0.5">Light, playful, and elegantly teasing.</p>
+                                        </div>
+                                    </button>
+
+                                    <button
+                                        onClick={() => setStepData({ ...stepData, preference: "Spicy" })}
+                                        className={`w-full p-4 rounded-2xl border text-left transition-all group flex items-start gap-4 ${stepData.preference === "Spicy" ? "bg-orange-500/10 border-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.15)]" : "bg-white/5 border-white/10 hover:bg-white/10"}`}
+                                    >
+                                        <div className={`p-2.5 rounded-full ${stepData.preference === "Spicy" ? "bg-orange-500 text-white" : "bg-white/10 text-gray-400"}`}>
+                                            <Flame className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <h3 className={`font-bold text-sm ${stepData.preference === "Spicy" ? "text-orange-400" : "text-white"}`}>Spicy</h3>
+                                            <p className="text-xs text-gray-400 mt-0.5">Bold, provocative, and highly charged.</p>
+                                        </div>
+                                    </button>
+
+                                    <button
+                                        onClick={() => setStepData({ ...stepData, preference: "RAW" })}
+                                        className={`w-full p-4 rounded-2xl border text-left transition-all group flex items-start gap-4 ${stepData.preference === "RAW" ? "bg-red-500/10 border-red-500 shadow-[0_0_20px_rgba(239,68,68,0.15)]" : "bg-white/5 border-white/10 hover:bg-white/10"}`}
+                                    >
+                                        <div className={`p-2.5 rounded-full ${stepData.preference === "RAW" ? "bg-red-500 text-white" : "bg-white/10 text-gray-400"}`}>
+                                            <Droplets className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <h3 className={`font-bold text-sm ${stepData.preference === "RAW" ? "text-red-400" : "text-white"}`}>RAW</h3>
+                                            <p className="text-xs text-gray-400 mt-0.5">Unfiltered, intense, unrestrained excitement.</p>
+                                        </div>
+                                    </button>
+                                </div>
+
+                                <button
+                                    onClick={handleNext}
+                                    disabled={!stepData.preference}
+                                    className="w-full py-4 rounded-2xl bg-[#E6E6FA] text-black font-extrabold shadow-[0_0_20px_rgba(230,230,250,0.3)] disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
+                                >
+                                    Continue <ChevronRight className="w-5 h-5" />
+                                </button>
+                            </motion.div>
+                        </div>
                     )}
 
-                    {currentStep === 1 && (
-                        <motion.div
-                            key="step1"
-                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: -20, filter: "blur(10px)" }}
-                            transition={{ duration: 0.4 }}
-                            className="glass-panel p-8 rounded-[2rem] max-w-md w-full mx-auto shadow-2xl border border-white/10 relative overflow-hidden"
-                        >
-                            <h2 className="text-2xl font-bold text-white mb-2 text-center">Curate Your Cravings</h2>
-                            <p className="text-gray-400 text-sm mb-8 text-center">Customize your experience to see the drops you desire most.</p>
-
-                            <div className="space-y-4 mb-8">
-                                <button
-                                    onClick={() => setStepData({ ...stepData, preference: "Sweet" })}
-                                    className={`w-full p-4 rounded-2xl border text-left transition-all group flex items-start gap-4 ${stepData.preference === "Sweet" ? "bg-pink-500/10 border-pink-500 shadow-[0_0_20px_rgba(236,72,153,0.15)]" : "bg-black/40 border-white/10 hover:bg-white/5"}`}
-                                >
-                                    <div className={`p-3 rounded-full ${stepData.preference === "Sweet" ? "bg-pink-500 text-white" : "bg-white/10 text-gray-400"}`}>
-                                        <Sparkles className="w-5 h-5" />
-                                    </div>
-                                    <div>
-                                        <h3 className={`font-bold ${stepData.preference === "Sweet" ? "text-pink-400" : "text-white"}`}>Sweet</h3>
-                                        <p className="text-xs text-gray-400 mt-1">Light, playful, and elegantly teasing content for a gentle rush.</p>
-                                    </div>
-                                </button>
-
-                                <button
-                                    onClick={() => setStepData({ ...stepData, preference: "Spicy" })}
-                                    className={`w-full p-4 rounded-2xl border text-left transition-all group flex items-start gap-4 ${stepData.preference === "Spicy" ? "bg-orange-500/10 border-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.15)]" : "bg-black/40 border-white/10 hover:bg-white/5"}`}
-                                >
-                                    <div className={`p-3 rounded-full ${stepData.preference === "Spicy" ? "bg-orange-500 text-white" : "bg-white/10 text-gray-400"}`}>
-                                        <Flame className="w-5 h-5" />
-                                    </div>
-                                    <div>
-                                        <h3 className={`font-bold ${stepData.preference === "Spicy" ? "text-orange-400" : "text-white"}`}>Spicy</h3>
-                                        <p className="text-xs text-gray-400 mt-1">Bold, provocative, and highly charged exclusive thrills.</p>
-                                    </div>
-                                </button>
-
-                                <button
-                                    onClick={() => setStepData({ ...stepData, preference: "RAW" })}
-                                    className={`w-full p-4 rounded-2xl border text-left transition-all group flex items-start gap-4 ${stepData.preference === "RAW" ? "bg-red-500/10 border-red-500 shadow-[0_0_20px_rgba(239,68,68,0.15)]" : "bg-black/40 border-white/10 hover:bg-white/5"}`}
-                                >
-                                    <div className={`p-3 rounded-full ${stepData.preference === "RAW" ? "bg-red-500 text-white" : "bg-white/10 text-gray-400"}`}>
-                                        <Droplets className="w-5 h-5" />
-                                    </div>
-                                    <div>
-                                        <h3 className={`font-bold ${stepData.preference === "RAW" ? "text-red-400" : "text-white"}`}>RAW</h3>
-                                        <p className="text-xs text-gray-400 mt-1">Unfiltered, intense, completely unrestrained pure excitement.</p>
-                                    </div>
-                                </button>
-                            </div>
-
-                            <button
-                                onClick={handleNext}
-                                disabled={!stepData.preference}
-                                className="w-full py-4 rounded-2xl bg-white text-black font-bold shadow-lg disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
-                            >
-                                Continue <ChevronRight className="w-4 h-4" />
-                            </button>
-                        </motion.div>
-                    )}
-
-                    {/* Spotlight Tooltips */}
-                    {highlightRect && currentStep > 1 && (
+                    {/* DYNAMIC HIGHLIGHT TOOLTIPS (Steps 1-4) */}
+                    {highlightRect && currentStep > 0 && (
                         <motion.div
                             key={`tooltip-${currentStep}`}
-                            initial={{ opacity: 0, y: 10 }}
+                            initial={{ opacity: 0, y: 15 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95 }}
-                            transition={{ delay: 0.2 }}
+                            transition={{ delay: 0.3, type: "spring", damping: 25 }}
                             style={{
                                 position: "absolute",
-                                // Place tooltip dynamically relative to highlight box
-                                top: highlightRect.top < window.innerHeight / 2
+                                // Dynamically place below or above the highlight depending on screen space
+                                top: highlightRect.top < ch / 2
                                     ? highlightRect.top + highlightRect.height + 40
-                                    : highlightRect.top - 200,
+                                    : highlightRect.top - 240,
                                 left: "50%",
                                 width: "90%",
                                 maxWidth: "340px",
                                 transform: "translateX(-50%)"
                             }}
-                            className="glass-panel p-6 rounded-3xl border border-white/20 shadow-2xl text-center z-50 bg-black/80 backdrop-blur-xl"
+                            className="glass-panel p-6 rounded-3xl border border-white/20 shadow-2xl text-center z-50 bg-black/80 backdrop-blur-xl pointer-events-auto"
                         >
+                            {currentStep === 1 && (
+                                <>
+                                    <div className="w-12 h-12 bg-pink-500/20 rounded-full flex items-center justify-center mx-auto mb-3 border border-pink-500/30">
+                                        <Gift className="w-6 h-6 text-pink-400" />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-white mb-2">The Daily Ritual</h3>
+                                    <p className="text-sm text-gray-300 mb-6 leading-relaxed">Consistency pays off. Check in right here every day to stack free <b>Gum Drops</b> to spend on premium unwraps without spending real cash.</p>
+                                </>
+                            )}
                             {currentStep === 2 && (
                                 <>
-                                    <div className="w-12 h-12 bg-brand-purple/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                                        <Sparkles className="w-6 h-6 text-brand-purple" />
+                                    <div className="w-12 h-12 bg-[#E6E6FA]/20 rounded-full flex items-center justify-center mx-auto mb-3 border border-[#E6E6FA]/30">
+                                        <Sparkles className="w-6 h-6 text-[#E6E6FA]" />
                                     </div>
                                     <h3 className="text-xl font-bold text-white mb-2">The Hunt Begins</h3>
-                                    <p className="text-sm text-gray-300 mb-6 leading-relaxed">This is where the magic lives. Dive into the <b>Drops</b> tab to unwrap limited-edition, exclusive content.</p>
+                                    <p className="text-sm text-gray-300 mb-6 leading-relaxed">This is where the magic lives. Dive into the <b>Drops</b> tab to unwrap and watch your exclusive, limited-edition content.</p>
                                 </>
                             )}
                             {currentStep === 3 && (
                                 <>
-                                    <div className="w-12 h-12 bg-pink-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                                        <Flame className="w-6 h-6 text-pink-400" />
+                                    <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-3 border border-orange-500/30">
+                                        <Flame className="w-6 h-6 text-orange-400" />
                                     </div>
-                                    <h3 className="text-xl font-bold text-white mb-2">Daily Ritual</h3>
-                                    <p className="text-sm text-gray-300 mb-6 leading-relaxed">Consistency pays off. Check in right here every day to stack free <b>Gum Drops</b> to spend on premium unwraps.</p>
+                                    <h3 className="text-xl font-bold text-white mb-2">Absolute Scarcity</h3>
+                                    <p className="text-sm text-gray-300 mb-6 leading-relaxed">Drops are fleeting. <b className="text-red-400">Once they're gone, they may never return.</b> Enable notifications so you never miss a rush or experience.</p>
                                 </>
                             )}
                             {currentStep === 4 && (
                                 <>
-                                    <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                                        <BellRing className="w-6 h-6 text-orange-400" />
+                                    <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-3 border border-purple-500/30">
+                                        <BellRing className="w-6 h-6 text-purple-400" />
                                     </div>
-                                    <h3 className="text-xl font-bold text-white mb-2">Absolute Scarcity</h3>
-                                    <p className="text-sm text-gray-300 mb-6 leading-relaxed">Explore <b>Experiences</b> for VIP perks. But remember, Drops are fleeting. Once they're gone, they may never return. <span className="text-orange-400 font-bold block mt-2">Enable notifications below so you never miss a moment.</span></p>
+                                    <h3 className="text-xl font-bold text-white mb-2">VIP Experiences</h3>
+                                    <p className="text-sm text-gray-300 mb-6 leading-relaxed">Step beyond the drops. Unlock the highest tier of access, direct connections, and VIP perks precisely here.</p>
                                 </>
                             )}
 
                             <button
                                 onClick={handleNext}
-                                className="w-full py-3 rounded-xl bg-white text-black font-bold active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                className="w-full py-3.5 rounded-xl bg-[#E6E6FA] text-black font-extrabold active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(230,230,250,0.3)]"
                             >
-                                {currentStep === 4 ? "Finish & Enable Notifications" : "Got it!"} <ChevronRight className="w-4 h-4" />
+                                {currentStep === 4 ? "Enable Notifications & Finish" : "Got it!"} <ChevronRight className="w-5 h-5" />
                             </button>
                         </motion.div>
                     )}
