@@ -362,17 +362,25 @@ export function GuidedOnboarding() {
         if (!user || isCompleting) return;
         setIsCompleting(true);
         try {
-            // Attempt to fetch the reward natively from backend
             const token = await user.getIdToken();
-            await fetch("/api/user/complete-onboarding", {
+            const response = await fetch("/api/user/complete-onboarding", {
                 method: "POST",
                 headers: { Authorization: `Bearer ${token}` }
             });
 
-            await setDoc(doc(db, "users", user.uid), {
-                preferences: { flavor: stepData.preference || "Sweet" },
-                onboardingCompleted: true,
-            }, { merge: true });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(typeof result?.error === "string" ? result.error : "Failed to complete onboarding.");
+            }
+
+            try {
+                await setDoc(doc(db, "users", user.uid), {
+                    preferences: { flavor: stepData.preference || "Sweet" },
+                    onboardingCompleted: true,
+                }, { merge: true });
+            } catch (syncError) {
+                console.error("Error syncing onboarding preferences:", syncError);
+            }
 
             if (completionStorageKey) {
                 window.localStorage.setItem(completionStorageKey, "true");
@@ -385,12 +393,9 @@ export function GuidedOnboarding() {
             } catch (e) { }
 
             setIsVisible(false);
-            router.push('/drops');
-            window.setTimeout(() => {
-                if (window.location.pathname !== "/drops") {
-                    window.location.assign("/drops");
-                }
-            }, 300);
+            router.replace('/drops');
+            window.location.replace('/drops');
+            return;
         } catch (error) {
             console.error("Error completing onboarding:", error);
             setIsVisible(false); // Failsafe close
