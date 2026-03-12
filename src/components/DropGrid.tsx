@@ -3,12 +3,13 @@
 import { Drop } from "@/types/db";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useUserProfile } from "@/context/AuthContext";
 import { DropCard } from "./DropCard";
 import { PromoCard } from "./PromoCard";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { getSupportedDropAspectRatio } from "@/lib/drop-presentation";
+
+const EMPTY_DROPS: Drop[] = [];
 
 interface DropGridProps {
     drops: Drop[];
@@ -18,12 +19,11 @@ interface DropGridProps {
 }
 
 export function DropGrid({ drops: propDrops, loading: propLoading, isSearching, onSelectDrop }: DropGridProps) {
-    const { user } = useAuth();
-    const { userProfile } = useUserProfile();
+    const { user, userProfile } = useAuth();
     const [notified, setNotified] = useState(false);
 
     const loading = propLoading ?? false;
-    const drops = propDrops ?? [];
+    const drops = useMemo(() => propDrops ?? EMPTY_DROPS, [propDrops]);
 
     useEffect(() => {
         if (notified) {
@@ -89,7 +89,7 @@ export function DropGrid({ drops: propDrops, loading: propLoading, isSearching, 
                             {notified ? (
                                 <div className="flex items-center gap-2 bg-brand-purple/10 border border-brand-purple/20 text-brand-purple px-8 py-4 rounded-2xl font-bold animate-in zoom-in duration-300">
                                     <span className="text-xl">✅</span>
-                                    <span>You'll be notified on-site!</span>
+                                    <span>You&apos;ll be notified on-site!</span>
                                 </div>
                             ) : (
                                 <button

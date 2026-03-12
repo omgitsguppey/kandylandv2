@@ -11,17 +11,15 @@ export type Notification = AppNotification;
 
 export function useNotifications() {
     const { user } = useAuthIdentity();
-    const [notifications, setNotifications] = useState<Notification[]>([]);
-    const [loading, setLoading] = useState(true);
+    const userId = user?.uid ?? null;
+    const [notificationsState, setNotificationsState] = useState<Notification[]>([]);
+    const [loadedForUserId, setLoadedForUserId] = useState<string | null>(null);
 
     useEffect(() => {
-        if (!user) {
-            setNotifications([]);
-            setLoading(false);
+        if (!userId) {
             return;
         }
-
-        setLoading(true);
+        const currentUserId = userId;
 
         const notificationsQuery = query(
             collection(db, "notifications"),
@@ -38,7 +36,7 @@ export function useNotifications() {
                     return;
                 }
 
-                if (normalized.target.excludedUserIds && normalized.target.excludedUserIds.includes(user.uid)) {
+                if (normalized.target.excludedUserIds && normalized.target.excludedUserIds.includes(currentUserId)) {
                     return;
                 }
 
@@ -49,37 +47,43 @@ export function useNotifications() {
                 }
 
                 // When notifications are marked as read, remove them from the notification tab
-                if (normalized.readBy.includes(user.uid)) {
+                if (normalized.readBy.includes(currentUserId)) {
                     return;
                 }
 
-                if (normalized.target.global || normalized.target.userIds.includes(user.uid)) {
+                if (normalized.target.global || normalized.target.userIds.includes(currentUserId)) {
                     scopedNotifications.push(normalized);
                 }
             });
 
-            setNotifications(scopedNotifications);
-            setLoading(false);
+            setNotificationsState(scopedNotifications);
+            setLoadedForUserId(currentUserId);
         });
 
         return () => unsubscribe();
-    }, [user]);
+    }, [userId]);
+
+    const notifications = useMemo(
+        () => (userId && loadedForUserId === userId ? notificationsState : []),
+        [loadedForUserId, notificationsState, userId]
+    );
+    const loading = Boolean(userId) && loadedForUserId !== userId;
 
     // Unread count is simply the length now, since strictly unread notifications are present
     const unreadCount = useMemo(
-        () => (user ? notifications.length : 0),
-        [notifications, user]
+        () => (userId ? notifications.length : 0),
+        [notifications, userId]
     );
 
     const markAsRead = async (id: string) => {
-        if (!user) return;
+        if (!userId) return;
 
-        setNotifications((prev) => prev.filter((notification) => notification.id !== id));
+        setNotificationsState((prev) => prev.filter((notification) => notification.id !== id));
         await markNotificationAsRead(id);
     };
 
     const markAllAsRead = async () => {
-        if (!user) return;
+        if (!userId) return;
 
         const unreadIds = notifications.map((notification) => notification.id);
 
@@ -87,7 +91,7 @@ export function useNotifications() {
             return;
         }
 
-        setNotifications([]);
+        setNotificationsState([]);
         await Promise.all(unreadIds.map((id) => markNotificationAsRead(id)));
     };
 

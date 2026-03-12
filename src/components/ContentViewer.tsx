@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import NextImage from "next/image";
 import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
@@ -20,21 +21,27 @@ interface ContentViewerProps {
     onClose: () => void;
 }
 
-export function ContentViewer({ items, initialIndex = 0, isOpen, onClose }: ContentViewerProps) {
+interface ContentViewerModalProps {
+    items: ViewerMediaItem[];
+    initialIndex: number;
+    onClose: () => void;
+}
+
+function clampViewerIndex(index: number, itemCount: number) {
+    return Math.max(0, Math.min(index, Math.max(0, itemCount - 1)));
+}
+
+function ContentViewerModal({
+    items,
+    initialIndex,
+    onClose,
+}: ContentViewerModalProps) {
     const [index, setIndex] = useState(initialIndex);
+    const [touchStartX, setTouchStartX] = useState<number | null>(null);
+    const itemCount = items.length;
+    const activeItem = items[index] ?? null;
 
     useEffect(() => {
-        if (!isOpen) {
-            return;
-        }
-        setIndex(Math.max(0, Math.min(initialIndex, items.length - 1)));
-    }, [initialIndex, isOpen, items.length]);
-
-    useEffect(() => {
-        if (!isOpen) {
-            return;
-        }
-
         const previousOverflow = document.body.style.overflow;
         document.body.style.overflow = "hidden";
 
@@ -47,12 +54,9 @@ export function ContentViewer({ items, initialIndex = 0, isOpen, onClose }: Cont
                 }
             });
         };
-    }, [isOpen]);
+    }, []);
 
-    const itemCount = items.length;
-    const activeItem = useMemo(() => items[index] ?? null, [items, index]);
-
-    if (!isOpen || !activeItem || itemCount === 0) {
+    if (!activeItem || itemCount === 0) {
         return null;
     }
 
@@ -60,7 +64,6 @@ export function ContentViewer({ items, initialIndex = 0, isOpen, onClose }: Cont
     const goPrev = () => setIndex((prev) => (prev - 1 + itemCount) % itemCount);
     const goNext = () => setIndex((prev) => (prev + 1) % itemCount);
 
-    const [touchStartX, setTouchStartX] = useState<number | null>(null);
     const handleTouchStart = (e: React.TouchEvent) => setTouchStartX(e.touches[0].clientX);
     const handleTouchEnd = (e: React.TouchEvent) => {
         if (touchStartX === null || !canNavigate) return;
@@ -108,7 +111,7 @@ export function ContentViewer({ items, initialIndex = 0, isOpen, onClose }: Cont
                     </button>
                 ) : null}
 
-                <div className="w-full max-w-5xl h-full max-h-[78vh] rounded-2xl border border-white/10 bg-black overflow-hidden flex items-center justify-center">
+                <div className="relative w-full max-w-5xl h-full max-h-[78vh] rounded-2xl border border-white/10 bg-black overflow-hidden flex items-center justify-center">
                     {activeItem.type === "video" ? (
                         <video
                             data-viewer-video="true"
@@ -121,10 +124,13 @@ export function ContentViewer({ items, initialIndex = 0, isOpen, onClose }: Cont
                             className="h-full w-full object-contain bg-black"
                         />
                     ) : (
-                        <img
+                        <NextImage
                             src={activeItem.url}
                             alt={activeItem.alt}
-                            className="h-full w-full object-contain bg-black"
+                            fill
+                            unoptimized
+                            sizes="100vw"
+                            className="object-contain bg-black"
                             draggable={false}
                             onContextMenu={(e) => e.preventDefault()}
                         />
@@ -146,4 +152,24 @@ export function ContentViewer({ items, initialIndex = 0, isOpen, onClose }: Cont
     );
 
     return createPortal(modal, document.body);
+}
+
+export function ContentViewer({ items, initialIndex = 0, isOpen, onClose }: ContentViewerProps) {
+    const itemCount = items.length;
+
+    if (!isOpen || itemCount === 0) {
+        return null;
+    }
+
+    const clampedInitialIndex = clampViewerIndex(initialIndex, itemCount);
+    const viewerKey = `${items.map((item) => item.id).join(":")}:${clampedInitialIndex}`;
+
+    return (
+        <ContentViewerModal
+            key={viewerKey}
+            items={items}
+            initialIndex={clampedInitialIndex}
+            onClose={onClose}
+        />
+    );
 }

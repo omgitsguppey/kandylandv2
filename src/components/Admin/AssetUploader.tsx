@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import NextImage from "next/image";
 import { X, Upload, Loader2, FileArchive, Video, Image as ImageIcon } from "lucide-react";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { storage } from "@/lib/firebase-data";
@@ -63,6 +64,22 @@ function isCanvasImageType(type: string): boolean {
   return /image\/(jpeg|jpg|png|webp|gif)/i.test(type);
 }
 
+function createInitialAssets(initialUrl?: string, initialType?: string): AssetDraft[] {
+  if (!initialUrl) {
+    return [];
+  }
+
+  return [{
+    id: `initial-${initialUrl}`,
+    kind: initialType?.startsWith("video/") ? "video" : initialType?.startsWith("image/") ? "image" : "file",
+    uploadUrl: initialUrl,
+    previewUrl: initialUrl,
+    uploadType: initialType || "application/octet-stream",
+    uploadSize: 0,
+    uploading: false,
+  }];
+}
+
 function buildCroppedBlobPixels(file: File, cropPixels: Area): Promise<Blob> {
   return new Promise((resolve, reject) => {
     const image = new window.Image();
@@ -116,7 +133,7 @@ export function AssetUploader({
   accept,
   disableCrop = false,
 }: AssetUploaderProps) {
-  const [assets, setAssets] = useState<AssetDraft[]>([]);
+  const [assets, setAssets] = useState<AssetDraft[]>(() => createInitialAssets(initialUrl, initialType));
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -125,18 +142,11 @@ export function AssetUploader({
   useEffect(() => {
     if (!initialUrl) return;
 
-    setAssets((current) => {
-      if (current.length > 0) return current;
-      return [{
-        id: `initial-${initialUrl}`,
-        kind: initialType?.startsWith("video/") ? "video" : initialType?.startsWith("image/") ? "image" : "file",
-        uploadUrl: initialUrl,
-        previewUrl: initialUrl,
-        uploadType: initialType || "application/octet-stream",
-        uploadSize: 0,
-        uploading: false,
-      }];
-    });
+    const syncInitialAsset = window.setTimeout(() => {
+      setAssets((current) => current.length > 0 ? current : createInitialAssets(initialUrl, initialType));
+    }, 0);
+
+    return () => window.clearTimeout(syncInitialAsset);
   }, [initialType, initialUrl]);
 
   useEffect(() => {
@@ -243,7 +253,7 @@ export function AssetUploader({
 
   const renderThumbnail = (asset: AssetDraft) => {
     if (asset.kind === "image" && asset.previewUrl) {
-      return <img src={asset.previewUrl} alt="Asset preview" className="h-full w-full object-cover" />;
+      return <NextImage src={asset.previewUrl} alt="Asset preview" fill unoptimized sizes="160px" className="object-cover" />;
     }
     if (asset.kind === "video" && asset.previewUrl) {
       return <video src={asset.previewUrl} className="h-full w-full object-cover" muted playsInline />;

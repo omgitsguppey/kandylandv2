@@ -4,11 +4,8 @@ import { Drop } from "@/types/db";
 import NextImage from "next/image";
 import { formatDistanceToNow } from "date-fns";
 import { Lock, Unlock, Eye, Clock, Image as ImageIcon, Film } from "lucide-react";
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 import { cn } from "@/lib/utils";
-
-
-import { memo } from "react";
 import Link from "next/link";
 
 interface DashboardDropCardProps {

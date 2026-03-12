@@ -4,6 +4,8 @@ import { useState, useEffect, useMemo } from "react";
 import useSWRInfinite from "swr/infinite";
 import { Drop } from "@/types/db";
 
+const INITIAL_SWEEP_NOW = Date.now();
+
 const fetcher = async (url: string) => {
   const res = await fetch(url);
   const json = await res.json();
@@ -17,7 +19,7 @@ export function useDrops(
   statusFilter: string[] | null = ["active", "scheduled"],
   initialData?: Drop[]
 ) {
-  const [clientDrops, setClientDrops] = useState<Drop[]>([]);
+  const [sweepNowMs, setSweepNowMs] = useState(INITIAL_SWEEP_NOW);
 
   // We only support the standard feed currently for pagination (active + scheduled)
   const getKey = (pageIndex: number, previousPageData: any) => {
@@ -40,23 +42,10 @@ export function useDrops(
     return data ? data.flatMap(page => page?.drops || []) : [];
   }, [data]);
 
-  // Handle client-side expiration out of the active set efficiently
+  // Handle client-side expiration out of the active set efficiently.
   useEffect(() => {
-    setClientDrops(swrDrops);
-
     const sweepExpired = () => {
-      const now = Date.now();
-      setClientDrops((currentDrops) => {
-        let changed = false;
-        const nextDrops = currentDrops.filter((drop) => {
-          if (drop.status === "active" && drop.validUntil && now >= drop.validUntil) {
-            changed = true;
-            return false;
-          }
-          return true;
-        });
-        return changed ? nextDrops : currentDrops;
-      });
+      setSweepNowMs(Date.now());
     };
 
     // Sweep strictly on window focus or visibility transitions instead of continuous heavy polling
@@ -67,7 +56,17 @@ export function useDrops(
       window.removeEventListener("focus", sweepExpired);
       document.removeEventListener("visibilitychange", sweepExpired);
     };
-  }, [swrDrops]);
+  }, []);
+
+  const clientDrops = useMemo(() => {
+    return swrDrops.filter((drop) => {
+      if (drop.status !== "active" || !drop.validUntil) {
+        return true;
+      }
+
+      return sweepNowMs < drop.validUntil;
+    });
+  }, [sweepNowMs, swrDrops]);
 
 
   const isLoadingInitialData = !data && !error;

@@ -36,7 +36,13 @@ export async function POST(request: NextRequest) {
             const isSameDay = lastCheckIn >= startOfDay && lastCheckIn < endOfDay;
 
             if (isSameDay && lastCheckIn > 0) {
-                return { alreadyClaimed: true, reward: 0, nextStreak: currentStreak };
+                return {
+                    alreadyClaimed: true,
+                    reward: 0,
+                    nextStreak: currentStreak,
+                    lastCheckIn,
+                    nextCheckInAt: endOfDay,
+                };
             }
 
             // 3. Calculate streak
@@ -72,17 +78,31 @@ export async function POST(request: NextRequest) {
                 verifiedServerSide: true,
             });
 
-            return { alreadyClaimed: false, reward, nextStreak };
+            return {
+                alreadyClaimed: false,
+                reward,
+                nextStreak,
+                lastCheckIn: now,
+                nextCheckInAt: endOfDay,
+            };
         });
 
         if (result.alreadyClaimed) {
-            return NextResponse.json({ error: "Already claimed today", alreadyClaimed: true }, { status: 409 });
+            return NextResponse.json({
+                error: "Already claimed today",
+                alreadyClaimed: true,
+                streak: result.nextStreak,
+                lastCheckIn: result.lastCheckIn,
+                nextCheckInAt: result.nextCheckInAt,
+            }, { status: 409 });
         }
 
         return NextResponse.json({
             success: true,
             reward: result.reward,
             streak: result.nextStreak,
+            lastCheckIn: result.lastCheckIn,
+            nextCheckInAt: result.nextCheckInAt,
         });
     } catch (error) {
         return handleApiError(error, "Checkin.POST");

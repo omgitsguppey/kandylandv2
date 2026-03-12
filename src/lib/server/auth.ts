@@ -15,14 +15,9 @@ export interface AuthResult {
  */
 export async function verifyAuth(request: NextRequest): Promise<AuthResult> {
     const authHeader = request.headers.get("Authorization");
-    let idToken = "";
-
-    if (authHeader?.startsWith("Bearer ")) {
-        idToken = authHeader.split("Bearer ")[1];
-    } else {
-        const { searchParams } = new URL(request.url);
-        idToken = searchParams.get("token") || "";
-    }
+    const idToken = authHeader?.startsWith("Bearer ")
+        ? authHeader.slice("Bearer ".length).trim()
+        : "";
 
     if (!idToken) {
         throw new AuthError("Missing or invalid token", 401);

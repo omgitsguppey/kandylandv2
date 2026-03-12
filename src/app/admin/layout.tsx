@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
 import { LayoutDashboard, PlusCircle, Package, Users, Terminal, ListChecks, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -21,14 +21,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const { user, userProfile, loading: authLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  const [isAuthorized, setIsAuthorized] = useState(false);
+  const isAuthorized = !!user && userProfile?.role === "admin";
 
   useEffect(() => {
-    if (!authLoading) {
-      if (!user || userProfile?.role !== "admin") router.push("/");
-      else setIsAuthorized(true);
+    if (!authLoading && !isAuthorized) {
+      router.push("/");
     }
-  }, [user, authLoading, router]);
+  }, [authLoading, isAuthorized, router]);
 
   if (authLoading || !isAuthorized) {
     return (

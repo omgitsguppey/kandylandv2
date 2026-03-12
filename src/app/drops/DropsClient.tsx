@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { DropGrid } from "@/components/DropGrid";
 import StickyFilterBar from "@/components/StickyFilterBar";
 import { Drop } from "@/types/db";
@@ -10,7 +10,6 @@ import { Lock } from "lucide-react";
 import { useDrops } from "@/hooks/useDrops";
 import { KandyDropsAccountOverview, AccountOverviewState } from "@/components/KandyDropsAccountOverview";
 import { GuestComponentBlur } from "@/components/Auth/GuestComponentBlur";
-import { useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 
 const FeaturedCarousel = dynamic(() => import("@/components/FeaturedCarousel").then(mod => mod.FeaturedCarousel), {
@@ -124,7 +123,7 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
             return drops;
         }
         return drops.filter(drop => !userProfile.unlockedContent!.includes(drop.id));
-    }, [liveDrops, initialDrops, userProfile?.unlockedContent]);
+    }, [liveDrops, initialDrops, userProfile]);
 
     const accountOverview = useMemo(() => buildAccountOverviewViewModel({
         authLoading,
@@ -132,7 +131,7 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
         userEmail: user?.email ?? null,
         userPhotoURL: user?.photoURL ?? null,
         profileBalance: typeof userProfile?.gumDropsBalance === "number" ? userProfile.gumDropsBalance : null,
-    }), [authLoading, user?.displayName, user?.email, user?.photoURL, userProfile?.gumDropsBalance]);
+    }), [authLoading, user, userProfile]);
 
     const filteredDrops = useMemo(() => {
         if (!sourceDrops) return [];
@@ -226,7 +225,7 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
                             <div className="w-6 h-6 rounded-full border-2 border-brand-purple border-t-transparent animate-spin" />
                         )}
                         {isReachingEnd && filteredDrops.length > 0 && (
-                            <p className="text-gray-500 text-sm font-medium">You've reached the end of the line.</p>
+                            <p className="text-gray-500 text-sm font-medium">You&apos;ve reached the end of the line.</p>
                         )}
                     </div>
                 </div>

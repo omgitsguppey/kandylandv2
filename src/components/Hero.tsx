@@ -1,7 +1,6 @@
 "use client";
 
-import { useRef } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Sparkles, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
@@ -10,6 +9,8 @@ import { useAuthIdentity } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { HomeDropTicker } from "@/components/HomeDropTicker";
 import { getSimulatedPlatformUnwrapsToday } from "@/lib/unwrap-simulator";
+
+const INITIAL_PLATFORM_COUNT = getSimulatedPlatformUnwrapsToday();
 
 export default function Hero() {
     const { user } = useAuthIdentity();
@@ -40,7 +41,7 @@ export default function Hero() {
                     </h1>
 
                     <p className="max-w-xl text-base sm:text-xl text-gray-400 leading-relaxed font-medium">
-                        Connect intimately with your favorite creators like Jessi Ray and Bloomytrip. Unlock private collections, exclusive media, and unique experiences you won't find anywhere else.
+                        Connect intimately with your favorite creators like Jessi Ray and Bloomytrip. Unlock private collections, exclusive media, and unique experiences you won&apos;t find anywhere else.
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2 sm:pt-4 justify-center w-full sm:w-auto">
@@ -82,11 +83,9 @@ export default function Hero() {
 }
 
 function ActivityTicker() {
-    const [platformCount, setPlatformCount] = useState(0);
+    const [platformCount, setPlatformCount] = useState(INITIAL_PLATFORM_COUNT);
 
     useEffect(() => {
-        setPlatformCount(getSimulatedPlatformUnwrapsToday());
-
         const interval = setInterval(() => {
             setPlatformCount(getSimulatedPlatformUnwrapsToday());
         }, 300000);

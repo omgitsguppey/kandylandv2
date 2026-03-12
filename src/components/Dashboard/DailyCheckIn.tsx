@@ -1,18 +1,16 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useAuth } from "@/context/AuthContext";
 import { differenceInHours } from "date-fns";
-import { Gift, Loader2, CheckCircle } from "lucide-react";
-
-import { Button } from "@/components/ui/Button";
-import { cn } from "@/lib/utils";
+import { CheckCircle, Gift, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+
+import { useAuth } from "@/context/AuthContext";
+import { Button } from "@/components/ui/Button";
 import { authFetch } from "@/lib/authFetch";
 import { trackEvent } from "@/lib/telemetry";
 import { getCSTDayBoundaries } from "@/lib/timezone";
-
-const CHECK_IN_INTERVAL_MS = 24 * 60 * 60 * 1000;
+import { cn } from "@/lib/utils";
 
 function normalizeTimestamp(value: unknown): number {
     if (!Number.isFinite(value)) {
@@ -45,10 +43,9 @@ function emitGuidedCheckIn(status: "success" | "already-claimed" | "error", mess
 export function DailyCheckIn() {
     const { user, userProfile } = useAuth();
     const [loading, setLoading] = useState(false);
-    const [claimed, setClaimed] = useState(false);
+    const [optimisticCheckInMs, setOptimisticCheckInMs] = useState<number | null>(null);
+    const [optimisticStreak, setOptimisticStreak] = useState<number | null>(null);
     const [nowMs, setNowMs] = useState(Date.now());
-    const [nextCheckInOverrideMs, setNextCheckInOverrideMs] = useState<number | null>(null);
-
     const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
@@ -64,96 +61,95 @@ export function DailyCheckIn() {
 
     const lastCheckInMs = normalizeTimestamp(userProfile?.lastCheckIn);
     const currentStreak = Number.isFinite(userProfile?.streakCount) ? Math.max(0, Number(userProfile?.streakCount)) : 0;
+    const effectiveLastCheckInMs = optimisticCheckInMs ?? lastCheckInMs;
+    const effectiveCurrentStreak = optimisticStreak ?? currentStreak;
 
-    // Utilize the shared CST boundary logic to find exactly when the CURRENT day ends for the user
-    const { startOfDay, endOfDay } = useMemo(() => {
-        // We need to fallback to a simple boundary check locally. 
-        // We can just query timezone boundaries using the exported timezone lib
-        return getCSTDayBoundaries(nowMs);
-    }, [nowMs]);
-
-    const isClaimedToday = lastCheckInMs >= startOfDay && lastCheckInMs < endOfDay;
-
-    // If claimed today, the next available check-in is exactly at `endOfDay` (Midnight CST)
-    const baseNextCheckInMs = isClaimedToday ? endOfDay : 0;
-    const nextCheckInMs = nextCheckInOverrideMs ?? baseNextCheckInMs;
+    const { startOfDay, endOfDay } = useMemo(() => getCSTDayBoundaries(nowMs), [nowMs]);
+    const isClaimedToday = effectiveLastCheckInMs >= startOfDay && effectiveLastCheckInMs < endOfDay;
+    const nextCheckInMs = isClaimedToday ? endOfDay : 0;
 
     useEffect(() => {
-        setClaimed(false);
-        setNextCheckInOverrideMs(null);
-    }, [lastCheckInMs]);
+        setOptimisticCheckInMs(null);
+        setOptimisticStreak(null);
+    }, [lastCheckInMs, currentStreak]);
 
     const remainingMs = useMemo(() => {
         if (nextCheckInMs <= 0 || nextCheckInMs <= nowMs) {
             return 0;
         }
+
         return nextCheckInMs - nowMs;
     }, [nextCheckInMs, nowMs]);
 
-    const canCheckIn = remainingMs <= 0 && !claimed && !isClaimedToday && !!user;
+    const canCheckIn = remainingMs <= 0 && !isClaimedToday && !!user;
 
-    let nextStreak = currentStreak >= 7 ? 1 : currentStreak + 1;
-    const hoursSinceLast = differenceInHours(nowMs, lastCheckInMs);
+    let nextStreak = effectiveCurrentStreak >= 7 ? 1 : effectiveCurrentStreak + 1;
+    const hoursSinceLast = differenceInHours(nowMs, effectiveLastCheckInMs);
 
-    // If more than 48 hours have passed since the last check-in, streak resets
-    if (hoursSinceLast > 48 && lastCheckInMs !== 0) {
+    if (hoursSinceLast > 48 && effectiveLastCheckInMs !== 0) {
         nextStreak = 1;
     }
 
     const displayStreak = Math.min(nextStreak, 7);
     const rewardAmount = displayStreak * 10;
-    const effectiveCurrentStreak = claimed && !isClaimedToday ? displayStreak : currentStreak;
     const nextRewardAmount = (effectiveCurrentStreak >= 7 ? 1 : effectiveCurrentStreak + 1) * 10;
+    const displayedStreakCount = Math.min(canCheckIn ? displayStreak : effectiveCurrentStreak, 7);
 
     const handleClaim = async () => {
-        if (loading || claimed || !canCheckIn) return;
+        if (loading || !canCheckIn) {
+            return;
+        }
 
         setLoading(true);
-        setClaimed(true);
-        setNextCheckInOverrideMs(Date.now() + CHECK_IN_INTERVAL_MS);
-
-        toast.success(`Claimed ${rewardAmount} Gum Drops!`, {
-            description: "Your balance will update in a moment.",
-            icon: "🎁"
-        });
-
-        import("canvas-confetti").then((confettiModule) => {
-            const launchConfetti = confettiModule.default;
-            const end = Date.now() + 1000;
-            const colors = ["#ec4899", "#facc15"];
-            (function frame() {
-                launchConfetti({ particleCount: 2, angle: 60, spread: 55, origin: { x: 0 }, colors });
-                launchConfetti({ particleCount: 2, angle: 120, spread: 55, origin: { x: 1 }, colors });
-                if (Date.now() < end) requestAnimationFrame(frame);
-            }());
-        });
 
         try {
             const response = await authFetch("/api/checkin", {
                 method: "POST",
             });
-
-            const result = await response.json();
+            const result = await response.json().catch(() => ({}));
 
             if (!response.ok) {
-                setClaimed(false);
-                setNextCheckInOverrideMs(null);
                 if (result.alreadyClaimed) {
+                    setOptimisticCheckInMs(normalizeTimestamp(result.lastCheckIn) || Date.now());
+                    setOptimisticStreak(Number.isFinite(result.streak) ? Math.max(0, Number(result.streak)) : currentStreak);
                     emitGuidedCheckIn("already-claimed");
                     toast.info("Already claimed today!");
                     return;
                 }
-                throw new Error(result.error || "Check-in failed");
+
+                throw new Error(typeof result.error === "string" ? result.error : "Check-in failed");
             }
 
             const reward = Number.isFinite(result.reward) ? Number(result.reward) : rewardAmount;
+            const streak = Number.isFinite(result.streak) ? Math.max(0, Number(result.streak)) : displayStreak;
+            const claimedAt = normalizeTimestamp(result.lastCheckIn) || Date.now();
 
-            trackEvent('daily_check_in_claim', {
-                streak_count: displayStreak,
-                gum_drops_awarded: reward
+            setOptimisticCheckInMs(claimedAt);
+            setOptimisticStreak(streak);
+
+            toast.success(`Claimed ${reward} Gum Drops!`, {
+                description: "Your balance will update in a moment.",
+            });
+
+            import("canvas-confetti").then((confettiModule) => {
+                const launchConfetti = confettiModule.default;
+                const end = Date.now() + 1000;
+                const colors = ["#ec4899", "#facc15"];
+
+                (function frame() {
+                    launchConfetti({ particleCount: 2, angle: 60, spread: 55, origin: { x: 0 }, colors });
+                    launchConfetti({ particleCount: 2, angle: 120, spread: 55, origin: { x: 1 }, colors });
+                    if (Date.now() < end) {
+                        requestAnimationFrame(frame);
+                    }
+                }());
+            }).catch(() => { });
+
+            trackEvent("daily_check_in_claim", {
+                streak_count: streak,
+                gum_drops_awarded: reward,
             });
             emitGuidedCheckIn("success");
-
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : "Failed to claim reward";
             console.error("Error claiming daily reward:", error);
@@ -191,25 +187,32 @@ export function DailyCheckIn() {
                         <p className="text-gray-400 text-sm">Check in daily to earn Gum Drops!</p>
                     </div>
                     <div className="text-right">
-                        <div className="text-2xl sm:text-3xl font-bold text-brand-purple">{canCheckIn ? displayStreak : currentStreak}<span className="text-sm sm:text-base text-gray-500">/7</span></div>
+                        <div className="text-2xl sm:text-3xl font-bold text-brand-purple">
+                            {displayedStreakCount}
+                            <span className="text-sm sm:text-base text-gray-500">/7</span>
+                        </div>
                         <div className="text-xs text-brand-purple font-bold uppercase tracking-wider">Day Streak</div>
                     </div>
                 </div>
 
                 <div className="flex justify-between gap-1 mb-4">
                     {[1, 2, 3, 4, 5, 6, 7].map((day) => {
-                        const isActive = day <= currentStreak;
+                        const isActive = day <= Math.min(effectiveCurrentStreak, 7);
 
                         return (
                             <div key={day} className="flex flex-col items-center gap-2 flex-1">
-                                <div className={cn(
-                                    "w-full h-1.5 rounded-full transition-all",
-                                    isActive ? "bg-brand-purple shadow-[0_0_10px_#ec4899]" : "bg-white/10"
-                                )} />
-                                <span className={cn(
-                                    "text-xs font-bold",
-                                    isActive ? "text-white" : "text-gray-600"
-                                )}>
+                                <div
+                                    className={cn(
+                                        "w-full h-1.5 rounded-full transition-all",
+                                        isActive ? "bg-brand-purple shadow-[0_0_10px_#ec4899]" : "bg-white/10"
+                                    )}
+                                />
+                                <span
+                                    className={cn(
+                                        "text-xs font-bold",
+                                        isActive ? "text-white" : "text-gray-600"
+                                    )}
+                                >
                                     {day * 10}
                                 </span>
                             </div>

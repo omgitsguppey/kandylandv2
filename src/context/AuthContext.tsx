@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useMemo, ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, ReactNode } from "react";
 import {
     onAuthStateChanged,
     User,
@@ -142,13 +142,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
     }, [user]);
 
-    const refreshProfile = async () => {
+    const refreshProfile = useCallback(async () => {
         // No-op now as onSnapshot handles updates. 
         // Kept for backward compatibility if any component calls it.
-    };
+    }, []);
 
 
-    const signInWithGoogle = async () => {
+    const signInWithGoogle = useCallback(async () => {
         try {
             await ensureAuthPersistence();
             const provider = new GoogleAuthProvider();
@@ -165,9 +165,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             toast.error(message);
             throw error;
         }
-    };
+    }, [pathname, router]);
 
-    const signInWithEmail = async (email: string, pass: string) => {
+    const signInWithEmail = useCallback(async (email: string, pass: string) => {
         try {
             await ensureAuthPersistence();
             await signInWithEmailAndPassword(auth, email, pass);
@@ -180,9 +180,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } catch (error: unknown) {
             throw error;
         }
-    };
+    }, [pathname, router]);
 
-    const signUpWithEmail = async (email: string, pass: string, username: string, dob: string) => {
+    const signUpWithEmail = useCallback(async (email: string, pass: string, username: string, dob: string) => {
         try {
             await ensureAuthPersistence();
             await createUserWithEmailAndPassword(auth, email, pass);
@@ -211,12 +211,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } catch (error: unknown) {
             throw error;
         }
-    };
+    }, [pathname, router]);
 
-    const logout = async () => {
+    const logout = useCallback(async () => {
         await signOut(auth);
         router.push("/");
-    };
+    }, [router]);
 
     const identityValue = useMemo(
         () => ({
@@ -226,7 +226,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             signUpWithEmail,
             logout,
         }),
-        [user]
+        [logout, signInWithEmail, signInWithGoogle, signUpWithEmail, user]
     );
 
     const profileValue = useMemo(
@@ -235,7 +235,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             refreshProfile,
             setUserProfile,
         }),
-        [userProfile]
+        [refreshProfile, userProfile]
     );
 
     const loadingValue = useMemo(

@@ -59,7 +59,7 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
   const aspectRatio = useMemo(() => (drop ? getSupportedDropAspectRatio(drop) : "1:1"), [drop]);
   const ratioStyle = useMemo(() => ({ aspectRatio: getAspectRatioCssValue(aspectRatio) }), [aspectRatio]);
 
-  const simulativeUnwraps = useMemo(() => drop ? getSimulatedUnwrapsToday(drop.id) : 0, [drop?.id]);
+  const simulativeUnwraps = useMemo(() => drop ? getSimulatedUnwrapsToday(drop.id) : 0, [drop]);
   const isUnlocked = !!(drop && Array.isArray(userProfile?.unlockedContent) && userProfile.unlockedContent.includes(drop.id));
   const canAfford = (userProfile?.gumDropsBalance ?? 0) >= (drop?.unlockCost ?? 0);
 

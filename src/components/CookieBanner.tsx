@@ -5,7 +5,8 @@ import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 
 export default function CookieBanner() {
-    const [showBanner, setShowBanner] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
+    const [dismissed, setDismissed] = useState(false);
     const { user, userProfile } = useAuth();
     const { isAuthModalOpen } = useUI();
 
@@ -17,12 +18,17 @@ export default function CookieBanner() {
     );
 
     useEffect(() => {
-        // Check localStorage on mount
-        const consent = localStorage.getItem("kandydrops_cookie_consent");
-        if (!consent) {
-            setShowBanner(true);
-        }
+        const mountTimer = window.setTimeout(() => {
+            setIsMounted(true);
+        }, 0);
+
+        return () => window.clearTimeout(mountTimer);
     }, []);
+
+    const hasConsent = isMounted && typeof window !== "undefined"
+        ? localStorage.getItem("kandydrops_cookie_consent") === "true"
+        : false;
+    const showBanner = isMounted && !dismissed && !hasConsent;
 
     if (!showBanner || suppressForFlow) return null;
 
@@ -54,7 +60,7 @@ export default function CookieBanner() {
             expires={150}
             onAccept={() => {
                 localStorage.setItem("kandydrops_cookie_consent", "true");
-                setShowBanner(false);
+                setDismissed(true);
             }}
         >
             This website uses cookies to enhance the user experience and track interactions for improvement.{" "}

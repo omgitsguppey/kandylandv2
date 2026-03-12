@@ -12,7 +12,7 @@ export function LivePreviews() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-center">
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-4 sm:mb-6">A Premium Library</h2>
                 <p className="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto mb-10 sm:mb-16">
-                    Whether it's raw backstage footage, exclusive galleries, or intimate vlogs, our library interface makes unwrapping and organizing your stash a beautiful experience.
+                    Whether it&apos;s raw backstage footage, exclusive galleries, or intimate vlogs, our library interface makes unwrapping and organizing your stash a beautiful experience.
                 </p>
 
                 {/* Simulated UI Mockup mapped with Admin images */}

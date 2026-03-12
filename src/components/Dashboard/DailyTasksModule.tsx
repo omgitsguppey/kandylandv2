@@ -86,11 +86,12 @@ export function DailyTasksModule() {
     const activeTasks = useMemo(() => {
         return userProfile?.dailyTasksState?.tasks || [];
     }, [userProfile?.dailyTasksState?.tasks]);
+    const userId = userProfile?.uid;
 
     // Handle rotation if needed
     useEffect(() => {
         const rotateTasks = async () => {
-            if (!userProfile) return;
+            if (!userId) return;
 
             // Check if rotation is needed locally first
             // (Backend also checks this as a security layer)
@@ -108,7 +109,7 @@ export function DailyTasksModule() {
         };
 
         rotateTasks();
-    }, [userProfile?.uid]);
+    }, [refreshProfile, userId]);
 
     const calculateProgress = (taskId: string, savedProgress: number) => {
         if (!userProfile) return 0;

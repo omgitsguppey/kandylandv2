@@ -17,11 +17,11 @@ export default function TermsPage() {
                 <section className="space-y-4">
                     <h2 className="text-xl font-bold text-white">1. Introduction</h2>
                     <p>
-                        Welcome to KandyDrops. These Terms of Service ("Terms") govern your access to and use of the KandyDrops platform.
+                        Welcome to KandyDrops. These Terms of Service (&ldquo;Terms&rdquo;) govern your access to and use of the KandyDrops platform.
                         By accessing or using the Service, you agree to be bound by these Terms.
                     </p>
                     <p>
-                        <strong>KandyDrops is operated by iKandy</strong>, a wholly-owned subsidiary of **Dollars not Sense**. throughout these Terms, "we", "us", and "our" refer to iKandy.
+                        <strong>KandyDrops is operated by iKandy</strong>, a wholly-owned subsidiary of <strong>Dollars not Sense</strong>. Throughout these Terms, &ldquo;we&rdquo;, &ldquo;us&rdquo;, and &ldquo;our&rdquo; refer to iKandy.
                     </p>
                 </section>
 
@@ -34,9 +34,9 @@ export default function TermsPage() {
                 </section>
 
                 <section className="space-y-4">
-                    <h2 className="text-xl font-bold text-white">3. Virtual Currency ("Gum Drops")</h2>
+                    <h2 className="text-xl font-bold text-white">3. Virtual Currency (&ldquo;Gum Drops&rdquo;)</h2>
                     <p>
-                        "Gum Drops" are a limited, non-transferable, revocable license to access digital content on our platform.
+                        &ldquo;Gum Drops&rdquo; are a limited, non-transferable, revocable license to access digital content on our platform.
                         <strong>Gum Drops are NOT real currency</strong>, have no monetary value, and cannot be redeemed for cash or refunded once purchased.
                     </p>
                     <p>
@@ -54,7 +54,7 @@ export default function TermsPage() {
                 <section className="space-y-4">
                     <h2 className="text-xl font-bold text-white">5. Disclaimer of Warranties</h2>
                     <p>
-                        The Service is provided "AS IS" and "AS AVAILABLE". iKandy explicitly disclaims all warranties of any kind, whether express or implied.
+                        The Service is provided &ldquo;AS IS&rdquo; and &ldquo;AS AVAILABLE&rdquo;. iKandy explicitly disclaims all warranties of any kind, whether express or implied.
                     </p>
                 </section>
 

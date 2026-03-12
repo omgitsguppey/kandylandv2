@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import NextImage from "next/image";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from "@/lib/firebase-data";
 import { Upload, X, Loader2, FileType } from "lucide-react";
@@ -134,10 +135,13 @@ export function FileUpload({ label, folder, onUploadComplete, initialUrl, accept
                 ) : previewUrl ? (
                     <div className="relative w-full h-full flex flex-col items-center justify-center">
                         {accept?.startsWith("image/") || previewUrl.match(/\.(jpeg|jpg|gif|png|webp)(\?|$)/i) ? (
-                            <img
+                            <NextImage
                                 src={previewUrl}
                                 alt="Preview"
-                                className="w-full h-full object-contain rounded-lg"
+                                fill
+                                unoptimized
+                                sizes="100vw"
+                                className="object-contain rounded-lg"
                             />
                         ) : accept?.startsWith("video/") || previewUrl.match(/\.(mp4|webm|ogg|mov)(\?|$)/i) ? (
                             <video

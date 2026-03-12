@@ -1,21 +1,18 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { ArrowLeft, Lock, ShieldCheck, Loader2, ShoppingBag, Download, Video, Images } from "lucide-react";
+import { ArrowLeft, Lock, ShieldCheck, Loader2, ShoppingBag, Download, Video, Images, Eye } from "lucide-react";
 
 import { toast } from "sonner";
 import { Drop } from "@/types/db";
 import NextImage from "next/image";
 import { authFetch } from "@/lib/authFetch";
-import { auth } from "@/lib/firebase";
 import { cn } from "@/lib/utils";
-import { ContentViewer, ViewerMediaItem } from "@/components/ContentViewer";
 import { sendGAEvent } from "@next/third-parties/google";
 import { getSimulatedUnwrapsToday } from "@/lib/unwrap-simulator";
-import { Eye } from "lucide-react";
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import useEmblaCarousel from "embla-carousel-react";
 
@@ -204,6 +201,18 @@ function createVideoThumbnail(videoUrl: string): Promise<string | null> {
     });
 }
 
+function revokeObjectUrl(url: string | null | undefined) {
+    if (url?.startsWith("blob:")) {
+        URL.revokeObjectURL(url);
+    }
+}
+
+async function fetchSecureContent(dropId: string, index: number): Promise<Response> {
+    return authFetch(`/api/drops/content?id=${encodeURIComponent(dropId)}&index=${index}`, {
+        cache: "no-store",
+    });
+}
+
 function formatUnwrappedLabel(unwrappedAt: number | null): string {
     if (!Number.isFinite(unwrappedAt) || !unwrappedAt) {
         return "Unwrapped";
@@ -234,6 +243,8 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     const [resolvedContent, setResolvedContent] = useState<ResolvedContent>({ kind: "unknown", mimeType: "" });
     const [contentLoading, setContentLoading] = useState(false);
     const [thumbnailItems, setThumbnailItems] = useState<ThumbnailItem[]>([]);
+    const contentObjectUrlRef = useRef<string | null>(null);
+    const thumbnailObjectUrlsRef = useRef<string[]>([]);
 
     const [isSecurityTriggered, setIsSecurityTriggered] = useState(false);
 
@@ -270,6 +281,15 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     const [emblaRef, emblaApi] = useEmblaCarousel({ dragFree: true, containScroll: "trimSnaps" });
 
     useEffect(() => {
+        return () => {
+            revokeObjectUrl(contentObjectUrlRef.current);
+            contentObjectUrlRef.current = null;
+            thumbnailObjectUrlsRef.current.forEach((url) => revokeObjectUrl(url));
+            thumbnailObjectUrlsRef.current = [];
+        };
+    }, []);
+
+    useEffect(() => {
         if (!emblaApi) return;
         emblaApi.scrollTo(activeIndex);
     }, [emblaApi, activeIndex]);
@@ -282,21 +302,18 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         return Array.from(new Set(urls.filter(url => typeof url === 'string' && url.length > 0)));
     }, [drop]);
 
-    const viewerItems = useMemo<ViewerMediaItem[]>(() => {
-        if (!drop || !contentBlobUrl) {
-            return [];
+    useEffect(() => {
+        setActiveIndex(0);
+    }, [drop?.id]);
+
+    useEffect(() => {
+        if (availableUrls.length === 0) {
+            setActiveIndex(0);
+            return;
         }
 
-        const mediaType = resolvedContent.kind === "video" ? "video" : "image";
-
-        return [{
-            id: `${drop.id}-${activeIndex}`,
-            url: contentBlobUrl,
-            type: mediaType,
-            alt: drop.title,
-        }];
-    }, [contentBlobUrl, drop, resolvedContent.kind, activeIndex]);
-
+        setActiveIndex((previous) => Math.min(previous, availableUrls.length - 1));
+    }, [availableUrls.length]);
 
     // Redirect if not logged in (once auth is ready)
     useEffect(() => {
@@ -317,8 +334,13 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     useEffect(() => {
         if (isAuthorized) return;
 
+        revokeObjectUrl(contentObjectUrlRef.current);
+        contentObjectUrlRef.current = null;
+        thumbnailObjectUrlsRef.current.forEach((url) => revokeObjectUrl(url));
+        thumbnailObjectUrlsRef.current = [];
         setContentBlobUrl(null);
         setResolvedContent({ kind: "unknown", mimeType: "" });
+        setThumbnailItems([]);
     }, [isAuthorized]);
 
     // Security Hooks for Anti-Ripping
@@ -369,24 +391,41 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         };
     }, [isAuthorized, drop]);
 
-    // Fetch content directly to avoid massive Blob memory allocations
+    // Fetch the active asset with Authorization headers and render it via an object URL.
     useEffect(() => {
         if (!isAuthorized || !drop) return;
 
         const currentDrop = drop;
+        const targetUrl = availableUrls[activeIndex];
         let cancelled = false;
+
+        if (!targetUrl) {
+            revokeObjectUrl(contentObjectUrlRef.current);
+            contentObjectUrlRef.current = null;
+            setContentBlobUrl(null);
+            setResolvedContent({ kind: "unknown", mimeType: "" });
+            setContentLoading(false);
+            return;
+        }
 
         async function fetchContent() {
             setContentLoading(true);
             try {
-                const token = await auth.currentUser?.getIdToken();
-                if (!token) throw new Error("Not authenticated");
+                const response = await fetchSecureContent(currentDrop.id, activeIndex);
+                if (!response.ok) {
+                    const result = await response.json().catch(() => ({}));
+                    throw new Error(typeof result?.error === "string" ? result.error : "Failed to load content securely");
+                }
 
-                const proxyUrl = `/api/drops/content?id=${currentDrop.id}&token=${token}&index=${activeIndex}`;
-                const targetUrl = availableUrls[activeIndex];
+                const blob = await response.blob();
+                const objectUrl = URL.createObjectURL(blob);
 
                 if (!cancelled) {
-                    let guessedMimeType = inferMimeTypeFromUrl(targetUrl || "", currentDrop.fileMetadata?.type || "");
+                    let guessedMimeType = normalizeMimeType(response.headers.get("content-type") || blob.type);
+
+                    if (!guessedMimeType) {
+                        guessedMimeType = inferMimeTypeFromUrl(targetUrl, currentDrop.fileMetadata?.type || "");
+                    }
 
                     if (!guessedMimeType) {
                         guessedMimeType = "video/mp4"; // Default fallback
@@ -394,11 +433,18 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
 
                     const nextResolvedContent = resolveContent(guessedMimeType, currentDrop.fileMetadata?.type);
 
-                    setContentBlobUrl(proxyUrl);
+                    revokeObjectUrl(contentObjectUrlRef.current);
+                    contentObjectUrlRef.current = objectUrl;
+                    setContentBlobUrl(objectUrl);
                     setResolvedContent(nextResolvedContent);
+                } else {
+                    revokeObjectUrl(objectUrl);
                 }
             } catch (err) {
                 if (!cancelled) {
+                    revokeObjectUrl(contentObjectUrlRef.current);
+                    contentObjectUrlRef.current = null;
+                    setContentBlobUrl(null);
                     setResolvedContent({ kind: "unknown", mimeType: "" });
                     toast.error("Failed to load content securely");
                 }
@@ -416,46 +462,62 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
 
     useEffect(() => {
         if (!isAuthorized || !drop || availableUrls.length === 0) {
+            thumbnailObjectUrlsRef.current.forEach((url) => revokeObjectUrl(url));
+            thumbnailObjectUrlsRef.current = [];
             setThumbnailItems([]);
             return;
         }
 
         const currentDrop = drop;
         let cancelled = false;
+        const nextObjectUrls: string[] = [];
 
         async function buildThumbnails() {
-            const token = await auth.currentUser?.getIdToken();
-            if (!token) {
-                if (!cancelled) {
-                    setThumbnailItems([]);
-                }
-                return;
-            }
-
             const nextItems = await Promise.all(availableUrls.map(async (url, idx) => {
                 const guessedMimeType = inferMimeTypeFromUrl(url, currentDrop.fileMetadata?.type || "");
                 const kind = resolveContent(guessedMimeType, currentDrop.fileMetadata?.type).kind;
-                const secureUrl = `/api/drops/content?id=${currentDrop.id}&token=${encodeURIComponent(token)}&index=${idx}`;
 
-                if (kind === "image") {
-                    return { src: secureUrl, kind };
+                try {
+                    const response = await fetchSecureContent(currentDrop.id, idx);
+                    if (!response.ok) {
+                        return { src: currentDrop.imageUrl, kind };
+                    }
+
+                    const blob = await response.blob();
+                    const objectUrl = URL.createObjectURL(blob);
+
+                    if (kind === "image") {
+                        nextObjectUrls.push(objectUrl);
+                        return { src: objectUrl, kind };
+                    }
+
+                    if (kind === "video") {
+                        const thumbnail = await createVideoThumbnail(objectUrl);
+                        revokeObjectUrl(objectUrl);
+                        return { src: thumbnail, kind };
+                    }
+
+                    revokeObjectUrl(objectUrl);
+                    return { src: currentDrop.imageUrl, kind };
+                } catch {
+                    return { src: currentDrop.imageUrl, kind };
                 }
-
-                if (kind === "video") {
-                    const thumbnail = await createVideoThumbnail(secureUrl);
-                    return { src: thumbnail, kind };
-                }
-
-                return { src: currentDrop.imageUrl, kind };
             }));
 
             if (!cancelled) {
+                thumbnailObjectUrlsRef.current.forEach((url) => revokeObjectUrl(url));
+                thumbnailObjectUrlsRef.current = nextObjectUrls;
                 setThumbnailItems(nextItems);
+            } else {
+                nextObjectUrls.forEach((url) => revokeObjectUrl(url));
             }
         }
 
         buildThumbnails().catch(() => {
             if (!cancelled) {
+                nextObjectUrls.forEach((url) => revokeObjectUrl(url));
+                thumbnailObjectUrlsRef.current.forEach((url) => revokeObjectUrl(url));
+                thumbnailObjectUrlsRef.current = [];
                 setThumbnailItems([]);
             }
         });
@@ -626,11 +688,14 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                 } else if (resolvedContent.kind === "image") {
                                     return (
                                         <div className="relative w-full h-full bg-black">
-                                            <img
+                                            <NextImage
                                                 key={`viewer-image-${contentBlobUrl}`}
                                                 src={contentBlobUrl}
                                                 alt="Content"
-                                                className="w-full h-full object-contain"
+                                                fill
+                                                unoptimized
+                                                sizes="100vw"
+                                                className="object-contain"
                                                 draggable={false}
                                                 onContextMenu={preventContextMenu}
                                             />
@@ -646,7 +711,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                                 className="w-full h-full"
                                             >
                                                 <p className="p-4 text-black text-center">
-                                                    Your browser doesn't support built-in PDF viewing.
+                                                    Your browser doesn&apos;t support built-in PDF viewing.
                                                 </p>
                                             </object>
                                         </div>
@@ -673,7 +738,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                     <div className="w-full max-w-5xl mx-auto px-4 mt-6">
                         <div className="overflow-hidden pb-6 pt-2 px-2" ref={emblaRef}>
                             <div className="flex gap-4">
-                                {availableUrls.map((url, idx) => {
+                                {availableUrls.map((_, idx) => {
                                     const thumbnail = thumbnailItems[idx];
                                     const isVideo = thumbnail?.kind === "video";
                                     const isImage = thumbnail?.kind === "image";
@@ -697,10 +762,13 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                                 {idx + 1}
                                             </div>
                                             {thumbnail?.src ? (
-                                                <img
+                                                <NextImage
                                                     src={thumbnail.src}
                                                     alt={`Thumbnail ${idx + 1}`}
-                                                    className="h-full w-full object-cover opacity-80 pointer-events-none bg-zinc-900"
+                                                    fill
+                                                    unoptimized
+                                                    sizes="80px"
+                                                    className="object-cover opacity-80 pointer-events-none bg-zinc-900"
                                                     draggable={false}
                                                 />
                                             ) : (

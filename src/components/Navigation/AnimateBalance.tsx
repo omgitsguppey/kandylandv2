@@ -11,6 +11,7 @@ interface AnimateBalanceProps {
 export function AnimateBalance({ balance, className }: AnimateBalanceProps) {
     const [isIncreased, setIsIncreased] = useState(false);
     const [isDecreased, setIsDecreased] = useState(false);
+    const [changeAmount, setChangeAmount] = useState(0);
     const prevBalanceRef = useRef(balance);
 
     // Use framer-motion's spring for smooth, un-interruptable number interpolation
@@ -26,16 +27,21 @@ export function AnimateBalance({ balance, className }: AnimateBalanceProps) {
         // Trigger the spring animation
         springValue.set(balance);
 
-        // Handle the +/- badges
-        if (balance > prevBalanceRef.current) {
+        const previousBalance = prevBalanceRef.current;
+        const delta = balance - previousBalance;
+        prevBalanceRef.current = balance;
+
+        if (delta > 0) {
+            setChangeAmount(delta);
             setIsIncreased(true);
+            setIsDecreased(false);
             const timeout = setTimeout(() => setIsIncreased(false), 2000);
-            prevBalanceRef.current = balance;
             return () => clearTimeout(timeout);
-        } else if (balance < prevBalanceRef.current) {
+        } else if (delta < 0) {
+            setChangeAmount(delta);
             setIsDecreased(true);
+            setIsIncreased(false);
             const timeout = setTimeout(() => setIsDecreased(false), 2000);
-            prevBalanceRef.current = balance;
             return () => clearTimeout(timeout);
         }
     }, [balance, springValue]);
@@ -52,7 +58,7 @@ export function AnimateBalance({ balance, className }: AnimateBalanceProps) {
                         exit={{ opacity: 0 }}
                         className="absolute -top-1 right-0 text-brand-purple text-[10px] font-bold"
                     >
-                        +{balance - prevBalanceRef.current}
+                        +{changeAmount}
                     </motion.span>
                 )}
                 {isDecreased && (
@@ -62,7 +68,7 @@ export function AnimateBalance({ balance, className }: AnimateBalanceProps) {
                         exit={{ opacity: 0 }}
                         className="absolute -bottom-1 right-0 text-red-500 text-[10px] font-bold"
                     >
-                        {balance - prevBalanceRef.current}
+                        {changeAmount}
                     </motion.span>
                 )}
             </AnimatePresence>

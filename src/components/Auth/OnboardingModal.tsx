@@ -96,7 +96,7 @@ export function OnboardingModal() {
                 setIsOpen(false);
             }
         }
-    }, [user, userProfile, setValue]);
+    }, [isOpen, user, userProfile, setValue]);
 
     // Real-time username availability check debounced/triggered manually on change
     const checkUsernameAvailability = async (val: string) => {

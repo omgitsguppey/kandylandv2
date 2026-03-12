@@ -201,7 +201,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                                     </div>
                                     <div>
                                         <h3 className="text-lg font-bold text-white mb-2">Check your inbox</h3>
-                                        <p className="text-gray-400 text-sm">We've sent a password reset link to your email address.</p>
+                                        <p className="text-gray-400 text-sm">We&apos;ve sent a password reset link to your email address.</p>
                                     </div>
                                     <button
                                         onClick={() => switchMode("signin")}
@@ -213,7 +213,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                             ) : (
                                 <form onSubmit={handlePasswordReset} className="space-y-3 sm:space-y-4">
                                     <p className="text-sm text-gray-400 text-center mb-5 sm:mb-6">
-                                        Enter your email address and we'll send you a link to reset your password.
+                                        Enter your email address and we&apos;ll send you a link to reset your password.
                                     </p>
                                     <div className="space-y-2">
                                         <label className="text-xs sm:text-sm font-medium text-gray-400">Email</label>
@@ -358,7 +358,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                             <div className="text-center text-xs sm:text-sm text-gray-400">
                                 {mode === "signin" ? (
                                     <p>
-                                        Don't have an account?{" "}
+                                        Don&apos;t have an account?{" "}
                                         <button
                                             onClick={() => switchMode("signup")}
                                             className="text-brand-purple font-medium"

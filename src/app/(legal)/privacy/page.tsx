@@ -31,7 +31,7 @@ export default function PrivacyPage() {
                     </p>
                     <ul className="list-disc pl-5 space-y-2">
                         <li>Provide and maintain the Service.</li>
-                        <li>Process transactions and manage your "Gum Drops" balance.</li>
+                        <li>Process transactions and manage your &ldquo;Gum Drops&rdquo; balance.</li>
                         <li>Verify age eligibility (18+ content).</li>
                         <li>Improve platform performance and security.</li>
                         <li><strong>Behavioral Marketing:</strong> Apply interaction data to tailor content recommendations, promotions, and the overall user experience.</li>

@@ -7,9 +7,10 @@ interface NowContextType {
 }
 
 const NowContext = createContext<NowContextType | null>(null);
+const INITIAL_NOW = Date.now();
 
 export function NowProvider({ children }: { children: ReactNode }) {
-    const [now, setNow] = useState<number>(Date.now());
+    const [now, setNow] = useState<number>(INITIAL_NOW);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -30,7 +31,7 @@ export const useNow = () => {
     const context = useContext(NowContext);
     if (!context) {
         // Fallback for components used outside provider (though shouldn't happen)
-        return { now: Date.now() };
+        return { now: INITIAL_NOW };
     }
     return context;
 };

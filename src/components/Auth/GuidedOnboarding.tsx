@@ -6,6 +6,8 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
 import { ChevronRight, BellRing, Sparkles, Droplets, Flame, Gift } from "lucide-react";
 import { trackEvent } from "@/lib/telemetry";
+import { authFetch } from "@/lib/authFetch";
+import { getCSTDayBoundaries } from "@/lib/timezone";
 import { toast } from "sonner";
 
 type HighlightRect = {
@@ -57,6 +59,25 @@ const SCROLL_KEYS = new Set([" ", "ArrowDown", "ArrowUp", "PageDown", "PageUp", 
 
 function wait(ms: number) {
     return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+function normalizeTimestamp(value: unknown): number {
+    if (!Number.isFinite(value)) {
+        return 0;
+    }
+
+    const timestamp = Number(value);
+    return timestamp > 0 ? Math.floor(timestamp) : 0;
+}
+
+function hasClaimedToday(value: unknown): boolean {
+    const lastCheckIn = normalizeTimestamp(value);
+    if (!lastCheckIn) {
+        return false;
+    }
+
+    const { startOfDay, endOfDay } = getCSTDayBoundaries(Date.now());
+    return lastCheckIn >= startOfDay && lastCheckIn < endOfDay;
 }
 
 export function GuidedOnboarding() {
@@ -309,7 +330,7 @@ export function GuidedOnboarding() {
             const rewardCard = document.querySelector('[data-onboarding-target="daily-reward"]');
 
             if (!claimButton || claimButton.disabled) {
-                if (rewardCard && profile?.lastCheckIn) {
+                if (rewardCard && hasClaimedToday(profile?.lastCheckIn)) {
                     toast.info("Today's reward is already claimed. Continuing the tour.");
                     await wait(250);
                     setCurrentStep(2);
@@ -362,10 +383,8 @@ export function GuidedOnboarding() {
         if (!user || isCompleting) return;
         setIsCompleting(true);
         try {
-            const token = await user.getIdToken();
-            const response = await fetch("/api/user/complete-onboarding", {
+            const response = await authFetch("/api/user/complete-onboarding", {
                 method: "POST",
-                headers: { Authorization: `Bearer ${token}` }
             });
 
             const result = await response.json().catch(() => ({}));
@@ -398,7 +417,8 @@ export function GuidedOnboarding() {
             return;
         } catch (error) {
             console.error("Error completing onboarding:", error);
-            setIsVisible(false); // Failsafe close
+            const message = error instanceof Error ? error.message : "Failed to finish onboarding.";
+            toast.error(message);
         } finally {
             setIsCompleting(false);
         }
@@ -551,8 +571,8 @@ export function GuidedOnboarding() {
                                 <div className="w-20 h-20 bg-pink-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-pink-500/30 animate-pulse">
                                     <Gift className="w-10 h-10 text-pink-400" />
                                 </div>
-                                <h2 className="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-pink-400 to-purple-400 mb-4 tracking-tight">You're All Set!</h2>
-                                <p className="text-gray-300 text-sm sm:text-base mb-2 leading-relaxed font-medium">We've given you <b className="text-pink-400 text-lg">50 Gumdrops</b> to get you started!</p>
+                                <h2 className="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-pink-400 to-purple-400 mb-4 tracking-tight">You&apos;re All Set!</h2>
+                                <p className="text-gray-300 text-sm sm:text-base mb-2 leading-relaxed font-medium">We&apos;ve given you <b className="text-pink-400 text-lg">50 Gumdrops</b> to get you started!</p>
                                 <p className="text-gray-400 text-xs sm:text-sm mb-8 leading-relaxed">Dive into the Drops feed to unlock your first exclusive experience.</p>
 
                                 <button
@@ -623,7 +643,7 @@ export function GuidedOnboarding() {
                                     <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-3 border border-purple-500/30">
                                         <BellRing className="w-6 h-6 text-purple-400" />
                                     </div>
-                                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2">Don't miss out!</h3>
+                                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2">Don&apos;t miss out!</h3>
                                     <p className="text-xs sm:text-sm text-gray-300 mb-5 leading-relaxed">Enable notifications so you catch new drops the moment they go live and never miss a limited release.</p>
                                 </>
                             )}

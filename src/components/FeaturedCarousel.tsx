@@ -248,7 +248,9 @@ function ActivityTicker({ count }: { count: number }) {
             return;
         }
 
-        setIsAnimating(true);
+        const start = window.setTimeout(() => {
+            setIsAnimating(true);
+        }, 0);
         const update = window.setTimeout(() => {
             setDisplayCount(count);
         }, 90);
@@ -257,6 +259,7 @@ function ActivityTicker({ count }: { count: number }) {
         }, 220);
 
         return () => {
+            window.clearTimeout(start);
             window.clearTimeout(update);
             window.clearTimeout(end);
         };

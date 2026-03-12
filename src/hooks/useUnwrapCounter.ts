@@ -96,13 +96,23 @@ export function useUnwrapCounter(dropId: string | null, baseCount: number, creat
   const [currentCount, setCurrentCount] = useState<number>(normalizedBaseCount);
 
   useEffect(() => {
+    let initialTimeoutId: number | null = null;
+
     if (!dropId) {
-      setCurrentCount(normalizedBaseCount);
-      return;
+      initialTimeoutId = window.setTimeout(() => {
+        setCurrentCount(normalizedBaseCount);
+      }, 0);
+      return () => {
+        if (initialTimeoutId !== null) {
+          window.clearTimeout(initialTimeoutId);
+        }
+      };
     }
 
     const initialValue = getStartingCount(dropId, normalizedBaseCount);
-    setCurrentCount(initialValue);
+    initialTimeoutId = window.setTimeout(() => {
+      setCurrentCount(initialValue);
+    }, 0);
 
     let timeoutId: number | null = null;
     let cancelled = false;
@@ -132,6 +142,9 @@ export function useUnwrapCounter(dropId: string | null, baseCount: number, creat
 
     return () => {
       cancelled = true;
+      if (initialTimeoutId !== null) {
+        window.clearTimeout(initialTimeoutId);
+      }
       if (timeoutId !== null) {
         window.clearTimeout(timeoutId);
       }

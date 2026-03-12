@@ -223,7 +223,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                           </div>
                         ) : paypalFailed ? (
                           <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">
-                            We couldn't load PayPal right now. Close and reopen Wallet to retry.
+                            We couldn&apos;t load PayPal right now. Close and reopen Wallet to retry.
                           </div>
                         ) : !paypalReady || paypalLoading ? (
                           <div className="rounded-xl border border-white/10 bg-white/5 p-4">

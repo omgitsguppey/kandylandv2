@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
 import { sendGlobalDropNotification } from "@/lib/server/push-notifications";
-import { addDays, parse, startOfDay, isAfter } from "date-fns";
-import { set } from "date-fns";
+import { addDays, parse, startOfDay, isAfter, set } from "date-fns";
 
 // This cron job should be called periodically (e.g. daily/hourly)
 export async function GET(request: NextRequest) {

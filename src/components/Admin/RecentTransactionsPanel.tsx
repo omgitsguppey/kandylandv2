@@ -7,12 +7,15 @@ import { Transaction } from "@/types/db";
 import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 import { formatDistanceToNow } from "date-fns";
 
+const INITIAL_TRANSACTIONS_NOW = Date.now();
+
 /**
  * Displays the 20 most recent transactions with a real-time listener.
  * Owns its own onSnapshot subscription scoped to recent transactions.
  */
 export function RecentTransactionsPanel() {
     const [transactions, setTransactions] = useState<(Transaction & { username?: string })[]>([]);
+    const [nowMs, setNowMs] = useState(INITIAL_TRANSACTIONS_NOW);
     const userMapCache = useRef<Record<string, string>>({});
 
     useEffect(() => {
@@ -57,6 +60,14 @@ export function RecentTransactionsPanel() {
         return () => unsub();
     }, []);
 
+    useEffect(() => {
+        const interval = window.setInterval(() => {
+            setNowMs(Date.now());
+        }, 60_000);
+
+        return () => window.clearInterval(interval);
+    }, []);
+
     return (
         <div className="glass-panel p-6 rounded-3xl">
             <div className="flex items-center justify-between mb-6">
@@ -67,7 +78,7 @@ export function RecentTransactionsPanel() {
                 {transactions.length === 0 ? (
                     <div className="text-sm text-gray-500 py-4 text-center">No recent transactions.</div>
                 ) : transactions.map((tx) => {
-                    const timestamp = (tx.timestamp as number) > 0 ? (tx.timestamp as number) : Date.now();
+                    const timestamp = (tx.timestamp as number) > 0 ? (tx.timestamp as number) : nowMs;
                     return (
                         <div key={tx.id} className="flex items-center justify-between border-b border-white/5 pb-3 last:border-0">
                             <div>

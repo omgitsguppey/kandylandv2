@@ -1,27 +1,19 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-    baseDirectory: __dirname,
-});
+import nextVitals from "eslint-config-next/core-web-vitals";
+import importPlugin from "eslint-plugin-import";
 
 const eslintConfig = [
-    ...compat.extends("next/core-web-vitals"),
-    ...compat.extends("plugin:tailwindcss/recommended"),
-    ...compat.extends("plugin:jsx-a11y/recommended"),
     {
+        ignores: ["src/dataconnect-generated/**"],
+    },
+    ...nextVitals,
+    {
+        files: ["**/*.{js,jsx,mjs,ts,tsx,mts,cts}"],
         plugins: {
-            import: (await import("eslint-plugin-import")).default,
+            import: importPlugin,
         },
         rules: {
-            "tailwindcss/no-custom-classname": "off",
-            "tailwindcss/classnames-order": "warn",
             "import/no-unresolved": ["error", { ignore: ["^@/"] }],
-            "import/no-duplicates": "warn",
+            "import/no-duplicates": "error",
         },
         settings: {
             "import/resolver": {

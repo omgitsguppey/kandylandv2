@@ -86,7 +86,7 @@ export function FAQClient({ sections }: FAQClientProps) {
       </div>
 
       {filteredSections.length === 0 ? (
-        <div className="text-center py-20 text-gray-500 font-medium">No questions found matching "{query}"</div>
+        <div className="text-center py-20 text-gray-500 font-medium">No questions found matching &quot;{query}&quot;</div>
       ) : (
         <div className="space-y-14 md:space-y-16">
           {filteredSections.map((section) => (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     BarChart, Bar, Cell
@@ -56,16 +56,54 @@ interface AnalyticsResponse {
     }>;
 }
 
+function AnalyticsTooltip({
+    active,
+    payload,
+    label,
+}: {
+    active?: boolean;
+    payload?: Array<{ color?: string; name?: string; value?: string | number }>;
+    label?: string;
+}) {
+    if (active && payload && payload.length) {
+        return (
+            <div className="bg-black/90 border border-white/10 p-3 rounded-xl shadow-2xl backdrop-blur-md">
+                <p className="text-gray-400 text-xs mb-2 font-medium">{label}</p>
+                {payload.map((entry, index) => (
+                    <div key={index} className="flex items-center gap-2 text-sm font-bold my-1">
+                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
+                        <span className="text-white capitalize">{entry.name}:</span>
+                        <span className="text-white">{entry.value}</span>
+                    </div>
+                ))}
+            </div>
+        );
+    }
+
+    return null;
+}
+
 function buildUrl(filter: TimeFilter): string {
     return filter === "live"
         ? `/api/admin/analytics?type=realtime`
         : `/api/admin/analytics?type=historical&period=${filter}`;
 }
 
+const INITIAL_ANALYTICS_NOW = Date.now();
+
 export default function AdminAnalyticsPage() {
     const [filter, setFilter] = useState<TimeFilter>("30d");
     const [activeTab, setActiveTab] = useState<ViewTab>("operations");
     const [activeDrillDown, setActiveDrillDown] = useState<DrillDownState>(null);
+    const [nowMs, setNowMs] = useState(INITIAL_ANALYTICS_NOW);
+
+    useEffect(() => {
+        const interval = window.setInterval(() => {
+            setNowMs(Date.now());
+        }, 1000);
+
+        return () => window.clearInterval(interval);
+    }, []);
 
     const { data, error, isLoading, mutate } = useAuthSWR<AnalyticsResponse>(
         buildUrl(filter),
@@ -96,24 +134,6 @@ export default function AdminAnalyticsPage() {
         const diffHours = (new Date().getTime() - new Date(log.lastViolation).getTime()) / (1000 * 60 * 60);
         return diffHours < 24;
     }).length;
-
-    const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: any[]; label?: string }) => {
-        if (active && payload && payload.length) {
-            return (
-                <div className="bg-black/90 border border-white/10 p-3 rounded-xl shadow-2xl backdrop-blur-md">
-                    <p className="text-gray-400 text-xs mb-2 font-medium">{label}</p>
-                    {payload.map((entry, index) => (
-                        <div key={index} className="flex items-center gap-2 text-sm font-bold my-1">
-                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
-                            <span className="text-white capitalize">{entry.name}:</span>
-                            <span className="text-white">{entry.value}</span>
-                        </div>
-                    ))}
-                </div>
-            );
-        }
-        return null;
-    };
 
     if (needsSetup) {
         return (
@@ -247,7 +267,7 @@ export default function AdminAnalyticsPage() {
                                                         log.type === 'visibility' ? `Visibility: ${log.targetText}` : "Interaction event";
 
                                             // Calculate relative time roughly
-                                            const diffSec = Math.floor((Date.now() - log.timestamp) / 1000);
+                                            const diffSec = Math.floor((nowMs - log.timestamp) / 1000);
                                             const timeStr = diffSec < 60 ? `${diffSec}s ago` : diffSec < 3600 ? `${Math.floor(diffSec / 60)}m ago` : `${Math.floor(diffSec / 3600)}h ago`;
 
                                             return (
@@ -344,7 +364,7 @@ export default function AdminAnalyticsPage() {
                                                     </defs>
                                                     <XAxis dataKey="date" stroke="#ffffff20" fontSize={10} tickLine={false} axisLine={false} minTickGap={30} />
                                                     <YAxis stroke="#ffffff20" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(value) => `${(value * 100).toFixed(0)}%`} />
-                                                    <Tooltip content={<CustomTooltip />} />
+                                                    <Tooltip content={<AnalyticsTooltip />} />
                                                     <Area type="monotone" dataKey="engagementRate" name="Engagement Rate" stroke="#b28cff" strokeWidth={3} fillOpacity={1} fill="url(#colorEngArea)" />
                                                 </AreaChart>
                                             </ResponsiveContainer>
@@ -414,7 +434,7 @@ export default function AdminAnalyticsPage() {
                                                     </defs>
                                                     <XAxis dataKey="date" stroke="#ffffff20" fontSize={10} tickLine={false} axisLine={false} minTickGap={30} />
                                                     <YAxis stroke="#ffffff20" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(value) => `${Math.floor(value / 60)}m`} />
-                                                    <Tooltip content={<CustomTooltip />} />
+                                                    <Tooltip content={<AnalyticsTooltip />} />
                                                     <Area type="monotone" dataKey="avgSessionDuration" name="Avg Secs" stroke="#b28cff" strokeWidth={3} fillOpacity={1} fill="url(#colorTimeArea)" />
                                                 </AreaChart>
                                             </ResponsiveContainer>
@@ -463,7 +483,7 @@ export default function AdminAnalyticsPage() {
                                             let timeStr = "Unknown";
                                             if (tx.timestamp) {
                                                 const d = typeof tx.timestamp === 'number' ? new Date(tx.timestamp) : tx.timestamp.toDate ? tx.timestamp.toDate() : new Date();
-                                                const diff = Math.floor((Date.now() - d.getTime()) / 1000);
+                                                const diff = Math.floor((nowMs - d.getTime()) / 1000);
                                                 timeStr = diff < 60 ? `${diff}s ago` : diff < 3600 ? `${Math.floor(diff / 60)}m ago` : diff < 86400 ? `${Math.floor(diff / 3600)}h ago` : `${Math.floor(diff / 86400)}d ago`;
                                             }
 
@@ -545,7 +565,7 @@ export default function AdminAnalyticsPage() {
                                         <div className="w-full h-[120px] mt-8">
                                             <ResponsiveContainer width="100%" height="100%">
                                                 <BarChart data={liveData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-                                                    <Tooltip content={<CustomTooltip />} cursor={{ fill: '#ffffff05' }} />
+                                                    <Tooltip content={<AnalyticsTooltip />} cursor={{ fill: '#ffffff05' }} />
                                                     <Bar dataKey="users" name="Active Users" fill="#b28cff" radius={[4, 4, 0, 0]} />
                                                 </BarChart>
                                             </ResponsiveContainer>
@@ -604,7 +624,7 @@ export default function AdminAnalyticsPage() {
                                                     </defs>
                                                     <XAxis dataKey="date" stroke="#ffffff20" fontSize={10} tickLine={false} axisLine={false} minTickGap={30} />
                                                     <YAxis stroke="#ffffff20" fontSize={10} tickLine={false} axisLine={false} />
-                                                    <Tooltip content={<CustomTooltip />} />
+                                                    <Tooltip content={<AnalyticsTooltip />} />
                                                     <Area type="monotone" dataKey="users" stroke="#b28cff" strokeWidth={3} fillOpacity={1} fill="url(#colorUsersArea)" />
                                                 </AreaChart>
                                             </ResponsiveContainer>

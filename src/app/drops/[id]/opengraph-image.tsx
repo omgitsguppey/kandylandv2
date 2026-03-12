@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { ImageResponse } from "next/og";
 import { getDropRaw } from "@/lib/server/drops";
 
@@ -34,6 +35,7 @@ export default async function Image({ params }: { params: { id: string } }) {
                 }}>
                     {drop.imageUrl && (
                         <img
+                            alt=""
                             src={drop.imageUrl}
                             style={{
                                 position: "absolute", top: 0, left: 0, width: "100%", height: "100%",

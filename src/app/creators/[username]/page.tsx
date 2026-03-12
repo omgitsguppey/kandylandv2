@@ -213,7 +213,7 @@ export default function CreatorProfilePage() {
                                         </div>
                                         <h3 className="text-3xl font-black text-white mb-4 tracking-tight">Members Only</h3>
                                         <p className="text-gray-400 font-medium mb-8 leading-relaxed">
-                                            Sign in to preview and unwrap this creator's exclusive drops.
+                                            Sign in to preview and unwrap this creator&apos;s exclusive drops.
                                         </p>
                                         <button
                                             onClick={openAuthModal}
@@ -231,7 +231,7 @@ export default function CreatorProfilePage() {
                         </div>
                     ) : (
                         <div className="text-center py-20 bg-white/5 rounded-3xl border border-white/5 border-dashed">
-                            <p className="text-gray-400">This creator hasn't dropped anything yet.</p>
+                            <p className="text-gray-400">This creator hasn&apos;t dropped anything yet.</p>
                         </div>
                     )}
                 </div>
