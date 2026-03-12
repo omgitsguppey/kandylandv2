@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { sendGAEvent } from "@next/third-parties/google";
 import { GuestComponentBlur } from "@/components/Auth/GuestComponentBlur";
 import { trackEvent } from "@/lib/telemetry";
+import { GUMDROPS_PRIMARY_CTA, GUMDROPS_SUPPORT_COPY, SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
 
 interface PurchaseModalProps {
   isOpen: boolean;
@@ -139,15 +140,18 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                   <X className="w-5 h-5" />
                 </button>
 
-                <GuestComponentBlur actionText="Sign in to Purchase">
+                <GuestComponentBlur
+                  actionText={SECONDARY_UNWRAP_CTA}
+                  supportText="Create a free profile before adding Gum Drops to your stash."
+                >
                   {!success ? (
                     <div>
                       <div className="text-center mb-8 pt-4">
                         <div className="w-16 h-16 bg-gradient-to-tr from-brand-purple to-brand-purple rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg shadow-brand-purple/20">
                           <Candy className="w-8 h-8 text-white drop-shadow-md" />
                         </div>
-                        <h2 className="text-2xl font-bold text-white mb-1 tracking-tight">Get Gum Drops</h2>
-                        <p className="text-gray-400 text-sm font-medium">Unwrap exclusive content instantly.</p>
+                        <h2 className="text-2xl font-bold text-white mb-1 tracking-tight">{GUMDROPS_PRIMARY_CTA}</h2>
+                        <p className="text-gray-400 text-sm font-medium">{GUMDROPS_SUPPORT_COPY}</p>
                       </div>
 
                       <div className="grid grid-cols-2 gap-3 mb-8">

@@ -40,10 +40,17 @@ export default function CookieBanner() {
             style={{
                 background: "rgba(0, 0, 0, 0.9)",
                 backdropFilter: "blur(10px)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
                 borderTop: "1px solid rgba(255, 255, 255, 0.1)",
                 fontSize: "13px",
                 alignItems: "center",
                 padding: "12px 16px calc(12px + env(safe-area-inset-bottom))",
+                bottom: "calc(5rem + env(safe-area-inset-bottom))",
+                left: "12px",
+                right: "12px",
+                width: "auto",
+                borderRadius: "24px",
+                boxShadow: "0 25px 70px rgba(0, 0, 0, 0.45)",
             }}
             buttonStyle={{
                 background: "#ec4899",

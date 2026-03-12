@@ -8,117 +8,161 @@ export type FAQSection = {
   readonly questions: readonly FAQEntry[];
 };
 
+export type HowItWorksStep = {
+  readonly id: "join" | "gumdrops" | "unwrap" | "library" | "experiences";
+  readonly label: string;
+  readonly eyebrow: string;
+  readonly title: string;
+  readonly description: string;
+  readonly callouts: readonly string[];
+  readonly metricValue: string;
+  readonly metricLabel: string;
+};
+
+export const HOW_IT_WORKS_STEPS: readonly HowItWorksStep[] = [
+  {
+    id: "join",
+    label: "Join",
+    eyebrow: "Step 1",
+    title: "Create your free profile on mobile",
+    description:
+      "Start with a free KandyDrops account so your stash, rewards, and unwrapped library stay synced across every visit.",
+    callouts: ["18+ only", "Mobile first", "Free to start"],
+    metricValue: "Free",
+    metricLabel: "to join",
+  },
+  {
+    id: "gumdrops",
+    label: "Get Gum Drops",
+    eyebrow: "Step 2",
+    title: "Get Gum Drops before the drop disappears",
+    description:
+      "Use your wallet to load up on Gum Drops, then return to Experiences to keep your streak moving and collect extra rewards.",
+    callouts: ["Wallet bundles", "Daily rewards", "Fast checkout"],
+    metricValue: "10 GD",
+    metricLabel: "Day 1 start",
+  },
+  {
+    id: "unwrap",
+    label: "Unwrap",
+    eyebrow: "Step 3",
+    title: "Unwrap live KandyDrops while they are active",
+    description:
+      "Browse the active drop, check the timer, file count, and creator tags, then unwrap it before the live window closes.",
+    callouts: ["Live timers", "+Files", "Creator tags"],
+    metricValue: "Live",
+    metricLabel: "while active",
+  },
+  {
+    id: "library",
+    label: "Keep Access",
+    eyebrow: "Step 4",
+    title: "Keep your unwrapped Kandy in your library",
+    description:
+      "If you unwrap while a KandyDrop is live, it stays in your dashboard library even after it expires from the public Drops page.",
+    callouts: ["Library access", "Mobile viewing", "Repeat anytime"],
+    metricValue: "Keeps",
+    metricLabel: "after expiry",
+  },
+  {
+    id: "experiences",
+    label: "Return Daily",
+    eyebrow: "Step 5",
+    title: "Return daily in Experiences",
+    description:
+      "Use the Experiences tab to build your streak, earn extra Gum Drops, and stay ready for the next live KandyDrop.",
+    callouts: ["Daily streaks", "Extra Gum Drops", "Mobile reminders"],
+    metricValue: "7 Day",
+    metricLabel: "reward ladder",
+  },
+];
+
 export const FAQ_SECTIONS: readonly FAQSection[] = [
   {
-    category: "Getting Started",
+    category: "Start Here",
     questions: [
       {
         q: "What is KandyDrops?",
-        a: "KandyDrops is an exclusive digital content platform where creators drop limited-edition photos, videos, and interactive experiences directly to their fans.",
+        a: "KandyDrops is a mobile-friendly platform for limited-time creator drops, daily reward Experiences, and a personal library of the KandyDrops you already unwrapped.",
       },
       {
-        q: "How do I become a Creator?",
-        a: "Creator accounts are currently invite-only or require a vetted application. If you have an established audience and want to start dropping content, please reach out to our team at creator@kandydrops.com.",
+        q: "Do I need an account before I can start?",
+        a: "You can browse as a guest, but you need a free account to collect Gum Drops, unwrap live KandyDrops, save your library, and build your Experiences streak.",
       },
       {
         q: "Do I have to be 18+ to use KandyDrops?",
-        a: "Yes. Due to the nature of our exclusive digital content, all users and creators must be at least 18 years of age to register an account.",
+        a: "Yes. You must be 18 or older to create an account or use KandyDrops.",
       },
     ],
   },
   {
-    category: "Gum Drops & Purchasing",
+    category: "Gum Drops & Live KandyDrops",
     questions: [
       {
-        q: "What are Gum Drops?",
-        a: "Gum Drops are our platform's virtual currency. You use them to unwrap exclusive drops from your favorite creators and unlock premium experiences.",
-      },
-      {
-        q: "How do I get Gum Drops?",
-        a: "You can securely purchase Gum Drop bundles directly from the Wallet tab in your dashboard. We use encrypted third-party payment gateways like PayPal to process transactions securely.",
+        q: "How do I get Gum Drops to unwrap KandyDrops?",
+        a: "You can load up on Gum Drops from the Wallet and then use them to unwrap live KandyDrops. Experiences can also help you earn extra Gum Drops over time.",
       },
       {
         q: "Do my Gum Drops expire?",
-        a: "No! Once purchased, Gum Drops remain in your wallet indefinitely as long as your account remains active.",
+        a: "No. Gum Drops stay in your account until you use them, as long as your account remains active.",
       },
       {
-        q: "Is my payment information safe?",
-        a: "Absolutely. We do not store your raw credit card data on our servers. All transactions are routed through industry-leading, secure third-party payment gateways.",
+        q: "When does a KandyDrop appear on the Drops page?",
+        a: "A KandyDrop only appears publicly once it goes live. Scheduled drops stay hidden until their live window begins.",
       },
       {
-        q: "Can I get a refund on Gum Drops or Unwraps?",
-        a: "All Gum Drop purchases and content unwraps are final. If you encounter a catastrophic bug during a transaction, please contact support for a review.",
+        q: "How do I unwrap a KandyDrop?",
+        a: "Open a live KandyDrop, check the file count and timer, then spend Gum Drops to unwrap it while it is still active.",
       },
       {
-        q: "I bought Drops but my balance hasn't updated. What do I do?",
-        a: "Sometimes payment gateways take a moment to confirm the transaction. Refresh your dashboard page. If your balance still hasn't updated after a few minutes, reach out to support@kandydrops.com.",
+        q: "What happens when a KandyDrop expires?",
+        a: "Expired KandyDrops disappear from the public Drops page if you never unwrapped them. Some may return in future queue rotations, but that is never guaranteed.",
+      },
+      {
+        q: "What do tags like Sweet, Spicy, and RAW mean?",
+        a: "Those tags help set expectations before you unwrap. They tell you the flavor or intensity of the KandyDrop without revealing the files themselves.",
       },
     ],
   },
   {
-    category: "Unwrapping & Content",
+    category: "Library & Mobile Viewing",
     questions: [
       {
-        q: "If I unwrap a Drop, do I own it forever?",
-        a: "It depends entirely on the Drop! Some drops are permanently added to your library forever, while others have a limited viewing window (e.g., 24 hours). Always check the timer on the Drop Card before unwrapping.",
+        q: "If I unwrap before a KandyDrop expires, do I keep access in my library?",
+        a: "Yes. If you unwrap a KandyDrop while it is live, it stays available in your dashboard library even after it expires from the public Drops page.",
       },
       {
-        q: "What do the tags like 'Sweet', 'Spicy', and 'RAW' mean?",
-        a: "These are content style indicators set by the creator. They give you a hint of what flavor or intensity to expect before you spend your drops to unwrap it!",
+        q: "Where do I find the KandyDrops I already unwrapped?",
+        a: "Your unwrapped KandyDrops stay in your dashboard library, where you can reopen them whenever you want.",
       },
       {
-        q: "What is the 'Experiences' tab?",
-        a: "Experiences are premium lifestyle events, physical rewards, or one-on-one interactive streams that go beyond standard digital photos and videos.",
+        q: "Can I watch my unwrapped KandyDrops on my phone?",
+        a: "Yes. KandyDrops is built to work smoothly on phones, tablets, and desktop so your library stays accessible wherever you watch.",
       },
       {
-        q: "Can I share my unlocked Drop with a friend?",
-        a: "No. Drops are permanently tied to your personal account. Sharing your login credentials violates our Terms of Service and can result in an immediate hardware ban.",
-      },
-      {
-        q: "Can I view my unlocked Drops on a phone or tablet?",
-        a: "Yes! Our entire platform and media viewer are fully optimized for beautifully smooth playback on all mobile devices and desktops.",
+        q: "Can I download or share what I unwrap?",
+        a: "No. Unwrapped KandyDrops stay tied to your account and are meant to be viewed inside the platform.",
       },
     ],
   },
   {
-    category: "Security & Privacy",
+    category: "Experiences & Support",
     questions: [
       {
-        q: "Can I download the videos or photos I unlock?",
-        a: "No. To protect our creators' hard work, KandyDrops uses secure streaming infrastructure and strict anti-ripping technology. Downloading is entirely disabled.",
+        q: "What can I do in the Experiences tab each day?",
+        a: "Experiences is where you return daily to keep your streak moving, collect reward momentum, and stay ready for the next live KandyDrop.",
       },
       {
-        q: "What happens if I try to screenshot or screen-record?",
-        a: "Our proprietary system actively detects standard keyboard and software captures. Your screen will blur instantly and a security violation will be logged against your hardware to protect the creator's content.",
+        q: "How do daily rewards work?",
+        a: "Check in every day to keep your streak active and unlock the next Gum Drops reward in the ladder.",
       },
-      {
-        q: "How is file safety enforced for creator content?",
-        a: "Creator files are never exposed through direct public filesystem paths from our app servers. Access is mediated by authenticated platform controls, and security events are audited to prevent ripping attempts.",
-      },
-      {
-        q: "How are Gum Drop balances protected from exploitation?",
-        a: "Balance changes are validated and recorded server-side with atomic updates and auditable transaction logs to prevent race-condition abuse or client-side tampering.",
-      },
-      {
-        q: "Why was my account banned?",
-        a: "Accounts may be permanently banned for attempting to rip/steal content, initiating fraudulent payment chargebacks, or violating our Terms of Service.",
-      },
-    ],
-  },
-  {
-    category: "Account Support",
-    questions: [
       {
         q: "How do I reset my password?",
-        a: "Click 'Log In' on the home page and follow the 'Forgot Password' link to have a secure, time-sensitive reset link emailed directly to you.",
+        a: "Open the auth sheet, tap the forgot-password flow, and we will email you a secure reset link.",
       },
       {
-        q: "How do I see my past purchases?",
-        a: "You can view your complete transaction history (purchases and unwrap logs) straight from the 'Transaction History' section in your Wallet dashboard.",
-      },
-      {
-        q: "How do I delete my account?",
-        a: "You can request full data deletion by emailing our support team at support@kandydrops.com from the email address associated with your account.",
+        q: "How do refunds, support, or account help work?",
+        a: "If you need help with purchases, account access, or something feels off, contact support@kandydrops.com and we will review it with you.",
       },
     ],
   },

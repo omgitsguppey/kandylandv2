@@ -37,6 +37,11 @@ interface ThumbnailItem {
     kind: ContentKind;
 }
 
+interface CachedAssetRecord {
+    objectUrl: string;
+    resolvedContent: ResolvedContent;
+}
+
 const MIME_TYPE_WITHOUT_PARAMETERS = /^[a-z0-9!#$&^_.+-]+\/[a-z0-9!#$&^_.+-]+$/;
 const GENERIC_BINARY_MIME_TYPES = new Set([
     "application/octet-stream",
@@ -187,10 +192,101 @@ function revokeObjectUrl(url: string | null | undefined) {
     }
 }
 
-async function fetchSecureContent(dropId: string, index: number): Promise<Response> {
+async function fetchSecureContent(dropId: string, index: number, signal?: AbortSignal): Promise<Response> {
     return authFetch(`/api/drops/content?id=${encodeURIComponent(dropId)}&index=${index}`, {
         cache: "no-store",
+        signal,
     });
+}
+
+async function fetchAssetRecord(drop: Drop, index: number, signal?: AbortSignal): Promise<CachedAssetRecord> {
+    const response = await fetchSecureContent(drop.id, index, signal);
+    if (!response.ok) {
+        const result = await response.json().catch(() => ({}));
+        throw new Error(typeof result?.error === "string" ? result.error : "Failed to load content securely");
+    }
+
+    const blob = await response.blob();
+    let guessedMimeType = normalizeMimeType(response.headers.get("content-type") || blob.type);
+
+    if (!guessedMimeType) {
+        guessedMimeType = drop.fileMetadata?.type || "";
+    }
+
+    if (!guessedMimeType) {
+        guessedMimeType = "video/mp4";
+    }
+
+    return {
+        objectUrl: URL.createObjectURL(blob),
+        resolvedContent: resolveContent(guessedMimeType, drop.fileMetadata?.type),
+    };
+}
+
+function clearCachedAssets(cache: Map<number, CachedAssetRecord>) {
+    cache.forEach((record) => revokeObjectUrl(record.objectUrl));
+    cache.clear();
+}
+
+function getThumbnailFallback(drop: Drop): ThumbnailItem {
+    const fallbackResolved = resolveContent(drop.fileMetadata?.type || "", drop.fileMetadata?.type);
+
+    return {
+        src: drop.imageUrl,
+        kind: fallbackResolved.kind === "unknown" ? "image" : fallbackResolved.kind,
+    };
+}
+
+function buildThumbnailItemsWithUpdate(
+    previous: ThumbnailItem[],
+    assetCount: number,
+    fallbackItem: ThumbnailItem,
+    index: number,
+    nextItem: ThumbnailItem
+): ThumbnailItem[] {
+    const nextItems = Array.from({ length: assetCount }, (_, itemIndex) => previous[itemIndex] ?? fallbackItem);
+    nextItems[index] = nextItem;
+    return nextItems;
+}
+
+function buildThumbnailFetchOrder(assetCount: number, activeIndex: number): number[] {
+    const order: number[] = [];
+
+    if (assetCount <= 0) {
+        return order;
+    }
+
+    order.push(activeIndex);
+
+    for (let offset = 1; order.length < assetCount; offset += 1) {
+        const nextIndex = activeIndex + offset;
+        const previousIndex = activeIndex - offset;
+
+        if (nextIndex < assetCount) {
+            order.push(nextIndex);
+        }
+
+        if (previousIndex >= 0) {
+            order.push(previousIndex);
+        }
+    }
+
+    return order;
+}
+
+async function buildThumbnailFromRecord(record: CachedAssetRecord, fallbackSrc: string): Promise<ThumbnailItem> {
+    if (record.resolvedContent.kind === "image") {
+        return { src: record.objectUrl, kind: record.resolvedContent.kind };
+    }
+
+    if (record.resolvedContent.kind === "video") {
+        return {
+            src: await createVideoThumbnail(record.objectUrl),
+            kind: record.resolvedContent.kind,
+        };
+    }
+
+    return { src: fallbackSrc, kind: record.resolvedContent.kind };
 }
 
 function formatUnwrappedLabel(unwrappedAt: number | null): string {
@@ -224,7 +320,9 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     const [contentLoading, setContentLoading] = useState(false);
     const [thumbnailItems, setThumbnailItems] = useState<ThumbnailItem[]>([]);
     const contentObjectUrlRef = useRef<string | null>(null);
-    const thumbnailObjectUrlsRef = useRef<string[]>([]);
+    const assetCacheRef = useRef<Map<number, CachedAssetRecord>>(new Map());
+    const thumbnailCacheRef = useRef<Map<number, ThumbnailItem>>(new Map());
+    const previousDropIdRef = useRef<string | null>(null);
     const hasTrackedViewerOpenRef = useRef<string | null>(null);
     const lastTrackedAssetRef = useRef<string | null>(null);
 
@@ -263,11 +361,13 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     const [emblaRef, emblaApi] = useEmblaCarousel({ dragFree: true, containScroll: "trimSnaps" });
 
     useEffect(() => {
+        const assetCache = assetCacheRef.current;
+        const thumbnailCache = thumbnailCacheRef.current;
+
         return () => {
-            revokeObjectUrl(contentObjectUrlRef.current);
+            clearCachedAssets(assetCache);
             contentObjectUrlRef.current = null;
-            thumbnailObjectUrlsRef.current.forEach((url) => revokeObjectUrl(url));
-            thumbnailObjectUrlsRef.current = [];
+            thumbnailCache.clear();
         };
     }, []);
 
@@ -350,16 +450,21 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     }, [drop, unlockedDropIds]);
 
     useEffect(() => {
-        if (isAuthorized) return;
+        const nextDropId = drop?.id ?? null;
+        const dropChanged = previousDropIdRef.current !== nextDropId;
 
-        revokeObjectUrl(contentObjectUrlRef.current);
+        if (!dropChanged && isAuthorized) {
+            return;
+        }
+
+        clearCachedAssets(assetCacheRef.current);
+        thumbnailCacheRef.current.clear();
+        previousDropIdRef.current = nextDropId;
         contentObjectUrlRef.current = null;
-        thumbnailObjectUrlsRef.current.forEach((url) => revokeObjectUrl(url));
-        thumbnailObjectUrlsRef.current = [];
         setContentBlobUrl(null);
         setResolvedContent({ kind: "unknown", mimeType: "" });
         setThumbnailItems([]);
-    }, [isAuthorized]);
+    }, [drop?.id, isAuthorized]);
 
     // Security Hooks for Anti-Ripping
     useEffect(() => {
@@ -414,10 +519,10 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         if (!isAuthorized || !drop) return;
 
         const currentDrop = drop;
-        let cancelled = false;
+        const fallbackThumbnail = getThumbnailFallback(currentDrop);
+        const cachedRecord = assetCacheRef.current.get(activeIndex);
 
         if (activeIndex >= assetCount) {
-            revokeObjectUrl(contentObjectUrlRef.current);
             contentObjectUrlRef.current = null;
             setContentBlobUrl(null);
             setResolvedContent({ kind: "unknown", mimeType: "" });
@@ -425,122 +530,158 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
             return;
         }
 
+        if (cachedRecord) {
+            contentObjectUrlRef.current = cachedRecord.objectUrl;
+            setContentBlobUrl(cachedRecord.objectUrl);
+            setResolvedContent(cachedRecord.resolvedContent);
+            setContentLoading(false);
+
+            if (!thumbnailCacheRef.current.has(activeIndex)) {
+                void buildThumbnailFromRecord(cachedRecord, currentDrop.imageUrl).then((thumbnailItem) => {
+                    thumbnailCacheRef.current.set(activeIndex, thumbnailItem);
+                    setThumbnailItems((previous) =>
+                        buildThumbnailItemsWithUpdate(previous, assetCount, fallbackThumbnail, activeIndex, thumbnailItem)
+                    );
+                });
+            }
+
+            return;
+        }
+
+        const controller = new AbortController();
+        let cancelled = false;
+
         async function fetchContent() {
             setContentLoading(true);
             try {
-                const response = await fetchSecureContent(currentDrop.id, activeIndex);
-                if (!response.ok) {
-                    const result = await response.json().catch(() => ({}));
-                    throw new Error(typeof result?.error === "string" ? result.error : "Failed to load content securely");
+                const assetRecord = await fetchAssetRecord(currentDrop, activeIndex, controller.signal);
+
+                if (cancelled) {
+                    revokeObjectUrl(assetRecord.objectUrl);
+                    return;
                 }
 
-                const blob = await response.blob();
-                const objectUrl = URL.createObjectURL(blob);
+                assetCacheRef.current.set(activeIndex, assetRecord);
+                contentObjectUrlRef.current = assetRecord.objectUrl;
+                setContentBlobUrl(assetRecord.objectUrl);
+                setResolvedContent(assetRecord.resolvedContent);
 
-                if (!cancelled) {
-                    let guessedMimeType = normalizeMimeType(response.headers.get("content-type") || blob.type);
-
-                    if (!guessedMimeType) {
-                        guessedMimeType = currentDrop.fileMetadata?.type || "";
+                void buildThumbnailFromRecord(assetRecord, currentDrop.imageUrl).then((thumbnailItem) => {
+                    if (cancelled) {
+                        return;
                     }
 
-                    if (!guessedMimeType) {
-                        guessedMimeType = "video/mp4"; // Default fallback
-                    }
-
-                    const nextResolvedContent = resolveContent(guessedMimeType, currentDrop.fileMetadata?.type);
-
-                    revokeObjectUrl(contentObjectUrlRef.current);
-                    contentObjectUrlRef.current = objectUrl;
-                    setContentBlobUrl(objectUrl);
-                    setResolvedContent(nextResolvedContent);
-                } else {
-                    revokeObjectUrl(objectUrl);
-                }
+                    thumbnailCacheRef.current.set(activeIndex, thumbnailItem);
+                    setThumbnailItems((previous) =>
+                        buildThumbnailItemsWithUpdate(previous, assetCount, fallbackThumbnail, activeIndex, thumbnailItem)
+                    );
+                });
             } catch (err) {
                 if (!cancelled) {
-                    revokeObjectUrl(contentObjectUrlRef.current);
                     contentObjectUrlRef.current = null;
                     setContentBlobUrl(null);
                     setResolvedContent({ kind: "unknown", mimeType: "" });
-                    toast.error("Failed to load content securely");
+
+                    if (!(err instanceof DOMException && err.name === "AbortError")) {
+                        toast.error("Failed to load content securely");
+                    }
                 }
             } finally {
-                if (!cancelled) setContentLoading(false);
+                if (!cancelled) {
+                    setContentLoading(false);
+                }
             }
         }
 
-        fetchContent();
+        void fetchContent();
 
         return () => {
             cancelled = true;
+            controller.abort();
         };
     }, [activeIndex, assetCount, isAuthorized, drop]);
 
     useEffect(() => {
         if (!isAuthorized || !drop || assetCount === 0) {
-            thumbnailObjectUrlsRef.current.forEach((url) => revokeObjectUrl(url));
-            thumbnailObjectUrlsRef.current = [];
+            thumbnailCacheRef.current.clear();
             setThumbnailItems([]);
             return;
         }
 
         const currentDrop = drop;
+        const fallbackThumbnail = getThumbnailFallback(currentDrop);
         let cancelled = false;
-        const nextObjectUrls: string[] = [];
+        const controllers: AbortController[] = [];
+
+        setThumbnailItems(
+            Array.from({ length: assetCount }, (_, index) => thumbnailCacheRef.current.get(index) ?? fallbackThumbnail)
+        );
+
+        if (contentLoading) {
+            return () => {
+                cancelled = true;
+            };
+        }
 
         async function buildThumbnails() {
-            const nextItems = await Promise.all(Array.from({ length: assetCount }, async (_, idx) => {
-                try {
-                    const response = await fetchSecureContent(currentDrop.id, idx);
-                    if (!response.ok) {
-                        return { src: currentDrop.imageUrl, kind: resolveContent(currentDrop.fileMetadata?.type || "", currentDrop.fileMetadata?.type).kind };
-                    }
+            const fetchOrder = buildThumbnailFetchOrder(assetCount, activeIndex).filter((index) => index !== activeIndex);
 
-                    const blob = await response.blob();
-                    const resolved = resolveContent(response.headers.get("content-type") || blob.type, currentDrop.fileMetadata?.type);
-                    const objectUrl = URL.createObjectURL(blob);
-
-                    if (resolved.kind === "image") {
-                        nextObjectUrls.push(objectUrl);
-                        return { src: objectUrl, kind: resolved.kind };
-                    }
-
-                    if (resolved.kind === "video") {
-                        const thumbnail = await createVideoThumbnail(objectUrl);
-                        revokeObjectUrl(objectUrl);
-                        return { src: thumbnail, kind: resolved.kind };
-                    }
-
-                    revokeObjectUrl(objectUrl);
-                    return { src: currentDrop.imageUrl, kind: resolved.kind };
-                } catch {
-                    return { src: currentDrop.imageUrl, kind: resolveContent(currentDrop.fileMetadata?.type || "", currentDrop.fileMetadata?.type).kind };
+            for (const index of fetchOrder) {
+                if (cancelled) {
+                    return;
                 }
-            }));
 
-            if (!cancelled) {
-                thumbnailObjectUrlsRef.current.forEach((url) => revokeObjectUrl(url));
-                thumbnailObjectUrlsRef.current = nextObjectUrls;
-                setThumbnailItems(nextItems);
-            } else {
-                nextObjectUrls.forEach((url) => revokeObjectUrl(url));
+                if (thumbnailCacheRef.current.has(index)) {
+                    continue;
+                }
+
+                let assetRecord = assetCacheRef.current.get(index) ?? null;
+
+                if (!assetRecord) {
+                    const controller = new AbortController();
+                    controllers.push(controller);
+
+                    try {
+                        assetRecord = await fetchAssetRecord(currentDrop, index, controller.signal);
+                    } catch (err) {
+                        if (cancelled || (err instanceof DOMException && err.name === "AbortError")) {
+                            return;
+                        }
+
+                        thumbnailCacheRef.current.set(index, fallbackThumbnail);
+                        setThumbnailItems((previous) =>
+                            buildThumbnailItemsWithUpdate(previous, assetCount, fallbackThumbnail, index, fallbackThumbnail)
+                        );
+                        continue;
+                    }
+
+                    if (cancelled) {
+                        revokeObjectUrl(assetRecord.objectUrl);
+                        return;
+                    }
+
+                    assetCacheRef.current.set(index, assetRecord);
+                }
+
+                const thumbnailItem = await buildThumbnailFromRecord(assetRecord, currentDrop.imageUrl);
+                if (cancelled) {
+                    return;
+                }
+
+                thumbnailCacheRef.current.set(index, thumbnailItem);
+                setThumbnailItems((previous) =>
+                    buildThumbnailItemsWithUpdate(previous, assetCount, fallbackThumbnail, index, thumbnailItem)
+                );
             }
         }
 
-        buildThumbnails().catch(() => {
-            if (!cancelled) {
-                nextObjectUrls.forEach((url) => revokeObjectUrl(url));
-                thumbnailObjectUrlsRef.current.forEach((url) => revokeObjectUrl(url));
-                thumbnailObjectUrlsRef.current = [];
-                setThumbnailItems([]);
-            }
-        });
+        void buildThumbnails();
 
         return () => {
             cancelled = true;
+            controllers.forEach((controller) => controller.abort());
         };
-    }, [assetCount, drop, isAuthorized]);
+    }, [activeIndex, assetCount, contentLoading, drop, isAuthorized]);
 
 
     // Prevent right-click on media

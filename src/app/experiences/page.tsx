@@ -7,11 +7,14 @@ import Link from "next/link";
 import { DailyCheckIn } from "@/components/Dashboard/DailyCheckIn";
 import { DailyTasksModule } from "@/components/Dashboard/DailyTasksModule";
 import { useUI } from "@/context/UIContext";
+import { useAuth } from "@/context/AuthContext";
 import { GuestComponentBlur } from "@/components/Auth/GuestComponentBlur";
 import { trackEvent } from "@/lib/telemetry";
+import { GUMDROPS_PRIMARY_CTA, GUMDROPS_SUPPORT_COPY, SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
 
 export default function ExperiencesPage() {
-    const { openPurchaseModal } = useUI();
+    const { user } = useAuth();
+    const { openPurchaseModal, openAuthModal } = useUI();
 
     useEffect(() => {
         trackEvent("experience_hub_viewed");
@@ -33,14 +36,23 @@ export default function ExperiencesPage() {
                     </h1>
 
                     <p className="text-gray-400 max-w-md mx-auto text-sm md:text-base leading-snug">
-                        Earn free Gum Drops just for showing up.
+                        Return daily to stack Gum Drops,
                         <br className="hidden sm:block" />
-                        Complete daily tasks to stack your rewards.
+                        then stay ready to unwrap the next live KandyDrop.
                     </p>
+
+                    <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+                        <span className="rounded-full border border-brand-purple/20 bg-brand-purple/10 px-3 py-1 text-xs font-bold text-brand-purple">Day 1 starts free</span>
+                        <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs font-bold text-gray-200">Daily streaks</span>
+                        <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs font-bold text-gray-200">Extra Gum Drops</span>
+                    </div>
                 </div>
 
                 <div className="text-left">
-                    <GuestComponentBlur actionText="Sign In To Play">
+                    <GuestComponentBlur
+                        actionText={SECONDARY_UNWRAP_CTA}
+                        supportText="Create a free profile to start Day 1 and stack Gum Drops daily."
+                    >
                         <div className="space-y-6">
                             <DailyCheckIn />
                             <DailyTasksModule />
@@ -50,12 +62,19 @@ export default function ExperiencesPage() {
 
                 <div className="pt-4">
                     <button
-                        onClick={openPurchaseModal}
+                        onClick={() => {
+                            if (!user) {
+                                openAuthModal("signup");
+                                return;
+                            }
+                            openPurchaseModal();
+                        }}
                         className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-white text-black font-bold text-sm hover:bg-white/90 transition-colors shadow-lg shadow-white/10"
                     >
-                        Buy More Gumdrops
+                        {GUMDROPS_PRIMARY_CTA}
                         <ArrowRight className="w-4 h-4" />
                     </button>
+                    <p className="mt-3 max-w-md mx-auto text-xs leading-6 text-gray-500">{GUMDROPS_SUPPORT_COPY}</p>
                 </div>
             </div>
         </div>

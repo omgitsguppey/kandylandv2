@@ -72,7 +72,7 @@ function buildAccountOverviewViewModel(params: {
         return {
             state: "guest",
             displayName: "Guest collector",
-            subtitle: "Sign in to manage your stash",
+            subtitle: "Unwrap now to start your stash",
             avatarUrl: null,
             avatarFallback: "G",
             balanceLabel: "0 GD",
@@ -177,12 +177,16 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
                     balanceLabel={accountOverview.balanceLabel}
                     onProfilePress={() => {
                         if (!user) {
-                            openAuthModal();
+                            openAuthModal("signup");
                             return;
                         }
                         openProfileSidebar();
                     }}
                     onWalletPress={() => {
+                        if (!user) {
+                            openAuthModal("signup");
+                            return;
+                        }
                         openPurchaseModal();
                     }}
                 />
@@ -213,7 +217,7 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
                 </div>
 
                 <div className="mb-5 px-4 md:px-0">
-                    <p className="text-sm text-gray-400">The fastest unwrappers usually return daily. New content can sell out quickly.</p>
+                    <p className="text-sm text-gray-400">Live KandyDrops can disappear when the timer ends. Unwrap while they&apos;re active to keep them in your library.</p>
                 </div>
 
                 <div className="relative border border-white/5 bg-white/[0.01] rounded-[2.5rem] p-2 md:p-6">

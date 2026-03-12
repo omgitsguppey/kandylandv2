@@ -9,6 +9,8 @@ import { X, Mail, Lock, User, Calendar, AlertCircle, Loader2 } from "lucide-reac
 import { useAuth } from "@/context/AuthContext";
 import { differenceInYears, parseISO } from "date-fns";
 import { trackEvent } from "@/lib/telemetry";
+import type { AuthModalEntryMode } from "@/context/UIContext";
+import { SECONDARY_UNWRAP_CTA, SIGNUP_SUPPORT_COPY } from "@/lib/marketing-copy";
 
 // Validation Schema - unified shape with conditional validation for sign-up fields
 const authFormSchema = z.object({
@@ -22,14 +24,15 @@ type AuthFormData = z.infer<typeof authFormSchema>;
 
 interface AuthModalProps {
     isOpen: boolean;
+    mode: AuthModalEntryMode;
     onClose: () => void;
 }
 
 type AuthMode = "signin" | "signup" | "forgot_password";
 
-export function AuthModal({ isOpen, onClose }: AuthModalProps) {
+export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps) {
     const { signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth();
-    const [mode, setMode] = useState<AuthMode>("signin");
+    const [mode, setMode] = useState<AuthMode>(initialMode);
     const [isLoading, setIsLoading] = useState(false);
     const [authError, setAuthError] = useState<string | null>(null);
     const [resetSent, setResetSent] = useState(false);
@@ -57,12 +60,24 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         register,
         handleSubmit,
         formState: { errors },
-        reset,
         clearErrors,
+        reset,
     } = useForm<AuthFormData>({
         resolver: zodResolver(activeSchema),
         mode: "onBlur",
     });
+
+    useEffect(() => {
+        if (!isOpen) {
+            return;
+        }
+
+        setMode(initialMode);
+        setAuthError(null);
+        setResetSent(false);
+        clearErrors();
+        reset();
+    }, [clearErrors, initialMode, isOpen, reset]);
 
     const switchMode = (newMode: AuthMode) => {
         setMode(newMode);
@@ -170,8 +185,15 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 <div className="w-full max-w-md max-h-[calc(100dvh-0.5rem)] sm:max-h-[min(90vh,44rem)] bg-zinc-900 border border-white/10 rounded-[1.75rem] sm:rounded-3xl shadow-2xl pointer-events-auto overflow-hidden flex flex-col">
                     <div className="relative shrink-0 px-5 py-4 sm:p-6 border-b border-white/5 bg-zinc-900/95 backdrop-blur-sm">
                         <h2 className="text-xl sm:text-2xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-purple-400">
-                            {mode === "signin" ? "Welcome Back" : mode === "signup" ? "Get iKandy" : "Reset Password"}
+                            {mode === "signin" ? "Welcome Back" : mode === "signup" ? "Unwrap your Kandy" : "Reset Password"}
                         </h2>
+                        <p className="mt-2 px-6 text-center text-xs sm:text-sm text-gray-500">
+                            {mode === "signin"
+                                ? "Jump back into your stash and keep unwrapping."
+                                : mode === "signup"
+                                  ? SIGNUP_SUPPORT_COPY
+                                  : "We&apos;ll send a secure reset link to your inbox."}
+                        </p>
                         <button
                             onClick={onClose}
                             className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-gray-400 rounded-full transition-colors sm:right-4"
@@ -375,7 +397,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                                     ) : mode === "signin" ? (
                                         "Sign In"
                                     ) : (
-                                        "Sign Up & Unwrap"
+                                        SECONDARY_UNWRAP_CTA
                                     )}
                                 </button>
                             </form>

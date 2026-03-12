@@ -16,6 +16,7 @@ import { useUI } from "@/context/UIContext";
 import { trackEvent } from "@/lib/telemetry";
 import Link from "next/link";
 import { SupportedAspectRatio, getDropMediaSummary, getSupportedDropAspectRatio } from "@/lib/drop-presentation";
+import { SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
 
 
 interface DropCardProps {
@@ -138,7 +139,7 @@ function DropCardTimer({ validUntil }: { validUntil?: number }) {
 
 function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAfford = false, onPreview, aspectRatio }: DropCardProps) {
     const { userProfile, setUserProfile } = useUserProfile();
-    const { openPurchaseModal } = useUI();
+    const { openAuthModal, openPurchaseModal } = useUI();
     const [unlocking, setUnlocking] = useState(false);
     const [confirming, setConfirming] = useState(false);
     const [imageLoaded, setImageLoaded] = useState(false);
@@ -208,7 +209,12 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
     };
 
     const handleUnlock = async () => {
-        if (!user || unlocking || isUnlocked) return;
+        if (!user) {
+            openAuthModal("signup");
+            return;
+        }
+
+        if (unlocking || isUnlocked) return;
 
         const balance = userProfile?.gumDropsBalance ?? 0;
         if (balance < drop.unlockCost) {
@@ -293,7 +299,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
     ) : (
         <button
             onClick={handleUnlock}
-            disabled={unlocking || (!user && canAfford)}
+            disabled={unlocking}
             className={cn(
                 "px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl font-bold text-[11px] md:text-xs flex items-center justify-center w-full whitespace-nowrap gap-1.5 border relative overflow-hidden transition-all active:scale-95 shadow-lg",
                 !canAfford ? "bg-brand-purple text-black border-brand-purple hover:bg-[#b28cff] shadow-[0_0_15px_rgba(164,118,255,0.3)]"
@@ -307,10 +313,15 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                     <Loader2 className="w-3 h-3 animate-spin" />
                     <span>Unwrapping...</span>
                 </>
+            ) : !user ? (
+                <>
+                    <Lock className="w-3 h-3" />
+                    <span>{SECONDARY_UNWRAP_CTA}</span>
+                </>
             ) : !canAfford ? (
                 <>
                     <Wallet className="w-3 h-3" />
-                    <span>Get more Gumdrops</span>
+                    <span>Get Gum Drops</span>
                 </>
             ) : confirming ? (
                 <>

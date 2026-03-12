@@ -9,6 +9,7 @@ import { useAuthIdentity } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { HomeDropTicker } from "@/components/HomeDropTicker";
 import { getSimulatedPlatformUnwrapsToday } from "@/lib/unwrap-simulator";
+import { HERO_PRIMARY_CTA, SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
 
 const INITIAL_PLATFORM_COUNT = getSimulatedPlatformUnwrapsToday();
 
@@ -53,18 +54,27 @@ export default function Hero() {
                             </Link>
                         ) : (
                             <Button
-                                onClick={openAuthModal}
+                                onClick={() => openAuthModal("signup")}
                                 size="lg"
                                 variant="brand"
                                 className="w-full sm:w-auto rounded-2xl px-6 py-4 md:px-10 md:py-6 text-base md:text-lg font-bold shadow-[0_0_30px_rgba(178,140,255,0.4)] hover:shadow-[0_0_40px_rgba(178,140,255,0.6)] transition-all"
                             >
-                                Get iKandy <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2" />
+                                {HERO_PRIMARY_CTA} <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2" />
                             </Button>
                         )}
-                        <Link href="/faq" className="w-full sm:w-auto">
-                            <Button size="lg" variant="glass" className="w-full rounded-2xl px-6 py-4 md:px-8 md:py-6 text-base md:text-lg font-bold border-white/10 hover:bg-white/5">
-                                See How It Works
-                            </Button>
+                        <Button
+                            onClick={() => openAuthModal("signup")}
+                            size="lg"
+                            variant="glass"
+                            className="w-full sm:w-auto rounded-2xl px-6 py-4 md:px-8 md:py-6 text-base md:text-lg font-bold border-white/10 hover:bg-white/5"
+                        >
+                            {SECONDARY_UNWRAP_CTA}
+                        </Button>
+                    </div>
+
+                    <div className="pt-1">
+                        <Link href="/faq" className="text-sm font-semibold text-gray-400 transition-colors hover:text-white">
+                            See how it works
                         </Link>
                     </div>
 

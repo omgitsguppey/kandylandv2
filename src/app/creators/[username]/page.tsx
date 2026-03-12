@@ -216,7 +216,7 @@ export default function CreatorProfilePage() {
                                             Sign in to preview and unwrap this creator&apos;s exclusive drops.
                                         </p>
                                         <button
-                                            onClick={openAuthModal}
+                                            onClick={() => openAuthModal("signup")}
                                             className="px-8 py-4 w-full rounded-xl bg-white text-black font-black text-lg transition-transform hover:scale-105 active:scale-95 shadow-[0_0_40px_rgba(255,255,255,0.2)]"
                                         >
                                             Sign Up / Sign In

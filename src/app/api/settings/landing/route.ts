@@ -21,7 +21,7 @@ export async function GET(request: Request) {
             }
         }
 
-        return NextResponse.json({ url: null }, { status: 404 });
+        return NextResponse.json({ url: null });
     } catch (error: any) {
         console.error("Failed to fetch landing custom image:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

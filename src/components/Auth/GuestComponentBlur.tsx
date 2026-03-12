@@ -10,9 +10,15 @@ interface GuestComponentBlurProps {
     children: ReactNode;
     className?: string;
     actionText?: string;
+    supportText?: string;
 }
 
-export function GuestComponentBlur({ children, className, actionText = "Unlock to View" }: GuestComponentBlurProps) {
+export function GuestComponentBlur({
+    children,
+    className,
+    actionText = "Unwrap now",
+    supportText = "Create a free profile to start unwrapping exclusive KandyDrops."
+}: GuestComponentBlurProps) {
     const { user, loading } = useAuth();
     const { openAuthModal } = useUI();
 
@@ -27,30 +33,28 @@ export function GuestComponentBlur({ children, className, actionText = "Unlock t
     if (!user) {
         return (
             <div className={cn("relative w-full h-full overflow-hidden rounded-3xl group", className)}>
-                {/* The Blur Layer */}
-                <div className="absolute inset-0 z-10 bg-black/40 backdrop-blur-md transition-all duration-300 group-hover:bg-black/60 group-hover:backdrop-blur-lg flex flex-col items-center justify-center p-4">
-                    <div className="bg-black/60 p-3 rounded-2xl border border-white/10 shadow-xl flex flex-col items-center justify-center gap-2 transform transition-transform duration-300 group-hover:scale-105">
-                        <div className="w-10 h-10 bg-brand-purple/20 rounded-full flex items-center justify-center border border-brand-purple/30">
+                <div className="absolute inset-0 z-10 bg-[radial-gradient(circle_at_top,rgba(178,140,255,0.18),transparent_55%)] bg-black/55 backdrop-blur-md transition-all duration-300 group-hover:bg-black/70 group-hover:backdrop-blur-xl flex flex-col items-center justify-center p-4">
+                    <div className="max-w-[240px] rounded-[1.75rem] border border-white/10 bg-black/75 px-4 py-5 shadow-[0_0_30px_rgba(164,118,255,0.15)] flex flex-col items-center justify-center gap-3 text-center transform transition-transform duration-300 group-hover:scale-[1.02]">
+                        <div className="w-11 h-11 bg-brand-purple/20 rounded-full flex items-center justify-center border border-brand-purple/30 shadow-[0_0_20px_rgba(164,118,255,0.15)]">
                             <Lock className="w-5 h-5 text-brand-purple" />
                         </div>
                         <span className="text-white font-bold text-sm text-center px-2">{actionText}</span>
+                        <p className="text-xs leading-relaxed text-gray-400">{supportText}</p>
                     </div>
                 </div>
 
-                {/* The Underlying Content (Blurred) */}
-                <div className="pointer-events-none select-none opacity-40 blur-[8px] transition-all duration-300 group-hover:blur-[12px]">
+                <div className="pointer-events-none select-none opacity-50 blur-[10px] scale-[1.01] transition-all duration-300 group-hover:blur-[14px]">
                     {children}
                 </div>
 
-                {/* Click Catcher to trigger Auth */}
                 <button
                     onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        openAuthModal();
+                        openAuthModal("signup");
                     }}
                     className="absolute inset-0 z-20 w-full h-full cursor-pointer focus:outline-none"
-                    aria-label="Sign in to view"
+                    aria-label={actionText}
                 />
             </div>
         );

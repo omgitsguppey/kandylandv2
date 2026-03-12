@@ -17,6 +17,11 @@ import { sendGAEvent } from "@next/third-parties/google";
 import { getSimulatedUnwrapsToday } from "@/lib/unwrap-simulator";
 import * as Dialog from "@radix-ui/react-dialog";
 import { trackEvent } from "@/lib/telemetry";
+import {
+  GUMDROPS_SUPPORT_COPY,
+  GUMDROPS_URGENCY_CTA,
+  SECONDARY_UNWRAP_CTA,
+} from "@/lib/marketing-copy";
 
 interface DropPreviewModalProps {
   drop: Drop | null;
@@ -93,7 +98,7 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
 
     if (!user) {
       onClose();
-      openAuthModal();
+      openAuthModal("signup");
       return;
     }
 
@@ -239,15 +244,18 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
                       <button
                         onClick={() => {
                           onClose();
-                          openAuthModal();
+                          openAuthModal("signup");
                         }}
                         className="absolute inset-0 z-10 bg-black/50 backdrop-blur-xl flex flex-col items-center justify-center p-4 transition-all hover:bg-black/60 group focus:outline-none"
                       >
-                        <div className="bg-black/80 p-5 rounded-3xl border border-white/15 shadow-[0_0_30px_rgba(164,118,255,0.1)] flex flex-col items-center justify-center gap-3 text-center max-w-[220px] transition-transform group-hover:scale-105">
+                        <div className="bg-black/80 p-5 rounded-3xl border border-white/15 shadow-[0_0_30px_rgba(164,118,255,0.1)] flex flex-col items-center justify-center gap-3 text-center max-w-[240px] transition-transform group-hover:scale-105">
                           <div className="w-14 h-14 bg-white/5 rounded-full flex items-center justify-center border border-white/10 shadow-inner">
                             <Lock className="w-6 h-6 text-white" />
                           </div>
-                          <span className="text-white font-bold text-sm leading-tight">Sign in to Unwrap this collection</span>
+                          <span className="text-white font-bold text-sm leading-tight">{SECONDARY_UNWRAP_CTA}</span>
+                          <p className="text-xs leading-5 text-gray-400">
+                            Create your free profile to reveal every file in this KandyDrop.
+                          </p>
                         </div>
                       </button>
                     )}
@@ -295,39 +303,49 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
                     View Content
                   </Link>
                 ) : (
-                  <button
-                    onClick={handleUnwrap}
-                    disabled={unlocking || (!user && canAfford)}
-                    className={cn(
-                      "flex h-14 w-full items-center justify-center gap-2 rounded-2xl font-bold text-lg transition-all active:scale-95 shadow-lg border relative overflow-hidden",
-                      !canAfford ? "bg-brand-purple text-black border-brand-purple hover:bg-[#b28cff] shadow-[0_0_20px_rgba(164,118,255,0.4)]"
-                        : confirming ? "bg-orange-500 text-white border-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.4)]"
-                          : "bg-white text-black border-white hover:bg-gray-100 shadow-[0_0_20px_rgba(255,255,255,0.3)]",
-                      "disabled:opacity-50 disabled:cursor-not-allowed"
+                  <div className="space-y-3">
+                    {(!user || !canAfford) && (
+                      <p className="text-center text-xs leading-6 text-gray-400">{GUMDROPS_SUPPORT_COPY}</p>
                     )}
-                  >
-                    {unlocking ? (
-                      <>
-                        <Loader2 className="h-5 w-5 animate-spin" />
-                        Unwrapping...
-                      </>
-                    ) : !canAfford ? (
-                      <>
-                        <Wallet className="h-5 w-5" />
-                        Get more Gumdrops
-                      </>
-                    ) : confirming ? (
-                      <>
-                        <Lock className="h-5 w-5" />
-                        Confirm {drop.unlockCost} GD?
-                      </>
-                    ) : (
-                      <>
-                        <Lock className="h-5 w-5" />
-                        Unwrap for {drop.unlockCost} GD
-                      </>
-                    )}
-                  </button>
+                    <button
+                      onClick={handleUnwrap}
+                      disabled={unlocking}
+                      className={cn(
+                        "flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl border relative overflow-hidden px-4 py-3 text-center text-base font-bold leading-5 transition-all active:scale-95 shadow-lg",
+                        !canAfford ? "bg-brand-purple text-black border-brand-purple hover:bg-[#b28cff] shadow-[0_0_20px_rgba(164,118,255,0.4)]"
+                          : confirming ? "bg-orange-500 text-white border-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.4)]"
+                            : "bg-white text-black border-white hover:bg-gray-100 shadow-[0_0_20px_rgba(255,255,255,0.3)]",
+                        "disabled:opacity-50 disabled:cursor-not-allowed"
+                      )}
+                    >
+                      {unlocking ? (
+                        <>
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                          Unwrapping...
+                        </>
+                      ) : !user ? (
+                        <>
+                          <Lock className="h-5 w-5" />
+                          {SECONDARY_UNWRAP_CTA}
+                        </>
+                      ) : !canAfford ? (
+                        <>
+                          <Wallet className="h-5 w-5 shrink-0" />
+                          <span>{GUMDROPS_URGENCY_CTA}</span>
+                        </>
+                      ) : confirming ? (
+                        <>
+                          <Lock className="h-5 w-5" />
+                          Confirm {drop.unlockCost} GD?
+                        </>
+                      ) : (
+                        <>
+                          <Lock className="h-5 w-5" />
+                          Unwrap for {drop.unlockCost} GD
+                        </>
+                      )}
+                    </button>
+                  </div>
                 )}
               </div>
             </div>

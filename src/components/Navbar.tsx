@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useAuthIdentity, useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
-import { LogIn, Wallet, Plus } from "lucide-react";
+import { Sparkles, Wallet, Plus } from "lucide-react";
 import { trackEvent } from "@/lib/telemetry";
+import { SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
 
 import { ProfileDropdown } from "@/components/Navigation/ProfileDropdown";
 import { ProfileSidebar } from "@/components/Navigation/ProfileSidebar";
@@ -92,11 +93,11 @@ export function Navbar() {
                             </>
                         ) : (
                             <button
-                                onClick={openAuthModal}
+                                onClick={() => openAuthModal("signup")}
                                 className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-2.5 rounded-full bg-white text-black font-bold text-xs sm:text-sm tracking-wide shadow-[0_0_20px_rgba(255,255,255,0.3)] _0_25px_rgba(255,255,255,0.5)] transition-all duration-300"
                             >
-                                <LogIn className="w-4 h-4" />
-                                Sign In
+                                <Sparkles className="w-4 h-4" />
+                                {SECONDARY_UNWRAP_CTA}
                             </button>
                         )}
                     </div>
