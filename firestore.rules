@@ -8,21 +8,21 @@ service cloud.firestore {
       allow write: if false;
     }
     
-    // Users: Authenticated read only, NO client writes (all writes via Admin SDK)
+    // Users: Authenticated read only for SELF, NO client writes
     match /users/{userId} {
-      allow read: if request.auth != null;
+      allow read: if request.auth != null && request.auth.uid == userId;
       allow write: if false;
     }
 
-    // Transactions: Authenticated read only, NO client writes
+    // Transactions: Authenticated read only for SELF, NO client writes
     match /transactions/{transactionId} {
-      allow read: if request.auth != null;
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
       allow write: if false;
     }
 
-    // Notifications: Authenticated read only, NO client writes
+    // Notifications: Authenticated read only for SELF, NO client writes
     match /notifications/{notificationId} {
-      allow read: if request.auth != null;
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
       allow write: if false;
     }
 

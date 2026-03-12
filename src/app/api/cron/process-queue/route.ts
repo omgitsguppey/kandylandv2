@@ -8,9 +8,9 @@ import { set } from "date-fns";
 // This cron job should be called periodically (e.g. daily/hourly)
 export async function GET(request: NextRequest) {
     try {
-        // Enforce basic auth/cron secret in production. Bypassed for brevity in this demo.
+        // Enforce basic auth/cron secret in production.
         const authHeader = request.headers.get('authorization');
-        // if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) return NextResponse.json({error: "Unauthorized"}, {status: 401});
+        if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) return NextResponse.json({error: "Unauthorized"}, {status: 401});
 
         const queueDocRef = adminDb.collection("adminSettings").doc("dropQueue");
         const queueSnap = await queueDocRef.get();
