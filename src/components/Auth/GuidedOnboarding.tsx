@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
@@ -75,6 +75,8 @@ export function GuidedOnboarding() {
     const [isCompleting, setIsCompleting] = useState(false);
     const [mountTime, setMountTime] = useState(0);
     const [highlightRect, setHighlightRect] = useState<HighlightRect | null>(null);
+    const allowedScrollYRef = useRef(0);
+    const isProgrammaticScrollRef = useRef(false);
 
     useEffect(() => {
         if (!isVisible) {
@@ -85,6 +87,7 @@ export function GuidedOnboarding() {
         const previousHtmlOverscroll = document.documentElement.style.overscrollBehavior;
         const previousBodyOverflow = document.body.style.overflow;
         const previousBodyOverscroll = document.body.style.overscrollBehavior;
+        allowedScrollYRef.current = window.scrollY;
 
         const preventScroll = (event: Event) => {
             const target = event.target as HTMLElement | null;
@@ -111,6 +114,16 @@ export function GuidedOnboarding() {
             event.preventDefault();
         };
 
+        const enforceLockedScroll = () => {
+            if (isProgrammaticScrollRef.current) {
+                return;
+            }
+
+            if (Math.abs(window.scrollY - allowedScrollYRef.current) > 1) {
+                window.scrollTo({ top: allowedScrollYRef.current, left: 0, behavior: "instant" as ScrollBehavior });
+            }
+        };
+
         document.documentElement.style.overflow = "hidden";
         document.documentElement.style.overscrollBehavior = "none";
         document.body.style.overflow = "hidden";
@@ -119,6 +132,7 @@ export function GuidedOnboarding() {
         window.addEventListener("wheel", preventScroll, { passive: false });
         window.addEventListener("touchmove", preventScroll, { passive: false });
         window.addEventListener("keydown", preventScrollKeys, { passive: false });
+        window.addEventListener("scroll", enforceLockedScroll, { passive: true });
 
         return () => {
             document.documentElement.style.overflow = previousHtmlOverflow;
@@ -128,6 +142,7 @@ export function GuidedOnboarding() {
             window.removeEventListener("wheel", preventScroll);
             window.removeEventListener("touchmove", preventScroll);
             window.removeEventListener("keydown", preventScrollKeys);
+            window.removeEventListener("scroll", enforceLockedScroll);
         };
     }, [isVisible]);
 
@@ -182,13 +197,16 @@ export function GuidedOnboarding() {
     }, [completionStorageKey, isVisible, profile, user]);
 
     const scrollViewportForStep = useCallback((element: HTMLElement, stepConfig: GuidedStepConfig) => {
-        if (stepConfig.scrollMode === "top") {
-            window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
-            return;
-        }
+        const targetTop = stepConfig.scrollMode === "top"
+            ? 0
+            : Math.max(window.scrollY + element.getBoundingClientRect().top - 112, 0);
 
-        const targetTop = Math.max(window.scrollY + element.getBoundingClientRect().top - 112, 0);
+        allowedScrollYRef.current = targetTop;
+        isProgrammaticScrollRef.current = true;
         window.scrollTo({ top: targetTop, left: 0, behavior: "instant" as ScrollBehavior });
+        window.setTimeout(() => {
+            isProgrammaticScrollRef.current = false;
+        }, 150);
     }, []);
 
     const updateHighlight = useCallback((attempt = 0) => {
@@ -368,6 +386,11 @@ export function GuidedOnboarding() {
 
             setIsVisible(false);
             router.push('/drops');
+            window.setTimeout(() => {
+                if (window.location.pathname !== "/drops") {
+                    window.location.assign("/drops");
+                }
+            }, 300);
         } catch (error) {
             console.error("Error completing onboarding:", error);
             setIsVisible(false); // Failsafe close
