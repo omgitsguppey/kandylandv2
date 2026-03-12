@@ -38,7 +38,7 @@ export default function DashboardClient({ drops }: DashboardClientProps) {
     }
 
     return (
-        <div className="w-full px-3 sm:px-4 max-w-7xl mx-auto">
+        <div className="w-full px-3 sm:px-4 max-w-7xl mx-auto" data-onboarding-page="dashboard">
             <header className="mb-4 md:mb-6">
                 <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mb-2 leading-tight">Welcome back, {userProfile?.displayName?.split(" ")[0] || "Collector"}</h1>
                 <p className="text-sm sm:text-base text-gray-400">Manage your collection and earn rewards.</p>

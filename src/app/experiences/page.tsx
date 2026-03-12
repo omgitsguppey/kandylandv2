@@ -12,7 +12,7 @@ export default function ExperiencesPage() {
     const { openPurchaseModal } = useUI();
 
     return (
-        <div className="min-h-[calc(100dvh-11rem)] md:min-h-[calc(100dvh-5rem)] w-full bg-black text-center overflow-hidden px-4 py-10 md:py-14">
+        <div className="min-h-[calc(100dvh-11rem)] md:min-h-[calc(100dvh-5rem)] w-full bg-black text-center overflow-hidden px-4 py-10 md:py-14" data-onboarding-page="experiences">
             <div className="max-w-3xl mx-auto space-y-10">
                 <div>
                     <div className="mb-5 relative">

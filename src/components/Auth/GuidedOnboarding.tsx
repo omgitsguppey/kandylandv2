@@ -6,6 +6,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
 import { ChevronRight, BellRing, Sparkles, Droplets, Flame, Gift } from "lucide-react";
 import { trackEvent } from "@/lib/telemetry";
+import { toast } from "sonner";
 
 type HighlightRect = {
     top: number;
@@ -14,6 +15,49 @@ type HighlightRect = {
     height: number;
     rx?: number;
 };
+
+type GuidedStepConfig = {
+    path?: string;
+    page?: string;
+    targetSelectors: string[];
+    scrollMode: "top" | "target";
+};
+
+const GUIDED_STEP_CONFIG: Partial<Record<number, GuidedStepConfig>> = {
+    1: {
+        path: "/dashboard",
+        page: "dashboard",
+        targetSelectors: [
+            '[data-onboarding-target="daily-reward-claim"]',
+            '[data-onboarding-target="daily-reward"]',
+        ],
+        scrollMode: "target",
+    },
+    2: {
+        path: "/drops",
+        page: "drops",
+        targetSelectors: ['[data-onboarding-target="drops-nav"]'],
+        scrollMode: "top",
+    },
+    3: {
+        path: "/experiences",
+        page: "experiences",
+        targetSelectors: ['[data-onboarding-target="experiences-nav"]'],
+        scrollMode: "top",
+    },
+    4: {
+        path: "/experiences",
+        page: "experiences",
+        targetSelectors: ['[data-onboarding-target="notification-bell"]'],
+        scrollMode: "top",
+    },
+};
+
+const SCROLL_KEYS = new Set([" ", "ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End"]);
+
+function wait(ms: number) {
+    return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
 
 export function GuidedOnboarding() {
     const { user, userProfile: profile } = useAuth();
@@ -30,27 +74,62 @@ export function GuidedOnboarding() {
     const [isCheckingIn, setIsCheckingIn] = useState(false);
     const [isCompleting, setIsCompleting] = useState(false);
     const [mountTime, setMountTime] = useState(0);
+    const [highlightRect, setHighlightRect] = useState<HighlightRect | null>(null);
 
-    // Scroll Lock on Mount
     useEffect(() => {
-        if (isVisible) {
-            document.body.style.overflow = 'hidden';
-            document.body.style.position = 'fixed';
-            document.body.style.width = '100%';
-        } else {
-            document.body.style.overflow = '';
-            document.body.style.position = '';
-            document.body.style.width = '';
+        if (!isVisible) {
+            return;
         }
 
+        const previousHtmlOverflow = document.documentElement.style.overflow;
+        const previousHtmlOverscroll = document.documentElement.style.overscrollBehavior;
+        const previousBodyOverflow = document.body.style.overflow;
+        const previousBodyOverscroll = document.body.style.overscrollBehavior;
+
+        const preventScroll = (event: Event) => {
+            const target = event.target as HTMLElement | null;
+            if (target?.closest('[data-guided-scroll-allow="true"]')) {
+                return;
+            }
+
+            event.preventDefault();
+        };
+
+        const preventScrollKeys = (event: KeyboardEvent) => {
+            if (!SCROLL_KEYS.has(event.key)) {
+                return;
+            }
+
+            const target = event.target as HTMLElement | null;
+            const tagName = target?.tagName;
+            const isEditable = target?.isContentEditable || tagName === "INPUT" || tagName === "TEXTAREA" || tagName === "SELECT";
+
+            if (isEditable || target?.closest('[data-guided-scroll-allow="true"]')) {
+                return;
+            }
+
+            event.preventDefault();
+        };
+
+        document.documentElement.style.overflow = "hidden";
+        document.documentElement.style.overscrollBehavior = "none";
+        document.body.style.overflow = "hidden";
+        document.body.style.overscrollBehavior = "none";
+
+        window.addEventListener("wheel", preventScroll, { passive: false });
+        window.addEventListener("touchmove", preventScroll, { passive: false });
+        window.addEventListener("keydown", preventScrollKeys, { passive: false });
+
         return () => {
-            document.body.style.overflow = '';
-            document.body.style.position = '';
-            document.body.style.width = '';
+            document.documentElement.style.overflow = previousHtmlOverflow;
+            document.documentElement.style.overscrollBehavior = previousHtmlOverscroll;
+            document.body.style.overflow = previousBodyOverflow;
+            document.body.style.overscrollBehavior = previousBodyOverscroll;
+            window.removeEventListener("wheel", preventScroll);
+            window.removeEventListener("touchmove", preventScroll);
+            window.removeEventListener("keydown", preventScrollKeys);
         };
     }, [isVisible]);
-
-    const [highlightRect, setHighlightRect] = useState<HighlightRect | null>(null);
 
     // Initial trigger
     useEffect(() => {
@@ -102,54 +181,100 @@ export function GuidedOnboarding() {
         };
     }, [completionStorageKey, isVisible, profile, user]);
 
-    // Track targets dynamically based on the step
-    const updateHighlight = useCallback(() => {
-        if (!isVisible || currentStep < 1) {
+    const scrollViewportForStep = useCallback((element: HTMLElement, stepConfig: GuidedStepConfig) => {
+        if (stepConfig.scrollMode === "top") {
+            window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
+            return;
+        }
+
+        const targetTop = Math.max(window.scrollY + element.getBoundingClientRect().top - 112, 0);
+        window.scrollTo({ top: targetTop, left: 0, behavior: "instant" as ScrollBehavior });
+    }, []);
+
+    const updateHighlight = useCallback((attempt = 0) => {
+        if (!isVisible || currentStep < 1 || currentStep > 4) {
             setHighlightRect(null);
             return;
         }
 
-        let targetId = "";
-        if (currentStep === 1) targetId = "daily-reward"; // Step 2: Daily Check-in
-        else if (currentStep === 2) targetId = "drops-nav"; // Step 3: Drops Tab
-        else if (currentStep === 3) targetId = "experiences-nav"; // Step 4: Experiences
-        else if (currentStep === 4) targetId = "notification-bell"; // Step 5: Notifications
+        const stepConfig = GUIDED_STEP_CONFIG[currentStep];
+        if (!stepConfig) {
+            setHighlightRect(null);
+            return;
+        }
 
-        if (targetId) {
-            // Delay slightly for DOM rendering
-            setTimeout(() => {
-                const element = document.querySelector(`[data-onboarding-target="${targetId}"]`);
-                if (element) {
-                    const rect = element.getBoundingClientRect();
-                    setHighlightRect({
-                        top: rect.top,
-                        left: rect.left,
-                        width: rect.width,
-                        height: rect.height,
-                        rx: targetId.includes('nav') ? 100 : 24
-                    });
-                    // scroll into view
-                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (stepConfig.path && pathname !== stepConfig.path) {
+            setHighlightRect(null);
+            return;
+        }
+
+        if (stepConfig.page && !document.querySelector(`[data-onboarding-page="${stepConfig.page}"]`)) {
+            if (attempt < 12) {
+                window.setTimeout(() => updateHighlight(attempt + 1), 120);
+            }
+            return;
+        }
+
+        const element = stepConfig.targetSelectors
+            .map((selector) => document.querySelector(selector))
+            .find((candidate): candidate is HTMLElement => candidate instanceof HTMLElement);
+
+        if (!element) {
+            if (attempt < 12) {
+                window.setTimeout(() => updateHighlight(attempt + 1), 120);
+            } else {
+                setHighlightRect(null);
+            }
+            return;
+        }
+
+        scrollViewportForStep(element, stepConfig);
+
+        window.requestAnimationFrame(() => {
+            const rect = element.getBoundingClientRect();
+
+            if (rect.width <= 0 || rect.height <= 0) {
+                if (attempt < 12) {
+                    window.setTimeout(() => updateHighlight(attempt + 1), 120);
                 } else {
-                    // Fallback to null if element not found yet
                     setHighlightRect(null);
                 }
-            }, 300);
-        } else {
-            setHighlightRect(null);
-        }
-    }, [isVisible, currentStep]);
+                return;
+            }
+
+            const targetId = element.dataset.onboardingTarget || "";
+            const numericRadius = Number(element.dataset.onboardingRadius);
+
+            setHighlightRect({
+                top: rect.top,
+                left: rect.left,
+                width: rect.width,
+                height: rect.height,
+                rx: Number.isFinite(numericRadius)
+                    ? numericRadius
+                    : targetId.includes("nav") || targetId === "notification-bell"
+                        ? 999
+                        : 24,
+            });
+        });
+    }, [currentStep, isVisible, pathname, scrollViewportForStep]);
 
     useEffect(() => {
         updateHighlight();
-        window.addEventListener('resize', updateHighlight);
-        return () => window.removeEventListener('resize', updateHighlight);
+        const handleResize = () => updateHighlight();
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
     }, [updateHighlight]);
 
-    // Redirect logic to ensure they're on the dashboard where targets exist
     useEffect(() => {
-        if (isVisible && pathname !== '/dashboard' && currentStep >= 1) {
-            router.push('/dashboard');
+        if (!isVisible) {
+            return;
+        }
+
+        const expectedPath = GUIDED_STEP_CONFIG[currentStep]?.path;
+        if (expectedPath && pathname !== expectedPath) {
+            setHighlightRect(null);
+            router.replace(expectedPath);
         }
     }, [isVisible, pathname, currentStep, router]);
 
@@ -162,21 +287,56 @@ export function GuidedOnboarding() {
     const handleCheckInAndContinue = async () => {
         setIsCheckingIn(true);
         try {
-            // Attempt to check-in locally to satisfy the requirement
-            // It uses the standard fetch interceptor or native fetch wrapper available in app
-            // We use standard fetch with Authorization if authFetch is complex to import
-            const token = await user?.getIdToken();
-            if (token) {
-                await fetch("/api/checkin", {
-                    method: "POST",
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+            const claimButton = document.querySelector('[data-onboarding-target="daily-reward-claim"]') as HTMLButtonElement | null;
+            const rewardCard = document.querySelector('[data-onboarding-target="daily-reward"]');
+
+            if (!claimButton || claimButton.disabled) {
+                if (rewardCard && profile?.lastCheckIn) {
+                    toast.info("Today's reward is already claimed. Continuing the tour.");
+                    await wait(250);
+                    setCurrentStep(2);
+                    return;
+                }
+
+                throw new Error("The daily check-in card is still loading. Please try again in a moment.");
             }
+
+            await new Promise<void>((resolve, reject) => {
+                const handleGuidedCheckIn = (event: Event) => {
+                    const detail = (event as CustomEvent<{ status?: string; message?: string }>).detail;
+
+                    cleanup();
+
+                    if (detail?.status === "success" || detail?.status === "already-claimed") {
+                        resolve();
+                        return;
+                    }
+
+                    reject(new Error(detail?.message || "Daily check-in failed."));
+                };
+
+                const cleanup = () => {
+                    window.clearTimeout(timeoutId);
+                    window.removeEventListener("kandydrops:guided-checkin", handleGuidedCheckIn as EventListener);
+                };
+
+                const timeoutId = window.setTimeout(() => {
+                    cleanup();
+                    reject(new Error("Daily check-in timed out. Please try again."));
+                }, 8000);
+
+                window.addEventListener("kandydrops:guided-checkin", handleGuidedCheckIn as EventListener);
+                claimButton.click();
+            });
+
+            await wait(500);
+            setCurrentStep(2);
         } catch (error) {
-            console.error(error); // Proceed anyway if it fails to prevent arbitrary soft-locks
+            const message = error instanceof Error ? error.message : "Unable to complete daily check-in.";
+            toast.error(message);
+            updateHighlight();
         } finally {
             setIsCheckingIn(false);
-            handleNext();
         }
     };
 
@@ -286,6 +446,7 @@ export function GuidedOnboarding() {
                         <div className="absolute inset-0 flex items-center justify-center p-3 sm:p-4">
                             <motion.div
                                 key="step0"
+                                data-guided-scroll-allow="true"
                                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95, y: -20, filter: "blur(10px)" }}
@@ -352,6 +513,7 @@ export function GuidedOnboarding() {
                         <div className="absolute inset-0 flex items-center justify-center p-3 sm:p-4">
                             <motion.div
                                 key="step5"
+                                data-guided-scroll-allow="true"
                                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95, y: -20, filter: "blur(10px)" }}
@@ -377,7 +539,7 @@ export function GuidedOnboarding() {
                     )}
 
                     {/* DYNAMIC HIGHLIGHT TOOLTIPS (Steps 1-4) */}
-                    {currentStep > 0 && currentStep < 5 && (
+                    {currentStep > 0 && currentStep < 5 && (!GUIDED_STEP_CONFIG[currentStep]?.path || pathname === GUIDED_STEP_CONFIG[currentStep]?.path) && (
                         <motion.div
                             key={`tooltip-${currentStep}`}
                             initial={{ opacity: 0, y: 15 }}

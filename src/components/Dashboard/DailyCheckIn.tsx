@@ -32,6 +32,16 @@ function formatCountdown(remainingMs: number): string {
     return [hours, minutes, seconds].map((segment) => String(segment).padStart(2, "0")).join(":");
 }
 
+function emitGuidedCheckIn(status: "success" | "already-claimed" | "error", message?: string) {
+    if (typeof window === "undefined") {
+        return;
+    }
+
+    window.dispatchEvent(new CustomEvent("kandydrops:guided-checkin", {
+        detail: { status, message },
+    }));
+}
+
 export function DailyCheckIn() {
     const { user, userProfile } = useAuth();
     const [loading, setLoading] = useState(false);
@@ -128,6 +138,7 @@ export function DailyCheckIn() {
                 setClaimed(false);
                 setNextCheckInOverrideMs(null);
                 if (result.alreadyClaimed) {
+                    emitGuidedCheckIn("already-claimed");
                     toast.info("Already claimed today!");
                     return;
                 }
@@ -140,10 +151,12 @@ export function DailyCheckIn() {
                 streak_count: displayStreak,
                 gum_drops_awarded: reward
             });
+            emitGuidedCheckIn("success");
 
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : "Failed to claim reward";
             console.error("Error claiming daily reward:", error);
+            emitGuidedCheckIn("error", message);
             toast.error(message);
         } finally {
             setLoading(false);
@@ -217,6 +230,8 @@ export function DailyCheckIn() {
                         variant="brand"
                         onClick={handleClaim}
                         disabled={loading}
+                        data-onboarding-target="daily-reward-claim"
+                        data-onboarding-radius="16"
                         className="w-full py-6 text-lg rounded-xl text-white shadow-[0_0_20px_rgba(236,72,153,0.3)] _0_30px_rgba(236,72,153,0.5)]"
                     >
                         {loading ? (

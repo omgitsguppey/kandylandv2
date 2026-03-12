@@ -167,7 +167,7 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
     }, [sourceDrops, searchQuery, selectedCategory]);
 
     return (
-        <div className="w-full selection:bg-brand-purple/30 px-4 md:px-8 max-w-7xl mx-auto">
+        <div className="w-full selection:bg-brand-purple/30 px-4 md:px-8 max-w-7xl mx-auto" data-onboarding-page="drops">
             <div className="mb-4 md:mb-6">
                 <KandyDropsAccountOverview
                     state={accountOverview.state}
