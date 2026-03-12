@@ -51,6 +51,7 @@ export async function POST(request: NextRequest) {
             email: caller.email,
             displayName: displayName || "User",
             username: normalizedUsername,
+            onboardingCompleted: false,
             gumDropsBalance: 50,
             unlockedContent: [],
             unlockedContentTimestamps: {},

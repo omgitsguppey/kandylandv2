@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
 import { ChevronRight, BellRing, Sparkles, Droplets, Flame, Gift } from "lucide-react";
 import { trackEvent } from "@/lib/telemetry";
@@ -19,6 +19,7 @@ export function GuidedOnboarding() {
     const { user, userProfile: profile } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
+    const completionStorageKey = user ? `kandydrops_onboarding_completed_${user.uid}` : null;
 
     const [isVisible, setIsVisible] = useState(false);
     const [currentStep, setCurrentStep] = useState(0);
@@ -53,14 +54,31 @@ export function GuidedOnboarding() {
 
     // Initial trigger
     useEffect(() => {
-        if (user && profile && profile.onboardingCompleted !== true) {
-            // Only trigger if they actually have a username (meaning OnboardingModal finished)
-            if (profile.username && !isVisible) {
-                setMountTime(Date.now());
-                setIsVisible(true);
+        if (!user || !profile) return;
+
+        const completedLocally = completionStorageKey
+            ? window.localStorage.getItem(completionStorageKey) === "true"
+            : false;
+        const hasLegacyCompletionSignal = Boolean(
+            profile.lastCheckIn ||
+            profile.preferences?.flavor ||
+            (profile.unlockedContent?.length ?? 0) > 0
+        );
+        const shouldTreatAsComplete = profile.onboardingCompleted === true || completedLocally || hasLegacyCompletionSignal;
+
+        if (shouldTreatAsComplete) {
+            if (profile.onboardingCompleted !== true) {
+                setDoc(doc(db, "users", user.uid), { onboardingCompleted: true }, { merge: true }).catch(() => { });
             }
+            setIsVisible(false);
+            return;
         }
-    }, [user, profile, isVisible]);
+
+        if (profile.username && !isVisible) {
+            setMountTime(Date.now());
+            setIsVisible(true);
+        }
+    }, [completionStorageKey, isVisible, profile, user]);
 
     // Track targets dynamically based on the step
     const updateHighlight = useCallback(() => {
@@ -72,8 +90,8 @@ export function GuidedOnboarding() {
         let targetId = "";
         if (currentStep === 1) targetId = "daily-reward"; // Step 2: Daily Check-in
         else if (currentStep === 2) targetId = "drops-nav"; // Step 3: Drops Tab
-        else if (currentStep === 3) targetId = "experiences-nav"; // Step 4: Experiences (Scarcity)
-        // Step 5 doesn't need a highlight (or can point to Notifications settings, assuming standard flow)
+        else if (currentStep === 3) targetId = "experiences-nav"; // Step 4: Experiences
+        else if (currentStep === 4) targetId = "notification-bell"; // Step 5: Notifications
 
         if (targetId) {
             // Delay slightly for DOM rendering
@@ -151,10 +169,14 @@ export function GuidedOnboarding() {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
-            // Write preferences locally to Firestore to reflect intent 
-            await updateDoc(doc(db, "users", user.uid, "profile"), {
+            await setDoc(doc(db, "users", user.uid), {
                 preferences: { flavor: stepData.preference || "Sweet" },
-            });
+                onboardingCompleted: true,
+            }, { merge: true });
+
+            if (completionStorageKey) {
+                window.localStorage.setItem(completionStorageKey, "true");
+            }
 
             // Track completion event with duration
             const durationSeconds = mountTime ? Math.round((Date.now() - mountTime) / 1000) : 0;
@@ -175,7 +197,8 @@ export function GuidedOnboarding() {
     if (!isVisible) return null;
 
     // Spotlight rendering params
-    const spotlightPadding = 16;
+    const isMobileViewport = typeof window !== 'undefined' ? window.innerWidth < 640 : false;
+    const spotlightPadding = isMobileViewport ? 10 : 16;
     const ch = typeof window !== 'undefined' ? window.innerHeight : 1000;
 
     // Dynamic Clip-Path for the blurred backdrop
@@ -341,7 +364,9 @@ export function GuidedOnboarding() {
                             transition={{ delay: 0.3, type: "spring", damping: 25 }}
                             style={{
                                 position: "absolute",
-                                top: !highlightRect || currentStep === 4
+                                top: isMobileViewport
+                                    ? "auto"
+                                    : !highlightRect || currentStep === 4
                                     ? "50%"
                                     : highlightRect.top < ch / 2
                                         ? highlightRect.top + highlightRect.height + 40
@@ -349,7 +374,10 @@ export function GuidedOnboarding() {
                                 left: "50%",
                                 width: "92%",
                                 maxWidth: "340px",
-                                transform: !highlightRect || currentStep === 4
+                                bottom: isMobileViewport ? "calc(env(safe-area-inset-bottom) + 5.5rem)" : "auto",
+                                transform: isMobileViewport
+                                    ? "translateX(-50%)"
+                                    : !highlightRect || currentStep === 4
                                     ? "translate(-50%, -50%)"
                                     : "translateX(-50%)"
                             }}
@@ -387,8 +415,8 @@ export function GuidedOnboarding() {
                                     <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-3 border border-purple-500/30">
                                         <BellRing className="w-6 h-6 text-purple-400" />
                                     </div>
-                                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2">Absolute Scarcity</h3>
-                                    <p className="text-xs sm:text-sm text-gray-300 mb-5 leading-relaxed">Drops are fleeting. <b className="text-[#E6E6FA]">Once they're gone, they may never return.</b> Enable notifications so you never miss a rush or experience.</p>
+                                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2">Don't miss out!</h3>
+                                    <p className="text-xs sm:text-sm text-gray-300 mb-5 leading-relaxed">Enable notifications so you catch new drops the moment they go live and never miss a limited release.</p>
                                 </>
                             )}
 

@@ -7,20 +7,22 @@ export async function POST(req: NextRequest) {
         const decodedToken = await verifyAuth(req);
         const { uid } = decodedToken;
 
-        const profileRef = adminDb.collection("users").doc(uid).collection("profile").doc("default");
+        const userRef = adminDb.collection("users").doc(uid);
+        const legacyProfileRef = userRef.collection("profile").doc("default");
         const balanceRef = adminDb.collection("users").doc(uid).collection("economy").doc("balance");
 
         return await adminDb.runTransaction(async (transaction) => {
-            const profileDoc = await transaction.get(profileRef);
-            
-            if (!profileDoc.exists) {
-                return NextResponse.json({ error: "Profile not found" }, { status: 404 });
+            const userDoc = await transaction.get(userRef);
+            if (!userDoc.exists) {
+                return NextResponse.json({ error: "User not found" }, { status: 404 });
             }
 
-            const profileData = profileDoc.data();
-            
+            const userData = userDoc.data() || {};
+            const legacyProfileDoc = await transaction.get(legacyProfileRef);
+            const legacyProfileData = legacyProfileDoc.exists ? legacyProfileDoc.data() : null;
+
             // Check if already completed to prevent double-dipping the reward
-            if (profileData?.onboardingCompleted) {
+            if (userData?.onboardingCompleted || legacyProfileData?.onboardingCompleted) {
                 return NextResponse.json({ success: true, alreadyCompleted: true, message: "Onboarding already finished." });
             }
 
@@ -28,21 +30,26 @@ export async function POST(req: NextRequest) {
             const rewardAmount = 50;
 
             const balanceDoc = await transaction.get(balanceRef);
-            const currentBalance = balanceDoc.exists ? (balanceDoc.data()?.gumDrops || 0) : 0;
+            const currentBalance = Number(userData?.gumDropsBalance)
+                || (balanceDoc.exists ? Number(balanceDoc.data()?.gumDrops || 0) : 0);
             const newBalance = currentBalance + rewardAmount;
 
-            // Mark onboarding as complete
-            transaction.set(profileRef, { 
-                onboardingCompleted: true 
+            transaction.set(userRef, {
+                onboardingCompleted: true,
+                gumDropsBalance: newBalance,
+                updatedAt: Date.now(),
             }, { merge: true });
 
-            // Update balance
-            transaction.set(balanceRef, { 
+            // Keep legacy docs in sync for older clients/tools.
+            transaction.set(legacyProfileRef, {
+                onboardingCompleted: true,
+            }, { merge: true });
+
+            transaction.set(balanceRef, {
                 gumDrops: newBalance,
-                updatedAt: Date.now()
+                updatedAt: Date.now(),
             }, { merge: true });
 
-            // Log the reward transaction
             const txRef = adminDb.collection("transactions").doc();
             transaction.set(txRef, {
                 userId: uid,
@@ -52,13 +59,13 @@ export async function POST(req: NextRequest) {
                 currency: "USD",
                 balanceAfter: newBalance,
                 description: "Completed Guided Onboarding Flow",
-                timestamp: Date.now()
+                timestamp: Date.now(),
             });
 
-            return NextResponse.json({ 
-                success: true, 
-                rewardAmount, 
-                newBalance 
+            return NextResponse.json({
+                success: true,
+                rewardAmount,
+                newBalance,
             });
         });
 

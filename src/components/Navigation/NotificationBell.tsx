@@ -145,6 +145,7 @@ export function NotificationBell() {
         <div className="relative" ref={dropdownRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
+                data-onboarding-target="notification-bell"
                 className="relative w-10 h-10 rounded-full flex items-center justify-center transition-colors text-gray-300 hover:text-white bg-black/20 hover:bg-black/40"
             >
                 <Bell className="w-5 h-5" />

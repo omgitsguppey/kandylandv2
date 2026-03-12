@@ -64,6 +64,10 @@ export function normalizeUserProfile(raw: unknown, user: User): UserProfile | nu
         streakCount: Number.isFinite(source.streakCount) ? Number(source.streakCount) : undefined,
         status: source.status === "active" || source.status === "suspended" || source.status === "banned" ? source.status : "active",
         statusReason: typeof source.statusReason === "string" ? source.statusReason : undefined,
+        onboardingCompleted: source.onboardingCompleted === true,
+        preferences: source.preferences && typeof source.preferences.flavor === "string"
+            ? { flavor: source.preferences.flavor }
+            : undefined,
         notificationSettings: {
             inAppEnabled: source.notificationSettings?.inAppEnabled !== false,
             browserPushEnabled: source.notificationSettings?.browserPushEnabled === true,
