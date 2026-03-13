@@ -51,7 +51,7 @@ export default function CookieBanner() {
         <div
             className={
                 isCompactViewport
-                    ? "fixed bottom-[calc(4.9rem+env(safe-area-inset-bottom))] right-3 z-50 w-[min(15.5rem,calc(100vw-1.5rem))] rounded-[1.35rem] border border-white/10 bg-black/92 px-3.5 py-3 text-white shadow-[0_25px_70px_rgba(0,0,0,0.45)] backdrop-blur-xl"
+                    ? "fixed right-3 top-[calc(4.85rem+env(safe-area-inset-top))] z-50 w-[min(15rem,calc(100vw-1.5rem))] rounded-[1.35rem] border border-white/10 bg-black/92 px-3.5 py-3 text-white shadow-[0_25px_70px_rgba(0,0,0,0.45)] backdrop-blur-xl"
                     : "fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-50 w-[min(24rem,calc(100vw-2rem))] rounded-[1.6rem] border border-white/10 bg-black/92 px-4 py-4 text-white shadow-[0_25px_70px_rgba(0,0,0,0.45)] backdrop-blur-xl"
             }
         >

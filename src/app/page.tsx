@@ -12,6 +12,7 @@ import { trackEvent } from "@/lib/telemetry";
 export default function Home() {
   const { user, userProfile, loading } = useAuth();
   const router = useRouter();
+  const shouldRedirectSignedInUser = !loading && user && userProfile?.role !== "admin";
 
   useEffect(() => {
     trackEvent("home_page_viewed");
@@ -23,7 +24,7 @@ export default function Home() {
     }
   }, [loading, router, user, userProfile]);
 
-  if (loading || (user && userProfile?.role !== "admin")) {
+  if (shouldRedirectSignedInUser) {
     return (
       <div className="absolute inset-0 z-10 flex flex-col items-center justify-center overflow-hidden">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-purple border-t-transparent" />
