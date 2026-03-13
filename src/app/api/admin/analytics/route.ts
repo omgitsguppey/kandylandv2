@@ -63,6 +63,47 @@ type TaskLifecycleLog = {
     durationMs?: number;
 };
 
+type ViewerOverview = {
+    viewCount: number;
+    sessionCount: number;
+    uniqueViewerCount: number;
+    repeatSessionCount: number;
+    totalWatchSeconds: number;
+    avgSessionSeconds: number;
+    avgWatchSeconds: number;
+    avgLoadMs: number;
+    assetCompletionRate: number;
+    assetSwitches: number;
+    downloads: number;
+    relatedClicks: number;
+};
+
+type ViewerDropInsight = {
+    dropId: string;
+    dropTitle: string;
+    viewCount: number;
+    sessionCount: number;
+    uniqueViewerCount: number;
+    repeatSessionCount: number;
+    totalWatchSeconds: number;
+    avgSessionSeconds: number;
+    avgWatchSeconds: number;
+    assetStarts: number;
+    assetCompletions: number;
+    assetSwitches: number;
+    downloads: number;
+    relatedClicks: number;
+    avgLoadMs: number;
+};
+
+type ViewerUserOption = {
+    uid: string;
+    username: string;
+    viewCount: number;
+    sessionCount: number;
+    totalWatchSeconds: number;
+};
+
 function getRangeWindow(period: string | null): RangeWindow {
     const now = Date.now();
     const oneDayMs = 24 * 60 * 60 * 1000;
@@ -177,6 +218,45 @@ function formatTaskReason(reason: string) {
     return reason || "Unknown";
 }
 
+function normalizeViewerIdentity(value: string) {
+    return value.trim().replace(/^@/, "").toLowerCase();
+}
+
+function matchesViewerFilter(record: TelemetryLogRecord, viewerFilter: string) {
+    if (!viewerFilter) {
+        return true;
+    }
+
+    const normalizedFilter = normalizeViewerIdentity(viewerFilter);
+    if (!normalizedFilter) {
+        return true;
+    }
+
+    const candidateUserId = normalizeViewerIdentity(record.userId || "");
+    const candidateUsername = normalizeViewerIdentity(record.username || "");
+    return candidateUserId === normalizedFilter || candidateUsername === normalizedFilter;
+}
+
+function getTelemetryDropId(record: TelemetryLogRecord) {
+    return getTelemetryParamString(record, "drop_id") || "unknown-drop";
+}
+
+function getTelemetryDropTitle(record: TelemetryLogRecord) {
+    return getTelemetryParamString(record, "drop_title") || getTelemetryDropId(record);
+}
+
+function average(values: number[]) {
+    if (values.length === 0) {
+        return 0;
+    }
+
+    return Math.round(sum(values) / values.length);
+}
+
+function sum(values: number[]) {
+    return values.reduce((total, value) => total + value, 0);
+}
+
 export async function GET(request: NextRequest) {
     try {
         await checkRateLimit(request, "admin/analytics", ADMIN);
@@ -185,6 +265,7 @@ export async function GET(request: NextRequest) {
         const searchParams = request.nextUrl.searchParams;
         const type = searchParams.get("type"); // "historical" or "realtime"
         const period = searchParams.get("period"); // "24h", "7d", "30d", "all"
+        const viewerUser = searchParams.get("viewerUser")?.trim() || "";
 
         if (!propertyId) {
             return NextResponse.json({
@@ -366,10 +447,16 @@ export async function GET(request: NextRequest) {
                 "drop_unlock_attempted",
                 "unlock_drop_success",
                 "viewer_opened",
+                "viewer_session_started",
+                "viewer_session_completed",
+                "viewer_asset_started",
                 "viewer_asset_changed",
+                "viewer_asset_completed",
                 "viewer_asset_consumed",
                 "viewer_watch_checkpoint",
+                "viewer_content_loaded",
                 "viewer_source_downloaded",
+                "viewer_related_drop_clicked",
                 "notification_opened",
                 "notification_marked_read",
                 "notification_mark_all_read",
@@ -979,6 +1066,259 @@ export async function GET(request: NextRequest) {
                 .sort((left, right) => right.count - left.count)
                 .slice(0, 10);
 
+            const viewerOpenLogs = (telemetryLogsByEvent.viewer_opened || []).filter((record) => matchesViewerFilter(record, viewerUser));
+            const viewerSessionStartedLogs = (telemetryLogsByEvent.viewer_session_started || []).filter((record) => matchesViewerFilter(record, viewerUser));
+            const viewerSessionCompletedLogs = (telemetryLogsByEvent.viewer_session_completed || []).filter((record) => matchesViewerFilter(record, viewerUser));
+            const viewerAssetStartedLogs = (telemetryLogsByEvent.viewer_asset_started || []).filter((record) => matchesViewerFilter(record, viewerUser));
+            const viewerAssetCompletedLogs = (telemetryLogsByEvent.viewer_asset_completed || []).filter((record) => matchesViewerFilter(record, viewerUser));
+            const viewerAssetChangedLogs = (telemetryLogsByEvent.viewer_asset_changed || []).filter((record) => matchesViewerFilter(record, viewerUser));
+            const viewerDownloadLogs = (telemetryLogsByEvent.viewer_source_downloaded || []).filter((record) => matchesViewerFilter(record, viewerUser));
+            const viewerRelatedLogs = (telemetryLogsByEvent.viewer_related_drop_clicked || []).filter((record) => matchesViewerFilter(record, viewerUser));
+            const viewerContentLoadedLogs = (telemetryLogsByEvent.viewer_content_loaded || []).filter((record) => matchesViewerFilter(record, viewerUser));
+
+            const viewerSessionCountsByUser = new Map<string, number>();
+            const overallViewerKeys = new Set<string>();
+            viewerSessionStartedLogs.forEach((record) => {
+                const key = record.userId || record.username || "";
+                if (!key) {
+                    return;
+                }
+
+                overallViewerKeys.add(key);
+                viewerSessionCountsByUser.set(key, (viewerSessionCountsByUser.get(key) || 0) + 1);
+            });
+            viewerOpenLogs.forEach((record) => {
+                const key = record.userId || record.username || "";
+                if (key) {
+                    overallViewerKeys.add(key);
+                }
+            });
+            viewerSessionCompletedLogs.forEach((record) => {
+                const key = record.userId || record.username || "";
+                if (key) {
+                    overallViewerKeys.add(key);
+                }
+            });
+
+            const overallSessionDurations = viewerSessionCompletedLogs
+                .map((record) => {
+                    const seconds = getTelemetryParamNumber(record, "duration_seconds");
+                    if (seconds > 0) {
+                        return seconds;
+                    }
+
+                    const durationMs = getTelemetryParamNumber(record, "duration_ms");
+                    return durationMs > 0 ? Math.round(durationMs / 1000) : 0;
+                })
+                .filter((value) => value > 0);
+            const overallWatchDurations = viewerSessionCompletedLogs
+                .map((record) => getTelemetryParamNumber(record, "session_watch_seconds"))
+                .filter((value) => value > 0);
+            const overallLoadSamples = viewerContentLoadedLogs
+                .map((record) => getTelemetryParamNumber(record, "load_ms"))
+                .filter((value) => value > 0);
+            const repeatSessionCount = Array.from(viewerSessionCountsByUser.values()).reduce((total, value) => total + Math.max(0, value - 1), 0);
+
+            const viewerOverview: ViewerOverview = {
+                viewCount: viewerOpenLogs.length,
+                sessionCount: viewerSessionStartedLogs.length,
+                uniqueViewerCount: overallViewerKeys.size,
+                repeatSessionCount,
+                totalWatchSeconds: sum(overallWatchDurations),
+                avgSessionSeconds: average(overallSessionDurations),
+                avgWatchSeconds: average(overallWatchDurations),
+                avgLoadMs: average(overallLoadSamples),
+                assetCompletionRate: viewerAssetStartedLogs.length > 0 ? viewerAssetCompletedLogs.length / viewerAssetStartedLogs.length : 0,
+                assetSwitches: viewerAssetChangedLogs.length,
+                downloads: viewerDownloadLogs.length,
+                relatedClicks: viewerRelatedLogs.length,
+            };
+
+            type MutableViewerDropInsight = ViewerDropInsight & {
+                uniqueViewerKeys: Set<string>;
+                sessionCountsByUser: Map<string, number>;
+                sessionDurations: number[];
+                watchDurations: number[];
+                loadSamples: number[];
+            };
+
+            const viewerDropInsightMap = new Map<string, MutableViewerDropInsight>();
+            const ensureViewerDropInsight = (record: TelemetryLogRecord) => {
+                const dropId = getTelemetryDropId(record);
+                const existing = viewerDropInsightMap.get(dropId);
+                if (existing) {
+                    if (existing.dropTitle === existing.dropId) {
+                        existing.dropTitle = getTelemetryDropTitle(record);
+                    }
+                    return existing;
+                }
+
+                const created: MutableViewerDropInsight = {
+                    dropId,
+                    dropTitle: getTelemetryDropTitle(record),
+                    viewCount: 0,
+                    sessionCount: 0,
+                    uniqueViewerCount: 0,
+                    repeatSessionCount: 0,
+                    totalWatchSeconds: 0,
+                    avgSessionSeconds: 0,
+                    avgWatchSeconds: 0,
+                    assetStarts: 0,
+                    assetCompletions: 0,
+                    assetSwitches: 0,
+                    downloads: 0,
+                    relatedClicks: 0,
+                    avgLoadMs: 0,
+                    uniqueViewerKeys: new Set<string>(),
+                    sessionCountsByUser: new Map<string, number>(),
+                    sessionDurations: [],
+                    watchDurations: [],
+                    loadSamples: [],
+                };
+                viewerDropInsightMap.set(dropId, created);
+                return created;
+            };
+
+            const registerViewerRecord = (record: TelemetryLogRecord) => {
+                const key = record.userId || record.username || "";
+                if (!key) {
+                    return "";
+                }
+
+                return key;
+            };
+
+            viewerOpenLogs.forEach((record) => {
+                const insight = ensureViewerDropInsight(record);
+                insight.viewCount += 1;
+                const viewerKey = registerViewerRecord(record);
+                if (viewerKey) {
+                    insight.uniqueViewerKeys.add(viewerKey);
+                }
+            });
+            viewerSessionStartedLogs.forEach((record) => {
+                const insight = ensureViewerDropInsight(record);
+                insight.sessionCount += 1;
+                const viewerKey = registerViewerRecord(record);
+                if (viewerKey) {
+                    insight.uniqueViewerKeys.add(viewerKey);
+                    insight.sessionCountsByUser.set(viewerKey, (insight.sessionCountsByUser.get(viewerKey) || 0) + 1);
+                }
+            });
+            viewerSessionCompletedLogs.forEach((record) => {
+                const insight = ensureViewerDropInsight(record);
+                const sessionSeconds = getTelemetryParamNumber(record, "duration_seconds")
+                    || Math.round(getTelemetryParamNumber(record, "duration_ms") / 1000);
+                const watchSeconds = getTelemetryParamNumber(record, "session_watch_seconds");
+
+                if (sessionSeconds > 0) {
+                    insight.sessionDurations.push(sessionSeconds);
+                }
+                if (watchSeconds > 0) {
+                    insight.watchDurations.push(watchSeconds);
+                    insight.totalWatchSeconds += watchSeconds;
+                }
+            });
+            viewerAssetStartedLogs.forEach((record) => {
+                ensureViewerDropInsight(record).assetStarts += 1;
+            });
+            viewerAssetCompletedLogs.forEach((record) => {
+                ensureViewerDropInsight(record).assetCompletions += 1;
+            });
+            viewerAssetChangedLogs.forEach((record) => {
+                ensureViewerDropInsight(record).assetSwitches += 1;
+            });
+            viewerDownloadLogs.forEach((record) => {
+                ensureViewerDropInsight(record).downloads += 1;
+            });
+            viewerRelatedLogs.forEach((record) => {
+                ensureViewerDropInsight(record).relatedClicks += 1;
+            });
+            viewerContentLoadedLogs.forEach((record) => {
+                const loadMs = getTelemetryParamNumber(record, "load_ms");
+                if (loadMs > 0) {
+                    ensureViewerDropInsight(record).loadSamples.push(loadMs);
+                }
+            });
+
+            const viewerDropInsights: ViewerDropInsight[] = Array.from(viewerDropInsightMap.values())
+                .map((entry) => ({
+                    dropId: entry.dropId,
+                    dropTitle: entry.dropTitle,
+                    viewCount: entry.viewCount,
+                    sessionCount: entry.sessionCount,
+                    uniqueViewerCount: entry.uniqueViewerKeys.size,
+                    repeatSessionCount: Array.from(entry.sessionCountsByUser.values()).reduce((total, value) => total + Math.max(0, value - 1), 0),
+                    totalWatchSeconds: entry.totalWatchSeconds,
+                    avgSessionSeconds: average(entry.sessionDurations),
+                    avgWatchSeconds: average(entry.watchDurations),
+                    assetStarts: entry.assetStarts,
+                    assetCompletions: entry.assetCompletions,
+                    assetSwitches: entry.assetSwitches,
+                    downloads: entry.downloads,
+                    relatedClicks: entry.relatedClicks,
+                    avgLoadMs: average(entry.loadSamples),
+                }))
+                .sort((left, right) =>
+                    right.totalWatchSeconds - left.totalWatchSeconds
+                    || right.sessionCount - left.sessionCount
+                    || right.viewCount - left.viewCount
+                )
+                .slice(0, 20);
+
+            const viewerUserMap = new Map<string, ViewerUserOption>();
+            const ensureViewerUser = (record: TelemetryLogRecord) => {
+                const uid = record.userId;
+                if (!uid) {
+                    return null;
+                }
+
+                const existing = viewerUserMap.get(uid);
+                if (existing) {
+                    if (!existing.username && record.username) {
+                        existing.username = record.username;
+                    }
+                    return existing;
+                }
+
+                const created: ViewerUserOption = {
+                    uid,
+                    username: record.username || uid,
+                    viewCount: 0,
+                    sessionCount: 0,
+                    totalWatchSeconds: 0,
+                };
+                viewerUserMap.set(uid, created);
+                return created;
+            };
+
+            (telemetryLogsByEvent.viewer_opened || []).forEach((record) => {
+                const entry = ensureViewerUser(record);
+                if (entry) {
+                    entry.viewCount += 1;
+                }
+            });
+            (telemetryLogsByEvent.viewer_session_started || []).forEach((record) => {
+                const entry = ensureViewerUser(record);
+                if (entry) {
+                    entry.sessionCount += 1;
+                }
+            });
+            (telemetryLogsByEvent.viewer_session_completed || []).forEach((record) => {
+                const entry = ensureViewerUser(record);
+                if (entry) {
+                    entry.totalWatchSeconds += getTelemetryParamNumber(record, "session_watch_seconds");
+                }
+            });
+
+            const viewerUsers = Array.from(viewerUserMap.values())
+                .sort((left, right) =>
+                    right.sessionCount - left.sessionCount
+                    || right.totalWatchSeconds - left.totalWatchSeconds
+                    || right.viewCount - left.viewCount
+                )
+                .slice(0, 12);
+
             const completedPurchaseTransactions = normalizedTransactionsInRange.filter((tx) => tx.type === "purchase_currency" && tx.status === "completed");
             const unlockTransactions = normalizedTransactionsInRange.filter((tx) => tx.type === "unlock_content");
             const validations = [
@@ -1010,6 +1350,13 @@ export async function GET(request: NextRequest) {
                     label: "Unlock parity",
                     status: Math.abs(unlockTransactions.length - funnel.unlocks) <= 5 ? "pass" : "warn",
                     detail: `${unlockTransactions.length.toLocaleString()} unlock transactions vs ${funnel.unlocks.toLocaleString()} unwrap events.`,
+                },
+                {
+                    label: "Viewer drilldown",
+                    status: viewerOverview.sessionCount > 0 ? "pass" : "warn",
+                    detail: viewerOverview.sessionCount > 0
+                        ? `${viewerOverview.sessionCount.toLocaleString()} viewer sessions with per-drop timing metrics in range.`
+                        : "No viewer sessions matched the selected range and filter.",
                 },
             ];
 
@@ -1043,6 +1390,10 @@ export async function GET(request: NextRequest) {
                 watchDepthBuckets,
                 contentJourney,
                 contentTagDemand,
+                viewerOverview,
+                viewerDropInsights,
+                viewerUsers,
+                viewerFilter: viewerUser,
                 validations,
             });
         }

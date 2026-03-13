@@ -273,6 +273,15 @@ function buildThumbnailFetchOrder(assetCount: number, activeIndex: number): numb
     return order;
 }
 
+function sumNumbers(values: Iterable<number>): number {
+    let total = 0;
+    for (const value of values) {
+        total += value;
+    }
+
+    return total;
+}
+
 async function buildThumbnailFromRecord(record: CachedAssetRecord, fallbackSrc: string): Promise<ThumbnailItem> {
     if (record.resolvedContent.kind === "image") {
         return { src: record.objectUrl, kind: record.resolvedContent.kind };
@@ -326,6 +335,16 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     const lastTrackedAssetRef = useRef<string | null>(null);
     const consumedAssetKeysRef = useRef<Set<string>>(new Set());
     const watchCheckpointKeysRef = useRef<Set<string>>(new Set());
+    const sessionStartedAtRef = useRef<number | null>(null);
+    const sessionWatchSecondsByAssetRef = useRef<Map<string, number>>(new Map());
+    const sessionViewedAssetsRef = useRef<Set<string>>(new Set());
+    const sessionCompletedAssetsRef = useRef<Set<string>>(new Set());
+    const sessionLoadSamplesRef = useRef<number[]>([]);
+    const sessionAssetSwitchCountRef = useRef(0);
+    const sessionDownloadCountRef = useRef(0);
+    const sessionRelatedClickCountRef = useRef(0);
+    const startedAssetKeysRef = useRef<Set<string>>(new Set());
+    const completedAssetKeysRef = useRef<Set<string>>(new Set());
 
     const [isSecurityTriggered, setIsSecurityTriggered] = useState(false);
 
@@ -349,6 +368,9 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     }, [drop, userProfile?.unlockedContentTimestamps]);
 
     const previewTags = useMemo(() => sanitizeDropTags(drop?.tags), [drop?.tags]);
+    const dropId = drop?.id ?? null;
+    const dropTitle = drop?.title ?? "";
+    const dropType = drop?.type ?? "";
 
     const totalUnlocks = useMemo(() => {
         if (!drop || !Number.isFinite(drop.totalUnlocks)) {
@@ -360,26 +382,174 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
 
     const [activeIndex, setActiveIndex] = useState(0);
     const [emblaRef, emblaApi] = useEmblaCarousel({ dragFree: true, containScroll: "trimSnaps" });
+    const assetCount = useMemo(() => {
+        return drop ? getDropAssetCount(drop) : 0;
+    }, [drop]);
+
+    const resetViewerSessionMetrics = useCallback(() => {
+        sessionWatchSecondsByAssetRef.current.clear();
+        sessionViewedAssetsRef.current.clear();
+        sessionCompletedAssetsRef.current.clear();
+        sessionLoadSamplesRef.current = [];
+        sessionAssetSwitchCountRef.current = 0;
+        sessionDownloadCountRef.current = 0;
+        sessionRelatedClickCountRef.current = 0;
+        consumedAssetKeysRef.current.clear();
+        watchCheckpointKeysRef.current.clear();
+        startedAssetKeysRef.current.clear();
+        completedAssetKeysRef.current.clear();
+    }, []);
+
+    const updateSessionWatchTime = useCallback((watchSeconds: number, assetIndex = activeIndex) => {
+        if (!drop || !Number.isFinite(watchSeconds) || watchSeconds <= 0) {
+            return;
+        }
+
+        const assetKey = `${drop.id}:${assetIndex}`;
+        const normalizedWatchSeconds = Math.max(1, Math.round(watchSeconds));
+        const current = sessionWatchSecondsByAssetRef.current.get(assetKey) ?? 0;
+        sessionWatchSecondsByAssetRef.current.set(assetKey, Math.max(current, normalizedWatchSeconds));
+        sessionViewedAssetsRef.current.add(assetKey);
+    }, [activeIndex, drop]);
+
+    const finalizeViewerSession = useCallback((reason: string) => {
+        if (!drop || !sessionStartedAtRef.current) {
+            sessionStartedAtRef.current = null;
+            return;
+        }
+
+        const sessionDurationMs = Math.max(0, Date.now() - sessionStartedAtRef.current);
+        const watchValues = Array.from(sessionWatchSecondsByAssetRef.current.values());
+        const totalWatchSeconds = sumNumbers(watchValues);
+        const averageLoadMs = sessionLoadSamplesRef.current.length > 0
+            ? Math.round(sumNumbers(sessionLoadSamplesRef.current) / sessionLoadSamplesRef.current.length)
+            : 0;
+
+        trackEvent("viewer_session_completed", {
+            drop_id: drop.id,
+            drop_title: drop.title,
+            drop_category: drop.type,
+            content_count: assetCount,
+            session_end_reason: reason,
+            duration_ms: sessionDurationMs,
+            duration_seconds: Math.round(sessionDurationMs / 1000),
+            session_watch_seconds: totalWatchSeconds,
+            max_asset_watch_seconds: watchValues.length > 0 ? Math.max(...watchValues) : 0,
+            viewed_asset_count: sessionViewedAssetsRef.current.size,
+            completed_asset_count: sessionCompletedAssetsRef.current.size,
+            asset_start_count: startedAssetKeysRef.current.size,
+            asset_completion_count: completedAssetKeysRef.current.size,
+            asset_switch_count: sessionAssetSwitchCountRef.current,
+            download_count: sessionDownloadCountRef.current,
+            related_click_count: sessionRelatedClickCountRef.current,
+            average_load_ms: averageLoadMs,
+            load_sample_count: sessionLoadSamplesRef.current.length,
+        });
+
+        sessionStartedAtRef.current = null;
+        resetViewerSessionMetrics();
+    }, [assetCount, drop, resetViewerSessionMetrics]);
+
+    const trackAssetStarted = useCallback(() => {
+        if (!drop) {
+            return;
+        }
+
+        const assetKey = `${drop.id}:${activeIndex}`;
+        if (startedAssetKeysRef.current.has(assetKey)) {
+            return;
+        }
+
+        startedAssetKeysRef.current.add(assetKey);
+        sessionViewedAssetsRef.current.add(assetKey);
+        trackEvent("viewer_asset_started", {
+            drop_id: drop.id,
+            drop_title: drop.title,
+            drop_category: drop.type,
+            asset_index: activeIndex + 1,
+            asset_total: assetCount,
+            asset_key: assetKey,
+            content_kind: resolvedContent.kind,
+        });
+    }, [activeIndex, assetCount, drop, resolvedContent.kind]);
+
+    const trackAssetCompleted = useCallback((watchSeconds: number) => {
+        if (!drop) {
+            return;
+        }
+
+        const assetKey = `${drop.id}:${activeIndex}`;
+        if (completedAssetKeysRef.current.has(assetKey)) {
+            return;
+        }
+
+        updateSessionWatchTime(watchSeconds);
+        completedAssetKeysRef.current.add(assetKey);
+        sessionCompletedAssetsRef.current.add(assetKey);
+        trackEvent("viewer_asset_completed", {
+            drop_id: drop.id,
+            drop_title: drop.title,
+            drop_category: drop.type,
+            asset_index: activeIndex + 1,
+            asset_total: assetCount,
+            asset_key: assetKey,
+            watch_seconds: Math.max(1, Math.round(watchSeconds)),
+            content_kind: resolvedContent.kind,
+        });
+    }, [activeIndex, assetCount, drop, resolvedContent.kind, updateSessionWatchTime]);
+
+    const trackContentLoaded = useCallback((loadMs: number, fromCache: boolean, contentKind: ContentKind) => {
+        if (!drop) {
+            return;
+        }
+
+        const normalizedLoadMs = Math.max(1, Math.round(loadMs));
+        sessionLoadSamplesRef.current.push(normalizedLoadMs);
+        trackEvent("viewer_content_loaded", {
+            drop_id: drop.id,
+            drop_title: drop.title,
+            drop_category: drop.type,
+            asset_index: activeIndex + 1,
+            asset_total: assetCount,
+            asset_key: `${drop.id}:${activeIndex}`,
+            content_kind: contentKind,
+            load_ms: normalizedLoadMs,
+            from_cache: fromCache,
+        });
+    }, [activeIndex, assetCount, drop]);
+
+    const handleRelatedDropClick = useCallback((destination: string, destinationType: string) => {
+        if (!drop) {
+            return;
+        }
+
+        sessionRelatedClickCountRef.current += 1;
+        trackEvent("viewer_related_drop_clicked", {
+            drop_id: drop.id,
+            drop_title: drop.title,
+            drop_category: drop.type,
+            destination,
+            destination_type: destinationType,
+            asset_index: activeIndex + 1,
+        });
+    }, [activeIndex, drop]);
 
     useEffect(() => {
         const assetCache = assetCacheRef.current;
         const thumbnailCache = thumbnailCacheRef.current;
 
         return () => {
+            finalizeViewerSession("viewer_unmounted");
             clearCachedAssets(assetCache);
             contentObjectUrlRef.current = null;
             thumbnailCache.clear();
         };
-    }, []);
+    }, [finalizeViewerSession]);
 
     useEffect(() => {
         if (!emblaApi) return;
         emblaApi.scrollTo(activeIndex);
     }, [emblaApi, activeIndex]);
-
-    const assetCount = useMemo(() => {
-        return drop ? getDropAssetCount(drop) : 0;
-    }, [drop]);
 
     useEffect(() => {
         if (!drop || !isAuthorized) {
@@ -394,10 +564,30 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         hasTrackedViewerOpenRef.current = drop.id;
         trackEvent("viewer_opened", {
             drop_id: drop.id,
+            drop_title: drop.title,
             drop_category: drop.type,
             content_count: assetCount,
         });
     }, [assetCount, drop, isAuthorized]);
+
+    useEffect(() => {
+        if (!dropId || !isAuthorized) {
+            return;
+        }
+
+        sessionStartedAtRef.current = Date.now();
+        resetViewerSessionMetrics();
+        trackEvent("viewer_session_started", {
+            drop_id: dropId,
+            drop_title: dropTitle,
+            drop_category: dropType,
+            content_count: assetCount,
+        });
+
+        return () => {
+            finalizeViewerSession("drop_changed");
+        };
+    }, [assetCount, dropId, dropTitle, dropType, finalizeViewerSession, isAuthorized, resetViewerSessionMetrics]);
 
     useEffect(() => {
         setActiveIndex(0);
@@ -424,8 +614,11 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         }
 
         if (lastTrackedAssetRef.current !== null) {
+            sessionAssetSwitchCountRef.current += 1;
             trackEvent("viewer_asset_changed", {
                 drop_id: drop.id,
+                drop_title: drop.title,
+                drop_category: drop.type,
                 asset_index: activeIndex + 1,
                 asset_total: assetCount,
                 asset_key: `${drop.id}:${activeIndex}`,
@@ -448,6 +641,8 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         consumedAssetKeysRef.current.add(assetKey);
         trackEvent("viewer_asset_consumed", {
             drop_id: drop.id,
+            drop_title: drop.title,
+            drop_category: drop.type,
             asset_index: activeIndex + 1,
             asset_key: assetKey,
             watch_seconds: watchSeconds,
@@ -469,6 +664,8 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         watchCheckpointKeysRef.current.add(checkpointKey);
         trackEvent("viewer_watch_checkpoint", {
             drop_id: drop.id,
+            drop_title: drop.title,
+            drop_category: drop.type,
             asset_index: activeIndex + 1,
             asset_key: assetKey,
             watch_seconds: watchSeconds,
@@ -486,18 +683,30 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         }
 
         const timerId = window.setTimeout(() => {
+            updateSessionWatchTime(6);
             trackAssetConsumed(6);
+            trackAssetCompleted(6);
         }, 6000);
 
         return () => {
             window.clearTimeout(timerId);
         };
-    }, [contentBlobUrl, contentLoading, drop, isAuthorized, resolvedContent.kind, trackAssetConsumed]);
+    }, [contentBlobUrl, contentLoading, drop, isAuthorized, resolvedContent.kind, trackAssetCompleted, trackAssetConsumed, updateSessionWatchTime]);
+
+    useEffect(() => {
+        if (!drop || !isAuthorized || contentLoading || !contentBlobUrl) {
+            return;
+        }
+
+        trackAssetStarted();
+    }, [contentBlobUrl, contentLoading, drop, isAuthorized, trackAssetStarted]);
 
     const handleMediaTimeUpdate = useCallback((currentTime: number) => {
         if (!Number.isFinite(currentTime) || currentTime <= 0) {
             return;
         }
+
+        updateSessionWatchTime(currentTime);
 
         if (currentTime >= 15) {
             trackAssetConsumed(15);
@@ -511,7 +720,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         if (currentTime >= 90) {
             trackWatchCheckpoint(90);
         }
-    }, [trackAssetConsumed, trackWatchCheckpoint]);
+    }, [trackAssetConsumed, trackWatchCheckpoint, updateSessionWatchTime]);
 
     // Redirect if not logged in (once auth is ready)
     useEffect(() => {
@@ -615,6 +824,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
             setContentBlobUrl(cachedRecord.objectUrl);
             setResolvedContent(cachedRecord.resolvedContent);
             setContentLoading(false);
+            trackContentLoaded(1, true, cachedRecord.resolvedContent.kind);
 
             if (!thumbnailCacheRef.current.has(activeIndex)) {
                 void buildThumbnailFromRecord(cachedRecord, currentDrop.imageUrl).then((thumbnailItem) => {
@@ -630,6 +840,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
 
         const controller = new AbortController();
         let cancelled = false;
+        const startedAt = performance.now();
 
         async function fetchContent() {
             setContentLoading(true);
@@ -645,6 +856,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                 contentObjectUrlRef.current = assetRecord.objectUrl;
                 setContentBlobUrl(assetRecord.objectUrl);
                 setResolvedContent(assetRecord.resolvedContent);
+                trackContentLoaded(performance.now() - startedAt, false, assetRecord.resolvedContent.kind);
 
                 void buildThumbnailFromRecord(assetRecord, currentDrop.imageUrl).then((thumbnailItem) => {
                     if (cancelled) {
@@ -679,7 +891,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
             cancelled = true;
             controller.abort();
         };
-    }, [activeIndex, assetCount, isAuthorized, drop]);
+    }, [activeIndex, assetCount, isAuthorized, drop, trackContentLoaded]);
 
     useEffect(() => {
         if (!isAuthorized || !drop || assetCount === 0) {
@@ -899,6 +1111,9 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                             onTimeUpdate={(event) => {
                                                 handleMediaTimeUpdate(event.currentTarget.currentTime);
                                             }}
+                                            onEnded={(event) => {
+                                                trackAssetCompleted(event.currentTarget.duration || event.currentTarget.currentTime || 15);
+                                            }}
                                         >
                                             <source src={contentBlobUrl} type={resolvedContent.mimeType} />
                                             {videoFallbackTypes.filter((type) => type !== resolvedContent.mimeType).map((type) => (
@@ -926,6 +1141,9 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                                 onContextMenu={preventContextMenu}
                                                 onTimeUpdate={(event) => {
                                                     handleMediaTimeUpdate(event.currentTarget.currentTime);
+                                                }}
+                                                onEnded={(event) => {
+                                                    trackAssetCompleted(event.currentTarget.duration || event.currentTarget.currentTime || 15);
                                                 }}
                                             >
                                                 <source src={contentBlobUrl} type={resolvedContent.mimeType} />
@@ -1088,9 +1306,12 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                 href={contentBlobUrl}
                                 download={drop.title}
                                 onClick={() => {
+                                    sessionDownloadCountRef.current += 1;
                                     trackEvent("viewer_source_downloaded", {
                                         drop_id: drop.id,
+                                        drop_title: drop.title,
                                         drop_category: drop.type,
+                                        asset_index: activeIndex + 1,
                                     });
                                 }}
                                 className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-sm flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-sm mt-1 hover:bg-white/10"
@@ -1101,6 +1322,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                         )}
                         <Link
                             href="/drops"
+                            onClick={() => handleRelatedDropClick("/drops", "browse_more")}
                             className="w-full px-4 py-3 rounded-xl bg-white text-black font-black text-sm flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.2)] mt-1"
                         >
                             <ShoppingBag className="w-4 h-4" />
@@ -1118,6 +1340,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                 <Link
                                     key={retentionDrop.id}
                                     href={`/dashboard/viewer?id=${retentionDrop.id}`}
+                                    onClick={() => handleRelatedDropClick(retentionDrop.id, "library_related")}
                                     className="group block"
                                 >
                                     <div className="aspect-square bg-zinc-900 rounded-xl border border-white/5 overflow-hidden relative mb-2">

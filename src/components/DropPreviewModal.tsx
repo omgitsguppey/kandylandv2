@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
@@ -21,6 +22,7 @@ import {
   GUMDROPS_URGENCY_CTA,
   SECONDARY_UNWRAP_CTA,
 } from "@/lib/marketing-copy";
+import { showUnwrapSuccessToast } from "@/components/Toasts/UnwrapSuccessToast";
 
 interface DropPreviewModalProps {
   drop: Drop | null;
@@ -45,6 +47,7 @@ function getTimerLabel(validFrom: number, validUntil?: number): string {
 }
 
 export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
+  const router = useRouter();
   const { user } = useAuth();
   const { userProfile, setUserProfile } = useUserProfile();
   const { openAuthModal, openPurchaseModal } = useUI();
@@ -153,12 +156,6 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
         throw new Error(result.error || "Unlock failed");
       }
 
-      toast.success(`Unwrapped: ${drop.title}`, {
-        description: "Enjoy your exclusive content!",
-        icon: "🔓",
-        duration: 4000,
-      });
-
       sendGAEvent("event", "spend_virtual_currency", {
         value: drop.unlockCost,
         virtual_currency_name: "Gum Drops",
@@ -187,6 +184,14 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
           },
         });
       }
+
+      onClose();
+      showUnwrapSuccessToast({
+        dropTitle: drop.title,
+        onTaste: () => {
+          router.push(`/dashboard/viewer?id=${drop.id}`);
+        },
+      });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Please try again later.";
       clearTimedFlow("drop_unlock");

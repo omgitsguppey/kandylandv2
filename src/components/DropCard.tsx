@@ -2,6 +2,7 @@
 
 import { Drop } from "@/types/db";
 import { useEffect, useState, memo, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import NextImage from "next/image";
 import { Lock, Unlock, Clock, Loader2, AlertCircle, Eye, Image as ImageIcon, Film, Wallet } from "lucide-react";
 
@@ -16,6 +17,7 @@ import { trackEvent } from "@/lib/telemetry";
 import Link from "next/link";
 import { SupportedAspectRatio, getDropMediaSummary, getSupportedDropAspectRatio } from "@/lib/drop-presentation";
 import { SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
+import { showUnwrapSuccessToast } from "@/components/Toasts/UnwrapSuccessToast";
 
 
 interface DropCardProps {
@@ -137,6 +139,7 @@ function DropCardTimer({ validUntil }: { validUntil?: number }) {
 }
 
 function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAfford = false, onPreview, aspectRatio }: DropCardProps) {
+    const router = useRouter();
     const { userProfile, setUserProfile } = useUserProfile();
     const { openAuthModal, openPurchaseModal } = useUI();
     const [unlocking, setUnlocking] = useState(false);
@@ -252,12 +255,6 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                 drop_tags: (drop.tags || []).join("|"),
             });
 
-            toast.success(`Unwrapped: ${drop.title}`, {
-                description: "Enjoy your exclusive content!",
-                icon: "🔓",
-                duration: 4000,
-            });
-
             if (userProfile) {
                 const currentUnlocked = Array.isArray(userProfile.unlockedContent) ? userProfile.unlockedContent : [];
                 const nextUnlockedContent = currentUnlocked.includes(drop.id) ? currentUnlocked : [...currentUnlocked, drop.id];
@@ -273,6 +270,13 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                     },
                 });
             }
+
+            showUnwrapSuccessToast({
+                dropTitle: drop.title,
+                onTaste: () => {
+                    router.push(`/dashboard/viewer?id=${drop.id}`);
+                },
+            });
         } catch (err: any) {
             console.error("Unwrap failed:", err);
             toast.error("Unwrap failed", {

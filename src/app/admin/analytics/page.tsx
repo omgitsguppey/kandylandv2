@@ -189,6 +189,47 @@ interface ContentTagDemandItem {
   count: number;
 }
 
+interface ViewerOverviewItem {
+  viewCount: number;
+  sessionCount: number;
+  uniqueViewerCount: number;
+  repeatSessionCount: number;
+  totalWatchSeconds: number;
+  avgSessionSeconds: number;
+  avgWatchSeconds: number;
+  avgLoadMs: number;
+  assetCompletionRate: number;
+  assetSwitches: number;
+  downloads: number;
+  relatedClicks: number;
+}
+
+interface ViewerDropInsightItem {
+  dropId: string;
+  dropTitle: string;
+  viewCount: number;
+  sessionCount: number;
+  uniqueViewerCount: number;
+  repeatSessionCount: number;
+  totalWatchSeconds: number;
+  avgSessionSeconds: number;
+  avgWatchSeconds: number;
+  assetStarts: number;
+  assetCompletions: number;
+  assetSwitches: number;
+  downloads: number;
+  relatedClicks: number;
+  avgLoadMs: number;
+}
+
+interface ViewerUserOptionItem {
+  uid: string;
+  username: string;
+  viewCount: number;
+  sessionCount: number;
+  totalWatchSeconds: number;
+}
+
 interface ValidationItem {
   label: string;
   status: "pass" | "warn" | "fail";
@@ -255,6 +296,10 @@ interface HistoricalAnalyticsResponse {
   watchDepthBuckets?: CountBucketItem[];
   contentJourney?: CountBucketItem[];
   contentTagDemand?: ContentTagDemandItem[];
+  viewerOverview?: ViewerOverviewItem;
+  viewerDropInsights?: ViewerDropInsightItem[];
+  viewerUsers?: ViewerUserOptionItem[];
+  viewerFilter?: string;
   validations?: ValidationItem[];
 }
 
@@ -449,6 +494,8 @@ export default function AdminAnalyticsPage() {
   const [activeTab, setActiveTab] = useState<ViewTab>("operations");
   const [range, setRange] = useState<RangeOption>("30d");
   const [nowMs, setNowMs] = useState(INITIAL_ANALYTICS_NOW);
+  const [viewerUserDraft, setViewerUserDraft] = useState("");
+  const [viewerUserFilter, setViewerUserFilter] = useState("");
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
@@ -473,10 +520,13 @@ export default function AdminAnalyticsPage() {
     error: historicalError,
     isLoading: historicalLoading,
     mutate: refreshHistorical,
-  } = useAuthSWR<HistoricalAnalyticsResponse>(`/api/admin/analytics?type=historical&period=${range}`, {
+  } = useAuthSWR<HistoricalAnalyticsResponse>(
+    `/api/admin/analytics?type=historical&period=${range}${viewerUserFilter ? `&viewerUser=${encodeURIComponent(viewerUserFilter)}` : ""}`,
+    {
     refreshInterval: 60_000,
     keepPreviousData: true,
-  });
+    },
+  );
 
   const liveSeries = useMemo(
     () =>
@@ -536,6 +586,23 @@ export default function AdminAnalyticsPage() {
   const watchDepthBuckets = historicalResponse?.watchDepthBuckets ?? [];
   const contentJourney = historicalResponse?.contentJourney ?? [];
   const contentTagDemand = historicalResponse?.contentTagDemand ?? [];
+  const viewerOverview = historicalResponse?.viewerOverview ?? {
+    viewCount: 0,
+    sessionCount: 0,
+    uniqueViewerCount: 0,
+    repeatSessionCount: 0,
+    totalWatchSeconds: 0,
+    avgSessionSeconds: 0,
+    avgWatchSeconds: 0,
+    avgLoadMs: 0,
+    assetCompletionRate: 0,
+    assetSwitches: 0,
+    downloads: 0,
+    relatedClicks: 0,
+  };
+  const viewerDropInsights = historicalResponse?.viewerDropInsights ?? [];
+  const viewerUsers = historicalResponse?.viewerUsers ?? [];
+  const activeViewerFilter = historicalResponse?.viewerFilter ?? viewerUserFilter;
   const validations = historicalResponse?.validations ?? [];
 
   const needsSetup =
@@ -555,10 +622,23 @@ export default function AdminAnalyticsPage() {
     ...entry,
     label: EVENT_LABELS[entry.eventName] || entry.eventName.replaceAll("_", " "),
   }));
+  const viewerDropChartData = viewerDropInsights.slice(0, 8).map((item) => ({
+    ...item,
+    shortLabel: item.dropTitle.length > 16 ? `${item.dropTitle.slice(0, 16)}...` : item.dropTitle,
+  }));
 
   const refreshAll = () => {
     void refreshLive();
     void refreshHistorical();
+  };
+
+  const applyViewerFilter = () => {
+    setViewerUserFilter(viewerUserDraft.trim());
+  };
+
+  const clearViewerFilter = () => {
+    setViewerUserDraft("");
+    setViewerUserFilter("");
   };
 
   if (needsSetup) {
@@ -1246,6 +1326,156 @@ export default function AdminAnalyticsPage() {
             </div>
 
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
+              <SectionCard
+                title="Library Viewer Drilldown"
+                subtitle={
+                  activeViewerFilter
+                    ? `Viewer playback, watch time, and drop affinity filtered to ${activeViewerFilter.startsWith("@") ? activeViewerFilter : `@${activeViewerFilter}`}.`
+                    : "Overall library-viewer performance across watch time, repeat sessions, asset completion, and the drops people actually spend time with."
+                }
+                icon={Eye}
+                className="xl:col-span-2"
+                rightSlot={
+                  activeViewerFilter ? (
+                    <span className="rounded-full border border-brand-purple/25 bg-brand-purple/12 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-purple">
+                      Filtered
+                    </span>
+                  ) : null
+                }
+              >
+                <div className="space-y-4">
+                  <div className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4">
+                    <div className="flex flex-col gap-3 lg:flex-row">
+                      <label className="min-w-0 flex-1">
+                        <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
+                          Filter by username or UID
+                        </span>
+                        <input
+                          type="text"
+                          value={viewerUserDraft}
+                          onChange={(event) => setViewerUserDraft(event.target.value)}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter") {
+                              applyViewerFilter();
+                            }
+                          }}
+                          placeholder="codexkdqa or user uid"
+                          className="h-12 w-full rounded-2xl border border-white/10 bg-black/40 px-4 text-sm text-white outline-none transition-colors placeholder:text-gray-500 focus:border-brand-purple/40"
+                        />
+                      </label>
+                      <div className="flex gap-2 lg:self-end">
+                        <button
+                          type="button"
+                          onClick={applyViewerFilter}
+                          className="min-h-12 rounded-2xl bg-brand-purple px-4 text-sm font-bold text-white transition-colors hover:bg-brand-purple/90"
+                        >
+                          Apply filter
+                        </button>
+                        <button
+                          type="button"
+                          onClick={clearViewerFilter}
+                          className="min-h-12 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm font-semibold text-gray-200 transition-colors hover:border-brand-purple/30 hover:text-white"
+                        >
+                          Overall
+                        </button>
+                      </div>
+                    </div>
+
+                    {viewerUsers.length > 0 ? (
+                      <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
+                        {viewerUsers.map((item) => (
+                          <button
+                            key={item.uid}
+                            type="button"
+                            onClick={() => {
+                              setViewerUserDraft(item.username);
+                              setViewerUserFilter(item.username);
+                            }}
+                            className={cn(
+                              "shrink-0 rounded-full border px-3 py-2 text-left text-xs transition-colors",
+                              activeViewerFilter && item.username === activeViewerFilter
+                                ? "border-brand-purple/40 bg-brand-purple/15 text-white"
+                                : "border-white/10 bg-white/5 text-gray-300 hover:border-brand-purple/30 hover:text-white",
+                            )}
+                          >
+                            <span className="font-semibold">{item.username.startsWith("@") ? item.username : `@${item.username}`}</span>
+                            <span className="ml-2 text-gray-500">{item.sessionCount} sessions</span>
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 xl:grid-cols-6">
+                    <MetricCard label="Views" value={formatCompactNumber(viewerOverview.viewCount)} hint="Viewer opens" icon={Eye} />
+                    <MetricCard label="Sessions" value={formatCompactNumber(viewerOverview.sessionCount)} hint={`${viewerOverview.repeatSessionCount.toLocaleString()} repeat sessions`} icon={PlayCircle} />
+                    <MetricCard label="Unique Viewers" value={formatCompactNumber(viewerOverview.uniqueViewerCount)} hint="Distinct collectors in filter" icon={Users} />
+                    <MetricCard label="Watch Time" value={formatDuration(viewerOverview.totalWatchSeconds)} hint={`${formatDuration(viewerOverview.avgWatchSeconds)} avg watch`} icon={Clock3} />
+                    <MetricCard label="Load Speed" value={viewerOverview.avgLoadMs > 0 ? `${viewerOverview.avgLoadMs}ms` : "n/a"} hint="Average secure asset load" icon={Activity} />
+                    <MetricCard label="Completion" value={formatPercent(viewerOverview.assetCompletionRate)} hint={`${viewerOverview.downloads.toLocaleString()} downloads · ${viewerOverview.relatedClicks.toLocaleString()} next clicks`} icon={CheckCircle2} />
+                  </div>
+
+                  <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
+                    <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
+                      <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Top viewed drops by watch time</p>
+                      {viewerDropChartData.length > 0 ? (
+                        <div className="h-72 w-full">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={viewerDropChartData} margin={{ top: 8, right: 6, left: -18, bottom: 16 }}>
+                              <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                              <XAxis dataKey="shortLabel" stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} interval={0} angle={-16} textAnchor="end" height={56} />
+                              <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                              <Tooltip
+                                content={
+                                  <AnalyticsTooltip
+                                    valueFormatter={(value, name) => {
+                                      if (name === "Watch") {
+                                        return formatDuration(Number(value));
+                                      }
+                                      return `${value}`;
+                                    }}
+                                  />
+                                }
+                              />
+                              <Bar dataKey="totalWatchSeconds" name="Watch" fill="#b28cff" radius={[10, 10, 0, 0]} />
+                              <Bar dataKey="sessionCount" name="Sessions" fill="#22d3ee" radius={[10, 10, 0, 0]} />
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </div>
+                      ) : (
+                        <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
+                          Viewer drilldown data will populate once collectors start watching library content in the selected range.
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-3">
+                      {viewerDropInsights.slice(0, 5).map((item) => (
+                        <div key={item.dropId} className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
+                          <div className="mb-3 flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-semibold text-white">{item.dropTitle}</p>
+                              <p className="mt-1 text-xs text-gray-500">
+                                {item.sessionCount.toLocaleString()} sessions · {item.uniqueViewerCount.toLocaleString()} viewers
+                              </p>
+                            </div>
+                            <span className="shrink-0 rounded-full border border-brand-purple/25 bg-brand-purple/12 px-3 py-1 text-[11px] font-semibold text-brand-purple">
+                              {formatDuration(item.totalWatchSeconds)}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2 text-xs">
+                            <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-gray-300">Views<br />{item.viewCount}</div>
+                            <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-gray-300">Repeat<br />{item.repeatSessionCount}</div>
+                            <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-gray-300">Avg watch<br />{formatDuration(item.avgWatchSeconds)}</div>
+                            <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-brand-purple">Avg load<br />{item.avgLoadMs > 0 ? `${item.avgLoadMs}ms` : "n/a"}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </SectionCard>
+
               <SectionCard title="Viewer Journey" subtitle="How far users move from preview to playback to actual content consumption." icon={PlayCircle}>
                 <div className="h-64 w-full">
                   <ResponsiveContainer width="100%" height="100%">
