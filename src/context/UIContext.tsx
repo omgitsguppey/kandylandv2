@@ -6,7 +6,8 @@ export type AuthModalEntryMode = "signin" | "signup";
 
 interface UIContextType {
     isPurchaseModalOpen: boolean;
-    openPurchaseModal: () => void;
+    preferredPurchaseDrops: number | null;
+    openPurchaseModal: (preferredDrops?: number) => void;
     closePurchaseModal: () => void;
     isAuthModalOpen: boolean;
     authModalMode: AuthModalEntryMode;
@@ -25,14 +26,25 @@ const UIContext = createContext<UIContextType | undefined>(undefined);
 
 export function UIProvider({ children }: { children: ReactNode }) {
     const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
+    const [preferredPurchaseDrops, setPreferredPurchaseDrops] = useState<number | null>(null);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [authModalMode, setAuthModalMode] = useState<AuthModalEntryMode>("signin");
     const [isInsufficientBalanceModalOpen, setIsInsufficientBalanceModalOpen] = useState(false);
     const [requiredCost, setRequiredCost] = useState(0);
     const [isProfileSidebarOpen, setIsProfileSidebarOpen] = useState(false);
 
-    const openPurchaseModal = () => setIsPurchaseModalOpen(true);
-    const closePurchaseModal = () => setIsPurchaseModalOpen(false);
+    const openPurchaseModal = (preferredDrops?: number) => {
+        setPreferredPurchaseDrops(
+            Number.isFinite(preferredDrops) && Number(preferredDrops) > 0
+                ? Math.floor(Number(preferredDrops))
+                : null
+        );
+        setIsPurchaseModalOpen(true);
+    };
+    const closePurchaseModal = () => {
+        setIsPurchaseModalOpen(false);
+        setPreferredPurchaseDrops(null);
+    };
     const openAuthModal = (mode: AuthModalEntryMode = "signin") => {
         setAuthModalMode(mode);
         setIsAuthModalOpen(true);
@@ -49,12 +61,14 @@ export function UIProvider({ children }: { children: ReactNode }) {
 
     const contextValue = useMemo(() => ({
         isPurchaseModalOpen, openPurchaseModal, closePurchaseModal,
+        preferredPurchaseDrops,
         isAuthModalOpen, authModalMode, openAuthModal, closeAuthModal,
         isInsufficientBalanceModalOpen, requiredCost,
         openInsufficientBalanceModal, closeInsufficientBalanceModal,
         isProfileSidebarOpen, openProfileSidebar, closeProfileSidebar
     }), [
         isPurchaseModalOpen,
+        preferredPurchaseDrops,
         isAuthModalOpen,
         authModalMode,
         isInsufficientBalanceModalOpen,

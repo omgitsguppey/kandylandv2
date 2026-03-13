@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb, adminStorage } from "@/lib/server/firebase-admin";
 import { verifyAdmin, handleApiError } from "@/lib/server/auth";
+import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
 
 function isImageFormat(mimeType: string) {
     return ["image/jpeg", "image/png", "image/gif", "image/webp"].includes(mimeType);
@@ -8,6 +9,7 @@ function isImageFormat(mimeType: string) {
 
 export async function POST(request: NextRequest) {
     try {
+        await checkRateLimit(request, "settings/landing/upload", ADMIN);
         await verifyAdmin(request);
 
         const formData = await request.formData();

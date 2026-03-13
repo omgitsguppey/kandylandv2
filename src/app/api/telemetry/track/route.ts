@@ -1,17 +1,47 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminAuth, adminDb } from "@/lib/server/firebase-admin";
+import { adminDb } from "@/lib/server/firebase-admin";
 import * as admin from "firebase-admin";
 import { recordDailyTaskProgressFromEvent, recordTelemetryEventStat } from "@/lib/server/daily-tasks";
+import { TELEMETRY_EVENT_NAMES } from "@/lib/telemetry-catalog";
+import { handleApiError, verifyAuth } from "@/lib/server/auth";
+import { checkRateLimit, RELAXED } from "@/lib/server/rate-limit";
+
+const ALLOWED_EVENT_NAMES = new Set(TELEMETRY_EVENT_NAMES);
+type SanitizedEventParams = Record<string, string | number | boolean>;
+
+function sanitizeTelemetryValue(value: unknown): string | number | boolean | undefined {
+    if (typeof value === "string") {
+        return value.slice(0, 250);
+    }
+
+    if (typeof value === "number") {
+        return Number.isFinite(value) ? value : undefined;
+    }
+
+    if (typeof value === "boolean") {
+        return value;
+    }
+
+    return undefined;
+}
+
+function sanitizeEventParams(value: unknown) {
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
+        return {};
+    }
+
+    const entries = Object.entries(value as Record<string, unknown>).slice(0, 20);
+    const sanitizedEntries = entries
+        .map(([key, entryValue]) => [key.slice(0, 60), sanitizeTelemetryValue(entryValue)] as const)
+        .filter(([, entryValue]) => entryValue !== undefined) as Array<[string, string | number | boolean]>;
+
+    return Object.fromEntries(sanitizedEntries) as SanitizedEventParams;
+}
 
 export async function POST(req: NextRequest) {
     try {
-        const authHeader = req.headers.get("Authorization");
-        if (!authHeader?.startsWith("Bearer ")) {
-            return NextResponse.json({ error: "Missing or invalid authorization header" }, { status: 401 });
-        }
-
-        const idToken = authHeader.split("Bearer ")[1];
-        const decodedToken = await adminAuth.verifyIdToken(idToken);
+        await checkRateLimit(req, "telemetry/track", RELAXED);
+        const decodedToken = await verifyAuth(req);
         const userId = decodedToken.uid;
 
         // Extract payload
@@ -21,19 +51,25 @@ export async function POST(req: NextRequest) {
         if (!eventName) {
             return NextResponse.json({ error: "Missing eventName" }, { status: 400 });
         }
+        if (!ALLOWED_EVENT_NAMES.has(eventName)) {
+            return NextResponse.json({ error: "Unsupported eventName" }, { status: 400 });
+        }
+
+        const sanitizedEventParams = sanitizeEventParams(eventParams);
 
         const realtimeDb = admin.database();
         const profileSnapshot = await adminDb.collection("users").doc(userId).get();
         const profileData = profileSnapshot.data();
-        const username = profileData?.username || profileData?.displayName || decodedToken.name || "Unknown Collector";
+        const username = profileData?.username || profileData?.displayName || decodedToken.email || "Unknown Collector";
+        const nowMs = Date.now();
 
         // Construct Telemetry Event
         const telemetryData = {
             eventName,
-            params: eventParams || {},
+            params: sanitizedEventParams,
             userId,
             username,
-            timestamp: Date.now(),
+            timestamp: nowMs,
             userAgent: req.headers.get("user-agent") || "unknown",
         };
 
@@ -47,14 +83,20 @@ export async function POST(req: NextRequest) {
         await userEventsRef.push(telemetryData);
 
         await Promise.all([
-            recordTelemetryEventStat(eventName, eventParams),
-            recordDailyTaskProgressFromEvent(userId, username, eventName, eventParams),
+            recordTelemetryEventStat(eventName, sanitizedEventParams),
+            recordDailyTaskProgressFromEvent(userId, username, eventName, sanitizedEventParams),
+            adminDb.collection("analytics_active_users").doc(userId).set({
+                uid: userId,
+                username,
+                lastSeenAt: nowMs,
+                lastEventName: eventName,
+                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                createdAt: nowMs,
+            }, { merge: true }),
         ]);
 
         return NextResponse.json({ success: true, logged: true });
     } catch (error) {
-        console.error("Telemetry Logging Error:", error);
-        // We return 200 even on error to prevent client-side UI failure loops for non-critical logging.
-        return NextResponse.json({ success: false, error: "Internal telemetry failure" }, { status: 200 });
+        return handleApiError(error, "Telemetry.Track");
     }
 }

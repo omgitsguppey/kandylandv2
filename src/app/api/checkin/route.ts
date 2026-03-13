@@ -7,7 +7,7 @@ import { checkRateLimit, STRICT } from "@/lib/server/rate-limit";
 
 export async function POST(request: NextRequest) {
     try {
-        checkRateLimit(request, "checkin", STRICT);
+        await checkRateLimit(request, "checkin", STRICT);
         const caller = await verifyAuth(request);
 
         if (!adminDb) {

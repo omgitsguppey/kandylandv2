@@ -1,67 +1,78 @@
 import "server-only";
+import { createHash } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
+import { FieldValue } from "firebase-admin/firestore";
+import { adminDb } from "./firebase-admin";
 
 export interface RateLimitConfig {
-    /** Maximum number of requests allowed inside the window. */
     maxRequests: number;
-    /** Size of the sliding window in milliseconds. */
     windowMs: number;
 }
 
-// ---------------------------------------------------------------------------
-// Preset tiers (convenience re-exports for route files)
-// ---------------------------------------------------------------------------
-
-/** Financial / once-per-day actions – 5 req / 60 s */
 export const STRICT: RateLimitConfig = { maxRequests: 5, windowMs: 60_000 };
-
-/** Normal user actions – 20 req / 60 s */
 export const STANDARD: RateLimitConfig = { maxRequests: 20, windowMs: 60_000 };
-
-/** Read-heavy / analytics routes – 60 req / 60 s */
 export const RELAXED: RateLimitConfig = { maxRequests: 60, windowMs: 60_000 };
-
-/** Admin panel routes – 30 req / 60 s */
 export const ADMIN: RateLimitConfig = { maxRequests: 30, windowMs: 60_000 };
 
-// ---------------------------------------------------------------------------
-// In-memory store  (key → sorted array of timestamps)
-// ---------------------------------------------------------------------------
+const fallbackStore = new Map<string, number[]>();
+const LOCAL_CLEANUP_INTERVAL_MS = 60_000;
+const LOCAL_STALE_KEY_MS = 300_000;
+let lastLocalCleanup = 0;
 
-const store = new Map<string, number[]>();
+const REMOTE_COLLECTION = "rate_limits";
+const REMOTE_CLEANUP_INTERVAL_MS = 300_000;
+const REMOTE_EXPIRED_GRACE_MS = 60_000;
+let lastRemoteCleanup = 0;
+let remoteCleanupPromise: Promise<void> | null = null;
 
-/**
- * Periodic cleanup: drop keys whose newest timestamp is older than 5 minutes.
- * Runs at most once per 60 seconds to keep overhead negligible.
- */
-let lastCleanup = 0;
-const CLEANUP_INTERVAL_MS = 60_000;
-const STALE_KEY_MS = 300_000; // 5 min
-
-function maybeCleanup() {
+function maybeCleanupLocal() {
     const now = Date.now();
-    if (now - lastCleanup < CLEANUP_INTERVAL_MS) return;
-    lastCleanup = now;
+    if (now - lastLocalCleanup < LOCAL_CLEANUP_INTERVAL_MS) return;
+    lastLocalCleanup = now;
 
-    for (const [key, timestamps] of store) {
-        if (timestamps.length === 0 || timestamps[timestamps.length - 1] < now - STALE_KEY_MS) {
-            store.delete(key);
+    for (const [key, timestamps] of fallbackStore) {
+        if (timestamps.length === 0 || timestamps[timestamps.length - 1] < now - LOCAL_STALE_KEY_MS) {
+            fallbackStore.delete(key);
         }
     }
 }
 
-// ---------------------------------------------------------------------------
-// Core check
-// ---------------------------------------------------------------------------
+async function maybeCleanupRemote() {
+    const now = Date.now();
+    if (!adminDb || now - lastRemoteCleanup < REMOTE_CLEANUP_INTERVAL_MS) {
+        return;
+    }
 
-/**
- * Custom error thrown when a request exceeds its rate limit.
- * Caught by `handleApiError` in auth.ts to return a proper 429 response.
- */
+    if (remoteCleanupPromise) {
+        return remoteCleanupPromise;
+    }
+
+    lastRemoteCleanup = now;
+    remoteCleanupPromise = (async () => {
+        try {
+            const snapshot = await adminDb
+                .collection(REMOTE_COLLECTION)
+                .where("expiresAt", "<", now - REMOTE_EXPIRED_GRACE_MS)
+                .limit(100)
+                .get();
+
+            if (snapshot.empty) {
+                return;
+            }
+
+            const batch = adminDb.batch();
+            snapshot.docs.forEach((doc) => batch.delete(doc.ref));
+            await batch.commit();
+        } catch (error) {
+            console.warn("Remote rate-limit cleanup failed:", error);
+        } finally {
+            remoteCleanupPromise = null;
+        }
+    })();
+
+    await remoteCleanupPromise;
+}
+
 export class RateLimitError extends Error {
     status = 429;
     retryAfterMs: number;
@@ -77,57 +88,43 @@ export class RateLimitError extends Error {
     }
 }
 
-/**
- * Resolve a stable identifier for the caller.
- *
- * - Uses `x-forwarded-for` (first entry) when behind a proxy (Vercel, etc.).
- * - Falls back to the raw request IP via Next.js headers.
- * - Appends the route name so limits are per-endpoint.
- */
-function resolveKey(request: NextRequest, routeName: string): string {
+function resolveCallerIdentifier(request: NextRequest): string {
     const forwarded = request.headers.get("x-forwarded-for");
-    const ip = forwarded ? forwarded.split(",")[0].trim() : "unknown";
-    return `${ip}:${routeName}`;
+    const realIp = request.headers.get("x-real-ip");
+    const ip = (forwarded ? forwarded.split(",")[0].trim() : realIp?.trim()) || "unknown";
+    const userAgent = request.headers.get("user-agent")?.trim() || "unknown";
+    return `${ip}:${userAgent}`;
 }
 
-/**
- * Call at the **very top** of every route handler, *before* `verifyAuth`.
- *
- * ```ts
- * export async function POST(request: NextRequest) {
- *   await checkRateLimit(request, "checkin", STRICT);
- *   const caller = await verifyAuth(request);
- *   // …
- * }
- * ```
- *
- * Throws `RateLimitError` (caught by `handleApiError`) if the limit is
- * exceeded. Otherwise returns silently.
- */
-export function checkRateLimit(
+function buildDocumentId(routeName: string, identifier: string, bucketStartMs: number) {
+    return createHash("sha256")
+        .update(`${routeName}:${identifier}:${bucketStartMs}`)
+        .digest("hex");
+}
+
+function checkRateLimitLocally(
     request: NextRequest,
     routeName: string,
     config: RateLimitConfig,
 ): void {
-    maybeCleanup();
+    maybeCleanupLocal();
 
-    const key = resolveKey(request, routeName);
+    const identifier = resolveCallerIdentifier(request);
+    const key = `${routeName}:${identifier}`;
     const now = Date.now();
     const windowStart = now - config.windowMs;
 
-    let timestamps = store.get(key);
+    let timestamps = fallbackStore.get(key);
     if (!timestamps) {
         timestamps = [];
-        store.set(key, timestamps);
+        fallbackStore.set(key, timestamps);
     }
 
-    // Evict timestamps outside the current window
     while (timestamps.length > 0 && timestamps[0] <= windowStart) {
         timestamps.shift();
     }
 
     if (timestamps.length >= config.maxRequests) {
-        // Oldest remaining timestamp determines when the window slides enough
         const retryAfterMs = timestamps[0] - windowStart;
         throw new RateLimitError(retryAfterMs, config.maxRequests);
     }
@@ -135,9 +132,51 @@ export function checkRateLimit(
     timestamps.push(now);
 }
 
-// ---------------------------------------------------------------------------
-// Helper: build a 429 NextResponse from a RateLimitError
-// ---------------------------------------------------------------------------
+export async function checkRateLimit(
+    request: NextRequest,
+    routeName: string,
+    config: RateLimitConfig,
+): Promise<void> {
+    if (!adminDb) {
+        checkRateLimitLocally(request, routeName, config);
+        return;
+    }
+
+    const now = Date.now();
+    const bucketStartMs = Math.floor(now / config.windowMs) * config.windowMs;
+    const retryAfterMs = bucketStartMs + config.windowMs - now;
+    const identifier = resolveCallerIdentifier(request);
+    const docId = buildDocumentId(routeName, identifier, bucketStartMs);
+    const docRef = adminDb.collection(REMOTE_COLLECTION).doc(docId);
+
+    try {
+        await maybeCleanupRemote();
+        await adminDb.runTransaction(async (transaction) => {
+            const snapshot = await transaction.get(docRef);
+            const currentCount = snapshot.exists ? Number(snapshot.data()?.count || 0) : 0;
+
+            if (currentCount >= config.maxRequests) {
+                throw new RateLimitError(retryAfterMs, config.maxRequests);
+            }
+
+            transaction.set(docRef, {
+                count: currentCount + 1,
+                routeName,
+                bucketStartMs,
+                windowMs: config.windowMs,
+                expiresAt: bucketStartMs + (config.windowMs * 3),
+                updatedAt: FieldValue.serverTimestamp(),
+            }, { merge: true });
+        });
+    } catch (error) {
+        if (error instanceof RateLimitError) {
+            throw error;
+        }
+
+        console.warn("Remote rate-limit check failed. Falling back to local limiter:", error);
+        checkRateLimitLocally(request, routeName, config);
+    }
+}
 
 export function buildRateLimitResponse(err: RateLimitError): NextResponse {
     const retryAfterSec = Math.ceil(err.retryAfterMs / 1000);

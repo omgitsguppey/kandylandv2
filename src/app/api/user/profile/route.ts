@@ -81,7 +81,7 @@ function normalizeAccountSettings(value: unknown): { timezone: string } | null {
 
 export async function PUT(request: NextRequest) {
     try {
-        checkRateLimit(request, "user/profile", STANDARD);
+        await checkRateLimit(request, "user/profile", STANDARD);
         const caller = await verifyAuth(request);
 
         if (!adminDb) {
@@ -153,7 +153,7 @@ export async function PUT(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
     try {
-        checkRateLimit(request, "user/profile", STANDARD);
+        await checkRateLimit(request, "user/profile", STANDARD);
         const caller = await verifyAuth(request);
 
         if (!adminDb) {

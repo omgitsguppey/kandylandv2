@@ -5,7 +5,7 @@ import { checkRateLimit, STRICT } from "@/lib/server/rate-limit";
 
 export async function DELETE(request: NextRequest) {
     try {
-        checkRateLimit(request, "user/delete", STRICT);
+        await checkRateLimit(request, "user/delete", STRICT);
         const authResult = await verifyAuth(request);
         const { uid } = authResult;
 

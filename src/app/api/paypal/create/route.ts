@@ -43,7 +43,7 @@ async function getPayPalAccessToken(): Promise<string> {
 
 export async function POST(request: NextRequest) {
     try {
-        checkRateLimit(request, "paypal/create", STRICT);
+        await checkRateLimit(request, "paypal/create", STRICT);
         const caller = await verifyAuth(request);
         const userId = caller.uid;
         const { expectedDrops } = bodySchema.parse(await request.json());

@@ -7,7 +7,7 @@ import { checkRateLimit, STANDARD } from "@/lib/server/rate-limit";
 
 export async function POST(request: NextRequest) {
     try {
-        checkRateLimit(request, "drops/track", STANDARD);
+        await checkRateLimit(request, "drops/track", STANDARD);
         const caller = await verifyAuth(request);
 
         const { dropId } = await request.json();

@@ -5,7 +5,7 @@ import { checkRateLimit, STRICT } from "@/lib/server/rate-limit";
 
 export async function POST(req: NextRequest) {
     try {
-        checkRateLimit(req, "security/log-attempt", STRICT);
+        await checkRateLimit(req, "security/log-attempt", STRICT);
         const authHeader = req.headers.get("Authorization");
         if (!authHeader?.startsWith("Bearer ")) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

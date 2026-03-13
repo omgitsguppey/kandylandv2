@@ -14,7 +14,6 @@ import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { sendGAEvent } from "@next/third-parties/google";
-import { getSimulatedUnwrapsToday } from "@/lib/unwrap-simulator";
 import * as Dialog from "@radix-ui/react-dialog";
 import { clearTimedFlow, consumeTimedFlow, startTimedFlow, trackEvent } from "@/lib/telemetry";
 import {
@@ -65,7 +64,10 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
   const aspectRatio = useMemo(() => (drop ? getSupportedDropAspectRatio(drop) : "1:1"), [drop]);
   const ratioStyle = useMemo(() => ({ aspectRatio: getAspectRatioCssValue(aspectRatio) }), [aspectRatio]);
 
-  const simulativeUnwraps = useMemo(() => drop ? getSimulatedUnwrapsToday(drop.id) : 0, [drop]);
+  const totalUnlocks = useMemo(
+    () => (drop && Number.isFinite(drop.totalUnlocks) ? Math.max(0, Math.floor(drop.totalUnlocks)) : 0),
+    [drop]
+  );
   const isUnlocked = !!(drop && Array.isArray(userProfile?.unlockedContent) && userProfile.unlockedContent.includes(drop.id));
   const canAfford = (userProfile?.gumDropsBalance ?? 0) >= (drop?.unlockCost ?? 0);
 
@@ -111,7 +113,7 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
     const balance = userProfile?.gumDropsBalance ?? 0;
     if (balance < drop.unlockCost) {
       onClose();
-      openPurchaseModal();
+      openPurchaseModal(Math.max(1, drop.unlockCost - balance));
       return;
     }
 
@@ -300,7 +302,7 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
                   </div>
                   <div className="flex items-center gap-1.5 text-sm font-semibold text-[#b28cff]">
                     <Eye className="w-4 h-4" />
-                    {simulativeUnwraps} unwrapped today
+                    {totalUnlocks.toLocaleString()} unwrapped
                   </div>
                 </div>
               </div>

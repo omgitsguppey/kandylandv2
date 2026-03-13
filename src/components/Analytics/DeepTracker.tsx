@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useAuth } from "@/context/AuthContext";
 import { usePathname } from "next/navigation";
 
 interface TelemetryEvent {
@@ -18,8 +17,20 @@ interface TelemetryEvent {
     durationMs?: number;
 }
 
+function getClientSessionId() {
+    let kSessionId = sessionStorage.getItem("kandy_session_id");
+    if (kSessionId) {
+        return kSessionId;
+    }
+
+    kSessionId = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : Math.random().toString(36).substring(2, 15);
+    sessionStorage.setItem("kandy_session_id", kSessionId);
+    return kSessionId;
+}
+
 export function DeepTracker() {
-    const { user } = useAuth();
     const pathname = usePathname();
     const eventQueue = useRef<TelemetryEvent[]>([]);
     const lastScrollDepth = useRef<number>(0);
@@ -34,15 +45,8 @@ export function DeepTracker() {
         const flushQueue = () => {
             if (eventQueue.current.length === 0) return;
 
-            let kSessionId = sessionStorage.getItem("kandy_session_id");
-            if (!kSessionId) {
-                kSessionId = Math.random().toString(36).substring(2, 15);
-                sessionStorage.setItem("kandy_session_id", kSessionId);
-            }
-
             const payload = {
-                uid: user?.uid || "anonymous",
-                sessionId: kSessionId,
+                sessionId: getClientSessionId(),
                 events: [...eventQueue.current],
             };
 
@@ -200,7 +204,7 @@ export function DeepTracker() {
             clearInterval(trackingInterval);
             flushQueue(); // Final flush on unmount
         };
-    }, [user?.uid, pathname]);
+    }, [pathname]);
 
     return null; // Silent component
 }

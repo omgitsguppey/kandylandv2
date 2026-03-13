@@ -10,7 +10,7 @@ import { trackEvent } from "@/lib/telemetry";
 
 const ONE_HOUR_MS = 60 * 60 * 1000;
 const REMINDER_TITLE = "You're almost out of time!";
-const REMINDER_MESSAGE = "Finish your tasks so you don't loose your Kandy!";
+const REMINDER_MESSAGE = "Finish your tasks so you don't lose your Kandy!";
 
 export function NotificationRuntimeBridge() {
     const { user, userProfile } = useAuth();

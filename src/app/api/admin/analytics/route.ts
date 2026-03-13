@@ -179,7 +179,7 @@ function formatTaskReason(reason: string) {
 
 export async function GET(request: NextRequest) {
     try {
-        checkRateLimit(request, "admin/analytics", ADMIN);
+        await checkRateLimit(request, "admin/analytics", ADMIN);
         await verifyAdmin(request);
 
         const searchParams = request.nextUrl.searchParams;
@@ -235,20 +235,12 @@ export async function GET(request: NextRequest) {
             // Sort so that 29 minutes ago is first, 0 minutes ago (now) is last
             liveData.sort((a, b) => b.minute - a.minute);
 
-            // 3. Get native DeepTracker Internal Live Users
-            const sessionsQuery = await adminDb.collection("analytics_sessions")
-                .where("createdAt", ">=", thirtyMinsAgo)
+            // 3. Get authenticated telemetry activity in the last 30 minutes
+            const sessionsQuery = await adminDb.collection("analytics_active_users")
+                .where("lastSeenAt", ">=", thirtyMinsAgo)
                 .get();
 
-            const uniqueDeepTrackerUsers = new Set<string>();
-            sessionsQuery.docs.forEach(doc => {
-                const sessionData = doc.data();
-                if (sessionData.uid) {
-                    uniqueDeepTrackerUsers.add(sessionData.uid);
-                }
-            });
-
-            const deepTrackerActive = uniqueDeepTrackerUsers.size;
+            const deepTrackerActive = sessionsQuery.size;
 
             return NextResponse.json({
                 success: true,

@@ -12,7 +12,7 @@ import Image from "next/image";
 import { db, storage } from "@/lib/firebase-data";
 import { arrayUnion, doc, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { SITE_ORIGIN } from "@/lib/firebase";
+import { SITE_ORIGIN } from "@/lib/site-origin";
 import { mutate } from "swr";
 import { getBrowserNotificationState, requestBrowserNotificationAccess } from "@/lib/firebase-messaging";
 
@@ -155,14 +155,22 @@ export default function ProfilePage() {
     const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
     const [notificationSetupLoading, setNotificationSetupLoading] = useState(false);
     const [notificationSupportMessage, setNotificationSupportMessage] = useState<string | null>(null);
+    const [runtimeOrigin, setRuntimeOrigin] = useState(SITE_ORIGIN);
 
     useEffect(() => {
         setFormState(normalizedInitialState);
     }, [normalizedInitialState]);
 
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            setRuntimeOrigin(window.location.origin);
+        }
+    }, []);
+
     const profileName = formState.displayName || user?.displayName || "Collector";
     const profileEmail = user?.email || "Signed in";
     const avatarFallback = profileName.charAt(0).toUpperCase() || "C";
+    const referralLink = `${runtimeOrigin}?ref=${user?.uid || ""}`;
 
     const updateForm = <K extends keyof ProfileSettingsFormState>(key: K, value: ProfileSettingsFormState[K]) => {
         setSaveFeedback(null);
@@ -338,8 +346,20 @@ export default function ProfilePage() {
     };
 
     const handleSignOutAllSessions = async () => {
-        // TODO: Add server-side token revocation for multi-session logout.
-        await logout();
+        try {
+            const response = await authFetch("/api/user/revoke-sessions", { method: "POST" });
+            const result = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                throw new Error(typeof result?.error === "string" ? result.error : "Failed to sign out all sessions");
+            }
+
+            toast.success("Signed out on all devices.");
+            await logout();
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : "Failed to sign out all sessions";
+            toast.error(message);
+        }
     };
 
     const handleRequestDeletion = async () => {
@@ -558,13 +578,13 @@ export default function ProfilePage() {
                             <input
                                 type="text"
                                 readOnly
-                                value={`${SITE_ORIGIN}?ref=${user?.uid || ""}`}
+                                value={referralLink}
                                 className="flex-1 bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-white text-sm"
                             />
                             <button
                                 type="button"
                                 onClick={() => {
-                                    navigator.clipboard.writeText(`${SITE_ORIGIN}?ref=${user?.uid || ""}`);
+                                    navigator.clipboard.writeText(referralLink);
                                     toast.success("Referral link copied!");
                                 }}
                                 className="px-4 py-2 bg-white text-black font-bold rounded-xl active:scale-95 transition-transform text-sm whitespace-nowrap"

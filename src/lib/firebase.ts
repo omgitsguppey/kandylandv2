@@ -3,6 +3,7 @@ import { getAuth } from "firebase/auth";
 import { getAI, getGenerativeModel, VertexAIBackend } from "firebase/ai";
 import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
 import type { AppCheck } from "firebase/app-check";
+export { SITE_ORIGIN } from "@/lib/site-origin";
 
 const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -32,8 +33,6 @@ function shouldEnableAppCheck() {
         __pwManual?: unknown;
         __nightmare?: unknown;
     };
-    const searchParams = new URLSearchParams(window.location.search);
-    const forcedBypass = searchParams.get("qa") === "1" || window.sessionStorage.getItem("kandydrops_disable_app_check") === "true";
     const automatedContext = Boolean(
         navigator.webdriver ||
         automationGlobals.__playwright__binding__ ||
@@ -42,7 +41,7 @@ function shouldEnableAppCheck() {
         /HeadlessChrome|Playwright|Electron/i.test(userAgent),
     );
 
-    return !forcedBypass && !automatedContext;
+    return !automatedContext;
 }
 
 // Client-only initializations (App Check, AI Logic)
@@ -75,5 +74,3 @@ if (typeof window !== "undefined") {
 }
 
 export { app, auth, ai, model, appCheck };
-
-export const SITE_ORIGIN = "https://kandydrops-by-ikandy.web.app";

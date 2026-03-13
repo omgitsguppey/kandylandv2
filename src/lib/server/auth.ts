@@ -24,7 +24,7 @@ export async function verifyAuth(request: NextRequest): Promise<AuthResult> {
     }
 
     try {
-        const decoded = await adminAuth.verifyIdToken(idToken);
+        const decoded = await adminAuth.verifyIdToken(idToken, true);
         return {
             uid: decoded.uid,
             email: decoded.email,

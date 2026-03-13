@@ -7,7 +7,7 @@ import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
 // POST — Adjust user balance (admin-only)
 export async function POST(request: NextRequest) {
     try {
-        checkRateLimit(request, "admin/balance", ADMIN);
+        await checkRateLimit(request, "admin/balance", ADMIN);
         const admin = await verifyAdmin(request);
 
         const { userId, amount, reason } = await request.json();

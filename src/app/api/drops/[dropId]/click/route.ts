@@ -10,7 +10,7 @@ export async function POST(
     context: { params: Promise<{ dropId: string }> }
 ) {
     try {
-        checkRateLimit(request, "drops/click", RELAXED);
+        await checkRateLimit(request, "drops/click", RELAXED);
         const params = await context.params;
         const { dropId } = params;
 

@@ -16,7 +16,7 @@ const unlockRequestSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    checkRateLimit(request, "drops/unlock", STRICT);
+    await checkRateLimit(request, "drops/unlock", STRICT);
     const caller = await verifyAuth(request);
     const { dropId } = unlockRequestSchema.parse(await request.json());
 

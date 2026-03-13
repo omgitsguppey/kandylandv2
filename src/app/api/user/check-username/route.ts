@@ -5,7 +5,7 @@ import { handleApiError } from "@/lib/server/auth";
 
 export async function GET(request: NextRequest) {
     try {
-        checkRateLimit(request, "user/check-username", RELAXED);
+        await checkRateLimit(request, "user/check-username", RELAXED);
         const username = request.nextUrl.searchParams.get("username");
 
         if (!username) {

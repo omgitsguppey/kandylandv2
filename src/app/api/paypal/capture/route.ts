@@ -78,7 +78,7 @@ async function logFailedTransaction(userId: string, orderId: string, expectedDro
 
 export async function POST(request: NextRequest) {
   try {
-    checkRateLimit(request, "paypal/capture", STRICT);
+    await checkRateLimit(request, "paypal/capture", STRICT);
     const caller = await verifyAuth(request);
     const userId = caller.uid;
     const { orderId, expectedDrops } = bodySchema.parse(await request.json());

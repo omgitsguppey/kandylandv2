@@ -68,7 +68,10 @@ function getSessionId() {
         return existing;
     }
 
-    const generated = `sess_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+    const token = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID().slice(0, 8)
+        : Math.random().toString(36).slice(2, 10);
+    const generated = `sess_${Date.now().toString(36)}_${token}`;
     window.sessionStorage.setItem(SESSION_STORAGE_KEY, generated);
     return generated;
 }

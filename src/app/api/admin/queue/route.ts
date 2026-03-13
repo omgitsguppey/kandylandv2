@@ -5,7 +5,7 @@ import { getResolvedQueueConfig, saveResolvedQueueConfig } from "@/lib/server/dr
 
 export async function GET(request: NextRequest) {
     try {
-        checkRateLimit(request, "admin/queue", ADMIN);
+        await checkRateLimit(request, "admin/queue", ADMIN);
         await verifyAdmin(request);
         return NextResponse.json(await getResolvedQueueConfig());
     } catch (error) {
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
     try {
-        checkRateLimit(request, "admin/queue", ADMIN);
+        await checkRateLimit(request, "admin/queue", ADMIN);
         await verifyAdmin(request);
         const data = await request.json();
         return NextResponse.json({ success: true, config: await saveResolvedQueueConfig(data) });

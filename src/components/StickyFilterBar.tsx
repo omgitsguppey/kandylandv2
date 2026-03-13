@@ -107,7 +107,7 @@ export default function StickyFilterBar({
                 </div>
 
                 {/* Categories (Horizontal Scroll) */}
-                <div className="w-full md:w-auto overflow-x-auto no-scrollbar flex items-center gap-2 pl-1 md:pl-0">
+                <div className="flex w-full flex-wrap items-center gap-2 pl-1 md:w-auto md:flex-nowrap md:overflow-x-auto md:no-scrollbar md:pl-0">
                     {categories.map((cat) => {
                         const Icon = icons[cat] || Tag;
                         const isSelected = selectedCategory === cat;

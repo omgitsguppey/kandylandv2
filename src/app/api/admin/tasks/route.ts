@@ -34,7 +34,7 @@ const updateSchema = z.object({
 
 export async function GET(request: NextRequest) {
   try {
-    checkRateLimit(request, "admin/tasks", ADMIN);
+    await checkRateLimit(request, "admin/tasks", ADMIN);
     await verifyAdmin(request);
 
     const [taskSnapshot, taskEventsSnapshot, eventStatsSnapshot] = await Promise.all([
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    checkRateLimit(request, "admin/tasks", ADMIN);
+    await checkRateLimit(request, "admin/tasks", ADMIN);
     const adminUser = await verifyAdmin(request);
     const parsed = taskSchema.parse(await request.json());
 
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    checkRateLimit(request, "admin/tasks", ADMIN);
+    await checkRateLimit(request, "admin/tasks", ADMIN);
     await verifyAdmin(request);
     const { taskId, active } = updateSchema.parse(await request.json());
 

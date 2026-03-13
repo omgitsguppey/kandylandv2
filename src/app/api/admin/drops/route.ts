@@ -28,7 +28,7 @@ function sanitizeDropData(raw: Record<string, unknown>): Record<string, unknown>
 // POST — Create a new drop (admin-only)
 export async function POST(request: NextRequest) {
     try {
-        checkRateLimit(request, "admin/drops", ADMIN);
+        await checkRateLimit(request, "admin/drops", ADMIN);
         await verifyAdmin(request);
 
         const body = await request.json();
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
 // PUT — Update an existing drop (admin-only)
 export async function PUT(request: NextRequest) {
     try {
-        checkRateLimit(request, "admin/drops", ADMIN);
+        await checkRateLimit(request, "admin/drops", ADMIN);
         await verifyAdmin(request);
 
         const { dropId, dropData } = await request.json();
@@ -102,7 +102,7 @@ export async function PUT(request: NextRequest) {
 // DELETE — Delete a drop (admin-only)
 export async function DELETE(request: NextRequest) {
     try {
-        checkRateLimit(request, "admin/drops", ADMIN);
+        await checkRateLimit(request, "admin/drops", ADMIN);
         await verifyAdmin(request);
 
         const { dropId } = await request.json();

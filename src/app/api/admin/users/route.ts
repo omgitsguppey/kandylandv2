@@ -7,7 +7,7 @@ import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
 // PUT — Update user status/role (admin-only)
 export async function PUT(request: NextRequest) {
     try {
-        checkRateLimit(request, "admin/users", ADMIN);
+        await checkRateLimit(request, "admin/users", ADMIN);
         await verifyAdmin(request);
 
         const { userId, updates } = await request.json();
@@ -44,7 +44,7 @@ export async function PUT(request: NextRequest) {
 // POST — Manage user content (add/remove unlocked drops, admin-only)
 export async function POST(request: NextRequest) {
     try {
-        checkRateLimit(request, "admin/users", ADMIN);
+        await checkRateLimit(request, "admin/users", ADMIN);
         await verifyAdmin(request);
 
         const { userId, action, dropId } = await request.json();

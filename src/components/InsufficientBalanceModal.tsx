@@ -21,6 +21,18 @@ export function InsufficientBalanceModal() {
 
     const currentBalance = userProfile?.gumDropsBalance ?? 0;
     const missingAmount = Math.max(0, requiredCost - currentBalance);
+    const exactAmountSupported =
+        [100, 550, 1100, 2500].includes(missingAmount) ||
+        (missingAmount >= 5000 && missingAmount <= 100000 && missingAmount % 1000 === 0);
+    const recommendedDrops = missingAmount >= 5000
+        ? Math.min(100000, Math.max(5000, Math.ceil(missingAmount / 1000) * 1000))
+        : missingAmount <= 100
+            ? 100
+            : missingAmount <= 550
+                ? 550
+                : missingAmount <= 1100
+                    ? 1100
+                    : 2500;
 
     const handleGetMore = () => {
         closeInsufficientBalanceModal();
@@ -79,20 +91,17 @@ export function InsufficientBalanceModal() {
                             <Button
                                 onClick={() => {
                                     closeInsufficientBalanceModal();
-                                    // TODO: Actually open the PurchaseModal / redirect to PayPal with exact amount.
-                                    // The existing PurchaseModal only accepts predefined packages.
-                                    // We will route this to either openPurchaseModal() for packages, or directly init an exact order if the backend supports it.
-                                    // For now, extending the functionality of `openPurchaseModal` or passing missing amount.
-                                    // The spec says "one-click purchase button for the exact missing amount".
-                                    // Given we haven't updated the context to pass 'missingAmount' down or handled custom amounts in Paypal...
-                                    // Let's call openPurchaseModal() but add an exact match button visually.
-                                    // To make it functional, I'll update useUI context or paypal endpoint if required.
-                                    toast.info(`Purchasing exactly ${missingAmount} GD coming soon!`, { icon: "🛠️" });
+                                    openPurchaseModal(recommendedDrops);
+                                    toast.info(
+                                        exactAmountSupported
+                                            ? `Prepared ${recommendedDrops} GD for checkout.`
+                                            : `Prepared the closest supported pack: ${recommendedDrops} GD.`,
+                                    );
                                 }}
                                 variant="brand"
                                 className="w-full py-6 rounded-2xl text-lg font-bold shadow-[0_0_20px_rgba(236,72,153,0.3)] bg-gradient-to-r from-brand-purple to-brand-purple"
                             >
-                                Exact Amount ({missingAmount} GD)
+                                {exactAmountSupported ? `Get ${recommendedDrops} GD` : `Get Recommended Pack (${recommendedDrops} GD)`}
                             </Button>
                             <Button
                                 onClick={handleGetMore}

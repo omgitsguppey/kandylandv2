@@ -171,7 +171,10 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
     }, [sourceDrops, searchQuery, selectedCategory]);
 
     return (
-        <div className="mx-auto w-full max-w-7xl px-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] selection:bg-brand-purple/30 md:px-8 md:pb-8" data-onboarding-page="drops">
+        <div
+            className="mx-auto w-full max-w-7xl px-4 pt-[calc(var(--kandy-cookie-offset,0px)+3.5rem)] pb-[calc(6.5rem+env(safe-area-inset-bottom))] selection:bg-brand-purple/30 md:px-8 md:pt-0 md:pb-8"
+            data-onboarding-page="drops"
+        >
             <div className="mb-4 md:mb-6">
                 <KandyDropsAccountOverview
                     state={accountOverview.state}

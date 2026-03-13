@@ -5,7 +5,7 @@ import { getResolvedQueueConfig, setDropQueueMembership } from "@/lib/server/dro
 
 export async function POST(request: NextRequest) {
     try {
-        checkRateLimit(request, "admin/queue/toggle", ADMIN);
+        await checkRateLimit(request, "admin/queue/toggle", ADMIN);
         await verifyAdmin(request);
 
         const { dropId } = await request.json();

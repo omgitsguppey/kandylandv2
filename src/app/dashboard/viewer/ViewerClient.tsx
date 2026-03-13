@@ -12,7 +12,6 @@ import NextImage from "next/image";
 import { authFetch } from "@/lib/authFetch";
 import { cn } from "@/lib/utils";
 import { sendGAEvent } from "@next/third-parties/google";
-import { getSimulatedUnwrapsToday } from "@/lib/unwrap-simulator";
 import { getDropAssetCount } from "@/lib/drop-presentation";
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import useEmblaCarousel from "embla-carousel-react";
@@ -351,12 +350,12 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
 
     const previewTags = useMemo(() => sanitizeDropTags(drop?.tags), [drop?.tags]);
 
-    const [simulativeUnwraps, setSimulativeUnwraps] = useState(0);
-
-    useEffect(() => {
-        if (drop) {
-            setSimulativeUnwraps(getSimulatedUnwrapsToday(drop.id));
+    const totalUnlocks = useMemo(() => {
+        if (!drop || !Number.isFinite(drop.totalUnlocks)) {
+            return 0;
         }
+
+        return Math.max(0, Math.floor(drop.totalUnlocks));
     }, [drop]);
 
     const [activeIndex, setActiveIndex] = useState(0);
@@ -1069,7 +1068,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                             <span className="opacity-50">•</span>
                             <div className="flex items-center gap-1.5 text-white/80 font-medium bg-white/5 px-2 py-0.5 rounded-full border border-white/10">
                                 <Eye className="w-3.5 h-3.5 text-brand-purple" />
-                                <span>{simulativeUnwraps} unwrapped today</span>
+                                <span>{totalUnlocks.toLocaleString()} unwrapped</span>
                             </div>
                         </div>
                         <h1 className="text-2xl md:text-4xl font-bold text-white mb-3 leading-tight">

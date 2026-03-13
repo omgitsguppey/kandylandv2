@@ -18,7 +18,7 @@ const userContentSchema = z.object({
  */
 export async function GET(request: NextRequest) {
   try {
-    checkRateLimit(request, "drops/content", RELAXED);
+    await checkRateLimit(request, "drops/content", RELAXED);
     const caller = await verifyAuth(request);
 
     const { searchParams } = new URL(request.url);

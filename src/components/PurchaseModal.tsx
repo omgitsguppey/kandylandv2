@@ -12,6 +12,7 @@ import { sendGAEvent } from "@next/third-parties/google";
 import { GuestComponentBlur } from "@/components/Auth/GuestComponentBlur";
 import { clearTimedFlow, consumeTimedFlow, startTimedFlow, trackEvent } from "@/lib/telemetry";
 import { GUMDROPS_SUPPORT_COPY, SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
+import { useUI } from "@/context/UIContext";
 
 interface PurchaseModalProps {
   isOpen: boolean;
@@ -32,6 +33,7 @@ const CHECKOUT_FLOW_KEY = "wallet_checkout";
 
 export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   const { user } = useAuth();
+  const { preferredPurchaseDrops } = useUI();
   const [selectedPackage, setSelectedPackage] = useState<PurchasePackage>(PACKAGES[1]);
   const [customDrops, setCustomDrops] = useState<number>(5000);
   const [processing, setProcessing] = useState(false);
@@ -98,6 +100,37 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
       return nextDrops;
     });
   }, [selectBundlePackage]);
+
+  const resolvePreferredPackage = useCallback((drops: number): PurchasePackage => {
+    const normalizedDrops = Math.max(1, Math.floor(drops));
+    const exactPackage = PACKAGES.find((pkg) => pkg.drops === normalizedDrops);
+    if (exactPackage) {
+      return exactPackage;
+    }
+
+    if (normalizedDrops >= 5000) {
+      const bundleDrops = Math.min(100000, Math.max(5000, Math.ceil(normalizedDrops / 1000) * 1000));
+      return {
+        drops: bundleDrops,
+        price: (bundleDrops / 1000) * 5,
+        label: "Gum Drop Bundle",
+      };
+    }
+
+    return PACKAGES.find((pkg) => pkg.drops >= normalizedDrops) ?? PACKAGES[PACKAGES.length - 1];
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen || !preferredPurchaseDrops) {
+      return;
+    }
+
+    const preferredPackage = resolvePreferredPackage(preferredPurchaseDrops);
+    setSelectedPackage(preferredPackage);
+    if (preferredPackage.label === "Gum Drop Bundle") {
+      setCustomDrops(preferredPackage.drops);
+    }
+  }, [isOpen, preferredPurchaseDrops, resolvePreferredPackage]);
 
   const handleApprove = async (orderId: string) => {
     setProcessing(true);

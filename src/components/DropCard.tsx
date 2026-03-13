@@ -1,7 +1,6 @@
 "use client";
 
 import { Drop } from "@/types/db";
-import { getSimulatedUnwrapsToday } from "@/lib/unwrap-simulator";
 import { useEffect, useState, memo, useMemo } from "react";
 import NextImage from "next/image";
 import { Lock, Unlock, Clock, Loader2, AlertCircle, Eye, Image as ImageIcon, Film, Wallet } from "lucide-react";
@@ -146,13 +145,6 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
     const [error, setError] = useState<string | null>(null);
     const [hasTrackedImpression, setHasTrackedImpression] = useState(false);
 
-    // Compute deterministic simulative unwraps (client-side only to avoid hydration mismatches)
-    const [simulativeUnwraps, setSimulativeUnwraps] = useState(0);
-
-    useEffect(() => {
-        setSimulativeUnwraps(getSimulatedUnwrapsToday(drop.id));
-    }, [drop.id]);
-
     useEffect(() => {
         let timeout: ReturnType<typeof setTimeout>;
         if (confirming) {
@@ -186,6 +178,9 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
             videos: summary.videoCount,
         };
     }, [drop]);
+    const totalUnlocks = typeof drop.totalUnlocks === "number" && Number.isFinite(drop.totalUnlocks)
+        ? Math.max(0, Math.floor(drop.totalUnlocks))
+        : 0;
 
     // Handle unlocking flow
     if (drop.validUntil && Date.now() > drop.validUntil && !isUnlocked) {
@@ -219,7 +214,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
 
         const balance = userProfile?.gumDropsBalance ?? 0;
         if (balance < drop.unlockCost) {
-            openPurchaseModal();
+            openPurchaseModal(Math.max(1, drop.unlockCost - balance));
             return;
         }
 
@@ -374,7 +369,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                             </div>
                             <div className="flex items-center gap-1 opacity-60 text-[9px] font-medium text-white/80">
                                 <Eye className="w-2.5 h-2.5" />
-                                <span>{simulativeUnwraps}</span>
+                                <span>{totalUnlocks.toLocaleString()}</span>
                             </div>
                         </div>
                         {ctaButton}
@@ -439,7 +434,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                         </div>
                         <div className="flex items-center gap-1 opacity-60 text-[9px] font-medium text-white/80">
                             <Eye className="w-2.5 h-2.5" />
-                            <span>{simulativeUnwraps}</span>
+                            <span>{totalUnlocks.toLocaleString()}</span>
                         </div>
                     </div>
                     <div className="w-full">

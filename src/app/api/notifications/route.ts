@@ -9,7 +9,7 @@ import { checkRateLimit, STANDARD } from "@/lib/server/rate-limit";
 // POST — Send notification (admin-only)
 export async function POST(request: NextRequest) {
     try {
-        checkRateLimit(request, "notifications", STANDARD);
+        await checkRateLimit(request, "notifications", STANDARD);
         await verifyAdmin(request);
 
         if (!adminDb) {
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
 // PUT — Mark notification as read
 export async function PUT(request: NextRequest) {
     try {
-        checkRateLimit(request, "notifications", STANDARD);
+        await checkRateLimit(request, "notifications", STANDARD);
         const caller = await verifyAuth(request);
 
         const { notificationId } = await request.json();

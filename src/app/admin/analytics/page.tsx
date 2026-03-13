@@ -676,7 +676,7 @@ export default function AdminAnalyticsPage() {
             >
               <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                 <MetricCard label="GA Active" value={formatCompactNumber(liveResponse?.totalActive ?? 0)} hint="Google Analytics realtime" icon={Users} />
-                <MetricCard label="Deep Tracker" value={formatCompactNumber(liveResponse?.deepTrackerActive ?? 0)} hint="Internal live sessions" icon={Sparkles} />
+                <MetricCard label="Tracked Users" value={formatCompactNumber(liveResponse?.deepTrackerActive ?? 0)} hint="Authenticated users active in the last 30 minutes" icon={Sparkles} />
                 <MetricCard label="Onboarding" value={onboardingStats.completions.toLocaleString()} hint={`Avg ${formatDuration(onboardingStats.avgDuration)}`} icon={PlayCircle} />
                 <MetricCard label="Purchases" value={funnel.purchases.toLocaleString()} hint={`${formatPercent(checkoutToPurchaseRate)} of checkout starts`} icon={ShoppingBag} />
               </div>
@@ -840,7 +840,7 @@ export default function AdminAnalyticsPage() {
                 </div>
               </SectionCard>
 
-              <SectionCard title="Live Interaction Stream" subtitle="Most recent Deep Tracker events merged from the latest session buckets." icon={Clock3}>
+              <SectionCard title="Live Interaction Stream" subtitle="Most recent telemetry events and guest interaction buckets collected from the live site." icon={Clock3}>
                 <div className="space-y-3">
                   {rawEvents.length > 0 ? (
                     rawEvents.slice(0, 8).map((event, index) => (

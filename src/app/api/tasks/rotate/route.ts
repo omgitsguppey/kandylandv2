@@ -6,7 +6,7 @@ import { STRICT, checkRateLimit } from "@/lib/server/rate-limit";
 
 export async function POST(req: NextRequest) {
   try {
-    checkRateLimit(req, "tasks_rotate", STRICT);
+    await checkRateLimit(req, "tasks_rotate", STRICT);
     const { uid } = await verifyAuth(req);
     const result = await rotateUserTasks(uid);
 

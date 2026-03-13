@@ -11,7 +11,7 @@ function buildFallbackUsername(uid: string): string {
 
 export async function POST(request: NextRequest) {
     try {
-        checkRateLimit(request, "user/register", STRICT);
+        await checkRateLimit(request, "user/register", STRICT);
         const caller = await verifyAuth(request);
 
         if (!adminDb) {

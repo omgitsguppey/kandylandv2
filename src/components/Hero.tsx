@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { Sparkles, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
@@ -8,10 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { useAuthIdentity } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { HomeDropTicker } from "@/components/HomeDropTicker";
-import { getSimulatedPlatformUnwrapsToday } from "@/lib/unwrap-simulator";
 import { HERO_PRIMARY_CTA, SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
-
-const INITIAL_PLATFORM_COUNT = getSimulatedPlatformUnwrapsToday();
 
 export default function Hero() {
     const { user } = useAuthIdentity();
@@ -93,18 +90,6 @@ export default function Hero() {
 }
 
 function ActivityTicker() {
-    const [platformCount, setPlatformCount] = useState(INITIAL_PLATFORM_COUNT);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setPlatformCount(getSimulatedPlatformUnwrapsToday());
-        }, 300000);
-
-        return () => clearInterval(interval);
-    }, []);
-
-    if (!platformCount) return null;
-
     return (
         <div className="inline-flex max-w-[95vw] items-center gap-2 overflow-hidden rounded-full border border-white/10 bg-white/5 px-3 py-1.5 shadow-lg backdrop-blur-md max-[360px]:px-2.5 max-[360px]:py-1 sm:gap-3 sm:px-4 sm:py-2">
             <div className="relative flex h-2 w-2 shrink-0">
@@ -112,7 +97,7 @@ function ActivityTicker() {
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
             </div>
             <span className="overflow-hidden text-ellipsis whitespace-nowrap text-[10px] font-semibold text-white/90 max-[360px]:text-[9px] sm:text-sm">
-                Live now: <span className="text-white font-bold">{platformCount.toLocaleString()}</span> users are unwrapping drops
+                Live now: <span className="text-white font-bold">active KandyDrops</span> are ready to unwrap
             </span>
         </div>
     );

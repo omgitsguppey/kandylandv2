@@ -6,7 +6,7 @@ import { RELAXED, checkRateLimit } from "@/lib/server/rate-limit";
 
 export async function POST(req: NextRequest) {
   try {
-    checkRateLimit(req, "tasks_reminder_sync", RELAXED);
+    await checkRateLimit(req, "tasks_reminder_sync", RELAXED);
     const { uid } = await verifyAuth(req);
     const result = await syncUserTaskReminder(uid);
 

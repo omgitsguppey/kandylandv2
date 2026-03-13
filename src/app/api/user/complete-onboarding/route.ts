@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAuth, handleApiError } from "@/lib/server/auth";
+import { checkRateLimit, STRICT } from "@/lib/server/rate-limit";
 
 export async function POST(req: NextRequest) {
     try {
+        await checkRateLimit(req, "user/complete-onboarding", STRICT);
         const decodedToken = await verifyAuth(req);
         const { uid } = decodedToken;
 

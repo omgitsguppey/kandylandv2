@@ -39,6 +39,19 @@ export default function CookieBanner() {
         : false;
     const showBanner = isMounted && !dismissed && !hasConsent;
 
+    useEffect(() => {
+        if (typeof document === "undefined") {
+            return;
+        }
+
+        const offset = showBanner && isCompactViewport && !suppressForFlow ? "4rem" : "0px";
+        document.documentElement.style.setProperty("--kandy-cookie-offset", offset);
+
+        return () => {
+            document.documentElement.style.setProperty("--kandy-cookie-offset", "0px");
+        };
+    }, [isCompactViewport, showBanner, suppressForFlow]);
+
     if (!showBanner || suppressForFlow) return null;
 
     const handleAccept = () => {

@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 import NextImage from "next/image";
 import { Clock, ChevronRight, Eye, Image as ImageIcon, Film } from "lucide-react";
 import { getSupportedDropAspectRatio } from "@/lib/drop-presentation";
-import { getSimulatedUnwrapsToday } from "@/lib/unwrap-simulator";
 
 import { useUserProfile } from "@/context/AuthContext";
 
@@ -165,7 +164,7 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
 
                                         <div className="flex items-center gap-1.5 opacity-80 text-xs font-semibold text-white/90 pb-1">
                                             <Eye className="w-3.5 h-3.5 text-[#b28cff]" />
-                                            <span>{getSimulatedUnwrapsToday(drop.id)} unwrapped today</span>
+                                            <span>{totalUnwraps.toLocaleString()} unwrapped</span>
                                         </div>
 
                                         <div className="pt-1 flex items-center gap-3">

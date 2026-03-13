@@ -33,7 +33,10 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen overflow-y-auto bg-black pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:pb-0">
+    <div
+      className="min-h-screen overflow-y-auto bg-black pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:pb-0"
+      style={{ paddingTop: "var(--kandy-cookie-offset, 0px)" }}
+    >
       <Hero />
       <HowItWorks />
       <LivePreviews />

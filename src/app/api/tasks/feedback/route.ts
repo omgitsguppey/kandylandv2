@@ -13,7 +13,7 @@ const feedbackSchema = z.object({
 
 export async function POST(req: NextRequest) {
     try {
-        checkRateLimit(req, "tasks_feedback", RELAXED);
+        await checkRateLimit(req, "tasks_feedback", RELAXED);
         const { uid, email } = await verifyAuth(req);
 
         const body = await req.json();

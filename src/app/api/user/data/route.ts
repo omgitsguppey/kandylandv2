@@ -5,7 +5,7 @@ import { checkRateLimit, RELAXED } from "@/lib/server/rate-limit";
 
 export async function GET(request: NextRequest) {
     try {
-        checkRateLimit(request, "user/data", RELAXED);
+        await checkRateLimit(request, "user/data", RELAXED);
         const authResult = await verifyAuth(request);
         const { uid, email } = authResult;
 
