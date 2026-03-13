@@ -19,15 +19,15 @@ export default function Hero() {
     const ref = useRef(null);
 
     return (
-        <section ref={ref} className="relative min-h-[78vh] sm:min-h-[90vh] flex flex-col justify-center pt-20 sm:pt-24 pb-10 sm:pb-12 w-full overflow-hidden">
+        <section ref={ref} className="relative flex min-h-[74vh] w-full flex-col justify-center overflow-hidden pb-8 pt-[4.25rem] max-[360px]:min-h-[68vh] max-[360px]:pb-5 max-[360px]:pt-16 sm:min-h-[90vh] sm:pb-12 sm:pt-24">
             <div className="absolute inset-0 z-0 opacity-40">
                 <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-brand-purple/20 rounded-full blur-[120px] mix-blend-screen animate-pulse" style={{ animationDuration: "4s" }} />
                 <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-brand-purple/10 rounded-full blur-[100px] mix-blend-screen animate-pulse" style={{ animationDuration: "7s" }} />
             </div>
 
             <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center">
-                <div className="space-y-5 sm:space-y-8 w-full max-w-2xl min-w-0 flex flex-col items-center">
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-purple/10 border border-brand-purple/20 text-brand-purple text-[10px] sm:text-sm font-bold tracking-wide">
+                <div className="flex min-w-0 max-w-2xl w-full flex-col items-center space-y-4 max-[360px]:space-y-3 sm:space-y-8">
+                    <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/20 bg-brand-purple/10 px-3 py-1.5 text-[10px] font-bold tracking-wide text-brand-purple max-[360px]:px-2.5 max-[360px]:py-1 max-[360px]:text-[9px] sm:text-sm">
                         <Sparkles className="w-4 h-4" />
                         PREMIUM DIGITAL EXPERIENCES
                     </div>
@@ -41,14 +41,14 @@ export default function Hero() {
                         Content.
                     </h1>
 
-                    <p className="max-w-xl text-base sm:text-xl text-gray-400 leading-relaxed font-medium">
+                    <p className="max-w-xl text-[15px] font-medium leading-7 text-gray-400 max-[360px]:text-[14px] max-[360px]:leading-6 sm:text-xl sm:leading-relaxed">
                         Connect intimately with your favorite creators like Jessi Ray and Bloomytrip. Unlock private collections, exclusive media, and unique experiences you won&apos;t find anywhere else.
                     </p>
 
-                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2 sm:pt-4 justify-center w-full sm:w-auto">
+                    <div className="flex w-full flex-col justify-center gap-2.5 pt-1 max-[360px]:gap-2 sm:w-auto sm:flex-row sm:gap-4 sm:pt-4">
                         {user ? (
                             <Link href="/dashboard" className="w-full sm:w-auto">
-                                <Button size="lg" variant="brand" className="w-full rounded-2xl px-6 py-4 md:px-10 md:py-6 text-base md:text-lg font-bold shadow-[0_0_30px_rgba(178,140,255,0.4)] hover:shadow-[0_0_40px_rgba(178,140,255,0.6)] transition-all">
+                                <Button size="lg" variant="brand" className="w-full rounded-2xl px-6 py-3.5 text-base font-bold shadow-[0_0_30px_rgba(178,140,255,0.4)] transition-all hover:shadow-[0_0_40px_rgba(178,140,255,0.6)] max-[360px]:py-3 md:px-10 md:py-6 md:text-lg">
                                     Go to Dashboard <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2" />
                                 </Button>
                             </Link>
@@ -57,7 +57,7 @@ export default function Hero() {
                                 onClick={() => openAuthModal("signup")}
                                 size="lg"
                                 variant="brand"
-                                className="w-full sm:w-auto rounded-2xl px-6 py-4 md:px-10 md:py-6 text-base md:text-lg font-bold shadow-[0_0_30px_rgba(178,140,255,0.4)] hover:shadow-[0_0_40px_rgba(178,140,255,0.6)] transition-all"
+                                className="w-full rounded-2xl px-6 py-3.5 text-base font-bold shadow-[0_0_30px_rgba(178,140,255,0.4)] transition-all hover:shadow-[0_0_40px_rgba(178,140,255,0.6)] max-[360px]:py-3 sm:w-auto md:px-10 md:py-6 md:text-lg"
                             >
                                 {HERO_PRIMARY_CTA} <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2" />
                             </Button>
@@ -66,23 +66,23 @@ export default function Hero() {
                             onClick={() => openAuthModal("signup")}
                             size="lg"
                             variant="glass"
-                            className="w-full sm:w-auto rounded-2xl px-6 py-4 md:px-8 md:py-6 text-base md:text-lg font-bold border-white/10 hover:bg-white/5"
+                            className="w-full rounded-2xl border-white/10 px-6 py-3.5 text-base font-bold hover:bg-white/5 max-[360px]:py-3 sm:w-auto md:px-8 md:py-6 md:text-lg"
                         >
                             {SECONDARY_UNWRAP_CTA}
                         </Button>
                     </div>
 
-                    <div className="pt-1">
+                    <div className="pt-0.5">
                         <Link href="/faq" className="text-sm font-semibold text-gray-400 transition-colors hover:text-white">
                             See how it works
                         </Link>
                     </div>
 
-                    <div className="pt-2 pb-2">
+                    <div className="pb-1 pt-1.5 max-[360px]:pt-1">
                         <ActivityTicker />
                     </div>
 
-                    <div className="pt-5 sm:pt-8 border-t border-white/10 w-full lg:w-4/5">
+                    <div className="w-full border-t border-white/10 pt-5 max-[360px]:hidden sm:pt-8 lg:w-4/5">
                         <p className="text-sm text-gray-400 font-medium mb-4">Latest Unwraps</p>
                         <HomeDropTicker />
                     </div>
@@ -106,12 +106,12 @@ function ActivityTicker() {
     if (!platformCount) return null;
 
     return (
-        <div className="inline-flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/5 border border-white/10 shadow-lg backdrop-blur-md max-w-[95vw] overflow-hidden">
+        <div className="inline-flex max-w-[95vw] items-center gap-2 overflow-hidden rounded-full border border-white/10 bg-white/5 px-3 py-1.5 shadow-lg backdrop-blur-md max-[360px]:px-2.5 max-[360px]:py-1 sm:gap-3 sm:px-4 sm:py-2">
             <div className="relative flex h-2 w-2 shrink-0">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
             </div>
-            <span className="text-[10px] sm:text-sm font-semibold text-white/90 whitespace-nowrap overflow-hidden text-ellipsis">
+            <span className="overflow-hidden text-ellipsis whitespace-nowrap text-[10px] font-semibold text-white/90 max-[360px]:text-[9px] sm:text-sm">
                 Live now: <span className="text-white font-bold">{platformCount.toLocaleString()}</span> users are unwrapping drops
             </span>
         </div>

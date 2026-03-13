@@ -13,6 +13,7 @@ import { TransactionHistoryModal } from "@/components/Admin/TransactionHistoryMo
 import { authFetch } from "@/lib/authFetch";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 
 export default function UserManagementPage() {
     const [users, setUsers] = useState<UserProfile[]>([]);
@@ -201,22 +202,18 @@ export default function UserManagementPage() {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold text-white mb-2">
-                        {viewMode === 'users' ? 'User Management' : 'Platform Feedback'}
-                    </h1>
-                    <p className="text-gray-400">
-                        {viewMode === 'users'
-                            ? 'Manage accounts, roles, balance, and content access.'
-                            : 'Review user-submitted feedback from daily tasks.'}
-                    </p>
-                </div>
-                <div className="flex gap-2">
+            <AdminPageHeader
+                eyebrow="Admin Users"
+                title={viewMode === 'users' ? 'User Management' : 'Platform Feedback'}
+                subtitle={viewMode === 'users'
+                    ? 'Manage accounts, roles, balance, and content access.'
+                    : 'Review user-submitted feedback from daily tasks.'}
+                actions={
+                    <>
                     <button
                         onClick={() => setViewMode('users')}
                         className={cn(
-                            "px-4 py-2 rounded-xl border font-bold text-sm transition-all flex items-center gap-2",
+                            "inline-flex min-h-11 items-center gap-2 rounded-xl border px-4 py-2 text-sm font-bold transition-all",
                             viewMode === 'users' ? "bg-brand-purple text-white border-brand-purple" : "bg-white/5 text-gray-400 border-white/10 hover:bg-white/10"
                         )}
                     >
@@ -225,14 +222,15 @@ export default function UserManagementPage() {
                     <button
                         onClick={() => setViewMode('feedback')}
                         className={cn(
-                            "px-4 py-2 rounded-xl border font-bold text-sm transition-all flex items-center gap-2",
+                            "inline-flex min-h-11 items-center gap-2 rounded-xl border px-4 py-2 text-sm font-bold transition-all",
                             viewMode === 'feedback' ? "bg-brand-purple text-white border-brand-purple" : "bg-white/5 text-gray-400 border-white/10 hover:bg-white/10"
                         )}
                     >
                         <MessageSquare className="w-4 h-4" /> Feedback
                     </button>
-                </div>
-            </div>
+                    </>
+                }
+            />
 
             {viewMode === 'users' && (
                 <>

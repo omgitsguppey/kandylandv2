@@ -20,6 +20,17 @@ let ai: ReturnType<typeof getAI> | undefined;
 let model: ReturnType<typeof getGenerativeModel> | undefined;
 let appCheck: AppCheck | undefined;
 
+function shouldEnableAppCheck() {
+    if (typeof window === "undefined") {
+        return false;
+    }
+
+    const { navigator } = window;
+    const userAgent = navigator.userAgent || "";
+
+    return !navigator.webdriver && !/HeadlessChrome|Playwright/i.test(userAgent);
+}
+
 // Client-only initializations (App Check, AI Logic)
 if (typeof window !== "undefined") {
     // --- Firebase App Check (ReCaptcha Enterprise) ---
@@ -30,7 +41,7 @@ if (typeof window !== "undefined") {
         }
 
         const recaptchaKey = process.env.NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_SITE_KEY;
-        if (recaptchaKey) {
+        if (recaptchaKey && shouldEnableAppCheck()) {
             appCheck = initializeAppCheck(app, {
                 provider: new ReCaptchaEnterpriseProvider(recaptchaKey),
                 isTokenAutoRefreshEnabled: true,

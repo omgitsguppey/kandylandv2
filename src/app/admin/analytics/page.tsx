@@ -36,6 +36,7 @@ import {
 } from "recharts";
 import { useAuthSWR } from "@/hooks/useAuthSWR";
 import { cn } from "@/lib/utils";
+import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 
 type ViewTab = "operations" | "audience" | "commerce" | "security";
 type RangeOption = "24h" | "7d" | "30d" | "all";
@@ -480,40 +481,35 @@ export default function AdminAnalyticsPage() {
 
   return (
     <div className="space-y-5 pb-20 md:space-y-6 md:pb-8">
-      <header className="rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(178,140,255,0.18),rgba(0,0,0,0.12)_48%,rgba(0,0,0,0.9)_100%)] p-5 md:p-7">
-        <div className="flex flex-col gap-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-purple">Admin Analytics</p>
-              <h1 className="text-3xl font-black tracking-tight text-white md:text-4xl">Mobile Monitoring Station</h1>
-              <p className="mt-2 max-w-2xl text-sm text-gray-400 md:text-base">
-                Live pulse, device mix, funnel health, revenue signals, and risk monitoring tuned for small screens first.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={refreshAll}
-              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-black/30 text-gray-300 transition-colors hover:border-brand-purple/40 hover:text-white"
-              aria-label="Refresh analytics"
-            >
-              <RefreshCw className={cn("h-5 w-5", liveLoading || historicalLoading ? "animate-spin" : "")} />
-            </button>
-          </div>
+      <AdminPageHeader
+        eyebrow="Admin Analytics"
+        title="Mobile Monitoring Station"
+        subtitle="Live pulse, device mix, funnel health, revenue signals, and risk monitoring tuned for small screens first."
+        actions={
+          <button
+            type="button"
+            onClick={refreshAll}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-black/30 px-4 text-sm font-semibold text-gray-200 transition-colors hover:border-brand-purple/40 hover:text-white"
+            aria-label="Refresh analytics"
+          >
+            <RefreshCw className={cn("h-4 w-4", liveLoading || historicalLoading ? "animate-spin" : "")} />
+            Refresh analytics
+          </button>
+        }
+      />
 
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            <MetricCard label="Live GA" value={formatCompactNumber(liveResponse?.totalActive ?? 0)} hint="Active in the last 30 mins" icon={Activity} />
-            <MetricCard label="Mobile Share" value={formatPercent(mobileShare)} hint={`${mobileUsers.toLocaleString()} mobile users in range`} icon={Smartphone} />
-            <MetricCard label="Revenue" value={formatMoney(commerce.revenueUsd)} hint={`${range.toUpperCase()} tracked revenue`} icon={DollarSign} />
-            <MetricCard
-              label="Security Alerts"
-              value={securityAlerts.toLocaleString()}
-              hint={securityAlerts > 0 ? "Violations in the last 24h" : "No fresh violations"}
-              icon={ShieldAlert}
-              valueClassName={securityAlerts > 0 ? "text-2xl font-black tracking-tight text-red-400" : undefined}
-            />
-          </div>
-        </div>
-      </header>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <MetricCard label="Live GA" value={formatCompactNumber(liveResponse?.totalActive ?? 0)} hint="Active in the last 30 mins" icon={Activity} />
+        <MetricCard label="Mobile Share" value={formatPercent(mobileShare)} hint={`${mobileUsers.toLocaleString()} mobile users in range`} icon={Smartphone} />
+        <MetricCard label="Revenue" value={formatMoney(commerce.revenueUsd)} hint={`${range.toUpperCase()} tracked revenue`} icon={DollarSign} />
+        <MetricCard
+          label="Security Alerts"
+          value={securityAlerts.toLocaleString()}
+          hint={securityAlerts > 0 ? "Violations in the last 24h" : "No fresh violations"}
+          icon={ShieldAlert}
+          valueClassName={securityAlerts > 0 ? "text-2xl font-black tracking-tight text-red-400" : undefined}
+        />
+      </div>
 
       <div className="sticky top-[8.6rem] z-20 space-y-3 rounded-[1.8rem] border border-white/10 bg-black/65 p-3 backdrop-blur-xl md:top-24">
         <div className="grid grid-cols-2 gap-2 md:grid-cols-4">

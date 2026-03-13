@@ -9,6 +9,7 @@ import { Loader2, Terminal, RefreshCw, Plus, PlayCircle } from "lucide-react";
 
 import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";
+import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 
 export default function DebugConsole() {
     const { user, userProfile } = useAuth();
@@ -82,10 +83,17 @@ export default function DebugConsole() {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center gap-3 mb-6">
-                <Terminal className="w-8 h-8 text-brand-purple" />
-                <h1 className="text-3xl font-bold text-white">Debug Console</h1>
-            </div>
+            <AdminPageHeader
+                eyebrow="Admin Debug"
+                title="Debug Console"
+                subtitle="Run safe admin-side checks and inspect recent transaction activity."
+                actions={
+                    <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-4 py-2 text-sm text-gray-300">
+                        <Terminal className="w-4 h-4 text-brand-purple" />
+                        Production Firebase tools
+                    </div>
+                }
+            />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Simulation Tools */}

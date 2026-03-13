@@ -4,7 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 import Link from "next/link";
-import { LayoutDashboard, PlusCircle, Package, Users, Terminal, ListChecks, TrendingUp } from "lucide-react";
+import { LayoutDashboard, Package, Users, Terminal, ListChecks, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 
@@ -39,10 +39,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="flex-1 w-full bg-transparent">
-      <main className="w-full px-3 py-3 md:p-8">
+      <main className="w-full px-3 pb-8 pt-24 md:px-8 md:pb-10 md:pt-28">
         <div className="max-w-7xl mx-auto">
-          <div className="mb-4 md:mb-6 sticky top-20 z-30">
-            <div className="rounded-[1.75rem] border border-white/10 bg-black/60 p-2.5 backdrop-blur-xl shadow-xl shadow-black/20">
+          <div className="sticky top-[calc(4.15rem+env(safe-area-inset-top))] z-30 mb-6 md:top-[5.15rem] md:mb-8">
+            <div className="rounded-[1.75rem] border border-white/10 bg-black/75 p-2.5 backdrop-blur-xl shadow-xl shadow-black/25">
               <div className="mb-2 px-1 md:hidden">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Admin Console</p>
               </div>

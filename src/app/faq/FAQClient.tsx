@@ -82,7 +82,7 @@ export function FAQClient({ sections, steps }: FAQClientProps) {
   );
 
   return (
-    <div className="space-y-10 sm:space-y-14">
+    <div className="space-y-8 sm:space-y-14">
       <HowItWorksStory steps={steps} />
 
       <section className="space-y-4 rounded-[2rem] border border-white/10 bg-white/[0.03] p-4 sm:p-6">

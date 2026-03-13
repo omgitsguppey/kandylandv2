@@ -11,6 +11,7 @@ import { Drop } from "@/types/db";
 import NextImage from "next/image";
 import { format, addDays, startOfDay, parse } from "date-fns";
 import { fromCSTInput, toCSTString } from "@/lib/timezone";
+import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 
 interface QueueConfig {
     queue: string[];
@@ -133,23 +134,26 @@ export default function ManageQueuePage() {
 
     return (
         <div className="max-w-4xl mx-auto pb-32">
-            <header className="mb-6 flex items-center justify-between">
-                <div>
-                    <Link href="/admin/drops" className="inline-flex items-center gap-2 text-gray-400 mb-2 text-sm font-medium hover:text-white transition-colors">
+            <AdminPageHeader
+                eyebrow="Admin Queue"
+                topSlot={
+                    <Link href="/admin/drops" className="inline-flex items-center gap-2 text-sm font-medium text-gray-400 transition-colors hover:text-white">
                         <ArrowLeft className="w-4 h-4" /> Back to Drops
                     </Link>
-                    <h1 className="text-3xl font-bold text-white mb-2">Manage Queue</h1>
-                    <p className="text-gray-400">Configure your automated drop rotation and schedule.</p>
-                </div>
-                <button
-                    onClick={handleSave}
-                    disabled={saving}
-                    className="px-6 py-2.5 rounded-full bg-brand-purple hover:bg-[#d946ef] font-bold text-white text-sm transition-all shadow-lg shadow-brand-purple/20 flex items-center gap-2 disabled:opacity-50"
-                >
-                    {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                    Save Settings
-                </button>
-            </header>
+                }
+                title="Manage Queue"
+                subtitle="Configure your automated drop rotation and schedule."
+                actions={
+                    <button
+                        onClick={handleSave}
+                        disabled={saving}
+                        className="inline-flex min-h-11 items-center gap-2 rounded-full bg-brand-purple px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 transition-all hover:bg-[#d946ef] disabled:opacity-50"
+                    >
+                        {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                        Save Settings
+                    </button>
+                }
+            />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1 space-y-4">

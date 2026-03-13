@@ -6,6 +6,7 @@ import { storage } from "@/lib/firebase-data";
 import { Loader2, Upload, Trash2, Copy, FileIcon, ImageIcon, Video, RefreshCw } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
+import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 
 import Image from "next/image";
 
@@ -96,12 +97,12 @@ export default function ContentManagerPage() {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold text-white mb-2">Content Manager</h1>
-                    <p className="text-gray-400">Manage assets in Firebase Storage.</p>
-                </div>
-                <div className="flex gap-3">
+            <AdminPageHeader
+                eyebrow="Admin Storage"
+                title="Content Manager"
+                subtitle="Manage assets in Firebase Storage."
+                actions={
+                    <>
                     <Button variant="ghost" onClick={() => setRefreshTrigger(prev => prev + 1)}>
                         <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                     </Button>
@@ -117,8 +118,9 @@ export default function ContentManagerPage() {
                             Upload File
                         </Button>
                     </div>
-                </div>
-            </div>
+                    </>
+                }
+            />
 
             <div className="glass-panel rounded-2xl overflow-hidden border border-white/5">
                 <div className="overflow-x-auto">

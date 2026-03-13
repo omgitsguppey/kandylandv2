@@ -15,6 +15,7 @@ import Image from "next/image";
 import { sendNotification } from "@/lib/notifications";
 import { CreateDropModal } from "@/components/Admin/CreateDropModal";
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
+import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 
 interface DropNotificationDraft {
     dropId: string;
@@ -206,15 +207,15 @@ export default function AdminDropsPage() {
 
     return (
         <div>
-            <header className="flex items-center justify-between mb-8">
-                <div>
-                    <h1 className="text-3xl font-bold text-white mb-2">Manage Drops</h1>
-                    <p className="text-gray-400">View and manage all content drops.</p>
-                </div>
-                <div className="flex items-center gap-3">
+            <AdminPageHeader
+                eyebrow="Admin Drops"
+                title="Manage Drops"
+                subtitle="View and manage all content drops."
+                actions={
+                    <>
                     <Link
                         href="/admin/queue"
-                        className="px-5 py-2 rounded-full bg-white/10 font-bold text-white text-sm hover:bg-white/20 transition-colors border border-white/10 flex items-center gap-2 whitespace-nowrap"
+                        className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/10 px-5 py-2 text-sm font-bold text-white transition-colors hover:bg-white/20 whitespace-nowrap"
                     >
                         Manage Queue
                     </Link>
@@ -224,15 +225,16 @@ export default function AdminDropsPage() {
                             setDuplicatingDropId(null);
                             setIsCreateModalOpen(true);
                         }}
-                        className="px-5 py-2 rounded-full bg-brand-purple font-bold text-white text-sm transition-colors shadow-lg shadow-brand-purple/20 flex items-center gap-2 whitespace-nowrap"
+                        className="inline-flex min-h-11 items-center gap-2 rounded-full bg-brand-purple px-5 py-2 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 transition-colors whitespace-nowrap"
                     >
                         <div className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center">
                             <PlusCircle className="w-3 h-3" />
                         </div>
                         Create Drop
                     </button>
-                </div>
-            </header>
+                    </>
+                }
+            />
 
             <div className="glass-panel rounded-3xl overflow-hidden">
                 {selectedDropIds.size > 0 && (

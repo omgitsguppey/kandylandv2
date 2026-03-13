@@ -70,10 +70,11 @@ export function HowItWorksStory({ steps }: HowItWorksStoryProps) {
   };
 
   return (
-    <section className="mb-10 space-y-5 sm:mb-14 sm:space-y-6">
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+    <section className="mb-8 space-y-4 sm:mb-14 sm:space-y-6">
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-2 sm:overflow-x-auto sm:pb-1 no-scrollbar">
         {steps.map((step, index) => {
           const isActive = step.id === activeStep.id;
+          const isLastOddItem = steps.length % 2 !== 0 && index === steps.length - 1;
 
           return (
             <button
@@ -81,7 +82,8 @@ export function HowItWorksStory({ steps }: HowItWorksStoryProps) {
               type="button"
               onClick={() => setActiveStepId(step.id)}
               className={cn(
-                "relative shrink-0 rounded-full border px-4 py-2 text-left transition-all",
+                "relative min-w-0 rounded-[1.25rem] border px-3.5 py-2.5 text-left transition-all sm:shrink-0 sm:rounded-full sm:px-4 sm:py-2",
+                isLastOddItem && "col-span-2",
                 isActive
                   ? "border-brand-purple/40 bg-brand-purple/15 text-white shadow-[0_0_25px_rgba(164,118,255,0.18)]"
                   : "border-white/10 bg-white/[0.03] text-gray-400"
@@ -90,19 +92,19 @@ export function HowItWorksStory({ steps }: HowItWorksStoryProps) {
               <span className="block text-[10px] font-black uppercase tracking-[0.22em] text-brand-purple/80">
                 0{index + 1}
               </span>
-              <span className="block text-sm font-bold">{step.label}</span>
+              <span className="block text-sm font-bold leading-tight">{step.label}</span>
             </button>
           );
         })}
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+      <div className="grid gap-3 sm:gap-4 lg:grid-cols-[1.1fr_0.9fr]">
         <motion.div
           key={activeStep.id}
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, ease: "easeOut" }}
-          className="rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(164,118,255,0.18),transparent_52%)] bg-[#08080D] p-4 shadow-[0_25px_70px_rgba(0,0,0,0.45)]"
+          className="rounded-[1.75rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(164,118,255,0.18),transparent_52%)] bg-[#08080D] p-3.5 shadow-[0_25px_70px_rgba(0,0,0,0.45)] sm:rounded-[2rem] sm:p-4"
         >
           <StoryVisual stepId={activeStep.id} />
         </motion.div>
@@ -112,11 +114,11 @@ export function HowItWorksStory({ steps }: HowItWorksStoryProps) {
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, ease: "easeOut" }}
-          className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-5 shadow-xl shadow-black/25"
+          className="rounded-[1.75rem] border border-white/10 bg-white/[0.03] p-4 shadow-xl shadow-black/25 sm:rounded-[2rem] sm:p-5"
         >
           <p className="text-[11px] font-black uppercase tracking-[0.22em] text-brand-purple">{activeStep.eyebrow}</p>
-          <h2 className="mt-3 text-2xl font-black tracking-tight text-white sm:text-3xl">{activeStep.title}</h2>
-          <p className="mt-3 text-sm leading-7 text-gray-300 sm:text-base">{activeStep.description}</p>
+          <h2 className="mt-3 text-[1.75rem] font-black tracking-tight text-white max-[360px]:text-[1.55rem] sm:text-3xl">{activeStep.title}</h2>
+          <p className="mt-3 text-sm leading-6 text-gray-300 sm:text-base sm:leading-7">{activeStep.description}</p>
 
           <div className="mt-5 flex flex-wrap gap-2">
             {activeStep.callouts.map((callout) => (
@@ -148,7 +150,7 @@ export function HowItWorksStory({ steps }: HowItWorksStoryProps) {
               variant="brand"
               size="lg"
               onClick={handlePrimaryAction}
-              className="w-full rounded-2xl px-6 text-base font-extrabold shadow-[0_0_30px_rgba(164,118,255,0.35)]"
+              className="w-full rounded-2xl px-6 text-base font-extrabold shadow-[0_0_30px_rgba(164,118,255,0.35)] max-[360px]:min-h-12"
             >
               {SECONDARY_UNWRAP_CTA}
               <ArrowRight className="ml-2 h-4 w-4" />
@@ -158,7 +160,7 @@ export function HowItWorksStory({ steps }: HowItWorksStoryProps) {
               variant="glass"
               size="lg"
               onClick={handleSecondaryAction}
-              className="h-auto min-h-14 w-full rounded-2xl border-white/10 px-5 py-4 text-sm font-bold leading-5 text-left whitespace-normal"
+              className="h-auto min-h-[3.25rem] w-full rounded-2xl border-white/10 px-5 py-3.5 text-left text-sm font-bold leading-5 whitespace-normal sm:min-h-14 sm:py-4"
             >
               {GUMDROPS_PRIMARY_CTA}
             </Button>
@@ -182,7 +184,7 @@ function StoryVisual({ stepId }: { stepId: HowItWorksStep["id"] }) {
             Mobile first
           </div>
         </div>
-        <div className="grid gap-3 rounded-[1.75rem] border border-white/10 bg-black/50 p-4 sm:grid-cols-[1.05fr_0.95fr]">
+        <div className="grid gap-3 rounded-[1.75rem] border border-white/10 bg-black/50 p-3.5 sm:grid-cols-[1.05fr_0.95fr] sm:p-4">
           <div className="rounded-[1.5rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(164,118,255,0.12),transparent_55%)] p-4">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-brand-purple/20 bg-brand-purple/10 px-3 py-1 text-xs font-bold text-brand-purple">
               <Sparkles className="h-3.5 w-3.5" />
@@ -235,7 +237,7 @@ function StoryVisual({ stepId }: { stepId: HowItWorksStep["id"] }) {
               <Gift className="h-4 w-4 text-brand-purple" />
               Experiences rewards
             </div>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
               {["10", "20", "30", "40"].map((value, index) => (
                 <div
                   key={value}
@@ -305,7 +307,7 @@ function StoryVisual({ stepId }: { stepId: HowItWorksStep["id"] }) {
               Keeps access
             </span>
           </div>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
             {[0, 1, 2].map((index) => (
               <div
                 key={index}
@@ -347,12 +349,12 @@ function StoryVisual({ stepId }: { stepId: HowItWorksStep["id"] }) {
             <Sparkles className="h-4 w-4 text-brand-purple" />
             Daily Kandy streak
           </div>
-          <div className="grid grid-cols-7 gap-2">
+          <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
             {["10", "20", "30", "40", "50", "60", "70"].map((value, index) => (
               <div
                 key={value}
                 className={cn(
-                  "rounded-2xl border px-2 py-4 text-center text-xs font-black",
+                  "rounded-2xl border px-1.5 py-3.5 text-center text-[11px] font-black sm:px-2 sm:py-4 sm:text-xs",
                   index === 0
                     ? "border-brand-purple/30 bg-brand-purple/15 text-brand-purple"
                     : "border-white/10 bg-white/[0.03] text-white"

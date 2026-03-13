@@ -27,8 +27,8 @@ export default function Home() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-black overflow-y-auto">
+    return (
+    <div className="min-h-screen bg-black overflow-y-auto pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-0">
       <Hero />
       <HowItWorks />
       <LivePreviews />

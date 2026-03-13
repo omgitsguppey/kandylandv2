@@ -7,17 +7,16 @@ import { TopDropsPanel } from "@/components/Admin/TopDropsPanel";
 import { RecentTransactionsPanel } from "@/components/Admin/RecentTransactionsPanel";
 import { AdminActivityLogPanel } from "@/components/Admin/AdminActivityLogPanel";
 import { AdminAnalyticsCharts } from "@/components/Admin/AdminAnalyticsCharts";
+import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 
 export default function AdminDashboardPage() {
     return (
         <div className="space-y-6">
-            <header className="rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(178,140,255,0.18),rgba(0,0,0,0.1)_45%,rgba(0,0,0,0.85)_100%)] px-5 py-6 md:px-8 md:py-8">
-                <div>
-                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-purple">Control Room</p>
-                    <h1 className="text-3xl font-bold text-white mb-2 tracking-tight md:text-4xl">Admin Dashboard</h1>
-                    <p className="max-w-2xl text-sm text-gray-400 md:text-base">Quick platform health, revenue, and creator activity with a tighter mobile layout for on-the-go checks.</p>
-                </div>
-            </header>
+            <AdminPageHeader
+                eyebrow="Control Room"
+                title="Admin Dashboard"
+                subtitle="Quick platform health, revenue, and creator activity with a tighter mobile layout for on-the-go checks."
+            />
 
             <Link href="/admin/analytics" className="block w-full rounded-[2rem] overflow-hidden glass-panel border border-white/10 group hover:border-brand-purple/50 transition-colors">
                 <div className="bg-gradient-to-r from-brand-purple/10 to-transparent p-5 md:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
