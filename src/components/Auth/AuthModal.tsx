@@ -206,7 +206,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                         <button
                             onClick={handleGoogleSignIn}
                             disabled={isLoading}
-                            className="w-full flex items-center justify-center gap-3 py-2.5 sm:py-3 bg-white text-black rounded-xl font-bold text-sm sm:text-base transition-colors disabled:opacity-50"
+                            className="w-full flex items-center justify-center gap-3 rounded-xl border border-brand-purple/40 bg-gradient-to-r from-brand-purple to-purple-500 py-2.5 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 transition-colors disabled:opacity-50 sm:py-3 sm:text-base"
                         >
                             {isLoading ? (
                                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -254,7 +254,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                     </div>
                                     <button
                                         onClick={() => switchMode("signin")}
-                                        className="w-full py-3 bg-white/10 hover:bg-white/20 rounded-xl text-white font-bold transition-colors"
+                                        className="w-full rounded-xl border border-brand-purple/40 bg-gradient-to-r from-brand-purple to-purple-500 py-3 font-bold text-white shadow-lg shadow-brand-purple/20 transition-colors hover:opacity-95"
                                     >
                                         Back to Sign In
                                     </button>
@@ -286,7 +286,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                     <button
                                         type="submit"
                                         disabled={isLoading}
-                                        className="w-full py-3 bg-brand-purple rounded-xl text-black font-bold shadow-lg shadow-brand-purple/20 active:scale-[0.98] transition-all disabled:opacity-50 hover:bg-white"
+                                        className="w-full rounded-xl bg-gradient-to-r from-brand-purple to-purple-500 py-3 font-bold text-white shadow-lg shadow-brand-purple/20 transition-all active:scale-[0.98] disabled:opacity-50 hover:opacity-95"
                                     >
                                         {isLoading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : "Send Reset Link"}
                                     </button>
@@ -390,7 +390,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="w-full py-3 sm:py-3.5 bg-brand-purple rounded-xl text-black font-extrabold shadow-lg shadow-brand-purple/20 active:scale-[0.98] transition-all disabled:opacity-50 hover:bg-white text-base sm:text-lg tracking-tight"
+                                    className="w-full rounded-xl bg-gradient-to-r from-brand-purple to-purple-500 py-3 text-base font-extrabold tracking-tight text-white shadow-lg shadow-brand-purple/20 transition-all active:scale-[0.98] disabled:opacity-50 hover:opacity-95 sm:py-3.5 sm:text-lg"
                                 >
                                     {isLoading ? (
                                         <Loader2 className="w-5 h-5 animate-spin mx-auto" />

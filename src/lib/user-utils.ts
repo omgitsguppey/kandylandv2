@@ -1,5 +1,6 @@
 import { User } from "firebase/auth";
 import { UserProfile } from "@/types/db";
+import type { DailyTaskAssignment } from "@/lib/tasks/task-catalog";
 
 /**
  * Normalizes a username by trimming, lowercasing, and allowing only alphanumerics/underscores.
@@ -85,14 +86,49 @@ export function normalizeUserProfile(raw: unknown, user: User): UserProfile | nu
         },
         dailyTasksState: source.dailyTasksState ? {
             lastResetMs: Number(source.dailyTasksState.lastResetMs) || 0,
+            nextRefreshMs: Number(source.dailyTasksState.nextRefreshMs) || 0,
             tasks: Array.isArray(source.dailyTasksState.tasks)
-                ? source.dailyTasksState.tasks.map((t: any) => ({
-                    id: String(t.id),
-                    progress: Number(t.progress) || 0,
-                    claimed: Boolean(t.claimed)
-                }))
+                ? source.dailyTasksState.tasks.reduce<DailyTaskAssignment[]>((acc, task: any) => {
+                        if (!task || typeof task !== "object") {
+                            return acc;
+                        }
+
+                        acc.push({
+                            id: String(task.id),
+                            source: task.source === "global" || task.source === "user" ? task.source : "built_in",
+                            title: typeof task.title === "string" ? task.title : "",
+                            subtitle: typeof task.subtitle === "string" ? task.subtitle : "",
+                            reward: Number(task.reward) || 0,
+                            maxProgress: Number(task.maxProgress) || 1,
+                            eventName: typeof task.eventName === "string" ? task.eventName : "",
+                            actionType: typeof task.actionType === "string" ? task.actionType : "open_experiences",
+                            ctaLabel: typeof task.ctaLabel === "string" ? task.ctaLabel : "Keep going",
+                            icon: typeof task.icon === "string" ? task.icon : "gift",
+                            group: typeof task.group === "string" ? task.group : "visit",
+                            progress: Number(task.progress) || 0,
+                            claimed: Boolean(task.claimed),
+                            assignedAt: Number(task.assignedAt) || 0,
+                            startedAt: Number.isFinite(task.startedAt) ? Number(task.startedAt) : undefined,
+                            claimedAt: Number.isFinite(task.claimedAt) ? Number(task.claimedAt) : undefined,
+                            progressKeys: toStringArray(task.progressKeys),
+                            uniqueByParamKey: typeof task.uniqueByParamKey === "string" ? task.uniqueByParamKey : undefined,
+                            targetUserId: typeof task.targetUserId === "string" ? task.targetUserId : undefined,
+                            customTaskId: typeof task.customTaskId === "string" ? task.customTaskId : undefined,
+                            cooldownDays: Number(task.cooldownDays) || undefined,
+                            criteria: task.criteria && typeof task.criteria === "object" ? task.criteria : undefined,
+                        } satisfies DailyTaskAssignment);
+
+                        return acc;
+                    }, [])
                 : [],
-            completedOneTimeTasks: toStringArray(source.dailyTasksState.completedOneTimeTasks)
+            completedTaskHistory: source.dailyTasksState.completedTaskHistory && typeof source.dailyTasksState.completedTaskHistory === "object"
+                ? Object.fromEntries(
+                    Object.entries(source.dailyTasksState.completedTaskHistory as Record<string, unknown>)
+                        .filter(([, rawValue]) => Number.isFinite(rawValue))
+                        .map(([key, rawValue]) => [key, Number(rawValue)]),
+                )
+                : {},
+            completedOneTimeTasks: toStringArray(source.dailyTasksState.completedOneTimeTasks),
         } : undefined,
     };
 }

@@ -65,8 +65,8 @@ export default function Hero() {
                         <Button
                             onClick={() => openAuthModal("signup")}
                             size="lg"
-                            variant="glass"
-                            className="w-full rounded-2xl border-white/10 px-6 py-3.5 text-base font-bold hover:bg-white/5 max-[360px]:py-3 sm:w-auto md:px-8 md:py-6 md:text-lg"
+                            variant="brand"
+                            className="w-full rounded-2xl px-6 py-3.5 text-base font-bold text-white shadow-[0_0_24px_rgba(178,140,255,0.28)] transition-all hover:shadow-[0_0_34px_rgba(178,140,255,0.45)] max-[360px]:py-3 sm:w-auto md:px-8 md:py-6 md:text-lg"
                         >
                             {SECONDARY_UNWRAP_CTA}
                         </Button>

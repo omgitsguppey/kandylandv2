@@ -70,16 +70,16 @@ export function HowItWorks() {
 
                     <div className="grid md:grid-cols-2 gap-8 sm:gap-12 items-center relative z-10">
                         <div className="space-y-5 sm:space-y-6">
+                            <h3 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">See what you&apos;re about to unwrap.</h3>
                             <div className="flex flex-wrap gap-2">
                                 <span className="rounded-full border border-brand-purple/20 bg-brand-purple/10 px-3 py-1 text-xs font-bold text-brand-purple">Live timers</span>
                                 <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs font-bold text-gray-200">Keep access after unwrap</span>
                                 <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs font-bold text-gray-200">Watch on mobile</span>
                             </div>
-                            <h3 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">See what you&apos;re about to unwrap.</h3>
                             <p className="text-gray-400 text-base sm:text-lg leading-relaxed">
                                 KandyDrops stays simple on mobile: browse live drops, unwrap while they&apos;re active, and keep your favorites in your library even after the public window ends.
                             </p>
-                            <button onClick={() => openAuthModal("signup")} className="mt-2 sm:mt-4 w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-white hover:bg-gray-200 text-black font-extrabold rounded-xl transition-colors">
+                            <button onClick={() => openAuthModal("signup")} className="mt-2 sm:mt-4 w-full sm:w-auto rounded-xl bg-gradient-to-r from-brand-purple to-purple-500 px-6 py-3.5 font-extrabold text-white shadow-lg shadow-brand-purple/20 transition-colors hover:opacity-95 sm:px-8 sm:py-4">
                                 {SECONDARY_UNWRAP_CTA}
                             </button>
                         </div>

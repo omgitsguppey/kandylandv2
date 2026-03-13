@@ -25,6 +25,7 @@
 *.pem
 output/
 qa-screenshots/
+.playwright-cli/
 
 # debug
 npm-debug.log*

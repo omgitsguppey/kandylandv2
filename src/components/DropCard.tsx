@@ -203,6 +203,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
             drop_id: drop.id,
             drop_category: drop.type,
             is_unlocked: !!isUnlocked,
+            drop_tags: (drop.tags || []).join("|"),
         });
         fetch(`/api/drops/${drop.id}/click`, { method: "POST" }).catch(() => { });
         onPreview(drop);
@@ -252,7 +253,8 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
             trackEvent('unlock_drop_success', {
                 drop_id: drop.id,
                 drop_category: drop.type,
-                unlock_cost: drop.unlockCost || 0
+                unlock_cost: drop.unlockCost || 0,
+                drop_tags: (drop.tags || []).join("|"),
             });
 
             toast.success(`Unwrapped: ${drop.title}`, {
@@ -291,7 +293,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
         <Link
             href={`/dashboard/viewer?id=${drop.id}`}
             onClick={triggerHaptic}
-            className="px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl font-bold text-[11px] md:text-xs bg-brand-purple/10 text-brand-purple flex items-center justify-center w-full whitespace-nowrap gap-1.5 border border-brand-purple/20 transition-all active:scale-95"
+            className="flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-brand-purple bg-gradient-to-r from-brand-purple to-purple-500 px-3 py-1.5 text-[11px] font-bold text-white shadow-[0_0_15px_rgba(164,118,255,0.28)] transition-all active:scale-95 md:rounded-xl md:px-4 md:py-2 md:text-xs"
         >
             <Unlock className="w-3 h-3" />
             View Content
@@ -302,9 +304,9 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
             disabled={unlocking}
             className={cn(
                 "px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl font-bold text-[11px] md:text-xs flex items-center justify-center w-full whitespace-nowrap gap-1.5 border relative overflow-hidden transition-all active:scale-95 shadow-lg",
-                !canAfford ? "bg-brand-purple text-black border-brand-purple hover:bg-[#b28cff] shadow-[0_0_15px_rgba(164,118,255,0.3)]"
+                !canAfford ? "bg-gradient-to-r from-brand-purple to-purple-500 text-white border-brand-purple shadow-[0_0_15px_rgba(164,118,255,0.3)] hover:opacity-95"
                     : confirming ? "bg-orange-500 text-white border-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.4)]"
-                        : "bg-white text-black border-white hover:bg-gray-100",
+                        : "bg-gradient-to-r from-brand-purple to-purple-500 text-white border-brand-purple shadow-[0_0_15px_rgba(164,118,255,0.28)] hover:opacity-95",
                 "disabled:opacity-50 disabled:cursor-not-allowed"
             )}
         >

@@ -6,6 +6,7 @@ import { BetaAnalyticsDataClient } from "@google-analytics/data";
 import { verifyAdmin, handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
+import { TELEMETRY_EVENT_NAMES } from "@/lib/telemetry-catalog";
 
 const propertyId = process.env.GA_PROPERTY_ID;
 const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
@@ -13,26 +14,7 @@ const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
 
 // Initialize with explicit credentials if available, otherwise fallback to Default Application Credentials
 let analyticsClient: BetaAnalyticsDataClient;
-const ANALYTICS_EVENT_NAMES = [
-    "auth_google_sign_in_success",
-    "auth_modal_opened",
-    "auth_sign_in_success",
-    "auth_sign_up_success",
-    "begin_checkout",
-    "daily_check_in_claim",
-    "drop_card_impression",
-    "drop_preview_opened",
-    "drop_share_copied",
-    "experience_hub_viewed",
-    "guided_onboarding_completed",
-    "gumdrops_purchase_completed",
-    "purchase",
-    "unlock_drop_success",
-    "view_drop_details",
-    "viewer_asset_changed",
-    "viewer_opened",
-    "wallet_opened",
-];
+const ANALYTICS_EVENT_NAMES = TELEMETRY_EVENT_NAMES;
 
 if (clientEmail && privateKey) {
     analyticsClient = new BetaAnalyticsDataClient({

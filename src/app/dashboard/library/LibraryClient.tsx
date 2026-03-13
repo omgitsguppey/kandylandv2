@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Lock } from "lucide-react";
 
@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Drop } from "@/types/db";
 import { OwnedDropGalleryCard } from "@/components/Dashboard/OwnedDropGalleryCard";
+import { trackEvent } from "@/lib/telemetry";
 
 type Ratio = "1:1" | "16:9" | "9:16";
 
@@ -39,6 +40,14 @@ export function LibraryClient({ drops }: LibraryClientProps) {
     }, [userProfile?.unlockedContent]);
 
     const router = useRouter();
+
+    useEffect(() => {
+        if (!userProfile) {
+            return;
+        }
+
+        trackEvent("library_viewed");
+    }, [userProfile]);
 
     if (authLoading) {
         return (

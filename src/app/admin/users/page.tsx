@@ -14,6 +14,7 @@ import { authFetch } from "@/lib/authFetch";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { AdminTasksManager } from "@/components/Admin/AdminTasksManager";
 
 export default function UserManagementPage() {
     const [users, setUsers] = useState<UserProfile[]>([]);
@@ -24,7 +25,7 @@ export default function UserManagementPage() {
     const [reason, setReason] = useState("");
     const [processing, setProcessing] = useState(false);
 
-    const [viewMode, setViewMode] = useState<'users' | 'feedback'>('users');
+    const [viewMode, setViewMode] = useState<'users' | 'feedback' | 'tasks'>('users');
     const [feedback, setFeedback] = useState<any[]>([]);
     const [loadingFeedback, setLoadingFeedback] = useState(false);
 
@@ -204,10 +205,12 @@ export default function UserManagementPage() {
         <div className="space-y-6">
             <AdminPageHeader
                 eyebrow="Admin Users"
-                title={viewMode === 'users' ? 'User Management' : 'Platform Feedback'}
+                title={viewMode === 'users' ? 'User Management' : viewMode === 'feedback' ? 'Platform Feedback' : 'Daily Task Control'}
                 subtitle={viewMode === 'users'
                     ? 'Manage accounts, roles, balance, and content access.'
-                    : 'Review user-submitted feedback from daily tasks.'}
+                    : viewMode === 'feedback'
+                        ? 'Review user-submitted feedback from daily tasks.'
+                        : 'Create custom daily missions and monitor live task triggers.'}
                 actions={
                     <>
                     <button
@@ -227,6 +230,15 @@ export default function UserManagementPage() {
                         )}
                     >
                         <MessageSquare className="w-4 h-4" /> Feedback
+                    </button>
+                    <button
+                        onClick={() => setViewMode('tasks')}
+                        className={cn(
+                            "inline-flex min-h-11 items-center gap-2 rounded-xl border px-4 py-2 text-sm font-bold transition-all",
+                            viewMode === 'tasks' ? "bg-brand-purple text-white border-brand-purple" : "bg-white/5 text-gray-400 border-white/10 hover:bg-white/10"
+                        )}
+                    >
+                        <DollarSign className="w-4 h-4" /> Tasks
                     </button>
                     </>
                 }
@@ -519,6 +531,11 @@ export default function UserManagementPage() {
                                                 {item.rating} / 5 Rating
                                             </div>
                                         )}
+                                        {item.category && (
+                                            <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-300 text-xs font-bold uppercase tracking-wider">
+                                                {item.category}
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="bg-white/5 p-4 rounded-2xl border border-white/5 relative">
                                         <div className="absolute top-4 right-4 opacity-5 pointer-events-none">
@@ -545,6 +562,10 @@ export default function UserManagementPage() {
                         </div>
                     )}
                 </div>
+            )}
+
+            {viewMode === 'tasks' && (
+                <AdminTasksManager users={users} />
             )}
 
             {/* Action Modals */}

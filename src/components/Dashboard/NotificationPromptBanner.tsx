@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { requestFirebaseNotificationPermission } from "@/lib/firebase-messaging";
 import { doc, updateDoc, arrayUnion } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
+import { trackEvent } from "@/lib/telemetry";
 
 export function NotificationPromptBanner() {
     const { user, userProfile } = useAuth();
@@ -32,6 +33,7 @@ export function NotificationPromptBanner() {
             await updateDoc(userRef, {
                 fcmTokens: arrayUnion(token)
             });
+            trackEvent("task_notifications_enabled");
         }
         setIsDismissed(true);
     };

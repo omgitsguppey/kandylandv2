@@ -8,6 +8,7 @@ import { z } from 'zod';
 const feedbackSchema = z.object({
     message: z.string().min(1),
     rating: z.number().min(1).max(5).optional(),
+    category: z.enum(["general", "feature_request", "bug_report", "creator_request"]).default("general"),
 });
 
 export async function POST(req: NextRequest) {
@@ -16,7 +17,7 @@ export async function POST(req: NextRequest) {
         const { uid, email } = await verifyAuth(req);
 
         const body = await req.json();
-        const { message, rating } = feedbackSchema.parse(body);
+        const { message, rating, category } = feedbackSchema.parse(body);
 
         // Save to platform_feedback collection
         await adminDb.collection('platform_feedback').add({
@@ -24,6 +25,7 @@ export async function POST(req: NextRequest) {
             email: email || null,
             message,
             rating: rating || null,
+            category,
             timestamp: FieldValue.serverTimestamp(),
             status: 'new'
         });

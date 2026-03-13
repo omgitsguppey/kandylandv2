@@ -116,6 +116,7 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
         drop_id: drop.id,
         drop_category: drop.type,
         unlock_cost: drop.unlockCost,
+        drop_tags: (drop.tags || []).join("|"),
       });
       return;
     }
@@ -154,6 +155,7 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
         drop_id: drop.id,
         drop_category: drop.type,
         unlock_cost: drop.unlockCost,
+        drop_tags: (drop.tags || []).join("|"),
       });
 
       if (userProfile) {
@@ -189,8 +191,6 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
           drop_id: drop.id,
           drop_category: drop.type,
         });
-        // Track share for daily tasks
-        authFetch("/api/tasks/track-share", { method: "POST" }).catch(console.error);
       })
       .catch(() => toast.error("Failed to copy link"));
   };
@@ -297,7 +297,7 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
                   <Link
                     href={`/dashboard/viewer?id=${drop.id}`}
                     onClick={triggerHaptic}
-                    className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand-purple text-black font-bold text-lg hover:bg-[#b28cff] transition-colors active:scale-95 shadow-[0_0_20px_rgba(164,118,255,0.4)]"
+                    className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand-purple to-purple-500 text-lg font-bold text-white transition-colors active:scale-95 shadow-[0_0_20px_rgba(164,118,255,0.4)] hover:opacity-95"
                   >
                     <Unlock className="h-5 w-5" />
                     View Content
@@ -312,9 +312,9 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
                       disabled={unlocking}
                       className={cn(
                         "flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl border relative overflow-hidden px-4 py-3 text-center text-base font-bold leading-5 transition-all active:scale-95 shadow-lg",
-                        !canAfford ? "bg-brand-purple text-black border-brand-purple hover:bg-[#b28cff] shadow-[0_0_20px_rgba(164,118,255,0.4)]"
+                        !canAfford ? "bg-gradient-to-r from-brand-purple to-purple-500 text-white border-brand-purple shadow-[0_0_20px_rgba(164,118,255,0.4)] hover:opacity-95"
                           : confirming ? "bg-orange-500 text-white border-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.4)]"
-                            : "bg-white text-black border-white hover:bg-gray-100 shadow-[0_0_20px_rgba(255,255,255,0.3)]",
+                            : "bg-gradient-to-r from-brand-purple to-purple-500 text-white border-brand-purple shadow-[0_0_20px_rgba(164,118,255,0.4)] hover:opacity-95",
                         "disabled:opacity-50 disabled:cursor-not-allowed"
                       )}
                     >

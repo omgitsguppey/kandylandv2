@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminAuth } from "@/lib/server/firebase-admin";
+import { adminAuth, adminDb } from "@/lib/server/firebase-admin";
 import * as admin from "firebase-admin";
+import { recordDailyTaskProgressFromEvent, recordTelemetryEventStat } from "@/lib/server/daily-tasks";
 
 export async function POST(req: NextRequest) {
     try {
@@ -21,14 +22,10 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Missing eventName" }, { status: 400 });
         }
 
-        const db = admin.database();
-
-        // Fetch UserProfile to securely bind username as source of truth
-        const profileRef = db.ref(`users/${userId}/profile`);
-        const snapshot = await profileRef.once("value");
-        const profileData = snapshot.val();
-
-        const username = profileData?.displayName || decodedToken.name || "Unknown Collector";
+        const realtimeDb = admin.database();
+        const profileSnapshot = await adminDb.collection("users").doc(userId).get();
+        const profileData = profileSnapshot.data();
+        const username = profileData?.username || profileData?.displayName || decodedToken.name || "Unknown Collector";
 
         // Construct Telemetry Event
         const telemetryData = {
@@ -42,12 +39,17 @@ export async function POST(req: NextRequest) {
 
         // Write directly to Realtime Database
         // Structure: telemetry/events/{eventName}/{pushId}
-        const eventsRef = db.ref(`telemetry/events/${eventName}`);
+        const eventsRef = realtimeDb.ref(`telemetry/events/${eventName}`);
         await eventsRef.push(telemetryData);
 
         // Also write a user-centric log: telemetry/users/{userId}/{pushId}
-        const userEventsRef = db.ref(`telemetry/users/${userId}`);
+        const userEventsRef = realtimeDb.ref(`telemetry/users/${userId}`);
         await userEventsRef.push(telemetryData);
+
+        await Promise.all([
+            recordTelemetryEventStat(eventName, eventParams),
+            recordDailyTaskProgressFromEvent(userId, username, eventName, eventParams),
+        ]);
 
         return NextResponse.json({ success: true, logged: true });
     } catch (error) {

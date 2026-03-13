@@ -23,7 +23,7 @@ export function RecentActivityFeed() {
                 const q = query(
                     collection(db, "transactions"),
                     where("userId", "==", user.uid),
-                    orderBy("createdAt", "desc"),
+                    orderBy("timestamp", "desc"),
                     limit(5)
                 );
 

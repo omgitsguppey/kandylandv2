@@ -1,201 +1,294 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { Bell, Check, Info, CheckCircle, AlertTriangle, XCircle, ChevronDown, ChevronUp } from "lucide-react";
-import Image from "next/image";
-
-import { cn } from "@/lib/utils";
-import { useNotifications } from "@/hooks/useNotifications";
+import { useEffect, useRef, useState } from "react";
+import {
+  Bell,
+  Check,
+  CheckCircle,
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
+  Info,
+  Sparkles,
+  TriangleAlert,
+  XCircle,
+} from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { useAuthIdentity } from "@/context/AuthContext";
-import { User } from "firebase/auth";
-
-interface NotificationNote {
-    id: string;
-    title: string;
-    message: string;
-    type: string;
-    readBy?: string[];
-    createdAt?: { toDate: () => Date };
-    dropContext?: {
-        previewImageUrl?: string;
-        dropTitle?: string;
-    };
-}
-
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-function NotificationItem({ note, user, markAsRead, closeDropdown }: { note: NotificationNote; user: User | null; markAsRead: (id: string) => void; closeDropdown: () => void }) {
-    // Notifications are only unread now due to the filtering logic, but we keep this for safety
-    const isUnread = true;
-    const [isExpanded, setIsExpanded] = useState(false);
-    const router = useRouter();
+import { useNotifications } from "@/hooks/useNotifications";
+import { useAuthIdentity } from "@/context/AuthContext";
+import { cn } from "@/lib/utils";
+import { trackEvent } from "@/lib/telemetry";
 
-    const getIcon = (type: string) => {
-        switch (type) {
-            case "success": return <CheckCircle className="w-4 h-4 text-brand-purple" />;
-            case "warning": return <AlertTriangle className="w-4 h-4 text-brand-purple" />;
-            case "error": return <XCircle className="w-4 h-4 text-red-500" />;
-            default: return <Info className="w-4 h-4 text-brand-purple" />;
-        }
-    };
-
-    const handleContainerClick = () => {
-        if (!isExpanded) {
-            setIsExpanded(true);
-        } else if (note.dropContext) {
-            // Take to drops page if it has a drop context and is expanded
-            router.push('/drops');
-            closeDropdown();
-        } else {
-            setIsExpanded(false);
-        }
-    };
-
-    return (
-        <div
-            onClick={handleContainerClick}
-            className={cn(
-                "rounded-lg transition-colors border overflow-hidden cursor-pointer",
-                isUnread
-                    ? "bg-white/[0.06] border-white/15 hover:bg-white/[0.08]"
-                    : "bg-black/30 border-white/5"
-            )}
-        >
-            <div className="px-3 py-2.5 flex gap-3 items-start">
-                <div className="mt-0.5 shrink-0">
-                    {getIcon(note.type)}
-                </div>
-                <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm font-semibold text-white leading-tight">{note.title}</p>
-                        {isUnread && (
-                            <button
-                                onClick={(e) => { e.stopPropagation(); markAsRead(note.id); }}
-                                className="text-[10px] font-bold text-brand-purple shrink-0 hover:text-white transition-colors bg-brand-purple/10 px-2 py-1 rounded-full flex items-center gap-1"
-                                title="Mark as read"
-                            >
-                                <Check className="w-2.5 h-2.5" /> Read
-                            </button>
-                        )}
-                    </div>
-
-                    <p className="text-[10px] text-gray-500 mt-1 font-mono">
-                        {note.createdAt?.toDate ? formatDistanceToNow(note.createdAt.toDate(), { addSuffix: true }) : "Just now"}
-                    </p>
-
-                    {isExpanded && (
-                        <div className="mt-2 animate-in fade-in slide-in-from-top-1">
-                            <p className="text-xs text-gray-400 leading-snug">
-                                {note.message}
-                            </p>
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            {note.dropContext && isExpanded && (
-                <div 
-                    className="border-t border-white/5 bg-black/40 px-3 py-2 flex items-center justify-between gap-2 hover:bg-white/5 transition-colors cursor-pointer"
-                    onClick={(e) => { e.stopPropagation(); router.push('/drops'); }}
-                >
-                    <div className="flex items-center gap-2 min-w-0">
-                        <div className="relative w-8 h-8 rounded-md overflow-hidden border border-white/10 shrink-0 bg-black flex items-center justify-center">
-                            {note.dropContext.previewImageUrl ? (
-                                <Image
-                                    src={note.dropContext.previewImageUrl}
-                                    alt={note.dropContext.dropTitle || "Drop Preview"}
-                                    fill
-                                    sizes="32px"
-                                    className="object-cover"
-                                />
-                            ) : (
-                                <span className="text-xs">🍬</span>
-                            )}
-                        </div>
-                        <div className="min-w-0">
-                            <p className="text-[9px] uppercase tracking-wider text-brand-purple font-bold">View Drop</p>
-                            <p className="text-xs text-white font-medium truncate">{note.dropContext.dropTitle}</p>
-                        </div>
-                    </div>
-                </div>
-            )}
-        </div>
-    );
+interface NotificationNote {
+  id: string;
+  title: string;
+  message: string;
+  type: string;
+  createdAt?: { toDate: () => Date };
+  dropContext?: {
+    previewImageUrl?: string;
+    dropTitle?: string;
+  };
 }
 
+function getTypePill(type: string) {
+  switch (type) {
+    case "success":
+      return {
+        label: "Ready",
+        icon: CheckCircle,
+        className: "bg-brand-purple/20 text-white border-brand-purple/30",
+      };
+    case "warning":
+      return {
+        label: "Heads up",
+        icon: TriangleAlert,
+        className: "bg-white/10 text-white border-white/15",
+      };
+    case "error":
+      return {
+        label: "Issue",
+        icon: XCircle,
+        className: "bg-red-500/15 text-red-100 border-red-500/30",
+      };
+    default:
+      return {
+        label: "Info",
+        icon: Info,
+        className: "bg-white/10 text-white border-white/15",
+      };
+  }
+}
+
+function NotificationThumbnail({ note }: { note: NotificationNote }) {
+  if (note.dropContext?.previewImageUrl) {
+    return (
+      <div className="relative h-16 w-16 overflow-hidden rounded-2xl border border-white/10 bg-black/50">
+        <Image
+          src={note.dropContext.previewImageUrl}
+          alt={note.dropContext.dropTitle || note.title}
+          fill
+          sizes="64px"
+          className="object-cover"
+        />
+      </div>
+    );
+  }
+
+  const pill = getTypePill(note.type);
+  const Icon = pill.icon;
+  const fallbackLetter = (note.title.trim()[0] || "K").toUpperCase();
+
+  return (
+    <div className="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-[radial-gradient(circle_at_top,rgba(178,140,255,0.45),rgba(20,20,24,0.95)_72%)]">
+      <span className="text-2xl font-black text-white/90">{fallbackLetter}</span>
+      <div className="absolute bottom-1.5 right-1.5 rounded-full border border-white/15 bg-black/55 p-1 text-brand-purple">
+        <Icon className="h-3 w-3" />
+      </div>
+    </div>
+  );
+}
+
+function NotificationItem({
+  note,
+  markAsRead,
+  closeDropdown,
+}: {
+  note: NotificationNote;
+  markAsRead: (id: string) => void;
+  closeDropdown: () => void;
+}) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const router = useRouter();
+  const pill = getTypePill(note.type);
+  const PillIcon = pill.icon;
+
+  const openDrop = () => {
+    router.push("/drops");
+    closeDropdown();
+  };
+
+  return (
+    <div className="rounded-[1.4rem] border border-white/10 bg-white/[0.04] p-3 shadow-lg shadow-black/20 transition-colors hover:bg-white/[0.06]">
+      <div className="flex gap-3">
+        <NotificationThumbnail note={note} />
+
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-white">{note.title}</p>
+              <p className="mt-1 text-[11px] text-gray-500">
+                {note.createdAt?.toDate ? formatDistanceToNow(note.createdAt.toDate(), { addSuffix: true }) : "Just now"}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => markAsRead(note.id)}
+              className="inline-flex h-8 shrink-0 items-center gap-1 rounded-full border border-brand-purple/30 bg-brand-purple/15 px-2.5 text-[10px] font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-brand-purple/25"
+              title="Mark as read"
+            >
+              <Check className="h-3 w-3" />
+              Read
+            </button>
+          </div>
+
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <span className={cn("inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em]", pill.className)}>
+              <PillIcon className="h-3 w-3" />
+              {pill.label}
+            </span>
+            {note.dropContext?.dropTitle ? (
+              <span className="truncate text-[11px] font-medium text-gray-300">{note.dropContext.dropTitle}</span>
+            ) : null}
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setIsExpanded((current) => !current)}
+          className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-white/10"
+        >
+          {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+          {isExpanded ? "Collapse" : "Expand"}
+        </button>
+
+        {note.dropContext ? (
+          <button
+            type="button"
+            onClick={openDrop}
+            className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple/30 bg-brand-purple px-3 py-1.5 text-[11px] font-semibold text-white transition-opacity hover:opacity-90"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+            Open drop
+          </button>
+        ) : null}
+      </div>
+
+      {isExpanded ? (
+        <div className="mt-3 rounded-2xl border border-white/8 bg-black/30 p-3">
+          <p className="text-xs leading-6 text-gray-300">{note.message}</p>
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
 export function NotificationBell() {
-    const { user } = useAuthIdentity();
-    const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
-    const [isOpen, setIsOpen] = useState(false);
-    const dropdownRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuthIdentity();
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        function handleClickOutside(event: MouseEvent) {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                setIsOpen(false);
-            }
-        }
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
 
-    return (
-        <div className="relative" ref={dropdownRef}>
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                data-onboarding-target="notification-bell"
-                className="relative w-10 h-10 rounded-full flex items-center justify-center transition-colors text-gray-300 hover:text-white bg-black/20 hover:bg-black/40"
-            >
-                <Bell className="w-5 h-5" />
-                {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-[20px] h-[20px] bg-brand-purple rounded-full border border-white/20 backdrop-blur-md flex items-center justify-center text-[10px] font-black text-white px-1 shadow-lg transition-transform duration-300 scale-in-center">
-                        {unreadCount > 9 ? "9+" : unreadCount}
-                    </span>
-                )}
-            </button>
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-            <div
-                className={cn(
-                    "absolute right-0 top-full mt-3 w-72 md:w-80 bg-black/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl shadow-black/70 overflow-hidden origin-top-right transition-all duration-200 z-50 flex flex-col max-h-[400px]",
-                    isOpen
-                        ? "opacity-100 scale-100 translate-y-0"
-                        : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
-                )}
-                style={{ WebkitBackdropFilter: "blur(30px)" }}
-            >
-                <div className="px-3 py-2.5 border-b border-white/10 flex items-center justify-between bg-white/[0.03]">
-                    <h3 className="font-bold text-white text-xs tracking-wide">Notifications</h3>
-                    {unreadCount > 0 && (
-                        <button
-                            onClick={markAllAsRead}
-                            className="text-[10px] text-brand-purple transition-colors font-bold flex items-center gap-1 hover:text-white bg-brand-purple/10 px-2 py-0.5 rounded-full"
-                        >
-                            <Check className="w-2.5 h-2.5" /> Mark all read
-                        </button>
-                    )}
-                </div>
+  useEffect(() => {
+    function handleOpenRequest() {
+      setIsOpen(true);
+      trackEvent("notifications_dropdown_opened", {
+        unread_count: unreadCount,
+        source: "task_cta",
+      });
+    }
 
-                <div className="overflow-y-auto flex-1 p-1.5 space-y-1 custom-scrollbar">
-                    {notifications.length === 0 ? (
-                        <div className="p-6 text-center text-gray-500 text-xs">
-                            <Bell className="w-6 h-6 mx-auto mb-2 opacity-20" />
-                            <p>No notifications yet</p>
-                        </div>
-                    ) : (
-                        notifications.map((note) => (
-                            <NotificationItem
-                                key={note.id}
-                                note={note as NotificationNote}
-                                user={user}
-                                markAsRead={markAsRead}
-                                closeDropdown={() => setIsOpen(false)}
-                            />
-                        ))
-                    )}
-                </div>
+    window.addEventListener("kandydrops:open-notifications", handleOpenRequest);
+    return () => window.removeEventListener("kandydrops:open-notifications", handleOpenRequest);
+  }, [unreadCount]);
+
+  const toggleDropdown = () => {
+    setIsOpen((current) => {
+      const next = !current;
+      if (next) {
+        trackEvent("notifications_dropdown_opened", {
+          unread_count: unreadCount,
+          source: "notification_bell",
+        });
+      }
+      return next;
+    });
+  };
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={toggleDropdown}
+        data-onboarding-target="notification-bell"
+        className="relative flex h-10 w-10 items-center justify-center rounded-full bg-black/20 text-gray-300 transition-colors hover:bg-black/40 hover:text-white"
+      >
+        <Bell className="h-5 w-5" />
+        {unreadCount > 0 ? (
+          <span className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full border border-white/20 bg-brand-purple px-1 text-[10px] font-black text-white shadow-lg">
+            {unreadCount > 9 ? "9+" : unreadCount}
+          </span>
+        ) : null}
+      </button>
+
+      <div
+        className={cn(
+          "absolute right-0 top-full z-50 mt-3 flex max-h-[28rem] w-[min(24rem,calc(100vw-1rem))] origin-top-right flex-col overflow-hidden rounded-[1.8rem] border border-white/10 bg-black/95 shadow-2xl shadow-black/70 transition-all duration-200 sm:w-80",
+          isOpen ? "translate-y-0 scale-100 opacity-100" : "pointer-events-none -translate-y-2 scale-95 opacity-0",
+        )}
+        style={{ WebkitBackdropFilter: "blur(30px)", backdropFilter: "blur(30px)" }}
+      >
+        <div className="border-b border-white/10 bg-white/[0.03] px-4 py-3">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h3 className="text-sm font-bold text-white">Notifications</h3>
+              <p className="mt-1 text-[11px] text-gray-500">
+                {unreadCount > 0 ? `${unreadCount} unread updates` : "You are all caught up"}
+              </p>
             </div>
+
+            {unreadCount > 0 ? (
+              <button
+                type="button"
+                onClick={markAllAsRead}
+                className="inline-flex h-8 items-center gap-1 rounded-full border border-brand-purple/30 bg-brand-purple/15 px-2.5 text-[10px] font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-brand-purple/25"
+              >
+                <Sparkles className="h-3 w-3" />
+                Clear all
+              </button>
+            ) : null}
+          </div>
         </div>
-    );
+
+        <div className="flex-1 space-y-2 overflow-y-auto p-2 custom-scrollbar">
+          {!user || notifications.length === 0 ? (
+            <div className="flex flex-col items-center justify-center px-6 py-10 text-center">
+              <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-brand-purple">
+                <Bell className="h-6 w-6" />
+              </div>
+              <p className="text-sm font-semibold text-white">No notifications yet</p>
+              <p className="mt-1 text-xs leading-6 text-gray-500">
+                We will drop updates here when something new is ready to unwrap.
+              </p>
+            </div>
+          ) : (
+            notifications.map((note) => (
+              <NotificationItem
+                key={note.id}
+                note={note as NotificationNote}
+                markAsRead={markAsRead}
+                closeDropdown={() => setIsOpen(false)}
+              />
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }

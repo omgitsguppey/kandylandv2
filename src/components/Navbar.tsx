@@ -94,7 +94,7 @@ export function Navbar() {
                         ) : (
                             <button
                                 onClick={() => openAuthModal("signup")}
-                                className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-2.5 rounded-full bg-white text-black font-bold text-xs sm:text-sm tracking-wide shadow-[0_0_20px_rgba(255,255,255,0.3)] _0_25px_rgba(255,255,255,0.5)] transition-all duration-300"
+                                className="flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-4 py-2 text-xs font-bold tracking-wide text-white shadow-[0_0_20px_rgba(178,140,255,0.35)] transition-all duration-300 sm:px-6 sm:py-2.5 sm:text-sm"
                             >
                                 <Sparkles className="w-4 h-4" />
                                 {SECONDARY_UNWRAP_CTA}

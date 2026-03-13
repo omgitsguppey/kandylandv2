@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
@@ -325,6 +325,8 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     const previousDropIdRef = useRef<string | null>(null);
     const hasTrackedViewerOpenRef = useRef<string | null>(null);
     const lastTrackedAssetRef = useRef<string | null>(null);
+    const consumedAssetKeysRef = useRef<Set<string>>(new Set());
+    const watchCheckpointKeysRef = useRef<Set<string>>(new Set());
 
     const [isSecurityTriggered, setIsSecurityTriggered] = useState(false);
 
@@ -427,11 +429,90 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                 drop_id: drop.id,
                 asset_index: activeIndex + 1,
                 asset_total: assetCount,
+                asset_key: `${drop.id}:${activeIndex}`,
             });
         }
 
         lastTrackedAssetRef.current = assetKey;
     }, [activeIndex, assetCount, drop, isAuthorized]);
+
+    const trackAssetConsumed = useCallback((watchSeconds: number) => {
+        if (!drop) {
+            return;
+        }
+
+        const assetKey = `${drop.id}:${activeIndex}`;
+        if (consumedAssetKeysRef.current.has(assetKey)) {
+            return;
+        }
+
+        consumedAssetKeysRef.current.add(assetKey);
+        trackEvent("viewer_asset_consumed", {
+            drop_id: drop.id,
+            asset_index: activeIndex + 1,
+            asset_key: assetKey,
+            watch_seconds: watchSeconds,
+            content_kind: resolvedContent.kind,
+        });
+    }, [activeIndex, drop, resolvedContent.kind]);
+
+    const trackWatchCheckpoint = useCallback((watchSeconds: number) => {
+        if (!drop) {
+            return;
+        }
+
+        const assetKey = `${drop.id}:${activeIndex}`;
+        const checkpointKey = `${assetKey}:${watchSeconds}`;
+        if (watchCheckpointKeysRef.current.has(checkpointKey)) {
+            return;
+        }
+
+        watchCheckpointKeysRef.current.add(checkpointKey);
+        trackEvent("viewer_watch_checkpoint", {
+            drop_id: drop.id,
+            asset_index: activeIndex + 1,
+            asset_key: assetKey,
+            watch_seconds: watchSeconds,
+            content_kind: resolvedContent.kind,
+        });
+    }, [activeIndex, drop, resolvedContent.kind]);
+
+    useEffect(() => {
+        if (!drop || !isAuthorized || contentLoading || !contentBlobUrl) {
+            return;
+        }
+
+        if (resolvedContent.kind === "video" || resolvedContent.kind === "audio") {
+            return;
+        }
+
+        const timerId = window.setTimeout(() => {
+            trackAssetConsumed(6);
+        }, 6000);
+
+        return () => {
+            window.clearTimeout(timerId);
+        };
+    }, [contentBlobUrl, contentLoading, drop, isAuthorized, resolvedContent.kind, trackAssetConsumed]);
+
+    const handleMediaTimeUpdate = useCallback((currentTime: number) => {
+        if (!Number.isFinite(currentTime) || currentTime <= 0) {
+            return;
+        }
+
+        if (currentTime >= 15) {
+            trackAssetConsumed(15);
+            trackWatchCheckpoint(15);
+        }
+
+        if (currentTime >= 45) {
+            trackWatchCheckpoint(45);
+        }
+
+        if (currentTime >= 90) {
+            trackWatchCheckpoint(90);
+        }
+    }, [trackAssetConsumed, trackWatchCheckpoint]);
 
     // Redirect if not logged in (once auth is ready)
     useEffect(() => {
@@ -816,6 +897,9 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                                     video_title: drop.title
                                                 });
                                             }}
+                                            onTimeUpdate={(event) => {
+                                                handleMediaTimeUpdate(event.currentTarget.currentTime);
+                                            }}
                                         >
                                             <source src={contentBlobUrl} type={resolvedContent.mimeType} />
                                             {videoFallbackTypes.filter((type) => type !== resolvedContent.mimeType).map((type) => (
@@ -841,6 +925,9 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                                 controlsList="nodownload"
                                                 className="relative z-10 w-full max-w-md"
                                                 onContextMenu={preventContextMenu}
+                                                onTimeUpdate={(event) => {
+                                                    handleMediaTimeUpdate(event.currentTarget.currentTime);
+                                                }}
                                             >
                                                 <source src={contentBlobUrl} type={resolvedContent.mimeType} />
                                                 {audioFallbackTypes.filter((type) => type !== resolvedContent.mimeType).map((type) => (

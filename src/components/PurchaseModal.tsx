@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { sendGAEvent } from "@next/third-parties/google";
 import { GuestComponentBlur } from "@/components/Auth/GuestComponentBlur";
 import { trackEvent } from "@/lib/telemetry";
-import { GUMDROPS_PRIMARY_CTA, GUMDROPS_SUPPORT_COPY, SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
+import { GUMDROPS_SUPPORT_COPY, SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
 
 interface PurchaseModalProps {
   isOpen: boolean;
@@ -41,6 +41,9 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   const paypalLoading = isPending;
   const paypalFailed = false;
   const hasTrackedOpenRef = useRef(false);
+  const isBundleSelected = selectedPackage.label === "Gum Drop Bundle";
+  const canDecreaseBundle = customDrops > 5000;
+  const canIncreaseBundle = customDrops < 100000;
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
@@ -68,6 +71,31 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   }, [onClose]);
 
   const selectedPriceKey = useMemo(() => selectedPackage.price.toFixed(2), [selectedPackage.price]);
+
+  const selectBundlePackage = useCallback((drops: number) => {
+    const bundle = {
+      drops,
+      price: (drops / 1000) * 5,
+      label: "Gum Drop Bundle",
+    };
+
+    setSelectedPackage(bundle);
+    trackEvent("purchase_package_selected", {
+      package_label: bundle.label,
+      package_drops: bundle.drops,
+      package_price: bundle.price,
+    });
+
+    return bundle;
+  }, []);
+
+  const updateBundleDrops = useCallback((delta: number) => {
+    setCustomDrops((prev) => {
+      const nextDrops = Math.min(100000, Math.max(5000, prev + delta));
+      selectBundlePackage(nextDrops);
+      return nextDrops;
+    });
+  }, [selectBundlePackage]);
 
   const handleApprove = async (orderId: string) => {
     setProcessing(true);
@@ -150,7 +178,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                         <div className="w-16 h-16 bg-gradient-to-tr from-brand-purple to-brand-purple rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg shadow-brand-purple/20">
                           <Candy className="w-8 h-8 text-white drop-shadow-md" />
                         </div>
-                        <h2 className="text-2xl font-bold text-white mb-1 tracking-tight">{GUMDROPS_PRIMARY_CTA}</h2>
+                        <h2 className="text-2xl font-bold text-white mb-1 tracking-tight">Get Gum Drops</h2>
                         <p className="text-gray-400 text-sm font-medium">{GUMDROPS_SUPPORT_COPY}</p>
                       </div>
 
@@ -176,7 +204,11 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                   : "bg-white/5 border-white/5"
                               )}
                             >
-                              {pkg.bonus && <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-[10px] font-bold px-2 py-0.5 rounded-full text-white shadow-lg whitespace-nowrap">{pkg.bonus}</span>}
+                              {pkg.bonus && (
+                                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-brand-purple to-brand-purple text-[10px] font-bold px-2 py-0.5 rounded-full text-white shadow-lg whitespace-nowrap">
+                                  {pkg.bonus}
+                                </span>
+                              )}
                               <div className="font-bold text-lg text-white mb-0.5">{pkg.drops}</div>
                               <div className="text-[10px] font-medium text-gray-400 uppercase tracking-wider mb-1">{pkg.label}</div>
                               <div className={cn("font-bold text-sm", isSelected ? "text-brand-purple" : "text-white")}>${pkg.price.toFixed(2)}</div>
@@ -189,17 +221,17 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                         role="button"
                         tabIndex={0}
                         onClick={() => {
-                          const bundle = { drops: customDrops, price: (customDrops / 1000) * 5, label: "Gum Drop Bundle" };
-                          setSelectedPackage(bundle);
-                          trackEvent("purchase_package_selected", {
-                            package_label: bundle.label,
-                            package_drops: bundle.drops,
-                            package_price: bundle.price,
-                          });
+                          selectBundlePackage(customDrops);
+                        }}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            selectBundlePackage(customDrops);
+                          }
                         }}
                         className={cn(
                           "relative w-full p-3 mb-6 rounded-2xl text-left border flex flex-row items-center justify-between gap-3 transition-all cursor-pointer",
-                          selectedPackage.label === "Gum Drop Bundle"
+                          isBundleSelected
                             ? "bg-brand-purple/10 border-brand-purple/50 ring-1 ring-brand-purple/30 shadow-[0_0_20px_rgba(236,72,153,0.15)] scale-[1.02]"
                             : "bg-white/5 border-white/5 hover:bg-white/10"
                         )}
@@ -209,53 +241,45 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                         <div className="flex-1">
                           <div className="font-bold text-lg text-white mb-0.5">{customDrops.toLocaleString()}</div>
                           <div className="text-[10px] font-medium text-gray-400 uppercase tracking-wider mb-1">Gum Drop Bundle</div>
-                          <div className={cn("font-bold text-sm", selectedPackage.label === "Gum Drop Bundle" ? "text-brand-purple" : "text-white")}>
+                          <div className={cn("font-bold text-sm", isBundleSelected ? "text-brand-purple" : "text-white")}>
                             ${((customDrops / 1000) * 5).toFixed(2)}
                           </div>
                         </div>
 
                         <div className="flex items-center gap-1.5 bg-black/40 rounded-xl p-1 border border-white/10 shrink-0">
-                          <div
+                          <button
+                            type="button"
                             onClick={(e) => {
                               e.stopPropagation();
-                              setCustomDrops(prev => {
-                                const newVal = Math.max(5000, prev - 1000);
-                                if (selectedPackage.label === "Gum Drop Bundle") {
-                                  setSelectedPackage({ drops: newVal, price: (newVal / 1000) * 5, label: "Gum Drop Bundle" });
-                                }
-                                return newVal;
-                              });
+                              updateBundleDrops(-1000);
                             }}
+                            disabled={!canDecreaseBundle && isBundleSelected}
                             className={cn(
                               "w-10 h-10 rounded-lg flex flex-col items-center justify-center text-white transition-colors cursor-pointer",
-                              customDrops <= 5000 ? "opacity-30 cursor-not-allowed bg-white/5" : "bg-white/10 hover:bg-white/20"
+                              !canDecreaseBundle && isBundleSelected ? "opacity-30 cursor-not-allowed bg-white/5" : "bg-white/10 hover:bg-white/20"
                             )}
                           >
                             <Minus className="w-4 h-4" />
-                          </div>
+                          </button>
 
                           <div className="w-12 text-center text-sm font-bold text-white flex flex-col">
                             <span>{customDrops / 1000}k</span>
                           </div>
 
-                          <div
+                          <button
+                            type="button"
                             onClick={(e) => {
                               e.stopPropagation();
-                              setCustomDrops(prev => {
-                                const newVal = Math.min(100000, prev + 1000);
-                                if (selectedPackage.label === "Gum Drop Bundle") {
-                                  setSelectedPackage({ drops: newVal, price: (newVal / 1000) * 5, label: "Gum Drop Bundle" });
-                                }
-                                return newVal;
-                              });
+                              updateBundleDrops(1000);
                             }}
+                            disabled={!canIncreaseBundle && isBundleSelected}
                             className={cn(
                               "w-9 h-9 rounded-lg flex items-center justify-center text-white transition-colors cursor-pointer mr-0.5",
-                              customDrops >= 100000 ? "opacity-30 cursor-not-allowed bg-brand-purple/30" : "bg-brand-purple/80 hover:bg-brand-purple"
+                              !canIncreaseBundle && isBundleSelected ? "opacity-30 cursor-not-allowed bg-brand-purple/30" : "bg-brand-purple/80 hover:bg-brand-purple"
                             )}
                           >
                             <Plus className="w-5 h-5 font-bold" />
-                          </div>
+                          </button>
                         </div>
                       </div>
 
@@ -315,7 +339,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                       </div>
                       <h3 className="text-3xl font-bold text-white mb-2 tracking-tight">All Set!</h3>
                       <p className="text-gray-400 mb-8 max-w-[200px] mx-auto">You&apos;ve added <strong>{selectedPackage.drops} Gum Drops</strong> to your stash.</p>
-                      <button onClick={closeModal} className="w-full py-3 rounded-xl font-bold bg-white text-black transition-colors">Awesome</button>
+                      <button onClick={closeModal} className="w-full py-3 rounded-xl border border-brand-purple bg-brand-purple font-bold text-white transition-opacity hover:opacity-90">Awesome</button>
                     </div>
                   )}
                 </GuestComponentBlur>

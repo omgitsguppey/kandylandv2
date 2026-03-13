@@ -176,7 +176,7 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
                                                     {drop.unlockCost} GD
                                                 </div>
                                             )}
-                                            <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center shadow-[0_0_20px_rgba(255,255,255,0.4)]">
+                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-brand-purple to-purple-500 text-white shadow-[0_0_20px_rgba(164,118,255,0.4)]">
                                                 <ChevronRight className="w-5 h-5 ml-0.5" />
                                             </div>
                                         </div>

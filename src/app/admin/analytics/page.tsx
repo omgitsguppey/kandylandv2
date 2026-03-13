@@ -37,6 +37,7 @@ import {
 import { useAuthSWR } from "@/hooks/useAuthSWR";
 import { cn } from "@/lib/utils";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
 
 type ViewTab = "operations" | "audience" | "commerce" | "security";
 type RangeOption = "24h" | "7d" | "30d" | "all";
@@ -225,26 +226,7 @@ const TAB_OPTIONS: Array<{ id: ViewTab; label: string; icon: typeof Activity }> 
   { id: "security", label: "Security", icon: ShieldAlert },
 ];
 
-const EVENT_LABELS: Record<string, string> = {
-  auth_google_sign_in_success: "Google sign-ins",
-  auth_modal_opened: "Auth modal opens",
-  auth_sign_in_success: "Email sign-ins",
-  auth_sign_up_success: "Email sign-ups",
-  begin_checkout: "Checkout starts",
-  daily_check_in_claim: "Daily check-ins",
-  drop_card_impression: "Drop card impressions",
-  drop_preview_opened: "Drop preview opens",
-  drop_share_copied: "Shares copied",
-  experience_hub_viewed: "Experience visits",
-  guided_onboarding_completed: "Onboarding completions",
-  gumdrops_purchase_completed: "Currency purchases",
-  purchase: "Purchases",
-  unlock_drop_success: "Unlock successes",
-  view_drop_details: "Drop detail opens",
-  viewer_asset_changed: "Asset switches",
-  viewer_opened: "Viewer opens",
-  wallet_opened: "Wallet opens",
-};
+const EVENT_LABELS: Record<string, string> = TELEMETRY_EVENT_LABELS;
 
 const INITIAL_ANALYTICS_NOW = Date.now();
 

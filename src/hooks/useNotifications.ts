@@ -6,6 +6,7 @@ import { db } from "@/lib/firebase-data";
 import { useAuthIdentity } from "@/context/AuthContext";
 import { markNotificationAsRead } from "@/lib/notifications";
 import { AppNotification, normalizeNotificationDoc } from "@/lib/notification-contracts";
+import { trackEvent } from "@/lib/telemetry";
 
 export type Notification = AppNotification;
 
@@ -79,6 +80,9 @@ export function useNotifications() {
         if (!userId) return;
 
         setNotificationsState((prev) => prev.filter((notification) => notification.id !== id));
+        trackEvent("notification_marked_read", {
+            notification_id: id,
+        });
         await markNotificationAsRead(id);
     };
 
@@ -92,6 +96,12 @@ export function useNotifications() {
         }
 
         setNotificationsState([]);
+        trackEvent("notification_mark_all_read", {
+            unread_count: unreadIds.length,
+        });
+        trackEvent("notification_marked_read", {
+            unread_count: unreadIds.length,
+        });
         await Promise.all(unreadIds.map((id) => markNotificationAsRead(id)));
     };
 

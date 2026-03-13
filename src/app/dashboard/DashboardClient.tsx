@@ -1,10 +1,12 @@
 "use client";
 
+import { useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { DailyCheckIn } from "@/components/Dashboard/DailyCheckIn";
 import { CollectionList } from "@/components/Dashboard/CollectionList";
 import { RecentActivityFeed } from "@/components/Dashboard/RecentActivityFeed";
 import { Star } from "lucide-react";
+import { trackEvent } from "@/lib/telemetry";
 
 import { Drop } from "@/types/db";
 
@@ -14,6 +16,14 @@ interface DashboardClientProps {
 
 export default function DashboardClient({ drops }: DashboardClientProps) {
     const { user, userProfile, loading } = useAuth();
+
+    useEffect(() => {
+        if (!userProfile) {
+            return;
+        }
+
+        trackEvent("dashboard_viewed");
+    }, [userProfile]);
 
     // Skeleton UI while waiting for profile data (auth is already guarded by layout.tsx)
     if (loading || !userProfile) {

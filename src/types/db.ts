@@ -1,3 +1,5 @@
+import type { DailyTasksState } from "@/lib/tasks/task-catalog";
+
 export interface UserProfile {
     uid: string;
     email: string | null;
@@ -46,16 +48,7 @@ export interface UserProfile {
         lastViolationDropId?: string;
     };
 
-    dailyTasksState?: {
-        lastResetMs: number;
-        tasks: {
-            id: string;
-            progress: number;
-            claimed: boolean;
-        }[];
-        completedOneTimeTasks: string[];
-        sharedToday?: number;
-    };
+    dailyTasksState?: DailyTasksState;
 }
 
 export interface Drop {
