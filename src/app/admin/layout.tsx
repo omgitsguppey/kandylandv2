@@ -39,9 +39,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="flex-1 w-full bg-transparent">
-      <main className="w-full px-3 pb-8 pt-20 md:px-8 md:pb-10 md:pt-24">
+      <main className="w-full px-3 pb-8 pt-16 md:px-8 md:pb-10 md:pt-[4.5rem]">
         <div className="max-w-7xl mx-auto">
-          <div className="sticky top-[calc(4rem+env(safe-area-inset-top))] z-30 mb-5 md:top-[4.75rem] md:mb-7">
+          <div className="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-30 mb-4 md:top-[4.1rem] md:mb-6">
             <div className="rounded-[1.75rem] border border-white/10 bg-black/75 p-2.5 backdrop-blur-xl shadow-xl shadow-black/25">
               <div className="mb-2 px-1 md:hidden">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Admin Console</p>

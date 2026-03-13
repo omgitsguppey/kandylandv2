@@ -436,6 +436,9 @@ export function DailyTasksModule() {
           <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-200">
             Completed tasks stay out of rotation for 7 days
           </span>
+          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-200">
+            One-time wins retire forever
+          </span>
         </div>
       </section>
 
@@ -474,6 +477,16 @@ export function DailyTasksModule() {
             const Icon = ICONS[task.icon] || Gift;
             const progressPercent = Math.min(100, Math.round((task.progress / Math.max(1, task.maxProgress)) * 100));
             const isBusy = notificationLoading && task.actionType === "enable_notifications";
+            const cooldownLabel = task.oneTime
+              ? "Retires after completion"
+              : `${task.cooldownDays ?? 7} day cooldown`;
+            const statusLabel = task.claimed
+              ? task.oneTime
+                ? "Retired forever"
+                : "Completed today"
+              : task.progress > 0
+                ? "Progress saved"
+                : "Ready now";
 
             return (
               <article
@@ -498,6 +511,16 @@ export function DailyTasksModule() {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
+                        <div className="mb-2 flex flex-wrap items-center gap-2">
+                          <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-200">
+                            {cooldownLabel}
+                          </span>
+                          {task.oneTime ? (
+                            <span className="rounded-full border border-emerald-400/25 bg-emerald-400/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-300">
+                              One time
+                            </span>
+                          ) : null}
+                        </div>
                         <h3 className="text-base font-bold text-white">{task.title}</h3>
                         <p className="mt-1 text-sm leading-6 text-gray-400">{task.subtitle}</p>
                       </div>
@@ -521,7 +544,7 @@ export function DailyTasksModule() {
                           {Math.min(task.progress, task.maxProgress)} / {task.maxProgress}
                         </span>
                         <span className={task.claimed ? "text-brand-purple" : "text-gray-400"}>
-                          {task.claimed ? "Reward added" : "In progress"}
+                          {statusLabel}
                         </span>
                       </div>
                     </div>

@@ -118,12 +118,14 @@ export function normalizeUserProfile(raw: unknown, user: User): UserProfile | nu
                             targetUserId: typeof task.targetUserId === "string" ? task.targetUserId : undefined,
                             customTaskId: typeof task.customTaskId === "string" ? task.customTaskId : undefined,
                             cooldownDays: Number(task.cooldownDays) || undefined,
+                            oneTime: task.oneTime === true,
                             criteria: task.criteria && typeof task.criteria === "object" ? task.criteria : undefined,
                         } satisfies DailyTaskAssignment);
 
                         return acc;
                     }, [])
                 : [],
+            retiredTaskIds: toStringArray(source.dailyTasksState.retiredTaskIds),
             completedTaskHistory: source.dailyTasksState.completedTaskHistory && typeof source.dailyTasksState.completedTaskHistory === "object"
                 ? Object.fromEntries(
                     Object.entries(source.dailyTasksState.completedTaskHistory as Record<string, unknown>)

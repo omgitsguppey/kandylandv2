@@ -2,7 +2,17 @@
 
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
-import { Activity, Bell, CheckCircle2, Loader2, Plus, Target } from "lucide-react";
+import {
+  Activity,
+  Bell,
+  CheckCircle2,
+  Clock3,
+  Loader2,
+  Plus,
+  Repeat,
+  Target,
+  Trophy,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { UserProfile } from "@/types/db";
@@ -18,6 +28,7 @@ interface AdminTasksResponse {
   customTasks: Array<Record<string, unknown> & { id: string }>;
   recentTaskEvents: Array<Record<string, unknown> & { id: string }>;
   eventStats: Array<Record<string, unknown> & { id: string }>;
+  taskRollups: Array<Record<string, unknown> & { id: string }>;
   eventOptions: Array<{ eventName: string; label: string; category: string }>;
   actionOptions: Array<{ value: string; label: string }>;
   iconOptions: Array<{ value: string; label: string }>;
@@ -87,12 +98,39 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
   const [ctaLabel, setCtaLabel] = useState("Keep going");
   const [icon, setIcon] = useState("sparkles");
   const [group, setGroup] = useState("visit");
+  const [cooldownDays, setCooldownDays] = useState(data?.defaultCooldownDays ?? 7);
+  const [oneTime, setOneTime] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [updatingTaskId, setUpdatingTaskId] = useState<string | null>(null);
 
   const targetUser = useMemo(
     () => users.find((user) => user.uid === targetUserId),
     [targetUserId, users],
+  );
+
+  const taskPerformance = useMemo(
+    () =>
+      (data?.taskRollups ?? []).map((rollup) => {
+        const assigned = normalizeNumber(rollup.types && (rollup.types as Record<string, unknown>).assigned);
+        const completed = normalizeNumber(rollup.types && (rollup.types as Record<string, unknown>).completed);
+        const failed = normalizeNumber(rollup.types && (rollup.types as Record<string, unknown>).failed);
+        const durationSampleCount = normalizeNumber(rollup.durationSampleCount);
+        const avgCompletionMins = durationSampleCount > 0
+          ? Math.round(normalizeNumber(rollup.durationMsTotal) / durationSampleCount / 60000)
+          : 0;
+        return {
+          id: rollup.id,
+          title: normalizeString(rollup.title, "Untitled task"),
+          assigned,
+          completed,
+          failed,
+          rewardTotal: normalizeNumber(rollup.rewardTotal),
+          avgCompletionMins,
+          completionRate: assigned > 0 ? Math.round((completed / assigned) * 100) : 0,
+          lastEventAt: normalizeNumber(rollup.lastEventAt),
+        };
+      }).sort((left, right) => right.completed - left.completed),
+    [data?.taskRollups],
   );
 
   const handleCreateTask = async () => {
@@ -105,6 +143,8 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
           subtitle,
           reward,
           maxProgress,
+          cooldownDays,
+          oneTime,
           eventName,
           actionType,
           ctaLabel,
@@ -124,6 +164,8 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
       setSubtitle("");
       setReward(150);
       setMaxProgress(1);
+      setCooldownDays(data?.defaultCooldownDays ?? 7);
+      setOneTime(false);
       setScope("global");
       setTargetUserId("");
       setEventName("experience_hub_viewed");
@@ -165,10 +207,10 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
     <div className="space-y-4">
       <TaskCard
         title="Task builder"
-        subtitle="Create global missions or target one user with a custom mission. These tasks stay inside the same daily rotation system."
+        subtitle="Create global or user-specific missions with reward, progress, cooldown, and one-time retirement controls."
         icon={Plus}
       >
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           <input
             value={title}
             onChange={(event) => setTitle(event.target.value)}
@@ -179,6 +221,12 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
             value={subtitle}
             onChange={(event) => setSubtitle(event.target.value)}
             placeholder="Task subtitle"
+            className="h-12 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none focus:border-brand-purple"
+          />
+          <input
+            value={ctaLabel}
+            onChange={(event) => setCtaLabel(event.target.value)}
+            placeholder="CTA label"
             className="h-12 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none focus:border-brand-purple"
           />
           <select
@@ -226,12 +274,6 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
             ))}
           </select>
           <input
-            value={ctaLabel}
-            onChange={(event) => setCtaLabel(event.target.value)}
-            placeholder="CTA label"
-            className="h-12 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none focus:border-brand-purple"
-          />
-          <input
             type="number"
             min={50}
             max={1000}
@@ -247,55 +289,98 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
             onChange={(event) => setMaxProgress(Number(event.target.value))}
             className="h-12 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none focus:border-brand-purple"
           />
+          <input
+            type="number"
+            min={1}
+            max={30}
+            value={cooldownDays}
+            onChange={(event) => setCooldownDays(Number(event.target.value))}
+            className="h-12 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none focus:border-brand-purple"
+          />
         </div>
 
-        <div className="mt-3 grid gap-3 sm:grid-cols-[auto_1fr]">
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => setScope("global")}
-              className={cn(
-                "rounded-full border px-4 py-2 text-sm font-bold transition-colors",
-                scope === "global" ? "border-brand-purple bg-brand-purple text-white" : "border-white/10 bg-white/5 text-gray-300",
-              )}
-            >
-              Global
-            </button>
-            <button
-              type="button"
-              onClick={() => setScope("user")}
-              className={cn(
-                "rounded-full border px-4 py-2 text-sm font-bold transition-colors",
-                scope === "user" ? "border-brand-purple bg-brand-purple text-white" : "border-white/10 bg-white/5 text-gray-300",
-              )}
-            >
-              Specific user
-            </button>
+        <div className="mt-4 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+          <div className="rounded-[1.4rem] border border-white/10 bg-black/25 p-4">
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Assignment scope</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setScope("global")}
+                className={cn(
+                  "rounded-full border px-4 py-2 text-sm font-bold transition-colors",
+                  scope === "global" ? "border-brand-purple bg-brand-purple text-white" : "border-white/10 bg-white/5 text-gray-300",
+                )}
+              >
+                Global rotation
+              </button>
+              <button
+                type="button"
+                onClick={() => setScope("user")}
+                className={cn(
+                  "rounded-full border px-4 py-2 text-sm font-bold transition-colors",
+                  scope === "user" ? "border-brand-purple bg-brand-purple text-white" : "border-white/10 bg-white/5 text-gray-300",
+                )}
+              >
+                Specific user
+              </button>
+            </div>
+
+            {scope === "user" ? (
+              <div className="mt-3 space-y-2">
+                <input
+                  list="task-target-users"
+                  value={targetUserId}
+                  onChange={(event) => setTargetUserId(event.target.value)}
+                  placeholder="Target user UID"
+                  className="h-12 w-full rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none focus:border-brand-purple"
+                />
+                <datalist id="task-target-users">
+                  {users.map((user) => (
+                    <option key={user.uid} value={user.uid}>
+                      {user.username ? `@${user.username}` : user.displayName || user.email || user.uid}
+                    </option>
+                  ))}
+                </datalist>
+                {targetUser ? (
+                  <p className="text-xs text-gray-400">
+                    Targeting {targetUser.username ? `@${targetUser.username}` : targetUser.displayName || targetUser.email || targetUser.uid}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
           </div>
 
-          {scope === "user" ? (
-            <div className="space-y-2">
-              <input
-                list="task-target-users"
-                value={targetUserId}
-                onChange={(event) => setTargetUserId(event.target.value)}
-                placeholder="Target user UID"
-                className="h-12 w-full rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none focus:border-brand-purple"
-              />
-              <datalist id="task-target-users">
-                {users.map((user) => (
-                  <option key={user.uid} value={user.uid}>
-                    {user.username ? `@${user.username}` : user.displayName || user.email || user.uid}
-                  </option>
-                ))}
-              </datalist>
-              {targetUser ? (
-                <p className="text-xs text-gray-400">
-                  Targeting {targetUser.username ? `@${targetUser.username}` : targetUser.displayName || targetUser.email || targetUser.uid}
-                </p>
-              ) : null}
+          <div className="rounded-[1.4rem] border border-white/10 bg-black/25 p-4">
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Rotation rules</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <span className="rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 text-xs font-bold text-white">
+                +{reward} GD
+              </span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-gray-200">
+                {maxProgress} step{maxProgress === 1 ? "" : "s"}
+              </span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-gray-200">
+                {cooldownDays} day cooldown
+              </span>
             </div>
-          ) : null}
+            <label className="mt-4 flex cursor-pointer items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+              <div>
+                <p className="text-sm font-bold text-white">One-time task</p>
+                <p className="text-xs leading-5 text-gray-400">Completing it retires it from future rotation for that user.</p>
+              </div>
+              <button
+                type="button"
+                aria-pressed={oneTime}
+                onClick={() => setOneTime((prev) => !prev)}
+                className={cn(
+                  "flex h-7 w-12 items-center rounded-full border px-1 transition-colors",
+                  oneTime ? "border-brand-purple bg-brand-purple/90 justify-end" : "border-white/10 bg-black/40 justify-start",
+                )}
+              >
+                <span className="h-5 w-5 rounded-full bg-white" />
+              </button>
+            </label>
+          </div>
         </div>
 
         <button
@@ -311,7 +396,7 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
 
       <TaskCard
         title="Custom task queue"
-        subtitle="Pause or reactivate custom missions without removing them from your historical task pool."
+        subtitle="Pause or reactivate custom tasks while keeping cooldown, reward, and performance context visible."
         icon={Target}
       >
         {isLoading ? (
@@ -339,12 +424,18 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
                         <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
                           {normalizeString(task.scope, "global")}
                         </span>
+                        {task.oneTime === true ? (
+                          <span className="rounded-full border border-emerald-400/25 bg-emerald-400/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-300">
+                            One time
+                          </span>
+                        ) : null}
                       </div>
                       <p className="mt-1 text-sm leading-6 text-gray-400">{normalizeString(task.subtitle)}</p>
                       <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-gray-400">
                         <span>{TELEMETRY_EVENT_LABELS[normalizeString(task.eventName)] || normalizeString(task.eventName)}</span>
                         <span>Reward: +{normalizeNumber(task.reward)} GD</span>
                         <span>Progress: {normalizeNumber(task.maxProgress, 1)}</span>
+                        <span>Cooldown: {normalizeNumber(task.cooldownDays, data?.defaultCooldownDays ?? 7)} days</span>
                         {normalizeString(task.targetUserId) ? <span>User: {normalizeString(task.targetUserId)}</span> : null}
                       </div>
                     </div>
@@ -369,42 +460,78 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
         )}
       </TaskCard>
 
-      <TaskCard
-        title="Event trigger visibility"
-        subtitle="This is the live server-side rollup of the telemetry events currently being seen across the product."
-        icon={Activity}
-      >
-        {(data?.eventStats?.length ?? 0) === 0 ? (
-          <p className="text-sm text-gray-400">No event activity has been recorded yet.</p>
-        ) : (
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {data?.eventStats.map((stat) => {
-              const label = TELEMETRY_EVENT_LABELS[normalizeString(stat.eventName)] || normalizeString(stat.eventName);
-              const lastSeenAt = normalizeNumber(stat.lastSeenAt);
-              return (
-                <div key={stat.id} className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
+      <div className="grid gap-4 xl:grid-cols-2">
+        <TaskCard
+          title="Task performance"
+          subtitle="Completion checks, failure pressure, and average completion time across the live task system."
+          icon={Trophy}
+        >
+          {(taskPerformance.length ?? 0) === 0 ? (
+            <p className="text-sm text-gray-400">No task performance data has been recorded yet.</p>
+          ) : (
+            <div className="grid gap-3">
+              {taskPerformance.slice(0, 8).map((task) => (
+                <div key={task.id} className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-sm font-bold text-white">{label}</p>
-                      <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-gray-500">{normalizeString(stat.eventName)}</p>
+                      <p className="text-sm font-bold text-white">{task.title}</p>
+                      <p className="mt-1 text-xs text-gray-500">Last activity {task.lastEventAt ? formatRelativeTime(task.lastEventAt) : "just now"}</p>
                     </div>
-                    <div className="rounded-full border border-brand-purple/30 bg-brand-purple/15 px-3 py-1 text-xs font-bold text-white">
-                      {normalizeNumber(stat.totalCount)}
+                    <span className="rounded-full border border-brand-purple/30 bg-brand-purple/15 px-3 py-1 text-xs font-bold text-white">
+                      {task.completionRate}% done
+                    </span>
+                  </div>
+                  <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-gray-300 sm:grid-cols-4">
+                    <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2">Assigned: {task.assigned}</div>
+                    <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2">Completed: {task.completed}</div>
+                    <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2">Failed: {task.failed}</div>
+                    <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2">
+                      {task.avgCompletionMins > 0 ? `${task.avgCompletionMins}m avg` : "No avg yet"}
                     </div>
                   </div>
-                  <p className="mt-3 text-xs text-gray-400">
-                    Last seen {lastSeenAt ? formatRelativeTime(lastSeenAt) : "never"}
-                  </p>
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </TaskCard>
+              ))}
+            </div>
+          )}
+        </TaskCard>
+
+        <TaskCard
+          title="Event trigger visibility"
+          subtitle="Live rollup of the telemetry triggers currently feeding the daily task engine."
+          icon={Activity}
+        >
+          {(data?.eventStats?.length ?? 0) === 0 ? (
+            <p className="text-sm text-gray-400">No event activity has been recorded yet.</p>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2">
+              {data?.eventStats.slice(0, 12).map((stat) => {
+                const label = TELEMETRY_EVENT_LABELS[normalizeString(stat.eventName)] || normalizeString(stat.eventName);
+                const lastSeenAt = normalizeNumber(stat.lastSeenAt);
+                return (
+                  <div key={stat.id} className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-bold text-white">{label}</p>
+                        <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-gray-500">{normalizeString(stat.eventName)}</p>
+                      </div>
+                      <div className="rounded-full border border-brand-purple/30 bg-brand-purple/15 px-3 py-1 text-xs font-bold text-white">
+                        {normalizeNumber(stat.totalCount)}
+                      </div>
+                    </div>
+                    <p className="mt-3 text-xs text-gray-400">
+                      Last seen {lastSeenAt ? formatRelativeTime(lastSeenAt) : "never"}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </TaskCard>
+      </div>
 
       <TaskCard
         title="Task lifecycle feed"
-        subtitle="Recent task assignments, starts, and completions from the current live task engine."
+        subtitle="Recent assignments, starts, completions, failures, and reminder sends from the current task engine."
         icon={CheckCircle2}
       >
         {(data?.recentTaskEvents?.length ?? 0) === 0 ? (
@@ -418,6 +545,12 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
                     {normalizeString(event.type)}
                   </span>
                   <span className="text-sm font-bold text-white">{normalizeString(event.title, "Untitled task")}</span>
+                  {normalizeNumber(event.durationMs) > 0 ? (
+                    <span className="inline-flex items-center gap-1 text-xs text-gray-400">
+                      <Clock3 className="h-3.5 w-3.5" />
+                      {Math.round(normalizeNumber(event.durationMs) / 60000)}m
+                    </span>
+                  ) : null}
                 </div>
                 <div className="mt-2 flex flex-wrap gap-3 text-xs text-gray-400">
                   <span>User: {normalizeString(event.username) || normalizeString(event.userId)}</span>
@@ -431,6 +564,20 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
           </div>
         )}
       </TaskCard>
+
+      <div className="rounded-[1.8rem] border border-white/10 bg-[linear-gradient(135deg,rgba(178,140,255,0.12),rgba(0,0,0,0.65))] p-4 sm:p-5">
+        <div className="flex items-start gap-3">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-brand-purple/25 bg-brand-purple/15 text-white">
+            <Repeat className="h-5 w-5" />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-white">Rotation rules now supported</h3>
+            <p className="mt-1 text-sm leading-6 text-gray-300">
+              Cooldowns stay configurable per task, completions are tracked in the lifecycle feed, and one-time tasks can retire forever once a user clears them.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -159,13 +159,31 @@ function pickTasksForCycle(
   definitions: DailyTaskDefinition[],
   history: Record<string, number>,
   nowMs: number,
+  userData: UserProfile,
+  retiredTaskIds: string[],
 ): DailyTaskDefinition[] {
-  const eligible = definitions.filter((task) => {
+  const basePool = definitions.filter((task) => {
+    if (retiredTaskIds.includes(task.id)) {
+      return false;
+    }
+
+    if (task.oneTime && (history[task.id] ?? 0) > 0) {
+      return false;
+    }
+
+    if (task.actionType === "enable_notifications" && userData.notificationSettings?.browserPushEnabled === true) {
+      return false;
+    }
+
+    return true;
+  });
+
+  const eligible = basePool.filter((task) => {
     const lastCompletedAt = history[task.id] ?? 0;
     return nowMs - lastCompletedAt >= getCooldownMs(task);
   });
 
-  const pool = eligible.length >= DAILY_TASK_LIMIT ? eligible : definitions;
+  const pool = eligible.length >= DAILY_TASK_LIMIT ? eligible : basePool;
   const prioritized = shuffle(pool.filter((task) => task.source !== "built_in"));
   const builtIns = shuffle(pool.filter((task) => task.source === "built_in"));
   const selected: DailyTaskDefinition[] = [];
@@ -291,6 +309,7 @@ async function fetchCustomTaskDefinitions(uid: string): Promise<DailyTaskDefinit
       icon: data.icon as DailyTaskIconName,
       group: data.group as DailyTaskGroup,
       cooldownDays: Number.isFinite(data.cooldownDays) ? Number(data.cooldownDays) : DAILY_TASK_COOLDOWN_DAYS,
+      oneTime: data.oneTime === true,
       active: data.active === true,
       targetUserId: typeof data.targetUserId === "string" ? data.targetUserId : null,
       customTaskId: doc.id,
@@ -334,6 +353,7 @@ function normalizeTaskState(
     lastResetMs: Number.isFinite(currentState?.lastResetMs) ? Number(currentState?.lastResetMs) : 0,
     nextRefreshMs: Number.isFinite(currentState?.nextRefreshMs) ? Number(currentState?.nextRefreshMs) : 0,
     tasks,
+    retiredTaskIds: normalizeStringArray(currentState?.retiredTaskIds),
     completedTaskHistory: normalizeHistory(currentState?.completedTaskHistory),
     lastProgressAt: Number.isFinite(currentState?.lastProgressAt) ? Number(currentState?.lastProgressAt) : 0,
     lastDeadlineReminderAt: Number.isFinite(currentState?.lastDeadlineReminderAt)
@@ -376,9 +396,16 @@ function buildRotatedState(
   nowMs: number,
   rotationReason: RotationReason,
   failedTasks: DailyTaskAssignment[],
+  userData: UserProfile,
 ): TaskStateBuildResult {
   const { endOfDay } = getCSTDayBoundaries(nowMs);
-  const selectedDefinitions = pickTasksForCycle(definitions, normalizedState.completedTaskHistory ?? {}, nowMs);
+  const selectedDefinitions = pickTasksForCycle(
+    definitions,
+    normalizedState.completedTaskHistory ?? {},
+    nowMs,
+    userData,
+    normalizedState.retiredTaskIds ?? [],
+  );
   const tasks = selectedDefinitions.map((task) => hydrateAssignment(task, nowMs));
 
   return {
@@ -390,6 +417,7 @@ function buildRotatedState(
       lastResetMs: nowMs,
       nextRefreshMs: endOfDay,
       tasks,
+      retiredTaskIds: normalizedState.retiredTaskIds ?? [],
       completedTaskHistory: normalizedState.completedTaskHistory ?? {},
       lastProgressAt: nowMs,
       lastDeadlineReminderAt: normalizedState.lastDeadlineReminderAt ?? 0,
@@ -412,7 +440,7 @@ export function buildFreshTaskState(
   const { endOfDay } = getCSTDayBoundaries(nowMs);
 
   if (normalizedState.tasks.length === 0) {
-    return buildRotatedState(normalizedState, definitions, nowMs, "initial", []);
+    return buildRotatedState(normalizedState, definitions, nowMs, "initial", [], userData);
   }
 
   if (hasMissedDailyProgressWindow(normalizedState, userData, nowMs)) {
@@ -422,11 +450,12 @@ export function buildFreshTaskState(
       nowMs,
       "missed_progress",
       normalizedState.tasks.filter((task) => !task.claimed),
+      userData,
     );
   }
 
   if (shouldRotateCompletedCycle(normalizedState, nowMs)) {
-    return buildRotatedState(normalizedState, definitions, nowMs, "cycle_complete", []);
+    return buildRotatedState(normalizedState, definitions, nowMs, "cycle_complete", [], userData);
   }
 
   return {
@@ -764,16 +793,21 @@ export async function recordDailyTaskProgressFromEvent(
     const completedTaskHistory = {
       ...(result.state.completedTaskHistory ?? {}),
     };
+    const retiredTaskIds = new Set(result.state.retiredTaskIds ?? []);
 
     updatedTasks.forEach((task) => {
       if (task.claimed && task.claimedAt) {
         completedTaskHistory[task.id] = task.claimedAt;
+        if (task.oneTime) {
+          retiredTaskIds.add(task.id);
+        }
       }
     });
 
     const nextState: DailyTasksState = {
       ...result.state,
       tasks: updatedTasks,
+      retiredTaskIds: Array.from(retiredTaskIds),
       completedTaskHistory,
       lastProgressAt: nowMs,
     };

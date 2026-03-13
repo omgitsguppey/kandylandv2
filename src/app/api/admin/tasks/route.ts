@@ -18,6 +18,8 @@ const taskSchema = z.object({
   subtitle: z.string().min(8).max(160),
   reward: z.number().int().min(DAILY_TASK_MIN_REWARD).max(DAILY_TASK_MAX_REWARD),
   maxProgress: z.number().int().min(1).max(10),
+  cooldownDays: z.number().int().min(1).max(30),
+  oneTime: z.boolean().optional().default(false),
   eventName: z.string().min(1),
   actionType: z.enum(DAILY_TASK_ACTION_OPTIONS.map((option) => option.value) as [string, ...string[]]),
   ctaLabel: z.string().min(2).max(32),
@@ -37,21 +39,24 @@ export async function GET(request: NextRequest) {
     await checkRateLimit(request, "admin/tasks", ADMIN);
     await verifyAdmin(request);
 
-    const [taskSnapshot, taskEventsSnapshot, eventStatsSnapshot] = await Promise.all([
+    const [taskSnapshot, taskEventsSnapshot, eventStatsSnapshot, taskRollupSnapshot] = await Promise.all([
       adminDb.collection("daily_task_definitions").orderBy("createdAt", "desc").limit(100).get(),
       adminDb.collection("daily_task_events").orderBy("timestamp", "desc").limit(60).get(),
       adminDb.collection("analytics_event_stats").orderBy("lastSeenAt", "desc").limit(80).get(),
+      adminDb.collection("analytics_task_rollup").orderBy("lastEventAt", "desc").limit(60).get(),
     ]);
 
     const customTasks = taskSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     const recentTaskEvents = taskEventsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     const eventStats = eventStatsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const taskRollups = taskRollupSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
     return NextResponse.json({
       success: true,
       customTasks,
       recentTaskEvents,
       eventStats,
+      taskRollups,
       eventOptions: TELEMETRY_EVENT_OPTIONS,
       actionOptions: DAILY_TASK_ACTION_OPTIONS,
       iconOptions: DAILY_TASK_ICON_OPTIONS,
@@ -81,7 +86,8 @@ export async function POST(request: NextRequest) {
       ...parsed,
       source: parsed.scope,
       active: true,
-      cooldownDays: DAILY_TASK_COOLDOWN_DAYS,
+      cooldownDays: parsed.cooldownDays,
+      oneTime: parsed.oneTime,
       targetUserId: parsed.scope === "user" ? parsed.targetUserId ?? null : null,
       createdAt: nowMs,
       updatedAt: nowMs,

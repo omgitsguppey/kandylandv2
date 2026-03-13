@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { collection, onSnapshot, orderBy, query, QueryDocumentSnapshot, DocumentData } from "firebase/firestore";
 import Link from "next/link";
 import Image from "next/image";
-import { CheckCircle2, Search, User, UserX } from "lucide-react";
+import { CheckCircle2, Search, User, UserX, Sparkles, Users, HeartHandshake, Wand2 } from "lucide-react";
 import { db } from "@/lib/firebase-data";
 import { authFetch } from "@/lib/authFetch";
 import { useAuth } from "@/context/AuthContext";
@@ -139,6 +139,10 @@ export default function AdminRosterPage() {
 
     const visibleUsers = useMemo(() => filteredUsers.slice(0, visibleCount), [filteredUsers, visibleCount]);
     const hasMore = visibleCount < filteredUsers.length;
+    const creatorUsers = useMemo(
+        () => users.filter((entry) => entry.role === "creator" || entry.role === "admin"),
+        [users],
+    );
 
     const handleRoleUpdate = async (uid: string, role: RosterRole) => {
         try {
@@ -178,7 +182,7 @@ export default function AdminRosterPage() {
             <AdminPageHeader
                 eyebrow="Admin Roster"
                 title="Roster"
-                subtitle="Manage user roles and review account status."
+                subtitle="Manage the creator roster today while prepping the pipeline for creator onboarding, follow systems, and roster-led drop programming."
                 actions={
                 <div className="relative w-full sm:w-80">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
@@ -192,6 +196,68 @@ export default function AdminRosterPage() {
                 </div>
                 }
             />
+
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Creators on roster</p>
+                    <p className="mt-2 text-3xl font-black text-white">{creatorUsers.length}</p>
+                    <p className="mt-1 text-xs text-gray-400">Accounts already positioned for creator-facing experiences.</p>
+                </div>
+                <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Verified roster</p>
+                    <p className="mt-2 text-3xl font-black text-white">{creatorUsers.filter((entry) => entry.isVerified).length}</p>
+                    <p className="mt-1 text-xs text-gray-400">Verified talent with public-facing trust signals.</p>
+                </div>
+                <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Active creators</p>
+                    <p className="mt-2 text-3xl font-black text-white">{creatorUsers.filter((entry) => entry.status === "active").length}</p>
+                    <p className="mt-1 text-xs text-gray-400">Ready for onboarding connections and future follow prompts.</p>
+                </div>
+                <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Scouting pool</p>
+                    <p className="mt-2 text-3xl font-black text-white">{users.filter((entry) => entry.role === "user").length}</p>
+                    <p className="mt-1 text-xs text-gray-400">Potential accounts that could be promoted into the creator roster.</p>
+                </div>
+            </div>
+
+            <div className="grid gap-4 xl:grid-cols-3">
+                {[
+                    {
+                        icon: Sparkles,
+                        title: "Creator onboarding pipeline",
+                        copy: "Work in progress. This panel will map invite status, onboarding milestones, verification, and readiness for first-drop setup.",
+                    },
+                    {
+                        icon: HeartHandshake,
+                        title: "Social + follow graph",
+                        copy: "Work in progress. This panel will track fan follows, creator affinity, social prompts, and follow-driven retention loops.",
+                    },
+                    {
+                        icon: Wand2,
+                        title: "Creator experiences + drops",
+                        copy: "Work in progress. This panel will coordinate creator-specific experiences, drop calendars, and roster programming.",
+                    },
+                ].map((item) => {
+                    const Icon = item.icon;
+                    return (
+                        <div key={item.title} className="glass-panel rounded-[1.8rem] border border-white/10 p-5">
+                            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
+                                <Users className="h-3.5 w-3.5" />
+                                Work in progress
+                            </div>
+                            <div className="flex items-start gap-3">
+                                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-brand-purple/25 bg-brand-purple/15 text-white">
+                                    <Icon className="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-bold text-white">{item.title}</h3>
+                                    <p className="mt-2 text-sm leading-6 text-gray-400">{item.copy}</p>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
 
             <div className="rounded-2xl overflow-hidden">
                 {loading ? (

@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { collection, query, orderBy, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
 import { UserProfile } from "@/types/db";
-import { Loader2, Search, Shield, Ban, CheckCircle, AlertTriangle, Edit2, Lock, Plus, ScrollText, MessageSquare, DollarSign } from "lucide-react";
+import { Loader2, Search, Shield, Ban, CheckCircle, AlertTriangle, Edit2, Lock, Plus, ScrollText, MessageSquare, DollarSign, TrendingUp, Users, Bell, Clock3 } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import { format } from "date-fns";
@@ -15,9 +16,50 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { AdminTasksManager } from "@/components/Admin/AdminTasksManager";
+import { toast } from "sonner";
+
+type UserAnalytics = {
+    uid: string;
+    username: string;
+    eventCount: number;
+    sessionCount: number;
+    unwrapCount: number;
+    purchaseCount: number;
+    watchSecondsTotal: number;
+    watchHours: number;
+    avgLoadMs: number;
+    lastSeenAt: number;
+};
+
+type UsersSummary = {
+    totalUsers: number;
+    totalCreators: number;
+    totalAdmins: number;
+    verifiedUsers: number;
+    activeUsers: number;
+    suspendedUsers: number;
+    bannedUsers: number;
+    notificationsEnabledUsers: number;
+    onboardingCompletedUsers: number;
+    activeLast7Days: number;
+    totalEvents: number;
+    totalUnwraps: number;
+    totalPurchases: number;
+    totalWatchHours: number;
+};
+
+type AdminUsersResponse = {
+    success: boolean;
+    users: UserProfile[];
+    analyticsByUser: Record<string, UserAnalytics>;
+    summary: UsersSummary;
+    error?: string;
+};
 
 export default function UserManagementPage() {
     const [users, setUsers] = useState<UserProfile[]>([]);
+    const [userAnalytics, setUserAnalytics] = useState<Record<string, UserAnalytics>>({});
+    const [summary, setSummary] = useState<UsersSummary | null>(null);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
     const [actionUser, setActionUser] = useState<UserProfile | null>(null);
@@ -42,15 +84,18 @@ export default function UserManagementPage() {
     const fetchUsers = async () => {
         setLoading(true);
         try {
-            const q = query(collection(db, "users"), orderBy("createdAt", "desc"));
-            const querySnapshot = await getDocs(q);
-            const fetchedUsers: UserProfile[] = [];
-            querySnapshot.forEach((doc) => {
-                fetchedUsers.push(doc.data() as UserProfile);
-            });
-            setUsers(fetchedUsers);
+            const response = await authFetch("/api/admin/users");
+            const result = await response.json() as AdminUsersResponse;
+            if (!response.ok || !result.success) {
+                throw new Error(result.error || "Failed to load users");
+            }
+
+            setUsers(result.users || []);
+            setUserAnalytics(result.analyticsByUser || {});
+            setSummary(result.summary || null);
         } catch (error) {
             console.error("Error fetching users:", error);
+            toast.error(error instanceof Error ? error.message : "Failed to load users");
         } finally {
             setLoading(false);
         }
@@ -82,8 +127,18 @@ export default function UserManagementPage() {
     const filteredUsers = users.filter(user =>
     (user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.displayName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.uid.includes(searchQuery))
     );
+
+    const getUserAnalytics = (uid: string) => userAnalytics[uid];
+
+    const formatLastSeen = (timestamp?: number) =>
+        timestamp && timestamp > 0 ? `Seen ${format(new Date(timestamp), 'MMM d, h:mm a')}` : "No tracked activity";
+
+    const topTrackedUsers = [...filteredUsers]
+        .sort((left, right) => (getUserAnalytics(right.uid)?.eventCount || 0) - (getUserAnalytics(left.uid)?.eventCount || 0))
+        .slice(0, 3);
 
     const handleUpdateStatus = async () => {
         if (!actionUser || !actionType) return;
@@ -115,7 +170,7 @@ export default function UserManagementPage() {
             setReason("");
         } catch (error: any) {
             console.error("Error updating user status:", error);
-            alert(error.message || "Failed to update user status.");
+            toast.error(error.message || "Failed to update user status.");
         } finally {
             setProcessing(false);
         }
@@ -131,7 +186,7 @@ export default function UserManagementPage() {
         setContentActionProcessing(true);
         try {
             if (action === 'add' && contentUser.unlockedContent?.includes(dropId)) {
-                alert("User already has this content unlocked.");
+                toast.error("User already has this content unlocked.");
                 setContentActionProcessing(false);
                 return;
             }
@@ -153,7 +208,7 @@ export default function UserManagementPage() {
             setContentInput("");
         } catch (error: any) {
             console.error("Error managing content:", error);
-            alert(error.message || "Failed to update content access.");
+            toast.error(error.message || "Failed to update content access.");
         } finally {
             setContentActionProcessing(false);
         }
@@ -170,10 +225,10 @@ export default function UserManagementPage() {
             if (!response.ok) throw new Error(result.error);
             // Update local state
             setUsers(users.map(u => u.uid === uid ? { ...u, role: newRole } : u));
-            alert(`Role updated to ${newRole}`);
+            toast.success(`Role updated to ${newRole}`);
         } catch (error: any) {
             console.error(error);
-            alert(error.message || "Failed to update role");
+            toast.error(error.message || "Failed to update role");
         }
     };
 
@@ -189,7 +244,7 @@ export default function UserManagementPage() {
             setUsers(users.map(u => u.uid === uid ? { ...u, isVerified } : u));
         } catch (error: any) {
             console.error(error);
-            alert(error.message || "Failed to update verification");
+            toast.error(error.message || "Failed to update verification");
         }
     };
 
@@ -246,15 +301,64 @@ export default function UserManagementPage() {
 
             {viewMode === 'users' && (
                 <>
-                    <div className="glass-panel p-2 rounded-xl flex items-center gap-3 border border-white/5">
-                        <Search className="w-5 h-5 text-gray-500 ml-2" />
-                        <input
-                            type="text"
-                            placeholder="Search users by email, name, or ID..."
-                            className="bg-transparent border-none outline-none text-white w-full h-10 placeholder:text-gray-600"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
+                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                        <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
+                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">User base</p>
+                            <p className="mt-2 text-3xl font-black text-white">{summary?.totalUsers || 0}</p>
+                            <p className="mt-1 text-xs text-gray-400">{summary?.activeUsers || 0} active, {summary?.verifiedUsers || 0} verified</p>
+                        </div>
+                        <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
+                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">7 day returners</p>
+                            <p className="mt-2 text-3xl font-black text-white">{summary?.activeLast7Days || 0}</p>
+                            <p className="mt-1 text-xs text-gray-400">{summary?.notificationsEnabledUsers || 0} with notifications on</p>
+                        </div>
+                        <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
+                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Tracked unwraps</p>
+                            <p className="mt-2 text-3xl font-black text-white">{summary?.totalUnwraps || 0}</p>
+                            <p className="mt-1 text-xs text-gray-400">{summary?.totalPurchases || 0} tracked purchases</p>
+                        </div>
+                        <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
+                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Watch time</p>
+                            <p className="mt-2 text-3xl font-black text-white">{summary?.totalWatchHours || 0}h</p>
+                            <p className="mt-1 text-xs text-gray-400">{summary?.onboardingCompletedUsers || 0} users completed onboarding</p>
+                        </div>
+                    </div>
+
+                    <div className="grid gap-4 xl:grid-cols-[1.35fr_0.65fr]">
+                        <div className="glass-panel p-2 rounded-xl flex items-center gap-3 border border-white/5">
+                            <Search className="w-5 h-5 text-gray-500 ml-2" />
+                            <input
+                                type="text"
+                                placeholder="Search users by email, name, username, or ID..."
+                                className="bg-transparent border-none outline-none text-white w-full h-10 placeholder:text-gray-600"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                        </div>
+
+                        <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
+                            <div className="flex items-center gap-2 text-sm font-bold text-white">
+                                <TrendingUp className="w-4 h-4 text-brand-purple" />
+                                Most engaged right now
+                            </div>
+                            <div className="mt-3 grid gap-2">
+                                {topTrackedUsers.length === 0 ? (
+                                    <p className="text-sm text-gray-400">No tracked engagement yet.</p>
+                                ) : topTrackedUsers.map((user) => (
+                                    <div key={user.uid} className="rounded-2xl border border-white/10 bg-black/25 px-3 py-3">
+                                        <div className="flex items-center justify-between gap-3">
+                                            <div className="min-w-0">
+                                                <p className="truncate text-sm font-bold text-white">{user.username ? `@${user.username}` : user.displayName || user.email || user.uid}</p>
+                                                <p className="text-xs text-gray-500">{getUserAnalytics(user.uid)?.eventCount || 0} tracked actions</p>
+                                            </div>
+                                            <Link href={`/admin/user/${user.uid}`} className="text-xs font-bold text-brand-purple hover:underline">
+                                                Open
+                                            </Link>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     </div>
 
                     {/* Desktop Users Table */}
@@ -267,6 +371,7 @@ export default function UserManagementPage() {
                                         <th className="p-4 font-medium">Role</th>
                                         <th className="p-4 font-medium">Status</th>
                                         <th className="p-4 font-medium">Balance</th>
+                                        <th className="p-4 font-medium">Analytics</th>
                                         <th className="p-4 font-medium">Joined</th>
                                         <th className="p-4 font-medium">Security</th>
                                         <th className="p-4 font-medium text-right">Actions</th>
@@ -275,13 +380,13 @@ export default function UserManagementPage() {
                                 <tbody className="divide-y divide-white/5">
                                     {loading ? (
                                         <tr>
-                                            <td colSpan={7} className="p-8 text-center">
+                                            <td colSpan={8} className="p-8 text-center">
                                                 <Loader2 className="w-6 h-6 text-brand-purple animate-spin mx-auto" />
                                             </td>
                                         </tr>
                                     ) : filteredUsers.length === 0 ? (
                                         <tr>
-                                            <td colSpan={7} className="p-8 text-center text-gray-500">
+                                            <td colSpan={8} className="p-8 text-center text-gray-500">
                                                 No users found matching &quot;{searchQuery}&quot;
                                             </td>
                                         </tr>
@@ -321,13 +426,31 @@ export default function UserManagementPage() {
                                                 </td>
                                                 <td className="p-4 font-mono text-brand-purple">
                                                     <div className="flex items-center gap-2">
-                                                        {user.gumDropsBalance} 🍬
+                                                        {user.gumDropsBalance} GD
                                                         <button onClick={() => setEditBalanceUser(user)} className="p-1 rounded-md text-gray-500 hover:text-white transition-colors" title="Edit Balance"><Edit2 className="w-3 h-3" /></button>
                                                         <button onClick={() => setHistoryUser(user)} className="p-1 rounded-md text-gray-500 hover:text-white transition-colors" title="View History"><ScrollText className="w-3 h-3" /></button>
+                                                    </div>
+                                                    <div className="mt-2 flex flex-wrap gap-2 text-[10px] text-gray-500">
+                                                        <span>{user.unlockedContent?.length || 0} unlocked</span>
+                                                        <span>{user.notificationSettings?.browserPushEnabled ? "Push on" : "Push off"}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="p-4 text-sm">
+                                                    <div className="space-y-2">
+                                                        <div className="rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-xs text-white">
+                                                            {getUserAnalytics(user.uid)?.eventCount || 0} events
+                                                        </div>
+                                                        <div className="rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-xs text-white">
+                                                            {getUserAnalytics(user.uid)?.unwrapCount || 0} unwraps · {getUserAnalytics(user.uid)?.purchaseCount || 0} purchases
+                                                        </div>
+                                                        <div className="text-[10px] text-gray-500">
+                                                            {getUserAnalytics(user.uid)?.watchHours || 0}h watch · avg {getUserAnalytics(user.uid)?.avgLoadMs || 0}ms
+                                                        </div>
                                                     </div>
                                                 </td>
                                                 <td className="p-4 text-gray-500 text-sm">
                                                     {format((user.createdAt as any)?.toMillis?.() || user.createdAt || Date.now(), 'MMM d, yyyy')}
+                                                    <div className="mt-2 text-[10px] text-gray-500">{formatLastSeen(getUserAnalytics(user.uid)?.lastSeenAt)}</div>
                                                 </td>
                                                 <td className="p-4 text-sm">
                                                     {(user.securityFlags?.ripAttempts ?? 0) > 0 ? (
@@ -355,6 +478,9 @@ export default function UserManagementPage() {
                                                         >
                                                             <CheckCircle className="w-3 h-3" />
                                                         </button>
+                                                        <Link href={`/admin/user/${user.uid}`} className="p-1.5 rounded text-brand-purple transition-colors" title="Analytics">
+                                                            <TrendingUp className="w-3 h-3" />
+                                                        </Link>
                                                         <div className="w-px h-4 bg-white/10 mx-1" />
                                                         {(!user.status || user.status === 'active') ? (
                                                             <>
@@ -421,20 +547,51 @@ export default function UserManagementPage() {
                                     </div>
 
                                     {/* Metrics / Quick Stats */}
-                                    <div className="grid grid-cols-2 gap-3 p-3 bg-black/40 rounded-xl border border-white/5">
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-xs text-gray-500 font-bold uppercase"><ScrollText className="w-3 h-3 inline mr-1" />Joined</span>
-                                            <span className="text-sm font-mono text-gray-300">
-                                                {format((user.createdAt as any)?.toMillis?.() || user.createdAt || Date.now(), 'MM/dd/yy')}
+                                        <div className="grid grid-cols-2 gap-3 p-3 bg-black/40 rounded-xl border border-white/5">
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-xs text-gray-500 font-bold uppercase"><ScrollText className="w-3 h-3 inline mr-1" />Joined</span>
+                                                <span className="text-sm font-mono text-gray-300">
+                                                    {format((user.createdAt as any)?.toMillis?.() || user.createdAt || Date.now(), 'MM/dd/yy')}
                                             </span>
                                         </div>
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-xs text-gray-500 font-bold uppercase"><DollarSign className="w-3 h-3 inline mr-1" />Balance</span>
-                                            <span className="text-sm font-mono text-brand-purple font-bold">
-                                                {user.gumDropsBalance} 🍬
-                                            </span>
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-xs text-gray-500 font-bold uppercase"><DollarSign className="w-3 h-3 inline mr-1" />Balance</span>
+                                                <span className="text-sm font-mono text-brand-purple font-bold">
+                                                    {user.gumDropsBalance} GD
+                                                </span>
+                                            </div>
                                         </div>
-                                    </div>
+
+                                        <div className="grid grid-cols-2 gap-3 p-3 bg-black/25 rounded-xl border border-white/5">
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-xs text-gray-500 font-bold uppercase"><Users className="w-3 h-3 inline mr-1" />Events</span>
+                                                <span className="text-sm font-mono text-gray-300">
+                                                    {getUserAnalytics(user.uid)?.eventCount || 0}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-xs text-gray-500 font-bold uppercase"><TrendingUp className="w-3 h-3 inline mr-1" />Unwraps</span>
+                                                <span className="text-sm font-mono text-gray-300">
+                                                    {getUserAnalytics(user.uid)?.unwrapCount || 0}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-xs text-gray-500 font-bold uppercase"><Clock3 className="w-3 h-3 inline mr-1" />Watch</span>
+                                                <span className="text-sm font-mono text-gray-300">
+                                                    {getUserAnalytics(user.uid)?.watchHours || 0}h
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-xs text-gray-500 font-bold uppercase"><Bell className="w-3 h-3 inline mr-1" />Push</span>
+                                                <span className="text-sm font-mono text-gray-300">
+                                                    {user.notificationSettings?.browserPushEnabled ? "On" : "Off"}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="text-[10px] text-gray-500 -mt-1">
+                                            {formatLastSeen(getUserAnalytics(user.uid)?.lastSeenAt)}
+                                        </div>
 
                                     {/* Security Flag (Full Width Button if flags exist) */}
                                     {(user.securityFlags?.ripAttempts ?? 0) > 0 ? (
@@ -469,6 +626,11 @@ export default function UserManagementPage() {
                                             <span className="text-[10px] font-bold uppercase tracking-wider">Ban</span>
                                         </button>
                                     </div>
+
+                                    <Link href={`/admin/user/${user.uid}`} className="flex items-center justify-center gap-2 rounded-xl border border-brand-purple/25 bg-brand-purple/10 px-4 py-3 text-xs font-bold uppercase tracking-wider text-brand-purple">
+                                        <TrendingUp className="w-4 h-4" />
+                                        View Analytics
+                                    </Link>
 
                                     {/* Sub Actions (Roles & Verification) */}
                                     <div className="flex gap-2 w-full pt-1">

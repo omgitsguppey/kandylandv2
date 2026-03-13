@@ -64,6 +64,7 @@ export interface DailyTaskDefinition {
   icon: DailyTaskIconName;
   group: DailyTaskGroup;
   cooldownDays?: number;
+  oneTime?: boolean;
   criteria?: DailyTaskCriteria;
   uniqueByParamKey?: string;
   targetUserId?: string | null;
@@ -87,6 +88,7 @@ export interface DailyTasksState {
   nextRefreshMs: number;
   tasks: DailyTaskAssignment[];
   completedTaskHistory?: Record<string, number>;
+  retiredTaskIds?: string[];
   lastProgressAt?: number;
   lastDeadlineReminderAt?: number;
 }
@@ -160,6 +162,7 @@ export const BUILT_IN_DAILY_TASKS: DailyTaskDefinition[] = [
     ctaLabel: "Enable notifications",
     icon: "bell",
     group: "notifications",
+    oneTime: true,
   }),
   createTask({
     id: "open_notifications",

@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
-  Candy,
   Check,
   Clock3,
   Gift,
@@ -70,7 +69,7 @@ export function HowItWorksStory({ steps }: HowItWorksStoryProps) {
   };
 
   return (
-    <section className="mb-8 space-y-4 sm:mb-14 sm:space-y-6">
+    <section className="mb-8 space-y-3.5 sm:mb-14 sm:space-y-6">
       <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-2 sm:overflow-x-auto sm:pb-1 no-scrollbar">
         {steps.map((step, index) => {
           const isActive = step.id === activeStep.id;
@@ -82,7 +81,7 @@ export function HowItWorksStory({ steps }: HowItWorksStoryProps) {
               type="button"
               onClick={() => setActiveStepId(step.id)}
               className={cn(
-                "relative min-w-0 rounded-[1.25rem] border px-3.5 py-2.5 text-left transition-all sm:shrink-0 sm:rounded-full sm:px-4 sm:py-2",
+                "relative min-w-0 rounded-[1.15rem] border px-3 py-2.5 text-left transition-all sm:shrink-0 sm:rounded-full sm:px-4 sm:py-2",
                 isLastOddItem && "col-span-2",
                 isActive
                   ? "border-brand-purple/40 bg-brand-purple/15 text-white shadow-[0_0_25px_rgba(164,118,255,0.18)]"
@@ -104,7 +103,7 @@ export function HowItWorksStory({ steps }: HowItWorksStoryProps) {
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, ease: "easeOut" }}
-          className="rounded-[1.75rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(164,118,255,0.18),transparent_52%)] bg-[#08080D] p-3.5 shadow-[0_25px_70px_rgba(0,0,0,0.45)] sm:rounded-[2rem] sm:p-4"
+          className="rounded-[1.6rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(164,118,255,0.18),transparent_52%)] bg-[#08080D] p-3 shadow-[0_25px_70px_rgba(0,0,0,0.45)] sm:rounded-[2rem] sm:p-4"
         >
           <StoryVisual stepId={activeStep.id} />
         </motion.div>
@@ -114,7 +113,7 @@ export function HowItWorksStory({ steps }: HowItWorksStoryProps) {
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, ease: "easeOut" }}
-          className="rounded-[1.75rem] border border-white/10 bg-white/[0.03] p-4 shadow-xl shadow-black/25 sm:rounded-[2rem] sm:p-5"
+          className="rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-3.5 shadow-xl shadow-black/25 sm:rounded-[2rem] sm:p-5"
         >
           <p className="text-[11px] font-black uppercase tracking-[0.22em] text-brand-purple">{activeStep.eyebrow}</p>
           <h2 className="mt-3 text-[1.75rem] font-black tracking-tight text-white max-[360px]:text-[1.55rem] sm:text-3xl">{activeStep.title}</h2>
@@ -174,8 +173,8 @@ export function HowItWorksStory({ steps }: HowItWorksStoryProps) {
 function StoryVisual({ stepId }: { stepId: HowItWorksStep["id"] }) {
   if (stepId === "join") {
     return (
-      <div className="space-y-4">
-        <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3">
+      <div className="space-y-3">
+        <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.03] px-3.5 py-3">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-purple/80">Free profile</p>
             <p className="text-lg font-bold text-white">Start your stash</p>
@@ -184,21 +183,21 @@ function StoryVisual({ stepId }: { stepId: HowItWorksStep["id"] }) {
             Mobile first
           </div>
         </div>
-        <div className="grid gap-3 rounded-[1.75rem] border border-white/10 bg-black/50 p-3.5 sm:grid-cols-[1.05fr_0.95fr] sm:p-4">
-          <div className="rounded-[1.5rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(164,118,255,0.12),transparent_55%)] p-4">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-brand-purple/20 bg-brand-purple/10 px-3 py-1 text-xs font-bold text-brand-purple">
+        <div className="grid gap-3 rounded-[1.55rem] border border-white/10 bg-black/50 p-3 sm:grid-cols-[1.02fr_0.98fr] sm:p-4">
+          <div className="rounded-[1.35rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(164,118,255,0.12),transparent_55%)] p-3.5">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-brand-purple/20 bg-brand-purple/10 px-3 py-1 text-xs font-bold text-brand-purple">
               <Sparkles className="h-3.5 w-3.5" />
               Welcome to KandyDrops
             </div>
-            <div className="space-y-3">
-              {["Email", "Password", "Day 1 ready"].map((item) => (
-                <div key={item} className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm font-medium text-gray-200">
+            <div className="space-y-2.5">
+              {["Email address", "Password", "Day 1 ready"].map((item) => (
+                <div key={item} className="rounded-2xl border border-white/10 bg-white/[0.03] px-3.5 py-3 text-sm font-medium text-gray-200">
                   {item}
                 </div>
               ))}
             </div>
           </div>
-          <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-4">
+          <div className="rounded-[1.35rem] border border-white/10 bg-white/[0.03] p-3.5">
             <div className="mb-3 flex items-center gap-2 text-sm font-bold text-white">
               <Check className="h-4 w-4 text-brand-purple" />
               What you unlock with a free account
@@ -218,9 +217,9 @@ function StoryVisual({ stepId }: { stepId: HowItWorksStep["id"] }) {
 
   if (stepId === "gumdrops") {
     return (
-      <div className="space-y-4">
+      <div className="space-y-3">
         <div className="grid gap-3 sm:grid-cols-[0.95fr_1.05fr]">
-          <div className="rounded-[1.75rem] border border-white/10 bg-white/[0.03] p-4">
+          <div className="rounded-[1.55rem] border border-white/10 bg-white/[0.03] p-3.5">
             <div className="flex items-center justify-between">
               <div className="rounded-full border border-brand-purple/25 bg-brand-purple/15 p-2">
                 <Wallet className="h-5 w-5 text-brand-purple" />
@@ -229,10 +228,25 @@ function StoryVisual({ stepId }: { stepId: HowItWorksStep["id"] }) {
                 Wallet
               </span>
             </div>
-            <div className="mt-5 text-3xl font-black tracking-tight text-white">550 GD</div>
+            <div className="mt-4 text-3xl font-black tracking-tight text-white">550 GD</div>
             <p className="mt-1 text-sm text-gray-400">Ready to unwrap before the timer ends</p>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              {["250", "1000"].map((bundle, index) => (
+                <div
+                  key={bundle}
+                  className={cn(
+                    "rounded-2xl border px-3 py-2.5 text-center text-xs font-bold",
+                    index === 1
+                      ? "border-brand-purple/35 bg-brand-purple/15 text-white"
+                      : "border-white/10 bg-black/35 text-gray-300"
+                  )}
+                >
+                  {bundle} GD
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="rounded-[1.75rem] border border-white/10 bg-black/45 p-4">
+          <div className="rounded-[1.55rem] border border-white/10 bg-black/45 p-3.5">
             <div className="mb-3 flex items-center gap-2 text-sm font-bold text-white">
               <Gift className="h-4 w-4 text-brand-purple" />
               Experiences rewards
@@ -254,7 +268,7 @@ function StoryVisual({ stepId }: { stepId: HowItWorksStep["id"] }) {
             </div>
           </div>
         </div>
-        <div className="rounded-[1.75rem] border border-white/10 bg-[linear-gradient(135deg,rgba(164,118,255,0.10),rgba(255,255,255,0.03))] p-4">
+        <div className="rounded-[1.55rem] border border-white/10 bg-[linear-gradient(135deg,rgba(164,118,255,0.10),rgba(255,255,255,0.03))] p-3.5">
           <p className="text-xs font-black uppercase tracking-[0.22em] text-brand-purple/80">Use Gum Drops</p>
           <p className="mt-2 text-base font-bold text-white">Earn them, buy them, then stay ready for the next live unwrap.</p>
         </div>
@@ -264,8 +278,8 @@ function StoryVisual({ stepId }: { stepId: HowItWorksStep["id"] }) {
 
   if (stepId === "unwrap") {
     return (
-      <div className="space-y-4">
-        <div className="rounded-[1.75rem] border border-white/10 bg-black/45 p-4">
+      <div className="space-y-3">
+        <div className="rounded-[1.55rem] border border-white/10 bg-black/45 p-3.5">
           <div className="mb-4 flex flex-wrap items-center gap-2">
             <span className="rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 text-xs font-bold text-brand-purple">
               Featured Drop
@@ -279,13 +293,25 @@ function StoryVisual({ stepId }: { stepId: HowItWorksStep["id"] }) {
               +3 Files
             </span>
           </div>
-          <div className="relative overflow-hidden rounded-[1.5rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(164,118,255,0.18),transparent_60%)] p-5">
-            <div className="absolute inset-0 bg-black/45 backdrop-blur-sm" />
-            <div className="relative z-10 space-y-4">
-              <div className="h-36 rounded-[1.5rem] border border-white/10 bg-white/[0.06]" />
-              <div className="max-w-[220px] rounded-3xl border border-white/10 bg-black/70 px-4 py-4 text-center shadow-[0_0_30px_rgba(164,118,255,0.12)]">
-                <Lock className="mx-auto h-5 w-5 text-white" />
-                <p className="mt-2 text-sm font-bold text-white">Unwrap now to reveal every file</p>
+          <div className="relative overflow-hidden rounded-[1.35rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(164,118,255,0.18),transparent_60%)] p-3">
+            <div className="absolute inset-0 bg-black/48 backdrop-blur-md" />
+            <div className="relative z-10 space-y-3">
+              <div className="overflow-hidden rounded-[1.25rem] border border-white/10 bg-white/[0.06]">
+                <div className="h-36 bg-[linear-gradient(135deg,rgba(164,118,255,0.24),rgba(255,255,255,0.08))] sm:h-40" />
+                <div className="border-t border-white/10 bg-black/40 px-3.5 py-3">
+                  <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-purple/80">Live now</p>
+                  <p className="mt-1 text-sm font-bold text-white">See the timer, tags, and file count before you commit.</p>
+                </div>
+              </div>
+              <div className="rounded-[1.25rem] border border-white/10 bg-black/70 px-4 py-3.5 shadow-[0_0_30px_rgba(164,118,255,0.12)]">
+                <div className="flex items-center gap-2 text-white">
+                  <Lock className="h-[18px] w-[18px] text-brand-purple" />
+                  <span className="text-sm font-bold">Unwrap now to reveal every file</span>
+                </div>
+                <div className="mt-3 flex items-center justify-between rounded-2xl border border-brand-purple/25 bg-brand-purple/15 px-3.5 py-3 text-sm font-bold text-white">
+                  <span>Get Gum Drops to Unwrap your Kandy</span>
+                  <ArrowRight className="h-4 w-4 text-brand-purple" />
+                </div>
               </div>
             </div>
           </div>
@@ -296,8 +322,8 @@ function StoryVisual({ stepId }: { stepId: HowItWorksStep["id"] }) {
 
   if (stepId === "library") {
     return (
-      <div className="space-y-4">
-        <div className="rounded-[1.75rem] border border-white/10 bg-black/45 p-4">
+      <div className="space-y-3">
+        <div className="rounded-[1.55rem] border border-white/10 bg-black/45 p-3.5">
           <div className="mb-3 flex items-center justify-between">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.22em] text-brand-purple/80">Your library</p>
@@ -307,25 +333,37 @@ function StoryVisual({ stepId }: { stepId: HowItWorksStep["id"] }) {
               Keeps access
             </span>
           </div>
-          <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
-            {[0, 1, 2].map((index) => (
-              <div
-                key={index}
-                className={cn(
-                  "rounded-[1.4rem] border p-3",
-                  index === 0
-                    ? "border-brand-purple/30 bg-brand-purple/10"
-                    : "border-white/10 bg-white/[0.03]"
-                )}
-              >
-                <div className="h-24 rounded-[1rem] bg-black/45" />
-                <div className="mt-3 h-3 rounded-full bg-white/10" />
-                <div className="mt-2 h-3 w-2/3 rounded-full bg-white/5" />
+          <div className="rounded-[1.35rem] border border-white/10 bg-[#101019] p-2.5">
+            <div className="overflow-hidden rounded-[1.2rem] border border-white/10 bg-black/45">
+              <div className="flex items-center justify-between border-b border-white/10 px-3 py-2.5">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-brand-purple/80">Viewer</p>
+                  <p className="text-sm font-bold text-white">Taste your Kandy</p>
+                </div>
+                <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[10px] font-bold text-gray-200">
+                  +4 files
+                </span>
               </div>
-            ))}
+              <div className="h-32 bg-[linear-gradient(135deg,rgba(164,118,255,0.24),rgba(255,255,255,0.06))] sm:h-36" />
+            </div>
+            <div className="mt-2.5 grid grid-cols-4 gap-2">
+              {[0, 1, 2, 3].map((index) => (
+                <div
+                  key={index}
+                  className={cn(
+                    "rounded-[1rem] border p-1.5",
+                    index === 0
+                      ? "border-brand-purple/35 bg-brand-purple/12"
+                      : "border-white/10 bg-white/[0.03]"
+                  )}
+                >
+                  <div className="h-12 rounded-[0.8rem] bg-black/45 sm:h-14" />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-        <div className="rounded-[1.75rem] border border-white/10 bg-white/[0.03] p-4 text-sm leading-6 text-gray-300">
+        <div className="rounded-[1.55rem] border border-white/10 bg-white/[0.03] p-3.5 text-sm leading-6 text-gray-300">
           Unwrap while the KandyDrop is live, then come back from any phone or desktop device to watch it again from your library.
         </div>
       </div>
@@ -333,8 +371,8 @@ function StoryVisual({ stepId }: { stepId: HowItWorksStep["id"] }) {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-[1.75rem] border border-white/10 bg-black/45 p-4">
+    <div className="space-y-3">
+      <div className="rounded-[1.55rem] border border-white/10 bg-black/45 p-3.5">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.22em] text-brand-purple/80">Experiences</p>
@@ -344,32 +382,32 @@ function StoryVisual({ stepId }: { stepId: HowItWorksStep["id"] }) {
             Daily rewards
           </span>
         </div>
-        <div className="mt-4 rounded-[1.5rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(164,118,255,0.18),transparent_55%)] p-4">
-          <div className="mb-4 flex items-center gap-2 text-sm font-bold text-white">
+        <div className="mt-3.5 rounded-[1.35rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(164,118,255,0.18),transparent_55%)] p-3.5">
+          <div className="mb-3 flex items-center gap-2 text-sm font-bold text-white">
             <Sparkles className="h-4 w-4 text-brand-purple" />
             Daily Kandy streak
           </div>
-          <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
+          <div className="grid grid-cols-4 gap-1.5 sm:grid-cols-7 sm:gap-2">
             {["10", "20", "30", "40", "50", "60", "70"].map((value, index) => (
               <div
                 key={value}
                 className={cn(
-                  "rounded-2xl border px-1.5 py-3.5 text-center text-[11px] font-black sm:px-2 sm:py-4 sm:text-xs",
+                    "rounded-2xl border px-1.5 py-3.5 text-center text-[11px] font-black sm:px-2 sm:py-4 sm:text-xs",
                   index === 0
                     ? "border-brand-purple/30 bg-brand-purple/15 text-brand-purple"
                     : "border-white/10 bg-white/[0.03] text-white"
                 )}
-              >
-                {value}
-              </div>
-            ))}
+                >
+                  {value}
+                </div>
+              ))}
           </div>
-          <div className="mt-4 rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-sm text-gray-300">
+          <div className="mt-3 rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-sm text-gray-300">
             Day 1 starts the momentum. Keep checking in so your stash is ready for the next live drop.
           </div>
         </div>
       </div>
-      <div className="rounded-[1.75rem] border border-white/10 bg-white/[0.03] p-4">
+      <div className="rounded-[1.55rem] border border-white/10 bg-white/[0.03] p-3.5">
         <div className="flex items-center gap-2 text-sm font-bold text-white">
           <PlayCircle className="h-4 w-4 text-brand-purple" />
           Stay ready to unwrap again
