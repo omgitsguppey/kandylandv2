@@ -8,7 +8,7 @@ import { X, Mail, Lock, User, Calendar, AlertCircle, Loader2 } from "lucide-reac
 
 import { useAuth } from "@/context/AuthContext";
 import { differenceInYears, parseISO } from "date-fns";
-import { trackEvent } from "@/lib/telemetry";
+import { clearTimedFlow, consumeTimedFlow, startTimedFlow, trackEvent } from "@/lib/telemetry";
 import type { AuthModalEntryMode } from "@/context/UIContext";
 import { SECONDARY_UNWRAP_CTA, SIGNUP_SUPPORT_COPY } from "@/lib/marketing-copy";
 
@@ -29,6 +29,9 @@ interface AuthModalProps {
 }
 
 type AuthMode = "signin" | "signup" | "forgot_password";
+const AUTH_SIGN_IN_FLOW = "auth_sign_in";
+const AUTH_SIGN_UP_FLOW = "auth_sign_up";
+const AUTH_GOOGLE_FLOW = "auth_google_sign_in";
 
 export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps) {
     const { signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth();
@@ -77,6 +80,9 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
         setResetSent(false);
         clearErrors();
         reset();
+        clearTimedFlow(AUTH_SIGN_IN_FLOW);
+        clearTimedFlow(AUTH_SIGN_UP_FLOW);
+        clearTimedFlow(AUTH_GOOGLE_FLOW);
     }, [clearErrors, initialMode, isOpen, reset]);
 
     const switchMode = (newMode: AuthMode) => {
@@ -91,13 +97,16 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
     const handleGoogleSignIn = async () => {
         setIsLoading(true);
         setAuthError(null);
-        trackEvent("auth_google_sign_in_attempted");
+        startTimedFlow(AUTH_GOOGLE_FLOW, { source_mode: mode });
+        trackEvent("auth_google_sign_in_attempted", { source_mode: mode });
         try {
             await signInWithGoogle();
-            trackEvent("auth_google_sign_in_success");
+            const { mergedParams } = consumeTimedFlow(AUTH_GOOGLE_FLOW, { source_mode: mode });
+            trackEvent("auth_google_sign_in_success", mergedParams);
             onClose();
         } catch (err: unknown) {
-            trackEvent("auth_google_sign_in_failed");
+            const { mergedParams } = consumeTimedFlow(AUTH_GOOGLE_FLOW, { source_mode: mode });
+            trackEvent("auth_google_sign_in_failed", mergedParams);
             setAuthError(err instanceof Error ? err.message : "Failed to sign in with Google.");
         } finally {
             setIsLoading(false);
@@ -110,22 +119,32 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
 
         try {
             if (mode === "signup") {
-                trackEvent("auth_sign_up_attempted");
+                startTimedFlow(AUTH_SIGN_UP_FLOW, { entry_mode: initialMode });
+                trackEvent("auth_sign_up_attempted", { entry_mode: initialMode });
                 await signUpWithEmail(data.email, data.password, data.username!, data.dob!);
-                trackEvent("auth_sign_up_success");
+                const { mergedParams } = consumeTimedFlow(AUTH_SIGN_UP_FLOW, {
+                    entry_mode: initialMode,
+                    username_length: data.username?.length ?? 0,
+                });
+                trackEvent("auth_sign_up_success", mergedParams);
             } else {
-                trackEvent("auth_sign_in_attempted");
+                startTimedFlow(AUTH_SIGN_IN_FLOW, { entry_mode: initialMode });
+                trackEvent("auth_sign_in_attempted", { entry_mode: initialMode });
                 await signInWithEmail(data.email, data.password);
-                trackEvent("auth_sign_in_success");
+                const { mergedParams } = consumeTimedFlow(AUTH_SIGN_IN_FLOW, { entry_mode: initialMode });
+                trackEvent("auth_sign_in_success", mergedParams);
             }
             onClose();
             reset();
         } catch (err: unknown) {
             console.error(err);
             const firebaseErr = err as { code?: string; message?: string };
-            trackEvent(mode === "signup" ? "auth_sign_up_failed" : "auth_sign_in_failed", {
+            const flowKey = mode === "signup" ? AUTH_SIGN_UP_FLOW : AUTH_SIGN_IN_FLOW;
+            const { mergedParams } = consumeTimedFlow(flowKey, {
                 error_code: firebaseErr.code || "unknown",
+                entry_mode: initialMode,
             });
+            trackEvent(mode === "signup" ? "auth_sign_up_failed" : "auth_sign_in_failed", mergedParams);
             if (firebaseErr.code === "auth/email-already-in-use") {
                 setAuthError("Email is already registered.");
             } else if (firebaseErr.code === "auth/invalid-credential") {

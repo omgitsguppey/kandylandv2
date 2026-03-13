@@ -6,7 +6,7 @@ export default function FAQPage() {
     <div className="w-full relative overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[400px] bg-brand-purple/20 blur-[120px] rounded-full pointer-events-none opacity-50" />
 
-      <div className="relative z-10 mx-auto max-w-4xl px-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:px-8 md:pb-0">
+      <div className="relative z-10 mx-auto max-w-4xl px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] md:px-8 md:pb-0">
         <div className="mb-6 text-center sm:mb-10">
           <p className="text-[11px] font-black uppercase tracking-[0.24em] text-brand-purple mb-3">How It Works</p>
           <h1 className="mx-auto mb-4 max-w-[12rem] text-[clamp(2.7rem,13vw,3.75rem)] font-black leading-[0.92] tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white to-gray-400 min-[380px]:max-w-none md:text-5xl md:leading-[0.94]">
@@ -28,7 +28,7 @@ export default function FAQPage() {
             </p>
             <a
               href="mailto:support@kandydrops.com"
-              className="inline-flex items-center justify-center px-8 py-3 rounded-full bg-white text-black font-bold hover:scale-105 transition-transform shadow-[0_0_30px_rgba(255,255,255,0.2)]"
+              className="inline-flex items-center justify-center rounded-full bg-brand-purple px-8 py-3 font-bold text-white transition-opacity shadow-[0_0_30px_rgba(164,118,255,0.25)] hover:opacity-90"
             >
               Contact Support
             </a>

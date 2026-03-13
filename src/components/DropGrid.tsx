@@ -99,7 +99,7 @@ export function DropGrid({ drops: propDrops, loading: propLoading, isSearching, 
                                             description: "We'll alert you here when new drops land.",
                                         });
                                     }}
-                                    className="px-10 py-5 bg-white text-black rounded-2xl font-black text-lg transition-all transform active:scale-95 shadow-[0_10px_30px_rgba(255,255,255,0.1)]"
+                                    className="rounded-2xl bg-brand-purple px-10 py-5 text-lg font-black text-white shadow-[0_10px_30px_rgba(164,118,255,0.18)] transition-all active:scale-95"
                                 >
                                     Notify Me
                                 </button>

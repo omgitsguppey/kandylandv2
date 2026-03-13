@@ -5,15 +5,19 @@ import Image from "next/image";
 import {
   Activity,
   AlertTriangle,
+  BellRing,
+  Candy,
   CheckCircle2,
   Clock3,
   DollarSign,
   Eye,
   FileText,
+  Funnel,
   Loader2,
   MapPin,
   Monitor,
   PlayCircle,
+  Route,
   RefreshCw,
   Share2,
   ShieldAlert,
@@ -28,7 +32,12 @@ import {
   AreaChart,
   Bar,
   BarChart,
+  Cell,
   CartesianGrid,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -126,6 +135,66 @@ interface RawEventItem {
   timestamp: number;
 }
 
+interface AuthBreakdownItem {
+  method: string;
+  attempts: number;
+  successes: number;
+  failures: number;
+  avgDurationMs: number;
+  successRate: number;
+}
+
+interface CountBucketItem {
+  label: string;
+  count: number;
+}
+
+interface DestinationMixItem {
+  destination: string;
+  count: number;
+}
+
+interface TaskLeaderboardItem {
+  taskId: string;
+  title: string;
+  assigned: number;
+  started: number;
+  completed: number;
+  failed: number;
+  rewardTotal: number;
+  avgDurationMs: number;
+  completionRate: number;
+}
+
+interface PackagePerformanceItem {
+  label: string;
+  starts: number;
+  purchases: number;
+  failures: number;
+  revenueUsd: number;
+  drops: number;
+  conversionRate: number;
+  abandonmentRate: number;
+}
+
+interface UnlockCategoryItem {
+  label: string;
+  previews: number;
+  unlocks: number;
+  unlockRate: number;
+}
+
+interface ContentTagDemandItem {
+  tag: string;
+  count: number;
+}
+
+interface ValidationItem {
+  label: string;
+  status: "pass" | "warn" | "fail";
+  detail: string;
+}
+
 interface HistoricalAnalyticsResponse {
   success: boolean;
   requiresSetup?: boolean;
@@ -136,9 +205,10 @@ interface HistoricalAnalyticsResponse {
     views: number;
     sessions: number;
     newUsers: number;
-    avgSessionDuration: number;
-    engagementRate: number;
+      avgSessionDuration: number;
+      engagementRate: number;
   };
+  events?: Record<string, number>;
   eventBreakdown?: EventBreakdownItem[];
   devices?: DeviceMixItem[];
   funnel?: {
@@ -170,6 +240,22 @@ interface HistoricalAnalyticsResponse {
     avgDuration: number;
   };
   rawEvents?: RawEventItem[];
+  authBreakdown?: AuthBreakdownItem[];
+  onboardingDurationBuckets?: CountBucketItem[];
+  repeatVisitSegments?: CountBucketItem[];
+  destinationMix?: DestinationMixItem[];
+  notificationFunnel?: CountBucketItem[];
+  notificationActions?: Array<{ label: string; value: number }>;
+  taskPipeline?: CountBucketItem[];
+  taskLeaderboard?: TaskLeaderboardItem[];
+  taskDurationBuckets?: CountBucketItem[];
+  reminderReasons?: CountBucketItem[];
+  packagePerformance?: PackagePerformanceItem[];
+  unlockCategoryMix?: UnlockCategoryItem[];
+  watchDepthBuckets?: CountBucketItem[];
+  contentJourney?: CountBucketItem[];
+  contentTagDemand?: ContentTagDemandItem[];
+  validations?: ValidationItem[];
 }
 
 interface RealtimeAnalyticsResponse {
@@ -223,10 +309,11 @@ const TAB_OPTIONS: Array<{ id: ViewTab; label: string; icon: typeof Activity }> 
   { id: "operations", label: "Operations", icon: Activity },
   { id: "audience", label: "Audience", icon: Users },
   { id: "commerce", label: "Commerce", icon: DollarSign },
-  { id: "security", label: "Security", icon: ShieldAlert },
+  { id: "security", label: "Signals", icon: ShieldAlert },
 ];
 
 const EVENT_LABELS: Record<string, string> = TELEMETRY_EVENT_LABELS;
+const PIE_COLORS = ["#b28cff", "#7c3aed", "#22d3ee", "#f472b6", "#34d399", "#f59e0b"];
 
 const INITIAL_ANALYTICS_NOW = Date.now();
 
@@ -328,6 +415,18 @@ function formatRelativeTime(timestamp: number, nowMs: number): string {
   return `${days}d ago`;
 }
 
+function getValidationClasses(status: ValidationItem["status"]) {
+  if (status === "pass") {
+    return "border-emerald-400/20 bg-emerald-400/10 text-emerald-200";
+  }
+
+  if (status === "fail") {
+    return "border-red-500/20 bg-red-500/10 text-red-200";
+  }
+
+  return "border-amber-400/20 bg-amber-400/10 text-amber-200";
+}
+
 function describeEvent(event: RawEventItem): string {
   if (event.detail) return event.detail;
   if (event.type === "scroll") return `Scrolled to ${event.scrollDepthPercent ?? 0}% depth`;
@@ -398,6 +497,7 @@ export default function AdminAnalyticsPage() {
     engagementRate: 0,
   };
   const eventBreakdown = historicalResponse?.eventBreakdown ?? [];
+  const eventsData = historicalResponse?.events ?? {};
   const funnel = historicalResponse?.funnel ?? {
     authModalOpens: 0,
     authSignIns: 0,
@@ -421,6 +521,22 @@ export default function AdminAnalyticsPage() {
   const security = historicalResponse?.security ?? [];
   const rawEvents = historicalResponse?.rawEvents ?? [];
   const onboardingStats = historicalResponse?.onboardingStats ?? { completions: 0, avgDuration: 0 };
+  const authBreakdown = historicalResponse?.authBreakdown ?? [];
+  const onboardingDurationBuckets = historicalResponse?.onboardingDurationBuckets ?? [];
+  const repeatVisitSegments = historicalResponse?.repeatVisitSegments ?? [];
+  const destinationMix = historicalResponse?.destinationMix ?? [];
+  const notificationFunnel = historicalResponse?.notificationFunnel ?? [];
+  const notificationActions = historicalResponse?.notificationActions ?? [];
+  const taskPipeline = historicalResponse?.taskPipeline ?? [];
+  const taskLeaderboard = historicalResponse?.taskLeaderboard ?? [];
+  const taskDurationBuckets = historicalResponse?.taskDurationBuckets ?? [];
+  const reminderReasons = historicalResponse?.reminderReasons ?? [];
+  const packagePerformance = historicalResponse?.packagePerformance ?? [];
+  const unlockCategoryMix = historicalResponse?.unlockCategoryMix ?? [];
+  const watchDepthBuckets = historicalResponse?.watchDepthBuckets ?? [];
+  const contentJourney = historicalResponse?.contentJourney ?? [];
+  const contentTagDemand = historicalResponse?.contentTagDemand ?? [];
+  const validations = historicalResponse?.validations ?? [];
 
   const needsSetup =
     liveResponse?.requiresSetup ||
@@ -632,6 +748,83 @@ export default function AdminAnalyticsPage() {
               </div>
             </SectionCard>
 
+            <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
+              <SectionCard title="Auth Outcome Split" subtitle="Start, finish, and average completion speed by auth method." icon={Users}>
+                <div className="grid gap-4 lg:grid-cols-[0.85fr_1.15fr]">
+                  <div className="h-64 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={authBreakdown.map((item) => ({ name: item.method, value: item.successes }))}
+                          dataKey="value"
+                          nameKey="name"
+                          innerRadius={56}
+                          outerRadius={86}
+                          paddingAngle={4}
+                        >
+                          {authBreakdown.map((item, index) => (
+                            <Cell key={item.method} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip content={<AnalyticsTooltip />} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  <div className="space-y-3">
+                    {authBreakdown.length > 0 ? (
+                      authBreakdown.map((item, index) => (
+                        <div key={item.method} className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
+                          <div className="mb-2 flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-2">
+                              <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: PIE_COLORS[index % PIE_COLORS.length] }} />
+                              <p className="text-sm font-semibold text-white">{item.method}</p>
+                            </div>
+                            <span className="text-sm font-bold text-brand-purple">{formatPercent(item.successRate)}</span>
+                          </div>
+                          <p className="text-xs text-gray-500">
+                            {item.successes.toLocaleString()} success · {item.failures.toLocaleString()} failed · {formatDuration(item.avgDurationMs / 1000)}
+                          </p>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
+                        Auth detail rows will populate after more sign-in and sign-up completions are tracked.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </SectionCard>
+
+              <SectionCard title="Onboarding Velocity" subtitle="How long new users take to finish the guided tour on mobile." icon={PlayCircle}>
+                <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+                  <div className="h-64 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={onboardingDurationBuckets} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
+                        <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                        <XAxis dataKey="label" stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                        <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                        <Tooltip content={<AnalyticsTooltip />} />
+                        <Bar dataKey="count" name="Completions" fill="#b28cff" radius={[10, 10, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 self-start">
+                    <MetricCard label="Started" value={formatCompactNumber(eventsData.guided_onboarding_started || 0)} hint="Guided onboarding opens" icon={PlayCircle} />
+                    <MetricCard label="Completed" value={onboardingStats.completions.toLocaleString()} hint="Finished tours" icon={CheckCircle2} />
+                    <MetricCard label="Avg Time" value={formatDuration(onboardingStats.avgDuration)} hint="Mean completion time" icon={Clock3} />
+                    <MetricCard
+                      label="Completion Rate"
+                      value={formatPercent((eventsData.guided_onboarding_started || 0) > 0 ? onboardingStats.completions / Math.max(1, eventsData.guided_onboarding_started || 0) : 0)}
+                      hint="Completed vs started"
+                      icon={Sparkles}
+                    />
+                  </div>
+                </div>
+              </SectionCard>
+            </div>
+
             <div className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
               <SectionCard title="Event Mix" subtitle="The strongest custom GA events for the selected window." icon={Sparkles}>
                 <div className="h-64 w-full md:h-72">
@@ -672,6 +865,22 @@ export default function AdminAnalyticsPage() {
                 </div>
               </SectionCard>
             </div>
+
+            <SectionCard title="Data Validation" subtitle="Every overview here is grounded in a real source, with parity checks surfaced instead of hidden." icon={CheckCircle2}>
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                {validations.map((item) => (
+                  <div key={item.label} className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
+                    <div className="mb-2 flex items-center justify-between gap-3">
+                      <p className="text-sm font-semibold text-white">{item.label}</p>
+                      <span className={cn("rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em]", getValidationClasses(item.status))}>
+                        {item.status}
+                      </span>
+                    </div>
+                    <p className="text-xs leading-6 text-gray-400">{item.detail}</p>
+                  </div>
+                ))}
+              </div>
+            </SectionCard>
           </>
         ) : null}
 
@@ -704,6 +913,69 @@ export default function AdminAnalyticsPage() {
                 </ResponsiveContainer>
               </div>
             </SectionCard>
+
+            <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
+              <SectionCard title="Return Cadence" subtitle="Authenticated users grouped by how many distinct days they came back during the selected range." icon={Route}>
+                <div className="h-64 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={repeatVisitSegments} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
+                      <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                      <XAxis dataKey="label" stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                      <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                      <Tooltip content={<AnalyticsTooltip />} />
+                      <Bar dataKey="users" name="Users" fill="#b28cff" radius={[10, 10, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </SectionCard>
+
+              <SectionCard title="Navigation Destinations" subtitle="Top in-app destinations reached from tracked taps, useful for mobile drill-down on where intent actually goes." icon={Route}>
+                <div className="grid gap-4 lg:grid-cols-[0.88fr_1.12fr]">
+                  <div className="h-64 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={destinationMix.slice(0, 6).map((item) => ({ name: item.destination, value: item.count }))}
+                          dataKey="value"
+                          nameKey="name"
+                          innerRadius={52}
+                          outerRadius={84}
+                          paddingAngle={3}
+                        >
+                          {destinationMix.slice(0, 6).map((item, index) => (
+                            <Cell key={item.destination} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip content={<AnalyticsTooltip />} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  <div className="space-y-3">
+                    {destinationMix.length > 0 ? (
+                      destinationMix.slice(0, 6).map((item, index) => (
+                        <div key={item.destination} className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
+                          <div className="mb-2 flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-2">
+                              <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: PIE_COLORS[index % PIE_COLORS.length] }} />
+                              <p className="text-sm font-semibold text-white">{item.destination}</p>
+                            </div>
+                            <span className="text-sm font-bold text-brand-purple">{item.count.toLocaleString()}</span>
+                          </div>
+                          <div className="h-2 overflow-hidden rounded-full bg-white/10">
+                            <div className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400" style={{ width: `${Math.max(8, (item.count / Math.max(1, destinationMix[0]?.count || 1)) * 100)}%` }} />
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
+                        Destination drill-down will fill in once more navigation taps are tracked.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </SectionCard>
+            </div>
 
             <div className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
               <SectionCard title="Device Mix" subtitle="Mobile is the admin priority, so device share and engagement stay visible as first-class metrics." icon={Smartphone}>
@@ -823,6 +1095,69 @@ export default function AdminAnalyticsPage() {
               </div>
             </SectionCard>
 
+            <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
+              <SectionCard title="Package Performance" subtitle="Which Gum Drop packs are getting checkout intent, completions, and drop-off." icon={Wallet}>
+                <div className="h-64 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={packagePerformance.slice(0, 6)} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
+                      <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                      <XAxis dataKey="label" stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} interval={0} angle={-18} textAnchor="end" height={56} />
+                      <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                      <Tooltip content={<AnalyticsTooltip />} />
+                      <Bar dataKey="starts" name="Checkouts" fill="#374151" radius={[8, 8, 0, 0]} />
+                      <Bar dataKey="purchases" name="Purchases" fill="#b28cff" radius={[8, 8, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+
+                <div className="mt-5 space-y-3">
+                  {packagePerformance.slice(0, 5).map((item) => (
+                    <div key={item.label} className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
+                      <div className="mb-2 flex items-center justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold text-white">{item.label}</p>
+                          <p className="text-xs text-gray-500">{item.starts.toLocaleString()} checkouts · {item.purchases.toLocaleString()} purchases</p>
+                        </div>
+                        <span className="text-sm font-bold text-brand-purple">{formatPercent(item.conversionRate)}</span>
+                      </div>
+                      <p className="text-xs leading-6 text-gray-400">
+                        {formatMoney(item.revenueUsd)} revenue · {formatPercent(item.abandonmentRate)} abandonment
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </SectionCard>
+
+              <SectionCard title="Content Conversion" subtitle="Which content types are previewed most and which actually get unwrapped." icon={Candy}>
+                <div className="grid gap-4 lg:grid-cols-[1.08fr_0.92fr]">
+                  <div className="h-64 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={unlockCategoryMix.slice(0, 6)} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
+                        <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                        <XAxis dataKey="label" stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                        <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                        <Tooltip content={<AnalyticsTooltip />} />
+                        <Bar dataKey="previews" name="Previews" fill="#374151" radius={[8, 8, 0, 0]} />
+                        <Bar dataKey="unlocks" name="Unlocks" fill="#b28cff" radius={[8, 8, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  <div className="space-y-3">
+                    {unlockCategoryMix.slice(0, 5).map((item) => (
+                      <div key={item.label} className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
+                        <div className="mb-2 flex items-center justify-between gap-3">
+                          <p className="text-sm font-semibold capitalize text-white">{item.label}</p>
+                          <span className="text-sm font-bold text-brand-purple">{formatPercent(item.unlockRate)}</span>
+                        </div>
+                        <p className="text-xs text-gray-500">{item.previews.toLocaleString()} previews · {item.unlocks.toLocaleString()} unwraps</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </SectionCard>
+            </div>
+
             <div className="grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
               <SectionCard title="Top Drop Conversion" subtitle="Unlocked drops with enough demand to matter, surfaced as a compact mobile chart and list." icon={ShoppingBag}>
                 <div className="h-64 w-full md:h-72">
@@ -909,6 +1244,58 @@ export default function AdminAnalyticsPage() {
                 </div>
               </SectionCard>
             </div>
+
+            <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
+              <SectionCard title="Viewer Journey" subtitle="How far users move from preview to playback to actual content consumption." icon={PlayCircle}>
+                <div className="h-64 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={contentJourney} margin={{ top: 8, right: 4, left: -18, bottom: 0 }}>
+                      <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                      <XAxis dataKey="label" stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} interval={0} angle={-18} textAnchor="end" height={56} />
+                      <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                      <Tooltip content={<AnalyticsTooltip />} />
+                      <Line type="monotone" dataKey="count" name="Events" stroke="#b28cff" strokeWidth={3} dot={{ r: 4, fill: "#b28cff" }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </SectionCard>
+
+              <SectionCard title="Watch Depth + Tags" subtitle="What people actually watch once they unwrap, plus the tags pulling the most demand." icon={Eye}>
+                <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
+                  <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
+                    <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Watch depth</p>
+                    <div className="space-y-3">
+                      {watchDepthBuckets.map((bucket) => (
+                        <div key={bucket.label}>
+                          <div className="mb-2 flex items-center justify-between gap-3 text-sm">
+                            <span className="text-white">{bucket.label}</span>
+                            <span className="font-semibold text-brand-purple">{bucket.count.toLocaleString()}</span>
+                          </div>
+                          <div className="h-2 overflow-hidden rounded-full bg-white/10">
+                            <div className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400" style={{ width: `${Math.max(6, (bucket.count / Math.max(1, watchDepthBuckets[0]?.count || 1)) * 100)}%` }} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
+                    <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Top tags</p>
+                    <div className="flex flex-wrap gap-2">
+                      {contentTagDemand.length > 0 ? (
+                        contentTagDemand.map((item) => (
+                          <span key={item.tag} className="rounded-full border border-brand-purple/25 bg-brand-purple/12 px-3 py-2 text-xs font-semibold text-white">
+                            {item.tag} · {item.count}
+                          </span>
+                        ))
+                      ) : (
+                        <p className="text-sm text-gray-500">Tag demand will populate after more unwraps land in this range.</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </SectionCard>
+            </div>
           </>
         ) : null}
 
@@ -922,6 +1309,116 @@ export default function AdminAnalyticsPage() {
                 <MetricCard label="Viewer Switches" value={funnel.assetSwitches.toLocaleString()} hint="Asset interactions in viewer" icon={PlayCircle} />
               </div>
             </SectionCard>
+
+            <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
+              <SectionCard title="Daily Task Pipeline" subtitle="Assigned, started, completed, and failed tasks in one mobile-friendly progression view." icon={Funnel}>
+                <div className="h-64 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={taskPipeline} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
+                      <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                      <XAxis dataKey="label" stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                      <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                      <Tooltip content={<AnalyticsTooltip />} />
+                      <Bar dataKey="count" name="Events" fill="#b28cff" radius={[10, 10, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </SectionCard>
+
+              <SectionCard title="Task Completion Speed" subtitle="How fast the finished task set is closing, so you can tune missions that are too easy or too heavy." icon={Clock3}>
+                <div className="h-64 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={taskDurationBuckets} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
+                      <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                      <XAxis dataKey="label" stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                      <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                      <Tooltip content={<AnalyticsTooltip />} />
+                      <Bar dataKey="count" name="Completions" fill="#22d3ee" radius={[10, 10, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </SectionCard>
+            </div>
+
+            <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
+              <SectionCard title="Task Leaderboard" subtitle="The missions driving the most completions, reward payout, and momentum." icon={Sparkles}>
+                <div className="space-y-3">
+                  {taskLeaderboard.length > 0 ? (
+                    taskLeaderboard.map((task) => (
+                      <div key={task.taskId} className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
+                        <div className="mb-2 flex items-center justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-white">{task.title}</p>
+                            <p className="mt-1 text-xs text-gray-500">
+                              {task.completed.toLocaleString()} completed · {formatDuration(task.avgDurationMs / 1000)} avg
+                            </p>
+                          </div>
+                          <span className="shrink-0 text-sm font-bold text-brand-purple">{formatPercent(task.completionRate)}</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                          <div className="rounded-2xl border border-white/10 bg-white/5 px-2 py-2 text-gray-300">Assigned<br />{task.assigned}</div>
+                          <div className="rounded-2xl border border-white/10 bg-white/5 px-2 py-2 text-gray-300">Started<br />{task.started}</div>
+                          <div className="rounded-2xl border border-white/10 bg-white/5 px-2 py-2 text-brand-purple">Reward<br />{task.rewardTotal}</div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
+                      Task leaderboard data will appear once more lifecycle events land in this range.
+                    </div>
+                  )}
+                </div>
+              </SectionCard>
+
+              <SectionCard title="Notification Funnel" subtitle="Prompt, enablement, open, and read behaviors, plus reminder reasons when people run short on time." icon={BellRing}>
+                <div className="grid gap-4 lg:grid-cols-[0.92fr_1.08fr]">
+                  <div className="h-64 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={notificationFunnel.filter((item) => item.count > 0).map((item) => ({ name: item.label, value: item.count }))}
+                          dataKey="value"
+                          nameKey="name"
+                          innerRadius={52}
+                          outerRadius={84}
+                          paddingAngle={3}
+                        >
+                          {notificationFunnel.filter((item) => item.count > 0).map((item, index) => (
+                            <Cell key={item.label} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip content={<AnalyticsTooltip />} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  <div className="space-y-3">
+                    {notificationActions.map((item) => (
+                      <div key={item.label} className="rounded-[1.4rem] border border-white/10 bg-black/30 p-3.5">
+                        <div className="mb-2 flex items-center justify-between gap-3">
+                          <p className="text-sm font-semibold text-white">{item.label}</p>
+                          <span className="text-sm font-bold text-brand-purple">{item.value.toLocaleString()}</span>
+                        </div>
+                        <div className="h-2 overflow-hidden rounded-full bg-white/10">
+                          <div className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400" style={{ width: `${Math.max(6, (item.value / Math.max(1, notificationActions[0]?.value || 1)) * 100)}%` }} />
+                        </div>
+                      </div>
+                    ))}
+
+                    <div className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
+                      <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Reminder reasons</p>
+                      <div className="flex flex-wrap gap-2">
+                        {reminderReasons.length > 0 ? reminderReasons.map((item) => (
+                          <span key={item.label} className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-white">
+                            {item.label} · {item.count}
+                          </span>
+                        )) : <span className="text-sm text-gray-500">No reminder traffic in this range.</span>}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </SectionCard>
+            </div>
 
             <SectionCard title="Flagged Accounts" subtitle="A phone-sized audit list with user, vector, timing, and target drop at a glance." icon={AlertTriangle}>
               <div className="space-y-3">

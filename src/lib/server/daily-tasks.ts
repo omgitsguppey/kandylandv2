@@ -469,6 +469,9 @@ function writeTaskLifecycleEvent(
     maxProgress: number;
     timestamp: number;
     reason?: string;
+    assignedAt?: number;
+    startedAt?: number;
+    durationMs?: number;
   },
 ) {
   const eventRef = adminDb.collection(TASK_EVENT_COLLECTION).doc();
@@ -526,6 +529,7 @@ function applyRotationSideEffects({
       progress: 0,
       maxProgress: task.maxProgress,
       timestamp: nowMs,
+      assignedAt: nowMs,
     });
     incrementEventStat(transaction, "daily_task_assigned", nowMs, {
       task_id: task.id,
@@ -548,10 +552,14 @@ function applyRotationSideEffects({
         maxProgress: task.maxProgress,
         timestamp: nowMs,
         reason: "missed_daily_progress",
+        assignedAt: task.assignedAt,
+        startedAt: task.startedAt,
+        durationMs: task.startedAt ? Math.max(0, nowMs - task.startedAt) : undefined,
       });
       incrementEventStat(transaction, "daily_task_failed", nowMs, {
         task_id: task.id,
         progress: task.progress,
+        duration_ms: task.startedAt ? Math.max(0, nowMs - task.startedAt) : 0,
       });
     });
 
@@ -694,14 +702,18 @@ export async function recordDailyTaskProgressFromEvent(
           progress: nextProgress,
           maxProgress: task.maxProgress,
           timestamp: nowMs,
+          assignedAt: task.assignedAt,
+          startedAt: nowMs,
         });
         incrementEventStat(transaction, "daily_task_started", nowMs, {
           task_id: task.id,
           trigger_event: eventName,
+          assigned_delay_ms: Math.max(0, nowMs - task.assignedAt),
         });
       }
 
       if (justCompleted) {
+        const durationMs = task.startedAt ? Math.max(0, nowMs - task.startedAt) : Math.max(0, nowMs - task.assignedAt);
         totalReward += task.reward;
         completedTasks.push({
           ...updatedTasks[index],
@@ -720,11 +732,15 @@ export async function recordDailyTaskProgressFromEvent(
           progress: nextProgress,
           maxProgress: task.maxProgress,
           timestamp: nowMs,
+          assignedAt: task.assignedAt,
+          startedAt: updatedTasks[index].startedAt,
+          durationMs,
         });
         incrementEventStat(transaction, "daily_task_completed", nowMs, {
           task_id: task.id,
           trigger_event: eventName,
           reward: task.reward,
+          duration_ms: durationMs,
         });
 
         const txRef = adminDb.collection("transactions").doc();
@@ -861,7 +877,7 @@ export async function syncUserTaskReminder(uid: string) {
     if (userData.notificationSettings?.inAppEnabled !== false) {
       queueUserNotification(transaction, uid, {
         title: "You're almost out of time!",
-        message: "Finish your tasks so you don't loose your Kandy!",
+        message: "Finish your tasks so you don't lose your Kandy!",
         type: "warning",
         link: "/experiences",
       });

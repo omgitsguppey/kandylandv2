@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import CookieConsent from "react-cookie-consent";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 
@@ -48,60 +47,31 @@ export default function CookieBanner() {
         setDismissed(true);
     };
 
-    if (isCompactViewport) {
-        return (
-            <div className="fixed inset-x-2 bottom-[calc(4.35rem+env(safe-area-inset-bottom))] z-50 rounded-[1.5rem] border border-white/10 bg-black/92 px-4 py-3 text-white shadow-[0_25px_70px_rgba(0,0,0,0.45)] backdrop-blur-xl">
-                <p className="text-[11px] leading-5 text-gray-100">
-                    We use cookies to improve KandyDrops and confirm 18+ access.
-                </p>
+    return (
+        <div
+            className={
+                isCompactViewport
+                    ? "fixed bottom-[calc(4.9rem+env(safe-area-inset-bottom))] right-3 z-50 w-[min(15.5rem,calc(100vw-1.5rem))] rounded-[1.35rem] border border-white/10 bg-black/92 px-3.5 py-3 text-white shadow-[0_25px_70px_rgba(0,0,0,0.45)] backdrop-blur-xl"
+                    : "fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-50 w-[min(24rem,calc(100vw-2rem))] rounded-[1.6rem] border border-white/10 bg-black/92 px-4 py-4 text-white shadow-[0_25px_70px_rgba(0,0,0,0.45)] backdrop-blur-xl"
+            }
+        >
+            <div className="flex flex-col gap-3">
+                <div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-brand-purple">
+                        18+ access
+                    </p>
+                    <p className={isCompactViewport ? "mt-1 text-[11px] leading-5 text-gray-100" : "mt-1 text-sm leading-6 text-gray-100"}>
+                        We use cookies to improve KandyDrops and confirm age access.
+                    </p>
+                </div>
                 <button
                     type="button"
                     onClick={handleAccept}
-                    className="mt-3 inline-flex min-h-10 items-center justify-center rounded-xl bg-pink-500 px-4 py-2 text-sm font-bold text-white"
+                    className="inline-flex min-h-10 items-center justify-center rounded-xl bg-brand-purple px-4 py-2 text-sm font-bold text-white transition-opacity hover:opacity-90"
                 >
                     I Understand
                 </button>
             </div>
-        );
-    }
-
-    return (
-        <CookieConsent
-            location="bottom"
-            buttonText="I Understand"
-            cookieName="kandydrops_consent"
-            style={{
-                background: "rgba(0, 0, 0, 0.9)",
-                backdropFilter: "blur(10px)",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
-                borderTop: "1px solid rgba(255, 255, 255, 0.1)",
-                fontSize: "13px",
-                alignItems: "center",
-                padding: "12px 16px calc(12px + env(safe-area-inset-bottom))",
-                bottom: "calc(4.5rem + env(safe-area-inset-bottom))",
-                left: "12px",
-                right: "12px",
-                width: "auto",
-                borderRadius: "24px",
-                boxShadow: "0 25px 70px rgba(0, 0, 0, 0.45)",
-            }}
-            buttonStyle={{
-                background: "#ec4899",
-                color: "white",
-                fontSize: "13px",
-                fontWeight: "bold",
-                borderRadius: "8px",
-                padding: "8px 16px"
-            }}
-            contentStyle={{
-                margin: 0,
-                lineHeight: 1.5,
-            }}
-            expires={150}
-            onAccept={handleAccept}
-        >
-            This website uses cookies to enhance the user experience and track interactions for improvement.{" "}
-            <span style={{ fontSize: "10px", color: "#6b7280" }}>By continuing, you verify you are over 18.</span>
-        </CookieConsent>
+        </div>
     );
 }

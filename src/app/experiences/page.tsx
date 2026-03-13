@@ -19,7 +19,7 @@ export default function ExperiencesPage() {
     }, []);
 
     return (
-        <div className="min-h-[calc(100dvh-11rem)] w-full overflow-hidden bg-black px-4 py-8 text-left md:min-h-[calc(100dvh-5rem)] md:py-12" data-onboarding-page="experiences">
+        <div className="min-h-[calc(100dvh-11rem)] w-full overflow-hidden bg-black px-4 py-8 pb-[calc(6.5rem+env(safe-area-inset-bottom))] text-left md:min-h-[calc(100dvh-5rem)] md:py-12 md:pb-12" data-onboarding-page="experiences">
             <div className="mx-auto max-w-4xl space-y-6">
                 <section className="glass-panel rounded-[2rem] border border-white/10 p-5 sm:p-6">
                     <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">

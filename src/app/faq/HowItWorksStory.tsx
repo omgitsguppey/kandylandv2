@@ -157,10 +157,10 @@ export function HowItWorksStory({ steps }: HowItWorksStoryProps) {
             </Button>
             <Button
               type="button"
-              variant="glass"
+              variant="brand"
               size="lg"
               onClick={handleSecondaryAction}
-              className="h-auto min-h-[3.25rem] w-full rounded-2xl border-white/10 px-5 py-3.5 text-left text-sm font-bold leading-5 whitespace-normal sm:min-h-14 sm:py-4"
+              className="h-auto min-h-[3.25rem] w-full rounded-2xl px-5 py-3.5 text-left text-sm font-bold leading-5 whitespace-normal text-white shadow-[0_0_26px_rgba(164,118,255,0.22)] sm:min-h-14 sm:py-4"
             >
               {GUMDROPS_PRIMARY_CTA}
             </Button>

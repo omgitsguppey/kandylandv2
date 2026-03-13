@@ -200,11 +200,13 @@ export function GuidedOnboarding() {
 
                 if (profile.username && !isVisible) {
                     setMountTime(Date.now());
+                    trackEvent("guided_onboarding_started", { source: "auto_after_signup" });
                     setIsVisible(true);
                 }
             } catch {
                 if (!cancelled && profile.username && !isVisible) {
                     setMountTime(Date.now());
+                    trackEvent("guided_onboarding_started", { source: "auto_after_signup" });
                     setIsVisible(true);
                 }
             }
@@ -406,9 +408,10 @@ export function GuidedOnboarding() {
             }
 
             // Track completion event with duration
-            const durationSeconds = mountTime ? Math.round((Date.now() - mountTime) / 1000) : 0;
+            const durationMs = mountTime ? Math.max(0, Date.now() - mountTime) : 0;
+            const durationSeconds = durationMs ? Math.round(durationMs / 1000) : 0;
             try {
-                trackEvent("guided_onboarding_completed", { durationSeconds });
+                trackEvent("guided_onboarding_completed", { durationSeconds, duration_ms: durationMs });
             } catch (e) { }
 
             setIsVisible(false);

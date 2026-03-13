@@ -19,7 +19,7 @@ export default function Hero() {
     const ref = useRef(null);
 
     return (
-        <section ref={ref} className="relative flex min-h-[74vh] w-full flex-col justify-center overflow-hidden pb-8 pt-[4.25rem] max-[360px]:min-h-[68vh] max-[360px]:pb-5 max-[360px]:pt-16 sm:min-h-[90vh] sm:pb-12 sm:pt-24">
+        <section ref={ref} className="relative flex min-h-[74vh] w-full flex-col justify-center overflow-hidden pb-[calc(7rem+env(safe-area-inset-bottom))] pt-[4.25rem] max-[360px]:min-h-[68vh] max-[360px]:pb-[calc(7.5rem+env(safe-area-inset-bottom))] max-[360px]:pt-16 sm:min-h-[90vh] sm:pb-12 sm:pt-24">
             <div className="absolute inset-0 z-0 opacity-40">
                 <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-brand-purple/20 rounded-full blur-[120px] mix-blend-screen animate-pulse" style={{ animationDuration: "4s" }} />
                 <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-brand-purple/10 rounded-full blur-[100px] mix-blend-screen animate-pulse" style={{ animationDuration: "7s" }} />
@@ -72,7 +72,7 @@ export default function Hero() {
                         </Button>
                     </div>
 
-                    <div className="pt-0.5">
+                    <div className="pt-1.5">
                         <Link href="/faq" className="text-sm font-semibold text-gray-400 transition-colors hover:text-white">
                             See how it works
                         </Link>

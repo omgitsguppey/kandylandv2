@@ -49,7 +49,7 @@ export function PromoCard({ drop }: PromoCardProps) {
 
                 {/* Overlay Icon */}
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 bg-black/20 backdrop-blur-[2px]">
-                    <div className="bg-white text-black rounded-full p-3 transform scale-50 transition-transform duration-300">
+                    <div className="rounded-full bg-brand-purple p-3 text-white transform scale-50 transition-transform duration-300">
                         <ArrowUpRight className="w-6 h-6" />
                     </div>
                 </div>
@@ -67,10 +67,10 @@ export function PromoCard({ drop }: PromoCardProps) {
                 </div>
 
                 <div
-                    className="w-full py-2 md:py-3 rounded-lg md:rounded-xl font-bold text-xs md:text-sm bg-white text-black flex items-center justify-center gap-2 transition-opacity"
+                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand-purple py-2 text-xs font-bold text-white transition-opacity md:rounded-xl md:py-3 md:text-sm"
                     style={{
-                        backgroundColor: drop.accentColor || 'white',
-                        color: drop.accentColor ? 'white' : 'black'
+                        backgroundColor: drop.accentColor || "#a476ff",
+                        color: "white",
                     }}
                 >
                     {drop.ctaText || "Visit Now"}

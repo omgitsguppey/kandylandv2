@@ -11,6 +11,7 @@ import { useDrops } from "@/hooks/useDrops";
 import { KandyDropsAccountOverview, AccountOverviewState } from "@/components/KandyDropsAccountOverview";
 import { GuestComponentBlur } from "@/components/Auth/GuestComponentBlur";
 import dynamic from "next/dynamic";
+import { trackEvent } from "@/lib/telemetry";
 
 const FeaturedCarousel = dynamic(() => import("@/components/FeaturedCarousel").then(mod => mod.FeaturedCarousel), {
     ssr: false,
@@ -97,6 +98,10 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
     const observerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
+        trackEvent("drops_page_viewed");
+    }, []);
+
+    useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
                 if (entries[0].isIntersecting && !isLoadingMore && !isReachingEnd) {
@@ -166,7 +171,7 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
     }, [sourceDrops, searchQuery, selectedCategory]);
 
     return (
-        <div className="w-full selection:bg-brand-purple/30 px-4 md:px-8 max-w-7xl mx-auto" data-onboarding-page="drops">
+        <div className="mx-auto w-full max-w-7xl px-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] selection:bg-brand-purple/30 md:px-8 md:pb-8" data-onboarding-page="drops">
             <div className="mb-4 md:mb-6">
                 <KandyDropsAccountOverview
                     state={accountOverview.state}

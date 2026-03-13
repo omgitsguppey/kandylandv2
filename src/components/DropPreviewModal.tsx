@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 import { sendGAEvent } from "@next/third-parties/google";
 import { getSimulatedUnwrapsToday } from "@/lib/unwrap-simulator";
 import * as Dialog from "@radix-ui/react-dialog";
-import { trackEvent } from "@/lib/telemetry";
+import { clearTimedFlow, consumeTimedFlow, startTimedFlow, trackEvent } from "@/lib/telemetry";
 import {
   GUMDROPS_SUPPORT_COPY,
   GUMDROPS_URGENCY_CTA,
@@ -81,6 +81,12 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
     });
   }, [drop, isUnlocked]);
 
+  useEffect(() => {
+    if (!drop) {
+      clearTimedFlow("drop_unlock");
+    }
+  }, [drop]);
+
   if (!drop) {
     return null;
   }
@@ -112,6 +118,11 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
     if (!confirming) {
       setConfirming(true);
       triggerHaptic();
+      startTimedFlow("drop_unlock", {
+        drop_id: drop.id,
+        drop_category: drop.type,
+        unlock_cost: drop.unlockCost,
+      });
       trackEvent("drop_unlock_attempted", {
         drop_id: drop.id,
         drop_category: drop.type,
@@ -156,6 +167,7 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
         drop_category: drop.type,
         unlock_cost: drop.unlockCost,
         drop_tags: (drop.tags || []).join("|"),
+        ...(consumeTimedFlow("drop_unlock").mergedParams ?? {}),
       });
 
       if (userProfile) {
@@ -175,6 +187,7 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Please try again later.";
+      clearTimedFlow("drop_unlock");
       toast.error("Unwrap failed", { description: message });
     } finally {
       setUnlocking(false);

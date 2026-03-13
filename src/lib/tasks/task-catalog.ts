@@ -111,6 +111,9 @@ export interface DailyTaskLifecycleEvent {
   maxProgress: number;
   timestamp: number;
   reason?: string;
+  assignedAt?: number;
+  startedAt?: number;
+  durationMs?: number;
 }
 
 export const DAILY_TASK_ACTION_OPTIONS: Array<{ value: DailyTaskActionType; label: string }> = [

@@ -1,10 +1,11 @@
 "use client";
 
-import { useDeferredValue, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { ChevronDown, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { cn } from "@/lib/utils";
+import { trackEvent } from "@/lib/telemetry";
 import { HowItWorksStory } from "./HowItWorksStory";
 import type { FAQSection, HowItWorksStep } from "./faq-data";
 
@@ -48,6 +49,10 @@ export function FAQClient({ sections, steps }: FAQClientProps) {
   const deferredQuery = useDeferredValue(query);
 
   const searchableSections = useMemo(() => buildSearchableSections(sections), [sections]);
+
+  useEffect(() => {
+    trackEvent("faq_page_viewed");
+  }, []);
 
   const filteredSections = useMemo(() => {
     const normalizedQuery = normalizeQuery(deferredQuery);

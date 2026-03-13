@@ -10,7 +10,7 @@ import { authFetch } from "@/lib/authFetch";
 import { motion, AnimatePresence } from "framer-motion";
 import { sendGAEvent } from "@next/third-parties/google";
 import { GuestComponentBlur } from "@/components/Auth/GuestComponentBlur";
-import { trackEvent } from "@/lib/telemetry";
+import { clearTimedFlow, consumeTimedFlow, startTimedFlow, trackEvent } from "@/lib/telemetry";
 import { GUMDROPS_SUPPORT_COPY, SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
 
 interface PurchaseModalProps {
@@ -28,6 +28,7 @@ const PACKAGES: PurchasePackage[] = [
 ];
 
 const PAYPAL_READY = (process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE?.trim()?.length ?? 0) > 0;
+const CHECKOUT_FLOW_KEY = "wallet_checkout";
 
 export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   const { user } = useAuth();
@@ -67,6 +68,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   const closeModal = useCallback(() => {
     setSuccess(false);
     setError(null);
+    clearTimedFlow(CHECKOUT_FLOW_KEY);
     requestAnimationFrame(onClose);
   }, [onClose]);
 
@@ -135,6 +137,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
         package_label: selectedPackage.label,
         package_drops: selectedPackage.drops,
         package_price: selectedPackage.price,
+        ...(consumeTimedFlow(CHECKOUT_FLOW_KEY).mergedParams ?? {}),
       });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Purchase failed. Please contact support.";
@@ -143,6 +146,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
         package_label: selectedPackage.label,
         package_drops: selectedPackage.drops,
         package_price: selectedPackage.price,
+        ...(consumeTimedFlow(CHECKOUT_FLOW_KEY, { failure_reason: message }).mergedParams ?? {}),
       });
       toast.error("Purchase failed", { description: message });
     } finally {
@@ -303,6 +307,11 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                             style={{ layout: "vertical", color: "white", shape: "rect", label: "pay", height: 48 }}
                             disabled={processing}
                             createOrder={async () => {
+                              startTimedFlow(CHECKOUT_FLOW_KEY, {
+                                package_label: selectedPackage.label,
+                                package_drops: selectedPackage.drops,
+                                package_price: selectedPackage.price,
+                              });
                               trackEvent("begin_checkout", {
                                 package_label: selectedPackage.label,
                                 package_drops: selectedPackage.drops,
