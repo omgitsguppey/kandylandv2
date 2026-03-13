@@ -3,7 +3,14 @@ import importPlugin from "eslint-plugin-import";
 
 const eslintConfig = [
     {
-        ignores: ["src/dataconnect-generated/**"],
+        ignores: [
+            "src/dataconnect-generated/**",
+            "output/**",
+            "qa-screenshots/**",
+            ".playwright-cli/**",
+            "build-log.txt",
+            "check-log.txt",
+        ],
     },
     ...nextVitals,
     {

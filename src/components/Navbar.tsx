@@ -52,12 +52,12 @@ export function Navbar() {
                         onClick={() => {
                             trackEvent("navigation_click", { destination: "/", source: "navbar_logo" });
                         }}
-                        className="bg-gradient-to-r from-brand-purple to-brand-purple bg-clip-text text-lg font-bold text-transparent sm:text-2xl"
+                        className="shrink-0 bg-gradient-to-r from-brand-purple to-brand-purple bg-clip-text text-base font-bold text-transparent sm:text-2xl"
                     >
                         KandyDrops
                     </Link>
 
-                    <div className="flex items-center gap-2 sm:gap-4">
+                    <div className="flex min-w-0 items-center gap-2 sm:gap-4">
                         {user ? (
                             <>
                                 <AdminDropdown />
@@ -107,10 +107,11 @@ export function Navbar() {
                         ) : (
                             <button
                                 onClick={() => openAuthModal("signup")}
-                                className="flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-4 py-2 text-xs font-bold tracking-wide text-white shadow-[0_0_20px_rgba(178,140,255,0.35)] transition-all duration-300 sm:px-6 sm:py-2.5 sm:text-sm"
+                                className="flex max-w-[8.5rem] shrink items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-3 py-2 text-[11px] font-bold tracking-wide text-white shadow-[0_0_20px_rgba(178,140,255,0.35)] transition-all duration-300 sm:max-w-none sm:gap-2 sm:px-6 sm:py-2.5 sm:text-sm"
                             >
                                 <Sparkles className="h-4 w-4" />
-                                {SECONDARY_UNWRAP_CTA}
+                                <span className="truncate sm:hidden">Unwrap</span>
+                                <span className="hidden sm:inline">{SECONDARY_UNWRAP_CTA}</span>
                             </button>
                         )}
                     </div>
