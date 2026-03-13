@@ -87,7 +87,8 @@ export interface DailyTasksState {
   nextRefreshMs: number;
   tasks: DailyTaskAssignment[];
   completedTaskHistory?: Record<string, number>;
-  completedOneTimeTasks?: string[];
+  lastProgressAt?: number;
+  lastDeadlineReminderAt?: number;
 }
 
 export interface DailyTaskEventStat {
@@ -99,7 +100,7 @@ export interface DailyTaskEventStat {
 
 export interface DailyTaskLifecycleEvent {
   id: string;
-  type: "assigned" | "started" | "completed";
+  type: "assigned" | "started" | "completed" | "failed" | "reminder_sent";
   taskId: string;
   title: string;
   triggerEvent: string;
@@ -109,6 +110,7 @@ export interface DailyTaskLifecycleEvent {
   progress: number;
   maxProgress: number;
   timestamp: number;
+  reason?: string;
 }
 
 export const DAILY_TASK_ACTION_OPTIONS: Array<{ value: DailyTaskActionType; label: string }> = [

@@ -1,9 +1,14 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+
 import { useAuth } from "@/context/AuthContext";
-import { NotificationPromptBanner } from "@/components/Dashboard/NotificationPromptBanner";
+
+const NotificationPromptBanner = dynamic(
+    () => import("@/components/Dashboard/NotificationPromptBanner").then((mod) => mod.NotificationPromptBanner),
+);
 
 export default function DashboardLayout({
     children,
@@ -21,19 +26,17 @@ export default function DashboardLayout({
 
     if (loading || !user) {
         return (
-            <div className="min-h-screen bg-black flex flex-col items-center justify-center">
-                <div className="w-10 h-10 rounded-full border-[3px] border-brand-purple/20 border-t-brand-purple animate-spin mb-4" />
-                <p className="text-brand-purple/80 text-sm tracking-widest uppercase font-medium mt-2">Please wait</p>
+            <div className="flex min-h-screen flex-col items-center justify-center bg-black">
+                <div className="mb-4 h-10 w-10 animate-spin rounded-full border-[3px] border-brand-purple/20 border-t-brand-purple" />
+                <p className="mt-2 text-sm font-medium uppercase tracking-widest text-brand-purple/80">Please wait</p>
             </div>
         );
     }
 
     return (
-        <div className="flex-1 w-full relative">
+        <div className="relative flex-1 w-full">
             <NotificationPromptBanner />
-            <div className="w-full">
-                {children}
-            </div>
+            <div className="w-full">{children}</div>
         </div>
     );
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, type ReactNode } from "react";
 import Link from "next/link";
-import { LogOut, LayoutDashboard, Library, Settings, X, Plus, History } from "lucide-react";
+import { LogOut, LayoutDashboard, Library, Settings, X, Plus } from "lucide-react";
 
 import { useAuthIdentity, useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
@@ -116,7 +116,6 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
                         <nav className="space-y-1">
                             <SidebarItem href="/dashboard" icon={<LayoutDashboard className="w-5 h-5" />} label="Dashboard" onClick={onClose} />
                             <SidebarItem href="/dashboard/library" icon={<Library className="w-5 h-5" />} label="My KandyDrops" onClick={onClose} />
-                            <SidebarItem href="/dashboard/history" icon={<History className="w-5 h-5" />} label="Transaction History" onClick={onClose} />
                             <SidebarItem href="/dashboard/profile" icon={<Settings className="w-5 h-5" />} label="Settings" onClick={onClose} />
                         </nav>
                     </div>

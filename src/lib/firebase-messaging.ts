@@ -1,46 +1,149 @@
-import { getMessaging, getToken, onMessage, isSupported } from "firebase/messaging";
+import { getMessaging, getToken, isSupported, onMessage } from "firebase/messaging";
+
 import { app } from "./firebase";
+import { isIOSNonStandalone, isStandalone } from "./browser-utils";
+
+export interface BrowserNotificationState {
+    browserCapable: boolean;
+    messagingSupported: boolean;
+    needsStandaloneInstall: boolean;
+    permission: NotificationPermission | "unsupported";
+    hasPermission: boolean;
+    canPrompt: boolean;
+    context: "browser" | "pwa";
+}
+
+interface BrowserNotificationAccess {
+    granted: boolean;
+    token: string | null;
+    state: BrowserNotificationState;
+}
+
+function buildServiceWorkerUrl() {
+    const config = {
+        apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+        messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+        appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+    };
+
+    return `/firebase-messaging-sw.js?apiKey=${config.apiKey}&projectId=${config.projectId}&messagingSenderId=${config.messagingSenderId}&appId=${config.appId}`;
+}
+
+export async function getBrowserNotificationState(): Promise<BrowserNotificationState> {
+    const browserCapable = typeof window !== "undefined" && "Notification" in window;
+    const permission = browserCapable ? Notification.permission : "unsupported";
+    const needsStandaloneInstall = isIOSNonStandalone();
+    const messagingSupported = browserCapable && !needsStandaloneInstall
+        ? await isSupported().catch(() => false)
+        : false;
+
+    return {
+        browserCapable,
+        messagingSupported,
+        needsStandaloneInstall,
+        permission,
+        hasPermission: permission === "granted",
+        canPrompt: permission === "default",
+        context: isStandalone() ? "pwa" : "browser",
+    };
+}
+
+export async function requestBrowserNotificationAccess(): Promise<BrowserNotificationAccess> {
+    const state = await getBrowserNotificationState();
+    if (!state.browserCapable || state.needsStandaloneInstall) {
+        return {
+            granted: false,
+            token: null,
+            state,
+        };
+    }
+
+    const permission = await Notification.requestPermission();
+    const nextState: BrowserNotificationState = {
+        ...state,
+        permission,
+        hasPermission: permission === "granted",
+        canPrompt: false,
+    };
+
+    if (permission !== "granted") {
+        return {
+            granted: false,
+            token: null,
+            state: nextState,
+        };
+    }
+
+    if (!nextState.messagingSupported) {
+        return {
+            granted: true,
+            token: null,
+            state: nextState,
+        };
+    }
+
+    try {
+        const messaging = getMessaging(app);
+        const registration = await navigator.serviceWorker.register(buildServiceWorkerUrl());
+        const token = await getToken(messaging, {
+            vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
+            serviceWorkerRegistration: registration,
+        });
+
+        return {
+            granted: true,
+            token: token || null,
+            state: nextState,
+        };
+    } catch (error) {
+        console.error("Failed to finish browser notification setup:", error);
+        return {
+            granted: true,
+            token: null,
+            state: nextState,
+        };
+    }
+}
 
 export const requestFirebaseNotificationPermission = async () => {
-    try {
-        const supported = await isSupported();
-        if (!supported) {
-            console.warn("Firebase Messaging not supported in this browser. (Note: iOS Safari requires 'Add to Home Screen')");
-            return null;
-        }
-
-        const permission = await Notification.requestPermission();
-        if (permission === "granted") {
-            const messaging = getMessaging(app);
-
-            // Register service worker with config in URL params
-            const config = {
-                apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-                projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-                messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-                appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-            };
-
-            const swUrl = `/firebase-messaging-sw.js?apiKey=${config.apiKey}&projectId=${config.projectId}&messagingSenderId=${config.messagingSenderId}&appId=${config.appId}`;
-            const registration = await navigator.serviceWorker.register(swUrl);
-
-            const token = await getToken(messaging, {
-                vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY, // Needs to be added to .env.local
-                serviceWorkerRegistration: registration,
-            });
-
-            return token;
-        } else {
-            return null;
-        }
-    } catch (error) {
-        console.error("Failed to request notification permission:", error);
-        return null;
-    }
+    const result = await requestBrowserNotificationAccess();
+    return result.granted ? result.token : null;
 };
 
-export const onNotificationMessage = (callback: (payload: any) => void) => {
-    isSupported().then((supported) => {
+export async function showBrowserNotification(title: string, body: string, url: string = "/experiences") {
+    if (typeof window === "undefined" || !("Notification" in window) || Notification.permission !== "granted") {
+        return false;
+    }
+
+    const options = {
+        body,
+        icon: "/icon-192x192.png",
+        data: { url },
+    };
+
+    try {
+        if ("serviceWorker" in navigator) {
+            const registration = await navigator.serviceWorker.ready;
+            await registration.showNotification(title, options);
+            return true;
+        }
+    } catch (error) {
+        console.error("Service worker notification failed, falling back to window notification:", error);
+    }
+
+    const notification = new Notification(title, options);
+    notification.onclick = () => {
+        window.focus();
+        window.location.assign(url);
+        notification.close();
+    };
+
+    return true;
+}
+
+export const onNotificationMessage = (callback: (payload: unknown) => void) => {
+    void isSupported().then((supported) => {
         if (supported) {
             const messaging = getMessaging(app);
             onMessage(messaging, callback);

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAuth, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
-import { getCSTDayBoundaries } from "@/lib/timezone";
+import { getCSTDayBoundaries, isPreviousCSTDay, isSameCSTDay } from "@/lib/timezone";
 import { checkRateLimit, STRICT } from "@/lib/server/rate-limit";
 
 export async function POST(request: NextRequest) {
@@ -32,8 +32,8 @@ export async function POST(request: NextRequest) {
             const currentStreak = userData.streakCount || 0;
 
             // 2. Check if already claimed today (CST day boundaries)
-            const { startOfDay, endOfDay } = getCSTDayBoundaries(now);
-            const isSameDay = lastCheckIn >= startOfDay && lastCheckIn < endOfDay;
+            const { endOfDay } = getCSTDayBoundaries(now);
+            const isSameDay = isSameCSTDay(lastCheckIn, now);
 
             if (isSameDay && lastCheckIn > 0) {
                 return {
@@ -46,22 +46,16 @@ export async function POST(request: NextRequest) {
             }
 
             // 3. Calculate streak
-            const hoursSinceLast = lastCheckIn > 0 ? (now - lastCheckIn) / (1000 * 60 * 60) : Infinity;
-            let nextStreak: number;
+            const checkedInYesterday = isPreviousCSTDay(lastCheckIn, now);
+            let nextStreak = checkedInYesterday ? currentStreak + 1 : 1;
 
-            if (hoursSinceLast > 48) {
-                nextStreak = 1;
-            } else {
-                nextStreak = currentStreak + 1;
-            }
-
-            if (currentStreak >= 7) {
+            if (currentStreak >= 7 && checkedInYesterday) {
                 nextStreak = 1;
             }
 
             const reward = nextStreak * 10;
 
-            // 4. Atomic update: balance + streak + transaction history
+            // 4. Atomic update: balance + streak + reward ledger entry
             transaction.update(userRef, {
                 gumDropsBalance: FieldValue.increment(reward),
                 lastCheckIn: now,

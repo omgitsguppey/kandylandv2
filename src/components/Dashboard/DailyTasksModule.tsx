@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Bell,
   Candy,
   CheckCircle2,
+  Clock3,
   Eye,
   Gift,
   Layers3,
@@ -16,23 +17,22 @@ import {
   Sparkles,
   Wallet,
 } from "lucide-react";
-import { doc, updateDoc, arrayUnion } from "firebase/firestore";
+import { arrayUnion, doc, updateDoc } from "firebase/firestore";
 import { toast } from "sonner";
 
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
-import { cn } from "@/lib/utils";
 import { authFetch } from "@/lib/authFetch";
 import { db } from "@/lib/firebase-data";
-import { isIOSNonStandalone } from "@/lib/browser-utils";
-import { requestFirebaseNotificationPermission } from "@/lib/firebase-messaging";
+import { cn } from "@/lib/utils";
 import {
-  DailyTaskAssignment,
+  type DailyTaskAssignment,
+  type DailyTaskIconName,
   DAILY_TASK_LIMIT,
-  DailyTaskIconName,
 } from "@/lib/tasks/task-catalog";
+import { getCSTDayBoundaries, isSameCSTDay } from "@/lib/timezone";
+import { requestBrowserNotificationAccess } from "@/lib/firebase-messaging";
 import { trackEvent } from "@/lib/telemetry";
-import { getCSTDayBoundaries } from "@/lib/timezone";
 
 type FeedbackCategory = "general" | "feature_request" | "bug_report" | "creator_request";
 
@@ -67,7 +67,7 @@ function formatCountdown(targetMs: number, nowMs: number) {
 
 export function DailyTasksModule() {
   const router = useRouter();
-  const { userProfile } = useAuth();
+  const { user, userProfile } = useAuth();
   const { openPurchaseModal } = useUI();
   const [rotating, setRotating] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
@@ -77,6 +77,7 @@ export function DailyTasksModule() {
   const [feedbackLoading, setFeedbackLoading] = useState(false);
   const [notificationLoading, setNotificationLoading] = useState(false);
   const [nowMs, setNowMs] = useState(Date.now());
+  const lastRotationRef = useRef<number>(0);
 
   useEffect(() => {
     const timerId = window.setInterval(() => {
@@ -91,12 +92,16 @@ export function DailyTasksModule() {
       return;
     }
 
+    trackEvent("daily_tasks_viewed");
     let cancelled = false;
 
-    async function rotateTasks() {
+    async function rotateTasksOnMount() {
       setRotating(true);
       try {
-        await authFetch("/api/tasks/rotate", { method: "POST" });
+        const response = await authFetch("/api/tasks/rotate", { method: "POST" });
+        if (!response.ok) {
+          throw new Error("Task rotation failed");
+        }
       } catch (error) {
         if (!cancelled) {
           console.error("Task rotation failed", error);
@@ -108,7 +113,8 @@ export function DailyTasksModule() {
       }
     }
 
-    void rotateTasks();
+    void rotateTasksOnMount();
+
     return () => {
       cancelled = true;
     };
@@ -120,40 +126,88 @@ export function DailyTasksModule() {
     () => activeTasks.filter((task) => task.claimed).length,
     [activeTasks],
   );
-
+  const unfinishedCount = activeTasks.length - completedCount;
   const fallbackNextRefreshMs = useMemo(() => getCSTDayBoundaries(nowMs).endOfDay, [nowMs]);
   const nextRefreshMs = dailyTaskState?.nextRefreshMs || fallbackNextRefreshMs;
   const waitLabel = formatCountdown(nextRefreshMs, nowMs);
+  const lastProgressAnchor = Math.max(
+    Number(dailyTaskState?.lastProgressAt ?? 0),
+    Number(userProfile?.lastCheckIn ?? 0),
+  );
+  const hasProgressToday = isSameCSTDay(lastProgressAnchor, nowMs);
+  const isCompleteForToday = completedCount >= DAILY_TASK_LIMIT;
+  const headerCountdownLabel = isCompleteForToday ? "Next batch in" : "Deadline in";
+
+  useEffect(() => {
+    if (!userProfile?.uid || nowMs < nextRefreshMs || lastRotationRef.current === nextRefreshMs) {
+      return;
+    }
+
+    lastRotationRef.current = nextRefreshMs;
+    let cancelled = false;
+
+    async function rotateTasksAfterDeadline() {
+      setRotating(true);
+      try {
+        const response = await authFetch("/api/tasks/rotate", { method: "POST" });
+        if (!response.ok) {
+          throw new Error("Task rotation failed");
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Task rotation failed", error);
+        }
+      } finally {
+        if (!cancelled) {
+          setRotating(false);
+        }
+      }
+    }
+
+    void rotateTasksAfterDeadline();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [nextRefreshMs, nowMs, userProfile?.uid]);
 
   const openNotifications = () => {
     window.dispatchEvent(new Event("kandydrops:open-notifications"));
   };
 
   const handleEnableNotifications = async () => {
-    if (!userProfile) {
-      return;
-    }
-
-    if (isIOSNonStandalone()) {
-      toast.error("Add KandyDrops to your Home Screen first to enable notifications on iPhone.");
+    if (!user || !userProfile) {
       return;
     }
 
     setNotificationLoading(true);
     try {
-      const token = await requestFirebaseNotificationPermission();
-      if (!token) {
-        toast.error("Notification permission was denied.");
+      const result = await requestBrowserNotificationAccess();
+      if (!result.granted) {
+        if (result.state.needsStandaloneInstall) {
+          toast.info("Add KandyDrops to your Home Screen, then reopen it there to enable notifications on iPhone.");
+        } else {
+          toast.info("Browser notifications were not enabled.");
+        }
         return;
       }
 
-      const userRef = doc(db, "users", userProfile.uid);
+      const userRef = doc(db, "users", user.uid);
       await updateDoc(userRef, {
-        fcmTokens: arrayUnion(token),
+        notificationSettings: {
+          inAppEnabled: userProfile.notificationSettings?.inAppEnabled !== false,
+          browserPushEnabled: true,
+          newDropAlerts: userProfile.notificationSettings?.newDropAlerts !== false,
+          expiringSoonAlerts: userProfile.notificationSettings?.expiringSoonAlerts !== false,
+        },
+        ...(result.token ? { fcmTokens: arrayUnion(result.token) } : {}),
       });
 
-      trackEvent("task_notifications_enabled");
-      toast.success("Notifications enabled");
+      trackEvent("task_notifications_enabled", {
+        source: "daily_tasks",
+        messaging_supported: result.state.messagingSupported,
+      });
+      toast.success("Notifications enabled.");
     } catch (error) {
       console.error("Failed to enable notifications", error);
       toast.error("We could not enable notifications right now.");
@@ -163,6 +217,11 @@ export function DailyTasksModule() {
   };
 
   const handleTaskAction = async (task: DailyTaskAssignment) => {
+    trackEvent("daily_task_action_clicked", {
+      task_id: task.id,
+      action_type: task.actionType,
+    });
+
     switch (task.actionType) {
       case "open_dashboard":
         router.push("/dashboard");
@@ -333,7 +392,7 @@ export function DailyTasksModule() {
             <div>
               <h2 className="text-xl font-bold text-white sm:text-2xl">Three tasks. Bigger rewards.</h2>
               <p className="mt-1 max-w-lg text-sm leading-6 text-gray-400">
-                Finish up to {DAILY_TASK_LIMIT} tasks today, then wait for the daily check-in timer before the next set refreshes.
+                Long-running tasks keep their progress while you stay active each day. Miss the timer and unfinished progress resets.
               </p>
             </div>
           </div>
@@ -344,8 +403,28 @@ export function DailyTasksModule() {
               <p className="mt-1 text-2xl font-black text-white">{completedCount}/{DAILY_TASK_LIMIT}</p>
             </div>
             <div className="rounded-[1.4rem] border border-white/10 bg-black/30 px-3 py-3">
-              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-gray-500">Refresh in</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-gray-500">{headerCountdownLabel}</p>
               <p className="mt-1 text-lg font-black text-brand-purple">{waitLabel}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4 rounded-[1.5rem] border border-white/10 bg-black/25 px-4 py-3">
+          <div className="flex items-start gap-3">
+            <Clock3 className="mt-0.5 h-4 w-4 shrink-0 text-brand-purple" />
+            <div>
+              <p className="text-sm font-semibold text-white">
+                {unfinishedCount > 0
+                  ? "Unfinished tasks reset if you miss a day of progress."
+                  : "Finish three tasks, then wait for the next daily refresh."}
+              </p>
+              <p className="mt-1 text-xs leading-5 text-gray-400">
+                {unfinishedCount > 0
+                  ? hasProgressToday
+                    ? "You already made progress today, so your unfinished tasks can carry forward into the next day."
+                    : "Make progress before the timer ends or unfinished tasks drop back into the shuffle pool."
+                  : "New tasks unlock after the daily timer rolls over."}
+              </p>
             </div>
           </div>
         </div>
@@ -374,22 +453,22 @@ export function DailyTasksModule() {
         </div>
       ) : null}
 
-      {completedCount >= DAILY_TASK_LIMIT ? (
+      {isCompleteForToday ? (
         <div className="glass-panel rounded-[2rem] border border-white/10 p-5">
           <div className="rounded-[1.7rem] border border-brand-purple/25 bg-[radial-gradient(circle_at_top,rgba(178,140,255,0.22),rgba(18,18,24,0.94)_72%)] p-5 text-center">
             <CheckCircle2 className="mx-auto h-10 w-10 text-brand-purple" />
             <h3 className="mt-3 text-xl font-bold text-white">Today&apos;s tasks are complete</h3>
             <p className="mt-2 text-sm leading-6 text-gray-300">
-              You already finished all {DAILY_TASK_LIMIT} missions. The next batch unlocks when the daily check-in timer resets.
+              You already finished all {DAILY_TASK_LIMIT} missions. The next batch unlocks when the daily timer resets.
             </p>
             <div className="mt-4 inline-flex items-center rounded-full border border-brand-purple/30 bg-brand-purple/15 px-4 py-2 text-sm font-bold text-white">
-              Refresh in {waitLabel}
+              Next batch in {waitLabel}
             </div>
           </div>
         </div>
       ) : null}
 
-      {activeTasks.length > 0 && completedCount < DAILY_TASK_LIMIT ? (
+      {activeTasks.length > 0 && !isCompleteForToday ? (
         <div className="grid gap-3">
           {activeTasks.map((task) => {
             const Icon = ICONS[task.icon] || Gift;

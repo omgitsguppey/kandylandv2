@@ -1,28 +1,48 @@
 import "server-only";
 
-import { FieldValue } from "firebase-admin/firestore";
+import { FieldValue, type Transaction } from "firebase-admin/firestore";
 
 import { adminDb } from "@/lib/server/firebase-admin";
 import {
   BUILT_IN_DAILY_TASKS,
   DAILY_TASK_COOLDOWN_DAYS,
   DAILY_TASK_LIMIT,
-  DailyTaskActionType,
-  DailyTaskAssignment,
-  DailyTaskCriteria,
-  DailyTaskDefinition,
-  DailyTaskGroup,
-  DailyTaskIconName,
-  DailyTasksState,
+  type DailyTaskActionType,
+  type DailyTaskAssignment,
+  type DailyTaskCriteria,
+  type DailyTaskDefinition,
+  type DailyTaskGroup,
+  type DailyTaskIconName,
+  type DailyTasksState,
 } from "@/lib/tasks/task-catalog";
-import { getCSTDayBoundaries } from "@/lib/timezone";
-import { UserProfile } from "@/types/db";
+import { getCSTDayBoundaries, isSameCSTDay } from "@/lib/timezone";
+import type { UserProfile } from "@/types/db";
 
 const TASK_DEFINITION_COLLECTION = "daily_task_definitions";
 const TASK_EVENT_COLLECTION = "daily_task_events";
 const EVENT_STATS_COLLECTION = "analytics_event_stats";
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+const ONE_HOUR_MS = 60 * 60 * 1000;
 
 type EventParams = Record<string, string | number | boolean> | undefined;
+type RotationReason = "initial" | "cycle_complete" | "missed_progress";
+
+interface TaskStateBuildResult {
+  state: DailyTasksState;
+  rotated: boolean;
+  rotationReason: RotationReason | null;
+  assignedTasks: DailyTaskAssignment[];
+  failedTasks: DailyTaskAssignment[];
+}
+
+interface RotationSideEffectContext {
+  transaction: Transaction;
+  uid: string;
+  username: string | null;
+  notificationSettings: UserProfile["notificationSettings"];
+  result: TaskStateBuildResult;
+  nowMs: number;
+}
 
 function normalizeStringArray(value: unknown): string[] {
   if (!Array.isArray(value)) {
@@ -62,7 +82,9 @@ function normalizeTaskAssignment(raw: unknown): Partial<DailyTaskAssignment> | n
     reward: Number.isFinite(source.reward) ? Number(source.reward) : undefined,
     maxProgress: Number.isFinite(source.maxProgress) ? Number(source.maxProgress) : undefined,
     eventName: typeof source.eventName === "string" ? source.eventName : undefined,
-    actionType: typeof source.actionType === "string" ? source.actionType as DailyTaskAssignment["actionType"] : undefined,
+    actionType: typeof source.actionType === "string"
+      ? source.actionType as DailyTaskAssignment["actionType"]
+      : undefined,
     ctaLabel: typeof source.ctaLabel === "string" ? source.ctaLabel : undefined,
     icon: typeof source.icon === "string" ? source.icon as DailyTaskAssignment["icon"] : undefined,
     group: typeof source.group === "string" ? source.group as DailyTaskAssignment["group"] : undefined,
@@ -101,12 +123,7 @@ function upgradeAssignment(
     return null;
   }
 
-  const definitionId = partial.id;
-  if (!definitionId) {
-    return null;
-  }
-
-  const definition = definitions.get(definitionId);
+  const definition = definitions.get(partial.id ?? "");
   if (!definition) {
     return null;
   }
@@ -124,7 +141,7 @@ function upgradeAssignment(
 
 function getCooldownMs(task: DailyTaskDefinition): number {
   const days = task.cooldownDays ?? DAILY_TASK_COOLDOWN_DAYS;
-  return days * 24 * 60 * 60 * 1000;
+  return days * ONE_DAY_MS;
 }
 
 function shuffle<T>(items: T[]): T[] {
@@ -289,6 +306,18 @@ function createDefinitionMap(definitions: DailyTaskDefinition[]) {
   return new Map(definitions.map((task) => [task.id, task]));
 }
 
+function getUserDisplayName(userData: UserProfile): string | null {
+  if (typeof userData.username === "string" && userData.username.trim().length > 0) {
+    return userData.username.trim();
+  }
+
+  if (typeof userData.displayName === "string" && userData.displayName.trim().length > 0) {
+    return userData.displayName.trim();
+  }
+
+  return null;
+}
+
 function normalizeTaskState(
   userData: UserProfile,
   definitionMap: Map<string, DailyTaskDefinition>,
@@ -306,7 +335,65 @@ function normalizeTaskState(
     nextRefreshMs: Number.isFinite(currentState?.nextRefreshMs) ? Number(currentState?.nextRefreshMs) : 0,
     tasks,
     completedTaskHistory: normalizeHistory(currentState?.completedTaskHistory),
-    completedOneTimeTasks: normalizeStringArray(currentState?.completedOneTimeTasks),
+    lastProgressAt: Number.isFinite(currentState?.lastProgressAt) ? Number(currentState?.lastProgressAt) : 0,
+    lastDeadlineReminderAt: Number.isFinite(currentState?.lastDeadlineReminderAt)
+      ? Number(currentState?.lastDeadlineReminderAt)
+      : 0,
+  };
+}
+
+function getContinuityAnchorMs(state: DailyTasksState, userData: UserProfile): number {
+  const checkInMs = Number.isFinite(userData.lastCheckIn) ? Number(userData.lastCheckIn) : 0;
+  return Math.max(state.lastProgressAt ?? 0, checkInMs, state.lastResetMs);
+}
+
+function hasMissedDailyProgressWindow(
+  state: DailyTasksState,
+  userData: UserProfile,
+  nowMs: number,
+): boolean {
+  if (state.tasks.length === 0 || state.tasks.every((task) => task.claimed)) {
+    return false;
+  }
+
+  const { startOfDay } = getCSTDayBoundaries(nowMs);
+  const previousDayStart = startOfDay - ONE_DAY_MS;
+  return getContinuityAnchorMs(state, userData) < previousDayStart;
+}
+
+function shouldRotateCompletedCycle(state: DailyTasksState, nowMs: number): boolean {
+  if (state.tasks.length === 0 || !state.tasks.every((task) => task.claimed)) {
+    return false;
+  }
+
+  const { startOfDay } = getCSTDayBoundaries(nowMs);
+  return state.lastResetMs < startOfDay;
+}
+
+function buildRotatedState(
+  normalizedState: DailyTasksState,
+  definitions: DailyTaskDefinition[],
+  nowMs: number,
+  rotationReason: RotationReason,
+  failedTasks: DailyTaskAssignment[],
+): TaskStateBuildResult {
+  const { endOfDay } = getCSTDayBoundaries(nowMs);
+  const selectedDefinitions = pickTasksForCycle(definitions, normalizedState.completedTaskHistory ?? {}, nowMs);
+  const tasks = selectedDefinitions.map((task) => hydrateAssignment(task, nowMs));
+
+  return {
+    rotated: true,
+    rotationReason,
+    assignedTasks: tasks,
+    failedTasks,
+    state: {
+      lastResetMs: nowMs,
+      nextRefreshMs: endOfDay,
+      tasks,
+      completedTaskHistory: normalizedState.completedTaskHistory ?? {},
+      lastProgressAt: nowMs,
+      lastDeadlineReminderAt: normalizedState.lastDeadlineReminderAt ?? 0,
+    },
   };
 }
 
@@ -319,43 +406,170 @@ export function buildFreshTaskState(
   userData: UserProfile,
   definitions: DailyTaskDefinition[],
   nowMs: number,
-): { state: DailyTasksState; rotated: boolean } {
+): TaskStateBuildResult {
   const definitionMap = createDefinitionMap(definitions);
   const normalizedState = normalizeTaskState(userData, definitionMap, nowMs);
-  const { startOfDay, endOfDay } = getCSTDayBoundaries(nowMs);
-  const needsRotation = normalizedState.lastResetMs < startOfDay || normalizedState.tasks.length === 0;
+  const { endOfDay } = getCSTDayBoundaries(nowMs);
 
-  if (!needsRotation) {
-    return {
-      rotated: false,
-      state: {
-        ...normalizedState,
-        nextRefreshMs: normalizedState.nextRefreshMs || endOfDay,
-      },
-    };
+  if (normalizedState.tasks.length === 0) {
+    return buildRotatedState(normalizedState, definitions, nowMs, "initial", []);
   }
 
-  const selectedDefinitions = pickTasksForCycle(definitions, normalizedState.completedTaskHistory ?? {}, nowMs);
-  const tasks = selectedDefinitions.map((task) => hydrateAssignment(task, nowMs));
+  if (hasMissedDailyProgressWindow(normalizedState, userData, nowMs)) {
+    return buildRotatedState(
+      normalizedState,
+      definitions,
+      nowMs,
+      "missed_progress",
+      normalizedState.tasks.filter((task) => !task.claimed),
+    );
+  }
+
+  if (shouldRotateCompletedCycle(normalizedState, nowMs)) {
+    return buildRotatedState(normalizedState, definitions, nowMs, "cycle_complete", []);
+  }
 
   return {
-    rotated: true,
+    rotated: false,
+    rotationReason: null,
+    assignedTasks: [],
+    failedTasks: [],
     state: {
-      lastResetMs: startOfDay,
+      ...normalizedState,
       nextRefreshMs: endOfDay,
-      tasks,
-      completedTaskHistory: normalizedState.completedTaskHistory ?? {},
-      completedOneTimeTasks: normalizedState.completedOneTimeTasks ?? [],
     },
   };
+}
+
+function incrementEventStat(
+  transaction: Transaction,
+  eventName: string,
+  lastSeenAt: number,
+  lastParams: Record<string, string | number | boolean>,
+) {
+  transaction.set(adminDb.collection(EVENT_STATS_COLLECTION).doc(eventName), {
+    eventName,
+    totalCount: FieldValue.increment(1),
+    lastSeenAt,
+    lastParams,
+  }, { merge: true });
+}
+
+function writeTaskLifecycleEvent(
+  transaction: Transaction,
+  data: {
+    type: "assigned" | "started" | "completed" | "failed" | "reminder_sent";
+    taskId: string;
+    title: string;
+    triggerEvent: string;
+    userId: string;
+    username?: string | null;
+    reward: number;
+    progress: number;
+    maxProgress: number;
+    timestamp: number;
+    reason?: string;
+  },
+) {
+  const eventRef = adminDb.collection(TASK_EVENT_COLLECTION).doc();
+  transaction.set(eventRef, data);
+}
+
+function queueUserNotification(
+  transaction: Transaction,
+  uid: string,
+  payload: {
+    title: string;
+    message: string;
+    type: "info" | "success" | "warning" | "error";
+    link?: string;
+  },
+) {
+  const notificationRef = adminDb.collection("notifications").doc();
+  transaction.set(notificationRef, {
+    title: payload.title,
+    message: payload.message,
+    type: payload.type,
+    target: {
+      global: false,
+      userIds: [uid],
+      excludedUserIds: [],
+    },
+    link: payload.link || "/experiences",
+    dropContext: null,
+    createdAt: FieldValue.serverTimestamp(),
+    readBy: [],
+  });
+}
+
+function applyRotationSideEffects({
+  transaction,
+  uid,
+  username,
+  notificationSettings,
+  result,
+  nowMs,
+}: RotationSideEffectContext) {
+  if (!result.rotated) {
+    return;
+  }
+
+  result.assignedTasks.forEach((task) => {
+    writeTaskLifecycleEvent(transaction, {
+      type: "assigned",
+      taskId: task.id,
+      title: task.title,
+      triggerEvent: task.eventName,
+      userId: uid,
+      username,
+      reward: task.reward,
+      progress: 0,
+      maxProgress: task.maxProgress,
+      timestamp: nowMs,
+    });
+    incrementEventStat(transaction, "daily_task_assigned", nowMs, {
+      task_id: task.id,
+      reward: task.reward,
+      reason: result.rotationReason ?? "initial",
+    });
+  });
+
+  if (result.failedTasks.length > 0) {
+    result.failedTasks.forEach((task) => {
+      writeTaskLifecycleEvent(transaction, {
+        type: "failed",
+        taskId: task.id,
+        title: task.title,
+        triggerEvent: "daily_task_reset_due_inactivity",
+        userId: uid,
+        username,
+        reward: task.reward,
+        progress: task.progress,
+        maxProgress: task.maxProgress,
+        timestamp: nowMs,
+        reason: "missed_daily_progress",
+      });
+      incrementEventStat(transaction, "daily_task_failed", nowMs, {
+        task_id: task.id,
+        progress: task.progress,
+      });
+    });
+
+    if (notificationSettings?.inAppEnabled !== false) {
+      queueUserNotification(transaction, uid, {
+        title: "Your daily tasks reset",
+        message: "You ran out of time, so unfinished task progress reset. Jump back into Experiences and start stacking again.",
+        type: "warning",
+        link: "/experiences",
+      });
+    }
+  }
 }
 
 export async function rotateUserTasks(uid: string) {
   const userRef = adminDb.collection("users").doc(uid);
   const definitions = await resolveTaskDefinitionsForUser(uid);
-  let responseTasks: DailyTaskAssignment[] = [];
-  let responseNextRefreshMs = 0;
-  let rotated = false;
+  let responseResult: TaskStateBuildResult | undefined;
 
   await adminDb.runTransaction(async (transaction) => {
     const snapshot = await transaction.get(userRef);
@@ -364,46 +578,35 @@ export async function rotateUserTasks(uid: string) {
     }
 
     const userData = snapshot.data() as UserProfile;
-    const result = buildFreshTaskState(userData, definitions, Date.now());
-    responseTasks = result.state.tasks;
-    responseNextRefreshMs = result.state.nextRefreshMs;
-    rotated = result.rotated;
+    const nowMs = Date.now();
+    const result = buildFreshTaskState(userData, definitions, nowMs);
+    responseResult = result;
 
     transaction.update(userRef, {
       dailyTasksState: result.state,
     });
 
-    if (result.rotated) {
-      result.state.tasks.forEach((task) => {
-        const eventRef = adminDb.collection(TASK_EVENT_COLLECTION).doc();
-        transaction.set(eventRef, {
-          type: "assigned",
-          taskId: task.id,
-          title: task.title,
-          triggerEvent: task.eventName,
-          userId: uid,
-          reward: task.reward,
-          progress: 0,
-          maxProgress: task.maxProgress,
-          timestamp: Date.now(),
-        });
-        transaction.set(adminDb.collection(EVENT_STATS_COLLECTION).doc("daily_task_assigned"), {
-          eventName: "daily_task_assigned",
-          totalCount: FieldValue.increment(1),
-          lastSeenAt: Date.now(),
-          lastParams: {
-            task_id: task.id,
-            reward: task.reward,
-          },
-        }, { merge: true });
-      });
-    }
+    applyRotationSideEffects({
+      transaction,
+      uid,
+      username: getUserDisplayName(userData),
+      notificationSettings: userData.notificationSettings,
+      result,
+      nowMs,
+    });
   });
 
+  if (!responseResult) {
+    throw new Error("Task rotation failed");
+  }
+
+  const finalResult: TaskStateBuildResult = responseResult;
+
   return {
-    tasks: responseTasks,
-    nextRefreshMs: responseNextRefreshMs,
-    rotated,
+    tasks: finalResult.state.tasks,
+    nextRefreshMs: finalResult.state.nextRefreshMs,
+    rotated: finalResult.rotated,
+    rotationReason: finalResult.rotationReason,
   };
 }
 
@@ -435,10 +638,20 @@ export async function recordDailyTaskProgressFromEvent(
 
     const userData = snapshot.data() as UserProfile;
     const nowMs = Date.now();
-    const { state } = buildFreshTaskState(userData, definitions, nowMs);
-    const updatedTasks = [...state.tasks];
+    const result = buildFreshTaskState(userData, definitions, nowMs);
+    const updatedTasks = [...result.state.tasks];
+    const completedTasks: DailyTaskAssignment[] = [];
     let totalReward = 0;
-    let stateChanged = false;
+    let stateChanged = result.rotated;
+
+    applyRotationSideEffects({
+      transaction,
+      uid,
+      username,
+      notificationSettings: userData.notificationSettings,
+      result,
+      nowMs,
+    });
 
     updatedTasks.forEach((task, index) => {
       if (task.claimed) {
@@ -470,8 +683,7 @@ export async function recordDailyTaskProgressFromEvent(
       stateChanged = true;
 
       if (justStarted) {
-        const eventRef = adminDb.collection(TASK_EVENT_COLLECTION).doc();
-        transaction.set(eventRef, {
+        writeTaskLifecycleEvent(transaction, {
           type: "started",
           taskId: task.id,
           title: task.title,
@@ -483,21 +695,21 @@ export async function recordDailyTaskProgressFromEvent(
           maxProgress: task.maxProgress,
           timestamp: nowMs,
         });
-        transaction.set(adminDb.collection(EVENT_STATS_COLLECTION).doc("daily_task_started"), {
-          eventName: "daily_task_started",
-          totalCount: FieldValue.increment(1),
-          lastSeenAt: nowMs,
-          lastParams: {
-            task_id: task.id,
-            trigger_event: eventName,
-          },
-        }, { merge: true });
+        incrementEventStat(transaction, "daily_task_started", nowMs, {
+          task_id: task.id,
+          trigger_event: eventName,
+        });
       }
 
       if (justCompleted) {
         totalReward += task.reward;
-        const completionRef = adminDb.collection(TASK_EVENT_COLLECTION).doc();
-        transaction.set(completionRef, {
+        completedTasks.push({
+          ...updatedTasks[index],
+          claimed: true,
+          claimedAt: nowMs,
+        });
+
+        writeTaskLifecycleEvent(transaction, {
           type: "completed",
           taskId: task.id,
           title: task.title,
@@ -509,16 +721,11 @@ export async function recordDailyTaskProgressFromEvent(
           maxProgress: task.maxProgress,
           timestamp: nowMs,
         });
-        transaction.set(adminDb.collection(EVENT_STATS_COLLECTION).doc("daily_task_completed"), {
-          eventName: "daily_task_completed",
-          totalCount: FieldValue.increment(1),
-          lastSeenAt: nowMs,
-          lastParams: {
-            task_id: task.id,
-            trigger_event: eventName,
-            reward: task.reward,
-          },
-        }, { merge: true });
+        incrementEventStat(transaction, "daily_task_completed", nowMs, {
+          task_id: task.id,
+          trigger_event: eventName,
+          reward: task.reward,
+        });
 
         const txRef = adminDb.collection("transactions").doc();
         transaction.set(txRef, {
@@ -532,14 +739,14 @@ export async function recordDailyTaskProgressFromEvent(
     });
 
     if (!stateChanged) {
-      if (state.lastResetMs !== (userData.dailyTasksState?.lastResetMs ?? 0)) {
-        transaction.update(userRef, { dailyTasksState: state });
+      if (result.rotated) {
+        transaction.update(userRef, { dailyTasksState: result.state });
       }
       return;
     }
 
     const completedTaskHistory = {
-      ...(state.completedTaskHistory ?? {}),
+      ...(result.state.completedTaskHistory ?? {}),
     };
 
     updatedTasks.forEach((task) => {
@@ -548,13 +755,121 @@ export async function recordDailyTaskProgressFromEvent(
       }
     });
 
+    const nextState: DailyTasksState = {
+      ...result.state,
+      tasks: updatedTasks,
+      completedTaskHistory,
+      lastProgressAt: nowMs,
+    };
+
     transaction.update(userRef, {
-      dailyTasksState: {
-        ...state,
-        tasks: updatedTasks,
-        completedTaskHistory,
-      },
+      dailyTasksState: nextState,
       ...(totalReward > 0 ? { gumDropsBalance: FieldValue.increment(totalReward) } : {}),
     });
+
+    if (completedTasks.length > 0 && userData.notificationSettings?.inAppEnabled !== false) {
+      const title = completedTasks.length === 1 ? "Task complete" : "Daily tasks complete";
+      const message = completedTasks.length === 1
+        ? `You finished "${completedTasks[0].title}" and earned ${totalReward} Gum Drops.`
+        : `You completed ${completedTasks.length} daily tasks and earned ${totalReward} Gum Drops.`;
+
+      queueUserNotification(transaction, uid, {
+        title,
+        message,
+        type: "success",
+        link: "/experiences",
+      });
+    }
   });
+}
+
+export async function syncUserTaskReminder(uid: string) {
+  const userRef = adminDb.collection("users").doc(uid);
+  const definitions = await resolveTaskDefinitionsForUser(uid);
+  let sent = false;
+  let nextRefreshMs = 0;
+
+  await adminDb.runTransaction(async (transaction) => {
+    const snapshot = await transaction.get(userRef);
+    if (!snapshot.exists) {
+      throw new Error("User not found");
+    }
+
+    const userData = snapshot.data() as UserProfile;
+    const nowMs = Date.now();
+    const result = buildFreshTaskState(userData, definitions, nowMs);
+    const { endOfDay } = getCSTDayBoundaries(nowMs);
+    const pendingCheckIn = !isSameCSTDay(Number(userData.lastCheckIn ?? 0), nowMs);
+    const unfinishedTasks = result.state.tasks.filter((task) => !task.claimed);
+    const alreadySentToday = isSameCSTDay(result.state.lastDeadlineReminderAt ?? 0, nowMs);
+    const withinWarningWindow = nowMs >= endOfDay - ONE_HOUR_MS && nowMs < endOfDay;
+    const shouldSendReminder = withinWarningWindow
+      && !alreadySentToday
+      && (pendingCheckIn || unfinishedTasks.length > 0);
+
+    nextRefreshMs = result.state.nextRefreshMs;
+
+    applyRotationSideEffects({
+      transaction,
+      uid,
+      username: getUserDisplayName(userData),
+      notificationSettings: userData.notificationSettings,
+      result,
+      nowMs,
+    });
+
+    const nextState: DailyTasksState = shouldSendReminder
+      ? {
+        ...result.state,
+        lastDeadlineReminderAt: nowMs,
+      }
+      : result.state;
+
+    if (result.rotated || shouldSendReminder || (result.state.nextRefreshMs !== (userData.dailyTasksState?.nextRefreshMs ?? 0))) {
+      transaction.update(userRef, {
+        dailyTasksState: nextState,
+      });
+    }
+
+    if (!shouldSendReminder) {
+      return;
+    }
+
+    sent = true;
+    writeTaskLifecycleEvent(transaction, {
+      type: "reminder_sent",
+      taskId: unfinishedTasks[0]?.id ?? "daily_deadline",
+      title: "Daily deadline reminder",
+      triggerEvent: "daily_task_deadline_reminder",
+      userId: uid,
+      username: getUserDisplayName(userData),
+      reward: 0,
+      progress: unfinishedTasks.length,
+      maxProgress: DAILY_TASK_LIMIT,
+      timestamp: nowMs,
+      reason: pendingCheckIn && unfinishedTasks.length > 0
+        ? "tasks_and_checkin"
+        : pendingCheckIn
+          ? "checkin"
+          : "tasks",
+    });
+    incrementEventStat(transaction, "daily_task_deadline_reminder_sent", nowMs, {
+      pending_checkin: pendingCheckIn,
+      unfinished_tasks: unfinishedTasks.length,
+    });
+
+    if (userData.notificationSettings?.inAppEnabled !== false) {
+      queueUserNotification(transaction, uid, {
+        title: "You're almost out of time!",
+        message: "Finish your tasks so you don't loose your Kandy!",
+        type: "warning",
+        link: "/experiences",
+      });
+    }
+  });
+
+  return {
+    sent,
+    nextRefreshMs,
+  };
 }

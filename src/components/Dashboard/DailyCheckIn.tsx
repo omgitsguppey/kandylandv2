@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { differenceInHours } from "date-fns";
 import { CheckCircle, Gift, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -9,7 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/Button";
 import { authFetch } from "@/lib/authFetch";
 import { trackEvent } from "@/lib/telemetry";
-import { getCSTDayBoundaries } from "@/lib/timezone";
+import { getCSTDayBoundaries, isPreviousCSTDay, isSameCSTDay } from "@/lib/timezone";
 import { cn } from "@/lib/utils";
 
 function normalizeTimestamp(value: unknown): number {
@@ -64,8 +63,8 @@ export function DailyCheckIn() {
     const effectiveLastCheckInMs = optimisticCheckInMs ?? lastCheckInMs;
     const effectiveCurrentStreak = optimisticStreak ?? currentStreak;
 
-    const { startOfDay, endOfDay } = useMemo(() => getCSTDayBoundaries(nowMs), [nowMs]);
-    const isClaimedToday = effectiveLastCheckInMs >= startOfDay && effectiveLastCheckInMs < endOfDay;
+    const { endOfDay } = useMemo(() => getCSTDayBoundaries(nowMs), [nowMs]);
+    const isClaimedToday = isSameCSTDay(effectiveLastCheckInMs, nowMs);
     const nextCheckInMs = isClaimedToday ? endOfDay : 0;
 
     useEffect(() => {
@@ -83,10 +82,10 @@ export function DailyCheckIn() {
 
     const canCheckIn = remainingMs <= 0 && !isClaimedToday && !!user;
 
-    let nextStreak = effectiveCurrentStreak >= 7 ? 1 : effectiveCurrentStreak + 1;
-    const hoursSinceLast = differenceInHours(nowMs, effectiveLastCheckInMs);
+    const checkedInYesterday = isPreviousCSTDay(effectiveLastCheckInMs, nowMs);
+    let nextStreak = checkedInYesterday ? effectiveCurrentStreak + 1 : 1;
 
-    if (hoursSinceLast > 48 && effectiveLastCheckInMs !== 0) {
+    if (effectiveCurrentStreak >= 7 && checkedInYesterday) {
         nextStreak = 1;
     }
 

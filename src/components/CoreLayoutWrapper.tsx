@@ -18,6 +18,10 @@ const InsufficientBalanceModal = dynamic(() => import("@/components/Insufficient
 const ScrollToTop = dynamic(() => import("@/components/Navigation/ScrollToTop").then((mod) => mod.ScrollToTop));
 const AutoScrollToTop = dynamic(() => import("@/components/Navigation/AutoScrollToTop").then((mod) => mod.AutoScrollToTop));
 const DeepTracker = dynamic(() => import("@/components/Analytics/DeepTracker").then((mod) => mod.DeepTracker), { ssr: false });
+const NotificationRuntimeBridge = dynamic(
+    () => import("@/components/Notifications/NotificationRuntimeBridge").then((mod) => mod.NotificationRuntimeBridge),
+    { ssr: false },
+);
 
 export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     const { userProfile } = useAuth();
@@ -43,6 +47,7 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     return (
         <PayPalProvider>
             <DeepTracker />
+            <NotificationRuntimeBridge />
             <Navbar />
             {children}
             <MobileBottomBar />

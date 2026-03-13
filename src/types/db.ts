@@ -31,6 +31,7 @@ export interface UserProfile {
         newDropAlerts: boolean;
         expiringSoonAlerts: boolean;
     };
+    fcmTokens?: string[];
 
     privacySettings?: {
         allowRecommendations: boolean;

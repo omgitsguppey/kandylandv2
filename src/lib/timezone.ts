@@ -95,6 +95,25 @@ export function getCSTDayBoundaries(utcTimestamp: number): { startOfDay: number;
     return { startOfDay, endOfDay };
 }
 
+export function isSameCSTDay(timestamp: number, compareTo: number): boolean {
+    if (!Number.isFinite(timestamp) || timestamp <= 0) {
+        return false;
+    }
+
+    const { startOfDay, endOfDay } = getCSTDayBoundaries(compareTo);
+    return timestamp >= startOfDay && timestamp < endOfDay;
+}
+
+export function isPreviousCSTDay(timestamp: number, compareTo: number): boolean {
+    if (!Number.isFinite(timestamp) || timestamp <= 0) {
+        return false;
+    }
+
+    const { startOfDay } = getCSTDayBoundaries(compareTo);
+    const previousDayStart = startOfDay - 24 * 60 * 60 * 1000;
+    return timestamp >= previousDayStart && timestamp < startOfDay;
+}
+
 /**
  * Get default CST date strings for create form (now → 7 days from now).
  */

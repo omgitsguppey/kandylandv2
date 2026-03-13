@@ -9,10 +9,12 @@ import { Loader2, Save, User, AtSign, Bell, Globe, ShieldAlert, Mail, Camera, Lo
 import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";
 import Image from "next/image";
-import { storage } from "@/lib/firebase-data";
+import { db, storage } from "@/lib/firebase-data";
+import { arrayUnion, doc, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { SITE_ORIGIN } from "@/lib/firebase";
 import { mutate } from "swr";
+import { getBrowserNotificationState, requestBrowserNotificationAccess } from "@/lib/firebase-messaging";
 
 const TIMEZONE_OPTIONS = [
     "Auto",
@@ -151,6 +153,8 @@ export default function ProfilePage() {
     const [isDownloading, setIsDownloading] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+    const [notificationSetupLoading, setNotificationSetupLoading] = useState(false);
+    const [notificationSupportMessage, setNotificationSupportMessage] = useState<string | null>(null);
 
     useEffect(() => {
         setFormState(normalizedInitialState);
@@ -165,19 +169,87 @@ export default function ProfilePage() {
         setFormState((previous) => ({ ...previous, [key]: value }));
     };
 
-    const requestBrowserNotifications = async () => {
-        if (!("Notification" in window)) {
-            toast.error("Browser notifications are not supported on this device.");
+    useEffect(() => {
+        let cancelled = false;
+
+        async function loadNotificationSupport() {
+            const state = await getBrowserNotificationState();
+            if (cancelled) {
+                return;
+            }
+
+            if (state.needsStandaloneInstall) {
+                setNotificationSupportMessage("Add KandyDrops to your Home Screen first to use browser notifications on iPhone.");
+                return;
+            }
+
+            if (!state.browserCapable) {
+                setNotificationSupportMessage("Browser notifications are not supported on this device.");
+                return;
+            }
+
+            if (state.permission === "denied") {
+                setNotificationSupportMessage("Notifications are blocked in your browser settings.");
+                return;
+            }
+
+            setNotificationSupportMessage(state.messagingSupported
+                ? "Daily deadline reminders work in the browser and in installed PWA mode."
+                : "Browser reminders are on, but push delivery is limited in this browser.");
+        }
+
+        void loadNotificationSupport();
+
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
+    const handleBrowserPushToggle = async (nextValue: boolean) => {
+        if (!user || !userProfile) {
             return;
         }
 
-        const permission = await Notification.requestPermission();
-        if (permission === "granted") {
-            updateForm("browserPushEnabled", true);
-            toast.success("Browser notifications enabled.");
-        } else {
+        if (!nextValue) {
             updateForm("browserPushEnabled", false);
-            toast.info("Browser notifications were not enabled.");
+            toast.info("Browser notifications will stay off until you turn them back on.");
+            return;
+        }
+
+        setNotificationSetupLoading(true);
+        try {
+            const result = await requestBrowserNotificationAccess();
+            if (!result.granted) {
+                if (result.state.needsStandaloneInstall) {
+                    toast.info("Add KandyDrops to your Home Screen, then reopen it there to enable notifications on iPhone.");
+                } else {
+                    toast.info("Browser notifications were not enabled.");
+                }
+                updateForm("browserPushEnabled", false);
+                return;
+            }
+
+            const userRef = doc(db, "users", user.uid);
+            await updateDoc(userRef, {
+                notificationSettings: {
+                    inAppEnabled: userProfile.notificationSettings?.inAppEnabled !== false,
+                    browserPushEnabled: true,
+                    newDropAlerts: userProfile.notificationSettings?.newDropAlerts !== false,
+                    expiringSoonAlerts: userProfile.notificationSettings?.expiringSoonAlerts !== false,
+                },
+                ...(result.token ? { fcmTokens: arrayUnion(result.token) } : {}),
+            });
+
+            updateForm("browserPushEnabled", true);
+            setNotificationSupportMessage(result.state.messagingSupported
+                ? "Daily deadline reminders work in the browser and in installed PWA mode."
+                : "Browser reminders are on, but push delivery is limited in this browser.");
+            toast.success("Browser notifications enabled.");
+        } catch (error) {
+            console.error("Failed to enable browser notifications", error);
+            toast.error("We could not enable browser notifications right now.");
+        } finally {
+            setNotificationSetupLoading(false);
         }
     };
 
@@ -421,6 +493,31 @@ export default function ProfilePage() {
                 </SectionCard>
 
                 <SectionCard title="Notifications">
+                    <div className="rounded-xl border border-white/5 bg-black/25 px-3 py-3">
+                        <div className="flex items-center justify-between gap-3">
+                            <div className="min-w-0">
+                                <p className="text-sm text-gray-100">Browser notifications</p>
+                                <p className="mt-1 text-xs leading-5 text-gray-500">
+                                    {notificationSupportMessage || "Use browser reminders for daily tasks, check-ins, and live drop alerts."}
+                                </p>
+                            </div>
+                            <Button
+                                type="button"
+                                variant={formState.browserPushEnabled ? "brand" : "glass"}
+                                onClick={() => void handleBrowserPushToggle(!formState.browserPushEnabled)}
+                                disabled={notificationSetupLoading}
+                                className="min-w-[8rem] justify-center"
+                            >
+                                {notificationSetupLoading ? (
+                                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Please wait</>
+                                ) : formState.browserPushEnabled ? (
+                                    "Enabled"
+                                ) : (
+                                    "Turn on"
+                                )}
+                            </Button>
+                        </div>
+                    </div>
                     <ToggleRow
                         label="In-app notifications"
                         checked={formState.inAppEnabled}

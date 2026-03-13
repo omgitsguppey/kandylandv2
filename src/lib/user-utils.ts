@@ -75,6 +75,7 @@ export function normalizeUserProfile(raw: unknown, user: User): UserProfile | nu
             newDropAlerts: source.notificationSettings?.newDropAlerts !== false,
             expiringSoonAlerts: source.notificationSettings?.expiringSoonAlerts !== false,
         },
+        fcmTokens: toStringArray(source.fcmTokens),
         privacySettings: {
             allowRecommendations: source.privacySettings?.allowRecommendations !== false,
             showInAnonymousStats: source.privacySettings?.showInAnonymousStats !== false,
@@ -87,6 +88,8 @@ export function normalizeUserProfile(raw: unknown, user: User): UserProfile | nu
         dailyTasksState: source.dailyTasksState ? {
             lastResetMs: Number(source.dailyTasksState.lastResetMs) || 0,
             nextRefreshMs: Number(source.dailyTasksState.nextRefreshMs) || 0,
+            lastProgressAt: Number(source.dailyTasksState.lastProgressAt) || 0,
+            lastDeadlineReminderAt: Number(source.dailyTasksState.lastDeadlineReminderAt) || 0,
             tasks: Array.isArray(source.dailyTasksState.tasks)
                 ? source.dailyTasksState.tasks.reduce<DailyTaskAssignment[]>((acc, task: any) => {
                         if (!task || typeof task !== "object") {
@@ -128,7 +131,6 @@ export function normalizeUserProfile(raw: unknown, user: User): UserProfile | nu
                         .map(([key, rawValue]) => [key, Number(rawValue)]),
                 )
                 : {},
-            completedOneTimeTasks: toStringArray(source.dailyTasksState.completedOneTimeTasks),
         } : undefined,
     };
 }

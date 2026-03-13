@@ -28,6 +28,7 @@ interface NotificationNote {
   message: string;
   type: string;
   createdAt?: { toDate: () => Date };
+  link?: string;
   dropContext?: {
     previewImageUrl?: string;
     dropTitle?: string;
@@ -107,7 +108,14 @@ function NotificationItem({
   const PillIcon = pill.icon;
 
   const openDrop = () => {
-    router.push("/drops");
+    const destination = note.link || "/drops";
+    trackEvent("notification_opened", {
+      source: "notifications_dropdown",
+      destination,
+      notification_id: note.id,
+    });
+    markAsRead(note.id);
+    router.push(destination);
     closeDropdown();
   };
 
@@ -158,14 +166,14 @@ function NotificationItem({
           {isExpanded ? "Collapse" : "Expand"}
         </button>
 
-        {note.dropContext ? (
+        {note.dropContext || note.link ? (
           <button
             type="button"
             onClick={openDrop}
             className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple/30 bg-brand-purple px-3 py-1.5 text-[11px] font-semibold text-white transition-opacity hover:opacity-90"
           >
             <ExternalLink className="h-3.5 w-3.5" />
-            Open drop
+            {note.dropContext ? "Open drop" : "Open"}
           </button>
         ) : null}
       </div>
