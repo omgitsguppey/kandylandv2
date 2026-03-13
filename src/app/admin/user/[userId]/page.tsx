@@ -11,6 +11,7 @@ import { Activity, AlertCircle, ArrowLeft, Ban, CalendarDays, History } from "lu
 import { db } from "@/lib/firebase-data";
 import { useAuth } from "@/context/AuthContext";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
 import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 import { normalizeUserProfile } from "@/lib/user-utils";
 import { Transaction, UserProfile } from "@/types/db";
@@ -113,9 +114,22 @@ export default function AdminUserAnalyticsPage() {
         );
     }
 
-    const totalSpent = transactions
+    const purchaseTransactions = transactions
         .filter((transaction) => transaction.status === "completed" && (transaction.type === "purchase_currency" || String(transaction.type) === "purchase"))
-        .reduce((sum, transaction) => sum + (transaction.amount > 0 ? transaction.amount : 0), 0);
+        .map((transaction) => ({
+            ...transaction,
+            economics: deriveGumdropEconomics(
+                transaction.deliveredGumDrops ?? transaction.amount,
+                transaction.grossRevenueUsd ?? transaction.cost ?? 0,
+            ),
+        }));
+    const totalSpentUsd = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.grossRevenueUsd, 0);
+    const adjustedProfitUsd = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.adjustedProfitUsd, 0);
+    const bonusValueUsd = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.bonusValueUsd, 0);
+    const bonusGumDrops = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.bonusGumDrops, 0);
+    const effectiveUsdPer100Gd = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.grossRevenueUsd, 0);
+    const deliveredGumDrops = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.deliveredGumDrops, 0);
+    const averageOrderUsd = purchaseTransactions.length > 0 ? totalSpentUsd / purchaseTransactions.length : 0;
 
     const failedTxCount = transactions.filter((transaction) => transaction.status === "failed").length;
 
@@ -195,8 +209,30 @@ export default function AdminUserAnalyticsPage() {
 
                     <div className="space-y-4">
                         <div className="flex items-center justify-between border-b border-white/5 py-2">
-                            <span className="text-sm text-gray-400">Total Purchase Volume</span>
-                            <span className="text-sm font-bold text-brand-purple">${(totalSpent / 100).toFixed(2)}</span>
+                            <span className="text-sm text-gray-400">Gross cash</span>
+                            <span className="text-sm font-bold text-brand-purple">${totalSpentUsd.toFixed(2)}</span>
+                        </div>
+                        <div className="flex items-center justify-between border-b border-white/5 py-2">
+                            <span className="text-sm text-gray-400">Adjusted profit</span>
+                            <span className="text-sm font-bold text-white">${adjustedProfitUsd.toFixed(2)}</span>
+                        </div>
+                        <div className="flex items-center justify-between border-b border-white/5 py-2">
+                            <span className="text-sm text-gray-400">Bonus granted</span>
+                            <span className="text-sm font-bold text-white">{bonusGumDrops.toLocaleString()} GD</span>
+                        </div>
+                        <div className="flex items-center justify-between border-b border-white/5 py-2">
+                            <span className="text-sm text-gray-400">Bonus value</span>
+                            <span className="text-sm font-bold text-white">${bonusValueUsd.toFixed(2)}</span>
+                        </div>
+                        <div className="flex items-center justify-between border-b border-white/5 py-2">
+                            <span className="text-sm text-gray-400">Avg order</span>
+                            <span className="text-sm font-bold text-white">${averageOrderUsd.toFixed(2)}</span>
+                        </div>
+                        <div className="flex items-center justify-between border-b border-white/5 py-2">
+                            <span className="text-sm text-gray-400">Effective rate</span>
+                            <span className="text-sm font-bold text-white">
+                                ${deliveredGumDrops > 0 ? (effectiveUsdPer100Gd / (deliveredGumDrops / 100)).toFixed(2) : "0.00"} / 100 GD
+                            </span>
                         </div>
                         <div className="flex items-center justify-between border-b border-white/5 py-2">
                             <span className="text-sm text-gray-400">Failed Transactions</span>
@@ -238,7 +274,7 @@ export default function AdminUserAnalyticsPage() {
                                                 </span>
                                             ) : transactionType === "purchase_currency" || transactionType === "purchase" ? (
                                                 <span className="rounded-md border border-brand-purple/20 bg-brand-purple/10 px-2 py-0.5 text-xs font-bold text-brand-purple">
-                                                    +${((transaction.amount > 0 ? transaction.amount : 0) / 100).toFixed(2)}
+                                                    ${((transaction.grossRevenueUsd ?? transaction.cost ?? 0)).toFixed(2)}
                                                 </span>
                                             ) : (
                                                 <span className="text-xs font-bold text-gray-400">Log</span>

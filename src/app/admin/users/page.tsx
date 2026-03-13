@@ -29,6 +29,20 @@ type UserAnalytics = {
     watchHours: number;
     avgLoadMs: number;
     lastSeenAt: number;
+    grossRevenueUsd: number;
+    grossRevenueCents: number;
+    adjustedProfitUsd: number;
+    adjustedProfitCents: number;
+    retailValueUsd: number;
+    bonusValueUsd: number;
+    bonusGumDrops: number;
+    deliveredGumDrops: number;
+    paidGumDrops: number;
+    averageOrderUsd: number;
+    effectiveUsdPer100Gd: number;
+    unlockSpendGdTotal: number;
+    lastPurchaseAt: number;
+    bundleYieldRatio: number;
 };
 
 type UsersSummary = {
@@ -46,6 +60,16 @@ type UsersSummary = {
     totalUnwraps: number;
     totalPurchases: number;
     totalWatchHours: number;
+    grossRevenueUsd: number;
+    adjustedProfitUsd: number;
+    bonusValueUsd: number;
+    bonusGumDrops: number;
+    deliveredGumDrops: number;
+    paidGumDrops: number;
+    unlockSpendGdTotal: number;
+    averageOrderUsd: number;
+    effectiveUsdPer100Gd: number;
+    payingUsers: number;
 };
 
 type AdminUsersResponse = {
@@ -132,9 +156,12 @@ export default function UserManagementPage() {
     );
 
     const getUserAnalytics = (uid: string) => userAnalytics[uid];
+    const formatMoney = (value?: number) => `$${(value || 0).toFixed(2)}`;
 
     const formatLastSeen = (timestamp?: number) =>
         timestamp && timestamp > 0 ? `Seen ${format(new Date(timestamp), 'MMM d, h:mm a')}` : "No tracked activity";
+    const formatLastPurchase = (timestamp?: number) =>
+        timestamp && timestamp > 0 ? `Paid ${format(new Date(timestamp), 'MMM d, h:mm a')}` : "No purchases yet";
 
     const topTrackedUsers = [...filteredUsers]
         .sort((left, right) => (getUserAnalytics(right.uid)?.eventCount || 0) - (getUserAnalytics(left.uid)?.eventCount || 0))
@@ -322,6 +349,26 @@ export default function UserManagementPage() {
                             <p className="mt-2 text-3xl font-black text-white">{summary?.totalWatchHours || 0}h</p>
                             <p className="mt-1 text-xs text-gray-400">{summary?.onboardingCompletedUsers || 0} users completed onboarding</p>
                         </div>
+                        <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
+                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Gross cash</p>
+                            <p className="mt-2 text-3xl font-black text-white">{formatMoney(summary?.grossRevenueUsd)}</p>
+                            <p className="mt-1 text-xs text-gray-400">{summary?.payingUsers || 0} paying users</p>
+                        </div>
+                        <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
+                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Adjusted profit</p>
+                            <p className="mt-2 text-3xl font-black text-white">{formatMoney(summary?.adjustedProfitUsd)}</p>
+                            <p className="mt-1 text-xs text-gray-400">{formatMoney(summary?.bonusValueUsd)} bonus value granted</p>
+                        </div>
+                        <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
+                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Delivered value</p>
+                            <p className="mt-2 text-3xl font-black text-white">{(summary?.deliveredGumDrops || 0).toLocaleString()} GD</p>
+                            <p className="mt-1 text-xs text-gray-400">{(summary?.bonusGumDrops || 0).toLocaleString()} GD bonus on top</p>
+                        </div>
+                        <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
+                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Bundle yield</p>
+                            <p className="mt-2 text-3xl font-black text-white">{formatMoney(summary?.effectiveUsdPer100Gd)}</p>
+                            <p className="mt-1 text-xs text-gray-400">per 100 GD · avg order {formatMoney(summary?.averageOrderUsd)}</p>
+                        </div>
                     </div>
 
                     <div className="grid gap-4 xl:grid-cols-[1.35fr_0.65fr]">
@@ -349,7 +396,9 @@ export default function UserManagementPage() {
                                         <div className="flex items-center justify-between gap-3">
                                             <div className="min-w-0">
                                                 <p className="truncate text-sm font-bold text-white">{user.username ? `@${user.username}` : user.displayName || user.email || user.uid}</p>
-                                                <p className="text-xs text-gray-500">{getUserAnalytics(user.uid)?.eventCount || 0} tracked actions</p>
+                                                <p className="text-xs text-gray-500">
+                                                    {getUserAnalytics(user.uid)?.eventCount || 0} tracked actions · {formatMoney(getUserAnalytics(user.uid)?.grossRevenueUsd)} cash
+                                                </p>
                                             </div>
                                             <Link href={`/admin/user/${user.uid}`} className="text-xs font-bold text-brand-purple hover:underline">
                                                 Open
@@ -443,14 +492,21 @@ export default function UserManagementPage() {
                                                         <div className="rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-xs text-white">
                                                             {getUserAnalytics(user.uid)?.unwrapCount || 0} unwraps · {getUserAnalytics(user.uid)?.purchaseCount || 0} purchases
                                                         </div>
+                                                        <div className="rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-xs text-white">
+                                                            {formatMoney(getUserAnalytics(user.uid)?.grossRevenueUsd)} cash · {formatMoney(getUserAnalytics(user.uid)?.adjustedProfitUsd)} adj.
+                                                        </div>
                                                         <div className="text-[10px] text-gray-500">
                                                             {getUserAnalytics(user.uid)?.watchHours || 0}h watch · avg {getUserAnalytics(user.uid)?.avgLoadMs || 0}ms
+                                                        </div>
+                                                        <div className="text-[10px] text-gray-500">
+                                                            {(getUserAnalytics(user.uid)?.bonusGumDrops || 0).toLocaleString()} bonus GD · {formatMoney(getUserAnalytics(user.uid)?.effectiveUsdPer100Gd)} / 100 GD
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td className="p-4 text-gray-500 text-sm">
                                                     {format((user.createdAt as any)?.toMillis?.() || user.createdAt || Date.now(), 'MMM d, yyyy')}
                                                     <div className="mt-2 text-[10px] text-gray-500">{formatLastSeen(getUserAnalytics(user.uid)?.lastSeenAt)}</div>
+                                                    <div className="mt-1 text-[10px] text-gray-500">{formatLastPurchase(getUserAnalytics(user.uid)?.lastPurchaseAt)}</div>
                                                 </td>
                                                 <td className="p-4 text-sm">
                                                     {(user.securityFlags?.ripAttempts ?? 0) > 0 ? (
@@ -589,8 +645,38 @@ export default function UserManagementPage() {
                                             </div>
                                         </div>
 
+                                        <div className="grid grid-cols-2 gap-3 p-3 bg-black/25 rounded-xl border border-white/5">
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-xs text-gray-500 font-bold uppercase"><DollarSign className="w-3 h-3 inline mr-1" />Cash</span>
+                                                <span className="text-sm font-mono text-gray-300">
+                                                    {formatMoney(getUserAnalytics(user.uid)?.grossRevenueUsd)}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-xs text-gray-500 font-bold uppercase"><TrendingUp className="w-3 h-3 inline mr-1" />Profit</span>
+                                                <span className="text-sm font-mono text-gray-300">
+                                                    {formatMoney(getUserAnalytics(user.uid)?.adjustedProfitUsd)}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-xs text-gray-500 font-bold uppercase"><Plus className="w-3 h-3 inline mr-1" />Bonus</span>
+                                                <span className="text-sm font-mono text-gray-300">
+                                                    {(getUserAnalytics(user.uid)?.bonusGumDrops || 0).toLocaleString()} GD
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-xs text-gray-500 font-bold uppercase"><Clock3 className="w-3 h-3 inline mr-1" />Yield</span>
+                                                <span className="text-sm font-mono text-gray-300">
+                                                    {formatMoney(getUserAnalytics(user.uid)?.effectiveUsdPer100Gd)}
+                                                </span>
+                                            </div>
+                                        </div>
+
                                         <div className="text-[10px] text-gray-500 -mt-1">
                                             {formatLastSeen(getUserAnalytics(user.uid)?.lastSeenAt)}
+                                        </div>
+                                        <div className="text-[10px] text-gray-500 -mt-2">
+                                            {formatLastPurchase(getUserAnalytics(user.uid)?.lastPurchaseAt)}
                                         </div>
 
                                     {/* Security Flag (Full Width Button if flags exist) */}

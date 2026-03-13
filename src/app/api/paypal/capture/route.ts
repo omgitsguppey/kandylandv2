@@ -5,6 +5,7 @@ import { verifyAuth, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { checkRateLimit, STRICT } from "@/lib/server/rate-limit";
+import { deriveGumdropEconomics, getBundlePresentation } from "@/lib/gumdrop-economics";
 
 const bodySchema = z.object({
   orderId: z.string().min(1),
@@ -134,6 +135,9 @@ export async function POST(request: NextRequest) {
     }
 
     dropsToCredit = expectedDrops;
+    const paidUsd = Number.parseFloat(paidAmountStr);
+    const economics = deriveGumdropEconomics(dropsToCredit, paidUsd);
+    const bundlePresentation = getBundlePresentation(dropsToCredit);
 
     const customId = capture.custom_id || parsed.purchase_units[0]?.custom_id;
     if (customId) {
@@ -160,7 +164,26 @@ export async function POST(request: NextRequest) {
         userId,
         type: "purchase_currency",
         amount: dropsToCredit,
-        cost: Number.parseFloat(paidAmountStr),
+        cost: paidUsd,
+        grossRevenueUsd: economics.grossRevenueUsd,
+        grossRevenueCents: economics.grossRevenueCents,
+        deliveredGumDrops: economics.deliveredGumDrops,
+        paidGumDrops: economics.paidGumDrops,
+        bonusGumDrops: economics.bonusGumDrops,
+        retailValueUsd: economics.retailValueUsd,
+        retailValueCents: economics.retailValueCents,
+        bonusValueUsd: economics.bonusValueUsd,
+        bonusValueCents: economics.bonusValueCents,
+        adjustedProfitUsd: economics.adjustedProfitUsd,
+        adjustedProfitCents: economics.adjustedProfitCents,
+        discountUsd: economics.discountUsd,
+        discountCents: economics.discountCents,
+        effectiveUsdPer100Gd: economics.effectiveUsdPer100Gd,
+        effectiveCentsPer100Gd: economics.effectiveCentsPer100Gd,
+        effectiveYieldRatio: economics.effectiveYieldRatio,
+        bundleLabel: bundlePresentation.bundleLabel,
+        bundleKey: bundlePresentation.bundleKey,
+        bundleTier: bundlePresentation.bundleTier,
         description: `Purchased ${dropsToCredit} Gum Drops`,
         currency: "USD",
         paymentId: orderId,
@@ -181,9 +204,13 @@ export async function POST(request: NextRequest) {
       // Track server-side event for analytics
       trackServerEvent("purchase_verified", {
         transaction_id: orderId,
-        value: Number.parseFloat(paidAmountStr),
+        value: paidUsd,
         currency: "USD",
         items_count: dropsToCredit,
+        paid_gumdrops: economics.paidGumDrops,
+        bonus_gumdrops: economics.bonusGumDrops,
+        adjusted_profit_usd: economics.adjustedProfitUsd,
+        bundle_key: bundlePresentation.bundleKey,
       }, userId).catch(err => console.error("Server-side tracking failed:", err));
 
       return { duplicate: false };

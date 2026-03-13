@@ -13,6 +13,7 @@ import { GuestComponentBlur } from "@/components/Auth/GuestComponentBlur";
 import { clearTimedFlow, consumeTimedFlow, startTimedFlow, trackEvent } from "@/lib/telemetry";
 import { GUMDROPS_SUPPORT_COPY, SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
 import { useUI } from "@/context/UIContext";
+import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
 
 interface PurchaseModalProps {
   isOpen: boolean;
@@ -55,18 +56,6 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
     };
   }, [isOpen]);
 
-  useEffect(() => {
-    if (isOpen && !hasTrackedOpenRef.current) {
-      trackEvent("wallet_opened", {
-        package_label: selectedPackage.label,
-        package_drops: selectedPackage.drops,
-        package_price: selectedPackage.price,
-      });
-    }
-
-    hasTrackedOpenRef.current = isOpen;
-  }, [isOpen, selectedPackage.drops, selectedPackage.label, selectedPackage.price]);
-
   const closeModal = useCallback(() => {
     setSuccess(false);
     setError(null);
@@ -75,6 +64,33 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   }, [onClose]);
 
   const selectedPriceKey = useMemo(() => selectedPackage.price.toFixed(2), [selectedPackage.price]);
+  const selectedEconomics = useMemo(
+    () => deriveGumdropEconomics(selectedPackage.drops, selectedPackage.price),
+    [selectedPackage.drops, selectedPackage.price],
+  );
+
+  useEffect(() => {
+    if (isOpen && !hasTrackedOpenRef.current) {
+      trackEvent("wallet_opened", {
+        package_label: selectedPackage.label,
+        package_drops: selectedPackage.drops,
+        package_price: selectedPackage.price,
+        package_paid_drops: selectedEconomics.paidGumDrops,
+        package_bonus_drops: selectedEconomics.bonusGumDrops,
+        package_adjusted_profit_usd: selectedEconomics.adjustedProfitUsd,
+      });
+    }
+
+    hasTrackedOpenRef.current = isOpen;
+  }, [
+    isOpen,
+    selectedEconomics.adjustedProfitUsd,
+    selectedEconomics.bonusGumDrops,
+    selectedEconomics.paidGumDrops,
+    selectedPackage.drops,
+    selectedPackage.label,
+    selectedPackage.price,
+  ]);
 
   const selectBundlePackage = useCallback((drops: number) => {
     const bundle = {
@@ -84,10 +100,13 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
     };
 
     setSelectedPackage(bundle);
+    const bundleEconomics = deriveGumdropEconomics(bundle.drops, bundle.price);
     trackEvent("purchase_package_selected", {
       package_label: bundle.label,
       package_drops: bundle.drops,
       package_price: bundle.price,
+      package_paid_drops: bundleEconomics.paidGumDrops,
+      package_bonus_drops: bundleEconomics.bonusGumDrops,
     });
 
     return bundle;
@@ -170,6 +189,11 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
         package_label: selectedPackage.label,
         package_drops: selectedPackage.drops,
         package_price: selectedPackage.price,
+        package_paid_drops: selectedEconomics.paidGumDrops,
+        package_bonus_drops: selectedEconomics.bonusGumDrops,
+        package_bonus_value_usd: selectedEconomics.bonusValueUsd,
+        package_adjusted_profit_usd: selectedEconomics.adjustedProfitUsd,
+        package_effective_usd_per_100_gd: selectedEconomics.effectiveUsdPer100Gd,
         ...(consumeTimedFlow(CHECKOUT_FLOW_KEY).mergedParams ?? {}),
       });
     } catch (err: unknown) {
@@ -179,6 +203,8 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
         package_label: selectedPackage.label,
         package_drops: selectedPackage.drops,
         package_price: selectedPackage.price,
+        package_paid_drops: selectedEconomics.paidGumDrops,
+        package_bonus_drops: selectedEconomics.bonusGumDrops,
         ...(consumeTimedFlow(CHECKOUT_FLOW_KEY, { failure_reason: message }).mergedParams ?? {}),
       });
       toast.error("Purchase failed", { description: message });
@@ -228,10 +254,13 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                               key={pkg.drops}
                               onClick={() => {
                                 setSelectedPackage(pkg);
+                                const pkgEconomics = deriveGumdropEconomics(pkg.drops, pkg.price);
                                 trackEvent("purchase_package_selected", {
                                   package_label: pkg.label,
                                   package_drops: pkg.drops,
                                   package_price: pkg.price,
+                                  package_paid_drops: pkgEconomics.paidGumDrops,
+                                  package_bonus_drops: pkgEconomics.bonusGumDrops,
                                 });
                               }}
                               className={cn(

@@ -74,10 +74,48 @@ type AnalyticsUserDaily @table {
   taskRewardTotal: Int! @default(value: 0)
   spendGdTotal: Int! @default(value: 0)
   revenueCentsTotal: Int! @default(value: 0)
+  grossRevenueUsdTotal: Float! @default(value: 0)
+  adjustedProfitUsdTotal: Float! @default(value: 0)
+  bonusValueUsdTotal: Float! @default(value: 0)
+  bonusGumDropsTotal: Int! @default(value: 0)
+  deliveredGumDropsTotal: Int! @default(value: 0)
+  paidGumDropsTotal: Int! @default(value: 0)
   watchSecondsTotal: Int! @default(value: 0)
   loadMsTotal: Int! @default(value: 0)
   loadSampleCount: Int! @default(value: 0)
   lastSeenAtMs: Int
+}
+
+type AnalyticsCommerceDaily @table {
+  id: UUID! @default(expr: "uuidV4()")
+  dayKey: String!
+  transactionCount: Int! @default(value: 0)
+  purchaseCount: Int! @default(value: 0)
+  unlockCount: Int! @default(value: 0)
+  grossRevenueUsdTotal: Float! @default(value: 0)
+  adjustedProfitUsdTotal: Float! @default(value: 0)
+  bonusValueUsdTotal: Float! @default(value: 0)
+  bonusGumDropsTotal: Int! @default(value: 0)
+  deliveredGumDropsTotal: Int! @default(value: 0)
+  paidGumDropsTotal: Int! @default(value: 0)
+  spendGdTotal: Int! @default(value: 0)
+  lastTransactionAtMs: Int
+}
+
+type AnalyticsBundleDaily @table {
+  id: UUID! @default(expr: "uuidV4()")
+  dayKey: String!
+  bundleKey: String!
+  bundleLabel: String
+  bundleTier: String
+  purchaseCount: Int! @default(value: 0)
+  grossRevenueUsdTotal: Float! @default(value: 0)
+  adjustedProfitUsdTotal: Float! @default(value: 0)
+  bonusValueUsdTotal: Float! @default(value: 0)
+  bonusGumDropsTotal: Int! @default(value: 0)
+  deliveredGumDropsTotal: Int! @default(value: 0)
+  paidGumDropsTotal: Int! @default(value: 0)
+  lastTransactionAtMs: Int
 }
 
 type AnalyticsAlert @table {

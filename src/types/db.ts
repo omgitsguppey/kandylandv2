@@ -98,6 +98,25 @@ export interface Transaction {
     description: string;
     timestamp: number | Record<string, unknown>; // Firestore Timestamp or number
     cost?: number; // USD cost for purchase transactions
+    grossRevenueUsd?: number;
+    grossRevenueCents?: number;
+    deliveredGumDrops?: number;
+    paidGumDrops?: number;
+    bonusGumDrops?: number;
+    retailValueUsd?: number;
+    retailValueCents?: number;
+    bonusValueUsd?: number;
+    bonusValueCents?: number;
+    adjustedProfitUsd?: number;
+    adjustedProfitCents?: number;
+    discountUsd?: number;
+    discountCents?: number;
+    effectiveUsdPer100Gd?: number;
+    effectiveCentsPer100Gd?: number;
+    effectiveYieldRatio?: number;
+    bundleLabel?: string;
+    bundleKey?: string;
+    bundleTier?: string;
     currency?: string;
     status?: 'completed' | 'failed' | 'pending';
 }

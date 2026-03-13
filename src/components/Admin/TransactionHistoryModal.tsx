@@ -7,6 +7,7 @@ import { db } from "@/lib/firebase-data";
 import { Button } from "@/components/ui/Button";
 import { Loader2, ScrollText, ArrowDownLeft, ArrowUpRight, TrendingUp } from "lucide-react";
 import { format } from "date-fns";
+import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
 import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 
 interface Props {
@@ -91,7 +92,7 @@ export function TransactionHistoryModal({ user, onClose }: Props) {
                     </div>
                     <div className="bg-white/5 border border-white/10 px-3 py-1.5 rounded-xl text-center">
                         <span className="block text-[10px] font-bold text-gray-500 uppercase">Balance</span>
-                        <span className="font-mono font-bold text-brand-purple">{user.gumDropsBalance || 0} 🍬</span>
+                        <span className="font-mono font-bold text-brand-purple">{user.gumDropsBalance || 0} GD</span>
                     </div>
                 </div>
 
@@ -133,6 +134,14 @@ export function TransactionHistoryModal({ user, onClose }: Props) {
                                         <p className="text-sm text-gray-300 truncate" title={tx.description}>
                                             {tx.description || "No description"}
                                         </p>
+                                        {tx.type === "purchase_currency" ? (() => {
+                                            const economics = deriveGumdropEconomics(tx.deliveredGumDrops ?? tx.amount, tx.grossRevenueUsd ?? tx.cost ?? 0);
+                                            return (
+                                                <p className="mt-1 text-[11px] text-gray-500">
+                                                    ${economics.grossRevenueUsd.toFixed(2)} cash · {economics.bonusGumDrops.toLocaleString()} bonus GD · ${economics.adjustedProfitUsd.toFixed(2)} adjusted
+                                                </p>
+                                            );
+                                        })() : null}
                                     </div>
 
                                     <div className={`flex items-center gap-1 font-mono font-bold shrink-0 ${isPositive ? "text-brand-purple" : isZero ? "text-gray-400" : "text-red-400"}`}>

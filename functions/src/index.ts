@@ -20,6 +20,7 @@ import {
   toTimeKeys,
 } from "./analytics-core.js"
 import {db, rtdb} from "./firebase-admin.js"
+import {deriveGumdropEconomics} from "./gumdrop-economics.js"
 
 setGlobalOptions({
   region: REGION,
@@ -45,6 +46,19 @@ interface TransactionFact {
   userId?: string;
   amount?: number;
   cost?: number;
+  grossRevenueUsd?: number;
+  grossRevenueCents?: number;
+  deliveredGumDrops?: number;
+  paidGumDrops?: number;
+  bonusGumDrops?: number;
+  retailValueUsd?: number;
+  bonusValueUsd?: number;
+  adjustedProfitUsd?: number;
+  adjustedProfitCents?: number;
+  effectiveUsdPer100Gd?: number;
+  bundleLabel?: string;
+  bundleKey?: string;
+  bundleTier?: string;
   timestamp?: number;
   description?: string;
   dropId?: string;
@@ -96,6 +110,10 @@ async function writeCurrentAlerts(alerts: Array<Record<string, unknown>>) {
     alerts,
     updatedAt: FieldValue.serverTimestamp(),
   }, {merge: true})
+}
+
+function roundCurrency(value: number) {
+  return Math.round((value + Number.EPSILON) * 100) / 100
 }
 
 export const onAnalyticsEventFactCreated = onDocumentCreated(
@@ -488,28 +506,120 @@ export const onTransactionCreated = onDocumentCreated(
     const dropId = readString(data.dropId)
     const amount = readNumber(data.amount)
     const cost = readNumber(data.cost)
+    const grossRevenueUsd = readNumber(data.grossRevenueUsd) || cost
+    const economics = deriveGumdropEconomics(
+      readNumber(data.deliveredGumDrops) || amount,
+      grossRevenueUsd,
+    )
+    const bundleLabel = readString(data.bundleLabel) || `${economics.deliveredGumDrops} GD`
+    const bundleKey = readString(data.bundleKey) || encodeKeyFragment(bundleLabel)
+    const bundleTier = readString(data.bundleTier) || (economics.bonusGumDrops > 0 ? "bonus" : "standard")
     const batch = db.batch()
 
     batch.set(db.collection("analytics_commerce_daily").doc(timeKeys.dayKey), {
       dayKey: timeKeys.dayKey,
       transactionCount: buildIncrementUpdate(1),
       amountTotal: buildIncrementUpdate(amount),
-      revenueCentsTotal: buildIncrementUpdate(cost),
+      revenueCentsTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.grossRevenueCents : 0),
+      grossRevenueUsdTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.grossRevenueUsd : 0),
+      adjustedProfitUsdTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.adjustedProfitUsd : 0),
+      adjustedProfitCentsTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.adjustedProfitCents : 0),
+      retailValueUsdTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.retailValueUsd : 0),
+      bonusValueUsdTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.bonusValueUsd : 0),
+      bonusGumDropsTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.bonusGumDrops : 0),
+      deliveredGumDropsTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.deliveredGumDrops : 0),
+      paidGumDropsTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.paidGumDrops : 0),
       purchaseCount: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? 1 : 0),
       unlockCount: buildIncrementUpdate(type === "unlock_content" ? 1 : 0),
       updatedAt: FieldValue.serverTimestamp(),
       lastTransactionAt: timestamp,
     }, {merge: true})
 
+    batch.set(db.collection("analytics_commerce_rollup").doc("summary"), {
+      transactionCount: buildIncrementUpdate(1),
+      purchaseCount: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? 1 : 0),
+      unlockCount: buildIncrementUpdate(type === "unlock_content" ? 1 : 0),
+      grossRevenueUsdTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.grossRevenueUsd : 0),
+      adjustedProfitUsdTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.adjustedProfitUsd : 0),
+      retailValueUsdTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.retailValueUsd : 0),
+      bonusValueUsdTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.bonusValueUsd : 0),
+      bonusGumDropsTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.bonusGumDrops : 0),
+      deliveredGumDropsTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.deliveredGumDrops : 0),
+      paidGumDropsTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.paidGumDrops : 0),
+      updatedAt: FieldValue.serverTimestamp(),
+      lastTransactionAt: timestamp,
+    }, {merge: true})
+
+    if (type === "purchase_currency" && status === "completed") {
+      batch.set(db.collection("analytics_bundle_rollup").doc(bundleKey), {
+        bundleKey,
+        bundleLabel,
+        bundleTier,
+        purchaseCount: buildIncrementUpdate(1),
+        grossRevenueUsdTotal: buildIncrementUpdate(economics.grossRevenueUsd),
+        adjustedProfitUsdTotal: buildIncrementUpdate(economics.adjustedProfitUsd),
+        retailValueUsdTotal: buildIncrementUpdate(economics.retailValueUsd),
+        bonusValueUsdTotal: buildIncrementUpdate(economics.bonusValueUsd),
+        bonusGumDropsTotal: buildIncrementUpdate(economics.bonusGumDrops),
+        deliveredGumDropsTotal: buildIncrementUpdate(economics.deliveredGumDrops),
+        paidGumDropsTotal: buildIncrementUpdate(economics.paidGumDrops),
+        effectiveUsdPer100GdTotal: buildIncrementUpdate(economics.effectiveUsdPer100Gd),
+        updatedAt: FieldValue.serverTimestamp(),
+        lastTransactionAt: timestamp,
+      }, {merge: true})
+
+      batch.set(db.collection("analytics_bundle_daily").doc(`${timeKeys.dayKey}_${bundleKey}`), {
+        dayKey: timeKeys.dayKey,
+        bundleKey,
+        bundleLabel,
+        bundleTier,
+        purchaseCount: buildIncrementUpdate(1),
+        grossRevenueUsdTotal: buildIncrementUpdate(economics.grossRevenueUsd),
+        adjustedProfitUsdTotal: buildIncrementUpdate(economics.adjustedProfitUsd),
+        retailValueUsdTotal: buildIncrementUpdate(economics.retailValueUsd),
+        bonusValueUsdTotal: buildIncrementUpdate(economics.bonusValueUsd),
+        bonusGumDropsTotal: buildIncrementUpdate(economics.bonusGumDrops),
+        deliveredGumDropsTotal: buildIncrementUpdate(economics.deliveredGumDrops),
+        paidGumDropsTotal: buildIncrementUpdate(economics.paidGumDrops),
+        effectiveUsdPer100GdTotal: buildIncrementUpdate(economics.effectiveUsdPer100Gd),
+        updatedAt: FieldValue.serverTimestamp(),
+        lastTransactionAt: timestamp,
+      }, {merge: true})
+    }
+
     if (userId) {
+      const commercePatch: Record<string, number | ReturnType<typeof buildIncrementUpdate>> = {}
+      if (type === "purchase_currency" && status === "completed") {
+        commercePatch.grossRevenueUsdTotal = buildIncrementUpdate(economics.grossRevenueUsd)
+        commercePatch.adjustedProfitUsdTotal = buildIncrementUpdate(economics.adjustedProfitUsd)
+        commercePatch.retailValueUsdTotal = buildIncrementUpdate(economics.retailValueUsd)
+        commercePatch.bonusValueUsdTotal = buildIncrementUpdate(economics.bonusValueUsd)
+        commercePatch.bonusGumDropsTotal = buildIncrementUpdate(economics.bonusGumDrops)
+        commercePatch.deliveredGumDropsTotal = buildIncrementUpdate(economics.deliveredGumDrops)
+        commercePatch.paidGumDropsTotal = buildIncrementUpdate(economics.paidGumDrops)
+        commercePatch.effectiveUsdPer100GdTotal = buildIncrementUpdate(economics.effectiveUsdPer100Gd)
+        commercePatch.lastPurchaseAt = timestamp
+      }
       batch.set(db.collection("analytics_user_daily").doc(`${timeKeys.dayKey}_${userId}`), {
         dayKey: timeKeys.dayKey,
         uid: userId,
         transactionCount: buildIncrementUpdate(1),
         spendGdTotal: buildIncrementUpdate(type === "unlock_content" ? amount : 0),
-        revenueCentsTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? cost : 0),
-        purchaseCount: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? 1 : 0),
+        revenueCentsTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.grossRevenueCents : 0),
+        purchaseTransactionCount: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? 1 : 0),
         unlockCount: buildIncrementUpdate(type === "unlock_content" ? 1 : 0),
+        ...commercePatch,
+        updatedAt: FieldValue.serverTimestamp(),
+        lastSeenAt: timestamp,
+      }, {merge: true})
+
+      batch.set(db.collection("analytics_users_rollup").doc(userId), {
+        uid: userId,
+        purchaseTransactionCount: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? 1 : 0),
+        unlockCount: buildIncrementUpdate(type === "unlock_content" ? 1 : 0),
+        spendGdTotal: buildIncrementUpdate(type === "unlock_content" ? amount : 0),
+        revenueCentsTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.grossRevenueCents : 0),
+        ...commercePatch,
         updatedAt: FieldValue.serverTimestamp(),
         lastSeenAt: timestamp,
       }, {merge: true})
@@ -532,7 +642,11 @@ export const onTransactionCreated = onDocumentCreated(
       transactionCount: 1,
       purchaseCount: type === "purchase_currency" && status === "completed" ? 1 : 0,
       unlockCount: type === "unlock_content" ? 1 : 0,
-      revenueCentsTotal: type === "purchase_currency" && status === "completed" ? cost : 0,
+      revenueCentsTotal: type === "purchase_currency" && status === "completed" ? economics.grossRevenueCents : 0,
+      grossRevenueUsdTotal: type === "purchase_currency" && status === "completed" ? economics.grossRevenueUsd : 0,
+      adjustedProfitUsdTotal: type === "purchase_currency" && status === "completed" ? economics.adjustedProfitUsd : 0,
+      bonusValueUsdTotal: type === "purchase_currency" && status === "completed" ? economics.bonusValueUsd : 0,
+      bonusGumDropsTotal: type === "purchase_currency" && status === "completed" ? economics.bonusGumDrops : 0,
       lastTransactionAt: timestamp,
     })
   },
@@ -636,6 +750,109 @@ export const materializeUserAnalyticsDaily = onSchedule(
     })
 
     await db.collection(DASHBOARD_CACHE_COLLECTION).doc("user_snapshot_daily").set({
+      generatedAtMs: Date.now(),
+      users,
+      updatedAt: FieldValue.serverTimestamp(),
+    }, {merge: true})
+  },
+)
+
+export const materializeCommerceEconomicsHourly = onSchedule(
+  {schedule: "every 60 minutes", region: REGION, timeZone: "Etc/UTC"},
+  async () => {
+    const [dailySnapshot, bundleSnapshot] = await Promise.all([
+      db.collection("analytics_commerce_daily").orderBy("dayKey", "desc").limit(30).get(),
+      db.collection("analytics_bundle_rollup").orderBy("grossRevenueUsdTotal", "desc").limit(20).get(),
+    ])
+
+    const daily = dailySnapshot.docs.map((doc) => {
+      const data = doc.data()
+      const purchaseCount = readNumber(data.purchaseCount)
+      const grossRevenueUsdTotal = readNumber(data.grossRevenueUsdTotal)
+      const deliveredGumDropsTotal = readNumber(data.deliveredGumDropsTotal)
+      return {
+        dayKey: doc.id,
+        purchaseCount,
+        grossRevenueUsdTotal,
+        adjustedProfitUsdTotal: readNumber(data.adjustedProfitUsdTotal),
+        bonusValueUsdTotal: readNumber(data.bonusValueUsdTotal),
+        bonusGumDropsTotal: readNumber(data.bonusGumDropsTotal),
+        deliveredGumDropsTotal,
+        paidGumDropsTotal: readNumber(data.paidGumDropsTotal),
+        effectiveUsdPer100Gd: deliveredGumDropsTotal > 0
+          ? roundCurrency(grossRevenueUsdTotal / (deliveredGumDropsTotal / 100))
+          : 0,
+      }
+    })
+
+    const bundles = bundleSnapshot.docs.map((doc) => {
+      const data = doc.data()
+      const purchaseCount = readNumber(data.purchaseCount)
+      const grossRevenueUsdTotal = readNumber(data.grossRevenueUsdTotal)
+      const deliveredGumDropsTotal = readNumber(data.deliveredGumDropsTotal)
+      return {
+        bundleKey: doc.id,
+        bundleLabel: readString(data.bundleLabel) || doc.id,
+        bundleTier: readString(data.bundleTier),
+        purchaseCount,
+        grossRevenueUsdTotal,
+        adjustedProfitUsdTotal: readNumber(data.adjustedProfitUsdTotal),
+        bonusValueUsdTotal: readNumber(data.bonusValueUsdTotal),
+        bonusGumDropsTotal: readNumber(data.bonusGumDropsTotal),
+        deliveredGumDropsTotal,
+        paidGumDropsTotal: readNumber(data.paidGumDropsTotal),
+        averageOrderUsd: purchaseCount > 0 ? roundCurrency(grossRevenueUsdTotal / purchaseCount) : 0,
+        effectiveUsdPer100Gd: deliveredGumDropsTotal > 0
+          ? roundCurrency(grossRevenueUsdTotal / (deliveredGumDropsTotal / 100))
+          : 0,
+      }
+    })
+
+    await db.collection(DASHBOARD_CACHE_COLLECTION).doc("commerce_economics_hourly").set({
+      generatedAtMs: Date.now(),
+      daily,
+      bundles,
+      updatedAt: FieldValue.serverTimestamp(),
+    }, {merge: true})
+  },
+)
+
+export const materializeUserEconomicsLeaderboardHourly = onSchedule(
+  {schedule: "every 60 minutes", region: REGION, timeZone: "Etc/UTC"},
+  async () => {
+    const snapshot = await db.collection("analytics_users_rollup")
+      .orderBy("grossRevenueUsdTotal", "desc")
+      .limit(50)
+      .get()
+
+    const users = snapshot.docs.map((doc) => {
+      const data = doc.data()
+      const purchaseCount = readNumber(data.purchaseCount)
+      const grossRevenueUsdTotal = readNumber(data.grossRevenueUsdTotal)
+      const deliveredGumDropsTotal = readNumber(data.deliveredGumDropsTotal)
+      const adjustedProfitUsdTotal = readNumber(data.adjustedProfitUsdTotal)
+      return {
+        uid: doc.id,
+        username: readString(data.username) || doc.id,
+        purchaseCount,
+        grossRevenueUsdTotal,
+        adjustedProfitUsdTotal,
+        bonusValueUsdTotal: readNumber(data.bonusValueUsdTotal),
+        bonusGumDropsTotal: readNumber(data.bonusGumDropsTotal),
+        deliveredGumDropsTotal,
+        paidGumDropsTotal: readNumber(data.paidGumDropsTotal),
+        averageOrderUsd: purchaseCount > 0 ? roundCurrency(grossRevenueUsdTotal / purchaseCount) : 0,
+        effectiveUsdPer100Gd: deliveredGumDropsTotal > 0
+          ? roundCurrency(grossRevenueUsdTotal / (deliveredGumDropsTotal / 100))
+          : 0,
+        yieldRatio: grossRevenueUsdTotal > 0
+          ? Number((adjustedProfitUsdTotal / grossRevenueUsdTotal).toFixed(4))
+          : 0,
+        lastPurchaseAt: readNumber(data.lastPurchaseAt),
+      }
+    })
+
+    await db.collection(DASHBOARD_CACHE_COLLECTION).doc("user_economics_hourly").set({
       generatedAtMs: Date.now(),
       users,
       updatedAt: FieldValue.serverTimestamp(),

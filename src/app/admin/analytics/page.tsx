@@ -272,6 +272,11 @@ interface HistoricalAnalyticsResponse {
   topDrops?: TopDropItem[];
   commerce?: {
     revenueUsd: number;
+    adjustedProfitUsd?: number;
+    bonusValueUsd?: number;
+    deliveredGumDrops?: number;
+    bonusGumDrops?: number;
+    effectiveUsdPer100Gd?: number;
     gdSpent: number;
     feed?: CommerceFeedItem[];
   };
@@ -567,7 +572,16 @@ export default function AdminAnalyticsPage() {
   const pages = historicalResponse?.pages ?? [];
   const geo = historicalResponse?.geo ?? [];
   const topDrops = historicalResponse?.topDrops ?? [];
-  const commerce = historicalResponse?.commerce ?? { revenueUsd: 0, gdSpent: 0, feed: [] };
+  const commerce = historicalResponse?.commerce ?? {
+    revenueUsd: 0,
+    adjustedProfitUsd: 0,
+    bonusValueUsd: 0,
+    deliveredGumDrops: 0,
+    bonusGumDrops: 0,
+    effectiveUsdPer100Gd: 0,
+    gdSpent: 0,
+    feed: [],
+  };
   const security = historicalResponse?.security ?? [];
   const rawEvents = historicalResponse?.rawEvents ?? [];
   const onboardingStats = historicalResponse?.onboardingStats ?? { completions: 0, avgDuration: 0 };
@@ -1154,9 +1168,9 @@ export default function AdminAnalyticsPage() {
             <SectionCard title="Commerce Snapshot" subtitle="A tighter mobile revenue view with unlock and purchase efficiency kept above the fold." icon={DollarSign}>
               <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                 <MetricCard label="Revenue" value={formatMoney(commerce.revenueUsd)} hint="Completed currency purchases" icon={DollarSign} />
-                <MetricCard label="GD Spent" value={formatCompactNumber(commerce.gdSpent)} hint="Spent on unlocks" icon={Sparkles} />
-                <MetricCard label="Unlock Rate" value={formatPercent(previewToUnlockRate)} hint={`${funnel.unlocks.toLocaleString()} of ${funnel.previewOpens.toLocaleString()} previews`} icon={Eye} />
-                <MetricCard label="Checkout Rate" value={formatPercent(checkoutToPurchaseRate)} hint={`${funnel.purchases.toLocaleString()} purchases`} icon={ShoppingBag} />
+                <MetricCard label="Adj. Profit" value={formatMoney(commerce.adjustedProfitUsd ?? 0)} hint={`${formatMoney(commerce.bonusValueUsd ?? 0)} promo value granted`} icon={Wallet} />
+                <MetricCard label="Yield / 100 GD" value={formatMoney(commerce.effectiveUsdPer100Gd ?? 0)} hint={`${formatCompactNumber(commerce.deliveredGumDrops ?? 0)} GD delivered`} icon={Sparkles} />
+                <MetricCard label="GD Spent" value={formatCompactNumber(commerce.gdSpent)} hint={`${formatCompactNumber(commerce.bonusGumDrops ?? 0)} bonus GD granted`} icon={ShoppingBag} />
               </div>
 
               <div className="mt-5 grid gap-3 md:grid-cols-3">
@@ -1306,7 +1320,7 @@ export default function AdminAnalyticsPage() {
                           <div className="text-right">
                             <p className="text-sm font-bold text-brand-purple">
                               {typeof item.cost === "number" && item.cost > 0
-                                ? formatMoney(item.cost / 100)
+                                ? formatMoney(item.cost)
                                 : typeof item.amount === "number"
                                   ? item.amount.toLocaleString()
                                   : "0"}

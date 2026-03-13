@@ -4,6 +4,8 @@ import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAdmin, handleApiError } from "@/lib/server/auth";
 import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
+import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
+import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 
 function toTimestampNumber(value: unknown): number {
   if (typeof value === "number" && Number.isFinite(value)) {
@@ -24,6 +26,44 @@ function toTimestampNumber(value: unknown): number {
 
 function toStringArray(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string") : [];
+}
+
+type UserCommerceMetrics = {
+  grossRevenueUsd: number;
+  grossRevenueCents: number;
+  adjustedProfitUsd: number;
+  adjustedProfitCents: number;
+  retailValueUsd: number;
+  bonusValueUsd: number;
+  bonusGumDrops: number;
+  deliveredGumDrops: number;
+  paidGumDrops: number;
+  averageOrderUsd: number;
+  effectiveUsdPer100Gd: number;
+  unlockSpendGdTotal: number;
+  lastPurchaseAt: number;
+};
+
+function roundCurrency(value: number) {
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+function buildEmptyCommerceMetrics(): UserCommerceMetrics {
+  return {
+    grossRevenueUsd: 0,
+    grossRevenueCents: 0,
+    adjustedProfitUsd: 0,
+    adjustedProfitCents: 0,
+    retailValueUsd: 0,
+    bonusValueUsd: 0,
+    bonusGumDrops: 0,
+    deliveredGumDrops: 0,
+    paidGumDrops: 0,
+    averageOrderUsd: 0,
+    effectiveUsdPer100Gd: 0,
+    unlockSpendGdTotal: 0,
+    lastPurchaseAt: 0,
+  };
 }
 
 function serializeUserDoc(id: string, raw: Record<string, unknown>) {
@@ -85,18 +125,67 @@ export async function GET(request: NextRequest) {
     await checkRateLimit(request, "admin/users", ADMIN);
     await verifyAdmin(request);
 
-    const [usersSnapshot, analyticsSnapshot] = await Promise.all([
+    const [usersSnapshot, analyticsSnapshot, transactionsSnapshot] = await Promise.all([
       adminDb.collection("users").orderBy("createdAt", "desc").get(),
       adminDb.collection("analytics_users_rollup").get(),
+      adminDb.collection("transactions").get(),
     ]);
 
     const users = usersSnapshot.docs.map((doc) => serializeUserDoc(doc.id, doc.data()));
+    const commerceByUser = new Map<string, UserCommerceMetrics>();
+    const purchaseCountByUser = new Map<string, number>();
+
+    transactionsSnapshot.docs.forEach((doc) => {
+      try {
+        const transaction = normalizeTransactionRecord(doc.data(), doc.id);
+        const current = commerceByUser.get(transaction.userId) ?? buildEmptyCommerceMetrics();
+
+        if (transaction.type === "purchase_currency" && transaction.status === "completed") {
+          const economics = deriveGumdropEconomics(
+            transaction.deliveredGumDrops ?? transaction.amount,
+            transaction.grossRevenueUsd ?? transaction.cost ?? 0,
+          );
+          current.grossRevenueUsd = roundCurrency(current.grossRevenueUsd + economics.grossRevenueUsd);
+          current.grossRevenueCents += economics.grossRevenueCents;
+          current.adjustedProfitUsd = roundCurrency(current.adjustedProfitUsd + economics.adjustedProfitUsd);
+          current.adjustedProfitCents += economics.adjustedProfitCents;
+          current.retailValueUsd = roundCurrency(current.retailValueUsd + economics.retailValueUsd);
+          current.bonusValueUsd = roundCurrency(current.bonusValueUsd + economics.bonusValueUsd);
+          current.bonusGumDrops += economics.bonusGumDrops;
+          current.deliveredGumDrops += economics.deliveredGumDrops;
+          current.paidGumDrops += economics.paidGumDrops;
+          current.lastPurchaseAt = Math.max(current.lastPurchaseAt, toTimestampNumber(transaction.timestamp));
+
+          const currentPurchaseCount = (purchaseCountByUser.get(transaction.userId) ?? 0) + 1;
+          purchaseCountByUser.set(transaction.userId, currentPurchaseCount);
+          current.averageOrderUsd = roundCurrency(current.grossRevenueUsd / currentPurchaseCount);
+          current.effectiveUsdPer100Gd = current.deliveredGumDrops > 0
+            ? roundCurrency(current.grossRevenueUsd / (current.deliveredGumDrops / 100))
+            : 0;
+        } else if (transaction.type === "unlock_content") {
+          current.unlockSpendGdTotal += transaction.amount;
+        }
+
+        commerceByUser.set(transaction.userId, current);
+      } catch (error) {
+        console.warn("Skipping malformed admin users transaction", error);
+      }
+    });
+
     const analyticsByUser = Object.fromEntries(
       analyticsSnapshot.docs.map((doc) => {
         const raw = doc.data() as Record<string, unknown>;
         const loadSampleCount = typeof raw.loadSampleCount === "number" ? raw.loadSampleCount : 0;
         const loadMsTotal = typeof raw.loadMsTotal === "number" ? raw.loadMsTotal : 0;
         const watchSecondsTotal = typeof raw.watchSecondsTotal === "number" ? raw.watchSecondsTotal : 0;
+        const commerceMetrics = commerceByUser.get(doc.id) ?? buildEmptyCommerceMetrics();
+        const grossRevenueUsd = commerceMetrics.grossRevenueUsd;
+        const adjustedProfitUsd = commerceMetrics.adjustedProfitUsd;
+        const retailValueUsd = commerceMetrics.retailValueUsd;
+        const bundleYieldRatio = retailValueUsd > 0 ? Number((grossRevenueUsd / retailValueUsd).toFixed(4)) : 0;
+        const purchaseCount = purchaseCountByUser.get(doc.id)
+          ?? (typeof raw.purchaseTransactionCount === "number" ? raw.purchaseTransactionCount : 0)
+          ?? (typeof raw.purchaseCount === "number" ? raw.purchaseCount : 0);
 
         return [doc.id, {
           uid: doc.id,
@@ -104,14 +193,63 @@ export async function GET(request: NextRequest) {
           eventCount: typeof raw.eventCount === "number" ? raw.eventCount : 0,
           sessionCount: typeof raw.sessionCount === "number" ? raw.sessionCount : 0,
           unwrapCount: typeof raw.unwrapCount === "number" ? raw.unwrapCount : 0,
-          purchaseCount: typeof raw.purchaseCount === "number" ? raw.purchaseCount : 0,
+          purchaseCount,
           watchSecondsTotal,
           watchHours: Number((watchSecondsTotal / 3600).toFixed(1)),
           avgLoadMs: loadSampleCount > 0 ? Math.round(loadMsTotal / loadSampleCount) : 0,
           lastSeenAt: typeof raw.lastSeenAt === "number" ? raw.lastSeenAt : 0,
+          grossRevenueUsd,
+          grossRevenueCents: commerceMetrics.grossRevenueCents,
+          adjustedProfitUsd,
+          adjustedProfitCents: commerceMetrics.adjustedProfitCents,
+          retailValueUsd,
+          bonusValueUsd: commerceMetrics.bonusValueUsd,
+          bonusGumDrops: commerceMetrics.bonusGumDrops,
+          deliveredGumDrops: commerceMetrics.deliveredGumDrops,
+          paidGumDrops: commerceMetrics.paidGumDrops,
+          averageOrderUsd: commerceMetrics.averageOrderUsd,
+          effectiveUsdPer100Gd: commerceMetrics.effectiveUsdPer100Gd,
+          unlockSpendGdTotal: commerceMetrics.unlockSpendGdTotal,
+          lastPurchaseAt: commerceMetrics.lastPurchaseAt,
+          bundleYieldRatio,
         }];
       }),
     );
+
+    users.forEach((user) => {
+      if (analyticsByUser[user.uid]) {
+        return;
+      }
+
+      const commerceMetrics = commerceByUser.get(user.uid) ?? buildEmptyCommerceMetrics();
+      const retailValueUsd = commerceMetrics.retailValueUsd;
+      analyticsByUser[user.uid] = {
+        uid: user.uid,
+        username: user.username || user.displayName || user.uid,
+        eventCount: 0,
+        sessionCount: 0,
+        unwrapCount: 0,
+        purchaseCount: purchaseCountByUser.get(user.uid) ?? 0,
+        watchSecondsTotal: 0,
+        watchHours: 0,
+        avgLoadMs: 0,
+        lastSeenAt: 0,
+        grossRevenueUsd: commerceMetrics.grossRevenueUsd,
+        grossRevenueCents: commerceMetrics.grossRevenueCents,
+        adjustedProfitUsd: commerceMetrics.adjustedProfitUsd,
+        adjustedProfitCents: commerceMetrics.adjustedProfitCents,
+        retailValueUsd,
+        bonusValueUsd: commerceMetrics.bonusValueUsd,
+        bonusGumDrops: commerceMetrics.bonusGumDrops,
+        deliveredGumDrops: commerceMetrics.deliveredGumDrops,
+        paidGumDrops: commerceMetrics.paidGumDrops,
+        averageOrderUsd: commerceMetrics.averageOrderUsd,
+        effectiveUsdPer100Gd: commerceMetrics.effectiveUsdPer100Gd,
+        unlockSpendGdTotal: commerceMetrics.unlockSpendGdTotal,
+        lastPurchaseAt: commerceMetrics.lastPurchaseAt,
+        bundleYieldRatio: retailValueUsd > 0 ? Number((commerceMetrics.grossRevenueUsd / retailValueUsd).toFixed(4)) : 0,
+      };
+    });
 
     const nowMs = Date.now();
     const summary = {
@@ -133,6 +271,24 @@ export async function GET(request: NextRequest) {
           Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.watchSecondsTotal || 0), 0) / 3600
         ).toFixed(1),
       ),
+      grossRevenueUsd: roundCurrency(Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.grossRevenueUsd || 0), 0)),
+      adjustedProfitUsd: roundCurrency(Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.adjustedProfitUsd || 0), 0)),
+      bonusValueUsd: roundCurrency(Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.bonusValueUsd || 0), 0)),
+      bonusGumDrops: Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.bonusGumDrops || 0), 0),
+      deliveredGumDrops: Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.deliveredGumDrops || 0), 0),
+      paidGumDrops: Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.paidGumDrops || 0), 0),
+      unlockSpendGdTotal: Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.unlockSpendGdTotal || 0), 0),
+      averageOrderUsd: (() => {
+        const grossRevenueUsd = Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.grossRevenueUsd || 0), 0);
+        const totalPurchases = Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.purchaseCount || 0), 0);
+        return totalPurchases > 0 ? roundCurrency(grossRevenueUsd / totalPurchases) : 0;
+      })(),
+      effectiveUsdPer100Gd: (() => {
+        const grossRevenueUsd = Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.grossRevenueUsd || 0), 0);
+        const deliveredGd = Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.deliveredGumDrops || 0), 0);
+        return deliveredGd > 0 ? roundCurrency(grossRevenueUsd / (deliveredGd / 100)) : 0;
+      })(),
+      payingUsers: Object.values(analyticsByUser).filter((entry) => (entry.purchaseCount || 0) > 0).length,
     };
 
     return NextResponse.json({

@@ -8,6 +8,7 @@ import { verifyAdmin, handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
 import { TELEMETRY_EVENT_NAMES } from "@/lib/telemetry-catalog";
+import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
 import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 
 const propertyId = process.env.GA_PROPERTY_ID;
@@ -586,17 +587,29 @@ export async function GET(request: NextRequest) {
                 .limit(50)
                 .get();
 
-            let totalRevenueCents = 0; // Purchase amount (USD cents)
+            let totalRevenueUsd = 0;
+            let totalAdjustedProfitUsd = 0;
+            let totalBonusValueUsd = 0;
+            let totalDeliveredGd = 0;
+            let totalBonusGd = 0;
             let totalGdSpent = 0; // Unlocks amount (GD)
             const rawTransactions: any[] = [];
 
             transactionsSnapshot.docs.forEach((doc: any) => {
-                const tx = doc.data();
-                rawTransactions.push({ id: doc.id, ...tx });
-                if (tx.type === "purchase_currency" && tx.status === "completed") {
-                    totalRevenueCents += (tx.cost || 0); // Assuming cost is in cents based on standard Stripe/PayPal integration
-                } else if (tx.type === "unlock_content") {
-                    totalGdSpent += (tx.amount || 0);
+                const normalized = normalizeTransactionRecord(doc.data(), doc.id);
+                rawTransactions.push(normalized);
+                if (normalized.type === "purchase_currency" && normalized.status === "completed") {
+                    const economics = deriveGumdropEconomics(
+                        normalized.deliveredGumDrops ?? normalized.amount,
+                        normalized.grossRevenueUsd ?? normalized.cost ?? 0,
+                    );
+                    totalRevenueUsd += economics.grossRevenueUsd;
+                    totalAdjustedProfitUsd += economics.adjustedProfitUsd;
+                    totalBonusValueUsd += economics.bonusValueUsd;
+                    totalDeliveredGd += economics.deliveredGumDrops;
+                    totalBonusGd += economics.bonusGumDrops;
+                } else if (normalized.type === "unlock_content") {
+                    totalGdSpent += (normalized.amount || 0);
                 }
             });
 
@@ -682,7 +695,12 @@ export async function GET(request: NextRequest) {
             }));
 
             const commerce = {
-                revenueUsd: totalRevenueCents / 100,
+                revenueUsd: totalRevenueUsd,
+                adjustedProfitUsd: totalAdjustedProfitUsd,
+                bonusValueUsd: totalBonusValueUsd,
+                deliveredGumDrops: totalDeliveredGd,
+                bonusGumDrops: totalBonusGd,
+                effectiveUsdPer100Gd: totalDeliveredGd > 0 ? totalRevenueUsd / (totalDeliveredGd / 100) : 0,
                 gdSpent: totalGdSpent,
                 feed: mappedCommerceFeed
             };
