@@ -11,6 +11,21 @@ const SESSION_COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
 const SESSION_KEY_PATTERN = /^anon_[A-Za-z0-9-]{8,128}$/u;
 const CLIENT_SESSION_PATTERN = /^[A-Za-z0-9-]{8,128}$/u;
 
+function buildTimeKeys(timestamp: number) {
+    const date = new Date(timestamp);
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(date.getUTCDate()).padStart(2, "0");
+    const hour = String(date.getUTCHours()).padStart(2, "0");
+    const minute = String(date.getUTCMinutes()).padStart(2, "0");
+
+    return {
+        dayKey: `${year}-${month}-${day}`,
+        hourKey: `${year}-${month}-${day}T${hour}`,
+        minuteKey: `${year}-${month}-${day}T${hour}:${minute}`,
+    };
+}
+
 const TelemetryEventSchema = z.object({
     type: z.enum(["click", "hover", "scroll", "visibility"]),
     timestamp: z.number(),
@@ -59,10 +74,11 @@ export async function POST(request: NextRequest) {
 
         const { sessionId, events } = parsed.data;
         const { sessionKey, shouldSetCookie } = getOrCreateSessionKey(request);
+        const nowMs = Date.now();
+        const timeKeys = buildTimeKeys(nowMs);
 
         // Group events by a unique minute-bucket to prevent writing thousands of tiny docs.
-        const now = new Date();
-        const minuteBucket = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}-${String(now.getUTCDate()).padStart(2, '0')}T${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}`;
+        const minuteBucket = timeKeys.minuteKey;
 
         const docId = `${sessionKey}_${minuteBucket}`;
         const docRef = adminDb.collection("analytics_sessions").doc(docId);
@@ -79,6 +95,22 @@ export async function POST(request: NextRequest) {
         await docRef.update({
             events: FieldValue.arrayUnion(...events),
             updatedAt: FieldValue.serverTimestamp()
+        });
+        await adminDb.collection("analytics_guest_batches").add({
+            source: "guest",
+            sessionKey,
+            clientSessionId: sessionId || null,
+            receivedAtMs: nowMs,
+            dayKey: timeKeys.dayKey,
+            hourKey: timeKeys.hourKey,
+            minuteKey: timeKeys.minuteKey,
+            eventCount: events.length,
+            pagePaths: Array.from(new Set(events.map((event) => event.path))),
+            interactionTypes: Array.from(new Set(events.map((event) => event.type))),
+            maxScrollDepth: events.reduce((maxDepth, event) => Math.max(maxDepth, event.scrollDepthPercent || 0), 0),
+            hasPixelData: events.some((event) => Number.isFinite(event.x) && Number.isFinite(event.y)),
+            events,
+            createdAt: FieldValue.serverTimestamp(),
         });
 
         const response = NextResponse.json({ success: true, processed: events.length });

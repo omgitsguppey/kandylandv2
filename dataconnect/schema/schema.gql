@@ -1,0 +1,101 @@
+type AnalyticsEventFact @table {
+  id: UUID! @default(expr: "uuidV4()")
+  source: String!
+  eventName: String!
+  userId: String
+  username: String
+  sessionId: String
+  pagePath: String
+  dropId: String
+  dropTitle: String
+  dropCategory: String
+  dayKey: String!
+  hourKey: String!
+  minuteKey: String
+  timestampMs: Int!
+  viewportWidth: Int
+  viewportHeight: Int
+  isMobileViewport: Boolean
+  watchSeconds: Int
+  durationMs: Int
+  loadMs: Int
+}
+
+type AnalyticsSessionFact @table {
+  id: UUID! @default(expr: "uuidV4()")
+  sessionId: String!
+  userId: String
+  username: String
+  dropId: String
+  dropTitle: String
+  pagePath: String
+  dayKey: String!
+  hourKey: String!
+  firstEventAtMs: Int!
+  lastEventAtMs: Int!
+  eventCount: Int! @default(value: 0)
+  startedCount: Int! @default(value: 0)
+  completedCount: Int! @default(value: 0)
+  watchSecondsTotal: Int! @default(value: 0)
+  loadMsTotal: Int! @default(value: 0)
+  loadSampleCount: Int! @default(value: 0)
+}
+
+type AnalyticsDropDaily @table {
+  id: UUID! @default(expr: "uuidV4()")
+  dayKey: String!
+  dropId: String!
+  dropTitle: String
+  dropCategory: String
+  eventCount: Int! @default(value: 0)
+  viewerSessionCount: Int! @default(value: 0)
+  unwrapCount: Int! @default(value: 0)
+  unlockTransactionCount: Int! @default(value: 0)
+  downloadCount: Int! @default(value: 0)
+  relatedClickCount: Int! @default(value: 0)
+  spendGdTotal: Int! @default(value: 0)
+  watchSecondsTotal: Int! @default(value: 0)
+  loadMsTotal: Int! @default(value: 0)
+  loadSampleCount: Int! @default(value: 0)
+  lastEventAtMs: Int
+}
+
+type AnalyticsUserDaily @table {
+  id: UUID! @default(expr: "uuidV4()")
+  dayKey: String!
+  uid: String!
+  username: String
+  eventCount: Int! @default(value: 0)
+  sessionCount: Int! @default(value: 0)
+  unwrapCount: Int! @default(value: 0)
+  unlockCount: Int! @default(value: 0)
+  purchaseCount: Int! @default(value: 0)
+  taskEventCount: Int! @default(value: 0)
+  taskRewardTotal: Int! @default(value: 0)
+  spendGdTotal: Int! @default(value: 0)
+  revenueCentsTotal: Int! @default(value: 0)
+  watchSecondsTotal: Int! @default(value: 0)
+  loadMsTotal: Int! @default(value: 0)
+  loadSampleCount: Int! @default(value: 0)
+  lastSeenAtMs: Int
+}
+
+type AnalyticsAlert @table {
+  id: UUID! @default(expr: "uuidV4()")
+  hourKey: String!
+  type: String!
+  severity: String!
+  message: String!
+  baseline: Int
+  current: Int
+  generatedAtMs: Int!
+}
+
+type AnalyticsHeatmapPoint @table {
+  id: UUID! @default(expr: "uuidV4()")
+  dayKey: String!
+  pagePath: String!
+  bucket: String!
+  count: Int! @default(value: 0)
+  lastUpdatedAtMs: Int
+}

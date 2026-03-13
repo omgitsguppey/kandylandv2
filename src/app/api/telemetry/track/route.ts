@@ -9,6 +9,36 @@ import { checkRateLimit, RELAXED } from "@/lib/server/rate-limit";
 const ALLOWED_EVENT_NAMES = new Set(TELEMETRY_EVENT_NAMES);
 type SanitizedEventParams = Record<string, string | number | boolean>;
 
+function buildTimeKeys(timestamp: number) {
+    const date = new Date(timestamp);
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(date.getUTCDate()).padStart(2, "0");
+    const hour = String(date.getUTCHours()).padStart(2, "0");
+    const minute = String(date.getUTCMinutes()).padStart(2, "0");
+
+    return {
+        dayKey: `${year}-${month}-${day}`,
+        hourKey: `${year}-${month}-${day}T${hour}`,
+        minuteKey: `${year}-${month}-${day}T${hour}:${minute}`,
+    };
+}
+
+function getStringParam(params: SanitizedEventParams, key: string) {
+    const value = params[key];
+    return typeof value === "string" ? value : "";
+}
+
+function getNumberParam(params: SanitizedEventParams, key: string) {
+    const value = params[key];
+    return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function getBooleanParam(params: SanitizedEventParams, key: string) {
+    const value = params[key];
+    return typeof value === "boolean" ? value : undefined;
+}
+
 function sanitizeTelemetryValue(value: unknown): string | number | boolean | undefined {
     if (typeof value === "string") {
         return value.slice(0, 250);
@@ -62,6 +92,9 @@ export async function POST(req: NextRequest) {
         const profileData = profileSnapshot.data();
         const username = profileData?.username || profileData?.displayName || decodedToken.email || "Unknown Collector";
         const nowMs = Date.now();
+        const timeKeys = buildTimeKeys(nowMs);
+        const pagePath = getStringParam(sanitizedEventParams, "page_path");
+        const sessionId = getStringParam(sanitizedEventParams, "session_id");
 
         // Construct Telemetry Event
         const telemetryData = {
@@ -72,6 +105,37 @@ export async function POST(req: NextRequest) {
             timestamp: nowMs,
             userAgent: req.headers.get("user-agent") || "unknown",
         };
+        const analyticsEventFact = {
+            source: "authenticated",
+            eventName,
+            userId,
+            username,
+            timestamp: nowMs,
+            userAgent: req.headers.get("user-agent") || "unknown",
+            pagePath,
+            sessionId,
+            dayKey: timeKeys.dayKey,
+            hourKey: timeKeys.hourKey,
+            minuteKey: timeKeys.minuteKey,
+            dropId: getStringParam(sanitizedEventParams, "drop_id"),
+            dropTitle: getStringParam(sanitizedEventParams, "drop_title"),
+            dropCategory: getStringParam(sanitizedEventParams, "drop_category"),
+            assetKey: getStringParam(sanitizedEventParams, "asset_key"),
+            assetIndex: getNumberParam(sanitizedEventParams, "asset_index"),
+            contentKind: getStringParam(sanitizedEventParams, "content_kind"),
+            destination: getStringParam(sanitizedEventParams, "destination"),
+            destinationType: getStringParam(sanitizedEventParams, "destination_type"),
+            sessionWatchSeconds: getNumberParam(sanitizedEventParams, "session_watch_seconds"),
+            watchSeconds: getNumberParam(sanitizedEventParams, "watch_seconds"),
+            durationMs: getNumberParam(sanitizedEventParams, "duration_ms"),
+            loadMs: getNumberParam(sanitizedEventParams, "load_ms"),
+            viewportWidth: getNumberParam(sanitizedEventParams, "viewport_width"),
+            viewportHeight: getNumberParam(sanitizedEventParams, "viewport_height"),
+            isMobileViewport: getBooleanParam(sanitizedEventParams, "is_mobile_viewport"),
+            authState: getStringParam(sanitizedEventParams, "auth_state"),
+            params: sanitizedEventParams,
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        };
 
         // Write directly to Realtime Database
         // Structure: telemetry/events/{eventName}/{pushId}
@@ -81,6 +145,7 @@ export async function POST(req: NextRequest) {
         // Also write a user-centric log: telemetry/users/{userId}/{pushId}
         const userEventsRef = realtimeDb.ref(`telemetry/users/${userId}`);
         await userEventsRef.push(telemetryData);
+        await adminDb.collection("analytics_event_facts").add(analyticsEventFact);
 
         await Promise.all([
             recordTelemetryEventStat(eventName, sanitizedEventParams),
