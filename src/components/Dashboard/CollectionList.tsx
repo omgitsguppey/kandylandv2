@@ -40,8 +40,9 @@ export function CollectionList({ drops, userProfile }: CollectionListProps) {
         const unlockedList = Array.isArray(rawUnlocked) ? rawUnlocked : [];
         const ids = new Set(unlockedList);
 
-        // Expired drops should only remain visible if the user already unwrapped them.
-        const visible = drops.filter((drop) => drop.status !== "expired" || ids.has(drop.id));
+        // Match the public Drops page: locked items only surface while active.
+        // Already-unwrapped drops stay visible in the dashboard regardless of lifecycle.
+        const visible = drops.filter((drop) => drop.status === "active" || ids.has(drop.id));
         const owned = visible.filter((drop) => ids.has(drop.id)).length;
         const locked = visible.length - owned;
 
