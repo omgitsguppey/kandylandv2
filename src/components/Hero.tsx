@@ -93,8 +93,8 @@ function ActivityTicker({ count }: { count: number }) {
     return (
         <div className="inline-flex max-w-[95vw] items-center gap-2 overflow-hidden rounded-full border border-white/10 bg-white/5 px-3 py-1.5 shadow-lg backdrop-blur-md max-[360px]:px-2.5 max-[360px]:py-1 sm:gap-3 sm:px-4 sm:py-2">
             <div className="relative flex h-2 w-2 shrink-0">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-purple opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-purple"></span>
             </div>
             <span className="overflow-hidden text-ellipsis whitespace-nowrap text-[10px] font-semibold text-white/90 max-[360px]:text-[9px] sm:text-sm">
                 Live Now: <span className="text-white font-bold">{count}</span> KandyDrops are ready to unwrap!
