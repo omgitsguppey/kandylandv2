@@ -71,11 +71,14 @@ export default function DashboardClient({ drops }: DashboardClientProps) {
 
     const firstName = userProfile.displayName?.split(" ")[0] || "Collector";
     const greeting = greetingTemplate.replace("{name}", firstName);
+    const greetingSizeClass = greeting.length > 34
+        ? "text-[clamp(1.25rem,4vw,2.5rem)]"
+        : "text-[clamp(1.5rem,4.6vw,3rem)]";
 
     return (
         <div className="mx-auto w-full max-w-7xl px-3 sm:px-4" data-onboarding-page="dashboard">
             <header className="mb-4 md:mb-6">
-                <h1 className="mb-2 text-2xl font-bold leading-tight text-white sm:text-3xl md:text-5xl">
+                <h1 className={`mb-2 max-w-full whitespace-nowrap text-left font-bold leading-tight tracking-tight text-white ${greetingSizeClass}`}>
                     {greeting}
                 </h1>
                 <p className="text-sm text-gray-400 sm:text-base">Taste your unwrapped KandyDrops and earn free Gum Drops!</p>
