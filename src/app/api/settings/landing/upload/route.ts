@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb, adminStorage } from "@/lib/server/firebase-admin";
 import { verifyAdmin, handleApiError } from "@/lib/server/auth";
 import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
+import { isAllowedLandingAssetKey } from "@/lib/landing-assets";
 
 function isImageFormat(mimeType: string) {
     return ["image/jpeg", "image/png", "image/gif", "image/webp"].includes(mimeType);
@@ -18,6 +19,9 @@ export async function POST(request: NextRequest) {
 
         if (!file || !key) {
             return NextResponse.json({ error: "Missing required fields (file, key)" }, { status: 400 });
+        }
+        if (!isAllowedLandingAssetKey(key)) {
+            return NextResponse.json({ error: "Invalid landing asset key." }, { status: 400 });
         }
 
         if (!isImageFormat(file.type)) {

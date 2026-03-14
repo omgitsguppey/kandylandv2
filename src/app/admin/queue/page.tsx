@@ -101,8 +101,8 @@ export default function ManageQueuePage() {
         setConfig({ ...config, queue: newQueue });
     };
 
-    // Simulate upcoming drop times
-    const simulatedSchedule = useMemo(() => {
+    // Project upcoming drop times from the current queue configuration
+    const projectedSchedule = useMemo(() => {
         if (!config || config.queue.length === 0 || config.dropsPerDay <= 0) return [];
 
         const schedule: { date: Date, timeStr: string }[] = [];
@@ -244,7 +244,7 @@ export default function ManageQueuePage() {
                             ) : (
                                 config.queue.map((dropId, index) => {
                                     const drop = drops[dropId];
-                                    const sim = simulatedSchedule[index];
+                                    const sim = projectedSchedule[index];
 
                                     if (!drop) {
                                         return (

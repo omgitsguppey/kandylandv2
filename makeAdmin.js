@@ -3,6 +3,12 @@ const { getFirestore } = require('firebase-admin/firestore');
 const { getAuth } = require('firebase-admin/auth');
 require('dotenv').config({ path: '.env.local' });
 
+const targetUser = process.argv[2];
+if (!targetUser) {
+    console.error('Usage: node makeAdmin.js <email>');
+    process.exit(1);
+}
+
 const privateKey = process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n');
 
 initializeApp({
@@ -17,7 +23,7 @@ const db = getFirestore();
 const auth = getAuth();
 
 async function makeAdmin() {
-    const email = "kandydrops99@gmail.com";
+    const email = targetUser;
     try {
         const user = await auth.getUserByEmail(email);
         console.log("Found user:", user.uid);

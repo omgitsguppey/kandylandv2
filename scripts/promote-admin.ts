@@ -24,10 +24,6 @@ async function main() {
     console.log(`Promoting user: ${input} (${isEmail ? "Email" : "UID"}) to admin...`);
     console.log(`Using Project ID: ${projectId || "Not detected"}`);
 
-    // ... (Firebase Admin initialization code remains the same as before) ...
-    // Note: I will only replace the body of the try-catch for clarity in this chunk
-    // But since I'm using replace_file_content for a single block, I'll include the init too to be safe
-
     if (!admin.apps.length) {
         try {
             let credential;

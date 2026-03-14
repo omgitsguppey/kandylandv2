@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAuth, handleApiError } from "@/lib/server/auth";
 import { checkRateLimit, STANDARD } from "@/lib/server/rate-limit";
@@ -79,6 +80,23 @@ function normalizeAccountSettings(value: unknown): { timezone: string } | null {
     return { timezone: normalizedTimezone };
 }
 
+function normalizeBrowserPushToken(value: unknown): string | null {
+    if (value === undefined || value === null || value === "") {
+        return null;
+    }
+
+    if (typeof value !== "string") {
+        return null;
+    }
+
+    const trimmed = value.trim();
+    if (trimmed.length < 32 || trimmed.length > 4096) {
+        return null;
+    }
+
+    return trimmed;
+}
+
 export async function PUT(request: NextRequest) {
     try {
         await checkRateLimit(request, "user/profile", STANDARD);
@@ -115,6 +133,15 @@ export async function PUT(request: NextRequest) {
                 return NextResponse.json({ error: "Invalid notification settings" }, { status: 400 });
             }
             updates.notificationSettings = normalizedNotificationSettings;
+        }
+        if (payload.browserPushToken !== undefined) {
+            const normalizedBrowserPushToken = normalizeBrowserPushToken(payload.browserPushToken);
+            if (normalizedBrowserPushToken === null && payload.browserPushToken !== null && payload.browserPushToken !== "") {
+                return NextResponse.json({ error: "Invalid browser push token" }, { status: 400 });
+            }
+            if (normalizedBrowserPushToken) {
+                updates.fcmTokens = FieldValue.arrayUnion(normalizedBrowserPushToken);
+            }
         }
 
         if (payload.privacySettings !== undefined) {

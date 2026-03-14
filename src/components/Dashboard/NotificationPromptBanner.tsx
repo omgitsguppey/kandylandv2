@@ -2,11 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Bell, Smartphone, X } from "lucide-react";
-import { arrayUnion, doc, updateDoc } from "firebase/firestore";
 
 import { useAuth } from "@/context/AuthContext";
-import { db } from "@/lib/firebase-data";
-import { getBrowserNotificationState, requestBrowserNotificationAccess } from "@/lib/firebase-messaging";
+import { getBrowserNotificationState } from "@/lib/firebase-messaging";
+import { enableBrowserNotifications } from "@/lib/browser-notification-enrollment";
 import { trackEvent } from "@/lib/telemetry";
 import { toast } from "sonner";
 
@@ -90,29 +89,21 @@ export function NotificationPromptBanner() {
 
         setLoading(true);
         try {
-            const result = await requestBrowserNotificationAccess();
-            if (!result.granted) {
+            const result = await enableBrowserNotifications(userProfile);
+            if (result.status === "not_granted") {
                 toast.info("Browser notifications were not enabled.");
                 return;
             }
-
-            const userRef = doc(db, "users", user.uid);
-            await updateDoc(userRef, {
-                notificationSettings: {
-                    inAppEnabled: userProfile.notificationSettings?.inAppEnabled !== false,
-                    browserPushEnabled: true,
-                    newDropAlerts: userProfile.notificationSettings?.newDropAlerts !== false,
-                    expiringSoonAlerts: userProfile.notificationSettings?.expiringSoonAlerts !== false,
-                },
-                ...(result.token ? { fcmTokens: arrayUnion(result.token) } : {}),
-            });
+            if (result.status === "failed") {
+                throw new Error(result.message);
+            }
 
             setIsVisible(false);
             setDismissed(true);
             window.localStorage.setItem(DISMISS_KEY, "1");
             trackEvent("task_notifications_enabled", {
                 source: "prompt_banner",
-                messaging_supported: result.state.messagingSupported,
+                messaging_supported: result.messagingSupported,
             });
             toast.success("Browser notifications enabled.");
         } catch (error) {

@@ -481,9 +481,11 @@ export async function GET(request: NextRequest) {
             ] = await Promise.all([
                 fetchTelemetryLogs(telemetryEventNames, startMs),
                 adminDb.collection("daily_task_events")
+                    .where("timestamp", ">=", startMs)
                     .orderBy("timestamp", "desc")
                     .get(),
                 adminDb.collection("transactions")
+                    .where("timestamp", ">=", startMs)
                     .orderBy("timestamp", "desc")
                     .get(),
             ]);

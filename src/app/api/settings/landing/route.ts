@@ -1,15 +1,18 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
+import { checkRateLimit, RELAXED } from "@/lib/server/rate-limit";
+import { isAllowedLandingAssetKey } from "@/lib/landing-assets";
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
     try {
+        await checkRateLimit(request, "settings/landing", RELAXED);
         const { searchParams } = new URL(request.url);
         const key = searchParams.get("key");
 
-        if (!key) {
-            return NextResponse.json({ error: "Missing key parameter" }, { status: 400 });
+        if (!isAllowedLandingAssetKey(key)) {
+            return NextResponse.json({ error: "Invalid key parameter" }, { status: 400 });
         }
 
         const landingDoc = await adminDb.collection("settings").doc("landing").get();

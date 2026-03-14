@@ -17,14 +17,13 @@ import {
   Sparkles,
   Wallet,
 } from "lucide-react";
-import { arrayUnion, doc, updateDoc } from "firebase/firestore";
 import { toast } from "sonner";
 
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
 import { authFetch } from "@/lib/authFetch";
-import { db } from "@/lib/firebase-data";
+import { enableBrowserNotifications } from "@/lib/browser-notification-enrollment";
 import { cn } from "@/lib/utils";
 import {
   type DailyTaskAssignment,
@@ -32,7 +31,6 @@ import {
   DAILY_TASK_LIMIT,
 } from "@/lib/tasks/task-catalog";
 import { getCSTDayBoundaries, isSameCSTDay } from "@/lib/timezone";
-import { requestBrowserNotificationAccess } from "@/lib/firebase-messaging";
 import { trackEvent } from "@/lib/telemetry";
 
 type FeedbackCategory = "general" | "feature_request" | "bug_report" | "creator_request";
@@ -183,30 +181,22 @@ export function DailyTasksModule() {
 
     setNotificationLoading(true);
     try {
-      const result = await requestBrowserNotificationAccess();
-      if (!result.granted) {
-        if (result.state.needsStandaloneInstall) {
+      const result = await enableBrowserNotifications(userProfile);
+      if (result.status === "not_granted") {
+        if (result.needsStandaloneInstall) {
           toast.info("Add KandyDrops to your Home Screen, then reopen it there to enable notifications on iPhone.");
         } else {
           toast.info("Browser notifications were not enabled.");
         }
         return;
       }
-
-      const userRef = doc(db, "users", user.uid);
-      await updateDoc(userRef, {
-        notificationSettings: {
-          inAppEnabled: userProfile.notificationSettings?.inAppEnabled !== false,
-          browserPushEnabled: true,
-          newDropAlerts: userProfile.notificationSettings?.newDropAlerts !== false,
-          expiringSoonAlerts: userProfile.notificationSettings?.expiringSoonAlerts !== false,
-        },
-        ...(result.token ? { fcmTokens: arrayUnion(result.token) } : {}),
-      });
+      if (result.status === "failed") {
+        throw new Error(result.message);
+      }
 
       trackEvent("task_notifications_enabled", {
         source: "daily_tasks",
-        messaging_supported: result.state.messagingSupported,
+        messaging_supported: result.messagingSupported,
       });
       toast.success("Notifications enabled.");
     } catch (error) {

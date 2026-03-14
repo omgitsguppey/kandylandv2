@@ -4,6 +4,7 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAuth, handleApiError } from "@/lib/server/auth";
 import { checkRateLimit, RELAXED } from "@/lib/server/rate-limit";
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
+import { isAllowedRemoteMediaUrl } from "@/lib/media-hosts";
 
 const userContentSchema = z.object({
   unlockedContent: z.array(z.string()).default([]),
@@ -66,6 +67,9 @@ export async function GET(request: NextRequest) {
 
     if (!targetUrl) {
       return NextResponse.json({ error: "Content index out of bounds" }, { status: 404 });
+    }
+    if (!isAllowedRemoteMediaUrl(targetUrl)) {
+      return NextResponse.json({ error: "Content URL is not allowed" }, { status: 400 });
     }
 
     // Proxy the stream natively to hide the raw Firebase Storage URL

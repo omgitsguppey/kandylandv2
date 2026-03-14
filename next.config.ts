@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import withBundleAnalyzer from "@next/bundle-analyzer";
+import { getAllowedRemoteImagePatterns } from "./src/lib/media-hosts";
 
 const nextConfig: NextConfig = {
   compress: true,
@@ -8,12 +9,7 @@ const nextConfig: NextConfig = {
   },
   serverExternalPackages: ["firebase-admin"],
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**',
-      }
-    ]
+    remotePatterns: getAllowedRemoteImagePatterns(),
   },
 };
 
