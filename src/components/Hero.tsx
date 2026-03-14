@@ -68,11 +68,6 @@ export default function Hero() {
                                 See How It Works
                             </Button>
                         </Link>
-                        <Link href="/drops" className="w-full sm:w-auto">
-                            <Button variant="outline" size="lg" className="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-6 py-3 text-sm font-bold text-white hover:bg-white/[0.08]">
-                                Browse live drops
-                            </Button>
-                        </Link>
                     </div>
 
                     <div className="pb-1 pt-0.5 max-[360px]:pt-0 landscape:pb-0">
