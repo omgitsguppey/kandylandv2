@@ -33,7 +33,7 @@ export default function ExperiencesPage() {
                                 Daily Experiences
                             </div>
                             <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl md:text-5xl">
-                                Stack Gum Drops and stay ready to unwrap.
+                                Stay ready to unwrap.
                             </h1>
                             <p className="mt-3 max-w-xl text-sm leading-6 text-gray-400 sm:text-base">
                                 This is the mobile-first habit loop: check in, finish three missions, then come back when the timer resets for the next batch.

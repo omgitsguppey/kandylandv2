@@ -16,7 +16,7 @@ export default function Hero() {
     const ref = useRef(null);
 
     return (
-        <section ref={ref} className="relative flex min-h-[72vh] w-full flex-col justify-center overflow-hidden pb-[calc(7.5rem+env(safe-area-inset-bottom))] pt-[4rem] max-[360px]:min-h-[66vh] max-[360px]:pb-[calc(7.8rem+env(safe-area-inset-bottom))] max-[360px]:pt-[3.75rem] sm:min-h-[90vh] sm:pb-12 sm:pt-24">
+        <section ref={ref} className="relative flex min-h-[72vh] w-full flex-col justify-center overflow-hidden pb-[calc(7.5rem+env(safe-area-inset-bottom))] pt-[4rem] max-[360px]:min-h-[66vh] max-[360px]:pb-[calc(7.8rem+env(safe-area-inset-bottom))] max-[360px]:pt-[3.75rem] sm:min-h-[90vh] sm:pb-12 sm:pt-24 landscape:min-h-0 landscape:justify-start landscape:pb-[calc(6.8rem+env(safe-area-inset-bottom))] landscape:pt-12">
             <div className="absolute inset-0 z-0 opacity-40">
                 <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-brand-purple/20 rounded-full blur-[120px] mix-blend-screen animate-pulse" style={{ animationDuration: "4s" }} />
                 <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-brand-purple/10 rounded-full blur-[100px] mix-blend-screen animate-pulse" style={{ animationDuration: "7s" }} />
@@ -29,13 +29,14 @@ export default function Hero() {
                         PREMIUM DIGITAL EXPERIENCES
                     </div>
 
-                    <h1 className="text-[clamp(2.15rem,10vw,4.5rem)] lg:text-7xl font-extrabold tracking-tighter text-white leading-[1.02] sm:leading-[1.1]">
+                    <h1 className="max-w-[11rem] text-[clamp(1.95rem,9.5vw,4.5rem)] font-extrabold leading-[1.02] tracking-tighter text-white min-[380px]:max-w-[12.5rem] sm:max-w-none sm:leading-[1.1] lg:text-7xl landscape:max-w-none landscape:text-[clamp(2.1rem,7vw,3.5rem)]">
                         Unwrap
                         <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-purple to-purple-400">
-                            Exclusive
-                        </span>{" "}
-                        Content.
+                            live
+                        </span>
+                        <br />
+                        creator drops.
                     </h1>
 
                     <p className="max-w-lg text-[15px] font-medium leading-6 text-gray-400 max-[360px]:text-[14px] max-[360px]:leading-6 sm:text-xl sm:leading-relaxed">
@@ -95,11 +96,11 @@ export default function Hero() {
                         </div>
                     </details>
 
-                    <div className="pb-1 pt-0.5 max-[360px]:pt-0">
+                    <div className="pb-1 pt-0.5 max-[360px]:pt-0 landscape:pb-0">
                         <ActivityTicker />
                     </div>
 
-                    <div className="w-full border-t border-white/10 pt-5 max-[360px]:hidden sm:pt-8 lg:w-4/5">
+                    <div className="hidden w-full border-t border-white/10 pt-5 sm:block sm:pt-8 lg:w-4/5 landscape:hidden">
                         <p className="text-sm text-gray-400 font-medium mb-4">Latest Unwraps</p>
                         <HomeDropTicker />
                     </div>
