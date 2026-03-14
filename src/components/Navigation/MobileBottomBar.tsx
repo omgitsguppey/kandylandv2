@@ -60,12 +60,12 @@ export default function MobileBottomBar() {
                                 trackEvent('navigation_click', { destination: item.href, source: 'mobile_bottom_bar' });
                             }}
                             className={cn(
-                                "flex h-10 min-w-0 flex-1 items-center justify-center gap-1 rounded-full px-2 py-2 text-center transition-colors active:scale-95",
+                                "flex h-10 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-full px-2 py-1.5 text-center transition-colors active:scale-95",
                                 isActive ? "bg-brand-purple/10 text-brand-purple" : "text-gray-400"
                             )}
                         >
-                            <Icon className="h-4 w-4 shrink-0" />
-                            <span className="truncate text-[10px] font-semibold leading-none">{item.label}</span>
+                            <Icon className="h-3.5 w-3.5 shrink-0" />
+                            <span className="text-[9px] font-semibold leading-none">{item.label}</span>
                         </Link>
                     );
                 })}
@@ -77,12 +77,12 @@ export default function MobileBottomBar() {
                         openPurchaseModal();
                     }}
                     className={cn(
-                        "flex h-10 min-w-0 flex-1 items-center justify-center gap-1 rounded-full px-2 py-2 text-center transition-colors active:scale-95",
+                        "flex h-10 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-full px-2 py-1.5 text-center transition-colors active:scale-95",
                         isPurchaseModalOpen ? "bg-brand-purple/10 text-brand-purple" : "text-gray-400"
                     )}
                 >
-                    <Wallet className="h-4 w-4 shrink-0" />
-                    <span className="truncate text-[10px] font-semibold leading-none">Wallet</span>
+                    <Wallet className="h-3.5 w-3.5 shrink-0" />
+                    <span className="text-[9px] font-semibold leading-none">Wallet</span>
                 </button>
             </nav>
         </div>
