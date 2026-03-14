@@ -10,6 +10,7 @@ import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
 import { TELEMETRY_EVENT_NAMES } from "@/lib/telemetry-catalog";
 import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
 import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
+import { getAllDropReferenceMap, resolveDropTitle } from "@/lib/server/drop-references";
 
 const propertyId = process.env.GA_PROPERTY_ID;
 const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
@@ -334,6 +335,7 @@ export async function GET(request: NextRequest) {
 
         if (type === "historical") {
             const { startDate, startMs } = getRangeWindow(period);
+            const dropReferences = await getAllDropReferenceMap();
 
             const [
                 [response],
@@ -576,6 +578,7 @@ export async function GET(request: NextRequest) {
             const dropsData = Array.from(dropMap.entries())
                 .map(([id, stats]) => ({
                     dropId: id,
+                    dropTitle: resolveDropTitle(dropReferences, id),
                     views: stats.views,
                     unlocks: stats.unlocks
                 }))
@@ -625,6 +628,7 @@ export async function GET(request: NextRequest) {
 
             const securityLogs = usersWithFlagsSnapshot.docs.map((doc: any) => {
                 const data = doc.data();
+                const violationDropId = data.securityFlags?.lastViolationDropId || null;
                 return {
                     uid: doc.id,
                     username: data.username || data.displayName || "Unknown User",
@@ -632,7 +636,8 @@ export async function GET(request: NextRequest) {
                     ripAttempts: data.securityFlags?.ripAttempts || 0,
                     lastViolation: data.securityFlags?.lastViolation || null,
                     lastViolationReason: data.securityFlags?.lastViolationReason || "Unknown",
-                    lastViolationDropId: data.securityFlags?.lastViolationDropId || null
+                    lastViolationDropId: violationDropId,
+                    lastViolationDropTitle: violationDropId ? resolveDropTitle(dropReferences, violationDropId) : null,
                 };
             }).filter((log: any) => log.ripAttempts > 0);
             // --- END NEW ---
@@ -1264,7 +1269,7 @@ export async function GET(request: NextRequest) {
             const viewerDropInsights: ViewerDropInsight[] = Array.from(viewerDropInsightMap.values())
                 .map((entry) => ({
                     dropId: entry.dropId,
-                    dropTitle: entry.dropTitle,
+                    dropTitle: resolveDropTitle(dropReferences, entry.dropId, entry.dropTitle),
                     viewCount: entry.viewCount,
                     sessionCount: entry.sessionCount,
                     uniqueViewerCount: entry.uniqueViewerKeys.size,

@@ -95,6 +95,7 @@ interface PageItem {
 
 interface TopDropItem {
   dropId: string;
+  dropTitle: string;
   views: number;
   unlocks: number;
 }
@@ -119,6 +120,7 @@ interface SecurityItem {
   lastViolation: string | null;
   lastViolationReason: string;
   lastViolationDropId?: string | null;
+  lastViolationDropTitle?: string | null;
 }
 
 interface RawEventItem {
@@ -1258,7 +1260,7 @@ export default function AdminAnalyticsPage() {
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={topDrops.slice(0, 8)} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
                       <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-                      <XAxis dataKey="dropId" stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} interval={0} angle={-18} textAnchor="end" height={56} />
+                      <XAxis dataKey="dropTitle" stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} interval={0} angle={-18} textAnchor="end" height={56} />
                       <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
                       <Tooltip
                         content={
@@ -1282,7 +1284,8 @@ export default function AdminAnalyticsPage() {
                       <div key={drop.dropId} className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4">
                         <div className="mb-2 flex items-start justify-between gap-3">
                           <div className="min-w-0">
-                            <p className="truncate text-sm font-semibold text-white">{drop.dropId}</p>
+                            <p className="truncate text-sm font-semibold text-white">{drop.dropTitle}</p>
+                            <p className="mt-1 text-[11px] text-gray-500">{drop.dropId}</p>
                             <p className="mt-1 text-xs text-gray-500">
                               {drop.views.toLocaleString()} views · {drop.unlocks.toLocaleString()} unlocks
                             </p>
@@ -1709,7 +1712,10 @@ export default function AdminAnalyticsPage() {
                           </div>
                           <div className="rounded-2xl border border-white/10 bg-black/30 p-3">
                             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">Drop</p>
-                            <p className="mt-2 text-sm text-white">{item.lastViolationDropId || "N/A"}</p>
+                            <p className="mt-2 text-sm text-white">{item.lastViolationDropTitle || item.lastViolationDropId || "N/A"}</p>
+                            {item.lastViolationDropTitle && item.lastViolationDropId ? (
+                              <p className="mt-1 text-[11px] text-gray-500">{item.lastViolationDropId}</p>
+                            ) : null}
                           </div>
                         </div>
                       </div>

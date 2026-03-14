@@ -7,6 +7,7 @@ import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
 import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 import { normalizeUserProfile } from "@/lib/user-utils";
 import { describeSecurityEvent } from "@/lib/security-events";
+import { getDropReferenceMap, resolveDropTitle } from "@/lib/server/drop-references";
 
 function toTimestampNumber(value: unknown): number {
     if (typeof value === "number" && Number.isFinite(value)) {
@@ -121,6 +122,17 @@ export async function GET(
             })
             .sort((left, right) => right.timestamp - left.timestamp);
 
+        const referencedDropIds = [
+            ...analyticsFacts.map((event) => event.dropId).filter(Boolean),
+            ...transactions.map((transaction) => transaction.relatedDropId || "").filter(Boolean),
+            ...(user.unlockedContent || []),
+            ...securityEventsSnap.docs.map((doc) => {
+                const data = doc.data() as Record<string, unknown>;
+                return readString(data.dropId);
+            }).filter(Boolean),
+        ];
+        const dropReferences = await getDropReferenceMap(referencedDropIds);
+
         const directViewSessionCount = analyticsFacts.filter((event) => event.eventName === "viewer_session_started").length;
         const directViewerOpenedCount = analyticsFacts.filter((event) => event.eventName === "viewer_opened").length;
         const directAssetViewCount = analyticsFacts.filter((event) => event.eventName === "viewer_asset_started").length;
@@ -157,7 +169,7 @@ export async function GET(
 
             const existing = viewedDrops.get(event.dropId) ?? {
                 dropId: event.dropId,
-                dropTitle: event.dropTitle || event.dropId,
+                dropTitle: resolveDropTitle(dropReferences, event.dropId, event.dropTitle),
                 views: 0,
                 watchSeconds: 0,
             };
@@ -216,6 +228,7 @@ export async function GET(
                     locationLabel: readString(data.locationLabel) || descriptor.locationLabel,
                     severity: readString(data.severity) || descriptor.severity,
                     dropId: readString(data.dropId) || null,
+                    dropTitle: readString(data.dropId) ? resolveDropTitle(dropReferences, readString(data.dropId)) : null,
                     timestamp: toTimestampNumber(data.timestamp) || toTimestampNumber(data.createdAt),
                 };
             })
@@ -231,6 +244,9 @@ export async function GET(
                 locationLabel: descriptor.locationLabel,
                 severity: descriptor.severity,
                 dropId: user.securityFlags.lastViolationDropId || null,
+                dropTitle: user.securityFlags.lastViolationDropId
+                    ? resolveDropTitle(dropReferences, user.securityFlags.lastViolationDropId)
+                    : null,
                 timestamp: user.securityFlags.lastViolation ? new Date(user.securityFlags.lastViolation).getTime() : 0,
             });
         }
@@ -241,6 +257,7 @@ export async function GET(
             transactions,
             analytics,
             securityEvents,
+            dropReferences,
         });
     } catch (error) {
         return handleApiError(error, "Admin.UserDetail.GET");

@@ -6,6 +6,7 @@ import { TELEMETRY_EVENT_NAMES } from "@/lib/telemetry-catalog";
 import { handleApiError, verifyAuth } from "@/lib/server/auth";
 import { checkRateLimit, RELAXED } from "@/lib/server/rate-limit";
 import { hasTrustedSiteOrigin } from "@/lib/server/request-origin";
+import { getDropReferenceMap, resolveDropTitle } from "@/lib/server/drop-references";
 
 const ALLOWED_EVENT_NAMES = new Set(TELEMETRY_EVENT_NAMES);
 type SanitizedEventParams = Record<string, string | number | boolean>;
@@ -101,11 +102,19 @@ export async function POST(req: NextRequest) {
         const timeKeys = buildTimeKeys(nowMs);
         const pagePath = getStringParam(sanitizedEventParams, "page_path");
         const sessionId = getStringParam(sanitizedEventParams, "session_id");
+        const dropId = getStringParam(sanitizedEventParams, "drop_id");
+        const dropReferences = dropId ? await getDropReferenceMap([dropId]) : {};
+        const dropTitle = dropId
+            ? resolveDropTitle(dropReferences, dropId, getStringParam(sanitizedEventParams, "drop_title"))
+            : "";
 
         // Construct Telemetry Event
         const telemetryData = {
             eventName,
-            params: sanitizedEventParams,
+            params: {
+                ...sanitizedEventParams,
+                ...(dropId ? { drop_id: dropId, drop_title: dropTitle } : {}),
+            },
             userId,
             username,
             timestamp: nowMs,
@@ -123,8 +132,8 @@ export async function POST(req: NextRequest) {
             dayKey: timeKeys.dayKey,
             hourKey: timeKeys.hourKey,
             minuteKey: timeKeys.minuteKey,
-            dropId: getStringParam(sanitizedEventParams, "drop_id"),
-            dropTitle: getStringParam(sanitizedEventParams, "drop_title"),
+            dropId,
+            dropTitle,
             dropCategory: getStringParam(sanitizedEventParams, "drop_category"),
             assetKey: getStringParam(sanitizedEventParams, "asset_key"),
             assetIndex: getNumberParam(sanitizedEventParams, "asset_index"),

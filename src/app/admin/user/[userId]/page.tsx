@@ -47,6 +47,7 @@ type SecurityEventItem = {
     locationLabel: string;
     severity: string;
     dropId: string | null;
+    dropTitle?: string | null;
     timestamp: number;
 };
 
@@ -401,8 +402,11 @@ export default function AdminUserAnalyticsPage() {
                                             <p className="mt-1 text-sm leading-6 text-gray-400">{event.message}</p>
                                             <p className="mt-2 text-xs text-gray-500">
                                                 {event.locationLabel}
-                                                {event.dropId ? ` | Drop ${event.dropId}` : ""}
+                                                {event.dropTitle ? ` | ${event.dropTitle}` : event.dropId ? ` | Drop ${event.dropId}` : ""}
                                             </p>
+                                            {event.dropTitle && event.dropId ? (
+                                                <p className="mt-1 text-[11px] text-gray-500">{event.dropId}</p>
+                                            ) : null}
                                         </div>
                                         <div className="shrink-0 text-right">
                                             <span className={`rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${

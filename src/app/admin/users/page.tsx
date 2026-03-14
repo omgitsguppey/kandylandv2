@@ -71,10 +71,18 @@ type UsersSummary = {
     payingUsers: number;
 };
 
+type DropReference = {
+    id: string;
+    title: string;
+    status: string;
+    imageUrl?: string;
+};
+
 type AdminUsersResponse = {
     success: boolean;
     users: UserProfile[];
     analyticsByUser: Record<string, UserAnalytics>;
+    dropReferences: Record<string, DropReference>;
     summary: UsersSummary;
     error?: string;
 };
@@ -82,6 +90,7 @@ type AdminUsersResponse = {
 export default function UserManagementPage() {
     const [users, setUsers] = useState<UserProfile[]>([]);
     const [userAnalytics, setUserAnalytics] = useState<Record<string, UserAnalytics>>({});
+    const [dropReferences, setDropReferences] = useState<Record<string, DropReference>>({});
     const [summary, setSummary] = useState<UsersSummary | null>(null);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
@@ -115,6 +124,7 @@ export default function UserManagementPage() {
 
             setUsers(result.users || []);
             setUserAnalytics(result.analyticsByUser || {});
+            setDropReferences(result.dropReferences || {});
             setSummary(result.summary || null);
         } catch (error) {
             console.error("Error fetching users:", error);
@@ -211,10 +221,11 @@ export default function UserManagementPage() {
     const [contentInput, setContentInput] = useState("");
 
     const handleManageContent = async (action: 'add' | 'remove', dropId: string) => {
-        if (!contentUser || !dropId) return;
+        const normalizedDropId = dropId.trim();
+        if (!contentUser || !normalizedDropId) return;
         setContentActionProcessing(true);
         try {
-            if (action === 'add' && contentUser.unlockedContent?.includes(dropId)) {
+            if (action === 'add' && contentUser.unlockedContent?.includes(normalizedDropId)) {
                 toast.error("User already has this content unlocked.");
                 setContentActionProcessing(false);
                 return;
@@ -222,18 +233,25 @@ export default function UserManagementPage() {
 
             const response = await authFetch("/api/admin/users", {
                 method: "POST",
-                body: JSON.stringify({ userId: contentUser.uid, action, dropId }),
+                body: JSON.stringify({ userId: contentUser.uid, action, dropId: normalizedDropId }),
             });
             const result = await response.json();
             if (!response.ok) throw new Error(result.error);
 
+            const canonicalDropId = result.dropReference?.id || normalizedDropId;
             // Update Local State
             const updatedContent = action === 'add'
-                ? [...(contentUser.unlockedContent || []), dropId]
-                : (contentUser.unlockedContent || []).filter(id => id !== dropId);
+                ? [...(contentUser.unlockedContent || []), canonicalDropId]
+                : (contentUser.unlockedContent || []).filter(id => id !== canonicalDropId);
 
             setUsers(users.map(u => u.uid === contentUser.uid ? { ...u, unlockedContent: updatedContent } : u));
             setContentUser({ ...contentUser, unlockedContent: updatedContent });
+            if (result.dropReference?.id) {
+                setDropReferences((current) => ({
+                    ...current,
+                    [result.dropReference.id]: result.dropReference,
+                }));
+            }
             setContentInput("");
         } catch (error: any) {
             console.error("Error managing content:", error);
@@ -878,7 +896,10 @@ export default function UserManagementPage() {
                                     {contentUser.unlockedContent && contentUser.unlockedContent.length > 0 ? (
                                         contentUser.unlockedContent.map(dropId => (
                                             <div key={dropId} className="flex items-center justify-between bg-white/5 p-2 rounded-lg text-sm text-gray-300">
-                                                <span className="truncate">{dropId}</span>
+                                                <div className="min-w-0">
+                                                    <span className="block truncate">{dropReferences[dropId]?.title || dropId}</span>
+                                                    <span className="block truncate text-[11px] text-gray-500">{dropId}</span>
+                                                </div>
                                                 <button onClick={() => handleManageContent('remove', dropId)} disabled={contentActionProcessing} className="p-1 transition-colors" title="Revoke Access"><Ban className="w-3 h-3" /></button>
                                             </div>
                                         ))

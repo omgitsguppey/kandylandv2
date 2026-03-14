@@ -5,6 +5,7 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAdmin, handleApiError } from "@/lib/server/auth";
 import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
 import { BUILT_IN_DAILY_TASK_MAP } from "@/lib/tasks/task-catalog";
+import { getDropReferenceMap } from "@/lib/server/drop-references";
 
 function toTimestampNumber(value: unknown): number {
   if (typeof value === "number" && Number.isFinite(value)) {
@@ -397,6 +398,9 @@ export async function GET(request: NextRequest) {
       };
     });
 
+    const unlockedDropIds = users.flatMap((user) => user.unlockedContent || []);
+    const dropReferences = await getDropReferenceMap(unlockedDropIds);
+
     const nowMs = Date.now();
     const summary = {
       totalUsers: users.length,
@@ -441,6 +445,7 @@ export async function GET(request: NextRequest) {
       success: true,
       users,
       analyticsByUser,
+      dropReferences,
       summary,
     });
   } catch (error) {
@@ -490,23 +495,30 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+    const normalizedDropId = String(dropId).trim();
+    const dropReferences = await getDropReferenceMap([normalizedDropId]);
+    const dropReference = dropReferences[normalizedDropId];
+    if (!dropReference) {
+      return NextResponse.json({ error: "Drop not found" }, { status: 404 });
+    }
+
     const userRef = adminDb.collection("users").doc(userId);
 
     if (action === "add") {
       await userRef.update({
-        unlockedContent: FieldValue.arrayUnion(dropId),
-        [`unlockedContentTimestamps.${dropId}`]: Date.now(),
+        unlockedContent: FieldValue.arrayUnion(normalizedDropId),
+        [`unlockedContentTimestamps.${normalizedDropId}`]: Date.now(),
       });
     } else if (action === "remove") {
       await userRef.update({
-        unlockedContent: FieldValue.arrayRemove(dropId),
-        [`unlockedContentTimestamps.${dropId}`]: FieldValue.delete(),
+        unlockedContent: FieldValue.arrayRemove(normalizedDropId),
+        [`unlockedContentTimestamps.${normalizedDropId}`]: FieldValue.delete(),
       });
     } else {
       return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, dropReference });
   } catch (error) {
     return handleApiError(error, "Admin.Users.POST");
   }
