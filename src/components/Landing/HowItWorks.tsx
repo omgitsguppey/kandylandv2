@@ -2,19 +2,11 @@
 
 import { useUI } from "@/context/UIContext";
 import { Lock, Eye, Heart } from "lucide-react";
-import { EditableImage } from "@/components/Admin/EditableImage";
-import { useDrops } from "@/hooks/useDrops";
 import { SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
+import { HomeActiveDropsCarousel } from "@/components/Landing/HomeActiveDropsCarousel";
 
 export function HowItWorks() {
     const { openAuthModal } = useUI();
-    const { drops } = useDrops();
-    const fallbackMedia = "/candy-3d-glass.png";
-
-    const curatedImages = [
-        drops[0]?.imageUrl || fallbackMedia,
-        drops[1]?.imageUrl || fallbackMedia,
-    ];
 
     const features = [
         {
@@ -41,18 +33,22 @@ export function HowItWorks() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
                 <div className="mx-auto mb-9 max-w-3xl text-center sm:mb-16">
                     <p className="text-[11px] font-black uppercase tracking-[0.22em] text-brand-purple mb-3">How It Works</p>
-                    <h2 className="mb-4 text-3xl font-extrabold text-white sm:mb-5 sm:text-4xl md:text-5xl">How to unwrap on mobile</h2>
-                    <p className="text-sm text-gray-400 sm:text-lg">Join free, get Gum Drops, unwrap live, and keep what you unlock.</p>
+                    <h2 className="mb-4 text-3xl font-extrabold text-white sm:mb-5 sm:text-4xl md:text-5xl">Keep what you unwrap forever</h2>
+                    <p className="text-sm text-gray-400 sm:text-lg">Join for free, get Gum Drops, and Unwrap KandyDrops before time runs out!</p>
                 </div>
 
-                <div className="mb-10 grid gap-3 sm:mb-16 sm:grid-cols-3 sm:gap-5">
+                <div className="mb-10 grid grid-cols-1 gap-3 sm:mb-16 sm:grid-cols-3 sm:gap-5">
                     {features.map((feature, index) => (
-                        <div key={index} className="group rounded-[1.5rem] border border-white/5 bg-zinc-950 p-4 transition-colors hover:bg-zinc-900 sm:rounded-3xl sm:p-6 lg:p-8">
-                            <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl border border-brand-purple/20 bg-brand-purple/10 transition-transform group-hover:scale-110 sm:mb-5 sm:h-14 sm:w-14 lg:h-16 lg:w-16">
-                                {feature.icon}
+                        <div key={index} className="group aspect-square rounded-[1.5rem] border border-white/5 bg-zinc-950 p-5 transition-colors hover:bg-zinc-900 sm:rounded-3xl sm:p-6 lg:p-8">
+                            <div className="flex h-full flex-col justify-between text-left">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-brand-purple/20 bg-brand-purple/10 transition-transform group-hover:scale-110 sm:h-14 sm:w-14 lg:h-16 lg:w-16">
+                                    {feature.icon}
+                                </div>
+                                <div>
+                                    <h3 className="mb-2 text-base font-bold text-white sm:text-lg lg:text-xl">{feature.title}</h3>
+                                    <p className="text-sm leading-6 text-gray-400">{feature.description}</p>
+                                </div>
                             </div>
-                            <h3 className="mb-2 text-sm font-bold text-white sm:text-lg lg:text-xl">{feature.title}</h3>
-                            <p className="text-xs leading-5 text-gray-400 sm:text-sm">{feature.description}</p>
                         </div>
                     ))}
                 </div>
@@ -63,13 +59,9 @@ export function HowItWorks() {
 
                     <div className="relative z-10 grid items-center gap-6 md:grid-cols-2 sm:gap-12">
                         <div className="space-y-4 sm:space-y-6">
-                            <h3 className="text-2xl font-extrabold text-white sm:text-3xl md:text-4xl">See what you&apos;re about to unwrap.</h3>
-                            <div className="flex flex-wrap gap-2">
-                                <span className="rounded-full border border-brand-purple/20 bg-brand-purple/10 px-3 py-1 text-xs font-bold text-brand-purple">Live timers</span>
-                                <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs font-bold text-gray-200">Keep access after unwrap</span>
-                            </div>
+                            <h3 className="text-2xl font-extrabold text-white sm:text-3xl md:text-4xl">Get a taste before you Unwrap</h3>
                             <p className="text-sm leading-6 text-gray-400 sm:text-lg sm:leading-relaxed">
-                                Browse live drops, unwrap while they&apos;re active, and keep what you unlock.
+                                New drops are added daily, but they also disappear daily! Keep them safe by unwrapping every drop before it&apos;s too late.
                             </p>
                             <button onClick={() => openAuthModal("signup")} className="mt-2 sm:mt-4 w-full sm:w-auto rounded-xl bg-gradient-to-r from-brand-purple to-purple-500 px-6 py-3.5 font-extrabold text-white shadow-lg shadow-brand-purple/20 transition-colors hover:opacity-95 sm:px-8 sm:py-4">
                                 {SECONDARY_UNWRAP_CTA}
@@ -77,24 +69,7 @@ export function HowItWorks() {
                         </div>
 
                         <div className="space-y-3">
-                            <EditableImage
-                                id="landing-hero-1"
-                                defaultSrc={curatedImages[0]}
-                                alt="Creator content"
-                                fill
-                                sizes="(max-width: 768px) 100vw, 50vw"
-                                className="relative w-full aspect-[4/5] overflow-hidden rounded-[1.6rem] border border-white/10 bg-zinc-900 sm:rounded-3xl"
-                            />
-                            <div className="grid gap-3 sm:grid-cols-2">
-                                <div className="rounded-[1.35rem] border border-white/10 bg-white/[0.03] p-4 text-left">
-                                    <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-purple">Live now</p>
-                                    <p className="mt-2 text-sm font-bold text-white">See the timer before you unwrap.</p>
-                                </div>
-                                <div className="rounded-[1.35rem] border border-white/10 bg-white/[0.03] p-4 text-left">
-                                    <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-purple">After expiry</p>
-                                    <p className="mt-2 text-sm font-bold text-white">Your unlocked Kandy stays in your library.</p>
-                                </div>
-                            </div>
+                            <HomeActiveDropsCarousel />
                         </div>
                     </div>
                 </div>

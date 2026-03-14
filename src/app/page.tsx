@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 
 import Hero from "@/components/Hero";
 import { HowItWorks } from "@/components/Landing/HowItWorks";
-import { LivePreviews } from "@/components/Landing/LivePreviews";
 import { useAuth } from "@/context/AuthContext";
 import { trackEvent } from "@/lib/telemetry";
 
@@ -39,7 +38,6 @@ export default function Home() {
     >
       <Hero />
       <HowItWorks />
-      <LivePreviews />
 
       <footer className="border-t border-white/10 px-4 py-12 text-center text-sm text-gray-500">
         <p>&copy; {new Date().getFullYear()} KandyDrops. All rights reserved.</p>
