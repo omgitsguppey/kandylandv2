@@ -11,6 +11,8 @@ This README will guide you through the process of using the generated JavaScript
   - [*Connecting to the local Emulator*](#connecting-to-the-local-emulator)
 - [**Queries**](#queries)
   - [*ListAiInteractions*](#listaiinteractions)
+  - [*GetAnalyticsPageDailyTop*](#getanalyticspagedailytop)
+  - [*GetAnalyticsDropDailyTop*](#getanalyticsdropdailytop)
 - [**Mutations**](#mutations)
   - [*CreateAiInteraction*](#createaiinteraction)
 
@@ -156,6 +158,249 @@ console.log(data.aiInteractions);
 executeQuery(ref).then((response) => {
   const data = response.data;
   console.log(data.aiInteractions);
+});
+```
+
+## GetAnalyticsPageDailyTop
+You can execute the `GetAnalyticsPageDailyTop` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect-generated/index.d.ts](./index.d.ts):
+```typescript
+getAnalyticsPageDailyTop(vars: GetAnalyticsPageDailyTopVariables): QueryPromise<GetAnalyticsPageDailyTopData, GetAnalyticsPageDailyTopVariables>;
+
+interface GetAnalyticsPageDailyTopRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: GetAnalyticsPageDailyTopVariables): QueryRef<GetAnalyticsPageDailyTopData, GetAnalyticsPageDailyTopVariables>;
+}
+export const getAnalyticsPageDailyTopRef: GetAnalyticsPageDailyTopRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+getAnalyticsPageDailyTop(dc: DataConnect, vars: GetAnalyticsPageDailyTopVariables): QueryPromise<GetAnalyticsPageDailyTopData, GetAnalyticsPageDailyTopVariables>;
+
+interface GetAnalyticsPageDailyTopRef {
+  ...
+  (dc: DataConnect, vars: GetAnalyticsPageDailyTopVariables): QueryRef<GetAnalyticsPageDailyTopData, GetAnalyticsPageDailyTopVariables>;
+}
+export const getAnalyticsPageDailyTopRef: GetAnalyticsPageDailyTopRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getAnalyticsPageDailyTopRef:
+```typescript
+const name = getAnalyticsPageDailyTopRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `GetAnalyticsPageDailyTop` query requires an argument of type `GetAnalyticsPageDailyTopVariables`, which is defined in [dataconnect-generated/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface GetAnalyticsPageDailyTopVariables {
+  dayKey: string;
+}
+```
+### Return Type
+Recall that executing the `GetAnalyticsPageDailyTop` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `GetAnalyticsPageDailyTopData`, which is defined in [dataconnect-generated/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface GetAnalyticsPageDailyTopData {
+  analyticsPageDailies: ({
+    id: UUIDString;
+    dayKey: string;
+    pagePath: string;
+    pageViews: number;
+    clickCount: number;
+    hoverCount: number;
+    dwellMsTotal: number;
+    dwellSampleCount: number;
+    maxScrollDepth: number;
+    lastEventAtMs?: number | null;
+  } & AnalyticsPageDaily_Key)[];
+}
+```
+### Using `GetAnalyticsPageDailyTop`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, getAnalyticsPageDailyTop, GetAnalyticsPageDailyTopVariables } from '@dataconnect/generated';
+
+// The `GetAnalyticsPageDailyTop` query requires an argument of type `GetAnalyticsPageDailyTopVariables`:
+const getAnalyticsPageDailyTopVars: GetAnalyticsPageDailyTopVariables = {
+  dayKey: ..., 
+};
+
+// Call the `getAnalyticsPageDailyTop()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await getAnalyticsPageDailyTop(getAnalyticsPageDailyTopVars);
+// Variables can be defined inline as well.
+const { data } = await getAnalyticsPageDailyTop({ dayKey: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await getAnalyticsPageDailyTop(dataConnect, getAnalyticsPageDailyTopVars);
+
+console.log(data.analyticsPageDailies);
+
+// Or, you can use the `Promise` API.
+getAnalyticsPageDailyTop(getAnalyticsPageDailyTopVars).then((response) => {
+  const data = response.data;
+  console.log(data.analyticsPageDailies);
+});
+```
+
+### Using `GetAnalyticsPageDailyTop`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, getAnalyticsPageDailyTopRef, GetAnalyticsPageDailyTopVariables } from '@dataconnect/generated';
+
+// The `GetAnalyticsPageDailyTop` query requires an argument of type `GetAnalyticsPageDailyTopVariables`:
+const getAnalyticsPageDailyTopVars: GetAnalyticsPageDailyTopVariables = {
+  dayKey: ..., 
+};
+
+// Call the `getAnalyticsPageDailyTopRef()` function to get a reference to the query.
+const ref = getAnalyticsPageDailyTopRef(getAnalyticsPageDailyTopVars);
+// Variables can be defined inline as well.
+const ref = getAnalyticsPageDailyTopRef({ dayKey: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = getAnalyticsPageDailyTopRef(dataConnect, getAnalyticsPageDailyTopVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.analyticsPageDailies);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.analyticsPageDailies);
+});
+```
+
+## GetAnalyticsDropDailyTop
+You can execute the `GetAnalyticsDropDailyTop` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect-generated/index.d.ts](./index.d.ts):
+```typescript
+getAnalyticsDropDailyTop(vars: GetAnalyticsDropDailyTopVariables): QueryPromise<GetAnalyticsDropDailyTopData, GetAnalyticsDropDailyTopVariables>;
+
+interface GetAnalyticsDropDailyTopRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: GetAnalyticsDropDailyTopVariables): QueryRef<GetAnalyticsDropDailyTopData, GetAnalyticsDropDailyTopVariables>;
+}
+export const getAnalyticsDropDailyTopRef: GetAnalyticsDropDailyTopRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+getAnalyticsDropDailyTop(dc: DataConnect, vars: GetAnalyticsDropDailyTopVariables): QueryPromise<GetAnalyticsDropDailyTopData, GetAnalyticsDropDailyTopVariables>;
+
+interface GetAnalyticsDropDailyTopRef {
+  ...
+  (dc: DataConnect, vars: GetAnalyticsDropDailyTopVariables): QueryRef<GetAnalyticsDropDailyTopData, GetAnalyticsDropDailyTopVariables>;
+}
+export const getAnalyticsDropDailyTopRef: GetAnalyticsDropDailyTopRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getAnalyticsDropDailyTopRef:
+```typescript
+const name = getAnalyticsDropDailyTopRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `GetAnalyticsDropDailyTop` query requires an argument of type `GetAnalyticsDropDailyTopVariables`, which is defined in [dataconnect-generated/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface GetAnalyticsDropDailyTopVariables {
+  dayKey: string;
+}
+```
+### Return Type
+Recall that executing the `GetAnalyticsDropDailyTop` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `GetAnalyticsDropDailyTopData`, which is defined in [dataconnect-generated/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface GetAnalyticsDropDailyTopData {
+  analyticsDropDailies: ({
+    id: UUIDString;
+    dayKey: string;
+    dropId: string;
+    dropTitle?: string | null;
+    dropCategory?: string | null;
+    eventCount: number;
+    viewerSessionCount: number;
+    unwrapCount: number;
+    downloadCount: number;
+    relatedClickCount: number;
+    spendGdTotal: number;
+    watchSecondsTotal: number;
+    lastEventAtMs?: number | null;
+  } & AnalyticsDropDaily_Key)[];
+}
+```
+### Using `GetAnalyticsDropDailyTop`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, getAnalyticsDropDailyTop, GetAnalyticsDropDailyTopVariables } from '@dataconnect/generated';
+
+// The `GetAnalyticsDropDailyTop` query requires an argument of type `GetAnalyticsDropDailyTopVariables`:
+const getAnalyticsDropDailyTopVars: GetAnalyticsDropDailyTopVariables = {
+  dayKey: ..., 
+};
+
+// Call the `getAnalyticsDropDailyTop()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await getAnalyticsDropDailyTop(getAnalyticsDropDailyTopVars);
+// Variables can be defined inline as well.
+const { data } = await getAnalyticsDropDailyTop({ dayKey: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await getAnalyticsDropDailyTop(dataConnect, getAnalyticsDropDailyTopVars);
+
+console.log(data.analyticsDropDailies);
+
+// Or, you can use the `Promise` API.
+getAnalyticsDropDailyTop(getAnalyticsDropDailyTopVars).then((response) => {
+  const data = response.data;
+  console.log(data.analyticsDropDailies);
+});
+```
+
+### Using `GetAnalyticsDropDailyTop`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, getAnalyticsDropDailyTopRef, GetAnalyticsDropDailyTopVariables } from '@dataconnect/generated';
+
+// The `GetAnalyticsDropDailyTop` query requires an argument of type `GetAnalyticsDropDailyTopVariables`:
+const getAnalyticsDropDailyTopVars: GetAnalyticsDropDailyTopVariables = {
+  dayKey: ..., 
+};
+
+// Call the `getAnalyticsDropDailyTopRef()` function to get a reference to the query.
+const ref = getAnalyticsDropDailyTopRef(getAnalyticsDropDailyTopVars);
+// Variables can be defined inline as well.
+const ref = getAnalyticsDropDailyTopRef({ dayKey: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = getAnalyticsDropDailyTopRef(dataConnect, getAnalyticsDropDailyTopVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.analyticsDropDailies);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.analyticsDropDailies);
 });
 ```
 

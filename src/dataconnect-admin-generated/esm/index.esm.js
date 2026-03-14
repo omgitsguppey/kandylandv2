@@ -18,3 +18,15 @@ export function listAiInteractions(dcOrOptions, options) {
   return dcInstance.executeQuery('ListAiInteractions', undefined, inputOpts);
 }
 
+export function getAnalyticsPageDailyTop(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('GetAnalyticsPageDailyTop', inputVars, inputOpts);
+}
+
+export function getAnalyticsDropDailyTop(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('GetAnalyticsDropDailyTop', inputVars, inputOpts);
+}
+

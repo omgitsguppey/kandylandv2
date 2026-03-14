@@ -12,12 +12,16 @@ For each operation, there is a wrapper hook that can be used to call the operati
 
 Here are all of the hooks that get generated:
 ```ts
-import { useCreateAiInteraction, useListAiInteractions } from '@dataconnect/generated/react';
+import { useCreateAiInteraction, useListAiInteractions, useGetAnalyticsPageDailyTop, useGetAnalyticsDropDailyTop } from '@dataconnect/generated/react';
 // The types of these hooks are available in react/index.d.ts
 
 const { data, isPending, isSuccess, isError, error } = useCreateAiInteraction(createAiInteractionVars);
 
 const { data, isPending, isSuccess, isError, error } = useListAiInteractions();
+
+const { data, isPending, isSuccess, isError, error } = useGetAnalyticsPageDailyTop(getAnalyticsPageDailyTopVars);
+
+const { data, isPending, isSuccess, isError, error } = useGetAnalyticsDropDailyTop(getAnalyticsDropDailyTopVars);
 
 ```
 
@@ -56,7 +60,7 @@ If a user is not using a supported framework, they can use the generated SDK dir
 Here's an example of how to use it with the first 5 operations:
 
 ```js
-import { createAiInteraction, listAiInteractions } from '@dataconnect/generated';
+import { createAiInteraction, listAiInteractions, getAnalyticsPageDailyTop, getAnalyticsDropDailyTop } from '@dataconnect/generated';
 
 
 // Operation CreateAiInteraction:  For variables, look at type CreateAiInteractionVars in ../index.d.ts
@@ -64,6 +68,12 @@ const { data } = await CreateAiInteraction(dataConnect, createAiInteractionVars)
 
 // Operation ListAiInteractions: 
 const { data } = await ListAiInteractions(dataConnect);
+
+// Operation GetAnalyticsPageDailyTop:  For variables, look at type GetAnalyticsPageDailyTopVars in ../index.d.ts
+const { data } = await GetAnalyticsPageDailyTop(dataConnect, getAnalyticsPageDailyTopVars);
+
+// Operation GetAnalyticsDropDailyTop:  For variables, look at type GetAnalyticsDropDailyTopVars in ../index.d.ts
+const { data } = await GetAnalyticsDropDailyTop(dataConnect, getAnalyticsDropDailyTopVars);
 
 
 ```

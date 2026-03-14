@@ -106,6 +106,15 @@ type ViewerUserOption = {
     totalWatchSeconds: number;
 };
 
+type AnalyticsReportRow = {
+    dimensionValues?: Array<{ value?: string | null }>;
+    metricValues?: Array<{ value?: string | null }>;
+};
+
+type AnalyticsReportResponse = {
+    rows?: AnalyticsReportRow[];
+};
+
 function getRangeWindow(period: string | null): RangeWindow {
     const now = Date.now();
     const oneDayMs = 24 * 60 * 60 * 1000;
@@ -259,6 +268,26 @@ function sum(values: number[]) {
     return values.reduce((total, value) => total + value, 0);
 }
 
+async function safeRunReport(requestConfig: Parameters<BetaAnalyticsDataClient["runReport"]>[0]): Promise<AnalyticsReportResponse> {
+    try {
+        const [response] = await analyticsClient.runReport(requestConfig);
+        return response as AnalyticsReportResponse;
+    } catch (error) {
+        console.warn("GA runReport failed, falling back to first-party analytics:", error);
+        return { rows: [] };
+    }
+}
+
+async function safeRunRealtimeReport(requestConfig: Parameters<BetaAnalyticsDataClient["runRealtimeReport"]>[0]): Promise<AnalyticsReportResponse> {
+    try {
+        const [response] = await analyticsClient.runRealtimeReport(requestConfig);
+        return response as AnalyticsReportResponse;
+    } catch (error) {
+        console.warn("GA realtime report failed, falling back to first-party analytics:", error);
+        return { rows: [] };
+    }
+}
+
 export async function GET(request: NextRequest) {
     try {
         await checkRateLimit(request, "admin/analytics", ADMIN);
@@ -282,7 +311,7 @@ export async function GET(request: NextRequest) {
             const thirtyMinsAgo = Date.now() - 30 * 60 * 1000;
 
             // 1. Get true Deduplicated Total Active Users from GA4
-            const [totalActiveResponse] = await analyticsClient.runRealtimeReport({
+            const totalActiveResponse = await safeRunRealtimeReport({
                 property: `properties/${propertyId}`,
                 metrics: [{ name: "activeUsers" }],
             });
@@ -290,7 +319,7 @@ export async function GET(request: NextRequest) {
             const totalActive = parseInt(totalActiveResponse.rows?.[0]?.metricValues?.[0]?.value || "0", 10);
 
             // 2. Get the 1-minute discrete interval chart data
-            const [intervalResponse] = await analyticsClient.runRealtimeReport({
+            const intervalResponse = await safeRunRealtimeReport({
                 property: `properties/${propertyId}`,
                 metrics: [{ name: "activeUsers" }, { name: "screenPageViews" }],
                 dimensions: [{ name: "minutesAgo" }],
@@ -305,7 +334,7 @@ export async function GET(request: NextRequest) {
                 views: 0
             }));
 
-            rows.forEach(row => {
+            rows.forEach((row: AnalyticsReportRow) => {
                 const minAgo = parseInt(row.dimensionValues?.[0]?.value || "0", 10);
                 const usersCount = parseInt(row.metricValues?.[0]?.value || "0", 10);
                 const viewsCount = parseInt(row.metricValues?.[1]?.value || "0", 10);
@@ -336,17 +365,21 @@ export async function GET(request: NextRequest) {
         if (type === "historical") {
             const { startDate, startMs } = getRangeWindow(period);
             const dropReferences = await getAllDropReferenceMap();
+            const startDayKey = new Date(startMs).toISOString().slice(0, 10);
 
             const [
-                [response],
-                [eventsResponse],
-                [geoResponse],
-                [pagesResponse],
-                [dropsResponse],
-                [devicesResponse],
-                [onboardingResponse]
+                response,
+                eventsResponse,
+                geoResponse,
+                pagesResponse,
+                devicesResponse,
+                onboardingResponse,
+                dailyRollupsSnapshot,
+                pageRollupsSnapshot,
+                dropDailySnapshot,
+                dropsSnapshot,
             ] = await Promise.all([
-                analyticsClient.runReport({
+                safeRunReport({
                     property: `properties/${propertyId}`,
                     dateRanges: [{ startDate, endDate: "today" }],
                     metrics: [
@@ -363,7 +396,7 @@ export async function GET(request: NextRequest) {
                         desc: false
                     }]
                 }),
-                analyticsClient.runReport({
+                safeRunReport({
                     property: `properties/${propertyId}`,
                     dateRanges: [{ startDate, endDate: "today" }],
                     metrics: [{ name: "eventCount" }],
@@ -377,7 +410,7 @@ export async function GET(request: NextRequest) {
                         }
                     }
                 }),
-                analyticsClient.runReport({
+                safeRunReport({
                     property: `properties/${propertyId}`,
                     dateRanges: [{ startDate, endDate: "today" }],
                     metrics: [{ name: "activeUsers" }],
@@ -385,7 +418,7 @@ export async function GET(request: NextRequest) {
                     orderBys: [{ metric: { metricName: "activeUsers" }, desc: true }],
                     limit: 15
                 }),
-                analyticsClient.runReport({
+                safeRunReport({
                     property: `properties/${propertyId}`,
                     dateRanges: [{ startDate, endDate: "today" }],
                     metrics: [{ name: "screenPageViews" }, { name: "averageSessionDuration" }, { name: "engagementRate" }],
@@ -393,22 +426,7 @@ export async function GET(request: NextRequest) {
                     orderBys: [{ metric: { metricName: "screenPageViews" }, desc: true }],
                     limit: 25
                 }),
-                analyticsClient.runReport({
-                    property: `properties/${propertyId}`,
-                    dateRanges: [{ startDate, endDate: "today" }],
-                    metrics: [{ name: "eventCount" }],
-                    dimensions: [{ name: "customEvent:drop_id" }, { name: "eventName" }],
-                    dimensionFilter: {
-                        filter: {
-                            fieldName: "eventName",
-                            inListFilter: {
-                                values: ["view_drop_details", "unlock_drop_success"]
-                            }
-                        }
-                    },
-                    limit: 50
-                }),
-                analyticsClient.runReport({
+                safeRunReport({
                     property: `properties/${propertyId}`,
                     dateRanges: [{ startDate, endDate: "today" }],
                     metrics: [
@@ -420,7 +438,7 @@ export async function GET(request: NextRequest) {
                     orderBys: [{ metric: { metricName: "activeUsers" }, desc: true }],
                     limit: 3
                 }),
-                analyticsClient.runReport({
+                safeRunReport({
                     property: `properties/${propertyId}`,
                     dateRanges: [{ startDate, endDate: "today" }],
                     metrics: [{ name: "eventCount" }],
@@ -434,7 +452,15 @@ export async function GET(request: NextRequest) {
                             }
                         }
                     }
-                })
+                }),
+                adminDb.collection("analytics_rollups_daily").get(),
+                adminDb.collection("analytics_page_daily")
+                    .where("dayKey", ">=", startDayKey)
+                    .get(),
+                adminDb.collection("analytics_drop_daily")
+                    .where("dayKey", ">=", startDayKey)
+                    .get(),
+                adminDb.collection("drops").get(),
             ]);
 
             const telemetryEventNames = [
@@ -494,35 +520,54 @@ export async function GET(request: NextRequest) {
 
             const rows = response.rows || [];
 
-            const chartData = rows.map(row => {
-                const dateStr = row.dimensionValues?.[0]?.value || "";
-                // Format YYYYMMDD to nice label
-                const label = dateStr.length === 8
-                    ? `${dateStr.substring(4, 6)}/${dateStr.substring(6, 8)}`
-                    : dateStr;
+            const chartData = rows.length > 0
+                ? rows.map((row: AnalyticsReportRow) => {
+                    const dateStr = row.dimensionValues?.[0]?.value || "";
+                    const label = dateStr.length === 8
+                        ? `${dateStr.substring(4, 6)}/${dateStr.substring(6, 8)}`
+                        : dateStr;
 
-                return {
-                    date: label,
-                    rawDate: dateStr,
-                    users: parseInt(row.metricValues?.[0]?.value || "0", 10),
-                    views: parseInt(row.metricValues?.[1]?.value || "0", 10),
-                    sessions: parseInt(row.metricValues?.[2]?.value || "0", 10),
-                    newUsers: parseInt(row.metricValues?.[3]?.value || "0", 10),
-                    avgSessionDuration: parseFloat(row.metricValues?.[4]?.value || "0"),
-                    engagementRate: parseFloat(row.metricValues?.[5]?.value || "0"),
-                };
-            });
+                    return {
+                        date: label,
+                        rawDate: dateStr,
+                        users: parseInt(row.metricValues?.[0]?.value || "0", 10),
+                        views: parseInt(row.metricValues?.[1]?.value || "0", 10),
+                        sessions: parseInt(row.metricValues?.[2]?.value || "0", 10),
+                        newUsers: parseInt(row.metricValues?.[3]?.value || "0", 10),
+                        avgSessionDuration: parseFloat(row.metricValues?.[4]?.value || "0"),
+                        engagementRate: parseFloat(row.metricValues?.[5]?.value || "0"),
+                    };
+                })
+                : dailyRollupsSnapshot.docs
+                    .map((doc: FirebaseFirestore.QueryDocumentSnapshot) => {
+                        const data = doc.data() as Record<string, unknown>;
+                        const dayKey = doc.id;
+                        return {
+                            date: dayKey.slice(5).replace("-", "/"),
+                            rawDate: dayKey.replaceAll("-", ""),
+                            users: toNumber(data.authenticatedEvents),
+                            views: toNumber(data.totalEvents),
+                            sessions: toNumber(data.viewerSessions),
+                            newUsers: 0,
+                            avgSessionDuration: 0,
+                            engagementRate: 0,
+                            sortKey: dayKey,
+                        };
+                    })
+                    .filter((row: { sortKey: string }) => row.sortKey >= startDayKey)
+                    .sort((left: { sortKey: string }, right: { sortKey: string }) => left.sortKey.localeCompare(right.sortKey))
+                    .map(({ sortKey, ...row }: { sortKey: string; date: string; rawDate: string; users: number; views: number; sessions: number; newUsers: number; avgSessionDuration: number; engagementRate: number }) => row);
 
             const totals = {
-                users: chartData.reduce((acc, curr) => acc + curr.users, 0),
-                views: chartData.reduce((acc, curr) => acc + curr.views, 0),
-                sessions: chartData.reduce((acc, curr) => acc + curr.sessions, 0),
-                newUsers: chartData.reduce((acc, curr) => acc + curr.newUsers, 0),
-                avgSessionDuration: chartData.length > 0 ? chartData.reduce((acc, curr) => acc + curr.avgSessionDuration, 0) / chartData.length : 0,
-                engagementRate: chartData.length > 0 ? chartData.reduce((acc, curr) => acc + curr.engagementRate, 0) / chartData.length : 0,
+                users: chartData.reduce((acc: number, curr) => acc + curr.users, 0),
+                views: chartData.reduce((acc: number, curr) => acc + curr.views, 0),
+                sessions: chartData.reduce((acc: number, curr) => acc + curr.sessions, 0),
+                newUsers: chartData.reduce((acc: number, curr) => acc + curr.newUsers, 0),
+                avgSessionDuration: chartData.length > 0 ? chartData.reduce((acc: number, curr) => acc + curr.avgSessionDuration, 0) / chartData.length : 0,
+                engagementRate: chartData.length > 0 ? chartData.reduce((acc: number, curr) => acc + curr.engagementRate, 0) / chartData.length : 0,
             };
 
-            const eventsData = (eventsResponse.rows || []).reduce((acc: Record<string, number>, row) => {
+            const eventsData = (eventsResponse.rows || []).reduce((acc: Record<string, number>, row: AnalyticsReportRow) => {
                 const eventName = row.dimensionValues?.[0]?.value || "unknown";
                 const count = parseInt(row.metricValues?.[0]?.value || "0", 10);
                 acc[eventName] = count;
@@ -530,60 +575,93 @@ export async function GET(request: NextRequest) {
             }, {});
 
             const eventBreakdown = (eventsResponse.rows || [])
-                .map((row) => ({
+                .map((row: AnalyticsReportRow) => ({
                     eventName: row.dimensionValues?.[0]?.value || "unknown",
                     count: parseInt(row.metricValues?.[0]?.value || "0", 10),
                 }))
-                .sort((a, b) => b.count - a.count);
+                .sort((a: { count: number }, b: { count: number }) => b.count - a.count);
 
-            const geoData = (geoResponse.rows || []).map(row => ({
+            const geoData = (geoResponse.rows || []).map((row: AnalyticsReportRow) => ({
                 country: row.dimensionValues?.[0]?.value || "Unknown",
                 city: row.dimensionValues?.[1]?.value || "Unknown",
                 users: parseInt(row.metricValues?.[0]?.value || "0", 10)
             }));
 
-            const devices = (devicesResponse.rows || []).map((row) => ({
+            const devices = (devicesResponse.rows || []).map((row: AnalyticsReportRow) => ({
                 device: row.dimensionValues?.[0]?.value || "unknown",
                 users: parseInt(row.metricValues?.[0]?.value || "0", 10),
                 sessions: parseInt(row.metricValues?.[1]?.value || "0", 10),
                 engagementRate: parseFloat(row.metricValues?.[2]?.value || "0"),
             }));
 
-            const pagesData = (pagesResponse.rows || []).map(row => ({
-                path: row.dimensionValues?.[0]?.value || "/",
-                views: parseInt(row.metricValues?.[0]?.value || "0", 10),
-                avgTime: parseFloat(row.metricValues?.[1]?.value || "0"),
-                engagementRate: parseFloat(row.metricValues?.[2]?.value || "0")
-            }));
-
-            // Aggregate drop interactions. A drop object will have: { id, views, unlocks }
-            const dropMap = new Map<string, { views: number; unlocks: number }>();
-            (dropsResponse.rows || []).forEach(row => {
-                const dropId = row.dimensionValues?.[0]?.value;
-                const eventName = row.dimensionValues?.[1]?.value;
-                const count = parseInt(row.metricValues?.[0]?.value || "0", 10);
-
-                if (!dropId || dropId === "(not set)") return;
-
-                const current = dropMap.get(dropId) || { views: 0, unlocks: 0 };
-                if (eventName === "view_drop_details") {
-                    current.views += count;
-                } else if (eventName === "unlock_drop_success") {
-                    current.unlocks += count;
-                }
-                dropMap.set(dropId, current);
+            const firstPartyPageMap = new Map<string, { views: number; clicks: number; dwellMsTotal: number; dwellSamples: number }>();
+            pageRollupsSnapshot.docs.forEach((doc: FirebaseFirestore.QueryDocumentSnapshot) => {
+                const data = doc.data() as Record<string, unknown>;
+                const path = toStringValue(data.pagePath) || "/";
+                const entry = firstPartyPageMap.get(path) || { views: 0, clicks: 0, dwellMsTotal: 0, dwellSamples: 0 };
+                entry.views += toNumber(data.pageViews);
+                entry.clicks += toNumber(data.clickCount);
+                entry.dwellMsTotal += toNumber(data.dwellMsTotal);
+                entry.dwellSamples += toNumber(data.dwellSampleCount);
+                firstPartyPageMap.set(path, entry);
             });
 
-            // Convert to array and sort by views for the Top Drops chart
-            const dropsData = Array.from(dropMap.entries())
-                .map(([id, stats]) => ({
-                    dropId: id,
-                    dropTitle: resolveDropTitle(dropReferences, id),
-                    views: stats.views,
-                    unlocks: stats.unlocks
-                }))
-                .sort((a, b) => b.views - a.views)
-                .slice(0, 15);
+            const pagesData = firstPartyPageMap.size > 0
+                ? Array.from(firstPartyPageMap.entries())
+                    .map(([path, stats]) => ({
+                        path,
+                        views: stats.views,
+                        avgTime: stats.dwellSamples > 0 ? stats.dwellMsTotal / 1000 / stats.dwellSamples : 0,
+                        engagementRate: stats.views > 0 ? stats.clicks / stats.views : 0,
+                    }))
+                    .sort((a, b) => b.views - a.views)
+                    .slice(0, 25)
+                : (pagesResponse.rows || []).map((row: AnalyticsReportRow) => ({
+                    path: row.dimensionValues?.[0]?.value || "/",
+                    views: parseInt(row.metricValues?.[0]?.value || "0", 10),
+                    avgTime: parseFloat(row.metricValues?.[1]?.value || "0"),
+                    engagementRate: parseFloat(row.metricValues?.[2]?.value || "0")
+                }));
+
+            const dropsData = period === "all"
+                ? dropsSnapshot.docs
+                    .map((doc: FirebaseFirestore.QueryDocumentSnapshot) => {
+                        const data = doc.data() as Record<string, unknown>;
+                        return {
+                            dropId: doc.id,
+                            dropTitle: resolveDropTitle(dropReferences, doc.id),
+                            views: toNumber(data.totalClicks),
+                            unlocks: toNumber(data.totalUnlocks),
+                        };
+                    })
+                    .filter((drop: { views: number; unlocks: number }) => drop.views > 0 || drop.unlocks > 0)
+                    .sort((a: { views: number; unlocks: number }, b: { views: number; unlocks: number }) => b.views - a.views || b.unlocks - a.unlocks)
+                    .slice(0, 15)
+                : (() => {
+                    const dropMap = new Map<string, { views: number; unlocks: number }>();
+                    dropDailySnapshot.docs.forEach((doc: FirebaseFirestore.QueryDocumentSnapshot) => {
+                        const data = doc.data() as Record<string, unknown>;
+                        const dropId = toStringValue(data.dropId);
+                        if (!dropId) {
+                            return;
+                        }
+
+                        const current = dropMap.get(dropId) || { views: 0, unlocks: 0 };
+                        current.views += toNumber(data.eventCount);
+                        current.unlocks += toNumber(data.unwrapCount);
+                        dropMap.set(dropId, current);
+                    });
+
+                    return Array.from(dropMap.entries())
+                        .map(([id, stats]) => ({
+                            dropId: id,
+                            dropTitle: resolveDropTitle(dropReferences, id),
+                            views: stats.views,
+                            unlocks: stats.unlocks,
+                        }))
+                        .sort((a, b) => b.views - a.views || b.unlocks - a.unlocks)
+                        .slice(0, 15);
+                })();
 
             // --- NEW: Firestore Aggregations ---
             // 1. Commerce: Transaction totals (USD Revenue vs GD Spent) AND feed
@@ -734,7 +812,7 @@ export async function GET(request: NextRequest) {
             let totalOnboardingSeconds = 0;
             const onboardingRows = onboardingResponse.rows || [];
             
-            onboardingRows.forEach(row => {
+            onboardingRows.forEach((row: AnalyticsReportRow) => {
                 const durationRaw = row.dimensionValues?.[0]?.value || "(not set)";
                 const count = parseInt(row.metricValues?.[0]?.value || "0", 10);
                 

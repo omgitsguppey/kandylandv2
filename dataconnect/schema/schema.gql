@@ -137,3 +137,30 @@ type AnalyticsHeatmapPoint @table {
   count: Int! @default(value: 0)
   lastUpdatedAtMs: Int
 }
+
+type AnalyticsPageDaily @table {
+  id: UUID! @default(expr: "uuidV4()")
+  dayKey: String!
+  pagePath: String!
+  pageViews: Int! @default(value: 0)
+  clickCount: Int! @default(value: 0)
+  hoverCount: Int! @default(value: 0)
+  scrollCount: Int! @default(value: 0)
+  visibilityCount: Int! @default(value: 0)
+  dwellMsTotal: Int! @default(value: 0)
+  dwellSampleCount: Int! @default(value: 0)
+  maxScrollDepth: Int! @default(value: 0)
+  lastEventAtMs: Int
+}
+
+type AnalyticsTargetDaily @table {
+  id: UUID! @default(expr: "uuidV4()")
+  dayKey: String!
+  pagePath: String!
+  targetKey: String!
+  targetText: String
+  targetTag: String
+  clickCount: Int! @default(value: 0)
+  hoverCount: Int! @default(value: 0)
+  lastEventAtMs: Int
+}

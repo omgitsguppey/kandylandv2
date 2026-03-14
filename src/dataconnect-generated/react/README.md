@@ -18,6 +18,8 @@ You can also follow the instructions from the [Data Connect documentation](https
   - [*Connecting to the local Emulator*](#connecting-to-the-local-emulator)
 - [**Queries**](#queries)
   - [*ListAiInteractions*](#listaiinteractions)
+  - [*GetAnalyticsPageDailyTop*](#getanalyticspagedailytop)
+  - [*GetAnalyticsDropDailyTop*](#getanalyticsdropdailytop)
 - [**Mutations**](#mutations)
   - [*CreateAiInteraction*](#createaiinteraction)
 
@@ -184,6 +186,195 @@ export default function ListAiInteractionsComponent() {
   // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
   if (query.isSuccess) {
     console.log(query.data.aiInteractions);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## GetAnalyticsPageDailyTop
+You can execute the `GetAnalyticsPageDailyTop` Query using the following Query hook function, which is defined in [dataconnect-generated/react/index.d.ts](./index.d.ts):
+
+```javascript
+useGetAnalyticsPageDailyTop(dc: DataConnect, vars: GetAnalyticsPageDailyTopVariables, options?: useDataConnectQueryOptions<GetAnalyticsPageDailyTopData>): UseDataConnectQueryResult<GetAnalyticsPageDailyTopData, GetAnalyticsPageDailyTopVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useGetAnalyticsPageDailyTop(vars: GetAnalyticsPageDailyTopVariables, options?: useDataConnectQueryOptions<GetAnalyticsPageDailyTopData>): UseDataConnectQueryResult<GetAnalyticsPageDailyTopData, GetAnalyticsPageDailyTopVariables>;
+```
+
+### Variables
+The `GetAnalyticsPageDailyTop` Query requires an argument of type `GetAnalyticsPageDailyTopVariables`, which is defined in [dataconnect-generated/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface GetAnalyticsPageDailyTopVariables {
+  dayKey: string;
+}
+```
+### Return Type
+Recall that calling the `GetAnalyticsPageDailyTop` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `GetAnalyticsPageDailyTop` Query is of type `GetAnalyticsPageDailyTopData`, which is defined in [dataconnect-generated/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface GetAnalyticsPageDailyTopData {
+  analyticsPageDailies: ({
+    id: UUIDString;
+    dayKey: string;
+    pagePath: string;
+    pageViews: number;
+    clickCount: number;
+    hoverCount: number;
+    dwellMsTotal: number;
+    dwellSampleCount: number;
+    maxScrollDepth: number;
+    lastEventAtMs?: number | null;
+  } & AnalyticsPageDaily_Key)[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `GetAnalyticsPageDailyTop`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, GetAnalyticsPageDailyTopVariables } from '@dataconnect/generated';
+import { useGetAnalyticsPageDailyTop } from '@dataconnect/generated/react'
+
+export default function GetAnalyticsPageDailyTopComponent() {
+  // The `useGetAnalyticsPageDailyTop` Query hook requires an argument of type `GetAnalyticsPageDailyTopVariables`:
+  const getAnalyticsPageDailyTopVars: GetAnalyticsPageDailyTopVariables = {
+    dayKey: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useGetAnalyticsPageDailyTop(getAnalyticsPageDailyTopVars);
+  // Variables can be defined inline as well.
+  const query = useGetAnalyticsPageDailyTop({ dayKey: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useGetAnalyticsPageDailyTop(dataConnect, getAnalyticsPageDailyTopVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useGetAnalyticsPageDailyTop(getAnalyticsPageDailyTopVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useGetAnalyticsPageDailyTop(dataConnect, getAnalyticsPageDailyTopVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.analyticsPageDailies);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## GetAnalyticsDropDailyTop
+You can execute the `GetAnalyticsDropDailyTop` Query using the following Query hook function, which is defined in [dataconnect-generated/react/index.d.ts](./index.d.ts):
+
+```javascript
+useGetAnalyticsDropDailyTop(dc: DataConnect, vars: GetAnalyticsDropDailyTopVariables, options?: useDataConnectQueryOptions<GetAnalyticsDropDailyTopData>): UseDataConnectQueryResult<GetAnalyticsDropDailyTopData, GetAnalyticsDropDailyTopVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useGetAnalyticsDropDailyTop(vars: GetAnalyticsDropDailyTopVariables, options?: useDataConnectQueryOptions<GetAnalyticsDropDailyTopData>): UseDataConnectQueryResult<GetAnalyticsDropDailyTopData, GetAnalyticsDropDailyTopVariables>;
+```
+
+### Variables
+The `GetAnalyticsDropDailyTop` Query requires an argument of type `GetAnalyticsDropDailyTopVariables`, which is defined in [dataconnect-generated/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface GetAnalyticsDropDailyTopVariables {
+  dayKey: string;
+}
+```
+### Return Type
+Recall that calling the `GetAnalyticsDropDailyTop` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `GetAnalyticsDropDailyTop` Query is of type `GetAnalyticsDropDailyTopData`, which is defined in [dataconnect-generated/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface GetAnalyticsDropDailyTopData {
+  analyticsDropDailies: ({
+    id: UUIDString;
+    dayKey: string;
+    dropId: string;
+    dropTitle?: string | null;
+    dropCategory?: string | null;
+    eventCount: number;
+    viewerSessionCount: number;
+    unwrapCount: number;
+    downloadCount: number;
+    relatedClickCount: number;
+    spendGdTotal: number;
+    watchSecondsTotal: number;
+    lastEventAtMs?: number | null;
+  } & AnalyticsDropDaily_Key)[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `GetAnalyticsDropDailyTop`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, GetAnalyticsDropDailyTopVariables } from '@dataconnect/generated';
+import { useGetAnalyticsDropDailyTop } from '@dataconnect/generated/react'
+
+export default function GetAnalyticsDropDailyTopComponent() {
+  // The `useGetAnalyticsDropDailyTop` Query hook requires an argument of type `GetAnalyticsDropDailyTopVariables`:
+  const getAnalyticsDropDailyTopVars: GetAnalyticsDropDailyTopVariables = {
+    dayKey: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useGetAnalyticsDropDailyTop(getAnalyticsDropDailyTopVars);
+  // Variables can be defined inline as well.
+  const query = useGetAnalyticsDropDailyTop({ dayKey: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useGetAnalyticsDropDailyTop(dataConnect, getAnalyticsDropDailyTopVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useGetAnalyticsDropDailyTop(getAnalyticsDropDailyTopVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useGetAnalyticsDropDailyTop(dataConnect, getAnalyticsDropDailyTopVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.analyticsDropDailies);
   }
   return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
 }

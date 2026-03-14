@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 
 interface TelemetryEvent {
-    type: "click" | "hover" | "scroll" | "visibility";
+    type: "click" | "hover" | "scroll" | "visibility" | "page_view" | "page_leave";
     timestamp: number;
     path: string;
     targetId?: string;
@@ -15,6 +15,11 @@ interface TelemetryEvent {
     y?: number;
     scrollDepthPercent?: number;
     durationMs?: number;
+    referrerHost?: string;
+    viewportWidth?: number;
+    viewportHeight?: number;
+    devicePixelRatio?: number;
+    networkType?: string;
 }
 
 function getClientSessionId() {
@@ -35,12 +40,32 @@ export function DeepTracker() {
     const eventQueue = useRef<TelemetryEvent[]>([]);
     const lastScrollDepth = useRef<number>(0);
     const hoverStart = useRef<Record<string, number>>({});
+    const pageEnteredAt = useRef<number>(0);
 
     useEffect(() => {
         // Skip tracking completely within the admin dashboard to keep stats clean
         if (pathname?.startsWith("/admin")) return;
 
         let trackingInterval: number;
+        pageEnteredAt.current = Date.now();
+
+        const readTelemetryContext = () => ({
+            referrerHost: typeof document !== "undefined" && document.referrer
+                ? (() => {
+                    try {
+                        return new URL(document.referrer).host || undefined;
+                    } catch {
+                        return undefined;
+                    }
+                })()
+                : undefined,
+            viewportWidth: typeof window !== "undefined" ? window.innerWidth : undefined,
+            viewportHeight: typeof window !== "undefined" ? window.innerHeight : undefined,
+            devicePixelRatio: typeof window !== "undefined" ? window.devicePixelRatio : undefined,
+            networkType: typeof navigator !== "undefined" && "connection" in navigator
+                ? ((navigator as Navigator & { connection?: { effectiveType?: string } }).connection?.effectiveType || undefined)
+                : undefined,
+        });
 
         const flushQueue = () => {
             if (eventQueue.current.length === 0) return;
@@ -73,6 +98,13 @@ export function DeepTracker() {
             }
             eventQueue.current.push(event);
         };
+
+        pushEvent({
+            type: "page_view",
+            timestamp: Date.now(),
+            path: pathname || "/",
+            ...readTelemetryContext(),
+        });
 
         const handleClick = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
@@ -196,6 +228,14 @@ export function DeepTracker() {
         trackingInterval = window.setInterval(flushQueue, 15000);
 
         return () => {
+            pushEvent({
+                type: "page_leave",
+                timestamp: Date.now(),
+                path: pathname || "/",
+                durationMs: Math.max(0, Date.now() - pageEnteredAt.current),
+                scrollDepthPercent: lastScrollDepth.current,
+                ...readTelemetryContext(),
+            });
             document.removeEventListener("click", handleClick, { capture: true });
             window.removeEventListener("scroll", throttledScroll);
             document.removeEventListener("mouseover", handleMouseOver);

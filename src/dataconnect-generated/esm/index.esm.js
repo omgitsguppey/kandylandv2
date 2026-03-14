@@ -28,3 +28,25 @@ export function listAiInteractions(dc) {
   return executeQuery(listAiInteractionsRef(dc));
 }
 
+export const getAnalyticsPageDailyTopRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'GetAnalyticsPageDailyTop', inputVars);
+}
+getAnalyticsPageDailyTopRef.operationName = 'GetAnalyticsPageDailyTop';
+
+export function getAnalyticsPageDailyTop(dcOrVars, vars) {
+  return executeQuery(getAnalyticsPageDailyTopRef(dcOrVars, vars));
+}
+
+export const getAnalyticsDropDailyTopRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'GetAnalyticsDropDailyTop', inputVars);
+}
+getAnalyticsDropDailyTopRef.operationName = 'GetAnalyticsDropDailyTop';
+
+export function getAnalyticsDropDailyTop(dcOrVars, vars) {
+  return executeQuery(getAnalyticsDropDailyTopRef(dcOrVars, vars));
+}
+
