@@ -36,7 +36,7 @@ export default function MobileBottomBar() {
             style={{ bottom: "calc(env(safe-area-inset-bottom) + 0.45rem)" }}
         >
             <nav
-                className="pointer-events-auto mx-auto flex max-w-7xl items-center justify-between rounded-[1.7rem] border border-white/10 bg-black/68 px-1.5 py-1.5 shadow-[0_18px_48px_rgba(0,0,0,0.42)] backdrop-blur-2xl sm:px-2 sm:py-2"
+                className="pointer-events-auto mx-auto flex max-w-7xl items-center justify-between rounded-full border border-white/10 bg-black/55 px-3.5 py-2 shadow-xl shadow-black/40 backdrop-blur-xl"
                 style={{ WebkitBackdropFilter: "blur(20px)" }}
             >
                 {NAV_ITEMS.map((item) => {
@@ -60,12 +60,12 @@ export default function MobileBottomBar() {
                                 trackEvent('navigation_click', { destination: item.href, source: 'mobile_bottom_bar' });
                             }}
                             className={cn(
-                                "flex min-h-[4.1rem] min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-[1.15rem] px-1.5 py-2 text-center transition-colors active:scale-95 sm:min-h-[4.35rem] sm:gap-1 sm:px-2 sm:py-2.5",
+                                "flex h-9 min-w-0 flex-1 items-center justify-center gap-1 rounded-full px-2 py-2 text-center transition-colors active:scale-95",
                                 isActive ? "bg-brand-purple/10 text-brand-purple" : "text-gray-400"
                             )}
                         >
-                            <Icon className="h-[1.05rem] w-[1.05rem] shrink-0 sm:h-[1.18rem] sm:w-[1.18rem]" />
-                            <span className="truncate text-[9px] font-semibold leading-tight sm:text-[10px]">{item.label}</span>
+                            <Icon className="h-[0.95rem] w-[0.95rem] shrink-0" />
+                            <span className="truncate text-[9px] font-semibold leading-none">{item.label}</span>
                         </Link>
                     );
                 })}
@@ -77,12 +77,12 @@ export default function MobileBottomBar() {
                         openPurchaseModal();
                     }}
                     className={cn(
-                        "flex min-h-[4.1rem] min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-[1.15rem] px-1.5 py-2 text-center transition-colors active:scale-95 sm:min-h-[4.35rem] sm:gap-1 sm:px-2 sm:py-2.5",
+                        "flex h-9 min-w-0 flex-1 items-center justify-center gap-1 rounded-full px-2 py-2 text-center transition-colors active:scale-95",
                         isPurchaseModalOpen ? "bg-brand-purple/10 text-brand-purple" : "text-gray-400"
                     )}
                 >
-                    <Wallet className="h-[1.05rem] w-[1.05rem] shrink-0 sm:h-[1.18rem] sm:w-[1.18rem]" />
-                    <span className="truncate text-[9px] font-semibold leading-tight sm:text-[10px]">Wallet</span>
+                    <Wallet className="h-[0.95rem] w-[0.95rem] shrink-0" />
+                    <span className="truncate text-[9px] font-semibold leading-none">Wallet</span>
                 </button>
             </nav>
         </div>

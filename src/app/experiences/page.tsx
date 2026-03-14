@@ -38,12 +38,6 @@ export default function ExperiencesPage() {
                             <p className="mt-3 max-w-xl text-sm leading-6 text-gray-400 sm:text-base">
                                 Check in, finish three missions, and come back when the timer resets.
                             </p>
-
-                            <div className="mt-4 flex flex-wrap items-center gap-2">
-                                <span className="rounded-full border border-brand-purple/20 bg-brand-purple/10 px-3 py-1 text-xs font-bold text-white">Day 1 starts free</span>
-                                <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs font-bold text-gray-200">50-1000 GD missions</span>
-                                <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs font-bold text-gray-200">7-day task cooldown</span>
-                            </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-3 md:min-w-[16rem]">

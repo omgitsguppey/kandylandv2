@@ -129,11 +129,6 @@ export function DailyTasksModule() {
   const fallbackNextRefreshMs = useMemo(() => getCSTDayBoundaries(nowMs).endOfDay, [nowMs]);
   const nextRefreshMs = dailyTaskState?.nextRefreshMs || fallbackNextRefreshMs;
   const waitLabel = formatCountdown(nextRefreshMs, nowMs);
-  const lastProgressAnchor = Math.max(
-    Number(dailyTaskState?.lastProgressAt ?? 0),
-    Number(userProfile?.lastCheckIn ?? 0),
-  );
-  const hasProgressToday = isSameCSTDay(lastProgressAnchor, nowMs);
   const isCompleteForToday = completedCount >= DAILY_TASK_LIMIT;
   const headerCountdownLabel = isCompleteForToday ? "Next batch in" : "Deadline in";
 
@@ -381,10 +376,7 @@ export function DailyTasksModule() {
               Daily missions
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white sm:text-2xl">Three tasks. Bigger rewards.</h2>
-              <p className="mt-1 max-w-lg text-sm leading-6 text-gray-400">
-                Long-running tasks keep their progress while you stay active each day. Miss the timer and unfinished progress resets.
-              </p>
+              <h2 className="text-xl font-bold text-white sm:text-2xl">Daily tasks</h2>
             </div>
           </div>
 
@@ -404,32 +396,12 @@ export function DailyTasksModule() {
           <div className="flex items-start gap-3">
             <Clock3 className="mt-0.5 h-4 w-4 shrink-0 text-brand-purple" />
             <div>
-              <p className="text-sm font-semibold text-white">
-                {unfinishedCount > 0
-                  ? "Unfinished tasks reset if you miss a day of progress."
-                  : "Finish three tasks, then wait for the next daily refresh."}
-              </p>
+              <p className="text-sm font-semibold text-white">{headerCountdownLabel} {waitLabel}</p>
               <p className="mt-1 text-xs leading-5 text-gray-400">
-                {unfinishedCount > 0
-                  ? hasProgressToday
-                    ? "You already made progress today, so your unfinished tasks can carry forward into the next day."
-                    : "Make progress before the timer ends or unfinished tasks drop back into the shuffle pool."
-                  : "New tasks unlock after the daily timer rolls over."}
+                Your task timer stays synced with the daily check-in reset.
               </p>
             </div>
           </div>
-        </div>
-
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-200">
-            Rewards range from 50 to 1000 Gum Drops
-          </span>
-          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-200">
-            Completed tasks stay out of rotation for 7 days
-          </span>
-          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-200">
-            One-time wins retire forever
-          </span>
         </div>
       </section>
 
@@ -530,9 +502,6 @@ export function DailyTasksModule() {
             const Icon = ICONS[task.icon] || Gift;
             const progressPercent = Math.min(100, Math.round((task.progress / Math.max(1, task.maxProgress)) * 100));
             const isBusy = notificationLoading && task.actionType === "enable_notifications";
-            const cooldownLabel = task.oneTime
-              ? "Retires after completion"
-              : `${task.cooldownDays ?? 7} day cooldown`;
             const statusLabel = task.claimed
               ? task.oneTime
                 ? "Retired forever"
@@ -566,7 +535,7 @@ export function DailyTasksModule() {
                       <div className="min-w-0">
                         <div className="mb-2 flex flex-wrap items-center gap-2">
                           <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-200">
-                            {cooldownLabel}
+                            Deadline {waitLabel}
                           </span>
                           {task.oneTime ? (
                             <span className="rounded-full border border-emerald-400/25 bg-emerald-400/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-300">
