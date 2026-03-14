@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Star } from "lucide-react";
 
 import { useAuth } from "@/context/AuthContext";
@@ -26,8 +26,19 @@ interface DashboardClientProps {
     drops: Drop[];
 }
 
+const DASHBOARD_GREETING_VARIANTS = [
+    "Back for another taste, {name}?",
+    "We missed you, {name}!",
+    "Wanna unwrap more Kandy, {name}?",
+    "Welcome back to the Kandy Shop, {name}",
+    "Glad to see you here, {name}",
+];
+
 export default function DashboardClient({ drops }: DashboardClientProps) {
     const { userProfile, loading } = useAuth();
+    const [greetingTemplate] = useState(
+        () => DASHBOARD_GREETING_VARIANTS[Math.floor(Math.random() * DASHBOARD_GREETING_VARIANTS.length)],
+    );
 
     useEffect(() => {
         if (!userProfile) {
@@ -58,13 +69,16 @@ export default function DashboardClient({ drops }: DashboardClientProps) {
         );
     }
 
+    const firstName = userProfile.displayName?.split(" ")[0] || "Collector";
+    const greeting = greetingTemplate.replace("{name}", firstName);
+
     return (
         <div className="mx-auto w-full max-w-7xl px-3 sm:px-4" data-onboarding-page="dashboard">
             <header className="mb-4 md:mb-6">
                 <h1 className="mb-2 text-2xl font-bold leading-tight text-white sm:text-3xl md:text-5xl">
-                    Welcome back, {userProfile.displayName?.split(" ")[0] || "Collector"}
+                    {greeting}
                 </h1>
-                <p className="text-sm text-gray-400 sm:text-base">Manage your collection and earn rewards.</p>
+                <p className="text-sm text-gray-400 sm:text-base">Taste your unwrapped KandyDrops and earn free Gum Drops!</p>
             </header>
 
             <div className="grid grid-cols-1 gap-5 sm:gap-8 lg:grid-cols-3">
