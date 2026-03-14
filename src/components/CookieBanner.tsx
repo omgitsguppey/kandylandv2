@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
+import { readPrivacySettingsSnapshot, saveGuestAnalyticsConsent } from "@/lib/privacy-consent";
 
 export default function CookieBanner() {
     const [isMounted, setIsMounted] = useState(false);
@@ -34,8 +35,8 @@ export default function CookieBanner() {
         };
     }, []);
 
-    const hasConsent = isMounted && typeof window !== "undefined"
-        ? localStorage.getItem("kandydrops_cookie_consent") === "true"
+    const hasConsent = isMounted
+        ? readPrivacySettingsSnapshot().consentUpdatedAt > 0
         : false;
     const showBanner = isMounted && !dismissed && !hasConsent;
 
@@ -54,9 +55,8 @@ export default function CookieBanner() {
 
     if (!showBanner || suppressForFlow) return null;
 
-    const handleAccept = () => {
-        localStorage.setItem("kandydrops_cookie_consent", "true");
-        document.cookie = `kandydrops_consent=true; max-age=${150 * 24 * 60 * 60}; path=/`;
+    const handleConsent = async (allowAnalytics: boolean) => {
+        await saveGuestAnalyticsConsent(allowAnalytics);
         setDismissed(true);
     };
 
@@ -72,37 +72,55 @@ export default function CookieBanner() {
                 <div className="flex items-center justify-between gap-2 overflow-hidden">
                     <div className="min-w-0">
                         <p className="text-[9px] font-black uppercase tracking-[0.18em] text-brand-purple">
-                            18+ access
+                            Privacy
                         </p>
                         <p className="truncate text-[10px] leading-5 text-gray-100">
-                            Cookies help improve KandyDrops.
+                            Choose whether KandyDrops can use analytics to improve the experience.
                         </p>
                     </div>
-                    <button
-                        type="button"
-                        onClick={handleAccept}
-                        className="inline-flex min-h-8 shrink-0 items-center justify-center rounded-xl bg-brand-purple px-3 py-2 text-[11px] font-bold text-white transition-opacity hover:opacity-90"
-                    >
-                        Accept
-                    </button>
+                    <div className="flex shrink-0 items-center gap-2">
+                        <button
+                            type="button"
+                            onClick={() => void handleConsent(false)}
+                            className="inline-flex min-h-8 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-2.5 py-2 text-[10px] font-bold text-white transition-opacity hover:opacity-90"
+                        >
+                            Essential
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => void handleConsent(true)}
+                            className="inline-flex min-h-8 items-center justify-center rounded-xl bg-brand-purple px-3 py-2 text-[11px] font-bold text-white transition-opacity hover:opacity-90"
+                        >
+                            Allow analytics
+                        </button>
+                    </div>
                 </div>
             ) : (
                 <div className="flex flex-col gap-3">
                     <div>
                         <p className="text-[10px] font-black uppercase tracking-[0.18em] text-brand-purple">
-                            18+ access
+                            Privacy
                         </p>
                         <p className="mt-1 text-sm leading-6 text-gray-100">
-                            We use cookies to improve KandyDrops and confirm age access.
+                            We use essential storage for sign-in and security. Optional analytics help improve KandyDrops.
                         </p>
                     </div>
-                    <button
-                        type="button"
-                        onClick={handleAccept}
-                        className="inline-flex min-h-10 items-center justify-center rounded-xl bg-brand-purple px-4 py-2 text-sm font-bold text-white transition-opacity hover:opacity-90"
-                    >
-                        I Understand
-                    </button>
+                    <div className="flex gap-2">
+                        <button
+                            type="button"
+                            onClick={() => void handleConsent(false)}
+                            className="inline-flex min-h-10 flex-1 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-bold text-white transition-opacity hover:opacity-90"
+                        >
+                            Essential only
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => void handleConsent(true)}
+                            className="inline-flex min-h-10 flex-1 items-center justify-center rounded-xl bg-brand-purple px-4 py-2 text-sm font-bold text-white transition-opacity hover:opacity-90"
+                        >
+                            Allow analytics
+                        </button>
+                    </div>
                 </div>
             )}
         </div>

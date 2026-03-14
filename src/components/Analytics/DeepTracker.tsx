@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+import { canUseAnonymousAnalytics, readPrivacySettingsSnapshot, subscribeToPrivacySettings } from "@/lib/privacy-consent";
 
 interface TelemetryEvent {
     type: "click" | "hover" | "scroll" | "visibility" | "page_view" | "page_leave";
@@ -22,6 +23,30 @@ interface TelemetryEvent {
     networkType?: string;
 }
 
+function quantizeCoordinate(value: number) {
+    return Math.floor(value / 24) * 24;
+}
+
+function isSensitiveTarget(target: HTMLElement) {
+    return Boolean(
+        target.closest('input, textarea, select, option, [contenteditable="true"], [contenteditable=""], [data-sensitive], [data-private]'),
+    );
+}
+
+function getSafeTargetLabel(target: HTMLElement) {
+    const explicitLabel =
+        target.getAttribute("data-telemetry-id") ||
+        target.getAttribute("aria-label") ||
+        target.getAttribute("data-drop-id") ||
+        target.id;
+
+    if (explicitLabel) {
+        return explicitLabel.slice(0, 60);
+    }
+
+    return target.tagName;
+}
+
 function getClientSessionId() {
     let kSessionId = sessionStorage.getItem("kandy_session_id");
     if (kSessionId) {
@@ -37,14 +62,21 @@ function getClientSessionId() {
 
 export function DeepTracker() {
     const pathname = usePathname();
+    const [trackingAllowed, setTrackingAllowed] = useState(() => canUseAnonymousAnalytics(readPrivacySettingsSnapshot()));
     const eventQueue = useRef<TelemetryEvent[]>([]);
     const lastScrollDepth = useRef<number>(0);
     const hoverStart = useRef<Record<string, number>>({});
     const pageEnteredAt = useRef<number>(0);
 
     useEffect(() => {
+        return subscribeToPrivacySettings(() => {
+            setTrackingAllowed(canUseAnonymousAnalytics(readPrivacySettingsSnapshot()));
+        });
+    }, []);
+
+    useEffect(() => {
         // Skip tracking completely within the admin dashboard to keep stats clean
-        if (pathname?.startsWith("/admin")) return;
+        if (pathname?.startsWith("/admin") || !trackingAllowed) return;
 
         let trackingInterval: number;
         pageEnteredAt.current = Date.now();
@@ -110,6 +142,9 @@ export function DeepTracker() {
             const target = e.target as HTMLElement;
             const closestInteractive = target.closest('button, a, input, [role="button"]');
             const interactiveTarget = (closestInteractive || target) as HTMLElement;
+            if (isSensitiveTarget(interactiveTarget)) {
+                return;
+            }
 
             pushEvent({
                 type: "click",
@@ -117,10 +152,10 @@ export function DeepTracker() {
                 path: pathname || "/",
                 targetId: interactiveTarget.id || undefined,
                 targetTag: interactiveTarget.tagName,
-                targetText: interactiveTarget.innerText?.slice(0, 50) || interactiveTarget.getAttribute("aria-label")?.slice(0, 50) || undefined,
+                targetText: getSafeTargetLabel(interactiveTarget),
                 dropId: interactiveTarget.getAttribute("data-drop-id") || undefined,
-                x: e.clientX,
-                y: e.clientY,
+                x: quantizeCoordinate(e.clientX),
+                y: quantizeCoordinate(e.clientY),
             });
         };
 
@@ -167,9 +202,14 @@ export function DeepTracker() {
                 currentHoverTarget = null;
                 return;
             }
+            if (isSensitiveTarget(interactiveTarget)) {
+                currentHoverTarget = null;
+                currentHoverKey = null;
+                return;
+            }
 
             currentHoverTarget = interactiveTarget;
-            const key = interactiveTarget.id || interactiveTarget.getAttribute("data-drop-id") || interactiveTarget.innerText?.slice(0, 20) || interactiveTarget.tagName;
+            const key = getSafeTargetLabel(interactiveTarget);
             currentHoverKey = key;
             hoverStart.current[key] = Date.now();
         };
@@ -195,7 +235,7 @@ export function DeepTracker() {
                         path: pathname || "/",
                         targetId: currentHoverTarget.id || undefined,
                         targetTag: currentHoverTarget.tagName,
-                        targetText: currentHoverTarget.innerText?.slice(0, 50) || undefined,
+                        targetText: getSafeTargetLabel(currentHoverTarget),
                         dropId: currentHoverTarget.getAttribute("data-drop-id") || undefined,
                         durationMs: duration,
                     });
@@ -244,7 +284,7 @@ export function DeepTracker() {
             clearInterval(trackingInterval);
             flushQueue(); // Final flush on unmount
         };
-    }, [pathname]);
+    }, [pathname, trackingAllowed]);
 
     return null; // Silent component
 }

@@ -8,7 +8,7 @@ import { BUILT_IN_DAILY_TASK_MAP, type DailyTaskAssignment } from "@/lib/tasks/t
  */
 export function normalizeUsername(raw: unknown): string | null {
     if (typeof raw !== "string") return null;
-    const cleaned = raw.trim().toLowerCase().replace(/[^a-z0-px_]/g, "");
+    const cleaned = raw.trim().toLowerCase().replace(/[^a-z0-9_]/g, "");
     if (cleaned.length < 3 || cleaned.length > 20) return null;
     return cleaned;
 }
@@ -77,8 +77,14 @@ export function normalizeUserProfile(raw: unknown, user: User): UserProfile | nu
         },
         fcmTokens: toStringArray(source.fcmTokens),
         privacySettings: {
-            allowRecommendations: source.privacySettings?.allowRecommendations !== false,
-            showInAnonymousStats: source.privacySettings?.showInAnonymousStats !== false,
+            allowRecommendations: source.privacySettings?.allowRecommendations === true,
+            showInAnonymousStats: source.privacySettings?.showInAnonymousStats === true,
+            anonymousAnalyticsEnabled: source.privacySettings?.anonymousAnalyticsEnabled === true,
+            identifiedAnalyticsEnabled: source.privacySettings?.identifiedAnalyticsEnabled === true,
+            honorGlobalPrivacyControl: source.privacySettings?.honorGlobalPrivacyControl !== false,
+            consentUpdatedAt: Number.isFinite(source.privacySettings?.consentUpdatedAt)
+                ? Number(source.privacySettings?.consentUpdatedAt)
+                : undefined,
         },
         accountSettings: {
             timezone: typeof source.accountSettings?.timezone === "string" && source.accountSettings.timezone.trim().length > 0

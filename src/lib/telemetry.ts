@@ -1,5 +1,6 @@
 import { auth } from "./firebase";
 import { authFetch } from "./authFetch";
+import { canUseAnonymousAnalytics, canUseIdentifiedAnalytics, readPrivacySettingsSnapshot } from "./privacy-consent";
 
 /**
  * Fire-and-forget telemetry tracking.
@@ -159,13 +160,20 @@ export function consumeTimedFlow(flowKey: string, eventParams?: Record<string, u
 }
 
 export function trackEvent(eventName: string, eventParams?: Record<string, unknown>) {
+    const privacySettings = readPrivacySettingsSnapshot();
+    const allowAnonymousAnalytics = canUseAnonymousAnalytics(privacySettings);
+    const allowIdentifiedAnalytics = canUseIdentifiedAnalytics(privacySettings);
+    if (!allowAnonymousAnalytics && !allowIdentifiedAnalytics) {
+        return;
+    }
+
     const enrichedParams = getEnrichedEventParams(eventParams);
 
-    if (typeof window !== "undefined" && typeof window.gtag === "function") {
+    if (allowAnonymousAnalytics && typeof window !== "undefined" && typeof window.gtag === "function") {
         window.gtag("event", eventName, enrichedParams);
     }
 
-    if (!auth.currentUser) {
+    if (!auth.currentUser || !allowIdentifiedAnalytics) {
         return;
     }
 

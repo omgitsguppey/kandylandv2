@@ -4,6 +4,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { z } from "zod";
 import { checkRateLimit, RELAXED } from "@/lib/server/rate-limit";
 import { hasTrustedSiteOrigin } from "@/lib/server/request-origin";
+import { requestAllowsAnonymousAnalytics, requestHasGlobalPrivacyControl } from "@/lib/server/privacy-consent";
 
 export const dynamic = "force-dynamic";
 const SESSION_COOKIE_NAME = "kandydrops_sid";
@@ -33,6 +34,7 @@ const TelemetryEventSchema = z.object({
     targetId: z.string().max(100).optional(),
     targetTag: z.string().max(50).optional(),
     targetText: z.string().max(100).optional(), // 100 char limit prevents DB bloat
+    dropId: z.string().max(120).optional(),
     x: z.number().optional(),
     y: z.number().optional(),
     scrollDepthPercent: z.number().min(0).max(100).optional(),
@@ -65,12 +67,27 @@ function encodeDocKey(value: string) {
     return Buffer.from(value).toString("base64url").slice(0, 180) || "root";
 }
 
+function sanitizeTargetLabel(value: string | undefined) {
+    if (!value) {
+        return undefined;
+    }
+
+    return value
+        .trim()
+        .replace(/\s+/g, " ")
+        .slice(0, 80);
+}
+
 export async function POST(request: NextRequest) {
     try {
         await checkRateLimit(request, "analytics/ingest", RELAXED);
 
         if (!hasTrustedSiteOrigin(request)) {
             return NextResponse.json({ error: "Untrusted origin" }, { status: 403 });
+        }
+
+        if (!requestAllowsAnonymousAnalytics(request)) {
+            return NextResponse.json({ success: true, ignored: true, reason: "analytics_consent_denied" });
         }
 
         const rawPayload = await request.json();
@@ -85,6 +102,13 @@ export async function POST(request: NextRequest) {
         const { sessionKey, shouldSetCookie } = getOrCreateSessionKey(request);
         const nowMs = Date.now();
         const timeKeys = buildTimeKeys(nowMs);
+        const globalPrivacyControl = requestHasGlobalPrivacyControl(request);
+        const sanitizedEvents = events.map((event) => ({
+            ...event,
+            targetText: sanitizeTargetLabel(event.targetText),
+            x: typeof event.x === "number" ? Math.floor(event.x / 24) * 24 : undefined,
+            y: typeof event.y === "number" ? Math.floor(event.y / 24) * 24 : undefined,
+        }));
 
         // Group events by a unique minute-bucket to prevent writing thousands of tiny docs.
         const minuteBucket = timeKeys.minuteKey;
@@ -97,28 +121,32 @@ export async function POST(request: NextRequest) {
             sessionKey,
             clientSessionId: sessionId || null,
             minuteBucket,
+            consentMode: "anonymous",
+            globalPrivacyControl,
             createdAt: FieldValue.serverTimestamp(), // Use server timestamp to standardize
         }, { merge: true });
 
         // Update with arrayUnion avoids the massive contention of transactions while guaranteeing all events are appended
         await docRef.update({
-            events: FieldValue.arrayUnion(...events),
+            events: FieldValue.arrayUnion(...sanitizedEvents),
             updatedAt: FieldValue.serverTimestamp()
         });
         await adminDb.collection("analytics_guest_batches").add({
             source: "guest",
             sessionKey,
             clientSessionId: sessionId || null,
+            consentMode: "anonymous",
+            globalPrivacyControl,
             receivedAtMs: nowMs,
             dayKey: timeKeys.dayKey,
             hourKey: timeKeys.hourKey,
             minuteKey: timeKeys.minuteKey,
-            eventCount: events.length,
-            pagePaths: Array.from(new Set(events.map((event) => event.path))),
-            interactionTypes: Array.from(new Set(events.map((event) => event.type))),
-            maxScrollDepth: events.reduce((maxDepth, event) => Math.max(maxDepth, event.scrollDepthPercent || 0), 0),
-            hasPixelData: events.some((event) => Number.isFinite(event.x) && Number.isFinite(event.y)),
-            events,
+            eventCount: sanitizedEvents.length,
+            pagePaths: Array.from(new Set(sanitizedEvents.map((event) => event.path))),
+            interactionTypes: Array.from(new Set(sanitizedEvents.map((event) => event.type))),
+            maxScrollDepth: sanitizedEvents.reduce((maxDepth, event) => Math.max(maxDepth, event.scrollDepthPercent || 0), 0),
+            hasPixelData: sanitizedEvents.some((event) => Number.isFinite(event.x) && Number.isFinite(event.y)),
+            events: sanitizedEvents,
             createdAt: FieldValue.serverTimestamp(),
         });
 
@@ -144,7 +172,7 @@ export async function POST(request: NextRequest) {
             lastEventAt: number;
         }>();
 
-        events.forEach((event) => {
+        sanitizedEvents.forEach((event) => {
             const pagePath = event.path || "/";
             const pageKey = `${timeKeys.dayKey}__${encodeDocKey(pagePath)}`;
             const currentPage = pageRollups.get(pageKey) || {
@@ -230,7 +258,7 @@ export async function POST(request: NextRequest) {
                 value: sessionKey,
                 httpOnly: true,
                 sameSite: "strict",
-                secure: true,
+                secure: request.nextUrl.protocol === "https:",
                 path: "/",
                 maxAge: SESSION_COOKIE_MAX_AGE,
             });

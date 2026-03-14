@@ -7,6 +7,8 @@ export interface AnalyticsEventFact {
   eventName: string;
   userId?: string;
   username?: string;
+  consentMode?: string;
+  globalPrivacyControl?: boolean;
   timestamp?: number;
   pagePath?: string;
   sessionId?: string;
@@ -38,6 +40,7 @@ export interface GuestBatchEvent {
   targetId?: string;
   targetTag?: string;
   targetText?: string;
+  dropId?: string;
   x?: number;
   y?: number;
   scrollDepthPercent?: number;
@@ -47,6 +50,8 @@ export interface GuestBatchEvent {
 export interface GuestAnalyticsBatch {
   sessionKey: string;
   clientSessionId?: string | null;
+  consentMode?: string;
+  globalPrivacyControl?: boolean;
   receivedAtMs?: number;
   dayKey?: string;
   hourKey?: string;

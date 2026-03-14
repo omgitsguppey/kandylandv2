@@ -7,6 +7,8 @@ import { handleApiError, verifyAuth } from "@/lib/server/auth";
 import { checkRateLimit, RELAXED } from "@/lib/server/rate-limit";
 import { hasTrustedSiteOrigin } from "@/lib/server/request-origin";
 import { getDropReferenceMap, resolveDropTitle } from "@/lib/server/drop-references";
+import { profileAllowsIdentifiedAnalytics, requestHasGlobalPrivacyControl } from "@/lib/server/privacy-consent";
+import { UserProfile } from "@/types/db";
 
 const ALLOWED_EVENT_NAMES = new Set(TELEMETRY_EVENT_NAMES);
 type SanitizedEventParams = Record<string, string | number | boolean>;
@@ -97,6 +99,12 @@ export async function POST(req: NextRequest) {
         const realtimeDb = admin.database();
         const profileSnapshot = await adminDb.collection("users").doc(userId).get();
         const profileData = profileSnapshot.data();
+        const userProfile = (profileData as UserProfile | undefined) ?? null;
+
+        if (!profileAllowsIdentifiedAnalytics(userProfile, req)) {
+            return NextResponse.json({ success: true, logged: false, reason: "identified_analytics_disabled" });
+        }
+
         const username = profileData?.username || profileData?.displayName || decodedToken.email || "Unknown Collector";
         const nowMs = Date.now();
         const timeKeys = buildTimeKeys(nowMs);
@@ -122,6 +130,8 @@ export async function POST(req: NextRequest) {
         };
         const analyticsEventFact = {
             source: "authenticated",
+            consentMode: "identified",
+            globalPrivacyControl: requestHasGlobalPrivacyControl(req),
             eventName,
             userId,
             username,

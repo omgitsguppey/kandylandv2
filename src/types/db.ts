@@ -36,6 +36,10 @@ export interface UserProfile {
     privacySettings?: {
         allowRecommendations: boolean;
         showInAnonymousStats: boolean;
+        anonymousAnalyticsEnabled: boolean;
+        identifiedAnalyticsEnabled: boolean;
+        honorGlobalPrivacyControl: boolean;
+        consentUpdatedAt?: number;
     };
 
     accountSettings?: {

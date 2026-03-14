@@ -46,6 +46,10 @@ function normalizeNotificationSettings(value: unknown): {
 function normalizePrivacySettings(value: unknown): {
     allowRecommendations: boolean;
     showInAnonymousStats: boolean;
+    anonymousAnalyticsEnabled: boolean;
+    identifiedAnalyticsEnabled: boolean;
+    honorGlobalPrivacyControl: boolean;
+    consentUpdatedAt: number;
 } | null {
     if (!value || typeof value !== "object") {
         return null;
@@ -54,11 +58,23 @@ function normalizePrivacySettings(value: unknown): {
     const source = value as {
         allowRecommendations?: unknown;
         showInAnonymousStats?: unknown;
+        anonymousAnalyticsEnabled?: unknown;
+        identifiedAnalyticsEnabled?: unknown;
+        honorGlobalPrivacyControl?: unknown;
     };
 
+    const anonymousAnalyticsEnabled = source.anonymousAnalyticsEnabled === true;
+    const identifiedAnalyticsEnabled = source.identifiedAnalyticsEnabled === true;
+    const allowRecommendations = source.allowRecommendations === true;
+    const showInAnonymousStats = source.showInAnonymousStats === true;
+
     return {
-        allowRecommendations: source.allowRecommendations !== false,
-        showInAnonymousStats: source.showInAnonymousStats !== false,
+        allowRecommendations: allowRecommendations && identifiedAnalyticsEnabled,
+        showInAnonymousStats: showInAnonymousStats && anonymousAnalyticsEnabled,
+        anonymousAnalyticsEnabled: anonymousAnalyticsEnabled || identifiedAnalyticsEnabled || showInAnonymousStats,
+        identifiedAnalyticsEnabled,
+        honorGlobalPrivacyControl: source.honorGlobalPrivacyControl !== false,
+        consentUpdatedAt: Date.now(),
     };
 }
 

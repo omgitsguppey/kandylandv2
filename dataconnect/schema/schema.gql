@@ -4,6 +4,8 @@ type AnalyticsEventFact @table {
   eventName: String!
   userId: String
   username: String
+  consentMode: String
+  globalPrivacyControl: Boolean
   sessionId: String
   pagePath: String
   dropId: String

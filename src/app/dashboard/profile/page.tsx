@@ -9,12 +9,13 @@ import { Loader2, Save, User, AtSign, Bell, Globe, ShieldAlert, Mail, Camera, Lo
 import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";
 import Image from "next/image";
-import { db, storage } from "@/lib/firebase-data";
-import { arrayUnion, doc, updateDoc } from "firebase/firestore";
+import { storage } from "@/lib/firebase-data";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { SITE_ORIGIN } from "@/lib/site-origin";
 import { mutate } from "swr";
-import { getBrowserNotificationState, requestBrowserNotificationAccess } from "@/lib/firebase-messaging";
+import { getBrowserNotificationState } from "@/lib/firebase-messaging";
+import { enableBrowserNotifications } from "@/lib/browser-notification-enrollment";
+import { getBrowserGlobalPrivacyControl, persistPrivacySettingsSnapshot } from "@/lib/privacy-consent";
 
 const TIMEZONE_OPTIONS = [
     "Auto",
@@ -38,8 +39,11 @@ interface ProfileSettingsFormState {
     browserPushEnabled: boolean;
     newDropAlerts: boolean;
     expiringSoonAlerts: boolean;
+    anonymousAnalyticsEnabled: boolean;
+    identifiedAnalyticsEnabled: boolean;
     allowRecommendations: boolean;
     showInAnonymousStats: boolean;
+    honorGlobalPrivacyControl: boolean;
 }
 
 function normalizeTimezone(value: unknown): TimezoneOption {
@@ -63,8 +67,11 @@ function buildFormState(params: {
     browserPushEnabled: unknown;
     newDropAlerts: unknown;
     expiringSoonAlerts: unknown;
+    anonymousAnalyticsEnabled: unknown;
+    identifiedAnalyticsEnabled: unknown;
     allowRecommendations: unknown;
     showInAnonymousStats: unknown;
+    honorGlobalPrivacyControl: unknown;
 }): ProfileSettingsFormState {
     return {
         displayName: (params.displayName ?? "").trim(),
@@ -74,8 +81,11 @@ function buildFormState(params: {
         browserPushEnabled: params.browserPushEnabled === true,
         newDropAlerts: params.newDropAlerts !== false,
         expiringSoonAlerts: params.expiringSoonAlerts !== false,
-        allowRecommendations: params.allowRecommendations !== false,
-        showInAnonymousStats: params.showInAnonymousStats !== false,
+        anonymousAnalyticsEnabled: params.anonymousAnalyticsEnabled === true,
+        identifiedAnalyticsEnabled: params.identifiedAnalyticsEnabled === true,
+        allowRecommendations: params.allowRecommendations === true,
+        showInAnonymousStats: params.showInAnonymousStats === true,
+        honorGlobalPrivacyControl: params.honorGlobalPrivacyControl !== false,
     };
 }
 
@@ -132,8 +142,11 @@ export default function ProfilePage() {
         browserPushEnabled: userProfile?.notificationSettings?.browserPushEnabled,
         newDropAlerts: userProfile?.notificationSettings?.newDropAlerts,
         expiringSoonAlerts: userProfile?.notificationSettings?.expiringSoonAlerts,
+        anonymousAnalyticsEnabled: userProfile?.privacySettings?.anonymousAnalyticsEnabled,
+        identifiedAnalyticsEnabled: userProfile?.privacySettings?.identifiedAnalyticsEnabled,
         allowRecommendations: userProfile?.privacySettings?.allowRecommendations,
         showInAnonymousStats: userProfile?.privacySettings?.showInAnonymousStats,
+        honorGlobalPrivacyControl: userProfile?.privacySettings?.honorGlobalPrivacyControl,
     }), [
         user?.displayName,
         userProfile?.displayName,
@@ -143,8 +156,11 @@ export default function ProfilePage() {
         userProfile?.notificationSettings?.browserPushEnabled,
         userProfile?.notificationSettings?.newDropAlerts,
         userProfile?.notificationSettings?.expiringSoonAlerts,
+        userProfile?.privacySettings?.anonymousAnalyticsEnabled,
+        userProfile?.privacySettings?.identifiedAnalyticsEnabled,
         userProfile?.privacySettings?.allowRecommendations,
         userProfile?.privacySettings?.showInAnonymousStats,
+        userProfile?.privacySettings?.honorGlobalPrivacyControl,
     ]);
 
     const [formState, setFormState] = useState<ProfileSettingsFormState>(normalizedInitialState);
@@ -156,6 +172,7 @@ export default function ProfilePage() {
     const [notificationSetupLoading, setNotificationSetupLoading] = useState(false);
     const [notificationSupportMessage, setNotificationSupportMessage] = useState<string | null>(null);
     const [runtimeOrigin, setRuntimeOrigin] = useState(SITE_ORIGIN);
+    const browserGpcEnabled = useMemo(() => getBrowserGlobalPrivacyControl(), []);
 
     useEffect(() => {
         setFormState(normalizedInitialState);
@@ -226,30 +243,19 @@ export default function ProfilePage() {
 
         setNotificationSetupLoading(true);
         try {
-            const result = await requestBrowserNotificationAccess();
-            if (!result.granted) {
-                if (result.state.needsStandaloneInstall) {
+            const result = await enableBrowserNotifications(userProfile);
+            if (result.status !== "enabled") {
+                if (result.status === "not_granted" && result.needsStandaloneInstall) {
                     toast.info("Add KandyDrops to your Home Screen, then reopen it there to enable notifications on iPhone.");
                 } else {
-                    toast.info("Browser notifications were not enabled.");
+                    toast.info(result.status === "failed" ? result.message : "Browser notifications were not enabled.");
                 }
                 updateForm("browserPushEnabled", false);
                 return;
             }
 
-            const userRef = doc(db, "users", user.uid);
-            await updateDoc(userRef, {
-                notificationSettings: {
-                    inAppEnabled: userProfile.notificationSettings?.inAppEnabled !== false,
-                    browserPushEnabled: true,
-                    newDropAlerts: userProfile.notificationSettings?.newDropAlerts !== false,
-                    expiringSoonAlerts: userProfile.notificationSettings?.expiringSoonAlerts !== false,
-                },
-                ...(result.token ? { fcmTokens: arrayUnion(result.token) } : {}),
-            });
-
             updateForm("browserPushEnabled", true);
-            setNotificationSupportMessage(result.state.messagingSupported
+            setNotificationSupportMessage(result.messagingSupported
                 ? "Daily deadline reminders work in the browser and in installed PWA mode."
                 : "Browser reminders are on, but push delivery is limited in this browser.");
             toast.success("Browser notifications enabled.");
@@ -292,8 +298,11 @@ export default function ProfilePage() {
                         expiringSoonAlerts: formState.expiringSoonAlerts,
                     },
                     privacySettings: {
+                        anonymousAnalyticsEnabled: formState.anonymousAnalyticsEnabled,
+                        identifiedAnalyticsEnabled: formState.identifiedAnalyticsEnabled,
                         allowRecommendations: formState.allowRecommendations,
                         showInAnonymousStats: formState.showInAnonymousStats,
+                        honorGlobalPrivacyControl: formState.honorGlobalPrivacyControl,
                     },
                 }),
             });
@@ -303,6 +312,13 @@ export default function ProfilePage() {
                 throw new Error(typeof result.error === "string" ? result.error : "Failed to save settings.");
             }
 
+            persistPrivacySettingsSnapshot({
+                anonymousAnalyticsEnabled: formState.anonymousAnalyticsEnabled,
+                identifiedAnalyticsEnabled: formState.identifiedAnalyticsEnabled,
+                allowRecommendations: formState.allowRecommendations,
+                showInAnonymousStats: formState.showInAnonymousStats,
+                honorGlobalPrivacyControl: formState.honorGlobalPrivacyControl,
+            });
             setSaveFeedback("Changes saved");
             toast.success("Settings updated successfully.");
         } catch (error: unknown) {
@@ -560,15 +576,65 @@ export default function ProfilePage() {
 
                 <SectionCard title="Privacy & Tracking">
                     <ToggleRow
-                        label="Allow activity-based recommendations"
-                        checked={formState.allowRecommendations}
-                        onChange={(value) => updateForm("allowRecommendations", value)}
+                        label="Anonymous product analytics"
+                        description="Lets KandyDrops measure page views, clicks, and drop interest without tying the data to your account."
+                        checked={formState.anonymousAnalyticsEnabled}
+                        onChange={(value) => {
+                            updateForm("anonymousAnalyticsEnabled", value);
+                            if (!value) {
+                                updateForm("identifiedAnalyticsEnabled", false);
+                                updateForm("allowRecommendations", false);
+                                updateForm("showInAnonymousStats", false);
+                            }
+                        }}
                     />
                     <ToggleRow
-                        label="Show my activity in anonymous stats"
-                        checked={formState.showInAnonymousStats}
-                        onChange={(value) => updateForm("showInAnonymousStats", value)}
+                        label="Account-linked analytics"
+                        description="Lets KandyDrops connect your activity to your account for viewer stats, purchase funnels, and user-level insights."
+                        checked={formState.identifiedAnalyticsEnabled}
+                        onChange={(value) => {
+                            updateForm("identifiedAnalyticsEnabled", value);
+                            if (value) {
+                                updateForm("anonymousAnalyticsEnabled", true);
+                            } else {
+                                updateForm("allowRecommendations", false);
+                            }
+                        }}
                     />
+                    <ToggleRow
+                        label="Allow activity-based recommendations"
+                        description="Uses your KandyDrops activity to improve content suggestions."
+                        checked={formState.allowRecommendations}
+                        onChange={(value) => {
+                            updateForm("allowRecommendations", value);
+                            if (value) {
+                                updateForm("anonymousAnalyticsEnabled", true);
+                                updateForm("identifiedAnalyticsEnabled", true);
+                            }
+                        }}
+                    />
+                    <ToggleRow
+                        label="Include me in aggregated trend reports"
+                        description="Lets your activity contribute to anonymous creator and drop trend reporting."
+                        checked={formState.showInAnonymousStats}
+                        onChange={(value) => {
+                            updateForm("showInAnonymousStats", value);
+                            if (value) {
+                                updateForm("anonymousAnalyticsEnabled", true);
+                            }
+                        }}
+                    />
+                    <ToggleRow
+                        label="Honor Global Privacy Control"
+                        description="If your browser sends a Global Privacy Control signal, KandyDrops will turn off optional analytics automatically."
+                        checked={formState.honorGlobalPrivacyControl}
+                        onChange={(value) => updateForm("honorGlobalPrivacyControl", value)}
+                    />
+                    {browserGpcEnabled ? (
+                        <p className="rounded-xl border border-white/5 bg-black/25 px-3 py-2 text-xs leading-5 text-gray-400">
+                            Your browser is sending a Global Privacy Control signal right now. Optional analytics stay off unless you disable the setting above.
+                        </p>
+                    ) : null}
                 </SectionCard>
 
                 <SectionCard title="Refer a Friend">

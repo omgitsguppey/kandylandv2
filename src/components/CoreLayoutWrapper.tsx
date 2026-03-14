@@ -6,6 +6,7 @@ import CookieBanner from "@/components/CookieBanner";
 import dynamic from "next/dynamic";
 import { useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { applyAnalyticsConsentToGtag, persistPrivacySettingsSnapshot, readPrivacySettingsSnapshot } from "@/lib/privacy-consent";
 
 const MobileBottomBar = dynamic(() => import("@/components/Navigation/MobileBottomBar"));
 const Navbar = dynamic(() => import("@/components/Navbar").then((mod) => mod.Navbar));
@@ -43,6 +44,26 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
             }
         }
     }, [userProfile?.role]);
+
+    useEffect(() => {
+        if (typeof window === "undefined") {
+            return;
+        }
+
+        if (userProfile?.privacySettings) {
+            persistPrivacySettingsSnapshot({
+                anonymousAnalyticsEnabled: userProfile.privacySettings.anonymousAnalyticsEnabled,
+                identifiedAnalyticsEnabled: userProfile.privacySettings.identifiedAnalyticsEnabled,
+                allowRecommendations: userProfile.privacySettings.allowRecommendations,
+                showInAnonymousStats: userProfile.privacySettings.showInAnonymousStats,
+                honorGlobalPrivacyControl: userProfile.privacySettings.honorGlobalPrivacyControl,
+                consentUpdatedAt: userProfile.privacySettings.consentUpdatedAt ?? Date.now(),
+            });
+            return;
+        }
+
+        applyAnalyticsConsentToGtag(readPrivacySettingsSnapshot());
+    }, [userProfile?.privacySettings]);
 
     return (
         <PayPalProvider>
