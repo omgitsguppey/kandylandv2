@@ -1,11 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { collection, onSnapshot, orderBy, query, QueryDocumentSnapshot, DocumentData } from "firebase/firestore";
 import Link from "next/link";
 import Image from "next/image";
 import { CheckCircle2, Search, User, UserX, Sparkles, Users, HeartHandshake, Wand2 } from "lucide-react";
-import { db } from "@/lib/firebase-data";
 import { authFetch } from "@/lib/authFetch";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
@@ -29,53 +27,6 @@ interface RosterEntry {
 
 const PAGE_SIZE = 25;
 
-function normalizeRosterEntry(doc: QueryDocumentSnapshot<DocumentData>): RosterEntry | null {
-    const raw = doc.data();
-    if (!raw || typeof raw !== "object") {
-        return null;
-    }
-
-    const source = raw as Record<string, unknown>;
-    const uid = typeof source.uid === "string" && source.uid.trim().length > 0 ? source.uid : doc.id;
-    if (!uid) {
-        return null;
-    }
-
-    const displayName = typeof source.displayName === "string" && source.displayName.trim().length > 0
-        ? source.displayName.trim()
-        : "Unknown user";
-    const email = typeof source.email === "string" && source.email.trim().length > 0
-        ? source.email.trim()
-        : "No email";
-    const username = typeof source.username === "string" && source.username.trim().length > 0
-        ? source.username.trim()
-        : "";
-    const photoURL = typeof source.photoURL === "string" && source.photoURL.trim().length > 0
-        ? source.photoURL.trim()
-        : null;
-
-    const role = source.role === "admin" || source.role === "creator" || source.role === "user"
-        ? source.role
-        : "user";
-    const status = source.status === "suspended" || source.status === "banned" || source.status === "active"
-        ? source.status
-        : "active";
-
-    const createdAt = Number.isFinite(source.createdAt) ? Number(source.createdAt) : 0;
-
-    return {
-        uid,
-        displayName,
-        email,
-        username,
-        photoURL,
-        role,
-        status,
-        isVerified: source.isVerified === true,
-        createdAt,
-    };
-}
-
 function initialsFor(name: string): string {
     const parts = name.split(" ").filter(Boolean);
     if (parts.length === 0) return "U";
@@ -98,25 +49,49 @@ export default function AdminRosterPage() {
             return;
         }
 
-        const rosterQuery = query(collection(db, "users"), orderBy("createdAt", "desc"));
-        const unsubscribe = onSnapshot(
-            rosterQuery,
-            (snapshot) => {
-                const normalized = snapshot.docs
-                    .map((entryDoc) => normalizeRosterEntry(entryDoc))
-                    .filter((entry): entry is RosterEntry => entry !== null);
+        let cancelled = false;
+
+        const fetchRoster = async () => {
+            try {
+                const response = await authFetch("/api/admin/users");
+                const result = await response.json() as { success?: boolean; users?: Array<Record<string, unknown>> };
+                if (!response.ok || !result.success) {
+                    throw new Error("Unable to load roster right now. Please try again shortly.");
+                }
+
+                if (cancelled) {
+                    return;
+                }
+
+                const normalized = (result.users || []).map((entry) => ({
+                    uid: typeof entry.uid === "string" ? entry.uid : "",
+                    displayName: typeof entry.displayName === "string" && entry.displayName.trim().length > 0 ? entry.displayName : "Unknown user",
+                    email: typeof entry.email === "string" && entry.email.trim().length > 0 ? entry.email : "No email",
+                    username: typeof entry.username === "string" ? entry.username : "",
+                    photoURL: typeof entry.photoURL === "string" ? entry.photoURL : null,
+                    role: entry.role === "admin" || entry.role === "creator" || entry.role === "user" ? entry.role : "user",
+                    status: entry.status === "suspended" || entry.status === "banned" || entry.status === "active" ? entry.status : "active",
+                    isVerified: entry.isVerified === true,
+                    createdAt: typeof entry.createdAt === "number" ? entry.createdAt : 0,
+                })) as RosterEntry[];
+
                 setUsers(normalized);
                 setError(null);
                 setLoading(false);
-            },
-            (snapshotError) => {
+            } catch (snapshotError) {
                 console.error("Failed to load roster", snapshotError);
-                setError("Unable to load roster right now. Please try again shortly.");
-                setLoading(false);
+                if (!cancelled) {
+                    setError("Unable to load roster right now. Please try again shortly.");
+                    setLoading(false);
+                }
             }
-        );
+        };
 
-        return () => unsubscribe();
+        void fetchRoster();
+
+        return () => {
+            cancelled = true;
+        };
     }, [authLoading, isAdmin]);
 
     const filteredUsers = useMemo(() => {

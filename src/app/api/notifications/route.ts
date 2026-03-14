@@ -6,6 +6,94 @@ import { normalizeNotificationCreatePayload } from "@/lib/notification-contracts
 import { broadcastFCM } from "@/lib/server/fcm-utils";
 import { checkRateLimit, STANDARD } from "@/lib/server/rate-limit";
 
+function toTimestampNumber(value: unknown) {
+    if (typeof value === "number" && Number.isFinite(value)) {
+        return value;
+    }
+
+    if (
+        value
+        && typeof value === "object"
+        && "toMillis" in value
+        && typeof (value as { toMillis: () => number }).toMillis === "function"
+    ) {
+        return (value as { toMillis: () => number }).toMillis();
+    }
+
+    return 0;
+}
+
+export async function GET(request: NextRequest) {
+    try {
+        await checkRateLimit(request, "notifications", STANDARD);
+        const caller = await verifyAuth(request);
+
+        if (!adminDb) {
+            return NextResponse.json({ error: "Database not available" }, { status: 500 });
+        }
+
+        const snapshot = await adminDb.collection("notifications").orderBy("createdAt", "desc").limit(50).get();
+        const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+
+        const notifications = snapshot.docs.flatMap((doc) => {
+            const raw = doc.data() as Record<string, unknown>;
+            if (typeof raw.title !== "string" || typeof raw.message !== "string") {
+                return [];
+            }
+
+            const target = raw.target && typeof raw.target === "object"
+                ? raw.target as { global?: unknown; userIds?: unknown; excludedUserIds?: unknown }
+                : {};
+            const userIds = Array.isArray(target.userIds)
+                ? target.userIds.filter((entry): entry is string => typeof entry === "string")
+                : [];
+            const excludedUserIds = Array.isArray(target.excludedUserIds)
+                ? target.excludedUserIds.filter((entry): entry is string => typeof entry === "string")
+                : [];
+            const readBy = Array.isArray(raw.readBy)
+                ? raw.readBy.filter((entry): entry is string => typeof entry === "string")
+                : [];
+            const createdAtMs = toTimestampNumber(raw.createdAt);
+
+            if (excludedUserIds.includes(caller.uid)) {
+                return [];
+            }
+
+            if (createdAtMs && createdAtMs < sevenDaysAgo) {
+                return [];
+            }
+
+            if (readBy.includes(caller.uid)) {
+                return [];
+            }
+
+            if (!(target.global === true || userIds.includes(caller.uid))) {
+                return [];
+            }
+
+            return [{
+                id: doc.id,
+                title: raw.title,
+                message: raw.message,
+                type: typeof raw.type === "string" ? raw.type : "info",
+                readBy,
+                target: {
+                    global: target.global === true,
+                    userIds,
+                    excludedUserIds,
+                },
+                link: typeof raw.link === "string" ? raw.link : undefined,
+                dropContext: raw.dropContext && typeof raw.dropContext === "object" ? raw.dropContext : undefined,
+                createdAtMs,
+            }];
+        });
+
+        return NextResponse.json({ success: true, notifications });
+    } catch (error) {
+        return handleApiError(error, "Notifications.GET");
+    }
+}
+
 // POST — Send notification (admin-only)
 export async function POST(request: NextRequest) {
     try {

@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { collection, query, orderBy, getDocs } from "firebase/firestore";
-import { db } from "@/lib/firebase-data";
 import { UserProfile } from "@/types/db";
 import { Loader2, Search, Shield, Ban, CheckCircle, AlertTriangle, Edit2, Lock, Plus, ScrollText, MessageSquare, DollarSign, TrendingUp, Users, Bell, Clock3 } from "lucide-react";
 
@@ -128,15 +126,15 @@ export default function UserManagementPage() {
     const fetchFeedback = async () => {
         setLoadingFeedback(true);
         try {
-            const q = query(collection(db, "platform_feedback"), orderBy("timestamp", "desc"));
-            const querySnapshot = await getDocs(q);
-            const fetched: any[] = [];
-            querySnapshot.forEach((doc) => {
-                fetched.push({ id: doc.id, ...doc.data() });
-            });
-            setFeedback(fetched);
+            const response = await authFetch("/api/admin/feedback");
+            const result = await response.json() as { success?: boolean; feedback?: any[] };
+            if (!response.ok || !result.success) {
+                throw new Error("Failed to load feedback");
+            }
+            setFeedback(result.feedback || []);
         } catch (error) {
             console.error("Error fetching feedback:", error);
+            toast.error("Failed to load feedback");
         } finally {
             setLoadingFeedback(false);
         }
@@ -767,10 +765,10 @@ export default function UserManagementPage() {
                                             <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-sm font-bold text-gray-500">
                                                 {(item.email?.[0] || "?").toUpperCase()}
                                             </div>
-                                            <div>
-                                                <div className="font-bold text-white">{item.email || 'Anonymous'}</div>
-                                                <div className="text-xs text-gray-500">
-                                                    {item.timestamp?.toMillis ? format(item.timestamp.toMillis(), 'MMM d, h:mm a') : 'Just now'}
+                                                <div>
+                                                    <div className="font-bold text-white">{item.email || 'Anonymous'}</div>
+                                                    <div className="text-xs text-gray-500">
+                                                    {typeof item.timestamp === "number" && item.timestamp > 0 ? format(item.timestamp, 'MMM d, h:mm a') : 'Just now'}
                                                 </div>
                                             </div>
                                         </div>

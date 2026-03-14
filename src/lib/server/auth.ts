@@ -1,6 +1,6 @@
 import "server-only";
 import { NextRequest, NextResponse } from "next/server";
-import { adminAuth, adminDb } from "./firebase-admin";
+import { adminAppCheck, adminAuth, adminDb } from "./firebase-admin";
 import { RateLimitError, buildRateLimitResponse } from "./rate-limit";
 
 export interface AuthResult {
@@ -9,11 +9,38 @@ export interface AuthResult {
     isAdmin?: boolean;
 }
 
+function shouldEnforceAppCheck() {
+    return process.env.NODE_ENV === "production"
+        && Boolean(process.env.NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_SITE_KEY);
+}
+
+export async function verifyAppCheck(request: NextRequest, required = shouldEnforceAppCheck()) {
+    const appCheckToken = request.headers.get("X-Firebase-AppCheck")?.trim();
+
+    if (!appCheckToken) {
+        if (!required) {
+            return null;
+        }
+        throw new AuthError("Missing App Check token", 401);
+    }
+
+    try {
+        return await adminAppCheck.verifyToken(appCheckToken);
+    } catch {
+        if (!required) {
+            return null;
+        }
+        throw new AuthError("Invalid App Check token", 401);
+    }
+}
+
 /**
  * Verify the Firebase ID token from the Authorization header.
  * Returns the decoded user identity or throws an error.
  */
 export async function verifyAuth(request: NextRequest): Promise<AuthResult> {
+    await verifyAppCheck(request);
+
     const authHeader = request.headers.get("Authorization");
     const idToken = authHeader?.startsWith("Bearer ")
         ? authHeader.slice("Bearer ".length).trim()

@@ -1,0 +1,59 @@
+import { NextRequest, NextResponse } from "next/server";
+
+import { adminDb } from "@/lib/server/firebase-admin";
+import { handleApiError } from "@/lib/server/auth";
+import { checkRateLimit, RELAXED } from "@/lib/server/rate-limit";
+import { normalizeDropRecord } from "@/lib/drop-normalizers";
+
+export async function GET(
+    request: NextRequest,
+    context: { params: Promise<{ username: string }> },
+) {
+    try {
+        await checkRateLimit(request, "creators/profile", RELAXED);
+        const { username } = await context.params;
+        const normalizedUsername = username.trim().toLowerCase();
+
+        if (!normalizedUsername) {
+            return NextResponse.json({ error: "Missing creator username" }, { status: 400 });
+        }
+
+        const creatorSnapshot = await adminDb.collection("users")
+            .where("username", "==", normalizedUsername)
+            .limit(1)
+            .get();
+
+        if (creatorSnapshot.empty) {
+            return NextResponse.json({ error: "Creator not found" }, { status: 404 });
+        }
+
+        const creatorDoc = creatorSnapshot.docs[0];
+        const creatorRaw = creatorDoc.data() as Record<string, unknown>;
+        const creator = {
+            uid: creatorDoc.id,
+            displayName: typeof creatorRaw.displayName === "string" ? creatorRaw.displayName : "Creator",
+            username: typeof creatorRaw.username === "string" ? creatorRaw.username : normalizedUsername,
+            photoURL: typeof creatorRaw.photoURL === "string" ? creatorRaw.photoURL : null,
+            bannerUrl: typeof creatorRaw.bannerUrl === "string" ? creatorRaw.bannerUrl : undefined,
+            bio: typeof creatorRaw.bio === "string" ? creatorRaw.bio : undefined,
+            isVerified: creatorRaw.isVerified === true,
+        };
+
+        const dropsSnapshot = await adminDb.collection("drops")
+            .where("creatorId", "==", creator.uid)
+            .get();
+
+        const drops = dropsSnapshot.docs.flatMap((doc) => {
+            try {
+                const normalized = normalizeDropRecord(doc.data(), doc.id);
+                return normalized.status === "active" ? [normalized] : [];
+            } catch {
+                return [];
+            }
+        }).sort((left, right) => right.validFrom - left.validFrom);
+
+        return NextResponse.json({ success: true, creator, drops });
+    } catch (error) {
+        return handleApiError(error, "Creators.Profile.GET");
+    }
+}

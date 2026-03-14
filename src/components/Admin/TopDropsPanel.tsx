@@ -1,32 +1,18 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { collection, onSnapshot } from "firebase/firestore";
-import { db } from "@/lib/firebase-data";
-import { Drop } from "@/types/db";
-import { normalizeDropRecord } from "@/lib/drop-normalizers";
+import { useMemo } from "react";
+import { useAdminOverview } from "@/hooks/useAdminOverview";
 
 /**
  * Displays the top 5 drops ranked by unwrap count.
  * Owns its own onSnapshot listener for the drops collection.
  */
 export function TopDropsPanel() {
-    const [drops, setDrops] = useState<Drop[]>([]);
-
-    useEffect(() => {
-        const unsub = onSnapshot(collection(db, "drops"), (snapshot) => {
-            const list: Drop[] = [];
-            snapshot.forEach((doc) => {
-                try { list.push(normalizeDropRecord(doc.data(), doc.id)); } catch { /* skip malformed */ }
-            });
-            setDrops(list);
-        });
-        return () => unsub();
-    }, []);
+    const { data } = useAdminOverview();
 
     const topDrops = useMemo(
-        () => [...drops].sort((a, b) => (b.totalUnlocks || 0) - (a.totalUnlocks || 0)).slice(0, 5),
-        [drops],
+        () => data?.topDrops || [],
+        [data],
     );
 
     return (

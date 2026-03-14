@@ -2,14 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { Activity, ArrowDownLeft, ArrowUpRight, CheckCircle2, Loader2, TriangleAlert } from "lucide-react";
-import { collection, getDocs, limit, orderBy, query, where } from "firebase/firestore";
 import { formatDistanceToNow } from "date-fns";
 
-import { db } from "@/lib/firebase-data";
 import { useAuth } from "@/context/AuthContext";
-import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 import { trackEvent } from "@/lib/telemetry";
 import type { Transaction } from "@/types/db";
+import { authFetch } from "@/lib/authFetch";
 
 interface TaskEventRecord {
     id: string;
@@ -34,27 +32,6 @@ type ActivityItem =
         kind: "task";
         taskEvent: TaskEventRecord;
       };
-
-function normalizeTaskEventRecord(raw: Record<string, unknown>, id: string): TaskEventRecord | null {
-    if (typeof raw.type !== "string" || typeof raw.title !== "string" || !Number.isFinite(raw.timestamp)) {
-        return null;
-    }
-
-    const type = raw.type as TaskEventRecord["type"];
-    if (!["assigned", "started", "completed", "failed", "reminder_sent"].includes(type)) {
-        return null;
-    }
-
-    return {
-        id,
-        type,
-        title: raw.title,
-        reward: Number(raw.reward) || 0,
-        progress: Number(raw.progress) || 0,
-        maxProgress: Number(raw.maxProgress) || 0,
-        timestamp: Number(raw.timestamp) || Date.now(),
-    };
-}
 
 function renderTransactionLabel(transaction: Transaction) {
     switch (transaction.type) {
@@ -99,23 +76,16 @@ export function RecentActivityFeed() {
 
         async function fetchRecentActivity() {
             try {
-                const transactionsQuery = query(
-                    collection(db, "transactions"),
-                    where("userId", "==", userId),
-                    orderBy("timestamp", "desc"),
-                    limit(8),
-                );
-                const taskEventsQuery = query(
-                    collection(db, "daily_task_events"),
-                    where("userId", "==", userId),
-                    orderBy("timestamp", "desc"),
-                    limit(8),
-                );
+                const response = await authFetch("/api/user/activity");
+                const result = await response.json() as {
+                    success?: boolean;
+                    transactions?: Transaction[];
+                    taskEvents?: TaskEventRecord[];
+                };
 
-                const [transactionsSnapshot, taskEventsSnapshot] = await Promise.all([
-                    getDocs(transactionsQuery),
-                    getDocs(taskEventsQuery),
-                ]);
+                if (!response.ok || !result.success) {
+                    throw new Error("Failed to load recent activity");
+                }
 
                 if (!mounted) {
                     return;
@@ -123,34 +93,28 @@ export function RecentActivityFeed() {
 
                 const nextActivities: ActivityItem[] = [];
 
-                transactionsSnapshot.forEach((item) => {
-                    try {
-                        const normalizedTransaction = normalizeTransactionRecord(item.data(), item.id);
-                        const timestamp = typeof normalizedTransaction.timestamp === "number"
-                            ? normalizedTransaction.timestamp
-                            : Date.now();
-                        nextActivities.push({
-                            id: item.id,
-                            timestamp,
-                            kind: "transaction",
-                            transaction: normalizedTransaction,
-                        });
-                    } catch (error) {
-                        console.error("Malformed transaction", error);
-                    }
+                (result.transactions || []).forEach((transaction) => {
+                    const timestamp = typeof transaction.timestamp === "number"
+                        ? transaction.timestamp
+                        : Date.now();
+                    nextActivities.push({
+                        id: transaction.id,
+                        timestamp,
+                        kind: "transaction",
+                        transaction,
+                    });
                 });
 
-                taskEventsSnapshot.forEach((item) => {
-                    const normalized = normalizeTaskEventRecord(item.data() as Record<string, unknown>, item.id);
-                    if (!normalized || (normalized.type !== "completed" && normalized.type !== "failed")) {
+                (result.taskEvents || []).forEach((taskEvent) => {
+                    if (taskEvent.type !== "completed" && taskEvent.type !== "failed") {
                         return;
                     }
 
                     nextActivities.push({
-                        id: item.id,
-                        timestamp: normalized.timestamp,
+                        id: taskEvent.id,
+                        timestamp: taskEvent.timestamp,
                         kind: "task",
-                        taskEvent: normalized,
+                        taskEvent,
                     });
                 });
 

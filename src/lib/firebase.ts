@@ -1,6 +1,5 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getAI, getGenerativeModel, VertexAIBackend } from "firebase/ai";
 import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
 import type { AppCheck } from "firebase/app-check";
 export { SITE_ORIGIN } from "@/lib/site-origin";
@@ -17,8 +16,6 @@ const firebaseConfig = {
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 
-let ai: ReturnType<typeof getAI> | undefined;
-let model: ReturnType<typeof getGenerativeModel> | undefined;
 let appCheck: AppCheck | undefined;
 
 function shouldEnableAppCheck() {
@@ -44,7 +41,7 @@ function shouldEnableAppCheck() {
     return !automatedContext;
 }
 
-// Client-only initializations (App Check, AI Logic)
+// Client-only initialization (App Check)
 if (typeof window !== "undefined") {
     // --- Firebase App Check (ReCaptcha Enterprise) ---
     try {
@@ -63,14 +60,6 @@ if (typeof window !== "undefined") {
     } catch (error) {
         console.warn("Firebase App Check failed to initialize:", error);
     }
-
-    // --- Firebase AI Logic (Gemini) ---
-    try {
-        ai = getAI(app, { backend: new VertexAIBackend() });
-        model = getGenerativeModel(ai, { model: "gemini-2.5-flash-lite" });
-    } catch (error) {
-        console.warn("Firebase AI Logic failed to initialize on client:", error);
-    }
 }
 
-export { app, auth, ai, model, appCheck };
+export { app, auth, appCheck };

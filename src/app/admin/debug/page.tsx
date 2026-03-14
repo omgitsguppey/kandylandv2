@@ -2,56 +2,30 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { db } from "@/lib/firebase-data";
-import { collection, query, orderBy, limit, onSnapshot, getDocs, where } from "firebase/firestore";
 import { Button } from "@/components/ui/Button";
 import { Loader2, Terminal, RefreshCw, Plus, PlayCircle } from "lucide-react";
 
 import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { useAdminOverview } from "@/hooks/useAdminOverview";
 
 export default function DebugConsole() {
     const { user, userProfile } = useAuth();
     const [logs, setLogs] = useState<any[]>([]);
     const [processing, setProcessing] = useState(false);
     const [simAmount, setSimAmount] = useState("500");
+    const { data } = useAdminOverview();
 
-    // Real-time Logs
     useEffect(() => {
-        const q = query(collection(db, "transactions"), orderBy("timestamp", "desc"), limit(20));
-        const unsubscribe = onSnapshot(q, async (snapshot) => {
-            const newLogs: any[] = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data(),
-                timestamp: doc.data().timestamp?.toDate().toLocaleString() || "Pending..."
-            }));
-
-            const userIds = Array.from(new Set(newLogs.map(log => log.userId).filter(Boolean)));
-
-            if (userIds.length > 0) {
-                try {
-                    const usersQuery = query(collection(db, "users"), where("__name__", "in", userIds.slice(0, 30)));
-                    const usersSnapshot = await getDocs(usersQuery);
-                    const userMap: Record<string, string> = {};
-                    usersSnapshot.forEach(userDoc => {
-                        userMap[userDoc.id] = userDoc.data().username || userDoc.data().displayName || "Unknown";
-                    });
-
-                    newLogs.forEach(log => {
-                        if (log.userId && userMap[log.userId]) {
-                            log.username = userMap[log.userId];
-                        }
-                    });
-                } catch (error) {
-                    console.error("Failed to map usernames:", error);
-                }
-            }
-
-            setLogs(newLogs);
-        });
-        return () => unsubscribe();
-    }, []);
+        const recentLogs = (data?.recentTransactions || []).map((log) => ({
+            ...log,
+            timestamp: typeof log.timestamp === "number" && log.timestamp > 0
+                ? new Date(log.timestamp).toLocaleString()
+                : "Pending...",
+        }));
+        setLogs(recentLogs);
+    }, [data]);
 
     const handleSimulatePurchase = async () => {
         if (!user) return;

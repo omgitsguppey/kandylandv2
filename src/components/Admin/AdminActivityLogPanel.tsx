@@ -1,46 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { collection, query, orderBy, limit, onSnapshot, where } from "firebase/firestore";
-import { db } from "@/lib/firebase-data";
-import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
-import { Transaction } from "@/types/db";
-import { formatDistanceToNow } from "date-fns";
 import { ShieldAlert, Fingerprint } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import { useAdminOverview } from "@/hooks/useAdminOverview";
 
 export function AdminActivityLogPanel() {
-    const [logs, setLogs] = useState<Transaction[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        // Query recent admin activity. Since 'type' index may not perfectly match with 'timestamp' desc,
-        // we'll fetch all recent transactions and dynamically filter to ensure we hit them without composite index requirements,
-        // or just apply the where clause. Assuming single-field index for type is fine.
-        const q = query(
-            collection(db, "transactions"),
-            where("type", "==", "admin_adjustment") // Relies on index or falls back
-        );
-
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const list: Transaction[] = [];
-            snapshot.forEach((doc) => {
-                try {
-                    list.push(normalizeTransactionRecord(doc.data(), doc.id));
-                } catch {
-                    // ignore malformed
-                }
-            });
-            // Sort client side since we dropped orderBy from the query to avoid missing composite index errors
-            list.sort((a, b) => (b.timestamp as number) - (a.timestamp as number));
-            setLogs(list.slice(0, 10)); // keep last 10
-            setLoading(false);
-        }, (error) => {
-            console.error("Failed to fetch admin logs", error);
-            setLoading(false);
-        });
-
-        return () => unsubscribe();
-    }, []);
+    const { data, isLoading } = useAdminOverview();
+    const logs = data?.adminActivity || [];
+    const loading = isLoading;
 
     return (
         <div className="glass-panel p-6 rounded-3xl border border-white/10 flex flex-col h-full lg:col-span-2">

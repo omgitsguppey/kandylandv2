@@ -1,14 +1,11 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
-import { collection, query, where, onSnapshot } from "firebase/firestore";
-import { db } from "@/lib/firebase-data";
+import { useMemo } from "react";
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     BarChart, Bar
 } from "recharts";
-import { format, subDays, startOfDay } from "date-fns";
-import { getTransactionRevenueCents, normalizeTransactionRecord } from "@/lib/transaction-normalizers";
+import { useAdminOverview } from "@/hooks/useAdminOverview";
 
 interface ChartDataPoint {
     date: string;
@@ -17,59 +14,16 @@ interface ChartDataPoint {
 }
 
 export function AdminAnalyticsCharts() {
-    const [transactions, setTransactions] = useState<any[]>([]);
-    const [histories, setHistories] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const thirtyDaysAgoMs = Date.now() - (30 * 24 * 60 * 60 * 1000);
-
-        const unsubs = [
-            // Revenue & Unwraps (Transactions)
-            onSnapshot(query(
-                collection(db, "transactions"),
-                where("createdAt", ">=", thirtyDaysAgoMs)
-            ), (snapshot) => {
-                const list: any[] = [];
-                snapshot.forEach(doc => {
-                    try { list.push(normalizeTransactionRecord(doc.data(), doc.id)); } catch { }
-                });
-                setTransactions(list);
-                setLoading(false);
-            })
-        ];
-
-        return () => unsubs.forEach(u => u());
-    }, []);
-
-    const chartData = useMemo(() => {
-        const days = Array.from({ length: 30 }).map((_, i) => {
-            return startOfDay(subDays(new Date(), 29 - i)).getTime();
-        });
-
-        const dataMap: Record<number, ChartDataPoint> = {};
-
-        days.forEach(dayMs => {
-            dataMap[dayMs] = {
-                date: format(new Date(dayMs), "MMM dd"),
-                revenue: 0,
-                unwraps: 0
-            };
-        });
-
-        transactions.forEach(tx => {
-            const dayMs = startOfDay(new Date(tx.createdAt)).getTime();
-            if (dataMap[dayMs]) {
-                if (tx.type === "purchase_currency" || tx.type === "purchase") {
-                    dataMap[dayMs].revenue += getTransactionRevenueCents(tx) / 100;
-                } else if (tx.type === "unlock_content") {
-                    dataMap[dayMs].unwraps += 1;
-                }
-            }
-        });
-
-        return Object.values(dataMap);
-    }, [transactions]);
+    const { data, isLoading } = useAdminOverview();
+    const loading = isLoading;
+    const chartData = useMemo<ChartDataPoint[]>(
+        () => (data?.chartData || []).map((entry) => ({
+            date: entry.date,
+            revenue: entry.revenue,
+            unwraps: entry.unwraps,
+        })),
+        [data],
+    );
 
     if (loading) {
         return (

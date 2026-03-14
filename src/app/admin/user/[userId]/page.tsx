@@ -2,19 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { collection, doc, getDoc, getDocs, orderBy, query, where } from "firebase/firestore";
 import Image from "next/image";
 import { format, formatDistanceToNow } from "date-fns";
-import { User } from "firebase/auth";
 import { Activity, AlertCircle, ArrowLeft, Ban, CalendarDays, History } from "lucide-react";
 
-import { db } from "@/lib/firebase-data";
 import { useAuth } from "@/context/AuthContext";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
-import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
-import { normalizeUserProfile } from "@/lib/user-utils";
 import { Transaction, UserProfile } from "@/types/db";
+import { authFetch } from "@/lib/authFetch";
 
 export default function AdminUserAnalyticsPage() {
     const params = useParams();
@@ -35,53 +31,27 @@ export default function AdminUserAnalyticsPage() {
 
         async function fetchUserData() {
             try {
-                const userDoc = await getDoc(doc(db, "users", userId));
-                if (!userDoc.exists()) {
-                    setError("User not found.");
-                    setLoading(false);
-                    return;
+                const response = await authFetch(`/api/admin/user/${userId}`);
+                const result = await response.json() as {
+                    success?: boolean;
+                    user?: UserProfile;
+                    transactions?: Transaction[];
+                    error?: string;
+                };
+
+                if (!response.ok || !result.success || !result.user) {
+                    throw new Error(result.error || "Failed to load deeper analytics. Try again.");
                 }
 
-                const targetData = userDoc.data();
-                const mockUser = {
-                    uid: userId,
-                    email: targetData.email || "",
-                    displayName: targetData.displayName || "",
-                    photoURL: targetData.photoURL || "",
-                } as User;
-                setTargetUser(normalizeUserProfile(targetData, mockUser) as UserProfile);
-
-                const txQuery = query(
-                    collection(db, "transactions"),
-                    where("userId", "==", userId),
-                    orderBy("timestamp", "desc")
-                );
-
-                const txDocs = await getDocs(txQuery);
-                const txList: Transaction[] = [];
-
-                txDocs.forEach((tDoc) => {
-                    try {
-                        const raw = tDoc.data();
-                        const normalized = normalizeTransactionRecord(raw, tDoc.id);
-
-                        let status: "completed" | "failed" | "pending" = "completed";
-                        if (raw.status === "failed" || raw.error) status = "failed";
-                        if (raw.status === "pending") status = "pending";
-
-                        txList.push({
-                            ...normalized,
-                            status,
-                        });
-                    } catch (transactionError) {
-                        console.warn("Skipping malformed transaction", transactionError);
-                    }
-                });
-
-                setTransactions(txList);
+                setTargetUser(result.user);
+                setTransactions(result.transactions || []);
             } catch (fetchError: unknown) {
                 console.error("Failed to load user analytics.", fetchError);
-                setError(fetchError instanceof Error ? fetchError.message : "Failed to load deeper analytics. Try again.");
+                const message = fetchError instanceof Error ? fetchError.message : "Failed to load deeper analytics. Try again.";
+                if (message === "User not found") {
+                    setError("User not found.");
+                }
+                setError(message);
             } finally {
                 setLoading(false);
             }

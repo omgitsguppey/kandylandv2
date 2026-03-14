@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { collection, query, where, getDocs } from "firebase/firestore";
-import { db } from "@/lib/firebase-data";
 import { UserProfile, Drop } from "@/types/db";
 import { DropGrid } from "@/components/DropGrid";
 import { useAuth } from "@/context/AuthContext";
@@ -33,36 +31,22 @@ export default function CreatorProfilePage() {
 
         async function fetchData() {
             try {
-                // 1. Fetch Creator Profile
-                const usersRef = collection(db, "users");
-                const q = query(usersRef, where("username", "==", username));
-                const querySnapshot = await getDocs(q);
+                const response = await fetch(`/api/creators/${encodeURIComponent(username)}`, {
+                    cache: "no-store",
+                });
+                const result = await response.json() as {
+                    success?: boolean;
+                    creator?: UserProfile;
+                    drops?: Drop[];
+                };
 
-                if (querySnapshot.empty) {
+                if (!response.ok || !result.success || !result.creator) {
                     setLoading(false);
                     return;
                 }
 
-                const creatorData = querySnapshot.docs[0].data() as UserProfile;
-                setCreator(creatorData);
-
-                // 2. Fetch Creator's Drops
-                const dropsRef = collection(db, "drops");
-                // Find drops where creatorId matches OR (legacy/fallback if we don't have backfilled data yet)
-                // For now, let's assume we rely on creatorId. If data is sparse, we might need a migration script.
-                const dropsQuery = query(
-                    dropsRef,
-                    where("creatorId", "==", creatorData.uid),
-                    where("status", "==", "active")
-                );
-                const dropsSnap = await getDocs(dropsQuery);
-                const dropsList = dropsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Drop));
-
-                // Sort by validFrom desc in memory (firestore needs composite index for complex queries otherwise)
-                dropsList.sort((a, b) => b.validFrom - a.validFrom);
-
-                setDrops(dropsList);
-
+                setCreator(result.creator);
+                setDrops(result.drops || []);
             } catch (error) {
                 console.error("Error fetching creator:", error);
                 toast.error("Failed to load profile.");
@@ -217,7 +201,7 @@ export default function CreatorProfilePage() {
                                         </p>
                                         <button
                                             onClick={() => openAuthModal("signup")}
-                                            className="px-8 py-4 w-full rounded-xl bg-white text-black font-black text-lg transition-transform hover:scale-105 active:scale-95 shadow-[0_0_40px_rgba(255,255,255,0.2)]"
+                                            className="px-8 py-4 w-full rounded-xl bg-brand-purple text-white font-black text-lg transition-transform hover:scale-105 active:scale-95 shadow-[0_0_40px_rgba(217,70,239,0.2)]"
                                         >
                                             Sign Up / Sign In
                                         </button>

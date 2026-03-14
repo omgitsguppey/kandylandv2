@@ -2,13 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { UserProfile, Transaction } from "@/types/db";
-import { collection, query, where, orderBy, limit, getDocs } from "firebase/firestore";
-import { db } from "@/lib/firebase-data";
 import { Button } from "@/components/ui/Button";
 import { Loader2, ScrollText, ArrowDownLeft, ArrowUpRight, TrendingUp } from "lucide-react";
 import { format } from "date-fns";
 import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
-import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
+import { authFetch } from "@/lib/authFetch";
 
 interface Props {
     user: UserProfile | null;
@@ -25,44 +23,15 @@ export function TransactionHistoryModal({ user, onClose }: Props) {
         const fetchHistory = async () => {
             setLoading(true);
             try {
-                const indexedQuery = query(
-                    collection(db, "transactions"),
-                    where("userId", "==", user.uid),
-                    orderBy("timestamp", "desc"),
-                    limit(30)
-                );
-
-                const snapshot = await getDocs(indexedQuery);
-                const txs = snapshot.docs
-                    .map((doc) => {
-                        try {
-                            return normalizeTransactionRecord(doc.data(), doc.id);
-                        } catch {
-                            return null;
-                        }
-                    })
-                    .filter((entry): entry is Transaction => entry !== null);
-                setTransactions(txs);
-            } catch (error) {
-                // Fallback for environments where the userId+timestamp composite index does not exist yet.
-                try {
-                    const fallbackQuery = query(collection(db, "transactions"), where("userId", "==", user.uid), limit(30));
-                    const fallbackSnapshot = await getDocs(fallbackQuery);
-                    const txs = fallbackSnapshot.docs
-                        .map((doc) => {
-                            try {
-                                return normalizeTransactionRecord(doc.data(), doc.id);
-                            } catch {
-                                return null;
-                            }
-                        })
-                        .filter((entry): entry is Transaction => entry !== null)
-                        .sort((a, b) => (b.timestamp as number) - (a.timestamp as number));
-                    setTransactions(txs);
-                } catch (fallbackError) {
-                    console.error("Error fetching transactions:", fallbackError);
-                    setTransactions([]);
+                const response = await authFetch(`/api/admin/user/${user.uid}?limit=30`);
+                const result = await response.json() as { success?: boolean; transactions?: Transaction[] };
+                if (!response.ok || !result.success) {
+                    throw new Error("Failed to load transactions");
                 }
+                setTransactions(result.transactions || []);
+            } catch (error) {
+                console.error("Error fetching transactions:", error);
+                setTransactions([]);
             } finally {
                 setLoading(false);
             }

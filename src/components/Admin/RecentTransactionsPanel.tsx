@@ -1,11 +1,8 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { collection, onSnapshot, orderBy, query, limit, getDocs, where } from "firebase/firestore";
-import { db } from "@/lib/firebase-data";
-import { Transaction } from "@/types/db";
-import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
+import { useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
+import { useAdminOverview } from "@/hooks/useAdminOverview";
 
 const INITIAL_TRANSACTIONS_NOW = Date.now();
 
@@ -14,51 +11,9 @@ const INITIAL_TRANSACTIONS_NOW = Date.now();
  * Owns its own onSnapshot subscription scoped to recent transactions.
  */
 export function RecentTransactionsPanel() {
-    const [transactions, setTransactions] = useState<(Transaction & { username?: string })[]>([]);
+    const { data } = useAdminOverview();
     const [nowMs, setNowMs] = useState(INITIAL_TRANSACTIONS_NOW);
-    const userMapCache = useRef<Record<string, string>>({});
-
-    useEffect(() => {
-        const unsub = onSnapshot(
-            query(collection(db, "transactions"), orderBy("timestamp", "desc"), limit(20)),
-            async (snapshot) => {
-                const list: Transaction[] = [];
-                const requiredUids = new Set<string>();
-
-                snapshot.forEach((doc) => {
-                    try {
-                        const tx = normalizeTransactionRecord(doc.data(), doc.id);
-                        list.push(tx);
-                        if (tx.userId) requiredUids.add(tx.userId);
-                    } catch { /* skip malformed */ }
-                });
-
-                const missingUids = Array.from(requiredUids).filter(uid => !userMapCache.current[uid]);
-
-                if (missingUids.length > 0) {
-                    try {
-                        for (let i = 0; i < missingUids.length; i += 30) {
-                            const chunk = missingUids.slice(i, i + 30);
-                            const usersSnap = await getDocs(query(collection(db, "users"), where("__name__", "in", chunk)));
-                            usersSnap.forEach(uDoc => {
-                                userMapCache.current[uDoc.id] = uDoc.data().username || uDoc.data().displayName || "Unknown";
-                            });
-                        }
-                    } catch (e) {
-                        console.error("Failed to fetch user mappings:", e);
-                    }
-                }
-
-                const mappedList = list.map(tx => ({
-                    ...tx,
-                    username: userMapCache.current[tx.userId]
-                }));
-
-                setTransactions(mappedList);
-            },
-        );
-        return () => unsub();
-    }, []);
+    const transactions = data?.recentTransactions || [];
 
     useEffect(() => {
         const interval = window.setInterval(() => {

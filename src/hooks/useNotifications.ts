@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { collection, query, orderBy, onSnapshot, limit } from "firebase/firestore";
-import { db } from "@/lib/firebase-data";
 import { useAuthIdentity } from "@/context/AuthContext";
 import { markNotificationAsRead } from "@/lib/notifications";
-import { AppNotification, normalizeNotificationDoc } from "@/lib/notification-contracts";
+import { AppNotification } from "@/lib/notification-contracts";
 import { trackEvent } from "@/lib/telemetry";
+import { authFetch } from "@/lib/authFetch";
 
 export type Notification = AppNotification;
 
@@ -18,50 +17,57 @@ export function useNotifications() {
 
     useEffect(() => {
         if (!userId) {
+            setNotificationsState([]);
+            setLoadedForUserId(null);
             return;
         }
         const currentUserId = userId;
 
-        const notificationsQuery = query(
-            collection(db, "notifications"),
-            orderBy("createdAt", "desc"),
-            limit(50)
-        );
+        let cancelled = false;
 
-        const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
-            const scopedNotifications: Notification[] = [];
+        const fetchNotifications = async () => {
+            try {
+                const response = await authFetch("/api/notifications");
+                const result = await response.json() as {
+                    success?: boolean;
+                    notifications?: Array<Notification & { createdAtMs?: number }>;
+                };
 
-            snapshot.forEach((noteDoc) => {
-                const normalized = normalizeNotificationDoc(noteDoc.id, noteDoc.data());
-                if (!normalized) {
+                if (!response.ok || !result.success) {
+                    throw new Error("Failed to load notifications");
+                }
+
+                if (cancelled) {
                     return;
                 }
 
-                if (normalized.target.excludedUserIds && normalized.target.excludedUserIds.includes(currentUserId)) {
-                    return;
+                const scopedNotifications = (result.notifications || []).map((notification) => ({
+                    ...notification,
+                    createdAt: notification.createdAtMs
+                        ? { toDate: () => new Date(notification.createdAtMs as number) }
+                        : null,
+                })) as Notification[];
+
+                setNotificationsState(scopedNotifications);
+                setLoadedForUserId(currentUserId);
+            } catch (error) {
+                console.error("Failed to load notifications", error);
+                if (!cancelled) {
+                    setNotificationsState([]);
+                    setLoadedForUserId(currentUserId);
                 }
+            }
+        };
 
-                // When users sign up (or generally), ensure notifications older than 7 days do not appear
-                const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-                if (normalized.createdAt && normalized.createdAt.toMillis() < sevenDaysAgo) {
-                    return;
-                }
+        void fetchNotifications();
+        const interval = window.setInterval(() => {
+            void fetchNotifications();
+        }, 30_000);
 
-                // When notifications are marked as read, remove them from the notification tab
-                if (normalized.readBy.includes(currentUserId)) {
-                    return;
-                }
-
-                if (normalized.target.global || normalized.target.userIds.includes(currentUserId)) {
-                    scopedNotifications.push(normalized);
-                }
-            });
-
-            setNotificationsState(scopedNotifications);
-            setLoadedForUserId(currentUserId);
-        });
-
-        return () => unsubscribe();
+        return () => {
+            cancelled = true;
+            window.clearInterval(interval);
+        };
     }, [userId]);
 
     const notifications = useMemo(

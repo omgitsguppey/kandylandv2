@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { collection, query, orderBy, onSnapshot, doc, DocumentSnapshot } from "firebase/firestore";
+import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
 import { Drop } from "@/types/db";
 import { format } from "date-fns";
@@ -64,16 +64,33 @@ export default function AdminDropsPage() {
     }, []);
 
     useEffect(() => {
-        // Listen to the queue doc to update the UI chips dynamically
-        const docRef = doc(db, "adminSettings", "dropQueue");
-        const unsubQueue = onSnapshot(docRef, (docSnap: DocumentSnapshot) => {
-            if (docSnap.exists() && docSnap.data().queue) {
-                setQueueIds(new Set(docSnap.data().queue as string[]));
-            } else {
-                setQueueIds(new Set());
+        let cancelled = false;
+
+        const fetchQueueMembership = async () => {
+            try {
+                const response = await authFetch("/api/admin/queue");
+                const result = await response.json() as { queue?: string[] };
+                if (!response.ok) {
+                    throw new Error("Failed to load queue");
+                }
+
+                if (!cancelled) {
+                    setQueueIds(new Set(Array.isArray(result.queue) ? result.queue : []));
+                }
+            } catch (error) {
+                console.error("Failed to fetch queue membership", error);
             }
-        });
-        return () => unsubQueue();
+        };
+
+        void fetchQueueMembership();
+        const interval = window.setInterval(() => {
+            void fetchQueueMembership();
+        }, 30_000);
+
+        return () => {
+            cancelled = true;
+            window.clearInterval(interval);
+        };
     }, []);
 
     const handleDelete = async (id: string) => {
@@ -134,6 +151,15 @@ export default function AdminDropsPage() {
             const result = await response.json();
             if (!response.ok) throw new Error(result.error);
             toast.success(result.added ? "Added to Queue" : "Removed from Queue");
+            setQueueIds((prev) => {
+                const next = new Set(prev);
+                if (result.added) {
+                    next.add(dropId);
+                } else {
+                    next.delete(dropId);
+                }
+                return next;
+            });
         } catch (err: any) {
             console.error("Error toggling queue:", err);
             toast.error(err.message || "Failed to toggle queue state.");
