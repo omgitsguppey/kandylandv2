@@ -140,32 +140,16 @@ export function NotificationPromptBanner() {
 
     return (
         <div className="sticky top-0 z-40 border-b border-white/10 bg-black/85 backdrop-blur-xl">
-            <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3">
-                <div className="flex min-w-0 items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-brand-purple/25 bg-brand-purple/15 text-brand-purple">
-                        {needsStandaloneInstall ? <Smartphone className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
-                    </div>
-                    <div className="min-w-0">
-                        <p className="text-sm font-semibold text-white">
-                            {needsStandaloneInstall ? "Turn on notifications from your Home Screen" : "Stay on top of live KandyDrops"}
-                        </p>
-                        <p className="text-xs leading-5 text-gray-400">
-                            {needsStandaloneInstall
-                                ? "Add KandyDrops to your Home Screen first, then enable browser alerts so you never miss a live unwrap window."
-                                : "Enable browser alerts for daily deadlines, live drops, and expiring KandyDrops."}
+            <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3">
+                <div className="flex items-start justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-brand-purple/25 bg-brand-purple/15 text-brand-purple">
+                            {needsStandaloneInstall ? <Smartphone className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
+                        </div>
+                        <p className="min-w-0 pt-0.5 text-sm font-semibold leading-6 text-white">
+                            Enable notifications so you never miss a drop!
                         </p>
                     </div>
-                </div>
-
-                <div className="flex shrink-0 items-center gap-2">
-                    <button
-                        type="button"
-                        onClick={() => void handleEnable()}
-                        disabled={loading}
-                        className="rounded-full border border-brand-purple bg-brand-purple px-4 py-2 text-xs font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
-                    >
-                        {loading ? "Please wait" : needsStandaloneInstall ? "How to enable" : "Enable"}
-                    </button>
                     <button
                         type="button"
                         onClick={handleDismiss}
@@ -173,6 +157,17 @@ export function NotificationPromptBanner() {
                         aria-label="Dismiss notification prompt"
                     >
                         <X className="h-4 w-4" />
+                    </button>
+                </div>
+
+                <div className="flex">
+                    <button
+                        type="button"
+                        onClick={() => void handleEnable()}
+                        disabled={loading}
+                        className="w-full rounded-2xl border border-brand-purple bg-brand-purple px-4 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60 sm:w-auto"
+                    >
+                        {loading ? "Please wait" : needsStandaloneInstall ? "How to enable" : "Enable notifications"}
                     </button>
                 </div>
             </div>

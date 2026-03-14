@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Activity, ArrowDownLeft, ArrowUpRight, CheckCircle2, Loader2, TriangleAlert } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 import { useAuth } from "@/context/AuthContext";
+import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
 import { trackEvent } from "@/lib/telemetry";
 import type { Transaction } from "@/types/db";
 import { authFetch } from "@/lib/authFetch";
@@ -62,6 +64,7 @@ function renderTaskEventLabel(taskEvent: TaskEventRecord) {
 
 export function RecentActivityFeed() {
     const { user } = useAuth();
+    const router = useRouter();
     const [activities, setActivities] = useState<ActivityItem[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -151,8 +154,41 @@ export function RecentActivityFeed() {
                     <Loader2 className="h-6 w-6 animate-spin text-brand-purple/50" />
                 </div>
             ) : activities.length === 0 ? (
-                <div className="py-6 text-center text-sm text-gray-500">
-                    Your recent unwraps, Gum Drop changes, and task results will appear here.
+                <div className="py-6 text-center">
+                    <p className="text-sm text-gray-500">
+                        Your recent unwraps, Gum Drop changes, and task results will appear here.
+                    </p>
+                    <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                        <button
+                            type="button"
+                            onClick={() => {
+                                trackEvent("navigation_click", {
+                                    destination: "/drops",
+                                    source: "recent_activity_empty",
+                                });
+                                router.push("/drops");
+                            }}
+                            className="rounded-2xl border border-brand-purple bg-brand-purple px-4 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
+                        >
+                            Unwrap now
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                trackEvent("navigation_click", {
+                                    destination: "/experiences",
+                                    source: "recent_activity_empty",
+                                });
+                                router.push("/experiences");
+                            }}
+                            className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10"
+                        >
+                            Open Experiences
+                        </button>
+                    </div>
+                    <div className="mt-4 flex justify-center">
+                        <ReportBugButton context="recent-activity-empty" />
+                    </div>
                 </div>
             ) : (
                 <div className="space-y-3">

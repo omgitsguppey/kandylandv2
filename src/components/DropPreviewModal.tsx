@@ -23,6 +23,7 @@ import {
   SECONDARY_UNWRAP_CTA,
 } from "@/lib/marketing-copy";
 import { showUnwrapSuccessToast } from "@/components/Toasts/UnwrapSuccessToast";
+import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
 
 interface DropPreviewModalProps {
   drop: Drop | null;
@@ -314,14 +315,19 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
 
               <div className="shrink-0 border-t border-white/10 bg-[#0A0A0F]/95 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-4 sm:px-5 backdrop-blur-md">
                 {isUnlocked ? (
-                  <Link
-                    href={`/dashboard/viewer?id=${drop.id}`}
-                    onClick={triggerHaptic}
-                    className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand-purple to-purple-500 text-lg font-bold text-white transition-colors active:scale-95 shadow-[0_0_20px_rgba(164,118,255,0.4)] hover:opacity-95"
-                  >
-                    <Unlock className="h-5 w-5" />
-                    View Content
-                  </Link>
+                  <div className="space-y-3">
+                    <Link
+                      href={`/dashboard/viewer?id=${drop.id}`}
+                      onClick={triggerHaptic}
+                      className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand-purple to-purple-500 text-lg font-bold text-white transition-colors active:scale-95 shadow-[0_0_20px_rgba(164,118,255,0.4)] hover:opacity-95"
+                    >
+                      <Unlock className="h-5 w-5" />
+                      View Content
+                    </Link>
+                    <div className="flex justify-center">
+                      <ReportBugButton context="drop-preview-unlocked" />
+                    </div>
+                  </div>
                 ) : (
                   <div className="space-y-3">
                     {(!user || !canAfford) && (
@@ -363,8 +369,11 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
                           <Lock className="h-5 w-5" />
                           Unwrap for {drop.unlockCost} GD
                         </>
-                      )}
+                        )}
                     </button>
+                    <div className="flex justify-center">
+                      <ReportBugButton context="drop-preview-locked" />
+                    </div>
                   </div>
                 )}
               </div>

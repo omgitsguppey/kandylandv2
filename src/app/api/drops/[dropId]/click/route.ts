@@ -4,6 +4,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { verifyAuth } from "@/lib/server/auth";
 import { checkRateLimit, RELAXED } from "@/lib/server/rate-limit";
+import { hasTrustedSiteOrigin } from "@/lib/server/request-origin";
 
 export async function POST(
     request: NextRequest,
@@ -11,6 +12,11 @@ export async function POST(
 ) {
     try {
         await checkRateLimit(request, "drops/click", RELAXED);
+
+        if (!hasTrustedSiteOrigin(request)) {
+            return NextResponse.json({ error: "Untrusted origin" }, { status: 403 });
+        }
+
         const params = await context.params;
         const { dropId } = params;
 

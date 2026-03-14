@@ -36,7 +36,7 @@ export default function ExperiencesPage() {
                                 Stay ready to unwrap.
                             </h1>
                             <p className="mt-3 max-w-xl text-sm leading-6 text-gray-400 sm:text-base">
-                                This is the mobile-first habit loop: check in, finish three missions, then come back when the timer resets for the next batch.
+                                Check in, finish three missions, and come back when the timer resets.
                             </p>
 
                             <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -55,7 +55,7 @@ export default function ExperiencesPage() {
                             <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
                                 <Gift className="h-5 w-5 text-brand-purple" />
                                 <p className="mt-3 text-xs font-bold uppercase tracking-[0.14em] text-gray-500">Reward loop</p>
-                                <p className="mt-1 text-sm font-semibold text-white">Earn Gum Drops for habits that stick</p>
+                                <p className="mt-1 text-sm font-semibold text-white">Earn Gum Drops for coming back daily</p>
                             </div>
                         </div>
                     </div>

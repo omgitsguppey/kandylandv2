@@ -5,6 +5,7 @@ import { recordDailyTaskProgressFromEvent, recordTelemetryEventStat } from "@/li
 import { TELEMETRY_EVENT_NAMES } from "@/lib/telemetry-catalog";
 import { handleApiError, verifyAuth } from "@/lib/server/auth";
 import { checkRateLimit, RELAXED } from "@/lib/server/rate-limit";
+import { hasTrustedSiteOrigin } from "@/lib/server/request-origin";
 
 const ALLOWED_EVENT_NAMES = new Set(TELEMETRY_EVENT_NAMES);
 type SanitizedEventParams = Record<string, string | number | boolean>;
@@ -71,6 +72,11 @@ function sanitizeEventParams(value: unknown) {
 export async function POST(req: NextRequest) {
     try {
         await checkRateLimit(req, "telemetry/track", RELAXED);
+
+        if (!hasTrustedSiteOrigin(req)) {
+            return NextResponse.json({ error: "Untrusted origin" }, { status: 403 });
+        }
+
         const decodedToken = await verifyAuth(req);
         const userId = decodedToken.uid;
 

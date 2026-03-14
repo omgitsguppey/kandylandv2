@@ -247,7 +247,7 @@ export function NotificationBell() {
 
       <div
         className={cn(
-          "absolute right-0 top-full z-50 mt-3 flex max-h-[28rem] w-[min(24rem,calc(100vw-1rem))] origin-top-right flex-col overflow-hidden rounded-[1.8rem] border border-white/10 bg-black/95 shadow-2xl shadow-black/70 transition-all duration-200 sm:w-80",
+          "absolute -right-1 top-full z-50 mt-3 flex max-h-[28rem] w-[min(21rem,calc(100vw-0.75rem))] origin-top-right flex-col overflow-hidden rounded-[1.8rem] border border-white/10 bg-black/95 shadow-2xl shadow-black/70 transition-all duration-200 sm:right-0 sm:w-80",
           isOpen ? "translate-y-0 scale-100 opacity-100" : "pointer-events-none -translate-y-2 scale-95 opacity-0",
         )}
         style={{ WebkitBackdropFilter: "blur(30px)", backdropFilter: "blur(30px)" }}

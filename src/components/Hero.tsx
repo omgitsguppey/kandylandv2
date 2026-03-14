@@ -40,14 +40,13 @@ export default function Hero() {
                     </h1>
 
                     <p className="max-w-lg text-[15px] font-medium leading-6 text-gray-400 max-[360px]:text-[14px] max-[360px]:leading-6 sm:text-xl sm:leading-relaxed">
-                        Unlock live creator drops on your phone, then keep the Kandy you unwrap in your library after the public drop disappears.
+                        Unwrap live creator drops on your phone and keep what you unlock in your library.
                     </p>
 
-                    <div className="grid w-full max-w-xl gap-2 sm:grid-cols-3 sm:gap-3">
+                    <div className="grid w-full max-w-xl gap-2 sm:grid-cols-2 sm:gap-3">
                         {[
                             "Live timers",
                             "Keep access after unwrap",
-                            "Daily Gum Drops",
                         ].map((item) => (
                             <div
                                 key={item}
@@ -85,16 +84,6 @@ export default function Hero() {
                             Browse live drops
                         </Link>
                     </div>
-
-                    <details className="w-full max-w-xl rounded-[1.4rem] border border-white/10 bg-white/[0.03] text-left text-sm text-gray-300">
-                        <summary className="cursor-pointer list-none px-4 py-3 font-semibold text-white">
-                            Need the quick rundown?
-                        </summary>
-                        <div className="space-y-2 border-t border-white/10 px-4 py-3 leading-6">
-                            <p>Create your free profile once, keep your library synced, and return daily in Experiences to build your Gum Drops balance.</p>
-                            <p className="text-gray-400">Live drops disappear from the public page after expiry, but the ones you unwrap stay in your dashboard.</p>
-                        </div>
-                    </details>
 
                     <div className="pb-1 pt-0.5 max-[360px]:pt-0 landscape:pb-0">
                         <ActivityTicker />

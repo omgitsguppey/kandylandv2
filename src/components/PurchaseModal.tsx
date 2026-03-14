@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
+import { useRouter } from "next/navigation";
 import { X, Candy, Minus, Plus } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
@@ -14,6 +15,7 @@ import { clearTimedFlow, consumeTimedFlow, startTimedFlow, trackEvent } from "@/
 import { GUMDROPS_SUPPORT_COPY, SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
 import { useUI } from "@/context/UIContext";
 import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
+import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
 
 interface PurchaseModalProps {
   isOpen: boolean;
@@ -35,6 +37,7 @@ const CHECKOUT_FLOW_KEY = "wallet_checkout";
 export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   const { user } = useAuth();
   const { preferredPurchaseDrops } = useUI();
+  const router = useRouter();
   const [selectedPackage, setSelectedPackage] = useState<PurchasePackage>(PACKAGES[1]);
   const [customDrops, setCustomDrops] = useState<number>(5000);
   const [processing, setProcessing] = useState(false);
@@ -62,6 +65,17 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
     clearTimedFlow(CHECKOUT_FLOW_KEY);
     requestAnimationFrame(onClose);
   }, [onClose]);
+
+  const continueFromSuccess = useCallback((destination: string, source: string) => {
+    trackEvent("navigation_click", {
+      destination,
+      source,
+    });
+    closeModal();
+    requestAnimationFrame(() => {
+      router.push(destination);
+    });
+  }, [closeModal, router]);
 
   const selectedPriceKey = useMemo(() => selectedPackage.price.toFixed(2), [selectedPackage.price]);
   const selectedEconomics = useMemo(
@@ -405,12 +419,44 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                     </div>
                   ) : (
                     <div className="text-center py-10 pt-4">
-                      <div className="w-20 h-20 bg-brand-purple/20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(20,230,130,0.3)]">
+                      <div className="w-20 h-20 bg-brand-purple/20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(164,118,255,0.35)]">
                         <Candy className="w-10 h-10 text-brand-purple drop-shadow-md" />
                       </div>
-                      <h3 className="text-3xl font-bold text-white mb-2 tracking-tight">All Set!</h3>
-                      <p className="text-gray-400 mb-8 max-w-[200px] mx-auto">You&apos;ve added <strong>{selectedPackage.drops} Gum Drops</strong> to your stash.</p>
-                      <button onClick={closeModal} className="w-full py-3 rounded-xl border border-brand-purple bg-brand-purple font-bold text-white transition-opacity hover:opacity-90">Awesome</button>
+                      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-brand-purple">Wallet refilled</p>
+                      <h3 className="mt-2 text-3xl font-bold text-white tracking-tight">Your Gum Drops are ready</h3>
+                      <p className="mt-3 text-gray-300 max-w-[280px] mx-auto leading-6">
+                        You just added <strong>{selectedPackage.drops} Gum Drops</strong>. Your next unwrap is one tap away.
+                      </p>
+                      <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+                        <span className="rounded-full border border-brand-purple/30 bg-brand-purple/15 px-3 py-1 text-xs font-bold text-white">
+                          +{selectedPackage.drops} GD
+                        </span>
+                        {selectedEconomics.bonusGumDrops > 0 ? (
+                          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-gray-200">
+                            +{selectedEconomics.bonusGumDrops} bonus
+                          </span>
+                        ) : null}
+                        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-gray-200">
+                          ${selectedPackage.price.toFixed(2)} secured
+                        </span>
+                      </div>
+                      <div className="mt-6 grid gap-2">
+                        <button
+                          onClick={() => continueFromSuccess("/drops", "wallet_success_unwrap")}
+                          className="w-full rounded-2xl border border-brand-purple bg-brand-purple px-4 py-3 font-bold text-white transition-opacity hover:opacity-90"
+                        >
+                          Unwrap now
+                        </button>
+                        <button
+                          onClick={() => continueFromSuccess("/experiences", "wallet_success_experiences")}
+                          className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 font-bold text-white transition-colors hover:bg-white/10"
+                        >
+                          Keep the streak going
+                        </button>
+                      </div>
+                      <div className="mt-4 flex justify-center">
+                        <ReportBugButton context="wallet-success" />
+                      </div>
                     </div>
                   )}
                 </GuestComponentBlur>

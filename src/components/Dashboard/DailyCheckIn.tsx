@@ -7,18 +7,10 @@ import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/Button";
 import { authFetch } from "@/lib/authFetch";
+import { DAILY_CHECK_IN_REWARD_LADDER, getDailyCheckInProgress } from "@/lib/daily-checkin";
 import { trackEvent } from "@/lib/telemetry";
-import { getCSTDayBoundaries, isPreviousCSTDay, isSameCSTDay } from "@/lib/timezone";
+import { getCSTDayBoundaries } from "@/lib/timezone";
 import { cn } from "@/lib/utils";
-
-function normalizeTimestamp(value: unknown): number {
-    if (!Number.isFinite(value)) {
-        return 0;
-    }
-
-    const timestamp = Number(value);
-    return timestamp > 0 ? Math.floor(timestamp) : 0;
-}
 
 function formatCountdown(remainingMs: number): string {
     const totalSeconds = Math.max(0, Math.floor(remainingMs / 1000));
@@ -58,13 +50,17 @@ export function DailyCheckIn() {
         };
     }, []);
 
-    const lastCheckInMs = normalizeTimestamp(userProfile?.lastCheckIn);
-    const currentStreak = Number.isFinite(userProfile?.streakCount) ? Math.max(0, Number(userProfile?.streakCount)) : 0;
+    const lastCheckInMs = userProfile?.lastCheckIn;
+    const currentStreak = userProfile?.streakCount;
     const effectiveLastCheckInMs = optimisticCheckInMs ?? lastCheckInMs;
     const effectiveCurrentStreak = optimisticStreak ?? currentStreak;
 
     const { endOfDay } = useMemo(() => getCSTDayBoundaries(nowMs), [nowMs]);
-    const isClaimedToday = isSameCSTDay(effectiveLastCheckInMs, nowMs);
+    const checkInProgress = useMemo(
+        () => getDailyCheckInProgress(effectiveLastCheckInMs, effectiveCurrentStreak, nowMs),
+        [effectiveCurrentStreak, effectiveLastCheckInMs, nowMs],
+    );
+    const isClaimedToday = checkInProgress.isClaimedToday;
     const nextCheckInMs = isClaimedToday ? endOfDay : 0;
 
     useEffect(() => {
@@ -81,18 +77,9 @@ export function DailyCheckIn() {
     }, [nextCheckInMs, nowMs]);
 
     const canCheckIn = remainingMs <= 0 && !isClaimedToday && !!user;
-
-    const checkedInYesterday = isPreviousCSTDay(effectiveLastCheckInMs, nowMs);
-    let nextStreak = checkedInYesterday ? effectiveCurrentStreak + 1 : 1;
-
-    if (effectiveCurrentStreak >= 7 && checkedInYesterday) {
-        nextStreak = 1;
-    }
-
-    const displayStreak = Math.min(nextStreak, 7);
-    const rewardAmount = displayStreak * 10;
-    const nextRewardAmount = (effectiveCurrentStreak >= 7 ? 1 : effectiveCurrentStreak + 1) * 10;
-    const displayedStreakCount = Math.min(canCheckIn ? displayStreak : effectiveCurrentStreak, 7);
+    const rewardAmount = checkInProgress.claimRewardAmount;
+    const nextRewardAmount = checkInProgress.nextRewardAmount;
+    const displayedStreakCount = checkInProgress.displayedStreakCount;
 
     const handleClaim = async () => {
         if (loading || !canCheckIn) {
@@ -109,8 +96,8 @@ export function DailyCheckIn() {
 
             if (!response.ok) {
                 if (result.alreadyClaimed) {
-                    setOptimisticCheckInMs(normalizeTimestamp(result.lastCheckIn) || Date.now());
-                    setOptimisticStreak(Number.isFinite(result.streak) ? Math.max(0, Number(result.streak)) : currentStreak);
+                    setOptimisticCheckInMs(Number.isFinite(result.lastCheckIn) ? Math.floor(Number(result.lastCheckIn)) : Date.now());
+                    setOptimisticStreak(Number.isFinite(result.streak) ? Math.max(0, Number(result.streak)) : Number(currentStreak || 0));
                     emitGuidedCheckIn("already-claimed");
                     toast.info("Already claimed today!");
                     return;
@@ -120,8 +107,8 @@ export function DailyCheckIn() {
             }
 
             const reward = Number.isFinite(result.reward) ? Number(result.reward) : rewardAmount;
-            const streak = Number.isFinite(result.streak) ? Math.max(0, Number(result.streak)) : displayStreak;
-            const claimedAt = normalizeTimestamp(result.lastCheckIn) || Date.now();
+            const streak = Number.isFinite(result.streak) ? Math.max(0, Number(result.streak)) : checkInProgress.claimStreak;
+            const claimedAt = Number.isFinite(result.lastCheckIn) ? Math.floor(Number(result.lastCheckIn)) : Date.now();
 
             setOptimisticCheckInMs(claimedAt);
             setOptimisticStreak(streak);
@@ -195,8 +182,9 @@ export function DailyCheckIn() {
                 </div>
 
                 <div className="flex justify-between gap-1 mb-4">
-                    {[1, 2, 3, 4, 5, 6, 7].map((day) => {
-                        const isActive = day <= Math.min(effectiveCurrentStreak, 7);
+                    {DAILY_CHECK_IN_REWARD_LADDER.map((reward, index) => {
+                        const day = index + 1;
+                        const isActive = day <= Math.min(checkInProgress.activeStreak, 7);
 
                         return (
                             <div key={day} className="flex flex-col items-center gap-2 flex-1">
@@ -212,7 +200,7 @@ export function DailyCheckIn() {
                                         isActive ? "text-white" : "text-gray-600"
                                     )}
                                 >
-                                    {day * 10}
+                                    {reward}
                                 </span>
                             </div>
                         );

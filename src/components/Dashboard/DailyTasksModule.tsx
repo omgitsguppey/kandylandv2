@@ -22,6 +22,7 @@ import { toast } from "sonner";
 
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
+import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
 import { authFetch } from "@/lib/authFetch";
 import { db } from "@/lib/firebase-data";
 import { cn } from "@/lib/utils";
@@ -452,7 +453,38 @@ export function DailyTasksModule() {
       {!rotating && activeTasks.length === 0 ? (
         <div className="glass-panel rounded-[2rem] border border-white/10 p-8 text-center">
           <Gift className="mx-auto h-8 w-8 text-brand-purple" />
-          <p className="mt-3 text-sm text-gray-400">No tasks are ready yet. Come back after the daily timer resets.</p>
+          <p className="mt-3 text-sm text-gray-400">No tasks are ready yet. Explore what is live while the next batch cooks.</p>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={() => {
+                trackEvent("navigation_click", {
+                  destination: "/drops",
+                  source: "daily_tasks_empty",
+                });
+                router.push("/drops");
+              }}
+              className="rounded-2xl border border-brand-purple bg-brand-purple px-4 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
+            >
+              Unwrap now
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                trackEvent("navigation_click", {
+                  destination: "/dashboard/library",
+                  source: "daily_tasks_empty",
+                });
+                router.push("/dashboard/library");
+              }}
+              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10"
+            >
+              Open library
+            </button>
+          </div>
+          <div className="mt-4 flex justify-center">
+            <ReportBugButton context="daily-tasks-empty" />
+          </div>
         </div>
       ) : null}
 
@@ -466,6 +498,37 @@ export function DailyTasksModule() {
             </p>
             <div className="mt-4 inline-flex items-center rounded-full border border-brand-purple/30 bg-brand-purple/15 px-4 py-2 text-sm font-bold text-white">
               Next batch in {waitLabel}
+            </div>
+            <div className="mt-5 grid gap-2 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={() => {
+                  trackEvent("navigation_click", {
+                    destination: "/drops",
+                    source: "daily_tasks_complete",
+                  });
+                  router.push("/drops");
+                }}
+                className="rounded-2xl border border-brand-purple bg-brand-purple px-4 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
+              >
+                Unwrap more drops
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  trackEvent("navigation_click", {
+                    destination: "/dashboard/library",
+                    source: "daily_tasks_complete",
+                  });
+                  router.push("/dashboard/library");
+                }}
+                className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10"
+              >
+                Watch your library
+              </button>
+            </div>
+            <div className="mt-4 flex justify-center">
+              <ReportBugButton context="daily-tasks-complete" />
             </div>
           </div>
         </div>

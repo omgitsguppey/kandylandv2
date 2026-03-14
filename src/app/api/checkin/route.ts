@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAuth, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
-import { getCSTDayBoundaries, isPreviousCSTDay, isSameCSTDay } from "@/lib/timezone";
+import { getCSTDayBoundaries } from "@/lib/timezone";
 import { checkRateLimit, STRICT } from "@/lib/server/rate-limit";
+import { getDailyCheckInProgress } from "@/lib/daily-checkin";
 
 export async function POST(request: NextRequest) {
     try {
@@ -33,27 +34,21 @@ export async function POST(request: NextRequest) {
 
             // 2. Check if already claimed today (CST day boundaries)
             const { endOfDay } = getCSTDayBoundaries(now);
-            const isSameDay = isSameCSTDay(lastCheckIn, now);
+            const progress = getDailyCheckInProgress(lastCheckIn, currentStreak, now);
 
-            if (isSameDay && lastCheckIn > 0) {
+            if (progress.isClaimedToday && progress.lastCheckInMs > 0) {
                 return {
                     alreadyClaimed: true,
                     reward: 0,
-                    nextStreak: currentStreak,
-                    lastCheckIn,
+                    nextStreak: progress.activeStreak,
+                    lastCheckIn: progress.lastCheckInMs,
                     nextCheckInAt: endOfDay,
                 };
             }
 
-            // 3. Calculate streak
-            const checkedInYesterday = isPreviousCSTDay(lastCheckIn, now);
-            let nextStreak = checkedInYesterday ? currentStreak + 1 : 1;
-
-            if (currentStreak >= 7 && checkedInYesterday) {
-                nextStreak = 1;
-            }
-
-            const reward = nextStreak * 10;
+            // 3. Calculate streak using normalized continuity rather than trusting stale profile data.
+            const nextStreak = progress.claimStreak;
+            const reward = progress.claimRewardAmount;
 
             // 4. Atomic update: balance + streak + reward ledger entry
             transaction.update(userRef, {

@@ -21,7 +21,6 @@ import { useUI } from "@/context/UIContext";
 import { cn } from "@/lib/utils";
 import {
   GUMDROPS_PRIMARY_CTA,
-  GUMDROPS_SUPPORT_COPY,
   SECONDARY_UNWRAP_CTA,
 } from "@/lib/marketing-copy";
 import type { HowItWorksStep } from "./faq-data";
@@ -141,7 +140,7 @@ export function HowItWorksStory({ steps }: HowItWorksStoryProps) {
                     </span>
                   ))}
                 </div>
-                <p className="text-sm leading-6 text-gray-300">{GUMDROPS_SUPPORT_COPY}</p>
+                <p className="text-sm leading-6 text-gray-300">Use Gum Drops to unwrap live KandyDrops before they disappear.</p>
               </div>
             </details>
           </div>
@@ -367,7 +366,7 @@ function StoryVisual({ stepId }: { stepId: HowItWorksStep["id"] }) {
           </div>
         </div>
         <div className="rounded-[1.55rem] border border-white/10 bg-white/[0.03] p-3.5 text-sm leading-6 text-gray-300">
-          Unwrap while the KandyDrop is live, then come back from any phone or desktop device to watch it again from your library.
+          Unwrap while the KandyDrop is live, then come back anytime from your library.
         </div>
       </div>
     );
@@ -406,7 +405,7 @@ function StoryVisual({ stepId }: { stepId: HowItWorksStep["id"] }) {
               ))}
           </div>
           <div className="mt-3 rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-sm text-gray-300">
-            Day 1 starts the momentum. Keep checking in so your stash is ready for the next live drop.
+            Day 1 starts free. Keep checking in so your stash stays ready.
           </div>
         </div>
       </div>
