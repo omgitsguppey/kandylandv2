@@ -7,16 +7,16 @@ export default function FAQPage() {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[400px] bg-brand-purple/20 blur-[120px] rounded-full pointer-events-none opacity-50" />
 
       <div
-        className="relative z-10 mx-auto max-w-4xl px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] md:px-8 md:pb-0"
+        className="relative z-10 mx-auto max-w-4xl px-4 pb-[calc(7.75rem+env(safe-area-inset-bottom))] md:px-8 md:pb-0"
         style={{ paddingTop: "var(--kandy-cookie-offset, 0px)" }}
       >
         <div className="mb-6 text-center sm:mb-10">
           <p className="text-[11px] font-black uppercase tracking-[0.24em] text-brand-purple mb-3">How It Works</p>
-          <h1 className="mx-auto mb-4 max-w-[12rem] text-[clamp(2.7rem,13vw,3.75rem)] font-black leading-[0.92] tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white to-gray-400 min-[380px]:max-w-none md:text-5xl md:leading-[0.94]">
-            How KandyDrops Work
+          <h1 className="mx-auto mb-3 max-w-[10rem] text-[clamp(2.2rem,11vw,3.5rem)] font-black leading-[0.96] tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white to-gray-400 min-[380px]:max-w-none md:text-5xl md:leading-[0.94]">
+            How to use KandyDrops
           </h1>
-          <p className="mx-auto max-w-2xl text-sm text-gray-400 sm:text-lg">
-            Your mobile guide to Gum Drops, live KandyDrops, library access, and daily Experiences rewards.
+          <p className="mx-auto max-w-xl text-sm text-gray-400 sm:text-lg">
+            The quick mobile guide to Gum Drops, live drops, library access, and daily rewards.
           </p>
         </div>
 

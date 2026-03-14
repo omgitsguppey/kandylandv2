@@ -14,18 +14,17 @@ export function LivePreviews() {
     const featuredDrop = drops[0];
 
     return (
-        <section className="relative border-t border-white/5 bg-zinc-950 py-14 sm:py-20">
+        <section className="relative border-t border-white/5 bg-zinc-950 py-12 sm:py-20">
             <div className="mx-auto w-full max-w-7xl px-4 text-center sm:px-6 lg:px-8">
                 <p className="mb-3 text-[11px] font-black uppercase tracking-[0.22em] text-brand-purple">Library Preview</p>
-                <h2 className="mb-4 text-[2rem] font-extrabold tracking-tight text-white sm:mb-5 sm:text-4xl md:text-5xl">Your Kandy Library</h2>
-                <p className="mx-auto mb-8 max-w-2xl text-sm leading-7 text-gray-400 sm:mb-12 sm:text-lg">
-                    Unwrap live KandyDrops on mobile, then come back to your library anytime to watch what you already unlocked.
+                <h2 className="mb-4 text-[2rem] font-extrabold tracking-tight text-white sm:mb-5 sm:text-4xl md:text-5xl">See your library before you join</h2>
+                <p className="mx-auto mb-7 max-w-xl text-sm leading-6 text-gray-400 sm:mb-10 sm:text-lg">
+                    This is where your unwrapped Kandy stays ready to watch after the live drop disappears.
                 </p>
 
                 <div className="mb-4 flex flex-wrap items-center justify-center gap-2 sm:mb-5">
                     <span className="rounded-full border border-brand-purple/20 bg-brand-purple/10 px-3 py-1 text-xs font-bold text-brand-purple">Keep access after unwrap</span>
                     <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs font-bold text-gray-200">Watch on mobile</span>
-                    <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs font-bold text-gray-200">Limited-time drops</span>
                 </div>
 
                 <div className="relative mx-auto max-w-5xl overflow-hidden rounded-[1.6rem] border border-white/10 bg-black shadow-2xl shadow-black/40">
@@ -35,7 +34,7 @@ export function LivePreviews() {
                                 <div className="text-left">
                                     <p className="text-[11px] font-black uppercase tracking-[0.22em] text-brand-purple">Unlocked experience</p>
                                     <h3 className="mt-1 text-lg font-extrabold leading-tight text-white sm:text-2xl">
-                                        A library preview that looks like the real KandyDrops world.
+                                        The same viewer layout guests get after they unwrap.
                                     </h3>
                                 </div>
                                 <div className="flex flex-wrap items-center gap-2">
@@ -45,7 +44,7 @@ export function LivePreviews() {
                                     </span>
                                     <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-bold text-white">
                                         <ShieldCheck className="mr-1 inline h-3.5 w-3.5 text-brand-purple" />
-                                        Keep access after unwrap
+                                        Keep access
                                     </span>
                                 </div>
                             </div>
@@ -89,16 +88,13 @@ export function LivePreviews() {
                                                     <span className="rounded-full border border-white/10 bg-black/60 px-2.5 py-1 text-[10px] font-bold text-gray-100">
                                                         {featuredDrop?.title || "Featured KandyDrop"}
                                                     </span>
-                                                    <span className="rounded-full border border-white/10 bg-black/60 px-2.5 py-1 text-[10px] font-bold text-gray-100">
-                                                        1,009 unwrapped
-                                                    </span>
                                                 </div>
                                                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">Saved to your library</p>
                                                 <h4 className="mt-1 text-base font-bold leading-tight text-white sm:text-lg">
-                                                    Unwrapped Kandy stays ready to watch after the live drop disappears.
+                                                    Unwrapped Kandy stays ready to watch after the live drop ends.
                                                 </h4>
                                                 <p className="mt-1 max-w-xl text-xs leading-5 text-gray-300">
-                                                    Private files, a clean viewer stage, and a thumbnail rail built to feel like the real product.
+                                                    A real viewer stage, a thumbnail rail, and the same mobile-first feel users get after unlocking.
                                                 </p>
                                             </div>
                                         </div>
@@ -126,18 +122,18 @@ export function LivePreviews() {
                                     <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
                                         <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-left">
                                             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Now watching</p>
-                                            <p className="mt-2 text-sm font-bold text-white">Unlocked files feel premium</p>
-                                            <p className="mt-1 text-xs leading-5 text-gray-400">A proper stage, file rail, and content-first layout instead of a tall placeholder.</p>
+                                            <p className="mt-2 text-sm font-bold text-white">The viewer feels like the real product</p>
+                                            <p className="mt-1 text-xs leading-5 text-gray-400">Guests see a clear preview of what changes after they unwrap.</p>
                                         </div>
                                         <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-left">
                                             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Mobile fit</p>
                                             <p className="mt-2 text-sm font-bold text-white">Shorter stage, tighter spacing</p>
-                                            <p className="mt-1 text-xs leading-5 text-gray-400">The preview now mirrors the real viewer proportions more closely on phones.</p>
+                                            <p className="mt-1 text-xs leading-5 text-gray-400">The mock now fits iPhone and Android screens more naturally.</p>
                                         </div>
                                         <div className="rounded-2xl border border-brand-purple/20 bg-brand-purple/10 p-3 text-left">
                                             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">Why join</p>
                                             <p className="mt-2 text-sm font-bold text-white">Unwrap now, keep it later</p>
-                                            <p className="mt-1 text-xs leading-5 text-gray-300">Guests can instantly see what they earn by creating an account and unwrapping live.</p>
+                                            <p className="mt-1 text-xs leading-5 text-gray-300">The value is simple: unwrap the live drop now and keep access in your library.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -153,14 +149,19 @@ export function LivePreviews() {
                                 <div>
                                     <h3 className="text-xl font-extrabold leading-tight text-white sm:text-2xl">Unwrap live, then keep your Kandy close.</h3>
                                     <p className="mt-2 text-sm leading-6 text-gray-300">
-                                        The library is where exclusive files stay easy to revisit once you&apos;ve unwrapped them.
+                                        The library is where exclusive files stay easy to revisit after the live window is over.
                                     </p>
                                 </div>
-                                <div className="space-y-2 text-sm text-gray-200">
-                                    <div className="rounded-2xl border border-white/10 bg-black/30 px-3 py-2">A viewer stage that looks like the real content experience</div>
-                                    <div className="rounded-2xl border border-white/10 bg-black/30 px-3 py-2">Thumbnail rails and file counts that match the live product language</div>
-                                    <div className="rounded-2xl border border-white/10 bg-black/30 px-3 py-2">A tighter mobile frame that shows more of the content and less dead space</div>
-                                </div>
+                                <details className="rounded-2xl border border-white/10 bg-black/30 text-sm text-gray-200">
+                                    <summary className="cursor-pointer list-none px-3 py-3 font-semibold text-white">
+                                        Why this matters on mobile
+                                    </summary>
+                                    <div className="space-y-2 border-t border-white/10 px-3 py-3 leading-6 text-gray-300">
+                                        <p>A viewer stage that looks like the real content experience.</p>
+                                        <p>Thumbnail rails and file counts that match the live product language.</p>
+                                        <p>A tighter frame that shows more content and less dead space on phones.</p>
+                                    </div>
+                                </details>
                             </div>
 
                             <div className="mt-6 space-y-3">
@@ -185,7 +186,7 @@ export function LivePreviews() {
                     </div>
                 </div>
 
-                <div className="mt-12 space-y-4 sm:mt-20 sm:space-y-6">
+                <div className="mt-10 space-y-4 sm:mt-20 sm:space-y-6">
                     <h3 className="text-2xl font-bold text-white sm:text-3xl">Ready to keep your Kandy?</h3>
                     <p className="mx-auto max-w-md text-sm leading-relaxed text-gray-400 sm:text-base">{GUMDROPS_SUPPORT_COPY}</p>
                     <button

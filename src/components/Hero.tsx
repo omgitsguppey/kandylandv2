@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { useAuthIdentity } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { HomeDropTicker } from "@/components/HomeDropTicker";
-import { HERO_PRIMARY_CTA, SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
+import { HERO_PRIMARY_CTA } from "@/lib/marketing-copy";
 
 export default function Hero() {
     const { user } = useAuthIdentity();
@@ -16,14 +16,14 @@ export default function Hero() {
     const ref = useRef(null);
 
     return (
-        <section ref={ref} className="relative flex min-h-[74vh] w-full flex-col justify-center overflow-hidden pb-[calc(7rem+env(safe-area-inset-bottom))] pt-[4.25rem] max-[360px]:min-h-[68vh] max-[360px]:pb-[calc(7.5rem+env(safe-area-inset-bottom))] max-[360px]:pt-16 sm:min-h-[90vh] sm:pb-12 sm:pt-24">
+        <section ref={ref} className="relative flex min-h-[72vh] w-full flex-col justify-center overflow-hidden pb-[calc(7.5rem+env(safe-area-inset-bottom))] pt-[4rem] max-[360px]:min-h-[66vh] max-[360px]:pb-[calc(7.8rem+env(safe-area-inset-bottom))] max-[360px]:pt-[3.75rem] sm:min-h-[90vh] sm:pb-12 sm:pt-24">
             <div className="absolute inset-0 z-0 opacity-40">
                 <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-brand-purple/20 rounded-full blur-[120px] mix-blend-screen animate-pulse" style={{ animationDuration: "4s" }} />
                 <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-brand-purple/10 rounded-full blur-[100px] mix-blend-screen animate-pulse" style={{ animationDuration: "7s" }} />
             </div>
 
             <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center">
-                <div className="flex min-w-0 max-w-2xl w-full flex-col items-center space-y-4 max-[360px]:space-y-3 sm:space-y-8">
+                <div className="flex min-w-0 max-w-2xl w-full flex-col items-center space-y-3.5 max-[360px]:space-y-3 sm:space-y-7">
                     <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/20 bg-brand-purple/10 px-3 py-1.5 text-[10px] font-bold tracking-wide text-brand-purple max-[360px]:px-2.5 max-[360px]:py-1 max-[360px]:text-[9px] sm:text-sm">
                         <Sparkles className="w-4 h-4" />
                         PREMIUM DIGITAL EXPERIENCES
@@ -38,11 +38,26 @@ export default function Hero() {
                         Content.
                     </h1>
 
-                    <p className="max-w-xl text-[15px] font-medium leading-7 text-gray-400 max-[360px]:text-[14px] max-[360px]:leading-6 sm:text-xl sm:leading-relaxed">
-                        Connect intimately with your favorite creators like Jessi Ray and Bloomytrip. Unlock private collections, exclusive media, and unique experiences you won&apos;t find anywhere else.
+                    <p className="max-w-lg text-[15px] font-medium leading-6 text-gray-400 max-[360px]:text-[14px] max-[360px]:leading-6 sm:text-xl sm:leading-relaxed">
+                        Unlock live creator drops on your phone, then keep the Kandy you unwrap in your library after the public drop disappears.
                     </p>
 
-                    <div className="flex w-full flex-col justify-center gap-2.5 pt-1 max-[360px]:gap-2 sm:w-auto sm:flex-row sm:gap-4 sm:pt-4">
+                    <div className="grid w-full max-w-xl gap-2 sm:grid-cols-3 sm:gap-3">
+                        {[
+                            "Live timers",
+                            "Keep access after unwrap",
+                            "Daily Gum Drops",
+                        ].map((item) => (
+                            <div
+                                key={item}
+                                className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-semibold text-white/90"
+                            >
+                                {item}
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="flex w-full flex-col justify-center gap-2.5 pt-1 max-[360px]:gap-2 sm:w-auto sm:flex-row sm:gap-4 sm:pt-3">
                         {user ? (
                             <Link href="/dashboard" className="w-full sm:w-auto">
                                 <Button size="lg" variant="brand" className="w-full rounded-2xl px-6 py-3.5 text-base font-bold shadow-[0_0_30px_rgba(178,140,255,0.4)] transition-all hover:shadow-[0_0_40px_rgba(178,140,255,0.6)] max-[360px]:py-3 md:px-10 md:py-6 md:text-lg">
@@ -59,23 +74,28 @@ export default function Hero() {
                                 {HERO_PRIMARY_CTA} <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2" />
                             </Button>
                         )}
-                        <Button
-                            onClick={() => openAuthModal("signup")}
-                            size="lg"
-                            variant="brand"
-                            className="w-full rounded-2xl px-6 py-3.5 text-base font-bold text-white shadow-[0_0_24px_rgba(178,140,255,0.28)] transition-all hover:shadow-[0_0_34px_rgba(178,140,255,0.45)] max-[360px]:py-3 sm:w-auto md:px-8 md:py-6 md:text-lg"
-                        >
-                            {SECONDARY_UNWRAP_CTA}
-                        </Button>
                     </div>
 
-                    <div className="pt-1.5">
-                        <Link href="/faq" className="text-sm font-semibold text-gray-400 transition-colors hover:text-white">
+                    <div className="flex flex-wrap items-center justify-center gap-4 pt-1">
+                        <Link href="/faq" className="text-sm font-semibold text-gray-300 transition-colors hover:text-white">
                             See how it works
+                        </Link>
+                        <Link href="/drops" className="text-sm font-semibold text-gray-500 transition-colors hover:text-white">
+                            Browse live drops
                         </Link>
                     </div>
 
-                    <div className="pb-1 pt-1.5 max-[360px]:pt-1">
+                    <details className="w-full max-w-xl rounded-[1.4rem] border border-white/10 bg-white/[0.03] text-left text-sm text-gray-300">
+                        <summary className="cursor-pointer list-none px-4 py-3 font-semibold text-white">
+                            Need the quick rundown?
+                        </summary>
+                        <div className="space-y-2 border-t border-white/10 px-4 py-3 leading-6">
+                            <p>Create your free profile once, keep your library synced, and return daily in Experiences to build your Gum Drops balance.</p>
+                            <p className="text-gray-400">Live drops disappear from the public page after expiry, but the ones you unwrap stay in your dashboard.</p>
+                        </div>
+                    </details>
+
+                    <div className="pb-1 pt-0.5 max-[360px]:pt-0">
                         <ActivityTicker />
                     </div>
 

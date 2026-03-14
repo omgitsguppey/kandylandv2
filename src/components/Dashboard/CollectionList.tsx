@@ -1,11 +1,12 @@
 "use client";
 
-import { Drop, UserProfile } from "@/types/db";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LayoutGrid } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import type { Drop, UserProfile } from "@/types/db";
+
 import { OwnedDropGalleryCard } from "./OwnedDropGalleryCard";
 
 type Ratio = "1:1" | "16:9" | "9:16";
@@ -34,43 +35,51 @@ export function CollectionList({ drops, userProfile }: CollectionListProps) {
     const [filter, setFilter] = useState<"all" | "owned" | "locked">("all");
     const router = useRouter();
 
-    const { ownedIds, ownedCount, lockedCount } = useMemo(() => {
+    const { ownedIds, visibleDrops, ownedCount, lockedCount } = useMemo(() => {
         const rawUnlocked = userProfile?.unlockedContent;
         const unlockedList = Array.isArray(rawUnlocked) ? rawUnlocked : [];
         const ids = new Set(unlockedList);
-        const owned = drops.filter((drop) => ids.has(drop.id)).length;
-        const locked = drops.length - owned;
-        return { ownedIds: ids, ownedCount: owned, lockedCount: locked };
+
+        // Expired drops should only remain visible if the user already unwrapped them.
+        const visible = drops.filter((drop) => drop.status !== "expired" || ids.has(drop.id));
+        const owned = visible.filter((drop) => ids.has(drop.id)).length;
+        const locked = visible.length - owned;
+
+        return { ownedIds: ids, visibleDrops: visible, ownedCount: owned, lockedCount: locked };
     }, [drops, userProfile?.unlockedContent]);
 
     const filteredDrops = useMemo(() => {
-        if (filter === "owned") return drops.filter((drop) => ownedIds.has(drop.id));
-        if (filter === "locked") return drops.filter((drop) => !ownedIds.has(drop.id));
-        return drops;
-    }, [drops, filter, ownedIds]);
+        if (filter === "owned") return visibleDrops.filter((drop) => ownedIds.has(drop.id));
+        if (filter === "locked") return visibleDrops.filter((drop) => !ownedIds.has(drop.id));
+        return visibleDrops;
+    }, [visibleDrops, filter, ownedIds]);
 
     return (
         <div className="space-y-4">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
                 <div>
                     <h2 className="text-xl font-bold text-white">My KandyDrops</h2>
-                    <div className="text-[11px] sm:text-xs text-gray-400 font-medium mt-1 flex flex-wrap items-center">
+                    <div className="mt-1 flex flex-wrap items-center text-[11px] font-medium text-gray-400 sm:text-xs">
                         <span className="text-brand-purple">{ownedCount} Owned</span>
-                        <span className="mx-2">·</span>
+                        <span className="mx-2">|</span>
                         <span>{lockedCount} Locked</span>
-                        <span className="mx-2">·</span>
-                        <span>{drops.length} Total</span>
+                        <span className="mx-2">|</span>
+                        <span>{visibleDrops.length} Total</span>
                     </div>
                 </div>
 
-                <div className="flex w-full sm:w-auto items-center bg-white/5 rounded-xl p-1 self-stretch md:self-auto border border-white/5" role="group" aria-label="Filter drops by ownership">
+                <div
+                    className="flex w-full self-stretch rounded-xl border border-white/5 bg-white/5 p-1 sm:w-auto md:self-auto"
+                    role="group"
+                    aria-label="Filter drops by ownership"
+                >
                     {(["all", "owned", "locked"] as const).map((option) => (
                         <button
                             key={option}
                             onClick={() => setFilter(option)}
                             aria-pressed={filter === option}
                             className={cn(
-                                "flex-1 sm:flex-none px-3 sm:px-4 py-2 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple/40 capitalize",
+                                "flex-1 rounded-lg px-3 py-2 text-[11px] font-bold capitalize transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple/40 sm:flex-none sm:px-4 sm:py-1.5 sm:text-xs",
                                 filter === option ? "bg-white/10 text-white shadow-sm" : "text-gray-500 hover:text-gray-300"
                             )}
                         >
@@ -80,7 +89,7 @@ export function CollectionList({ drops, userProfile }: CollectionListProps) {
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-6 gap-2.5 sm:gap-3 md:gap-4">
+            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-6 sm:gap-3 md:gap-4">
                 {filteredDrops.map((drop) => {
                     const unlocked = ownedIds.has(drop.id);
                     return (
@@ -101,19 +110,22 @@ export function CollectionList({ drops, userProfile }: CollectionListProps) {
                 })}
 
                 {filteredDrops.length === 0 && (
-                    <div className="col-span-full py-16 text-center glass-panel border border-white/5 rounded-3xl">
-                        <div className="w-20 h-20 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-inner">
-                            <LayoutGrid className="w-10 h-10 text-brand-purple opacity-50" />
+                    <div className="glass-panel col-span-full rounded-3xl border border-white/5 py-16 text-center">
+                        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-white/5 shadow-inner">
+                            <LayoutGrid className="h-10 w-10 text-brand-purple opacity-50" />
                         </div>
-                        <h3 className="text-xl font-bold text-white mb-2">No drops to show</h3>
-                        <p className="text-gray-400 max-w-xs mx-auto mb-8 text-sm">
+                        <h3 className="mb-2 text-xl font-bold text-white">No drops to show</h3>
+                        <p className="mx-auto mb-8 max-w-xs text-sm text-gray-400">
                             {filter === "owned"
                                 ? "You haven't unwrapped any flavors yet."
                                 : filter === "locked"
                                     ? "Great news! You've unlocked everything active."
                                     : "The shop is empty or all drops have expired."}
                         </p>
-                        <a href="/drops" className="inline-flex items-center gap-2 px-8 py-3 bg-brand-purple/10 border border-brand-purple/20 text-brand-purple rounded-xl font-bold">
+                        <a
+                            href="/drops"
+                            className="inline-flex items-center gap-2 rounded-xl border border-brand-purple/20 bg-brand-purple/10 px-8 py-3 font-bold text-brand-purple"
+                        >
                             Visit Shop
                         </a>
                     </div>

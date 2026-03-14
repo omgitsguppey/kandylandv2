@@ -116,19 +116,8 @@ export function HowItWorksStory({ steps }: HowItWorksStoryProps) {
           className="rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-3.5 shadow-xl shadow-black/25 sm:rounded-[2rem] sm:p-5"
         >
           <p className="text-[11px] font-black uppercase tracking-[0.22em] text-brand-purple">{activeStep.eyebrow}</p>
-          <h2 className="mt-3 text-[1.75rem] font-black tracking-tight text-white max-[360px]:text-[1.55rem] sm:text-3xl">{activeStep.title}</h2>
+          <h2 className="mt-3 text-[1.6rem] font-black tracking-tight text-white max-[360px]:text-[1.45rem] sm:text-3xl">{activeStep.title}</h2>
           <p className="mt-3 text-sm leading-6 text-gray-300 sm:text-base sm:leading-7">{activeStep.description}</p>
-
-          <div className="mt-5 flex flex-wrap gap-2">
-            {activeStep.callouts.map((callout) => (
-              <span
-                key={callout}
-                className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-semibold text-gray-200"
-              >
-                {callout}
-              </span>
-            ))}
-          </div>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-[auto_1fr]">
             <div className="rounded-2xl border border-brand-purple/20 bg-brand-purple/10 px-4 py-3 text-center sm:min-w-[108px]">
@@ -137,10 +126,24 @@ export function HowItWorksStory({ steps }: HowItWorksStoryProps) {
                 {activeStep.metricLabel}
               </div>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-black/35 px-4 py-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-purple/80">Why it matters</p>
-              <p className="mt-2 text-sm leading-6 text-gray-300">{GUMDROPS_SUPPORT_COPY}</p>
-            </div>
+            <details className="rounded-2xl border border-white/10 bg-black/35 text-left text-sm text-gray-300">
+              <summary className="cursor-pointer list-none px-4 py-3 font-semibold text-white">
+                See more about this step
+              </summary>
+              <div className="space-y-3 border-t border-white/10 px-4 py-3">
+                <div className="flex flex-wrap gap-2">
+                  {activeStep.callouts.map((callout) => (
+                    <span
+                      key={callout}
+                      className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-semibold text-gray-200"
+                    >
+                      {callout}
+                    </span>
+                  ))}
+                </div>
+                <p className="text-sm leading-6 text-gray-300">{GUMDROPS_SUPPORT_COPY}</p>
+              </div>
+            </details>
           </div>
 
           <div className="mt-6 flex flex-col gap-3">
