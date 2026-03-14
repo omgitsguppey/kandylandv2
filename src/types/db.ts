@@ -47,6 +47,8 @@ export interface UserProfile {
         lastViolation?: string; // ISO date
         lastViolationReason?: string; // e.g. 'screenshot_hotkey', 'window_blur'
         lastViolationDropId?: string;
+        lastViolationMessage?: string;
+        reasonCounts?: Record<string, number>;
     };
 
     dailyTasksState?: DailyTasksState;

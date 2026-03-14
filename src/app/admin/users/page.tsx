@@ -14,6 +14,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { AdminTasksManager } from "@/components/Admin/AdminTasksManager";
+import { describeSecurityEvent } from "@/lib/security-events";
 import { toast } from "sonner";
 
 type UserAnalytics = {
@@ -160,6 +161,9 @@ export default function UserManagementPage() {
         timestamp && timestamp > 0 ? `Seen ${format(new Date(timestamp), 'MMM d, h:mm a')}` : "No tracked activity";
     const formatLastPurchase = (timestamp?: number) =>
         timestamp && timestamp > 0 ? `Paid ${format(new Date(timestamp), 'MMM d, h:mm a')}` : "No purchases yet";
+    const selectedSecurityDescriptor = securityDetailsUser
+        ? describeSecurityEvent(securityDetailsUser.securityFlags?.lastViolationReason)
+        : null;
 
     const topTrackedUsers = [...filteredUsers]
         .sort((left, right) => (getUserAnalytics(right.uid)?.eventCount || 0) - (getUserAnalytics(left.uid)?.eventCount || 0))
@@ -919,15 +923,21 @@ export default function UserManagementPage() {
                                 </div>
 
                                 <div className="bg-red-500/10 p-4 rounded-xl border border-red-500/20">
-                                    <span className="text-xs text-red-400 font-bold uppercase block mb-1">Violation Vector</span>
-                                    <p className="text-sm text-red-300 font-mono break-words">
-                                        {securityDetailsUser.securityFlags?.lastViolationReason || "Unknown Method"}
+                                    <span className="text-xs text-red-400 font-bold uppercase block mb-1">What triggered it</span>
+                                    <p className="text-sm font-semibold text-red-200">
+                                        {selectedSecurityDescriptor?.label || "Viewer protection warning"}
+                                    </p>
+                                    <p className="mt-2 text-sm text-red-300 break-words">
+                                        {securityDetailsUser.securityFlags?.lastViolationMessage || selectedSecurityDescriptor?.message || "The viewer logged a protection warning for this account."}
                                     </p>
                                 </div>
 
                                 {securityDetailsUser.securityFlags?.lastViolationDropId && (
                                     <div className="bg-white/5 p-4 rounded-xl border border-white/5">
-                                        <span className="text-xs text-gray-500 font-bold uppercase block mb-1">Target Asset (Drop ID)</span>
+                                        <span className="text-xs text-gray-500 font-bold uppercase block mb-1">Where it happened</span>
+                                        <p className="mb-2 text-sm text-gray-300">
+                                            {selectedSecurityDescriptor?.locationLabel || "Protected viewer"}
+                                        </p>
                                         <p className="text-sm text-brand-purple font-mono break-all">
                                             {securityDetailsUser.securityFlags.lastViolationDropId}
                                         </p>

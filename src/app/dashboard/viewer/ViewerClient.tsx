@@ -759,13 +759,29 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     useEffect(() => {
         if (!isAuthorized || !drop) return;
 
+        const getSecuritySessionId = () => {
+            if (typeof window === "undefined") {
+                return "";
+            }
+
+            return window.sessionStorage.getItem("kandydrops.telemetry.session") || "";
+        };
+
         const logViolation = async (reason: string) => {
             setIsSecurityTriggered(true);
             try {
                 // Fire and forget telemetry
                 authFetch("/api/security/log-attempt", {
                     method: "POST",
-                    body: JSON.stringify({ dropId: drop.id, reason }),
+                    body: JSON.stringify({
+                        dropId: drop.id,
+                        reason,
+                        assetIndex: activeIndex + 1,
+                        assetKey: `${drop.id}:${activeIndex}`,
+                        contentKind: resolvedContent.kind,
+                        pagePath: typeof window !== "undefined" ? window.location.pathname : "/dashboard/viewer",
+                        sessionId: getSecuritySessionId(),
+                    }),
                 }).catch(console.error);
             } catch (err) { }
 
@@ -801,7 +817,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
             window.removeEventListener("keydown", handleKeyDown);
             document.removeEventListener("visibilitychange", handleVisibilityChange);
         };
-    }, [isAuthorized, drop]);
+    }, [activeIndex, drop, isAuthorized, resolvedContent.kind]);
 
     // Fetch the active asset with Authorization headers and render it via an object URL.
     useEffect(() => {

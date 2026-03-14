@@ -1,6 +1,6 @@
 import { User } from "firebase/auth";
 import { UserProfile } from "@/types/db";
-import type { DailyTaskAssignment } from "@/lib/tasks/task-catalog";
+import { BUILT_IN_DAILY_TASK_MAP, type DailyTaskAssignment } from "@/lib/tasks/task-catalog";
 
 /**
  * Normalizes a username by trimming, lowercasing, and allowing only alphanumerics/underscores.
@@ -99,27 +99,45 @@ export function normalizeUserProfile(raw: unknown, user: User): UserProfile | nu
                         acc.push({
                             id: String(task.id),
                             source: task.source === "global" || task.source === "user" ? task.source : "built_in",
-                            title: typeof task.title === "string" ? task.title : "",
-                            subtitle: typeof task.subtitle === "string" ? task.subtitle : "",
-                            reward: Number(task.reward) || 0,
-                            maxProgress: Number(task.maxProgress) || 1,
-                            eventName: typeof task.eventName === "string" ? task.eventName : "",
-                            actionType: typeof task.actionType === "string" ? task.actionType : "open_experiences",
-                            ctaLabel: typeof task.ctaLabel === "string" ? task.ctaLabel : "Keep going",
-                            icon: typeof task.icon === "string" ? task.icon : "gift",
-                            group: typeof task.group === "string" ? task.group : "visit",
+                            title: typeof task.title === "string"
+                                ? task.title
+                                : BUILT_IN_DAILY_TASK_MAP[String(task.id)]?.title ?? "",
+                            subtitle: typeof task.subtitle === "string"
+                                ? task.subtitle
+                                : BUILT_IN_DAILY_TASK_MAP[String(task.id)]?.subtitle ?? "",
+                            reward: Number(task.reward) || BUILT_IN_DAILY_TASK_MAP[String(task.id)]?.reward || 0,
+                            maxProgress: Number(task.maxProgress) || BUILT_IN_DAILY_TASK_MAP[String(task.id)]?.maxProgress || 1,
+                            eventName: typeof task.eventName === "string"
+                                ? task.eventName
+                                : BUILT_IN_DAILY_TASK_MAP[String(task.id)]?.eventName ?? "",
+                            actionType: typeof task.actionType === "string"
+                                ? task.actionType
+                                : BUILT_IN_DAILY_TASK_MAP[String(task.id)]?.actionType ?? "open_experiences",
+                            ctaLabel: typeof task.ctaLabel === "string"
+                                ? task.ctaLabel
+                                : BUILT_IN_DAILY_TASK_MAP[String(task.id)]?.ctaLabel ?? "Keep going",
+                            icon: typeof task.icon === "string"
+                                ? task.icon
+                                : BUILT_IN_DAILY_TASK_MAP[String(task.id)]?.icon ?? "gift",
+                            group: typeof task.group === "string"
+                                ? task.group
+                                : BUILT_IN_DAILY_TASK_MAP[String(task.id)]?.group ?? "visit",
                             progress: Number(task.progress) || 0,
                             claimed: Boolean(task.claimed),
                             assignedAt: Number(task.assignedAt) || 0,
                             startedAt: Number.isFinite(task.startedAt) ? Number(task.startedAt) : undefined,
                             claimedAt: Number.isFinite(task.claimedAt) ? Number(task.claimedAt) : undefined,
                             progressKeys: toStringArray(task.progressKeys),
-                            uniqueByParamKey: typeof task.uniqueByParamKey === "string" ? task.uniqueByParamKey : undefined,
+                            uniqueByParamKey: typeof task.uniqueByParamKey === "string"
+                                ? task.uniqueByParamKey
+                                : BUILT_IN_DAILY_TASK_MAP[String(task.id)]?.uniqueByParamKey,
                             targetUserId: typeof task.targetUserId === "string" ? task.targetUserId : undefined,
                             customTaskId: typeof task.customTaskId === "string" ? task.customTaskId : undefined,
-                            cooldownDays: Number(task.cooldownDays) || undefined,
-                            oneTime: task.oneTime === true,
-                            criteria: task.criteria && typeof task.criteria === "object" ? task.criteria : undefined,
+                            cooldownDays: Number(task.cooldownDays) || BUILT_IN_DAILY_TASK_MAP[String(task.id)]?.cooldownDays || undefined,
+                            oneTime: task.oneTime === true || BUILT_IN_DAILY_TASK_MAP[String(task.id)]?.oneTime === true,
+                            criteria: task.criteria && typeof task.criteria === "object"
+                                ? task.criteria
+                                : BUILT_IN_DAILY_TASK_MAP[String(task.id)]?.criteria,
                         } satisfies DailyTaskAssignment);
 
                         return acc;
@@ -133,6 +151,20 @@ export function normalizeUserProfile(raw: unknown, user: User): UserProfile | nu
                         .map(([key, rawValue]) => [key, Number(rawValue)]),
                 )
                 : {},
+        } : undefined,
+        securityFlags: source.securityFlags ? {
+            ripAttempts: Number(source.securityFlags.ripAttempts) || 0,
+            lastViolation: typeof source.securityFlags.lastViolation === "string" ? source.securityFlags.lastViolation : undefined,
+            lastViolationReason: typeof source.securityFlags.lastViolationReason === "string" ? source.securityFlags.lastViolationReason : undefined,
+            lastViolationDropId: typeof source.securityFlags.lastViolationDropId === "string" ? source.securityFlags.lastViolationDropId : undefined,
+            lastViolationMessage: typeof source.securityFlags.lastViolationMessage === "string" ? source.securityFlags.lastViolationMessage : undefined,
+            reasonCounts: source.securityFlags.reasonCounts && typeof source.securityFlags.reasonCounts === "object"
+                ? Object.fromEntries(
+                    Object.entries(source.securityFlags.reasonCounts as Record<string, unknown>)
+                        .filter(([, rawValue]) => Number.isFinite(rawValue))
+                        .map(([key, rawValue]) => [key, Number(rawValue)]),
+                )
+                : undefined,
         } : undefined,
     };
 }
