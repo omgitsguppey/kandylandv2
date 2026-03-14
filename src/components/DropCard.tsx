@@ -304,7 +304,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
             className={cn(
                 "px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl font-bold text-[11px] md:text-xs flex items-center justify-center w-full whitespace-nowrap gap-1.5 border relative overflow-hidden transition-all active:scale-95 shadow-lg",
                 !canAfford ? "bg-gradient-to-r from-brand-purple to-purple-500 text-white border-brand-purple shadow-[0_0_15px_rgba(164,118,255,0.3)] hover:opacity-95"
-                    : confirming ? "bg-orange-500 text-white border-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.4)]"
+                    : confirming ? "bg-white text-black border-white shadow-[0_0_15px_rgba(255,255,255,0.22)]"
                         : "bg-gradient-to-r from-brand-purple to-purple-500 text-white border-brand-purple shadow-[0_0_15px_rgba(164,118,255,0.28)] hover:opacity-95",
                 "disabled:opacity-50 disabled:cursor-not-allowed"
             )}
