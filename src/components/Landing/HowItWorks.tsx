@@ -37,20 +37,29 @@ export function HowItWorks() {
                     <p className="text-sm text-gray-400 sm:text-lg">Join for free, get Gum Drops, and Unwrap KandyDrops before time runs out!</p>
                 </div>
 
-                <div className="mb-10 grid grid-cols-1 gap-3 sm:mb-16 sm:grid-cols-3 sm:gap-5">
+                <div className="mb-6 grid grid-cols-3 gap-2 sm:mb-8 sm:gap-5">
                     {features.map((feature, index) => (
-                        <div key={index} className="group aspect-square rounded-[1.5rem] border border-white/5 bg-zinc-950 p-5 transition-colors hover:bg-zinc-900 sm:rounded-3xl sm:p-6 lg:p-8">
+                        <div key={index} className="group aspect-square rounded-[1.2rem] border border-white/5 bg-zinc-950 p-3 transition-colors hover:bg-zinc-900 sm:rounded-3xl sm:p-6 lg:p-8">
                             <div className="flex h-full flex-col justify-between text-left">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-brand-purple/20 bg-brand-purple/10 transition-transform group-hover:scale-110 sm:h-14 sm:w-14 lg:h-16 lg:w-16">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-brand-purple/20 bg-brand-purple/10 transition-transform group-hover:scale-110 sm:h-14 sm:w-14 lg:h-16 lg:w-16">
                                     {feature.icon}
                                 </div>
                                 <div>
-                                    <h3 className="mb-2 text-base font-bold text-white sm:text-lg lg:text-xl">{feature.title}</h3>
-                                    <p className="text-sm leading-6 text-gray-400">{feature.description}</p>
+                                    <h3 className="mb-1 text-sm font-bold text-white sm:mb-2 sm:text-lg lg:text-xl">{feature.title}</h3>
+                                    <p className="text-[11px] leading-4 text-gray-400 sm:text-sm sm:leading-6">{feature.description}</p>
                                 </div>
                             </div>
                         </div>
                     ))}
+                </div>
+
+                <div className="mb-10 flex justify-center sm:mb-16">
+                    <button
+                        onClick={() => openAuthModal("signup")}
+                        className="w-full rounded-xl bg-gradient-to-r from-brand-purple to-purple-500 px-6 py-3.5 font-extrabold text-white shadow-lg shadow-brand-purple/20 transition-colors hover:opacity-95 sm:w-auto sm:px-8 sm:py-4"
+                    >
+                        Unwrap your Kandy Drops
+                    </button>
                 </div>
 
                 <div className="relative overflow-hidden rounded-[2rem] border border-brand-purple/10 bg-zinc-900 p-4 sm:rounded-[3rem] sm:p-8 md:p-12">
@@ -63,12 +72,15 @@ export function HowItWorks() {
                             <p className="text-sm leading-6 text-gray-400 sm:text-lg sm:leading-relaxed">
                                 New drops are added daily, but they also disappear daily! Keep them safe by unwrapping every drop before it&apos;s too late.
                             </p>
+                            <div className="space-y-3 md:hidden">
+                                <HomeActiveDropsCarousel />
+                            </div>
                             <button onClick={() => openAuthModal("signup")} className="mt-2 sm:mt-4 w-full sm:w-auto rounded-xl bg-gradient-to-r from-brand-purple to-purple-500 px-6 py-3.5 font-extrabold text-white shadow-lg shadow-brand-purple/20 transition-colors hover:opacity-95 sm:px-8 sm:py-4">
                                 {SECONDARY_UNWRAP_CTA}
                             </button>
                         </div>
 
-                        <div className="space-y-3">
+                        <div className="hidden space-y-3 md:block">
                             <HomeActiveDropsCarousel />
                         </div>
                     </div>

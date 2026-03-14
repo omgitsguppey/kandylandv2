@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import NextImage from "next/image";
 import { Images, Film } from "lucide-react";
@@ -21,9 +21,30 @@ export function HomeActiveDropsCarousel() {
     );
     const [activeIndex, setActiveIndex] = useState(0);
     const [emblaRef, emblaApi] = useEmblaCarousel({ loop: activeDrops.length > 1, align: "start" });
+    const selectedIndex = Math.min(activeIndex, Math.max(activeDrops.length - 1, 0));
 
-    const activeDrop = activeDrops[activeIndex] ?? activeDrops[0] ?? null;
-    const activeAspectRatio = activeDrop ? getSupportedDropAspectRatio(activeDrop) : "4:5";
+    useEffect(() => {
+        if (!emblaApi) {
+            return;
+        }
+
+        const syncSelected = () => {
+            setActiveIndex(emblaApi.selectedScrollSnap());
+        };
+
+        syncSelected();
+        emblaApi.on("select", syncSelected);
+        emblaApi.on("reInit", syncSelected);
+
+        return () => {
+            emblaApi.off("select", syncSelected);
+            emblaApi.off("reInit", syncSelected);
+        };
+    }, [emblaApi]);
+
+    useEffect(() => {
+        emblaApi?.reInit({ loop: activeDrops.length > 1, align: "start" });
+    }, [activeDrops.length, emblaApi]);
 
     if (activeDrops.length === 0) {
         return (
@@ -43,7 +64,8 @@ export function HomeActiveDropsCarousel() {
                     {activeDrops.map((drop, index) => {
                         const images = drop.mediaCounts?.images ?? 0;
                         const videos = drop.mediaCounts?.videos ?? 0;
-                        const isActive = index === activeIndex;
+                        const isActive = index === selectedIndex;
+                        const aspectRatio = getSupportedDropAspectRatio(drop);
 
                         return (
                             <button
@@ -56,7 +78,7 @@ export function HomeActiveDropsCarousel() {
                                     }
                                 }}
                                 className="relative flex-[0_0_100%] min-w-0"
-                                style={{ aspectRatio: activeAspectRatio.replace(":", " / ") }}
+                                style={{ aspectRatio: aspectRatio.replace(":", " / ") }}
                             >
                                 <NextImage
                                     src={drop.imageUrl}
@@ -109,7 +131,7 @@ export function HomeActiveDropsCarousel() {
                             }}
                             className={cn(
                                 "h-2.5 rounded-full transition-all",
-                                index === activeIndex ? "w-7 bg-brand-purple" : "w-2.5 bg-white/25",
+                                index === selectedIndex ? "w-7 bg-brand-purple" : "w-2.5 bg-white/25",
                             )}
                             aria-label={`Go to drop ${index + 1}`}
                         />

@@ -31,10 +31,10 @@ export default function Hero() {
                         PREMIUM DIGITAL EXPERIENCES
                     </div>
 
-                    <h1 className="max-w-[12.1rem] text-[clamp(1.95rem,9.4vw,4.5rem)] font-extrabold leading-[1.02] tracking-tighter text-white min-[380px]:max-w-[14.5rem] sm:max-w-none sm:leading-[1.1] lg:text-7xl landscape:max-w-none landscape:text-[clamp(2.1rem,7vw,3.5rem)]">
+                    <h1 className="inline-flex max-w-fit flex-col items-center text-[clamp(1.95rem,9.4vw,4.5rem)] font-extrabold leading-[1.02] tracking-tighter text-white sm:leading-[1.1] lg:text-7xl landscape:max-w-none landscape:text-[clamp(2.1rem,7vw,3.5rem)]">
                         KandyDrops
                         <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-purple to-purple-400">
+                        <span className="whitespace-nowrap text-transparent bg-clip-text bg-gradient-to-r from-brand-purple to-purple-400">
                             for your eyes only.
                         </span>
                     </h1>
