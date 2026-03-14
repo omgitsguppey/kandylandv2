@@ -88,6 +88,31 @@ type AnalyticsUserDaily @table {
   lastSeenAtMs: Int
 }
 
+type AnalyticsUserRollup @table {
+  id: UUID! @default(expr: "uuidV4()")
+  uid: String!
+  username: String
+  eventCount: Int! @default(value: 0)
+  sessionCount: Int! @default(value: 0)
+  unwrapCount: Int! @default(value: 0)
+  unlockCount: Int! @default(value: 0)
+  purchaseCount: Int! @default(value: 0)
+  taskEventCount: Int! @default(value: 0)
+  taskRewardTotal: Int! @default(value: 0)
+  spendGdTotal: Int! @default(value: 0)
+  revenueCentsTotal: Int! @default(value: 0)
+  grossRevenueUsdTotal: Float! @default(value: 0)
+  adjustedProfitUsdTotal: Float! @default(value: 0)
+  bonusValueUsdTotal: Float! @default(value: 0)
+  bonusGumDropsTotal: Int! @default(value: 0)
+  deliveredGumDropsTotal: Int! @default(value: 0)
+  paidGumDropsTotal: Int! @default(value: 0)
+  watchSecondsTotal: Int! @default(value: 0)
+  loadMsTotal: Int! @default(value: 0)
+  loadSampleCount: Int! @default(value: 0)
+  lastSeenAtMs: Int
+}
+
 type AnalyticsCommerceDaily @table {
   id: UUID! @default(expr: "uuidV4()")
   dayKey: String!
@@ -101,6 +126,20 @@ type AnalyticsCommerceDaily @table {
   deliveredGumDropsTotal: Int! @default(value: 0)
   paidGumDropsTotal: Int! @default(value: 0)
   spendGdTotal: Int! @default(value: 0)
+  lastTransactionAtMs: Int
+}
+
+type AnalyticsCommerceRollup @table {
+  id: UUID! @default(expr: "uuidV4()")
+  transactionCount: Int! @default(value: 0)
+  purchaseCount: Int! @default(value: 0)
+  unlockCount: Int! @default(value: 0)
+  grossRevenueUsdTotal: Float! @default(value: 0)
+  adjustedProfitUsdTotal: Float! @default(value: 0)
+  bonusValueUsdTotal: Float! @default(value: 0)
+  bonusGumDropsTotal: Int! @default(value: 0)
+  deliveredGumDropsTotal: Int! @default(value: 0)
+  paidGumDropsTotal: Int! @default(value: 0)
   lastTransactionAtMs: Int
 }
 
@@ -118,6 +157,27 @@ type AnalyticsBundleDaily @table {
   deliveredGumDropsTotal: Int! @default(value: 0)
   paidGumDropsTotal: Int! @default(value: 0)
   lastTransactionAtMs: Int
+}
+
+type AnalyticsTaskDaily @table {
+  id: UUID! @default(expr: "uuidV4()")
+  dayKey: String!
+  eventCount: Int! @default(value: 0)
+  rewardTotal: Int! @default(value: 0)
+  durationMsTotal: Int! @default(value: 0)
+  durationSampleCount: Int! @default(value: 0)
+  lastEventAtMs: Int
+}
+
+type AnalyticsTaskRollup @table {
+  id: UUID! @default(expr: "uuidV4()")
+  taskId: String!
+  title: String
+  eventCount: Int! @default(value: 0)
+  rewardTotal: Int! @default(value: 0)
+  durationMsTotal: Int! @default(value: 0)
+  durationSampleCount: Int! @default(value: 0)
+  lastEventAtMs: Int
 }
 
 type AnalyticsAlert @table {
@@ -138,6 +198,27 @@ type AnalyticsHeatmapPoint @table {
   bucket: String!
   count: Int! @default(value: 0)
   lastUpdatedAtMs: Int
+}
+
+type AnalyticsSecurityDaily @table {
+  id: UUID! @default(expr: "uuidV4()")
+  dayKey: String!
+  eventCount: Int! @default(value: 0)
+  lastEventAtMs: Int
+}
+
+type AnalyticsUserSecurityRollup @table {
+  id: UUID! @default(expr: "uuidV4()")
+  uid: String!
+  username: String
+  eventCount: Int! @default(value: 0)
+  lastEventAtMs: Int
+  lastReason: String
+  lastLabel: String
+  lastMessage: String
+  lastLocationLabel: String
+  lastDropId: String
+  lastPagePath: String
 }
 
 type AnalyticsPageDaily @table {

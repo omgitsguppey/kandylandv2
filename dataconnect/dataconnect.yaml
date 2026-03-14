@@ -8,6 +8,5 @@ schema:
       database: "kandydrops-by-ikandy-database"
       cloudSql:
         instanceId: "kandydrops-by-ikandy-instance"
-        # schemaValidation: "STRICT"     # STRICT mode makes Postgres schema match Data Connect exactly.
-        # schemaValidation: "COMPATIBLE" # COMPATIBLE mode makes Postgres schema compatible with Data Connect.
+        schemaValidation: "COMPATIBLE" # Production analytics should preserve compatible legacy objects while schema evolves.
 connectorDirs: ["./example"]

@@ -106,6 +106,38 @@ type ViewerUserOption = {
     totalWatchSeconds: number;
 };
 
+type SessionFactRecord = {
+    id: string;
+    sessionId?: string;
+    userId?: string;
+    username?: string;
+    dropId?: string;
+    dropTitle?: string;
+    pagePath?: string;
+    dayKey?: string;
+    hourKey?: string;
+    firstEventAtMs?: number;
+    lastEventAtMs?: number;
+    eventCount?: number;
+    startedCount?: number;
+    completedCount?: number;
+    watchSecondsTotal?: number;
+    loadMsTotal?: number;
+    loadSampleCount?: number;
+};
+
+type ViewerDropFactAccumulator = {
+    dropId: string;
+    dropTitle: string;
+    viewCount: number;
+    sessionCount: number;
+    uniqueViewerKeys: Set<string>;
+    sessionCounts: Map<string, number>;
+    totalWatchSeconds: number;
+    loadMsTotal: number;
+    loadSampleCount: number;
+};
+
 type AnalyticsReportRow = {
     dimensionValues?: Array<{ value?: string | null }>;
     metricValues?: Array<{ value?: string | null }>;
@@ -268,6 +300,13 @@ function sum(values: number[]) {
     return values.reduce((total, value) => total + value, 0);
 }
 
+function sumSnapshotField(
+    snapshot: FirebaseFirestore.QuerySnapshot,
+    fieldName: string,
+) {
+    return snapshot.docs.reduce((total, doc) => total + toNumber((doc.data() as Record<string, unknown>)[fieldName]), 0);
+}
+
 async function safeRunReport(requestConfig: Parameters<BetaAnalyticsDataClient["runReport"]>[0]): Promise<AnalyticsReportResponse> {
     try {
         const [response] = await analyticsClient.runReport(requestConfig);
@@ -377,6 +416,9 @@ export async function GET(request: NextRequest) {
                 dailyRollupsSnapshot,
                 pageRollupsSnapshot,
                 dropDailySnapshot,
+                taskDailySnapshot,
+                commerceDailySnapshot,
+                sessionFactsSnapshot,
                 dropsSnapshot,
             ] = await Promise.all([
                 safeRunReport({
@@ -458,6 +500,15 @@ export async function GET(request: NextRequest) {
                     .where("dayKey", ">=", startDayKey)
                     .get(),
                 adminDb.collection("analytics_drop_daily")
+                    .where("dayKey", ">=", startDayKey)
+                    .get(),
+                adminDb.collection("analytics_task_daily")
+                    .where("dayKey", ">=", startDayKey)
+                    .get(),
+                adminDb.collection("analytics_commerce_daily")
+                    .where("dayKey", ">=", startDayKey)
+                    .get(),
+                adminDb.collection("analytics_session_facts")
                     .where("dayKey", ">=", startDayKey)
                     .get(),
                 adminDb.collection("drops").get(),
@@ -790,7 +841,39 @@ export async function GET(request: NextRequest) {
                 feed: mappedCommerceFeed
             };
 
-            const purchases = Math.max(eventsData.gumdrops_purchase_completed || 0, eventsData.purchase || 0);
+            const telemetryLogs = Object.values(telemetryLogsByEvent).flat().sort((left, right) => right.timestamp - left.timestamp);
+            const firstPartyAuthenticatedEvents = sumSnapshotField(dailyRollupsSnapshot, "authenticatedEvents");
+            const firstPartyTaskLifecycleEvents = sumSnapshotField(taskDailySnapshot, "eventCount");
+            const firstPartyPurchaseCount = sumSnapshotField(commerceDailySnapshot, "purchaseCount");
+            const firstPartyUnlockCount = sumSnapshotField(commerceDailySnapshot, "unlockCount");
+            const normalizedTaskEvents: TaskLifecycleLog[] = taskEventsSnapshot.docs.flatMap((doc) => {
+                const data = doc.data();
+                const timestamp = toNumber(data.timestamp);
+                if (!timestamp || timestamp < startMs) {
+                    return [];
+                }
+
+                return [{
+                    id: doc.id,
+                    type: toStringValue(data.type),
+                    taskId: toStringValue(data.taskId),
+                    title: toStringValue(data.title),
+                    triggerEvent: toStringValue(data.triggerEvent),
+                    userId: toStringValue(data.userId),
+                    username: toStringValue(data.username) || undefined,
+                    reward: toNumber(data.reward),
+                    progress: toNumber(data.progress),
+                    maxProgress: toNumber(data.maxProgress),
+                    timestamp,
+                    reason: toStringValue(data.reason) || undefined,
+                    assignedAt: toNumber(data.assignedAt) || undefined,
+                    startedAt: toNumber(data.startedAt) || undefined,
+                    durationMs: toNumber(data.durationMs) || undefined,
+                }];
+            });
+            const purchaseEventCount = Math.max(eventsData.gumdrops_purchase_completed || 0, eventsData.purchase || 0);
+            const purchases = Math.max(purchaseEventCount, firstPartyPurchaseCount);
+            const canonicalUnlockCount = Math.max(eventsData.unlock_drop_success || 0, firstPartyUnlockCount);
             const funnel = {
                 authModalOpens: eventsData.auth_modal_opened || 0,
                 authSignIns: (eventsData.auth_sign_in_success || 0) + (eventsData.auth_google_sign_in_success || 0),
@@ -798,7 +881,7 @@ export async function GET(request: NextRequest) {
                 previewOpens: eventsData.drop_preview_opened || 0,
                 viewerOpens: eventsData.viewer_opened || 0,
                 assetSwitches: eventsData.viewer_asset_changed || 0,
-                unlocks: eventsData.unlock_drop_success || 0,
+                unlocks: canonicalUnlockCount,
                 shares: eventsData.drop_share_copied || 0,
                 walletOpens: eventsData.wallet_opened || 0,
                 checkoutStarts: eventsData.begin_checkout || 0,
@@ -829,32 +912,18 @@ export async function GET(request: NextRequest) {
                 ? Math.round(totalOnboardingSeconds / totalOnboardingCompletions) 
                 : 0;
 
-            const telemetryLogs = Object.values(telemetryLogsByEvent).flat().sort((left, right) => right.timestamp - left.timestamp);
-            const normalizedTaskEvents: TaskLifecycleLog[] = taskEventsSnapshot.docs.flatMap((doc) => {
-                const data = doc.data();
-                const timestamp = toNumber(data.timestamp);
-                if (!timestamp || timestamp < startMs) {
-                    return [];
-                }
+            const filteredSessionFacts: SessionFactRecord[] = sessionFactsSnapshot.docs
+                .map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) }) as SessionFactRecord)
+                .filter((entry) => {
+                    if (!viewerUser) {
+                        return true;
+                    }
 
-                return [{
-                    id: doc.id,
-                    type: toStringValue(data.type),
-                    taskId: toStringValue(data.taskId),
-                    title: toStringValue(data.title),
-                    triggerEvent: toStringValue(data.triggerEvent),
-                    userId: toStringValue(data.userId),
-                    username: toStringValue(data.username) || undefined,
-                    reward: toNumber(data.reward),
-                    progress: toNumber(data.progress),
-                    maxProgress: toNumber(data.maxProgress),
-                    timestamp,
-                    reason: toStringValue(data.reason) || undefined,
-                    assignedAt: toNumber(data.assignedAt) || undefined,
-                    startedAt: toNumber(data.startedAt) || undefined,
-                    durationMs: toNumber(data.durationMs) || undefined,
-                }];
-            });
+                    const candidateUserId = normalizeViewerIdentity(toStringValue(entry.userId));
+                    const candidateUsername = normalizeViewerIdentity(toStringValue(entry.username));
+                    const normalizedFilter = normalizeViewerIdentity(viewerUser);
+                    return candidateUserId === normalizedFilter || candidateUsername === normalizedFilter;
+                });
 
             const normalizedTransactionsInRange = transactionsInRangeSnapshot.docs.flatMap((doc) => {
                 try {
@@ -1236,6 +1305,48 @@ export async function GET(request: NextRequest) {
                 downloads: viewerDownloadLogs.length,
                 relatedClicks: viewerRelatedLogs.length,
             };
+            const sessionFactOverview = filteredSessionFacts.reduce((acc, entry) => {
+                const startedCount = toNumber(entry.startedCount);
+                const completedCount = toNumber(entry.completedCount);
+                const watchSecondsTotal = toNumber(entry.watchSecondsTotal);
+                const loadMsTotal = toNumber(entry.loadMsTotal);
+                const loadSampleCount = toNumber(entry.loadSampleCount);
+                const userKey = `${toStringValue(entry.userId)}::${toStringValue(entry.username)}`;
+                if (userKey !== "::") {
+                    acc.uniqueViewerKeys.add(userKey);
+                    acc.sessionCounts.set(userKey, (acc.sessionCounts.get(userKey) || 0) + startedCount);
+                }
+                acc.sessionCount += startedCount;
+                acc.completedCount += completedCount;
+                acc.totalWatchSeconds += watchSecondsTotal;
+                acc.loadMsTotal += loadMsTotal;
+                acc.loadSampleCount += loadSampleCount;
+                return acc;
+            }, {
+                sessionCount: 0,
+                completedCount: 0,
+                totalWatchSeconds: 0,
+                loadMsTotal: 0,
+                loadSampleCount: 0,
+                uniqueViewerKeys: new Set<string>(),
+                sessionCounts: new Map<string, number>(),
+            });
+            const viewerOverviewCanonical: ViewerOverview = viewerOverview.sessionCount > 0
+                ? viewerOverview
+                : {
+                    viewCount: sessionFactOverview.sessionCount,
+                    sessionCount: sessionFactOverview.sessionCount,
+                    uniqueViewerCount: sessionFactOverview.uniqueViewerKeys.size,
+                    repeatSessionCount: Array.from(sessionFactOverview.sessionCounts.values()).reduce((total, value) => total + Math.max(0, value - 1), 0),
+                    totalWatchSeconds: sessionFactOverview.totalWatchSeconds,
+                    avgSessionSeconds: sessionFactOverview.completedCount > 0 ? Math.round(sessionFactOverview.totalWatchSeconds / sessionFactOverview.completedCount) : 0,
+                    avgWatchSeconds: sessionFactOverview.sessionCount > 0 ? Math.round(sessionFactOverview.totalWatchSeconds / sessionFactOverview.sessionCount) : 0,
+                    avgLoadMs: sessionFactOverview.loadSampleCount > 0 ? Math.round(sessionFactOverview.loadMsTotal / sessionFactOverview.loadSampleCount) : 0,
+                    assetCompletionRate: 0,
+                    assetSwitches: 0,
+                    downloads: 0,
+                    relatedClicks: 0,
+                };
 
             type MutableViewerDropInsight = ViewerDropInsight & {
                 uniqueViewerKeys: Set<string>;
@@ -1344,7 +1455,7 @@ export async function GET(request: NextRequest) {
                 }
             });
 
-            const viewerDropInsights: ViewerDropInsight[] = Array.from(viewerDropInsightMap.values())
+            const viewerDropInsightsFromTelemetry: ViewerDropInsight[] = Array.from(viewerDropInsightMap.values())
                 .map((entry) => ({
                     dropId: entry.dropId,
                     dropTitle: resolveDropTitle(dropReferences, entry.dropId, entry.dropTitle),
@@ -1368,6 +1479,58 @@ export async function GET(request: NextRequest) {
                     || right.viewCount - left.viewCount
                 )
                 .slice(0, 20);
+            const viewerDropFactsMap = filteredSessionFacts.reduce<Map<string, ViewerDropFactAccumulator>>((map, entry) => {
+                    const dropId = toStringValue(entry.dropId);
+                    if (!dropId) {
+                        return map;
+                    }
+                    const current: ViewerDropFactAccumulator = map.get(dropId) || {
+                        dropId,
+                        dropTitle: resolveDropTitle(dropReferences, dropId, toStringValue(entry.dropTitle)),
+                        viewCount: 0,
+                        sessionCount: 0,
+                        uniqueViewerKeys: new Set<string>(),
+                        sessionCounts: new Map<string, number>(),
+                        totalWatchSeconds: 0,
+                        loadMsTotal: 0,
+                        loadSampleCount: 0,
+                    };
+                    const startedCount = toNumber(entry.startedCount);
+                    current.viewCount += startedCount;
+                    current.sessionCount += startedCount;
+                    current.totalWatchSeconds += toNumber(entry.watchSecondsTotal);
+                    current.loadMsTotal += toNumber(entry.loadMsTotal);
+                    current.loadSampleCount += toNumber(entry.loadSampleCount);
+                    const userKey = `${toStringValue(entry.userId)}::${toStringValue(entry.username)}`;
+                    if (userKey !== "::") {
+                        current.uniqueViewerKeys.add(userKey);
+                        current.sessionCounts.set(userKey, (current.sessionCounts.get(userKey) || 0) + startedCount);
+                    }
+                    map.set(dropId, current);
+                    return map;
+                }, new Map<string, ViewerDropFactAccumulator>());
+            const viewerDropInsightsFromFacts = Array.from(viewerDropFactsMap.values()).map((entry) => ({
+                dropId: entry.dropId,
+                dropTitle: entry.dropTitle,
+                viewCount: entry.viewCount,
+                sessionCount: entry.sessionCount,
+                uniqueViewerCount: entry.uniqueViewerKeys.size,
+                repeatSessionCount: Array.from(entry.sessionCounts.values()).reduce((total: number, value: number) => total + Math.max(0, value - 1), 0),
+                totalWatchSeconds: entry.totalWatchSeconds,
+                avgSessionSeconds: entry.sessionCount > 0 ? Math.round(entry.totalWatchSeconds / entry.sessionCount) : 0,
+                avgWatchSeconds: entry.sessionCount > 0 ? Math.round(entry.totalWatchSeconds / entry.sessionCount) : 0,
+                assetStarts: 0,
+                assetCompletions: 0,
+                assetSwitches: 0,
+                downloads: 0,
+                relatedClicks: 0,
+                avgLoadMs: entry.loadSampleCount > 0 ? Math.round(entry.loadMsTotal / entry.loadSampleCount) : 0,
+            }))
+                .sort((left, right) => right.totalWatchSeconds - left.totalWatchSeconds || right.sessionCount - left.sessionCount)
+                .slice(0, 20);
+            const viewerDropInsights = viewerDropInsightsFromTelemetry.length > 0
+                ? viewerDropInsightsFromTelemetry
+                : viewerDropInsightsFromFacts;
 
             const viewerUserMap = new Map<string, ViewerUserOption>();
             const ensureViewerUser = (record: TelemetryLogRecord) => {
@@ -1432,33 +1595,33 @@ export async function GET(request: NextRequest) {
                 },
                 {
                     label: "Telemetry depth",
-                    status: telemetryLogs.length > 0 ? "pass" : "warn",
-                    detail: telemetryLogs.length > 0
-                        ? `${telemetryLogs.length.toLocaleString()} authenticated telemetry events with drill-down params in range.`
-                        : "No authenticated telemetry logs returned for the selected range.",
+                    status: (telemetryLogs.length > 0 || firstPartyAuthenticatedEvents > 0) ? "pass" : "warn",
+                    detail: (telemetryLogs.length > 0 || firstPartyAuthenticatedEvents > 0)
+                        ? `${firstPartyAuthenticatedEvents.toLocaleString()} canonical authenticated events with ${telemetryLogs.length.toLocaleString()} realtime telemetry log records in range.`
+                        : "No authenticated telemetry events matched the selected range.",
                 },
                 {
                     label: "Task lifecycle",
-                    status: normalizedTaskEvents.some((event) => event.type === "completed") ? "pass" : "warn",
-                    detail: normalizedTaskEvents.length > 0
-                        ? `${normalizedTaskEvents.length.toLocaleString()} task lifecycle events loaded.`
+                    status: (normalizedTaskEvents.length > 0 || firstPartyTaskLifecycleEvents > 0) ? "pass" : "warn",
+                    detail: (normalizedTaskEvents.length > 0 || firstPartyTaskLifecycleEvents > 0)
+                        ? `${firstPartyTaskLifecycleEvents.toLocaleString()} canonical task events with ${normalizedTaskEvents.length.toLocaleString()} raw lifecycle log entries in range.`
                         : "No task lifecycle events matched the selected range.",
                 },
                 {
                     label: "Purchase parity",
-                    status: Math.abs(completedPurchaseTransactions.length - purchases) <= 2 ? "pass" : "warn",
-                    detail: `${completedPurchaseTransactions.length.toLocaleString()} completed purchase transactions vs ${purchases.toLocaleString()} purchase completion events.`,
+                    status: Math.abs(completedPurchaseTransactions.length - firstPartyPurchaseCount) <= 1 ? "pass" : "warn",
+                    detail: `${completedPurchaseTransactions.length.toLocaleString()} completed purchase transactions vs ${firstPartyPurchaseCount.toLocaleString()} canonical purchase rollups and ${purchaseEventCount.toLocaleString()} telemetry purchase events.`,
                 },
                 {
                     label: "Unlock parity",
-                    status: Math.abs(unlockTransactions.length - funnel.unlocks) <= 5 ? "pass" : "warn",
-                    detail: `${unlockTransactions.length.toLocaleString()} unlock transactions vs ${funnel.unlocks.toLocaleString()} unwrap events.`,
+                    status: Math.abs(unlockTransactions.length - firstPartyUnlockCount) <= 1 ? "pass" : "warn",
+                    detail: `${unlockTransactions.length.toLocaleString()} unlock transactions vs ${firstPartyUnlockCount.toLocaleString()} canonical unlock rollups and ${eventsData.unlock_drop_success || 0} unwrap telemetry events.`,
                 },
                 {
                     label: "Viewer drilldown",
-                    status: viewerOverview.sessionCount > 0 ? "pass" : "warn",
-                    detail: viewerOverview.sessionCount > 0
-                        ? `${viewerOverview.sessionCount.toLocaleString()} viewer sessions with per-drop timing metrics in range.`
+                    status: (viewerOverviewCanonical.sessionCount > 0 || filteredSessionFacts.length > 0) ? "pass" : "warn",
+                    detail: (viewerOverviewCanonical.sessionCount > 0 || filteredSessionFacts.length > 0)
+                        ? `${viewerOverviewCanonical.sessionCount.toLocaleString()} viewer sessions from canonical session facts with ${viewerSessionStartedLogs.length.toLocaleString()} raw session-start events in range.`
                         : "No viewer sessions matched the selected range and filter.",
                 },
             ];
@@ -1493,7 +1656,7 @@ export async function GET(request: NextRequest) {
                 watchDepthBuckets,
                 contentJourney,
                 contentTagDemand,
-                viewerOverview,
+                viewerOverview: viewerOverviewCanonical,
                 viewerDropInsights,
                 viewerUsers,
                 viewerFilter: viewerUser,
