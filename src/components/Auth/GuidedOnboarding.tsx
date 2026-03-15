@@ -385,8 +385,17 @@ export function GuidedOnboarding() {
         if (!user || isCompleting) return;
         setIsCompleting(true);
         try {
+            const durationMs = mountTime ? Math.max(0, Date.now() - mountTime) : 0;
+            const durationSeconds = durationMs ? Math.round(durationMs / 1000) : 0;
             const response = await authFetch("/api/user/complete-onboarding", {
                 method: "POST",
+                body: JSON.stringify({
+                    durationMs,
+                    durationSeconds,
+                    viewportWidth: typeof window !== "undefined" ? window.innerWidth : 0,
+                    viewportHeight: typeof window !== "undefined" ? window.innerHeight : 0,
+                    isMobileViewport: typeof window !== "undefined" ? window.innerWidth < 768 : false,
+                }),
             });
 
             const result = await response.json().catch(() => ({}));
@@ -408,8 +417,6 @@ export function GuidedOnboarding() {
             }
 
             // Track completion event with duration
-            const durationMs = mountTime ? Math.max(0, Date.now() - mountTime) : 0;
-            const durationSeconds = durationMs ? Math.round(durationMs / 1000) : 0;
             try {
                 trackEvent("guided_onboarding_completed", { durationSeconds, duration_ms: durationMs });
             } catch (e) { }

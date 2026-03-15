@@ -72,7 +72,8 @@ export async function GET(
                 .get(),
             adminDb.collection("security_events")
                 .where("userId", "==", userId)
-                .limit(60)
+                .orderBy("timestamp", "desc")
+                .limit(historyLimit)
                 .get(),
         ]);
 
@@ -317,6 +318,11 @@ export async function GET(
                     severity: readString(data.severity) || descriptor.severity,
                     dropId: readString(data.dropId) || null,
                     dropTitle: readString(data.dropId) ? resolveDropTitle(dropReferences, readString(data.dropId)) : null,
+                    pagePath: readString(data.pagePath) || null,
+                    sessionId: readString(data.sessionId) || null,
+                    contentKind: readString(data.contentKind) || null,
+                    assetKey: readString(data.assetKey) || null,
+                    assetIndex: readNumber(data.assetIndex, -1),
                     timestamp: toTimestampNumber(data.timestamp) || toTimestampNumber(data.createdAt),
                 };
             })
@@ -335,6 +341,11 @@ export async function GET(
                 dropTitle: user.securityFlags.lastViolationDropId
                     ? resolveDropTitle(dropReferences, user.securityFlags.lastViolationDropId)
                     : null,
+                pagePath: null,
+                sessionId: null,
+                contentKind: null,
+                assetKey: null,
+                assetIndex: -1,
                 timestamp: user.securityFlags.lastViolation ? new Date(user.securityFlags.lastViolation).getTime() : 0,
             });
         }

@@ -126,6 +126,11 @@ type SessionFactRecord = {
     loadSampleCount?: number;
 };
 
+type OnboardingFactRecord = {
+    timestamp: number;
+    durationMs: number;
+};
+
 type ViewerDropFactAccumulator = {
     dropId: string;
     dropTitle: string;
@@ -419,6 +424,7 @@ export async function GET(request: NextRequest) {
                 taskDailySnapshot,
                 commerceDailySnapshot,
                 sessionFactsSnapshot,
+                onboardingFactsSnapshot,
                 dropsSnapshot,
             ] = await Promise.all([
                 safeRunReport({
@@ -510,6 +516,9 @@ export async function GET(request: NextRequest) {
                     .get(),
                 adminDb.collection("analytics_session_facts")
                     .where("dayKey", ">=", startDayKey)
+                    .get(),
+                adminDb.collection("analytics_event_facts")
+                    .where("eventName", "==", "guided_onboarding_completed")
                     .get(),
                 adminDb.collection("drops").get(),
             ]);
@@ -894,6 +903,16 @@ export async function GET(request: NextRequest) {
             let totalOnboardingCompletions = 0;
             let totalOnboardingSeconds = 0;
             const onboardingRows = onboardingResponse.rows || [];
+            const onboardingFacts: OnboardingFactRecord[] = onboardingFactsSnapshot.docs
+                .map((doc) => {
+                    const data = doc.data() as Record<string, unknown>;
+                    const params = safeParams(data.params);
+                    return {
+                        timestamp: toNumber(data.timestamp),
+                        durationMs: Math.max(toNumber(data.durationMs), toNumber(params.duration_ms)),
+                    };
+                })
+                .filter((fact) => fact.timestamp >= startMs);
             
             onboardingRows.forEach((row: AnalyticsReportRow) => {
                 const durationRaw = row.dimensionValues?.[0]?.value || "(not set)";
@@ -907,6 +926,11 @@ export async function GET(request: NextRequest) {
                     }
                 }
             });
+
+            if (onboardingFacts.length > 0) {
+                totalOnboardingCompletions = onboardingFacts.length;
+                totalOnboardingSeconds = onboardingFacts.reduce((sum, fact) => sum + Math.round(fact.durationMs / 1000), 0);
+            }
             
             const avgOnboardingDuration = totalOnboardingCompletions > 0 
                 ? Math.round(totalOnboardingSeconds / totalOnboardingCompletions) 
@@ -979,14 +1003,16 @@ export async function GET(request: NextRequest) {
             }));
 
             const onboardingDurationsMs = [
-                ...telemetryLogsByEvent.guided_onboarding_completed.map((record) => {
-                    const directMs = getTelemetryParamNumber(record, "duration_ms");
-                    if (directMs > 0) {
-                        return directMs;
-                    }
+                ...(onboardingFacts.length > 0
+                    ? onboardingFacts.map((fact) => fact.durationMs)
+                    : telemetryLogsByEvent.guided_onboarding_completed.map((record) => {
+                        const directMs = getTelemetryParamNumber(record, "duration_ms");
+                        if (directMs > 0) {
+                            return directMs;
+                        }
 
-                    return getTelemetryParamNumber(record, "durationSeconds") * 1000;
-                }),
+                        return getTelemetryParamNumber(record, "durationSeconds") * 1000;
+                    })),
             ].filter((value) => value > 0);
 
             const onboardingDurationBuckets = buildDurationBuckets(onboardingDurationsMs, [

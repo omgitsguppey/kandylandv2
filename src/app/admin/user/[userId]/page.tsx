@@ -52,12 +52,18 @@ type UserDetailAnalytics = {
 
 type SecurityEventItem = {
     id: string;
+    reason: string;
     label: string;
     message: string;
     locationLabel: string;
     severity: string;
     dropId: string | null;
     dropTitle?: string | null;
+    pagePath?: string | null;
+    sessionId?: string | null;
+    contentKind?: string | null;
+    assetKey?: string | null;
+    assetIndex?: number;
     timestamp: number;
 };
 
@@ -72,6 +78,8 @@ export default function AdminUserAnalyticsPage() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [analytics, setAnalytics] = useState<UserDetailAnalytics | null>(null);
     const [securityEvents, setSecurityEvents] = useState<SecurityEventItem[]>([]);
+    const [securitySeverityFilter, setSecuritySeverityFilter] = useState("all");
+    const [securityReasonFilter, setSecurityReasonFilter] = useState("all");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -147,6 +155,22 @@ export default function AdminUserAnalyticsPage() {
 
         return `${Math.max(1, Math.round(analytics.watchSecondsTotal / 60))}m`;
     }, [analytics]);
+
+    const securityReasonOptions = useMemo(() => (
+        Array.from(new Set(securityEvents.map((event) => event.reason).filter(Boolean))).sort()
+    ), [securityEvents]);
+
+    const filteredSecurityEvents = useMemo(() => (
+        securityEvents.filter((event) => {
+            if (securitySeverityFilter !== "all" && event.severity !== securitySeverityFilter) {
+                return false;
+            }
+            if (securityReasonFilter !== "all" && event.reason !== securityReasonFilter) {
+                return false;
+            }
+            return true;
+        })
+    ), [securityEvents, securityReasonFilter, securitySeverityFilter]);
 
     if (authLoading || loading) {
         return (
@@ -415,11 +439,39 @@ export default function AdminUserAnalyticsPage() {
                     <h3 className="mb-4 flex items-center gap-2 text-sm font-bold text-white">
                         <ShieldAlert className="h-4 w-4 text-brand-purple" /> Security Events
                     </h3>
+                    <div className="mb-4 grid gap-3 sm:grid-cols-2">
+                        <label className="space-y-2 text-left">
+                            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Severity</span>
+                            <select
+                                value={securitySeverityFilter}
+                                onChange={(event) => setSecuritySeverityFilter(event.target.value)}
+                                className="w-full rounded-2xl border border-white/10 bg-black/45 px-4 py-3 text-sm text-white outline-none"
+                            >
+                                <option value="all">All severities</option>
+                                <option value="high">High</option>
+                                <option value="medium">Medium</option>
+                                <option value="low">Low</option>
+                            </select>
+                        </label>
+                        <label className="space-y-2 text-left">
+                            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Reason</span>
+                            <select
+                                value={securityReasonFilter}
+                                onChange={(event) => setSecurityReasonFilter(event.target.value)}
+                                className="w-full rounded-2xl border border-white/10 bg-black/45 px-4 py-3 text-sm text-white outline-none"
+                            >
+                                <option value="all">All reasons</option>
+                                {securityReasonOptions.map((reason) => (
+                                    <option key={reason} value={reason}>{reason}</option>
+                                ))}
+                            </select>
+                        </label>
+                    </div>
                     <div className="space-y-3">
-                        {securityEvents.length === 0 ? (
+                        {filteredSecurityEvents.length === 0 ? (
                             <p className="text-sm text-gray-500">No viewer protection issues have been logged for this account.</p>
                         ) : (
-                            securityEvents.map((event) => (
+                            filteredSecurityEvents.map((event) => (
                                 <div key={event.id} className="rounded-2xl border border-white/5 bg-black/35 px-4 py-3">
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="min-w-0">
@@ -429,6 +481,14 @@ export default function AdminUserAnalyticsPage() {
                                                 {event.locationLabel}
                                                 {event.dropTitle ? ` | ${event.dropTitle}` : event.dropId ? ` | Drop ${event.dropId}` : ""}
                                             </p>
+                                            <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-gray-500">
+                                                {event.reason ? <span>Reason: {event.reason}</span> : null}
+                                                {event.pagePath ? <span>Path: {event.pagePath}</span> : null}
+                                                {event.contentKind ? <span>Type: {event.contentKind}</span> : null}
+                                                {event.assetKey ? <span>Asset: {event.assetKey}</span> : null}
+                                                {typeof event.assetIndex === "number" && event.assetIndex >= 0 ? <span>Index: {event.assetIndex}</span> : null}
+                                                {event.sessionId ? <span>Session: {event.sessionId}</span> : null}
+                                            </div>
                                             {event.dropTitle && event.dropId ? (
                                                 <p className="mt-1 text-[11px] text-gray-500">{event.dropId}</p>
                                             ) : null}
@@ -454,7 +514,7 @@ export default function AdminUserAnalyticsPage() {
                     </div>
                     {targetUser.securityFlags?.ripAttempts ? (
                         <p className="mt-4 text-xs text-gray-500">
-                            Total viewer protection interruptions logged on this account: {targetUser.securityFlags.ripAttempts}
+                            Showing {filteredSecurityEvents.length} of {securityEvents.length} logged protection events. Total interruptions on this account: {targetUser.securityFlags.ripAttempts}
                         </p>
                     ) : null}
                 </div>
