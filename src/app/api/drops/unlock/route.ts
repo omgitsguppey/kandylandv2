@@ -5,6 +5,7 @@ import { verifyAuth, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 import { revalidatePath } from "next/cache";
 import { checkRateLimit, STRICT } from "@/lib/server/rate-limit";
+import { recordCanonicalTaskEvent } from "@/lib/server/daily-tasks";
 
 const unlockRequestSchema = z.object({
   dropId: z
@@ -48,6 +49,11 @@ export async function POST(request: NextRequest) {
       }
 
       const userData = userSnap.data() ?? {};
+      const username = typeof userData.username === "string" && userData.username.trim().length > 0
+        ? userData.username.trim()
+        : typeof userData.displayName === "string" && userData.displayName.trim().length > 0
+          ? userData.displayName.trim()
+          : caller.email || userId;
       const currentBalanceRaw = Number(userData.gumDropsBalance);
       const balance = Number.isFinite(currentBalanceRaw) ? Math.floor(currentBalanceRaw) : 0;
 
@@ -59,7 +65,7 @@ export async function POST(request: NextRequest) {
       if (unlockedContent.has(dropId)) {
         const existingUnwrappedRaw = Number((userData.unlockedContentTimestamps as Record<string, unknown> | undefined)?.[dropId]);
         const existingUnwrappedAt = Number.isFinite(existingUnwrappedRaw) ? Math.floor(existingUnwrappedRaw) : null;
-        return { newBalance: balance, alreadyUnlocked: true, unwrappedAt: existingUnwrappedAt };
+        return { newBalance: balance, alreadyUnlocked: true, unwrappedAt: existingUnwrappedAt, username };
       }
 
       if (balance < unlockCost) {
@@ -91,11 +97,30 @@ export async function POST(request: NextRequest) {
         totalUnlocks: FieldValue.increment(1),
       });
 
-      return { newBalance: balance - unlockCost, alreadyUnlocked: false, unwrappedAt, cost: unlockCost, title: typeof dropData.title === "string" ? dropData.title : "Drop" };
+      return {
+        newBalance: balance - unlockCost,
+        alreadyUnlocked: false,
+        unwrappedAt,
+        cost: unlockCost,
+        title: typeof dropData.title === "string" ? dropData.title : "Drop",
+        username,
+        tags: Array.isArray(dropData.tags)
+          ? dropData.tags.filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+          : [],
+      };
     });
 
     revalidatePath("/drops");
     revalidatePath("/dashboard");
+
+    if (!result.alreadyUnlocked) {
+      await recordCanonicalTaskEvent(userId, result.username ?? caller.email ?? userId, "unlock_drop_success", {
+        drop_id: dropId,
+        drop_title: result.title ?? "Drop",
+        drop_tags: Array.isArray(result.tags) ? result.tags.join("|") : "",
+        unlock_cost: result.cost ?? 0,
+      });
+    }
 
     return NextResponse.json({
       success: true,

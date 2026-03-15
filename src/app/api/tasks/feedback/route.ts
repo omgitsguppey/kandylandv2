@@ -5,6 +5,7 @@ import { checkRateLimit, STANDARD } from '@/lib/server/rate-limit';
 import { FieldValue } from 'firebase-admin/firestore';
 import { hasTrustedSiteOrigin } from '@/lib/server/request-origin';
 import { z } from 'zod';
+import { recordCanonicalTaskEvent } from '@/lib/server/daily-tasks';
 
 const feedbackSchema = z.object({
     message: z.string().trim().min(1).max(2000),
@@ -34,6 +35,12 @@ export async function POST(req: NextRequest) {
             category,
             timestamp: FieldValue.serverTimestamp(),
             status: 'new'
+        });
+
+        await recordCanonicalTaskEvent(uid, email || uid, "feedback_submitted", {
+            category,
+            rating: rating || 0,
+            source: "feedback_api",
         });
 
         return NextResponse.json({ success: true });

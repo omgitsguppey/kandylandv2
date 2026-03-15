@@ -3,6 +3,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAuth, handleApiError } from "@/lib/server/auth";
 import { checkRateLimit, STANDARD } from "@/lib/server/rate-limit";
+import { recordCanonicalTaskEvent } from "@/lib/server/daily-tasks";
 
 const ALLOWED_TIMEZONES = new Set([
     "Auto",
@@ -186,7 +187,32 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
 
+        const existingUserData = userSnap.data() ?? {};
+        const existingNotificationSettings = normalizeNotificationSettings(existingUserData.notificationSettings) ?? {
+            inAppEnabled: true,
+            browserPushEnabled: false,
+            newDropAlerts: true,
+            expiringSoonAlerts: true,
+        };
+        const nextNotificationSettings = normalizeNotificationSettings(updates.notificationSettings);
+        const shouldTrackNotificationsEnabled = Boolean(
+            nextNotificationSettings?.browserPushEnabled
+            && !existingNotificationSettings.browserPushEnabled,
+        );
+        const username = typeof existingUserData.username === "string" && existingUserData.username.trim().length > 0
+            ? existingUserData.username.trim()
+            : typeof existingUserData.displayName === "string" && existingUserData.displayName.trim().length > 0
+                ? existingUserData.displayName.trim()
+                : caller.email || caller.uid;
+
         await userRef.update(updates);
+
+        if (shouldTrackNotificationsEnabled) {
+            await recordCanonicalTaskEvent(caller.uid, username, "task_notifications_enabled", {
+                source: "profile_api",
+                browser_push_enabled: true,
+            });
+        }
 
         return NextResponse.json({ success: true });
     } catch (error) {

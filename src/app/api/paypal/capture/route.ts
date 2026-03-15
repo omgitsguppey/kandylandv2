@@ -6,6 +6,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { checkRateLimit, STRICT } from "@/lib/server/rate-limit";
 import { deriveGumdropEconomics, getBundlePresentation } from "@/lib/gumdrop-economics";
+import { recordCanonicalTaskEvent } from "@/lib/server/daily-tasks";
 
 const bodySchema = z.object({
   orderId: z.string().min(1),
@@ -182,6 +183,14 @@ export async function POST(request: NextRequest) {
         return { duplicate: true };
       }
 
+      const userSnapshot = await transaction.get(userRef);
+      const userData = userSnapshot.data() ?? {};
+      const username = typeof userData.username === "string" && userData.username.trim().length > 0
+        ? userData.username.trim()
+        : typeof userData.displayName === "string" && userData.displayName.trim().length > 0
+          ? userData.displayName.trim()
+          : caller.email || userId;
+
       transaction.update(userRef, { gumDropsBalance: FieldValue.increment(dropsToCredit) });
       transaction.set(adminDb.collection("transactions").doc(), {
         userId,
@@ -242,12 +251,20 @@ export async function POST(request: NextRequest) {
         bundle_key: bundlePresentation.bundleKey,
       }, userId).catch(err => console.error("Server-side tracking failed:", err));
 
-      return { duplicate: false };
+      return { duplicate: false, username };
     });
 
     if (result.duplicate) {
       return NextResponse.json({ success: true, drops: dropsToCredit, duplicate: true }, { status: 200 });
     }
+
+    await recordCanonicalTaskEvent(userId, result.username ?? caller.email ?? userId, "gumdrops_purchase_completed", {
+      package_drops: dropsToCredit,
+      purchase_value: paidUsd,
+      bundle_key: bundlePresentation.bundleKey,
+      bundle_tier: bundlePresentation.bundleTier,
+      bonus_gumdrops: economics.bonusGumDrops,
+    });
 
     return NextResponse.json({ success: true, drops: dropsToCredit });
   } catch (error) {

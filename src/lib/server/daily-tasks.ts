@@ -665,6 +665,15 @@ export async function recordTelemetryEventStat(eventName: string, eventParams: E
   }, { merge: true });
 }
 
+export async function recordCanonicalTaskEvent(
+  uid: string,
+  username: string | null,
+  eventName: string,
+  eventParams: EventParams,
+) {
+  await recordDailyTaskProgressFromEvent(uid, username, eventName, eventParams);
+}
+
 export async function recordDailyTaskProgressFromEvent(
   uid: string,
   username: string | null,

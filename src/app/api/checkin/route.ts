@@ -5,6 +5,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { getCSTDayBoundaries } from "@/lib/timezone";
 import { checkRateLimit, STRICT } from "@/lib/server/rate-limit";
 import { getDailyCheckInProgress } from "@/lib/daily-checkin";
+import { recordCanonicalTaskEvent } from "@/lib/server/daily-tasks";
 
 export async function POST(request: NextRequest) {
     try {
@@ -28,6 +29,11 @@ export async function POST(request: NextRequest) {
             }
 
             const userData = userSnap.data()!;
+            const username = typeof userData.username === "string" && userData.username.trim().length > 0
+                ? userData.username.trim()
+                : typeof userData.displayName === "string" && userData.displayName.trim().length > 0
+                    ? userData.displayName.trim()
+                    : caller.email || userId;
             const now = Date.now();
             const lastCheckIn = userData.lastCheckIn || 0;
             const currentStreak = userData.streakCount || 0;
@@ -67,13 +73,14 @@ export async function POST(request: NextRequest) {
                 verifiedServerSide: true,
             });
 
-            return {
-                alreadyClaimed: false,
-                reward,
-                nextStreak,
-                lastCheckIn: now,
-                nextCheckInAt: endOfDay,
-            };
+                return {
+                    alreadyClaimed: false,
+                    reward,
+                    nextStreak,
+                    lastCheckIn: now,
+                    nextCheckInAt: endOfDay,
+                    username,
+                };
         });
 
         if (result.alreadyClaimed) {
@@ -85,6 +92,11 @@ export async function POST(request: NextRequest) {
                 nextCheckInAt: result.nextCheckInAt,
             }, { status: 409 });
         }
+
+        await recordCanonicalTaskEvent(userId, result.username ?? caller.email ?? userId, "daily_check_in_claim", {
+            reward: result.reward,
+            streak_count: result.nextStreak,
+        });
 
         return NextResponse.json({
             success: true,

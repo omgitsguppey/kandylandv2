@@ -97,7 +97,7 @@ export function LiveDropsForYouCarousel() {
             <div className="absolute inset-x-0 bottom-0 p-3">
               <h3 className="line-clamp-2 text-sm font-extrabold leading-5 text-white">{drop.title}</h3>
               <div className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.14em] text-brand-purple">
-                Open live drops
+                Unwrap
                 <ArrowRight className="h-3.5 w-3.5" />
               </div>
             </div>
