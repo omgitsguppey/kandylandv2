@@ -152,6 +152,28 @@ type AnalyticsReportResponse = {
     rows?: AnalyticsReportRow[];
 };
 
+const AUTHENTICATED_PAGE_VIEW_EVENT_NAMES = new Set([
+    "dashboard_viewed",
+    "library_viewed",
+    "experience_hub_viewed",
+    "drops_page_viewed",
+    "faq_page_viewed",
+    "home_page_viewed",
+]);
+
+function getUtcDayStartMs(daysAgo: number) {
+    const now = new Date();
+    return Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate() - daysAgo,
+        0,
+        0,
+        0,
+        0,
+    );
+}
+
 function getRangeWindow(period: string | null): RangeWindow {
     const now = Date.now();
     const oneDayMs = 24 * 60 * 60 * 1000;
@@ -161,14 +183,34 @@ function getRangeWindow(period: string | null): RangeWindow {
     }
 
     if (period === "7d") {
-        return { startDate: "7daysAgo", startMs: now - (7 * oneDayMs) };
+        return { startDate: "7daysAgo", startMs: getUtcDayStartMs(7) };
     }
 
     if (period === "all") {
-        return { startDate: "365daysAgo", startMs: now - (365 * oneDayMs) };
+        return { startDate: "2020-01-01", startMs: getUtcDayStartMs(3650) };
     }
 
-    return { startDate: "30daysAgo", startMs: now - (30 * oneDayMs) };
+    return { startDate: "30daysAgo", startMs: getUtcDayStartMs(30) };
+}
+
+function timestampToDayKey(timestamp: number) {
+    return new Date(timestamp).toISOString().slice(0, 10);
+}
+
+function rawDateToDayKey(rawDate: string) {
+    if (rawDate.length !== 8) {
+        return rawDate;
+    }
+
+    return `${rawDate.slice(0, 4)}-${rawDate.slice(4, 6)}-${rawDate.slice(6, 8)}`;
+}
+
+function dayKeyToRawDate(dayKey: string) {
+    return dayKey.replaceAll("-", "");
+}
+
+function dayKeyToLabel(dayKey: string) {
+    return dayKey.slice(5).replace("-", "/");
 }
 
 function toNumber(value: unknown): number {
@@ -305,6 +347,19 @@ function sum(values: number[]) {
     return values.reduce((total, value) => total + value, 0);
 }
 
+function buildMergedCountMap(...sources: Array<Record<string, number>>) {
+    const merged = new Map<string, number>();
+
+    sources.forEach((source) => {
+        Object.entries(source).forEach(([key, value]) => {
+            const numericValue = toNumber(value);
+            merged.set(key, Math.max(merged.get(key) || 0, numericValue));
+        });
+    });
+
+    return merged;
+}
+
 function sumSnapshotField(
     snapshot: FirebaseFirestore.QuerySnapshot,
     fieldName: string,
@@ -424,7 +479,11 @@ export async function GET(request: NextRequest) {
                 taskDailySnapshot,
                 commerceDailySnapshot,
                 sessionFactsSnapshot,
+                analyticsEventFactsSnapshot,
                 onboardingFactsSnapshot,
+                securityEventsSnapshot,
+                guestBatchesSnapshot,
+                commerceSummarySnapshot,
                 dropsSnapshot,
             ] = await Promise.all([
                 safeRunReport({
@@ -518,7 +577,23 @@ export async function GET(request: NextRequest) {
                     .where("dayKey", ">=", startDayKey)
                     .get(),
                 adminDb.collection("analytics_event_facts")
+                    .where("timestamp", ">=", startMs)
+                    .get(),
+                adminDb.collection("analytics_event_facts")
                     .where("eventName", "==", "guided_onboarding_completed")
+                    .get(),
+                adminDb.collection("security_events")
+                    .where("timestamp", ">=", startMs)
+                    .orderBy("timestamp", "desc")
+                    .limit(period === "all" ? 500 : 300)
+                    .get(),
+                adminDb.collection("analytics_guest_batches")
+                    .where("receivedAtMs", ">=", startMs)
+                    .orderBy("receivedAtMs", "desc")
+                    .limit(period === "all" ? 120 : 80)
+                    .get(),
+                adminDb.collection("analytics_commerce_rollup")
+                    .doc("summary")
                     .get(),
                 adminDb.collection("drops").get(),
             ]);
@@ -579,44 +654,100 @@ export async function GET(request: NextRequest) {
             ]);
 
             const rows = response.rows || [];
+            const filteredDailyRollups = dailyRollupsSnapshot.docs.filter((doc) => doc.id >= startDayKey);
+            const dayRollupMap = new Map<string, { totalEvents: number; authenticatedEvents: number; viewerSessions: number }>();
+            filteredDailyRollups.forEach((doc) => {
+                const data = doc.data() as Record<string, unknown>;
+                dayRollupMap.set(doc.id, {
+                    totalEvents: toNumber(data.totalEvents),
+                    authenticatedEvents: toNumber(data.authenticatedEvents),
+                    viewerSessions: toNumber(data.viewerSessions),
+                });
+            });
 
-            const chartData = rows.length > 0
-                ? rows.map((row: AnalyticsReportRow) => {
-                    const dateStr = row.dimensionValues?.[0]?.value || "";
-                    const label = dateStr.length === 8
-                        ? `${dateStr.substring(4, 6)}/${dateStr.substring(6, 8)}`
-                        : dateStr;
+            const pageViewsByDay = new Map<string, number>();
+            const pageRollupMap = new Map<string, { views: number; clicks: number; dwellMsTotal: number; dwellSamples: number }>();
+            pageRollupsSnapshot.docs.forEach((doc: FirebaseFirestore.QueryDocumentSnapshot) => {
+                const data = doc.data() as Record<string, unknown>;
+                const dayKey = toStringValue(data.dayKey) || startDayKey;
+                const path = toStringValue(data.pagePath) || "/";
+                const entry = pageRollupMap.get(path) || { views: 0, clicks: 0, dwellMsTotal: 0, dwellSamples: 0 };
+                entry.views += toNumber(data.pageViews);
+                entry.clicks += toNumber(data.clickCount);
+                entry.dwellMsTotal += toNumber(data.dwellMsTotal);
+                entry.dwellSamples += toNumber(data.dwellSampleCount);
+                pageRollupMap.set(path, entry);
+                pageViewsByDay.set(dayKey, (pageViewsByDay.get(dayKey) || 0) + toNumber(data.pageViews));
+            });
 
+            const authenticatedPagePathFallbacks: Record<string, string> = {
+                dashboard_viewed: "/dashboard",
+                library_viewed: "/dashboard/library",
+                experience_hub_viewed: "/experiences",
+                drops_page_viewed: "/drops",
+                faq_page_viewed: "/faq",
+                home_page_viewed: "/",
+            };
+            const authenticatedPageViewsByPath = new Map<string, number>();
+            const authenticatedPageViewsByDay = new Map<string, number>();
+            analyticsEventFactsSnapshot.docs.forEach((doc) => {
+                const data = doc.data() as Record<string, unknown>;
+                const eventName = toStringValue(data.eventName);
+                if (!AUTHENTICATED_PAGE_VIEW_EVENT_NAMES.has(eventName)) {
+                    return;
+                }
+
+                const pagePath = toStringValue(data.pagePath) || authenticatedPagePathFallbacks[eventName] || "/";
+                const dayKey = toStringValue(data.dayKey) || timestampToDayKey(toNumber(data.timestamp));
+                authenticatedPageViewsByPath.set(pagePath, (authenticatedPageViewsByPath.get(pagePath) || 0) + 1);
+                authenticatedPageViewsByDay.set(dayKey, (authenticatedPageViewsByDay.get(dayKey) || 0) + 1);
+            });
+
+            const gaChartMap = new Map<string, {
+                users: number;
+                views: number;
+                sessions: number;
+                newUsers: number;
+                avgSessionDuration: number;
+                engagementRate: number;
+            }>();
+            rows.forEach((row: AnalyticsReportRow) => {
+                const rawDate = row.dimensionValues?.[0]?.value || "";
+                const dayKey = rawDateToDayKey(rawDate);
+                gaChartMap.set(dayKey, {
+                    users: parseInt(row.metricValues?.[0]?.value || "0", 10),
+                    views: parseInt(row.metricValues?.[1]?.value || "0", 10),
+                    sessions: parseInt(row.metricValues?.[2]?.value || "0", 10),
+                    newUsers: parseInt(row.metricValues?.[3]?.value || "0", 10),
+                    avgSessionDuration: parseFloat(row.metricValues?.[4]?.value || "0"),
+                    engagementRate: parseFloat(row.metricValues?.[5]?.value || "0"),
+                });
+            });
+
+            const chartDayKeys = new Set<string>([
+                ...gaChartMap.keys(),
+                ...dayRollupMap.keys(),
+                ...pageViewsByDay.keys(),
+                ...authenticatedPageViewsByDay.keys(),
+            ]);
+
+            const chartData = Array.from(chartDayKeys)
+                .sort((left, right) => left.localeCompare(right))
+                .map((dayKey) => {
+                    const ga = gaChartMap.get(dayKey);
+                    const rollup = dayRollupMap.get(dayKey);
+                    const firstPartyViews = (pageViewsByDay.get(dayKey) || 0) + (authenticatedPageViewsByDay.get(dayKey) || 0);
                     return {
-                        date: label,
-                        rawDate: dateStr,
-                        users: parseInt(row.metricValues?.[0]?.value || "0", 10),
-                        views: parseInt(row.metricValues?.[1]?.value || "0", 10),
-                        sessions: parseInt(row.metricValues?.[2]?.value || "0", 10),
-                        newUsers: parseInt(row.metricValues?.[3]?.value || "0", 10),
-                        avgSessionDuration: parseFloat(row.metricValues?.[4]?.value || "0"),
-                        engagementRate: parseFloat(row.metricValues?.[5]?.value || "0"),
+                        date: dayKeyToLabel(dayKey),
+                        rawDate: dayKeyToRawDate(dayKey),
+                        users: ga?.users ?? 0,
+                        views: Math.max(ga?.views ?? 0, firstPartyViews, rollup?.totalEvents ?? 0),
+                        sessions: Math.max(ga?.sessions ?? 0, rollup?.viewerSessions ?? 0),
+                        newUsers: ga?.newUsers ?? 0,
+                        avgSessionDuration: ga?.avgSessionDuration ?? 0,
+                        engagementRate: ga?.engagementRate ?? 0,
                     };
-                })
-                : dailyRollupsSnapshot.docs
-                    .map((doc: FirebaseFirestore.QueryDocumentSnapshot) => {
-                        const data = doc.data() as Record<string, unknown>;
-                        const dayKey = doc.id;
-                        return {
-                            date: dayKey.slice(5).replace("-", "/"),
-                            rawDate: dayKey.replaceAll("-", ""),
-                            users: toNumber(data.authenticatedEvents),
-                            views: toNumber(data.totalEvents),
-                            sessions: toNumber(data.viewerSessions),
-                            newUsers: 0,
-                            avgSessionDuration: 0,
-                            engagementRate: 0,
-                            sortKey: dayKey,
-                        };
-                    })
-                    .filter((row: { sortKey: string }) => row.sortKey >= startDayKey)
-                    .sort((left: { sortKey: string }, right: { sortKey: string }) => left.sortKey.localeCompare(right.sortKey))
-                    .map(({ sortKey, ...row }: { sortKey: string; date: string; rawDate: string; users: number; views: number; sessions: number; newUsers: number; avgSessionDuration: number; engagementRate: number }) => row);
+                });
 
             const totals = {
                 users: chartData.reduce((acc: number, curr) => acc + curr.users, 0),
@@ -627,19 +758,12 @@ export async function GET(request: NextRequest) {
                 engagementRate: chartData.length > 0 ? chartData.reduce((acc: number, curr) => acc + curr.engagementRate, 0) / chartData.length : 0,
             };
 
-            const eventsData = (eventsResponse.rows || []).reduce((acc: Record<string, number>, row: AnalyticsReportRow) => {
+            const gaEventCounts = (eventsResponse.rows || []).reduce((acc: Record<string, number>, row: AnalyticsReportRow) => {
                 const eventName = row.dimensionValues?.[0]?.value || "unknown";
                 const count = parseInt(row.metricValues?.[0]?.value || "0", 10);
                 acc[eventName] = count;
                 return acc;
             }, {});
-
-            const eventBreakdown = (eventsResponse.rows || [])
-                .map((row: AnalyticsReportRow) => ({
-                    eventName: row.dimensionValues?.[0]?.value || "unknown",
-                    count: parseInt(row.metricValues?.[0]?.value || "0", 10),
-                }))
-                .sort((a: { count: number }, b: { count: number }) => b.count - a.count);
 
             const geoData = (geoResponse.rows || []).map((row: AnalyticsReportRow) => ({
                 country: row.dimensionValues?.[0]?.value || "Unknown",
@@ -654,34 +778,40 @@ export async function GET(request: NextRequest) {
                 engagementRate: parseFloat(row.metricValues?.[2]?.value || "0"),
             }));
 
-            const firstPartyPageMap = new Map<string, { views: number; clicks: number; dwellMsTotal: number; dwellSamples: number }>();
-            pageRollupsSnapshot.docs.forEach((doc: FirebaseFirestore.QueryDocumentSnapshot) => {
-                const data = doc.data() as Record<string, unknown>;
-                const path = toStringValue(data.pagePath) || "/";
-                const entry = firstPartyPageMap.get(path) || { views: 0, clicks: 0, dwellMsTotal: 0, dwellSamples: 0 };
-                entry.views += toNumber(data.pageViews);
-                entry.clicks += toNumber(data.clickCount);
-                entry.dwellMsTotal += toNumber(data.dwellMsTotal);
-                entry.dwellSamples += toNumber(data.dwellSampleCount);
-                firstPartyPageMap.set(path, entry);
-            });
-
-            const pagesData = firstPartyPageMap.size > 0
-                ? Array.from(firstPartyPageMap.entries())
-                    .map(([path, stats]) => ({
-                        path,
-                        views: stats.views,
-                        avgTime: stats.dwellSamples > 0 ? stats.dwellMsTotal / 1000 / stats.dwellSamples : 0,
-                        engagementRate: stats.views > 0 ? stats.clicks / stats.views : 0,
-                    }))
-                    .sort((a, b) => b.views - a.views)
-                    .slice(0, 25)
-                : (pagesResponse.rows || []).map((row: AnalyticsReportRow) => ({
-                    path: row.dimensionValues?.[0]?.value || "/",
+            const gaPagesMap = new Map<string, { views: number; avgTime: number; engagementRate: number }>();
+            (pagesResponse.rows || []).forEach((row: AnalyticsReportRow) => {
+                const path = row.dimensionValues?.[0]?.value || "/";
+                gaPagesMap.set(path, {
                     views: parseInt(row.metricValues?.[0]?.value || "0", 10),
                     avgTime: parseFloat(row.metricValues?.[1]?.value || "0"),
-                    engagementRate: parseFloat(row.metricValues?.[2]?.value || "0")
-                }));
+                    engagementRate: parseFloat(row.metricValues?.[2]?.value || "0"),
+                });
+            });
+
+            authenticatedPageViewsByPath.forEach((views, path) => {
+                const current = pageRollupMap.get(path) || { views: 0, clicks: 0, dwellMsTotal: 0, dwellSamples: 0 };
+                current.views += views;
+                pageRollupMap.set(path, current);
+            });
+
+            const allPagePaths = new Set<string>([
+                ...gaPagesMap.keys(),
+                ...pageRollupMap.keys(),
+            ]);
+
+            const pagesData = Array.from(allPagePaths)
+                .map((path) => {
+                    const ga = gaPagesMap.get(path);
+                    const firstParty = pageRollupMap.get(path) || { views: 0, clicks: 0, dwellMsTotal: 0, dwellSamples: 0 };
+                    return {
+                        path,
+                        views: Math.max(ga?.views ?? 0, firstParty.views),
+                        avgTime: ga?.avgTime || (firstParty.dwellSamples > 0 ? firstParty.dwellMsTotal / 1000 / firstParty.dwellSamples : 0),
+                        engagementRate: Math.max(ga?.engagementRate ?? 0, firstParty.views > 0 ? firstParty.clicks / firstParty.views : 0),
+                    };
+                })
+                .sort((a, b) => b.views - a.views)
+                .slice(0, 25);
 
             const dropsData = period === "all"
                 ? dropsSnapshot.docs
@@ -723,92 +853,38 @@ export async function GET(request: NextRequest) {
                         .slice(0, 15);
                 })();
 
-            // --- NEW: Firestore Aggregations ---
-            // 1. Commerce: Transaction totals (USD Revenue vs GD Spent) AND feed
-            const transactionsSnapshot = await adminDb.collection("transactions")
-                .orderBy("timestamp", "desc")
-                .limit(50)
-                .get();
+            const normalizedTransactionsInRange = transactionsInRangeSnapshot.docs.flatMap((doc) => {
+                try {
+                    const normalized = normalizeTransactionRecord(doc.data(), doc.id);
+                    const normalizedTimestamp = toNumber(normalized.timestamp);
+                    if (normalizedTimestamp < startMs) {
+                        return [];
+                    }
 
-            let totalRevenueUsd = 0;
-            let totalAdjustedProfitUsd = 0;
-            let totalBonusValueUsd = 0;
-            let totalDeliveredGd = 0;
-            let totalBonusGd = 0;
-            let totalGdSpent = 0; // Unlocks amount (GD)
-            const rawTransactions: any[] = [];
-
-            transactionsSnapshot.docs.forEach((doc: any) => {
-                const normalized = normalizeTransactionRecord(doc.data(), doc.id);
-                rawTransactions.push(normalized);
-                if (normalized.type === "purchase_currency" && normalized.status === "completed") {
-                    const economics = deriveGumdropEconomics(
-                        normalized.deliveredGumDrops ?? normalized.amount,
-                        normalized.grossRevenueUsd ?? normalized.cost ?? 0,
-                    );
-                    totalRevenueUsd += economics.grossRevenueUsd;
-                    totalAdjustedProfitUsd += economics.adjustedProfitUsd;
-                    totalBonusValueUsd += economics.bonusValueUsd;
-                    totalDeliveredGd += economics.deliveredGumDrops;
-                    totalBonusGd += economics.bonusGumDrops;
-                } else if (normalized.type === "unlock_content") {
-                    totalGdSpent += (normalized.amount || 0);
+                    return [{ ...normalized, timestamp: normalizedTimestamp }];
+                } catch {
+                    return [];
                 }
             });
+            const rawTransactions = normalizedTransactionsInRange.slice(0, 50);
 
-            // Delaying commerce object creation until users are fetched
-
-            // 2. Security: User Security Flags
-            const usersWithFlagsSnapshot = await adminDb.collection("users")
-                .orderBy("securityFlags.lastViolation", "desc")
-                .limit(50)
-                .get();
-
-            const securityLogs = usersWithFlagsSnapshot.docs.map((doc: any) => {
-                const data = doc.data();
-                const violationDropId = data.securityFlags?.lastViolationDropId || null;
-                return {
-                    uid: doc.id,
-                    username: data.username || data.displayName || "Unknown User",
-                    photoURL: data.photoURL,
-                    ripAttempts: data.securityFlags?.ripAttempts || 0,
-                    lastViolation: data.securityFlags?.lastViolation || null,
-                    lastViolationReason: data.securityFlags?.lastViolationReason || "Unknown",
-                    lastViolationDropId: violationDropId,
-                    lastViolationDropTitle: violationDropId ? resolveDropTitle(dropReferences, violationDropId) : null,
-                };
-            }).filter((log: any) => log.ripAttempts > 0);
-            // --- END NEW ---
-
-            // 3. Deep Tracker Sessions (Raw Event Trace)
-            // Limit to only 5 recent session buckets to prevent massive payload over the wire
-            const deepTrackerSnapshot = await adminDb.collection("analytics_sessions")
-                .orderBy("createdAt", "desc")
-                .limit(5)
-                .get();
-
-            const rawEvents: any[] = [];
-            for (const doc of deepTrackerSnapshot.docs) {
-                const sessionData = doc.data();
-                if (sessionData.events && Array.isArray(sessionData.events)) {
-                    rawEvents.push(...sessionData.events);
-                }
-                // Break early once we hit our cap to save CPU and memory
-                if (rawEvents.length >= 200) {
-                    break;
-                }
-            }
-            // Sort combined events descending by time
-            rawEvents.sort((a, b) => b.timestamp - a.timestamp);
-            const slicedEvents = rawEvents.slice(0, 200);
-
-            // --- User Resolution Mapping ---
             const userUids = new Set<string>();
-            rawTransactions.forEach(tx => {
-                if (tx.userId) userUids.add(tx.userId);
+            rawTransactions.forEach((tx) => {
+                if (tx.userId) {
+                    userUids.add(tx.userId);
+                }
             });
-            slicedEvents.forEach(evt => {
-                if (evt.uid && evt.uid !== 'anonymous' && evt.uid !== 'anon') userUids.add(evt.uid);
+            telemetryLogsByEvent.viewer_opened?.forEach((record) => {
+                if (record.userId) {
+                    userUids.add(record.userId);
+                }
+            });
+            securityEventsSnapshot.docs.forEach((doc) => {
+                const data = doc.data() as Record<string, unknown>;
+                const userId = toStringValue(data.userId);
+                if (userId) {
+                    userUids.add(userId);
+                }
             });
 
             const userMap: Record<string, { username: string, photoURL: string }> = {};
@@ -833,28 +909,43 @@ export async function GET(request: NextRequest) {
                 userPhoto: tx.userId ? (userMap[tx.userId]?.photoURL || "") : ""
             }));
 
-            const mappedEvents = slicedEvents.map(evt => ({
-                ...evt,
-                username: evt.uid && evt.uid !== 'anonymous' && evt.uid !== 'anon' ? (userMap[evt.uid]?.username || evt.uid) : "Guest",
-                userPhoto: evt.uid && evt.uid !== 'anonymous' && evt.uid !== 'anon' ? (userMap[evt.uid]?.photoURL || "") : ""
-            }));
-
-            const commerce = {
-                revenueUsd: totalRevenueUsd,
-                adjustedProfitUsd: totalAdjustedProfitUsd,
-                bonusValueUsd: totalBonusValueUsd,
-                deliveredGumDrops: totalDeliveredGd,
-                bonusGumDrops: totalBonusGd,
-                effectiveUsdPer100Gd: totalDeliveredGd > 0 ? totalRevenueUsd / (totalDeliveredGd / 100) : 0,
-                gdSpent: totalGdSpent,
-                feed: mappedCommerceFeed
-            };
-
             const telemetryLogs = Object.values(telemetryLogsByEvent).flat().sort((left, right) => right.timestamp - left.timestamp);
-            const firstPartyAuthenticatedEvents = sumSnapshotField(dailyRollupsSnapshot, "authenticatedEvents");
+            const telemetryEventCounts = Object.fromEntries(
+                Object.entries(telemetryLogsByEvent).map(([eventName, records]) => [eventName, records.length]),
+            );
+            const canonicalEventCounts = analyticsEventFactsSnapshot.docs.reduce<Record<string, number>>((acc, doc) => {
+                const data = doc.data() as Record<string, unknown>;
+                const eventName = toStringValue(data.eventName);
+                if (!eventName) {
+                    return acc;
+                }
+
+                acc[eventName] = (acc[eventName] || 0) + 1;
+                return acc;
+            }, {});
+            const eventsData = Object.fromEntries(buildMergedCountMap(
+                gaEventCounts,
+                telemetryEventCounts,
+                canonicalEventCounts,
+            ));
+            const eventBreakdown = Array.from(buildMergedCountMap(
+                gaEventCounts,
+                telemetryEventCounts,
+                canonicalEventCounts,
+            ).entries())
+                .map(([eventName, count]) => ({ eventName, count }))
+                .sort((a, b) => b.count - a.count);
+            const firstPartyAuthenticatedEvents = filteredDailyRollups.reduce((total, doc) => {
+                const data = doc.data() as Record<string, unknown>;
+                return total + toNumber(data.authenticatedEvents);
+            }, 0);
             const firstPartyTaskLifecycleEvents = sumSnapshotField(taskDailySnapshot, "eventCount");
-            const firstPartyPurchaseCount = sumSnapshotField(commerceDailySnapshot, "purchaseCount");
-            const firstPartyUnlockCount = sumSnapshotField(commerceDailySnapshot, "unlockCount");
+            const firstPartyPurchaseCount = period === "all"
+                ? toNumber(commerceSummarySnapshot.data()?.purchaseCount)
+                : sumSnapshotField(commerceDailySnapshot, "purchaseCount");
+            const firstPartyUnlockCount = period === "all"
+                ? toNumber(commerceSummarySnapshot.data()?.unlockCount)
+                : sumSnapshotField(commerceDailySnapshot, "unlockCount");
             const normalizedTaskEvents: TaskLifecycleLog[] = taskEventsSnapshot.docs.flatMap((doc) => {
                 const data = doc.data();
                 const timestamp = toNumber(data.timestamp);
@@ -880,6 +971,154 @@ export async function GET(request: NextRequest) {
                     durationMs: toNumber(data.durationMs) || undefined,
                 }];
             });
+            const commerceTotals = period === "all" && commerceSummarySnapshot.exists
+                ? {
+                    revenueUsd: toNumber(commerceSummarySnapshot.data()?.grossRevenueUsdTotal),
+                    adjustedProfitUsd: toNumber(commerceSummarySnapshot.data()?.adjustedProfitUsdTotal),
+                    bonusValueUsd: toNumber(commerceSummarySnapshot.data()?.bonusValueUsdTotal),
+                    deliveredGumDrops: toNumber(commerceSummarySnapshot.data()?.deliveredGumDropsTotal),
+                    bonusGumDrops: toNumber(commerceSummarySnapshot.data()?.bonusGumDropsTotal),
+                    gdSpent: toNumber(commerceSummarySnapshot.data()?.spendGdTotal),
+                }
+                : normalizedTransactionsInRange.reduce((acc, transaction) => {
+                    if (transaction.type === "purchase_currency" && transaction.status === "completed") {
+                        const economics = deriveGumdropEconomics(
+                            transaction.deliveredGumDrops ?? transaction.amount,
+                            transaction.grossRevenueUsd ?? transaction.cost ?? 0,
+                            {
+                                paypalFeeUsd: transaction.paypalFeeUsd,
+                                netRevenueUsd: transaction.netRevenueUsd,
+                            },
+                        );
+                        acc.revenueUsd += economics.grossRevenueUsd;
+                        acc.adjustedProfitUsd += economics.adjustedProfitUsd;
+                        acc.bonusValueUsd += economics.bonusValueUsd;
+                        acc.deliveredGumDrops += economics.deliveredGumDrops;
+                        acc.bonusGumDrops += economics.bonusGumDrops;
+                    } else if (transaction.type === "unlock_content") {
+                        acc.gdSpent += Math.abs(toNumber(transaction.amount));
+                    }
+
+                    return acc;
+                }, {
+                    revenueUsd: 0,
+                    adjustedProfitUsd: 0,
+                    bonusValueUsd: 0,
+                    deliveredGumDrops: 0,
+                    bonusGumDrops: 0,
+                    gdSpent: 0,
+                });
+            const commerce = {
+                revenueUsd: commerceTotals.revenueUsd,
+                adjustedProfitUsd: commerceTotals.adjustedProfitUsd,
+                bonusValueUsd: commerceTotals.bonusValueUsd,
+                deliveredGumDrops: commerceTotals.deliveredGumDrops,
+                bonusGumDrops: commerceTotals.bonusGumDrops,
+                effectiveUsdPer100Gd: commerceTotals.deliveredGumDrops > 0 ? commerceTotals.revenueUsd / (commerceTotals.deliveredGumDrops / 100) : 0,
+                gdSpent: commerceTotals.gdSpent,
+                feed: mappedCommerceFeed,
+            };
+            const securityByUser = new Map<string, {
+                uid: string;
+                username: string;
+                photoURL?: string;
+                ripAttempts: number;
+                lastViolation: string | null;
+                lastViolationReason: string;
+                lastViolationDropId: string | null;
+                lastViolationDropTitle: string | null;
+            }>();
+            securityEventsSnapshot.docs.forEach((doc) => {
+                const data = doc.data() as Record<string, unknown>;
+                const uid = toStringValue(data.userId);
+                if (!uid) {
+                    return;
+                }
+
+                const current = securityByUser.get(uid) || {
+                    uid,
+                    username: userMap[uid]?.username || toStringValue(data.username) || uid,
+                    photoURL: userMap[uid]?.photoURL || undefined,
+                    ripAttempts: 0,
+                    lastViolation: null,
+                    lastViolationReason: "Unknown",
+                    lastViolationDropId: null,
+                    lastViolationDropTitle: null,
+                };
+                const timestamp = toNumber(data.timestamp);
+                current.ripAttempts += 1;
+                if (!current.lastViolation || timestamp > Date.parse(current.lastViolation)) {
+                    const dropId = toStringValue(data.dropId) || null;
+                    current.lastViolation = new Date(timestamp).toISOString();
+                    current.lastViolationReason = toStringValue(data.label) || toStringValue(data.reason) || "Unknown";
+                    current.lastViolationDropId = dropId;
+                    current.lastViolationDropTitle = dropId ? resolveDropTitle(dropReferences, dropId) : null;
+                }
+                securityByUser.set(uid, current);
+            });
+            const securityLogs = Array.from(securityByUser.values())
+                .sort((left, right) => right.ripAttempts - left.ripAttempts || Date.parse(right.lastViolation || "") - Date.parse(left.lastViolation || ""))
+                .slice(0, 50);
+            const guestActivity = guestBatchesSnapshot.docs.flatMap((doc) => {
+                const data = doc.data() as Record<string, unknown>;
+                const events = Array.isArray(data.events) ? data.events as Array<Record<string, unknown>> : [];
+                return events.map((event) => ({
+                    type: toStringValue(event.type) || "guest_event",
+                    detail: toStringValue(event.targetText) || toStringValue(event.targetKey) || "Guest interaction",
+                    targetText: toStringValue(event.targetText) || undefined,
+                    targetTag: toStringValue(event.targetTag) || undefined,
+                    targetId: toStringValue(event.targetId) || undefined,
+                    scrollDepthPercent: toNumber(event.scrollDepthPercent) || undefined,
+                    path: toStringValue(event.path) || toStringValue(data.pagePath) || "/",
+                    uid: "guest",
+                    username: "Guest",
+                    userPhoto: "",
+                    timestamp: toNumber(event.timestamp) || toNumber(data.receivedAtMs),
+                }));
+            });
+            const authActivity = telemetryLogs.map((event) => ({
+                type: event.eventName,
+                detail: getTelemetryParamString(event, "drop_title")
+                    || getTelemetryParamString(event, "destination")
+                    || getTelemetryParamString(event, "page_path")
+                    || event.eventName,
+                targetText: getTelemetryParamString(event, "target_text") || undefined,
+                targetTag: getTelemetryParamString(event, "target_tag") || undefined,
+                targetId: getTelemetryParamString(event, "target_id") || undefined,
+                scrollDepthPercent: getTelemetryParamNumber(event, "scroll_depth_percent") || undefined,
+                path: getTelemetryParamString(event, "page_path") || "/",
+                uid: event.userId || "guest",
+                username: event.userId ? (userMap[event.userId]?.username || event.username || event.userId) : "Guest",
+                userPhoto: event.userId ? (userMap[event.userId]?.photoURL || "") : "",
+                timestamp: event.timestamp,
+            }));
+            const transactionActivity = rawTransactions.map((transaction) => ({
+                type: transaction.type || "transaction",
+                detail: transaction.description || (transaction.type === "purchase_currency" ? "Gum Drops purchase" : "Drop unlock"),
+                path: "/dashboard",
+                uid: transaction.userId || "unknown",
+                username: transaction.userId ? (userMap[transaction.userId]?.username || transaction.userId) : "Unknown User",
+                userPhoto: transaction.userId ? (userMap[transaction.userId]?.photoURL || "") : "",
+                timestamp: toNumber(transaction.timestamp),
+            }));
+            const taskActivity = normalizedTaskEvents.map((event) => ({
+                type: `task_${event.type}`,
+                detail: event.title || event.taskId || "Task update",
+                path: "/experiences",
+                uid: event.userId || "unknown",
+                username: event.userId ? (userMap[event.userId]?.username || event.username || event.userId) : "Unknown User",
+                userPhoto: event.userId ? (userMap[event.userId]?.photoURL || "") : "",
+                timestamp: event.timestamp,
+            }));
+            const mappedEvents = [
+                ...authActivity,
+                ...guestActivity,
+                ...transactionActivity,
+                ...taskActivity,
+            ]
+                .filter((event) => event.timestamp >= startMs)
+                .sort((left, right) => right.timestamp - left.timestamp)
+                .slice(0, 200);
             const purchaseEventCount = Math.max(eventsData.gumdrops_purchase_completed || 0, eventsData.purchase || 0);
             const purchases = Math.max(purchaseEventCount, firstPartyPurchaseCount);
             const canonicalUnlockCount = Math.max(eventsData.unlock_drop_success || 0, firstPartyUnlockCount);
@@ -948,20 +1187,6 @@ export async function GET(request: NextRequest) {
                     const normalizedFilter = normalizeViewerIdentity(viewerUser);
                     return candidateUserId === normalizedFilter || candidateUsername === normalizedFilter;
                 });
-
-            const normalizedTransactionsInRange = transactionsInRangeSnapshot.docs.flatMap((doc) => {
-                try {
-                    const normalized = normalizeTransactionRecord(doc.data(), doc.id);
-                    const normalizedTimestamp = toNumber(normalized.timestamp);
-                    if (normalizedTimestamp < startMs) {
-                        return [];
-                    }
-
-                    return [{ ...normalized, timestamp: normalizedTimestamp }];
-                } catch {
-                    return [];
-                }
-            });
 
             const averageDuration = (records: TelemetryLogRecord[]) => {
                 const durations = records

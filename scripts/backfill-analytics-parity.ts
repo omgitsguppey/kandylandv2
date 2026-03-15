@@ -70,6 +70,24 @@ type UserAggregate = {
   lastPurchaseAt: number;
 };
 
+type DailyRollupAggregate = {
+  totalEvents: number;
+  authenticatedEvents: number;
+  viewerSessions: number;
+  lastEventAt: number;
+};
+
+type TaskAggregate = {
+  taskId?: string;
+  title?: string;
+  eventCount: number;
+  rewardTotal: number;
+  durationMsTotal: number;
+  durationSampleCount: number;
+  types: Record<string, number>;
+  lastEventAt: number;
+};
+
 function roundCurrency(value: number) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
@@ -155,6 +173,28 @@ function buildEmptyUserAggregate(): UserAggregate {
   };
 }
 
+function buildEmptyDailyRollupAggregate(): DailyRollupAggregate {
+  return {
+    totalEvents: 0,
+    authenticatedEvents: 0,
+    viewerSessions: 0,
+    lastEventAt: 0,
+  };
+}
+
+function buildEmptyTaskAggregate(taskId?: string, title?: string): TaskAggregate {
+  return {
+    taskId,
+    title,
+    eventCount: 0,
+    rewardTotal: 0,
+    durationMsTotal: 0,
+    durationSampleCount: 0,
+    types: {},
+    lastEventAt: 0,
+  };
+}
+
 async function commitEntries(
   entries: Array<() => Promise<void>>,
 ) {
@@ -164,9 +204,11 @@ async function commitEntries(
 }
 
 async function main() {
-  const [transactionsSnapshot, sessionFactsSnapshot] = await Promise.all([
+  const [transactionsSnapshot, sessionFactsSnapshot, eventFactsSnapshot, taskEventsSnapshot] = await Promise.all([
     adminDb.collection("transactions").get(),
     adminDb.collection("analytics_session_facts").get(),
+    adminDb.collection("analytics_event_facts").get(),
+    adminDb.collection("daily_task_events").get(),
   ]);
 
   const commerceDaily = new Map<string, CommerceAggregate>();
@@ -174,6 +216,9 @@ async function main() {
   const bundleRollup = new Map<string, CommerceAggregate & { bundleLabel: string; bundleKey: string; bundleTier: string }>();
   const userDaily = new Map<string, UserAggregate>();
   const userRollup = new Map<string, UserAggregate>();
+  const dailyRollups = new Map<string, DailyRollupAggregate>();
+  const taskDaily = new Map<string, TaskAggregate>();
+  const taskRollup = new Map<string, TaskAggregate>();
   const commerceSummary = buildEmptyCommerceAggregate();
 
   transactionsSnapshot.docs.forEach((doc) => {
@@ -309,6 +354,48 @@ async function main() {
     userRollup.set(userId, userRollupEntry);
   });
 
+  eventFactsSnapshot.docs.forEach((doc) => {
+    const data = doc.data() as Record<string, unknown>;
+    const timestamp = toTimestampNumber(data.timestamp) || Date.now();
+    const dayKey = typeof data.dayKey === "string" ? data.dayKey : toTimeKeys(timestamp).dayKey;
+    const eventName = typeof data.eventName === "string" ? data.eventName : "";
+    const current = dailyRollups.get(dayKey) ?? buildEmptyDailyRollupAggregate();
+    current.totalEvents += 1;
+    current.authenticatedEvents += 1;
+    current.viewerSessions += eventName === "viewer_session_started" ? 1 : 0;
+    current.lastEventAt = Math.max(current.lastEventAt, timestamp);
+    dailyRollups.set(dayKey, current);
+  });
+
+  taskEventsSnapshot.docs.forEach((doc) => {
+    const data = doc.data() as Record<string, unknown>;
+    const timestamp = toTimestampNumber(data.timestamp) || Date.now();
+    const dayKey = typeof data.dayKey === "string" ? data.dayKey : toTimeKeys(timestamp).dayKey;
+    const taskId = typeof data.taskId === "string" ? data.taskId : doc.id;
+    const title = typeof data.title === "string" ? data.title : taskId;
+    const type = typeof data.type === "string" ? data.type : "unknown";
+    const reward = Number(data.reward || 0);
+    const durationMs = Number(data.durationMs || 0);
+
+    const dayEntry = taskDaily.get(dayKey) ?? buildEmptyTaskAggregate(undefined, undefined);
+    dayEntry.eventCount += 1;
+    dayEntry.rewardTotal += reward;
+    dayEntry.durationMsTotal += durationMs;
+    dayEntry.durationSampleCount += durationMs > 0 ? 1 : 0;
+    dayEntry.types[type] = (dayEntry.types[type] || 0) + 1;
+    dayEntry.lastEventAt = Math.max(dayEntry.lastEventAt, timestamp);
+    taskDaily.set(dayKey, dayEntry);
+
+    const rollupEntry = taskRollup.get(taskId) ?? buildEmptyTaskAggregate(taskId, title);
+    rollupEntry.eventCount += 1;
+    rollupEntry.rewardTotal += reward;
+    rollupEntry.durationMsTotal += durationMs;
+    rollupEntry.durationSampleCount += durationMs > 0 ? 1 : 0;
+    rollupEntry.types[type] = (rollupEntry.types[type] || 0) + 1;
+    rollupEntry.lastEventAt = Math.max(rollupEntry.lastEventAt, timestamp);
+    taskRollup.set(taskId, rollupEntry);
+  });
+
   const writes: Array<() => Promise<void>> = [];
 
   commerceDaily.forEach((entry, dayKey) => {
@@ -380,8 +467,52 @@ async function main() {
     });
   });
 
+  dailyRollups.forEach((entry, dayKey) => {
+    writes.push(async () => {
+      await adminDb.collection("analytics_rollups_daily").doc(dayKey).set({
+        dayKey,
+        totalEvents: entry.totalEvents,
+        authenticatedEvents: entry.authenticatedEvents,
+        viewerSessions: entry.viewerSessions,
+        lastEventAt: entry.lastEventAt,
+        updatedAt: FieldValue.serverTimestamp(),
+      }, { merge: true });
+    });
+  });
+
+  taskDaily.forEach((entry, dayKey) => {
+    writes.push(async () => {
+      await adminDb.collection("analytics_task_daily").doc(dayKey).set({
+        dayKey,
+        eventCount: entry.eventCount,
+        rewardTotal: entry.rewardTotal,
+        durationMsTotal: entry.durationMsTotal,
+        durationSampleCount: entry.durationSampleCount,
+        types: entry.types,
+        lastEventAt: entry.lastEventAt,
+        updatedAt: FieldValue.serverTimestamp(),
+      }, { merge: true });
+    });
+  });
+
+  taskRollup.forEach((entry, taskId) => {
+    writes.push(async () => {
+      await adminDb.collection("analytics_task_rollup").doc(taskId).set({
+        taskId,
+        title: entry.title || taskId,
+        eventCount: entry.eventCount,
+        rewardTotal: entry.rewardTotal,
+        durationMsTotal: entry.durationMsTotal,
+        durationSampleCount: entry.durationSampleCount,
+        types: entry.types,
+        lastEventAt: entry.lastEventAt,
+        updatedAt: FieldValue.serverTimestamp(),
+      }, { merge: true });
+    });
+  });
+
   await commitEntries(writes);
-  console.log(`Backfilled ${commerceDaily.size} commerce days, ${userRollup.size} user rollups, and ${userDaily.size} user-day rollups.`);
+  console.log(`Backfilled ${commerceDaily.size} commerce days, ${userRollup.size} user rollups, ${userDaily.size} user-day rollups, ${dailyRollups.size} telemetry days, and ${taskRollup.size} task rollups.`);
 }
 
 main()
