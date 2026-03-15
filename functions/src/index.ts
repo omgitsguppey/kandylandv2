@@ -48,6 +48,10 @@ interface TransactionFact {
   cost?: number;
   grossRevenueUsd?: number;
   grossRevenueCents?: number;
+  paypalFeeUsd?: number;
+  paypalFeeCents?: number;
+  netRevenueUsd?: number;
+  netRevenueCents?: number;
   deliveredGumDrops?: number;
   paidGumDrops?: number;
   bonusGumDrops?: number;
@@ -635,11 +639,18 @@ export const onTransactionCreated = onDocumentCreated(
     const userId = readString(data.userId)
     const dropId = readString(data.dropId)
     const amount = readNumber(data.amount)
+    const unlockSpendAmount = type === "unlock_content" ? Math.abs(amount) : 0
     const cost = readNumber(data.cost)
     const grossRevenueUsd = readNumber(data.grossRevenueUsd) || cost
+    const paypalFeeUsd = readNumber(data.paypalFeeUsd)
+    const netRevenueUsd = readNumber(data.netRevenueUsd)
     const economics = deriveGumdropEconomics(
       readNumber(data.deliveredGumDrops) || amount,
       grossRevenueUsd,
+      {
+        paypalFeeUsd: paypalFeeUsd > 0 ? paypalFeeUsd : undefined,
+        netRevenueUsd: netRevenueUsd > 0 ? netRevenueUsd : undefined,
+      },
     )
     const bundleLabel = readString(data.bundleLabel) || `${economics.deliveredGumDrops} GD`
     const bundleKey = readString(data.bundleKey) || encodeKeyFragment(bundleLabel)
@@ -652,6 +663,10 @@ export const onTransactionCreated = onDocumentCreated(
       amountTotal: buildIncrementUpdate(amount),
       revenueCentsTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.grossRevenueCents : 0),
       grossRevenueUsdTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.grossRevenueUsd : 0),
+      paypalFeeUsdTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.paypalFeeUsd : 0),
+      paypalFeeCentsTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.paypalFeeCents : 0),
+      netRevenueUsdTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.netRevenueUsd : 0),
+      netRevenueCentsTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.netRevenueCents : 0),
       adjustedProfitUsdTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.adjustedProfitUsd : 0),
       adjustedProfitCentsTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.adjustedProfitCents : 0),
       retailValueUsdTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.retailValueUsd : 0),
@@ -661,6 +676,7 @@ export const onTransactionCreated = onDocumentCreated(
       paidGumDropsTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.paidGumDrops : 0),
       purchaseCount: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? 1 : 0),
       unlockCount: buildIncrementUpdate(type === "unlock_content" ? 1 : 0),
+      unlockSpendGdTotal: buildIncrementUpdate(unlockSpendAmount),
       updatedAt: FieldValue.serverTimestamp(),
       lastTransactionAt: timestamp,
     }, {merge: true})
@@ -669,6 +685,10 @@ export const onTransactionCreated = onDocumentCreated(
       transactionCount: buildIncrementUpdate(1),
       purchaseCount: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? 1 : 0),
       unlockCount: buildIncrementUpdate(type === "unlock_content" ? 1 : 0),
+      paypalFeeUsdTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.paypalFeeUsd : 0),
+      paypalFeeCentsTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.paypalFeeCents : 0),
+      netRevenueUsdTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.netRevenueUsd : 0),
+      netRevenueCentsTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.netRevenueCents : 0),
       grossRevenueUsdTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.grossRevenueUsd : 0),
       adjustedProfitUsdTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.adjustedProfitUsd : 0),
       retailValueUsdTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.retailValueUsd : 0),
@@ -676,6 +696,7 @@ export const onTransactionCreated = onDocumentCreated(
       bonusGumDropsTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.bonusGumDrops : 0),
       deliveredGumDropsTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.deliveredGumDrops : 0),
       paidGumDropsTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.paidGumDrops : 0),
+      unlockSpendGdTotal: buildIncrementUpdate(unlockSpendAmount),
       updatedAt: FieldValue.serverTimestamp(),
       lastTransactionAt: timestamp,
     }, {merge: true})
@@ -687,6 +708,10 @@ export const onTransactionCreated = onDocumentCreated(
         bundleTier,
         purchaseCount: buildIncrementUpdate(1),
         grossRevenueUsdTotal: buildIncrementUpdate(economics.grossRevenueUsd),
+        paypalFeeUsdTotal: buildIncrementUpdate(economics.paypalFeeUsd),
+        paypalFeeCentsTotal: buildIncrementUpdate(economics.paypalFeeCents),
+        netRevenueUsdTotal: buildIncrementUpdate(economics.netRevenueUsd),
+        netRevenueCentsTotal: buildIncrementUpdate(economics.netRevenueCents),
         adjustedProfitUsdTotal: buildIncrementUpdate(economics.adjustedProfitUsd),
         retailValueUsdTotal: buildIncrementUpdate(economics.retailValueUsd),
         bonusValueUsdTotal: buildIncrementUpdate(economics.bonusValueUsd),
@@ -705,6 +730,10 @@ export const onTransactionCreated = onDocumentCreated(
         bundleTier,
         purchaseCount: buildIncrementUpdate(1),
         grossRevenueUsdTotal: buildIncrementUpdate(economics.grossRevenueUsd),
+        paypalFeeUsdTotal: buildIncrementUpdate(economics.paypalFeeUsd),
+        paypalFeeCentsTotal: buildIncrementUpdate(economics.paypalFeeCents),
+        netRevenueUsdTotal: buildIncrementUpdate(economics.netRevenueUsd),
+        netRevenueCentsTotal: buildIncrementUpdate(economics.netRevenueCents),
         adjustedProfitUsdTotal: buildIncrementUpdate(economics.adjustedProfitUsd),
         retailValueUsdTotal: buildIncrementUpdate(economics.retailValueUsd),
         bonusValueUsdTotal: buildIncrementUpdate(economics.bonusValueUsd),
@@ -720,7 +749,13 @@ export const onTransactionCreated = onDocumentCreated(
     if (userId) {
       const commercePatch: Record<string, number | ReturnType<typeof buildIncrementUpdate>> = {}
       if (type === "purchase_currency" && status === "completed") {
+        commercePatch.purchaseCount = buildIncrementUpdate(1)
+        commercePatch.purchaseTransactionCount = buildIncrementUpdate(1)
         commercePatch.grossRevenueUsdTotal = buildIncrementUpdate(economics.grossRevenueUsd)
+        commercePatch.paypalFeeUsdTotal = buildIncrementUpdate(economics.paypalFeeUsd)
+        commercePatch.paypalFeeCentsTotal = buildIncrementUpdate(economics.paypalFeeCents)
+        commercePatch.netRevenueUsdTotal = buildIncrementUpdate(economics.netRevenueUsd)
+        commercePatch.netRevenueCentsTotal = buildIncrementUpdate(economics.netRevenueCents)
         commercePatch.adjustedProfitUsdTotal = buildIncrementUpdate(economics.adjustedProfitUsd)
         commercePatch.retailValueUsdTotal = buildIncrementUpdate(economics.retailValueUsd)
         commercePatch.bonusValueUsdTotal = buildIncrementUpdate(economics.bonusValueUsd)
@@ -734,8 +769,10 @@ export const onTransactionCreated = onDocumentCreated(
         dayKey: timeKeys.dayKey,
         uid: userId,
         transactionCount: buildIncrementUpdate(1),
-        spendGdTotal: buildIncrementUpdate(type === "unlock_content" ? amount : 0),
+        spendGdTotal: buildIncrementUpdate(unlockSpendAmount),
+        unlockSpendGdTotal: buildIncrementUpdate(unlockSpendAmount),
         revenueCentsTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.grossRevenueCents : 0),
+        purchaseCount: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? 1 : 0),
         purchaseTransactionCount: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? 1 : 0),
         unlockCount: buildIncrementUpdate(type === "unlock_content" ? 1 : 0),
         ...commercePatch,
@@ -745,9 +782,11 @@ export const onTransactionCreated = onDocumentCreated(
 
       batch.set(db.collection("analytics_users_rollup").doc(userId), {
         uid: userId,
+        purchaseCount: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? 1 : 0),
         purchaseTransactionCount: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? 1 : 0),
         unlockCount: buildIncrementUpdate(type === "unlock_content" ? 1 : 0),
-        spendGdTotal: buildIncrementUpdate(type === "unlock_content" ? amount : 0),
+        spendGdTotal: buildIncrementUpdate(unlockSpendAmount),
+        unlockSpendGdTotal: buildIncrementUpdate(unlockSpendAmount),
         revenueCentsTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.grossRevenueCents : 0),
         ...commercePatch,
         updatedAt: FieldValue.serverTimestamp(),
@@ -760,7 +799,7 @@ export const onTransactionCreated = onDocumentCreated(
         dayKey: timeKeys.dayKey,
         dropId,
         unlockTransactionCount: buildIncrementUpdate(type === "unlock_content" ? 1 : 0),
-        spendGdTotal: buildIncrementUpdate(type === "unlock_content" ? amount : 0),
+        spendGdTotal: buildIncrementUpdate(unlockSpendAmount),
         updatedAt: FieldValue.serverTimestamp(),
         lastEventAt: timestamp,
       }, {merge: true})
@@ -774,9 +813,14 @@ export const onTransactionCreated = onDocumentCreated(
       unlockCount: type === "unlock_content" ? 1 : 0,
       revenueCentsTotal: type === "purchase_currency" && status === "completed" ? economics.grossRevenueCents : 0,
       grossRevenueUsdTotal: type === "purchase_currency" && status === "completed" ? economics.grossRevenueUsd : 0,
+      paypalFeeUsdTotal: type === "purchase_currency" && status === "completed" ? economics.paypalFeeUsd : 0,
+      paypalFeeCentsTotal: type === "purchase_currency" && status === "completed" ? economics.paypalFeeCents : 0,
+      netRevenueUsdTotal: type === "purchase_currency" && status === "completed" ? economics.netRevenueUsd : 0,
+      netRevenueCentsTotal: type === "purchase_currency" && status === "completed" ? economics.netRevenueCents : 0,
       adjustedProfitUsdTotal: type === "purchase_currency" && status === "completed" ? economics.adjustedProfitUsd : 0,
       bonusValueUsdTotal: type === "purchase_currency" && status === "completed" ? economics.bonusValueUsd : 0,
       bonusGumDropsTotal: type === "purchase_currency" && status === "completed" ? economics.bonusGumDrops : 0,
+      unlockSpendGdTotal: unlockSpendAmount,
       lastTransactionAt: timestamp,
     })
   },

@@ -8,6 +8,7 @@ import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 import { normalizeUserProfile } from "@/lib/user-utils";
 import { describeSecurityEvent } from "@/lib/security-events";
 import { getDropReferenceMap, resolveDropTitle } from "@/lib/server/drop-references";
+import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
 
 function toTimestampNumber(value: unknown): number {
     if (typeof value === "number" && Number.isFinite(value)) {
@@ -51,7 +52,7 @@ export async function GET(
         const historyLimit = Number.isFinite(limitParam) ? Math.min(Math.max(limitParam, 1), 200) : 60;
 
         const userRef = adminDb.collection("users").doc(userId);
-        const [userSnap, transactionsSnap, analyticsRollupSnap, analyticsFactsSnap, securityEventsSnap] = await Promise.all([
+        const [userSnap, transactionsSnap, analyticsRollupSnap, analyticsFactsSnap, sessionFactsSnap, userDailySnapshot, securityEventsSnap] = await Promise.all([
             userRef.get(),
             adminDb.collection("transactions")
                 .where("userId", "==", userId)
@@ -62,6 +63,12 @@ export async function GET(
             adminDb.collection("analytics_event_facts")
                 .where("userId", "==", userId)
                 .limit(400)
+                .get(),
+            adminDb.collection("analytics_session_facts")
+                .where("userId", "==", userId)
+                .get(),
+            adminDb.collection("analytics_user_daily")
+                .where("uid", "==", userId)
                 .get(),
             adminDb.collection("security_events")
                 .where("userId", "==", userId)
@@ -102,9 +109,40 @@ export async function GET(
             }
         });
 
+        const purchaseTransactions = transactions
+            .filter((transaction) => transaction.status === "completed" && transaction.type === "purchase_currency")
+            .map((transaction) => ({
+                ...transaction,
+                economics: deriveGumdropEconomics(
+                    transaction.deliveredGumDrops ?? transaction.amount,
+                    transaction.grossRevenueUsd ?? transaction.cost ?? 0,
+                    {
+                        paypalFeeUsd: transaction.paypalFeeUsd,
+                        netRevenueUsd: transaction.netRevenueUsd,
+                    },
+                ),
+            }));
+
         const analyticsRollup = analyticsRollupSnap.exists
             ? analyticsRollupSnap.data() as Record<string, unknown>
             : {};
+        const sessionFacts = sessionFactsSnap.docs.map((doc) => {
+            const data = doc.data() as Record<string, unknown>;
+            return {
+                id: doc.id,
+                dropId: readString(data.dropId),
+                dropTitle: readString(data.dropTitle),
+                userId: readString(data.userId),
+                username: readString(data.username),
+                startedCount: readNumber(data.startedCount),
+                completedCount: readNumber(data.completedCount),
+                watchSecondsTotal: readNumber(data.watchSecondsTotal),
+                loadMsTotal: readNumber(data.loadMsTotal),
+                loadSampleCount: readNumber(data.loadSampleCount),
+                lastEventAt: toTimestampNumber(data.lastEventAt) || toTimestampNumber(data.lastEventAtMs),
+            };
+        });
+        const userDaily = userDailySnapshot.docs.map((doc) => doc.data() as Record<string, unknown>);
 
         const analyticsFacts = analyticsFactsSnap.docs
             .map((doc) => {
@@ -153,6 +191,16 @@ export async function GET(
         const directAvgLoadMs = loadSamples.length > 0
             ? Math.round(loadSamples.reduce((sum, value) => sum + value, 0) / loadSamples.length)
             : 0;
+        const sessionFactViewCount = sessionFacts.reduce((sum, fact) => sum + fact.startedCount, 0);
+        const sessionFactCompletionCount = sessionFacts.reduce((sum, fact) => sum + fact.completedCount, 0);
+        const sessionFactWatchSeconds = sessionFacts.reduce((sum, fact) => sum + fact.watchSecondsTotal, 0);
+        const sessionFactLoadMsTotal = sessionFacts.reduce((sum, fact) => sum + fact.loadMsTotal, 0);
+        const sessionFactLoadSampleCount = sessionFacts.reduce((sum, fact) => sum + fact.loadSampleCount, 0);
+        const sessionFactLastSeenAt = sessionFacts.reduce((latest, fact) => Math.max(latest, fact.lastEventAt), 0);
+        const dailyEventCount = userDaily.reduce((sum, day) => sum + readNumber(day.eventCount), 0);
+        const dailyUnwrapCount = userDaily.reduce((sum, day) => sum + Math.max(readNumber(day.unwrapCount), readNumber(day.unlockCount)), 0);
+        const dailyPurchaseCount = userDaily.reduce((sum, day) => sum + Math.max(readNumber(day.purchaseCount), readNumber(day.purchaseTransactionCount)), 0);
+        const dailyLastSeenAt = userDaily.reduce((latest, day) => Math.max(latest, toTimestampNumber(day.lastSeenAt), toTimestampNumber(day.lastSeenAtMs)), 0);
 
         const viewedDrops = new Map<string, { dropId: string; dropTitle: string; views: number; watchSeconds: number }>();
         analyticsFacts.forEach((event) => {
@@ -184,27 +232,67 @@ export async function GET(
 
             viewedDrops.set(event.dropId, existing);
         });
+        sessionFacts.forEach((fact) => {
+            if (!fact.dropId) {
+                return;
+            }
+
+            const existing = viewedDrops.get(fact.dropId) ?? {
+                dropId: fact.dropId,
+                dropTitle: resolveDropTitle(dropReferences, fact.dropId, fact.dropTitle),
+                views: 0,
+                watchSeconds: 0,
+            };
+            existing.views += fact.startedCount;
+            existing.watchSeconds += fact.watchSecondsTotal;
+            viewedDrops.set(fact.dropId, existing);
+        });
 
         const rollupWatchSeconds = readNumber(analyticsRollup.watchSecondsTotal);
         const rollupLoadSampleCount = readNumber(analyticsRollup.loadSampleCount);
         const rollupLoadMsTotal = readNumber(analyticsRollup.loadMsTotal);
         const rollupAvgLoadMs = rollupLoadSampleCount > 0 ? Math.round(rollupLoadMsTotal / rollupLoadSampleCount) : 0;
+        const transactionGrossRevenueUsd = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.grossRevenueUsd, 0);
+        const transactionNetRevenueUsd = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.netRevenueUsd, 0);
+        const transactionPaypalFeeUsd = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.paypalFeeUsd, 0);
+        const transactionAdjustedProfitUsd = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.adjustedProfitUsd, 0);
+        const transactionBonusValueUsd = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.bonusValueUsd, 0);
+        const transactionBonusGumDrops = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.bonusGumDrops, 0);
+        const transactionDeliveredGumDrops = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.deliveredGumDrops, 0);
+        const transactionPaidGumDrops = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.paidGumDrops, 0);
+        const unlockSpendGdTotal = transactions
+            .filter((transaction) => transaction.status === "completed" && transaction.type === "unlock_content")
+            .reduce((sum, transaction) => sum + transaction.amount, 0);
 
         const analytics = {
-            eventCount: Math.max(readNumber(analyticsRollup.eventCount), directEventCount),
-            unwrapCount: Math.max(readNumber(analyticsRollup.unwrapCount), directUnwrapCount),
-            viewerSessionCount: Math.max(readNumber(analyticsRollup.sessionCount), directViewSessionCount || directViewerOpenedCount),
-            viewerCompletionCount: analyticsFacts.filter((event) => event.eventName === "viewer_session_completed").length,
+            eventCount: Math.max(readNumber(analyticsRollup.eventCount), directEventCount, dailyEventCount),
+            unwrapCount: Math.max(readNumber(analyticsRollup.unwrapCount), readNumber(analyticsRollup.unlockCount), directUnwrapCount, dailyUnwrapCount),
+            purchaseCount: Math.max(readNumber(analyticsRollup.purchaseCount), readNumber(analyticsRollup.purchaseTransactionCount), dailyPurchaseCount, purchaseTransactions.length),
+            viewerSessionCount: Math.max(readNumber(analyticsRollup.sessionCount), directViewSessionCount || directViewerOpenedCount, sessionFactViewCount),
+            viewerCompletionCount: Math.max(analyticsFacts.filter((event) => event.eventName === "viewer_session_completed").length, sessionFactCompletionCount),
             assetViewCount: directAssetViewCount,
             assetCompletionCount: directAssetCompletionCount,
             uniqueViewedDrops: viewedDrops.size,
-            watchSecondsTotal: Math.max(rollupWatchSeconds, completedSessionWatchSeconds),
-            watchHours: roundToSingleDecimal(Math.max(rollupWatchSeconds, completedSessionWatchSeconds) / 3600),
-            viewCount: directViewSessionCount || directViewerOpenedCount,
+            watchSecondsTotal: Math.max(rollupWatchSeconds, completedSessionWatchSeconds, sessionFactWatchSeconds),
+            watchHours: roundToSingleDecimal(Math.max(rollupWatchSeconds, completedSessionWatchSeconds, sessionFactWatchSeconds) / 3600),
+            viewCount: Math.max(directViewSessionCount || directViewerOpenedCount, sessionFactViewCount),
             downloadCount: directDownloadCount,
             relatedClickCount: directRelatedClickCount,
-            avgLoadMs: Math.max(rollupAvgLoadMs, directAvgLoadMs),
-            lastSeenAt: Math.max(readNumber(analyticsRollup.lastSeenAt), directLastSeenAt),
+            avgLoadMs: Math.max(
+                rollupAvgLoadMs,
+                directAvgLoadMs,
+                sessionFactLoadSampleCount > 0 ? Math.round(sessionFactLoadMsTotal / sessionFactLoadSampleCount) : 0,
+            ),
+            lastSeenAt: Math.max(readNumber(analyticsRollup.lastSeenAt), readNumber(analyticsRollup.lastSeenAtMs), directLastSeenAt, sessionFactLastSeenAt, dailyLastSeenAt),
+            grossRevenueUsd: Math.max(readNumber(analyticsRollup.grossRevenueUsdTotal), transactionGrossRevenueUsd),
+            netRevenueUsd: Math.max(readNumber(analyticsRollup.netRevenueUsdTotal), transactionNetRevenueUsd),
+            paypalFeeUsd: Math.max(readNumber(analyticsRollup.paypalFeeUsdTotal), transactionPaypalFeeUsd),
+            adjustedProfitUsd: Math.max(readNumber(analyticsRollup.adjustedProfitUsdTotal), transactionAdjustedProfitUsd),
+            bonusValueUsd: Math.max(readNumber(analyticsRollup.bonusValueUsdTotal), transactionBonusValueUsd),
+            bonusGumDrops: Math.max(readNumber(analyticsRollup.bonusGumDropsTotal), transactionBonusGumDrops),
+            deliveredGumDrops: Math.max(readNumber(analyticsRollup.deliveredGumDropsTotal), transactionDeliveredGumDrops),
+            paidGumDrops: Math.max(readNumber(analyticsRollup.paidGumDropsTotal), transactionPaidGumDrops),
+            unlockSpendGdTotal: Math.max(readNumber(analyticsRollup.spendGdTotal), readNumber(analyticsRollup.unlockSpendGdTotal), unlockSpendGdTotal),
             topViewedDrops: Array.from(viewedDrops.values())
                 .sort((left, right) => {
                     if (right.views !== left.views) {

@@ -31,6 +31,10 @@ function toStringArray(value: unknown): string[] {
 type UserCommerceMetrics = {
   grossRevenueUsd: number;
   grossRevenueCents: number;
+  paypalFeeUsd: number;
+  paypalFeeCents: number;
+  netRevenueUsd: number;
+  netRevenueCents: number;
   adjustedProfitUsd: number;
   adjustedProfitCents: number;
   retailValueUsd: number;
@@ -63,6 +67,10 @@ function buildEmptyCommerceMetrics(): UserCommerceMetrics {
   return {
     grossRevenueUsd: 0,
     grossRevenueCents: 0,
+    paypalFeeUsd: 0,
+    paypalFeeCents: 0,
+    netRevenueUsd: 0,
+    netRevenueCents: 0,
     adjustedProfitUsd: 0,
     adjustedProfitCents: 0,
     retailValueUsd: 0,
@@ -80,6 +88,10 @@ function buildEmptyCommerceMetrics(): UserCommerceMetrics {
 function buildCommerceMetricsFromRollup(raw: Record<string, unknown>): UserCommerceMetrics {
   const grossRevenueUsd = roundCurrency(readMetric(raw, "grossRevenueUsdTotal", "grossRevenueUsd"));
   const grossRevenueCents = Math.round(readMetric(raw, "revenueCentsTotal", "grossRevenueCents"));
+  const paypalFeeUsd = roundCurrency(readMetric(raw, "paypalFeeUsdTotal", "paypalFeeUsd"));
+  const paypalFeeCents = Math.round(readMetric(raw, "paypalFeeCentsTotal", "paypalFeeCents"));
+  const netRevenueUsd = roundCurrency(readMetric(raw, "netRevenueUsdTotal", "netRevenueUsd"));
+  const netRevenueCents = Math.round(readMetric(raw, "netRevenueCentsTotal", "netRevenueCents"));
   const adjustedProfitUsd = roundCurrency(readMetric(raw, "adjustedProfitUsdTotal", "adjustedProfitUsd"));
   const adjustedProfitCents = Math.round(readMetric(raw, "adjustedProfitCentsTotal", "adjustedProfitCents"));
   const retailValueUsd = roundCurrency(readMetric(raw, "retailValueUsdTotal", "retailValueUsd"));
@@ -93,6 +105,10 @@ function buildCommerceMetricsFromRollup(raw: Record<string, unknown>): UserComme
   return {
     grossRevenueUsd,
     grossRevenueCents,
+    paypalFeeUsd,
+    paypalFeeCents,
+    netRevenueUsd,
+    netRevenueCents,
     adjustedProfitUsd,
     adjustedProfitCents,
     retailValueUsd,
@@ -212,53 +228,113 @@ export async function GET(request: NextRequest) {
     await checkRateLimit(request, "admin/users", ADMIN);
     await verifyAdmin(request);
 
-    const [usersSnapshot, analyticsSnapshot] = await Promise.all([
+    const [usersSnapshot, analyticsSnapshot, userDailySnapshot, commerceSummarySnap] = await Promise.all([
       adminDb.collection("users").orderBy("createdAt", "desc").get(),
       adminDb.collection("analytics_users_rollup").get(),
+      adminDb.collection("analytics_user_daily").get(),
+      adminDb.collection("analytics_commerce_rollup").doc("summary").get(),
     ]);
 
     const users = usersSnapshot.docs.map((doc) => serializeUserDoc(doc.id, doc.data()));
 
+    const dailyAnalyticsByUser = new Map<string, UserDailyAggregate>();
+    userDailySnapshot.docs.forEach((doc) => {
+      const raw = doc.data() as Record<string, unknown>;
+      const uid = typeof raw.uid === "string" ? raw.uid : "";
+      if (!uid) {
+        return;
+      }
+
+      const current = dailyAnalyticsByUser.get(uid) ?? buildEmptyDailyAggregate();
+      current.eventCount += Math.round(readMetric(raw, "eventCount"));
+      current.sessionCount += Math.round(readMetric(raw, "sessionCount"));
+      current.unwrapCount += Math.round(readMetric(raw, "unwrapCount"));
+      current.unlockCount += Math.round(readMetric(raw, "unlockCount"));
+      current.purchaseCount += Math.round(readMetric(raw, "purchaseCount", "purchaseTransactionCount"));
+      current.watchSecondsTotal += Math.round(readMetric(raw, "watchSecondsTotal"));
+      current.loadMsTotal += Math.round(readMetric(raw, "loadMsTotal"));
+      current.loadSampleCount += Math.round(readMetric(raw, "loadSampleCount"));
+      current.spendGdTotal += Math.round(readMetric(raw, "spendGdTotal", "unlockSpendGdTotal"));
+      current.revenueCentsTotal += Math.round(readMetric(raw, "revenueCentsTotal"));
+      current.grossRevenueUsdTotal += readMetric(raw, "grossRevenueUsdTotal");
+      current.paypalFeeUsdTotal += readMetric(raw, "paypalFeeUsdTotal");
+      current.netRevenueUsdTotal += readMetric(raw, "netRevenueUsdTotal");
+      current.adjustedProfitUsdTotal += readMetric(raw, "adjustedProfitUsdTotal");
+      current.bonusValueUsdTotal += readMetric(raw, "bonusValueUsdTotal");
+      current.bonusGumDropsTotal += Math.round(readMetric(raw, "bonusGumDropsTotal"));
+      current.deliveredGumDropsTotal += Math.round(readMetric(raw, "deliveredGumDropsTotal"));
+      current.paidGumDropsTotal += Math.round(readMetric(raw, "paidGumDropsTotal"));
+      current.lastSeenAt = Math.max(current.lastSeenAt, toTimestampNumber(raw.lastSeenAt), toTimestampNumber(raw.lastSeenAtMs));
+      current.lastPurchaseAt = Math.max(current.lastPurchaseAt, toTimestampNumber(raw.lastPurchaseAt));
+      dailyAnalyticsByUser.set(uid, current);
+    });
+
     const analyticsByUser = Object.fromEntries(
       analyticsSnapshot.docs.map((doc) => {
         const raw = doc.data() as Record<string, unknown>;
+        const dailyAggregate = dailyAnalyticsByUser.get(doc.id) ?? buildEmptyDailyAggregate();
         const loadSampleCount = typeof raw.loadSampleCount === "number" ? raw.loadSampleCount : 0;
         const loadMsTotal = typeof raw.loadMsTotal === "number" ? raw.loadMsTotal : 0;
         const watchSecondsTotal = typeof raw.watchSecondsTotal === "number" ? raw.watchSecondsTotal : 0;
-        const commerceMetrics = buildCommerceMetricsFromRollup(raw);
-        const grossRevenueUsd = commerceMetrics.grossRevenueUsd;
-        const adjustedProfitUsd = commerceMetrics.adjustedProfitUsd;
-        const retailValueUsd = commerceMetrics.retailValueUsd;
+        const mergedCommerceMetrics = buildCommerceMetricsFromRollup({
+          ...dailyAggregate,
+          ...raw,
+          grossRevenueUsdTotal: Math.max(readMetric(raw, "grossRevenueUsdTotal"), dailyAggregate.grossRevenueUsdTotal),
+          revenueCentsTotal: Math.max(readMetric(raw, "revenueCentsTotal"), dailyAggregate.revenueCentsTotal),
+          paypalFeeUsdTotal: Math.max(readMetric(raw, "paypalFeeUsdTotal"), dailyAggregate.paypalFeeUsdTotal),
+          netRevenueUsdTotal: Math.max(readMetric(raw, "netRevenueUsdTotal"), dailyAggregate.netRevenueUsdTotal),
+          adjustedProfitUsdTotal: Math.max(readMetric(raw, "adjustedProfitUsdTotal"), dailyAggregate.adjustedProfitUsdTotal),
+          bonusValueUsdTotal: Math.max(readMetric(raw, "bonusValueUsdTotal"), dailyAggregate.bonusValueUsdTotal),
+          bonusGumDropsTotal: Math.max(readMetric(raw, "bonusGumDropsTotal"), dailyAggregate.bonusGumDropsTotal),
+          deliveredGumDropsTotal: Math.max(readMetric(raw, "deliveredGumDropsTotal"), dailyAggregate.deliveredGumDropsTotal),
+          paidGumDropsTotal: Math.max(readMetric(raw, "paidGumDropsTotal"), dailyAggregate.paidGumDropsTotal),
+          spendGdTotal: Math.max(readMetric(raw, "spendGdTotal", "unlockSpendGdTotal"), dailyAggregate.spendGdTotal),
+          purchaseCount: Math.max(readMetric(raw, "purchaseTransactionCount", "purchaseCount"), dailyAggregate.purchaseCount),
+          lastPurchaseAt: Math.max(toTimestampNumber(raw.lastPurchaseAt), dailyAggregate.lastPurchaseAt),
+        });
+        const grossRevenueUsd = mergedCommerceMetrics.grossRevenueUsd;
+        const adjustedProfitUsd = mergedCommerceMetrics.adjustedProfitUsd;
+        const retailValueUsd = mergedCommerceMetrics.retailValueUsd;
         const bundleYieldRatio = retailValueUsd > 0 ? Number((grossRevenueUsd / retailValueUsd).toFixed(4)) : 0;
         const purchaseCount = Math.max(
           0,
-          Math.round(readMetric(raw, "purchaseTransactionCount", "purchaseCount")),
+          Math.round(Math.max(readMetric(raw, "purchaseTransactionCount", "purchaseCount"), dailyAggregate.purchaseCount)),
         );
 
         return [doc.id, {
           uid: doc.id,
           username: typeof raw.username === "string" ? raw.username : doc.id,
-          eventCount: typeof raw.eventCount === "number" ? raw.eventCount : 0,
-          sessionCount: typeof raw.sessionCount === "number" ? raw.sessionCount : 0,
-          unwrapCount: typeof raw.unwrapCount === "number" ? raw.unwrapCount : 0,
+          eventCount: Math.max(typeof raw.eventCount === "number" ? raw.eventCount : 0, dailyAggregate.eventCount),
+          sessionCount: Math.max(typeof raw.sessionCount === "number" ? raw.sessionCount : 0, dailyAggregate.sessionCount),
+          unwrapCount: Math.max(
+            Math.round(readMetric(raw, "unwrapCount", "unlockCount")),
+            Math.max(dailyAggregate.unwrapCount, dailyAggregate.unlockCount),
+          ),
           purchaseCount,
-          watchSecondsTotal,
-          watchHours: Number((watchSecondsTotal / 3600).toFixed(1)),
-          avgLoadMs: loadSampleCount > 0 ? Math.round(loadMsTotal / loadSampleCount) : 0,
-          lastSeenAt: typeof raw.lastSeenAt === "number" ? raw.lastSeenAt : 0,
+          watchSecondsTotal: Math.max(watchSecondsTotal, dailyAggregate.watchSecondsTotal),
+          watchHours: Number((Math.max(watchSecondsTotal, dailyAggregate.watchSecondsTotal) / 3600).toFixed(1)),
+          avgLoadMs: Math.max(
+            loadSampleCount > 0 ? Math.round(loadMsTotal / loadSampleCount) : 0,
+            dailyAggregate.loadSampleCount > 0 ? Math.round(dailyAggregate.loadMsTotal / dailyAggregate.loadSampleCount) : 0,
+          ),
+          lastSeenAt: Math.max(typeof raw.lastSeenAt === "number" ? raw.lastSeenAt : 0, dailyAggregate.lastSeenAt),
           grossRevenueUsd,
-          grossRevenueCents: commerceMetrics.grossRevenueCents,
+          grossRevenueCents: mergedCommerceMetrics.grossRevenueCents,
+          paypalFeeUsd: mergedCommerceMetrics.paypalFeeUsd,
+          paypalFeeCents: mergedCommerceMetrics.paypalFeeCents,
+          netRevenueUsd: mergedCommerceMetrics.netRevenueUsd,
+          netRevenueCents: mergedCommerceMetrics.netRevenueCents,
           adjustedProfitUsd,
-          adjustedProfitCents: commerceMetrics.adjustedProfitCents,
+          adjustedProfitCents: mergedCommerceMetrics.adjustedProfitCents,
           retailValueUsd,
-          bonusValueUsd: commerceMetrics.bonusValueUsd,
-          bonusGumDrops: commerceMetrics.bonusGumDrops,
-          deliveredGumDrops: commerceMetrics.deliveredGumDrops,
-          paidGumDrops: commerceMetrics.paidGumDrops,
-          averageOrderUsd: commerceMetrics.averageOrderUsd,
-          effectiveUsdPer100Gd: commerceMetrics.effectiveUsdPer100Gd,
-          unlockSpendGdTotal: commerceMetrics.unlockSpendGdTotal,
-          lastPurchaseAt: commerceMetrics.lastPurchaseAt,
+          bonusValueUsd: mergedCommerceMetrics.bonusValueUsd,
+          bonusGumDrops: mergedCommerceMetrics.bonusGumDrops,
+          deliveredGumDrops: mergedCommerceMetrics.deliveredGumDrops,
+          paidGumDrops: mergedCommerceMetrics.paidGumDrops,
+          averageOrderUsd: mergedCommerceMetrics.averageOrderUsd,
+          effectiveUsdPer100Gd: mergedCommerceMetrics.effectiveUsdPer100Gd,
+          unlockSpendGdTotal: mergedCommerceMetrics.unlockSpendGdTotal,
+          lastPurchaseAt: mergedCommerceMetrics.lastPurchaseAt,
           bundleYieldRatio,
         }];
       }),
@@ -368,21 +444,26 @@ export async function GET(request: NextRequest) {
         return;
       }
 
-      const commerceMetrics = buildEmptyCommerceMetrics();
+      const dailyAggregate = dailyAnalyticsByUser.get(user.uid) ?? buildEmptyDailyAggregate();
+      const commerceMetrics = buildCommerceMetricsFromRollup(dailyAggregate);
       const retailValueUsd = commerceMetrics.retailValueUsd;
       analyticsByUser[user.uid] = {
         uid: user.uid,
         username: user.username || user.displayName || user.uid,
-        eventCount: 0,
-        sessionCount: 0,
-        unwrapCount: 0,
-        purchaseCount: 0,
-        watchSecondsTotal: 0,
-        watchHours: 0,
-        avgLoadMs: 0,
-        lastSeenAt: 0,
+        eventCount: dailyAggregate.eventCount,
+        sessionCount: dailyAggregate.sessionCount,
+        unwrapCount: Math.max(dailyAggregate.unwrapCount, dailyAggregate.unlockCount),
+        purchaseCount: dailyAggregate.purchaseCount,
+        watchSecondsTotal: dailyAggregate.watchSecondsTotal,
+        watchHours: Number((dailyAggregate.watchSecondsTotal / 3600).toFixed(1)),
+        avgLoadMs: dailyAggregate.loadSampleCount > 0 ? Math.round(dailyAggregate.loadMsTotal / dailyAggregate.loadSampleCount) : 0,
+        lastSeenAt: dailyAggregate.lastSeenAt,
         grossRevenueUsd: commerceMetrics.grossRevenueUsd,
         grossRevenueCents: commerceMetrics.grossRevenueCents,
+        paypalFeeUsd: commerceMetrics.paypalFeeUsd,
+        paypalFeeCents: commerceMetrics.paypalFeeCents,
+        netRevenueUsd: commerceMetrics.netRevenueUsd,
+        netRevenueCents: commerceMetrics.netRevenueCents,
         adjustedProfitUsd: commerceMetrics.adjustedProfitUsd,
         adjustedProfitCents: commerceMetrics.adjustedProfitCents,
         retailValueUsd,
@@ -402,6 +483,21 @@ export async function GET(request: NextRequest) {
     const dropReferences = await getDropReferenceMap(unlockedDropIds);
 
     const nowMs = Date.now();
+    const commerceSummaryRaw = commerceSummarySnap.exists
+      ? commerceSummarySnap.data() as Record<string, unknown>
+      : {};
+    const commerceSummaryMetrics = commerceSummarySnap.exists
+      ? buildCommerceMetricsFromRollup(commerceSummaryRaw)
+      : buildEmptyCommerceMetrics();
+    const totalPurchases = Math.max(
+      Math.round(readMetric(commerceSummaryRaw, "purchaseCount")),
+      Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.purchaseCount || 0), 0),
+    );
+    const unlockSpendGdTotal = Math.max(
+      Math.round(readMetric(commerceSummaryRaw, "unlockSpendGdTotal", "spendGdTotal")),
+      Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.unlockSpendGdTotal || 0), 0),
+    );
+
     const summary = {
       totalUsers: users.length,
       totalCreators: users.filter((user) => user.role === "creator").length,
@@ -415,28 +511,26 @@ export async function GET(request: NextRequest) {
       activeLast7Days: Object.values(analyticsByUser).filter((entry) => nowMs - (entry.lastSeenAt || 0) < 7 * 24 * 60 * 60 * 1000).length,
       totalEvents: Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.eventCount || 0), 0),
       totalUnwraps: Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.unwrapCount || 0), 0),
-      totalPurchases: Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.purchaseCount || 0), 0),
+      totalPurchases,
       totalWatchHours: Number(
         (
           Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.watchSecondsTotal || 0), 0) / 3600
         ).toFixed(1),
       ),
-      grossRevenueUsd: roundCurrency(Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.grossRevenueUsd || 0), 0)),
-      adjustedProfitUsd: roundCurrency(Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.adjustedProfitUsd || 0), 0)),
-      bonusValueUsd: roundCurrency(Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.bonusValueUsd || 0), 0)),
-      bonusGumDrops: Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.bonusGumDrops || 0), 0),
-      deliveredGumDrops: Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.deliveredGumDrops || 0), 0),
-      paidGumDrops: Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.paidGumDrops || 0), 0),
-      unlockSpendGdTotal: Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.unlockSpendGdTotal || 0), 0),
+      grossRevenueUsd: commerceSummaryMetrics.grossRevenueUsd,
+      adjustedProfitUsd: commerceSummaryMetrics.adjustedProfitUsd,
+      bonusValueUsd: commerceSummaryMetrics.bonusValueUsd,
+      bonusGumDrops: commerceSummaryMetrics.bonusGumDrops,
+      deliveredGumDrops: commerceSummaryMetrics.deliveredGumDrops,
+      paidGumDrops: commerceSummaryMetrics.paidGumDrops,
+      unlockSpendGdTotal,
       averageOrderUsd: (() => {
-        const grossRevenueUsd = Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.grossRevenueUsd || 0), 0);
-        const totalPurchases = Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.purchaseCount || 0), 0);
-        return totalPurchases > 0 ? roundCurrency(grossRevenueUsd / totalPurchases) : 0;
+        return totalPurchases > 0 ? roundCurrency(commerceSummaryMetrics.grossRevenueUsd / totalPurchases) : 0;
       })(),
       effectiveUsdPer100Gd: (() => {
-        const grossRevenueUsd = Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.grossRevenueUsd || 0), 0);
-        const deliveredGd = Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.deliveredGumDrops || 0), 0);
-        return deliveredGd > 0 ? roundCurrency(grossRevenueUsd / (deliveredGd / 100)) : 0;
+        return commerceSummaryMetrics.deliveredGumDrops > 0
+          ? roundCurrency(commerceSummaryMetrics.grossRevenueUsd / (commerceSummaryMetrics.deliveredGumDrops / 100))
+          : 0;
       })(),
       payingUsers: Object.values(analyticsByUser).filter((entry) => (entry.purchaseCount || 0) > 0).length,
     };
@@ -522,4 +616,51 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     return handleApiError(error, "Admin.Users.POST");
   }
+}
+type UserDailyAggregate = {
+  eventCount: number;
+  sessionCount: number;
+  unwrapCount: number;
+  unlockCount: number;
+  purchaseCount: number;
+  watchSecondsTotal: number;
+  loadMsTotal: number;
+  loadSampleCount: number;
+  spendGdTotal: number;
+  revenueCentsTotal: number;
+  grossRevenueUsdTotal: number;
+  paypalFeeUsdTotal: number;
+  netRevenueUsdTotal: number;
+  adjustedProfitUsdTotal: number;
+  bonusValueUsdTotal: number;
+  bonusGumDropsTotal: number;
+  deliveredGumDropsTotal: number;
+  paidGumDropsTotal: number;
+  lastSeenAt: number;
+  lastPurchaseAt: number;
+};
+
+function buildEmptyDailyAggregate(): UserDailyAggregate {
+  return {
+    eventCount: 0,
+    sessionCount: 0,
+    unwrapCount: 0,
+    unlockCount: 0,
+    purchaseCount: 0,
+    watchSecondsTotal: 0,
+    loadMsTotal: 0,
+    loadSampleCount: 0,
+    spendGdTotal: 0,
+    revenueCentsTotal: 0,
+    grossRevenueUsdTotal: 0,
+    paypalFeeUsdTotal: 0,
+    netRevenueUsdTotal: 0,
+    adjustedProfitUsdTotal: 0,
+    bonusValueUsdTotal: 0,
+    bonusGumDropsTotal: 0,
+    deliveredGumDropsTotal: 0,
+    paidGumDropsTotal: 0,
+    lastSeenAt: 0,
+    lastPurchaseAt: 0,
+  };
 }

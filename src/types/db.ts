@@ -106,6 +106,10 @@ export interface Transaction {
     cost?: number; // USD cost for purchase transactions
     grossRevenueUsd?: number;
     grossRevenueCents?: number;
+    paypalFeeUsd?: number;
+    paypalFeeCents?: number;
+    netRevenueUsd?: number;
+    netRevenueCents?: number;
     deliveredGumDrops?: number;
     paidGumDrops?: number;
     bonusGumDrops?: number;

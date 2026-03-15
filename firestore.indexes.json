@@ -1,21 +1,71 @@
 {
     "indexes": [
         {
-            "collectionGroup": "users",
+            "collectionGroup": "transactions",
             "queryScope": "COLLECTION",
             "fields": [
                 {
-                    "fieldPath": "securityFlags.lastViolation",
+                    "fieldPath": "userId",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "timestamp",
                     "order": "DESCENDING"
                 }
             ]
         },
         {
-            "collectionGroup": "transactions",
+            "collectionGroup": "analytics_event_facts",
             "queryScope": "COLLECTION",
             "fields": [
                 {
+                    "fieldPath": "userId",
+                    "order": "ASCENDING"
+                },
+                {
                     "fieldPath": "timestamp",
+                    "order": "DESCENDING"
+                }
+            ]
+        },
+        {
+            "collectionGroup": "security_events",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "userId",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "timestamp",
+                    "order": "DESCENDING"
+                }
+            ]
+        },
+        {
+            "collectionGroup": "analytics_session_facts",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "userId",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "lastEventAt",
+                    "order": "DESCENDING"
+                }
+            ]
+        },
+        {
+            "collectionGroup": "analytics_user_daily",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "uid",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "dayKey",
                     "order": "DESCENDING"
                 }
             ]

@@ -96,6 +96,10 @@ export async function POST(request: NextRequest) {
                 id: z.string().optional(),
                 custom_id: z.string().optional(),
                 amount: z.object({ currency_code: z.string(), value: z.string() }),
+                seller_receivable_breakdown: z.object({
+                  paypal_fee: z.object({ currency_code: z.string(), value: z.string() }).optional(),
+                  net_amount: z.object({ currency_code: z.string(), value: z.string() }).optional(),
+                }).optional(),
               })
             ),
           }),
@@ -136,7 +140,26 @@ export async function POST(request: NextRequest) {
 
     dropsToCredit = expectedDrops;
     const paidUsd = Number.parseFloat(paidAmountStr);
-    const economics = deriveGumdropEconomics(dropsToCredit, paidUsd);
+    const paypalFeeUsd = (() => {
+      const rawFee = capture.seller_receivable_breakdown?.paypal_fee;
+      if (!rawFee || rawFee.currency_code !== "USD") {
+        return undefined;
+      }
+
+      return Number.parseFloat(rawFee.value);
+    })();
+    const netRevenueUsd = (() => {
+      const rawNet = capture.seller_receivable_breakdown?.net_amount;
+      if (!rawNet || rawNet.currency_code !== "USD") {
+        return undefined;
+      }
+
+      return Number.parseFloat(rawNet.value);
+    })();
+    const economics = deriveGumdropEconomics(dropsToCredit, paidUsd, {
+      paypalFeeUsd,
+      netRevenueUsd,
+    });
     const bundlePresentation = getBundlePresentation(dropsToCredit);
 
     const customId = capture.custom_id || parsed.purchase_units[0]?.custom_id;
@@ -167,6 +190,10 @@ export async function POST(request: NextRequest) {
         cost: paidUsd,
         grossRevenueUsd: economics.grossRevenueUsd,
         grossRevenueCents: economics.grossRevenueCents,
+        paypalFeeUsd: economics.paypalFeeUsd,
+        paypalFeeCents: economics.paypalFeeCents,
+        netRevenueUsd: economics.netRevenueUsd,
+        netRevenueCents: economics.netRevenueCents,
         deliveredGumDrops: economics.deliveredGumDrops,
         paidGumDrops: economics.paidGumDrops,
         bonusGumDrops: economics.bonusGumDrops,
@@ -207,6 +234,8 @@ export async function POST(request: NextRequest) {
         value: paidUsd,
         currency: "USD",
         items_count: dropsToCredit,
+        paypal_fee_usd: economics.paypalFeeUsd,
+        net_revenue_usd: economics.netRevenueUsd,
         paid_gumdrops: economics.paidGumDrops,
         bonus_gumdrops: economics.bonusGumDrops,
         adjusted_profit_usd: economics.adjustedProfitUsd,

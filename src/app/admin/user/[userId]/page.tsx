@@ -25,6 +25,7 @@ import { authFetch } from "@/lib/authFetch";
 type UserDetailAnalytics = {
     eventCount: number;
     unwrapCount: number;
+    purchaseCount: number;
     viewerSessionCount: number;
     viewerCompletionCount: number;
     assetViewCount: number;
@@ -37,6 +38,15 @@ type UserDetailAnalytics = {
     relatedClickCount: number;
     avgLoadMs: number;
     lastSeenAt: number;
+    grossRevenueUsd: number;
+    netRevenueUsd: number;
+    paypalFeeUsd: number;
+    adjustedProfitUsd: number;
+    bonusValueUsd: number;
+    bonusGumDrops: number;
+    deliveredGumDrops: number;
+    paidGumDrops: number;
+    unlockSpendGdTotal: number;
     topViewedDrops: Array<{ dropId: string; dropTitle: string; views: number; watchSeconds: number }>;
 };
 
@@ -114,13 +124,16 @@ export default function AdminUserAnalyticsPage() {
             }))
     ), [transactions]);
 
-    const totalSpentUsd = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.grossRevenueUsd, 0);
-    const adjustedProfitUsd = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.adjustedProfitUsd, 0);
-    const bonusValueUsd = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.bonusValueUsd, 0);
-    const bonusGumDrops = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.bonusGumDrops, 0);
-    const effectiveUsdPer100GdBase = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.grossRevenueUsd, 0);
-    const deliveredGumDrops = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.deliveredGumDrops, 0);
-    const averageOrderUsd = purchaseTransactions.length > 0 ? totalSpentUsd / purchaseTransactions.length : 0;
+    const totalSpentUsd = analytics?.grossRevenueUsd ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.grossRevenueUsd, 0);
+    const adjustedProfitUsd = analytics?.adjustedProfitUsd ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.adjustedProfitUsd, 0);
+    const bonusValueUsd = analytics?.bonusValueUsd ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.bonusValueUsd, 0);
+    const bonusGumDrops = analytics?.bonusGumDrops ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.bonusGumDrops, 0);
+    const paypalFeeUsd = analytics?.paypalFeeUsd ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.paypalFeeUsd, 0);
+    const netRevenueUsd = analytics?.netRevenueUsd ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.netRevenueUsd, 0);
+    const deliveredGumDrops = analytics?.deliveredGumDrops ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.deliveredGumDrops, 0);
+    const averageOrderUsd = (analytics?.purchaseCount || purchaseTransactions.length) > 0
+        ? totalSpentUsd / (analytics?.purchaseCount || purchaseTransactions.length)
+        : 0;
     const failedTxCount = transactions.filter((transaction) => transaction.status === "failed").length;
 
     const watchTimeLabel = useMemo(() => {
@@ -239,6 +252,14 @@ export default function AdminUserAnalyticsPage() {
                             <span className="text-sm font-bold text-brand-purple">${totalSpentUsd.toFixed(2)}</span>
                         </div>
                         <div className="flex items-center justify-between border-b border-white/5 py-2">
+                            <span className="text-sm text-gray-400">PayPal fees</span>
+                            <span className="text-sm font-bold text-white">${paypalFeeUsd.toFixed(2)}</span>
+                        </div>
+                        <div className="flex items-center justify-between border-b border-white/5 py-2">
+                            <span className="text-sm text-gray-400">Net cash</span>
+                            <span className="text-sm font-bold text-white">${netRevenueUsd.toFixed(2)}</span>
+                        </div>
+                        <div className="flex items-center justify-between border-b border-white/5 py-2">
                             <span className="text-sm text-gray-400">Adjusted profit</span>
                             <span className="text-sm font-bold text-white">${adjustedProfitUsd.toFixed(2)}</span>
                         </div>
@@ -257,7 +278,7 @@ export default function AdminUserAnalyticsPage() {
                         <div className="flex items-center justify-between border-b border-white/5 py-2">
                             <span className="text-sm text-gray-400">Effective rate</span>
                             <span className="text-sm font-bold text-white">
-                                ${deliveredGumDrops > 0 ? (effectiveUsdPer100GdBase / (deliveredGumDrops / 100)).toFixed(2) : "0.00"} / 100 GD
+                                ${deliveredGumDrops > 0 ? (totalSpentUsd / (deliveredGumDrops / 100)).toFixed(2) : "0.00"} / 100 GD
                             </span>
                         </div>
                         <div className="flex items-center justify-between border-b border-white/5 py-2">
@@ -271,6 +292,10 @@ export default function AdminUserAnalyticsPage() {
                         <div className="flex items-center justify-between border-b border-white/5 py-2">
                             <span className="text-sm text-gray-400">Unwraps</span>
                             <span className="text-sm font-bold text-white">{analytics?.unwrapCount || 0}</span>
+                        </div>
+                        <div className="flex items-center justify-between border-b border-white/5 py-2">
+                            <span className="text-sm text-gray-400">Unlock spend</span>
+                            <span className="text-sm font-bold text-white">{analytics?.unlockSpendGdTotal || 0} GD</span>
                         </div>
                         <div className="flex items-center justify-between border-b border-white/5 py-2">
                             <span className="text-sm text-gray-400">Viewer sessions</span>
