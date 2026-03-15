@@ -1,65 +1,97 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useRouter, usePathname } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { Sparkles, Flame, Droplets, Gift, BellRing, ChevronRight, Compass, CalendarCheck2 } from "lucide-react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import { toast } from "sonner";
+
+import { useAuth } from "@/context/AuthContext";
 import { db } from "@/lib/firebase-data";
-import { ChevronRight, BellRing, Sparkles, Droplets, Flame, Gift } from "lucide-react";
 import { trackEvent } from "@/lib/telemetry";
 import { authFetch } from "@/lib/authFetch";
 import { getCSTDayBoundaries } from "@/lib/timezone";
-import { toast } from "sonner";
+import { enableBrowserNotifications } from "@/lib/browser-notification-enrollment";
 
-type HighlightRect = {
-    top: number;
-    left: number;
-    width: number;
-    height: number;
-    rx?: number;
+type FlavorPreference = "Sweet" | "Spicy" | "RAW" | "";
+
+type StepDefinition = {
+    title: string;
+    description: string;
+    path: string;
 };
 
-type GuidedStepConfig = {
-    path?: string;
-    page?: string;
-    targetSelectors: string[];
-    scrollMode: "top" | "target";
-};
-
-const GUIDED_STEP_CONFIG: Partial<Record<number, GuidedStepConfig>> = {
-    1: {
+const STEP_DEFINITIONS: StepDefinition[] = [
+    {
+        title: "Pick your flavor",
+        description: "Set the vibe you want to see first.",
         path: "/dashboard",
-        page: "dashboard",
-        targetSelectors: [
-            '[data-onboarding-target="daily-reward-claim"]',
-            '[data-onboarding-target="daily-reward"]',
-        ],
-        scrollMode: "target",
     },
-    2: {
+    {
+        title: "Claim your daily check-in",
+        description: "Start your streak and stack free Gum Drops.",
+        path: "/dashboard",
+    },
+    {
+        title: "See what is live",
+        description: "Head to Drops to find KandyDrops ready to unwrap.",
         path: "/drops",
-        page: "drops",
-        targetSelectors: ['[data-onboarding-target="drops-nav"]'],
-        scrollMode: "top",
     },
-    3: {
+    {
+        title: "Try Experiences",
+        description: "Earn more Gum Drops and keep the loop going.",
         path: "/experiences",
-        page: "experiences",
-        targetSelectors: ['[data-onboarding-target="experiences-nav"]'],
-        scrollMode: "top",
     },
-    4: {
+    {
+        title: "Turn on notifications",
+        description: "Get the heads-up when fresh drops go live.",
         path: "/experiences",
-        page: "experiences",
-        targetSelectors: ['[data-onboarding-target="notification-bell"]'],
-        scrollMode: "top",
     },
-};
+    {
+        title: "You are ready to unwrap",
+        description: "Finish onboarding and jump straight into Drops.",
+        path: "/drops",
+    },
+];
 
-const SCROLL_KEYS = new Set([" ", "ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End"]);
-
-function wait(ms: number) {
-    return new Promise((resolve) => window.setTimeout(resolve, ms));
-}
+const FLAVOR_OPTIONS: Array<{
+    value: Exclude<FlavorPreference, "">;
+    label: string;
+    description: string;
+    icon: typeof Sparkles;
+    accentClass: string;
+    activeClass: string;
+    iconClass: string;
+}> = [
+    {
+        value: "Sweet",
+        label: "Sweet",
+        description: "Light, playful, and teasing.",
+        icon: Sparkles,
+        accentClass: "text-pink-400",
+        activeClass: "border-pink-400/60 bg-pink-500/10 shadow-[0_0_24px_rgba(236,72,153,0.16)]",
+        iconClass: "bg-pink-500 text-white",
+    },
+    {
+        value: "Spicy",
+        label: "Spicy",
+        description: "Bold, hot, and attention-grabbing.",
+        icon: Flame,
+        accentClass: "text-orange-400",
+        activeClass: "border-orange-400/60 bg-orange-500/10 shadow-[0_0_24px_rgba(249,115,22,0.16)]",
+        iconClass: "bg-orange-500 text-white",
+    },
+    {
+        value: "RAW",
+        label: "RAW",
+        description: "Direct, intense, and unfiltered.",
+        icon: Droplets,
+        accentClass: "text-red-400",
+        activeClass: "border-red-400/60 bg-red-500/10 shadow-[0_0_24px_rgba(239,68,68,0.16)]",
+        iconClass: "bg-red-500 text-white",
+    },
+];
 
 function normalizeTimestamp(value: unknown): number {
     if (!Number.isFinite(value)) {
@@ -83,21 +115,15 @@ function hasClaimedToday(value: unknown): boolean {
 export function GuidedOnboarding() {
     const { user, userProfile: profile } = useAuth();
     const router = useRouter();
-    const pathname = usePathname();
     const completionStorageKey = user ? `kandydrops_onboarding_completed_${user.uid}` : null;
 
     const [isVisible, setIsVisible] = useState(false);
     const [currentStep, setCurrentStep] = useState(0);
-    const [stepData, setStepData] = useState({
-        username: "",
-        preference: ""
-    });
+    const [flavorPreference, setFlavorPreference] = useState<FlavorPreference>("");
     const [isCheckingIn, setIsCheckingIn] = useState(false);
+    const [isEnablingNotifications, setIsEnablingNotifications] = useState(false);
     const [isCompleting, setIsCompleting] = useState(false);
     const [mountTime, setMountTime] = useState(0);
-    const [highlightRect, setHighlightRect] = useState<HighlightRect | null>(null);
-    const allowedScrollYRef = useRef(0);
-    const isProgrammaticScrollRef = useRef(false);
 
     useEffect(() => {
         if (!isVisible) {
@@ -105,75 +131,25 @@ export function GuidedOnboarding() {
         }
 
         const previousHtmlOverflow = document.documentElement.style.overflow;
-        const previousHtmlOverscroll = document.documentElement.style.overscrollBehavior;
         const previousBodyOverflow = document.body.style.overflow;
-        const previousBodyOverscroll = document.body.style.overscrollBehavior;
-        allowedScrollYRef.current = window.scrollY;
-
-        const preventScroll = (event: Event) => {
-            const target = event.target as HTMLElement | null;
-            if (target?.closest('[data-guided-scroll-allow="true"]')) {
-                return;
-            }
-
-            event.preventDefault();
-        };
-
-        const preventScrollKeys = (event: KeyboardEvent) => {
-            if (!SCROLL_KEYS.has(event.key)) {
-                return;
-            }
-
-            const target = event.target as HTMLElement | null;
-            const tagName = target?.tagName;
-            const isEditable = target?.isContentEditable || tagName === "INPUT" || tagName === "TEXTAREA" || tagName === "SELECT";
-
-            if (isEditable || target?.closest('[data-guided-scroll-allow="true"]')) {
-                return;
-            }
-
-            event.preventDefault();
-        };
-
-        const enforceLockedScroll = () => {
-            if (isProgrammaticScrollRef.current) {
-                return;
-            }
-
-            if (Math.abs(window.scrollY - allowedScrollYRef.current) > 1) {
-                window.scrollTo({ top: allowedScrollYRef.current, left: 0, behavior: "instant" as ScrollBehavior });
-            }
-        };
-
         document.documentElement.style.overflow = "hidden";
-        document.documentElement.style.overscrollBehavior = "none";
         document.body.style.overflow = "hidden";
-        document.body.style.overscrollBehavior = "none";
-
-        window.addEventListener("wheel", preventScroll, { passive: false });
-        window.addEventListener("touchmove", preventScroll, { passive: false });
-        window.addEventListener("keydown", preventScrollKeys, { passive: false });
-        window.addEventListener("scroll", enforceLockedScroll, { passive: true });
 
         return () => {
             document.documentElement.style.overflow = previousHtmlOverflow;
-            document.documentElement.style.overscrollBehavior = previousHtmlOverscroll;
             document.body.style.overflow = previousBodyOverflow;
-            document.body.style.overscrollBehavior = previousBodyOverscroll;
-            window.removeEventListener("wheel", preventScroll);
-            window.removeEventListener("touchmove", preventScroll);
-            window.removeEventListener("keydown", preventScrollKeys);
-            window.removeEventListener("scroll", enforceLockedScroll);
         };
     }, [isVisible]);
 
-    // Initial trigger
     useEffect(() => {
-        if (!user || !profile) return;
+        if (!user || !profile) {
+            return;
+        }
 
         const completedLocally = completionStorageKey
             ? window.localStorage.getItem(completionStorageKey) === "true"
             : false;
+
         if (profile.onboardingCompleted === true || completedLocally) {
             setIsVisible(false);
             return;
@@ -187,7 +163,9 @@ export function GuidedOnboarding() {
                 const legacyProfileSnap = await getDoc(legacyProfileRef);
                 const legacyCompleted = legacyProfileSnap.exists() && legacyProfileSnap.data()?.onboardingCompleted === true;
 
-                if (cancelled) return;
+                if (cancelled) {
+                    return;
+                }
 
                 if (legacyCompleted) {
                     if (completionStorageKey) {
@@ -201,12 +179,14 @@ export function GuidedOnboarding() {
                 if (profile.username && !isVisible) {
                     setMountTime(Date.now());
                     trackEvent("guided_onboarding_started", { source: "auto_after_signup" });
+                    setCurrentStep(0);
                     setIsVisible(true);
                 }
             } catch {
                 if (!cancelled && profile.username && !isVisible) {
                     setMountTime(Date.now());
                     trackEvent("guided_onboarding_started", { source: "auto_after_signup" });
+                    setCurrentStep(0);
                     setIsVisible(true);
                 }
             }
@@ -219,170 +199,95 @@ export function GuidedOnboarding() {
         };
     }, [completionStorageKey, isVisible, profile, user]);
 
-    const scrollViewportForStep = useCallback((element: HTMLElement, stepConfig: GuidedStepConfig) => {
-        const targetTop = stepConfig.scrollMode === "top"
-            ? 0
-            : Math.max(window.scrollY + element.getBoundingClientRect().top - 112, 0);
-
-        allowedScrollYRef.current = targetTop;
-        isProgrammaticScrollRef.current = true;
-        window.scrollTo({ top: targetTop, left: 0, behavior: "instant" as ScrollBehavior });
-        window.setTimeout(() => {
-            isProgrammaticScrollRef.current = false;
-        }, 150);
-    }, []);
-
-    const updateHighlight = useCallback((attempt = 0) => {
-        if (!isVisible || currentStep < 1 || currentStep > 4) {
-            setHighlightRect(null);
-            return;
-        }
-
-        const stepConfig = GUIDED_STEP_CONFIG[currentStep];
-        if (!stepConfig) {
-            setHighlightRect(null);
-            return;
-        }
-
-        if (stepConfig.path && pathname !== stepConfig.path) {
-            setHighlightRect(null);
-            return;
-        }
-
-        if (stepConfig.page && !document.querySelector(`[data-onboarding-page="${stepConfig.page}"]`)) {
-            if (attempt < 12) {
-                window.setTimeout(() => updateHighlight(attempt + 1), 120);
-            }
-            return;
-        }
-
-        const element = stepConfig.targetSelectors
-            .map((selector) => document.querySelector(selector))
-            .find((candidate): candidate is HTMLElement => candidate instanceof HTMLElement);
-
-        if (!element) {
-            if (attempt < 12) {
-                window.setTimeout(() => updateHighlight(attempt + 1), 120);
-            } else {
-                setHighlightRect(null);
-            }
-            return;
-        }
-
-        scrollViewportForStep(element, stepConfig);
-
-        window.requestAnimationFrame(() => {
-            const rect = element.getBoundingClientRect();
-
-            if (rect.width <= 0 || rect.height <= 0) {
-                if (attempt < 12) {
-                    window.setTimeout(() => updateHighlight(attempt + 1), 120);
-                } else {
-                    setHighlightRect(null);
-                }
-                return;
-            }
-
-            const targetId = element.dataset.onboardingTarget || "";
-            const numericRadius = Number(element.dataset.onboardingRadius);
-
-            setHighlightRect({
-                top: rect.top,
-                left: rect.left,
-                width: rect.width,
-                height: rect.height,
-                rx: Number.isFinite(numericRadius)
-                    ? numericRadius
-                    : targetId.includes("nav") || targetId === "notification-bell"
-                        ? 999
-                        : 24,
-            });
-        });
-    }, [currentStep, isVisible, pathname, scrollViewportForStep]);
-
-    useEffect(() => {
-        updateHighlight();
-        const handleResize = () => updateHighlight();
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, [updateHighlight]);
-
     useEffect(() => {
         if (!isVisible) {
             return;
         }
 
-        const expectedPath = GUIDED_STEP_CONFIG[currentStep]?.path;
-        if (expectedPath && pathname !== expectedPath) {
-            setHighlightRect(null);
+        const expectedPath = STEP_DEFINITIONS[currentStep]?.path;
+        if (expectedPath) {
             router.replace(expectedPath);
         }
-    }, [isVisible, pathname, currentStep, router]);
+    }, [currentStep, isVisible, router]);
 
-    const handleNext = () => {
-        if (currentStep < 5) {
-            setCurrentStep(prev => prev + 1);
-        }
+    const isNotificationStepCompleted = useMemo(
+        () => profile?.notificationSettings?.browserPushEnabled === true,
+        [profile?.notificationSettings?.browserPushEnabled],
+    );
+
+    const progressPercent = ((currentStep + 1) / STEP_DEFINITIONS.length) * 100;
+
+    const goToNextStep = (nextStep?: number) => {
+        setCurrentStep((previous) => {
+            const computed = typeof nextStep === "number" ? nextStep : previous + 1;
+            return Math.min(computed, STEP_DEFINITIONS.length - 1);
+        });
     };
 
     const handleCheckInAndContinue = async () => {
+        if (hasClaimedToday(profile?.lastCheckIn)) {
+            toast.success("Daily check-in already claimed. Let’s keep going.");
+            goToNextStep();
+            return;
+        }
+
         setIsCheckingIn(true);
         try {
-            const claimButton = document.querySelector('[data-onboarding-target="daily-reward-claim"]') as HTMLButtonElement | null;
-            const rewardCard = document.querySelector('[data-onboarding-target="daily-reward"]');
-
-            if (!claimButton || claimButton.disabled) {
-                if (rewardCard && hasClaimedToday(profile?.lastCheckIn)) {
-                    toast.info("Today's reward is already claimed. Continuing the tour.");
-                    await wait(250);
-                    setCurrentStep(2);
-                    return;
-                }
-
-                throw new Error("The daily check-in card is still loading. Please try again in a moment.");
-            }
-
-            await new Promise<void>((resolve, reject) => {
-                const handleGuidedCheckIn = (event: Event) => {
-                    const detail = (event as CustomEvent<{ status?: string; message?: string }>).detail;
-
-                    cleanup();
-
-                    if (detail?.status === "success" || detail?.status === "already-claimed") {
-                        resolve();
-                        return;
-                    }
-
-                    reject(new Error(detail?.message || "Daily check-in failed."));
-                };
-
-                const cleanup = () => {
-                    window.clearTimeout(timeoutId);
-                    window.removeEventListener("kandydrops:guided-checkin", handleGuidedCheckIn as EventListener);
-                };
-
-                const timeoutId = window.setTimeout(() => {
-                    cleanup();
-                    reject(new Error("Daily check-in timed out. Please try again."));
-                }, 8000);
-
-                window.addEventListener("kandydrops:guided-checkin", handleGuidedCheckIn as EventListener);
-                claimButton.click();
+            const response = await authFetch("/api/checkin", {
+                method: "POST",
             });
 
-            await wait(500);
-            setCurrentStep(2);
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok && payload?.alreadyClaimed !== true) {
+                throw new Error(typeof payload?.error === "string" ? payload.error : "We could not complete your check-in.");
+            }
+
+            toast.success(payload?.alreadyClaimed ? "Daily check-in already claimed." : `+${payload?.reward || 0} Gum Drops added.`);
+            goToNextStep();
         } catch (error) {
-            const message = error instanceof Error ? error.message : "Unable to complete daily check-in.";
+            const message = error instanceof Error ? error.message : "We could not complete your check-in.";
             toast.error(message);
-            updateHighlight();
         } finally {
             setIsCheckingIn(false);
         }
     };
 
+    const handleEnableNotifications = async () => {
+        if (!profile || isNotificationStepCompleted) {
+            goToNextStep();
+            return;
+        }
+
+        setIsEnablingNotifications(true);
+        try {
+            const result = await enableBrowserNotifications(profile);
+            if (result.status === "enabled") {
+                toast.success("Browser notifications enabled.");
+                goToNextStep();
+                return;
+            }
+
+            if (result.status === "not_granted") {
+                toast.info(result.needsStandaloneInstall
+                    ? "Add KandyDrops to your Home Screen first, then open it there to enable notifications."
+                    : "Notifications were not enabled just yet.");
+                return;
+            }
+
+            toast.error(result.message);
+        } catch (error) {
+            console.error("Failed to enable browser notifications during onboarding", error);
+            toast.error("We could not enable notifications right now.");
+        } finally {
+            setIsEnablingNotifications(false);
+        }
+    };
+
     const completeOnboarding = async () => {
-        if (!user || isCompleting) return;
+        if (!user || isCompleting) {
+            return;
+        }
+
         setIsCompleting(true);
         try {
             const durationMs = mountTime ? Math.max(0, Date.now() - mountTime) : 0;
@@ -405,7 +310,7 @@ export function GuidedOnboarding() {
 
             try {
                 await setDoc(doc(db, "users", user.uid), {
-                    preferences: { flavor: stepData.preference || "Sweet" },
+                    preferences: { flavor: flavorPreference || "Sweet" },
                     onboardingCompleted: true,
                 }, { merge: true });
             } catch (syncError) {
@@ -416,15 +321,15 @@ export function GuidedOnboarding() {
                 window.localStorage.setItem(completionStorageKey, "true");
             }
 
-            // Track completion event with duration
             try {
                 trackEvent("guided_onboarding_completed", { durationSeconds, duration_ms: durationMs });
-            } catch (e) { }
+            } catch {
+                // noop
+            }
 
             setIsVisible(false);
-            router.replace('/drops');
-            window.location.replace('/drops');
-            return;
+            router.replace("/drops");
+            window.location.replace("/drops");
         } catch (error) {
             console.error("Error completing onboarding:", error);
             const message = error instanceof Error ? error.message : "Failed to finish onboarding.";
@@ -434,250 +339,216 @@ export function GuidedOnboarding() {
         }
     };
 
-    if (!isVisible) return null;
-
-    // Spotlight rendering params
-    const isMobileViewport = typeof window !== 'undefined' ? window.innerWidth < 640 : false;
-    const spotlightPadding = isMobileViewport ? 10 : 16;
-    const ch = typeof window !== 'undefined' ? window.innerHeight : 1000;
-
-    // Dynamic Clip-Path for the blurred backdrop
-    const clipPathStyle = highlightRect ? {
-        clipPath: `polygon(
-            0% 0%, 0% 100%, 100% 100%, 100% 0%, 0% 0%,
-            ${highlightRect.left - spotlightPadding}px 0%,
-            ${highlightRect.left - spotlightPadding}px ${highlightRect.top - spotlightPadding}px,
-            ${highlightRect.left + highlightRect.width + spotlightPadding}px ${highlightRect.top - spotlightPadding}px,
-            ${highlightRect.left + highlightRect.width + spotlightPadding}px ${highlightRect.top + highlightRect.height + spotlightPadding}px,
-            ${highlightRect.left - spotlightPadding}px ${highlightRect.top + highlightRect.height + spotlightPadding}px,
-            ${highlightRect.left - spotlightPadding}px 0%
-        )`
-    } : {};
+    if (!isVisible) {
+        return null;
+    }
 
     return (
-        <div className="fixed inset-0 z-[100] pointer-events-auto overflow-hidden flex items-center justify-center">
-
-            {/* Blurred Backdrop - Full screen when no highlight, punched out when highlight exists */}
-            {highlightRect ? (
-                // Use a standard radial knockout or polygon path for true masking
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 px-4 py-6">
+            <AnimatePresence mode="wait">
                 <motion.div
-                    className="absolute inset-0 bg-black/50 backdrop-blur-md transition-all duration-500 ease-in-out"
-                    style={clipPathStyle}
-                />
-            ) : (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="absolute inset-0 bg-black/60 backdrop-blur-md transition-opacity duration-700"
-                />
-            )}
+                    key={`onboarding-step-${currentStep}`}
+                    initial={{ opacity: 0, y: 18, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -14, scale: 0.98 }}
+                    transition={{ duration: 0.22 }}
+                    className="w-full max-w-md rounded-[2rem] border border-white/10 bg-[#0b0b11] p-5 shadow-[0_28px_90px_rgba(0,0,0,0.5)] sm:p-6"
+                >
+                    <div className="mb-5">
+                        <div className="mb-3 flex items-center justify-between gap-3">
+                            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-purple">
+                                Step {currentStep + 1} of {STEP_DEFINITIONS.length}
+                            </span>
+                            <span className="text-xs font-medium text-gray-500">
+                                {STEP_DEFINITIONS[currentStep]?.title}
+                            </span>
+                        </div>
+                        <div className="h-2 rounded-full bg-white/8">
+                            <div
+                                className="h-full rounded-full bg-brand-purple transition-all duration-300"
+                                style={{ width: `${progressPercent}%` }}
+                            />
+                        </div>
+                    </div>
 
-            {/* Glowing Lavender Ring */}
-            <AnimatePresence>
-                {highlightRect && (
-                    <motion.div
-                        initial={{ opacity: 0, scale: 1.1 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
-                        transition={{ type: "spring", stiffness: 100, damping: 20 }}
-                        className="absolute border-[3px] border-[#E6E6FA] pointer-events-none shadow-[0_0_25px_rgba(230,230,250,0.6)] z-10"
-                        style={{
-                            top: highlightRect.top - spotlightPadding,
-                            left: highlightRect.left - spotlightPadding,
-                            width: highlightRect.width + spotlightPadding * 2,
-                            height: highlightRect.height + spotlightPadding * 2,
-                            borderRadius: highlightRect.rx || highlightRect.height / 2,
-                        }}
-                    >
-                        {/* Inner pulse */}
-                        <div className="absolute inset-0 rounded-inherit ring-4 ring-[#E6E6FA]/20 animate-pulse" style={{ borderRadius: 'inherit' }} />
-                    </motion.div>
-                )}
+                    {currentStep === 0 ? (
+                        <>
+                            <div className="mb-5 text-center">
+                                <h2 className="text-2xl font-bold text-white">Choose your flavor</h2>
+                                <p className="mt-2 text-sm leading-relaxed text-gray-400">
+                                    Pick what feels right first. You can always change it later.
+                                </p>
+                            </div>
+
+                            <div className="space-y-3">
+                                {FLAVOR_OPTIONS.map((option) => {
+                                    const Icon = option.icon;
+                                    const active = flavorPreference === option.value;
+
+                                    return (
+                                        <button
+                                            key={option.value}
+                                            type="button"
+                                            onClick={() => setFlavorPreference(option.value)}
+                                            className={`flex w-full items-center gap-4 rounded-[1.5rem] border px-4 py-4 text-left transition-all ${
+                                                active
+                                                    ? option.activeClass
+                                                    : "border-white/10 bg-white/[0.04] hover:bg-white/[0.07]"
+                                            }`}
+                                        >
+                                            <div className={`flex h-11 w-11 items-center justify-center rounded-full ${active ? option.iconClass : "bg-white/10 text-gray-400"}`}>
+                                                <Icon className="h-5 w-5" />
+                                            </div>
+                                            <div>
+                                                <p className={`text-sm font-bold ${active ? option.accentClass : "text-white"}`}>{option.label}</p>
+                                                <p className="mt-0.5 text-xs text-gray-400">{option.description}</p>
+                                            </div>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() => goToNextStep()}
+                                disabled={!flavorPreference}
+                                className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-5 py-3.5 text-sm font-bold text-white transition-all disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                Continue <ChevronRight className="h-4 w-4" />
+                            </button>
+                        </>
+                    ) : null}
+
+                    {currentStep === 1 ? (
+                        <>
+                            <div className="mb-5 text-center">
+                                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-purple/15 text-brand-purple">
+                                    <CalendarCheck2 className="h-7 w-7" />
+                                </div>
+                                <h2 className="text-2xl font-bold text-white">Claim today&apos;s Gum Drops</h2>
+                                <p className="mt-2 text-sm leading-relaxed text-gray-400">
+                                    Start your streak now so you can unwrap more sooner.
+                                </p>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={handleCheckInAndContinue}
+                                disabled={isCheckingIn}
+                                className="flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-5 py-3.5 text-sm font-bold text-white transition-all disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                {isCheckingIn ? "Checking in..." : "Check in and continue"}
+                                <ChevronRight className="h-4 w-4" />
+                            </button>
+                        </>
+                    ) : null}
+
+                    {currentStep === 2 ? (
+                        <>
+                            <div className="mb-5 text-center">
+                                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-purple/15 text-brand-purple">
+                                    <Gift className="h-7 w-7" />
+                                </div>
+                                <h2 className="text-2xl font-bold text-white">Go to live Drops</h2>
+                                <p className="mt-2 text-sm leading-relaxed text-gray-400">
+                                    This is where live KandyDrops appear when they are ready to unwrap.
+                                </p>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() => goToNextStep()}
+                                className="flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-5 py-3.5 text-sm font-bold text-white transition-all"
+                            >
+                                Open Drops <ChevronRight className="h-4 w-4" />
+                            </button>
+                        </>
+                    ) : null}
+
+                    {currentStep === 3 ? (
+                        <>
+                            <div className="mb-5 text-center">
+                                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-purple/15 text-brand-purple">
+                                    <Compass className="h-7 w-7" />
+                                </div>
+                                <h2 className="text-2xl font-bold text-white">Explore Experiences</h2>
+                                <p className="mt-2 text-sm leading-relaxed text-gray-400">
+                                    Experiences help you earn more Gum Drops and stay in the loop.
+                                </p>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() => goToNextStep()}
+                                className="flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-5 py-3.5 text-sm font-bold text-white transition-all"
+                            >
+                                Open Experiences <ChevronRight className="h-4 w-4" />
+                            </button>
+                        </>
+                    ) : null}
+
+                    {currentStep === 4 ? (
+                        <>
+                            <div className="mb-5 text-center">
+                                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-purple/15 text-brand-purple">
+                                    <BellRing className="h-7 w-7" />
+                                </div>
+                                <h2 className="text-2xl font-bold text-white">Turn on notifications</h2>
+                                <p className="mt-2 text-sm leading-relaxed text-gray-400">
+                                    Catch new drops right when they go live.
+                                </p>
+                            </div>
+
+                            <div className="space-y-3">
+                                <button
+                                    type="button"
+                                    onClick={handleEnableNotifications}
+                                    disabled={isEnablingNotifications}
+                                    className="flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-5 py-3.5 text-sm font-bold text-white transition-all disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                    {isNotificationStepCompleted
+                                        ? "Notifications already on"
+                                        : isEnablingNotifications
+                                            ? "Turning on..."
+                                            : "Enable notifications"}
+                                    <ChevronRight className="h-4 w-4" />
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => goToNextStep()}
+                                    className="w-full rounded-full border border-white/12 bg-white/5 px-5 py-3.5 text-sm font-semibold text-white transition-all hover:bg-white/8"
+                                >
+                                    Skip for now
+                                </button>
+                            </div>
+                        </>
+                    ) : null}
+
+                    {currentStep === 5 ? (
+                        <>
+                            <div className="mb-5 text-center">
+                                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand-purple/15 text-brand-purple">
+                                    <Gift className="h-8 w-8" />
+                                </div>
+                                <h2 className="text-2xl font-bold text-white">You&apos;re ready</h2>
+                                <p className="mt-2 text-sm leading-relaxed text-gray-400">
+                                    You now have <span className="font-bold text-white">100 Gum Drops</span> waiting for your first unwrap.
+                                </p>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={completeOnboarding}
+                                disabled={isCompleting}
+                                className="flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-5 py-3.5 text-sm font-bold text-white transition-all disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                {isCompleting ? "Finishing..." : "Go to Drops"}
+                                <ChevronRight className="h-4 w-4" />
+                            </button>
+                        </>
+                    ) : null}
+                </motion.div>
             </AnimatePresence>
-
-            {/* Tooltip & Content Positioning */}
-            <div className="absolute inset-0 z-20 pointer-events-none">
-                <AnimatePresence mode="wait">
-
-                    {/* STEP 1: Flavor Curating */}
-                    {currentStep === 0 && (
-                        <div className="absolute inset-0 flex items-center justify-center p-3 sm:p-4">
-                            <motion.div
-                                key="step0"
-                                data-guided-scroll-allow="true"
-                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.95, y: -20, filter: "blur(10px)" }}
-                                transition={{ duration: 0.4 }}
-                                className="glass-panel p-5 md:p-6 rounded-3xl w-[92%] sm:w-[90%] max-w-sm max-h-[85vh] overflow-y-auto custom-scrollbar shadow-2xl border border-white/10 relative pointer-events-auto bg-black/80 backdrop-blur-xl"
-                            >
-                                <h2 className="text-xl sm:text-2xl font-bold text-white mb-2 text-center text-transparent bg-clip-text bg-gradient-to-br from-white to-gray-400">Curate Your Cravings</h2>
-                                <p className="text-gray-400 text-xs sm:text-sm mb-5 text-center leading-relaxed">Customize your experience to see the drops you desire most.</p>
-
-                                <div className="space-y-2 mb-5">
-                                    <button
-                                        onClick={() => setStepData({ ...stepData, preference: "Sweet" })}
-                                        className={`w-full p-4 rounded-2xl border text-left transition-all group flex items-start gap-4 ${stepData.preference === "Sweet" ? "bg-pink-500/10 border-pink-500 shadow-[0_0_20px_rgba(236,72,153,0.15)]" : "bg-white/5 border-white/10 hover:bg-white/10"}`}
-                                    >
-                                        <div className={`p-2.5 rounded-full ${stepData.preference === "Sweet" ? "bg-pink-500 text-white" : "bg-white/10 text-gray-400"}`}>
-                                            <Sparkles className="w-5 h-5" />
-                                        </div>
-                                        <div>
-                                            <h3 className={`font-bold text-sm ${stepData.preference === "Sweet" ? "text-pink-400" : "text-white"}`}>Sweet</h3>
-                                            <p className="text-xs text-gray-400 mt-0.5">Light, playful, and elegantly teasing.</p>
-                                        </div>
-                                    </button>
-
-                                    <button
-                                        onClick={() => setStepData({ ...stepData, preference: "Spicy" })}
-                                        className={`w-full p-4 rounded-2xl border text-left transition-all group flex items-start gap-4 ${stepData.preference === "Spicy" ? "bg-orange-500/10 border-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.15)]" : "bg-white/5 border-white/10 hover:bg-white/10"}`}
-                                    >
-                                        <div className={`p-2.5 rounded-full ${stepData.preference === "Spicy" ? "bg-orange-500 text-white" : "bg-white/10 text-gray-400"}`}>
-                                            <Flame className="w-5 h-5" />
-                                        </div>
-                                        <div>
-                                            <h3 className={`font-bold text-sm ${stepData.preference === "Spicy" ? "text-orange-400" : "text-white"}`}>Spicy</h3>
-                                            <p className="text-xs text-gray-400 mt-0.5">Bold, provocative, and highly charged.</p>
-                                        </div>
-                                    </button>
-
-                                    <button
-                                        onClick={() => setStepData({ ...stepData, preference: "RAW" })}
-                                        className={`w-full p-4 rounded-2xl border text-left transition-all group flex items-start gap-4 ${stepData.preference === "RAW" ? "bg-red-500/10 border-red-500 shadow-[0_0_20px_rgba(239,68,68,0.15)]" : "bg-white/5 border-white/10 hover:bg-white/10"}`}
-                                    >
-                                        <div className={`p-2.5 rounded-full ${stepData.preference === "RAW" ? "bg-red-500 text-white" : "bg-white/10 text-gray-400"}`}>
-                                            <Droplets className="w-5 h-5" />
-                                        </div>
-                                        <div>
-                                            <h3 className={`font-bold text-sm ${stepData.preference === "RAW" ? "text-red-400" : "text-white"}`}>RAW</h3>
-                                            <p className="text-xs text-gray-400 mt-0.5">Unfiltered, intense, unrestrained excitement.</p>
-                                        </div>
-                                    </button>
-                                </div>
-
-                                <button
-                                    onClick={handleNext}
-                                    disabled={!stepData.preference}
-                                    className="w-full py-4 rounded-2xl bg-[#E6E6FA] text-black font-extrabold shadow-[0_0_20px_rgba(230,230,250,0.3)] disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
-                                >
-                                    Continue <ChevronRight className="w-5 h-5" />
-                                </button>
-                            </motion.div>
-                        </div>
-                    )}
-
-                            {/* STEP 5: Completion & Reward */}
-                    {currentStep === 5 && (
-                        <div className="absolute inset-0 flex items-center justify-center p-3 sm:p-4">
-                            <motion.div
-                                key="step5"
-                                data-guided-scroll-allow="true"
-                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.95, y: -20, filter: "blur(10px)" }}
-                                transition={{ duration: 0.4 }}
-                                className="glass-panel p-6 sm:p-8 rounded-3xl w-[92%] sm:w-[90%] max-w-sm max-h-[85vh] overflow-y-auto custom-scrollbar shadow-[0_0_50px_rgba(236,72,153,0.3)] border border-pink-500/30 relative pointer-events-auto bg-black/95 backdrop-blur-2xl text-center"
-                            >
-                                <div className="w-20 h-20 bg-pink-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-pink-500/30 animate-pulse">
-                                    <Gift className="w-10 h-10 text-pink-400" />
-                                </div>
-                                <h2 className="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-pink-400 to-purple-400 mb-4 tracking-tight">You&apos;re All Set!</h2>
-                                <p className="text-gray-300 text-sm sm:text-base mb-2 leading-relaxed font-medium">We&apos;ve given you <b className="text-pink-400 text-lg">50 Gumdrops</b> to get you started!</p>
-                                <p className="text-gray-400 text-xs sm:text-sm mb-8 leading-relaxed">Dive into the Drops feed to unlock your first exclusive experience.</p>
-
-                                <button
-                                    onClick={completeOnboarding}
-                                    disabled={isCompleting}
-                                    className="w-full py-4 rounded-xl bg-gradient-to-r from-brand-purple to-pink-500 text-white font-extrabold text-lg shadow-[0_0_20px_rgba(236,72,153,0.4)] disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
-                                >
-                                    {isCompleting ? "Finishing..." : "Unwrap KandyDrops"} <ChevronRight className="w-6 h-6" />
-                                </button>
-                            </motion.div>
-                        </div>
-                    )}
-
-                    {/* DYNAMIC HIGHLIGHT TOOLTIPS (Steps 1-4) */}
-                    {currentStep > 0 && currentStep < 5 && (!GUIDED_STEP_CONFIG[currentStep]?.path || pathname === GUIDED_STEP_CONFIG[currentStep]?.path) && (
-                        <motion.div
-                            key={`tooltip-${currentStep}`}
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
-                            transition={{ delay: 0.3, type: "spring", damping: 25 }}
-                            style={{
-                                position: "absolute",
-                                left: `${Math.max((((typeof window !== "undefined" ? window.innerWidth : 393) * 0.92) > 340
-                                    ? ((typeof window !== "undefined" ? window.innerWidth : 393) - 340) / 2
-                                    : ((typeof window !== "undefined" ? window.innerWidth : 393) * 0.04)), 12)}px`,
-                                width: `${Math.min((typeof window !== "undefined" ? window.innerWidth : 393) * 0.92, 340)}px`,
-                                top: isMobileViewport
-                                    ? "auto"
-                                    : !highlightRect || currentStep === 4
-                                    ? `${Math.max((ch - 260) / 2, 24)}px`
-                                    : highlightRect.top < ch / 2
-                                        ? highlightRect.top + highlightRect.height + 40
-                                        : highlightRect.top - 240,
-                                bottom: isMobileViewport ? "calc(env(safe-area-inset-bottom) + 5.5rem)" : "auto",
-                            }}
-                            className="glass-panel p-5 sm:p-6 rounded-3xl border border-white/20 shadow-2xl text-center z-50 bg-black/95 backdrop-blur-2xl pointer-events-auto"
-                        >
-                            {currentStep === 1 && (
-                                <>
-                                    <div className="w-12 h-12 bg-pink-500/20 rounded-full flex items-center justify-center mx-auto mb-3 border border-pink-500/30">
-                                        <Gift className="w-6 h-6 text-pink-400" />
-                                    </div>
-                                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2">The Daily Ritual</h3>
-                                    <p className="text-xs sm:text-sm text-gray-300 mb-5 leading-relaxed">Consistency pays off. Stack free <b>Gum Drops</b> to spend on premium unwraps without spending real cash. Claim your first drop right now to continue!</p>
-                                </>
-                            )}
-                            {currentStep === 2 && (
-                                <>
-                                    <div className="w-12 h-12 bg-[#E6E6FA]/20 rounded-full flex items-center justify-center mx-auto mb-3 border border-[#E6E6FA]/30">
-                                        <Sparkles className="w-6 h-6 text-[#E6E6FA]" />
-                                    </div>
-                                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2">The Hunt Begins</h3>
-                                    <p className="text-xs sm:text-sm text-gray-300 mb-5 leading-relaxed">This is where the magic lives. Dive into the <b>Drops</b> tab to unwrap and watch your exclusive, limited-edition content.</p>
-                                </>
-                            )}
-                            {currentStep === 3 && (
-                                <>
-                                    <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-3 border border-orange-500/30">
-                                        <Flame className="w-6 h-6 text-orange-400" />
-                                    </div>
-                                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2">More ways to Unwrap</h3>
-                                    <p className="text-xs sm:text-sm text-gray-300 mb-5 leading-relaxed">Experiences are a way to connect with your favorite creators and earn <b>free gumdrops</b> to unwrap more exclusive content.</p>
-                                </>
-                            )}
-                            {currentStep === 4 && (
-                                <>
-                                    <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-3 border border-purple-500/30">
-                                        <BellRing className="w-6 h-6 text-purple-400" />
-                                    </div>
-                                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2">Don&apos;t miss out!</h3>
-                                    <p className="text-xs sm:text-sm text-gray-300 mb-5 leading-relaxed">Enable notifications so you catch new drops the moment they go live and never miss a limited release.</p>
-                                </>
-                            )}
-
-                            {currentStep === 1 ? (
-                                <button
-                                    onClick={handleCheckInAndContinue}
-                                    disabled={isCheckingIn}
-                                    className="w-full py-3.5 rounded-xl bg-brand-purple text-white font-extrabold active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(236,72,153,0.4)] disabled:opacity-50"
-                                >
-                                    {isCheckingIn ? "Checking In..." : "Check In & Continue"} <ChevronRight className="w-5 h-5" />
-                                </button>
-                            ) : (
-                                <button
-                                    onClick={handleNext}
-                                    className="w-full py-3.5 rounded-xl bg-[#E6E6FA] text-black font-extrabold active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(230,230,250,0.3)]"
-                                >
-                                    {currentStep === 4 ? "Got it!" : "Got it!"} <ChevronRight className="w-5 h-5" />
-                                </button>
-                            )}
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </div>
         </div>
     );
 }
