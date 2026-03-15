@@ -215,6 +215,14 @@ function pickTasksForCycle(
     });
   }
 
+  if (selected.length < DAILY_TASK_LIMIT) {
+    shuffle(basePool).forEach((task) => {
+      if (selected.length < DAILY_TASK_LIMIT && !selected.some((entry) => entry.id === task.id)) {
+        selected.push(task);
+      }
+    });
+  }
+
   return selected.slice(0, DAILY_TASK_LIMIT);
 }
 
@@ -439,7 +447,7 @@ export function buildFreshTaskState(
   const normalizedState = normalizeTaskState(userData, definitionMap, nowMs);
   const { endOfDay } = getCSTDayBoundaries(nowMs);
 
-  if (normalizedState.tasks.length === 0) {
+  if (normalizedState.tasks.length === 0 || normalizedState.tasks.length !== DAILY_TASK_LIMIT) {
     return buildRotatedState(normalizedState, definitions, nowMs, "initial", [], userData);
   }
 

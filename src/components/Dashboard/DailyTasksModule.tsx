@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Bell,
   Candy,
+  ChevronDown,
+  ChevronUp,
   CheckCircle2,
-  Clock3,
   Eye,
   Gift,
   Layers3,
@@ -29,8 +30,9 @@ import {
   type DailyTaskAssignment,
   type DailyTaskIconName,
   DAILY_TASK_LIMIT,
+  type DailyTasksState,
 } from "@/lib/tasks/task-catalog";
-import { getCSTDayBoundaries, isSameCSTDay } from "@/lib/timezone";
+import { getCSTDayBoundaries } from "@/lib/timezone";
 import { trackEvent } from "@/lib/telemetry";
 
 type FeedbackCategory = "general" | "feature_request" | "bug_report" | "creator_request";
@@ -66,7 +68,7 @@ function formatCountdown(targetMs: number, nowMs: number) {
 
 export function DailyTasksModule() {
   const router = useRouter();
-  const { user, userProfile } = useAuth();
+  const { user, userProfile, setUserProfile } = useAuth();
   const { openPurchaseModal } = useUI();
   const [rotating, setRotating] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
@@ -76,6 +78,8 @@ export function DailyTasksModule() {
   const [feedbackLoading, setFeedbackLoading] = useState(false);
   const [notificationLoading, setNotificationLoading] = useState(false);
   const [nowMs, setNowMs] = useState(Date.now());
+  const [localTaskState, setLocalTaskState] = useState<DailyTasksState | null>(null);
+  const [expandedTaskIds, setExpandedTaskIds] = useState<string[]>([]);
   const lastRotationRef = useRef<number>(0);
 
   useEffect(() => {
@@ -87,6 +91,78 @@ export function DailyTasksModule() {
   }, []);
 
   useEffect(() => {
+    setLocalTaskState(userProfile?.dailyTasksState ?? null);
+  }, [userProfile?.dailyTasksState]);
+
+  const dailyTaskState = localTaskState ?? userProfile?.dailyTasksState ?? null;
+  const activeTasks = useMemo(() => dailyTaskState?.tasks ?? [], [dailyTaskState?.tasks]);
+  const completedCount = useMemo(
+    () => activeTasks.filter((task) => task.claimed).length,
+    [activeTasks],
+  );
+  const fallbackNextRefreshMs = useMemo(() => getCSTDayBoundaries(nowMs).endOfDay, [nowMs]);
+  const nextRefreshMs = dailyTaskState?.nextRefreshMs || fallbackNextRefreshMs;
+  const waitLabel = formatCountdown(nextRefreshMs, nowMs);
+  const isCompleteForToday = completedCount >= DAILY_TASK_LIMIT;
+  const headerCountdownLabel = isCompleteForToday ? "Next batch in" : "Deadline in";
+
+  useEffect(() => {
+    setExpandedTaskIds((current) => {
+      const valid = current.filter((taskId) => activeTasks.some((task) => task.id === taskId && !task.claimed));
+      if (valid.length > 0) {
+        return valid;
+      }
+
+      const firstPendingTask = activeTasks.find((task) => !task.claimed);
+      return firstPendingTask ? [firstPendingTask.id] : [];
+    });
+  }, [activeTasks]);
+
+  const applyAuthoritativeTaskState = useCallback((
+    nextState: Pick<DailyTasksState, "tasks" | "nextRefreshMs">,
+  ) => {
+    const baseState = userProfile?.dailyTasksState ?? localTaskState;
+    const mergedState: DailyTasksState = {
+      lastResetMs: baseState?.lastResetMs ?? nowMs,
+      lastProgressAt: baseState?.lastProgressAt ?? nowMs,
+      lastDeadlineReminderAt: baseState?.lastDeadlineReminderAt ?? 0,
+      completedTaskHistory: baseState?.completedTaskHistory ?? {},
+      retiredTaskIds: baseState?.retiredTaskIds ?? [],
+      ...baseState,
+      tasks: nextState.tasks,
+      nextRefreshMs: nextState.nextRefreshMs,
+    };
+
+    setLocalTaskState(mergedState);
+    if (userProfile) {
+      setUserProfile({
+        ...userProfile,
+        dailyTasksState: mergedState,
+      });
+    }
+  }, [localTaskState, nowMs, setUserProfile, userProfile]);
+
+  const rotateTasks = useCallback(async () => {
+    setRotating(true);
+    try {
+      const response = await authFetch("/api/tasks/rotate", { method: "POST" });
+      if (!response.ok) {
+        throw new Error("Task rotation failed");
+      }
+
+      const result = await response.json() as { tasks?: DailyTaskAssignment[]; nextRefreshMs?: number };
+      if (Array.isArray(result.tasks) && Number.isFinite(result.nextRefreshMs)) {
+        applyAuthoritativeTaskState({
+          tasks: result.tasks,
+          nextRefreshMs: Number(result.nextRefreshMs),
+        });
+      }
+    } finally {
+      setRotating(false);
+    }
+  }, [applyAuthoritativeTaskState]);
+
+  useEffect(() => {
     if (!userProfile?.uid) {
       return;
     }
@@ -95,19 +171,11 @@ export function DailyTasksModule() {
     let cancelled = false;
 
     async function rotateTasksOnMount() {
-      setRotating(true);
       try {
-        const response = await authFetch("/api/tasks/rotate", { method: "POST" });
-        if (!response.ok) {
-          throw new Error("Task rotation failed");
-        }
+        await rotateTasks();
       } catch (error) {
         if (!cancelled) {
           console.error("Task rotation failed", error);
-        }
-      } finally {
-        if (!cancelled) {
-          setRotating(false);
         }
       }
     }
@@ -117,20 +185,7 @@ export function DailyTasksModule() {
     return () => {
       cancelled = true;
     };
-  }, [userProfile?.uid]);
-
-  const dailyTaskState = userProfile?.dailyTasksState;
-  const activeTasks = useMemo(() => dailyTaskState?.tasks ?? [], [dailyTaskState?.tasks]);
-  const completedCount = useMemo(
-    () => activeTasks.filter((task) => task.claimed).length,
-    [activeTasks],
-  );
-  const unfinishedCount = activeTasks.length - completedCount;
-  const fallbackNextRefreshMs = useMemo(() => getCSTDayBoundaries(nowMs).endOfDay, [nowMs]);
-  const nextRefreshMs = dailyTaskState?.nextRefreshMs || fallbackNextRefreshMs;
-  const waitLabel = formatCountdown(nextRefreshMs, nowMs);
-  const isCompleteForToday = completedCount >= DAILY_TASK_LIMIT;
-  const headerCountdownLabel = isCompleteForToday ? "Next batch in" : "Deadline in";
+  }, [rotateTasks, userProfile?.uid]);
 
   useEffect(() => {
     if (!userProfile?.uid || nowMs < nextRefreshMs || lastRotationRef.current === nextRefreshMs) {
@@ -141,19 +196,11 @@ export function DailyTasksModule() {
     let cancelled = false;
 
     async function rotateTasksAfterDeadline() {
-      setRotating(true);
       try {
-        const response = await authFetch("/api/tasks/rotate", { method: "POST" });
-        if (!response.ok) {
-          throw new Error("Task rotation failed");
-        }
+        await rotateTasks();
       } catch (error) {
         if (!cancelled) {
           console.error("Task rotation failed", error);
-        }
-      } finally {
-        if (!cancelled) {
-          setRotating(false);
         }
       }
     }
@@ -163,7 +210,15 @@ export function DailyTasksModule() {
     return () => {
       cancelled = true;
     };
-  }, [nextRefreshMs, nowMs, userProfile?.uid]);
+  }, [nextRefreshMs, nowMs, rotateTasks, userProfile?.uid]);
+
+  const toggleTaskExpanded = (taskId: string) => {
+    setExpandedTaskIds((current) => (
+      current.includes(taskId)
+        ? current.filter((entry) => entry !== taskId)
+        : [...current, taskId]
+    ));
+  };
 
   const openNotifications = () => {
     window.dispatchEvent(new Event("kandydrops:open-notifications"));
@@ -373,7 +428,7 @@ export function DailyTasksModule() {
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/30 bg-brand-purple/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
               <Sparkles className="h-3.5 w-3.5" />
-              Daily missions
+              Earn Free Gum Drops
             </div>
             <div>
               <h2 className="text-xl font-bold text-white sm:text-2xl">Daily tasks</h2>
@@ -392,17 +447,6 @@ export function DailyTasksModule() {
           </div>
         </div>
 
-        <div className="mt-4 rounded-[1.5rem] border border-white/10 bg-black/25 px-4 py-3">
-          <div className="flex items-start gap-3">
-            <Clock3 className="mt-0.5 h-4 w-4 shrink-0 text-brand-purple" />
-            <div>
-              <p className="text-sm font-semibold text-white">{headerCountdownLabel} {waitLabel}</p>
-              <p className="mt-1 text-xs leading-5 text-gray-400">
-                Your task timer stays synced with the daily check-in reset.
-              </p>
-            </div>
-          </div>
-        </div>
       </section>
 
       {rotating && activeTasks.length === 0 ? (
@@ -502,6 +546,7 @@ export function DailyTasksModule() {
             const Icon = ICONS[task.icon] || Gift;
             const progressPercent = Math.min(100, Math.round((task.progress / Math.max(1, task.maxProgress)) * 100));
             const isBusy = notificationLoading && task.actionType === "enable_notifications";
+            const isExpanded = expandedTaskIds.includes(task.id);
             const statusLabel = task.claimed
               ? task.oneTime
                 ? "Retired forever"
@@ -520,55 +565,79 @@ export function DailyTasksModule() {
                     : "border-white/10 bg-black/30",
                 )}
               >
-                <div className="flex items-start gap-3">
-                  <div className={cn(
-                    "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border",
-                    task.claimed
-                      ? "border-brand-purple/30 bg-brand-purple text-white"
-                      : "border-white/10 bg-white/5 text-brand-purple",
-                  )}>
-                    <Icon className="h-5 w-5" />
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <div className="mb-2 flex flex-wrap items-center gap-2">
-                          <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-200">
-                            Deadline {waitLabel}
-                          </span>
-                          {task.oneTime ? (
-                            <span className="rounded-full border border-emerald-400/25 bg-emerald-400/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-300">
-                              One time
-                            </span>
-                          ) : null}
-                        </div>
-                        <h3 className="text-base font-bold text-white">{task.title}</h3>
-                        <p className="mt-1 text-sm leading-6 text-gray-400">{task.subtitle}</p>
-                      </div>
-                      <div className="shrink-0 rounded-full border border-brand-purple/30 bg-brand-purple/15 px-3 py-1 text-xs font-bold text-white">
-                        +{task.reward} GD
-                      </div>
+                <button
+                  type="button"
+                  onClick={() => toggleTaskExpanded(task.id)}
+                  className="w-full text-left"
+                  aria-expanded={isExpanded}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className={cn(
+                      "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border",
+                      task.claimed
+                        ? "border-brand-purple/30 bg-brand-purple text-white"
+                        : "border-white/10 bg-white/5 text-brand-purple",
+                    )}>
+                      <Icon className="h-5 w-5" />
                     </div>
 
-                    <div className="mt-4">
-                      <div className="h-2 rounded-full bg-white/8">
-                        <div
-                          className={cn(
-                            "h-full rounded-full transition-all",
-                            task.claimed ? "bg-brand-purple" : "bg-brand-purple/80",
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="mb-2 flex flex-wrap items-center gap-2">
+                            <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-200">
+                              Deadline {waitLabel}
+                            </span>
+                            {task.oneTime ? (
+                              <span className="rounded-full border border-emerald-400/25 bg-emerald-400/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-300">
+                                One time
+                              </span>
+                            ) : null}
+                          </div>
+                          <h3 className="text-base font-bold text-white">{task.title}</h3>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-2">
+                          {isExpanded ? (
+                            <ChevronUp className="h-4 w-4 text-gray-400" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4 text-gray-400" />
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="mt-4">
+                        <div className="h-2 rounded-full bg-white/8">
+                          <div
+                            className={cn(
+                              "h-full rounded-full transition-all",
+                              task.claimed ? "bg-brand-purple" : "bg-brand-purple/80",
                           )}
                           style={{ width: `${progressPercent}%` }}
                         />
+                        </div>
                       </div>
-                      <div className="mt-2 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.12em]">
-                        <span className="text-gray-500">
-                          {Math.min(task.progress, task.maxProgress)} / {task.maxProgress}
-                        </span>
-                        <span className={task.claimed ? "text-brand-purple" : "text-gray-400"}>
-                          {statusLabel}
-                        </span>
-                      </div>
+                    </div>
+                  </div>
+                </button>
+
+                {isExpanded ? (
+                  <div className="ml-[3.75rem] mt-4 border-t border-white/10 pt-4">
+                    <p className="text-sm leading-6 text-gray-400">{task.subtitle}</p>
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <span className="rounded-full border border-brand-purple/30 bg-brand-purple/15 px-3 py-1 text-xs font-bold text-white">
+                        +{task.reward} GD
+                      </span>
+                      <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-300">
+                        {Math.min(task.progress, task.maxProgress)} / {task.maxProgress}
+                      </span>
+                      <span className={cn(
+                        "rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em]",
+                        task.claimed
+                          ? "border-brand-purple/30 bg-brand-purple/15 text-brand-purple"
+                          : "border-white/10 bg-white/5 text-gray-300",
+                      )}>
+                        {statusLabel}
+                      </span>
                     </div>
 
                     <div className="mt-4">
@@ -595,7 +664,7 @@ export function DailyTasksModule() {
                       )}
                     </div>
                   </div>
-                </div>
+                ) : null}
               </article>
             );
           })}

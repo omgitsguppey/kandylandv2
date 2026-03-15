@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { ArrowRight, Clock3, Gift, Sparkles, Wallet } from "lucide-react";
 import { DailyCheckIn } from "@/components/Dashboard/DailyCheckIn";
 import { DailyTasksModule } from "@/components/Dashboard/DailyTasksModule";
+import { LiveDropsForYouCarousel } from "@/components/Dashboard/LiveDropsForYouCarousel";
 import { useUI } from "@/context/UIContext";
 import { useAuth } from "@/context/AuthContext";
 import { GuestComponentBlur } from "@/components/Auth/GuestComponentBlur";
@@ -63,6 +64,7 @@ export default function ExperiencesPage() {
                         <div className="space-y-5">
                             <DailyCheckIn />
                             <DailyTasksModule />
+                            <LiveDropsForYouCarousel />
                         </div>
                     </GuestComponentBlur>
                 </div>
