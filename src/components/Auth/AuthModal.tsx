@@ -39,6 +39,9 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
     const [isLoading, setIsLoading] = useState(false);
     const [authError, setAuthError] = useState<string | null>(null);
     const [resetSent, setResetSent] = useState(false);
+    const [checkingUsername, setCheckingUsername] = useState(false);
+    const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+    const [usernameTouched, setUsernameTouched] = useState(false);
     const wasOpenRef = useRef(false);
 
     useEffect(() => {
@@ -51,7 +54,9 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
 
     const activeSchema = mode === "signup"
         ? authFormSchema.extend({
-            username: z.string().min(3, "Username must be at least 3 characters"),
+            username: z.string()
+                .min(3, "Username must be at least 3 characters")
+                .regex(/^[a-z0-9_-]+$/, "Use lowercase letters, numbers, dashes, or underscores"),
             dob: z.string().refine((val) => {
                 const age = differenceInYears(new Date(), parseISO(val));
                 return age >= 18;
@@ -62,6 +67,8 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
     const {
         register,
         handleSubmit,
+        watch,
+        setValue,
         formState: { errors },
         clearErrors,
         reset,
@@ -83,7 +90,71 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
         clearTimedFlow(AUTH_SIGN_IN_FLOW);
         clearTimedFlow(AUTH_SIGN_UP_FLOW);
         clearTimedFlow(AUTH_GOOGLE_FLOW);
+        setCheckingUsername(false);
+        setUsernameAvailable(null);
+        setUsernameTouched(false);
     }, [clearErrors, initialMode, isOpen, reset]);
+
+    const watchedEmail = watch("email");
+    const watchedUsername = watch("username");
+
+    useEffect(() => {
+        if (!isOpen || mode !== "signup" || usernameTouched || !watchedEmail) {
+            return;
+        }
+
+        const timer = setTimeout(async () => {
+            setCheckingUsername(true);
+            try {
+                const params = new URLSearchParams({
+                    mode: "suggest",
+                    email: watchedEmail,
+                    uid: "guest",
+                });
+                const response = await fetch(`/api/user/check-username?${params.toString()}`);
+                const result = await response.json();
+                if (response.ok && typeof result.suggestedUsername === "string" && !usernameTouched) {
+                    setValue("username", result.suggestedUsername, { shouldValidate: true, shouldDirty: false });
+                    setUsernameAvailable(true);
+                }
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setCheckingUsername(false);
+            }
+        }, 250);
+
+        return () => clearTimeout(timer);
+    }, [isOpen, mode, setValue, usernameTouched, watchedEmail]);
+
+    useEffect(() => {
+        if (mode !== "signup") {
+            return;
+        }
+
+        if (!watchedUsername || watchedUsername.length < 3) {
+            setUsernameAvailable(null);
+            return;
+        }
+
+        const timer = setTimeout(async () => {
+            setCheckingUsername(true);
+            try {
+                const response = await fetch(`/api/user/check-username?username=${encodeURIComponent(watchedUsername)}`);
+                const result = await response.json();
+                setUsernameAvailable(Boolean(result.available));
+                if (response.ok && typeof result.normalized === "string" && result.normalized !== watchedUsername && !usernameTouched) {
+                    setValue("username", result.normalized, { shouldValidate: true, shouldDirty: false });
+                }
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setCheckingUsername(false);
+            }
+        }, 350);
+
+        return () => clearTimeout(timer);
+    }, [mode, setValue, usernameTouched, watchedUsername]);
 
     const switchMode = (newMode: AuthMode) => {
         setMode(newMode);
@@ -119,6 +190,10 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
 
         try {
             if (mode === "signup") {
+                if (usernameAvailable === false) {
+                    throw new Error("Username is already taken.");
+                }
+
                 startTimedFlow(AUTH_SIGN_UP_FLOW, { entry_mode: initialMode });
                 trackEvent("auth_sign_up_attempted", { entry_mode: initialMode });
                 await signUpWithEmail(data.email, data.password, data.username!, data.dob!);
@@ -147,6 +222,8 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
             trackEvent(mode === "signup" ? "auth_sign_up_failed" : "auth_sign_in_failed", mergedParams);
             if (firebaseErr.code === "auth/email-already-in-use") {
                 setAuthError("Email is already registered.");
+            } else if (firebaseErr.message === "Username is already taken.") {
+                setAuthError("Username is already taken.");
             } else if (firebaseErr.code === "auth/invalid-credential") {
                 setAuthError("Invalid email or password.");
             } else {
@@ -327,7 +404,9 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                             <div className="relative">
                                                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                                                 <input
-                                                    {...register("username")}
+                                                    {...register("username", {
+                                                        onChange: () => setUsernameTouched(true),
+                                                    })}
                                                     type="text"
                                                     className="w-full bg-black/50 border border-white/10 rounded-xl px-10 py-2.5 sm:py-3 text-white text-sm sm:text-base focus:outline-none focus:border-brand-purple transition-colors"
                                                     placeholder="Create a username"
@@ -335,6 +414,15 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                             </div>
                                             {errors.username && (
                                                 <p className="text-red-400 text-xs pl-1">{errors.username.message}</p>
+                                            )}
+                                            {!errors.username && checkingUsername && (
+                                                <p className="text-gray-400 text-xs pl-1">Checking username...</p>
+                                            )}
+                                            {!errors.username && !checkingUsername && usernameAvailable === true && (
+                                                <p className="text-brand-purple text-xs pl-1">Username available.</p>
+                                            )}
+                                            {!errors.username && !checkingUsername && usernameAvailable === false && (
+                                                <p className="text-red-400 text-xs pl-1">Username already taken.</p>
                                             )}
                                         </div>
 

@@ -2,26 +2,36 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { checkRateLimit, RELAXED } from "@/lib/server/rate-limit";
 import { handleApiError } from "@/lib/server/auth";
+import { checkUsernameAvailability, generateUniqueUsernameSuggestion } from "@/lib/server/username-suggestions";
 
 export async function GET(request: NextRequest) {
     try {
         await checkRateLimit(request, "user/check-username", RELAXED);
         const username = request.nextUrl.searchParams.get("username");
+        const displayName = request.nextUrl.searchParams.get("displayName");
+        const email = request.nextUrl.searchParams.get("email");
+        const uid = request.nextUrl.searchParams.get("uid") || "guest";
+        const mode = request.nextUrl.searchParams.get("mode");
 
-        if (!username) {
-            return NextResponse.json({ error: "Missing username" }, { status: 400 });
-        }
         if (!adminDb) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });
         }
 
-        const snap = await adminDb
-            .collection("users")
-            .where("username", "==", username)
-            .limit(1)
-            .get();
+        if (mode === "suggest") {
+            const suggestedUsername = await generateUniqueUsernameSuggestion({
+                displayName,
+                email,
+                uid,
+            });
+            return NextResponse.json({ suggestedUsername });
+        }
 
-        return NextResponse.json({ available: snap.empty });
+        if (!username) {
+            return NextResponse.json({ error: "Missing username" }, { status: 400 });
+        }
+
+        const result = await checkUsernameAvailability(username);
+        return NextResponse.json(result);
     } catch (error: unknown) {
         return handleApiError(error, "User.CheckUsername");
     }

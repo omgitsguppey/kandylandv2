@@ -3,14 +3,61 @@ import { UserProfile } from "@/types/db";
 import { BUILT_IN_DAILY_TASK_MAP, type DailyTaskAssignment } from "@/lib/tasks/task-catalog";
 
 /**
- * Normalizes a username by trimming, lowercasing, and allowing only alphanumerics/underscores.
+ * Normalizes a username by trimming, lowercasing, and allowing only alphanumerics, hyphens, and underscores.
  * Returns null if the resulting username is invalid (empty or too long).
  */
 export function normalizeUsername(raw: unknown): string | null {
     if (typeof raw !== "string") return null;
-    const cleaned = raw.trim().toLowerCase().replace(/[^a-z0-9_]/g, "");
+    const cleaned = raw
+        .trim()
+        .toLowerCase()
+        .normalize("NFKD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9_-]+/g, "-")
+        .replace(/[-_]{2,}/g, "-")
+        .replace(/^[-_]+|[-_]+$/g, "");
     if (cleaned.length < 3 || cleaned.length > 20) return null;
     return cleaned;
+}
+
+export function buildUsernameBaseCandidates(input: { displayName?: string | null; email?: string | null }) {
+    const candidates: string[] = [];
+
+    const pushCandidate = (value: string) => {
+        const normalized = normalizeUsername(value);
+        if (!normalized || candidates.includes(normalized)) {
+            return;
+        }
+        candidates.push(normalized);
+    };
+
+    const displayName = typeof input.displayName === "string" ? input.displayName.trim() : "";
+    if (displayName) {
+        const parts = displayName
+            .split(/[\s._]+/)
+            .map((part) => normalizeUsername(part))
+            .filter((part): part is string => Boolean(part));
+
+        if (parts.length >= 2) {
+            pushCandidate(`${parts[0]}-${parts[parts.length - 1]}`);
+            pushCandidate(`${parts[0]}${parts[parts.length - 1]}`);
+            pushCandidate(`${parts[0]}-${parts[parts.length - 1][0]}`);
+        }
+
+        if (parts.length >= 1) {
+            pushCandidate(parts.join("-"));
+            pushCandidate(parts.join(""));
+        }
+    }
+
+    const email = typeof input.email === "string" ? input.email.trim().toLowerCase() : "";
+    if (email.includes("@")) {
+        const localPart = email.split("@")[0];
+        pushCandidate(localPart.replace(/[._]+/g, "-"));
+        pushCandidate(localPart.replace(/[^a-z0-9]+/g, "-"));
+    }
+
+    return candidates.slice(0, 8);
 }
 
 /**

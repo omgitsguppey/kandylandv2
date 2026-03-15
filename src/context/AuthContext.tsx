@@ -191,7 +191,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 method: "POST",
                 body: JSON.stringify({
                     displayName: username,
-                    username: username.replace(/\s+/g, "").toLowerCase(),
+                    username,
                     dateOfBirth: dob,
                     welcomeBonus: true,
                     referredBy: typeof window !== "undefined" ? sessionStorage.getItem("kandy_referral") : undefined,

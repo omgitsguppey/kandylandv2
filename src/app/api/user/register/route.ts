@@ -2,12 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAuth, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
-import { normalizeUsername } from "@/lib/user-utils";
+import { generateUniqueUsernameSuggestion } from "@/lib/server/username-suggestions";
 import { checkRateLimit, STRICT } from "@/lib/server/rate-limit";
-
-function buildFallbackUsername(uid: string): string {
-    return `user_${uid.slice(0, 8).toLowerCase()}`;
-}
 
 export async function POST(request: NextRequest) {
     try {
@@ -26,15 +22,12 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ success: true, existing: true });
         }
 
-        let normalizedUsername = normalizeUsername(username);
-        if (!normalizedUsername) {
-            normalizedUsername = buildFallbackUsername(caller.uid);
-        }
-
-        const existing = await adminDb.collection("users").where("username", "==", normalizedUsername).limit(1).get();
-        if (!existing.empty) {
-            normalizedUsername = `${normalizedUsername}_${caller.uid.slice(0, 4).toLowerCase()}`;
-        }
+        const normalizedUsername = await generateUniqueUsernameSuggestion({
+            preferredUsername: typeof username === "string" ? username : null,
+            displayName: typeof displayName === "string" ? displayName : null,
+            email: caller.email,
+            uid: caller.uid,
+        });
 
         if (dateOfBirth) {
             const dob = new Date(dateOfBirth);

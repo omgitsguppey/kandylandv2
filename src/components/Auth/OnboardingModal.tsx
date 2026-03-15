@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -20,7 +20,7 @@ import { trackEvent } from "@/lib/telemetry";
 const onboardingSchema = z.object({
     username: z.string()
         .min(3, "Username must be at least 3 characters")
-        .regex(/^[a-z0-9_]+$/, "Only lowercase letters, numbers, and underscores"),
+        .regex(/^[a-z0-9_-]+$/, "Use lowercase letters, numbers, dashes, or underscores"),
     dateOfBirth: z.string().refine((val) => {
         const age = differenceInYears(new Date(), parseISO(val));
         return age >= 18;
@@ -46,6 +46,8 @@ export function OnboardingModal() {
     // Custom check state
     const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
     const [checkingUsername, setCheckingUsername] = useState(false);
+    const [suggestingUsername, setSuggestingUsername] = useState(false);
+    const [usernameTouched, setUsernameTouched] = useState(false);
 
     // RHF
     const {
@@ -67,6 +69,37 @@ export function OnboardingModal() {
 
     const username = watch("username");
 
+    const suggestUsername = useCallback(async (displayName?: string, email?: string, uid?: string) => {
+        if (!uid) {
+            return;
+        }
+
+        setSuggestingUsername(true);
+        try {
+            const params = new URLSearchParams({
+                mode: "suggest",
+                uid,
+            });
+            if (displayName) {
+                params.set("displayName", displayName);
+            }
+            if (email) {
+                params.set("email", email);
+            }
+
+            const response = await fetch(`/api/user/check-username?${params.toString()}`);
+            const result = await response.json();
+            if (response.ok && typeof result.suggestedUsername === "string" && !usernameTouched) {
+                setValue("username", result.suggestedUsername, { shouldValidate: true, shouldDirty: false });
+                setUsernameAvailable(true);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setSuggestingUsername(false);
+        }
+    }, [setValue, usernameTouched]);
+
     useEffect(() => {
         if (user && userProfile) {
             // Profile exists but onboarding isn't finished
@@ -83,10 +116,8 @@ export function OnboardingModal() {
                         } catch (e) { }
                     }
                     setIsOpen(true);
-                    if (missingUsername && user.displayName) {
-                        const clean = user.displayName.replace(/\s+/g, '').toLowerCase();
-                        setValue("username", clean);
-                        checkUsernameAvailability(clean);
+                    if (missingUsername && !usernameTouched) {
+                        void suggestUsername(user.displayName || undefined, user.email || undefined, user.uid);
                     }
                 } else {
                     // They skipped the OnboardingModal (maybe entered details in AuthModal), but Guided is still waiting.
@@ -96,7 +127,7 @@ export function OnboardingModal() {
                 setIsOpen(false);
             }
         }
-    }, [isOpen, user, userProfile, setValue]);
+    }, [isOpen, setValue, suggestUsername, user, userProfile, usernameTouched]);
 
     // Real-time username availability check debounced/triggered manually on change
     const checkUsernameAvailability = async (val: string) => {
@@ -106,13 +137,13 @@ export function OnboardingModal() {
         }
 
         // Basic pattern check before server check
-        if (!/^[a-z0-9_]+$/.test(val)) return;
+        if (!/^[a-z0-9_-]+$/.test(val)) return;
 
         setCheckingUsername(true);
         try {
             const response = await fetch("/api/user/check-username?username=" + encodeURIComponent(val));
             const result = await response.json();
-            setUsernameAvailable(result.available);
+            setUsernameAvailable(Boolean(result.available));
         } catch (error) {
             console.error(error);
         } finally {
@@ -283,12 +314,14 @@ export function OnboardingModal() {
                                         <div className="relative">
                                             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">@</span>
                                             <input
-                                                {...register("username")}
+                                                {...register("username", {
+                                                    onChange: () => setUsernameTouched(true),
+                                                })}
                                                 type="text"
                                                 className={`w-full bg-black/50 border rounded-xl px-8 py-3 text-white focus:outline-none transition-all ${errors.username ? "border-red-500" : usernameAvailable === true ? "border-brand-purple/50 focus:border-brand-purple" : "border-white/10 focus:border-brand-purple"}`}
                                                 placeholder="username"
                                             />
-                                            {checkingUsername && (
+                                            {(checkingUsername || suggestingUsername) && (
                                                 <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-gray-400" />
                                             )}
                                         </div>
