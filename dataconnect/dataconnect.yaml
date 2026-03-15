@@ -8,5 +8,5 @@ schema:
       database: "kandydrops-by-ikandy-database"
       cloudSql:
         instanceId: "kandydrops-by-ikandy-instance"
-        schemaValidation: "COMPATIBLE" # Production analytics should preserve compatible legacy objects while schema evolves.
+        schemaValidation: "STRICT"
 connectorDirs: ["./example"]
