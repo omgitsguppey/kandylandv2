@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import * as admin from "firebase-admin";
-import { recordDailyTaskProgressFromEvent, recordTelemetryEventStat } from "@/lib/server/daily-tasks";
+import { CANONICAL_TASK_EVENT_NAMES, recordDailyTaskProgressFromEvent, recordTelemetryEventStat } from "@/lib/server/daily-tasks";
 import { TELEMETRY_EVENT_NAMES } from "@/lib/telemetry-catalog";
 import { handleApiError, verifyAuth } from "@/lib/server/auth";
 import { checkRateLimit, RELAXED } from "@/lib/server/rate-limit";
@@ -172,9 +172,15 @@ export async function POST(req: NextRequest) {
         await userEventsRef.push(telemetryData);
         await adminDb.collection("analytics_event_facts").add(analyticsEventFact);
 
+        const taskProgressPromise = CANONICAL_TASK_EVENT_NAMES.has(eventName)
+            ? Promise.resolve()
+            : recordDailyTaskProgressFromEvent(userId, username, eventName, sanitizedEventParams, {
+                source: "telemetry",
+            });
+
         await Promise.all([
             recordTelemetryEventStat(eventName, sanitizedEventParams),
-            recordDailyTaskProgressFromEvent(userId, username, eventName, sanitizedEventParams),
+            taskProgressPromise,
             adminDb.collection("analytics_active_users").doc(userId).set({
                 uid: userId,
                 username,

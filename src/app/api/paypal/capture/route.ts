@@ -264,6 +264,7 @@ export async function POST(request: NextRequest) {
       bundle_key: bundlePresentation.bundleKey,
       bundle_tier: bundlePresentation.bundleTier,
       bonus_gumdrops: economics.bonusGumDrops,
+      order_id: orderId,
     });
 
     return NextResponse.json({ success: true, drops: dropsToCredit });

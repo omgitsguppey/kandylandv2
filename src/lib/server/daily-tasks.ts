@@ -21,8 +21,17 @@ import type { UserProfile } from "@/types/db";
 const TASK_DEFINITION_COLLECTION = "daily_task_definitions";
 const TASK_EVENT_COLLECTION = "daily_task_events";
 const EVENT_STATS_COLLECTION = "analytics_event_stats";
+const TASK_RECEIPT_COLLECTION = "daily_task_event_receipts";
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 const ONE_HOUR_MS = 60 * 60 * 1000;
+
+export const CANONICAL_TASK_EVENT_NAMES = new Set([
+  "daily_check_in_claim",
+  "unlock_drop_success",
+  "gumdrops_purchase_completed",
+  "task_notifications_enabled",
+  "feedback_submitted",
+]);
 
 type EventParams = Record<string, string | number | boolean> | undefined;
 type RotationReason = "initial" | "cycle_complete" | "missed_progress";
@@ -515,6 +524,28 @@ function writeTaskLifecycleEvent(
   transaction.set(eventRef, data);
 }
 
+function buildTaskReceiptDocId(uid: string, eventName: string, receiptKey: string) {
+  return `${uid}:${eventName}:${receiptKey}`.slice(0, 1500);
+}
+
+function buildDefaultReceiptKey(eventName: string, eventParams: EventParams) {
+  const params = eventParams ?? {};
+  const raw = [
+    typeof params.order_id === "string" ? params.order_id : "",
+    typeof params.feedback_id === "string" ? params.feedback_id : "",
+    typeof params.drop_id === "string" ? params.drop_id : "",
+    typeof params.day_key === "string" ? params.day_key : "",
+    typeof params.transaction_id === "string" ? params.transaction_id : "",
+    typeof params.source === "string" ? params.source : "",
+  ].filter(Boolean);
+
+  if (raw.length > 0) {
+    return raw.join("|");
+  }
+
+  return eventName;
+}
+
 function queueUserNotification(
   transaction: Transaction,
   uid: string,
@@ -670,8 +701,14 @@ export async function recordCanonicalTaskEvent(
   username: string | null,
   eventName: string,
   eventParams: EventParams,
+  options?: {
+    receiptKey?: string;
+  },
 ) {
-  await recordDailyTaskProgressFromEvent(uid, username, eventName, eventParams);
+  await recordDailyTaskProgressFromEvent(uid, username, eventName, eventParams, {
+    source: "canonical",
+    receiptKey: options?.receiptKey ?? buildDefaultReceiptKey(eventName, eventParams),
+  });
 }
 
 export async function recordDailyTaskProgressFromEvent(
@@ -679,12 +716,36 @@ export async function recordDailyTaskProgressFromEvent(
   username: string | null,
   eventName: string,
   eventParams: EventParams,
+  options?: {
+    source?: "telemetry" | "canonical";
+    receiptKey?: string;
+  },
 ) {
   const userRef = adminDb.collection("users").doc(uid);
   const definitions = await resolveTaskDefinitionsForUser(uid);
   const definitionMap = createDefinitionMap(definitions);
 
   await adminDb.runTransaction(async (transaction) => {
+    if (options?.source === "canonical" && options.receiptKey) {
+      const receiptRef = adminDb.collection(TASK_RECEIPT_COLLECTION).doc(
+        buildTaskReceiptDocId(uid, eventName, options.receiptKey),
+      );
+      const existingReceipt = await transaction.get(receiptRef);
+      if (existingReceipt.exists) {
+        return;
+      }
+
+      transaction.set(receiptRef, {
+        uid,
+        eventName,
+        receiptKey: options.receiptKey,
+        params: eventParams ?? {},
+        createdAt: FieldValue.serverTimestamp(),
+        timestamp: Date.now(),
+        source: "canonical",
+      });
+    }
+
     const snapshot = await transaction.get(userRef);
     if (!snapshot.exists) {
       return;

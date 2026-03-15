@@ -211,6 +211,7 @@ export async function PUT(request: NextRequest) {
             await recordCanonicalTaskEvent(caller.uid, username, "task_notifications_enabled", {
                 source: "profile_api",
                 browser_push_enabled: true,
+                transaction_id: `${caller.uid}:browser_push_enabled`,
             });
         }
 

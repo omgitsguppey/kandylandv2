@@ -27,7 +27,8 @@ export async function POST(req: NextRequest) {
         const { message, rating, category } = feedbackSchema.parse(body);
 
         // Save to platform_feedback collection
-        await adminDb.collection('platform_feedback').add({
+        const feedbackRef = adminDb.collection('platform_feedback').doc();
+        await feedbackRef.set({
             userId: uid,
             email: email || null,
             message,
@@ -41,6 +42,7 @@ export async function POST(req: NextRequest) {
             category,
             rating: rating || 0,
             source: "feedback_api",
+            feedback_id: feedbackRef.id,
         });
 
         return NextResponse.json({ success: true });

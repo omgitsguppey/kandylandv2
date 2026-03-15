@@ -119,6 +119,7 @@ export async function POST(request: NextRequest) {
         drop_title: result.title ?? "Drop",
         drop_tags: Array.isArray(result.tags) ? result.tags.join("|") : "",
         unlock_cost: result.cost ?? 0,
+        transaction_id: `${userId}:unlock:${dropId}:${result.unwrappedAt ?? "unknown"}`,
       });
     }
 
