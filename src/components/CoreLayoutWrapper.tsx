@@ -5,8 +5,10 @@ import { Toaster } from "sonner";
 import CookieBanner from "@/components/CookieBanner";
 import dynamic from "next/dynamic";
 import { useEffect } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { applyAnalyticsConsentToGtag, persistPrivacySettingsSnapshot, readPrivacySettingsSnapshot } from "@/lib/privacy-consent";
+import { writeLastVisitedPath } from "@/lib/navigation-persistence";
 
 const MobileBottomBar = dynamic(() => import("@/components/Navigation/MobileBottomBar"));
 const Navbar = dynamic(() => import("@/components/Navbar").then((mod) => mod.Navbar));
@@ -23,9 +25,15 @@ const NotificationRuntimeBridge = dynamic(
     () => import("@/components/Notifications/NotificationRuntimeBridge").then((mod) => mod.NotificationRuntimeBridge),
     { ssr: false },
 );
+const TaskGuidanceBanner = dynamic(
+    () => import("@/components/Dashboard/TaskGuidanceBanner").then((mod) => mod.TaskGuidanceBanner),
+    { ssr: false },
+);
 
 export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     const { userProfile } = useAuth();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
 
     useEffect(() => {
         if (typeof window !== "undefined") {
@@ -65,10 +73,17 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
         applyAnalyticsConsentToGtag(readPrivacySettingsSnapshot());
     }, [userProfile?.privacySettings]);
 
+    useEffect(() => {
+        const query = searchParams?.toString();
+        const nextPath = query ? `${pathname}?${query}` : pathname;
+        writeLastVisitedPath(nextPath);
+    }, [pathname, searchParams]);
+
     return (
         <PayPalProvider>
             <DeepTracker />
             <NotificationRuntimeBridge />
+            <TaskGuidanceBanner />
             <Navbar />
             {children}
             <MobileBottomBar />

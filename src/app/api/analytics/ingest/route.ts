@@ -5,6 +5,8 @@ import { z } from "zod";
 import { checkRateLimit, RELAXED } from "@/lib/server/rate-limit";
 import { hasTrustedSiteOrigin } from "@/lib/server/request-origin";
 import { requestAllowsAnonymousAnalytics, requestHasGlobalPrivacyControl } from "@/lib/server/privacy-consent";
+import { TELEMETRY_EVENT_INDEX_VERSION } from "@/lib/telemetry-catalog";
+import { recordSemanticRollupFromGuestEvents } from "@/lib/server/analytics-semantics";
 
 export const dynamic = "force-dynamic";
 const SESSION_COOKIE_NAME = "kandydrops_sid";
@@ -35,10 +37,22 @@ const TelemetryEventSchema = z.object({
     targetTag: z.string().max(50).optional(),
     targetText: z.string().max(100).optional(), // 100 char limit prevents DB bloat
     dropId: z.string().max(120).optional(),
+    dropCategory: z.string().max(80).optional(),
     x: z.number().optional(),
     y: z.number().optional(),
     scrollDepthPercent: z.number().min(0).max(100).optional(),
     durationMs: z.number().max(86400000).optional(),
+    interactionState: z.enum(["engaged", "passive"]).optional(),
+    exitIntent: z.enum(["bounce", "exit"]).optional(),
+    clickCount: z.number().optional(),
+    hoverCount: z.number().optional(),
+    scrollCount: z.number().optional(),
+    semanticCategory: z.string().max(40).optional(),
+    semanticCategoryLabel: z.string().max(60).optional(),
+    semanticScopeKey: z.string().max(80).optional(),
+    semanticScopeLabel: z.string().max(100).optional(),
+    semanticSurfaceKey: z.string().max(120).optional(),
+    semanticSurfaceLabel: z.string().max(120).optional(),
     referrerHost: z.string().max(120).optional(),
     viewportWidth: z.number().optional(),
     viewportHeight: z.number().optional(),
@@ -123,6 +137,8 @@ export async function POST(request: NextRequest) {
             minuteBucket,
             consentMode: "anonymous",
             globalPrivacyControl,
+            eventIndexVersion: TELEMETRY_EVENT_INDEX_VERSION,
+            trackingOrigin: "guest_client",
             createdAt: FieldValue.serverTimestamp(), // Use server timestamp to standardize
         }, { merge: true });
 
@@ -137,6 +153,8 @@ export async function POST(request: NextRequest) {
             clientSessionId: sessionId || null,
             consentMode: "anonymous",
             globalPrivacyControl,
+            eventIndexVersion: TELEMETRY_EVENT_INDEX_VERSION,
+            trackingOrigin: "guest_client",
             receivedAtMs: nowMs,
             dayKey: timeKeys.dayKey,
             hourKey: timeKeys.hourKey,
@@ -250,6 +268,11 @@ export async function POST(request: NextRequest) {
         });
 
         await rollupBatch.commit();
+        await recordSemanticRollupFromGuestEvents({
+            timestamp: nowMs,
+            events: sanitizedEvents as Array<Record<string, unknown>>,
+            sourceKey: "analytics_guest_batches",
+        });
 
         const response = NextResponse.json({ success: true, processed: events.length });
         if (shouldSetCookie) {

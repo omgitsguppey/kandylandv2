@@ -4,6 +4,7 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAuth, handleApiError } from "@/lib/server/auth";
 import { checkRateLimit, STANDARD } from "@/lib/server/rate-limit";
 import { recordCanonicalTaskEvent } from "@/lib/server/daily-tasks";
+import { PRIVACY_POLICY_VERSION } from "@/lib/privacy-policy";
 
 const ALLOWED_TIMEZONES = new Set([
     "Auto",
@@ -51,6 +52,7 @@ function normalizePrivacySettings(value: unknown): {
     identifiedAnalyticsEnabled: boolean;
     honorGlobalPrivacyControl: boolean;
     consentUpdatedAt: number;
+    privacyPolicyVersion: string;
 } | null {
     if (!value || typeof value !== "object") {
         return null;
@@ -76,6 +78,7 @@ function normalizePrivacySettings(value: unknown): {
         identifiedAnalyticsEnabled,
         honorGlobalPrivacyControl: source.honorGlobalPrivacyControl !== false,
         consentUpdatedAt: Date.now(),
+        privacyPolicyVersion: PRIVACY_POLICY_VERSION,
     };
 }
 

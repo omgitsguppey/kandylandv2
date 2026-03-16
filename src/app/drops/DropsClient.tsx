@@ -214,7 +214,7 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
                 </div>
             )}
 
-            <div className="mt-8 min-h-[500px]">
+            <div id="live-drops" className="mt-8 min-h-[500px]">
                 <div className="flex items-center justify-between mb-8 px-4 md:px-0 gap-3">
                     <h2 className="text-2xl font-bold text-white tracking-tight">
                         {searchQuery ? `Search Results: "${searchQuery}"` : selectedCategory === "All" ? "All KandyDrops" : `${selectedCategory} Drops`}

@@ -4,6 +4,7 @@ import * as admin from "firebase-admin";
 import { checkRateLimit, STRICT } from "@/lib/server/rate-limit";
 import { describeSecurityEvent } from "@/lib/security-events";
 import { hasTrustedSiteOrigin } from "@/lib/server/request-origin";
+import { trackServerEvent } from "@/lib/server/analytics";
 
 function buildTimeKeys(timestamp: number) {
     const date = new Date(timestamp);
@@ -114,6 +115,23 @@ export async function POST(req: NextRequest) {
                 createdAt: admin.firestore.FieldValue.serverTimestamp(),
             });
         });
+
+        const securityEventName = descriptor.reason === "screenshot_hotkey"
+            ? "security_screenshot_attempted"
+            : descriptor.reason === "print_shortcut"
+                ? "security_print_attempted"
+                : "security_devtools_attempted";
+        await trackServerEvent(securityEventName, {
+            page_path: typeof pagePath === "string" ? pagePath : "/dashboard/viewer",
+            drop_id: typeof dropId === "string" ? dropId : "",
+            asset_index: typeof assetIndex === "number" && Number.isFinite(assetIndex) ? assetIndex : 0,
+            asset_key: typeof assetKey === "string" ? assetKey.slice(0, 120) : "",
+            content_kind: typeof contentKind === "string" ? contentKind.slice(0, 40) : "",
+            session_id: typeof sessionId === "string" ? sessionId.slice(0, 80) : "",
+            security_reason: descriptor.reason,
+            security_label: descriptor.label,
+            security_severity: descriptor.severity,
+        }, uid);
 
         return NextResponse.json({ success: true });
     } catch (error) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, ReactNode } from "react";
 import {
     onAuthStateChanged,
     User,
@@ -18,6 +18,8 @@ import { normalizeUserProfile } from "@/lib/user-utils";
 import { useRouter, usePathname } from "next/navigation";
 import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
+import { clearLastVisitedPath, readLastVisitedPath, setNavigationAuthCookies } from "@/lib/navigation-persistence";
+import { trackEvent } from "@/lib/telemetry";
 
 interface AuthIdentityContextType {
     user: User | null;
@@ -64,14 +66,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
+    const initialAuthResolvedRef = useRef(false);
     const router = useRouter();
     const pathname = usePathname();
+
+    const getPostAuthDestination = useCallback(() => {
+        const lastVisitedPath = readLastVisitedPath();
+        return lastVisitedPath || "/dashboard";
+    }, []);
 
     useEffect(() => {
         ensureAuthPersistence().catch(() => { });
 
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
+
+            if (!initialAuthResolvedRef.current && currentUser) {
+                trackEvent("auth_session_restored", {
+                    restoration_source: "browser_local_persistence",
+                    auth_provider: currentUser.providerData[0]?.providerId || "unknown",
+                });
+            }
+            initialAuthResolvedRef.current = true;
 
             if (currentUser === null) {
                 setUserProfile(null);
@@ -84,6 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         if (!user) {
+            setNavigationAuthCookies(null);
             setUserProfile(null);
             setLoading(false);
             return;
@@ -142,6 +159,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
     }, [user]);
 
+    useEffect(() => {
+        if (!user) {
+            setNavigationAuthCookies(null);
+            return;
+        }
+
+        setNavigationAuthCookies(userProfile?.role ?? "user");
+    }, [user, userProfile?.role]);
+
     const refreshProfile = useCallback(async () => {
         // No-op now as onSnapshot handles updates. 
         // Kept for backward compatibility if any component calls it.
@@ -158,14 +184,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             toast.success("Welcome back!");
             if (pathname === "/") {
-                router.push("/dashboard");
+                router.push(getPostAuthDestination());
             }
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : "Login failed";
             toast.error(message);
             throw error;
         }
-    }, [pathname, router]);
+    }, [getPostAuthDestination, pathname, router]);
 
     const signInWithEmail = useCallback(async (email: string, pass: string) => {
         try {
@@ -175,12 +201,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             toast.success("Welcome back!");
             if (pathname === "/") {
-                router.push("/dashboard");
+                router.push(getPostAuthDestination());
             }
         } catch (error: unknown) {
             throw error;
         }
-    }, [pathname, router]);
+    }, [getPostAuthDestination, pathname, router]);
 
     const signUpWithEmail = useCallback(async (email: string, pass: string, username: string, dob: string) => {
         try {
@@ -206,14 +232,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             toast.success("Account created! +100 Gum Drops");
             if (pathname === "/") {
-                router.push("/dashboard");
+                router.push(getPostAuthDestination());
             }
         } catch (error: unknown) {
             throw error;
         }
-    }, [pathname, router]);
+    }, [getPostAuthDestination, pathname, router]);
 
     const logout = useCallback(async () => {
+        if (auth.currentUser) {
+            trackEvent("auth_logout", {
+                auth_provider: auth.currentUser.providerData[0]?.providerId || "unknown",
+            });
+        }
+        clearLastVisitedPath();
         await signOut(auth);
         router.push("/");
     }, [router]);

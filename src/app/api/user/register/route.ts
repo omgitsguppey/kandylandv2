@@ -4,6 +4,7 @@ import { verifyAuth, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 import { generateUniqueUsernameSuggestion } from "@/lib/server/username-suggestions";
 import { checkRateLimit, STRICT } from "@/lib/server/rate-limit";
+import { PRIVACY_POLICY_VERSION } from "@/lib/privacy-policy";
 
 export async function POST(request: NextRequest) {
     try {
@@ -55,8 +56,13 @@ export async function POST(request: NextRequest) {
                 expiringSoonAlerts: true,
             },
             privacySettings: {
-                allowRecommendations: true,
-                showInAnonymousStats: true,
+                anonymousAnalyticsEnabled: false,
+                identifiedAnalyticsEnabled: false,
+                allowRecommendations: false,
+                showInAnonymousStats: false,
+                honorGlobalPrivacyControl: true,
+                consentUpdatedAt: 0,
+                privacyPolicyVersion: PRIVACY_POLICY_VERSION,
             },
             accountSettings: {
                 timezone: "Auto",

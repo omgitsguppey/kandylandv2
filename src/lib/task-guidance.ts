@@ -1,0 +1,122 @@
+import { type DailyTaskAssignment } from "@/lib/tasks/task-catalog";
+
+export const TASK_GUIDANCE_STORAGE_KEY = "kandydrops:active-task-guidance";
+
+export interface TaskGuidanceState {
+  taskId: string;
+  title: string;
+  reward: number;
+  instruction: string;
+  ctaLabel: string;
+  destinationHref: string;
+  activatedAt: number;
+  completedAt?: number;
+  dismissedAt?: number;
+}
+
+export function getTaskInstruction(task: DailyTaskAssignment) {
+  if (task.eventName === "daily_check_in_claim") {
+    return "Open Daily Rewards, tap Claim daily reward, and your streak will update immediately.";
+  }
+
+  if (task.eventName === "notifications_dropdown_opened") {
+    return "Open the notification bell and keep the drawer open for a moment so the visit counts.";
+  }
+
+  if (task.eventName === "notification_marked_read") {
+    return "Open the notification bell, tap Read on one alert, and the task will finish as soon as it syncs.";
+  }
+
+  if (task.eventName === "task_notifications_enabled") {
+    return "Turn on browser notifications, accept the device prompt, and return here once alerts are enabled.";
+  }
+
+  if (task.eventName === "feedback_submitted") {
+    return "Choose a category, write one quick note, and submit it to complete this feedback task.";
+  }
+
+  if (task.eventName === "begin_checkout") {
+    return "Pick a Gum Drops bundle and continue into checkout so the task can log the start.";
+  }
+
+  if (task.eventName === "gumdrops_purchase_completed") {
+    return "Purchase the required Gum Drops bundle and wait for the balance update to finish this task.";
+  }
+
+  if (task.eventName === "unlock_drop_success") {
+    return `${task.title} by unwrapping the matching live drop, then wait for the reward to sync.`;
+  }
+
+  if (task.eventName === "viewer_opened" || task.eventName === "viewer_session_completed") {
+    return "Open one of your unlocked drops from the library and stay with it until the viewer logs the action.";
+  }
+
+  if (task.eventName === "viewer_asset_consumed" || task.eventName === "viewer_watch_checkpoint") {
+    return "Open an unlocked drop, play the required file, and keep watching until the viewing milestone is reached.";
+  }
+
+  if (task.eventName === "viewer_asset_changed") {
+    return "Open an unlocked drop and switch through different files in the viewer until the count is complete.";
+  }
+
+  if (task.eventName === "drop_preview_opened" || task.eventName === "view_drop_details") {
+    return "Browse live drops and open the required previews or detail views until the progress bar fills.";
+  }
+
+  if (task.eventName === "drop_share_copied") {
+    return "Open one of your unlocked drops, copy its share link, and the task will complete after the copy succeeds.";
+  }
+
+  if (task.actionType === "open_dashboard") {
+    return "Open your dashboard and stay on the page for a moment so the visit can register.";
+  }
+
+  if (task.actionType === "open_experiences") {
+    return "Open Experiences and complete the highlighted action there to finish this task.";
+  }
+
+  if (task.actionType === "open_library") {
+    return "Open your library and follow the prompt on that page to complete the required viewing action.";
+  }
+
+  if (task.actionType === "open_wallet") {
+    return "Open the Gum Drops wallet and complete the purchase step required for this task.";
+  }
+
+  return "Follow the guided steps on the destination screen and this task will complete as soon as it syncs.";
+}
+
+export function getTaskDestinationHref(task: DailyTaskAssignment) {
+  switch (task.actionType) {
+    case "open_dashboard":
+      return "/dashboard#dashboard-home";
+    case "open_drops":
+      return "/drops#live-drops";
+    case "open_experiences":
+      return task.eventName === "daily_check_in_claim" ? "/experiences#daily-reward" : "/experiences#daily-tasks";
+    case "open_library":
+      return "/dashboard/library#library-grid";
+    case "open_notifications":
+      return "/experiences#daily-tasks";
+    case "open_wallet":
+      return "/experiences#gumdrops-wallet";
+    case "enable_notifications":
+      return "/experiences#daily-tasks";
+    case "give_feedback":
+      return "/experiences#daily-tasks";
+    default:
+      return "/experiences#daily-tasks";
+  }
+}
+
+export function createTaskGuidanceState(task: DailyTaskAssignment): TaskGuidanceState {
+  return {
+    taskId: task.id,
+    title: task.title,
+    reward: task.reward,
+    instruction: getTaskInstruction(task),
+    ctaLabel: task.ctaLabel,
+    destinationHref: getTaskDestinationHref(task),
+    activatedAt: Date.now(),
+  };
+}

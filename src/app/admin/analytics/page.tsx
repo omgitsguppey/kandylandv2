@@ -8,6 +8,8 @@ import {
   BellRing,
   Candy,
   CheckCircle2,
+  ChevronDown,
+  ChevronUp,
   Clock3,
   DollarSign,
   Eye,
@@ -47,6 +49,7 @@ import { useAuthSWR } from "@/hooks/useAuthSWR";
 import { cn } from "@/lib/utils";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
+import { humanizeAnalyticsKey, resolveRawInteractionLabel } from "@/lib/analytics-semantics";
 
 type ViewTab = "operations" | "audience" | "commerce" | "security";
 type RangeOption = "24h" | "7d" | "30d" | "all";
@@ -238,6 +241,57 @@ interface ValidationItem {
   detail: string;
 }
 
+interface ModuleCoverageSourceItem {
+  key: string;
+  label: string;
+  count: number;
+}
+
+interface ModuleCoverageItem {
+  key: string;
+  label: string;
+  status: "healthy" | "partial" | "empty";
+  score: number;
+  total: number;
+  populatedSources: number;
+  detail: string;
+  sources: ModuleCoverageSourceItem[];
+}
+
+interface SemanticCategoryItem {
+  key: string;
+  label: string;
+  viewCount: number;
+  viewDurationMs: number;
+  engagedViewCount: number;
+  passiveViewCount: number;
+  bounceCount: number;
+  exitCount: number;
+  clickCount: number;
+  hoverCount: number;
+  pagesVisited: number;
+  signInCount: number;
+  returnCount: number;
+  logoutCount: number;
+  watchSecondsTotal: number;
+  watchSessionCount: number;
+  avgViewSeconds: number;
+  engagedRate: number;
+}
+
+interface SemanticEngineSourceItem {
+  key: string;
+  label: string;
+  engine: string;
+  description: string;
+}
+
+interface SemanticEngineStrategyItem {
+  key: string;
+  label: string;
+  description: string;
+}
+
 interface HistoricalAnalyticsResponse {
   success: boolean;
   requiresSetup?: boolean;
@@ -284,8 +338,11 @@ interface HistoricalAnalyticsResponse {
   };
   security?: SecurityItem[];
   onboardingStats?: {
+    starts: number;
     completions: number;
     avgDuration: number;
+    completionRate: number;
+    startSource: "telemetry" | "completion_fallback" | "none";
   };
   rawEvents?: RawEventItem[];
   authBreakdown?: AuthBreakdownItem[];
@@ -294,6 +351,14 @@ interface HistoricalAnalyticsResponse {
   destinationMix?: DestinationMixItem[];
   notificationFunnel?: CountBucketItem[];
   notificationActions?: Array<{ label: string; value: number }>;
+  taskGuidance?: {
+    viewed: number;
+    dismissed: number;
+    tapped: number;
+    completed: number;
+    tapThroughRate: number;
+    guidedCompletionRate: number;
+  };
   taskPipeline?: CountBucketItem[];
   taskLeaderboard?: TaskLeaderboardItem[];
   taskDurationBuckets?: CountBucketItem[];
@@ -307,6 +372,14 @@ interface HistoricalAnalyticsResponse {
   viewerDropInsights?: ViewerDropInsightItem[];
   viewerUsers?: ViewerUserOptionItem[];
   viewerFilter?: string;
+  semanticCategories?: SemanticCategoryItem[];
+  semanticEngine?: {
+    sources: SemanticEngineSourceItem[];
+    strategies: SemanticEngineStrategyItem[];
+  };
+  moduleCoverage?: ModuleCoverageItem[];
+  unhealthyModules?: ModuleCoverageItem[];
+  parityScore?: number;
   validations?: ValidationItem[];
 }
 
@@ -339,6 +412,8 @@ interface SectionCardProps {
   children: React.ReactNode;
   className?: string;
   rightSlot?: React.ReactNode;
+  collapsedPreview?: React.ReactNode;
+  defaultExpanded?: boolean;
 }
 
 interface MetricCardProps {
@@ -392,10 +467,45 @@ function AnalyticsTooltip({ active, payload, label, valueFormatter }: AnalyticsT
   );
 }
 
-function SectionCard({ title, subtitle, icon: Icon, children, className, rightSlot }: SectionCardProps) {
+function CompactPreviewList({
+  items,
+  columns = 2,
+}: {
+  items: Array<{ label: string; value: string; tone?: "default" | "accent" }>;
+  columns?: 1 | 2 | 3;
+}) {
+  return (
+    <div className={cn("grid gap-2", columns === 1 ? "grid-cols-1" : columns === 3 ? "md:grid-cols-3" : "md:grid-cols-2")}>
+      {items.map((item) => (
+        <div key={`${item.label}-${item.value}`} className="rounded-[1.25rem] border border-white/10 bg-black/25 px-3 py-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">{item.label}</p>
+          <p className={cn("mt-1 text-sm font-semibold text-white", item.tone === "accent" ? "text-brand-purple" : undefined)}>{item.value}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SectionCard({
+  title,
+  subtitle,
+  icon: Icon,
+  children,
+  className,
+  rightSlot,
+  collapsedPreview,
+  defaultExpanded = false,
+}: SectionCardProps) {
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+
   return (
     <section className={cn("glass-panel rounded-[2rem] border border-white/10 p-4 md:p-6", className)}>
-      <div className="mb-5 flex items-start justify-between gap-3">
+      <button
+        type="button"
+        onClick={() => setIsExpanded((current) => !current)}
+        className="mb-5 flex w-full items-start justify-between gap-3 text-left"
+        aria-expanded={isExpanded}
+      >
         <div className="min-w-0">
           <div className="mb-2 flex items-center gap-2">
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-brand-purple">
@@ -405,9 +515,19 @@ function SectionCard({ title, subtitle, icon: Icon, children, className, rightSl
           </div>
           {subtitle ? <p className="text-sm text-gray-400">{subtitle}</p> : null}
         </div>
-        {rightSlot}
-      </div>
-      {children}
+        <div className="flex shrink-0 items-center gap-3">
+          {rightSlot}
+          <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-300">
+            {isExpanded ? "Hide" : "Open"}
+            {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+          </span>
+        </div>
+      </button>
+      {isExpanded ? children : collapsedPreview ?? (
+        <div className="rounded-[1.4rem] border border-dashed border-white/10 bg-black/20 px-4 py-4 text-sm text-gray-500">
+          Tap to expand this module.
+        </div>
+      )}
     </section>
   );
 }
@@ -455,6 +575,12 @@ function formatDuration(seconds: number): string {
   return `${hours}h ${remainingMins}m`;
 }
 
+function formatDataSourceLabel(source: "telemetry" | "completion_fallback" | "none"): string {
+  if (source === "telemetry") return "Direct starts";
+  if (source === "completion_fallback") return "Completion fallback";
+  return "No starts";
+}
+
 function formatRelativeTime(timestamp: number, nowMs: number): string {
   const diff = Math.max(0, nowMs - timestamp);
   const seconds = Math.floor(diff / 1000);
@@ -479,12 +605,24 @@ function getValidationClasses(status: ValidationItem["status"]) {
   return "border-amber-400/20 bg-amber-400/10 text-amber-200";
 }
 
+function getModuleCoverageClasses(status: ModuleCoverageItem["status"]) {
+  if (status === "healthy") {
+    return "border-emerald-400/20 bg-emerald-400/10 text-emerald-200";
+  }
+
+  if (status === "empty") {
+    return "border-red-500/20 bg-red-500/10 text-red-200";
+  }
+
+  return "border-amber-400/20 bg-amber-400/10 text-amber-200";
+}
+
 function describeEvent(event: RawEventItem): string {
   if (event.detail) return event.detail;
   if (event.type === "scroll") return `Scrolled to ${event.scrollDepthPercent ?? 0}% depth`;
   if (event.type === "click") return `Clicked ${event.targetText || event.targetId || event.targetTag || "element"}`;
   if (event.type === "hover") return `Hovered ${event.targetText || event.targetId || event.targetTag || "element"}`;
-  return "Interaction event";
+  return resolveRawInteractionLabel(event.type);
 }
 
 function getDeviceIcon(device: string) {
@@ -586,13 +724,27 @@ export default function AdminAnalyticsPage() {
   };
   const security = historicalResponse?.security ?? [];
   const rawEvents = historicalResponse?.rawEvents ?? [];
-  const onboardingStats = historicalResponse?.onboardingStats ?? { completions: 0, avgDuration: 0 };
+  const onboardingStats = historicalResponse?.onboardingStats ?? {
+    starts: 0,
+    completions: 0,
+    avgDuration: 0,
+    completionRate: 0,
+    startSource: "none" as const,
+  };
   const authBreakdown = historicalResponse?.authBreakdown ?? [];
   const onboardingDurationBuckets = historicalResponse?.onboardingDurationBuckets ?? [];
   const repeatVisitSegments = historicalResponse?.repeatVisitSegments ?? [];
   const destinationMix = historicalResponse?.destinationMix ?? [];
   const notificationFunnel = historicalResponse?.notificationFunnel ?? [];
   const notificationActions = historicalResponse?.notificationActions ?? [];
+  const taskGuidance = historicalResponse?.taskGuidance ?? {
+    viewed: 0,
+    dismissed: 0,
+    tapped: 0,
+    completed: 0,
+    tapThroughRate: 0,
+    guidedCompletionRate: 0,
+  };
   const taskPipeline = historicalResponse?.taskPipeline ?? [];
   const taskLeaderboard = historicalResponse?.taskLeaderboard ?? [];
   const taskDurationBuckets = historicalResponse?.taskDurationBuckets ?? [];
@@ -619,6 +771,11 @@ export default function AdminAnalyticsPage() {
   const viewerDropInsights = historicalResponse?.viewerDropInsights ?? [];
   const viewerUsers = historicalResponse?.viewerUsers ?? [];
   const activeViewerFilter = historicalResponse?.viewerFilter ?? viewerUserFilter;
+  const semanticCategories = historicalResponse?.semanticCategories ?? [];
+  const semanticEngine = historicalResponse?.semanticEngine ?? { sources: [], strategies: [] };
+  const moduleCoverage = historicalResponse?.moduleCoverage ?? [];
+  const unhealthyModules = historicalResponse?.unhealthyModules ?? [];
+  const parityScore = historicalResponse?.parityScore ?? 0;
   const validations = historicalResponse?.validations ?? [];
 
   const needsSetup =
@@ -633,10 +790,20 @@ export default function AdminAnalyticsPage() {
   const previewToUnlockRate = funnel.previewOpens > 0 ? funnel.unlocks / funnel.previewOpens : 0;
   const checkoutToPurchaseRate = funnel.checkoutStarts > 0 ? funnel.purchases / funnel.checkoutStarts : 0;
   const securityAlerts = security.filter((item) => isRecentViolation(item.lastViolation, nowMs)).length;
+  const onboardingSourceLabel = formatDataSourceLabel(onboardingStats.startSource);
+  const healthyModuleCount = moduleCoverage.filter((item) => item.status === "healthy").length;
+  const partialModuleCount = moduleCoverage.filter((item) => item.status === "partial").length;
+  const emptyModuleCount = moduleCoverage.filter((item) => item.status === "empty").length;
 
   const topEvents = eventBreakdown.slice(0, 8).map((entry) => ({
     ...entry,
     label: EVENT_LABELS[entry.eventName] || entry.eventName.replaceAll("_", " "),
+  }));
+  const semanticCategoryCards = semanticCategories.map((item) => ({
+    ...item,
+    avgViewLabel: formatDuration(item.avgViewSeconds * 1000),
+    watchLabel: item.watchSecondsTotal > 0 ? formatDuration(item.watchSecondsTotal * 1000) : "0s",
+    returnActions: item.signInCount + item.returnCount + item.logoutCount,
   }));
   const viewerDropChartData = viewerDropInsights.slice(0, 8).map((item) => ({
     ...item,
@@ -768,7 +935,18 @@ export default function AdminAnalyticsPage() {
               title="Live Pulse"
               subtitle="Current traffic against the selected historical window so mobile admins can sanity-check activity fast."
               icon={Activity}
+              defaultExpanded
               rightSlot={<span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-gray-400">{range.toUpperCase()}</span>}
+              collapsedPreview={(
+                <CompactPreviewList
+                  items={[
+                    { label: "GA active", value: formatCompactNumber(liveResponse?.totalActive ?? 0), tone: "accent" },
+                    { label: "Tracked users", value: formatCompactNumber(liveResponse?.deepTrackerActive ?? 0) },
+                    { label: "Onboarding", value: onboardingStats.completions.toLocaleString() },
+                    { label: "Purchases", value: funnel.purchases.toLocaleString() },
+                  ]}
+                />
+              )}
             >
               <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                 <MetricCard label="GA Active" value={formatCompactNumber(liveResponse?.totalActive ?? 0)} hint="Google Analytics realtime" icon={Users} />
@@ -805,6 +983,16 @@ export default function AdminAnalyticsPage() {
               title="Journey Funnel"
               subtitle="The custom event chain now shows where mobile users are entering, previewing, unlocking, and paying."
               icon={Eye}
+              collapsedPreview={(
+                <CompactPreviewList
+                  items={[
+                    { label: "Auth opens", value: funnel.authModalOpens.toLocaleString() },
+                    { label: "Previews", value: funnel.previewOpens.toLocaleString() },
+                    { label: "Unlocks", value: funnel.unlocks.toLocaleString(), tone: "accent" },
+                    { label: "Purchases", value: funnel.purchases.toLocaleString() },
+                  ]}
+                />
+              )}
             >
               <div className="grid gap-3">
                 {[
@@ -845,7 +1033,15 @@ export default function AdminAnalyticsPage() {
             </SectionCard>
 
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
-              <SectionCard title="Auth Outcome Split" subtitle="Start, finish, and average completion speed by auth method." icon={Users}>
+              <SectionCard title="Auth Outcome Split" subtitle="Start, finish, and average completion speed by auth method." icon={Users} collapsedPreview={(
+                <CompactPreviewList
+                  items={authBreakdown.slice(0, 4).map((item) => ({
+                    label: item.method,
+                    value: `${item.successes} success • ${formatPercent(item.successRate)}`,
+                    tone: item.successRate >= 0.5 ? "accent" : "default",
+                  }))}
+                />
+              )}>
                 <div className="grid gap-4 lg:grid-cols-[0.85fr_1.15fr]">
                   <div className="h-64 w-full">
                     <ResponsiveContainer width="100%" height="100%">
@@ -892,7 +1088,21 @@ export default function AdminAnalyticsPage() {
                 </div>
               </SectionCard>
 
-              <SectionCard title="Onboarding Velocity" subtitle="How long new users take to finish the guided tour on mobile." icon={PlayCircle}>
+              <SectionCard
+                title="Onboarding Velocity"
+                subtitle="How long new users take to finish the guided tour on mobile, with legacy start counts repaired against completion data."
+                icon={PlayCircle}
+                rightSlot={<span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-400">{onboardingSourceLabel}</span>}
+                collapsedPreview={(
+                <CompactPreviewList
+                  items={[
+                    { label: "Started", value: formatCompactNumber(onboardingStats.starts || 0) },
+                    { label: "Completed", value: onboardingStats.completions.toLocaleString(), tone: "accent" },
+                    { label: "Avg time", value: formatDuration(onboardingStats.avgDuration) },
+                    { label: "Completion", value: formatPercent(onboardingStats.completionRate || 0) },
+                  ]}
+                />
+              )}>
                 <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
                   <div className="h-64 w-full">
                     <ResponsiveContainer width="100%" height="100%">
@@ -907,13 +1117,13 @@ export default function AdminAnalyticsPage() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 self-start">
-                    <MetricCard label="Started" value={formatCompactNumber(eventsData.guided_onboarding_started || 0)} hint="Guided onboarding opens" icon={PlayCircle} />
+                    <MetricCard label="Started" value={formatCompactNumber(onboardingStats.starts || 0)} hint={onboardingStats.startSource === "telemetry" ? "Guided onboarding opens" : "Backfilled from completion coverage"} icon={PlayCircle} />
                     <MetricCard label="Completed" value={onboardingStats.completions.toLocaleString()} hint="Finished tours" icon={CheckCircle2} />
                     <MetricCard label="Avg Time" value={formatDuration(onboardingStats.avgDuration)} hint="Mean completion time" icon={Clock3} />
                     <MetricCard
                       label="Completion Rate"
-                      value={formatPercent((eventsData.guided_onboarding_started || 0) > 0 ? onboardingStats.completions / Math.max(1, eventsData.guided_onboarding_started || 0) : 0)}
-                      hint="Completed vs started"
+                      value={formatPercent(onboardingStats.completionRate || 0)}
+                      hint="Completed vs normalized starts"
                       icon={Sparkles}
                     />
                   </div>
@@ -922,7 +1132,15 @@ export default function AdminAnalyticsPage() {
             </div>
 
             <div className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
-              <SectionCard title="Event Mix" subtitle="The strongest custom GA events for the selected window." icon={Sparkles}>
+              <SectionCard title="Event Mix" subtitle="The strongest custom GA events for the selected window." icon={Sparkles} collapsedPreview={(
+                <CompactPreviewList
+                  items={topEvents.slice(0, 4).map((entry) => ({
+                    label: entry.label,
+                    value: formatCompactNumber(entry.count),
+                    tone: "accent",
+                  }))}
+                />
+              )}>
                 <div className="h-64 w-full md:h-72">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={topEvents} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
@@ -936,14 +1154,22 @@ export default function AdminAnalyticsPage() {
                 </div>
               </SectionCard>
 
-              <SectionCard title="Live Interaction Stream" subtitle="Most recent telemetry events and guest interaction buckets collected from the live site." icon={Clock3}>
+              <SectionCard title="Live Interaction Stream" subtitle="Most recent telemetry events and guest interaction buckets collected from the live site." icon={Clock3} collapsedPreview={(
+                <CompactPreviewList
+                  items={rawEvents.slice(0, 4).map((event) => ({
+                    label: event.type,
+                    value: `${(event.username || "Guest").trim()} • ${formatRelativeTime(event.timestamp, nowMs)}`,
+                  }))}
+                  columns={1}
+                />
+              )}>
                 <div className="space-y-3">
                   {rawEvents.length > 0 ? (
                     rawEvents.slice(0, 8).map((event, index) => (
                       <div key={`${event.timestamp}-${index}`} className="rounded-[1.4rem] border border-white/10 bg-black/30 p-3.5">
                         <div className="mb-2 flex items-center justify-between gap-3">
                           <span className="rounded-full bg-white/5 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-purple">
-                            {event.type}
+                            {EVENT_LABELS[event.type] || resolveRawInteractionLabel(event.type) || humanizeAnalyticsKey(event.type)}
                           </span>
                           <span className="text-[11px] text-gray-500">{formatRelativeTime(event.timestamp, nowMs)}</span>
                         </div>
@@ -958,6 +1184,190 @@ export default function AdminAnalyticsPage() {
                       No recent interaction traces yet.
                     </div>
                   )}
+                </div>
+              </SectionCard>
+            </div>
+
+            <SectionCard
+              title="Coverage Engine"
+              subtitle="Cross-checks GA4, event facts, telemetry logs, and canonical rollups so empty modules explain themselves instead of quietly failing."
+              icon={Activity}
+              collapsedPreview={(
+                <CompactPreviewList
+                  items={[
+                    { label: "Parity", value: `${parityScore}%`, tone: "accent" },
+                    { label: "Healthy", value: healthyModuleCount.toLocaleString() },
+                    { label: "Partial", value: partialModuleCount.toLocaleString() },
+                    { label: "Empty", value: emptyModuleCount.toLocaleString() },
+                  ]}
+                />
+              )}
+            >
+              <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                <MetricCard label="Parity Score" value={`${parityScore}%`} hint="Algorithmic confidence across indexed source groups" icon={CheckCircle2} />
+                <MetricCard label="Healthy" value={healthyModuleCount.toLocaleString()} hint="Modules with multi-source coverage" icon={Sparkles} />
+                <MetricCard label="Partial" value={partialModuleCount.toLocaleString()} hint="Some data landed, but not from enough sources" icon={AlertTriangle} />
+                <MetricCard label="Empty" value={emptyModuleCount.toLocaleString()} hint="No indexed data in this selected range" icon={FileText} />
+              </div>
+
+              <div className="mt-5 grid gap-3 xl:grid-cols-2">
+                {moduleCoverage.map((module) => (
+                  <div key={module.key} className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
+                    <div className="mb-3 flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-semibold text-white">{module.label}</p>
+                        <p className="mt-1 text-xs leading-6 text-gray-400">{module.detail}</p>
+                      </div>
+                      <span className={cn("rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em]", getModuleCoverageClasses(module.status))}>
+                        {module.status}
+                      </span>
+                    </div>
+
+                    <div className="mb-3 grid grid-cols-3 gap-2">
+                      <div className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Score</p>
+                        <p className="mt-1 text-sm font-bold text-white">{module.score}%</p>
+                      </div>
+                      <div className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Total</p>
+                        <p className="mt-1 text-sm font-bold text-white">{module.total.toLocaleString()}</p>
+                      </div>
+                      <div className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Sources</p>
+                        <p className="mt-1 text-sm font-bold text-white">{module.populatedSources.toLocaleString()}</p>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-2 md:grid-cols-2">
+                      {module.sources.map((source) => (
+                        <div key={`${module.key}-${source.key}`} className="rounded-[1rem] border border-white/10 bg-black/20 px-3 py-2">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">{source.label}</p>
+                          <p className="mt-1 text-sm font-semibold text-white">{source.count.toLocaleString()}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {unhealthyModules.length > 0 ? (
+                <div className="mt-5 rounded-[1.6rem] border border-amber-400/15 bg-amber-400/10 p-4">
+                  <p className="text-sm font-semibold text-white">Modules needing attention</p>
+                  <div className="mt-3 grid gap-2 md:grid-cols-2">
+                    {unhealthyModules.map((module) => (
+                      <div key={`attention-${module.key}`} className="rounded-[1rem] border border-white/10 bg-black/20 px-3 py-3">
+                        <p className="text-sm font-semibold text-white">{module.label}</p>
+                        <p className="mt-1 text-xs leading-6 text-gray-400">{module.detail}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+            </SectionCard>
+
+            <div className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
+              <SectionCard
+                title="Category Semantics"
+                subtitle="One normalized layer for public browsing, signed-in journeys, admin work, and KandyDrop consumption."
+                icon={Route}
+                collapsedPreview={(
+                  <CompactPreviewList
+                    items={semanticCategoryCards.map((item) => ({
+                      label: item.label,
+                      value: `${item.viewCount} views • ${item.clickCount} clicks`,
+                    }))}
+                  />
+                )}
+              >
+                <div className="grid gap-3 md:grid-cols-2">
+                  {semanticCategoryCards.map((item) => (
+                    <div key={item.key} className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
+                      <div className="mb-3 flex items-center justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold text-white">{item.label}</p>
+                          <p className="mt-1 text-xs leading-6 text-gray-400">
+                            {item.pagesVisited.toLocaleString()} pages, {item.viewCount.toLocaleString()} views, and {item.clickCount.toLocaleString()} tracked clicks in range.
+                          </p>
+                        </div>
+                        <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-brand-purple">
+                          {formatPercent(item.engagedRate)}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div className="rounded-[1rem] border border-white/10 bg-black/20 px-3 py-2">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Avg view</p>
+                          <p className="mt-1 font-semibold text-white">{item.avgViewLabel}</p>
+                        </div>
+                        <div className="rounded-[1rem] border border-white/10 bg-black/20 px-3 py-2">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Watch time</p>
+                          <p className="mt-1 font-semibold text-white">{item.watchLabel}</p>
+                        </div>
+                        <div className="rounded-[1rem] border border-white/10 bg-black/20 px-3 py-2">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Engaged vs passive</p>
+                          <p className="mt-1 font-semibold text-white">{item.engagedViewCount} / {item.passiveViewCount}</p>
+                        </div>
+                        <div className="rounded-[1rem] border border-white/10 bg-black/20 px-3 py-2">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Bounces vs exits</p>
+                          <p className="mt-1 font-semibold text-white">{item.bounceCount} / {item.exitCount}</p>
+                        </div>
+                        <div className="rounded-[1rem] border border-white/10 bg-black/20 px-3 py-2">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Sign-ins / returns</p>
+                          <p className="mt-1 font-semibold text-white">{item.signInCount} / {item.returnCount}</p>
+                        </div>
+                        <div className="rounded-[1rem] border border-white/10 bg-black/20 px-3 py-2">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Logouts / watch sessions</p>
+                          <p className="mt-1 font-semibold text-white">{item.logoutCount} / {item.watchSessionCount}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </SectionCard>
+
+              <SectionCard
+                title="Semantics Engine"
+                subtitle="Registry-driven source adapters and math rules, so new data plugs in by metadata instead of another custom function."
+                icon={FileText}
+                collapsedPreview={(
+                  <CompactPreviewList
+                    items={[
+                      { label: "Sources", value: semanticEngine.sources.length.toLocaleString(), tone: "accent" },
+                      { label: "Strategies", value: semanticEngine.strategies.length.toLocaleString() },
+                    ]}
+                    columns={1}
+                  />
+                )}
+              >
+                <div className="grid gap-4">
+                  <div className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
+                    <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Connected sources</p>
+                    <div className="grid gap-2">
+                      {semanticEngine.sources.map((source) => (
+                        <div key={source.key} className="rounded-[1rem] border border-white/10 bg-black/20 px-3 py-3">
+                          <div className="flex items-center justify-between gap-3">
+                            <p className="text-sm font-semibold text-white">{source.label}</p>
+                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
+                              {humanizeAnalyticsKey(source.engine)}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-xs leading-6 text-gray-400">{source.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
+                    <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Algorithm registry</p>
+                    <div className="space-y-2">
+                      {semanticEngine.strategies.map((strategy, index) => (
+                        <div key={strategy.key} className="rounded-[1rem] border border-white/10 bg-black/20 px-3 py-3">
+                          <p className="text-sm font-semibold text-white">{index + 1}. {strategy.label}</p>
+                          <p className="mt-1 text-xs leading-6 text-gray-400">{strategy.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </SectionCard>
             </div>
@@ -982,7 +1392,16 @@ export default function AdminAnalyticsPage() {
 
         {activeTab === "audience" ? (
           <>
-            <SectionCard title="Audience Snapshot" subtitle="The selected time range emphasizes mobile traffic, retention quality, and visit depth." icon={Users}>
+              <SectionCard title="Audience Snapshot" subtitle="The selected time range emphasizes mobile traffic, retention quality, and visit depth." icon={Users} defaultExpanded collapsedPreview={(
+                <CompactPreviewList
+                  items={[
+                    { label: "Users", value: formatCompactNumber(totals.users), tone: "accent" },
+                    { label: "Mobile share", value: formatPercent(mobileShare) },
+                    { label: "Views", value: formatCompactNumber(totals.views) },
+                    { label: "Avg session", value: formatDuration(totals.avgSessionDuration) },
+                  ]}
+                />
+              )}>
               <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                 <MetricCard label="Active Users" value={formatCompactNumber(totals.users)} hint={`${totals.newUsers.toLocaleString()} new users`} icon={Users} />
                 <MetricCard label="Sessions" value={formatCompactNumber(totals.sessions)} hint={`${totals.views.toLocaleString()} views`} icon={Activity} />
@@ -1011,7 +1430,11 @@ export default function AdminAnalyticsPage() {
             </SectionCard>
 
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
-              <SectionCard title="Return Cadence" subtitle="Authenticated users grouped by how many distinct days they came back during the selected range." icon={Route}>
+              <SectionCard title="Return Cadence" subtitle="Authenticated users grouped by how many distinct days they came back during the selected range." icon={Route} collapsedPreview={(
+                <CompactPreviewList
+                  items={repeatVisitSegments.map((item) => ({ label: item.label, value: item.count.toLocaleString() }))}
+                />
+              )}>
                 <div className="h-64 w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={repeatVisitSegments} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
@@ -1025,7 +1448,12 @@ export default function AdminAnalyticsPage() {
                 </div>
               </SectionCard>
 
-              <SectionCard title="Navigation Destinations" subtitle="Top in-app destinations reached from tracked taps, useful for mobile drill-down on where intent actually goes." icon={Route}>
+              <SectionCard title="Navigation Destinations" subtitle="Top in-app destinations reached from tracked taps, useful for mobile drill-down on where intent actually goes." icon={Route} collapsedPreview={(
+                <CompactPreviewList
+                  items={destinationMix.slice(0, 4).map((item) => ({ label: item.destination, value: item.count.toLocaleString(), tone: "accent" }))}
+                  columns={1}
+                />
+              )}>
                 <div className="grid gap-4 lg:grid-cols-[0.88fr_1.12fr]">
                   <div className="h-64 w-full">
                     <ResponsiveContainer width="100%" height="100%">
@@ -1074,7 +1502,11 @@ export default function AdminAnalyticsPage() {
             </div>
 
             <div className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
-              <SectionCard title="Device Mix" subtitle="Mobile is the admin priority, so device share and engagement stay visible as first-class metrics." icon={Smartphone}>
+              <SectionCard title="Device Mix" subtitle="Mobile is the admin priority, so device share and engagement stay visible as first-class metrics." icon={Smartphone} collapsedPreview={(
+                <CompactPreviewList
+                  items={devices.slice(0, 4).map((item) => ({ label: item.device, value: `${item.users} users • ${formatPercent(item.engagementRate)}` }))}
+                />
+              )}>
                 <div className="space-y-3">
                   {devices.length > 0 ? (
                     devices.map((item) => {
@@ -1111,7 +1543,12 @@ export default function AdminAnalyticsPage() {
                 </div>
               </SectionCard>
 
-              <SectionCard title="Top Paths" subtitle="What mobile admins should watch first: where people are actually spending time." icon={FileText}>
+              <SectionCard title="Top Paths" subtitle="What mobile admins should watch first: where people are actually spending time." icon={FileText} collapsedPreview={(
+                <CompactPreviewList
+                  items={pages.slice(0, 4).map((item) => ({ label: item.path, value: `${formatCompactNumber(item.views)} views • ${formatDuration(item.avgTime)}` }))}
+                  columns={1}
+                />
+              )}>
                 <div className="space-y-3">
                   {pages.length > 0 ? (
                     pages.slice(0, 8).map((page) => (
@@ -1138,7 +1575,12 @@ export default function AdminAnalyticsPage() {
               </SectionCard>
             </div>
 
-            <SectionCard title="Regions" subtitle="Geographic demand surfaced in a mobile-friendly list instead of a cramped desktop-style table." icon={MapPin}>
+              <SectionCard title="Regions" subtitle="Geographic demand surfaced in a mobile-friendly list instead of a cramped desktop-style table." icon={MapPin} collapsedPreview={(
+                <CompactPreviewList
+                  items={geo.slice(0, 4).map((item) => ({ label: item.city || item.country, value: `${item.users.toLocaleString()} users` }))}
+                  columns={1}
+                />
+              )}>
               <div className="space-y-3">
                 {geo.length > 0 ? (
                   geo.slice(0, 10).map((item) => (
@@ -1167,7 +1609,16 @@ export default function AdminAnalyticsPage() {
 
         {activeTab === "commerce" ? (
           <>
-            <SectionCard title="Commerce Snapshot" subtitle="A tighter mobile revenue view with unlock and purchase efficiency kept above the fold." icon={DollarSign}>
+              <SectionCard title="Commerce Snapshot" subtitle="A tighter mobile revenue view with unlock and purchase efficiency kept above the fold." icon={DollarSign} defaultExpanded collapsedPreview={(
+                <CompactPreviewList
+                  items={[
+                    { label: "Revenue", value: formatMoney(commerce.revenueUsd), tone: "accent" },
+                    { label: "Profit", value: formatMoney(commerce.adjustedProfitUsd ?? 0) },
+                    { label: "Delivered", value: formatCompactNumber(commerce.deliveredGumDrops ?? 0) },
+                    { label: "Spent", value: formatCompactNumber(commerce.gdSpent) },
+                  ]}
+                />
+              )}>
               <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                 <MetricCard label="Revenue" value={formatMoney(commerce.revenueUsd)} hint="Completed currency purchases" icon={DollarSign} />
                 <MetricCard label="Adj. Profit" value={formatMoney(commerce.adjustedProfitUsd ?? 0)} hint={`${formatMoney(commerce.bonusValueUsd ?? 0)} promo value granted`} icon={Wallet} />
@@ -1192,7 +1643,11 @@ export default function AdminAnalyticsPage() {
             </SectionCard>
 
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
-              <SectionCard title="Package Performance" subtitle="Which Gum Drop packs are getting checkout intent, completions, and drop-off." icon={Wallet}>
+              <SectionCard title="Package Performance" subtitle="Which Gum Drop packs are getting checkout intent, completions, and drop-off." icon={Wallet} collapsedPreview={(
+                <CompactPreviewList
+                  items={packagePerformance.slice(0, 4).map((item) => ({ label: item.label, value: `${item.purchases} buys • ${formatPercent(item.conversionRate)}` }))}
+                />
+              )}>
                 <div className="h-64 w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={packagePerformance.slice(0, 6)} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
@@ -1224,7 +1679,11 @@ export default function AdminAnalyticsPage() {
                 </div>
               </SectionCard>
 
-              <SectionCard title="Content Conversion" subtitle="Which content types are previewed most and which actually get unwrapped." icon={Candy}>
+              <SectionCard title="Content Conversion" subtitle="Which content types are previewed most and which actually get unwrapped." icon={Candy} collapsedPreview={(
+                <CompactPreviewList
+                  items={unlockCategoryMix.slice(0, 4).map((item) => ({ label: item.label, value: `${item.unlocks} unlocks • ${formatPercent(item.unlockRate)}` }))}
+                />
+              )}>
                 <div className="grid gap-4 lg:grid-cols-[1.08fr_0.92fr]">
                   <div className="h-64 w-full">
                     <ResponsiveContainer width="100%" height="100%">
@@ -1255,7 +1714,12 @@ export default function AdminAnalyticsPage() {
             </div>
 
             <div className="grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
-              <SectionCard title="Top Drop Conversion" subtitle="Unlocked drops with enough demand to matter, surfaced as a compact mobile chart and list." icon={ShoppingBag}>
+              <SectionCard title="Top Drop Conversion" subtitle="Unlocked drops with enough demand to matter, surfaced as a compact mobile chart and list." icon={ShoppingBag} collapsedPreview={(
+                <CompactPreviewList
+                  items={topDrops.slice(0, 4).map((item) => ({ label: item.dropTitle, value: `${item.unlocks} unlocks • ${item.views} views` }))}
+                  columns={1}
+                />
+              )}>
                 <div className="h-64 w-full md:h-72">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={topDrops.slice(0, 8)} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
@@ -1301,7 +1765,12 @@ export default function AdminAnalyticsPage() {
                 </div>
               </SectionCard>
 
-              <SectionCard title="Recent Commerce Feed" subtitle="Recent transactions condensed into mobile cards so admins can skim activity without horizontal scrolling." icon={Wallet}>
+              <SectionCard title="Recent Commerce Feed" subtitle="Recent transactions condensed into mobile cards so admins can skim activity without horizontal scrolling." icon={Wallet} collapsedPreview={(
+                <CompactPreviewList
+                  items={(commerce.feed ?? []).slice(0, 4).map((item) => ({ label: item.username || item.type || "Entry", value: `${item.description || "Transaction"} • ${formatRelativeTime(item.timestamp || 0, nowMs)}` }))}
+                  columns={1}
+                />
+              )}>
                 <div className="space-y-3">
                   {(commerce.feed ?? []).length > 0 ? (
                     (commerce.feed ?? []).slice(0, 10).map((item) => (
@@ -1493,7 +1962,11 @@ export default function AdminAnalyticsPage() {
                 </div>
               </SectionCard>
 
-              <SectionCard title="Viewer Journey" subtitle="How far users move from preview to playback to actual content consumption." icon={PlayCircle}>
+              <SectionCard title="Viewer Journey" subtitle="How far users move from preview to playback to actual content consumption." icon={PlayCircle} collapsedPreview={(
+                <CompactPreviewList
+                  items={contentJourney.slice(0, 5).map((item) => ({ label: item.label, value: item.count.toLocaleString() }))}
+                />
+              )}>
                 <div className="h-64 w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={contentJourney} margin={{ top: 8, right: 4, left: -18, bottom: 0 }}>
@@ -1507,7 +1980,14 @@ export default function AdminAnalyticsPage() {
                 </div>
               </SectionCard>
 
-              <SectionCard title="Watch Depth + Tags" subtitle="What people actually watch once they unwrap, plus the tags pulling the most demand." icon={Eye}>
+              <SectionCard title="Watch Depth + Tags" subtitle="What people actually watch once they unwrap, plus the tags pulling the most demand." icon={Eye} collapsedPreview={(
+                <CompactPreviewList
+                  items={[
+                    ...(watchDepthBuckets.slice(0, 2).map((item) => ({ label: item.label, value: item.count.toLocaleString() }))),
+                    ...(contentTagDemand.slice(0, 2).map((item) => ({ label: item.tag, value: `${item.count} hits`, tone: "accent" as const }))),
+                  ]}
+                />
+              )}>
                 <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
                   <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
                     <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Watch depth</p>
@@ -1548,7 +2028,16 @@ export default function AdminAnalyticsPage() {
 
         {activeTab === "security" ? (
           <>
-            <SectionCard title="Security Posture" subtitle="Flagged accounts are grouped into mobile cards with the newest risk surfaced first." icon={ShieldAlert}>
+            <SectionCard title="Security Posture" subtitle="Flagged accounts are grouped into mobile cards with the newest risk surfaced first." icon={ShieldAlert} defaultExpanded collapsedPreview={(
+              <CompactPreviewList
+                items={[
+                  { label: "Flagged", value: security.length.toLocaleString(), tone: "accent" },
+                  { label: "Fresh alerts", value: securityAlerts.toLocaleString() },
+                  { label: "Experience views", value: funnel.experienceViews.toLocaleString() },
+                  { label: "Viewer switches", value: funnel.assetSwitches.toLocaleString() },
+                ]}
+              />
+            )}>
               <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                 <MetricCard label="Flagged Users" value={security.length.toLocaleString()} hint="Users with recorded rip attempts" icon={ShieldAlert} />
                 <MetricCard label="Fresh Alerts" value={securityAlerts.toLocaleString()} hint="Last 24 hours" icon={AlertTriangle} valueClassName={securityAlerts > 0 ? "text-2xl font-black tracking-tight text-red-400" : undefined} />
@@ -1558,7 +2047,17 @@ export default function AdminAnalyticsPage() {
             </SectionCard>
 
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
-              <SectionCard title="Daily Task Pipeline" subtitle="Assigned, started, completed, and failed tasks in one mobile-friendly progression view." icon={Funnel}>
+              <SectionCard title="Daily Task Pipeline" subtitle="Canonical task lifecycle and the new guidance banner funnel in one mobile-friendly progression view." icon={Funnel} collapsedPreview={(
+                <CompactPreviewList
+                  items={taskPipeline.slice(0, 6).map((item) => ({ label: item.label, value: item.count.toLocaleString() }))}
+                />
+              )}>
+                <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
+                  <MetricCard label="Guides Shown" value={taskGuidance.viewed.toLocaleString()} hint={`${taskGuidance.dismissed.toLocaleString()} dismissed`} icon={MapPin} />
+                  <MetricCard label="Guide Taps" value={taskGuidance.tapped.toLocaleString()} hint={formatPercent(taskGuidance.tapThroughRate)} icon={Route} />
+                  <MetricCard label="Guide Wins" value={taskGuidance.completed.toLocaleString()} hint="Completed from guided flow" icon={Sparkles} />
+                  <MetricCard label="Tap Conversion" value={formatPercent(taskGuidance.guidedCompletionRate)} hint="Guided completions vs CTA taps" icon={CheckCircle2} />
+                </div>
                 <div className="h-64 w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={taskPipeline} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
@@ -1572,7 +2071,11 @@ export default function AdminAnalyticsPage() {
                 </div>
               </SectionCard>
 
-              <SectionCard title="Task Completion Speed" subtitle="How fast the finished task set is closing, so you can tune missions that are too easy or too heavy." icon={Clock3}>
+              <SectionCard title="Task Completion Speed" subtitle="How fast the finished task set is closing, so you can tune missions that are too easy or too heavy." icon={Clock3} collapsedPreview={(
+                <CompactPreviewList
+                  items={taskDurationBuckets.map((item) => ({ label: item.label, value: item.count.toLocaleString() }))}
+                />
+              )}>
                 <div className="h-64 w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={taskDurationBuckets} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
@@ -1588,7 +2091,12 @@ export default function AdminAnalyticsPage() {
             </div>
 
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
-              <SectionCard title="Task Leaderboard" subtitle="The missions driving the most completions, reward payout, and momentum." icon={Sparkles}>
+              <SectionCard title="Task Leaderboard" subtitle="The missions driving the most completions, reward payout, and momentum." icon={Sparkles} collapsedPreview={(
+                <CompactPreviewList
+                  items={taskLeaderboard.slice(0, 4).map((task) => ({ label: task.title, value: `${task.completed} complete • ${formatPercent(task.completionRate)}` }))}
+                  columns={1}
+                />
+              )}>
                 <div className="space-y-3">
                   {taskLeaderboard.length > 0 ? (
                     taskLeaderboard.map((task) => (
@@ -1617,7 +2125,11 @@ export default function AdminAnalyticsPage() {
                 </div>
               </SectionCard>
 
-              <SectionCard title="Notification Funnel" subtitle="Prompt, enablement, open, and read behaviors, plus reminder reasons when people run short on time." icon={BellRing}>
+              <SectionCard title="Notification Funnel" subtitle="Prompt, enablement, open, and read behaviors, plus reminder reasons when people run short on time." icon={BellRing} collapsedPreview={(
+                <CompactPreviewList
+                  items={notificationFunnel.slice(0, 5).map((item) => ({ label: item.label, value: item.count.toLocaleString() }))}
+                />
+              )}>
                 <div className="grid gap-4 lg:grid-cols-[0.92fr_1.08fr]">
                   <div className="h-64 w-full">
                     <ResponsiveContainer width="100%" height="100%">
@@ -1667,7 +2179,12 @@ export default function AdminAnalyticsPage() {
               </SectionCard>
             </div>
 
-            <SectionCard title="Flagged Accounts" subtitle="A phone-sized audit list with user, vector, timing, and target drop at a glance." icon={AlertTriangle}>
+            <SectionCard title="Flagged Accounts" subtitle="A phone-sized audit list with user, vector, timing, and target drop at a glance." icon={AlertTriangle} collapsedPreview={(
+              <CompactPreviewList
+                items={security.slice(0, 4).map((item) => ({ label: item.username, value: `${item.lastViolationReason} • ${item.ripAttempts} violations` }))}
+                columns={1}
+              />
+            )}>
               <div className="space-y-3">
                 {security.length > 0 ? (
                   security.map((item) => {

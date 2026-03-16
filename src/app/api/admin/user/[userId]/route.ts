@@ -9,6 +9,7 @@ import { normalizeUserProfile } from "@/lib/user-utils";
 import { describeSecurityEvent } from "@/lib/security-events";
 import { getDropReferenceMap, resolveDropTitle } from "@/lib/server/drop-references";
 import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
+import { buildModuleCoverageReport, buildParityInsight } from "@/lib/server/analytics-parity";
 
 function toTimestampNumber(value: unknown): number {
     if (typeof value === "number" && Number.isFinite(value)) {
@@ -50,6 +51,7 @@ export async function GET(
         const { userId } = await context.params;
         const limitParam = Number(request.nextUrl.searchParams.get("limit") || 60);
         const historyLimit = Number.isFinite(limitParam) ? Math.min(Math.max(limitParam, 1), 200) : 60;
+        const securityHistoryLimit = Math.max(historyLimit, 1000);
 
         const userRef = adminDb.collection("users").doc(userId);
         const [userSnap, transactionsSnap, analyticsRollupSnap, analyticsFactsSnap, sessionFactsSnap, userDailySnapshot, securityEventsSnap] = await Promise.all([
@@ -73,7 +75,7 @@ export async function GET(
             adminDb.collection("security_events")
                 .where("userId", "==", userId)
                 .orderBy("timestamp", "desc")
-                .limit(historyLimit)
+                .limit(securityHistoryLimit)
                 .get(),
         ]);
 
@@ -123,6 +125,8 @@ export async function GET(
                     },
                 ),
             }));
+        const completedUnlockTransactions = transactions
+            .filter((transaction) => transaction.status === "completed" && transaction.type === "unlock_content");
 
         const analyticsRollup = analyticsRollupSnap.exists
             ? analyticsRollupSnap.data() as Record<string, unknown>
@@ -179,6 +183,9 @@ export async function GET(
         const directDownloadCount = analyticsFacts.filter((event) => event.eventName === "viewer_source_downloaded").length;
         const directRelatedClickCount = analyticsFacts.filter((event) => event.eventName === "viewer_related_drop_clicked").length;
         const directUnwrapCount = analyticsFacts.filter((event) => event.eventName === "unlock_drop_success").length;
+        const purchaseVerifiedFactCount = analyticsFacts.filter((event) => event.eventName === "purchase_verified").length;
+        const purchaseCompletedFactCount = analyticsFacts.filter((event) => event.eventName === "gumdrops_purchase_completed").length;
+        const directPurchaseCount = purchaseVerifiedFactCount > 0 ? purchaseVerifiedFactCount : purchaseCompletedFactCount;
         const directEventCount = analyticsFacts.length;
         const directLastSeenAt = analyticsFacts.reduce((latest, event) => Math.max(latest, event.timestamp), 0);
         const completedSessionWatchSeconds = analyticsFacts.reduce((total, event) => {
@@ -202,6 +209,8 @@ export async function GET(
         const dailyUnwrapCount = userDaily.reduce((sum, day) => sum + Math.max(readNumber(day.unwrapCount), readNumber(day.unlockCount)), 0);
         const dailyPurchaseCount = userDaily.reduce((sum, day) => sum + Math.max(readNumber(day.purchaseCount), readNumber(day.purchaseTransactionCount)), 0);
         const dailyLastSeenAt = userDaily.reduce((latest, day) => Math.max(latest, toTimestampNumber(day.lastSeenAt), toTimestampNumber(day.lastSeenAtMs)), 0);
+        const rollupPurchaseCount = Math.max(readNumber(analyticsRollup.purchaseCount), readNumber(analyticsRollup.purchaseTransactionCount));
+        const rollupUnlockCount = Math.max(readNumber(analyticsRollup.unwrapCount), readNumber(analyticsRollup.unlockCount));
 
         const viewedDrops = new Map<string, { dropId: string; dropTitle: string; views: number; watchSeconds: number }>();
         analyticsFacts.forEach((event) => {
@@ -264,11 +273,67 @@ export async function GET(
         const unlockSpendGdTotal = transactions
             .filter((transaction) => transaction.status === "completed" && transaction.type === "unlock_content")
             .reduce((sum, transaction) => sum + transaction.amount, 0);
+        const purchaseSourceCounts = [
+            { key: "transactions", label: "Transactions", count: purchaseTransactions.length },
+            { key: "rollup", label: "User rollup", count: rollupPurchaseCount },
+            { key: "daily", label: "Daily rollups", count: dailyPurchaseCount },
+            { key: "facts", label: purchaseVerifiedFactCount > 0 ? "Server facts" : "Telemetry facts", count: directPurchaseCount },
+        ];
+        const unlockSourceCounts = [
+            { key: "transactions", label: "Transactions", count: completedUnlockTransactions.length },
+            { key: "rollup", label: "User rollup", count: rollupUnlockCount },
+            { key: "daily", label: "Daily rollups", count: dailyUnwrapCount },
+            { key: "facts", label: "Event facts", count: directUnwrapCount },
+        ];
+        const purchaseParity = buildParityInsight(purchaseSourceCounts, { tolerance: 1, relativeTolerance: 0.2 });
+        const unlockParity = buildParityInsight(unlockSourceCounts, { tolerance: 1, relativeTolerance: 0.2 });
+        const parityScore = Math.round((purchaseParity.score + unlockParity.score) / 2);
+        const moduleCoverage = [
+            buildModuleCoverageReport({
+                key: "purchases",
+                label: "Purchases",
+                sources: purchaseSourceCounts,
+                emptyDetail: "No purchase activity landed for this user across transactions, rollups, daily aggregates, or event facts.",
+            }),
+            buildModuleCoverageReport({
+                key: "unlocks",
+                label: "Unlocks",
+                sources: unlockSourceCounts,
+                emptyDetail: "No unlock activity landed for this user across transactions, rollups, daily aggregates, or event facts.",
+            }),
+        ];
+        const validations = [
+            {
+                label: "Purchase parity",
+                status: purchaseParity.status,
+                detail: `${purchaseTransactions.length.toLocaleString()} completed transactions, ${rollupPurchaseCount.toLocaleString()} user-rollup purchases, ${dailyPurchaseCount.toLocaleString()} daily purchases, and ${directPurchaseCount.toLocaleString()} purchase facts. Confidence ${purchaseParity.score}%.`,
+            },
+            {
+                label: "Unlock parity",
+                status: unlockParity.status,
+                detail: `${completedUnlockTransactions.length.toLocaleString()} completed unlock transactions, ${rollupUnlockCount.toLocaleString()} user-rollup unlocks, ${dailyUnwrapCount.toLocaleString()} daily unlocks, and ${directUnwrapCount.toLocaleString()} unlock facts. Confidence ${unlockParity.score}%.`,
+            },
+            {
+                label: "Coverage",
+                status: moduleCoverage.every((module) => module.status === "healthy")
+                    ? "pass"
+                    : moduleCoverage.some((module) => module.status === "empty")
+                        ? "fail"
+                        : "warn",
+                detail: `${moduleCoverage.filter((module) => module.status === "healthy").length.toLocaleString()}/${moduleCoverage.length.toLocaleString()} tracked modules are fully covered for this user. Parity score ${parityScore}%.`,
+            },
+        ];
+        const normalizedPurchaseCount = purchaseTransactions.length > 0
+            ? purchaseTransactions.length
+            : Math.max(rollupPurchaseCount, dailyPurchaseCount, directPurchaseCount);
+        const normalizedUnlockCount = completedUnlockTransactions.length > 0
+            ? completedUnlockTransactions.length
+            : Math.max(rollupUnlockCount, dailyUnwrapCount, directUnwrapCount);
 
         const analytics = {
             eventCount: Math.max(readNumber(analyticsRollup.eventCount), directEventCount, dailyEventCount),
-            unwrapCount: Math.max(readNumber(analyticsRollup.unwrapCount), readNumber(analyticsRollup.unlockCount), directUnwrapCount, dailyUnwrapCount),
-            purchaseCount: Math.max(readNumber(analyticsRollup.purchaseCount), readNumber(analyticsRollup.purchaseTransactionCount), dailyPurchaseCount, purchaseTransactions.length),
+            unwrapCount: normalizedUnlockCount,
+            purchaseCount: normalizedPurchaseCount,
             viewerSessionCount: Math.max(readNumber(analyticsRollup.sessionCount), directViewSessionCount || directViewerOpenedCount, sessionFactViewCount),
             viewerCompletionCount: Math.max(analyticsFacts.filter((event) => event.eventName === "viewer_session_completed").length, sessionFactCompletionCount),
             assetViewCount: directAssetViewCount,
@@ -303,6 +368,21 @@ export async function GET(
                     return right.watchSeconds - left.watchSeconds;
                 })
                 .slice(0, 6),
+            parity: {
+                score: parityScore,
+                purchase: {
+                    ...purchaseParity,
+                    sources: purchaseSourceCounts,
+                    canonicalCount: normalizedPurchaseCount,
+                },
+                unlock: {
+                    ...unlockParity,
+                    sources: unlockSourceCounts,
+                    canonicalCount: normalizedUnlockCount,
+                },
+                coverage: moduleCoverage,
+                validations,
+            },
         };
 
         const securityEvents = securityEventsSnap.docs
@@ -350,11 +430,39 @@ export async function GET(
             });
         }
 
+        const last30DaysMs = Date.now() - (30 * 24 * 60 * 60 * 1000);
+        const legacyReasonCounts = user.securityFlags?.reasonCounts ?? {};
+        const eventReasonCounts = securityEvents.reduce<Record<string, number>>((acc, event) => {
+            acc[event.reason] = (acc[event.reason] || 0) + 1;
+            return acc;
+        }, {});
+        const mergedReasonCounts = Object.entries({
+            ...legacyReasonCounts,
+            ...eventReasonCounts,
+        })
+            .map(([reason, count]) => {
+                const descriptor = describeSecurityEvent(reason);
+                return {
+                    reason: descriptor.reason,
+                    label: descriptor.label,
+                    count: Math.max(readNumber(count), eventReasonCounts[reason] || 0),
+                };
+            })
+            .sort((left, right) => right.count - left.count || left.label.localeCompare(right.label));
+        const securitySummary = {
+            allTimeCount: Math.max(user.securityFlags?.ripAttempts || 0, securityEvents.length),
+            last30DaysCount: securityEvents.filter((event) => event.timestamp >= last30DaysMs).length,
+            lastViolationAt: user.securityFlags?.lastViolation || securityEvents[0]?.timestamp || null,
+            lastViolationReason: describeSecurityEvent(user.securityFlags?.lastViolationReason || securityEvents[0]?.reason).label,
+            reasons: mergedReasonCounts,
+        };
+
         return NextResponse.json({
             success: true,
             user,
             transactions,
             analytics,
+            securitySummary,
             securityEvents,
             dropReferences,
         });

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Hero from "@/components/Hero";
 import { HowItWorks } from "@/components/Landing/HowItWorks";
 import { useAuth } from "@/context/AuthContext";
+import { readLastVisitedPath } from "@/lib/navigation-persistence";
 import { trackEvent } from "@/lib/telemetry";
 
 export default function Home() {
@@ -19,7 +20,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!loading && user && userProfile?.role !== "admin") {
-      router.replace("/dashboard");
+      router.replace(readLastVisitedPath() || "/dashboard");
     }
   }, [loading, router, user, userProfile]);
 

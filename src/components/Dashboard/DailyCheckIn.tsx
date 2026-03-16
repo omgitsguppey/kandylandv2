@@ -161,7 +161,7 @@ export function DailyCheckIn() {
     }
 
     return (
-        <div className="glass-panel p-4 sm:p-6 rounded-3xl relative overflow-hidden" data-onboarding-target="daily-reward">
+        <div id="daily-reward" className="glass-panel p-4 sm:p-6 rounded-3xl relative overflow-hidden" data-onboarding-target="daily-reward">
             <div className="absolute top-0 right-0 w-32 h-32 bg-brand-purple/10 rounded-full blur-[50px] pointer-events-none" />
 
             <div className="relative z-10">

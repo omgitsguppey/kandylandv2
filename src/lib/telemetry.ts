@@ -1,5 +1,7 @@
 import { auth } from "./firebase";
 import { authFetch } from "./authFetch";
+import { prepareAnalyticsEvent } from "./analytics-client-engine";
+import { buildAnalyticsSemanticParams } from "./analytics-semantics";
 import { canUseAnonymousAnalytics, canUseIdentifiedAnalytics, readPrivacySettingsSnapshot } from "./privacy-consent";
 import { BUILT_IN_DAILY_TASKS } from "./tasks/task-catalog";
 
@@ -97,6 +99,11 @@ function getEnrichedEventParams(eventParams?: Record<string, unknown>) {
         is_mobile_viewport: viewportWidth <= 768,
         event_timestamp_ms: Date.now(),
         auth_state: auth.currentUser ? "authenticated" : "guest",
+        ...buildAnalyticsSemanticParams({
+            pagePath: window.location.pathname,
+            dropId: typeof sanitizedParams.drop_id === "string" ? sanitizedParams.drop_id : undefined,
+            dropCategory: typeof sanitizedParams.drop_category === "string" ? sanitizedParams.drop_category : undefined,
+        }),
     };
 
     return enriched;
@@ -165,26 +172,28 @@ export function trackEvent(eventName: string, eventParams?: Record<string, unkno
     const privacySettings = readPrivacySettingsSnapshot();
     const allowAnonymousAnalytics = canUseAnonymousAnalytics(privacySettings);
     const allowIdentifiedAnalytics = canUseIdentifiedAnalytics(privacySettings);
-    const shouldSyncTaskProgress = TASK_PROGRESS_EVENT_NAMES.has(eventName);
+    const preparedEvent = prepareAnalyticsEvent(eventName, eventParams);
+    const shouldSyncTaskProgress = TASK_PROGRESS_EVENT_NAMES.has(preparedEvent.canonicalEventName);
+    const eventNameForDispatch = preparedEvent.isKnownEvent ? preparedEvent.canonicalEventName : eventName;
 
     if (!allowAnonymousAnalytics && !allowIdentifiedAnalytics && !shouldSyncTaskProgress) {
         return;
     }
 
-    const enrichedParams = getEnrichedEventParams(eventParams);
+    const enrichedParams = getEnrichedEventParams(preparedEvent.enrichedParams);
 
     if (allowAnonymousAnalytics && typeof window !== "undefined" && typeof window.gtag === "function") {
-        window.gtag("event", eventName, enrichedParams);
+        window.gtag("event", eventNameForDispatch, enrichedParams);
     }
 
-    if (!auth.currentUser || (!allowIdentifiedAnalytics && !shouldSyncTaskProgress)) {
+    if (!preparedEvent.isKnownEvent || !auth.currentUser || (!allowIdentifiedAnalytics && !shouldSyncTaskProgress)) {
         return;
     }
 
     // We don't await this because analytics/task syncing should never block UI.
     authFetch("/api/telemetry/track", {
         method: "POST",
-        body: JSON.stringify({ eventName, eventParams: enrichedParams }),
+        body: JSON.stringify({ eventName: preparedEvent.canonicalEventName, eventParams: enrichedParams }),
     }).catch((err) => {
         // Silently fail on the client if telemetry drops.
         console.error("[Telemetry] Failed to track event:", err);

@@ -7,10 +7,13 @@ import * as firebaseAdmin from "firebase-admin";
 import { verifyAdmin, handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
-import { TELEMETRY_EVENT_NAMES } from "@/lib/telemetry-catalog";
+import { TELEMETRY_EVENT_ALIAS_MAP, TELEMETRY_EVENT_QUERY_NAMES, TELEMETRY_MODULE_INDEXES } from "@/lib/telemetry-catalog";
+import { ANALYTICS_SEMANTIC_SOURCE_REGISTRY, ANALYTICS_SEMANTIC_STRATEGIES } from "@/lib/analytics-semantics";
 import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
 import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 import { getAllDropReferenceMap, resolveDropTitle } from "@/lib/server/drop-references";
+import { buildModuleCoverageReport, buildParityInsight, sumCountBuckets } from "@/lib/server/analytics-parity";
+import { buildSemanticCategorySummaries, summarizeSecurityReason } from "@/lib/server/analytics-semantics";
 
 const propertyId = process.env.GA_PROPERTY_ID;
 const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
@@ -18,7 +21,7 @@ const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
 
 // Initialize with explicit credentials if available, otherwise fallback to Default Application Credentials
 let analyticsClient: BetaAnalyticsDataClient;
-const ANALYTICS_EVENT_NAMES = TELEMETRY_EVENT_NAMES;
+const ANALYTICS_EVENT_NAMES = TELEMETRY_EVENT_QUERY_NAMES;
 
 if (clientEmail && privateKey) {
     analyticsClient = new BetaAnalyticsDataClient({
@@ -360,6 +363,20 @@ function buildMergedCountMap(...sources: Array<Record<string, number>>) {
     return merged;
 }
 
+function sumEventCounts(
+    counts: Record<string, number>,
+    eventNames: string[],
+) {
+    const indexedNames = new Set(eventNames);
+    return Object.entries(counts).reduce((total, [eventName, value]) => {
+        if (indexedNames.has(eventName) || indexedNames.has(TELEMETRY_EVENT_ALIAS_MAP[eventName] || "")) {
+            return total + toNumber(value);
+        }
+
+        return total;
+    }, 0);
+}
+
 function sumSnapshotField(
     snapshot: FirebaseFirestore.QuerySnapshot,
     fieldName: string,
@@ -600,16 +617,27 @@ export async function GET(request: NextRequest) {
 
             const telemetryEventNames = [
                 "auth_sign_in_success",
+                "auth_sign_in_attempted",
                 "auth_sign_up_success",
+                "auth_sign_up_attempted",
                 "auth_google_sign_in_success",
+                "auth_google_sign_in_attempted",
+                "auth_session_restored",
+                "auth_logout",
+                "guided_onboarding_started",
                 "guided_onboarding_completed",
+                "onboarding_step_viewed",
+                "avatar_uploaded",
                 "wallet_opened",
                 "begin_checkout",
+                "purchase_package_selected",
                 "gumdrops_purchase_completed",
                 "gumdrops_purchase_failed",
                 "drop_preview_opened",
                 "drop_unlock_attempted",
                 "unlock_drop_success",
+                "drop_card_impression",
+                "view_drop_details",
                 "viewer_opened",
                 "viewer_session_started",
                 "viewer_session_completed",
@@ -628,13 +656,35 @@ export async function GET(request: NextRequest) {
                 "task_notifications_enabled",
                 "notification_prompt_banner_viewed",
                 "notification_prompt_banner_dismissed",
+                "task_guidance_banner_viewed",
+                "task_guidance_banner_dismissed",
+                "task_guidance_cta_clicked",
+                "task_guidance_completed",
                 "navigation_click",
+                "semantic_page_viewed",
+                "semantic_page_engaged",
+                "semantic_page_passive",
+                "semantic_page_exited",
+                "semantic_page_bounced",
+                "semantic_target_clicked",
+                "daily_tasks_viewed",
+                "daily_task_action_clicked",
+                "daily_check_in_claim",
+                "feedback_modal_opened",
+                "feedback_submitted",
                 "dashboard_viewed",
                 "library_viewed",
                 "experience_hub_viewed",
                 "drops_page_viewed",
                 "faq_page_viewed",
                 "home_page_viewed",
+                "asset_upload_started",
+                "asset_upload_success",
+                "asset_upload_failed",
+                "viewer_backgrounded",
+                "security_screenshot_attempted",
+                "security_print_attempted",
+                "security_devtools_attempted",
             ];
 
             const [
@@ -1050,7 +1100,7 @@ export async function GET(request: NextRequest) {
                 if (!current.lastViolation || timestamp > Date.parse(current.lastViolation)) {
                     const dropId = toStringValue(data.dropId) || null;
                     current.lastViolation = new Date(timestamp).toISOString();
-                    current.lastViolationReason = toStringValue(data.label) || toStringValue(data.reason) || "Unknown";
+                    current.lastViolationReason = toStringValue(data.label) || summarizeSecurityReason(toStringValue(data.reason)) || "Unknown";
                     current.lastViolationDropId = dropId;
                     current.lastViolationDropTitle = dropId ? resolveDropTitle(dropReferences, dropId) : null;
                 }
@@ -1119,9 +1169,23 @@ export async function GET(request: NextRequest) {
                 .filter((event) => event.timestamp >= startMs)
                 .sort((left, right) => right.timestamp - left.timestamp)
                 .slice(0, 200);
-            const purchaseEventCount = Math.max(eventsData.gumdrops_purchase_completed || 0, eventsData.purchase || 0);
-            const purchases = Math.max(purchaseEventCount, firstPartyPurchaseCount);
-            const canonicalUnlockCount = Math.max(eventsData.unlock_drop_success || 0, firstPartyUnlockCount);
+            const semanticCategories = buildSemanticCategorySummaries({
+                eventFacts: analyticsEventFactsSnapshot.docs.map((doc) => doc.data() as Record<string, unknown>),
+                guestBatches: guestBatchesSnapshot.docs.map((doc) => doc.data() as Record<string, unknown>),
+                sessionFacts: sessionFactsSnapshot.docs.map((doc) => doc.data() as Record<string, unknown>),
+            }).map((item) => ({
+                ...item,
+                avgViewSeconds: item.viewCount > 0 ? Math.round(item.viewDurationMs / Math.max(item.viewCount, 1) / 1000) : 0,
+                engagedRate: item.viewCount > 0 ? item.engagedViewCount / Math.max(item.viewCount, 1) : 0,
+            }));
+            const semanticEngine = {
+                sources: ANALYTICS_SEMANTIC_SOURCE_REGISTRY,
+                strategies: ANALYTICS_SEMANTIC_STRATEGIES,
+            };
+            const telemetryPurchaseCount = Math.max(eventsData.gumdrops_purchase_completed || 0, eventsData.purchase || 0);
+            const purchases = Math.max(telemetryPurchaseCount, firstPartyPurchaseCount);
+            const telemetryUnlockCount = eventsData.unlock_drop_success || 0;
+            const canonicalUnlockCount = Math.max(firstPartyUnlockCount, telemetryUnlockCount);
             const funnel = {
                 authModalOpens: eventsData.auth_modal_opened || 0,
                 authSignIns: (eventsData.auth_sign_in_success || 0) + (eventsData.auth_google_sign_in_success || 0),
@@ -1170,9 +1234,23 @@ export async function GET(request: NextRequest) {
                 totalOnboardingCompletions = onboardingFacts.length;
                 totalOnboardingSeconds = onboardingFacts.reduce((sum, fact) => sum + Math.round(fact.durationMs / 1000), 0);
             }
-            
-            const avgOnboardingDuration = totalOnboardingCompletions > 0 
-                ? Math.round(totalOnboardingSeconds / totalOnboardingCompletions) 
+
+            const guidedOnboardingStartCount = eventsData.guided_onboarding_started || 0;
+            const legacyOnboardingStartCount = eventsData.onboarding_started || 0;
+            const guidedOnboardingCompletionCount = Math.max(totalOnboardingCompletions, eventsData.guided_onboarding_completed || 0);
+            const legacyOnboardingCompletionCount = eventsData.onboarding_complete || 0;
+            const normalizedOnboardingCompletions = guidedOnboardingCompletionCount + legacyOnboardingCompletionCount;
+            const avgOnboardingDuration = normalizedOnboardingCompletions > 0
+                ? Math.round(totalOnboardingSeconds / Math.max(1, guidedOnboardingCompletionCount))
+                : 0;
+            const onboardingStartCount = Math.max(guidedOnboardingStartCount + legacyOnboardingStartCount, normalizedOnboardingCompletions);
+            const onboardingStartSource = (guidedOnboardingStartCount + legacyOnboardingStartCount) > 0
+                ? "telemetry"
+                : normalizedOnboardingCompletions > 0
+                    ? "completion_fallback"
+                    : "none";
+            const onboardingCompletionRate = onboardingStartCount > 0
+                ? normalizedOnboardingCompletions / onboardingStartCount
                 : 0;
 
             const filteredSessionFacts: SessionFactRecord[] = sessionFactsSnapshot.docs
@@ -1296,10 +1374,19 @@ export async function GET(request: NextRequest) {
                 { label: "Enable", value: eventsData.task_notifications_enabled || 0 },
             ];
 
+            const taskGuidance = {
+                viewed: eventsData.task_guidance_banner_viewed || 0,
+                dismissed: eventsData.task_guidance_banner_dismissed || 0,
+                tapped: eventsData.task_guidance_cta_clicked || 0,
+                completed: eventsData.task_guidance_completed || 0,
+            };
             const taskPipeline = [
                 { label: "Assigned", count: normalizedTaskEvents.filter((event) => event.type === "assigned").length },
+                { label: "Guides shown", count: taskGuidance.viewed },
+                { label: "Guide taps", count: taskGuidance.tapped },
                 { label: "Started", count: normalizedTaskEvents.filter((event) => event.type === "started").length },
                 { label: "Completed", count: normalizedTaskEvents.filter((event) => event.type === "completed").length },
+                { label: "Guide wins", count: taskGuidance.completed },
                 { label: "Failed", count: normalizedTaskEvents.filter((event) => event.type === "failed").length },
                 { label: "Reminders", count: normalizedTaskEvents.filter((event) => event.type === "reminder_sent").length },
             ];
@@ -1838,6 +1925,80 @@ export async function GET(request: NextRequest) {
 
             const completedPurchaseTransactions = normalizedTransactionsInRange.filter((tx) => tx.type === "purchase_currency" && tx.status === "completed");
             const unlockTransactions = normalizedTransactionsInRange.filter((tx) => tx.type === "unlock_content");
+            const guestInteractionCount = guestBatchesSnapshot.docs.reduce((total, doc) => {
+                const data = doc.data() as Record<string, unknown>;
+                return total + toNumber(data.eventCount);
+            }, 0);
+            const pageRollupViewCount = Array.from(pageRollupMap.values()).reduce((total, entry) => total + entry.views, 0);
+            const dropRollupActivityCount = dropDailySnapshot.docs.reduce((total, doc) => {
+                const data = doc.data() as Record<string, unknown>;
+                return total + toNumber(data.eventCount) + toNumber(data.unwrapCount);
+            }, 0);
+            const viewerSessionFactCount = filteredSessionFacts.reduce((total, entry) => total + toNumber(entry.startedCount) + toNumber(entry.completedCount), 0);
+            const moduleCoverage = TELEMETRY_MODULE_INDEXES.map((moduleIndex) => {
+                const sources = [
+                    { key: "ga4", label: "GA4", count: sumEventCounts(gaEventCounts, moduleIndex.eventNames) },
+                    { key: "facts", label: "Event facts", count: sumEventCounts(canonicalEventCounts, moduleIndex.eventNames) },
+                    { key: "logs", label: "Telemetry logs", count: sumEventCounts(telemetryEventCounts, moduleIndex.eventNames) },
+                ];
+
+                if (moduleIndex.key === "navigation" || moduleIndex.key === "engagement") {
+                    sources.push({ key: "pages", label: "Page rollups", count: pageRollupViewCount });
+                }
+                if (moduleIndex.key === "engagement") {
+                    sources.push({ key: "guest", label: "Guest batches", count: guestInteractionCount });
+                }
+                if (moduleIndex.key === "tasks") {
+                    sources.push({ key: "task_events", label: "Task lifecycle", count: normalizedTaskEvents.length || firstPartyTaskLifecycleEvents });
+                }
+                if (moduleIndex.key === "task_guidance") {
+                    sources.push({ key: "task_pipeline", label: "Task pipeline", count: sumCountBuckets(taskPipeline) });
+                }
+                if (moduleIndex.key === "commerce") {
+                    sources.push({ key: "transactions", label: "Transactions", count: completedPurchaseTransactions.length + unlockTransactions.length });
+                    sources.push({ key: "commerce_rollups", label: "Commerce rollups", count: firstPartyPurchaseCount + firstPartyUnlockCount });
+                }
+                if (moduleIndex.key === "content") {
+                    sources.push({ key: "drop_rollups", label: "Drop rollups", count: dropRollupActivityCount });
+                    sources.push({ key: "unlock_transactions", label: "Unlock transactions", count: unlockTransactions.length });
+                }
+                if (moduleIndex.key === "viewer") {
+                    sources.push({ key: "session_facts", label: "Session facts", count: viewerSessionFactCount });
+                }
+                if (moduleIndex.key === "security") {
+                    sources.push({ key: "security_events", label: "Security logs", count: securityEventsSnapshot.size });
+                    sources.push({ key: "flagged_users", label: "Flagged accounts", count: securityLogs.length });
+                }
+
+                return buildModuleCoverageReport({
+                    key: moduleIndex.key,
+                    label: moduleIndex.label,
+                    sources,
+                    emptyDetail: `No indexed ${moduleIndex.label.toLowerCase()} signals landed in this range. Expected sources: ${moduleIndex.fallbackSources.join(", ")}.`,
+                });
+            });
+            const unhealthyModules = moduleCoverage.filter((module) => module.status !== "healthy");
+            const purchaseParity = buildParityInsight([
+                { key: "transactions", label: "Transactions", count: completedPurchaseTransactions.length },
+                { key: "rollups", label: "Canonical rollups", count: firstPartyPurchaseCount },
+                { key: "telemetry", label: "Telemetry", count: telemetryPurchaseCount },
+            ]);
+            const unlockParity = buildParityInsight([
+                { key: "transactions", label: "Transactions", count: unlockTransactions.length },
+                { key: "rollups", label: "Canonical rollups", count: firstPartyUnlockCount },
+                { key: "telemetry", label: "Telemetry", count: telemetryUnlockCount },
+            ]);
+            const onboardingParity = buildParityInsight([
+                { key: "ga4", label: "GA4", count: guidedOnboardingCompletionCount + legacyOnboardingCompletionCount },
+                { key: "facts", label: "Onboarding facts", count: normalizedOnboardingCompletions },
+                { key: "starts", label: "Normalized starts", count: onboardingStartCount },
+            ], { tolerance: 2, relativeTolerance: 0.25 });
+            const taskGuidanceParity = buildParityInsight([
+                { key: "views", label: "Guide views", count: taskGuidance.viewed },
+                { key: "taps", label: "Guide taps", count: taskGuidance.tapped },
+                { key: "wins", label: "Guide wins", count: taskGuidance.completed },
+            ], { tolerance: 2, relativeTolerance: 0.35 });
+            const parityScore = Math.round((purchaseParity.score + unlockParity.score + onboardingParity.score + taskGuidanceParity.score) / 4);
             const validations = [
                 {
                     label: "GA property",
@@ -1860,13 +2021,34 @@ export async function GET(request: NextRequest) {
                 },
                 {
                     label: "Purchase parity",
-                    status: Math.abs(completedPurchaseTransactions.length - firstPartyPurchaseCount) <= 1 ? "pass" : "warn",
-                    detail: `${completedPurchaseTransactions.length.toLocaleString()} completed purchase transactions vs ${firstPartyPurchaseCount.toLocaleString()} canonical purchase rollups and ${purchaseEventCount.toLocaleString()} telemetry purchase events.`,
+                    status: purchaseParity.status,
+                    detail: `${completedPurchaseTransactions.length.toLocaleString()} completed purchase transactions vs ${firstPartyPurchaseCount.toLocaleString()} canonical purchase rollups. Telemetry captured ${telemetryPurchaseCount.toLocaleString()} purchase events in the same range. Confidence ${purchaseParity.score}%.`,
                 },
                 {
                     label: "Unlock parity",
-                    status: Math.abs(unlockTransactions.length - firstPartyUnlockCount) <= 1 ? "pass" : "warn",
-                    detail: `${unlockTransactions.length.toLocaleString()} unlock transactions vs ${firstPartyUnlockCount.toLocaleString()} canonical unlock rollups and ${eventsData.unlock_drop_success || 0} unwrap telemetry events.`,
+                    status: unlockParity.status,
+                    detail: `${unlockTransactions.length.toLocaleString()} unlock transactions vs ${firstPartyUnlockCount.toLocaleString()} canonical unlock rollups. Telemetry captured ${telemetryUnlockCount.toLocaleString()} unlock events in the same range. Confidence ${unlockParity.score}%.`,
+                },
+                {
+                    label: "Onboarding coverage",
+                    status: normalizedOnboardingCompletions > 0 && onboardingStartSource === "completion_fallback" ? "warn" : "pass",
+                    detail: onboardingStartCount > 0
+                        ? onboardingStartSource === "telemetry"
+                            ? `${onboardingStartCount.toLocaleString()} onboarding starts and ${normalizedOnboardingCompletions.toLocaleString()} completions were tracked directly. Confidence ${onboardingParity.score}%.`
+                            : `${normalizedOnboardingCompletions.toLocaleString()} onboarding completions were tracked, so the legacy start counter is falling back to completed sessions until more start events land. Confidence ${onboardingParity.score}%.`
+                        : "No onboarding activity matched the selected range.",
+                },
+                {
+                    label: "Task guidance parity",
+                    status: taskGuidance.completed <= taskGuidance.tapped && taskGuidance.tapped <= taskGuidance.viewed ? taskGuidanceParity.status : "warn",
+                    detail: `${taskGuidance.viewed.toLocaleString()} guide views, ${taskGuidance.dismissed.toLocaleString()} dismissals, ${taskGuidance.tapped.toLocaleString()} guide taps, and ${taskGuidance.completed.toLocaleString()} guided completions were collected in range. Confidence ${taskGuidanceParity.score}%.`,
+                },
+                {
+                    label: "Module coverage",
+                    status: unhealthyModules.length === 0 ? "pass" : unhealthyModules.length <= 3 ? "warn" : "fail",
+                    detail: unhealthyModules.length === 0
+                        ? `All ${moduleCoverage.length.toLocaleString()} indexed analytics modules are populated across the selected range. Parity score ${parityScore}%.`
+                        : `${unhealthyModules.length.toLocaleString()} of ${moduleCoverage.length.toLocaleString()} indexed analytics modules are partial or empty. Parity score ${parityScore}%.`,
                 },
                 {
                     label: "Viewer drilldown",
@@ -1890,7 +2072,13 @@ export async function GET(request: NextRequest) {
                 topDrops: dropsData,
                 commerce,
                 security: securityLogs,
-                onboardingStats: { completions: totalOnboardingCompletions, avgDuration: avgOnboardingDuration },
+                onboardingStats: {
+                    starts: onboardingStartCount,
+                    completions: normalizedOnboardingCompletions,
+                    avgDuration: avgOnboardingDuration,
+                    completionRate: onboardingCompletionRate,
+                    startSource: onboardingStartSource,
+                },
                 rawEvents: mappedEvents,
                 authBreakdown,
                 onboardingDurationBuckets,
@@ -1898,6 +2086,11 @@ export async function GET(request: NextRequest) {
                 destinationMix,
                 notificationFunnel,
                 notificationActions,
+                taskGuidance: {
+                    ...taskGuidance,
+                    tapThroughRate: taskGuidance.viewed > 0 ? taskGuidance.tapped / taskGuidance.viewed : 0,
+                    guidedCompletionRate: taskGuidance.tapped > 0 ? taskGuidance.completed / taskGuidance.tapped : 0,
+                },
                 taskPipeline,
                 taskLeaderboard,
                 taskDurationBuckets,
@@ -1911,6 +2104,11 @@ export async function GET(request: NextRequest) {
                 viewerDropInsights,
                 viewerUsers,
                 viewerFilter: viewerUser,
+                semanticCategories,
+                semanticEngine,
+                moduleCoverage,
+                unhealthyModules,
+                parityScore,
                 validations,
             });
         }

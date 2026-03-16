@@ -40,6 +40,7 @@ export interface UserProfile {
         identifiedAnalyticsEnabled: boolean;
         honorGlobalPrivacyControl: boolean;
         consentUpdatedAt?: number;
+        privacyPolicyVersion?: string;
     };
 
     accountSettings?: {

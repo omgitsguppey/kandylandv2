@@ -48,6 +48,46 @@ type UserDetailAnalytics = {
     paidGumDrops: number;
     unlockSpendGdTotal: number;
     topViewedDrops: Array<{ dropId: string; dropTitle: string; views: number; watchSeconds: number }>;
+    parity: {
+        score: number;
+        purchase: UserDetailParityInsight;
+        unlock: UserDetailParityInsight;
+        coverage: UserDetailCoverageItem[];
+        validations: UserDetailValidationItem[];
+    };
+};
+
+type UserDetailParitySource = {
+    key: string;
+    label: string;
+    count: number;
+};
+
+type UserDetailParityInsight = {
+    status: "pass" | "warn" | "fail";
+    score: number;
+    referenceCount: number;
+    spread: number;
+    populatedSources: number;
+    canonicalCount: number;
+    sources: UserDetailParitySource[];
+};
+
+type UserDetailCoverageItem = {
+    key: string;
+    label: string;
+    status: "healthy" | "partial" | "empty";
+    score: number;
+    total: number;
+    populatedSources: number;
+    detail: string;
+    sources: UserDetailParitySource[];
+};
+
+type UserDetailValidationItem = {
+    label: string;
+    status: "pass" | "warn" | "fail";
+    detail: string;
 };
 
 type SecurityEventItem = {
@@ -67,6 +107,42 @@ type SecurityEventItem = {
     timestamp: number;
 };
 
+type SecuritySummary = {
+    allTimeCount: number;
+    last30DaysCount: number;
+    lastViolationAt: string | number | null;
+    lastViolationReason: string;
+    reasons: Array<{
+        reason: string;
+        label: string;
+        count: number;
+    }>;
+};
+
+function getValidationClasses(status: "pass" | "warn" | "fail") {
+    if (status === "pass") {
+        return "border-emerald-400/20 bg-emerald-400/10 text-emerald-200";
+    }
+
+    if (status === "fail") {
+        return "border-red-500/20 bg-red-500/10 text-red-200";
+    }
+
+    return "border-amber-400/20 bg-amber-400/10 text-amber-200";
+}
+
+function getCoverageClasses(status: "healthy" | "partial" | "empty") {
+    if (status === "healthy") {
+        return "border-emerald-400/20 bg-emerald-400/10 text-emerald-200";
+    }
+
+    if (status === "empty") {
+        return "border-red-500/20 bg-red-500/10 text-red-200";
+    }
+
+    return "border-amber-400/20 bg-amber-400/10 text-amber-200";
+}
+
 export default function AdminUserAnalyticsPage() {
     const params = useParams();
     const router = useRouter();
@@ -78,6 +154,8 @@ export default function AdminUserAnalyticsPage() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [analytics, setAnalytics] = useState<UserDetailAnalytics | null>(null);
     const [securityEvents, setSecurityEvents] = useState<SecurityEventItem[]>([]);
+    const [securitySummary, setSecuritySummary] = useState<SecuritySummary | null>(null);
+    const [securityWindow, setSecurityWindow] = useState<"all" | "30d">("all");
     const [securitySeverityFilter, setSecuritySeverityFilter] = useState("all");
     const [securityReasonFilter, setSecurityReasonFilter] = useState("all");
     const [loading, setLoading] = useState(true);
@@ -96,6 +174,7 @@ export default function AdminUserAnalyticsPage() {
                     user?: UserProfile;
                     transactions?: Transaction[];
                     analytics?: UserDetailAnalytics;
+                    securitySummary?: SecuritySummary;
                     securityEvents?: SecurityEventItem[];
                     error?: string;
                 };
@@ -107,6 +186,7 @@ export default function AdminUserAnalyticsPage() {
                 setTargetUser(result.user);
                 setTransactions(result.transactions || []);
                 setAnalytics(result.analytics || null);
+                setSecuritySummary(result.securitySummary || null);
                 setSecurityEvents(result.securityEvents || []);
             } catch (fetchError: unknown) {
                 console.error("Failed to load user analytics.", fetchError);
@@ -143,6 +223,7 @@ export default function AdminUserAnalyticsPage() {
         ? totalSpentUsd / (analytics?.purchaseCount || purchaseTransactions.length)
         : 0;
     const failedTxCount = transactions.filter((transaction) => transaction.status === "failed").length;
+    const parity = analytics?.parity;
 
     const watchTimeLabel = useMemo(() => {
         if (!analytics?.watchSecondsTotal) {
@@ -157,11 +238,21 @@ export default function AdminUserAnalyticsPage() {
     }, [analytics]);
 
     const securityReasonOptions = useMemo(() => (
-        Array.from(new Set(securityEvents.map((event) => event.reason).filter(Boolean))).sort()
+        Array.from(new Map(
+            securityEvents
+                .filter((event) => event.reason)
+                .map((event) => [event.reason, event.label] as const),
+        ).entries())
+            .sort((left, right) => left[1].localeCompare(right[1]))
+            .map(([reason, label]) => ({ reason, label }))
     ), [securityEvents]);
 
+    const securityWindowCutoffMs = useMemo(() => Date.now() - (30 * 24 * 60 * 60 * 1000), []);
     const filteredSecurityEvents = useMemo(() => (
         securityEvents.filter((event) => {
+            if (securityWindow === "30d" && event.timestamp < securityWindowCutoffMs) {
+                return false;
+            }
             if (securitySeverityFilter !== "all" && event.severity !== securitySeverityFilter) {
                 return false;
             }
@@ -170,7 +261,7 @@ export default function AdminUserAnalyticsPage() {
             }
             return true;
         })
-    ), [securityEvents, securityReasonFilter, securitySeverityFilter]);
+    ), [securityEvents, securityReasonFilter, securitySeverityFilter, securityWindow, securityWindowCutoffMs]);
 
     if (authLoading || loading) {
         return (
@@ -401,6 +492,110 @@ export default function AdminUserAnalyticsPage() {
                 </div>
             </div>
 
+            <div className="glass-panel rounded-3xl border border-white/5 p-6">
+                <h3 className="mb-4 flex items-center gap-2 text-sm font-bold text-white">
+                    <Activity className="h-4 w-4 text-brand-purple" /> Parity Engine
+                </h3>
+
+                <div className="grid gap-3 md:grid-cols-3">
+                    <div className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500">Overall Confidence</p>
+                        <p className="mt-2 text-3xl font-black text-white">{parity?.score ?? 0}%</p>
+                        <p className="mt-1 text-xs text-gray-400">Purchase and unlock analytics aligned across indexed sources.</p>
+                    </div>
+                    <div className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
+                        <div className="flex items-start justify-between gap-3">
+                            <div>
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500">Purchase Parity</p>
+                                <p className="mt-2 text-3xl font-black text-white">{parity?.purchase.canonicalCount ?? 0}</p>
+                                <p className="mt-1 text-xs text-gray-400">{parity?.purchase.populatedSources ?? 0} populated sources</p>
+                            </div>
+                            <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${getValidationClasses(parity?.purchase.status ?? "fail")}`}>
+                                {parity?.purchase.status ?? "fail"}
+                            </span>
+                        </div>
+                    </div>
+                    <div className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
+                        <div className="flex items-start justify-between gap-3">
+                            <div>
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500">Unlock Parity</p>
+                                <p className="mt-2 text-3xl font-black text-white">{parity?.unlock.canonicalCount ?? 0}</p>
+                                <p className="mt-1 text-xs text-gray-400">{parity?.unlock.populatedSources ?? 0} populated sources</p>
+                            </div>
+                            <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${getValidationClasses(parity?.unlock.status ?? "fail")}`}>
+                                {parity?.unlock.status ?? "fail"}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="mt-5 grid gap-4 lg:grid-cols-2">
+                    {[
+                        { label: "Purchases", insight: parity?.purchase },
+                        { label: "Unlocks", insight: parity?.unlock },
+                    ].map((entry) => (
+                        <div key={entry.label} className="rounded-[1.5rem] border border-white/10 bg-black/25 p-4">
+                            <div className="mb-3 flex items-start justify-between gap-3">
+                                <div>
+                                    <p className="text-sm font-semibold text-white">{entry.label}</p>
+                                    <p className="mt-1 text-xs text-gray-400">
+                                        Confidence {entry.insight?.score ?? 0}% with a source spread of {entry.insight?.spread ?? 0}.
+                                    </p>
+                                </div>
+                                <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${getValidationClasses(entry.insight?.status ?? "fail")}`}>
+                                    {entry.insight?.status ?? "fail"}
+                                </span>
+                            </div>
+                            <div className="grid gap-2 sm:grid-cols-2">
+                                {(entry.insight?.sources ?? []).map((source) => (
+                                    <div key={`${entry.label}-${source.key}`} className="rounded-[1rem] border border-white/10 bg-black/20 px-3 py-2">
+                                        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">{source.label}</p>
+                                        <p className="mt-1 text-sm font-semibold text-white">{source.count.toLocaleString()}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                <div className="mt-5 grid gap-3 lg:grid-cols-2">
+                    {(parity?.coverage ?? []).map((module) => (
+                        <div key={module.key} className="rounded-[1.4rem] border border-white/10 bg-black/25 p-4">
+                            <div className="mb-2 flex items-start justify-between gap-3">
+                                <div>
+                                    <p className="text-sm font-semibold text-white">{module.label}</p>
+                                    <p className="mt-1 text-xs leading-6 text-gray-400">{module.detail}</p>
+                                </div>
+                                <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${getCoverageClasses(module.status)}`}>
+                                    {module.status}
+                                </span>
+                            </div>
+                            <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-gray-400">
+                                {module.sources.map((source) => (
+                                    <span key={`${module.key}-${source.key}`} className="rounded-full border border-white/10 bg-black/20 px-2.5 py-1">
+                                        {source.label}: {source.count.toLocaleString()}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                <div className="mt-5 grid gap-3 lg:grid-cols-3">
+                    {(parity?.validations ?? []).map((item) => (
+                        <div key={item.label} className="rounded-[1.4rem] border border-white/10 bg-black/25 p-4">
+                            <div className="mb-2 flex items-start justify-between gap-3">
+                                <p className="text-sm font-semibold text-white">{item.label}</p>
+                                <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${getValidationClasses(item.status)}`}>
+                                    {item.status}
+                                </span>
+                            </div>
+                            <p className="text-xs leading-6 text-gray-400">{item.detail}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div className="glass-panel rounded-3xl border border-white/5 p-6">
                     <h3 className="mb-4 flex items-center gap-2 text-sm font-bold text-white">
@@ -439,6 +634,50 @@ export default function AdminUserAnalyticsPage() {
                     <h3 className="mb-4 flex items-center gap-2 text-sm font-bold text-white">
                         <ShieldAlert className="h-4 w-4 text-brand-purple" /> Security Events
                     </h3>
+                    <div className="mb-4 grid gap-3 sm:grid-cols-3">
+                        <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">All time flags</p>
+                            <p className="mt-2 text-2xl font-black text-white">{securitySummary?.allTimeCount ?? securityEvents.length}</p>
+                            <p className="mt-1 text-xs text-gray-500">Includes historical counters carried forward from legacy flags.</p>
+                        </div>
+                        <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Last 30 days</p>
+                            <p className="mt-2 text-2xl font-black text-white">{securitySummary?.last30DaysCount ?? filteredSecurityEvents.length}</p>
+                            <p className="mt-1 text-xs text-gray-500">Recent viewer protection alerts in the last month.</p>
+                        </div>
+                        <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Latest flag</p>
+                            <p className="mt-2 text-sm font-bold text-white">{securitySummary?.lastViolationReason || "No flags recorded"}</p>
+                            <p className="mt-1 text-xs text-gray-500">
+                                {securitySummary?.lastViolationAt
+                                    ? `${typeof securitySummary.lastViolationAt === "string"
+                                        ? formatDistanceToNow(new Date(securitySummary.lastViolationAt), { addSuffix: true })
+                                        : formatDistanceToNow(securitySummary.lastViolationAt, { addSuffix: true })}`
+                                    : "No timestamp available"}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="mb-4 flex flex-wrap gap-2">
+                        {[
+                            { key: "all" as const, label: "All time" },
+                            { key: "30d" as const, label: "Last 30 days" },
+                        ].map((option) => (
+                            <button
+                                key={option.key}
+                                type="button"
+                                onClick={() => setSecurityWindow(option.key)}
+                                className={`rounded-full border px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] transition-colors ${
+                                    securityWindow === option.key
+                                        ? "border-brand-purple/40 bg-brand-purple/15 text-white"
+                                        : "border-white/10 bg-black/30 text-gray-400 hover:text-white"
+                                }`}
+                            >
+                                {option.label}
+                            </button>
+                        ))}
+                    </div>
+
                     <div className="mb-4 grid gap-3 sm:grid-cols-2">
                         <label className="space-y-2 text-left">
                             <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Severity</span>
@@ -462,11 +701,20 @@ export default function AdminUserAnalyticsPage() {
                             >
                                 <option value="all">All reasons</option>
                                 {securityReasonOptions.map((reason) => (
-                                    <option key={reason} value={reason}>{reason}</option>
+                                    <option key={reason.reason} value={reason.reason}>{reason.label}</option>
                                 ))}
                             </select>
                         </label>
                     </div>
+                    {securitySummary?.reasons?.length ? (
+                        <div className="mb-4 flex flex-wrap gap-2">
+                            {securitySummary.reasons.map((item) => (
+                                <span key={item.reason} className="rounded-full border border-white/10 bg-black/25 px-3 py-1.5 text-[11px] font-semibold text-gray-300">
+                                    {item.label}: {item.count.toLocaleString()}
+                                </span>
+                            ))}
+                        </div>
+                    ) : null}
                     <div className="space-y-3">
                         {filteredSecurityEvents.length === 0 ? (
                             <p className="text-sm text-gray-500">No viewer protection issues have been logged for this account.</p>
@@ -482,7 +730,7 @@ export default function AdminUserAnalyticsPage() {
                                                 {event.dropTitle ? ` | ${event.dropTitle}` : event.dropId ? ` | Drop ${event.dropId}` : ""}
                                             </p>
                                             <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-gray-500">
-                                                {event.reason ? <span>Reason: {event.reason}</span> : null}
+                                                {event.reason ? <span>Signal: {event.label}</span> : null}
                                                 {event.pagePath ? <span>Path: {event.pagePath}</span> : null}
                                                 {event.contentKind ? <span>Type: {event.contentKind}</span> : null}
                                                 {event.assetKey ? <span>Asset: {event.assetKey}</span> : null}
@@ -514,7 +762,7 @@ export default function AdminUserAnalyticsPage() {
                     </div>
                     {targetUser.securityFlags?.ripAttempts ? (
                         <p className="mt-4 text-xs text-gray-500">
-                            Showing {filteredSecurityEvents.length} of {securityEvents.length} logged protection events. Total interruptions on this account: {targetUser.securityFlags.ripAttempts}
+                            Showing {filteredSecurityEvents.length} of {securityEvents.length} stored security logs. Historical total on this account: {securitySummary?.allTimeCount ?? targetUser.securityFlags.ripAttempts}
                         </p>
                     ) : null}
                 </div>

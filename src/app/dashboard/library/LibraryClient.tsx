@@ -90,7 +90,7 @@ export function LibraryClient({ drops }: LibraryClientProps) {
                     </Link>
                 </div>
             ) : (
-                <div className="grid grid-cols-6 gap-3 md:gap-4">
+                <div id="library-grid" className="grid grid-cols-6 gap-3 md:gap-4">
                     {drops.filter((d) => unlockedIds.has(d.id)).map((drop) => (
                         <div key={drop.id} className={getItemSpanClass(drop)}>
                             <OwnedDropGalleryCard

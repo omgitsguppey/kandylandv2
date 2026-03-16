@@ -798,24 +798,29 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
             const isWinScreenshot = e.metaKey && e.shiftKey && e.key.toLowerCase() === 's';
             // Global: PrintScreen
             const isPrintScreen = e.key === 'PrintScreen' || e.code === 'PrintScreen';
+            const isPrintShortcut = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "p";
+            const isDevToolsShortcut = e.key === "F12"
+                || ((e.ctrlKey || e.metaKey) && e.shiftKey && ["i", "j", "c"].includes(e.key.toLowerCase()));
 
             if (isMacScreenshot || isWinScreenshot || isPrintScreen) {
                 logViolation("screenshot_hotkey");
+                return;
             }
-        };
 
-        const handleVisibilityChange = () => {
-            if (document.hidden) {
-                logViolation("window_blur");
+            if (isPrintShortcut) {
+                logViolation("print_shortcut");
+                return;
+            }
+
+            if (isDevToolsShortcut) {
+                logViolation("devtools_shortcut");
             }
         };
 
         window.addEventListener("keydown", handleKeyDown);
-        document.addEventListener("visibilitychange", handleVisibilityChange);
 
         return () => {
             window.removeEventListener("keydown", handleKeyDown);
-            document.removeEventListener("visibilitychange", handleVisibilityChange);
         };
     }, [activeIndex, drop, isAuthorized, resolvedContent.kind]);
 

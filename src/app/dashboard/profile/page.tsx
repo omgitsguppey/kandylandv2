@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import Link from "next/link";
 import { useAuth, useUserProfile } from "@/context/AuthContext";
 import { updateProfile } from "firebase/auth";
 import { Button } from "@/components/ui/Button";
-import { Loader2, Save, User, AtSign, Bell, Globe, ShieldAlert, Mail, Camera, LogOut, Download, Trash2 } from "lucide-react";
+import { Loader2, Save, User, AtSign, Bell, Globe, ShieldAlert, Mail, Camera, LogOut, Download, Trash2, Lock, FileText } from "lucide-react";
 
 import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";
@@ -16,6 +17,7 @@ import { mutate } from "swr";
 import { getBrowserNotificationState } from "@/lib/firebase-messaging";
 import { enableBrowserNotifications } from "@/lib/browser-notification-enrollment";
 import { getBrowserGlobalPrivacyControl, persistPrivacySettingsSnapshot } from "@/lib/privacy-consent";
+import { PRIVACY_POLICY_LAST_UPDATED } from "@/lib/privacy-policy";
 
 const TIMEZONE_OPTIONS = [
     "Auto",
@@ -104,29 +106,69 @@ function ToggleRow({
     checked,
     onChange,
     icon,
+    disabled = false,
+    badge,
 }: {
     label: string;
     description?: string;
     checked: boolean;
     onChange: (value: boolean) => void;
     icon?: React.ReactNode;
+    disabled?: boolean;
+    badge?: string;
 }) {
     return (
-        <label className="flex items-start justify-between gap-4 rounded-xl border border-white/5 bg-black/25 px-3 py-2.5">
+        <div className={`flex items-start justify-between gap-4 rounded-[1.15rem] border px-4 py-3 transition-colors ${disabled ? "border-white/5 bg-black/20 opacity-75" : "border-white/10 bg-black/30"}`}>
             <div className="min-w-0">
-                <p className="text-sm text-gray-100 flex items-center gap-2">{icon}{label}</p>
-                {description ? <p className="text-xs text-gray-500 mt-1">{description}</p> : null}
+                <div className="flex flex-wrap items-center gap-2">
+                    <p className="flex items-center gap-2 text-sm font-medium text-gray-100">{icon}{label}</p>
+                    {badge ? (
+                        <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-400">
+                            {badge}
+                        </span>
+                    ) : null}
+                </div>
+                {description ? <p className="mt-1 text-xs leading-5 text-gray-500">{description}</p> : null}
             </div>
             <button
                 type="button"
                 onClick={() => onChange(!checked)}
-                className={`relative h-6 w-11 rounded-full transition ${checked ? "bg-brand-purple" : "bg-white/20"}`}
+                disabled={disabled}
+                className={`relative h-6 w-11 shrink-0 rounded-full transition ${checked ? "bg-brand-purple" : "bg-white/20"} ${disabled ? "cursor-not-allowed" : ""}`}
                 aria-label={`${label} toggle`}
                 aria-pressed={checked}
             >
                 <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition ${checked ? "left-[1.35rem]" : "left-0.5"}`} />
             </button>
-        </label>
+        </div>
+    );
+}
+
+function StaticSettingRow({
+    label,
+    description,
+    icon,
+    badge,
+}: {
+    label: string;
+    description: string;
+    icon?: React.ReactNode;
+    badge?: string;
+}) {
+    return (
+        <div className="flex items-start justify-between gap-4 rounded-[1.15rem] border border-white/10 bg-black/30 px-4 py-3">
+            <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                    <p className="flex items-center gap-2 text-sm font-medium text-gray-100">{icon}{label}</p>
+                    {badge ? (
+                        <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-400">
+                            {badge}
+                        </span>
+                    ) : null}
+                </div>
+                <p className="mt-1 text-xs leading-5 text-gray-500">{description}</p>
+            </div>
+        </div>
     );
 }
 
@@ -192,6 +234,41 @@ export default function ProfilePage() {
     const updateForm = <K extends keyof ProfileSettingsFormState>(key: K, value: ProfileSettingsFormState[K]) => {
         setSaveFeedback(null);
         setFormState((previous) => ({ ...previous, [key]: value }));
+    };
+
+    const savePrivacyPreferences = async (nextPrivacyState: Pick<
+        ProfileSettingsFormState,
+        | "anonymousAnalyticsEnabled"
+        | "identifiedAnalyticsEnabled"
+        | "allowRecommendations"
+        | "showInAnonymousStats"
+        | "honorGlobalPrivacyControl"
+    >) => {
+        const response = await authFetch("/api/user/profile", {
+            method: "PUT",
+            body: JSON.stringify({
+                privacySettings: {
+                    anonymousAnalyticsEnabled: nextPrivacyState.anonymousAnalyticsEnabled,
+                    identifiedAnalyticsEnabled: nextPrivacyState.identifiedAnalyticsEnabled,
+                    allowRecommendations: nextPrivacyState.allowRecommendations,
+                    showInAnonymousStats: nextPrivacyState.showInAnonymousStats,
+                    honorGlobalPrivacyControl: nextPrivacyState.honorGlobalPrivacyControl,
+                },
+            }),
+        });
+
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(typeof result.error === "string" ? result.error : "Failed to save privacy settings.");
+        }
+
+        persistPrivacySettingsSnapshot({
+            anonymousAnalyticsEnabled: nextPrivacyState.anonymousAnalyticsEnabled,
+            identifiedAnalyticsEnabled: nextPrivacyState.identifiedAnalyticsEnabled,
+            allowRecommendations: nextPrivacyState.allowRecommendations,
+            showInAnonymousStats: nextPrivacyState.showInAnonymousStats,
+            honorGlobalPrivacyControl: nextPrivacyState.honorGlobalPrivacyControl,
+        });
     };
 
     useEffect(() => {
@@ -264,6 +341,35 @@ export default function ProfilePage() {
             toast.error("We could not enable browser notifications right now.");
         } finally {
             setNotificationSetupLoading(false);
+        }
+    };
+
+    const handleWithdrawOptionalTracking = async () => {
+        const nextState = {
+            anonymousAnalyticsEnabled: false,
+            identifiedAnalyticsEnabled: false,
+            allowRecommendations: false,
+            showInAnonymousStats: false,
+            honorGlobalPrivacyControl: formState.honorGlobalPrivacyControl,
+        };
+
+        setSaving(true);
+        setSaveFeedback(null);
+
+        try {
+            await savePrivacyPreferences(nextState);
+            setFormState((previous) => ({
+                ...previous,
+                ...nextState,
+            }));
+            setSaveFeedback("Optional tracking disabled");
+            toast.success("Optional tracking disabled.");
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : "Failed to update privacy settings.";
+            setSaveFeedback(message);
+            toast.error(message);
+        } finally {
+            setSaving(false);
         }
     };
 
@@ -529,52 +635,45 @@ export default function ProfilePage() {
                 </SectionCard>
 
                 <SectionCard title="Notifications">
-                    <div className="rounded-xl border border-white/5 bg-black/25 px-3 py-3">
-                        <div className="flex items-center justify-between gap-3">
-                            <div className="min-w-0">
-                                <p className="text-sm text-gray-100">Browser notifications</p>
-                                <p className="mt-1 text-xs leading-5 text-gray-500">
-                                    {notificationSupportMessage || "Use browser reminders for daily tasks, check-ins, and live drop alerts."}
-                                </p>
-                            </div>
-                            <Button
-                                type="button"
-                                variant={formState.browserPushEnabled ? "brand" : "glass"}
-                                onClick={() => void handleBrowserPushToggle(!formState.browserPushEnabled)}
-                                disabled={notificationSetupLoading}
-                                className="min-w-[8rem] justify-center"
-                            >
-                                {notificationSetupLoading ? (
-                                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Please wait</>
-                                ) : formState.browserPushEnabled ? (
-                                    "Enabled"
-                                ) : (
-                                    "Turn on"
-                                )}
-                            </Button>
-                        </div>
-                    </div>
+                    <ToggleRow
+                        label="Browser notifications"
+                        description={notificationSupportMessage || "Use browser reminders for daily tasks, check-ins, and live drop alerts."}
+                        checked={formState.browserPushEnabled}
+                        onChange={(value) => void handleBrowserPushToggle(value)}
+                        icon={<Bell className="h-4 w-4 text-brand-purple" />}
+                        disabled={notificationSetupLoading}
+                        badge={notificationSetupLoading ? "Setting up" : "Browser"}
+                    />
                     <ToggleRow
                         label="In-app notifications"
+                        description="Shows task, drop, and account activity alerts inside KandyDrops."
                         checked={formState.inAppEnabled}
                         onChange={(value) => updateForm("inAppEnabled", value)}
                         icon={<Bell className="h-4 w-4 text-brand-purple" />}
                     />
                     <ToggleRow
                         label="New drop alerts"
+                        description="Alerts you when new drops or creator releases become available."
                         checked={formState.newDropAlerts}
                         onChange={(value) => updateForm("newDropAlerts", value)}
                         icon={<Bell className="h-4 w-4 text-brand-purple" />}
                     />
                     <ToggleRow
                         label="Expiring soon alerts"
+                        description="Warns you before limited-time drops or tasks expire."
                         checked={formState.expiringSoonAlerts}
                         onChange={(value) => updateForm("expiringSoonAlerts", value)}
                         icon={<Bell className="h-4 w-4 text-brand-purple" />}
                     />
                 </SectionCard>
 
-                <SectionCard title="Privacy & Tracking">
+                <SectionCard title="Privacy, Tracking & Rights">
+                    <StaticSettingRow
+                        label="Strictly necessary storage"
+                        description="Always on for sign-in, security, payment confirmation, and core product functionality. This storage is required to run the site safely."
+                        icon={<Lock className="h-4 w-4 text-brand-purple" />}
+                        badge="Always on"
+                    />
                     <ToggleRow
                         label="Anonymous product analytics"
                         description="Lets KandyDrops measure page views, clicks, and drop interest without tying the data to your account."
@@ -629,12 +728,46 @@ export default function ProfilePage() {
                         description="If your browser sends a Global Privacy Control signal, KandyDrops will turn off optional analytics automatically."
                         checked={formState.honorGlobalPrivacyControl}
                         onChange={(value) => updateForm("honorGlobalPrivacyControl", value)}
+                        badge={browserGpcEnabled ? "Detected" : undefined}
                     />
                     {browserGpcEnabled ? (
                         <p className="rounded-xl border border-white/5 bg-black/25 px-3 py-2 text-xs leading-5 text-gray-400">
                             Your browser is sending a Global Privacy Control signal right now. Optional analytics stay off unless you disable the setting above.
                         </p>
                     ) : null}
+                    <div className="rounded-[1.15rem] border border-white/10 bg-black/30 px-4 py-3">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="min-w-0">
+                                <p className="flex items-center gap-2 text-sm font-medium text-gray-100">
+                                    <FileText className="h-4 w-4 text-brand-purple" />
+                                    Your privacy controls
+                                </p>
+                                <p className="mt-1 text-xs leading-5 text-gray-500">
+                                    Optional analytics stay off until you turn them on. You can withdraw consent here at any time, download your data below, or read the full privacy policy before deciding.
+                                </p>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                                <Button
+                                    type="button"
+                                    variant="glass"
+                                    onClick={() => void handleWithdrawOptionalTracking()}
+                                    disabled={saving}
+                                    className="justify-center border-white/20 hover:bg-white/10"
+                                >
+                                    Essential only
+                                </Button>
+                                <Link
+                                    href="/privacy"
+                                    className="inline-flex min-h-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+                                >
+                                    Privacy policy
+                                </Link>
+                            </div>
+                        </div>
+                        <p className="mt-3 text-[11px] leading-5 text-gray-500">
+                            Last privacy notice update: {PRIVACY_POLICY_LAST_UPDATED}. Data export is in Data &amp; Security below, and account deletion stays in the Danger Zone.
+                        </p>
+                    </div>
                 </SectionCard>
 
                 <SectionCard title="Refer a Friend">

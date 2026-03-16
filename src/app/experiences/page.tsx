@@ -69,7 +69,7 @@ export default function ExperiencesPage() {
                     </GuestComponentBlur>
                 </div>
 
-                <section className="glass-panel rounded-[2rem] border border-white/10 p-5 text-center sm:p-6">
+                <section id="gumdrops-wallet" className="glass-panel rounded-[2rem] border border-white/10 p-5 text-center sm:p-6">
                     <div className="mx-auto max-w-2xl">
                         <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl border border-brand-purple/25 bg-brand-purple/15 text-white">
                             <Wallet className="h-6 w-6" />

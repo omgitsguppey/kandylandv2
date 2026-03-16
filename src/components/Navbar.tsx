@@ -36,6 +36,11 @@ export function Navbar() {
         openProfileSidebar,
         closeProfileSidebar,
     } = useUI();
+    const homeHref = user
+        ? userProfile?.role === "admin"
+            ? "/admin"
+            : "/dashboard"
+        : "/";
 
     return (
         <>
@@ -48,9 +53,9 @@ export function Navbar() {
                     style={{ WebkitBackdropFilter: "blur(20px)" }}
                 >
                     <Link
-                        href="/"
+                        href={homeHref}
                         onClick={() => {
-                            trackEvent("navigation_click", { destination: "/", source: "navbar_logo" });
+                            trackEvent("navigation_click", { destination: homeHref, source: "navbar_logo" });
                         }}
                         className="shrink-0 bg-gradient-to-r from-brand-purple to-brand-purple bg-clip-text text-base font-bold text-transparent sm:text-2xl"
                     >

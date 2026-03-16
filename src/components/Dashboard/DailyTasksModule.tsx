@@ -34,6 +34,7 @@ import {
 } from "@/lib/tasks/task-catalog";
 import { getCSTDayBoundaries } from "@/lib/timezone";
 import { trackEvent } from "@/lib/telemetry";
+import { createTaskGuidanceState, getTaskDestinationHref } from "@/lib/task-guidance";
 
 type FeedbackCategory = "general" | "feature_request" | "bug_report" | "creator_request";
 
@@ -225,6 +226,19 @@ export function DailyTasksModule() {
     window.dispatchEvent(new Event("kandydrops:open-notifications"));
   };
 
+  const activateTaskGuidance = useCallback((task: DailyTaskAssignment) => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.dispatchEvent(new CustomEvent("kandydrops:task-guidance", {
+      detail: {
+        type: "activate",
+        guidance: createTaskGuidanceState(task),
+      },
+    }));
+  }, []);
+
   const handleEnableNotifications = async () => {
     if (!user || !userProfile) {
       return;
@@ -263,19 +277,20 @@ export function DailyTasksModule() {
       task_id: task.id,
       action_type: task.actionType,
     });
+    activateTaskGuidance(task);
 
     switch (task.actionType) {
       case "open_dashboard":
-        router.push("/dashboard");
+        router.push(getTaskDestinationHref(task));
         return;
       case "open_drops":
-        router.push("/drops");
+        router.push(getTaskDestinationHref(task));
         return;
       case "open_experiences":
-        router.push("/experiences");
+        router.push(getTaskDestinationHref(task));
         return;
       case "open_library":
-        router.push("/dashboard/library");
+        router.push(getTaskDestinationHref(task));
         return;
       case "open_notifications":
         openNotifications();
@@ -424,7 +439,7 @@ export function DailyTasksModule() {
         </div>
       ) : null}
 
-      <section className="glass-panel rounded-[2rem] border border-white/10 p-4 sm:p-5">
+      <section id="daily-tasks" className="glass-panel rounded-[2rem] border border-white/10 p-4 sm:p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/30 bg-brand-purple/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">

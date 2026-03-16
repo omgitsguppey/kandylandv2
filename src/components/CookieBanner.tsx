@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { readPrivacySettingsSnapshot, saveGuestAnalyticsConsent } from "@/lib/privacy-consent";
@@ -75,10 +76,16 @@ export default function CookieBanner() {
                             Privacy
                         </p>
                         <p className="truncate text-[10px] leading-5 text-gray-100">
-                            Choose whether KandyDrops can use analytics to improve the experience.
+                            Essential storage stays on for sign-in and security. Optional analytics are your choice.
                         </p>
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
+                        <Link
+                            href="/privacy"
+                            className="inline-flex min-h-8 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-2.5 py-2 text-[10px] font-bold text-white transition-opacity hover:opacity-90"
+                        >
+                            Policy
+                        </Link>
                         <button
                             type="button"
                             onClick={() => void handleConsent(false)}
@@ -102,7 +109,13 @@ export default function CookieBanner() {
                             Privacy
                         </p>
                         <p className="mt-1 text-sm leading-6 text-gray-100">
-                            We use essential storage for sign-in and security. Optional analytics help improve KandyDrops.
+                            We use essential storage for sign-in and security. Optional analytics help improve KandyDrops and stay off unless you allow them.
+                        </p>
+                        <p className="mt-2 text-xs leading-5 text-gray-400">
+                            You can change this later in Settings, and the full notice is always available in our{" "}
+                            <Link href="/privacy" className="text-brand-purple hover:underline">
+                                privacy policy
+                            </Link>.
                         </p>
                     </div>
                     <div className="flex gap-2">

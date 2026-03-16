@@ -132,6 +132,9 @@ export function normalizeUserProfile(raw: unknown, user: User): UserProfile | nu
             consentUpdatedAt: Number.isFinite(source.privacySettings?.consentUpdatedAt)
                 ? Number(source.privacySettings?.consentUpdatedAt)
                 : undefined,
+            privacyPolicyVersion: typeof source.privacySettings?.privacyPolicyVersion === "string"
+                ? source.privacySettings.privacyPolicyVersion
+                : undefined,
         },
         accountSettings: {
             timezone: typeof source.accountSettings?.timezone === "string" && source.accountSettings.timezone.trim().length > 0

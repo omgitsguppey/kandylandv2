@@ -27,12 +27,6 @@ const SECURITY_REASON_MAP: Record<string, Omit<SecurityEventDescriptor, "reason"
     locationLabel: "Protected viewer",
     severity: "medium",
   },
-  window_blur: {
-    label: "Viewer lost focus",
-    message: "The protected viewer was pushed into the background or switched away from while content was open.",
-    locationLabel: "Protected viewer",
-    severity: "low",
-  },
 };
 
 export function describeSecurityEvent(reason: string | null | undefined): SecurityEventDescriptor {
