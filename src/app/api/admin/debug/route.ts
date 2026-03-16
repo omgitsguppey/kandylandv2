@@ -50,6 +50,21 @@ function normalizeTaskIds(rawTasks: unknown) {
         .filter((task) => task.id.length > 0);
 }
 
+function hasInvalidRefreshMetadata(state: Record<string, unknown> | undefined, nowMs: number) {
+    const nextRefreshMs = toNumber(state?.nextRefreshMs);
+    const lastResetMs = toNumber(state?.lastResetMs);
+
+    if (nextRefreshMs <= 0) {
+        return true;
+    }
+
+    if (lastResetMs > nowMs) {
+        return true;
+    }
+
+    return lastResetMs > 0 && nextRefreshMs <= lastResetMs;
+}
+
 export async function GET(request: NextRequest) {
     try {
         await checkRateLimit(request, "admin/debug", ADMIN);
@@ -116,8 +131,8 @@ export async function GET(request: NextRequest) {
             if (tasks.some((task) => task.progress > 0 && !task.assignedAt)) {
                 issues.push("Progressed task missing assignedAt");
             }
-            if (toNumber(dailyTasksState?.nextRefreshMs) > 0 && toNumber(dailyTasksState?.nextRefreshMs) < nowMs && tasks.length > 0) {
-                issues.push("Past refresh deadline while tasks remain assigned");
+            if (tasks.length > 0 && hasInvalidRefreshMetadata(dailyTasksState, nowMs)) {
+                issues.push("Invalid refresh metadata for assigned tasks");
             }
 
             if (issues.length === 0) {

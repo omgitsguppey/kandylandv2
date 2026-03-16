@@ -724,29 +724,35 @@ export async function recordDailyTaskProgressFromEvent(
   const userRef = adminDb.collection("users").doc(uid);
   const definitions = await resolveTaskDefinitionsForUser(uid);
   const definitionMap = createDefinitionMap(definitions);
+  const receiptRef = options?.source === "canonical" && options.receiptKey
+    ? adminDb.collection(TASK_RECEIPT_COLLECTION).doc(
+      buildTaskReceiptDocId(uid, eventName, options.receiptKey),
+    )
+    : null;
 
   await adminDb.runTransaction(async (transaction) => {
-    if (options?.source === "canonical" && options.receiptKey) {
-      const receiptRef = adminDb.collection(TASK_RECEIPT_COLLECTION).doc(
-        buildTaskReceiptDocId(uid, eventName, options.receiptKey),
-      );
-      const existingReceipt = await transaction.get(receiptRef);
-      if (existingReceipt.exists) {
-        return;
-      }
+    let existingReceipt: FirebaseFirestore.DocumentSnapshot | null = null;
+    if (receiptRef) {
+      existingReceipt = await transaction.get(receiptRef);
+    }
 
+    const snapshot = await transaction.get(userRef);
+
+    if (existingReceipt?.exists) {
+      return;
+    }
+
+    if (receiptRef) {
       transaction.set(receiptRef, {
         uid,
         eventName,
-        receiptKey: options.receiptKey,
+        receiptKey: options?.receiptKey ?? eventName,
         params: eventParams ?? {},
         createdAt: FieldValue.serverTimestamp(),
         timestamp: Date.now(),
         source: "canonical",
       });
     }
-
-    const snapshot = await transaction.get(userRef);
     if (!snapshot.exists) {
       return;
     }

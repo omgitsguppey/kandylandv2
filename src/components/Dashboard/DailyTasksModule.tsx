@@ -80,7 +80,7 @@ export function DailyTasksModule() {
   const [nowMs, setNowMs] = useState(Date.now());
   const [localTaskState, setLocalTaskState] = useState<DailyTasksState | null>(null);
   const [expandedTaskIds, setExpandedTaskIds] = useState<string[]>([]);
-  const lastRotationRef = useRef<number>(0);
+  const lastSuccessfulRefreshRef = useRef<number>(0);
 
   useEffect(() => {
     const timerId = window.setInterval(() => {
@@ -188,16 +188,17 @@ export function DailyTasksModule() {
   }, [rotateTasks, userProfile?.uid]);
 
   useEffect(() => {
-    if (!userProfile?.uid || nowMs < nextRefreshMs || lastRotationRef.current === nextRefreshMs) {
+    if (!userProfile?.uid || nowMs < nextRefreshMs || rotating || lastSuccessfulRefreshRef.current === nextRefreshMs) {
       return;
     }
-
-    lastRotationRef.current = nextRefreshMs;
     let cancelled = false;
 
     async function rotateTasksAfterDeadline() {
       try {
         await rotateTasks();
+        if (!cancelled) {
+          lastSuccessfulRefreshRef.current = nextRefreshMs;
+        }
       } catch (error) {
         if (!cancelled) {
           console.error("Task rotation failed", error);
@@ -210,7 +211,7 @@ export function DailyTasksModule() {
     return () => {
       cancelled = true;
     };
-  }, [nextRefreshMs, nowMs, rotateTasks, userProfile?.uid]);
+  }, [nextRefreshMs, nowMs, rotateTasks, rotating, userProfile?.uid]);
 
   const toggleTaskExpanded = (taskId: string) => {
     setExpandedTaskIds((current) => (

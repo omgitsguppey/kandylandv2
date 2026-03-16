@@ -258,14 +258,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, drops: dropsToCredit, duplicate: true }, { status: 200 });
     }
 
-    await recordCanonicalTaskEvent(userId, result.username ?? caller.email ?? userId, "gumdrops_purchase_completed", {
-      package_drops: dropsToCredit,
-      purchase_value: paidUsd,
-      bundle_key: bundlePresentation.bundleKey,
-      bundle_tier: bundlePresentation.bundleTier,
-      bonus_gumdrops: economics.bonusGumDrops,
-      order_id: orderId,
-    });
+    try {
+      await recordCanonicalTaskEvent(userId, result.username ?? caller.email ?? userId, "gumdrops_purchase_completed", {
+        package_drops: dropsToCredit,
+        purchase_value: paidUsd,
+        bundle_key: bundlePresentation.bundleKey,
+        bundle_tier: bundlePresentation.bundleTier,
+        bonus_gumdrops: economics.bonusGumDrops,
+        order_id: orderId,
+      });
+    } catch (taskEventError) {
+      console.error("Purchase completed but daily task progress sync failed", taskEventError);
+    }
 
     return NextResponse.json({ success: true, drops: dropsToCredit });
   } catch (error) {

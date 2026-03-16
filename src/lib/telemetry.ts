@@ -1,6 +1,7 @@
 import { auth } from "./firebase";
 import { authFetch } from "./authFetch";
 import { canUseAnonymousAnalytics, canUseIdentifiedAnalytics, readPrivacySettingsSnapshot } from "./privacy-consent";
+import { BUILT_IN_DAILY_TASKS } from "./tasks/task-catalog";
 
 /**
  * Fire-and-forget telemetry tracking.
@@ -10,6 +11,7 @@ const FLOW_STORAGE_KEY = "kandydrops.telemetry.flows";
 const SESSION_STORAGE_KEY = "kandydrops.telemetry.session";
 
 type SanitizedEventParams = Record<string, string | number | boolean>;
+const TASK_PROGRESS_EVENT_NAMES = new Set(BUILT_IN_DAILY_TASKS.map((task) => task.eventName));
 
 function sanitizeEventParams(eventParams?: Record<string, unknown>) {
     if (!eventParams) {
@@ -163,7 +165,9 @@ export function trackEvent(eventName: string, eventParams?: Record<string, unkno
     const privacySettings = readPrivacySettingsSnapshot();
     const allowAnonymousAnalytics = canUseAnonymousAnalytics(privacySettings);
     const allowIdentifiedAnalytics = canUseIdentifiedAnalytics(privacySettings);
-    if (!allowAnonymousAnalytics && !allowIdentifiedAnalytics) {
+    const shouldSyncTaskProgress = TASK_PROGRESS_EVENT_NAMES.has(eventName);
+
+    if (!allowAnonymousAnalytics && !allowIdentifiedAnalytics && !shouldSyncTaskProgress) {
         return;
     }
 
@@ -173,11 +177,11 @@ export function trackEvent(eventName: string, eventParams?: Record<string, unkno
         window.gtag("event", eventName, enrichedParams);
     }
 
-    if (!auth.currentUser || !allowIdentifiedAnalytics) {
+    if (!auth.currentUser || (!allowIdentifiedAnalytics && !shouldSyncTaskProgress)) {
         return;
     }
 
-    // We don't await this because telemetry should never block UI.
+    // We don't await this because analytics/task syncing should never block UI.
     authFetch("/api/telemetry/track", {
         method: "POST",
         body: JSON.stringify({ eventName, eventParams: enrichedParams }),

@@ -361,7 +361,7 @@ export default function DebugConsole() {
                     </div>
                 </SectionCard>
 
-                <SectionCard title="5. Assignment Integrity" subtitle="Users whose task state needs repair, including duplicate IDs, wrong counts, or stale refresh timers." icon={Bug}>
+                <SectionCard title="5. Assignment Integrity" subtitle="Users whose task state needs repair, including duplicate IDs, wrong counts, or invalid refresh metadata." icon={Bug}>
                     <div className="space-y-3">
                         {(data?.assignmentIssues ?? []).length > 0 ? (data?.assignmentIssues ?? []).map((item) => (
                             <div key={item.uid} className="rounded-2xl border border-white/8 bg-black/25 p-4">

@@ -93,12 +93,16 @@ export async function POST(request: NextRequest) {
             }, { status: 409 });
         }
 
-        await recordCanonicalTaskEvent(userId, result.username ?? caller.email ?? userId, "daily_check_in_claim", {
-            reward: result.reward,
-            streak_count: result.nextStreak,
-            day_key: new Date(result.lastCheckIn).toISOString().slice(0, 10),
-            transaction_id: `${userId}:checkin:${result.lastCheckIn}`,
-        });
+        try {
+            await recordCanonicalTaskEvent(userId, result.username ?? caller.email ?? userId, "daily_check_in_claim", {
+                reward: result.reward,
+                streak_count: result.nextStreak,
+                day_key: new Date(result.lastCheckIn).toISOString().slice(0, 10),
+                transaction_id: `${userId}:checkin:${result.lastCheckIn}`,
+            });
+        } catch (taskEventError) {
+            console.error("Check-in completed but daily task progress sync failed", taskEventError);
+        }
 
         return NextResponse.json({
             success: true,

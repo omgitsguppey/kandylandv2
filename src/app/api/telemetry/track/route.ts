@@ -8,9 +8,11 @@ import { checkRateLimit, RELAXED } from "@/lib/server/rate-limit";
 import { hasTrustedSiteOrigin } from "@/lib/server/request-origin";
 import { getDropReferenceMap, resolveDropTitle } from "@/lib/server/drop-references";
 import { profileAllowsIdentifiedAnalytics, requestHasGlobalPrivacyControl } from "@/lib/server/privacy-consent";
+import { BUILT_IN_DAILY_TASKS } from "@/lib/tasks/task-catalog";
 import { UserProfile } from "@/types/db";
 
 const ALLOWED_EVENT_NAMES = new Set(TELEMETRY_EVENT_NAMES);
+const TASK_PROGRESS_EVENT_NAMES = new Set(BUILT_IN_DAILY_TASKS.map((task) => task.eventName));
 type SanitizedEventParams = Record<string, string | number | boolean>;
 
 function buildTimeKeys(timestamp: number) {
@@ -95,17 +97,31 @@ export async function POST(req: NextRequest) {
         }
 
         const sanitizedEventParams = sanitizeEventParams(eventParams);
+        const canAdvanceTaskProgress = TASK_PROGRESS_EVENT_NAMES.has(eventName) && !CANONICAL_TASK_EVENT_NAMES.has(eventName);
 
         const realtimeDb = admin.database();
         const profileSnapshot = await adminDb.collection("users").doc(userId).get();
         const profileData = profileSnapshot.data();
         const userProfile = (profileData as UserProfile | undefined) ?? null;
 
-        if (!profileAllowsIdentifiedAnalytics(userProfile, req)) {
-            return NextResponse.json({ success: true, logged: false, reason: "identified_analytics_disabled" });
+        const username = profileData?.username || profileData?.displayName || decodedToken.email || "Unknown Collector";
+        const allowIdentifiedAnalytics = profileAllowsIdentifiedAnalytics(userProfile, req);
+
+        if (!allowIdentifiedAnalytics) {
+            if (canAdvanceTaskProgress) {
+                await recordDailyTaskProgressFromEvent(userId, username, eventName, sanitizedEventParams, {
+                    source: "telemetry",
+                });
+            }
+
+            return NextResponse.json({
+                success: true,
+                logged: false,
+                progressedTask: canAdvanceTaskProgress,
+                reason: "identified_analytics_disabled",
+            });
         }
 
-        const username = profileData?.username || profileData?.displayName || decodedToken.email || "Unknown Collector";
         const nowMs = Date.now();
         const timeKeys = buildTimeKeys(nowMs);
         const pagePath = getStringParam(sanitizedEventParams, "page_path");
@@ -172,7 +188,7 @@ export async function POST(req: NextRequest) {
         await userEventsRef.push(telemetryData);
         await adminDb.collection("analytics_event_facts").add(analyticsEventFact);
 
-        const taskProgressPromise = CANONICAL_TASK_EVENT_NAMES.has(eventName)
+        const taskProgressPromise = !canAdvanceTaskProgress
             ? Promise.resolve()
             : recordDailyTaskProgressFromEvent(userId, username, eventName, sanitizedEventParams, {
                 source: "telemetry",
