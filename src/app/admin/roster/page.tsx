@@ -129,6 +129,11 @@ export default function AdminRosterPage() {
             if (!response.ok) {
                 throw new Error(typeof result.error === "string" ? result.error : "Failed to update role");
             }
+            setUsers((current) => current.map((entry) => (
+                entry.uid === uid
+                    ? { ...entry, role }
+                    : entry
+            )));
             toast.success(`Role updated to ${role}`);
         } catch (updateError) {
             console.error("Role update failed", updateError);

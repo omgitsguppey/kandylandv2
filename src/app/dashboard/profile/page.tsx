@@ -452,16 +452,24 @@ export default function ProfilePage() {
             await uploadBytes(storageRef, file);
             const downloadUrl = await getDownloadURL(storageRef);
 
+            const response = await authFetch("/api/user/profile", {
+                method: "POST",
+                body: JSON.stringify({ photoURL: downloadUrl }),
+            });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(typeof result?.error === "string" ? result.error : "Failed to sync avatar.");
+            }
+
             await updateProfile(user, { photoURL: downloadUrl });
 
-            toast.success("Avatar updated successfully! Refreshing...");
+            toast.success("Avatar updated successfully.");
 
             // Revalidate SWR caches globally instead of doing a hard reload
-            setTimeout(() => {
-                mutate(() => true, undefined, { revalidate: true });
-            }, 500);
-        } catch (error: any) {
-            toast.error("Failed to upload avatar: " + error.message);
+            mutate(() => true, undefined, { revalidate: true });
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : "Failed to upload avatar.";
+            toast.error(`Failed to upload avatar: ${message}`);
         } finally {
             setIsUploadingAvatar(false);
         }

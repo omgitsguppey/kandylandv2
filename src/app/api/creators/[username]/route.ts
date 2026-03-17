@@ -34,6 +34,15 @@ export async function GET(
 
         const creatorDoc = creatorSnapshot.docs[0];
         const creatorRaw = creatorDoc.data() as Record<string, unknown>;
+        const creatorRole = creatorRaw.role;
+        const creatorStatus = creatorRaw.status;
+        const isPublicCreator = creatorRole === "creator" || creatorRole === "admin";
+        const isPublicStatus = creatorStatus === undefined || creatorStatus === "active";
+
+        if (!isPublicCreator || !isPublicStatus) {
+            return NextResponse.json({ error: "Creator not found" }, { status: 404 });
+        }
+
         const creator = {
             uid: creatorDoc.id,
             displayName: typeof creatorRaw.displayName === "string" ? creatorRaw.displayName : "Creator",

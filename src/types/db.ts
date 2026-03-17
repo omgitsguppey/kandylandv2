@@ -101,7 +101,7 @@ export interface Transaction {
     id: string;
     userId: string;
     amount: number;
-    type: 'purchase_currency' | 'unlock_content' | 'admin_adjustment' | 'daily_reward';
+    type: 'purchase_currency' | 'unlock_content' | 'admin_adjustment' | 'daily_reward' | 'referral_bonus';
     relatedDropId?: string; // If unlocking content
     description: string;
     timestamp: number | Record<string, unknown>; // Firestore Timestamp or number

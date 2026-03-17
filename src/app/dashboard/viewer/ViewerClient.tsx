@@ -1061,7 +1061,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                     You do not own this drop. Please purchase it from the marketplace to unlock this content.
                 </p>
                 <Link
-                    href="/"
+                    href="/drops"
                     className="px-6 py-3 rounded-full bg-white text-black font-bold transition-colors"
                 >
                     Go to Marketplace

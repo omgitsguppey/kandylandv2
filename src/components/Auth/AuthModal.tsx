@@ -43,6 +43,8 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
     const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
     const [usernameTouched, setUsernameTouched] = useState(false);
     const wasOpenRef = useRef(false);
+    const suggestionRequestRef = useRef(0);
+    const availabilityRequestRef = useRef(0);
 
     useEffect(() => {
         if (isOpen && !wasOpenRef.current) {
@@ -93,6 +95,8 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
         setCheckingUsername(false);
         setUsernameAvailable(null);
         setUsernameTouched(false);
+        suggestionRequestRef.current += 1;
+        availabilityRequestRef.current += 1;
     }, [clearErrors, initialMode, isOpen, reset]);
 
     const watchedEmail = watch("email");
@@ -100,27 +104,32 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
 
     useEffect(() => {
         if (!isOpen || mode !== "signup" || usernameTouched || !watchedEmail) {
+            suggestionRequestRef.current += 1;
             return;
         }
 
+        const requestId = suggestionRequestRef.current + 1;
+        suggestionRequestRef.current = requestId;
         const timer = setTimeout(async () => {
-            setCheckingUsername(true);
             try {
                 const params = new URLSearchParams({
                     mode: "suggest",
                     email: watchedEmail,
                     uid: "guest",
                 });
-                const response = await fetch(`/api/user/check-username?${params.toString()}`);
+                const response = await fetch(`/api/user/check-username?${params.toString()}`, { cache: "no-store" });
                 const result = await response.json();
-                if (response.ok && typeof result.suggestedUsername === "string" && !usernameTouched) {
+                if (
+                    requestId === suggestionRequestRef.current
+                    && response.ok
+                    && typeof result.suggestedUsername === "string"
+                    && !usernameTouched
+                ) {
                     setValue("username", result.suggestedUsername, { shouldValidate: true, shouldDirty: false });
                     setUsernameAvailable(true);
                 }
             } catch (error) {
                 console.error(error);
-            } finally {
-                setCheckingUsername(false);
             }
         }, 250);
 
@@ -129,19 +138,29 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
 
     useEffect(() => {
         if (mode !== "signup") {
+            availabilityRequestRef.current += 1;
+            setCheckingUsername(false);
             return;
         }
 
         if (!watchedUsername || watchedUsername.length < 3) {
+            availabilityRequestRef.current += 1;
             setUsernameAvailable(null);
+            setCheckingUsername(false);
             return;
         }
 
+        const requestId = availabilityRequestRef.current + 1;
+        availabilityRequestRef.current = requestId;
         const timer = setTimeout(async () => {
             setCheckingUsername(true);
             try {
-                const response = await fetch(`/api/user/check-username?username=${encodeURIComponent(watchedUsername)}`);
+                const response = await fetch(`/api/user/check-username?username=${encodeURIComponent(watchedUsername)}`, { cache: "no-store" });
                 const result = await response.json();
+                if (requestId !== availabilityRequestRef.current) {
+                    return;
+                }
+
                 setUsernameAvailable(Boolean(result.available));
                 if (response.ok && typeof result.normalized === "string" && result.normalized !== watchedUsername && !usernameTouched) {
                     setValue("username", result.normalized, { shouldValidate: true, shouldDirty: false });
@@ -149,7 +168,9 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
             } catch (error) {
                 console.error(error);
             } finally {
-                setCheckingUsername(false);
+                if (requestId === availabilityRequestRef.current) {
+                    setCheckingUsername(false);
+                }
             }
         }, 350);
 
@@ -157,6 +178,10 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
     }, [mode, setValue, usernameTouched, watchedUsername]);
 
     const switchMode = (newMode: AuthMode) => {
+        suggestionRequestRef.current += 1;
+        availabilityRequestRef.current += 1;
+        setCheckingUsername(false);
+        setUsernameAvailable(null);
         setMode(newMode);
         setAuthError(null);
         setResetSent(false);

@@ -1,5 +1,6 @@
 import { Drop } from "@/types/db";
 import { authFetch } from "@/lib/authFetch";
+import { auth } from "@/lib/firebase";
 import { ArrowUpRight } from "lucide-react";
 
 import NextImage from "next/image";
@@ -10,11 +11,21 @@ interface PromoCardProps {
 
 export function PromoCard({ drop }: PromoCardProps) {
     const handleClick = () => {
+        const endpoint = `/api/drops/${encodeURIComponent(drop.id)}/click`;
+
         // Track click server-side (fire-and-forget)
-        authFetch("/api/drops/track", {
-            method: "POST",
-            body: JSON.stringify({ dropId: drop.id }),
-        }).catch(() => { });
+        const request = auth.currentUser
+            ? authFetch(endpoint, {
+                method: "POST",
+                keepalive: true,
+            })
+            : fetch(endpoint, {
+                method: "POST",
+                keepalive: true,
+                credentials: "same-origin",
+            });
+
+        request.catch(() => { });
     };
 
     return (

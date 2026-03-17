@@ -9,7 +9,7 @@ type TimestampLike = {
   _nanoseconds?: number;
 };
 
-const transactionTypeSchema = z.enum(["purchase_currency", "unlock_content", "admin_adjustment", "daily_reward"]);
+const transactionTypeSchema = z.enum(["purchase_currency", "unlock_content", "admin_adjustment", "daily_reward", "referral_bonus"]);
 
 const transactionRecordSchema = z.object({
   userId: z.string().min(1),
@@ -80,6 +80,10 @@ function normalizeType(rawType: string): z.infer<typeof transactionTypeSchema> {
 
   if (rawType === "daily_reward") {
     return "daily_reward";
+  }
+
+  if (rawType === "referral_bonus") {
+    return "referral_bonus";
   }
 
   if (rawType === "purchase_currency" || rawType === "unlock_content" || rawType === "admin_adjustment") {

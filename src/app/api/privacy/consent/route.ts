@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { checkRateLimit, STANDARD } from "@/lib/server/rate-limit";
+import { checkRateLimit, STANDARD, RateLimitError, buildRateLimitResponse } from "@/lib/server/rate-limit";
 import { hasTrustedSiteOrigin } from "@/lib/server/request-origin";
+import { handleApiError } from "@/lib/server/auth";
 import { ANALYTICS_CONSENT_COOKIE } from "@/lib/privacy-consent";
 
 const ConsentSchema = z.object({
@@ -30,7 +31,14 @@ export async function POST(request: NextRequest) {
         });
 
         return response;
-    } catch {
-        return NextResponse.json({ error: "Invalid consent payload" }, { status: 400 });
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            return NextResponse.json({ error: "Invalid consent payload" }, { status: 400 });
+        }
+        if (error instanceof RateLimitError) {
+            return buildRateLimitResponse(error);
+        }
+
+        return handleApiError(error, "Privacy.Consent.POST");
     }
 }

@@ -474,6 +474,10 @@ export default function AdminUserAnalyticsPage() {
                                                 <span className="rounded-md border border-brand-purple/20 bg-brand-purple/10 px-2 py-0.5 text-xs font-bold text-brand-purple">
                                                     ${((transaction.grossRevenueUsd ?? transaction.cost ?? 0)).toFixed(2)}
                                                 </span>
+                                            ) : Number.isFinite(transaction.amount) && transaction.amount !== 0 ? (
+                                                <span className="rounded-md border border-white/10 bg-black/25 px-2 py-0.5 text-xs font-bold text-gray-300">
+                                                    {transaction.amount > 0 ? "+" : ""}{transaction.amount} GD
+                                                </span>
                                             ) : (
                                                 <span className="text-xs font-bold text-gray-400">Log</span>
                                             )}
