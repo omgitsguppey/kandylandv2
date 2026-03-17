@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { verifyAuth, handleApiError } from "@/lib/server/auth";
-import { checkRateLimit, STRICT } from "@/lib/server/rate-limit";
+import { handleApiError } from "@/lib/server/auth";
+import { STRICT } from "@/lib/server/rate-limit";
 import * as admin from "firebase-admin";
 import { getTelemetryEventOption, TELEMETRY_EVENT_INDEX_VERSION } from "@/lib/telemetry-catalog";
+import { buildAnalyticsTimeKeys } from "@/lib/server/analytics-event-utils";
+import { guardApiRequest } from "@/lib/server/request-guard";
 
 type OnboardingStepMetricInput = {
     stepId: string;
@@ -15,21 +17,6 @@ type OnboardingStepMetricInput = {
     durationMs: number;
     completionReason: string;
 };
-
-function buildTimeKeys(timestamp: number) {
-    const date = new Date(timestamp);
-    const year = date.getUTCFullYear();
-    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-    const day = String(date.getUTCDate()).padStart(2, "0");
-    const hour = String(date.getUTCHours()).padStart(2, "0");
-    const minute = String(date.getUTCMinutes()).padStart(2, "0");
-
-    return {
-        dayKey: `${year}-${month}-${day}`,
-        hourKey: `${year}-${month}-${day}T${hour}`,
-        minuteKey: `${year}-${month}-${day}T${hour}:${minute}`,
-    };
-}
 
 function toNumber(value: unknown) {
     return typeof value === "number" && Number.isFinite(value) ? Math.round(value) : 0;
@@ -92,7 +79,7 @@ function buildAnalyticsEventFact(params: {
     eventParams?: Record<string, string | number | boolean>;
 }) {
     const { option } = getTelemetryEventOption(params.eventName);
-    const timeKeys = buildTimeKeys(params.timestamp);
+    const timeKeys = buildAnalyticsTimeKeys(params.timestamp);
 
     return {
         source: "authenticated_server",
@@ -129,9 +116,17 @@ function buildAnalyticsEventFact(params: {
 
 export async function POST(req: NextRequest) {
     try {
-        await checkRateLimit(req, "user/complete-onboarding", STRICT);
-        const decodedToken = await verifyAuth(req);
-        const { uid } = decodedToken;
+        const caller = await guardApiRequest(req, {
+            routeName: "user/complete-onboarding",
+            rateLimit: STRICT,
+            requireTrustedOrigin: true,
+            auth: "user",
+            scopeToCaller: true,
+        });
+        if (!caller) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+        const { uid } = caller;
         const body = await req.json().catch(() => ({}));
         const startedAtMs = Math.max(0, toNumber(body?.startedAtMs));
         const durationMs = typeof body?.durationMs === "number" && Number.isFinite(body.durationMs) && body.durationMs > 0
@@ -206,7 +201,7 @@ export async function POST(req: NextRequest) {
                 ? userData.username.trim()
                 : typeof userData?.displayName === "string" && userData.displayName.trim().length > 0
                     ? userData.displayName.trim()
-                    : decodedToken.email || uid;
+                    : caller.email || uid;
 
             transaction.set(analyticsEventRef, buildAnalyticsEventFact({
                 eventName: "guided_onboarding_completed",

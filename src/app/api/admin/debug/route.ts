@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { adminDb } from "@/lib/server/firebase-admin";
-import { verifyAdmin, handleApiError } from "@/lib/server/auth";
-import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
+import { handleApiError } from "@/lib/server/auth";
+import { ADMIN } from "@/lib/server/rate-limit";
 import { BUILT_IN_DAILY_TASKS, DAILY_TASK_LIMIT, type DailyTaskAssignment } from "@/lib/tasks/task-catalog";
 import { CANONICAL_TASK_EVENT_NAMES } from "@/lib/server/daily-tasks";
 import { TELEMETRY_EVENT_LABELS, TELEMETRY_EVENT_NAMES } from "@/lib/telemetry-catalog";
+import { guardApiRequest } from "@/lib/server/request-guard";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -67,8 +68,11 @@ function hasInvalidRefreshMetadata(state: Record<string, unknown> | undefined, n
 
 export async function GET(request: NextRequest) {
     try {
-        await checkRateLimit(request, "admin/debug", ADMIN);
-        await verifyAdmin(request);
+        await guardApiRequest(request, {
+            routeName: "admin/debug",
+            rateLimit: ADMIN,
+            auth: "admin",
+        });
 
         const nowMs = Date.now();
         const weekAgoMs = nowMs - ONE_WEEK_MS;

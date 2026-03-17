@@ -2,14 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import type { User } from "firebase/auth";
 
 import { adminDb } from "@/lib/server/firebase-admin";
-import { verifyAdmin, handleApiError } from "@/lib/server/auth";
-import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
+import { handleApiError } from "@/lib/server/auth";
+import { ADMIN } from "@/lib/server/rate-limit";
 import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 import { normalizeUserProfile } from "@/lib/user-utils";
 import { describeSecurityEvent } from "@/lib/security-events";
 import { getDropReferenceMap, resolveDropTitle } from "@/lib/server/drop-references";
 import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
 import { buildModuleCoverageReport, buildParityInsight } from "@/lib/server/analytics-parity";
+import { guardApiRequest } from "@/lib/server/request-guard";
 
 function toTimestampNumber(value: unknown): number {
     if (typeof value === "number" && Number.isFinite(value)) {
@@ -45,8 +46,11 @@ export async function GET(
     context: { params: Promise<{ userId: string }> },
 ) {
     try {
-        await checkRateLimit(request, "admin/user-detail", ADMIN);
-        await verifyAdmin(request);
+        await guardApiRequest(request, {
+            routeName: "admin/user-detail",
+            rateLimit: ADMIN,
+            auth: "admin",
+        });
 
         const { userId } = await context.params;
         const limitParam = Number(request.nextUrl.searchParams.get("limit") || 60);

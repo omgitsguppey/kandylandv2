@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { verifyAuth, handleApiError } from "@/lib/server/auth";
+import { handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 import { generateUniqueUsernameSuggestion } from "@/lib/server/username-suggestions";
-import { checkRateLimit, STRICT } from "@/lib/server/rate-limit";
+import { STRICT } from "@/lib/server/rate-limit";
 import { PRIVACY_POLICY_VERSION } from "@/lib/privacy-policy";
 import { trackServerEvent } from "@/lib/server/analytics";
+import { guardApiRequest } from "@/lib/server/request-guard";
+import { parseAdultDateOfBirth } from "@/lib/user-profile-validation";
 
 function normalizeRegistrationMethod(value: unknown) {
     return value === "google" ? "google" : "email";
@@ -13,8 +15,16 @@ function normalizeRegistrationMethod(value: unknown) {
 
 export async function POST(request: NextRequest) {
     try {
-        await checkRateLimit(request, "user/register", STRICT);
-        const caller = await verifyAuth(request);
+        const caller = await guardApiRequest(request, {
+            routeName: "user/register",
+            rateLimit: STRICT,
+            requireTrustedOrigin: true,
+            auth: "user",
+            scopeToCaller: true,
+        });
+        if (!caller) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
 
         if (!adminDb) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });
@@ -22,6 +32,13 @@ export async function POST(request: NextRequest) {
 
         const { username, dateOfBirth, displayName, referredBy, registrationMethod } = await request.json();
         const normalizedRegistrationMethod = normalizeRegistrationMethod(registrationMethod);
+        const parsedDob = dateOfBirth ? parseAdultDateOfBirth(dateOfBirth) : null;
+        if (parsedDob && !parsedDob.ok) {
+            return NextResponse.json(
+                { error: parsedDob.error },
+                { status: parsedDob.status ?? 400 },
+            );
+        }
 
         const userRef = adminDb.collection("users").doc(caller.uid);
         const existingSnap = await userRef.get();
@@ -36,8 +53,8 @@ export async function POST(request: NextRequest) {
                 }
             }
 
-            if (typeof dateOfBirth === "string" && dateOfBirth.trim().length > 0 && typeof existingData.dateOfBirth !== "string") {
-                profilePatch.dateOfBirth = dateOfBirth;
+            if (parsedDob?.ok && typeof existingData.dateOfBirth !== "string") {
+                profilePatch.dateOfBirth = parsedDob.value;
             }
 
             if (typeof username === "string" && username.trim().length > 0) {
@@ -69,16 +86,6 @@ export async function POST(request: NextRequest) {
             uid: caller.uid,
         });
 
-        if (dateOfBirth) {
-            const dob = new Date(dateOfBirth);
-            const ageDiff = Date.now() - dob.getTime();
-            const ageDate = new Date(ageDiff);
-            const age = Math.abs(ageDate.getUTCFullYear() - 1970);
-            if (age < 18) {
-                return NextResponse.json({ error: "Must be 18+ to join" }, { status: 403 });
-            }
-        }
-
         const newProfile: Record<string, unknown> = {
             uid: caller.uid,
             email: caller.email,
@@ -109,7 +116,7 @@ export async function POST(request: NextRequest) {
             createdAt: FieldValue.serverTimestamp(),
         };
 
-        if (dateOfBirth) newProfile.dateOfBirth = dateOfBirth;
+        if (parsedDob?.ok) newProfile.dateOfBirth = parsedDob.value;
 
         await userRef.set(newProfile, { merge: true });
 

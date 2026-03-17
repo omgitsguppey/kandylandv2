@@ -4,9 +4,9 @@ import { FieldValue } from "firebase-admin/firestore";
 import { z } from "zod";
 
 import { adminDb } from "@/lib/server/firebase-admin";
-import { checkRateLimit, RELAXED } from "@/lib/server/rate-limit";
-import { hasTrustedSiteOrigin } from "@/lib/server/request-origin";
+import { RELAXED } from "@/lib/server/rate-limit";
 import { getCSTDateKey } from "@/lib/timezone";
+import { guardApiRequest } from "@/lib/server/request-guard";
 
 const bodySchema = z.object({
   dropId: z.string().trim().min(1).max(128),
@@ -35,11 +35,11 @@ function buildImpressionReceiptId(dropId: string, dayKey: string, viewerKey: str
 
 export async function POST(request: NextRequest) {
   try {
-    await checkRateLimit(request, "drops/impression", RELAXED);
-
-    if (!hasTrustedSiteOrigin(request)) {
-      return NextResponse.json({ error: "Untrusted origin" }, { status: 403 });
-    }
+    await guardApiRequest(request, {
+      routeName: "drops/impression",
+      rateLimit: RELAXED,
+      requireTrustedOrigin: true,
+    });
 
     if (!adminDb) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 });

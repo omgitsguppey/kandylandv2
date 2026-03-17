@@ -3,19 +3,19 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { verifyAuth } from "@/lib/server/auth";
-import { checkRateLimit, RELAXED } from "@/lib/server/rate-limit";
-import { hasTrustedSiteOrigin } from "@/lib/server/request-origin";
+import { RELAXED } from "@/lib/server/rate-limit";
+import { guardApiRequest } from "@/lib/server/request-guard";
 
 export async function POST(
     request: NextRequest,
     context: { params: Promise<{ dropId: string }> }
 ) {
     try {
-        await checkRateLimit(request, "drops/click", RELAXED);
-
-        if (!hasTrustedSiteOrigin(request)) {
-            return NextResponse.json({ error: "Untrusted origin" }, { status: 403 });
-        }
+        await guardApiRequest(request, {
+            routeName: "drops/click",
+            rateLimit: RELAXED,
+            requireTrustedOrigin: true,
+        });
 
         const params = await context.params;
         const { dropId } = params;

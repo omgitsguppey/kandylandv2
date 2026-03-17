@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { checkRateLimit, STANDARD, RateLimitError, buildRateLimitResponse } from "@/lib/server/rate-limit";
-import { hasTrustedSiteOrigin } from "@/lib/server/request-origin";
+import { STANDARD } from "@/lib/server/rate-limit";
 import { handleApiError } from "@/lib/server/auth";
 import { ANALYTICS_CONSENT_COOKIE } from "@/lib/privacy-consent";
+import { guardApiRequest } from "@/lib/server/request-guard";
 
 const ConsentSchema = z.object({
     anonymousAnalyticsEnabled: z.boolean(),
@@ -11,11 +11,11 @@ const ConsentSchema = z.object({
 
 export async function POST(request: NextRequest) {
     try {
-        await checkRateLimit(request, "privacy/consent", STANDARD);
-
-        if (!hasTrustedSiteOrigin(request)) {
-            return NextResponse.json({ error: "Untrusted origin" }, { status: 403 });
-        }
+        await guardApiRequest(request, {
+            routeName: "privacy/consent",
+            rateLimit: STANDARD,
+            requireTrustedOrigin: true,
+        });
 
         const payload = ConsentSchema.parse(await request.json());
         const response = NextResponse.json({ success: true });
@@ -34,9 +34,6 @@ export async function POST(request: NextRequest) {
     } catch (error) {
         if (error instanceof z.ZodError) {
             return NextResponse.json({ error: "Invalid consent payload" }, { status: 400 });
-        }
-        if (error instanceof RateLimitError) {
-            return buildRateLimitResponse(error);
         }
 
         return handleApiError(error, "Privacy.Consent.POST");

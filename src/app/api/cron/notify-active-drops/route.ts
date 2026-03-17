@@ -2,13 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { sendTargetedDropNotification } from "@/lib/server/push-notifications";
 import { resolveDropStatusFromTiming } from "@/lib/drop-status";
-import { checkRateLimit, CRON } from "@/lib/server/rate-limit";
+import { CRON } from "@/lib/server/rate-limit";
 import { markDropsRuntimeChanged } from "@/lib/server/drop-runtime";
+import { guardApiRequest } from "@/lib/server/request-guard";
 
 // This cron job should be called frequently (e.g. every 5-15 minutes)
 export async function GET(request: NextRequest) {
     try {
-        await checkRateLimit(request, "cron/notify-active-drops", CRON);
+        await guardApiRequest(request, {
+            routeName: "cron/notify-active-drops",
+            rateLimit: CRON,
+        });
         // Enforce basic auth/cron secret in production.
         const authHeader = request.headers.get('authorization');
         if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) return NextResponse.json({error: "Unauthorized"}, {status: 401});

@@ -2,6 +2,7 @@ import { getMessaging, getToken, isSupported, onMessage } from "firebase/messagi
 
 import { app } from "./firebase";
 import { isIOSNonStandalone, isStandalone } from "./browser-utils";
+import { FIREBASE_MESSAGING_CONFIG, FIREBASE_VAPID_KEY } from "./firebase-runtime";
 
 export const APP_NOTIFICATION_ICON = "/icon-192x192.png";
 
@@ -22,14 +23,7 @@ interface BrowserNotificationAccess {
 }
 
 function buildServiceWorkerUrl() {
-    const config = {
-        apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-        messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-        appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-    };
-
-    return `/firebase-messaging-sw.js?apiKey=${config.apiKey}&projectId=${config.projectId}&messagingSenderId=${config.messagingSenderId}&appId=${config.appId}`;
+    return `/firebase-messaging-sw.js?apiKey=${FIREBASE_MESSAGING_CONFIG.apiKey}&projectId=${FIREBASE_MESSAGING_CONFIG.projectId}&messagingSenderId=${FIREBASE_MESSAGING_CONFIG.messagingSenderId}&appId=${FIREBASE_MESSAGING_CONFIG.appId}`;
 }
 
 export function getAppServiceWorkerUrl() {
@@ -114,7 +108,7 @@ export async function requestBrowserNotificationAccess(): Promise<BrowserNotific
         }
 
         const token = await getToken(messaging, {
-            vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
+            vapidKey: FIREBASE_VAPID_KEY,
             serviceWorkerRegistration: registration,
         });
 

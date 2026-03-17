@@ -1,5 +1,3 @@
-import { TELEMETRY_EVENT_NAMES } from "@/lib/telemetry-catalog";
-
 export const DAILY_TASK_LIMIT = 3;
 export const DAILY_TASK_COOLDOWN_DAYS = 7;
 export const DAILY_TASK_MIN_REWARD = 50;
@@ -809,10 +807,6 @@ export const BUILT_IN_DAILY_TASKS: DailyTaskDefinition[] = [
     uniqueByParamKey: "notification_id",
   }),
 ];
-
-export function isTrackedTelemetryEvent(eventName: string): boolean {
-  return TELEMETRY_EVENT_NAMES.includes(eventName);
-}
 
 export const BUILT_IN_DAILY_TASK_MAP = Object.fromEntries(
   BUILT_IN_DAILY_TASKS.map((task) => [task.id, task]),

@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 
 import { adminDb } from "@/lib/server/firebase-admin";
-import { verifyAdmin, handleApiError } from "@/lib/server/auth";
-import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
+import { handleApiError } from "@/lib/server/auth";
+import { ADMIN } from "@/lib/server/rate-limit";
 import { BUILT_IN_DAILY_TASK_MAP } from "@/lib/tasks/task-catalog";
 import { getDropReferenceMap } from "@/lib/server/drop-references";
 import { trackServerEvent } from "@/lib/server/analytics";
+import { guardApiRequest } from "@/lib/server/request-guard";
 
 function toTimestampNumber(value: unknown): number {
   if (typeof value === "number" && Number.isFinite(value)) {
@@ -226,8 +227,11 @@ function serializeUserDoc(id: string, raw: Record<string, unknown>) {
 
 export async function GET(request: NextRequest) {
   try {
-    await checkRateLimit(request, "admin/users", ADMIN);
-    await verifyAdmin(request);
+    await guardApiRequest(request, {
+      routeName: "admin/users",
+      rateLimit: ADMIN,
+      auth: "admin",
+    });
 
     const [usersSnapshot, analyticsSnapshot, userDailySnapshot, commerceSummarySnap] = await Promise.all([
       adminDb.collection("users").orderBy("createdAt", "desc").get(),
@@ -550,8 +554,11 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    await checkRateLimit(request, "admin/users", ADMIN);
-    await verifyAdmin(request);
+    await guardApiRequest(request, {
+      routeName: "admin/users",
+      rateLimit: ADMIN,
+      auth: "admin",
+    });
 
     const { userId, updates } = await request.json();
 
@@ -581,8 +588,11 @@ export async function PUT(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    await checkRateLimit(request, "admin/users", ADMIN);
-    await verifyAdmin(request);
+    await guardApiRequest(request, {
+      routeName: "admin/users",
+      rateLimit: ADMIN,
+      auth: "admin",
+    });
 
     const { userId, action, dropId } = await request.json();
 

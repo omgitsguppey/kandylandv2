@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { verifyAuth, handleApiError } from "@/lib/server/auth";
+import { handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { checkRateLimit, RELAXED } from "@/lib/server/rate-limit";
+import { RELAXED } from "@/lib/server/rate-limit";
+import { guardApiRequest } from "@/lib/server/request-guard";
 
 function serializeForExport(value: unknown): unknown {
     if (value === null || value === undefined) {
@@ -44,9 +45,16 @@ async function exportQueryDocs(query: FirebaseFirestore.Query<FirebaseFirestore.
 
 export async function GET(request: NextRequest) {
     try {
-        await checkRateLimit(request, "user/data", RELAXED);
-        const authResult = await verifyAuth(request);
-        const { uid, email } = authResult;
+        const caller = await guardApiRequest(request, {
+            routeName: "user/data",
+            rateLimit: RELAXED,
+            auth: "user",
+            scopeToCaller: true,
+        });
+        if (!caller) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+        const { uid, email } = caller;
 
         if (!adminDb) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });

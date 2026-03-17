@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { checkRateLimit, RELAXED } from "@/lib/server/rate-limit";
+import { RELAXED } from "@/lib/server/rate-limit";
 import { handleApiError } from "@/lib/server/auth";
 import { checkUsernameAvailability, generateUniqueUsernameSuggestion } from "@/lib/server/username-suggestions";
+import { guardApiRequest } from "@/lib/server/request-guard";
 
 export async function GET(request: NextRequest) {
     try {
-        await checkRateLimit(request, "user/check-username", RELAXED);
+        await guardApiRequest(request, {
+            routeName: "user/check-username",
+            rateLimit: RELAXED,
+        });
         const username = request.nextUrl.searchParams.get("username");
         const displayName = request.nextUrl.searchParams.get("displayName");
         const email = request.nextUrl.searchParams.get("email");

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { adminDb } from "@/lib/server/firebase-admin";
-import { verifyAdmin, handleApiError } from "@/lib/server/auth";
-import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
+import { handleApiError } from "@/lib/server/auth";
+import { ADMIN } from "@/lib/server/rate-limit";
+import { guardApiRequest } from "@/lib/server/request-guard";
 
 function toTimestampNumber(value: unknown): number {
     if (typeof value === "number" && Number.isFinite(value)) {
@@ -23,8 +24,11 @@ function toTimestampNumber(value: unknown): number {
 
 export async function GET(request: NextRequest) {
     try {
-        await checkRateLimit(request, "admin/feedback", ADMIN);
-        await verifyAdmin(request);
+        await guardApiRequest(request, {
+            routeName: "admin/feedback",
+            rateLimit: ADMIN,
+            auth: "admin",
+        });
 
         const snapshot = await adminDb.collection("platform_feedback").orderBy("timestamp", "desc").limit(200).get();
         const feedback = snapshot.docs.map((doc) => {

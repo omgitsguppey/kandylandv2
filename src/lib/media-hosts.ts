@@ -1,3 +1,5 @@
+import { FIREBASE_STORAGE_BUCKET } from "./firebase-runtime";
+
 type RemoteImagePattern = {
   protocol: "https";
   hostname: string;
@@ -39,7 +41,7 @@ function normalizeBucketHost(bucket: string | undefined) {
 
 export function getAllowedRemoteMediaHosts() {
   const hosts = new Set<string>(BASE_REMOTE_MEDIA_HOSTS);
-  const storageBucketHost = normalizeBucketHost(process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET);
+  const storageBucketHost = normalizeBucketHost(FIREBASE_STORAGE_BUCKET);
   if (storageBucketHost) {
     hosts.add(storageBucketHost);
   }

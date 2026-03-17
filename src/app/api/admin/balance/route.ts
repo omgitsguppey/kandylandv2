@@ -3,8 +3,9 @@ import { z } from "zod";
 import { FieldValue } from "firebase-admin/firestore";
 
 import { adminDb } from "@/lib/server/firebase-admin";
-import { verifyAdmin, handleApiError } from "@/lib/server/auth";
-import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
+import { handleApiError } from "@/lib/server/auth";
+import { ADMIN } from "@/lib/server/rate-limit";
+import { guardApiRequest } from "@/lib/server/request-guard";
 
 const bodySchema = z.object({
     userId: z.string().trim().min(1).max(128),
@@ -16,8 +17,14 @@ const bodySchema = z.object({
 
 export async function POST(request: NextRequest) {
     try {
-        await checkRateLimit(request, "admin/balance", ADMIN);
-        const admin = await verifyAdmin(request);
+        const caller = await guardApiRequest(request, {
+            routeName: "admin/balance",
+            rateLimit: ADMIN,
+            auth: "admin",
+        });
+        if (!caller) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
 
         if (!adminDb) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });
@@ -54,7 +61,7 @@ export async function POST(request: NextRequest) {
                 type: "admin_adjustment",
                 amount,
                 description: `Admin Adjustment: ${reason}`,
-                adjustedBy: admin.email || "admin",
+                adjustedBy: caller.email || "admin",
                 balanceBefore: currentBalance,
                 balanceAfter: nextBalance,
                 status: "completed",

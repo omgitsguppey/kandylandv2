@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyAdmin, handleApiError } from "@/lib/server/auth";
-import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
+import { handleApiError } from "@/lib/server/auth";
+import { ADMIN } from "@/lib/server/rate-limit";
 import { getResolvedQueueConfig, setDropQueueMembership } from "@/lib/server/drop-queue";
+import { guardApiRequest } from "@/lib/server/request-guard";
 
 export async function POST(request: NextRequest) {
     try {
-        await checkRateLimit(request, "admin/queue/toggle", ADMIN);
-        await verifyAdmin(request);
+        await guardApiRequest(request, {
+            routeName: "admin/queue/toggle",
+            rateLimit: ADMIN,
+            auth: "admin",
+        });
 
         const { dropId } = await request.json();
 

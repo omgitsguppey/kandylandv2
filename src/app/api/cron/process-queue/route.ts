@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { getResolvedQueueConfig } from "@/lib/server/drop-queue";
-import { checkRateLimit, CRON } from "@/lib/server/rate-limit";
+import { CRON } from "@/lib/server/rate-limit";
 import { getNextQueueSlotAfter } from "@/lib/drop-queue-schedule";
 import { markDropsRuntimeChanged } from "@/lib/server/drop-runtime";
+import { guardApiRequest } from "@/lib/server/request-guard";
 
 function chunkArray<T>(items: T[], size: number) {
     const chunks: T[][] = [];
@@ -18,7 +19,10 @@ function chunkArray<T>(items: T[], size: number) {
 // This cron job should be called periodically (e.g. daily/hourly)
 export async function GET(request: NextRequest) {
     try {
-        await checkRateLimit(request, "cron/process-queue", CRON);
+        await guardApiRequest(request, {
+            routeName: "cron/process-queue",
+            rateLimit: CRON,
+        });
         // Enforce basic auth/cron secret in production.
         const authHeader = request.headers.get('authorization');
         if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) return NextResponse.json({error: "Unauthorized"}, {status: 401});

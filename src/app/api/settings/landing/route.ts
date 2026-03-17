@@ -1,13 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { checkRateLimit, RELAXED } from "@/lib/server/rate-limit";
+import { RELAXED } from "@/lib/server/rate-limit";
 import { isAllowedLandingAssetKey } from "@/lib/landing-assets";
+import { guardApiRequest } from "@/lib/server/request-guard";
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
     try {
-        await checkRateLimit(request, "settings/landing", RELAXED);
+        await guardApiRequest(request, {
+            routeName: "settings/landing",
+            rateLimit: RELAXED,
+        });
         const { searchParams } = new URL(request.url);
         const key = searchParams.get("key");
 

@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { adminDb } from "@/lib/server/firebase-admin";
-import { verifyAdmin, handleApiError } from "@/lib/server/auth";
-import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
+import { handleApiError } from "@/lib/server/auth";
+import { ADMIN } from "@/lib/server/rate-limit";
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
 import { applyDropStatus } from "@/lib/drop-status";
 import { APP_TIMEZONE, fromCSTInput, getCSTDateKey, shiftCSTDateKey } from "@/lib/timezone";
 import { getTransactionRevenueCents, normalizeTransactionRecord } from "@/lib/transaction-normalizers";
+import { guardApiRequest } from "@/lib/server/request-guard";
 
 const THIRTY_DAY_WINDOW = 30;
 const CHART_LABEL_FORMATTER = new Intl.DateTimeFormat("en-US", {
@@ -68,8 +69,11 @@ function buildThirtyDayChart(nowMs: number) {
 
 export async function GET(request: NextRequest) {
     try {
-        await checkRateLimit(request, "admin/overview", ADMIN);
-        await verifyAdmin(request);
+        await guardApiRequest(request, {
+            routeName: "admin/overview",
+            rateLimit: ADMIN,
+            auth: "admin",
+        });
 
         if (!adminDb) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });

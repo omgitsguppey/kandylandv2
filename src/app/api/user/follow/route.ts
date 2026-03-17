@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { verifyAuth, handleApiError } from "@/lib/server/auth";
+import { handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
-import { checkRateLimit, STANDARD } from "@/lib/server/rate-limit";
+import { STANDARD } from "@/lib/server/rate-limit";
+import { guardApiRequest } from "@/lib/server/request-guard";
 
 const followRequestSchema = z.object({
     targetUserId: z.string().trim().min(1).max(128),
@@ -12,8 +13,16 @@ const followRequestSchema = z.object({
 
 export async function POST(request: NextRequest) {
     try {
-        await checkRateLimit(request, "user/follow", STANDARD);
-        const caller = await verifyAuth(request);
+        const caller = await guardApiRequest(request, {
+            routeName: "user/follow",
+            rateLimit: STANDARD,
+            requireTrustedOrigin: true,
+            auth: "user",
+            scopeToCaller: true,
+        });
+        if (!caller) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
 
         const { targetUserId, action } = followRequestSchema.parse(await request.json());
 

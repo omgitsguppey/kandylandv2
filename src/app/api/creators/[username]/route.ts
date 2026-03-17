@@ -2,16 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
-import { checkRateLimit, RELAXED } from "@/lib/server/rate-limit";
+import { RELAXED } from "@/lib/server/rate-limit";
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
 import { applyDropStatus } from "@/lib/drop-status";
+import { guardApiRequest } from "@/lib/server/request-guard";
 
 export async function GET(
     request: NextRequest,
     context: { params: Promise<{ username: string }> },
 ) {
     try {
-        await checkRateLimit(request, "creators/profile", RELAXED);
+        await guardApiRequest(request, {
+            routeName: "creators/profile",
+            rateLimit: RELAXED,
+        });
         const { username } = await context.params;
         const normalizedUsername = username.trim().toLowerCase();
         const nowMs = Date.now();

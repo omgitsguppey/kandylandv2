@@ -1,4 +1,3 @@
-export const HERO_PRIMARY_CTA = "Unwrap your Kandy";
 export const SECONDARY_UNWRAP_CTA = "Unwrap now";
 
 export const GUMDROPS_PRIMARY_CTA = "Get Gum Drops to Unwrap your Kandy";

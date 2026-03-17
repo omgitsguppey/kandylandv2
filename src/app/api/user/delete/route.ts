@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { verifyAuth, handleApiError } from "@/lib/server/auth";
+import { handleApiError } from "@/lib/server/auth";
 import { adminDb, adminAuth } from "@/lib/server/firebase-admin";
-import { checkRateLimit, STRICT } from "@/lib/server/rate-limit";
+import { STRICT } from "@/lib/server/rate-limit";
+import { guardApiRequest } from "@/lib/server/request-guard";
 
 type DeletedDataSummary = {
     userDocumentTree: number;
@@ -56,9 +57,17 @@ async function deleteQueryMatches(
 
 export async function DELETE(request: NextRequest) {
     try {
-        await checkRateLimit(request, "user/delete", STRICT);
-        const authResult = await verifyAuth(request);
-        const { uid } = authResult;
+        const caller = await guardApiRequest(request, {
+            routeName: "user/delete",
+            rateLimit: STRICT,
+            requireTrustedOrigin: true,
+            auth: "user",
+            scopeToCaller: true,
+        });
+        if (!caller) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+        const { uid } = caller;
 
         if (!adminDb || !adminAuth) {
             return NextResponse.json({ error: "Database or Auth not available" }, { status: 500 });

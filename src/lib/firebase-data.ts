@@ -7,7 +7,8 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getDatabase } from "firebase/database";
 import { app } from "./firebase";
+import { FIREBASE_DATABASE_URL } from "./firebase-runtime";
 
 export const db = getFirestore(app);
 export const storage = getStorage(app);
-export const rtdb = getDatabase(app, "https://kandydrops-by-ikandy-default-rtdb.firebaseio.com");
+export const rtdb = FIREBASE_DATABASE_URL ? getDatabase(app, FIREBASE_DATABASE_URL) : getDatabase(app);

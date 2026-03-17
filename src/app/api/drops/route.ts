@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { handleApiError } from "@/lib/server/auth";
-import { checkRateLimit, STANDARD } from "@/lib/server/rate-limit";
+import { STANDARD } from "@/lib/server/rate-limit";
 import { getDrops } from "@/lib/server/drops";
 import { isDropActiveNow } from "@/lib/drop-status";
 import { Drop } from "@/types/db";
+import { guardApiRequest } from "@/lib/server/request-guard";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +41,10 @@ function parseCursor(cursor: string | null) {
 
 export async function GET(request: NextRequest) {
     try {
-        await checkRateLimit(request, "drops/feed", STANDARD);
+        await guardApiRequest(request, {
+            routeName: "drops/feed",
+            rateLimit: STANDARD,
+        });
 
         const { searchParams } = new URL(request.url);
         const limitParam = parseInt(searchParams.get("limit") || "12", 10);

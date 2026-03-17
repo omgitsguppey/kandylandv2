@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb, adminStorage } from "@/lib/server/firebase-admin";
-import { verifyAdmin, handleApiError } from "@/lib/server/auth";
-import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
+import { handleApiError } from "@/lib/server/auth";
+import { ADMIN } from "@/lib/server/rate-limit";
 import { isAllowedLandingAssetKey } from "@/lib/landing-assets";
+import { guardApiRequest } from "@/lib/server/request-guard";
 
 function isImageFormat(mimeType: string) {
     return ["image/jpeg", "image/png", "image/gif", "image/webp"].includes(mimeType);
@@ -29,8 +30,11 @@ function extractStorageObjectPath(downloadUrl: string, bucketName: string) {
 
 export async function POST(request: NextRequest) {
     try {
-        await checkRateLimit(request, "settings/landing/upload", ADMIN);
-        await verifyAdmin(request);
+        await guardApiRequest(request, {
+            routeName: "settings/landing/upload",
+            rateLimit: ADMIN,
+            auth: "admin",
+        });
 
         const formData = await request.formData();
         const file = formData.get("file") as File | null;
