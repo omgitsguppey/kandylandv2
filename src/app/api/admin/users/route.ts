@@ -6,6 +6,7 @@ import { verifyAdmin, handleApiError } from "@/lib/server/auth";
 import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
 import { BUILT_IN_DAILY_TASK_MAP } from "@/lib/tasks/task-catalog";
 import { getDropReferenceMap } from "@/lib/server/drop-references";
+import { trackServerEvent } from "@/lib/server/analytics";
 
 function toTimestampNumber(value: unknown): number {
   if (typeof value === "number" && Number.isFinite(value)) {
@@ -597,23 +598,92 @@ export async function POST(request: NextRequest) {
     }
 
     const userRef = adminDb.collection("users").doc(userId);
+    const dropRef = adminDb.collection("drops").doc(normalizedDropId);
 
-    if (action === "add") {
-      await userRef.update({
-        unlockedContent: FieldValue.arrayUnion(normalizedDropId),
-        [`unlockedContentTimestamps.${normalizedDropId}`]: Date.now(),
-      });
-    } else if (action === "remove") {
-      await userRef.update({
-        unlockedContent: FieldValue.arrayRemove(normalizedDropId),
-        [`unlockedContentTimestamps.${normalizedDropId}`]: FieldValue.delete(),
-      });
-    } else {
+    if (action !== "add" && action !== "remove") {
       return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
 
-    return NextResponse.json({ success: true, dropReference });
+    const result = await adminDb.runTransaction(async (transaction) => {
+      const [userSnap, dropSnap] = await Promise.all([
+        transaction.get(userRef),
+        transaction.get(dropRef),
+      ]);
+
+      if (!userSnap.exists) {
+        throw new Error("User not found");
+      }
+
+      if (!dropSnap.exists) {
+        throw new Error("Drop not found");
+      }
+
+      const userData = userSnap.data() as Record<string, unknown>;
+      const unlockedContent = Array.isArray(userData.unlockedContent)
+        ? userData.unlockedContent.filter((entry): entry is string => typeof entry === "string")
+        : [];
+      const alreadyUnlocked = unlockedContent.includes(normalizedDropId);
+      const dropData = dropSnap.data() as Record<string, unknown>;
+      const dropTitle = typeof dropData.title === "string" ? dropData.title : dropReference.title;
+
+      if (action === "add") {
+        if (alreadyUnlocked) {
+          return { changed: false, actionTaken: "add" as const, grantedAt: null, dropTitle };
+        }
+
+        const grantedAt = Date.now();
+        const transactionRef = adminDb.collection("transactions").doc();
+        transaction.update(userRef, {
+          unlockedContent: FieldValue.arrayUnion(normalizedDropId),
+          [`unlockedContentTimestamps.${normalizedDropId}`]: grantedAt,
+        });
+        transaction.update(dropRef, {
+          totalUnlocks: FieldValue.increment(1),
+        });
+        transaction.set(transactionRef, {
+          userId,
+          type: "unlock_content",
+          amount: 0,
+          relatedDropId: normalizedDropId,
+          description: `Admin granted: ${dropTitle}`,
+          timestamp: FieldValue.serverTimestamp(),
+          status: "completed",
+          verifiedServerSide: true,
+          grantSource: "admin",
+        });
+
+        return { changed: true, actionTaken: "add" as const, grantedAt, dropTitle };
+      }
+
+      if (!alreadyUnlocked) {
+        return { changed: false, actionTaken: "remove" as const, grantedAt: null, dropTitle };
+      }
+
+      transaction.update(userRef, {
+        unlockedContent: FieldValue.arrayRemove(normalizedDropId),
+        [`unlockedContentTimestamps.${normalizedDropId}`]: FieldValue.delete(),
+      });
+
+      return { changed: true, actionTaken: "remove" as const, grantedAt: null, dropTitle };
+    });
+
+    if (result.changed && result.actionTaken === "add") {
+      await trackServerEvent("unlock_drop_success", {
+        drop_id: normalizedDropId,
+        drop_title: result.dropTitle,
+        unlock_cost: 0,
+        grant_source: "admin",
+        transaction_id: `admin-grant:${userId}:${normalizedDropId}:${result.grantedAt ?? "unknown"}`,
+      }, userId).catch((error) => {
+        console.error("Failed to mirror admin grant into analytics facts:", error);
+      });
+    }
+
+    return NextResponse.json({ success: true, dropReference, changed: result.changed });
   } catch (error) {
+    if (error instanceof Error && error.message === "User not found") {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
     return handleApiError(error, "Admin.Users.POST");
   }
 }

@@ -117,6 +117,45 @@ function normalizeBrowserPushToken(value: unknown): string | null {
     return trimmed;
 }
 
+function parseAdultDateOfBirth(value: unknown) {
+    if (typeof value !== "string") {
+        return { ok: false as const, error: "Invalid date of birth format" };
+    }
+
+    const trimmed = value.trim();
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/u.exec(trimmed);
+    if (!match) {
+        return { ok: false as const, error: "Date of birth must use YYYY-MM-DD" };
+    }
+
+    const year = Number.parseInt(match[1], 10);
+    const month = Number.parseInt(match[2], 10);
+    const day = Number.parseInt(match[3], 10);
+    const utcDate = new Date(Date.UTC(year, month - 1, day));
+    if (
+        !Number.isFinite(utcDate.getTime())
+        || utcDate.getUTCFullYear() !== year
+        || utcDate.getUTCMonth() !== month - 1
+        || utcDate.getUTCDate() !== day
+    ) {
+        return { ok: false as const, error: "Invalid date of birth" };
+    }
+
+    const now = new Date();
+    let age = now.getUTCFullYear() - year;
+    const currentMonth = now.getUTCMonth() + 1;
+    const currentDay = now.getUTCDate();
+    if (currentMonth < month || (currentMonth === month && currentDay < day)) {
+        age -= 1;
+    }
+
+    if (age < 18) {
+        return { ok: false as const, error: "Must be 18+ to join", status: 403 };
+    }
+
+    return { ok: true as const, value: trimmed };
+}
+
 export async function PUT(request: NextRequest) {
     try {
         await checkRateLimit(request, "user/profile", STANDARD);
@@ -147,6 +186,7 @@ export async function PUT(request: NextRequest) {
             updates.username = normalizedUsername;
         }
 
+        let requestedBrowserPushToken: string | null | undefined;
         if (payload.notificationSettings !== undefined) {
             const normalizedNotificationSettings = normalizeNotificationSettings(payload.notificationSettings);
             if (!normalizedNotificationSettings) {
@@ -159,9 +199,7 @@ export async function PUT(request: NextRequest) {
             if (normalizedBrowserPushToken === null && payload.browserPushToken !== null && payload.browserPushToken !== "") {
                 return NextResponse.json({ error: "Invalid browser push token" }, { status: 400 });
             }
-            if (normalizedBrowserPushToken) {
-                updates.fcmTokens = FieldValue.arrayUnion(normalizedBrowserPushToken);
-            }
+            requestedBrowserPushToken = normalizedBrowserPushToken;
         }
 
         if (payload.privacySettings !== undefined) {
@@ -180,10 +218,6 @@ export async function PUT(request: NextRequest) {
             updates.accountSettings = normalizedAccountSettings;
         }
 
-        if (Object.keys(updates).length === 0) {
-            return NextResponse.json({ error: "No valid updates provided" }, { status: 400 });
-        }
-
         const userRef = adminDb.collection("users").doc(caller.uid);
         const userSnap = await userRef.get();
         if (!userSnap.exists) {
@@ -191,6 +225,9 @@ export async function PUT(request: NextRequest) {
         }
 
         const existingUserData = userSnap.data() ?? {};
+        const existingFcmTokens = Array.isArray(existingUserData.fcmTokens)
+            ? existingUserData.fcmTokens.filter((entry): entry is string => typeof entry === "string")
+            : [];
         const existingNotificationSettings = normalizeNotificationSettings(existingUserData.notificationSettings) ?? {
             inAppEnabled: true,
             browserPushEnabled: false,
@@ -202,6 +239,20 @@ export async function PUT(request: NextRequest) {
             nextNotificationSettings?.browserPushEnabled
             && !existingNotificationSettings.browserPushEnabled,
         );
+        const shouldClearBrowserPushTokens = Boolean(
+            (payload.browserPushToken === null || payload.browserPushToken === "")
+            || (nextNotificationSettings?.browserPushEnabled === false && existingFcmTokens.length > 0),
+        );
+        if (requestedBrowserPushToken) {
+            updates.fcmTokens = FieldValue.arrayUnion(requestedBrowserPushToken);
+        } else if (shouldClearBrowserPushTokens) {
+            updates.fcmTokens = [];
+        }
+
+        if (Object.keys(updates).length === 0) {
+            return NextResponse.json({ error: "No valid updates provided" }, { status: 400 });
+        }
+
         const username = typeof existingUserData.username === "string" && existingUserData.username.trim().length > 0
             ? existingUserData.username.trim()
             : typeof existingUserData.displayName === "string" && existingUserData.displayName.trim().length > 0
@@ -247,19 +298,21 @@ export async function POST(request: NextRequest) {
             }
         }
 
+        let normalizedDateOfBirth: string | undefined;
         if (dateOfBirth) {
-            const dob = new Date(dateOfBirth);
-            const ageDiff = Date.now() - dob.getTime();
-            const ageDate = new Date(ageDiff);
-            const age = Math.abs(ageDate.getUTCFullYear() - 1970);
-            if (age < 18) {
-                return NextResponse.json({ error: "Must be 18+ to join" }, { status: 403 });
+            const parsedDob = parseAdultDateOfBirth(dateOfBirth);
+            if (!parsedDob.ok) {
+                return NextResponse.json(
+                    { error: parsedDob.error },
+                    { status: parsedDob.status ?? 400 },
+                );
             }
+            normalizedDateOfBirth = parsedDob.value;
         }
 
         const updates: Record<string, unknown> = {};
         if (username) updates.username = normalizeUsername(username);
-        if (dateOfBirth) updates.dateOfBirth = dateOfBirth;
+        if (normalizedDateOfBirth) updates.dateOfBirth = normalizedDateOfBirth;
         if (bio !== undefined) updates.bio = bio;
         if (photoURL) updates.photoURL = photoURL;
 

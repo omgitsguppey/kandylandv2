@@ -2,6 +2,7 @@ export const LAST_VISITED_PATH_KEY = "kandydrops:last-visited-path";
 export const LAST_VISITED_PATH_COOKIE = "kandydrops_last_path";
 export const NAV_AUTH_COOKIE = "kandydrops_nav_auth";
 export const NAV_ROLE_COOKIE = "kandydrops_nav_role";
+export const NAV_UID_COOKIE = "kandydrops_nav_uid";
 
 export function isPersistableAppPath(path: string) {
   return path.startsWith("/") && path !== "/" && !path.startsWith("/api");
@@ -64,17 +65,22 @@ export function clearLastVisitedPath() {
   clearCookie(LAST_VISITED_PATH_COOKIE);
 }
 
-export function setNavigationAuthCookies(role: "admin" | "creator" | "user" | null | undefined) {
+export function setNavigationAuthCookies(
+  role: "admin" | "creator" | "user" | null | undefined,
+  uid?: string | null,
+) {
   if (typeof window === "undefined") {
     return;
   }
 
-  if (!role) {
+  if (!role || !uid) {
     clearCookie(NAV_AUTH_COOKIE);
     clearCookie(NAV_ROLE_COOKIE);
+    clearCookie(NAV_UID_COOKIE);
     return;
   }
 
   writeCookie(NAV_AUTH_COOKIE, "1", 60 * 60 * 24 * 30);
   writeCookie(NAV_ROLE_COOKIE, role, 60 * 60 * 24 * 30);
+  writeCookie(NAV_UID_COOKIE, uid, 60 * 60 * 24 * 30);
 }

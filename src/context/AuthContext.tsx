@@ -183,8 +183,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             return;
         }
 
-        setNavigationAuthCookies(userProfile?.role ?? "user");
-    }, [user, userProfile?.role]);
+        if (userProfile) {
+            setNavigationAuthCookies(userProfile.role ?? "user", user.uid);
+        }
+    }, [user, userProfile]);
 
     const refreshProfile = useCallback(async () => {
         // No-op now as onSnapshot handles updates. 

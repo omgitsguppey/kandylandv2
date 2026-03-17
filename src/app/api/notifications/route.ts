@@ -3,11 +3,11 @@ import { createHash } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 
-import { normalizeNotificationCreatePayload } from "@/lib/notification-contracts";
+import { normalizeNotificationCreatePayload, normalizeNotificationDoc } from "@/lib/notification-contracts";
 import { verifyAuth, verifyAdmin, handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { broadcastFCM } from "@/lib/server/fcm-utils";
-import { fetchUnreadNotificationsForUser } from "@/lib/server/notification-inbox";
+import { fetchUnreadNotificationsForUser, isNotificationVisibleToUser } from "@/lib/server/notification-inbox";
 import { checkRateLimit, HEAVY_READ, STANDARD } from "@/lib/server/rate-limit";
 import { hasTrustedSiteOrigin } from "@/lib/server/request-origin";
 
@@ -120,6 +120,26 @@ export async function PUT(request: NextRequest) {
     }
 
     const ref = adminDb.collection("notifications").doc(notificationId);
+    const snapshot = await ref.get();
+    if (!snapshot.exists) {
+      return NextResponse.json({ error: "Notification not found" }, { status: 404 });
+    }
+
+    const normalized = normalizeNotificationDoc(notificationId, snapshot.data() as Record<string, unknown>);
+    if (!normalized) {
+      return NextResponse.json({ error: "Notification not found" }, { status: 404 });
+    }
+
+    const createdAtMs = normalized.createdAt?.toMillis() ?? 0;
+    const visibleToUser = isNotificationVisibleToUser({
+      target: normalized.target,
+      createdAtMs,
+      readBy: normalized.readBy,
+    }, caller.uid);
+    if (!visibleToUser) {
+      return NextResponse.json({ error: "Notification not available" }, { status: 404 });
+    }
+
     await ref.update({ readBy: FieldValue.arrayUnion(caller.uid) });
 
     return NextResponse.json({ success: true });
