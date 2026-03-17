@@ -11,7 +11,7 @@ import * as admin from "firebase-admin";
  * @param body The physical notification message body 
  * @param url The router click-through target when clicked
  */
-export async function broadcastFCM(title: string, body: string, url: string = "/dashboard") {
+export async function broadcastFCM(title: string, body: string, url: string = "/drops") {
     if (!adminDb) return;
 
     try {

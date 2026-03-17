@@ -106,11 +106,6 @@ export async function requestBrowserNotificationAccess(): Promise<BrowserNotific
     }
 }
 
-export const requestFirebaseNotificationPermission = async () => {
-    const result = await requestBrowserNotificationAccess();
-    return result.granted ? result.token : null;
-};
-
 export async function showBrowserNotification(title: string, body: string, url: string = "/experiences") {
     if (typeof window === "undefined" || !("Notification" in window) || Notification.permission !== "granted") {
         return false;

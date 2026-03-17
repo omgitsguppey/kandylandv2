@@ -364,27 +364,6 @@ export function buildAnalyticsSemanticParams(input: {
   };
 }
 
-export function resolveSecurityReasonLabel(reason: string | null | undefined) {
-  const normalized = reason?.trim();
-  if (!normalized) {
-    return "Protection warning";
-  }
-
-  if (normalized === "screenshot_hotkey") {
-    return "Screenshot shortcut detected";
-  }
-
-  if (normalized === "print_shortcut") {
-    return "Print shortcut detected";
-  }
-
-  if (normalized === "devtools_shortcut") {
-    return "Developer tools shortcut detected";
-  }
-
-  return humanizeAnalyticsKey(normalized);
-}
-
 export function resolveRawInteractionLabel(eventType: string | null | undefined) {
   switch (eventType) {
     case "page_view":

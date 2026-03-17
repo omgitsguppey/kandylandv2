@@ -137,7 +137,7 @@ export function TaskGuidanceBanner() {
     }, 3000);
 
     return () => window.clearTimeout(timer);
-  }, [guidance, userProfile?.dailyTasksState?.tasks]);
+  }, [guidance, userProfile?.dailyTasksState?.lastResetMs, userProfile?.dailyTasksState?.tasks]);
 
   useEffect(() => {
     if (!guidance || guidance.completedAt || guidance.dismissedAt) {

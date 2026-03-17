@@ -4,6 +4,8 @@ import { verifyAdmin, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 import { sendGlobalDropNotification } from "@/lib/server/push-notifications";
 import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
+import { normalizeDropRecord } from "@/lib/drop-normalizers";
+import { resolveDropStatusFromTiming } from "@/lib/drop-status";
 
 // Whitelist of allowed drop fields to prevent arbitrary writes
 const ALLOWED_DROP_FIELDS = [
@@ -42,13 +44,19 @@ export async function POST(request: NextRequest) {
         }
 
         const sanitized = sanitizeDropData(dropData);
+        const now = Date.now();
+        const resolvedInitialStatus = resolveDropStatusFromTiming({
+            validFrom: typeof dropData.validFrom === "number" ? dropData.validFrom : now,
+            validUntil: typeof dropData.validUntil === "number" ? dropData.validUntil : undefined,
+        }, now);
+        sanitized.status = resolvedInitialStatus;
         const docRef = await adminDb.collection("drops").add({
             ...sanitized,
             createdAt: FieldValue.serverTimestamp(),
         });
 
         // Automatically issue a global notification and Web Push ONLY if immediately active
-        if (sanitized.status === "active") {
+        if (resolvedInitialStatus === "active") {
             try {
                 await sendGlobalDropNotification(sanitized.title as string, docRef.id, sanitized.imageUrl as string);
             } catch (notifError) {
@@ -87,7 +95,40 @@ export async function PUT(request: NextRequest) {
         }
 
         const dropRef = adminDb.collection("drops").doc(dropId);
+        const existingDropSnap = await dropRef.get();
+        if (!existingDropSnap.exists) {
+            return NextResponse.json({ error: "Drop not found" }, { status: 404 });
+        }
+
+        const existingDrop = normalizeDropRecord(existingDropSnap.data(), dropId);
+        const now = Date.now();
+        const nextValidFrom = typeof dropData.validFrom === "number" ? dropData.validFrom : existingDrop.validFrom;
+        const nextValidUntil = dropData.validUntil === null
+            ? undefined
+            : typeof dropData.validUntil === "number"
+                ? dropData.validUntil
+                : existingDrop.validUntil;
+        const currentLiveStatus = resolveDropStatusFromTiming(existingDrop, now);
+        const nextLiveStatus = resolveDropStatusFromTiming({
+            validFrom: nextValidFrom,
+            validUntil: nextValidUntil,
+        }, now);
+        const shouldNotifyActivation = currentLiveStatus !== "active" && nextLiveStatus === "active";
+        sanitized.status = nextLiveStatus;
+
         await dropRef.update(sanitized);
+
+        if (shouldNotifyActivation) {
+            try {
+                await sendGlobalDropNotification(
+                    typeof sanitized.title === "string" ? sanitized.title : existingDrop.title,
+                    dropId,
+                    typeof sanitized.imageUrl === "string" ? sanitized.imageUrl : existingDrop.imageUrl,
+                );
+            } catch (notifError) {
+                console.error("Non-fatal: Failed to generate activation notification for updated drop", notifError);
+            }
+        }
 
         revalidatePath("/drops");
         revalidatePath("/");

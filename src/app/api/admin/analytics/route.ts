@@ -3,11 +3,10 @@ export const fetchCache = 'force-no-store';
 
 import { NextRequest, NextResponse } from "next/server";
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
-import * as firebaseAdmin from "firebase-admin";
 import { verifyAdmin, handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
-import { TELEMETRY_EVENT_ALIAS_MAP, TELEMETRY_EVENT_QUERY_NAMES, TELEMETRY_MODULE_INDEXES } from "@/lib/telemetry-catalog";
+import { TELEMETRY_EVENT_QUERY_NAMES, TELEMETRY_MODULE_INDEXES } from "@/lib/telemetry-catalog";
 import { ANALYTICS_SEMANTIC_SOURCE_REGISTRY, ANALYTICS_SEMANTIC_STRATEGIES } from "@/lib/analytics-semantics";
 import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
 import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
@@ -15,6 +14,44 @@ import { getAllDropReferenceMap, resolveDropTitle } from "@/lib/server/drop-refe
 import { buildModuleCoverageReport, buildParityInsight, sumCountBuckets } from "@/lib/server/analytics-parity";
 import { buildSemanticCategorySummaries, summarizeSecurityReason } from "@/lib/server/analytics-semantics";
 import { buildAnalyticsMetricReport } from "@/lib/server/analytics-metrics";
+import {
+    AUTHENTICATED_PAGE_VIEW_EVENT_NAMES,
+    AnalyticsReportRow,
+    OnboardingFactRecord,
+    OnboardingStepFactRecord,
+    RegistrationFactRecord,
+    SessionFactRecord,
+    TaskLifecycleLog,
+    TelemetryLogRecord,
+    ViewerDropFactAccumulator,
+    ViewerDropInsight,
+    ViewerOverview,
+    ViewerUserOption,
+    average,
+    buildDurationBuckets,
+    buildMergedCountMap,
+    dayKeyToLabel,
+    dayKeyToRawDate,
+    fetchTelemetryLogs,
+    formatTaskReason,
+    getRangeWindow,
+    getTelemetryDropId,
+    getTelemetryDropTitle,
+    getTelemetryParamNumber,
+    getTelemetryParamString,
+    matchesViewerFilter,
+    normalizeViewerIdentity,
+    rawDateToDayKey,
+    safeParams,
+    safeRunRealtimeReport,
+    safeRunReport,
+    sum,
+    sumEventCounts,
+    sumSnapshotField,
+    timestampToDayKey,
+    toNumber,
+    toStringValue,
+} from "@/lib/server/admin-analytics-shared";
 
 const propertyId = process.env.GA_PROPERTY_ID;
 const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
@@ -35,389 +72,6 @@ if (clientEmail && privateKey) {
 } else {
     // In Firebase App Hosting production, this will use the default service account automatically
     analyticsClient = new BetaAnalyticsDataClient();
-}
-
-type RangeWindow = {
-    startDate: string;
-    startMs: number;
-};
-
-type TelemetryLogRecord = {
-    eventName: string;
-    params: Record<string, unknown>;
-    userId: string;
-    username?: string;
-    timestamp: number;
-    userAgent?: string;
-};
-
-type TaskLifecycleLog = {
-    id: string;
-    type: string;
-    taskId: string;
-    title: string;
-    triggerEvent: string;
-    userId: string;
-    username?: string;
-    reward: number;
-    progress: number;
-    maxProgress: number;
-    timestamp: number;
-    reason?: string;
-    assignedAt?: number;
-    startedAt?: number;
-    durationMs?: number;
-};
-
-type ViewerOverview = {
-    viewCount: number;
-    sessionCount: number;
-    uniqueViewerCount: number;
-    repeatSessionCount: number;
-    totalWatchSeconds: number;
-    avgSessionSeconds: number;
-    avgWatchSeconds: number;
-    avgLoadMs: number;
-    assetCompletionRate: number;
-    assetSwitches: number;
-    downloads: number;
-    relatedClicks: number;
-};
-
-type ViewerDropInsight = {
-    dropId: string;
-    dropTitle: string;
-    viewCount: number;
-    sessionCount: number;
-    uniqueViewerCount: number;
-    repeatSessionCount: number;
-    totalWatchSeconds: number;
-    avgSessionSeconds: number;
-    avgWatchSeconds: number;
-    assetStarts: number;
-    assetCompletions: number;
-    assetSwitches: number;
-    downloads: number;
-    relatedClicks: number;
-    avgLoadMs: number;
-};
-
-type ViewerUserOption = {
-    uid: string;
-    username: string;
-    viewCount: number;
-    sessionCount: number;
-    totalWatchSeconds: number;
-};
-
-type SessionFactRecord = {
-    id: string;
-    sessionId?: string;
-    userId?: string;
-    username?: string;
-    dropId?: string;
-    dropTitle?: string;
-    pagePath?: string;
-    dayKey?: string;
-    hourKey?: string;
-    firstEventAtMs?: number;
-    lastEventAtMs?: number;
-    eventCount?: number;
-    startedCount?: number;
-    completedCount?: number;
-    watchSecondsTotal?: number;
-    loadMsTotal?: number;
-    loadSampleCount?: number;
-};
-
-type OnboardingFactRecord = {
-    timestamp: number;
-    durationMs: number;
-};
-
-type OnboardingStepFactRecord = {
-    eventName: string;
-    timestamp: number;
-    stepKey: string;
-    stepTitle: string;
-    stepIndex: number;
-    durationMs: number;
-};
-
-type RegistrationFactRecord = {
-    eventName: string;
-    timestamp: number;
-    registrationMethod: string;
-};
-
-type ViewerDropFactAccumulator = {
-    dropId: string;
-    dropTitle: string;
-    viewCount: number;
-    sessionCount: number;
-    uniqueViewerKeys: Set<string>;
-    sessionCounts: Map<string, number>;
-    totalWatchSeconds: number;
-    loadMsTotal: number;
-    loadSampleCount: number;
-};
-
-type AnalyticsReportRow = {
-    dimensionValues?: Array<{ value?: string | null }>;
-    metricValues?: Array<{ value?: string | null }>;
-};
-
-type AnalyticsReportResponse = {
-    rows?: AnalyticsReportRow[];
-};
-
-const AUTHENTICATED_PAGE_VIEW_EVENT_NAMES = new Set([
-    "dashboard_viewed",
-    "library_viewed",
-    "experience_hub_viewed",
-    "drops_page_viewed",
-    "faq_page_viewed",
-    "home_page_viewed",
-]);
-
-function getUtcDayStartMs(daysAgo: number) {
-    const now = new Date();
-    return Date.UTC(
-        now.getUTCFullYear(),
-        now.getUTCMonth(),
-        now.getUTCDate() - daysAgo,
-        0,
-        0,
-        0,
-        0,
-    );
-}
-
-function getRangeWindow(period: string | null): RangeWindow {
-    const now = Date.now();
-    const oneDayMs = 24 * 60 * 60 * 1000;
-
-    if (period === "24h") {
-        return { startDate: "1daysAgo", startMs: now - oneDayMs };
-    }
-
-    if (period === "7d") {
-        return { startDate: "7daysAgo", startMs: getUtcDayStartMs(7) };
-    }
-
-    if (period === "all") {
-        return { startDate: "2020-01-01", startMs: getUtcDayStartMs(3650) };
-    }
-
-    return { startDate: "30daysAgo", startMs: getUtcDayStartMs(30) };
-}
-
-function timestampToDayKey(timestamp: number) {
-    return new Date(timestamp).toISOString().slice(0, 10);
-}
-
-function rawDateToDayKey(rawDate: string) {
-    if (rawDate.length !== 8) {
-        return rawDate;
-    }
-
-    return `${rawDate.slice(0, 4)}-${rawDate.slice(4, 6)}-${rawDate.slice(6, 8)}`;
-}
-
-function dayKeyToRawDate(dayKey: string) {
-    return dayKey.replaceAll("-", "");
-}
-
-function dayKeyToLabel(dayKey: string) {
-    return dayKey.slice(5).replace("-", "/");
-}
-
-function toNumber(value: unknown): number {
-    const numeric = Number(value);
-    return Number.isFinite(numeric) ? numeric : 0;
-}
-
-function toStringValue(value: unknown): string {
-    return typeof value === "string" ? value : "";
-}
-
-function safeParams(value: unknown): Record<string, unknown> {
-    if (!value || typeof value !== "object" || Array.isArray(value)) {
-        return {};
-    }
-
-    return value as Record<string, unknown>;
-}
-
-function getTelemetryParamString(record: TelemetryLogRecord, key: string): string {
-    return toStringValue(record.params[key]).trim();
-}
-
-function getTelemetryParamNumber(record: TelemetryLogRecord, key: string): number {
-    return toNumber(record.params[key]);
-}
-
-async function fetchTelemetryLogs(eventNames: string[], startMs: number): Promise<Record<string, TelemetryLogRecord[]>> {
-    const eventMap: Record<string, TelemetryLogRecord[]> = {};
-
-    try {
-        const database = firebaseAdmin.database();
-        const snapshots = await Promise.all(
-            eventNames.map(async (eventName) => {
-                const snapshot = await database
-                    .ref(`telemetry/events/${eventName}`)
-                    .orderByChild("timestamp")
-                    .startAt(startMs)
-                    .get();
-
-                const rawValue = snapshot.val();
-                const records = rawValue && typeof rawValue === "object"
-                    ? Object.values(rawValue as Record<string, unknown>).flatMap((entry) => {
-                        if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
-                            return [];
-                        }
-
-                        const rawEntry = entry as Record<string, unknown>;
-                        return [{
-                            eventName,
-                            params: safeParams(rawEntry.params),
-                            userId: toStringValue(rawEntry.userId),
-                            username: toStringValue(rawEntry.username) || undefined,
-                            timestamp: toNumber(rawEntry.timestamp),
-                            userAgent: toStringValue(rawEntry.userAgent) || undefined,
-                        }];
-                    })
-                    : [];
-
-                eventMap[eventName] = records
-                    .filter((record) => record.timestamp >= startMs)
-                    .sort((left, right) => right.timestamp - left.timestamp);
-            }),
-        );
-
-        await Promise.all(snapshots);
-    } catch (error) {
-        console.warn("Admin analytics telemetry query failed:", error);
-        eventNames.forEach((eventName) => {
-            eventMap[eventName] = [];
-        });
-    }
-
-    eventNames.forEach((eventName) => {
-        if (!eventMap[eventName]) {
-            eventMap[eventName] = [];
-        }
-    });
-
-    return eventMap;
-}
-
-function buildDurationBuckets(values: number[], bucketEdges: Array<{ label: string; max: number }>) {
-    return bucketEdges.map((bucket) => ({
-        label: bucket.label,
-        count: values.filter((value) => value > 0 && value <= bucket.max).length,
-    }));
-}
-
-function formatTaskReason(reason: string) {
-    if (reason === "tasks_and_checkin") return "Tasks + check-in";
-    if (reason === "checkin") return "Check-in only";
-    if (reason === "tasks") return "Tasks only";
-    if (reason === "missed_daily_progress") return "Missed progress";
-    return reason || "Unknown";
-}
-
-function normalizeViewerIdentity(value: string) {
-    return value.trim().replace(/^@/, "").toLowerCase();
-}
-
-function matchesViewerFilter(record: TelemetryLogRecord, viewerFilter: string) {
-    if (!viewerFilter) {
-        return true;
-    }
-
-    const normalizedFilter = normalizeViewerIdentity(viewerFilter);
-    if (!normalizedFilter) {
-        return true;
-    }
-
-    const candidateUserId = normalizeViewerIdentity(record.userId || "");
-    const candidateUsername = normalizeViewerIdentity(record.username || "");
-    return candidateUserId === normalizedFilter || candidateUsername === normalizedFilter;
-}
-
-function getTelemetryDropId(record: TelemetryLogRecord) {
-    return getTelemetryParamString(record, "drop_id") || "unknown-drop";
-}
-
-function getTelemetryDropTitle(record: TelemetryLogRecord) {
-    return getTelemetryParamString(record, "drop_title") || getTelemetryDropId(record);
-}
-
-function average(values: number[]) {
-    if (values.length === 0) {
-        return 0;
-    }
-
-    return Math.round(sum(values) / values.length);
-}
-
-function sum(values: number[]) {
-    return values.reduce((total, value) => total + value, 0);
-}
-
-function buildMergedCountMap(...sources: Array<Record<string, number>>) {
-    const merged = new Map<string, number>();
-
-    sources.forEach((source) => {
-        Object.entries(source).forEach(([key, value]) => {
-            const numericValue = toNumber(value);
-            merged.set(key, Math.max(merged.get(key) || 0, numericValue));
-        });
-    });
-
-    return merged;
-}
-
-function sumEventCounts(
-    counts: Record<string, number>,
-    eventNames: string[],
-) {
-    const indexedNames = new Set(eventNames);
-    return Object.entries(counts).reduce((total, [eventName, value]) => {
-        if (indexedNames.has(eventName) || indexedNames.has(TELEMETRY_EVENT_ALIAS_MAP[eventName] || "")) {
-            return total + toNumber(value);
-        }
-
-        return total;
-    }, 0);
-}
-
-function sumSnapshotField(
-    snapshot: FirebaseFirestore.QuerySnapshot,
-    fieldName: string,
-) {
-    return snapshot.docs.reduce((total, doc) => total + toNumber((doc.data() as Record<string, unknown>)[fieldName]), 0);
-}
-
-async function safeRunReport(requestConfig: Parameters<BetaAnalyticsDataClient["runReport"]>[0]): Promise<AnalyticsReportResponse> {
-    try {
-        const [response] = await analyticsClient.runReport(requestConfig);
-        return response as AnalyticsReportResponse;
-    } catch (error) {
-        console.warn("GA runReport failed, falling back to first-party analytics:", error);
-        return { rows: [] };
-    }
-}
-
-async function safeRunRealtimeReport(requestConfig: Parameters<BetaAnalyticsDataClient["runRealtimeReport"]>[0]): Promise<AnalyticsReportResponse> {
-    try {
-        const [response] = await analyticsClient.runRealtimeReport(requestConfig);
-        return response as AnalyticsReportResponse;
-    } catch (error) {
-        console.warn("GA realtime report failed, falling back to first-party analytics:", error);
-        return { rows: [] };
-    }
 }
 
 export async function GET(request: NextRequest) {
@@ -443,7 +97,7 @@ export async function GET(request: NextRequest) {
             const thirtyMinsAgo = Date.now() - 30 * 60 * 1000;
 
             // 1. Get true Deduplicated Total Active Users from GA4
-            const totalActiveResponse = await safeRunRealtimeReport({
+        const totalActiveResponse = await safeRunRealtimeReport(analyticsClient, {
                 property: `properties/${propertyId}`,
                 metrics: [{ name: "activeUsers" }],
             });
@@ -451,7 +105,7 @@ export async function GET(request: NextRequest) {
             const totalActive = parseInt(totalActiveResponse.rows?.[0]?.metricValues?.[0]?.value || "0", 10);
 
             // 2. Get the 1-minute discrete interval chart data
-            const intervalResponse = await safeRunRealtimeReport({
+        const intervalResponse = await safeRunRealtimeReport(analyticsClient, {
                 property: `properties/${propertyId}`,
                 metrics: [{ name: "activeUsers" }, { name: "screenPageViews" }],
                 dimensions: [{ name: "minutesAgo" }],
@@ -519,7 +173,7 @@ export async function GET(request: NextRequest) {
                 commerceSummarySnapshot,
                 dropsSnapshot,
             ] = await Promise.all([
-                safeRunReport({
+            safeRunReport(analyticsClient, {
                     property: `properties/${propertyId}`,
                     dateRanges: [{ startDate, endDate: "today" }],
                     metrics: [
@@ -536,7 +190,7 @@ export async function GET(request: NextRequest) {
                         desc: false
                     }]
                 }),
-                safeRunReport({
+            safeRunReport(analyticsClient, {
                     property: `properties/${propertyId}`,
                     dateRanges: [{ startDate, endDate: "today" }],
                     metrics: [{ name: "eventCount" }],
@@ -550,7 +204,7 @@ export async function GET(request: NextRequest) {
                         }
                     }
                 }),
-                safeRunReport({
+            safeRunReport(analyticsClient, {
                     property: `properties/${propertyId}`,
                     dateRanges: [{ startDate, endDate: "today" }],
                     metrics: [{ name: "activeUsers" }],
@@ -558,7 +212,7 @@ export async function GET(request: NextRequest) {
                     orderBys: [{ metric: { metricName: "activeUsers" }, desc: true }],
                     limit: 15
                 }),
-                safeRunReport({
+            safeRunReport(analyticsClient, {
                     property: `properties/${propertyId}`,
                     dateRanges: [{ startDate, endDate: "today" }],
                     metrics: [{ name: "screenPageViews" }, { name: "averageSessionDuration" }, { name: "engagementRate" }],
@@ -566,7 +220,7 @@ export async function GET(request: NextRequest) {
                     orderBys: [{ metric: { metricName: "screenPageViews" }, desc: true }],
                     limit: 25
                 }),
-                safeRunReport({
+            safeRunReport(analyticsClient, {
                     property: `properties/${propertyId}`,
                     dateRanges: [{ startDate, endDate: "today" }],
                     metrics: [
@@ -578,7 +232,7 @@ export async function GET(request: NextRequest) {
                     orderBys: [{ metric: { metricName: "activeUsers" }, desc: true }],
                     limit: 3
                 }),
-                safeRunReport({
+            safeRunReport(analyticsClient, {
                     property: `properties/${propertyId}`,
                     dateRanges: [{ startDate, endDate: "today" }],
                     metrics: [{ name: "eventCount" }],

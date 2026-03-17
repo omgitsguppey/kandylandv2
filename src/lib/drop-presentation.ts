@@ -51,17 +51,6 @@ export function getSupportedDropAspectRatio(drop: Drop): SupportedAspectRatio {
   return closest;
 }
 
-export function getDropCardWidthClass(aspectRatio: SupportedAspectRatio): string {
-  switch (aspectRatio) {
-    case "16:9":
-      return "w-[340px] md:w-[420px]";
-    case "9:16":
-      return "w-[180px] md:w-[220px]";
-    default:
-      return "w-[240px] md:w-[300px]";
-  }
-}
-
 export function getAspectRatioCssValue(aspectRatio: SupportedAspectRatio): string {
   return aspectRatio.replace(":", " / ");
 }

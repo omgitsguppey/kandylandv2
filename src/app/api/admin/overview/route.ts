@@ -4,6 +4,7 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAdmin, handleApiError } from "@/lib/server/auth";
 import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
+import { applyDropStatus } from "@/lib/drop-status";
 import { getTransactionRevenueCents, normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 
 function toTimestampNumber(value: unknown): number {
@@ -74,9 +75,10 @@ export async function GET(request: NextRequest) {
             );
         });
 
+        const now = Date.now();
         const drops = dropsSnapshot.docs.flatMap((doc) => {
             try {
-                return [normalizeDropRecord(doc.data(), doc.id)];
+                return [applyDropStatus(normalizeDropRecord(doc.data(), doc.id), now)];
             } catch {
                 return [];
             }

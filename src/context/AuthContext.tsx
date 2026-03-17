@@ -67,6 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const initialAuthResolvedRef = useRef(false);
+    const autoRegisterInFlightRef = useRef<Set<string>>(new Set());
     const router = useRouter();
     const pathname = usePathname();
 
@@ -90,6 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             initialAuthResolvedRef.current = true;
 
             if (currentUser === null) {
+                autoRegisterInFlightRef.current.clear();
                 setUserProfile(null);
                 setLoading(false);
             }
@@ -106,17 +108,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             return;
         }
 
+        const currentUserId = user.uid;
+        const autoRegisterInFlight = autoRegisterInFlightRef.current;
         let unsubscribe: () => void;
 
         const setupProfileListener = async () => {
             const { db } = await import("@/lib/firebase-data");
             const { doc, onSnapshot } = await import("firebase/firestore");
 
-            const profileDocRef = doc(db, "users", user.uid);
+            const profileDocRef = doc(db, "users", currentUserId);
 
             unsubscribe = onSnapshot(profileDocRef, async (snapshot) => {
                 if (snapshot.exists()) {
                     const profile = normalizeUserProfile(snapshot.data(), user);
+                    autoRegisterInFlight.delete(currentUserId);
 
                     if (profile && (profile.status === "banned" || profile.status === "suspended") && window.location.pathname !== "/") {
                         await signOut(auth);
@@ -130,6 +135,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         setLoading(false);
                     }
                 } else {
+                    if (autoRegisterInFlight.has(currentUserId)) {
+                        return;
+                    }
+
+                    autoRegisterInFlight.add(currentUserId);
 
                     // Profile doesn't exist yet, trigger auto-registration
                     try {
@@ -142,9 +152,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                                 referredBy: typeof window !== "undefined" ? sessionStorage.getItem("kandy_referral") : undefined,
                             }),
                         });
+                        if (!response.ok) {
+                            autoRegisterInFlight.delete(currentUserId);
+                            setLoading(false);
+                        }
                         // Do not set loading false here immediately; let the onSnapshot retry handle it 
                         // when the creation resolves.
                     } catch (err) {
+                        autoRegisterInFlight.delete(currentUserId);
                         setLoading(false);
                     }
                     // onSnapshot will trigger again once the doc is created
@@ -157,6 +172,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setupProfileListener();
 
         return () => {
+            autoRegisterInFlight.delete(currentUserId);
             if (unsubscribe) unsubscribe();
         };
     }, [user]);

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAuth, verifyAdmin, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
-import { normalizeNotificationCreatePayload } from "@/lib/notification-contracts";
+import { normalizeNotificationCreatePayload, normalizeNotificationDoc } from "@/lib/notification-contracts";
 import { broadcastFCM } from "@/lib/server/fcm-utils";
 import { checkRateLimit, STANDARD } from "@/lib/server/rate-limit";
 
@@ -37,25 +37,13 @@ export async function GET(request: NextRequest) {
 
         const notifications = snapshot.docs.flatMap((doc) => {
             const raw = doc.data() as Record<string, unknown>;
-            if (typeof raw.title !== "string" || typeof raw.message !== "string") {
+            const normalized = normalizeNotificationDoc(doc.id, raw);
+            if (!normalized) {
                 return [];
             }
+            const createdAtMs = toTimestampNumber(normalized.createdAt);
 
-            const target = raw.target && typeof raw.target === "object"
-                ? raw.target as { global?: unknown; userIds?: unknown; excludedUserIds?: unknown }
-                : {};
-            const userIds = Array.isArray(target.userIds)
-                ? target.userIds.filter((entry): entry is string => typeof entry === "string")
-                : [];
-            const excludedUserIds = Array.isArray(target.excludedUserIds)
-                ? target.excludedUserIds.filter((entry): entry is string => typeof entry === "string")
-                : [];
-            const readBy = Array.isArray(raw.readBy)
-                ? raw.readBy.filter((entry): entry is string => typeof entry === "string")
-                : [];
-            const createdAtMs = toTimestampNumber(raw.createdAt);
-
-            if (excludedUserIds.includes(caller.uid)) {
+            if (normalized.target.excludedUserIds?.includes(caller.uid)) {
                 return [];
             }
 
@@ -63,27 +51,16 @@ export async function GET(request: NextRequest) {
                 return [];
             }
 
-            if (readBy.includes(caller.uid)) {
+            if (normalized.readBy.includes(caller.uid)) {
                 return [];
             }
 
-            if (!(target.global === true || userIds.includes(caller.uid))) {
+            if (!(normalized.target.global === true || normalized.target.userIds.includes(caller.uid))) {
                 return [];
             }
 
             return [{
-                id: doc.id,
-                title: raw.title,
-                message: raw.message,
-                type: typeof raw.type === "string" ? raw.type : "info",
-                readBy,
-                target: {
-                    global: target.global === true,
-                    userIds,
-                    excludedUserIds,
-                },
-                link: typeof raw.link === "string" ? raw.link : undefined,
-                dropContext: raw.dropContext && typeof raw.dropContext === "object" ? raw.dropContext : undefined,
+                ...normalized,
                 createdAtMs,
             }];
         });

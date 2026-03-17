@@ -9,7 +9,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit --pretty",
     "prebuild": "tsc --noEmit --pretty",
-    "build:debug": "tsc --noEmit --pretty && next build 2>&1 | tee build.log",
+    "build:debug": "tsc --noEmit --pretty && next build > build.log 2>&1",
     "check": "tsc --noEmit --pretty && eslint . --max-warnings=0",
     "analyze": "cross-env ANALYZE=true next build --webpack",
     "promote-admin": "tsx scripts/promote-admin.ts"

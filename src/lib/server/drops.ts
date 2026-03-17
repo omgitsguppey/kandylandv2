@@ -2,45 +2,15 @@ import "server-only";
 import { adminDb } from "./firebase-admin";
 import { Drop } from "@/types/db";
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
-import { applyDropStatus, resolveDropStatusFromTiming } from "@/lib/drop-status";
+import { applyDropStatus } from "@/lib/drop-status";
 import { cache } from "react";
-import { sendGlobalDropNotification } from "./push-notifications";
-
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 /**
  * Compute the live status of a drop based on current time.
- * If auto-rotation is enabled and the drop has expired, calculate the next rotation.
- * Returns the drop with corrected status (and updated dates if rotated).
+ * These reads stay side-effect free; cron/admin flows own persistence.
  */
-function resolveDropStatus(drop: Drop, now: number): { drop: Drop; needsUpdate: boolean } {
-    let needsUpdate = false;
-    let resolved = applyDropStatus(drop, now);
-
-    // Auto-rotation logic has been officially deprecated. Time is linear now.
-
-    // If the stored status doesn't match the computed status, flag for update
-    if (drop.status !== resolved.status) {
-        needsUpdate = true;
-    }
-
-    return { drop: resolved, needsUpdate };
-}
-
-/**
- * Persist auto-healed drop status/dates back to Firestore (fire-and-forget).
- */
-async function persistDropUpdate(dropId: string, drop: Drop): Promise<void> {
-    if (!adminDb) return;
-    try {
-        const updateData: Record<string, any> = { status: drop.status };
-
-        // Rotation logic officially deprecated. No longer appending timeline modifications.
-
-        await adminDb.collection("drops").doc(dropId).update(updateData);
-    } catch (err) {
-        console.error(`Auto-heal failed for drop ${dropId}:`, err);
-    }
+function resolveDropStatus(drop: Drop, now: number): Drop {
+    return applyDropStatus(drop, now);
 }
 
 /**
@@ -65,14 +35,7 @@ export const getDrops = cache(async (): Promise<Drop[]> => {
         const now = Date.now();
         return snapshot.docs.map(doc => {
             const raw = normalizeDropRecord(doc.data(), doc.id);
-            const { drop: resolved, needsUpdate } = resolveDropStatus(raw, now);
-
-            if (needsUpdate) {
-                persistDropUpdate(doc.id, resolved);
-                if (resolveDropStatusFromTiming(raw, now) === "active" && raw.status === "scheduled") {
-                    sendGlobalDropNotification(resolved.title, doc.id, resolved.imageUrl);
-                }
-            }
+            const resolved = resolveDropStatus(raw, now);
 
             return sanitizeDropForClient(resolved);
         });
@@ -93,14 +56,7 @@ export const getDrop = cache(async (id: string): Promise<Drop | null> => {
 
         const raw = normalizeDropRecord(docSnap.data(), docSnap.id);
         const now = Date.now();
-        const { drop: resolved, needsUpdate } = resolveDropStatus(raw, now);
-
-        if (needsUpdate) {
-            persistDropUpdate(docSnap.id, resolved);
-            if (resolveDropStatusFromTiming(raw, now) === "active" && raw.status === "scheduled") {
-                sendGlobalDropNotification(resolved.title, docSnap.id, resolved.imageUrl);
-            }
-        }
+        const resolved = resolveDropStatus(raw, now);
 
         return sanitizeDropForClient(resolved);
     } catch (error) {
@@ -124,14 +80,7 @@ export async function getDropRaw(id: string): Promise<Drop | null> {
 
         const raw = normalizeDropRecord(docSnap.data(), docSnap.id);
         const now = Date.now();
-        const { drop: resolved, needsUpdate } = resolveDropStatus(raw, now);
-
-        if (needsUpdate) {
-            persistDropUpdate(docSnap.id, resolved);
-            if (resolveDropStatusFromTiming(raw, now) === "active" && raw.status === "scheduled") {
-                sendGlobalDropNotification(resolved.title, docSnap.id, resolved.imageUrl);
-            }
-        }
+        const resolved = resolveDropStatus(raw, now);
 
         return resolved;
     } catch (error) {

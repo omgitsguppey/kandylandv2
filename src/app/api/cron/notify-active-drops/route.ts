@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { sendTargetedDropNotification } from "@/lib/server/push-notifications";
+import { resolveDropStatusFromTiming } from "@/lib/drop-status";
 
 // This cron job should be called frequently (e.g. every 5-15 minutes)
 export async function GET(request: NextRequest) {
@@ -8,37 +9,57 @@ export async function GET(request: NextRequest) {
         // Enforce basic auth/cron secret in production.
         const authHeader = request.headers.get('authorization');
         if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) return NextResponse.json({error: "Unauthorized"}, {status: 401});
+        if (!adminDb) return NextResponse.json({ error: "Database not available" }, { status: 500 });
 
         const now = Date.now();
         const dropsRef = adminDb.collection("drops");
 
-        // Find all scheduled drops that have reached their start time
-        const scheduledSnap = await dropsRef
-            .where("status", "==", "scheduled")
-            .where("validFrom", "<=", now)
-            .get();
+        const [scheduledSnap, activeSnap] = await Promise.all([
+            dropsRef
+                .where("status", "==", "scheduled")
+                .where("validFrom", "<=", now)
+                .get(),
+            dropsRef
+                .where("status", "==", "active")
+                .where("validUntil", "<=", now)
+                .get(),
+        ]);
 
-        if (scheduledSnap.empty) {
-            return NextResponse.json({ message: "No newly active drops to process." });
+        if (scheduledSnap.empty && activeSnap.empty) {
+            return NextResponse.json({ message: "No drop lifecycle changes to process." });
         }
 
         const batch = adminDb.batch();
-        let opsCount = 0;
+        let activatedCount = 0;
+        let expiredCount = 0;
         const activatedDrops: string[] = [];
+        const expiredDrops: string[] = [];
+        const activationNotifications: Array<{
+            dropId: string;
+            dropTitle: string;
+            imageUrl?: string;
+            isReturn: boolean;
+            excludedUserIds: string[];
+        }> = [];
 
-        // For each drop that just went live...
         for (const doc of scheduledSnap.docs) {
             const dropId = doc.id;
             const drop = doc.data();
+            const nextStatus = resolveDropStatusFromTiming({
+                validFrom: Number(drop.validFrom || 0),
+                validUntil: typeof drop.validUntil === "number" ? drop.validUntil : undefined,
+            }, now);
 
-            // 1. Update status to active
-            batch.update(doc.ref, { status: "active" });
-            opsCount++;
+            batch.update(doc.ref, { status: nextStatus });
+
+            if (nextStatus === "expired") {
+                expiredCount++;
+                expiredDrops.push(drop.title || dropId);
+                continue;
+            }
+
+            activatedCount++;
             activatedDrops.push(drop.title || dropId);
-
-            // 2. Identify users who already own this drop to exclude them from the notification
-            // In a production with millions of users, this might be heavily paginated or inverted.
-            // For KandyDrops scale, querying for users who own the drop works well. 
             const excludedUserIds: string[] = [];
             try {
                 const ownersSnap = await adminDb.collection("users")
@@ -49,29 +70,52 @@ export async function GET(request: NextRequest) {
                 console.error(`Failed to fetch owners for drop ${dropId}`, err);
             }
 
-            // 3. Dispatch Notification logic
             const isReturn = (drop.activationCount || 0) >= 1;
-
-            try {
-                await sendTargetedDropNotification(
-                    drop.title || "New Drop",
-                    dropId,
-                    drop.imageUrl,
-                    isReturn,
-                    excludedUserIds
-                );
-            } catch (err) {
-                console.error(`Notification failed for drop ${dropId}`, err);
-            }
+            activationNotifications.push({
+                dropId,
+                dropTitle: drop.title || "New Drop",
+                imageUrl: typeof drop.imageUrl === "string" ? drop.imageUrl : undefined,
+                isReturn,
+                excludedUserIds,
+            });
         }
 
-        if (opsCount > 0) {
+        for (const doc of activeSnap.docs) {
+            const drop = doc.data();
+            const nextStatus = resolveDropStatusFromTiming({
+                validFrom: Number(drop.validFrom || 0),
+                validUntil: typeof drop.validUntil === "number" ? drop.validUntil : undefined,
+            }, now);
+
+            if (nextStatus === "active") {
+                continue;
+            }
+
+            batch.update(doc.ref, { status: nextStatus });
+            expiredCount++;
+            expiredDrops.push(drop.title || doc.id);
+        }
+
+        if (activatedCount > 0 || expiredCount > 0) {
             await batch.commit();
         }
 
+        await Promise.allSettled(
+            activationNotifications.map((payload) =>
+                sendTargetedDropNotification(
+                    payload.dropTitle,
+                    payload.dropId,
+                    payload.imageUrl,
+                    payload.isReturn,
+                    payload.excludedUserIds,
+                ),
+            ),
+        );
+
         return NextResponse.json({
-            message: `Activated ${opsCount} drops and dispatched notifications.`,
-            drops: activatedDrops
+            message: `Activated ${activatedCount} drops, expired ${expiredCount} drops, and reconciled lifecycle status.`,
+            activatedDrops,
+            expiredDrops,
         });
 
     } catch (error: any) {

@@ -3,6 +3,8 @@ import { adminDb } from "./firebase-admin";
 import * as admin from "firebase-admin";
 import { broadcastFCM } from "./fcm-utils";
 
+const DROP_COLLECTION_LINK = "/drops";
+
 export async function sendGlobalDropNotification(dropTitle: string, dropId: string, imageUrl?: string) {
     if (!adminDb) return;
 
@@ -13,7 +15,7 @@ export async function sendGlobalDropNotification(dropTitle: string, dropId: stri
             message: `${dropTitle} is now available in the drops collection!`,
             type: "success",
             target: { global: true, userIds: [] },
-            link: "/dashboard",
+            link: DROP_COLLECTION_LINK,
             dropContext: imageUrl ? {
                 dropId,
                 dropTitle,
@@ -30,7 +32,7 @@ export async function sendGlobalDropNotification(dropTitle: string, dropId: stri
     await broadcastFCM(
         "Kandy Drops",
         `${dropTitle} just went live! Don't miss out!`,
-        "/dashboard"
+        DROP_COLLECTION_LINK
     );
 }
 
@@ -54,7 +56,7 @@ export async function sendTargetedDropNotification(
             message,
             type: "success",
             target: { global: true, excludedUserIds: excludedUserIds, userIds: [] },
-            link: "/dashboard",
+            link: DROP_COLLECTION_LINK,
             dropContext: imageUrl ? {
                 dropId,
                 dropTitle,
@@ -72,6 +74,6 @@ export async function sendTargetedDropNotification(
     await broadcastFCM(
         "Kandy Drops",
         message,
-        "/dashboard"
+        DROP_COLLECTION_LINK
     );
 }

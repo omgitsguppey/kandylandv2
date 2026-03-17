@@ -5,7 +5,7 @@ import { Toaster } from "sonner";
 import CookieBanner from "@/components/CookieBanner";
 import dynamic from "next/dynamic";
 import { useEffect } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { applyAnalyticsConsentToGtag, persistPrivacySettingsSnapshot, readPrivacySettingsSnapshot } from "@/lib/privacy-consent";
 import { writeLastVisitedPath } from "@/lib/navigation-persistence";
@@ -30,9 +30,16 @@ const TaskGuidanceBanner = dynamic(
 );
 
 export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
-    const { userProfile } = useAuth();
+    const { user, userProfile } = useAuth();
     const pathname = usePathname();
-    const searchParams = useSearchParams();
+    const isAdminRoute = pathname?.startsWith("/admin") ?? false;
+    const isLegalRoute = pathname === "/privacy" || pathname === "/terms";
+    const isUserShell = Boolean(user) && userProfile?.role !== "admin" && !isAdminRoute;
+    const shouldShowPublicChrome = !isAdminRoute;
+    const shouldShowPurchaseUi = !isAdminRoute;
+    const shouldShowAuthUi = !isAdminRoute;
+    const shouldShowCookieBanner = !isAdminRoute;
+    const shouldShowDebugBreakpoints = process.env.NODE_ENV !== "production";
 
     useEffect(() => {
         if (typeof window !== "undefined") {
@@ -73,29 +80,33 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     }, [userProfile?.privacySettings]);
 
     useEffect(() => {
-        const query = searchParams?.toString();
-        const nextPath = query ? `${pathname}?${query}` : pathname;
+        if (!pathname || typeof window === "undefined") {
+            return;
+        }
+
+        const query = window.location.search;
+        const nextPath = query ? `${pathname}${query}` : pathname;
         writeLastVisitedPath(nextPath);
-    }, [pathname, searchParams]);
+    }, [pathname]);
 
     return (
         <PayPalProvider>
             <DeepTracker />
-            <NotificationRuntimeBridge />
-            <TaskGuidanceBanner />
+            {isUserShell ? <NotificationRuntimeBridge /> : null}
+            {isUserShell ? <TaskGuidanceBanner /> : null}
             <Navbar />
             {children}
-            <MobileBottomBar />
+            {shouldShowPublicChrome && !isLegalRoute ? <MobileBottomBar /> : null}
             <ScrollToTop />
             <AutoScrollToTop />
-            <GlobalPurchaseModal />
+            {shouldShowPurchaseUi ? <GlobalPurchaseModal /> : null}
 
-            <InsufficientBalanceModal />
-            <GlobalAuthModal />
-            <GuidedOnboarding />
+            {isUserShell ? <InsufficientBalanceModal /> : null}
+            {shouldShowAuthUi ? <GlobalAuthModal /> : null}
+            {isUserShell ? <GuidedOnboarding /> : null}
             <Toaster position="top-center" theme="dark" richColors closeButton />
-            <CookieBanner />
-            <DebugBreakpoints />
+            {shouldShowCookieBanner ? <CookieBanner /> : null}
+            {shouldShowDebugBreakpoints ? <DebugBreakpoints /> : null}
         </PayPalProvider>
     );
 }
