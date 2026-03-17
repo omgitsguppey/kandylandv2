@@ -8,6 +8,25 @@ function isImageFormat(mimeType: string) {
     return ["image/jpeg", "image/png", "image/gif", "image/webp"].includes(mimeType);
 }
 
+function extractStorageObjectPath(downloadUrl: string, bucketName: string) {
+    try {
+        const parsedUrl = new URL(downloadUrl);
+        const pathMatch = parsedUrl.pathname.match(/^\/v0\/b\/([^/]+)\/o\/(.+)$/);
+        if (!pathMatch) {
+            return null;
+        }
+
+        const [, bucketFromUrl, encodedObjectPath] = pathMatch;
+        if (bucketFromUrl !== bucketName) {
+            return null;
+        }
+
+        return decodeURIComponent(encodedObjectPath);
+    } catch {
+        return null;
+    }
+}
+
 export async function POST(request: NextRequest) {
     try {
         await checkRateLimit(request, "settings/landing/upload", ADMIN);
@@ -27,6 +46,9 @@ export async function POST(request: NextRequest) {
         if (!isImageFormat(file.type)) {
             return NextResponse.json({ error: "Invalid file type. Only images (JPG, PNG, GIF, WebP) are allowed." }, { status: 400 });
         }
+        if (!adminDb || !adminStorage) {
+            return NextResponse.json({ error: "Database or storage not available" }, { status: 500 });
+        }
 
         if (file.size > 10 * 1024 * 1024) {
             return NextResponse.json({ error: "File exceeds 10MB limit." }, { status: 400 });
@@ -41,6 +63,9 @@ export async function POST(request: NextRequest) {
 
         const bucket = adminStorage.bucket();
         const fileRef = bucket.file(fileName);
+        const landingSettingsRef = adminDb.collection("settings").doc("landing");
+        const landingSettingsDoc = await landingSettingsRef.get();
+        const previousUrl = landingSettingsDoc.exists ? landingSettingsDoc.get(key) : null;
 
         // Firebase Client SDK automatically mints download tokens, but the Admin SDK does not.
         // We must manually generate a token to make the file publicly readable via the standard URL format.
@@ -59,11 +84,25 @@ export async function POST(request: NextRequest) {
         // Use the standard Firebase Storage public URL format with the minted token
         const downloadURL = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(fileName)}?alt=media&token=${downloadToken}`;
 
-        // Update settings in Firestore
-        const landingSettingsRef = adminDb.collection("settings").doc("landing");
-        await landingSettingsRef.set({
-            [key]: downloadURL
-        }, { merge: true });
+        try {
+            await landingSettingsRef.set({
+                [key]: downloadURL
+            }, { merge: true });
+        } catch (error) {
+            await fileRef.delete({ ignoreNotFound: true }).catch((deleteError) => {
+                console.error("Failed to clean up newly uploaded landing asset", deleteError);
+            });
+            throw error;
+        }
+
+        const previousObjectPath = typeof previousUrl === "string"
+            ? extractStorageObjectPath(previousUrl, bucket.name)
+            : null;
+        if (previousObjectPath && previousObjectPath !== fileName) {
+            await bucket.file(previousObjectPath).delete({ ignoreNotFound: true }).catch((error) => {
+                console.error("Failed to remove replaced landing asset", error);
+            });
+        }
 
         return NextResponse.json({ success: true, url: downloadURL });
     } catch (error: any) {

@@ -4,6 +4,7 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
 import { checkRateLimit, RELAXED } from "@/lib/server/rate-limit";
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
+import { applyDropStatus } from "@/lib/drop-status";
 
 export async function GET(
     request: NextRequest,
@@ -13,9 +14,13 @@ export async function GET(
         await checkRateLimit(request, "creators/profile", RELAXED);
         const { username } = await context.params;
         const normalizedUsername = username.trim().toLowerCase();
+        const nowMs = Date.now();
 
         if (!normalizedUsername) {
             return NextResponse.json({ error: "Missing creator username" }, { status: 400 });
+        }
+        if (!adminDb) {
+            return NextResponse.json({ error: "Database not available" }, { status: 500 });
         }
 
         const creatorSnapshot = await adminDb.collection("users")
@@ -45,7 +50,7 @@ export async function GET(
 
         const drops = dropsSnapshot.docs.flatMap((doc) => {
             try {
-                const normalized = normalizeDropRecord(doc.data(), doc.id);
+                const normalized = applyDropStatus(normalizeDropRecord(doc.data(), doc.id), nowMs);
                 return normalized.status === "active" ? [normalized] : [];
             } catch {
                 return [];

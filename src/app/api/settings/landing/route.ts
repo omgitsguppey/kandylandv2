@@ -14,6 +14,9 @@ export async function GET(request: NextRequest) {
         if (!isAllowedLandingAssetKey(key)) {
             return NextResponse.json({ error: "Invalid key parameter" }, { status: 400 });
         }
+        if (!adminDb) {
+            return NextResponse.json({ error: "Database not available" }, { status: 500 });
+        }
 
         const landingDoc = await adminDb.collection("settings").doc("landing").get();
 
