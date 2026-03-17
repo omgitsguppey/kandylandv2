@@ -193,6 +193,7 @@ export function trackEvent(eventName: string, eventParams?: Record<string, unkno
     // We don't await this because analytics/task syncing should never block UI.
     authFetch("/api/telemetry/track", {
         method: "POST",
+        keepalive: true,
         body: JSON.stringify({ eventName: preparedEvent.canonicalEventName, eventParams: enrichedParams }),
     }).catch((err) => {
         // Silently fail on the client if telemetry drops.

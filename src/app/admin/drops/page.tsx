@@ -219,6 +219,12 @@ export default function AdminDropsPage() {
             return;
         }
 
+        if (result.duplicate) {
+            toast.info("That drop update was already sent a moment ago.");
+            setNotificationDraft(null);
+            return;
+        }
+
         toast.success("Drop notification sent.");
         setNotificationDraft(null);
     };

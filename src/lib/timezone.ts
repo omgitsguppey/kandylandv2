@@ -115,6 +115,12 @@ export function getCSTDateKey(utcTimestamp: number): string {
     return `${year}-${pad(month)}-${pad(day)}`;
 }
 
+export function shiftCSTDateKey(dateKey: string, dayDelta: number): string {
+    const [year, month, day] = dateKey.split("-").map(Number);
+    const shifted = shiftCentralDate({ year, month, day }, dayDelta);
+    return `${shifted.year}-${pad(shifted.month)}-${pad(shifted.day)}`;
+}
+
 /**
  * Format a UTC timestamp as a `datetime-local` input string in Central time.
  * Returns format: "YYYY-MM-DDTHH:MM"

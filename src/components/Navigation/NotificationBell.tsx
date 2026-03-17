@@ -16,6 +16,7 @@ import {
 import { formatDistanceToNow } from "date-fns";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import { useNotifications } from "@/hooks/useNotifications";
 import { useAuthIdentity } from "@/context/AuthContext";
@@ -99,24 +100,50 @@ function NotificationItem({
   closeDropdown,
 }: {
   note: NotificationNote;
-  markAsRead: (id: string) => void;
+  markAsRead: (id: string) => Promise<boolean>;
   closeDropdown: () => void;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isPending, setIsPending] = useState(false);
   const router = useRouter();
   const pill = getTypePill(note.type);
   const PillIcon = pill.icon;
 
-  const openDrop = () => {
-    const destination = note.link || "/drops";
-    trackEvent("notification_opened", {
-      source: "notifications_dropdown",
-      destination,
-      notification_id: note.id,
-    });
-    markAsRead(note.id);
-    router.push(destination);
-    closeDropdown();
+  const openDrop = async () => {
+    if (isPending) {
+      return;
+    }
+
+    setIsPending(true);
+    try {
+      const destination = note.link || "/drops";
+      trackEvent("notification_opened", {
+        source: "notifications_dropdown",
+        destination,
+        notification_id: note.id,
+      });
+      await markAsRead(note.id);
+      router.push(destination);
+      closeDropdown();
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  const handleMarkAsRead = async () => {
+    if (isPending) {
+      return;
+    }
+
+    setIsPending(true);
+    try {
+      const success = await markAsRead(note.id);
+      if (!success) {
+        toast.error("We couldn't mark that notification as read. Please try again.");
+      }
+    } finally {
+      setIsPending(false);
+    }
   };
 
   return (
@@ -135,7 +162,10 @@ function NotificationItem({
 
             <button
               type="button"
-              onClick={() => markAsRead(note.id)}
+              onClick={() => {
+                void handleMarkAsRead();
+              }}
+              disabled={isPending}
               className="inline-flex h-8 shrink-0 items-center gap-1 rounded-full border border-brand-purple/30 bg-brand-purple/15 px-2.5 text-[10px] font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-brand-purple/25"
               title="Mark as read"
             >
@@ -169,7 +199,10 @@ function NotificationItem({
         {note.dropContext || note.link ? (
           <button
             type="button"
-            onClick={openDrop}
+            onClick={() => {
+              void openDrop();
+            }}
+            disabled={isPending}
             className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple/30 bg-brand-purple px-3 py-1.5 text-[11px] font-semibold text-white transition-opacity hover:opacity-90"
           >
             <ExternalLink className="h-3.5 w-3.5" />
@@ -191,6 +224,7 @@ export function NotificationBell() {
   const { user } = useAuthIdentity();
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [isOpen, setIsOpen] = useState(false);
+  const [isClearingAll, setIsClearingAll] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -230,6 +264,22 @@ export function NotificationBell() {
     });
   };
 
+  const handleMarkAllAsRead = async () => {
+    if (isClearingAll) {
+      return;
+    }
+
+    setIsClearingAll(true);
+    try {
+      const result = await markAllAsRead();
+      if (result.failedCount > 0) {
+        toast.error("Some notifications could not be cleared. Please try again.");
+      }
+    } finally {
+      setIsClearingAll(false);
+    }
+  };
+
   return (
     <div className="relative" ref={dropdownRef}>
       <button
@@ -264,7 +314,10 @@ export function NotificationBell() {
             {unreadCount > 0 ? (
               <button
                 type="button"
-                onClick={markAllAsRead}
+                onClick={() => {
+                  void handleMarkAllAsRead();
+                }}
+                disabled={isClearingAll}
                 className="inline-flex h-8 items-center gap-1 rounded-full border border-brand-purple/30 bg-brand-purple/15 px-2.5 text-[10px] font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-brand-purple/25"
               >
                 <Sparkles className="h-3 w-3" />

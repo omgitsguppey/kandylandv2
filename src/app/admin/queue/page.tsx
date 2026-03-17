@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";
 import { Loader2, ArrowLeft, ArrowUp, ArrowDown, Save, Clock, Calendar, RefreshCw, Trash2, GripVertical } from "lucide-react";
@@ -9,9 +9,27 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
 import { Drop } from "@/types/db";
 import NextImage from "next/image";
-import { format, addDays, startOfDay, parse } from "date-fns";
-import { fromCSTInput, toCSTString } from "@/lib/timezone";
+import { APP_TIMEZONE } from "@/lib/timezone";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { buildProjectedQueueSchedule } from "@/lib/drop-queue-schedule";
+
+const PROJECTED_DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
+    timeZone: APP_TIMEZONE,
+    month: "short",
+    day: "numeric",
+});
+const PROJECTED_TIME_FORMATTER = new Intl.DateTimeFormat("en-US", {
+    timeZone: APP_TIMEZONE,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+});
+
+function formatProjectedSlot(timestamp: number) {
+    const dateLabel = PROJECTED_DATE_FORMATTER.format(new Date(timestamp));
+    const timeLabel = PROJECTED_TIME_FORMATTER.format(new Date(timestamp));
+    return `${dateLabel} @ ${timeLabel}`;
+}
 
 interface QueueConfig {
     queue: string[];
@@ -105,21 +123,7 @@ export default function ManageQueuePage() {
     const projectedSchedule = useMemo(() => {
         if (!config || config.queue.length === 0 || config.dropsPerDay <= 0) return [];
 
-        const schedule: { date: Date, timeStr: string }[] = [];
-        let currDate = new Date();
-        // Assume queue processing starts scheduling for tomorrow to be safe, or today if there's time. 
-        // We'll just visualize from "Day 1".
-
-        for (let i = 0; i < config.queue.length; i++) {
-            const dayOffset = Math.floor(i / config.dropsPerDay);
-            const slotIndex = i % config.dropsPerDay;
-            const timeStr = config.timesPerDay[slotIndex] || "12:00";
-
-            const scheduledDay = addDays(currDate, dayOffset);
-            schedule.push({ date: scheduledDay, timeStr });
-        }
-
-        return schedule;
+        return buildProjectedQueueSchedule(config.queue.length, config.timesPerDay, Date.now());
     }, [config]);
 
     if (loading) {
@@ -290,7 +294,7 @@ export default function ManageQueuePage() {
                                                     </span>
                                                     {sim && (
                                                         <span className="text-xs text-gray-400 flex items-center gap-1 font-medium">
-                                                            <Calendar className="w-3.5 h-3.5 text-brand-purple/70" /> {format(sim.date, 'MMM d')} @ {sim.timeStr}
+                                                            <Calendar className="w-3.5 h-3.5 text-brand-purple/70" /> {formatProjectedSlot(sim)}
                                                         </span>
                                                     )}
                                                 </div>
@@ -300,7 +304,7 @@ export default function ManageQueuePage() {
                                                 <div className="sm:hidden w-full bg-black/50 p-2.5 rounded-lg border border-white/5">
                                                     <span className="text-xs text-gray-400 flex justify-between items-center font-medium">
                                                         <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-brand-purple/70" /> Projected Release</span>
-                                                        <span className="text-white font-mono bg-white/5 px-2 py-1 rounded-md">{format(sim.date, 'MMM d')} @ {sim.timeStr}</span>
+                                                        <span className="text-white font-mono bg-white/5 px-2 py-1 rounded-md">{formatProjectedSlot(sim)}</span>
                                                     </span>
                                                 </div>
                                             )}

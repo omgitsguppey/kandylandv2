@@ -68,7 +68,6 @@ export function useNotifications() {
             } catch (error) {
                 console.error("Failed to load notifications", error);
                 if (!cancelled) {
-                    setNotificationsState([]);
                     setLoadedForUserId(currentUserId);
                 }
             }
@@ -113,34 +112,56 @@ export function useNotifications() {
     );
 
     const markAsRead = async (id: string) => {
-        if (!userId) return;
+        if (!userId) return false;
+
+        const success = await markNotificationAsRead(id);
+        if (!success) {
+            window.dispatchEvent(new Event("kandydrops:notifications-sync"));
+            return false;
+        }
 
         setNotificationsState((prev) => prev.filter((notification) => notification.id !== id));
         trackEvent("notification_marked_read", {
             notification_id: id,
         });
-        await markNotificationAsRead(id);
         window.dispatchEvent(new Event("kandydrops:notifications-sync"));
+        return true;
     };
 
     const markAllAsRead = async () => {
-        if (!userId) return;
+        if (!userId) {
+            return { successCount: 0, failedCount: 0 };
+        }
 
         const unreadIds = notifications.map((notification) => notification.id);
 
         if (unreadIds.length === 0) {
-            return;
+            return { successCount: 0, failedCount: 0 };
         }
 
-        setNotificationsState([]);
         trackEvent("notification_mark_all_read", {
             unread_count: unreadIds.length,
         });
-        trackEvent("notification_marked_read", {
-            unread_count: unreadIds.length,
+
+        const results = await Promise.allSettled(unreadIds.map((id) => markNotificationAsRead(id)));
+        const succeededIds = unreadIds.filter((id, index) => {
+            const result = results[index];
+            return result?.status === "fulfilled" && result.value === true;
         });
-        await Promise.all(unreadIds.map((id) => markNotificationAsRead(id)));
+        const failedCount = unreadIds.length - succeededIds.length;
+
+        if (succeededIds.length > 0) {
+            setNotificationsState((prev) => prev.filter((notification) => !succeededIds.includes(notification.id)));
+            trackEvent("notification_marked_read", {
+                unread_count: succeededIds.length,
+            });
+        }
+
         window.dispatchEvent(new Event("kandydrops:notifications-sync"));
+        return {
+            successCount: succeededIds.length,
+            failedCount,
+        };
     };
 
     return { notifications, unreadCount, loading, markAsRead, markAllAsRead };

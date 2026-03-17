@@ -241,7 +241,14 @@ export async function POST(request: NextRequest) {
         createdAt: FieldValue.serverTimestamp(),
       });
 
-      // Track server-side event for analytics
+      return { duplicate: false, username };
+    });
+
+    if (result.duplicate) {
+      return NextResponse.json({ success: true, drops: dropsToCredit, duplicate: true }, { status: 200 });
+    }
+
+    const [analyticsResult, taskEventResult] = await Promise.allSettled([
       trackServerEvent("purchase_verified", {
         transaction_id: orderId,
         value: paidUsd,
@@ -253,26 +260,22 @@ export async function POST(request: NextRequest) {
         bonus_gumdrops: economics.bonusGumDrops,
         adjusted_profit_usd: economics.adjustedProfitUsd,
         bundle_key: bundlePresentation.bundleKey,
-      }, userId).catch(err => console.error("Server-side tracking failed:", err));
-
-      return { duplicate: false, username };
-    });
-
-    if (result.duplicate) {
-      return NextResponse.json({ success: true, drops: dropsToCredit, duplicate: true }, { status: 200 });
-    }
-
-    try {
-      await recordCanonicalTaskEvent(userId, result.username ?? caller.email ?? userId, "gumdrops_purchase_completed", {
+      }, userId),
+      recordCanonicalTaskEvent(userId, result.username ?? caller.email ?? userId, "gumdrops_purchase_completed", {
         package_drops: dropsToCredit,
         purchase_value: paidUsd,
         bundle_key: bundlePresentation.bundleKey,
         bundle_tier: bundlePresentation.bundleTier,
         bonus_gumdrops: economics.bonusGumDrops,
         order_id: orderId,
-      });
-    } catch (taskEventError) {
-      console.error("Purchase completed but daily task progress sync failed", taskEventError);
+      }),
+    ]);
+
+    if (analyticsResult.status === "rejected") {
+      console.error("Server-side tracking failed:", analyticsResult.reason);
+    }
+    if (taskEventResult.status === "rejected") {
+      console.error("Purchase completed but daily task progress sync failed", taskEventResult.reason);
     }
 
     return NextResponse.json({ success: true, drops: dropsToCredit });

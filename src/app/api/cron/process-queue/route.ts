@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { getResolvedQueueConfig } from "@/lib/server/drop-queue";
 import { checkRateLimit, CRON } from "@/lib/server/rate-limit";
-import { fromCSTInput, getCSTDateKey } from "@/lib/timezone";
+import { getNextQueueSlotAfter } from "@/lib/drop-queue-schedule";
 import { markDropsRuntimeChanged } from "@/lib/server/drop-runtime";
 
 function chunkArray<T>(items: T[], size: number) {
@@ -13,36 +13,6 @@ function chunkArray<T>(items: T[], size: number) {
     }
 
     return chunks;
-}
-
-function shiftDateKey(dateKey: string, dayDelta: number) {
-    const [year, month, day] = dateKey.split("-").map(Number);
-    const shifted = new Date(Date.UTC(year, month - 1, day + dayDelta, 12, 0, 0));
-    return [
-        shifted.getUTCFullYear(),
-        String(shifted.getUTCMonth() + 1).padStart(2, "0"),
-        String(shifted.getUTCDate()).padStart(2, "0"),
-    ].join("-");
-}
-
-function getNextQueueSlotAfter(afterMs: number, timesPerDay: string[], occupiedSlots: Set<number>) {
-    const normalizedTimes = timesPerDay.filter((value) => /^\d{2}:\d{2}$/.test(value));
-    if (normalizedTimes.length === 0) {
-        return afterMs;
-    }
-
-    const startDateKey = getCSTDateKey(afterMs);
-    for (let dayOffset = 0; dayOffset < 400; dayOffset += 1) {
-        const dateKey = dayOffset === 0 ? startDateKey : shiftDateKey(startDateKey, dayOffset);
-        for (const timeStr of normalizedTimes) {
-            const slotTimestamp = fromCSTInput(`${dateKey}T${timeStr}`);
-            if (Number.isFinite(slotTimestamp) && slotTimestamp > afterMs && !occupiedSlots.has(slotTimestamp)) {
-                return slotTimestamp;
-            }
-        }
-    }
-
-    return afterMs;
 }
 
 // This cron job should be called periodically (e.g. daily/hourly)

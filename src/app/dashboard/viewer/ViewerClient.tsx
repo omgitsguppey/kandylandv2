@@ -547,6 +547,24 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     }, [finalizeViewerSession]);
 
     useEffect(() => {
+        if (!drop || !isAuthorized) {
+            return;
+        }
+
+        const handlePageExit = () => {
+            finalizeViewerSession("page_exit");
+        };
+
+        window.addEventListener("pagehide", handlePageExit);
+        window.addEventListener("beforeunload", handlePageExit);
+
+        return () => {
+            window.removeEventListener("pagehide", handlePageExit);
+            window.removeEventListener("beforeunload", handlePageExit);
+        };
+    }, [drop, finalizeViewerSession, isAuthorized]);
+
+    useEffect(() => {
         if (!emblaApi) return;
         emblaApi.scrollTo(activeIndex);
     }, [emblaApi, activeIndex]);

@@ -11,6 +11,8 @@ import { fetchUnreadNotificationsForUser, isNotificationVisibleToUser } from "@/
 import { checkRateLimit, HEAVY_READ, STANDARD } from "@/lib/server/rate-limit";
 import { hasTrustedSiteOrigin } from "@/lib/server/request-origin";
 
+const DUPLICATE_NOTIFICATION_WINDOW_MS = 2 * 60 * 1000;
+
 function buildNotificationsEtag(
   notifications: Array<{
     id: string;
@@ -21,6 +23,29 @@ function buildNotificationsEtag(
   return `"${createHash("sha1").update(JSON.stringify(
     notifications.map((notification) => [notification.id, notification.createdAtMs, notification.readBy.length]),
   )).digest("hex")}"`;
+}
+
+function buildDispatchFingerprint(payload: ReturnType<typeof normalizeNotificationCreatePayload>) {
+  if (!payload) {
+    return "";
+  }
+
+  return createHash("sha1").update(JSON.stringify({
+    title: payload.title,
+    message: payload.message,
+    type: payload.type,
+    target: {
+      global: payload.target.global,
+      userIds: [...payload.target.userIds].sort(),
+      excludedUserIds: [...(payload.target.excludedUserIds ?? [])].sort(),
+    },
+    link: payload.link ?? "",
+    dropContext: payload.dropContext ? {
+      dropId: payload.dropContext.dropId,
+      dropTitle: payload.dropContext.dropTitle,
+      previewImageUrl: payload.dropContext.previewImageUrl,
+    } : null,
+  })).digest("hex");
 }
 
 export async function GET(request: NextRequest) {
@@ -81,22 +106,55 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid notification payload" }, { status: 400 });
     }
 
-    await adminDb.collection("notifications").add({
-      title: payload.title,
-      message: payload.message,
-      type: payload.type,
-      target: payload.target,
-      link: payload.link || null,
-      dropContext: payload.dropContext || null,
-      createdAt: FieldValue.serverTimestamp(),
-      readBy: [],
+    const dispatchFingerprint = buildDispatchFingerprint(payload);
+    const dispatchRef = adminDb.collection("notificationDispatchLocks").doc(dispatchFingerprint);
+    const notificationRef = adminDb.collection("notifications").doc();
+    const nowMs = Date.now();
+
+    const result = await adminDb.runTransaction(async (transaction) => {
+      const existingDispatch = await transaction.get(dispatchRef);
+      const lastDispatchedAtMs = Number(existingDispatch.data()?.dispatchedAtMs ?? 0);
+      const isRecentDuplicate = existingDispatch.exists
+        && Number.isFinite(lastDispatchedAtMs)
+        && nowMs - lastDispatchedAtMs < DUPLICATE_NOTIFICATION_WINDOW_MS;
+
+      if (isRecentDuplicate) {
+        return { duplicate: true };
+      }
+
+      transaction.set(notificationRef, {
+        title: payload.title,
+        message: payload.message,
+        type: payload.type,
+        target: payload.target,
+        link: payload.link || null,
+        dropContext: payload.dropContext || null,
+        createdAt: FieldValue.serverTimestamp(),
+        readBy: [],
+        dispatchFingerprint,
+      });
+      transaction.set(dispatchRef, {
+        dispatchedAtMs: nowMs,
+        notificationId: notificationRef.id,
+        updatedAt: FieldValue.serverTimestamp(),
+      }, { merge: true });
+
+      return { duplicate: false };
     });
 
-    if (payload.target.global) {
-      await broadcastFCM(payload.title, payload.message, payload.link || "/drops");
+    if (result.duplicate) {
+      return NextResponse.json({ success: true, duplicate: true });
     }
 
-    return NextResponse.json({ success: true });
+    if (payload.target.global) {
+      try {
+        await broadcastFCM(payload.title, payload.message, payload.link || "/drops");
+      } catch (error) {
+        console.error("Notification broadcast failed after notification was recorded:", error);
+      }
+    }
+
+    return NextResponse.json({ success: true, duplicate: false });
   } catch (error) {
     return handleApiError(error, "Notifications.POST");
   }

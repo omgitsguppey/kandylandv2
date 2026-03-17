@@ -20,7 +20,10 @@ export async function sendNotification(payload: NotificationPayload) {
 
         const result = await response.json();
         if (!response.ok) throw new Error(result.error);
-        return { success: true };
+        return {
+            success: true,
+            duplicate: result.duplicate === true,
+        };
     } catch (error) {
         console.error("Error sending notification:", error);
         return { success: false, error };
