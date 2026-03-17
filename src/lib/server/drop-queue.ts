@@ -21,16 +21,20 @@ function normalizeTimesPerDay(timesPerDay: unknown, dropsPerDay: number): string
   const rawTimes = Array.isArray(timesPerDay)
     ? timesPerDay.filter((value): value is string => typeof value === "string" && /^\d{2}:\d{2}$/.test(value))
     : [];
+  const sortedTimes = [...rawTimes].sort((left, right) => left.localeCompare(right));
 
-  if (rawTimes.length === 0) {
+  if (sortedTimes.length === 0) {
     return Array.from({ length: dropsPerDay }, (_, index) => (index === 0 ? "12:00" : "18:00"));
   }
 
-  if (rawTimes.length >= dropsPerDay) {
-    return rawTimes.slice(0, dropsPerDay);
+  if (sortedTimes.length >= dropsPerDay) {
+    return sortedTimes.slice(0, dropsPerDay);
   }
 
-  return [...rawTimes, ...Array(dropsPerDay - rawTimes.length).fill(rawTimes[rawTimes.length - 1] || "12:00")];
+  return [
+    ...sortedTimes,
+    ...Array(dropsPerDay - sortedTimes.length).fill(sortedTimes[sortedTimes.length - 1] || "12:00"),
+  ];
 }
 
 function normalizeQueueConfig(raw: Partial<DropQueueConfig> | null | undefined): DropQueueConfig {

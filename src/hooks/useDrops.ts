@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import useSWRInfinite from "swr/infinite";
 import { Drop } from "@/types/db";
 import { applyDropStatus } from "@/lib/drop-status";
+import { DROP_RUNTIME_COLLECTION, DROP_RUNTIME_DOC_ID } from "@/lib/drop-runtime";
 
 const INITIAL_SWEEP_NOW = Date.now();
 const DROPS_PAGE_SIZE = 12;
@@ -12,7 +13,7 @@ const EXPIRY_REFRESH_BUFFER_MS = 1_000;
 
 interface DropFeedPage {
   drops: Drop[];
-  nextCursor: number | null;
+  nextCursor: string | null;
 }
 
 const fetcher = async (url: string) => {
@@ -24,6 +25,10 @@ const fetcher = async (url: string) => {
   return json;
 };
 
+function buildDropCursor(drop: Drop) {
+  return `${drop.validFrom}|${drop.id}`;
+}
+
 export function useDrops(
   statusFilter: Drop["status"][] | null = ["active", "scheduled"],
   initialData?: Drop[]
@@ -33,13 +38,13 @@ export function useDrops(
   const getKey = (pageIndex: number, previousPageData: DropFeedPage | null) => {
     if (previousPageData && !previousPageData.nextCursor) return null; // reached the end
     if (pageIndex === 0) return `/api/drops?limit=${DROPS_PAGE_SIZE}`;
-    return `/api/drops?limit=${DROPS_PAGE_SIZE}&cursor=${previousPageData?.nextCursor}`;
+    return `/api/drops?limit=${DROPS_PAGE_SIZE}&cursor=${encodeURIComponent(previousPageData?.nextCursor ?? "")}`;
   };
 
   const fallback = useMemo(() => {
     return initialData ? [{
       drops: initialData,
-      nextCursor: initialData.length === DROPS_PAGE_SIZE ? initialData[initialData.length - 1].validFrom : null,
+      nextCursor: initialData.length === DROPS_PAGE_SIZE ? buildDropCursor(initialData[initialData.length - 1]) : null,
     }] : undefined;
   }, [initialData]);
 
@@ -74,6 +79,53 @@ export function useDrops(
     return () => {
       window.removeEventListener("focus", syncDrops);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [mutate]);
+
+  useEffect(() => {
+    let cancelled = false;
+    let unsubscribe: (() => void) | undefined;
+    let sawInitialSnapshot = false;
+
+    async function subscribeToDropRuntime() {
+      try {
+        const [{ doc, onSnapshot }, { db }] = await Promise.all([
+          import("firebase/firestore"),
+          import("@/lib/firebase-data"),
+        ]);
+        if (cancelled) {
+          return;
+        }
+
+        unsubscribe = onSnapshot(
+          doc(db, DROP_RUNTIME_COLLECTION, DROP_RUNTIME_DOC_ID),
+          () => {
+            if (!sawInitialSnapshot) {
+              sawInitialSnapshot = true;
+              return;
+            }
+
+            setSweepNowMs(Date.now());
+            void mutate();
+          },
+          (error) => {
+            console.error("Failed to subscribe to drop runtime updates", error);
+          },
+        );
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Failed to initialize drop runtime subscription", error);
+        }
+      }
+    }
+
+    void subscribeToDropRuntime();
+
+    return () => {
+      cancelled = true;
+      if (unsubscribe) {
+        unsubscribe();
+      }
     };
   }, [mutate]);
 

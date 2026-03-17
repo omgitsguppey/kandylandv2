@@ -6,6 +6,7 @@ import { sendGlobalDropNotification } from "@/lib/server/push-notifications";
 import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
 import { resolveDropStatusFromTiming } from "@/lib/drop-status";
+import { touchDropsRuntime } from "@/lib/server/drop-runtime";
 
 // Whitelist of allowed drop fields to prevent arbitrary writes
 const ALLOWED_DROP_FIELDS = [
@@ -45,8 +46,9 @@ export async function POST(request: NextRequest) {
 
         const sanitized = sanitizeDropData(dropData);
         const now = Date.now();
+        const resolvedInitialValidFrom = typeof dropData.validFrom === "number" ? dropData.validFrom : now;
         const resolvedInitialStatus = resolveDropStatusFromTiming({
-            validFrom: typeof dropData.validFrom === "number" ? dropData.validFrom : now,
+            validFrom: resolvedInitialValidFrom,
             validUntil: typeof dropData.validUntil === "number" ? dropData.validUntil : undefined,
         }, now);
         sanitized.status = resolvedInitialStatus;
@@ -57,11 +59,17 @@ export async function POST(request: NextRequest) {
             totalClicks: 0,
             createdAt: FieldValue.serverTimestamp(),
         });
+        await touchDropsRuntime(now);
 
         // Automatically issue a global notification and Web Push ONLY if immediately active
         if (resolvedInitialStatus === "active") {
             try {
-                await sendGlobalDropNotification(sanitized.title as string, docRef.id, sanitized.imageUrl as string);
+                await sendGlobalDropNotification(
+                    sanitized.title as string,
+                    docRef.id,
+                    sanitized.imageUrl as string,
+                    `drop-activation:${docRef.id}:${resolvedInitialValidFrom}`,
+                );
             } catch (notifError) {
                 console.error("Non-fatal: Failed to generate global notification for new drop", notifError);
             }
@@ -120,6 +128,7 @@ export async function PUT(request: NextRequest) {
         sanitized.status = nextLiveStatus;
 
         await dropRef.update(sanitized);
+        await touchDropsRuntime(now);
 
         if (shouldNotifyActivation) {
             try {
@@ -127,6 +136,7 @@ export async function PUT(request: NextRequest) {
                     typeof sanitized.title === "string" ? sanitized.title : existingDrop.title,
                     dropId,
                     typeof sanitized.imageUrl === "string" ? sanitized.imageUrl : existingDrop.imageUrl,
+                    `drop-activation:${dropId}:${nextValidFrom}`,
                 );
             } catch (notifError) {
                 console.error("Non-fatal: Failed to generate activation notification for updated drop", notifError);
@@ -165,6 +175,7 @@ export async function DELETE(request: NextRequest) {
         }
 
         await dropRef.delete();
+        await touchDropsRuntime();
 
         revalidatePath("/drops");
         revalidatePath("/");

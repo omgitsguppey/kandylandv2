@@ -57,17 +57,33 @@ export function NotificationRuntimeBridge() {
         const reminderKey = `${getCSTDayBoundaries(nextRefreshMs - 1).startOfDay}:${user.uid}`;
         const syncReminder = async () => {
             if (reminderSyncKeyRef.current === reminderKey) {
-                return;
+                return false;
             }
 
             reminderSyncKeyRef.current = reminderKey;
-            await authFetch("/api/tasks/reminders/sync", { method: "POST" }).catch((error) => {
-                console.error("Failed to sync task reminder", error);
-            });
+            return authFetch("/api/tasks/reminders/sync", { method: "POST" })
+                .then(async (response) => {
+                    if (!response.ok) {
+                        throw new Error("Reminder sync failed");
+                    }
+
+                    const payload = await response.json().catch(() => ({}));
+                    return payload?.sent === true;
+                })
+                .catch((error) => {
+                    reminderSyncKeyRef.current = null;
+                    console.error("Failed to sync task reminder", error);
+                    return false;
+                });
         };
 
         const triggerReminder = async () => {
             if (reminderKeyRef.current === reminderKey) {
+                return;
+            }
+
+            const sent = await syncReminder();
+            if (!sent) {
                 return;
             }
 
@@ -79,7 +95,6 @@ export function NotificationRuntimeBridge() {
                     pending_checkin: pendingCheckIn,
                 });
             }
-            await syncReminder();
         };
 
         if (alreadySentToday) {

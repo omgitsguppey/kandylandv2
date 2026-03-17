@@ -3,6 +3,7 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { sendTargetedDropNotification } from "@/lib/server/push-notifications";
 import { resolveDropStatusFromTiming } from "@/lib/drop-status";
 import { checkRateLimit, CRON } from "@/lib/server/rate-limit";
+import { markDropsRuntimeChanged } from "@/lib/server/drop-runtime";
 
 // This cron job should be called frequently (e.g. every 5-15 minutes)
 export async function GET(request: NextRequest) {
@@ -42,6 +43,7 @@ export async function GET(request: NextRequest) {
             imageUrl?: string;
             isReturn: boolean;
             excludedUserIds: string[];
+            activationKey: string;
         }> = [];
 
         for (const doc of scheduledSnap.docs) {
@@ -79,6 +81,7 @@ export async function GET(request: NextRequest) {
                 imageUrl: typeof drop.imageUrl === "string" ? drop.imageUrl : undefined,
                 isReturn,
                 excludedUserIds,
+                activationKey: `drop-activation:${dropId}:${Number(drop.validFrom || 0)}`,
             });
         }
 
@@ -99,6 +102,7 @@ export async function GET(request: NextRequest) {
         }
 
         if (activatedCount > 0 || expiredCount > 0) {
+            markDropsRuntimeChanged(batch, now);
             await batch.commit();
         }
 
@@ -110,6 +114,7 @@ export async function GET(request: NextRequest) {
                     payload.imageUrl,
                     payload.isReturn,
                     payload.excludedUserIds,
+                    payload.activationKey,
                 ),
             ),
         );

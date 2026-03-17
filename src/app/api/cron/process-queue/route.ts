@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { addDays, startOfDay, set } from "date-fns";
 import { getResolvedQueueConfig } from "@/lib/server/drop-queue";
 import { checkRateLimit, CRON } from "@/lib/server/rate-limit";
+import { fromCSTInput, getCSTDateKey } from "@/lib/timezone";
+import { markDropsRuntimeChanged } from "@/lib/server/drop-runtime";
 
 function chunkArray<T>(items: T[], size: number) {
     const chunks: T[][] = [];
@@ -12,6 +13,36 @@ function chunkArray<T>(items: T[], size: number) {
     }
 
     return chunks;
+}
+
+function shiftDateKey(dateKey: string, dayDelta: number) {
+    const [year, month, day] = dateKey.split("-").map(Number);
+    const shifted = new Date(Date.UTC(year, month - 1, day + dayDelta, 12, 0, 0));
+    return [
+        shifted.getUTCFullYear(),
+        String(shifted.getUTCMonth() + 1).padStart(2, "0"),
+        String(shifted.getUTCDate()).padStart(2, "0"),
+    ].join("-");
+}
+
+function getNextQueueSlotAfter(afterMs: number, timesPerDay: string[], occupiedSlots: Set<number>) {
+    const normalizedTimes = timesPerDay.filter((value) => /^\d{2}:\d{2}$/.test(value));
+    if (normalizedTimes.length === 0) {
+        return afterMs;
+    }
+
+    const startDateKey = getCSTDateKey(afterMs);
+    for (let dayOffset = 0; dayOffset < 400; dayOffset += 1) {
+        const dateKey = dayOffset === 0 ? startDateKey : shiftDateKey(startDateKey, dayOffset);
+        for (const timeStr of normalizedTimes) {
+            const slotTimestamp = fromCSTInput(`${dateKey}T${timeStr}`);
+            if (Number.isFinite(slotTimestamp) && slotTimestamp > afterMs && !occupiedSlots.has(slotTimestamp)) {
+                return slotTimestamp;
+            }
+        }
+    }
+
+    return afterMs;
 }
 
 // This cron job should be called periodically (e.g. daily/hourly)
@@ -45,21 +76,19 @@ export async function GET(request: NextRequest) {
         const ONE_DAY_MS = 24 * 60 * 60 * 1000;
         const cooldownMs = (config.cooldownDays || 7) * ONE_DAY_MS;
 
-        // 1. Identify all scheduled/active drops to find the latest occupied slot
-        let latestScheduledTime = now;
+        const occupiedSlots = new Set<number>();
 
         for (const dropId of config.queue) {
             const drop = dropsMap[dropId];
             if (!drop) continue;
 
-            const isScheduledOrActive = drop.validUntil
-                ? now < drop.validUntil
-                : drop.validFrom > now; // No expiration, but future start
+            const validFrom = Number(drop.validFrom);
+            const validUntil = Number.isFinite(drop.validUntil) ? Number(drop.validUntil) : null;
+            const isScheduledOrActive = Number.isFinite(validFrom)
+                && (!validUntil || now < validUntil);
 
             if (isScheduledOrActive) {
-                if (drop.validFrom > latestScheduledTime) {
-                    latestScheduledTime = drop.validFrom;
-                }
+                occupiedSlots.add(validFrom);
             }
         }
 
@@ -85,30 +114,22 @@ export async function GET(request: NextRequest) {
 
         // 3. Assign slots to eligible drops
         if (eligibleDropIds.length === 0) {
-            return NextResponse.json({ message: "No drops eligible for scheduling at this time.", latestScheduledTime });
+            return NextResponse.json({ message: "No drops eligible for scheduling at this time." });
         }
 
         const updates: any[] = [];
-        let currentSlotTime = new Date(Math.max(now, latestScheduledTime));
-
-        // Ensure starting on a clean day boundary logic
-        // Find the next available time string from the setting array
-        // We'll just increment days and assign times
+        let currentSlotAnchorMs = now;
 
         let batch = adminDb.batch();
         let opsCount = 0;
 
-        // Base slot day is tomorrow if latest slot is today, or same day if empty
-        let slotBaseDate = startOfDay(addDays(currentSlotTime, 1));
-        let timeIndex = 0;
-
         for (const dropId of eligibleDropIds) {
             const drop = dropsMap[dropId];
-            const timeStr = config.timesPerDay[timeIndex] || "12:00";
-            const [hours, minutes] = timeStr.split(":").map(Number);
-
-            const nextValidFrom = set(slotBaseDate, { hours, minutes, seconds: 0, milliseconds: 0 }).getTime();
-            const nextValidUntil = nextValidFrom + ONE_DAY_MS; // Active for 24h
+            const nextValidFrom = getNextQueueSlotAfter(currentSlotAnchorMs, config.timesPerDay, occupiedSlots);
+            if (!Number.isFinite(nextValidFrom) || nextValidFrom <= currentSlotAnchorMs) {
+                throw new Error(`Unable to resolve the next queue slot for drop ${dropId}`);
+            }
+            const nextValidUntil = nextValidFrom + ONE_DAY_MS;
 
             const activationCount = (drop.activationCount || 0) + 1;
 
@@ -122,20 +143,12 @@ export async function GET(request: NextRequest) {
 
             opsCount++;
             updates.push({ dropId, validFrom: nextValidFrom, activationCount });
-
-            // Notification Payload Generation (Will actually trigger when the drop becomes active via another listener/cron, 
-            // but for simplicity we can just prep or fire it if it's happening soon. Since it's a future schedule, 
-            // the system needs a separate "just went live" cron, but we will schedule a notification task or simulate it here).
-
-            // Increment slot
-            timeIndex++;
-            if (timeIndex >= config.dropsPerDay) {
-                timeIndex = 0;
-                slotBaseDate = addDays(slotBaseDate, 1);
-            }
+            occupiedSlots.add(nextValidFrom);
+            currentSlotAnchorMs = nextValidFrom;
         }
 
         if (opsCount > 0) {
+            markDropsRuntimeChanged(batch, now);
             await batch.commit();
         }
 

@@ -1,96 +1,191 @@
 /**
- * Timezone utility — all timing normalized to Central Standard Time (America/Chicago).
+ * Timezone utility - all timing normalized to Central time (America/Chicago).
  *
  * Used by:
- * - Admin create form (date pickers display/parse CST)
- * - Checkin route (day boundary in CST)
- * - Drop auto-rotation (scheduled times in CST)
+ * - Admin create form (date pickers display/parse Central time)
+ * - Check-in route (day boundary in Central time)
+ * - Drop auto-rotation (scheduled times in Central time)
  */
 
 export const APP_TIMEZONE = "America/Chicago";
 
+type CentralDateParts = {
+    year: number;
+    month: number;
+    day: number;
+    hour: number;
+    minute: number;
+    second: number;
+};
+
+const CENTRAL_DATE_TIME_FORMATTER = new Intl.DateTimeFormat("en-US", {
+    timeZone: APP_TIMEZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+});
+
+const CENTRAL_OFFSET_FORMATTER = new Intl.DateTimeFormat("en-US", {
+    timeZone: APP_TIMEZONE,
+    timeZoneName: "shortOffset",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+});
+
+function pad(value: number): string {
+    return String(value).padStart(2, "0");
+}
+
+function buildComparableUtc(parts: Pick<CentralDateParts, "year" | "month" | "day" | "hour" | "minute" | "second">) {
+    return Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute, parts.second);
+}
+
+function extractCentralDateParts(date: Date): CentralDateParts {
+    const parts = CENTRAL_DATE_TIME_FORMATTER.formatToParts(date);
+    const lookup = (type: Intl.DateTimeFormatPartTypes, fallback: number) => {
+        const raw = parts.find((part) => part.type === type)?.value;
+        const parsed = raw ? Number.parseInt(raw, 10) : Number.NaN;
+        return Number.isFinite(parsed) ? parsed : fallback;
+    };
+
+    return {
+        year: lookup("year", 1970),
+        month: lookup("month", 1),
+        day: lookup("day", 1),
+        hour: lookup("hour", 0),
+        minute: lookup("minute", 0),
+        second: lookup("second", 0),
+    };
+}
+
+function parseCentralOffsetMs(utcTimestamp: number): number {
+    const parts = CENTRAL_OFFSET_FORMATTER.formatToParts(new Date(utcTimestamp));
+    const offsetLabel = parts.find((part) => part.type === "timeZoneName")?.value ?? "GMT+0";
+    const match = offsetLabel.match(/^GMT(?:([+-])(\d{1,2})(?::?(\d{2}))?)?$/u);
+    if (!match) {
+        return 0;
+    }
+
+    const sign = match[1] === "-" ? -1 : 1;
+    const hours = Number.parseInt(match[2] ?? "0", 10);
+    const minutes = Number.parseInt(match[3] ?? "0", 10);
+    return sign * ((hours * 60) + minutes) * 60 * 1000;
+}
+
+function resolveCentralLocalToUtc(parts: Pick<CentralDateParts, "year" | "month" | "day" | "hour" | "minute" | "second">): number {
+    const targetComparable = buildComparableUtc(parts);
+    let utcTimestamp = targetComparable - parseCentralOffsetMs(targetComparable);
+
+    for (let iteration = 0; iteration < 5; iteration += 1) {
+        const actual = extractCentralDateParts(new Date(utcTimestamp));
+        const diffMs = targetComparable - buildComparableUtc(actual);
+        if (diffMs === 0) {
+            return utcTimestamp;
+        }
+        utcTimestamp += diffMs;
+    }
+
+    return utcTimestamp;
+}
+
+function shiftCentralDate(parts: Pick<CentralDateParts, "year" | "month" | "day">, dayDelta: number) {
+    const shifted = new Date(Date.UTC(parts.year, parts.month - 1, parts.day + dayDelta, 12, 0, 0));
+    return {
+        year: shifted.getUTCFullYear(),
+        month: shifted.getUTCMonth() + 1,
+        day: shifted.getUTCDate(),
+    };
+}
+
+export function getCSTDateParts(utcTimestamp: number) {
+    return extractCentralDateParts(new Date(utcTimestamp));
+}
+
+export function getCSTDateKey(utcTimestamp: number): string {
+    const { year, month, day } = getCSTDateParts(utcTimestamp);
+    return `${year}-${pad(month)}-${pad(day)}`;
+}
+
 /**
- * Format a UTC timestamp as a `datetime-local` input string in CST.
+ * Format a UTC timestamp as a `datetime-local` input string in Central time.
  * Returns format: "YYYY-MM-DDTHH:MM"
  */
 export function toCSTString(timestamp: number): string {
-    const date = new Date(timestamp);
-    const cstString = date.toLocaleString("en-US", {
-        timeZone: APP_TIMEZONE,
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-    });
-
-    // "MM/DD/YYYY, HH:MM" → "YYYY-MM-DDTHH:MM"
-    const [datePart, timePart] = cstString.split(", ");
-    const [month, day, year] = datePart.split("/");
-    return `${year}-${month}-${day}T${timePart}`;
+    const { year, month, day, hour, minute } = getCSTDateParts(timestamp);
+    return `${year}-${pad(month)}-${pad(day)}T${pad(hour)}:${pad(minute)}`;
 }
 
 /**
- * Parse a `datetime-local` input string as CST and return UTC milliseconds.
+ * Parse a `datetime-local` input string as Central time and return UTC milliseconds.
  * Input format: "YYYY-MM-DDTHH:MM"
  */
 export function fromCSTInput(datetimeLocal: string): number {
-    // Build an ISO-like string and use Intl to resolve the CST offset
-    const [datePart, timePart] = datetimeLocal.split("T");
-    const [year, month, day] = datePart.split("-").map(Number);
-    const [hour, minute] = timePart.split(":").map(Number);
-
-    // Create a date in the CST timezone by finding the UTC offset
-    // Use a reference date to determine the current CST/CDT offset
-    const refDate = new Date(Date.UTC(year, month - 1, day, hour, minute));
-
-    // Get the offset by comparing formatted CST time with UTC
-    const cstParts = new Intl.DateTimeFormat("en-US", {
-        timeZone: APP_TIMEZONE,
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-    }).formatToParts(refDate);
-
-    const cstHour = Number(cstParts.find(p => p.type === "hour")?.value ?? 0);
-    const cstDay = Number(cstParts.find(p => p.type === "day")?.value ?? 1);
-
-    // Calculate offset: UTC hour - CST hour (adjusting for day boundary)
-    let offsetHours = hour - cstHour;
-    if (cstDay !== day) {
-        offsetHours += (day - cstDay) * 24;
+    const match = datetimeLocal.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/u);
+    if (!match) {
+        return Number.NaN;
     }
 
-    // The actual UTC time = local CST time + offset
-    return Date.UTC(year, month - 1, day, hour + offsetHours, minute);
+    const year = Number.parseInt(match[1], 10);
+    const month = Number.parseInt(match[2], 10);
+    const day = Number.parseInt(match[3], 10);
+    const hour = Number.parseInt(match[4], 10);
+    const minute = Number.parseInt(match[5], 10);
+    const utcTimestamp = resolveCentralLocalToUtc({
+        year,
+        month,
+        day,
+        hour,
+        minute,
+        second: 0,
+    });
+
+    const actual = getCSTDateParts(utcTimestamp);
+    if (
+        actual.year !== year
+        || actual.month !== month
+        || actual.day !== day
+        || actual.hour !== hour
+        || actual.minute !== minute
+    ) {
+        return utcTimestamp;
+    }
+
+    return utcTimestamp;
 }
 
 /**
- * Get CST day boundaries (midnight-to-midnight) for a given UTC timestamp.
+ * Get Central day boundaries (midnight-to-midnight) for a given UTC timestamp.
  * Returns { startOfDay, endOfDay } as UTC milliseconds.
  */
 export function getCSTDayBoundaries(utcTimestamp: number): { startOfDay: number; endOfDay: number } {
-    const date = new Date(utcTimestamp);
+    const { year, month, day } = getCSTDateParts(utcTimestamp);
+    const nextDay = shiftCentralDate({ year, month, day }, 1);
 
-    // Get the CST date components
-    const parts = new Intl.DateTimeFormat("en-US", {
-        timeZone: APP_TIMEZONE,
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-    }).formatToParts(date);
-
-    const year = Number(parts.find(p => p.type === "year")?.value ?? 2026);
-    const month = Number(parts.find(p => p.type === "month")?.value ?? 1);
-    const day = Number(parts.find(p => p.type === "day")?.value ?? 1);
-
-    // Midnight CST for this day → UTC
-    const startOfDay = fromCSTInput(`${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}T00:00`);
-    const endOfDay = startOfDay + 24 * 60 * 60 * 1000;
+    const startOfDay = resolveCentralLocalToUtc({
+        year,
+        month,
+        day,
+        hour: 0,
+        minute: 0,
+        second: 0,
+    });
+    const endOfDay = resolveCentralLocalToUtc({
+        year: nextDay.year,
+        month: nextDay.month,
+        day: nextDay.day,
+        hour: 0,
+        minute: 0,
+        second: 0,
+    });
 
     return { startOfDay, endOfDay };
 }
@@ -109,13 +204,30 @@ export function isPreviousCSTDay(timestamp: number, compareTo: number): boolean 
         return false;
     }
 
-    const { startOfDay } = getCSTDayBoundaries(compareTo);
-    const previousDayStart = startOfDay - 24 * 60 * 60 * 1000;
-    return timestamp >= previousDayStart && timestamp < startOfDay;
+    const { year, month, day } = getCSTDateParts(compareTo);
+    const previousDay = shiftCentralDate({ year, month, day }, -1);
+    const previousDayStart = resolveCentralLocalToUtc({
+        year: previousDay.year,
+        month: previousDay.month,
+        day: previousDay.day,
+        hour: 0,
+        minute: 0,
+        second: 0,
+    });
+    const currentDayStart = resolveCentralLocalToUtc({
+        year,
+        month,
+        day,
+        hour: 0,
+        minute: 0,
+        second: 0,
+    });
+
+    return timestamp >= previousDayStart && timestamp < currentDayStart;
 }
 
 /**
- * Get default CST date strings for create form (now → 7 days from now).
+ * Get default Central date strings for create form (now -> 7 days from now).
  */
 export function getDefaultCSTDates(): { validFrom: string; validUntil: string } {
     const now = Date.now();

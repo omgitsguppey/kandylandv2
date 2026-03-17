@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAuth, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
-import { getCSTDayBoundaries } from "@/lib/timezone";
+import { getCSTDateKey, getCSTDayBoundaries } from "@/lib/timezone";
 import { checkRateLimit, SENSITIVE_WRITE } from "@/lib/server/rate-limit";
 import { getDailyCheckInProgress } from "@/lib/daily-checkin";
 import { recordCanonicalTaskEvent } from "@/lib/server/daily-tasks";
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
             await recordCanonicalTaskEvent(userId, result.username ?? caller.email ?? userId, "daily_check_in_claim", {
                 reward: result.reward,
                 streak_count: result.nextStreak,
-                day_key: new Date(result.lastCheckIn).toISOString().slice(0, 10),
+                day_key: getCSTDateKey(result.lastCheckIn),
                 transaction_id: `${userId}:checkin:${result.lastCheckIn}`,
             });
         } catch (taskEventError) {

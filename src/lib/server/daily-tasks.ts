@@ -2,8 +2,9 @@ import "server-only";
 
 import { FieldValue, type Transaction } from "firebase-admin/firestore";
 
+import { normalizeNotificationDoc } from "@/lib/notification-contracts";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { hasUnreadNotificationsForUser } from "@/lib/server/notification-inbox";
+import { hasUnreadNotificationsForUser, isUnreadNotificationForUser } from "@/lib/server/notification-inbox";
 import {
   BUILT_IN_DAILY_TASKS,
   DAILY_TASK_COOLDOWN_DAYS,
@@ -59,6 +60,17 @@ interface TaskEligibilityContext {
   hasUnlockedContent: boolean;
   hasLiveDrops: boolean;
   hasUnreadNotifications: boolean;
+}
+
+async function readQuerySnapshot(
+  query: FirebaseFirestore.Query,
+  transaction?: Transaction,
+) {
+  if (transaction) {
+    return transaction.get(query);
+  }
+
+  return query.get();
 }
 
 function normalizeStringArray(value: unknown): string[] {
@@ -492,16 +504,19 @@ async function resolveTaskEligibilityContext(
   uid: string,
   userData: UserProfile,
   nowMs: number,
+  transaction?: Transaction,
 ): Promise<TaskEligibilityContext> {
   const hasUnlockedContent = Array.isArray(userData.unlockedContent) && userData.unlockedContent.length > 0;
 
   const [liveDropsResult, unreadNotificationsResult] = await Promise.allSettled([
     (async () => {
-      const snapshot = await adminDb.collection("drops")
+      const snapshot = await readQuerySnapshot(
+        adminDb.collection("drops")
         .where("validFrom", "<=", nowMs)
         .orderBy("validFrom", "desc")
-        .limit(40)
-        .get();
+        .limit(40),
+        transaction,
+      );
 
       return snapshot.docs.some((doc) => {
         const data = doc.data();
@@ -514,7 +529,29 @@ async function resolveTaskEligibilityContext(
         return isDropActiveNow({ validFrom, validUntil }, nowMs);
       });
     })(),
-    hasUnreadNotificationsForUser(uid, nowMs),
+    (async () => {
+      if (!transaction) {
+        return hasUnreadNotificationsForUser(uid, nowMs);
+      }
+
+      const snapshot = await readQuerySnapshot(
+        adminDb.collection("notifications").orderBy("createdAt", "desc").limit(200),
+        transaction,
+      );
+
+      return snapshot.docs.some((doc) => {
+        const normalized = normalizeNotificationDoc(doc.id, doc.data() as Record<string, unknown>);
+        if (!normalized) {
+          return false;
+        }
+
+        return isUnreadNotificationForUser({
+          readBy: normalized.readBy,
+          target: normalized.target,
+          createdAtMs: normalized.createdAt?.toMillis() ?? 0,
+        }, uid, nowMs);
+      });
+    })(),
   ]);
 
   return {
@@ -529,18 +566,19 @@ export async function buildFreshTaskStateForUser(
   userData: UserProfile,
   definitions: DailyTaskDefinition[],
   nowMs: number,
+  transaction?: Transaction,
 ): Promise<TaskStateBuildResult> {
   const definitionMap = createDefinitionMap(definitions);
   const normalizedState = normalizeTaskState(userData, definitionMap, nowMs);
   const { endOfDay } = getCSTDayBoundaries(nowMs);
 
   if (normalizedState.tasks.length === 0 || normalizedState.tasks.length !== DAILY_TASK_LIMIT) {
-    const eligibility = await resolveTaskEligibilityContext(uid, userData, nowMs);
+    const eligibility = await resolveTaskEligibilityContext(uid, userData, nowMs, transaction);
     return buildRotatedState(normalizedState, definitions, nowMs, "initial", [], userData, eligibility);
   }
 
   if (shouldRotateIncompleteCycle(normalizedState, nowMs)) {
-    const eligibility = await resolveTaskEligibilityContext(uid, userData, nowMs);
+    const eligibility = await resolveTaskEligibilityContext(uid, userData, nowMs, transaction);
     return buildRotatedState(
       normalizedState,
       definitions,
@@ -553,7 +591,7 @@ export async function buildFreshTaskStateForUser(
   }
 
   if (shouldRotateCompletedCycle(normalizedState, nowMs)) {
-    const eligibility = await resolveTaskEligibilityContext(uid, userData, nowMs);
+    const eligibility = await resolveTaskEligibilityContext(uid, userData, nowMs, transaction);
     return buildRotatedState(normalizedState, definitions, nowMs, "cycle_complete", [], userData, eligibility);
   }
 
@@ -737,7 +775,7 @@ export async function rotateUserTasks(uid: string) {
 
     const userData = snapshot.data() as UserProfile;
     const nowMs = Date.now();
-    const result = await buildFreshTaskStateForUser(uid, userData, definitions, nowMs);
+    const result = await buildFreshTaskStateForUser(uid, userData, definitions, nowMs, transaction);
     responseResult = result;
 
     transaction.update(userRef, {
@@ -825,6 +863,13 @@ export async function recordDailyTaskProgressFromEvent(
       return;
     }
 
+    if (!snapshot.exists) {
+      return;
+    }
+
+    const userData = snapshot.data() as UserProfile;
+    const nowMs = Date.now();
+    const result = await buildFreshTaskStateForUser(uid, userData, definitions, nowMs, transaction);
     if (receiptRef) {
       transaction.set(receiptRef, {
         uid,
@@ -832,17 +877,10 @@ export async function recordDailyTaskProgressFromEvent(
         receiptKey: options?.receiptKey ?? eventName,
         params: eventParams ?? {},
         createdAt: FieldValue.serverTimestamp(),
-        timestamp: Date.now(),
+        timestamp: nowMs,
         source: "canonical",
       });
     }
-    if (!snapshot.exists) {
-      return;
-    }
-
-    const userData = snapshot.data() as UserProfile;
-    const nowMs = Date.now();
-    const result = await buildFreshTaskStateForUser(uid, userData, definitions, nowMs);
     const updatedTasks = [...result.state.tasks];
     const completedTasks: DailyTaskAssignment[] = [];
     let totalReward = 0;
@@ -1014,7 +1052,7 @@ export async function syncUserTaskReminder(uid: string) {
 
     const userData = snapshot.data() as UserProfile;
     const nowMs = Date.now();
-    const result = await buildFreshTaskStateForUser(uid, userData, definitions, nowMs);
+    const result = await buildFreshTaskStateForUser(uid, userData, definitions, nowMs, transaction);
     const { endOfDay } = getCSTDayBoundaries(nowMs);
     const pendingCheckIn = !isSameCSTDay(Number(userData.lastCheckIn ?? 0), nowMs);
     const unfinishedTasks = result.state.tasks.filter((task) => !task.claimed);
