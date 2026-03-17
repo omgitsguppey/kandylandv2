@@ -52,6 +52,9 @@ export async function POST(request: NextRequest) {
         sanitized.status = resolvedInitialStatus;
         const docRef = await adminDb.collection("drops").add({
             ...sanitized,
+            totalUnlocks: 0,
+            totalViews: 0,
+            totalClicks: 0,
             createdAt: FieldValue.serverTimestamp(),
         });
 

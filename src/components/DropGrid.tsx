@@ -16,9 +16,18 @@ interface DropGridProps {
     loading?: boolean;
     isSearching?: boolean;
     onSelectDrop: (drop: Drop) => void;
+    impressionTrackingSurface?: string;
+    impressionTrackingSessionId?: string;
 }
 
-export function DropGrid({ drops: propDrops, loading: propLoading, isSearching, onSelectDrop }: DropGridProps) {
+export function DropGrid({
+    drops: propDrops,
+    loading: propLoading,
+    isSearching,
+    onSelectDrop,
+    impressionTrackingSurface,
+    impressionTrackingSessionId,
+}: DropGridProps) {
     const { user, userProfile } = useAuth();
     const [notified, setNotified] = useState(false);
 
@@ -131,6 +140,8 @@ export function DropGrid({ drops: propDrops, loading: propLoading, isSearching, 
                                 canAfford={canAfford}
                                 onPreview={onSelectDrop}
                                 aspectRatio={aspectRatio}
+                                impressionTrackingSurface={impressionTrackingSurface}
+                                impressionTrackingSessionId={impressionTrackingSessionId}
                             />
                         )}
                     </div>

@@ -94,6 +94,12 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
     const { user, userProfile, loading: authLoading } = useAuth();
     const { openAuthModal, openPurchaseModal, openProfileSidebar } = useUI();
     const { drops: liveDrops, size, setSize, isLoadingMore, isReachingEnd } = useDrops(["active", "scheduled"], initialDrops);
+    const [impressionTrackingSessionId] = useState(() => {
+        const token = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+            ? crypto.randomUUID().slice(0, 8)
+            : Math.random().toString(36).slice(2, 10);
+        return `drops_${Date.now().toString(36)}_${token}`;
+    });
 
     const observerRef = useRef<HTMLDivElement>(null);
 
@@ -228,7 +234,14 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
                 </div>
 
                 <div className="relative border border-white/5 bg-white/[0.01] rounded-[2.5rem] p-2 md:p-6">
-                    <DropGrid drops={filteredDrops} loading={false} isSearching={!!searchQuery} onSelectDrop={setPreviewDrop} />
+                    <DropGrid
+                        drops={filteredDrops}
+                        loading={false}
+                        isSearching={!!searchQuery}
+                        onSelectDrop={setPreviewDrop}
+                        impressionTrackingSurface="drops_page"
+                        impressionTrackingSessionId={impressionTrackingSessionId}
+                    />
 
                     {/* Sentinel for infinite scrolling */}
                     <div ref={observerRef} className="h-10 mt-8 flex items-center justify-center">

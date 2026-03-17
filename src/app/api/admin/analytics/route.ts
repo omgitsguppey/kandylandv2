@@ -14,6 +14,7 @@ import { getAllDropReferenceMap, resolveDropTitle } from "@/lib/server/drop-refe
 import { buildModuleCoverageReport, buildParityInsight, sumCountBuckets } from "@/lib/server/analytics-parity";
 import { buildSemanticCategorySummaries, summarizeSecurityReason } from "@/lib/server/analytics-semantics";
 import { buildAnalyticsMetricReport } from "@/lib/server/analytics-metrics";
+import { getDropViewCount } from "@/lib/drop-engagement";
 import {
     AUTHENTICATED_PAGE_VIEW_EVENT_NAMES,
     AnalyticsReportRow,
@@ -543,7 +544,7 @@ export async function GET(request: NextRequest) {
                         return {
                             dropId: doc.id,
                             dropTitle: resolveDropTitle(dropReferences, doc.id),
-                            views: toNumber(data.totalClicks),
+                            views: getDropViewCount(data),
                             unlocks: toNumber(data.totalUnlocks),
                         };
                     })
@@ -560,7 +561,7 @@ export async function GET(request: NextRequest) {
                         }
 
                         const current = dropMap.get(dropId) || { views: 0, unlocks: 0 };
-                        current.views += toNumber(data.eventCount);
+                        current.views += Math.max(toNumber(data.viewCount), toNumber(data.eventCount));
                         current.unlocks += toNumber(data.unwrapCount);
                         dropMap.set(dropId, current);
                     });

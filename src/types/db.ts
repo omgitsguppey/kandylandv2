@@ -72,6 +72,7 @@ export interface Drop {
     validUntil?: number; // Timestamp (Optional - if missing, never expires)
     status: 'active' | 'expired' | 'scheduled';
     totalUnlocks: number;
+    totalViews?: number; // Persistent viewport-based card views
     totalClicks?: number; // Promo/external link click counter
     createdAt?: number; // Added for sort/display
 

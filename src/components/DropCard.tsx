@@ -1,7 +1,7 @@
 "use client";
 
 import { Drop } from "@/types/db";
-import { useEffect, useState, memo, useMemo } from "react";
+import { useEffect, useState, memo, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import NextImage from "next/image";
 import { Lock, Unlock, Clock, Loader2, AlertCircle, Eye, Image as ImageIcon, Film, Wallet } from "lucide-react";
@@ -18,6 +18,7 @@ import Link from "next/link";
 import { SupportedAspectRatio, getDropMediaSummary, getSupportedDropAspectRatio } from "@/lib/drop-presentation";
 import { SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
 import { showUnwrapSuccessToast } from "@/components/Toasts/UnwrapSuccessToast";
+import { getDropViewCount } from "@/lib/drop-engagement";
 
 
 interface DropCardProps {
@@ -28,6 +29,8 @@ interface DropCardProps {
     canAfford?: boolean;
     onPreview: (drop: Drop) => void;
     aspectRatio?: SupportedAspectRatio;
+    impressionTrackingSurface?: string;
+    impressionTrackingSessionId?: string;
 }
 
 interface DropCardBadgeProps {
@@ -36,6 +39,9 @@ interface DropCardBadgeProps {
 }
 
 const CATEGORY_TAGS = new Set(["Sweet", "Spicy", "RAW"]);
+const CARD_IMPRESSION_VISIBILITY_THRESHOLD = 0.6;
+const CARD_IMPRESSION_MIN_VISIBLE_MS = 500;
+const trackedDropCardImpressions = new Set<string>();
 
 const DropCardBadge = ({ label, compact = false }: DropCardBadgeProps) => (
     <div
@@ -138,7 +144,17 @@ function DropCardTimer({ validUntil }: { validUntil?: number }) {
     );
 }
 
-function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAfford = false, onPreview, aspectRatio }: DropCardProps) {
+function DropCardBase({
+    drop,
+    priority = false,
+    user,
+    isUnlocked = false,
+    canAfford = false,
+    onPreview,
+    aspectRatio,
+    impressionTrackingSurface,
+    impressionTrackingSessionId,
+}: DropCardProps) {
     const router = useRouter();
     const { userProfile, setUserProfile } = useUserProfile();
     const { openAuthModal, openPurchaseModal } = useUI();
@@ -146,7 +162,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
     const [confirming, setConfirming] = useState(false);
     const [imageLoaded, setImageLoaded] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [hasTrackedImpression, setHasTrackedImpression] = useState(false);
+    const cardRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         let timeout: ReturnType<typeof setTimeout>;
@@ -157,15 +173,85 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
     }, [confirming]);
 
     useEffect(() => {
-        if (!hasTrackedImpression) {
+        if (!impressionTrackingSurface || !impressionTrackingSessionId || !cardRef.current) {
+            return;
+        }
+
+        const impressionKey = `${impressionTrackingSessionId}:${drop.id}`;
+        if (trackedDropCardImpressions.has(impressionKey)) {
+            return;
+        }
+
+        let visibleTimer: ReturnType<typeof setTimeout> | null = null;
+        let cancelled = false;
+
+        const flushImpression = async () => {
+            if (cancelled || trackedDropCardImpressions.has(impressionKey)) {
+                return;
+            }
+
+            trackedDropCardImpressions.add(impressionKey);
             trackEvent("drop_card_impression", {
                 drop_id: drop.id,
                 drop_category: drop.type,
                 is_unlocked: !!isUnlocked,
+                impression_surface: impressionTrackingSurface,
+                viewport_threshold: CARD_IMPRESSION_VISIBILITY_THRESHOLD,
             });
-            setHasTrackedImpression(true);
-        }
-    }, [drop.id, drop.type, hasTrackedImpression, isUnlocked]);
+
+            try {
+                await fetch("/api/drops/impression", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        dropId: drop.id,
+                        pagePath: window.location.pathname,
+                        surface: impressionTrackingSurface,
+                        sessionId: impressionTrackingSessionId,
+                    }),
+                    keepalive: true,
+                });
+            } catch {
+                // Impression analytics should never block the card UI.
+            }
+        };
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                const entry = entries[0];
+                const isVisibleEnough = entry?.isIntersecting && entry.intersectionRatio >= CARD_IMPRESSION_VISIBILITY_THRESHOLD;
+                if (!isVisibleEnough) {
+                    if (visibleTimer) {
+                        clearTimeout(visibleTimer);
+                        visibleTimer = null;
+                    }
+                    return;
+                }
+
+                if (!visibleTimer) {
+                    visibleTimer = setTimeout(() => {
+                        visibleTimer = null;
+                        void flushImpression();
+                    }, CARD_IMPRESSION_MIN_VISIBLE_MS);
+                }
+            },
+            {
+                threshold: [CARD_IMPRESSION_VISIBILITY_THRESHOLD],
+            }
+        );
+
+        observer.observe(cardRef.current);
+
+        return () => {
+            cancelled = true;
+            observer.disconnect();
+            if (visibleTimer) {
+                clearTimeout(visibleTimer);
+            }
+        };
+    }, [drop.id, drop.type, impressionTrackingSessionId, impressionTrackingSurface, isUnlocked]);
 
     const resolvedRatio = aspectRatio ?? getSupportedDropAspectRatio(drop);
     const ratioStyle = { aspectRatio: resolvedRatio.replace(":", " / ") };
@@ -181,9 +267,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
             videos: summary.videoCount,
         };
     }, [drop]);
-    const totalUnlocks = typeof drop.totalUnlocks === "number" && Number.isFinite(drop.totalUnlocks)
-        ? Math.max(0, Math.floor(drop.totalUnlocks))
-        : 0;
+    const totalViews = getDropViewCount(drop);
 
     // Handle unlocking flow
     if (drop.validUntil && Date.now() > drop.validUntil && !isUnlocked) {
@@ -340,7 +424,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
 
     if (resolvedRatio === "9:16") {
         return (
-            <div className="group relative p-1.5 md:p-3 rounded-2xl md:rounded-3xl glass-panel overflow-hidden h-full flex flex-col">
+            <div ref={cardRef} className="group relative p-1.5 md:p-3 rounded-2xl md:rounded-3xl glass-panel overflow-hidden h-full flex flex-col">
                 <button
                     onClick={() => {
                         handlePreviewOpen();
@@ -373,7 +457,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                             </div>
                             <div className="flex items-center gap-1 opacity-60 text-[9px] font-medium text-white/80">
                                 <Eye className="w-2.5 h-2.5" />
-                                <span>{totalUnlocks.toLocaleString()}</span>
+                                <span>{totalViews.toLocaleString()}</span>
                             </div>
                         </div>
                         {ctaButton}
@@ -387,7 +471,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
     }
 
     return (
-        <div className="group relative p-2 md:p-3 rounded-2xl md:rounded-3xl glass-panel overflow-hidden h-full flex flex-col">
+        <div ref={cardRef} className="group relative p-2 md:p-3 rounded-2xl md:rounded-3xl glass-panel overflow-hidden h-full flex flex-col">
             <div className="absolute inset-0 bg-gradient-to-br from-brand-purple/5 via-transparent to-brand-purple/5 pointer-events-none" />
 
             <button
@@ -438,7 +522,7 @@ function DropCardBase({ drop, priority = false, user, isUnlocked = false, canAff
                         </div>
                         <div className="flex items-center gap-1 opacity-60 text-[9px] font-medium text-white/80">
                             <Eye className="w-2.5 h-2.5" />
-                            <span>{totalUnlocks.toLocaleString()}</span>
+                            <span>{totalViews.toLocaleString()}</span>
                         </div>
                     </div>
                     <div className="w-full">
