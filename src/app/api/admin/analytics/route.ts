@@ -14,6 +14,7 @@ import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 import { getAllDropReferenceMap, resolveDropTitle } from "@/lib/server/drop-references";
 import { buildModuleCoverageReport, buildParityInsight, sumCountBuckets } from "@/lib/server/analytics-parity";
 import { buildSemanticCategorySummaries, summarizeSecurityReason } from "@/lib/server/analytics-semantics";
+import { buildAnalyticsMetricReport } from "@/lib/server/analytics-metrics";
 
 const propertyId = process.env.GA_PROPERTY_ID;
 const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
@@ -132,6 +133,21 @@ type SessionFactRecord = {
 type OnboardingFactRecord = {
     timestamp: number;
     durationMs: number;
+};
+
+type OnboardingStepFactRecord = {
+    eventName: string;
+    timestamp: number;
+    stepKey: string;
+    stepTitle: string;
+    stepIndex: number;
+    durationMs: number;
+};
+
+type RegistrationFactRecord = {
+    eventName: string;
+    timestamp: number;
+    registrationMethod: string;
 };
 
 type ViewerDropFactAccumulator = {
@@ -620,12 +636,15 @@ export async function GET(request: NextRequest) {
                 "auth_sign_in_attempted",
                 "auth_sign_up_success",
                 "auth_sign_up_attempted",
+                "user_registered",
                 "auth_google_sign_in_success",
                 "auth_google_sign_in_attempted",
                 "auth_session_restored",
                 "auth_logout",
                 "guided_onboarding_started",
                 "guided_onboarding_completed",
+                "guided_onboarding_step_started",
+                "guided_onboarding_step_completed",
                 "onboarding_step_viewed",
                 "avatar_uploaded",
                 "wallet_opened",
@@ -1182,14 +1201,30 @@ export async function GET(request: NextRequest) {
                 sources: ANALYTICS_SEMANTIC_SOURCE_REGISTRY,
                 strategies: ANALYTICS_SEMANTIC_STRATEGIES,
             };
+            const registrationFacts: RegistrationFactRecord[] = analyticsEventFactsSnapshot.docs
+                .map((doc) => {
+                    const data = doc.data() as Record<string, unknown>;
+                    const params = safeParams(data.params);
+                    return {
+                        eventName: toStringValue(data.eventName),
+                        timestamp: toNumber(data.timestamp),
+                        registrationMethod: toStringValue(params.registration_method || params.auth_provider || ""),
+                    };
+                })
+                .filter((fact) => fact.eventName === "user_registered" && fact.timestamp >= startMs && fact.registrationMethod !== "");
+            const canonicalRegistrationCount = registrationFacts.length;
+            const emailRegistrationCount = registrationFacts.filter((fact) => fact.registrationMethod === "email").length;
             const telemetryPurchaseCount = Math.max(eventsData.gumdrops_purchase_completed || 0, eventsData.purchase || 0);
             const purchases = Math.max(telemetryPurchaseCount, firstPartyPurchaseCount);
             const telemetryUnlockCount = eventsData.unlock_drop_success || 0;
             const canonicalUnlockCount = Math.max(firstPartyUnlockCount, telemetryUnlockCount);
+            const normalizedSignupCount = canonicalRegistrationCount > 0
+                ? canonicalRegistrationCount
+                : eventsData.auth_sign_up_success || 0;
             const funnel = {
                 authModalOpens: eventsData.auth_modal_opened || 0,
                 authSignIns: (eventsData.auth_sign_in_success || 0) + (eventsData.auth_google_sign_in_success || 0),
-                authSignUps: eventsData.auth_sign_up_success || 0,
+                authSignUps: normalizedSignupCount,
                 previewOpens: eventsData.drop_preview_opened || 0,
                 viewerOpens: eventsData.viewer_opened || 0,
                 assetSwitches: eventsData.viewer_asset_changed || 0,
@@ -1216,6 +1251,24 @@ export async function GET(request: NextRequest) {
                     };
                 })
                 .filter((fact) => fact.timestamp >= startMs);
+            const onboardingStepFacts: OnboardingStepFactRecord[] = analyticsEventFactsSnapshot.docs
+                .map((doc) => {
+                    const data = doc.data() as Record<string, unknown>;
+                    const params = safeParams(data.params);
+                    return {
+                        eventName: toStringValue(data.eventName),
+                        timestamp: toNumber(data.timestamp),
+                        stepKey: toStringValue(params.step_key),
+                        stepTitle: toStringValue(params.step_title),
+                        stepIndex: toNumber(params.step_index),
+                        durationMs: Math.max(toNumber(data.durationMs), toNumber(params.duration_ms)),
+                    };
+                })
+                .filter((fact) =>
+                    fact.timestamp >= startMs
+                    && (fact.eventName === "guided_onboarding_step_started" || fact.eventName === "guided_onboarding_step_completed")
+                    && fact.stepKey.length > 0,
+                );
             
             onboardingRows.forEach((row: AnalyticsReportRow) => {
                 const durationRaw = row.dimensionValues?.[0]?.value || "(not set)";
@@ -1235,6 +1288,45 @@ export async function GET(request: NextRequest) {
                 totalOnboardingSeconds = onboardingFacts.reduce((sum, fact) => sum + Math.round(fact.durationMs / 1000), 0);
             }
 
+            const onboardingStepStatsMap = new Map<string, {
+                stepKey: string;
+                stepTitle: string;
+                stepIndex: number;
+                starts: number;
+                completions: number;
+                durationTotalMs: number;
+            }>();
+            onboardingStepFacts.forEach((fact) => {
+                const existing = onboardingStepStatsMap.get(fact.stepKey) || {
+                    stepKey: fact.stepKey,
+                    stepTitle: fact.stepTitle || fact.stepKey.replaceAll("_", " "),
+                    stepIndex: fact.stepIndex,
+                    starts: 0,
+                    completions: 0,
+                    durationTotalMs: 0,
+                };
+                if (fact.eventName === "guided_onboarding_step_started") {
+                    existing.starts += 1;
+                }
+                if (fact.eventName === "guided_onboarding_step_completed") {
+                    existing.completions += 1;
+                    existing.durationTotalMs += fact.durationMs;
+                }
+                onboardingStepStatsMap.set(fact.stepKey, existing);
+            });
+            const onboardingStepStats = Array.from(onboardingStepStatsMap.values())
+                .sort((left, right) => left.stepIndex - right.stepIndex)
+                .map((entry) => ({
+                    stepKey: entry.stepKey,
+                    stepTitle: entry.stepTitle,
+                    stepIndex: entry.stepIndex,
+                    starts: Math.max(entry.starts, entry.completions),
+                    completions: entry.completions,
+                    avgDurationMs: entry.completions > 0
+                        ? Math.round(entry.durationTotalMs / entry.completions)
+                        : 0,
+                }));
+
             const guidedOnboardingStartCount = eventsData.guided_onboarding_started || 0;
             const legacyOnboardingStartCount = eventsData.onboarding_started || 0;
             const guidedOnboardingCompletionCount = Math.max(totalOnboardingCompletions, eventsData.guided_onboarding_completed || 0);
@@ -1245,13 +1337,25 @@ export async function GET(request: NextRequest) {
                 : 0;
             const onboardingStartCount = Math.max(guidedOnboardingStartCount + legacyOnboardingStartCount, normalizedOnboardingCompletions);
             const onboardingStartSource = (guidedOnboardingStartCount + legacyOnboardingStartCount) > 0
-                ? "telemetry"
+                ? "tracked"
                 : normalizedOnboardingCompletions > 0
                     ? "completion_fallback"
                     : "none";
             const onboardingCompletionRate = onboardingStartCount > 0
                 ? normalizedOnboardingCompletions / onboardingStartCount
                 : 0;
+            const semanticMetricReport = buildAnalyticsMetricReport({
+                eventFacts: analyticsEventFactsSnapshot.docs.map((doc) => doc.data() as Record<string, unknown>),
+                guestBatches: guestBatchesSnapshot.docs.map((doc) => doc.data() as Record<string, unknown>),
+                sessionFacts: sessionFactsSnapshot.docs.map((doc) => doc.data() as Record<string, unknown>),
+                eventCounts: eventsData,
+                onboarding: {
+                    registrations: canonicalRegistrationCount,
+                    starts: onboardingStartCount,
+                    stepStarts: onboardingStepFacts.filter((fact) => fact.eventName === "guided_onboarding_step_started").length,
+                    stepCompletions: onboardingStepFacts.filter((fact) => fact.eventName === "guided_onboarding_step_completed").length,
+                },
+            });
 
             const filteredSessionFacts: SessionFactRecord[] = sessionFactsSnapshot.docs
                 .map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) }) as SessionFactRecord)
@@ -1277,6 +1381,9 @@ export async function GET(request: NextRequest) {
 
                 return Math.round(durations.reduce((sum, value) => sum + value, 0) / durations.length);
             };
+            const normalizedEmailSignUpCount = emailRegistrationCount > 0
+                ? emailRegistrationCount
+                : eventsData.auth_sign_up_success || 0;
 
             const authBreakdown = [
                 {
@@ -1289,7 +1396,7 @@ export async function GET(request: NextRequest) {
                 {
                     method: "Email sign up",
                     attempts: eventsData.auth_sign_up_attempted || 0,
-                    successes: eventsData.auth_sign_up_success || 0,
+                    successes: normalizedEmailSignUpCount,
                     failures: eventsData.auth_sign_up_failed || 0,
                     avgDurationMs: averageDuration(telemetryLogsByEvent.auth_sign_up_success || []),
                 },
@@ -1299,6 +1406,13 @@ export async function GET(request: NextRequest) {
                     successes: eventsData.auth_google_sign_in_success || 0,
                     failures: eventsData.auth_google_sign_in_failed || 0,
                     avgDurationMs: averageDuration(telemetryLogsByEvent.auth_google_sign_in_success || []),
+                },
+                {
+                    method: "Registered users",
+                    attempts: normalizedSignupCount,
+                    successes: normalizedSignupCount,
+                    failures: 0,
+                    avgDurationMs: 0,
                 },
             ].map((entry) => ({
                 ...entry,
@@ -2033,7 +2147,7 @@ export async function GET(request: NextRequest) {
                     label: "Onboarding coverage",
                     status: normalizedOnboardingCompletions > 0 && onboardingStartSource === "completion_fallback" ? "warn" : "pass",
                     detail: onboardingStartCount > 0
-                        ? onboardingStartSource === "telemetry"
+                        ? onboardingStartSource === "tracked"
                             ? `${onboardingStartCount.toLocaleString()} onboarding starts and ${normalizedOnboardingCompletions.toLocaleString()} completions were tracked directly. Confidence ${onboardingParity.score}%.`
                             : `${normalizedOnboardingCompletions.toLocaleString()} onboarding completions were tracked, so the legacy start counter is falling back to completed sessions until more start events land. Confidence ${onboardingParity.score}%.`
                         : "No onboarding activity matched the selected range.",
@@ -2079,6 +2193,7 @@ export async function GET(request: NextRequest) {
                     completionRate: onboardingCompletionRate,
                     startSource: onboardingStartSource,
                 },
+                onboardingStepStats,
                 rawEvents: mappedEvents,
                 authBreakdown,
                 onboardingDurationBuckets,
@@ -2106,6 +2221,7 @@ export async function GET(request: NextRequest) {
                 viewerFilter: viewerUser,
                 semanticCategories,
                 semanticEngine,
+                socialMetrics: semanticMetricReport,
                 moduleCoverage,
                 unhealthyModules,
                 parityScore,

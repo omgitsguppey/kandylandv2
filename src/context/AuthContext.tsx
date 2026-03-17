@@ -133,10 +133,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
                     // Profile doesn't exist yet, trigger auto-registration
                     try {
+                        const registrationMethod = user.providerData[0]?.providerId === "google.com" ? "google" : "email";
                         const response = await authFetch("/api/user/register", {
                             method: "POST",
                             body: JSON.stringify({
                                 displayName: user.displayName || "User",
+                                registrationMethod,
                                 referredBy: typeof window !== "undefined" ? sessionStorage.getItem("kandy_referral") : undefined,
                             }),
                         });
@@ -219,6 +221,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     displayName: username,
                     username,
                     dateOfBirth: dob,
+                    registrationMethod: "email",
                     welcomeBonus: true,
                     referredBy: typeof window !== "undefined" ? sessionStorage.getItem("kandy_referral") : undefined,
                 }),

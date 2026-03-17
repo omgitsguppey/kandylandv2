@@ -83,6 +83,12 @@ export const ANALYTICS_SEMANTIC_SOURCE_REGISTRY: AnalyticsSemanticSourceDescript
     description: "Page daily rollups available through Data Connect for warehouse-friendly reporting.",
   },
   {
+    key: "analytics_semantic_daily",
+    label: "Semantic daily rollups",
+    engine: "firestore",
+    description: "Category-aware daily metrics that keep global, user, admin, and drop semantics in one canonical structure.",
+  },
+  {
     key: "semantic_sql_rollups",
     label: "SQL semantic rollups",
     engine: "sql",
@@ -146,6 +152,11 @@ export const ANALYTICS_SEMANTIC_STRATEGIES: AnalyticsSemanticStrategy[] = [
     key: "adapter_registry_expansion",
     label: "Adapter registry expansion",
     description: "Register new sources and event rules in metadata so future telemetry can join the semantics layer without custom endpoint logic.",
+  },
+  {
+    key: "semantic_metric_registry",
+    label: "Semantic metric registry",
+    description: "Define platform-style metrics in a shared catalog so product, analytics, and future AI layers read the same formulas and reliability notes.",
   },
 ];
 

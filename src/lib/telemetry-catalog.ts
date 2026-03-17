@@ -47,10 +47,17 @@ export interface TelemetryModuleIndex {
   fallbackSources: string[];
 }
 
+export interface TelemetryResolvedEventMetadata {
+  canonicalEventName: string;
+  option?: TelemetryEventOption;
+  metadataParams: Record<string, string>;
+}
+
 const DEFAULT_CLIENT_SOURCES: TelemetryEventSource[] = ["ga4", "client", "backend"];
 const DEFAULT_SERVER_SOURCES: TelemetryEventSource[] = ["ga4", "backend"];
+const DEFAULT_CANONICAL_SERVER_SOURCES: TelemetryEventSource[] = ["ga4", "backend", "canonical"];
 
-export const TELEMETRY_EVENT_INDEX_VERSION = "2026.03.16";
+export const TELEMETRY_EVENT_INDEX_VERSION = "2026.03.16.1";
 
 export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "auth_modal_opened", label: "Auth modal opened", category: "auth", sources: DEFAULT_CLIENT_SOURCES, modules: ["auth"] },
@@ -64,6 +71,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "auth_sign_up_attempted", label: "Email sign-up attempted", category: "auth", sources: DEFAULT_CLIENT_SOURCES, modules: ["auth"] },
   { eventName: "auth_sign_up_success", label: "Email sign-up success", category: "auth", sources: DEFAULT_CLIENT_SOURCES, modules: ["auth"] },
   { eventName: "auth_sign_up_failed", label: "Email sign-up failed", category: "auth", sources: DEFAULT_CLIENT_SOURCES, modules: ["auth"] },
+  { eventName: "user_registered", label: "New user registered", category: "auth", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["auth", "onboarding"] },
   { eventName: "auth_session_restored", label: "Persistent session restored", category: "auth", sources: DEFAULT_CLIENT_SOURCES, modules: ["auth"] },
   { eventName: "auth_logout", label: "Logged out", category: "auth", sources: DEFAULT_CLIENT_SOURCES, modules: ["auth"] },
   { eventName: "password_reset_requested", label: "Password reset requested", category: "auth", sources: DEFAULT_CLIENT_SOURCES, modules: ["auth"] },
@@ -84,6 +92,20 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
     sources: DEFAULT_CLIENT_SOURCES,
     modules: ["onboarding", "engagement"],
     aliases: ["onboarding_complete"],
+  },
+  {
+    eventName: "guided_onboarding_step_started",
+    label: "Guided onboarding step started",
+    category: "engagement",
+    sources: DEFAULT_CANONICAL_SERVER_SOURCES,
+    modules: ["onboarding", "engagement"],
+  },
+  {
+    eventName: "guided_onboarding_step_completed",
+    label: "Guided onboarding step completed",
+    category: "engagement",
+    sources: DEFAULT_CANONICAL_SERVER_SOURCES,
+    modules: ["onboarding", "engagement"],
   },
   { eventName: "onboarding_step_viewed", label: "Onboarding step viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["onboarding"] },
   { eventName: "avatar_uploaded", label: "Avatar uploaded", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["onboarding"] },
@@ -169,6 +191,7 @@ export const TELEMETRY_MODULE_INDEXES: TelemetryModuleIndex[] = [
       "auth_sign_in_success",
       "auth_sign_up_attempted",
       "auth_sign_up_success",
+      "user_registered",
       "auth_session_restored",
       "auth_logout",
       "password_reset_requested",
@@ -181,8 +204,11 @@ export const TELEMETRY_MODULE_INDEXES: TelemetryModuleIndex[] = [
     eventNames: [
       "guided_onboarding_started",
       "guided_onboarding_completed",
+      "guided_onboarding_step_started",
+      "guided_onboarding_step_completed",
       "onboarding_step_viewed",
       "avatar_uploaded",
+      "user_registered",
     ],
     fallbackSources: ["analytics_event_facts", "ga4", "telemetry_logs"],
   },
@@ -368,5 +394,21 @@ export function getTelemetryEventOption(eventName: string) {
   return {
     canonicalEventName,
     option: TELEMETRY_EVENT_OPTIONS_BY_NAME[canonicalEventName],
+  };
+}
+
+export function buildTelemetryEventMetadata(eventName: string): TelemetryResolvedEventMetadata {
+  const { canonicalEventName, option } = getTelemetryEventOption(eventName);
+
+  return {
+    canonicalEventName,
+    option,
+    metadataParams: {
+      event_index_version: TELEMETRY_EVENT_INDEX_VERSION,
+      event_category: option?.category || "system",
+      ...(option?.modules?.length ? { event_modules: option.modules.join("|") } : {}),
+      ...(option?.sources?.length ? { tracking_sources: option.sources.join("|") } : {}),
+      ...(eventName !== canonicalEventName ? { legacy_event_name: eventName } : {}),
+    },
   };
 }

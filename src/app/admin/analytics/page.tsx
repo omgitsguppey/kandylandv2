@@ -154,6 +154,15 @@ interface CountBucketItem {
   count: number;
 }
 
+interface OnboardingStepStatItem {
+  stepKey: string;
+  stepTitle: string;
+  stepIndex: number;
+  starts: number;
+  completions: number;
+  avgDurationMs: number;
+}
+
 interface DestinationMixItem {
   destination: string;
   count: number;
@@ -292,6 +301,35 @@ interface SemanticEngineStrategyItem {
   description: string;
 }
 
+interface SocialMetricItem {
+  key: string;
+  label: string;
+  shortLabel: string;
+  category: string;
+  value: number;
+  formattedValue: string;
+  status: "healthy" | "partial" | "empty";
+  sampleSize: number;
+  reliability: "canonical" | "cross_source" | "directional";
+  description: string;
+  referenceModel: string;
+  formula: string;
+  sources: string[];
+}
+
+interface SocialMetricCategoryItem {
+  key: string;
+  label: string;
+  metrics: SocialMetricItem[];
+}
+
+interface SocialMetricOverviewItem {
+  total: number;
+  healthy: number;
+  partial: number;
+  empty: number;
+}
+
 interface HistoricalAnalyticsResponse {
   success: boolean;
   requiresSetup?: boolean;
@@ -342,8 +380,9 @@ interface HistoricalAnalyticsResponse {
     completions: number;
     avgDuration: number;
     completionRate: number;
-    startSource: "telemetry" | "completion_fallback" | "none";
+    startSource: "tracked" | "completion_fallback" | "none";
   };
+  onboardingStepStats?: OnboardingStepStatItem[];
   rawEvents?: RawEventItem[];
   authBreakdown?: AuthBreakdownItem[];
   onboardingDurationBuckets?: CountBucketItem[];
@@ -376,6 +415,12 @@ interface HistoricalAnalyticsResponse {
   semanticEngine?: {
     sources: SemanticEngineSourceItem[];
     strategies: SemanticEngineStrategyItem[];
+  };
+  socialMetrics?: {
+    version: string;
+    metrics: SocialMetricItem[];
+    categories: SocialMetricCategoryItem[];
+    overview: SocialMetricOverviewItem;
   };
   moduleCoverage?: ModuleCoverageItem[];
   unhealthyModules?: ModuleCoverageItem[];
@@ -575,8 +620,8 @@ function formatDuration(seconds: number): string {
   return `${hours}h ${remainingMins}m`;
 }
 
-function formatDataSourceLabel(source: "telemetry" | "completion_fallback" | "none"): string {
-  if (source === "telemetry") return "Direct starts";
+function formatDataSourceLabel(source: "tracked" | "completion_fallback" | "none"): string {
+  if (source === "tracked") return "Direct starts";
   if (source === "completion_fallback") return "Completion fallback";
   return "No starts";
 }
@@ -606,6 +651,18 @@ function getValidationClasses(status: ValidationItem["status"]) {
 }
 
 function getModuleCoverageClasses(status: ModuleCoverageItem["status"]) {
+  if (status === "healthy") {
+    return "border-emerald-400/20 bg-emerald-400/10 text-emerald-200";
+  }
+
+  if (status === "empty") {
+    return "border-red-500/20 bg-red-500/10 text-red-200";
+  }
+
+  return "border-amber-400/20 bg-amber-400/10 text-amber-200";
+}
+
+function getMetricStatusClasses(status: SocialMetricItem["status"]) {
   if (status === "healthy") {
     return "border-emerald-400/20 bg-emerald-400/10 text-emerald-200";
   }
@@ -731,6 +788,7 @@ export default function AdminAnalyticsPage() {
     completionRate: 0,
     startSource: "none" as const,
   };
+  const onboardingStepStats = historicalResponse?.onboardingStepStats ?? [];
   const authBreakdown = historicalResponse?.authBreakdown ?? [];
   const onboardingDurationBuckets = historicalResponse?.onboardingDurationBuckets ?? [];
   const repeatVisitSegments = historicalResponse?.repeatVisitSegments ?? [];
@@ -773,6 +831,17 @@ export default function AdminAnalyticsPage() {
   const activeViewerFilter = historicalResponse?.viewerFilter ?? viewerUserFilter;
   const semanticCategories = historicalResponse?.semanticCategories ?? [];
   const semanticEngine = historicalResponse?.semanticEngine ?? { sources: [], strategies: [] };
+  const socialMetrics = historicalResponse?.socialMetrics ?? {
+    version: "unknown",
+    metrics: [],
+    categories: [],
+    overview: {
+      total: 0,
+      healthy: 0,
+      partial: 0,
+      empty: 0,
+    },
+  };
   const moduleCoverage = historicalResponse?.moduleCoverage ?? [];
   const unhealthyModules = historicalResponse?.unhealthyModules ?? [];
   const parityScore = historicalResponse?.parityScore ?? 0;
@@ -804,6 +873,11 @@ export default function AdminAnalyticsPage() {
     avgViewLabel: formatDuration(item.avgViewSeconds * 1000),
     watchLabel: item.watchSecondsTotal > 0 ? formatDuration(item.watchSecondsTotal * 1000) : "0s",
     returnActions: item.signInCount + item.returnCount + item.logoutCount,
+  }));
+  const socialMetricCategoryCards = socialMetrics.categories.map((category) => ({
+    ...category,
+    headline: category.metrics[0]?.formattedValue ?? "0",
+    healthyCount: category.metrics.filter((metric) => metric.status === "healthy").length,
   }));
   const viewerDropChartData = viewerDropInsights.slice(0, 8).map((item) => ({
     ...item,
@@ -1117,7 +1191,7 @@ export default function AdminAnalyticsPage() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 self-start">
-                    <MetricCard label="Started" value={formatCompactNumber(onboardingStats.starts || 0)} hint={onboardingStats.startSource === "telemetry" ? "Guided onboarding opens" : "Backfilled from completion coverage"} icon={PlayCircle} />
+                    <MetricCard label="Started" value={formatCompactNumber(onboardingStats.starts || 0)} hint={onboardingStats.startSource === "tracked" ? "Direct onboarding starts" : "Backfilled from completion coverage"} icon={PlayCircle} />
                     <MetricCard label="Completed" value={onboardingStats.completions.toLocaleString()} hint="Finished tours" icon={CheckCircle2} />
                     <MetricCard label="Avg Time" value={formatDuration(onboardingStats.avgDuration)} hint="Mean completion time" icon={Clock3} />
                     <MetricCard
@@ -1128,6 +1202,30 @@ export default function AdminAnalyticsPage() {
                     />
                   </div>
                 </div>
+                {onboardingStepStats.length > 0 ? (
+                  <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                    {onboardingStepStats.map((step) => (
+                      <div key={step.stepKey} className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Step {step.stepIndex}</p>
+                        <h4 className="mt-2 text-sm font-semibold text-white">{step.stepTitle}</h4>
+                        <div className="mt-3 grid grid-cols-3 gap-2 text-xs text-gray-400">
+                          <div>
+                            <p className="text-[10px] uppercase tracking-[0.16em] text-gray-500">Starts</p>
+                            <p className="mt-1 text-sm font-semibold text-white">{formatCompactNumber(step.starts)}</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] uppercase tracking-[0.16em] text-gray-500">Done</p>
+                            <p className="mt-1 text-sm font-semibold text-white">{step.completions.toLocaleString()}</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] uppercase tracking-[0.16em] text-gray-500">Avg</p>
+                            <p className="mt-1 text-sm font-semibold text-white">{formatDuration(step.avgDurationMs)}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
               </SectionCard>
             </div>
 
@@ -1319,6 +1417,86 @@ export default function AdminAnalyticsPage() {
                           <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Logouts / watch sessions</p>
                           <p className="mt-1 font-semibold text-white">{item.logoutCount} / {item.watchSessionCount}</p>
                         </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </SectionCard>
+
+              <SectionCard
+                title="Creator Metrics"
+                subtitle="Thirty platform-style metrics defined in one shared catalog so future AI and reporting layers read the same formulas, sources, and reliability notes."
+                icon={Sparkles}
+                collapsedPreview={(
+                  <CompactPreviewList
+                    items={[
+                      { label: "Metrics", value: socialMetrics.overview.total.toLocaleString(), tone: "accent" },
+                      { label: "Healthy", value: socialMetrics.overview.healthy.toLocaleString() },
+                      { label: "Partial", value: socialMetrics.overview.partial.toLocaleString() },
+                      { label: "Catalog", value: socialMetrics.version },
+                    ]}
+                  />
+                )}
+              >
+                <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                  <MetricCard label="Catalog metrics" value={socialMetrics.overview.total.toLocaleString()} hint="Shared social-style metric definitions" icon={Sparkles} />
+                  <MetricCard label="Healthy" value={socialMetrics.overview.healthy.toLocaleString()} hint="Metrics with strong first-party support" icon={CheckCircle2} />
+                  <MetricCard label="Partial" value={socialMetrics.overview.partial.toLocaleString()} hint="Directional metrics using blended signals" icon={AlertTriangle} />
+                  <MetricCard label="Version" value={socialMetrics.version} hint="Catalog schema version" icon={FileText} />
+                </div>
+
+                <div className="mt-5 grid gap-3">
+                  {socialMetricCategoryCards.map((category) => (
+                    <div key={category.key} className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
+                      <div className="mb-3 flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold text-white">{category.label}</p>
+                          <p className="mt-1 text-xs leading-6 text-gray-400">
+                            {category.metrics.length.toLocaleString()} metrics with {category.healthyCount.toLocaleString()} fully healthy signals in this range.
+                          </p>
+                        </div>
+                        <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-brand-purple">
+                          {category.headline}
+                        </span>
+                      </div>
+
+                      <div className="grid gap-2">
+                        {category.metrics.map((metric) => (
+                          <div key={metric.key} className="rounded-[1rem] border border-white/10 bg-black/20 px-3 py-3">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <p className="text-sm font-semibold text-white">{metric.label}</p>
+                                  <span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em]", getMetricStatusClasses(metric.status))}>
+                                    {metric.status}
+                                  </span>
+                                </div>
+                                <p className="mt-1 text-xs leading-6 text-gray-400">{metric.description}</p>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-base font-black tracking-tight text-white">{metric.formattedValue}</p>
+                                <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                                  Sample {metric.sampleSize.toLocaleString()}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="mt-3 grid gap-2 md:grid-cols-3">
+                              <div className="rounded-[0.9rem] border border-white/10 bg-black/25 px-3 py-2">
+                                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Platform analog</p>
+                                <p className="mt-1 text-xs leading-5 text-white">{metric.referenceModel}</p>
+                              </div>
+                              <div className="rounded-[0.9rem] border border-white/10 bg-black/25 px-3 py-2">
+                                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Formula</p>
+                                <p className="mt-1 text-xs leading-5 text-white">{metric.formula}</p>
+                              </div>
+                              <div className="rounded-[0.9rem] border border-white/10 bg-black/25 px-3 py-2">
+                                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Sources</p>
+                                <p className="mt-1 text-xs leading-5 text-white">{metric.sources.map((source) => humanizeAnalyticsKey(source)).join(", ")}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   ))}

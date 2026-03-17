@@ -1,12 +1,14 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Star } from "lucide-react";
 
 import { useAuth } from "@/context/AuthContext";
 import { DailyCheckIn } from "@/components/Dashboard/DailyCheckIn";
 import { CollectionList } from "@/components/Dashboard/CollectionList";
+import { useDrops } from "@/hooks/useDrops";
+import { applyDropStatus, isDropActiveNow } from "@/lib/drop-status";
 import { trackEvent } from "@/lib/telemetry";
 import type { Drop } from "@/types/db";
 
@@ -39,6 +41,21 @@ export default function DashboardClient({ drops }: DashboardClientProps) {
     const [greetingTemplate] = useState(
         () => DASHBOARD_GREETING_VARIANTS[Math.floor(Math.random() * DASHBOARD_GREETING_VARIANTS.length)],
     );
+    const initialActiveDrops = useMemo(() => drops.filter((drop) => isDropActiveNow(drop)), [drops]);
+    const { drops: liveActiveDrops, nowMs } = useDrops(["active"], initialActiveDrops);
+    const visibleDrops = useMemo(() => {
+        const mergedDrops = new Map<string, Drop>();
+
+        drops.forEach((drop) => {
+            mergedDrops.set(drop.id, applyDropStatus(drop, nowMs));
+        });
+
+        liveActiveDrops.forEach((drop) => {
+            mergedDrops.set(drop.id, applyDropStatus(drop, nowMs));
+        });
+
+        return Array.from(mergedDrops.values()).sort((a, b) => b.validFrom - a.validFrom);
+    }, [drops, liveActiveDrops, nowMs]);
 
     useEffect(() => {
         if (!userProfile) {
@@ -109,7 +126,7 @@ export default function DashboardClient({ drops }: DashboardClientProps) {
                 </div>
 
                 <div className="lg:col-span-2">
-                    <CollectionList drops={drops} userProfile={userProfile} />
+                    <CollectionList drops={visibleDrops} userProfile={userProfile} currentTimeMs={nowMs} />
                 </div>
             </div>
         </div>

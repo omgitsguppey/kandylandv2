@@ -1,22 +1,13 @@
-/**
- * Global abstraction layer for Error Monitoring and Telemetry
- * Automatically stubbed for integration with Sentry, LogRocket, or Datadog.
- */
+type MonitoringContext = Record<string, unknown>;
 
 export function initMonitoring() {
-    if (typeof window !== "undefined") {
-        console.log("[Monitoring] Initialized client-side telemetry.");
-        // Sentry.init({...})
-        // LogRocket.init(...)
-    }
+  // Reserved for a future monitoring provider integration.
 }
 
-export function captureException(error: Error, context?: Record<string, any>) {
-    console.error("[Monitoring] Captured Exception:", error, context);
-    // Sentry.captureException(error, { extra: context })
+export function captureMessage(message: string, context?: MonitoringContext) {
+  console.info("[Monitoring]", message, context ?? {});
 }
 
-export function captureMessage(message: string, context?: Record<string, any>) {
-    console.log("[Monitoring] Captured Message:", message, context);
-    // Sentry.captureMessage(message, { extra: context })
+export function captureException(error: unknown, context?: MonitoringContext) {
+  console.error("[Monitoring]", error, context ?? {});
 }

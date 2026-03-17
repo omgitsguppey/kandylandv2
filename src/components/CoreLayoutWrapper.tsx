@@ -15,7 +15,6 @@ const Navbar = dynamic(() => import("@/components/Navbar").then((mod) => mod.Nav
 const GlobalPurchaseModal = dynamic(() => import("@/components/GlobalPurchaseModal").then((mod) => mod.GlobalPurchaseModal));
 const GlobalAuthModal = dynamic(() => import("@/components/GlobalAuthModal").then((mod) => mod.GlobalAuthModal));
 const GuidedOnboarding = dynamic(() => import("@/components/Auth/GuidedOnboarding").then((mod) => mod.GuidedOnboarding), { ssr: false });
-const OnboardingModal = dynamic(() => import("@/components/Auth/OnboardingModal").then((mod) => mod.OnboardingModal));
 const DebugBreakpoints = dynamic(() => import("@/components/Debug/DebugBreakpoints").then((mod) => mod.DebugBreakpoints));
 const InsufficientBalanceModal = dynamic(() => import("@/components/InsufficientBalanceModal").then((mod) => mod.InsufficientBalanceModal));
 const ScrollToTop = dynamic(() => import("@/components/Navigation/ScrollToTop").then((mod) => mod.ScrollToTop));
@@ -94,8 +93,6 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
             <InsufficientBalanceModal />
             <GlobalAuthModal />
             <GuidedOnboarding />
-
-            <OnboardingModal />
             <Toaster position="top-center" theme="dark" richColors closeButton />
             <CookieBanner />
             <DebugBreakpoints />

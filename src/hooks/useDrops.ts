@@ -3,8 +3,17 @@
 import { useState, useEffect, useMemo } from "react";
 import useSWRInfinite from "swr/infinite";
 import { Drop } from "@/types/db";
+import { applyDropStatus } from "@/lib/drop-status";
 
 const INITIAL_SWEEP_NOW = Date.now();
+const DROPS_PAGE_SIZE = 12;
+const DROPS_REFRESH_MS = 30_000;
+const EXPIRY_REFRESH_BUFFER_MS = 1_000;
+
+interface DropFeedPage {
+  drops: Drop[];
+  nextCursor: number | null;
+}
 
 const fetcher = async (url: string) => {
   const res = await fetch(url);
@@ -16,57 +25,85 @@ const fetcher = async (url: string) => {
 };
 
 export function useDrops(
-  statusFilter: string[] | null = ["active", "scheduled"],
+  statusFilter: Drop["status"][] | null = ["active", "scheduled"],
   initialData?: Drop[]
 ) {
   const [sweepNowMs, setSweepNowMs] = useState(INITIAL_SWEEP_NOW);
 
-  // We only support the standard feed currently for pagination (active + scheduled)
-  const getKey = (pageIndex: number, previousPageData: any) => {
+  const getKey = (pageIndex: number, previousPageData: DropFeedPage | null) => {
     if (previousPageData && !previousPageData.nextCursor) return null; // reached the end
-    if (pageIndex === 0) return `/api/drops?limit=12`;
-    return `/api/drops?limit=12&cursor=${previousPageData.nextCursor}`;
+    if (pageIndex === 0) return `/api/drops?limit=${DROPS_PAGE_SIZE}`;
+    return `/api/drops?limit=${DROPS_PAGE_SIZE}&cursor=${previousPageData?.nextCursor}`;
   };
 
   const fallback = useMemo(() => {
-    return initialData ? [{ drops: initialData, nextCursor: initialData.length === 12 ? initialData[11].validFrom : null }] : undefined;
+    return initialData ? [{
+      drops: initialData,
+      nextCursor: initialData.length === DROPS_PAGE_SIZE ? initialData[initialData.length - 1].validFrom : null,
+    }] : undefined;
   }, [initialData]);
 
-  const { data, error, size, setSize, isValidating } = useSWRInfinite(getKey, fetcher, {
+  const { data, error, size, setSize, mutate } = useSWRInfinite<DropFeedPage>(getKey, fetcher, {
     fallbackData: fallback,
-    revalidateFirstPage: false,
+    persistSize: true,
+    revalidateFirstPage: true,
     revalidateOnFocus: false,
+    refreshInterval: DROPS_REFRESH_MS,
+    refreshWhenHidden: false,
   });
 
   const swrDrops: Drop[] = useMemo(() => {
     return data ? data.flatMap(page => page?.drops || []) : [];
   }, [data]);
 
-  // Handle client-side expiration out of the active set efficiently.
   useEffect(() => {
-    const sweepExpired = () => {
+    const syncDrops = () => {
       setSweepNowMs(Date.now());
+      void mutate();
     };
 
-    // Sweep strictly on window focus or visibility transitions instead of continuous heavy polling
-    window.addEventListener("focus", sweepExpired);
-    document.addEventListener("visibilitychange", sweepExpired);
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        syncDrops();
+      }
+    };
+
+    window.addEventListener("focus", syncDrops);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
-      window.removeEventListener("focus", sweepExpired);
-      document.removeEventListener("visibilitychange", sweepExpired);
+      window.removeEventListener("focus", syncDrops);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, []);
+  }, [mutate]);
+
+  useEffect(() => {
+    const upcomingExpirations = swrDrops
+      .map((drop) => applyDropStatus(drop, sweepNowMs))
+      .map((drop) => (drop.status === "active" && drop.validUntil && drop.validUntil > sweepNowMs ? drop.validUntil : null))
+      .filter((validUntil): validUntil is number => typeof validUntil === "number");
+
+    if (upcomingExpirations.length === 0) {
+      return;
+    }
+
+    const nextExpiryMs = Math.min(...upcomingExpirations);
+    const timeoutMs = Math.max(250, nextExpiryMs - Date.now() + EXPIRY_REFRESH_BUFFER_MS);
+    const timeoutId = window.setTimeout(() => {
+      setSweepNowMs(Date.now());
+      void mutate();
+    }, timeoutMs);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [mutate, sweepNowMs, swrDrops]);
 
   const clientDrops = useMemo(() => {
-    return swrDrops.filter((drop) => {
-      if (drop.status !== "active" || !drop.validUntil) {
-        return true;
-      }
-
-      return sweepNowMs < drop.validUntil;
-    });
-  }, [sweepNowMs, swrDrops]);
+    return swrDrops
+      .map((drop) => applyDropStatus(drop, sweepNowMs))
+      .filter((drop) => (statusFilter ? statusFilter.includes(drop.status) : true));
+  }, [statusFilter, sweepNowMs, swrDrops]);
 
 
   const isLoadingInitialData = !data && !error;
@@ -83,6 +120,7 @@ export function useDrops(
     size,
     setSize,
     isLoadingMore,
-    isReachingEnd
+    isReachingEnd,
+    nowMs: sweepNowMs,
   };
 }

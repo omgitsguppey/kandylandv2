@@ -5,6 +5,11 @@ import { FieldValue } from "firebase-admin/firestore";
 import { generateUniqueUsernameSuggestion } from "@/lib/server/username-suggestions";
 import { checkRateLimit, STRICT } from "@/lib/server/rate-limit";
 import { PRIVACY_POLICY_VERSION } from "@/lib/privacy-policy";
+import { trackServerEvent } from "@/lib/server/analytics";
+
+function normalizeRegistrationMethod(value: unknown) {
+    return value === "google" ? "google" : "email";
+}
 
 export async function POST(request: NextRequest) {
     try {
@@ -15,11 +20,45 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });
         }
 
-        const { username, dateOfBirth, displayName, referredBy } = await request.json();
+        const { username, dateOfBirth, displayName, referredBy, registrationMethod } = await request.json();
+        const normalizedRegistrationMethod = normalizeRegistrationMethod(registrationMethod);
 
         const userRef = adminDb.collection("users").doc(caller.uid);
         const existingSnap = await userRef.get();
         if (existingSnap.exists) {
+            const existingData = existingSnap.data() ?? {};
+            const profilePatch: Record<string, unknown> = {};
+
+            if (typeof displayName === "string" && displayName.trim().length > 0) {
+                const normalizedDisplayName = displayName.trim();
+                if (typeof existingData.displayName !== "string" || existingData.displayName.trim() === "" || existingData.displayName === "User") {
+                    profilePatch.displayName = normalizedDisplayName;
+                }
+            }
+
+            if (typeof dateOfBirth === "string" && dateOfBirth.trim().length > 0 && typeof existingData.dateOfBirth !== "string") {
+                profilePatch.dateOfBirth = dateOfBirth;
+            }
+
+            if (typeof username === "string" && username.trim().length > 0) {
+                const requestedUsername = username.trim();
+                const existingUsername = typeof existingData.username === "string" ? existingData.username.trim() : "";
+                const existingDisplayName = typeof existingData.displayName === "string" ? existingData.displayName.trim() : "";
+                const existingDateOfBirth = typeof existingData.dateOfBirth === "string" ? existingData.dateOfBirth.trim() : "";
+                if (!existingUsername || existingUsername === "user" || existingUsername === caller.uid || existingDisplayName === "User" || existingDateOfBirth === "") {
+                    profilePatch.username = await generateUniqueUsernameSuggestion({
+                        preferredUsername: requestedUsername,
+                        displayName: typeof displayName === "string" ? displayName : null,
+                        email: caller.email,
+                        uid: caller.uid,
+                    });
+                }
+            }
+
+            if (Object.keys(profilePatch).length > 0) {
+                await userRef.set(profilePatch, { merge: true });
+            }
+
             return NextResponse.json({ success: true, existing: true });
         }
 
@@ -103,6 +142,21 @@ export async function POST(request: NextRequest) {
                 // Do not fail registration if referral processing fails
             }
         }
+
+        await Promise.allSettled([
+            trackServerEvent("user_registered", {
+                registration_method: normalizedRegistrationMethod,
+                welcome_bonus_gumdrops: 50,
+                has_referral_code: typeof referredBy === "string" && referredBy.trim().length > 0,
+                page_path: "/dashboard",
+            }, caller.uid),
+            trackServerEvent("guided_onboarding_started", {
+                source: "auto_after_signup",
+                registration_method: normalizedRegistrationMethod,
+                page_path: "/dashboard",
+                onboarding_entry: "post_registration",
+            }, caller.uid),
+        ]);
 
         return NextResponse.json({ success: true, welcomeBonus: 50 });
     } catch (error) {

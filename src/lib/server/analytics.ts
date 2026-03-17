@@ -5,8 +5,7 @@ import { recordTelemetryEventStat } from "./daily-tasks";
 import { recordSemanticRollupFromTelemetryEvent } from "./analytics-semantics";
 import { buildAnalyticsSemanticParams } from "@/lib/analytics-semantics";
 import {
-  getTelemetryEventOption,
-  TELEMETRY_EVENT_INDEX_VERSION,
+  buildTelemetryEventMetadata,
 } from "@/lib/telemetry-catalog";
 
 function buildTimeKeys(timestamp: number) {
@@ -73,21 +72,17 @@ export async function trackServerEvent(
   const measurementId = process.env.GA_MEASUREMENT_ID;
   const apiSecret = process.env.GA_API_SECRET;
   const nowMs = Date.now();
-  const { canonicalEventName, option } = getTelemetryEventOption(rawEventName);
+  const { canonicalEventName, option, metadataParams } = buildTelemetryEventMetadata(rawEventName);
   const sanitizedParams = sanitizeServerParams(params);
   const enrichedParams = {
     ...sanitizedParams,
-    event_index_version: TELEMETRY_EVENT_INDEX_VERSION,
-    event_category: option?.category || "system",
+    ...metadataParams,
     tracking_origin: "server",
     ...buildAnalyticsSemanticParams({
       pagePath: readStringParam(sanitizedParams, "page_path", "pagePath"),
       dropId: readStringParam(sanitizedParams, "drop_id", "dropId"),
       dropCategory: readStringParam(sanitizedParams, "drop_category", "dropCategory"),
     }),
-    ...(option?.modules?.length ? { event_modules: option.modules.join("|") } : {}),
-    ...(option?.sources?.length ? { tracking_sources: option.sources.join("|") } : {}),
-    ...(rawEventName !== canonicalEventName ? { legacy_event_name: rawEventName } : {}),
   };
 
   try {
@@ -131,7 +126,7 @@ export async function trackServerEvent(
         eventCategory: option?.category || "system",
         eventModules: option?.modules || [],
         trackingSources: option?.sources || [],
-        eventIndexVersion: TELEMETRY_EVENT_INDEX_VERSION,
+        eventIndexVersion: readStringParam(enrichedParams, "event_index_version"),
         trackingOrigin: "server",
         params: enrichedParams,
         createdAt: nowMs,

@@ -123,12 +123,11 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
     const [previewDrop, setPreviewDrop] = useState<Drop | null>(null);
 
     const sourceDrops = useMemo(() => {
-        const drops = liveDrops.length > 0 ? liveDrops : initialDrops;
         if (!userProfile?.unlockedContent || !Array.isArray(userProfile.unlockedContent)) {
-            return drops;
+            return liveDrops;
         }
-        return drops.filter(drop => !userProfile.unlockedContent!.includes(drop.id));
-    }, [liveDrops, initialDrops, userProfile]);
+        return liveDrops.filter(drop => !userProfile.unlockedContent!.includes(drop.id));
+    }, [liveDrops, userProfile]);
 
     const accountOverview = useMemo(() => buildAccountOverviewViewModel({
         authLoading,

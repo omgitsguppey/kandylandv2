@@ -2,6 +2,7 @@ import "server-only";
 import { adminDb } from "./firebase-admin";
 import { Drop } from "@/types/db";
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
+import { applyDropStatus, resolveDropStatusFromTiming } from "@/lib/drop-status";
 import { cache } from "react";
 import { sendGlobalDropNotification } from "./push-notifications";
 
@@ -14,18 +15,9 @@ const MS_PER_DAY = 24 * 60 * 60 * 1000;
  */
 function resolveDropStatus(drop: Drop, now: number): { drop: Drop; needsUpdate: boolean } {
     let needsUpdate = false;
-    let resolved = { ...drop };
+    let resolved = applyDropStatus(drop, now);
 
     // Auto-rotation logic has been officially deprecated. Time is linear now.
-
-    // Compute live status from dates
-    if (now < resolved.validFrom) {
-        resolved.status = "scheduled";
-    } else if (resolved.validUntil && now >= resolved.validUntil) {
-        resolved.status = "expired";
-    } else {
-        resolved.status = "active";
-    }
 
     // If the stored status doesn't match the computed status, flag for update
     if (drop.status !== resolved.status) {
@@ -77,7 +69,7 @@ export const getDrops = cache(async (): Promise<Drop[]> => {
 
             if (needsUpdate) {
                 persistDropUpdate(doc.id, resolved);
-                if (raw.status === "scheduled" && resolved.status === "active") {
+                if (resolveDropStatusFromTiming(raw, now) === "active" && raw.status === "scheduled") {
                     sendGlobalDropNotification(resolved.title, doc.id, resolved.imageUrl);
                 }
             }
@@ -100,11 +92,12 @@ export const getDrop = cache(async (id: string): Promise<Drop | null> => {
         if (!docSnap.exists) return null;
 
         const raw = normalizeDropRecord(docSnap.data(), docSnap.id);
-        const { drop: resolved, needsUpdate } = resolveDropStatus(raw, Date.now());
+        const now = Date.now();
+        const { drop: resolved, needsUpdate } = resolveDropStatus(raw, now);
 
         if (needsUpdate) {
             persistDropUpdate(docSnap.id, resolved);
-            if (raw.status === "scheduled" && resolved.status === "active") {
+            if (resolveDropStatusFromTiming(raw, now) === "active" && raw.status === "scheduled") {
                 sendGlobalDropNotification(resolved.title, docSnap.id, resolved.imageUrl);
             }
         }
@@ -135,7 +128,7 @@ export async function getDropRaw(id: string): Promise<Drop | null> {
 
         if (needsUpdate) {
             persistDropUpdate(docSnap.id, resolved);
-            if (raw.status === "scheduled" && resolved.status === "active") {
+            if (resolveDropStatusFromTiming(raw, now) === "active" && raw.status === "scheduled") {
                 sendGlobalDropNotification(resolved.title, docSnap.id, resolved.imageUrl);
             }
         }

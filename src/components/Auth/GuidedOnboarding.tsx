@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Sparkles, Flame, Droplets, Gift, BellRing, ChevronRight, Compass, CalendarCheck2 } from "lucide-react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { toast } from "sonner";
@@ -17,40 +17,58 @@ import { enableBrowserNotifications } from "@/lib/browser-notification-enrollmen
 type FlavorPreference = "Sweet" | "Spicy" | "RAW" | "";
 
 type StepDefinition = {
+    id: string;
     title: string;
     description: string;
     path: string;
 };
 
+type OnboardingStepMetric = {
+    stepId: string;
+    stepIndex: number;
+    stepTitle: string;
+    stepPath: string;
+    startedAtMs: number;
+    completedAtMs: number;
+    durationMs: number;
+    completionReason: string;
+};
+
 const STEP_DEFINITIONS: StepDefinition[] = [
     {
+        id: "flavor_preference",
         title: "Pick your flavor",
-        description: "Set the vibe you want to see first.",
+        description: "Pick what feels right first. You can always change it later.",
         path: "/dashboard",
     },
     {
+        id: "daily_check_in",
         title: "Claim your daily check-in",
-        description: "Start your streak and stack free Gum Drops.",
+        description: "Check in daily to earn Gum Drops. Start your streak now so you can unwrap more sooner.",
         path: "/dashboard",
     },
     {
-        title: "See what is live",
-        description: "Head to Drops to find KandyDrops ready to unwrap.",
+        id: "live_drops",
+        title: "Live KandyDrops",
+        description: "Live KandyDrops can disappear when the timer ends. Unwrap while they're active to keep them in your library.",
         path: "/drops",
     },
     {
-        title: "Try Experiences",
-        description: "Earn more Gum Drops and keep the loop going.",
+        id: "experiences",
+        title: "Daily Experiences",
+        description: "Stay ready to unwrap. Check in, finish three missions, and come back when the timer resets.",
         path: "/experiences",
     },
     {
+        id: "notifications",
         title: "Turn on notifications",
-        description: "Get the heads-up when fresh drops go live.",
+        description: "Enable notifications so you never miss a drop. Get the heads-up when fresh drops go live.",
         path: "/experiences",
     },
     {
-        title: "You are ready to unwrap",
-        description: "Finish onboarding and jump straight into Drops.",
+        id: "complete",
+        title: "You're ready to unwrap",
+        description: "Taste your unwrapped KandyDrops and earn free Gum Drops. Jump straight into Drops when you're ready.",
         path: "/drops",
     },
 ];
@@ -115,6 +133,7 @@ function hasClaimedToday(value: unknown): boolean {
 export function GuidedOnboarding() {
     const { user, userProfile: profile } = useAuth();
     const router = useRouter();
+    const pathname = usePathname();
     const completionStorageKey = user ? `kandydrops_onboarding_completed_${user.uid}` : null;
 
     const [isVisible, setIsVisible] = useState(false);
@@ -123,7 +142,11 @@ export function GuidedOnboarding() {
     const [isCheckingIn, setIsCheckingIn] = useState(false);
     const [isEnablingNotifications, setIsEnablingNotifications] = useState(false);
     const [isCompleting, setIsCompleting] = useState(false);
-    const [mountTime, setMountTime] = useState(0);
+    const flowStartedAtRef = useRef(0);
+    const activeStepIdRef = useRef<string | null>(null);
+    const stepStartedAtRef = useRef<Record<string, number>>({});
+    const completedStepIdsRef = useRef<Set<string>>(new Set());
+    const stepMetricsRef = useRef<Record<string, OnboardingStepMetric>>({});
 
     useEffect(() => {
         if (!isVisible) {
@@ -177,15 +200,33 @@ export function GuidedOnboarding() {
                 }
 
                 if (profile.username && !isVisible) {
-                    setMountTime(Date.now());
-                    trackEvent("guided_onboarding_started", { source: "auto_after_signup" });
+                    const startedAtMs = Date.now();
+                    flowStartedAtRef.current = startedAtMs;
+                    activeStepIdRef.current = null;
+                    stepStartedAtRef.current = {};
+                    completedStepIdsRef.current = new Set();
+                    stepMetricsRef.current = {};
+                    trackEvent("guided_onboarding_started", {
+                        source: "auto_after_signup",
+                        registration_method: user.providerData[0]?.providerId === "google.com" ? "google" : "email",
+                        overall_started_at_ms: startedAtMs,
+                    });
                     setCurrentStep(0);
                     setIsVisible(true);
                 }
             } catch {
                 if (!cancelled && profile.username && !isVisible) {
-                    setMountTime(Date.now());
-                    trackEvent("guided_onboarding_started", { source: "auto_after_signup" });
+                    const startedAtMs = Date.now();
+                    flowStartedAtRef.current = startedAtMs;
+                    activeStepIdRef.current = null;
+                    stepStartedAtRef.current = {};
+                    completedStepIdsRef.current = new Set();
+                    stepMetricsRef.current = {};
+                    trackEvent("guided_onboarding_started", {
+                        source: "auto_after_signup",
+                        registration_method: user.providerData[0]?.providerId === "google.com" ? "google" : "email",
+                        overall_started_at_ms: startedAtMs,
+                    });
                     setCurrentStep(0);
                     setIsVisible(true);
                 }
@@ -204,16 +245,41 @@ export function GuidedOnboarding() {
             return;
         }
 
-        const expectedPath = STEP_DEFINITIONS[currentStep]?.path;
-        if (expectedPath) {
-            router.replace(expectedPath);
+        const step = STEP_DEFINITIONS[currentStep];
+        if (!step) {
+            return;
         }
-    }, [currentStep, isVisible, router]);
+
+        if (activeStepIdRef.current !== step.id) {
+            const startedAtMs = Date.now();
+            activeStepIdRef.current = step.id;
+            stepStartedAtRef.current[step.id] = startedAtMs;
+
+            trackEvent("guided_onboarding_step_started", {
+                step_key: step.id,
+                step_index: currentStep + 1,
+                step_title: step.title,
+                step_path: step.path,
+                overall_started_at_ms: flowStartedAtRef.current,
+            });
+            trackEvent("onboarding_step_viewed", {
+                step: currentStep + 1,
+                step_key: step.id,
+                step_title: step.title,
+                step_path: step.path,
+            });
+        }
+
+        if (pathname !== step.path) {
+            router.replace(step.path);
+        }
+    }, [currentStep, isVisible, pathname, router]);
 
     const isNotificationStepCompleted = useMemo(
         () => profile?.notificationSettings?.browserPushEnabled === true,
         [profile?.notificationSettings?.browserPushEnabled],
     );
+    const hasCheckedInToday = hasClaimedToday(profile?.lastCheckIn);
 
     const progressPercent = ((currentStep + 1) / STEP_DEFINITIONS.length) * 100;
 
@@ -224,10 +290,60 @@ export function GuidedOnboarding() {
         });
     };
 
+    const buildStepMetric = (stepIndex: number, completionReason: string) => {
+        const step = STEP_DEFINITIONS[stepIndex];
+        if (!step) {
+            return null;
+        }
+
+        const completedAtMs = Date.now();
+        const startedAtMs = stepStartedAtRef.current[step.id] || completedAtMs;
+        return {
+            stepId: step.id,
+            stepIndex: stepIndex + 1,
+            stepTitle: step.title,
+            stepPath: step.path,
+            startedAtMs,
+            completedAtMs,
+            durationMs: Math.max(0, completedAtMs - startedAtMs),
+            completionReason,
+        } satisfies OnboardingStepMetric;
+    };
+
+    const commitStepMetric = (metric: OnboardingStepMetric | null, extraParams?: Record<string, string | number | boolean>) => {
+        if (!metric || completedStepIdsRef.current.has(metric.stepId)) {
+            return;
+        }
+
+        completedStepIdsRef.current.add(metric.stepId);
+        stepMetricsRef.current[metric.stepId] = metric;
+        trackEvent("guided_onboarding_step_completed", {
+            step_key: metric.stepId,
+            step_index: metric.stepIndex,
+            step_title: metric.stepTitle,
+            step_path: metric.stepPath,
+            completion_reason: metric.completionReason,
+            duration_ms: metric.durationMs,
+            duration_seconds: Math.round(metric.durationMs / 1000),
+            overall_started_at_ms: flowStartedAtRef.current,
+            ...extraParams,
+        });
+    };
+
+    const completeCurrentStep = (completionReason: string, extraParams?: Record<string, string | number | boolean>) => {
+        const metric = buildStepMetric(currentStep, completionReason);
+        commitStepMetric(metric, extraParams);
+    };
+
+    const completeStepAndAdvance = (completionReason: string, extraParams?: Record<string, string | number | boolean>) => {
+        completeCurrentStep(completionReason, extraParams);
+        goToNextStep();
+    };
+
     const handleCheckInAndContinue = async () => {
-        if (hasClaimedToday(profile?.lastCheckIn)) {
+        if (hasCheckedInToday) {
             toast.success("Daily check-in already claimed. Let’s keep going.");
-            goToNextStep();
+            completeStepAndAdvance("already_claimed");
             return;
         }
 
@@ -243,7 +359,10 @@ export function GuidedOnboarding() {
             }
 
             toast.success(payload?.alreadyClaimed ? "Daily check-in already claimed." : `+${payload?.reward || 0} Gum Drops added.`);
-            goToNextStep();
+            completeStepAndAdvance(payload?.alreadyClaimed ? "already_claimed" : "claimed", {
+                reward_amount: Number(payload?.reward || 0),
+                already_claimed: payload?.alreadyClaimed === true,
+            });
         } catch (error) {
             const message = error instanceof Error ? error.message : "We could not complete your check-in.";
             toast.error(message);
@@ -254,7 +373,7 @@ export function GuidedOnboarding() {
 
     const handleEnableNotifications = async () => {
         if (!profile || isNotificationStepCompleted) {
-            goToNextStep();
+            completeStepAndAdvance("already_enabled");
             return;
         }
 
@@ -263,7 +382,7 @@ export function GuidedOnboarding() {
             const result = await enableBrowserNotifications(profile);
             if (result.status === "enabled") {
                 toast.success("Browser notifications enabled.");
-                goToNextStep();
+                completeStepAndAdvance("enabled");
                 return;
             }
 
@@ -290,13 +409,20 @@ export function GuidedOnboarding() {
 
         setIsCompleting(true);
         try {
-            const durationMs = mountTime ? Math.max(0, Date.now() - mountTime) : 0;
+            const finalStepMetric = buildStepMetric(currentStep, "finished");
+            const durationMs = flowStartedAtRef.current ? Math.max(0, Date.now() - flowStartedAtRef.current) : 0;
             const durationSeconds = durationMs ? Math.round(durationMs / 1000) : 0;
+            const stepMetrics = [
+                ...Object.values(stepMetricsRef.current),
+                ...(finalStepMetric && !completedStepIdsRef.current.has(finalStepMetric.stepId) ? [finalStepMetric] : []),
+            ];
             const response = await authFetch("/api/user/complete-onboarding", {
                 method: "POST",
                 body: JSON.stringify({
+                    startedAtMs: flowStartedAtRef.current,
                     durationMs,
                     durationSeconds,
+                    stepMetrics,
                     viewportWidth: typeof window !== "undefined" ? window.innerWidth : 0,
                     viewportHeight: typeof window !== "undefined" ? window.innerHeight : 0,
                     isMobileViewport: typeof window !== "undefined" ? window.innerWidth < 768 : false,
@@ -322,7 +448,15 @@ export function GuidedOnboarding() {
             }
 
             try {
-                trackEvent("guided_onboarding_completed", { durationSeconds, duration_ms: durationMs });
+                commitStepMetric(finalStepMetric, {
+                    completed_step_count: stepMetrics.length,
+                });
+                trackEvent("guided_onboarding_completed", {
+                    durationSeconds,
+                    duration_ms: durationMs,
+                    completed_step_count: stepMetrics.length,
+                    registration_method: user.providerData[0]?.providerId === "google.com" ? "google" : "email",
+                });
             } catch {
                 // noop
             }
@@ -410,7 +544,9 @@ export function GuidedOnboarding() {
 
                             <button
                                 type="button"
-                                onClick={() => goToNextStep()}
+                                onClick={() => completeStepAndAdvance("selected_flavor", {
+                                    selected_flavor: flavorPreference || "Sweet",
+                                })}
                                 disabled={!flavorPreference}
                                 className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-5 py-3.5 text-sm font-bold text-white transition-all disabled:cursor-not-allowed disabled:opacity-50"
                             >
@@ -437,7 +573,7 @@ export function GuidedOnboarding() {
                                 disabled={isCheckingIn}
                                 className="flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-5 py-3.5 text-sm font-bold text-white transition-all disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                                {isCheckingIn ? "Checking in..." : "Check in and continue"}
+                                {isCheckingIn ? "Checking in..." : hasCheckedInToday ? "Next" : "Check in"}
                                 <ChevronRight className="h-4 w-4" />
                             </button>
                         </>
@@ -449,18 +585,18 @@ export function GuidedOnboarding() {
                                 <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-purple/15 text-brand-purple">
                                     <Gift className="h-7 w-7" />
                                 </div>
-                                <h2 className="text-2xl font-bold text-white">Go to live Drops</h2>
+                                <h2 className="text-2xl font-bold text-white">Live KandyDrops</h2>
                                 <p className="mt-2 text-sm leading-relaxed text-gray-400">
-                                    This is where live KandyDrops appear when they are ready to unwrap.
+                                    Live KandyDrops can disappear when the timer ends. Unwrap while they&apos;re active to keep them in your library.
                                 </p>
                             </div>
 
                             <button
                                 type="button"
-                                onClick={() => goToNextStep()}
+                                onClick={() => completeStepAndAdvance("continued_from_drops")}
                                 className="flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-5 py-3.5 text-sm font-bold text-white transition-all"
                             >
-                                Open Drops <ChevronRight className="h-4 w-4" />
+                                Next <ChevronRight className="h-4 w-4" />
                             </button>
                         </>
                     ) : null}
@@ -471,18 +607,18 @@ export function GuidedOnboarding() {
                                 <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-purple/15 text-brand-purple">
                                     <Compass className="h-7 w-7" />
                                 </div>
-                                <h2 className="text-2xl font-bold text-white">Explore Experiences</h2>
+                                <h2 className="text-2xl font-bold text-white">Daily Experiences</h2>
                                 <p className="mt-2 text-sm leading-relaxed text-gray-400">
-                                    Experiences help you earn more Gum Drops and stay in the loop.
+                                    Stay ready to unwrap. Check in, finish three missions, and come back when the timer resets.
                                 </p>
                             </div>
 
                             <button
                                 type="button"
-                                onClick={() => goToNextStep()}
+                                onClick={() => completeStepAndAdvance("continued_from_experiences")}
                                 className="flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-5 py-3.5 text-sm font-bold text-white transition-all"
                             >
-                                Open Experiences <ChevronRight className="h-4 w-4" />
+                                Next <ChevronRight className="h-4 w-4" />
                             </button>
                         </>
                     ) : null}
@@ -495,7 +631,7 @@ export function GuidedOnboarding() {
                                 </div>
                                 <h2 className="text-2xl font-bold text-white">Turn on notifications</h2>
                                 <p className="mt-2 text-sm leading-relaxed text-gray-400">
-                                    Catch new drops right when they go live.
+                                    Enable notifications so you never miss a drop. Get the heads-up when fresh drops go live.
                                 </p>
                             </div>
 
@@ -515,7 +651,7 @@ export function GuidedOnboarding() {
                                 </button>
                                 <button
                                     type="button"
-                                    onClick={() => goToNextStep()}
+                                    onClick={() => completeStepAndAdvance("skipped_notifications")}
                                     className="w-full rounded-full border border-white/12 bg-white/5 px-5 py-3.5 text-sm font-semibold text-white transition-all hover:bg-white/8"
                                 >
                                     Skip for now
@@ -532,7 +668,7 @@ export function GuidedOnboarding() {
                                 </div>
                                 <h2 className="text-2xl font-bold text-white">You&apos;re ready</h2>
                                 <p className="mt-2 text-sm leading-relaxed text-gray-400">
-                                    You now have <span className="font-bold text-white">100 Gum Drops</span> waiting for your first unwrap.
+                                    Taste your unwrapped KandyDrops and earn free Gum Drops. You now have <span className="font-bold text-white">100 Gum Drops</span> waiting for your first unwrap.
                                 </p>
                             </div>
 
@@ -542,7 +678,7 @@ export function GuidedOnboarding() {
                                 disabled={isCompleting}
                                 className="flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-5 py-3.5 text-sm font-bold text-white transition-all disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                                {isCompleting ? "Finishing..." : "Go to Drops"}
+                                {isCompleting ? "Finishing..." : "Finish onboarding"}
                                 <ChevronRight className="h-4 w-4" />
                             </button>
                         </>

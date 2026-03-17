@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import * as admin from "firebase-admin";
 import { CANONICAL_TASK_EVENT_NAMES, recordDailyTaskProgressFromEvent, recordTelemetryEventStat } from "@/lib/server/daily-tasks";
-import { getTelemetryEventOption, TELEMETRY_EVENT_INDEX_VERSION, TELEMETRY_EVENT_NAME_SET } from "@/lib/telemetry-catalog";
+import { buildTelemetryEventMetadata, TELEMETRY_EVENT_NAME_SET } from "@/lib/telemetry-catalog";
 import { handleApiError, verifyAuth } from "@/lib/server/auth";
 import { checkRateLimit, RELAXED } from "@/lib/server/rate-limit";
 import { hasTrustedSiteOrigin } from "@/lib/server/request-origin";
@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
         if (!eventName) {
             return NextResponse.json({ error: "Missing eventName" }, { status: 400 });
         }
-        const { canonicalEventName, option } = getTelemetryEventOption(String(eventName));
+        const { canonicalEventName, option, metadataParams } = buildTelemetryEventMetadata(String(eventName));
         if (!TELEMETRY_EVENT_NAME_SET.has(canonicalEventName)) {
             return NextResponse.json({ error: "Unsupported eventName" }, { status: 400 });
         }
@@ -100,10 +100,7 @@ export async function POST(req: NextRequest) {
         const sanitizedEventParams = sanitizeEventParams(eventParams);
         const eventParamsWithMetadata: SanitizedEventParams = {
             ...sanitizedEventParams,
-            event_index_version: TELEMETRY_EVENT_INDEX_VERSION,
-            event_category: option?.category || "system",
-            ...(option?.modules?.length ? { event_modules: option.modules.join("|") } : {}),
-            ...(option?.sources?.length ? { tracking_sources: option.sources.join("|") } : {}),
+            ...metadataParams,
         };
         const canAdvanceTaskProgress = TASK_PROGRESS_EVENT_NAMES.has(canonicalEventName) && !CANONICAL_TASK_EVENT_NAMES.has(canonicalEventName);
 
@@ -191,7 +188,7 @@ export async function POST(req: NextRequest) {
             eventCategory: option?.category || "system",
             eventModules: option?.modules || [],
             trackingSources: option?.sources || [],
-            eventIndexVersion: TELEMETRY_EVENT_INDEX_VERSION,
+            eventIndexVersion: getStringParam(eventParamsWithMetadata, "event_index_version"),
             trackingOrigin: "authenticated_client",
             params: eventParamsWithMetadata,
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
