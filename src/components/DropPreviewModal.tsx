@@ -206,13 +206,14 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
 
   const handleShare = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const url = `${window.location.origin}/dashboard/viewer?id=${drop.id}`;
+    const url = `${window.location.origin}/drops?drop=${encodeURIComponent(drop.id)}`;
     navigator.clipboard.writeText(url)
       .then(() => {
         toast.success("Link copied to clipboard!");
         trackEvent("drop_share_copied", {
           drop_id: drop.id,
           drop_category: drop.type,
+          share_url: url,
         });
       })
       .catch(() => toast.error("Failed to copy link"));
@@ -232,7 +233,7 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
               <div className="relative shrink-0 px-4 pt-3 pb-2 sm:px-5">
                 <div className="mx-auto h-1.5 w-12 rounded-full bg-white/20" />
                 <div className="absolute right-4 top-2.5 flex items-center gap-2">
-                  {isUnlocked && (
+                  {drop.id && (
                     <button
                       onClick={handleShare}
                       className="h-11 w-11 rounded-full border border-white/15 bg-white/5 text-gray-200 flex items-center justify-center hover:bg-white/10 transition-colors"

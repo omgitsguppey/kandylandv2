@@ -5,6 +5,7 @@ import { FieldValue, type Transaction } from "firebase-admin/firestore";
 import { normalizeNotificationDoc } from "@/lib/notification-contracts";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { hasUnreadNotificationsForUser, isUnreadNotificationForUser } from "@/lib/server/notification-inbox";
+import { getDropAssetCount } from "@/lib/drop-presentation";
 import {
   BUILT_IN_DAILY_TASKS,
   DAILY_TASK_COOLDOWN_DAYS,
@@ -60,6 +61,11 @@ interface TaskEligibilityContext {
   hasUnlockedContent: boolean;
   hasLiveDrops: boolean;
   hasUnreadNotifications: boolean;
+  hasCheckedInToday: boolean;
+  hasMultiAssetUnlockedContent: boolean;
+  hasRelatedUnlockedDrops: boolean;
+  hasDownloadableUnlockedContent: boolean;
+  hasShareableLiveDrop: boolean;
 }
 
 async function readQuerySnapshot(
@@ -205,6 +211,10 @@ function pickTasksForCycle(
       return false;
     }
 
+    if (task.eventName === "daily_check_in_claim" && eligibility.hasCheckedInToday) {
+      return false;
+    }
+
     const requiresUnlockedContent = task.eventName === "viewer_opened"
       || task.eventName === "viewer_session_completed"
       || task.eventName === "viewer_asset_completed"
@@ -218,12 +228,27 @@ function pickTasksForCycle(
       return false;
     }
 
+    if (task.eventName === "viewer_asset_changed" && !eligibility.hasMultiAssetUnlockedContent) {
+      return false;
+    }
+
+    if (task.eventName === "viewer_related_drop_clicked" && !eligibility.hasRelatedUnlockedDrops) {
+      return false;
+    }
+
+    if (task.eventName === "viewer_source_downloaded" && !eligibility.hasDownloadableUnlockedContent) {
+      return false;
+    }
+
     const requiresLiveDrops = task.eventName === "drop_preview_opened"
       || task.eventName === "view_drop_details"
-      || task.eventName === "unlock_drop_success"
-      || task.eventName === "drop_share_copied";
+      || task.eventName === "unlock_drop_success";
 
     if (requiresLiveDrops && !eligibility.hasLiveDrops) {
+      return false;
+    }
+
+    if (task.eventName === "drop_share_copied" && !eligibility.hasShareableLiveDrop) {
       return false;
     }
 
@@ -506,9 +531,12 @@ async function resolveTaskEligibilityContext(
   nowMs: number,
   transaction?: Transaction,
 ): Promise<TaskEligibilityContext> {
-  const hasUnlockedContent = Array.isArray(userData.unlockedContent) && userData.unlockedContent.length > 0;
+  const unlockedContentIds = Array.isArray(userData.unlockedContent)
+    ? Array.from(new Set(userData.unlockedContent.filter((value): value is string => typeof value === "string" && value.trim().length > 0)))
+    : [];
+  const hasUnlockedContent = unlockedContentIds.length > 0;
 
-  const [liveDropsResult, unreadNotificationsResult] = await Promise.allSettled([
+  const [liveDropsResult, unreadNotificationsResult, unlockedDropDocsResult] = await Promise.allSettled([
     (async () => {
       const snapshot = await readQuerySnapshot(
         adminDb.collection("drops")
@@ -552,12 +580,53 @@ async function resolveTaskEligibilityContext(
         }, uid, nowMs);
       });
     })(),
+    (async () => {
+      if (!hasUnlockedContent) {
+        return [];
+      }
+
+      const dropRefs = unlockedContentIds.map((dropId) => adminDb.collection("drops").doc(dropId));
+      const snapshots = await Promise.all(dropRefs.map((dropRef) => (
+        transaction ? transaction.get(dropRef) : dropRef.get()
+      )));
+
+      return snapshots
+        .filter((snapshot) => snapshot.exists)
+        .map((snapshot) => ({
+          id: snapshot.id,
+          ...snapshot.data(),
+        })) as Array<Record<string, unknown> & { id: string }>;
+    })(),
   ]);
+
+  const unlockedDropDocs = unlockedDropDocsResult.status === "fulfilled" ? unlockedDropDocsResult.value : [];
+  const hasMultiAssetUnlockedContent = unlockedDropDocs.some((drop) => getDropAssetCount({
+    contentUrl: typeof drop.contentUrl === "string" ? drop.contentUrl : "",
+    contentUrls: Array.isArray(drop.contentUrls)
+      ? drop.contentUrls.filter((value): value is string => typeof value === "string")
+      : [],
+    mediaCounts: drop.mediaCounts && typeof drop.mediaCounts === "object"
+      ? {
+        images: Number((drop.mediaCounts as Record<string, unknown>).images) || 0,
+        videos: Number((drop.mediaCounts as Record<string, unknown>).videos) || 0,
+      }
+      : undefined,
+  }) > 1);
+  const hasRelatedUnlockedDrops = unlockedContentIds.length > 1;
+  const hasDownloadableUnlockedContent = unlockedDropDocs.some((drop) => (
+    typeof drop.creatorId === "string" && drop.creatorId === uid
+  ));
+  const hasLiveDrops = liveDropsResult.status === "fulfilled" ? liveDropsResult.value : true;
 
   return {
     hasUnlockedContent,
-    hasLiveDrops: liveDropsResult.status === "fulfilled" ? liveDropsResult.value : true,
+    hasLiveDrops,
     hasUnreadNotifications: unreadNotificationsResult.status === "fulfilled" ? unreadNotificationsResult.value : true,
+    hasCheckedInToday: isSameCSTDay(userData.lastCheckIn ?? 0, nowMs),
+    hasMultiAssetUnlockedContent,
+    hasRelatedUnlockedDrops,
+    hasDownloadableUnlockedContent,
+    hasShareableLiveDrop: hasLiveDrops,
   };
 }
 

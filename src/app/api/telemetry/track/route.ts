@@ -2,34 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import * as admin from "firebase-admin";
 import { CANONICAL_TASK_EVENT_NAMES, recordDailyTaskProgressFromEvent, recordTelemetryEventStat } from "@/lib/server/daily-tasks";
-import { buildTelemetryEventMetadata, TELEMETRY_EVENT_NAME_SET } from "@/lib/telemetry-catalog";
-import { handleApiError, verifyAuth } from "@/lib/server/auth";
-import { ANALYTICS_WRITE, checkRateLimit } from "@/lib/server/rate-limit";
-import { hasTrustedSiteOrigin } from "@/lib/server/request-origin";
+import { handleApiError } from "@/lib/server/auth";
+import { ANALYTICS_WRITE } from "@/lib/server/rate-limit";
 import { getDropReferenceMap, resolveDropTitle } from "@/lib/server/drop-references";
 import { recordSemanticRollupFromTelemetryEvent } from "@/lib/server/analytics-semantics";
 import { profileAllowsIdentifiedAnalytics, requestHasGlobalPrivacyControl } from "@/lib/server/privacy-consent";
 import { BUILT_IN_DAILY_TASKS } from "@/lib/tasks/task-catalog";
 import { UserProfile } from "@/types/db";
+import { buildAnalyticsTimeKeys, resolveTrackedTelemetryEvent } from "@/lib/server/analytics-event-utils";
+import { guardApiRequest } from "@/lib/server/request-guard";
 
 const TASK_PROGRESS_EVENT_NAMES = new Set(BUILT_IN_DAILY_TASKS.map((task) => task.eventName));
 type SanitizedEventParams = Record<string, string | number | boolean>;
 const MAX_TELEMETRY_BODY_BYTES = 16 * 1024;
-
-function buildTimeKeys(timestamp: number) {
-    const date = new Date(timestamp);
-    const year = date.getUTCFullYear();
-    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-    const day = String(date.getUTCDate()).padStart(2, "0");
-    const hour = String(date.getUTCHours()).padStart(2, "0");
-    const minute = String(date.getUTCMinutes()).padStart(2, "0");
-
-    return {
-        dayKey: `${year}-${month}-${day}`,
-        hourKey: `${year}-${month}-${day}T${hour}`,
-        minuteKey: `${year}-${month}-${day}T${hour}:${minute}`,
-    };
-}
 
 function getStringParam(params: SanitizedEventParams, key: string) {
     const value = params[key];
@@ -77,13 +62,15 @@ function sanitizeEventParams(value: unknown) {
 
 export async function POST(req: NextRequest) {
     try {
-        if (!hasTrustedSiteOrigin(req)) {
-            return NextResponse.json({ error: "Untrusted origin" }, { status: 403 });
-        }
-
-        const decodedToken = await verifyAuth(req);
-        const userId = decodedToken.uid;
-        await checkRateLimit(req, "telemetry/track", ANALYTICS_WRITE, { scopeId: userId });
+        const decodedToken = await guardApiRequest(req, {
+            routeName: "telemetry/track",
+            rateLimit: ANALYTICS_WRITE,
+            requireTrustedOrigin: true,
+            auth: "user",
+            scopeToCaller: true,
+        });
+        const userId = decodedToken?.uid ?? "";
+        const userEmail = decodedToken?.email;
 
         const contentLength = Number(req.headers.get("content-length") || 0);
         if (Number.isFinite(contentLength) && contentLength > MAX_TELEMETRY_BODY_BYTES) {
@@ -97,8 +84,8 @@ export async function POST(req: NextRequest) {
         if (!eventName) {
             return NextResponse.json({ error: "Missing eventName" }, { status: 400 });
         }
-        const { canonicalEventName, option, metadataParams } = buildTelemetryEventMetadata(String(eventName));
-        if (!TELEMETRY_EVENT_NAME_SET.has(canonicalEventName)) {
+        const { canonicalEventName, option, metadataParams, isKnownEvent } = resolveTrackedTelemetryEvent(String(eventName));
+        if (!isKnownEvent) {
             return NextResponse.json({ error: "Unsupported eventName" }, { status: 400 });
         }
 
@@ -114,7 +101,7 @@ export async function POST(req: NextRequest) {
         const profileData = profileSnapshot.data();
         const userProfile = (profileData as UserProfile | undefined) ?? null;
 
-        const username = profileData?.username || profileData?.displayName || decodedToken.email || "Unknown Collector";
+        const username = profileData?.username || profileData?.displayName || userEmail || "Unknown Collector";
         const allowIdentifiedAnalytics = profileAllowsIdentifiedAnalytics(userProfile, req);
 
         if (!allowIdentifiedAnalytics) {
@@ -133,7 +120,7 @@ export async function POST(req: NextRequest) {
         }
 
         const nowMs = Date.now();
-        const timeKeys = buildTimeKeys(nowMs);
+        const timeKeys = buildAnalyticsTimeKeys(nowMs);
         const pagePath = getStringParam(eventParamsWithMetadata, "page_path");
         const sessionId = getStringParam(eventParamsWithMetadata, "session_id");
         const dropId = getStringParam(eventParamsWithMetadata, "drop_id");

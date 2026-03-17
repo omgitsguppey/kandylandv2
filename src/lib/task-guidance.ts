@@ -1,6 +1,13 @@
 import { type DailyTaskAssignment } from "@/lib/tasks/task-catalog";
 
 export const TASK_GUIDANCE_STORAGE_KEY = "kandydrops:active-task-guidance";
+export const TASK_GUIDANCE_ACTION_STORAGE_KEY = "kandydrops:active-task-guidance-action";
+export const TASK_GUIDANCE_ACTION_EVENT = "kandydrops:task-guidance-action";
+
+export type TaskGuidanceActionType = Extract<
+  DailyTaskAssignment["actionType"],
+  "open_notifications" | "open_wallet" | "enable_notifications" | "give_feedback"
+>;
 
 export interface TaskGuidanceState {
   taskId: string;
@@ -9,9 +16,58 @@ export interface TaskGuidanceState {
   instruction: string;
   ctaLabel: string;
   destinationHref: string;
+  actionType: DailyTaskAssignment["actionType"];
   activatedAt: number;
   completedAt?: number;
   dismissedAt?: number;
+}
+
+export interface TaskGuidancePendingAction {
+  taskId: string;
+  actionType: TaskGuidanceActionType;
+  destinationHref: string;
+  createdAt: number;
+}
+
+function readLocalStorageValue<T>(storageKey: string) {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    const raw = window.localStorage.getItem(storageKey);
+    return raw ? JSON.parse(raw) as T : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeLocalStorageValue(storageKey: string, value: unknown) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  if (value === null) {
+    window.localStorage.removeItem(storageKey);
+    return;
+  }
+
+  window.localStorage.setItem(storageKey, JSON.stringify(value));
+}
+
+export function isTaskGuidanceActionType(actionType: DailyTaskAssignment["actionType"]): actionType is TaskGuidanceActionType {
+  return actionType === "open_notifications"
+    || actionType === "open_wallet"
+    || actionType === "enable_notifications"
+    || actionType === "give_feedback";
+}
+
+export function readTaskGuidancePendingAction() {
+  return readLocalStorageValue<TaskGuidancePendingAction>(TASK_GUIDANCE_ACTION_STORAGE_KEY);
+}
+
+export function writeTaskGuidancePendingAction(action: TaskGuidancePendingAction | null) {
+  writeLocalStorageValue(TASK_GUIDANCE_ACTION_STORAGE_KEY, action);
 }
 
 export function getTaskInstruction(task: DailyTaskAssignment) {
@@ -121,6 +177,7 @@ export function createTaskGuidanceState(task: DailyTaskAssignment): TaskGuidance
     instruction: getTaskInstruction(task),
     ctaLabel: task.ctaLabel,
     destinationHref: getTaskDestinationHref(task),
+    actionType: task.actionType,
     activatedAt: Date.now(),
   };
 }

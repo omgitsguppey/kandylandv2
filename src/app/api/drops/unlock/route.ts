@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { verifyAuth, handleApiError } from "@/lib/server/auth";
+import { handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 import { revalidatePath } from "next/cache";
-import { checkRateLimit, SENSITIVE_WRITE } from "@/lib/server/rate-limit";
+import { SENSITIVE_WRITE } from "@/lib/server/rate-limit";
 import { recordCanonicalTaskEvent } from "@/lib/server/daily-tasks";
-import { hasTrustedSiteOrigin } from "@/lib/server/request-origin";
+import { guardApiRequest } from "@/lib/server/request-guard";
 
 const unlockRequestSchema = z.object({
   dropId: z
@@ -18,18 +18,20 @@ const unlockRequestSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    if (!hasTrustedSiteOrigin(request)) {
-      return NextResponse.json({ error: "Untrusted origin" }, { status: 403 });
-    }
-    const caller = await verifyAuth(request);
-    await checkRateLimit(request, "drops/unlock", SENSITIVE_WRITE, { scopeId: caller.uid });
+    const caller = await guardApiRequest(request, {
+      routeName: "drops/unlock",
+      rateLimit: SENSITIVE_WRITE,
+      requireTrustedOrigin: true,
+      auth: "user",
+      scopeToCaller: true,
+    });
     const { dropId } = unlockRequestSchema.parse(await request.json());
 
     if (!adminDb) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 });
     }
 
-    const userId = caller.uid;
+    const userId = caller?.uid ?? "";
     const userRef = adminDb.collection("users").doc(userId);
     const dropRef = adminDb.collection("drops").doc(dropId);
 
@@ -57,7 +59,7 @@ export async function POST(request: NextRequest) {
         ? userData.username.trim()
         : typeof userData.displayName === "string" && userData.displayName.trim().length > 0
           ? userData.displayName.trim()
-          : caller.email || userId;
+          : caller?.email || userId;
       const currentBalanceRaw = Number(userData.gumDropsBalance);
       const balance = Number.isFinite(currentBalanceRaw) ? Math.floor(currentBalanceRaw) : 0;
 
@@ -118,7 +120,7 @@ export async function POST(request: NextRequest) {
     revalidatePath("/dashboard");
 
     if (!result.alreadyUnlocked) {
-      await recordCanonicalTaskEvent(userId, result.username ?? caller.email ?? userId, "unlock_drop_success", {
+      await recordCanonicalTaskEvent(userId, result.username ?? caller?.email ?? userId, "unlock_drop_success", {
         drop_id: dropId,
         drop_title: result.title ?? "Drop",
         drop_tags: Array.isArray(result.tags) ? result.tags.join("|") : "",

@@ -3,9 +3,9 @@ export const fetchCache = 'force-no-store';
 
 import { NextRequest, NextResponse } from "next/server";
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
-import { verifyAdmin, handleApiError } from "@/lib/server/auth";
+import { handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
+import { ADMIN } from "@/lib/server/rate-limit";
 import { TELEMETRY_EVENT_QUERY_NAMES, TELEMETRY_MODULE_INDEXES } from "@/lib/telemetry-catalog";
 import { ANALYTICS_SEMANTIC_SOURCE_REGISTRY, ANALYTICS_SEMANTIC_STRATEGIES } from "@/lib/analytics-semantics";
 import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
@@ -53,6 +53,7 @@ import {
     toNumber,
     toStringValue,
 } from "@/lib/server/admin-analytics-shared";
+import { guardApiRequest } from "@/lib/server/request-guard";
 
 const propertyId = process.env.GA_PROPERTY_ID;
 const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
@@ -77,8 +78,11 @@ if (clientEmail && privateKey) {
 
 export async function GET(request: NextRequest) {
     try {
-        await checkRateLimit(request, "admin/analytics", ADMIN);
-        await verifyAdmin(request);
+        await guardApiRequest(request, {
+            routeName: "admin/analytics",
+            rateLimit: ADMIN,
+            auth: "admin",
+        });
 
         const searchParams = request.nextUrl.searchParams;
         const type = searchParams.get("type"); // "historical" or "realtime"

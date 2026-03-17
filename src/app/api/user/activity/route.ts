@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { adminDb } from "@/lib/server/firebase-admin";
-import { verifyAuth, handleApiError } from "@/lib/server/auth";
-import { checkRateLimit, STANDARD } from "@/lib/server/rate-limit";
+import { handleApiError } from "@/lib/server/auth";
+import { STANDARD } from "@/lib/server/rate-limit";
 import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
+import { guardApiRequest } from "@/lib/server/request-guard";
 
 type TaskEventType = "assigned" | "started" | "completed" | "failed" | "reminder_sent";
 
@@ -30,17 +31,22 @@ function toTaskEvent(raw: Record<string, unknown>, id: string) {
 
 export async function GET(request: NextRequest) {
     try {
-        const caller = await verifyAuth(request);
-        await checkRateLimit(request, "user/activity", STANDARD, { scopeId: caller.uid });
+        const caller = await guardApiRequest(request, {
+            routeName: "user/activity",
+            rateLimit: STANDARD,
+            requireTrustedOrigin: true,
+            auth: "user",
+            scopeToCaller: true,
+        });
 
         const [transactionsSnapshot, taskEventsSnapshot] = await Promise.all([
             adminDb.collection("transactions")
-                .where("userId", "==", caller.uid)
+                .where("userId", "==", caller?.uid ?? "")
                 .orderBy("timestamp", "desc")
                 .limit(8)
                 .get(),
             adminDb.collection("daily_task_events")
-                .where("userId", "==", caller.uid)
+                .where("userId", "==", caller?.uid ?? "")
                 .orderBy("timestamp", "desc")
                 .limit(8)
                 .get(),

@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { verifyAuth, handleApiError } from "@/lib/server/auth";
+import { handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 import { trackServerEvent } from "@/lib/server/analytics";
-import { checkRateLimit, SENSITIVE_WRITE } from "@/lib/server/rate-limit";
+import { SENSITIVE_WRITE } from "@/lib/server/rate-limit";
 import { deriveGumdropEconomics, getBundlePresentation } from "@/lib/gumdrop-economics";
 import { recordCanonicalTaskEvent } from "@/lib/server/daily-tasks";
-import { hasTrustedSiteOrigin } from "@/lib/server/request-origin";
+import { guardApiRequest } from "@/lib/server/request-guard";
 
 const bodySchema = z.object({
   orderId: z.string().min(1),
@@ -81,12 +81,14 @@ async function logFailedTransaction(userId: string, orderId: string, expectedDro
 
 export async function POST(request: NextRequest) {
   try {
-    if (!hasTrustedSiteOrigin(request)) {
-      return NextResponse.json({ error: "Untrusted origin" }, { status: 403 });
-    }
-    const caller = await verifyAuth(request);
-    const userId = caller.uid;
-    await checkRateLimit(request, "paypal/capture", SENSITIVE_WRITE, { scopeId: userId });
+    const caller = await guardApiRequest(request, {
+      routeName: "paypal/capture",
+      rateLimit: SENSITIVE_WRITE,
+      requireTrustedOrigin: true,
+      auth: "user",
+      scopeToCaller: true,
+    });
+    const userId = caller?.uid ?? "";
     const { orderId, expectedDrops } = bodySchema.parse(await request.json());
 
     const captureData = await capturePayPalOrder(orderId);
@@ -193,7 +195,7 @@ export async function POST(request: NextRequest) {
         ? userData.username.trim()
         : typeof userData.displayName === "string" && userData.displayName.trim().length > 0
           ? userData.displayName.trim()
-          : caller.email || userId;
+          : caller?.email || userId;
 
       transaction.update(userRef, { gumDropsBalance: FieldValue.increment(dropsToCredit) });
       transaction.set(adminDb.collection("transactions").doc(), {
@@ -261,7 +263,7 @@ export async function POST(request: NextRequest) {
         adjusted_profit_usd: economics.adjustedProfitUsd,
         bundle_key: bundlePresentation.bundleKey,
       }, userId),
-      recordCanonicalTaskEvent(userId, result.username ?? caller.email ?? userId, "gumdrops_purchase_completed", {
+      recordCanonicalTaskEvent(userId, result.username ?? caller?.email ?? userId, "gumdrops_purchase_completed", {
         package_drops: dropsToCredit,
         purchase_value: paidUsd,
         bundle_key: bundlePresentation.bundleKey,

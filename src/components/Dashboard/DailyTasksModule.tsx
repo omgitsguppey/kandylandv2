@@ -34,7 +34,16 @@ import {
 } from "@/lib/tasks/task-catalog";
 import { getCSTDayBoundaries } from "@/lib/timezone";
 import { trackEvent } from "@/lib/telemetry";
-import { createTaskGuidanceState, getTaskDestinationHref } from "@/lib/task-guidance";
+import {
+  TASK_GUIDANCE_ACTION_EVENT,
+  createTaskGuidanceState,
+  getTaskDestinationHref,
+  isTaskGuidanceActionType,
+  readTaskGuidancePendingAction,
+  writeTaskGuidancePendingAction,
+  type TaskGuidancePendingAction,
+  type TaskGuidanceActionType,
+} from "@/lib/task-guidance";
 import { dispatchActivitySync } from "@/lib/activity-sync";
 
 type FeedbackCategory = "general" | "feature_request" | "bug_report" | "creator_request";
@@ -223,9 +232,13 @@ export function DailyTasksModule() {
     ));
   };
 
-  const openNotifications = () => {
+  const openNotifications = useCallback(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
     window.dispatchEvent(new Event("kandydrops:open-notifications"));
-  };
+  }, []);
 
   const activateTaskGuidance = useCallback((task: DailyTaskAssignment) => {
     if (typeof window === "undefined") {
@@ -240,7 +253,7 @@ export function DailyTasksModule() {
     }));
   }, []);
 
-  const handleEnableNotifications = async () => {
+  const handleEnableNotifications = useCallback(async () => {
     if (!user || !userProfile) {
       return;
     }
@@ -271,7 +284,57 @@ export function DailyTasksModule() {
     } finally {
       setNotificationLoading(false);
     }
-  };
+  }, [user, userProfile]);
+
+  const executeRuntimeTaskAction = useCallback(async (actionType: TaskGuidanceActionType) => {
+    switch (actionType) {
+      case "open_notifications":
+        openNotifications();
+        return;
+      case "open_wallet":
+        openPurchaseModal();
+        return;
+      case "enable_notifications":
+        await handleEnableNotifications();
+        return;
+      case "give_feedback":
+        trackEvent("feedback_modal_opened");
+        setShowFeedbackModal(true);
+        return;
+      default:
+        return;
+    }
+  }, [handleEnableNotifications, openNotifications, openPurchaseModal]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    let cancelled = false;
+
+    const runPendingAction = async (pendingAction: TaskGuidancePendingAction | null) => {
+      if (!pendingAction || cancelled) {
+        return;
+      }
+
+      writeTaskGuidancePendingAction(null);
+      await executeRuntimeTaskAction(pendingAction.actionType);
+    };
+
+    const handleRuntimeAction = (event: Event) => {
+      const detail = (event as CustomEvent<TaskGuidancePendingAction>).detail;
+      void runPendingAction(detail ?? null);
+    };
+
+    window.addEventListener(TASK_GUIDANCE_ACTION_EVENT, handleRuntimeAction as EventListener);
+    void runPendingAction(readTaskGuidancePendingAction());
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener(TASK_GUIDANCE_ACTION_EVENT, handleRuntimeAction as EventListener);
+    };
+  }, [executeRuntimeTaskAction]);
 
   const handleTaskAction = async (task: DailyTaskAssignment) => {
     trackEvent("daily_task_action_clicked", {
@@ -279,6 +342,11 @@ export function DailyTasksModule() {
       action_type: task.actionType,
     });
     activateTaskGuidance(task);
+
+    if (isTaskGuidanceActionType(task.actionType)) {
+      await executeRuntimeTaskAction(task.actionType);
+      return;
+    }
 
     switch (task.actionType) {
       case "open_dashboard":
@@ -292,19 +360,6 @@ export function DailyTasksModule() {
         return;
       case "open_library":
         router.push(getTaskDestinationHref(task));
-        return;
-      case "open_notifications":
-        openNotifications();
-        return;
-      case "open_wallet":
-        openPurchaseModal();
-        return;
-      case "enable_notifications":
-        await handleEnableNotifications();
-        return;
-      case "give_feedback":
-        trackEvent("feedback_modal_opened");
-        setShowFeedbackModal(true);
         return;
       default:
         return;

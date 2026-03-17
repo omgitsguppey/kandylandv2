@@ -3,25 +3,8 @@ import "server-only";
 import { adminDb } from "./firebase-admin";
 import { recordTelemetryEventStat } from "./daily-tasks";
 import { recordSemanticRollupFromTelemetryEvent } from "./analytics-semantics";
+import { buildAnalyticsTimeKeys, resolveTrackedTelemetryEvent } from "./analytics-event-utils";
 import { buildAnalyticsSemanticParams } from "@/lib/analytics-semantics";
-import {
-  buildTelemetryEventMetadata,
-} from "@/lib/telemetry-catalog";
-
-function buildTimeKeys(timestamp: number) {
-  const date = new Date(timestamp);
-  const year = date.getUTCFullYear();
-  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-  const day = String(date.getUTCDate()).padStart(2, "0");
-  const hour = String(date.getUTCHours()).padStart(2, "0");
-  const minute = String(date.getUTCMinutes()).padStart(2, "0");
-
-  return {
-    dayKey: `${year}-${month}-${day}`,
-    hourKey: `${year}-${month}-${day}T${hour}`,
-    minuteKey: `${year}-${month}-${day}T${hour}:${minute}`,
-  };
-}
 
 function sanitizeServerParams(params: Record<string, unknown>) {
   const sanitized: Record<string, string | number | boolean> = {};
@@ -72,7 +55,11 @@ export async function trackServerEvent(
   const measurementId = process.env.GA_MEASUREMENT_ID;
   const apiSecret = process.env.GA_API_SECRET;
   const nowMs = Date.now();
-  const { canonicalEventName, option, metadataParams } = buildTelemetryEventMetadata(rawEventName);
+  const { canonicalEventName, option, metadataParams, isKnownEvent } = resolveTrackedTelemetryEvent(rawEventName);
+  if (!isKnownEvent) {
+    console.warn(`[Analytics] Ignored unsupported server event: ${rawEventName}`);
+    return;
+  }
   const sanitizedParams = sanitizeServerParams(params);
   const enrichedParams = {
     ...sanitizedParams,
@@ -86,7 +73,7 @@ export async function trackServerEvent(
   };
 
   try {
-    const timeKeys = buildTimeKeys(nowMs);
+    const timeKeys = buildAnalyticsTimeKeys(nowMs);
     await Promise.all([
       adminDb.collection("analytics_event_facts").add({
         source: userId ? "authenticated_server" : "server",

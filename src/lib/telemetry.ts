@@ -180,6 +180,11 @@ export function trackEvent(eventName: string, eventParams?: Record<string, unkno
         return;
     }
 
+    if (!preparedEvent.isKnownEvent) {
+        console.warn(`[Telemetry] Ignored unsupported event: ${eventName}`);
+        return;
+    }
+
     const enrichedParams = getEnrichedEventParams(preparedEvent.enrichedParams);
 
     if (allowAnonymousAnalytics && typeof window !== "undefined" && typeof window.gtag === "function") {

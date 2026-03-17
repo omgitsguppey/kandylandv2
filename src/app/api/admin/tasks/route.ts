@@ -10,8 +10,28 @@ import {
 } from "@/lib/tasks/task-catalog";
 import { TELEMETRY_EVENT_OPTIONS } from "@/lib/telemetry-catalog";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { ADMIN, checkRateLimit } from "@/lib/server/rate-limit";
-import { handleApiError, verifyAdmin } from "@/lib/server/auth";
+import { ADMIN } from "@/lib/server/rate-limit";
+import { handleApiError } from "@/lib/server/auth";
+import { guardApiRequest } from "@/lib/server/request-guard";
+
+const scalarValueSchema = z.union([z.string().min(1).max(120), z.number().finite(), z.boolean()]);
+const criteriaSchema = z.object({
+  paramEquals: z.object({
+    key: z.string().trim().min(1).max(60),
+    value: scalarValueSchema,
+  }).optional(),
+  minNumberParam: z.object({
+    key: z.string().trim().min(1).max(60),
+    value: z.number().finite(),
+  }).optional(),
+  includesAnyParam: z.object({
+    key: z.string().trim().min(1).max(60),
+    values: z.array(z.string().trim().min(1).max(60)).min(1).max(12),
+  }).optional(),
+}).refine((value) => {
+  const ruleCount = [value.paramEquals, value.minNumberParam, value.includesAnyParam].filter(Boolean).length;
+  return ruleCount === 1;
+}, { message: "Criteria must define exactly one rule" });
 
 const taskSchema = z.object({
   title: z.string().min(3).max(60),
@@ -27,6 +47,8 @@ const taskSchema = z.object({
   group: z.enum(["visit", "notifications", "unwrap", "watch", "wallet", "purchase", "feedback", "share"]),
   scope: z.enum(["global", "user"]),
   targetUserId: z.string().optional().nullable(),
+  uniqueByParamKey: z.string().trim().min(1).max(60).optional().nullable(),
+  criteria: criteriaSchema.optional(),
 });
 
 const updateSchema = z.object({
@@ -36,8 +58,11 @@ const updateSchema = z.object({
 
 export async function GET(request: NextRequest) {
   try {
-    await checkRateLimit(request, "admin/tasks", ADMIN);
-    await verifyAdmin(request);
+    await guardApiRequest(request, {
+      routeName: "admin/tasks",
+      rateLimit: ADMIN,
+      auth: "admin",
+    });
 
     const [taskSnapshot, taskEventsSnapshot, eventStatsSnapshot, taskRollupSnapshot] = await Promise.all([
       adminDb.collection("daily_task_definitions").orderBy("createdAt", "desc").limit(100).get(),
@@ -69,8 +94,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    await checkRateLimit(request, "admin/tasks", ADMIN);
-    const adminUser = await verifyAdmin(request);
+    const adminUser = await guardApiRequest(request, {
+      routeName: "admin/tasks",
+      rateLimit: ADMIN,
+      auth: "admin",
+    });
     const parsed = taskSchema.parse(await request.json());
 
     if (!TELEMETRY_EVENT_OPTIONS.some((option) => option.eventName === parsed.eventName)) {
@@ -89,9 +117,11 @@ export async function POST(request: NextRequest) {
       cooldownDays: parsed.cooldownDays,
       oneTime: parsed.oneTime,
       targetUserId: parsed.scope === "user" ? parsed.targetUserId ?? null : null,
+      uniqueByParamKey: parsed.uniqueByParamKey?.trim() || null,
+      criteria: parsed.criteria ?? null,
       createdAt: nowMs,
       updatedAt: nowMs,
-      createdBy: adminUser.uid,
+      createdBy: adminUser?.uid ?? "",
     };
 
     const docRef = await adminDb.collection("daily_task_definitions").add(payload);
@@ -110,8 +140,11 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    await checkRateLimit(request, "admin/tasks", ADMIN);
-    await verifyAdmin(request);
+    await guardApiRequest(request, {
+      routeName: "admin/tasks",
+      rateLimit: ADMIN,
+      auth: "admin",
+    });
     const { taskId, active } = updateSchema.parse(await request.json());
 
     await adminDb.collection("daily_task_definitions").doc(taskId).set({

@@ -22,6 +22,7 @@ import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
 import { cn } from "@/lib/utils";
 
 type Scope = "global" | "user";
+type CriteriaMode = "none" | "paramEquals" | "minNumberParam" | "includesAnyParam";
 
 interface AdminTasksResponse {
   success: boolean;
@@ -100,6 +101,11 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
   const [group, setGroup] = useState("visit");
   const [cooldownDays, setCooldownDays] = useState(data?.defaultCooldownDays ?? 7);
   const [oneTime, setOneTime] = useState(false);
+  const [uniqueByParamKey, setUniqueByParamKey] = useState("");
+  const [criteriaMode, setCriteriaMode] = useState<CriteriaMode>("none");
+  const [criteriaKey, setCriteriaKey] = useState("");
+  const [criteriaValue, setCriteriaValue] = useState("");
+  const [criteriaValueType, setCriteriaValueType] = useState<"string" | "number" | "boolean">("string");
   const [submitting, setSubmitting] = useState(false);
   const [updatingTaskId, setUpdatingTaskId] = useState<string | null>(null);
 
@@ -133,9 +139,68 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
     [data?.taskRollups],
   );
 
+  const buildCriteriaPayload = () => {
+    const trimmedKey = criteriaKey.trim();
+    const trimmedValue = criteriaValue.trim();
+
+    if (criteriaMode === "none" || !trimmedKey) {
+      return undefined;
+    }
+
+    if (criteriaMode === "paramEquals") {
+      const parsedValue = criteriaValueType === "number"
+        ? Number(trimmedValue)
+        : criteriaValueType === "boolean"
+          ? trimmedValue.toLowerCase() === "true"
+          : trimmedValue;
+
+      if ((criteriaValueType === "number" && !Number.isFinite(parsedValue)) || !trimmedValue) {
+        throw new Error("Add a valid exact-match value.");
+      }
+
+      return {
+        paramEquals: {
+          key: trimmedKey,
+          value: parsedValue,
+        },
+      };
+    }
+
+    if (criteriaMode === "minNumberParam") {
+      const numericValue = Number(trimmedValue);
+      if (!Number.isFinite(numericValue)) {
+        throw new Error("Add a valid numeric minimum.");
+      }
+
+      return {
+        minNumberParam: {
+          key: trimmedKey,
+          value: numericValue,
+        },
+      };
+    }
+
+    const values = trimmedValue
+      .split(",")
+      .map((value) => value.trim())
+      .filter(Boolean);
+
+    if (values.length === 0) {
+      throw new Error("Add at least one allowed value.");
+    }
+
+    return {
+      includesAnyParam: {
+        key: trimmedKey,
+        values,
+      },
+    };
+  };
+
   const handleCreateTask = async () => {
     setSubmitting(true);
     try {
+      const criteria = buildCriteriaPayload();
       const response = await authFetch("/api/admin/tasks", {
         method: "POST",
         body: JSON.stringify({
@@ -152,6 +217,8 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
           group,
           scope,
           targetUserId: scope === "user" ? targetUserId : null,
+          uniqueByParamKey: uniqueByParamKey.trim() || null,
+          criteria,
         }),
       });
 
@@ -166,6 +233,11 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
       setMaxProgress(1);
       setCooldownDays(data?.defaultCooldownDays ?? 7);
       setOneTime(false);
+      setUniqueByParamKey("");
+      setCriteriaMode("none");
+      setCriteriaKey("");
+      setCriteriaValue("");
+      setCriteriaValueType("string");
       setScope("global");
       setTargetUserId("");
       setEventName("experience_hub_viewed");
@@ -207,7 +279,7 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
     <div className="space-y-4">
       <TaskCard
         title="Task builder"
-        subtitle="Create global or user-specific missions with reward, progress, cooldown, and one-time retirement controls."
+        subtitle="Create global or user-specific missions with reward, progress, cooldown, uniqueness, and filter controls."
         icon={Plus}
       >
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -297,7 +369,52 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
             onChange={(event) => setCooldownDays(Number(event.target.value))}
             className="h-12 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none focus:border-brand-purple"
           />
+          <input
+            value={uniqueByParamKey}
+            onChange={(event) => setUniqueByParamKey(event.target.value)}
+            placeholder="Unique by param key (optional)"
+            className="h-12 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none focus:border-brand-purple"
+          />
+          <select
+            value={criteriaMode}
+            onChange={(event) => setCriteriaMode(event.target.value as CriteriaMode)}
+            className="h-12 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none focus:border-brand-purple"
+          >
+            <option value="none" className="bg-[#111]">No criteria</option>
+            <option value="paramEquals" className="bg-[#111]">Exact param match</option>
+            <option value="minNumberParam" className="bg-[#111]">Minimum number param</option>
+            <option value="includesAnyParam" className="bg-[#111]">Includes any value</option>
+          </select>
+          <input
+            value={criteriaKey}
+            onChange={(event) => setCriteriaKey(event.target.value)}
+            placeholder="Criteria param key"
+            className="h-12 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none focus:border-brand-purple"
+          />
+          <input
+            value={criteriaValue}
+            onChange={(event) => setCriteriaValue(event.target.value)}
+            placeholder={criteriaMode === "includesAnyParam" ? "Values, separated, by, commas" : "Criteria value"}
+            className="h-12 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none focus:border-brand-purple"
+          />
+          <select
+            value={criteriaValueType}
+            onChange={(event) => setCriteriaValueType(event.target.value as "string" | "number" | "boolean")}
+            className={cn(
+              "h-12 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none focus:border-brand-purple",
+              criteriaMode !== "paramEquals" && "opacity-60",
+            )}
+            disabled={criteriaMode !== "paramEquals"}
+          >
+            <option value="string" className="bg-[#111]">Exact value is text</option>
+            <option value="number" className="bg-[#111]">Exact value is number</option>
+            <option value="boolean" className="bg-[#111]">Exact value is true/false</option>
+          </select>
         </div>
+
+        <p className="mt-3 text-xs leading-6 text-gray-500">
+          Use `uniqueByParamKey` for progress like distinct `drop_id` or `asset_key`. Criteria can enforce exact matches, minimum numeric thresholds, or comma-separated allowed values.
+        </p>
 
         <div className="mt-4 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
           <div className="rounded-[1.4rem] border border-white/10 bg-black/25 p-4">

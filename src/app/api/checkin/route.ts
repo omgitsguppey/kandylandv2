@@ -1,27 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { verifyAuth, handleApiError } from "@/lib/server/auth";
+import { handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 import { getCSTDateKey, getCSTDayBoundaries } from "@/lib/timezone";
-import { checkRateLimit, SENSITIVE_WRITE } from "@/lib/server/rate-limit";
+import { SENSITIVE_WRITE } from "@/lib/server/rate-limit";
 import { getDailyCheckInProgress } from "@/lib/daily-checkin";
 import { recordCanonicalTaskEvent } from "@/lib/server/daily-tasks";
-import { hasTrustedSiteOrigin } from "@/lib/server/request-origin";
+import { guardApiRequest } from "@/lib/server/request-guard";
 
 export async function POST(request: NextRequest) {
     try {
-        if (!hasTrustedSiteOrigin(request)) {
-            return NextResponse.json({ error: "Untrusted origin" }, { status: 403 });
-        }
-        const caller = await verifyAuth(request);
-        await checkRateLimit(request, "checkin", SENSITIVE_WRITE, { scopeId: caller.uid });
+        const caller = await guardApiRequest(request, {
+            routeName: "checkin",
+            rateLimit: SENSITIVE_WRITE,
+            requireTrustedOrigin: true,
+            auth: "user",
+            scopeToCaller: true,
+        });
 
         if (!adminDb) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });
         }
 
         // Use the verified UID from the token, not from the request body
-        const userId = caller.uid;
+        const userId = caller?.uid ?? "";
 
         // 1. Fetch user profile and process check-in inside an atomic transaction
         const userRef = adminDb.collection("users").doc(userId);
@@ -37,7 +39,7 @@ export async function POST(request: NextRequest) {
                 ? userData.username.trim()
                 : typeof userData.displayName === "string" && userData.displayName.trim().length > 0
                     ? userData.displayName.trim()
-                    : caller.email || userId;
+                    : caller?.email || userId;
             const now = Date.now();
             const lastCheckIn = userData.lastCheckIn || 0;
             const currentStreak = userData.streakCount || 0;
@@ -98,7 +100,7 @@ export async function POST(request: NextRequest) {
         }
 
         try {
-            await recordCanonicalTaskEvent(userId, result.username ?? caller.email ?? userId, "daily_check_in_claim", {
+            await recordCanonicalTaskEvent(userId, result.username ?? caller?.email ?? userId, "daily_check_in_claim", {
                 reward: result.reward,
                 streak_count: result.nextStreak,
                 day_key: getCSTDateKey(result.lastCheckIn),

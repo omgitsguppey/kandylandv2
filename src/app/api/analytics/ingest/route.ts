@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
 import { z } from "zod";
-import { ANALYTICS_WRITE, checkRateLimit } from "@/lib/server/rate-limit";
-import { hasTrustedSiteOrigin } from "@/lib/server/request-origin";
+import { ANALYTICS_WRITE } from "@/lib/server/rate-limit";
 import { requestAllowsAnonymousAnalytics, requestHasGlobalPrivacyControl } from "@/lib/server/privacy-consent";
 import { TELEMETRY_EVENT_INDEX_VERSION } from "@/lib/telemetry-catalog";
 import { recordSemanticRollupFromGuestEvents } from "@/lib/server/analytics-semantics";
+import { buildAnalyticsTimeKeys } from "@/lib/server/analytics-event-utils";
+import { guardApiRequest } from "@/lib/server/request-guard";
 
 export const dynamic = "force-dynamic";
 const SESSION_COOKIE_NAME = "kandydrops_sid";
@@ -14,21 +15,6 @@ const SESSION_COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
 const MAX_ANALYTICS_BODY_BYTES = 64 * 1024;
 const SESSION_KEY_PATTERN = /^anon_[A-Za-z0-9-]{8,128}$/u;
 const CLIENT_SESSION_PATTERN = /^[A-Za-z0-9-]{8,128}$/u;
-
-function buildTimeKeys(timestamp: number) {
-    const date = new Date(timestamp);
-    const year = date.getUTCFullYear();
-    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-    const day = String(date.getUTCDate()).padStart(2, "0");
-    const hour = String(date.getUTCHours()).padStart(2, "0");
-    const minute = String(date.getUTCMinutes()).padStart(2, "0");
-
-    return {
-        dayKey: `${year}-${month}-${day}`,
-        hourKey: `${year}-${month}-${day}T${hour}`,
-        minuteKey: `${year}-${month}-${day}T${hour}:${minute}`,
-    };
-}
 
 const TelemetryEventSchema = z.object({
     type: z.enum(["click", "hover", "scroll", "visibility", "page_view", "page_leave"]),
@@ -95,11 +81,11 @@ function sanitizeTargetLabel(value: string | undefined) {
 
 export async function POST(request: NextRequest) {
     try {
-        await checkRateLimit(request, "analytics/ingest", ANALYTICS_WRITE);
-
-        if (!hasTrustedSiteOrigin(request)) {
-            return NextResponse.json({ error: "Untrusted origin" }, { status: 403 });
-        }
+        await guardApiRequest(request, {
+            routeName: "analytics/ingest",
+            rateLimit: ANALYTICS_WRITE,
+            requireTrustedOrigin: true,
+        });
 
         const contentLength = Number(request.headers.get("content-length") || 0);
         if (Number.isFinite(contentLength) && contentLength > MAX_ANALYTICS_BODY_BYTES) {
@@ -121,7 +107,7 @@ export async function POST(request: NextRequest) {
         const { sessionId, events } = parsed.data;
         const { sessionKey, shouldSetCookie } = getOrCreateSessionKey(request);
         const nowMs = Date.now();
-        const timeKeys = buildTimeKeys(nowMs);
+        const timeKeys = buildAnalyticsTimeKeys(nowMs);
         const globalPrivacyControl = requestHasGlobalPrivacyControl(request);
         const sanitizedEvents = events.map((event) => ({
             ...event,

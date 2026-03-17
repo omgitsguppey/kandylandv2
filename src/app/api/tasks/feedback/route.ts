@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { adminDb } from '@/lib/server/firebase-admin';
-import { verifyAuth, handleApiError } from '@/lib/server/auth';
-import { checkRateLimit, STANDARD } from '@/lib/server/rate-limit';
+import { handleApiError } from '@/lib/server/auth';
+import { STANDARD } from '@/lib/server/rate-limit';
 import { FieldValue } from 'firebase-admin/firestore';
-import { hasTrustedSiteOrigin } from '@/lib/server/request-origin';
 import { z } from 'zod';
 import { recordCanonicalTaskEvent } from '@/lib/server/daily-tasks';
+import { guardApiRequest } from '@/lib/server/request-guard';
 
 const feedbackSchema = z.object({
     message: z.string().trim().min(1).max(2000),
@@ -15,13 +15,15 @@ const feedbackSchema = z.object({
 
 export async function POST(req: NextRequest) {
     try {
-        await checkRateLimit(req, "tasks_feedback", STANDARD);
-
-        if (!hasTrustedSiteOrigin(req)) {
-            return NextResponse.json({ error: "Untrusted origin" }, { status: 403 });
-        }
-
-        const { uid, email } = await verifyAuth(req);
+        const caller = await guardApiRequest(req, {
+            routeName: "tasks_feedback",
+            rateLimit: STANDARD,
+            requireTrustedOrigin: true,
+            auth: "user",
+            scopeToCaller: true,
+        });
+        const uid = caller?.uid ?? "";
+        const email = caller?.email;
 
         const body = await req.json();
         const { message, rating, category } = feedbackSchema.parse(body);

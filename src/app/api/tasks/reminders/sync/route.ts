@@ -1,17 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { syncUserTaskReminder } from "@/lib/server/daily-tasks";
-import { handleApiError, verifyAuth } from "@/lib/server/auth";
-import { STANDARD, checkRateLimit } from "@/lib/server/rate-limit";
-import { hasTrustedSiteOrigin } from "@/lib/server/request-origin";
+import { handleApiError } from "@/lib/server/auth";
+import { STANDARD } from "@/lib/server/rate-limit";
+import { guardApiRequest } from "@/lib/server/request-guard";
 
 export async function POST(req: NextRequest) {
   try {
-    if (!hasTrustedSiteOrigin(req)) {
-      return NextResponse.json({ error: "Untrusted origin" }, { status: 403 });
-    }
-    const { uid } = await verifyAuth(req);
-    await checkRateLimit(req, "tasks_reminder_sync", STANDARD, { scopeId: uid });
+    const caller = await guardApiRequest(req, {
+      routeName: "tasks_reminder_sync",
+      rateLimit: STANDARD,
+      requireTrustedOrigin: true,
+      auth: "user",
+      scopeToCaller: true,
+    });
+    const uid = caller?.uid ?? "";
     const result = await syncUserTaskReminder(uid);
 
     return NextResponse.json({

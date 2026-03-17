@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { DropGrid } from "@/components/DropGrid";
 import StickyFilterBar from "@/components/StickyFilterBar";
 import { Drop } from "@/types/db";
@@ -91,6 +92,9 @@ function buildAccountOverviewViewModel(params: {
 }
 
 export function DropsClient({ initialDrops }: DropsClientProps) {
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
     const { user, userProfile, loading: authLoading } = useAuth();
     const { openAuthModal, openPurchaseModal, openProfileSidebar } = useUI();
     const { drops: liveDrops, size, setSize, isLoadingMore, isReachingEnd } = useDrops(["active", "scheduled"], initialDrops);
@@ -126,7 +130,8 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
 
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("All");
-    const [previewDrop, setPreviewDrop] = useState<Drop | null>(null);
+    const [previewDropId, setPreviewDropId] = useState<string | null>(null);
+    const requestedPreviewDropId = searchParams.get("drop")?.trim() || "";
 
     const sourceDrops = useMemo(() => {
         if (!userProfile?.unlockedContent || !Array.isArray(userProfile.unlockedContent)) {
@@ -175,6 +180,39 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
         return result;
     }, [sourceDrops, searchQuery, selectedCategory]);
 
+    const syncDropQuery = (dropId: string | null) => {
+        const params = new URLSearchParams(searchParams.toString());
+        if (dropId) {
+            params.set("drop", dropId);
+        } else {
+            params.delete("drop");
+        }
+
+        const nextUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
+        router.replace(nextUrl, { scroll: false });
+    };
+
+    const previewDrop = useMemo(() => {
+        const activePreviewDropId = previewDropId || requestedPreviewDropId;
+        if (!activePreviewDropId) {
+            return null;
+        }
+
+        return liveDrops.find((drop) => drop.id === activePreviewDropId) ?? null;
+    }, [liveDrops, previewDropId, requestedPreviewDropId]);
+
+    const handleSelectDrop = (drop: Drop) => {
+        setPreviewDropId(drop.id);
+        syncDropQuery(drop.id);
+    };
+
+    const handleClosePreview = () => {
+        setPreviewDropId(null);
+        if (requestedPreviewDropId) {
+            syncDropQuery(null);
+        }
+    };
+
     return (
         <div
             className="mx-auto w-full max-w-7xl px-4 pt-[calc(var(--kandy-cookie-offset,0px)+3.5rem)] pb-[calc(7.75rem+env(safe-area-inset-bottom))] selection:bg-brand-purple/30 md:px-8 md:pt-0 md:pb-8"
@@ -215,7 +253,7 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
 
             {!searchQuery && selectedCategory === "All" && (
                 <div className="mt-6">
-                    <FeaturedCarousel drops={sourceDrops} onSelectDrop={setPreviewDrop} />
+                    <FeaturedCarousel drops={sourceDrops} onSelectDrop={handleSelectDrop} />
                 </div>
             )}
 
@@ -238,7 +276,7 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
                         drops={filteredDrops}
                         loading={false}
                         isSearching={!!searchQuery}
-                        onSelectDrop={setPreviewDrop}
+                        onSelectDrop={handleSelectDrop}
                         impressionTrackingSurface="drops_page"
                         impressionTrackingSessionId={impressionTrackingSessionId}
                     />
@@ -255,7 +293,7 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
                 </div>
             </div>
 
-            <DropPreviewModal drop={previewDrop} onClose={() => setPreviewDrop(null)} />
+            <DropPreviewModal drop={previewDrop} onClose={handleClosePreview} />
         </div>
     );
 }

@@ -8,7 +8,14 @@ import { ArrowUpRight, CheckCircle2, Sparkles, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { trackEvent } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
-import { type TaskGuidanceState, TASK_GUIDANCE_STORAGE_KEY } from "@/lib/task-guidance";
+import {
+  type TaskGuidancePendingAction,
+  type TaskGuidanceState,
+  isTaskGuidanceActionType,
+  TASK_GUIDANCE_ACTION_EVENT,
+  TASK_GUIDANCE_STORAGE_KEY,
+  writeTaskGuidancePendingAction,
+} from "@/lib/task-guidance";
 
 type BannerEventDetail =
   | { type: "activate"; guidance: TaskGuidanceState }
@@ -21,7 +28,27 @@ function readStoredGuidance() {
 
   try {
     const raw = window.localStorage.getItem(TASK_GUIDANCE_STORAGE_KEY);
-    return raw ? JSON.parse(raw) as TaskGuidanceState : null;
+    if (!raw) {
+      return null;
+    }
+
+    const parsed = JSON.parse(raw) as Partial<TaskGuidanceState>;
+    if (
+      typeof parsed.taskId !== "string"
+      || typeof parsed.title !== "string"
+      || typeof parsed.reward !== "number"
+      || typeof parsed.instruction !== "string"
+      || typeof parsed.ctaLabel !== "string"
+      || typeof parsed.destinationHref !== "string"
+      || typeof parsed.activatedAt !== "number"
+    ) {
+      return null;
+    }
+
+    return {
+      ...parsed,
+      actionType: typeof parsed.actionType === "string" ? parsed.actionType : "open_experiences",
+    } as TaskGuidanceState;
   } catch {
     return null;
   }
@@ -193,8 +220,30 @@ export function TaskGuidanceBanner() {
 
     if (activeGuidance.completedAt) {
       writeStoredGuidance(null);
+      writeTaskGuidancePendingAction(null);
       setGuidance(null);
       router.push("/experiences#daily-tasks");
+      return;
+    }
+
+    if (isTaskGuidanceActionType(activeGuidance.actionType)) {
+      const pendingAction: TaskGuidancePendingAction = {
+        taskId: activeGuidance.taskId,
+        actionType: activeGuidance.actionType,
+        destinationHref: activeGuidance.destinationHref,
+        createdAt: Date.now(),
+      };
+
+      if (pathname === activeGuidance.destinationHref.split("#")[0]) {
+        writeTaskGuidancePendingAction(null);
+        window.dispatchEvent(new CustomEvent(TASK_GUIDANCE_ACTION_EVENT, {
+          detail: pendingAction,
+        }));
+        return;
+      }
+
+      writeTaskGuidancePendingAction(pendingAction);
+      router.push(activeGuidance.destinationHref);
       return;
     }
 
