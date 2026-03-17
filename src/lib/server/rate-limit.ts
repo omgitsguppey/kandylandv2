@@ -13,6 +13,11 @@ export const STRICT: RateLimitConfig = { maxRequests: 5, windowMs: 60_000 };
 export const STANDARD: RateLimitConfig = { maxRequests: 20, windowMs: 60_000 };
 export const RELAXED: RateLimitConfig = { maxRequests: 60, windowMs: 60_000 };
 export const ADMIN: RateLimitConfig = { maxRequests: 30, windowMs: 60_000 };
+export const SENSITIVE_WRITE: RateLimitConfig = { maxRequests: 3, windowMs: 60_000 };
+export const HEAVY_READ: RateLimitConfig = { maxRequests: 10, windowMs: 60_000 };
+export const ANALYTICS_WRITE: RateLimitConfig = { maxRequests: 30, windowMs: 60_000 };
+export const CRON: RateLimitConfig = { maxRequests: 6, windowMs: 60_000 };
+export const MEDIA_PROXY: RateLimitConfig = { maxRequests: 15, windowMs: 60_000 };
 
 const fallbackStore = new Map<string, number[]>();
 const LOCAL_CLEANUP_INTERVAL_MS = 60_000;
@@ -88,12 +93,17 @@ export class RateLimitError extends Error {
     }
 }
 
-function resolveCallerIdentifier(request: NextRequest): string {
+interface RateLimitOptions {
+    scopeId?: string | null;
+}
+
+function resolveCallerIdentifier(request: NextRequest, options?: RateLimitOptions): string {
     const forwarded = request.headers.get("x-forwarded-for");
     const realIp = request.headers.get("x-real-ip");
     const ip = (forwarded ? forwarded.split(",")[0].trim() : realIp?.trim()) || "unknown";
     const userAgent = request.headers.get("user-agent")?.trim() || "unknown";
-    return `${ip}:${userAgent}`;
+    const scopeId = options?.scopeId?.trim();
+    return scopeId ? `${scopeId}:${ip}:${userAgent}` : `${ip}:${userAgent}`;
 }
 
 function buildDocumentId(routeName: string, identifier: string, bucketStartMs: number) {
@@ -106,10 +116,11 @@ function checkRateLimitLocally(
     request: NextRequest,
     routeName: string,
     config: RateLimitConfig,
+    options?: RateLimitOptions,
 ): void {
     maybeCleanupLocal();
 
-    const identifier = resolveCallerIdentifier(request);
+    const identifier = resolveCallerIdentifier(request, options);
     const key = `${routeName}:${identifier}`;
     const now = Date.now();
     const windowStart = now - config.windowMs;
@@ -136,16 +147,17 @@ export async function checkRateLimit(
     request: NextRequest,
     routeName: string,
     config: RateLimitConfig,
+    options?: RateLimitOptions,
 ): Promise<void> {
     if (!adminDb) {
-        checkRateLimitLocally(request, routeName, config);
+        checkRateLimitLocally(request, routeName, config, options);
         return;
     }
 
     const now = Date.now();
     const bucketStartMs = Math.floor(now / config.windowMs) * config.windowMs;
     const retryAfterMs = bucketStartMs + config.windowMs - now;
-    const identifier = resolveCallerIdentifier(request);
+    const identifier = resolveCallerIdentifier(request, options);
     const docId = buildDocumentId(routeName, identifier, bucketStartMs);
     const docRef = adminDb.collection(REMOTE_COLLECTION).doc(docId);
 
@@ -174,7 +186,7 @@ export async function checkRateLimit(
         }
 
         console.warn("Remote rate-limit check failed. Falling back to local limiter:", error);
-        checkRateLimitLocally(request, routeName, config);
+        checkRateLimitLocally(request, routeName, config, options);
     }
 }
 

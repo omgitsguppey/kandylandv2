@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAuth, handleApiError } from "@/lib/server/auth";
-import { checkRateLimit, RELAXED } from "@/lib/server/rate-limit";
+import { checkRateLimit, MEDIA_PROXY } from "@/lib/server/rate-limit";
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
 import { isAllowedRemoteMediaUrl } from "@/lib/media-hosts";
+import { hasTrustedSiteOrigin } from "@/lib/server/request-origin";
 
 const userContentSchema = z.object({
   unlockedContent: z.array(z.string()).default([]),
@@ -19,8 +20,12 @@ const userContentSchema = z.object({
  */
 export async function GET(request: NextRequest) {
   try {
-    await checkRateLimit(request, "drops/content", RELAXED);
     const caller = await verifyAuth(request);
+    await checkRateLimit(request, "drops/content", MEDIA_PROXY, { scopeId: caller.uid });
+
+    if (!hasTrustedSiteOrigin(request)) {
+      return NextResponse.json({ error: "Untrusted origin" }, { status: 403 });
+    }
 
     const { searchParams } = new URL(request.url);
     const dropId = searchParams.get("id");
@@ -84,6 +89,7 @@ export async function GET(request: NextRequest) {
     // Pipe upstream headers downstream (Content-Type, Content-Length, Content-Range, Accept-Ranges, etc)
     const headers = new Headers(contentRes.headers);
     headers.set("Content-Disposition", "inline");
+    headers.set("Cache-Control", "private, no-store");
 
     // Return the literal byte stream safely proxied through Next.js
     return new NextResponse(contentRes.body, {

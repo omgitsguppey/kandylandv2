@@ -29,6 +29,7 @@ export function NotificationRuntimeBridge() {
                 return;
             }
 
+            window.dispatchEvent(new Event("kandydrops:notifications-sync"));
             void showBrowserNotification(title, body, payload?.data?.url || "/dashboard");
         });
     }, [user, userProfile, userProfile?.notificationSettings?.browserPushEnabled]);

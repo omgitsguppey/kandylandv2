@@ -40,6 +40,7 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     const shouldShowAuthUi = !isAdminRoute;
     const shouldShowCookieBanner = !isAdminRoute;
     const shouldShowDebugBreakpoints = process.env.NODE_ENV !== "production";
+    const shouldTrackDeepAnalytics = !isAdminRoute && !isLegalRoute;
 
     useEffect(() => {
         if (typeof window !== "undefined") {
@@ -90,8 +91,8 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     }, [pathname]);
 
     return (
-        <PayPalProvider>
-            <DeepTracker />
+        <>
+            {shouldTrackDeepAnalytics ? <DeepTracker /> : null}
             {isUserShell ? <NotificationRuntimeBridge /> : null}
             {isUserShell ? <TaskGuidanceBanner /> : null}
             <Navbar />
@@ -99,7 +100,11 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
             {shouldShowPublicChrome && !isLegalRoute ? <MobileBottomBar /> : null}
             <ScrollToTop />
             <AutoScrollToTop />
-            {shouldShowPurchaseUi ? <GlobalPurchaseModal /> : null}
+            {shouldShowPurchaseUi ? (
+                <PayPalProvider>
+                    <GlobalPurchaseModal />
+                </PayPalProvider>
+            ) : null}
 
             {isUserShell ? <InsufficientBalanceModal /> : null}
             {shouldShowAuthUi ? <GlobalAuthModal /> : null}
@@ -107,6 +112,6 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
             <Toaster position="top-center" theme="dark" richColors closeButton />
             {shouldShowCookieBanner ? <CookieBanner /> : null}
             {shouldShowDebugBreakpoints ? <DebugBreakpoints /> : null}
-        </PayPalProvider>
+        </>
     );
 }

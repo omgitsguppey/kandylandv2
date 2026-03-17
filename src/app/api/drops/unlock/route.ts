@@ -4,8 +4,9 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAuth, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 import { revalidatePath } from "next/cache";
-import { checkRateLimit, STRICT } from "@/lib/server/rate-limit";
+import { checkRateLimit, SENSITIVE_WRITE } from "@/lib/server/rate-limit";
 import { recordCanonicalTaskEvent } from "@/lib/server/daily-tasks";
+import { hasTrustedSiteOrigin } from "@/lib/server/request-origin";
 
 const unlockRequestSchema = z.object({
   dropId: z
@@ -17,8 +18,11 @@ const unlockRequestSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    await checkRateLimit(request, "drops/unlock", STRICT);
+    if (!hasTrustedSiteOrigin(request)) {
+      return NextResponse.json({ error: "Untrusted origin" }, { status: 403 });
+    }
     const caller = await verifyAuth(request);
+    await checkRateLimit(request, "drops/unlock", SENSITIVE_WRITE, { scopeId: caller.uid });
     const { dropId } = unlockRequestSchema.parse(await request.json());
 
     if (!adminDb) {

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
 import { z } from "zod";
-import { checkRateLimit, RELAXED } from "@/lib/server/rate-limit";
+import { ANALYTICS_WRITE, checkRateLimit } from "@/lib/server/rate-limit";
 import { hasTrustedSiteOrigin } from "@/lib/server/request-origin";
 import { requestAllowsAnonymousAnalytics, requestHasGlobalPrivacyControl } from "@/lib/server/privacy-consent";
 import { TELEMETRY_EVENT_INDEX_VERSION } from "@/lib/telemetry-catalog";
@@ -11,6 +11,7 @@ import { recordSemanticRollupFromGuestEvents } from "@/lib/server/analytics-sema
 export const dynamic = "force-dynamic";
 const SESSION_COOKIE_NAME = "kandydrops_sid";
 const SESSION_COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
+const MAX_ANALYTICS_BODY_BYTES = 64 * 1024;
 const SESSION_KEY_PATTERN = /^anon_[A-Za-z0-9-]{8,128}$/u;
 const CLIENT_SESSION_PATTERN = /^[A-Za-z0-9-]{8,128}$/u;
 
@@ -94,10 +95,15 @@ function sanitizeTargetLabel(value: string | undefined) {
 
 export async function POST(request: NextRequest) {
     try {
-        await checkRateLimit(request, "analytics/ingest", RELAXED);
+        await checkRateLimit(request, "analytics/ingest", ANALYTICS_WRITE);
 
         if (!hasTrustedSiteOrigin(request)) {
             return NextResponse.json({ error: "Untrusted origin" }, { status: 403 });
+        }
+
+        const contentLength = Number(request.headers.get("content-length") || 0);
+        if (Number.isFinite(contentLength) && contentLength > MAX_ANALYTICS_BODY_BYTES) {
+            return NextResponse.json({ success: true, ignored: true, reason: "payload_too_large" });
         }
 
         if (!requestAllowsAnonymousAnalytics(request)) {
@@ -129,8 +135,10 @@ export async function POST(request: NextRequest) {
 
         const docId = `${sessionKey}_${minuteBucket}`;
         const docRef = adminDb.collection("analytics_sessions").doc(docId);
+        const batchDocRef = adminDb.collection("analytics_session_batches").doc();
+        const uniquePagePaths = Array.from(new Set(sanitizedEvents.map((event) => event.path)));
+        const uniqueInteractionTypes = Array.from(new Set(sanitizedEvents.map((event) => event.type)));
 
-        // We use set with merge: true to ensure the base document exists
         await docRef.set({
             sessionKey,
             clientSessionId: sessionId || null,
@@ -139,13 +147,35 @@ export async function POST(request: NextRequest) {
             globalPrivacyControl,
             eventIndexVersion: TELEMETRY_EVENT_INDEX_VERSION,
             trackingOrigin: "guest_client",
-            createdAt: FieldValue.serverTimestamp(), // Use server timestamp to standardize
+            createdAt: FieldValue.serverTimestamp(),
+            updatedAt: FieldValue.serverTimestamp(),
+            lastReceivedAtMs: nowMs,
+            batchCount: FieldValue.increment(1),
+            eventCount: FieldValue.increment(sanitizedEvents.length),
+            maxScrollDepth: sanitizedEvents.reduce((maxDepth, event) => Math.max(maxDepth, event.scrollDepthPercent || 0), 0),
+            pagePaths: uniquePagePaths.slice(0, 25),
+            interactionTypes: uniqueInteractionTypes.slice(0, 12),
         }, { merge: true });
 
-        // Update with arrayUnion avoids the massive contention of transactions while guaranteeing all events are appended
-        await docRef.update({
-            events: FieldValue.arrayUnion(...sanitizedEvents),
-            updatedAt: FieldValue.serverTimestamp()
+        await batchDocRef.set({
+            sessionDocId: docId,
+            sessionKey,
+            clientSessionId: sessionId || null,
+            minuteBucket,
+            consentMode: "anonymous",
+            globalPrivacyControl,
+            eventIndexVersion: TELEMETRY_EVENT_INDEX_VERSION,
+            trackingOrigin: "guest_client",
+            receivedAtMs: nowMs,
+            dayKey: timeKeys.dayKey,
+            hourKey: timeKeys.hourKey,
+            minuteKey: timeKeys.minuteKey,
+            eventCount: sanitizedEvents.length,
+            pagePaths: uniquePagePaths,
+            interactionTypes: uniqueInteractionTypes,
+            hasPixelData: sanitizedEvents.some((event) => Number.isFinite(event.x) && Number.isFinite(event.y)),
+            events: sanitizedEvents,
+            createdAt: FieldValue.serverTimestamp(),
         });
         await adminDb.collection("analytics_guest_batches").add({
             source: "guest",
@@ -160,8 +190,8 @@ export async function POST(request: NextRequest) {
             hourKey: timeKeys.hourKey,
             minuteKey: timeKeys.minuteKey,
             eventCount: sanitizedEvents.length,
-            pagePaths: Array.from(new Set(sanitizedEvents.map((event) => event.path))),
-            interactionTypes: Array.from(new Set(sanitizedEvents.map((event) => event.type))),
+            pagePaths: uniquePagePaths,
+            interactionTypes: uniqueInteractionTypes,
             maxScrollDepth: sanitizedEvents.reduce((maxDepth, event) => Math.max(maxDepth, event.scrollDepthPercent || 0), 0),
             hasPixelData: sanitizedEvents.some((event) => Number.isFinite(event.x) && Number.isFinite(event.y)),
             events: sanitizedEvents,

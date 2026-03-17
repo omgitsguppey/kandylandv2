@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useAuthIdentity } from "@/context/AuthContext";
 import { markNotificationAsRead } from "@/lib/notifications";
 import { AppNotification } from "@/lib/notification-contracts";
@@ -14,11 +14,13 @@ export function useNotifications() {
     const userId = user?.uid ?? null;
     const [notificationsState, setNotificationsState] = useState<Notification[]>([]);
     const [loadedForUserId, setLoadedForUserId] = useState<string | null>(null);
+    const etagRef = useRef<string | null>(null);
 
     useEffect(() => {
         if (!userId) {
             setNotificationsState([]);
             setLoadedForUserId(null);
+            etagRef.current = null;
             return;
         }
         const currentUserId = userId;
@@ -27,7 +29,19 @@ export function useNotifications() {
 
         const fetchNotifications = async () => {
             try {
-                const response = await authFetch("/api/notifications");
+                const headers = new Headers();
+                if (etagRef.current) {
+                    headers.set("If-None-Match", etagRef.current);
+                }
+
+                const response = await authFetch("/api/notifications", { headers });
+                if (response.status === 304) {
+                    if (!cancelled) {
+                        setLoadedForUserId(currentUserId);
+                    }
+                    return;
+                }
+
                 const result = await response.json() as {
                     success?: boolean;
                     notifications?: Array<Notification & { createdAtMs?: number }>;
@@ -48,6 +62,7 @@ export function useNotifications() {
                         : null,
                 })) as Notification[];
 
+                etagRef.current = response.headers.get("etag");
                 setNotificationsState(scopedNotifications);
                 setLoadedForUserId(currentUserId);
             } catch (error) {
@@ -63,10 +78,25 @@ export function useNotifications() {
         const interval = window.setInterval(() => {
             void fetchNotifications();
         }, 30_000);
+        const refreshOnVisible = () => {
+            if (document.visibilityState === "visible") {
+                void fetchNotifications();
+            }
+        };
+        const refreshOnDemand = () => {
+            void fetchNotifications();
+        };
+
+        window.addEventListener("focus", refreshOnDemand);
+        window.addEventListener("kandydrops:notifications-sync", refreshOnDemand);
+        document.addEventListener("visibilitychange", refreshOnVisible);
 
         return () => {
             cancelled = true;
             window.clearInterval(interval);
+            window.removeEventListener("focus", refreshOnDemand);
+            window.removeEventListener("kandydrops:notifications-sync", refreshOnDemand);
+            document.removeEventListener("visibilitychange", refreshOnVisible);
         };
     }, [userId]);
 
@@ -90,6 +120,7 @@ export function useNotifications() {
             notification_id: id,
         });
         await markNotificationAsRead(id);
+        window.dispatchEvent(new Event("kandydrops:notifications-sync"));
     };
 
     const markAllAsRead = async () => {
@@ -109,6 +140,7 @@ export function useNotifications() {
             unread_count: unreadIds.length,
         });
         await Promise.all(unreadIds.map((id) => markNotificationAsRead(id)));
+        window.dispatchEvent(new Event("kandydrops:notifications-sync"));
     };
 
     return { notifications, unreadCount, loading, markAsRead, markAllAsRead };

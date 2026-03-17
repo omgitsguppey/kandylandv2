@@ -3,14 +3,18 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAuth, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 import { getCSTDayBoundaries } from "@/lib/timezone";
-import { checkRateLimit, STRICT } from "@/lib/server/rate-limit";
+import { checkRateLimit, SENSITIVE_WRITE } from "@/lib/server/rate-limit";
 import { getDailyCheckInProgress } from "@/lib/daily-checkin";
 import { recordCanonicalTaskEvent } from "@/lib/server/daily-tasks";
+import { hasTrustedSiteOrigin } from "@/lib/server/request-origin";
 
 export async function POST(request: NextRequest) {
     try {
-        await checkRateLimit(request, "checkin", STRICT);
+        if (!hasTrustedSiteOrigin(request)) {
+            return NextResponse.json({ error: "Untrusted origin" }, { status: 403 });
+        }
         const caller = await verifyAuth(request);
+        await checkRateLimit(request, "checkin", SENSITIVE_WRITE, { scopeId: caller.uid });
 
         if (!adminDb) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });

@@ -3,6 +3,7 @@ import "server-only";
 import { FieldValue, type Transaction } from "firebase-admin/firestore";
 
 import { adminDb } from "@/lib/server/firebase-admin";
+import { hasUnreadNotificationsForUser } from "@/lib/server/notification-inbox";
 import {
   BUILT_IN_DAILY_TASKS,
   DAILY_TASK_COOLDOWN_DAYS,
@@ -15,6 +16,7 @@ import {
   type DailyTaskIconName,
   type DailyTasksState,
 } from "@/lib/tasks/task-catalog";
+import { isDropActiveNow } from "@/lib/drop-status";
 import { getCSTDayBoundaries, isSameCSTDay } from "@/lib/timezone";
 import type { UserProfile } from "@/types/db";
 
@@ -51,6 +53,12 @@ interface RotationSideEffectContext {
   notificationSettings: UserProfile["notificationSettings"];
   result: TaskStateBuildResult;
   nowMs: number;
+}
+
+interface TaskEligibilityContext {
+  hasUnlockedContent: boolean;
+  hasLiveDrops: boolean;
+  hasUnreadNotifications: boolean;
 }
 
 function normalizeStringArray(value: unknown): string[] {
@@ -170,6 +178,7 @@ function pickTasksForCycle(
   nowMs: number,
   userData: UserProfile,
   retiredTaskIds: string[],
+  eligibility: TaskEligibilityContext,
 ): DailyTaskDefinition[] {
   const basePool = definitions.filter((task) => {
     if (retiredTaskIds.includes(task.id)) {
@@ -181,6 +190,35 @@ function pickTasksForCycle(
     }
 
     if (task.actionType === "enable_notifications" && userData.notificationSettings?.browserPushEnabled === true) {
+      return false;
+    }
+
+    const requiresUnlockedContent = task.eventName === "viewer_opened"
+      || task.eventName === "viewer_session_completed"
+      || task.eventName === "viewer_asset_completed"
+      || task.eventName === "viewer_asset_consumed"
+      || task.eventName === "viewer_watch_checkpoint"
+      || task.eventName === "viewer_asset_changed"
+      || task.eventName === "viewer_source_downloaded"
+      || task.eventName === "viewer_related_drop_clicked";
+
+    if (requiresUnlockedContent && !eligibility.hasUnlockedContent) {
+      return false;
+    }
+
+    const requiresLiveDrops = task.eventName === "drop_preview_opened"
+      || task.eventName === "view_drop_details"
+      || task.eventName === "unlock_drop_success"
+      || task.eventName === "drop_share_copied";
+
+    if (requiresLiveDrops && !eligibility.hasLiveDrops) {
+      return false;
+    }
+
+    const requiresUnreadNotification = task.eventName === "notification_marked_read"
+      || task.eventName === "notification_opened";
+
+    if (requiresUnreadNotification && !eligibility.hasUnreadNotifications) {
       return false;
     }
 
@@ -379,23 +417,24 @@ function normalizeTaskState(
   };
 }
 
-function getContinuityAnchorMs(state: DailyTasksState, userData: UserProfile): number {
-  const checkInMs = Number.isFinite(userData.lastCheckIn) ? Number(userData.lastCheckIn) : 0;
-  return Math.max(state.lastProgressAt ?? 0, checkInMs, state.lastResetMs);
-}
-
-function hasMissedDailyProgressWindow(
+function shouldRotateIncompleteCycle(
   state: DailyTasksState,
-  userData: UserProfile,
   nowMs: number,
-): boolean {
+) {
   if (state.tasks.length === 0 || state.tasks.every((task) => task.claimed)) {
     return false;
   }
 
   const { startOfDay } = getCSTDayBoundaries(nowMs);
-  const previousDayStart = startOfDay - ONE_DAY_MS;
-  return getContinuityAnchorMs(state, userData) < previousDayStart;
+  if (state.lastResetMs < startOfDay) {
+    return true;
+  }
+
+  if (!Number.isFinite(state.nextRefreshMs) || state.nextRefreshMs <= state.lastResetMs) {
+    return true;
+  }
+
+  return state.nextRefreshMs < startOfDay;
 }
 
 function shouldRotateCompletedCycle(state: DailyTasksState, nowMs: number): boolean {
@@ -414,6 +453,7 @@ function buildRotatedState(
   rotationReason: RotationReason,
   failedTasks: DailyTaskAssignment[],
   userData: UserProfile,
+  eligibility: TaskEligibilityContext,
 ): TaskStateBuildResult {
   const { endOfDay } = getCSTDayBoundaries(nowMs);
   const selectedDefinitions = pickTasksForCycle(
@@ -422,6 +462,7 @@ function buildRotatedState(
     nowMs,
     userData,
     normalizedState.retiredTaskIds ?? [],
+    eligibility,
   );
   const tasks = selectedDefinitions.map((task) => hydrateAssignment(task, nowMs));
 
@@ -447,20 +488,59 @@ export async function resolveTaskDefinitionsForUser(uid: string): Promise<DailyT
   return [...BUILT_IN_DAILY_TASKS, ...customDefinitions];
 }
 
-export function buildFreshTaskState(
+async function resolveTaskEligibilityContext(
+  uid: string,
+  userData: UserProfile,
+  nowMs: number,
+): Promise<TaskEligibilityContext> {
+  const hasUnlockedContent = Array.isArray(userData.unlockedContent) && userData.unlockedContent.length > 0;
+
+  const [liveDropsResult, unreadNotificationsResult] = await Promise.allSettled([
+    (async () => {
+      const snapshot = await adminDb.collection("drops")
+        .where("validFrom", "<=", nowMs)
+        .orderBy("validFrom", "desc")
+        .limit(40)
+        .get();
+
+      return snapshot.docs.some((doc) => {
+        const data = doc.data();
+        const validFrom = Number(data.validFrom);
+        const validUntil = Number.isFinite(data.validUntil) ? Number(data.validUntil) : undefined;
+        if (!Number.isFinite(validFrom)) {
+          return false;
+        }
+
+        return isDropActiveNow({ validFrom, validUntil }, nowMs);
+      });
+    })(),
+    hasUnreadNotificationsForUser(uid, nowMs),
+  ]);
+
+  return {
+    hasUnlockedContent,
+    hasLiveDrops: liveDropsResult.status === "fulfilled" ? liveDropsResult.value : true,
+    hasUnreadNotifications: unreadNotificationsResult.status === "fulfilled" ? unreadNotificationsResult.value : true,
+  };
+}
+
+export async function buildFreshTaskStateForUser(
+  uid: string,
   userData: UserProfile,
   definitions: DailyTaskDefinition[],
   nowMs: number,
-): TaskStateBuildResult {
+): Promise<TaskStateBuildResult> {
   const definitionMap = createDefinitionMap(definitions);
   const normalizedState = normalizeTaskState(userData, definitionMap, nowMs);
   const { endOfDay } = getCSTDayBoundaries(nowMs);
 
   if (normalizedState.tasks.length === 0 || normalizedState.tasks.length !== DAILY_TASK_LIMIT) {
-    return buildRotatedState(normalizedState, definitions, nowMs, "initial", [], userData);
+    const eligibility = await resolveTaskEligibilityContext(uid, userData, nowMs);
+    return buildRotatedState(normalizedState, definitions, nowMs, "initial", [], userData, eligibility);
   }
 
-  if (hasMissedDailyProgressWindow(normalizedState, userData, nowMs)) {
+  if (shouldRotateIncompleteCycle(normalizedState, nowMs)) {
+    const eligibility = await resolveTaskEligibilityContext(uid, userData, nowMs);
     return buildRotatedState(
       normalizedState,
       definitions,
@@ -468,11 +548,13 @@ export function buildFreshTaskState(
       "missed_progress",
       normalizedState.tasks.filter((task) => !task.claimed),
       userData,
+      eligibility,
     );
   }
 
   if (shouldRotateCompletedCycle(normalizedState, nowMs)) {
-    return buildRotatedState(normalizedState, definitions, nowMs, "cycle_complete", [], userData);
+    const eligibility = await resolveTaskEligibilityContext(uid, userData, nowMs);
+    return buildRotatedState(normalizedState, definitions, nowMs, "cycle_complete", [], userData, eligibility);
   }
 
   return {
@@ -655,7 +737,7 @@ export async function rotateUserTasks(uid: string) {
 
     const userData = snapshot.data() as UserProfile;
     const nowMs = Date.now();
-    const result = buildFreshTaskState(userData, definitions, nowMs);
+    const result = await buildFreshTaskStateForUser(uid, userData, definitions, nowMs);
     responseResult = result;
 
     transaction.update(userRef, {
@@ -679,6 +761,7 @@ export async function rotateUserTasks(uid: string) {
   const finalResult: TaskStateBuildResult = responseResult;
 
   return {
+    state: finalResult.state,
     tasks: finalResult.state.tasks,
     nextRefreshMs: finalResult.state.nextRefreshMs,
     rotated: finalResult.rotated,
@@ -759,7 +842,7 @@ export async function recordDailyTaskProgressFromEvent(
 
     const userData = snapshot.data() as UserProfile;
     const nowMs = Date.now();
-    const result = buildFreshTaskState(userData, definitions, nowMs);
+    const result = await buildFreshTaskStateForUser(uid, userData, definitions, nowMs);
     const updatedTasks = [...result.state.tasks];
     const completedTasks: DailyTaskAssignment[] = [];
     let totalReward = 0;
@@ -931,7 +1014,7 @@ export async function syncUserTaskReminder(uid: string) {
 
     const userData = snapshot.data() as UserProfile;
     const nowMs = Date.now();
-    const result = buildFreshTaskState(userData, definitions, nowMs);
+    const result = await buildFreshTaskStateForUser(uid, userData, definitions, nowMs);
     const { endOfDay } = getCSTDayBoundaries(nowMs);
     const pendingCheckIn = !isSameCSTDay(Number(userData.lastCheckIn ?? 0), nowMs);
     const unfinishedTasks = result.state.tasks.filter((task) => !task.claimed);

@@ -120,16 +120,14 @@ export function DailyTasksModule() {
   }, [activeTasks]);
 
   const applyAuthoritativeTaskState = useCallback((
-    nextState: Pick<DailyTasksState, "tasks" | "nextRefreshMs">,
+    nextState: Pick<DailyTasksState, "tasks" | "nextRefreshMs"> & Partial<Pick<DailyTasksState, "lastResetMs" | "lastProgressAt" | "lastDeadlineReminderAt" | "completedTaskHistory" | "retiredTaskIds">>,
   ) => {
-    const baseState = userProfile?.dailyTasksState ?? localTaskState;
     const mergedState: DailyTasksState = {
-      lastResetMs: baseState?.lastResetMs ?? nowMs,
-      lastProgressAt: baseState?.lastProgressAt ?? nowMs,
-      lastDeadlineReminderAt: baseState?.lastDeadlineReminderAt ?? 0,
-      completedTaskHistory: baseState?.completedTaskHistory ?? {},
-      retiredTaskIds: baseState?.retiredTaskIds ?? [],
-      ...baseState,
+      lastResetMs: nextState.lastResetMs ?? userProfile?.dailyTasksState?.lastResetMs ?? localTaskState?.lastResetMs ?? nowMs,
+      lastProgressAt: nextState.lastProgressAt ?? userProfile?.dailyTasksState?.lastProgressAt ?? localTaskState?.lastProgressAt ?? nowMs,
+      lastDeadlineReminderAt: nextState.lastDeadlineReminderAt ?? userProfile?.dailyTasksState?.lastDeadlineReminderAt ?? localTaskState?.lastDeadlineReminderAt ?? 0,
+      completedTaskHistory: nextState.completedTaskHistory ?? userProfile?.dailyTasksState?.completedTaskHistory ?? localTaskState?.completedTaskHistory ?? {},
+      retiredTaskIds: nextState.retiredTaskIds ?? userProfile?.dailyTasksState?.retiredTaskIds ?? localTaskState?.retiredTaskIds ?? [],
       tasks: nextState.tasks,
       nextRefreshMs: nextState.nextRefreshMs,
     };
@@ -151,12 +149,14 @@ export function DailyTasksModule() {
         throw new Error("Task rotation failed");
       }
 
-      const result = await response.json() as { tasks?: DailyTaskAssignment[]; nextRefreshMs?: number };
-      if (Array.isArray(result.tasks) && Number.isFinite(result.nextRefreshMs)) {
+      const result = await response.json() as { state?: DailyTasksState; tasks?: DailyTaskAssignment[]; nextRefreshMs?: number };
+      if (result.state && Array.isArray(result.state.tasks) && Number.isFinite(result.state.nextRefreshMs)) {
+        applyAuthoritativeTaskState(result.state);
+      } else if (Array.isArray(result.tasks) && Number.isFinite(result.nextRefreshMs)) {
         applyAuthoritativeTaskState({
           tasks: result.tasks,
           nextRefreshMs: Number(result.nextRefreshMs),
-        });
+        } satisfies Pick<DailyTasksState, "tasks" | "nextRefreshMs">);
       }
     } finally {
       setRotating(false);

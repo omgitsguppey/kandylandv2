@@ -2,10 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { addDays, startOfDay, set } from "date-fns";
 import { getResolvedQueueConfig } from "@/lib/server/drop-queue";
+import { checkRateLimit, CRON } from "@/lib/server/rate-limit";
+
+function chunkArray<T>(items: T[], size: number) {
+    const chunks: T[][] = [];
+
+    for (let index = 0; index < items.length; index += size) {
+        chunks.push(items.slice(index, index + size));
+    }
+
+    return chunks;
+}
 
 // This cron job should be called periodically (e.g. daily/hourly)
 export async function GET(request: NextRequest) {
     try {
+        await checkRateLimit(request, "cron/process-queue", CRON);
         // Enforce basic auth/cron secret in production.
         const authHeader = request.headers.get('authorization');
         if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) return NextResponse.json({error: "Unauthorized"}, {status: 401});
@@ -18,11 +30,15 @@ export async function GET(request: NextRequest) {
         }
 
         const dropsRef = adminDb.collection("drops");
-        const queuedDropsSnap = await dropsRef.where("__name__", "in", config.queue).get();
+        const queuedDropSnapshots = await Promise.all(
+            chunkArray(config.queue, 10).map((chunk) => dropsRef.where("__name__", "in", chunk).get()),
+        );
 
         const dropsMap: Record<string, FirebaseFirestore.DocumentData> = {};
-        queuedDropsSnap.forEach(doc => {
-            dropsMap[doc.id] = { id: doc.id, ...doc.data() };
+        queuedDropSnapshots.forEach((snapshot) => {
+            snapshot.forEach((doc) => {
+                dropsMap[doc.id] = { id: doc.id, ...doc.data() };
+            });
         });
 
         const now = Date.now();

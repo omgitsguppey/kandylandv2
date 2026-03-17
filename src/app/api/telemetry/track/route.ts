@@ -4,7 +4,7 @@ import * as admin from "firebase-admin";
 import { CANONICAL_TASK_EVENT_NAMES, recordDailyTaskProgressFromEvent, recordTelemetryEventStat } from "@/lib/server/daily-tasks";
 import { buildTelemetryEventMetadata, TELEMETRY_EVENT_NAME_SET } from "@/lib/telemetry-catalog";
 import { handleApiError, verifyAuth } from "@/lib/server/auth";
-import { checkRateLimit, RELAXED } from "@/lib/server/rate-limit";
+import { ANALYTICS_WRITE, checkRateLimit } from "@/lib/server/rate-limit";
 import { hasTrustedSiteOrigin } from "@/lib/server/request-origin";
 import { getDropReferenceMap, resolveDropTitle } from "@/lib/server/drop-references";
 import { recordSemanticRollupFromTelemetryEvent } from "@/lib/server/analytics-semantics";
@@ -14,6 +14,7 @@ import { UserProfile } from "@/types/db";
 
 const TASK_PROGRESS_EVENT_NAMES = new Set(BUILT_IN_DAILY_TASKS.map((task) => task.eventName));
 type SanitizedEventParams = Record<string, string | number | boolean>;
+const MAX_TELEMETRY_BODY_BYTES = 16 * 1024;
 
 function buildTimeKeys(timestamp: number) {
     const date = new Date(timestamp);
@@ -76,14 +77,18 @@ function sanitizeEventParams(value: unknown) {
 
 export async function POST(req: NextRequest) {
     try {
-        await checkRateLimit(req, "telemetry/track", RELAXED);
-
         if (!hasTrustedSiteOrigin(req)) {
             return NextResponse.json({ error: "Untrusted origin" }, { status: 403 });
         }
 
         const decodedToken = await verifyAuth(req);
         const userId = decodedToken.uid;
+        await checkRateLimit(req, "telemetry/track", ANALYTICS_WRITE, { scopeId: userId });
+
+        const contentLength = Number(req.headers.get("content-length") || 0);
+        if (Number.isFinite(contentLength) && contentLength > MAX_TELEMETRY_BODY_BYTES) {
+            return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+        }
 
         // Extract payload
         const body = await req.json();

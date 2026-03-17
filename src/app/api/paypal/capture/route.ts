@@ -4,9 +4,10 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { verifyAuth, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 import { trackServerEvent } from "@/lib/server/analytics";
-import { checkRateLimit, STRICT } from "@/lib/server/rate-limit";
+import { checkRateLimit, SENSITIVE_WRITE } from "@/lib/server/rate-limit";
 import { deriveGumdropEconomics, getBundlePresentation } from "@/lib/gumdrop-economics";
 import { recordCanonicalTaskEvent } from "@/lib/server/daily-tasks";
+import { hasTrustedSiteOrigin } from "@/lib/server/request-origin";
 
 const bodySchema = z.object({
   orderId: z.string().min(1),
@@ -80,9 +81,12 @@ async function logFailedTransaction(userId: string, orderId: string, expectedDro
 
 export async function POST(request: NextRequest) {
   try {
-    await checkRateLimit(request, "paypal/capture", STRICT);
+    if (!hasTrustedSiteOrigin(request)) {
+      return NextResponse.json({ error: "Untrusted origin" }, { status: 403 });
+    }
     const caller = await verifyAuth(request);
     const userId = caller.uid;
+    await checkRateLimit(request, "paypal/capture", SENSITIVE_WRITE, { scopeId: userId });
     const { orderId, expectedDrops } = bodySchema.parse(await request.json());
 
     const captureData = await capturePayPalOrder(orderId);

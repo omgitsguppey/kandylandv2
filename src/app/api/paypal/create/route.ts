@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { verifyAuth, handleApiError } from "@/lib/server/auth";
-import { checkRateLimit, STRICT } from "@/lib/server/rate-limit";
+import { checkRateLimit, SENSITIVE_WRITE } from "@/lib/server/rate-limit";
+import { hasTrustedSiteOrigin } from "@/lib/server/request-origin";
 
 const bodySchema = z.object({
     expectedDrops: z.number().int().positive(),
@@ -43,9 +44,12 @@ async function getPayPalAccessToken(): Promise<string> {
 
 export async function POST(request: NextRequest) {
     try {
-        await checkRateLimit(request, "paypal/create", STRICT);
+        if (!hasTrustedSiteOrigin(request)) {
+            return NextResponse.json({ error: "Untrusted origin" }, { status: 403 });
+        }
         const caller = await verifyAuth(request);
         const userId = caller.uid;
+        await checkRateLimit(request, "paypal/create", SENSITIVE_WRITE, { scopeId: userId });
         const { expectedDrops } = bodySchema.parse(await request.json());
 
         // 1. Validate the requested amount securely

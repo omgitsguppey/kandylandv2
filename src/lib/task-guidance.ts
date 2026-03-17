@@ -27,6 +27,10 @@ export function getTaskInstruction(task: DailyTaskAssignment) {
     return "Open the notification bell, tap Read on one alert, and the task will finish as soon as it syncs.";
   }
 
+  if (task.eventName === "notification_opened") {
+    return "Open the notification bell, tap Open on one alert, and let the destination page finish loading to count it.";
+  }
+
   if (task.eventName === "task_notifications_enabled") {
     return "Turn on browser notifications, accept the device prompt, and return here once alerts are enabled.";
   }
@@ -64,7 +68,7 @@ export function getTaskInstruction(task: DailyTaskAssignment) {
   }
 
   if (task.eventName === "drop_share_copied") {
-    return "Open one of your unlocked drops, copy its share link, and the task will complete after the copy succeeds.";
+    return "Open a live drop preview, copy its share link, and the task will complete as soon as the copy succeeds.";
   }
 
   if (task.actionType === "open_dashboard") {
