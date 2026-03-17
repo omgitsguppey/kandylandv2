@@ -8,14 +8,17 @@ import { Button } from "@/components/ui/Button";
 import { useAuthIdentity } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { HomeDropTicker } from "@/components/HomeDropTicker";
-import { useDrops } from "@/hooks/useDrops";
+import type { Drop } from "@/types/db";
 
-export default function Hero() {
+interface HeroProps {
+    activeDrops: Drop[];
+}
+
+export default function Hero({ activeDrops }: HeroProps) {
     const { user } = useAuthIdentity();
     const { openAuthModal } = useUI();
-    const { drops } = useDrops();
     const ref = useRef(null);
-    const activeDropsCount = drops.filter((drop) => drop.status === "active").length;
+    const activeDropsCount = activeDrops.length;
 
     return (
         <section ref={ref} className="relative flex min-h-[68vh] w-full flex-col justify-center overflow-hidden pb-[calc(7.5rem+env(safe-area-inset-bottom))] pt-[2.9rem] max-[360px]:min-h-[64vh] max-[360px]:pb-[calc(7.8rem+env(safe-area-inset-bottom))] max-[360px]:pt-[2.7rem] sm:min-h-[90vh] sm:pb-12 sm:pt-24 landscape:min-h-0 landscape:justify-start landscape:pb-[calc(6.8rem+env(safe-area-inset-bottom))] landscape:pt-10">
@@ -75,8 +78,8 @@ export default function Hero() {
                     </div>
 
                     <div className="hidden w-full border-t border-white/10 pt-5 sm:block sm:pt-8 lg:w-4/5 landscape:hidden">
-                        <p className="text-sm text-gray-400 font-medium mb-4">Latest Unwraps</p>
-                        <HomeDropTicker />
+                        <p className="text-sm text-gray-400 font-medium mb-4">Live Right Now</p>
+                        <HomeDropTicker drops={activeDrops} />
                     </div>
                 </div>
             </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -47,6 +47,7 @@ export function FAQClient({ sections, steps }: FAQClientProps) {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [openQuestionKey, setOpenQuestionKey] = useState<string | null>(null);
   const deferredQuery = useDeferredValue(query);
+  const lastTrackedSearchRef = useRef("");
 
   const searchableSections = useMemo(() => buildSearchableSections(sections), [sections]);
 
@@ -80,6 +81,25 @@ export function FAQClient({ sections, steps }: FAQClientProps) {
     () => filteredSections.reduce((count, section) => count + section.questions.length, 0),
     [filteredSections]
   );
+
+  useEffect(() => {
+    const normalizedQuery = normalizeQuery(deferredQuery);
+    if (!normalizedQuery) {
+      lastTrackedSearchRef.current = "";
+      return;
+    }
+
+    if (normalizedQuery === lastTrackedSearchRef.current) {
+      return;
+    }
+
+    lastTrackedSearchRef.current = normalizedQuery;
+    trackEvent("faq_search_used", {
+      query_length: normalizedQuery.length,
+      result_count: totalVisibleQuestions,
+      selected_category: selectedCategory,
+    });
+  }, [deferredQuery, selectedCategory, totalVisibleQuestions]);
 
   const categoryFilters = useMemo(
     () => ["All", ...sections.map((section) => section.category)],
@@ -129,7 +149,13 @@ export function FAQClient({ sections, steps }: FAQClientProps) {
                 <button
                   key={category}
                   type="button"
-                  onClick={() => setSelectedCategory(category)}
+                  onClick={() => {
+                    setSelectedCategory(category);
+                    trackEvent("faq_category_selected", {
+                      category,
+                      visible_questions: totalVisibleQuestions,
+                    });
+                  }}
                   className={cn(
                     "shrink-0 rounded-full border px-4 py-2 text-xs font-bold transition-all",
                     isSelected
@@ -179,9 +205,15 @@ export function FAQClient({ sections, steps }: FAQClientProps) {
                     >
                       <button
                         type="button"
-                        onClick={() =>
-                          setOpenQuestionKey((prev) => (prev === faqKey ? null : faqKey))
-                        }
+                        onClick={() => {
+                          const nextState = openQuestionKey === faqKey ? null : faqKey;
+                          setOpenQuestionKey(nextState);
+                          trackEvent("faq_question_toggled", {
+                            category: section.category,
+                            question: faq.q,
+                            action: nextState === faqKey ? "opened" : "closed",
+                          });
+                        }}
                         className="flex w-full items-center justify-between gap-4 px-5 py-5 text-left sm:px-6 sm:py-6"
                       >
                         <h4

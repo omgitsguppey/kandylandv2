@@ -1,12 +1,32 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useUI } from "@/context/UIContext";
+import { useAuthIdentity } from "@/context/AuthContext";
 import { Lock, Eye, Heart } from "lucide-react";
 import { SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
 import { HomeActiveDropsCarousel } from "@/components/Landing/HomeActiveDropsCarousel";
+import { trackEvent } from "@/lib/telemetry";
+import type { Drop } from "@/types/db";
 
-export function HowItWorks() {
+interface HowItWorksProps {
+    activeDrops: Drop[];
+}
+
+export function HowItWorks({ activeDrops }: HowItWorksProps) {
+    const router = useRouter();
     const { openAuthModal } = useUI();
+    const { user } = useAuthIdentity();
+
+    const handleLandingCta = (source: string) => {
+        if (user) {
+            trackEvent("navigation_click", { destination: "/drops", source });
+            router.push("/drops");
+            return;
+        }
+
+        openAuthModal("signup");
+    };
 
     const features = [
         {
@@ -55,7 +75,7 @@ export function HowItWorks() {
 
                 <div className="mb-10 flex justify-center sm:mb-16">
                     <button
-                        onClick={() => openAuthModal("signup")}
+                        onClick={() => handleLandingCta("landing_how_it_works")}
                         className="w-full rounded-xl bg-gradient-to-r from-brand-purple to-purple-500 px-6 py-3.5 font-extrabold text-white shadow-lg shadow-brand-purple/20 transition-colors hover:opacity-95 sm:w-auto sm:px-8 sm:py-4"
                     >
                         Unwrap your Kandy Drops
@@ -73,15 +93,15 @@ export function HowItWorks() {
                                 New drops are added daily, but they also disappear daily! Keep them safe by unwrapping every drop before it&apos;s too late.
                             </p>
                             <div className="space-y-3 md:hidden">
-                                <HomeActiveDropsCarousel />
+                                <HomeActiveDropsCarousel drops={activeDrops} />
                             </div>
-                            <button onClick={() => openAuthModal("signup")} className="mt-2 sm:mt-4 w-full sm:w-auto rounded-xl bg-gradient-to-r from-brand-purple to-purple-500 px-6 py-3.5 font-extrabold text-white shadow-lg shadow-brand-purple/20 transition-colors hover:opacity-95 sm:px-8 sm:py-4">
+                            <button onClick={() => handleLandingCta("landing_showcase")} className="mt-2 sm:mt-4 w-full sm:w-auto rounded-xl bg-gradient-to-r from-brand-purple to-purple-500 px-6 py-3.5 font-extrabold text-white shadow-lg shadow-brand-purple/20 transition-colors hover:opacity-95 sm:px-8 sm:py-4">
                                 {SECONDARY_UNWRAP_CTA}
                             </button>
                         </div>
 
                         <div className="hidden space-y-3 md:block">
-                            <HomeActiveDropsCarousel />
+                            <HomeActiveDropsCarousel drops={activeDrops} />
                         </div>
                     </div>
                 </div>

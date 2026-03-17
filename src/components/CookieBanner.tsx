@@ -9,6 +9,8 @@ export default function CookieBanner() {
     const [isMounted, setIsMounted] = useState(false);
     const [dismissed, setDismissed] = useState(false);
     const [isCompactViewport, setIsCompactViewport] = useState(false);
+    const [consentError, setConsentError] = useState<string | null>(null);
+    const [savingChoice, setSavingChoice] = useState(false);
     const { user, userProfile } = useAuth();
     const { isAuthModalOpen } = useUI();
 
@@ -57,8 +59,17 @@ export default function CookieBanner() {
     if (!showBanner || suppressForFlow) return null;
 
     const handleConsent = async (allowAnalytics: boolean) => {
-        await saveGuestAnalyticsConsent(allowAnalytics);
-        setDismissed(true);
+        setSavingChoice(true);
+        setConsentError(null);
+        try {
+            await saveGuestAnalyticsConsent(allowAnalytics);
+            setDismissed(true);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "We could not save that choice right now.";
+            setConsentError(message);
+        } finally {
+            setSavingChoice(false);
+        }
     };
 
     return (
@@ -89,6 +100,7 @@ export default function CookieBanner() {
                         <button
                             type="button"
                             onClick={() => void handleConsent(false)}
+                            disabled={savingChoice}
                             className="inline-flex min-h-8 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-2.5 py-2 text-[10px] font-bold text-white transition-opacity hover:opacity-90"
                         >
                             Essential
@@ -96,9 +108,10 @@ export default function CookieBanner() {
                         <button
                             type="button"
                             onClick={() => void handleConsent(true)}
+                            disabled={savingChoice}
                             className="inline-flex min-h-8 items-center justify-center rounded-xl bg-brand-purple px-3 py-2 text-[11px] font-bold text-white transition-opacity hover:opacity-90"
                         >
-                            Allow analytics
+                            {savingChoice ? "Saving..." : "Allow analytics"}
                         </button>
                     </div>
                 </div>
@@ -122,6 +135,7 @@ export default function CookieBanner() {
                         <button
                             type="button"
                             onClick={() => void handleConsent(false)}
+                            disabled={savingChoice}
                             className="inline-flex min-h-10 flex-1 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-bold text-white transition-opacity hover:opacity-90"
                         >
                             Essential only
@@ -129,13 +143,17 @@ export default function CookieBanner() {
                         <button
                             type="button"
                             onClick={() => void handleConsent(true)}
+                            disabled={savingChoice}
                             className="inline-flex min-h-10 flex-1 items-center justify-center rounded-xl bg-brand-purple px-4 py-2 text-sm font-bold text-white transition-opacity hover:opacity-90"
                         >
-                            Allow analytics
+                            {savingChoice ? "Saving..." : "Allow analytics"}
                         </button>
                     </div>
                 </div>
             )}
+            {consentError ? (
+                <p className="mt-2 text-[11px] leading-5 text-red-300">{consentError}</p>
+            ) : null}
         </div>
     );
 }

@@ -1,15 +1,14 @@
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { LegalBackLink } from "@/components/Legal/LegalBackLink";
 
 
 export default function TermsPage() {
     return (
-        <div className="w-full text-gray-300 px-6">
+        <div
+            className="w-full px-6 text-gray-300"
+            style={{ paddingTop: "calc(2.5rem + var(--kandy-cookie-offset, 0px))" }}
+        >
             <div className="max-w-3xl mx-auto space-y-8">
-                <Link href="/" className="inline-flex items-center gap-2 text-brand-purple transition-colors">
-                    <ArrowLeft className="w-4 h-4" />
-                    Back to Home
-                </Link>
+                <LegalBackLink />
 
                 <h1 className="text-4xl font-bold text-white mb-8">Terms of Service</h1>
                 <p className="text-sm text-gray-500">Last Updated: February 12, 2026</p>

@@ -3,22 +3,25 @@
 import { useEffect, useMemo, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import NextImage from "next/image";
+import { useRouter } from "next/navigation";
 import { Images, Film } from "lucide-react";
 
 import { useUI } from "@/context/UIContext";
 import { useAuthIdentity } from "@/context/AuthContext";
-import { useDrops } from "@/hooks/useDrops";
 import { cn } from "@/lib/utils";
 import { getSupportedDropAspectRatio } from "@/lib/drop-presentation";
+import { trackEvent } from "@/lib/telemetry";
+import type { Drop } from "@/types/db";
 
-export function HomeActiveDropsCarousel() {
+interface HomeActiveDropsCarouselProps {
+    drops: Drop[];
+}
+
+export function HomeActiveDropsCarousel({ drops }: HomeActiveDropsCarouselProps) {
+    const router = useRouter();
     const { user } = useAuthIdentity();
     const { openAuthModal } = useUI();
-    const { drops } = useDrops();
-    const activeDrops = useMemo(
-        () => drops.filter((drop) => drop.status === "active").slice(0, 8),
-        [drops],
-    );
+    const activeDrops = useMemo(() => drops.slice(0, 8), [drops]);
     const [activeIndex, setActiveIndex] = useState(0);
     const [emblaRef, emblaApi] = useEmblaCarousel({ loop: activeDrops.length > 1, align: "start" });
     const selectedIndex = Math.min(activeIndex, Math.max(activeDrops.length - 1, 0));
@@ -73,9 +76,17 @@ export function HomeActiveDropsCarousel() {
                                 type="button"
                                 onClick={() => {
                                     setActiveIndex(index);
-                                    if (!user) {
-                                        openAuthModal("signup");
+                                    if (user) {
+                                        trackEvent("navigation_click", {
+                                            destination: "/drops",
+                                            source: "landing_active_drop_card",
+                                            drop_id: drop.id,
+                                        });
+                                        router.push("/drops");
+                                        return;
                                     }
+
+                                    openAuthModal("signup");
                                 }}
                                 className="relative flex-[0_0_100%] min-w-0"
                                 style={{ aspectRatio: aspectRatio.replace(":", " / ") }}

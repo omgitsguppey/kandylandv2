@@ -2,15 +2,13 @@
 
 import { useMemo } from "react";
 import Image from "next/image";
-import { useDrops } from "@/hooks/useDrops";
-import { useAuthIdentity } from "@/context/AuthContext";
-import { useUI } from "@/context/UIContext";
+import type { Drop } from "@/types/db";
 
-export function HomeDropTicker() {
-  const { user } = useAuthIdentity();
-  const { openAuthModal } = useUI();
-  const { drops } = useDrops(["active", "scheduled"]);
+interface HomeDropTickerProps {
+  drops: Drop[];
+}
 
+export function HomeDropTicker({ drops }: HomeDropTickerProps) {
   const tickerDrops = useMemo(() => drops.slice(0, 8), [drops]);
   if (tickerDrops.length === 0) return null;
 

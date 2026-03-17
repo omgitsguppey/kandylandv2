@@ -6,11 +6,13 @@ import { useRouter } from "next/navigation";
 import Hero from "@/components/Hero";
 import { HowItWorks } from "@/components/Landing/HowItWorks";
 import { useAuth } from "@/context/AuthContext";
+import { useDrops } from "@/hooks/useDrops";
 import { readLastVisitedPath } from "@/lib/navigation-persistence";
 import { trackEvent } from "@/lib/telemetry";
 
 export default function Home() {
   const { user, userProfile, loading } = useAuth();
+  const { drops: activeDrops } = useDrops(["active"]);
   const router = useRouter();
   const shouldRedirectSignedInUser = !loading && user && userProfile?.role !== "admin";
 
@@ -37,8 +39,8 @@ export default function Home() {
       className="min-h-screen overflow-y-auto bg-black pb-[calc(7.75rem+env(safe-area-inset-bottom))] md:pb-0"
       style={{ paddingTop: "var(--kandy-cookie-offset, 0px)" }}
     >
-      <Hero />
-      <HowItWorks />
+      <Hero activeDrops={activeDrops} />
+      <HowItWorks activeDrops={activeDrops} />
 
       <footer className="border-t border-white/10 px-4 py-12 text-center text-sm text-gray-500">
         <p>&copy; {new Date().getFullYear()} KandyDrops. All rights reserved.</p>

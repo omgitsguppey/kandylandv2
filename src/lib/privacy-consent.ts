@@ -13,6 +13,10 @@ export interface PrivacySettingsSnapshot {
     consentUpdatedAt: number;
 }
 
+interface PersistPrivacyOptions {
+    preserveTimestamp?: boolean;
+}
+
 const DEFAULT_PRIVACY_SETTINGS: PrivacySettingsSnapshot = {
     anonymousAnalyticsEnabled: false,
     identifiedAnalyticsEnabled: false,
@@ -105,15 +109,22 @@ export function applyAnalyticsConsentToGtag(settings: PrivacySettingsSnapshot = 
     });
 }
 
-export function persistPrivacySettingsSnapshot(nextValue: Partial<PrivacySettingsSnapshot>) {
+export function persistPrivacySettingsSnapshot(
+    nextValue: Partial<PrivacySettingsSnapshot>,
+    options?: PersistPrivacyOptions,
+) {
     if (!canUseDom()) {
         return DEFAULT_PRIVACY_SETTINGS;
     }
 
+    const current = readPrivacySettingsSnapshot();
+    const nextConsentUpdatedAt = options?.preserveTimestamp && Number.isFinite(nextValue.consentUpdatedAt)
+        ? Number(nextValue.consentUpdatedAt)
+        : Date.now();
     const merged = normalizePrivacySettingsSnapshot({
-        ...readPrivacySettingsSnapshot(),
+        ...current,
         ...nextValue,
-        consentUpdatedAt: Date.now(),
+        consentUpdatedAt: nextConsentUpdatedAt,
     });
 
     try {
@@ -140,21 +151,28 @@ export function persistPrivacySettingsSnapshot(nextValue: Partial<PrivacySetting
 }
 
 export async function saveGuestAnalyticsConsent(enabled: boolean) {
+    const previousSnapshot = readPrivacySettingsSnapshot();
     const snapshot = persistPrivacySettingsSnapshot({
         anonymousAnalyticsEnabled: enabled,
         identifiedAnalyticsEnabled: false,
     });
 
     try {
-        await fetch("/api/privacy/consent", {
+        const response = await fetch("/api/privacy/consent", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 anonymousAnalyticsEnabled: snapshot.anonymousAnalyticsEnabled,
             }),
         });
-    } catch {
-        // Consent is still stored locally even if the network call fails.
+
+        if (!response.ok) {
+            const result = await response.json().catch(() => ({}));
+            throw new Error(typeof result?.error === "string" ? result.error : "Failed to save privacy preference.");
+        }
+    } catch (error) {
+        persistPrivacySettingsSnapshot(previousSnapshot, { preserveTimestamp: true });
+        throw error;
     }
 
     return snapshot;
