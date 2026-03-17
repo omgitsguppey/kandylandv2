@@ -9,7 +9,9 @@ import { enableBrowserNotifications } from "@/lib/browser-notification-enrollmen
 import { trackEvent } from "@/lib/telemetry";
 import { toast } from "sonner";
 
-const DISMISS_KEY = "kandydrops:notification-banner-dismissed";
+function getDismissKey(uid: string) {
+    return `kandydrops:notification-banner-dismissed:${uid}`;
+}
 
 export function NotificationPromptBanner() {
     const { user, userProfile } = useAuth();
@@ -27,13 +29,16 @@ export function NotificationPromptBanner() {
             || (userProfile.fcmTokens?.length ?? 0) > 0;
     }, [userProfile]);
 
+    const dismissKey = userProfile?.uid ? getDismissKey(userProfile.uid) : null;
+
     useEffect(() => {
-        if (typeof window === "undefined") {
+        if (typeof window === "undefined" || !dismissKey) {
+            setDismissed(false);
             return;
         }
 
-        setDismissed(window.localStorage.getItem(DISMISS_KEY) === "1");
-    }, []);
+        setDismissed(window.localStorage.getItem(dismissKey) === "1");
+    }, [dismissKey]);
 
     useEffect(() => {
         if (!user || !userProfile || dismissed || hasNotificationsEnabled) {
@@ -52,7 +57,8 @@ export function NotificationPromptBanner() {
             setNeedsStandaloneInstall(state.needsStandaloneInstall);
 
             const shouldShow = state.permission === "default"
-                || (state.needsStandaloneInstall && state.permission !== "granted");
+                || (state.needsStandaloneInstall && state.permission !== "granted")
+                || (state.permission === "granted" && state.messagingSupported && !hasNotificationsEnabled);
 
             if (!shouldShow || state.permission === "denied") {
                 setIsVisible(false);
@@ -100,7 +106,9 @@ export function NotificationPromptBanner() {
 
             setIsVisible(false);
             setDismissed(true);
-            window.localStorage.setItem(DISMISS_KEY, "1");
+            if (dismissKey) {
+                window.localStorage.setItem(dismissKey, "1");
+            }
             trackEvent("task_notifications_enabled", {
                 source: "prompt_banner",
                 messaging_supported: result.messagingSupported,
@@ -117,8 +125,8 @@ export function NotificationPromptBanner() {
     const handleDismiss = () => {
         setIsVisible(false);
         setDismissed(true);
-        if (typeof window !== "undefined") {
-            window.localStorage.setItem(DISMISS_KEY, "1");
+        if (typeof window !== "undefined" && dismissKey) {
+            window.localStorage.setItem(dismissKey, "1");
         }
         trackEvent("notification_prompt_banner_dismissed", {
             requires_pwa_install: needsStandaloneInstall,

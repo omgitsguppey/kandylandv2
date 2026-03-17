@@ -27,6 +27,20 @@ export async function enableBrowserNotifications(userProfile: UserProfile): Prom
     };
   }
 
+  if (!result.state.messagingSupported) {
+    return {
+      status: "failed",
+      message: "Push notifications are not supported on this device yet.",
+    };
+  }
+
+  if (!result.token) {
+    return {
+      status: "failed",
+      message: "We could not finish setting up push notifications. Please try again.",
+    };
+  }
+
   const response = await authFetch("/api/user/profile", {
     method: "PUT",
     body: JSON.stringify({

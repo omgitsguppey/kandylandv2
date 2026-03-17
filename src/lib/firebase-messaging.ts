@@ -3,6 +3,8 @@ import { getMessaging, getToken, isSupported, onMessage } from "firebase/messagi
 import { app } from "./firebase";
 import { isIOSNonStandalone, isStandalone } from "./browser-utils";
 
+export const APP_NOTIFICATION_ICON = "/icon-192x192.png";
+
 export interface BrowserNotificationState {
     browserCapable: boolean;
     messagingSupported: boolean;
@@ -28,6 +30,23 @@ function buildServiceWorkerUrl() {
     };
 
     return `/firebase-messaging-sw.js?apiKey=${config.apiKey}&projectId=${config.projectId}&messagingSenderId=${config.messagingSenderId}&appId=${config.appId}`;
+}
+
+export function getAppServiceWorkerUrl() {
+    return buildServiceWorkerUrl();
+}
+
+export async function registerAppServiceWorker() {
+    if (typeof window === "undefined" || !("serviceWorker" in navigator)) {
+        return null;
+    }
+
+    try {
+        return await navigator.serviceWorker.register(getAppServiceWorkerUrl(), { scope: "/" });
+    } catch (error) {
+        console.error("Failed to register app service worker:", error);
+        return null;
+    }
 }
 
 export async function getBrowserNotificationState(): Promise<BrowserNotificationState> {
@@ -85,7 +104,15 @@ export async function requestBrowserNotificationAccess(): Promise<BrowserNotific
 
     try {
         const messaging = getMessaging(app);
-        const registration = await navigator.serviceWorker.register(buildServiceWorkerUrl());
+        const registration = await registerAppServiceWorker();
+        if (!registration) {
+            return {
+                granted: true,
+                token: null,
+                state: nextState,
+            };
+        }
+
         const token = await getToken(messaging, {
             vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
             serviceWorkerRegistration: registration,
@@ -113,13 +140,13 @@ export async function showBrowserNotification(title: string, body: string, url: 
 
     const options = {
         body,
-        icon: "/icon-192x192.png",
+        icon: APP_NOTIFICATION_ICON,
         data: { url },
     };
 
     try {
         if ("serviceWorker" in navigator) {
-            const registration = await navigator.serviceWorker.ready;
+            const registration = await registerAppServiceWorker() ?? await navigator.serviceWorker.ready;
             await registration.showNotification(title, options);
             return true;
         }
@@ -138,10 +165,22 @@ export async function showBrowserNotification(title: string, body: string, url: 
 }
 
 export const onNotificationMessage = (callback: (payload: unknown) => void) => {
+    let cancelled = false;
+    let unsubscribe = () => {};
+
     void isSupported().then((supported) => {
-        if (supported) {
-            const messaging = getMessaging(app);
-            onMessage(messaging, callback);
+        if (!supported || cancelled) {
+            return;
         }
+
+        const messaging = getMessaging(app);
+        unsubscribe = onMessage(messaging, callback);
+    }).catch((error) => {
+        console.error("Foreground notification listener setup failed:", error);
     });
+
+    return () => {
+        cancelled = true;
+        unsubscribe();
+    };
 };

@@ -20,6 +20,7 @@ const InsufficientBalanceModal = dynamic(() => import("@/components/Insufficient
 const ScrollToTop = dynamic(() => import("@/components/Navigation/ScrollToTop").then((mod) => mod.ScrollToTop));
 const AutoScrollToTop = dynamic(() => import("@/components/Navigation/AutoScrollToTop").then((mod) => mod.AutoScrollToTop));
 const DeepTracker = dynamic(() => import("@/components/Analytics/DeepTracker").then((mod) => mod.DeepTracker), { ssr: false });
+const PwaRuntimeBridge = dynamic(() => import("@/components/PwaRuntimeBridge").then((mod) => mod.PwaRuntimeBridge), { ssr: false });
 const NotificationRuntimeBridge = dynamic(
     () => import("@/components/Notifications/NotificationRuntimeBridge").then((mod) => mod.NotificationRuntimeBridge),
     { ssr: false },
@@ -41,6 +42,7 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     const shouldShowCookieBanner = !isAdminRoute;
     const shouldShowDebugBreakpoints = process.env.NODE_ENV !== "production";
     const shouldTrackDeepAnalytics = !isAdminRoute && !isLegalRoute;
+    const shouldEnablePwaRuntime = !isAdminRoute;
 
     useEffect(() => {
         if (typeof window !== "undefined") {
@@ -93,6 +95,7 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     return (
         <>
             {shouldTrackDeepAnalytics ? <DeepTracker /> : null}
+            {shouldEnablePwaRuntime ? <PwaRuntimeBridge /> : null}
             {isUserShell ? <NotificationRuntimeBridge /> : null}
             {isUserShell ? <TaskGuidanceBanner /> : null}
             <Navbar />

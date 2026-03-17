@@ -22,7 +22,7 @@ export function NotificationRuntimeBridge() {
             return;
         }
 
-        onNotificationMessage((payload: any) => {
+        const unsubscribe = onNotificationMessage((payload: any) => {
             const title = payload?.notification?.title;
             const body = payload?.notification?.body;
             if (!title || !body) {
@@ -32,6 +32,10 @@ export function NotificationRuntimeBridge() {
             window.dispatchEvent(new Event("kandydrops:notifications-sync"));
             void showBrowserNotification(title, body, payload?.data?.url || "/dashboard");
         });
+
+        return () => {
+            unsubscribe();
+        };
     }, [user, userProfile, userProfile?.notificationSettings?.browserPushEnabled]);
 
     useEffect(() => {
