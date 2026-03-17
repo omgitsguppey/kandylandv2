@@ -16,6 +16,7 @@ import { GUMDROPS_SUPPORT_COPY, SECONDARY_UNWRAP_CTA } from "@/lib/marketing-cop
 import { useUI } from "@/context/UIContext";
 import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
 import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
+import { dispatchActivitySync } from "@/lib/activity-sync";
 
 interface PurchaseModalProps {
   isOpen: boolean;
@@ -186,6 +187,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
         .catch(() => undefined);
 
       setSuccess(true);
+      dispatchActivitySync();
       toast.success(`${result.drops || selectedPackage.drops} Gum Drops added!`);
 
       sendGAEvent("event", "purchase", {

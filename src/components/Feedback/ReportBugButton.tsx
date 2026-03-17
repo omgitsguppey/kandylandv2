@@ -9,6 +9,7 @@ import { useUI } from "@/context/UIContext";
 import { authFetch } from "@/lib/authFetch";
 import { trackEvent } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
+import { dispatchActivitySync } from "@/lib/activity-sync";
 
 interface ReportBugButtonProps {
     context: string;
@@ -78,6 +79,7 @@ export function ReportBugButton({
                 context,
                 message_length: trimmedMessage.length,
             });
+            dispatchActivitySync();
             toast.success("Bug report sent. Thanks for helping tighten things up.");
             closeComposer(true);
         } catch (error) {

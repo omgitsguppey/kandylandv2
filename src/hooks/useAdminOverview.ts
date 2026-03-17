@@ -16,7 +16,7 @@ export interface AdminOverviewResponse {
     adminActivity: Array<Transaction & { username?: string }>;
     topDrops: Drop[];
     chartData: Array<{
-        key: number;
+        key: string;
         date: string;
         revenue: number;
         unwraps: number;

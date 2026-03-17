@@ -24,6 +24,7 @@ import {
 } from "@/lib/marketing-copy";
 import { showUnwrapSuccessToast } from "@/components/Toasts/UnwrapSuccessToast";
 import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
+import { dispatchActivitySync } from "@/lib/activity-sync";
 
 interface DropPreviewModalProps {
   drop: Drop | null;
@@ -186,6 +187,7 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
         });
       }
 
+      dispatchActivitySync();
       onClose();
       showUnwrapSuccessToast({
         dropTitle: drop.title,

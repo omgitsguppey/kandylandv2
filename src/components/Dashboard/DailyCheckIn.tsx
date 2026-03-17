@@ -11,6 +11,7 @@ import { DAILY_CHECK_IN_REWARD_LADDER, getDailyCheckInProgress } from "@/lib/dai
 import { trackEvent } from "@/lib/telemetry";
 import { getCSTDayBoundaries } from "@/lib/timezone";
 import { cn } from "@/lib/utils";
+import { dispatchActivitySync } from "@/lib/activity-sync";
 
 function formatCountdown(remainingMs: number): string {
     const totalSeconds = Math.max(0, Math.floor(remainingMs / 1000));
@@ -112,6 +113,7 @@ export function DailyCheckIn() {
 
             setOptimisticCheckInMs(claimedAt);
             setOptimisticStreak(streak);
+            dispatchActivitySync();
 
             toast.success(`Claimed ${reward} Gum Drops!`, {
                 description: "Your balance will update in a moment.",

@@ -19,6 +19,7 @@ import { SupportedAspectRatio, getDropMediaSummary, getSupportedDropAspectRatio 
 import { SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
 import { showUnwrapSuccessToast } from "@/components/Toasts/UnwrapSuccessToast";
 import { getDropViewCount } from "@/lib/drop-engagement";
+import { dispatchActivitySync } from "@/lib/activity-sync";
 
 
 interface DropCardProps {
@@ -355,6 +356,7 @@ function DropCardBase({
                 });
             }
 
+            dispatchActivitySync();
             showUnwrapSuccessToast({
                 dropTitle: drop.title,
                 onTaste: () => {

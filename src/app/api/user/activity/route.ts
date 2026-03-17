@@ -30,8 +30,8 @@ function toTaskEvent(raw: Record<string, unknown>, id: string) {
 
 export async function GET(request: NextRequest) {
     try {
-        await checkRateLimit(request, "user/activity", STANDARD);
         const caller = await verifyAuth(request);
+        await checkRateLimit(request, "user/activity", STANDARD, { scopeId: caller.uid });
 
         const [transactionsSnapshot, taskEventsSnapshot] = await Promise.all([
             adminDb.collection("transactions")

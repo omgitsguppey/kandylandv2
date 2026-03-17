@@ -5,7 +5,15 @@ import { verifyAdmin, handleApiError } from "@/lib/server/auth";
 import { checkRateLimit, ADMIN } from "@/lib/server/rate-limit";
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
 import { applyDropStatus } from "@/lib/drop-status";
+import { APP_TIMEZONE, fromCSTInput, getCSTDateKey, shiftCSTDateKey } from "@/lib/timezone";
 import { getTransactionRevenueCents, normalizeTransactionRecord } from "@/lib/transaction-normalizers";
+
+const THIRTY_DAY_WINDOW = 30;
+const CHART_LABEL_FORMATTER = new Intl.DateTimeFormat("en-US", {
+    timeZone: APP_TIMEZONE,
+    month: "short",
+    day: "2-digit",
+});
 
 function toTimestampNumber(value: unknown): number {
     if (typeof value === "number" && Number.isFinite(value)) {
@@ -32,17 +40,24 @@ function serializeRecentTransaction(raw: ReturnType<typeof normalizeTransactionR
     };
 }
 
-function buildThirtyDayChart() {
-    const days: Array<{ key: number; date: string; revenue: number; unwraps: number }> = [];
-    const now = new Date();
+function formatChartDayLabel(dayKey: string) {
+    const labelTimestamp = fromCSTInput(`${dayKey}T12:00`);
+    if (Number.isFinite(labelTimestamp)) {
+        return CHART_LABEL_FORMATTER.format(new Date(labelTimestamp));
+    }
 
-    for (let index = 29; index >= 0; index -= 1) {
-        const day = new Date(now);
-        day.setHours(0, 0, 0, 0);
-        day.setDate(day.getDate() - index);
+    return dayKey;
+}
+
+function buildThirtyDayChart(nowMs: number) {
+    const days: Array<{ key: string; date: string; revenue: number; unwraps: number }> = [];
+    const todayKey = getCSTDateKey(nowMs);
+
+    for (let index = THIRTY_DAY_WINDOW - 1; index >= 0; index -= 1) {
+        const dayKey = shiftCSTDateKey(todayKey, -index);
         days.push({
-            key: day.getTime(),
-            date: day.toLocaleDateString("en-US", { month: "short", day: "2-digit" }),
+            key: dayKey,
+            date: formatChartDayLabel(dayKey),
             revenue: 0,
             unwraps: 0,
         });
@@ -56,10 +71,16 @@ export async function GET(request: NextRequest) {
         await checkRateLimit(request, "admin/overview", ADMIN);
         await verifyAdmin(request);
 
-        const [usersSnapshot, dropsSnapshot, transactionsSnapshot] = await Promise.all([
+        if (!adminDb) {
+            return NextResponse.json({ error: "Database not available" }, { status: 500 });
+        }
+
+        const [usersSnapshot, dropsSnapshot, recentTransactionsSnapshot, purchaseTransactionsSnapshot, unlockTransactionsSnapshot] = await Promise.all([
             adminDb.collection("users").get(),
             adminDb.collection("drops").get(),
             adminDb.collection("transactions").orderBy("timestamp", "desc").limit(250).get(),
+            adminDb.collection("transactions").where("type", "in", ["purchase_currency", "purchase"]).get(),
+            adminDb.collection("transactions").where("type", "==", "unlock_content").get(),
         ]);
 
         const userNameMap = new Map<string, string>();
@@ -84,19 +105,33 @@ export async function GET(request: NextRequest) {
             }
         });
 
-        const transactions = transactionsSnapshot.docs.flatMap((doc) => {
+        const recentTransactionsSource = recentTransactionsSnapshot.docs.flatMap((doc) => {
             try {
                 return [normalizeTransactionRecord(doc.data(), doc.id)];
             } catch {
                 return [];
             }
         });
+        const purchaseTransactions = purchaseTransactionsSnapshot.docs.flatMap((doc) => {
+            try {
+                return [normalizeTransactionRecord(doc.data(), doc.id)];
+            } catch {
+                return [];
+            }
+        }).filter((transaction) => transaction.type === "purchase_currency" && transaction.status === "completed");
+        const unlockTransactions = unlockTransactionsSnapshot.docs.flatMap((doc) => {
+            try {
+                return [normalizeTransactionRecord(doc.data(), doc.id)];
+            } catch {
+                return [];
+            }
+        }).filter((transaction) => transaction.type === "unlock_content");
 
-        const recentTransactions = transactions
+        const recentTransactions = recentTransactionsSource
             .slice(0, 20)
             .map((transaction) => serializeRecentTransaction(transaction, userNameMap.get(transaction.userId)));
 
-        const adminActivity = transactions
+        const adminActivity = recentTransactionsSource
             .filter((transaction) => transaction.type === "admin_adjustment")
             .slice(0, 10)
             .map((transaction) => serializeRecentTransaction(transaction, userNameMap.get(transaction.userId)));
@@ -105,18 +140,16 @@ export async function GET(request: NextRequest) {
             .sort((left, right) => (right.totalUnlocks || 0) - (left.totalUnlocks || 0))
             .slice(0, 5);
 
-        const chartSeed = buildThirtyDayChart();
+        const chartSeed = buildThirtyDayChart(now);
         const chartMap = new Map(chartSeed.map((entry) => [entry.key, entry]));
 
-        transactions.forEach((transaction) => {
+        [...purchaseTransactions, ...unlockTransactions].forEach((transaction) => {
             const timestamp = typeof transaction.timestamp === "number" ? transaction.timestamp : toTimestampNumber(transaction.timestamp);
             if (!timestamp) {
                 return;
             }
 
-            const bucket = new Date(timestamp);
-            bucket.setHours(0, 0, 0, 0);
-            const dayEntry = chartMap.get(bucket.getTime());
+            const dayEntry = chartMap.get(getCSTDateKey(timestamp));
             if (!dayEntry) {
                 return;
             }
@@ -134,7 +167,7 @@ export async function GET(request: NextRequest) {
                 totalUsers: usersSnapshot.size,
                 activeDrops: drops.filter((drop) => drop.status === "active").length,
                 totalDrops: drops.length,
-                grossRevenueCents: transactions.reduce((sum, transaction) => sum + getTransactionRevenueCents(transaction), 0),
+                grossRevenueCents: purchaseTransactions.reduce((sum, transaction) => sum + getTransactionRevenueCents(transaction), 0),
                 totalUnwraps: drops.reduce((sum, drop) => sum + (drop.totalUnlocks || 0), 0),
             },
             recentTransactions,

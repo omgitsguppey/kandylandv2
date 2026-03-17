@@ -81,9 +81,9 @@ export function LibraryClient({ drops }: LibraryClientProps) {
                     </div>
                     <h2 className="text-xl font-bold text-white mb-2">No Content Yet</h2>
                     <p className="text-gray-400 mb-8 max-w-md mx-auto">
-                        You haven&apos;t unlocked any drops yet. Visit the home page to start your collection.
+                        You haven&apos;t unlocked any drops yet. Browse live drops to start building your collection.
                     </p>
-                    <Link href="/">
+                    <Link href="/drops">
                         <Button variant="brand" className="px-8 py-3 rounded-full text-lg">
                             Browse Drops
                         </Button>

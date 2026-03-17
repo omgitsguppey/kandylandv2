@@ -10,6 +10,7 @@ import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
 import { trackEvent } from "@/lib/telemetry";
 import type { Transaction } from "@/types/db";
 import { authFetch } from "@/lib/authFetch";
+import { ACTIVITY_SYNC_EVENT } from "@/lib/activity-sync";
 
 interface TaskEventRecord {
     id: string;
@@ -70,14 +71,22 @@ export function RecentActivityFeed() {
 
     useEffect(() => {
         if (!user) {
+            setActivities([]);
+            setLoading(false);
             return;
         }
 
-        const userId = user.uid;
+        setLoading(true);
         trackEvent("recent_activity_viewed");
         let mounted = true;
+        let inFlight = false;
 
         async function fetchRecentActivity() {
+            if (inFlight) {
+                return;
+            }
+
+            inFlight = true;
             try {
                 const response = await authFetch("/api/user/activity");
                 const result = await response.json() as {
@@ -126,16 +135,38 @@ export function RecentActivityFeed() {
             } catch (error) {
                 console.error("Failed to fetch recent activity", error);
             } finally {
+                inFlight = false;
                 if (mounted) {
                     setLoading(false);
                 }
             }
         }
 
+        const refreshRecentActivity = () => {
+            void fetchRecentActivity();
+        };
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === "visible") {
+                refreshRecentActivity();
+            }
+        };
+
         void fetchRecentActivity();
+        const intervalId = window.setInterval(() => {
+            if (document.visibilityState === "visible") {
+                refreshRecentActivity();
+            }
+        }, 30_000);
+        window.addEventListener("focus", refreshRecentActivity);
+        window.addEventListener(ACTIVITY_SYNC_EVENT, refreshRecentActivity);
+        document.addEventListener("visibilitychange", handleVisibilityChange);
 
         return () => {
             mounted = false;
+            window.clearInterval(intervalId);
+            window.removeEventListener("focus", refreshRecentActivity);
+            window.removeEventListener(ACTIVITY_SYNC_EVENT, refreshRecentActivity);
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
         };
     }, [user]);
 

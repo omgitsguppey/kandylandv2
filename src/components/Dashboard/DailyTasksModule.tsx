@@ -35,6 +35,7 @@ import {
 import { getCSTDayBoundaries } from "@/lib/timezone";
 import { trackEvent } from "@/lib/telemetry";
 import { createTaskGuidanceState, getTaskDestinationHref } from "@/lib/task-guidance";
+import { dispatchActivitySync } from "@/lib/activity-sync";
 
 type FeedbackCategory = "general" | "feature_request" | "bug_report" | "creator_request";
 
@@ -341,6 +342,7 @@ export function DailyTasksModule() {
       setFeedbackMessage("");
       setFeedbackCategory("general");
       setFeedbackRating(5);
+      dispatchActivitySync();
       toast.success("Thanks for the feedback.");
     } catch (error) {
       console.error("Feedback submission failed", error);
