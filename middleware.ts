@@ -5,7 +5,7 @@ import {
   NAV_AUTH_COOKIE,
   NAV_ROLE_COOKIE,
   NAV_UID_COOKIE,
-  isPersistableAppPath,
+  resolvePreferredAuthenticatedPath,
 } from "@/lib/navigation-persistence";
 
 const VALID_NAV_ROLES = new Set(["admin", "creator", "user"]);
@@ -30,10 +30,8 @@ export function middleware(request: NextRequest) {
   }
 
   const lastVisitedPath = request.cookies.get(LAST_VISITED_PATH_COOKIE)?.value;
+  const destination = resolvePreferredAuthenticatedPath(role as "admin" | "creator" | "user", lastVisitedPath);
   const fallbackPath = role === "admin" ? "/admin" : "/dashboard";
-  const destination = lastVisitedPath && isPersistableAppPath(lastVisitedPath)
-    ? lastVisitedPath
-    : fallbackPath;
 
   const redirectUrl = request.nextUrl.clone();
   redirectUrl.pathname = destination.split("?")[0] || fallbackPath;

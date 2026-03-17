@@ -7,22 +7,22 @@ import Hero from "@/components/Hero";
 import { HowItWorks } from "@/components/Landing/HowItWorks";
 import { useAuth } from "@/context/AuthContext";
 import { useDrops } from "@/hooks/useDrops";
-import { readLastVisitedPath } from "@/lib/navigation-persistence";
+import { readPreferredAuthenticatedPath } from "@/lib/navigation-persistence";
 import { trackEvent } from "@/lib/telemetry";
 
 export default function Home() {
   const { user, userProfile, loading } = useAuth();
   const { drops: activeDrops } = useDrops(["active"]);
   const router = useRouter();
-  const shouldRedirectSignedInUser = !loading && user && userProfile?.role !== "admin";
+  const shouldRedirectSignedInUser = !loading && !!user;
 
   useEffect(() => {
     trackEvent("home_page_viewed");
   }, []);
 
   useEffect(() => {
-    if (!loading && user && userProfile?.role !== "admin") {
-      router.replace(readLastVisitedPath() || "/dashboard");
+    if (!loading && user) {
+      router.replace(readPreferredAuthenticatedPath(userProfile?.role ?? "user"));
     }
   }, [loading, router, user, userProfile]);
 

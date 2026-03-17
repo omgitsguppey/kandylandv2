@@ -3,9 +3,34 @@ export const LAST_VISITED_PATH_COOKIE = "kandydrops_last_path";
 export const NAV_AUTH_COOKIE = "kandydrops_nav_auth";
 export const NAV_ROLE_COOKIE = "kandydrops_nav_role";
 export const NAV_UID_COOKIE = "kandydrops_nav_uid";
+export type NavigationRole = "admin" | "creator" | "user";
 
 export function isPersistableAppPath(path: string) {
   return path.startsWith("/") && path !== "/" && !path.startsWith("/api");
+}
+
+function isAdminPath(path: string) {
+  return path === "/admin" || path.startsWith("/admin/");
+}
+
+export function getDefaultAppPathForRole(role: NavigationRole | null | undefined) {
+  return role === "admin" ? "/admin" : "/dashboard";
+}
+
+export function resolvePreferredAuthenticatedPath(
+  role: NavigationRole | null | undefined,
+  candidatePath: string | null | undefined,
+) {
+  const fallbackPath = getDefaultAppPathForRole(role);
+  if (!candidatePath || !isPersistableAppPath(candidatePath)) {
+    return fallbackPath;
+  }
+
+  if (role !== "admin" && isAdminPath(candidatePath)) {
+    return fallbackPath;
+  }
+
+  return candidatePath;
 }
 
 function writeCookie(name: string, value: string, maxAgeSeconds: number) {
@@ -35,6 +60,10 @@ export function readLastVisitedPath() {
   } catch {
     return null;
   }
+}
+
+export function readPreferredAuthenticatedPath(role: NavigationRole | null | undefined) {
+  return resolvePreferredAuthenticatedPath(role, readLastVisitedPath());
 }
 
 export function writeLastVisitedPath(path: string) {

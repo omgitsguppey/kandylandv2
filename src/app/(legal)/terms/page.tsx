@@ -1,4 +1,5 @@
 import { LegalBackLink } from "@/components/Legal/LegalBackLink";
+import { TERMS_LAST_UPDATED_LABEL } from "@/lib/legal-documents";
 
 
 export default function TermsPage() {
@@ -11,7 +12,7 @@ export default function TermsPage() {
                 <LegalBackLink />
 
                 <h1 className="text-4xl font-bold text-white mb-8">Terms of Service</h1>
-                <p className="text-sm text-gray-500">Last Updated: February 12, 2026</p>
+                <p className="text-sm text-gray-500">Last Updated: {TERMS_LAST_UPDATED_LABEL}</p>
 
                 <section className="space-y-4">
                     <h2 className="text-xl font-bold text-white">1. Introduction</h2>

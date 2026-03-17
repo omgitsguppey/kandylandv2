@@ -7,6 +7,7 @@ import { UIProvider } from "@/context/UIContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { CoreLayoutWrapper } from "@/components/CoreLayoutWrapper";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { SITE_ORIGIN } from "@/lib/site-origin";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,16 +19,49 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteTitle = "KandyDrops";
+const siteDescription = "Get Gum Drops, unlock exclusive digital content, and stay ready for the next live drop.";
+
 export const metadata: Metadata = {
-  title: "KandyDrops | Exclusive Digital Content",
-  description: "Get Gum Drops, Unlock Content, Feel the Rush.",
+  metadataBase: new URL(SITE_ORIGIN),
+  title: {
+    default: `${siteTitle} | Exclusive Digital Content`,
+    template: `%s | ${siteTitle}`,
+  },
+  description: siteDescription,
+  applicationName: siteTitle,
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    url: SITE_ORIGIN,
+    siteName: siteTitle,
+    title: `${siteTitle} | Exclusive Digital Content`,
+    description: siteDescription,
+    images: [
+      {
+        url: "/candy-main.svg",
+        width: 512,
+        height: 512,
+        alt: "KandyDrops",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${siteTitle} | Exclusive Digital Content`,
+    description: siteDescription,
+    images: ["/candy-main.svg"],
+  },
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "KandyDrops",
+    title: siteTitle,
   },
   icons: {
+    icon: "/candy-main.svg",
     apple: "/candy-main.svg",
   },
 };

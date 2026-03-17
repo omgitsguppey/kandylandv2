@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
+import { readPreferredAuthenticatedPath } from "@/lib/navigation-persistence";
 import { Ban, LogOut } from "lucide-react";
 
 import { useRouter } from "next/navigation";
@@ -12,8 +13,10 @@ export default function BannedPage() {
 
     useEffect(() => {
         if (!loading && (!userProfile || (userProfile.status !== 'banned' && userProfile.status !== 'suspended'))) {
-            // If not banned/suspended, go home
-            router.push("/");
+            const nextPath = userProfile
+                ? readPreferredAuthenticatedPath(userProfile.role ?? "user")
+                : "/";
+            router.replace(nextPath);
         }
     }, [userProfile, loading, router]);
 
@@ -44,7 +47,7 @@ export default function BannedPage() {
                 )}
 
                 <button
-                    onClick={() => logout().then(() => router.push("/"))}
+                    onClick={() => logout().then(() => router.replace("/"))}
                     className="w-full py-4 rounded-xl bg-white text-black font-bold transition-colors flex items-center justify-center gap-2"
                 >
                     <LogOut className="w-5 h-5" />

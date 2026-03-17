@@ -1,6 +1,5 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/Button";
 import { CandyIcon } from "@/components/ui/Icon";
+import { LegalBackLink } from "@/components/Legal/LegalBackLink";
 
 export default function NotFound() {
     return (
@@ -16,11 +15,7 @@ export default function NotFound() {
                 Looks like this drop has melted away. The page you are looking for does not exist.
             </p>
 
-            <Link href="/">
-                <Button variant="brand" size="lg" className="rounded-full px-8">
-                    Return Home
-                </Button>
-            </Link>
+            <LegalBackLink variant="button" signedInLabel="Return to App" signedOutLabel="Return Home" />
         </div>
     );
 }

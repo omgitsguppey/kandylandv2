@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
+import { readPreferredAuthenticatedPath } from "@/lib/navigation-persistence";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 import Link from "next/link";
@@ -24,10 +25,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const isAuthorized = !!user && userProfile?.role === "admin";
 
   useEffect(() => {
-    if (!authLoading && !isAuthorized) {
-      router.push("/");
+    if (authLoading) {
+      return;
     }
-  }, [authLoading, isAuthorized, router]);
+
+    if (!user) {
+      router.replace("/");
+      return;
+    }
+
+    if (userProfile?.role && userProfile.role !== "admin") {
+      router.replace(readPreferredAuthenticatedPath(userProfile.role));
+    }
+  }, [authLoading, router, user, userProfile?.role]);
 
   if (authLoading || !isAuthorized) {
     return (

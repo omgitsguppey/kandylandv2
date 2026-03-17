@@ -18,7 +18,7 @@ import { normalizeUserProfile } from "@/lib/user-utils";
 import { useRouter, usePathname } from "next/navigation";
 import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
-import { clearLastVisitedPath, readLastVisitedPath, setNavigationAuthCookies } from "@/lib/navigation-persistence";
+import { clearLastVisitedPath, readPreferredAuthenticatedPath, setNavigationAuthCookies } from "@/lib/navigation-persistence";
 import { trackEvent } from "@/lib/telemetry";
 
 interface AuthIdentityContextType {
@@ -71,9 +71,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const router = useRouter();
     const pathname = usePathname();
 
-    const getPostAuthDestination = useCallback(() => {
-        const lastVisitedPath = readLastVisitedPath();
-        return lastVisitedPath || "/dashboard";
+    const getPostAuthDestination = useCallback((role?: UserProfile["role"] | null) => {
+        return readPreferredAuthenticatedPath(role ?? "user");
     }, []);
 
     useEffect(() => {
@@ -204,14 +203,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             toast.success("Welcome back!");
             if (pathname === "/") {
-                router.push(getPostAuthDestination());
+                router.push(getPostAuthDestination(userProfile?.role));
             }
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : "Login failed";
             toast.error(message);
             throw error;
         }
-    }, [getPostAuthDestination, pathname, router]);
+    }, [getPostAuthDestination, pathname, router, userProfile?.role]);
 
     const signInWithEmail = useCallback(async (email: string, pass: string) => {
         try {
@@ -221,12 +220,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             toast.success("Welcome back!");
             if (pathname === "/") {
-                router.push(getPostAuthDestination());
+                router.push(getPostAuthDestination(userProfile?.role));
             }
         } catch (error: unknown) {
             throw error;
         }
-    }, [getPostAuthDestination, pathname, router]);
+    }, [getPostAuthDestination, pathname, router, userProfile?.role]);
 
     const signUpWithEmail = useCallback(async (email: string, pass: string, username: string, dob: string) => {
         try {
@@ -253,7 +252,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             toast.success("Account created! +100 Gum Drops");
             if (pathname === "/") {
-                router.push(getPostAuthDestination());
+                router.push(getPostAuthDestination("user"));
             }
         } catch (error: unknown) {
             throw error;

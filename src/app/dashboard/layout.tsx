@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/context/AuthContext";
+import { readPreferredAuthenticatedPath } from "@/lib/navigation-persistence";
 
 const NotificationPromptBanner = dynamic(
     () => import("@/components/Dashboard/NotificationPromptBanner").then((mod) => mod.NotificationPromptBanner),
@@ -15,14 +16,23 @@ export default function DashboardLayout({
 }: {
     children: React.ReactNode;
 }) {
-    const { user, loading } = useAuth();
+    const { user, userProfile, loading } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
-        if (!loading && !user) {
-            router.push("/");
+        if (loading) {
+            return;
         }
-    }, [user, loading, router]);
+
+        if (!user) {
+            router.replace("/");
+            return;
+        }
+
+        if (userProfile?.role === "admin") {
+            router.replace(readPreferredAuthenticatedPath("admin"));
+        }
+    }, [loading, router, user, userProfile?.role]);
 
     if (loading || !user) {
         return (

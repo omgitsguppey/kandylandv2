@@ -1,5 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { ImageResponse } from "next/og";
+
+import { isDropActiveNow } from "@/lib/drop-status";
 import { getDropRaw } from "@/lib/server/drops";
 
 export const runtime = "nodejs"; // firebase-admin requires Node.js runtime
@@ -7,22 +9,34 @@ export const alt = "KandyDrops exclusive content preview";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
+function renderUnavailableImage() {
+    return new ImageResponse(
+        (
+            <div
+                style={{
+                    display: "flex",
+                    background: "#09090b",
+                    width: "100%",
+                    height: "100%",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                }}
+            >
+                <h1 style={{ color: "#b28cff", fontSize: 64, fontWeight: "bold" }}>KandyDrops</h1>
+                <p style={{ color: "#a1a1aa", fontSize: 32 }}>Exclusive content preview</p>
+            </div>
+        ),
+        { ...size }
+    );
+}
+
 export default async function Image({ params }: { params: { id: string } }) {
     try {
         const drop = await getDropRaw(params.id);
 
-        if (!drop) {
-            return new ImageResponse(
-                (
-                    <div style={{
-                        display: "flex", background: "#09090b", width: "100%", height: "100%", flexDirection: "column", alignItems: "center", justifyContent: "center"
-                    }}>
-                        <h1 style={{ color: "#b28cff", fontSize: 64, fontWeight: "bold" }}>Drop Not Found</h1>
-                        <p style={{ color: "#a1a1aa", fontSize: 32 }}>KandyDrops</p>
-                    </div>
-                ),
-                { ...size }
-            );
+        if (!drop || !isDropActiveNow(drop)) {
+            return renderUnavailableImage();
         }
 
         // Return the custom OG Image card

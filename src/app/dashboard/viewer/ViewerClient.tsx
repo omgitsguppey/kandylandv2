@@ -743,7 +743,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     // Redirect if not logged in (once auth is ready)
     useEffect(() => {
         if (!authLoading && !user) {
-            router.push("/");
+            router.replace("/drops");
         }
     }, [authLoading, user, router]);
 
