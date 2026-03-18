@@ -82,10 +82,11 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });
         }
 
-        const [usersSnapshot, dropsSnapshot, recentTransactionsSnapshot, purchaseTransactionsSnapshot, unlockTransactionsSnapshot] = await Promise.all([
+        const [usersSnapshot, dropsSnapshot, recentTransactionsSnapshot, adminActivitySnapshot, purchaseTransactionsSnapshot, unlockTransactionsSnapshot] = await Promise.all([
             adminDb.collection("users").get(),
             adminDb.collection("drops").get(),
             adminDb.collection("transactions").orderBy("timestamp", "desc").limit(250).get(),
+            adminDb.collection("transactions").where("type", "==", "admin_adjustment").orderBy("timestamp", "desc").limit(10).get(),
             adminDb.collection("transactions").where("type", "in", ["purchase_currency", "purchase"]).get(),
             adminDb.collection("transactions").where("type", "==", "unlock_content").get(),
         ]);
@@ -138,9 +139,14 @@ export async function GET(request: NextRequest) {
             .slice(0, 20)
             .map((transaction) => serializeRecentTransaction(transaction, userNameMap.get(transaction.userId)));
 
-        const adminActivity = recentTransactionsSource
-            .filter((transaction) => transaction.type === "admin_adjustment")
-            .slice(0, 10)
+        const adminActivity = adminActivitySnapshot.docs
+            .flatMap((doc) => {
+                try {
+                    return [normalizeTransactionRecord(doc.data(), doc.id)];
+                } catch {
+                    return [];
+                }
+            })
             .map((transaction) => serializeRecentTransaction(transaction, userNameMap.get(transaction.userId)));
 
         const topDrops = [...drops]

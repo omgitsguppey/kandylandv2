@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { LayoutDashboard, Package, Users, Terminal, LogOut, ShieldCheck } from "lucide-react";
+import { House, LayoutDashboard, Package, TrendingUp, Users, Terminal, LogOut, ShieldCheck } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -29,7 +29,9 @@ export function AdminDropdown() {
     if (!isAdmin) return null;
 
     const navItems = [
+        { label: "Home", href: "/", icon: House },
         { label: "Overview", href: "/admin", icon: LayoutDashboard },
+        { label: "Analytics", href: "/admin/analytics", icon: TrendingUp },
         { label: "Drops", href: "/admin/drops", icon: Package },
         { label: "Users", href: "/admin/users", icon: Users },
         { label: "Debug Console", href: "/admin/debug", icon: Terminal },

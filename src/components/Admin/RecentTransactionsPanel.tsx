@@ -1,10 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
-import { useAdminOverview } from "@/hooks/useAdminOverview";
+import { collection, doc, getDoc, limit, onSnapshot, orderBy, query } from "firebase/firestore";
+
+import { useAdminOverview, type AdminOverviewResponse } from "@/hooks/useAdminOverview";
+import { db } from "@/lib/firebase-data";
+import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 
 const INITIAL_TRANSACTIONS_NOW = Date.now();
+type AdminTransaction = AdminOverviewResponse["recentTransactions"][number];
+
+function resolveUserLabel(raw: Record<string, unknown>, uid: string) {
+    if (typeof raw.username === "string" && raw.username.trim().length > 0) {
+        return raw.username.trim();
+    }
+
+    if (typeof raw.displayName === "string" && raw.displayName.trim().length > 0) {
+        return raw.displayName.trim();
+    }
+
+    return uid;
+}
 
 /**
  * Displays the 20 most recent transactions with a real-time listener.
@@ -13,7 +30,37 @@ const INITIAL_TRANSACTIONS_NOW = Date.now();
 export function RecentTransactionsPanel() {
     const { data } = useAdminOverview();
     const [nowMs, setNowMs] = useState(INITIAL_TRANSACTIONS_NOW);
-    const transactions = data?.recentTransactions || [];
+    const [liveTransactions, setLiveTransactions] = useState<AdminTransaction[] | null>(null);
+    const [usernameMap, setUsernameMap] = useState<Record<string, string>>({});
+    const usernameMapRef = useRef<Record<string, string>>({});
+
+    const transactionsSource = liveTransactions ?? data?.recentTransactions ?? [];
+    const transactions = transactionsSource.map((tx) => ({
+        ...tx,
+        username: tx.username || usernameMap[tx.userId],
+    }));
+
+    useEffect(() => {
+        if (!data?.recentTransactions?.length) {
+            return;
+        }
+
+        const seededEntries = Object.fromEntries(
+            data.recentTransactions
+                .filter((tx) => typeof tx.username === "string" && tx.username.trim().length > 0)
+                .map((tx) => [tx.userId, tx.username!.trim()]),
+        );
+
+        if (Object.keys(seededEntries).length === 0) {
+            return;
+        }
+
+        setUsernameMap((current) => {
+            const next = { ...current, ...seededEntries };
+            usernameMapRef.current = next;
+            return next;
+        });
+    }, [data?.recentTransactions]);
 
     useEffect(() => {
         const interval = window.setInterval(() => {
@@ -21,6 +68,72 @@ export function RecentTransactionsPanel() {
         }, 60_000);
 
         return () => window.clearInterval(interval);
+    }, []);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        const hydrateUsernames = async (userIds: string[]) => {
+            const uniqueUserIds = [...new Set(userIds)].filter((uid) => uid && !usernameMapRef.current[uid]);
+            if (uniqueUserIds.length === 0) {
+                return;
+            }
+
+            const resolvedEntries = await Promise.all(uniqueUserIds.map(async (uid) => {
+                try {
+                    const snapshot = await getDoc(doc(db, "users", uid));
+                    if (!snapshot.exists()) {
+                        return [uid, uid] as const;
+                    }
+
+                    return [uid, resolveUserLabel(snapshot.data() as Record<string, unknown>, uid)] as const;
+                } catch {
+                    return [uid, uid] as const;
+                }
+            }));
+
+            if (cancelled) {
+                return;
+            }
+
+            setUsernameMap((current) => {
+                const next = { ...current };
+                resolvedEntries.forEach(([uid, label]) => {
+                    next[uid] = label;
+                });
+                usernameMapRef.current = next;
+                return next;
+            });
+        };
+
+        const recentTransactionsQuery = query(
+            collection(db, "transactions"),
+            orderBy("timestamp", "desc"),
+            limit(20),
+        );
+
+        const unsubscribe = onSnapshot(recentTransactionsQuery, (snapshot) => {
+            const normalizedTransactions = snapshot.docs.flatMap((txDoc) => {
+                try {
+                    return [normalizeTransactionRecord(txDoc.data(), txDoc.id)];
+                } catch {
+                    return [];
+                }
+            }).map((tx) => ({
+                ...tx,
+                username: usernameMapRef.current[tx.userId],
+            }));
+
+            setLiveTransactions(normalizedTransactions);
+            void hydrateUsernames(normalizedTransactions.map((tx) => tx.userId));
+        }, () => {
+            setLiveTransactions(null);
+        });
+
+        return () => {
+            cancelled = true;
+            unsubscribe();
+        };
     }, []);
 
     return (

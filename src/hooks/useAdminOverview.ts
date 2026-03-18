@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
 import { useAuthSWR } from "@/hooks/useAuthSWR";
+import { CLIENT_RUNTIME_EVENTS } from "@/hooks/client-runtime";
 import type { Drop, Transaction } from "@/types/db";
 
 export interface AdminOverviewResponse {
@@ -24,8 +26,24 @@ export interface AdminOverviewResponse {
 }
 
 export function useAdminOverview() {
-    return useAuthSWR<AdminOverviewResponse>("/api/admin/overview", {
+    const swr = useAuthSWR<AdminOverviewResponse>("/api/admin/overview", {
         refreshInterval: 30_000,
         revalidateOnFocus: true,
     });
+    const { mutate } = swr;
+
+    useEffect(() => {
+        if (typeof window === "undefined") {
+            return;
+        }
+
+        const handleSync = () => {
+            void mutate();
+        };
+
+        window.addEventListener(CLIENT_RUNTIME_EVENTS.adminOverviewSync, handleSync);
+        return () => window.removeEventListener(CLIENT_RUNTIME_EVENTS.adminOverviewSync, handleSync);
+    }, [mutate]);
+
+    return swr;
 }

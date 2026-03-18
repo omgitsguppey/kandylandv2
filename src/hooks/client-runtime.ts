@@ -8,6 +8,7 @@ export const CLIENT_RUNTIME_STORAGE_KEYS = {
 export const CLIENT_RUNTIME_EVENTS = {
     notificationsSync: "kandydrops:notifications-sync",
     openNotifications: "kandydrops:open-notifications",
+    adminOverviewSync: "kandydrops:admin-overview-sync",
 } as const;
 
 export function buildOnboardingCompletionStorageKey(uid: string) {

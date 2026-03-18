@@ -29,7 +29,10 @@ export async function adjustUserBalance(userId: string, amount: number, reason: 
             return { success: false, error: result.error || "Balance adjustment failed" };
         }
 
-        return { success: true, newBalance: undefined as number | undefined };
+        return {
+            success: true,
+            newBalance: typeof result.balanceAfter === "number" ? result.balanceAfter : undefined,
+        };
     } catch (error: any) {
         console.error("Balance Adjustment Error:", error);
         return { success: false, error: error.message };
