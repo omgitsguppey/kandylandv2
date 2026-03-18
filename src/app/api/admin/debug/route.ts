@@ -7,6 +7,7 @@ import { BUILT_IN_DAILY_TASKS, DAILY_TASK_LIMIT, type DailyTaskAssignment } from
 import { CANONICAL_TASK_EVENT_NAMES } from "@/lib/server/daily-tasks";
 import { TELEMETRY_EVENT_LABELS, TELEMETRY_EVENT_NAMES } from "@/lib/telemetry-catalog";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { buildAdminOpsHealth } from "@/lib/server/admin-ops-health";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -79,6 +80,7 @@ export async function GET(request: NextRequest) {
 
         const nowMs = Date.now();
         const weekAgoMs = nowMs - ONE_WEEK_MS;
+        const weekAgoDayKey = new Date(weekAgoMs).toISOString().slice(0, 10);
 
         const [
             usersSnapshot,
@@ -88,6 +90,11 @@ export async function GET(request: NextRequest) {
             transactionsSnapshot,
             taskRollupSnapshot,
             taskDailySnapshot,
+            serverDiagnosticsSnapshot,
+            pipelineHealthSnapshot,
+            guestBatchesSnapshot,
+            securityEventsSnapshot,
+            commerceSummarySnapshot,
         ] = await Promise.all([
             adminDb.collection("users").get(),
             adminDb.collection("daily_task_events").orderBy("timestamp", "desc").limit(300).get(),
@@ -96,7 +103,37 @@ export async function GET(request: NextRequest) {
             adminDb.collection("transactions").orderBy("timestamp", "desc").limit(600).get(),
             adminDb.collection("analytics_task_rollup").get(),
             adminDb.collection("analytics_task_daily").orderBy("lastEventAt", "desc").limit(30).get(),
+            adminDb.collection("server_diagnostics")
+                .where("createdAtMs", ">=", weekAgoMs)
+                .orderBy("createdAtMs", "desc")
+                .limit(120)
+                .get(),
+            adminDb.collection("analytics_pipeline_daily")
+                .where("dayKey", ">=", weekAgoDayKey)
+                .get(),
+            adminDb.collection("analytics_guest_batches")
+                .where("receivedAtMs", ">=", weekAgoMs)
+                .orderBy("receivedAtMs", "desc")
+                .limit(80)
+                .get(),
+            adminDb.collection("security_events")
+                .where("timestamp", ">=", weekAgoMs)
+                .orderBy("timestamp", "desc")
+                .limit(80)
+                .get(),
+            adminDb.collection("analytics_commerce_rollup").doc("summary").get(),
         ]);
+
+        const opsHealth = buildAdminOpsHealth({
+            nowMs,
+            diagnosticsDocs: serverDiagnosticsSnapshot.docs,
+            pipelineDocs: pipelineHealthSnapshot.docs,
+            eventStatsDocs: eventStatsSnapshot.docs,
+            taskRollupDocs: taskRollupSnapshot.docs,
+            guestBatchDocs: guestBatchesSnapshot.docs,
+            securityEventDocs: securityEventsSnapshot.docs,
+            commerceSummaryDoc: commerceSummarySnapshot,
+        });
 
         const coverage = BUILT_IN_DAILY_TASKS.map((task) => ({
             taskId: task.id,
@@ -342,6 +379,7 @@ export async function GET(request: NextRequest) {
             orphanedEventStats,
             taskRollups: taskRollups.slice(0, 30),
             dailyTaskSeries,
+            opsHealth,
         });
     } catch (error) {
         return handleApiError(error, "Admin.Debug.GET");

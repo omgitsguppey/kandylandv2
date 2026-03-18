@@ -11,6 +11,7 @@ import {
   ChevronDown,
   ChevronUp,
   Clock3,
+  Database,
   DollarSign,
   Eye,
   FileText,
@@ -50,6 +51,7 @@ import { cn } from "@/lib/utils";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
 import { humanizeAnalyticsKey, resolveRawInteractionLabel } from "@/lib/analytics-semantics";
+import type { AdminOpsHealth, AdminOpsHealthSeverity, AdminOpsHealthStatus } from "@/lib/admin-ops-health";
 
 type ViewTab = "operations" | "audience" | "commerce" | "security";
 type RangeOption = "24h" | "7d" | "30d" | "all";
@@ -426,6 +428,7 @@ interface HistoricalAnalyticsResponse {
   unhealthyModules?: ModuleCoverageItem[];
   parityScore?: number;
   validations?: ValidationItem[];
+  opsHealth?: AdminOpsHealth;
 }
 
 interface RealtimeAnalyticsResponse {
@@ -488,6 +491,37 @@ const EVENT_LABELS: Record<string, string> = TELEMETRY_EVENT_LABELS;
 const PIE_COLORS = ["#b28cff", "#7c3aed", "#22d3ee", "#f472b6", "#34d399", "#f59e0b"];
 
 const INITIAL_ANALYTICS_NOW = Date.now();
+const EMPTY_OPS_HEALTH: AdminOpsHealth = {
+  score: 0,
+  runtime: {
+    gaPropertyConfigured: false,
+    appCheckConfigured: false,
+    appCheckRequired: false,
+    recaptchaConfigured: false,
+    vapidConfigured: false,
+    databaseUrlConfigured: false,
+    projectId: "",
+    navigationSessionSigningReady: false,
+    warnings: [],
+  },
+  diagnostics: {
+    total: 0,
+    errorCount: 0,
+    warnCount: 0,
+    infoCount: 0,
+    lastDiagnosticAt: 0,
+    channels: [],
+    recent: [],
+  },
+  pipeline: {
+    failureCount: 0,
+    lastFailureAt: 0,
+    lastRouteName: "",
+    lastErrorMessage: "",
+    routes: [],
+  },
+  materializers: [],
+};
 
 function AnalyticsTooltip({ active, payload, label, valueFormatter }: AnalyticsTooltipProps) {
   if (!active || !payload?.length) return null;
@@ -638,6 +672,11 @@ function formatRelativeTime(timestamp: number, nowMs: number): string {
   return `${days}d ago`;
 }
 
+function formatDateTime(timestamp: number): string {
+  if (!timestamp) return "Never";
+  return new Date(timestamp).toLocaleString();
+}
+
 function getValidationClasses(status: ValidationItem["status"]) {
   if (status === "pass") {
     return "border-emerald-400/20 bg-emerald-400/10 text-emerald-200";
@@ -672,6 +711,30 @@ function getMetricStatusClasses(status: SocialMetricItem["status"]) {
   }
 
   return "border-amber-400/20 bg-amber-400/10 text-amber-200";
+}
+
+function getOpsHealthClasses(status: AdminOpsHealthStatus) {
+  if (status === "healthy") {
+    return "border-emerald-400/20 bg-emerald-400/10 text-emerald-200";
+  }
+
+  if (status === "fail") {
+    return "border-red-500/20 bg-red-500/10 text-red-200";
+  }
+
+  return "border-amber-400/20 bg-amber-400/10 text-amber-200";
+}
+
+function getSeverityClasses(severity: AdminOpsHealthSeverity) {
+  if (severity === "error") {
+    return "border-red-500/20 bg-red-500/10 text-red-200";
+  }
+
+  if (severity === "warn") {
+    return "border-amber-400/20 bg-amber-400/10 text-amber-200";
+  }
+
+  return "border-cyan-400/20 bg-cyan-400/10 text-cyan-200";
 }
 
 function describeEvent(event: RawEventItem): string {
@@ -846,6 +909,7 @@ export default function AdminAnalyticsPage() {
   const unhealthyModules = historicalResponse?.unhealthyModules ?? [];
   const parityScore = historicalResponse?.parityScore ?? 0;
   const validations = historicalResponse?.validations ?? [];
+  const opsHealth = historicalResponse?.opsHealth ?? EMPTY_OPS_HEALTH;
 
   const needsSetup =
     liveResponse?.requiresSetup ||
@@ -863,6 +927,8 @@ export default function AdminAnalyticsPage() {
   const healthyModuleCount = moduleCoverage.filter((item) => item.status === "healthy").length;
   const partialModuleCount = moduleCoverage.filter((item) => item.status === "partial").length;
   const emptyModuleCount = moduleCoverage.filter((item) => item.status === "empty").length;
+  const healthyMaterializerCount = opsHealth.materializers.filter((item) => item.status === "healthy").length;
+  const unhealthyMaterializerCount = opsHealth.materializers.filter((item) => item.status !== "healthy").length;
 
   const topEvents = eventBreakdown.slice(0, 8).map((entry) => ({
     ...entry,
@@ -1111,7 +1177,7 @@ export default function AdminAnalyticsPage() {
                 <CompactPreviewList
                   items={authBreakdown.slice(0, 4).map((item) => ({
                     label: item.method,
-                    value: `${item.successes} success • ${formatPercent(item.successRate)}`,
+                    value: `${item.successes} success | ${formatPercent(item.successRate)}`,
                     tone: item.successRate >= 0.5 ? "accent" : "default",
                   }))}
                 />
@@ -1149,7 +1215,7 @@ export default function AdminAnalyticsPage() {
                             <span className="text-sm font-bold text-brand-purple">{formatPercent(item.successRate)}</span>
                           </div>
                           <p className="text-xs text-gray-500">
-                            {item.successes.toLocaleString()} success · {item.failures.toLocaleString()} failed · {formatDuration(item.avgDurationMs / 1000)}
+                            {item.successes.toLocaleString()} success | {item.failures.toLocaleString()} failed | {formatDuration(item.avgDurationMs / 1000)}
                           </p>
                         </div>
                       ))
@@ -1256,7 +1322,7 @@ export default function AdminAnalyticsPage() {
                 <CompactPreviewList
                   items={rawEvents.slice(0, 4).map((event) => ({
                     label: event.type,
-                    value: `${(event.username || "Guest").trim()} • ${formatRelativeTime(event.timestamp, nowMs)}`,
+                    value: `${(event.username || "Guest").trim()} | ${formatRelativeTime(event.timestamp, nowMs)}`,
                   }))}
                   columns={1}
                 />
@@ -1285,6 +1351,164 @@ export default function AdminAnalyticsPage() {
                 </div>
               </SectionCard>
             </div>
+
+            <SectionCard
+              title="Server Telemetry Health"
+              subtitle="Shared backend runtime, diagnostics, and function-fed materializers so the dashboard stays grounded in the same server-side truth as the debug console."
+              icon={Monitor}
+              collapsedPreview={(
+                <CompactPreviewList
+                  items={[
+                    { label: "Health", value: `${opsHealth.score}%`, tone: "accent" },
+                    { label: "Failures", value: opsHealth.pipeline.failureCount.toLocaleString() },
+                    { label: "Diagnostics", value: opsHealth.diagnostics.errorCount.toLocaleString() },
+                    { label: "Warn/fail", value: unhealthyMaterializerCount.toLocaleString() },
+                  ]}
+                />
+              )}
+            >
+              <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                <MetricCard label="Health score" value={`${opsHealth.score}%`} hint="Runtime + pipeline + materializer confidence" icon={CheckCircle2} />
+                <MetricCard label="Materializers" value={healthyMaterializerCount.toLocaleString()} hint={`${unhealthyMaterializerCount.toLocaleString()} warn/fail in current window`} icon={Database} />
+                <MetricCard label="Pipeline failures" value={opsHealth.pipeline.failureCount.toLocaleString()} hint={opsHealth.pipeline.lastFailureAt ? formatRelativeTime(opsHealth.pipeline.lastFailureAt, nowMs) : "No recent failures"} icon={AlertTriangle} />
+                <MetricCard label="Diagnostics" value={opsHealth.diagnostics.total.toLocaleString()} hint={`${opsHealth.diagnostics.errorCount.toLocaleString()} errors | ${opsHealth.diagnostics.warnCount.toLocaleString()} warnings`} icon={BellRing} />
+              </div>
+
+              <div className="mt-5 grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
+                <div className="space-y-4">
+                  <div className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
+                    <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Runtime readiness</p>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {[
+                        { label: "GA property", ready: opsHealth.runtime.gaPropertyConfigured },
+                        { label: "Navigation session", ready: opsHealth.runtime.navigationSessionSigningReady },
+                        { label: "App Check", ready: opsHealth.runtime.appCheckConfigured || !opsHealth.runtime.appCheckRequired },
+                        { label: "Realtime DB", ready: opsHealth.runtime.databaseUrlConfigured },
+                        { label: "VAPID", ready: opsHealth.runtime.vapidConfigured },
+                        { label: "reCAPTCHA", ready: opsHealth.runtime.recaptchaConfigured || !opsHealth.runtime.appCheckRequired },
+                      ].map((item) => (
+                        <div key={item.label} className="rounded-[1rem] border border-white/10 bg-black/20 px-3 py-3">
+                          <div className="flex items-center justify-between gap-3">
+                            <p className="text-sm font-semibold text-white">{item.label}</p>
+                            <span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em]", item.ready ? getOpsHealthClasses("healthy") : getOpsHealthClasses("warn"))}>
+                              {item.ready ? "Ready" : "Check"}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mt-4 rounded-[1rem] border border-white/10 bg-black/20 px-3 py-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Project</p>
+                      <p className="mt-1 text-sm font-semibold text-white">{opsHealth.runtime.projectId || "Unknown project"}</p>
+                    </div>
+
+                    {opsHealth.runtime.warnings.length > 0 ? (
+                      <div className="mt-4 space-y-2">
+                        {opsHealth.runtime.warnings.map((warning) => (
+                          <div key={warning} className="rounded-[1rem] border border-amber-400/20 bg-amber-400/10 px-3 py-3 text-xs leading-6 text-amber-100">
+                            {warning}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="mt-4 rounded-[1rem] border border-emerald-400/20 bg-emerald-400/10 px-3 py-3 text-xs leading-6 text-emerald-200">
+                        Runtime configuration is aligned for telemetry, functions, and admin diagnostics.
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Pipeline routes</p>
+                      <span className={cn("rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em]", opsHealth.pipeline.failureCount > 0 ? getOpsHealthClasses("warn") : getOpsHealthClasses("healthy"))}>
+                        {opsHealth.pipeline.failureCount > 0 ? "Attention" : "Healthy"}
+                      </span>
+                    </div>
+                    {opsHealth.pipeline.lastRouteName ? (
+                      <div className="mb-3 rounded-[1rem] border border-white/10 bg-black/20 px-3 py-3">
+                        <p className="text-sm font-semibold text-white">{opsHealth.pipeline.lastRouteName}</p>
+                        <p className="mt-1 text-xs leading-6 text-gray-400">{opsHealth.pipeline.lastErrorMessage || "Latest recorded route failure."}</p>
+                        <p className="mt-2 text-[11px] text-gray-500">{formatDateTime(opsHealth.pipeline.lastFailureAt)}</p>
+                      </div>
+                    ) : null}
+                    <div className="space-y-2">
+                      {opsHealth.pipeline.routes.length > 0 ? opsHealth.pipeline.routes.map((route) => (
+                        <div key={route.routeKey} className="flex items-center justify-between gap-3 rounded-[1rem] border border-white/10 bg-black/20 px-3 py-3">
+                          <p className="text-sm font-semibold text-white">{route.label}</p>
+                          <span className="text-sm font-semibold text-brand-purple">{route.count.toLocaleString()}</span>
+                        </div>
+                      )) : (
+                        <div className="rounded-[1rem] border border-emerald-400/20 bg-emerald-400/10 px-3 py-3 text-xs leading-6 text-emerald-200">
+                          No pipeline failures recorded for this selected range.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
+                    <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Function-fed materializers</p>
+                    <div className="grid gap-2">
+                      {opsHealth.materializers.map((item) => (
+                        <div key={item.key} className="rounded-[1rem] border border-white/10 bg-black/20 px-3 py-3">
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <p className="text-sm font-semibold text-white">{item.label}</p>
+                              <p className="mt-1 text-xs leading-6 text-gray-400">{item.detail}</p>
+                            </div>
+                            <span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em]", getOpsHealthClasses(item.status))}>
+                              {item.status}
+                            </span>
+                          </div>
+                          <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-gray-400">
+                            <span className="rounded-full border border-white/10 bg-black/25 px-2.5 py-1">
+                              {humanizeAnalyticsKey(item.engine)}
+                            </span>
+                            <span className="rounded-full border border-white/10 bg-black/25 px-2.5 py-1">
+                              {item.count.toLocaleString()} records
+                            </span>
+                            <span className="rounded-full border border-white/10 bg-black/25 px-2.5 py-1">
+                              {item.lastSeenAt ? formatRelativeTime(item.lastSeenAt, nowMs) : "No recent activity"}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
+                    <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Recent diagnostics</p>
+                    <div className="space-y-2">
+                      {opsHealth.diagnostics.recent.length > 0 ? opsHealth.diagnostics.recent.map((entry) => (
+                        <div key={entry.id} className="rounded-[1rem] border border-white/10 bg-black/20 px-3 py-3">
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em]", getSeverityClasses(entry.severity))}>
+                                  {entry.severity}
+                                </span>
+                                <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
+                                  {entry.channel}
+                                </span>
+                              </div>
+                              <p className="mt-2 text-sm font-semibold text-white">{entry.message}</p>
+                              {entry.detailPreview ? <p className="mt-1 text-xs leading-6 text-gray-400">{entry.detailPreview}</p> : null}
+                            </div>
+                            <span className="text-[11px] text-gray-500">{formatRelativeTime(entry.timestamp, nowMs)}</span>
+                          </div>
+                        </div>
+                      )) : (
+                        <div className="rounded-[1rem] border border-emerald-400/20 bg-emerald-400/10 px-3 py-3 text-xs leading-6 text-emerald-200">
+                          No recent diagnostics were recorded for this range.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </SectionCard>
 
             <SectionCard
               title="Coverage Engine"
@@ -1372,7 +1596,7 @@ export default function AdminAnalyticsPage() {
                   <CompactPreviewList
                     items={semanticCategoryCards.map((item) => ({
                       label: item.label,
-                      value: `${item.viewCount} views • ${item.clickCount} clicks`,
+                    value: `${item.viewCount} views | ${item.clickCount} clicks`,
                     }))}
                   />
                 )}
@@ -1682,7 +1906,7 @@ export default function AdminAnalyticsPage() {
             <div className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
               <SectionCard title="Device Mix" subtitle="Mobile is the admin priority, so device share and engagement stay visible as first-class metrics." icon={Smartphone} collapsedPreview={(
                 <CompactPreviewList
-                  items={devices.slice(0, 4).map((item) => ({ label: item.device, value: `${item.users} users • ${formatPercent(item.engagementRate)}` }))}
+                  items={devices.slice(0, 4).map((item) => ({ label: item.device, value: `${item.users} users | ${formatPercent(item.engagementRate)}` }))}
                 />
               )}>
                 <div className="space-y-3">
@@ -1723,7 +1947,7 @@ export default function AdminAnalyticsPage() {
 
               <SectionCard title="Top Paths" subtitle="What mobile admins should watch first: where people are actually spending time." icon={FileText} collapsedPreview={(
                 <CompactPreviewList
-                  items={pages.slice(0, 4).map((item) => ({ label: item.path, value: `${formatCompactNumber(item.views)} views • ${formatDuration(item.avgTime)}` }))}
+                  items={pages.slice(0, 4).map((item) => ({ label: item.path, value: `${formatCompactNumber(item.views)} views | ${formatDuration(item.avgTime)}` }))}
                   columns={1}
                 />
               )}>
@@ -1735,7 +1959,7 @@ export default function AdminAnalyticsPage() {
                           <div className="min-w-0">
                             <p className="truncate text-sm font-semibold text-white">{page.path || "/"}</p>
                             <p className="mt-1 text-xs text-gray-500">
-                              {page.views.toLocaleString()} views · {formatDuration(page.avgTime)} avg time
+                            {page.views.toLocaleString()} views | {formatDuration(page.avgTime)} avg time
                             </p>
                           </div>
                           <span className="shrink-0 rounded-full bg-white/5 px-2.5 py-1 text-xs font-semibold text-brand-purple">
@@ -1823,7 +2047,7 @@ export default function AdminAnalyticsPage() {
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
               <SectionCard title="Package Performance" subtitle="Which Gum Drop packs are getting checkout intent, completions, and drop-off." icon={Wallet} collapsedPreview={(
                 <CompactPreviewList
-                  items={packagePerformance.slice(0, 4).map((item) => ({ label: item.label, value: `${item.purchases} buys • ${formatPercent(item.conversionRate)}` }))}
+                  items={packagePerformance.slice(0, 4).map((item) => ({ label: item.label, value: `${item.purchases} buys | ${formatPercent(item.conversionRate)}` }))}
                 />
               )}>
                 <div className="h-64 w-full">
@@ -1845,12 +2069,12 @@ export default function AdminAnalyticsPage() {
                       <div className="mb-2 flex items-center justify-between gap-3">
                         <div>
                           <p className="text-sm font-semibold text-white">{item.label}</p>
-                          <p className="text-xs text-gray-500">{item.starts.toLocaleString()} checkouts · {item.purchases.toLocaleString()} purchases</p>
+                            <p className="text-xs text-gray-500">{item.starts.toLocaleString()} checkouts | {item.purchases.toLocaleString()} purchases</p>
                         </div>
                         <span className="text-sm font-bold text-brand-purple">{formatPercent(item.conversionRate)}</span>
                       </div>
                       <p className="text-xs leading-6 text-gray-400">
-                        {formatMoney(item.revenueUsd)} revenue · {formatPercent(item.abandonmentRate)} abandonment
+                            {formatMoney(item.revenueUsd)} revenue | {formatPercent(item.abandonmentRate)} abandonment
                       </p>
                     </div>
                   ))}
@@ -1859,7 +2083,7 @@ export default function AdminAnalyticsPage() {
 
               <SectionCard title="Content Conversion" subtitle="Which content types are previewed most and which actually get unwrapped." icon={Candy} collapsedPreview={(
                 <CompactPreviewList
-                  items={unlockCategoryMix.slice(0, 4).map((item) => ({ label: item.label, value: `${item.unlocks} unlocks • ${formatPercent(item.unlockRate)}` }))}
+                  items={unlockCategoryMix.slice(0, 4).map((item) => ({ label: item.label, value: `${item.unlocks} unlocks | ${formatPercent(item.unlockRate)}` }))}
                 />
               )}>
                 <div className="grid gap-4 lg:grid-cols-[1.08fr_0.92fr]">
@@ -1883,7 +2107,7 @@ export default function AdminAnalyticsPage() {
                           <p className="text-sm font-semibold capitalize text-white">{item.label}</p>
                           <span className="text-sm font-bold text-brand-purple">{formatPercent(item.unlockRate)}</span>
                         </div>
-                        <p className="text-xs text-gray-500">{item.previews.toLocaleString()} previews · {item.unlocks.toLocaleString()} unwraps</p>
+                          <p className="text-xs text-gray-500">{item.previews.toLocaleString()} previews | {item.unlocks.toLocaleString()} unwraps</p>
                       </div>
                     ))}
                   </div>
@@ -1894,7 +2118,7 @@ export default function AdminAnalyticsPage() {
             <div className="grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
               <SectionCard title="Top Drop Conversion" subtitle="Unlocked drops with enough demand to matter, surfaced as a compact mobile chart and list." icon={ShoppingBag} collapsedPreview={(
                 <CompactPreviewList
-                  items={topDrops.slice(0, 4).map((item) => ({ label: item.dropTitle, value: `${item.unlocks} unlocks • ${item.views} views` }))}
+                  items={topDrops.slice(0, 4).map((item) => ({ label: item.dropTitle, value: `${item.unlocks} unlocks | ${item.views} views` }))}
                   columns={1}
                 />
               )}>
@@ -1929,7 +2153,7 @@ export default function AdminAnalyticsPage() {
                             <p className="truncate text-sm font-semibold text-white">{drop.dropTitle}</p>
                             <p className="mt-1 text-[11px] text-gray-500">{drop.dropId}</p>
                             <p className="mt-1 text-xs text-gray-500">
-                              {drop.views.toLocaleString()} views · {drop.unlocks.toLocaleString()} unlocks
+                            {drop.views.toLocaleString()} views | {drop.unlocks.toLocaleString()} unlocks
                             </p>
                           </div>
                           <span className="shrink-0 text-sm font-bold text-brand-purple">{formatPercent(rate)}</span>
@@ -1945,7 +2169,7 @@ export default function AdminAnalyticsPage() {
 
               <SectionCard title="Recent Commerce Feed" subtitle="Recent transactions condensed into mobile cards so admins can skim activity without horizontal scrolling." icon={Wallet} collapsedPreview={(
                 <CompactPreviewList
-                  items={(commerce.feed ?? []).slice(0, 4).map((item) => ({ label: item.username || item.type || "Entry", value: `${item.description || "Transaction"} • ${formatRelativeTime(item.timestamp || 0, nowMs)}` }))}
+                  items={(commerce.feed ?? []).slice(0, 4).map((item) => ({ label: item.username || item.type || "Entry", value: `${item.description || "Transaction"} | ${formatRelativeTime(item.timestamp || 0, nowMs)}` }))}
                   columns={1}
                 />
               )}>
@@ -1964,7 +2188,7 @@ export default function AdminAnalyticsPage() {
                           <div className="min-w-0 flex-1">
                             <p className="truncate text-sm font-semibold text-white">{item.description || item.type || "Transaction"}</p>
                             <p className="mt-1 text-xs text-gray-500">
-                              {item.username ? `@${item.username}` : "Unknown user"} · {item.timestamp ? formatRelativeTime(item.timestamp, nowMs) : "Just now"}
+                            {item.username ? `@${item.username}` : "Unknown user"} | {item.timestamp ? formatRelativeTime(item.timestamp, nowMs) : "Just now"}
                             </p>
                           </div>
                           <div className="text-right">
@@ -2076,7 +2300,7 @@ export default function AdminAnalyticsPage() {
                     <MetricCard label="Unique Viewers" value={formatCompactNumber(viewerOverview.uniqueViewerCount)} hint="Distinct collectors in filter" icon={Users} />
                     <MetricCard label="Watch Time" value={formatDuration(viewerOverview.totalWatchSeconds)} hint={`${formatDuration(viewerOverview.avgWatchSeconds)} avg watch`} icon={Clock3} />
                     <MetricCard label="Load Speed" value={viewerOverview.avgLoadMs > 0 ? `${viewerOverview.avgLoadMs}ms` : "n/a"} hint="Average secure asset load" icon={Activity} />
-                    <MetricCard label="Completion" value={formatPercent(viewerOverview.assetCompletionRate)} hint={`${viewerOverview.downloads.toLocaleString()} downloads · ${viewerOverview.relatedClicks.toLocaleString()} next clicks`} icon={CheckCircle2} />
+                    <MetricCard label="Completion" value={formatPercent(viewerOverview.assetCompletionRate)} hint={`${viewerOverview.downloads.toLocaleString()} downloads | ${viewerOverview.relatedClicks.toLocaleString()} next clicks`} icon={CheckCircle2} />
                   </div>
 
                   <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
@@ -2120,7 +2344,7 @@ export default function AdminAnalyticsPage() {
                             <div className="min-w-0">
                               <p className="truncate text-sm font-semibold text-white">{item.dropTitle}</p>
                               <p className="mt-1 text-xs text-gray-500">
-                                {item.sessionCount.toLocaleString()} sessions · {item.uniqueViewerCount.toLocaleString()} viewers
+                            {item.sessionCount.toLocaleString()} sessions | {item.uniqueViewerCount.toLocaleString()} viewers
                               </p>
                             </div>
                             <span className="shrink-0 rounded-full border border-brand-purple/25 bg-brand-purple/12 px-3 py-1 text-[11px] font-semibold text-brand-purple">
@@ -2190,7 +2414,7 @@ export default function AdminAnalyticsPage() {
                       {contentTagDemand.length > 0 ? (
                         contentTagDemand.map((item) => (
                           <span key={item.tag} className="rounded-full border border-brand-purple/25 bg-brand-purple/12 px-3 py-2 text-xs font-semibold text-white">
-                            {item.tag} · {item.count}
+                          {item.tag} | {item.count}
                           </span>
                         ))
                       ) : (
@@ -2271,7 +2495,7 @@ export default function AdminAnalyticsPage() {
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
               <SectionCard title="Task Leaderboard" subtitle="The missions driving the most completions, reward payout, and momentum." icon={Sparkles} collapsedPreview={(
                 <CompactPreviewList
-                  items={taskLeaderboard.slice(0, 4).map((task) => ({ label: task.title, value: `${task.completed} complete • ${formatPercent(task.completionRate)}` }))}
+                  items={taskLeaderboard.slice(0, 4).map((task) => ({ label: task.title, value: `${task.completed} complete | ${formatPercent(task.completionRate)}` }))}
                   columns={1}
                 />
               )}>
@@ -2283,7 +2507,7 @@ export default function AdminAnalyticsPage() {
                           <div className="min-w-0">
                             <p className="truncate text-sm font-semibold text-white">{task.title}</p>
                             <p className="mt-1 text-xs text-gray-500">
-                              {task.completed.toLocaleString()} completed · {formatDuration(task.avgDurationMs / 1000)} avg
+                            {task.completed.toLocaleString()} completed | {formatDuration(task.avgDurationMs / 1000)} avg
                             </p>
                           </div>
                           <span className="shrink-0 text-sm font-bold text-brand-purple">{formatPercent(task.completionRate)}</span>
@@ -2347,7 +2571,7 @@ export default function AdminAnalyticsPage() {
                       <div className="flex flex-wrap gap-2">
                         {reminderReasons.length > 0 ? reminderReasons.map((item) => (
                           <span key={item.label} className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-white">
-                            {item.label} · {item.count}
+                          {item.label} | {item.count}
                           </span>
                         )) : <span className="text-sm text-gray-500">No reminder traffic in this range.</span>}
                       </div>
@@ -2359,7 +2583,7 @@ export default function AdminAnalyticsPage() {
 
             <SectionCard title="Flagged Accounts" subtitle="A phone-sized audit list with user, vector, timing, and target drop at a glance." icon={AlertTriangle} collapsedPreview={(
               <CompactPreviewList
-                items={security.slice(0, 4).map((item) => ({ label: item.username, value: `${item.lastViolationReason} • ${item.ripAttempts} violations` }))}
+                  items={security.slice(0, 4).map((item) => ({ label: item.username, value: `${item.lastViolationReason} | ${item.ripAttempts} violations` }))}
                 columns={1}
               />
             )}>

@@ -21,6 +21,7 @@ import { buildHistoricalTaskAnalytics } from "@/lib/server/admin-analytics-histo
 import { buildHistoricalTrafficOverview } from "@/lib/server/admin-analytics-historical-traffic";
 import { buildHistoricalValidationSummary } from "@/lib/server/admin-analytics-historical-validation";
 import { buildHistoricalViewerOverview } from "@/lib/server/admin-analytics-historical-viewer";
+import { buildAdminOpsHealth } from "@/lib/server/admin-ops-health";
 import { buildSemanticCategorySummaries } from "@/lib/server/analytics-semantics";
 import { buildAnalyticsMetricReport } from "@/lib/server/analytics-metrics";
 import { getDropViewCount } from "@/lib/drop-engagement";
@@ -88,6 +89,8 @@ export async function GET(request: NextRequest) {
                 securityEventsSnapshot,
                 guestBatchesSnapshot,
                 commerceSummarySnapshot,
+                serverDiagnosticsSnapshot,
+                taskRollupSnapshot,
                 dropsSnapshot,
                 telemetryLogsByEvent,
                 taskEventsSnapshot,
@@ -546,6 +549,15 @@ export async function GET(request: NextRequest) {
                 viewerSessionStartedLogsLength: viewerSessionStartedLogs.length,
                 pipelineFailureCount,
             });
+            const opsHealth = buildAdminOpsHealth({
+                diagnosticsDocs: serverDiagnosticsSnapshot.docs,
+                pipelineDocs: pipelineHealthSnapshot.docs,
+                eventStatsDocs: analyticsEventStatsSnapshot.docs,
+                taskRollupDocs: taskRollupSnapshot.docs,
+                guestBatchDocs: guestBatchesSnapshot.docs,
+                securityEventDocs: securityEventsSnapshot.docs,
+                commerceSummaryDoc: commerceSummarySnapshot,
+            });
 
             return NextResponse.json({
                 success: true,
@@ -600,6 +612,7 @@ export async function GET(request: NextRequest) {
                 unhealthyModules,
                 parityScore,
                 validations,
+                opsHealth,
             });
 
     } catch (error) {

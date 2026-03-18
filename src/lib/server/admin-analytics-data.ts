@@ -57,6 +57,8 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
     securityEventsSnapshot,
     guestBatchesSnapshot,
     commerceSummarySnapshot,
+    serverDiagnosticsSnapshot,
+    taskRollupSnapshot,
     dropsSnapshot,
   ] = await Promise.all([
     safeRunReport(analyticsClient, {
@@ -176,6 +178,12 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
     adminDb.collection("analytics_commerce_rollup")
       .doc("summary")
       .get(),
+    adminDb.collection("server_diagnostics")
+      .where("createdAtMs", ">=", startMs)
+      .orderBy("createdAtMs", "desc")
+      .limit(period === "all" ? 200 : 120)
+      .get(),
+    adminDb.collection("analytics_task_rollup").get(),
     period === "all" ? adminDb.collection("drops").get() : Promise.resolve(null),
   ]);
 
@@ -219,6 +227,8 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
     securityEventsSnapshot,
     guestBatchesSnapshot,
     commerceSummarySnapshot,
+    serverDiagnosticsSnapshot,
+    taskRollupSnapshot,
     dropsSnapshot,
     telemetryLogsByEvent,
     taskEventsSnapshot,
