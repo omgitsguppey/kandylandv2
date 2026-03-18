@@ -15,6 +15,7 @@ import {
     fetchAdminHistoricalAnalyticsSources,
     getAdminAnalyticsPropertyId,
 } from "@/lib/server/admin-analytics-data";
+import { buildHistoricalTrafficOverview } from "@/lib/server/admin-analytics-historical-traffic";
 import { buildModuleCoverageReport, buildParityInsight, sumCountBuckets } from "@/lib/server/analytics-parity";
 import { buildSemanticCategorySummaries, summarizeSecurityReason } from "@/lib/server/analytics-semantics";
 import { buildAnalyticsMetricReport } from "@/lib/server/analytics-metrics";
@@ -35,8 +36,6 @@ import {
     average,
     buildDurationBuckets,
     buildMergedCountMap,
-    dayKeyToLabel,
-    dayKeyToRawDate,
     formatTaskReason,
     getRangeWindow,
     getTelemetryDropId,
@@ -45,12 +44,10 @@ import {
     getTelemetryParamString,
     matchesViewerFilter,
     normalizeViewerIdentity,
-    rawDateToDayKey,
     safeParams,
     sum,
     sumEventCounts,
     sumSnapshotField,
-    timestampToDayKey,
     toNumber,
     toStringValue,
 } from "@/lib/server/admin-analytics-shared";
@@ -115,165 +112,27 @@ export async function GET(request: NextRequest) {
                 period,
             });
 
-            const rows = response.rows || [];
+            const {
+                chartData,
+                totals,
+                gaEventCounts,
+                geoData,
+                devices,
+                pagesData,
+                pageRollupMap,
+            } = buildHistoricalTrafficOverview({
+                responseRows: response.rows || [],
+                eventRows: eventsResponse.rows || [],
+                geoRows: geoResponse.rows || [],
+                deviceRows: devicesResponse.rows || [],
+                pageRows: pagesResponse.rows || [],
+                dailyRollups: dailyRollupsSnapshot.docs,
+                pageRollups: pageRollupsSnapshot.docs,
+                analyticsEventFacts: analyticsEventFactsSnapshot.docs,
+                startDayKey,
+                authenticatedPageViewEventNames: AUTHENTICATED_PAGE_VIEW_EVENT_NAMES,
+            });
             const filteredDailyRollups = dailyRollupsSnapshot.docs.filter((doc) => doc.id >= startDayKey);
-            const dayRollupMap = new Map<string, { totalEvents: number; authenticatedEvents: number; viewerSessions: number }>();
-            filteredDailyRollups.forEach((doc) => {
-                const data = doc.data() as Record<string, unknown>;
-                dayRollupMap.set(doc.id, {
-                    totalEvents: toNumber(data.totalEvents),
-                    authenticatedEvents: toNumber(data.authenticatedEvents),
-                    viewerSessions: toNumber(data.viewerSessions),
-                });
-            });
-
-            const pageViewsByDay = new Map<string, number>();
-            const pageRollupMap = new Map<string, { views: number; clicks: number; dwellMsTotal: number; dwellSamples: number }>();
-            pageRollupsSnapshot.docs.forEach((doc: FirebaseFirestore.QueryDocumentSnapshot) => {
-                const data = doc.data() as Record<string, unknown>;
-                const dayKey = toStringValue(data.dayKey) || startDayKey;
-                const path = toStringValue(data.pagePath) || "/";
-                const entry = pageRollupMap.get(path) || { views: 0, clicks: 0, dwellMsTotal: 0, dwellSamples: 0 };
-                entry.views += toNumber(data.pageViews);
-                entry.clicks += toNumber(data.clickCount);
-                entry.dwellMsTotal += toNumber(data.dwellMsTotal);
-                entry.dwellSamples += toNumber(data.dwellSampleCount);
-                pageRollupMap.set(path, entry);
-                pageViewsByDay.set(dayKey, (pageViewsByDay.get(dayKey) || 0) + toNumber(data.pageViews));
-            });
-
-            const authenticatedPagePathFallbacks: Record<string, string> = {
-                dashboard_viewed: "/dashboard",
-                library_viewed: "/dashboard/library",
-                experience_hub_viewed: "/experiences",
-                drops_page_viewed: "/drops",
-                faq_page_viewed: "/faq",
-                home_page_viewed: "/",
-            };
-            const authenticatedPageViewsByPath = new Map<string, number>();
-            const authenticatedPageViewsByDay = new Map<string, number>();
-            analyticsEventFactsSnapshot.docs.forEach((doc) => {
-                const data = doc.data() as Record<string, unknown>;
-                const eventName = toStringValue(data.eventName);
-                if (!AUTHENTICATED_PAGE_VIEW_EVENT_NAMES.has(eventName)) {
-                    return;
-                }
-
-                const pagePath = toStringValue(data.pagePath) || authenticatedPagePathFallbacks[eventName] || "/";
-                const dayKey = toStringValue(data.dayKey) || timestampToDayKey(toNumber(data.timestamp));
-                authenticatedPageViewsByPath.set(pagePath, (authenticatedPageViewsByPath.get(pagePath) || 0) + 1);
-                authenticatedPageViewsByDay.set(dayKey, (authenticatedPageViewsByDay.get(dayKey) || 0) + 1);
-            });
-
-            const gaChartMap = new Map<string, {
-                users: number;
-                views: number;
-                sessions: number;
-                newUsers: number;
-                avgSessionDuration: number;
-                engagementRate: number;
-            }>();
-            rows.forEach((row: AnalyticsReportRow) => {
-                const rawDate = row.dimensionValues?.[0]?.value || "";
-                const dayKey = rawDateToDayKey(rawDate);
-                gaChartMap.set(dayKey, {
-                    users: parseInt(row.metricValues?.[0]?.value || "0", 10),
-                    views: parseInt(row.metricValues?.[1]?.value || "0", 10),
-                    sessions: parseInt(row.metricValues?.[2]?.value || "0", 10),
-                    newUsers: parseInt(row.metricValues?.[3]?.value || "0", 10),
-                    avgSessionDuration: parseFloat(row.metricValues?.[4]?.value || "0"),
-                    engagementRate: parseFloat(row.metricValues?.[5]?.value || "0"),
-                });
-            });
-
-            const chartDayKeys = new Set<string>([
-                ...gaChartMap.keys(),
-                ...dayRollupMap.keys(),
-                ...pageViewsByDay.keys(),
-                ...authenticatedPageViewsByDay.keys(),
-            ]);
-
-            const chartData = Array.from(chartDayKeys)
-                .sort((left, right) => left.localeCompare(right))
-                .map((dayKey) => {
-                    const ga = gaChartMap.get(dayKey);
-                    const rollup = dayRollupMap.get(dayKey);
-                    const firstPartyViews = (pageViewsByDay.get(dayKey) || 0) + (authenticatedPageViewsByDay.get(dayKey) || 0);
-                    return {
-                        date: dayKeyToLabel(dayKey),
-                        rawDate: dayKeyToRawDate(dayKey),
-                        users: ga?.users ?? 0,
-                        views: Math.max(ga?.views ?? 0, firstPartyViews, rollup?.totalEvents ?? 0),
-                        sessions: Math.max(ga?.sessions ?? 0, rollup?.viewerSessions ?? 0),
-                        newUsers: ga?.newUsers ?? 0,
-                        avgSessionDuration: ga?.avgSessionDuration ?? 0,
-                        engagementRate: ga?.engagementRate ?? 0,
-                    };
-                });
-
-            const totals = {
-                users: chartData.reduce((acc: number, curr) => acc + curr.users, 0),
-                views: chartData.reduce((acc: number, curr) => acc + curr.views, 0),
-                sessions: chartData.reduce((acc: number, curr) => acc + curr.sessions, 0),
-                newUsers: chartData.reduce((acc: number, curr) => acc + curr.newUsers, 0),
-                avgSessionDuration: chartData.length > 0 ? chartData.reduce((acc: number, curr) => acc + curr.avgSessionDuration, 0) / chartData.length : 0,
-                engagementRate: chartData.length > 0 ? chartData.reduce((acc: number, curr) => acc + curr.engagementRate, 0) / chartData.length : 0,
-            };
-
-            const gaEventCounts = (eventsResponse.rows || []).reduce((acc: Record<string, number>, row: AnalyticsReportRow) => {
-                const eventName = row.dimensionValues?.[0]?.value || "unknown";
-                const count = parseInt(row.metricValues?.[0]?.value || "0", 10);
-                acc[eventName] = count;
-                return acc;
-            }, {});
-
-            const geoData = (geoResponse.rows || []).map((row: AnalyticsReportRow) => ({
-                country: row.dimensionValues?.[0]?.value || "Unknown",
-                city: row.dimensionValues?.[1]?.value || "Unknown",
-                users: parseInt(row.metricValues?.[0]?.value || "0", 10)
-            }));
-
-            const devices = (devicesResponse.rows || []).map((row: AnalyticsReportRow) => ({
-                device: row.dimensionValues?.[0]?.value || "unknown",
-                users: parseInt(row.metricValues?.[0]?.value || "0", 10),
-                sessions: parseInt(row.metricValues?.[1]?.value || "0", 10),
-                engagementRate: parseFloat(row.metricValues?.[2]?.value || "0"),
-            }));
-
-            const gaPagesMap = new Map<string, { views: number; avgTime: number; engagementRate: number }>();
-            (pagesResponse.rows || []).forEach((row: AnalyticsReportRow) => {
-                const path = row.dimensionValues?.[0]?.value || "/";
-                gaPagesMap.set(path, {
-                    views: parseInt(row.metricValues?.[0]?.value || "0", 10),
-                    avgTime: parseFloat(row.metricValues?.[1]?.value || "0"),
-                    engagementRate: parseFloat(row.metricValues?.[2]?.value || "0"),
-                });
-            });
-
-            authenticatedPageViewsByPath.forEach((views, path) => {
-                const current = pageRollupMap.get(path) || { views: 0, clicks: 0, dwellMsTotal: 0, dwellSamples: 0 };
-                current.views += views;
-                pageRollupMap.set(path, current);
-            });
-
-            const allPagePaths = new Set<string>([
-                ...gaPagesMap.keys(),
-                ...pageRollupMap.keys(),
-            ]);
-
-            const pagesData = Array.from(allPagePaths)
-                .map((path) => {
-                    const ga = gaPagesMap.get(path);
-                    const firstParty = pageRollupMap.get(path) || { views: 0, clicks: 0, dwellMsTotal: 0, dwellSamples: 0 };
-                    return {
-                        path,
-                        views: Math.max(ga?.views ?? 0, firstParty.views),
-                        avgTime: ga?.avgTime || (firstParty.dwellSamples > 0 ? firstParty.dwellMsTotal / 1000 / firstParty.dwellSamples : 0),
-                        engagementRate: Math.max(ga?.engagementRate ?? 0, firstParty.views > 0 ? firstParty.clicks / firstParty.views : 0),
-                    };
-                })
-                .sort((a, b) => b.views - a.views)
-                .slice(0, 25);
 
             const dropsData = period === "all"
                 ? dropsSnapshot.docs

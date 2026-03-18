@@ -35,15 +35,6 @@ const ANALYTICS_SEMANTIC_CATEGORY_LABELS: Record<AnalyticsSemanticCategory, stri
   drop: "KandyDrop",
 }
 
-const LEGACY_PAGE_EVENT_PATHS: Record<string, string> = {
-  home_page_viewed: "/",
-  dashboard_viewed: "/dashboard",
-  library_viewed: "/dashboard/library",
-  experience_hub_viewed: "/experiences",
-  drops_page_viewed: "/drops",
-  faq_page_viewed: "/faq",
-}
-
 function humanizeAnalyticsKey(value: string | null | undefined) {
   if (!value) {
     return "Unknown"
@@ -53,6 +44,15 @@ function humanizeAnalyticsKey(value: string | null | undefined) {
     .replace(/[._-]+/g, " ")
     .replace(/\b\w/g, (match: string) => match.toUpperCase())
     .trim()
+}
+
+const LEGACY_PAGE_EVENT_PATHS: Record<string, string> = {
+  home_page_viewed: "/",
+  dashboard_viewed: "/dashboard",
+  library_viewed: "/dashboard/library",
+  experience_hub_viewed: "/experiences",
+  drops_page_viewed: "/drops",
+  faq_page_viewed: "/faq",
 }
 
 function getLegacyPagePathForEvent(eventName: string | null | undefined) {
@@ -76,7 +76,7 @@ function normalizePagePath(input: string | null | undefined) {
   return trimmed.startsWith("/") ? trimmed : `/${trimmed}`
 }
 
-function buildScopeDescriptor(pagePath: string, dropId?: string, dropCategory?: string) {
+function buildFallbackSemanticContext(pagePath: string, dropId?: string, dropCategory?: string) {
   if (dropId || pagePath.startsWith("/dashboard/viewer")) {
     return {
       category: "drop" as const,
@@ -200,19 +200,26 @@ function resolveAnalyticsSemanticContext(input: {
   pagePath?: string | null;
   dropId?: string | null;
   dropCategory?: string | null;
+  semanticCategory?: string | null;
+  semanticCategoryLabel?: string | null;
+  semanticScopeKey?: string | null;
+  semanticScopeLabel?: string | null;
+  semanticSurfaceKey?: string | null;
+  semanticSurfaceLabel?: string | null;
 }) {
   const pagePath = normalizePagePath(input.pagePath)
   const dropId = input.dropId?.trim() || undefined
   const dropCategory = input.dropCategory?.trim() || undefined
-  const descriptor = buildScopeDescriptor(pagePath, dropId, dropCategory)
+  const fallback = buildFallbackSemanticContext(pagePath, dropId, dropCategory)
+  const category = (input.semanticCategory?.trim() as AnalyticsSemanticCategory | undefined) || fallback.category
 
   return {
-    category: descriptor.category,
-    categoryLabel: ANALYTICS_SEMANTIC_CATEGORY_LABELS[descriptor.category],
-    scopeKey: descriptor.scopeKey,
-    scopeLabel: descriptor.scopeLabel,
-    surfaceKey: descriptor.surfaceKey,
-    surfaceLabel: descriptor.surfaceLabel,
+    category,
+    categoryLabel: input.semanticCategoryLabel?.trim() || ANALYTICS_SEMANTIC_CATEGORY_LABELS[category],
+    scopeKey: input.semanticScopeKey?.trim() || fallback.scopeKey,
+    scopeLabel: input.semanticScopeLabel?.trim() || fallback.scopeLabel,
+    surfaceKey: input.semanticSurfaceKey?.trim() || fallback.surfaceKey,
+    surfaceLabel: input.semanticSurfaceLabel?.trim() || fallback.surfaceLabel,
     pagePath,
     dropId,
     dropCategory,
@@ -346,6 +353,12 @@ async function writeRollup(input: {
   pagePath?: string;
   dropId?: string;
   dropCategory?: string;
+  semanticCategory?: string;
+  semanticCategoryLabel?: string;
+  semanticScopeKey?: string;
+  semanticScopeLabel?: string;
+  semanticSurfaceKey?: string;
+  semanticSurfaceLabel?: string;
   sourceKey: string;
 }) {
   const {dayKey} = toTimeKeys(input.timestamp)
@@ -353,6 +366,12 @@ async function writeRollup(input: {
     pagePath: input.pagePath,
     dropId: input.dropId,
     dropCategory: input.dropCategory,
+    semanticCategory: input.semanticCategory,
+    semanticCategoryLabel: input.semanticCategoryLabel,
+    semanticScopeKey: input.semanticScopeKey,
+    semanticScopeLabel: input.semanticScopeLabel,
+    semanticSurfaceKey: input.semanticSurfaceKey,
+    semanticSurfaceLabel: input.semanticSurfaceLabel,
   })
   const docId = createDocKey(dayKey, context.category, context.scopeKey)
   const rollupRef = db.collection("analytics_semantic_daily").doc(docId)
@@ -393,6 +412,7 @@ export async function recordSemanticRollupFromEventFact(input: {
   sourceKey: string;
 }) {
   const eventFact = input.eventFact
+  const eventFactRecord = eventFact as unknown as Record<string, unknown>
   const params = typeof eventFact.params === "object" && eventFact.params !== null
     ? eventFact.params as Record<string, unknown>
     : {}
@@ -420,6 +440,12 @@ export async function recordSemanticRollupFromEventFact(input: {
     pagePath,
     dropId,
     dropCategory,
+    semanticCategory: asString(eventFactRecord.semanticCategory) || asString(params.semantic_category),
+    semanticCategoryLabel: asString(eventFactRecord.semanticCategoryLabel) || asString(params.semantic_category_label),
+    semanticScopeKey: asString(eventFactRecord.semanticScopeKey) || asString(params.semantic_scope_key),
+    semanticScopeLabel: asString(eventFactRecord.semanticScopeLabel) || asString(params.semantic_scope_label),
+    semanticSurfaceKey: asString(eventFactRecord.semanticSurfaceKey) || asString(params.semantic_surface_key),
+    semanticSurfaceLabel: asString(eventFactRecord.semanticSurfaceLabel) || asString(params.semantic_surface_label),
     sourceKey: input.sourceKey,
   })
 }
@@ -442,6 +468,12 @@ export async function recordSemanticRollupFromGuestBatch(input: {
       pagePath: asString(event.path),
       dropId: asString(event.dropId),
       dropCategory: asString(event.dropCategory),
+      semanticCategory: asString((event as unknown as Record<string, unknown>).semanticCategory),
+      semanticCategoryLabel: asString((event as unknown as Record<string, unknown>).semanticCategoryLabel),
+      semanticScopeKey: asString((event as unknown as Record<string, unknown>).semanticScopeKey),
+      semanticScopeLabel: asString((event as unknown as Record<string, unknown>).semanticScopeLabel),
+      semanticSurfaceKey: asString((event as unknown as Record<string, unknown>).semanticSurfaceKey),
+      semanticSurfaceLabel: asString((event as unknown as Record<string, unknown>).semanticSurfaceLabel),
       sourceKey: input.sourceKey,
     })
   }))
