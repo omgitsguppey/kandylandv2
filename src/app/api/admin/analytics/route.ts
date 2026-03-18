@@ -6,7 +6,7 @@ import { BetaAnalyticsDataClient } from "@google-analytics/data";
 import { handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { ADMIN } from "@/lib/server/rate-limit";
-import { TELEMETRY_EVENT_QUERY_NAMES, TELEMETRY_MODULE_INDEXES } from "@/lib/telemetry-catalog";
+import { TELEMETRY_EVENT_NAMES, TELEMETRY_EVENT_QUERY_NAMES, TELEMETRY_MODULE_INDEXES } from "@/lib/telemetry-catalog";
 import { ANALYTICS_SEMANTIC_SOURCE_REGISTRY, ANALYTICS_SEMANTIC_STRATEGIES } from "@/lib/analytics-semantics";
 import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
 import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
@@ -290,90 +290,12 @@ export async function GET(request: NextRequest) {
                 adminDb.collection("drops").get(),
             ]);
 
-            const telemetryEventNames = [
-                "auth_sign_in_success",
-                "auth_sign_in_attempted",
-                "auth_sign_up_success",
-                "auth_sign_up_attempted",
-                "user_registered",
-                "auth_google_sign_in_success",
-                "auth_google_sign_in_attempted",
-                "auth_session_restored",
-                "auth_logout",
-                "guided_onboarding_started",
-                "guided_onboarding_completed",
-                "guided_onboarding_step_started",
-                "guided_onboarding_step_completed",
-                "onboarding_step_viewed",
-                "avatar_uploaded",
-                "wallet_opened",
-                "begin_checkout",
-                "purchase_package_selected",
-                "gumdrops_purchase_completed",
-                "gumdrops_purchase_failed",
-                "drop_preview_opened",
-                "drop_unlock_attempted",
-                "unlock_drop_success",
-                "drop_card_impression",
-                "view_drop_details",
-                "viewer_opened",
-                "viewer_session_started",
-                "viewer_session_completed",
-                "viewer_asset_started",
-                "viewer_asset_changed",
-                "viewer_asset_completed",
-                "viewer_asset_consumed",
-                "viewer_watch_checkpoint",
-                "viewer_content_loaded",
-                "viewer_source_downloaded",
-                "viewer_related_drop_clicked",
-                "notification_opened",
-                "notification_marked_read",
-                "notification_mark_all_read",
-                "notifications_dropdown_opened",
-                "task_notifications_enabled",
-                "notification_prompt_banner_viewed",
-                "notification_prompt_banner_dismissed",
-                "task_guidance_banner_viewed",
-                "task_guidance_banner_dismissed",
-                "task_guidance_cta_clicked",
-                "task_guidance_completed",
-                "navigation_click",
-                "semantic_page_viewed",
-                "semantic_page_engaged",
-                "semantic_page_passive",
-                "semantic_page_exited",
-                "semantic_page_bounced",
-                "semantic_target_clicked",
-                "daily_tasks_viewed",
-                "daily_task_action_clicked",
-                "daily_check_in_claim",
-                "feedback_modal_opened",
-                "feedback_submitted",
-                "dashboard_viewed",
-                "library_viewed",
-                "experience_hub_viewed",
-                "drops_page_viewed",
-                "faq_page_viewed",
-                "faq_search_used",
-                "faq_category_selected",
-                "faq_question_toggled",
-                "home_page_viewed",
-                "asset_upload_started",
-                "asset_upload_success",
-                "asset_upload_failed",
-                "viewer_backgrounded",
-                "security_screenshot_attempted",
-                "security_print_attempted",
-                "security_devtools_attempted",
-            ];
-
             const [
                 telemetryLogsByEvent,
                 taskEventsSnapshot,
                 transactionsInRangeSnapshot,
             ] = await Promise.all([
-                fetchTelemetryLogs(telemetryEventNames, startMs),
+                fetchTelemetryLogs(TELEMETRY_EVENT_NAMES, startMs),
                 adminDb.collection("daily_task_events")
                     .where("timestamp", ">=", startMs)
                     .orderBy("timestamp", "desc")

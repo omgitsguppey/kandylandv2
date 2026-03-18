@@ -1,0 +1,35 @@
+{
+  "$schema": "https://unpkg.com/knip@latest/schema.json",
+  "entry": [
+    "src/app/**/*.{ts,tsx}",
+    "src/components/**/*.{ts,tsx}",
+    "src/context/**/*.{ts,tsx}",
+    "src/hooks/**/*.{ts,tsx}",
+    "src/lib/**/*.{ts,tsx}",
+    "src/types/**/*.ts",
+    "scripts/**/*.{ts,js,mjs}",
+    "tests/**/*.{ts,tsx}",
+    "functions/src/**/*.ts"
+  ],
+  "project": [
+    "src/**/*.{ts,tsx}",
+    "scripts/**/*.{ts,js,mjs}",
+    "tests/**/*.{ts,tsx}",
+    "functions/src/**/*.ts",
+    "*.ts",
+    "*.mjs"
+  ],
+  "ignore": [
+    "src/dataconnect-generated/**"
+  ],
+  "ignoreDependencies": [
+    "@dataconnect/generated",
+    "@dataconnect/admin-generated",
+    "@tailwindcss/typography",
+    "tailwindcss",
+    "eslint-import-resolver-typescript",
+    "eslint-plugin-jsx-a11y",
+    "eslint-plugin-tailwindcss",
+    "firebase-functions"
+  ]
+}

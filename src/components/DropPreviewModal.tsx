@@ -2,10 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
-import { X, Images, Video, Clock, Lock, Unlock, Loader2, Share2, Eye, Wallet } from "lucide-react";
+import { X, Images, Clock, Lock, Unlock, Loader2, Share2, Eye, Wallet } from "lucide-react";
 import { Drop } from "@/types/db";
 import { getAspectRatioCssValue, getDropMediaSummary, getSupportedDropAspectRatio } from "@/lib/drop-presentation";
 import { formatDistanceToNow } from "date-fns";

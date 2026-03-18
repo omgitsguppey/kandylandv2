@@ -12,7 +12,7 @@ import {
     browserLocalPersistence,
     signOut,
 } from "firebase/auth";
-import { auth, app } from "@/lib/firebase";
+import { auth } from "@/lib/firebase";
 import { CLIENT_RUNTIME_STORAGE_KEYS, readSessionStorageValue } from "@/hooks/client-runtime";
 import { UserProfile } from "@/types/db";
 import { normalizeUserProfile } from "@/lib/user-utils";

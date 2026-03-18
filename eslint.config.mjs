@@ -1,5 +1,6 @@
 import nextVitals from "eslint-config-next/core-web-vitals";
 import importPlugin from "eslint-plugin-import";
+import unusedImports from "eslint-plugin-unused-imports";
 
 const eslintConfig = [
     {
@@ -17,10 +18,12 @@ const eslintConfig = [
         files: ["**/*.{js,jsx,mjs,ts,tsx,mts,cts}"],
         plugins: {
             import: importPlugin,
+            "unused-imports": unusedImports,
         },
         rules: {
             "import/no-unresolved": ["error", { ignore: ["^@/"] }],
             "import/no-duplicates": "error",
+            "unused-imports/no-unused-imports": "error",
         },
         settings: {
             "import/resolver": {

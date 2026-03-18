@@ -4,11 +4,8 @@ import { useMemo, useState } from "react";
 import {
     AlertTriangle,
     ArrowRightLeft,
-    BadgeInfo,
     BellRing,
     Bug,
-    Candy,
-    CheckCircle2,
     Database,
     Layers3,
     Loader2,

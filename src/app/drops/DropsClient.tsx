@@ -7,10 +7,8 @@ import StickyFilterBar from "@/components/StickyFilterBar";
 import { Drop } from "@/types/db";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
-import { Lock } from "lucide-react";
 import { useDrops } from "@/hooks/useDrops";
 import { KandyDropsAccountOverview, AccountOverviewState } from "@/components/KandyDropsAccountOverview";
-import { GuestComponentBlur } from "@/components/Auth/GuestComponentBlur";
 import dynamic from "next/dynamic";
 import { trackEvent } from "@/lib/telemetry";
 
