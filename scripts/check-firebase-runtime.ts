@@ -23,6 +23,7 @@ console.log(JSON.stringify({
   messagingSenderIdPresent: Boolean(snapshot.messagingSenderId),
   appIdPresent: Boolean(snapshot.appId),
   vapidKeyPresent: Boolean(snapshot.vapidKey),
+  recaptchaSiteKeyPresent: Boolean(process.env.NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_SITE_KEY),
   appCheckEnabled: snapshot.appCheckEnabled,
 }, null, 2));
 

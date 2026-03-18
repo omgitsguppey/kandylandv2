@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 
 import { CLIENT_RUNTIME_STORAGE_KEYS } from "@/hooks/client-runtime";
 import { createAnalyticsBatchId } from "@/lib/analytics-identifiers";
+import { getAppCheckToken } from "@/lib/app-check";
 import { recordClientDiagnostic } from "@/lib/client-diagnostics";
 import { buildAnalyticsSemanticParams, resolveAnalyticsSemanticContext } from "@/lib/analytics-semantics";
 import { canUseAnonymousAnalytics, readPrivacySettingsSnapshot, subscribeToPrivacySettings } from "@/lib/privacy-consent";
@@ -147,7 +148,7 @@ export function DeepTracker() {
         scrollCountRef.current = 0;
         viewerBackgroundTrackedRef.current = false;
 
-        const flushQueue = () => {
+        const flushQueue = async () => {
             if (!trackingAllowed || eventQueue.current.length === 0) {
                 return;
             }
@@ -161,18 +162,34 @@ export function DeepTracker() {
             eventQueue.current = [];
 
             const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
-            if (navigator?.sendBeacon) {
-                navigator.sendBeacon("/api/analytics/ingest", blob);
-            } else {
-                fetch("/api/analytics/ingest", {
+            try {
+                const appCheckToken = await getAppCheckToken().catch(() => null);
+                if (appCheckToken) {
+                    await fetch("/api/analytics/ingest", {
+                        method: "POST",
+                        body: blob,
+                        keepalive: true,
+                        headers: {
+                            "X-Firebase-AppCheck": appCheckToken,
+                        },
+                    });
+                    return;
+                }
+
+                if (navigator?.sendBeacon) {
+                    navigator.sendBeacon("/api/analytics/ingest", blob);
+                    return;
+                }
+
+                await fetch("/api/analytics/ingest", {
                     method: "POST",
                     body: blob,
                     keepalive: true,
-                }).catch((error) => {
-                    recordClientDiagnostic("telemetry", "Guest analytics flush failed", {
-                        pagePath: pathname,
-                        message: error instanceof Error ? error.message : String(error),
-                    });
+                });
+            } catch (error) {
+                recordClientDiagnostic("telemetry", "Guest analytics flush failed", {
+                    pagePath: pathname,
+                    message: error instanceof Error ? error.message : String(error),
                 });
             }
         };
@@ -244,7 +261,7 @@ export function DeepTracker() {
                 exit_reason: reason,
             });
 
-            flushQueue();
+            void flushQueue();
         };
 
         pushEvent({
@@ -404,7 +421,7 @@ export function DeepTracker() {
                     });
                 }
 
-                flushQueue();
+                void flushQueue();
             }
         };
 

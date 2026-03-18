@@ -3,8 +3,6 @@ import "server-only";
 import * as admin from "firebase-admin";
 
 import { adminDb } from "./firebase-admin";
-import { recordTelemetryEventStat } from "./daily-tasks";
-import { recordSemanticRollupFromTelemetryEvent } from "./analytics-semantics";
 import { buildAnalyticsTimeKeys, resolveTrackedTelemetryEvent } from "./analytics-event-utils";
 import { buildAnalyticsSemanticParams } from "@/lib/analytics-semantics";
 
@@ -119,13 +117,6 @@ export async function trackServerEvent(
         trackingOrigin: "server",
         params: enrichedParams,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      }),
-      recordTelemetryEventStat(canonicalEventName, enrichedParams),
-      recordSemanticRollupFromTelemetryEvent({
-        timestamp: nowMs,
-        eventName: canonicalEventName,
-        params: enrichedParams,
-        sourceKey: "server",
       }),
     ]);
   } catch (error) {

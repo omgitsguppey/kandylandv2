@@ -2,7 +2,7 @@ import "server-only";
 
 import { type NextRequest } from "next/server";
 
-import { type AuthResult, AuthError, verifyAdmin, verifyAuth } from "./auth";
+import { type AuthResult, AuthError, verifyAdmin, verifyAppCheck, verifyAuth } from "./auth";
 import { type RateLimitConfig, checkRateLimit } from "./rate-limit";
 import { hasTrustedSiteOrigin } from "./request-origin";
 
@@ -12,6 +12,7 @@ interface RequestGuardOptions {
   routeName?: string;
   rateLimit?: RateLimitConfig;
   requireTrustedOrigin?: boolean;
+  requireAppCheck?: boolean;
   auth?: RequestGuardAuthMode;
   scopeToCaller?: boolean;
   scopeId?: string | null;
@@ -23,6 +24,10 @@ export async function guardApiRequest(
 ): Promise<AuthResult | null> {
   if (options.requireTrustedOrigin && !hasTrustedSiteOrigin(request)) {
     throw new AuthError("Untrusted origin", 403);
+  }
+
+  if (options.requireAppCheck) {
+    await verifyAppCheck(request);
   }
 
   let caller: AuthResult | null = null;

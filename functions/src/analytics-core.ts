@@ -9,6 +9,7 @@ export interface AnalyticsEventFact {
   consentMode?: string;
   globalPrivacyControl?: boolean;
   timestamp?: number;
+  params?: Record<string, unknown>;
   pagePath?: string;
   sessionId?: string;
   dayKey?: string;
@@ -40,10 +41,16 @@ export interface GuestBatchEvent {
   targetTag?: string;
   targetText?: string;
   dropId?: string;
+  dropCategory?: string;
   x?: number;
   y?: number;
   scrollDepthPercent?: number;
   durationMs?: number;
+  interactionState?: string;
+  exitIntent?: string;
+  clickCount?: number;
+  hoverCount?: number;
+  scrollCount?: number;
 }
 
 export interface GuestAnalyticsBatch {

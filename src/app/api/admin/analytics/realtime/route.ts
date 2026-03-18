@@ -2,31 +2,16 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 import { NextRequest, NextResponse } from "next/server";
-import { BetaAnalyticsDataClient } from "@google-analytics/data";
 
 import { handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { AnalyticsReportRow, safeRunRealtimeReport } from "@/lib/server/admin-analytics-shared";
+import { createAdminAnalyticsDataClient, getAdminAnalyticsPropertyId } from "@/lib/server/admin-analytics-data";
 import { guardApiRequest } from "@/lib/server/request-guard";
 
-const propertyId = process.env.GA_PROPERTY_ID;
-const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
-
-let analyticsClient: BetaAnalyticsDataClient;
-
-if (clientEmail && privateKey) {
-  analyticsClient = new BetaAnalyticsDataClient({
-    credentials: {
-      client_email: clientEmail,
-      private_key: privateKey,
-      project_id: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-    },
-  });
-} else {
-  analyticsClient = new BetaAnalyticsDataClient();
-}
+const propertyId = getAdminAnalyticsPropertyId();
+const analyticsClient = createAdminAnalyticsDataClient();
 
 export async function GET(request: NextRequest) {
   try {

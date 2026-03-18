@@ -81,12 +81,15 @@ describe("analytics consistency contracts", () => {
       path.resolve(process.cwd(), "src/app/api/admin/analytics/route.ts"),
       "utf8",
     );
-
-    expect(adminAnalyticsHistoricalRouteSource).toContain(
-      "fetchTelemetryLogs(TELEMETRY_EVENT_NAMES, startMs)",
+    const adminAnalyticsDataSource = readFileSync(
+      path.resolve(process.cwd(), "src/lib/server/admin-analytics-data.ts"),
+      "utf8",
     );
-    expect(adminAnalyticsHistoricalRouteSource).not.toContain("const telemetryEventNames = [");
+
+    expect(adminAnalyticsHistoricalRouteSource).toContain("fetchAdminHistoricalAnalyticsSources");
     expect(adminAnalyticsEntryRouteSource).toContain("/api/admin/analytics/realtime");
     expect(adminAnalyticsEntryRouteSource).toContain("/api/admin/analytics/historical");
+    expect(adminAnalyticsDataSource).toContain("fetchTelemetryLogs(TELEMETRY_EVENT_NAMES, startMs)");
+    expect(adminAnalyticsDataSource).not.toContain("const telemetryEventNames = [");
   });
 });

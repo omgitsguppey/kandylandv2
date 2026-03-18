@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import * as admin from "firebase-admin";
-import { CANONICAL_TASK_EVENT_NAMES, recordDailyTaskProgressFromEvent, recordTelemetryEventStat } from "@/lib/server/daily-tasks";
+import { CANONICAL_TASK_EVENT_NAMES, recordDailyTaskProgressFromEvent } from "@/lib/server/daily-tasks";
 import { handleApiError } from "@/lib/server/auth";
 import { ANALYTICS_WRITE } from "@/lib/server/rate-limit";
 import { getDropReferenceMap, resolveDropTitle } from "@/lib/server/drop-references";
-import { recordSemanticRollupFromTelemetryEvent } from "@/lib/server/analytics-semantics";
 import { profileAllowsIdentifiedAnalytics, requestHasGlobalPrivacyControl } from "@/lib/server/privacy-consent";
 import { BUILT_IN_DAILY_TASKS } from "@/lib/tasks/task-catalog";
 import { UserProfile } from "@/types/db";
@@ -323,18 +322,11 @@ export async function POST(req: NextRequest) {
         await factsBatch.commit();
 
         await Promise.all([
-            ...telemetryFacts.map((event) => recordTelemetryEventStat(event.canonicalEventName, event.eventParamsWithMetadata)),
             ...telemetryFacts
                 .filter((event) => event.canAdvanceTaskProgress)
                 .map((event) => recordDailyTaskProgressFromEvent(userId, username, event.canonicalEventName, event.eventParamsWithMetadata, {
                     source: "telemetry",
                 })),
-            ...telemetryFacts.map((event) => recordSemanticRollupFromTelemetryEvent({
-                timestamp: event.nowMs,
-                eventName: event.canonicalEventName,
-                params: event.eventParamsWithMetadata,
-                sourceKey: "analytics_event_facts",
-            })),
         ]);
 
         return NextResponse.json({

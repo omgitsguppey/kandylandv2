@@ -5,7 +5,6 @@ import { z } from "zod";
 import { ANALYTICS_WRITE } from "@/lib/server/rate-limit";
 import { requestAllowsAnonymousAnalytics, requestHasGlobalPrivacyControl } from "@/lib/server/privacy-consent";
 import { TELEMETRY_EVENT_INDEX_VERSION } from "@/lib/telemetry-catalog";
-import { recordSemanticRollupFromGuestEvents } from "@/lib/server/analytics-semantics";
 import { buildAnalyticsTimeKeys } from "@/lib/server/analytics-event-utils";
 import { claimAnalyticsReceipt } from "@/lib/server/analytics-receipts";
 import { guardApiRequest } from "@/lib/server/request-guard";
@@ -67,10 +66,6 @@ function getOrCreateSessionKey(request: NextRequest) {
     };
 }
 
-function encodeDocKey(value: string) {
-    return Buffer.from(value).toString("base64url").slice(0, 180) || "root";
-}
-
 function sanitizeTargetLabel(value: string | undefined) {
     if (!value) {
         return undefined;
@@ -88,6 +83,7 @@ export async function POST(request: NextRequest) {
             routeName: "analytics/ingest",
             rateLimit: ANALYTICS_WRITE,
             requireTrustedOrigin: true,
+            requireAppCheck: true,
         });
 
         const contentLength = Number(request.headers.get("content-length") || 0);
@@ -185,112 +181,6 @@ export async function POST(request: NextRequest) {
             hasPixelData: sanitizedEvents.some((event) => Number.isFinite(event.x) && Number.isFinite(event.y)),
             events: sanitizedEvents,
             createdAt: FieldValue.serverTimestamp(),
-        });
-
-        const rollupBatch = adminDb.batch();
-        const pageRollups = new Map<string, {
-            pagePath: string;
-            pageViews: number;
-            clickCount: number;
-            hoverCount: number;
-            scrollCount: number;
-            visibilityCount: number;
-            dwellMsTotal: number;
-            dwellSampleCount: number;
-            maxScrollDepth: number;
-        }>();
-        const targetRollups = new Map<string, {
-            pagePath: string;
-            targetKey: string;
-            targetText: string;
-            targetTag: string;
-            clickCount: number;
-            hoverCount: number;
-            lastEventAt: number;
-        }>();
-
-        sanitizedEvents.forEach((event) => {
-            const pagePath = event.path || "/";
-            const pageKey = `${timeKeys.dayKey}__${encodeDocKey(pagePath)}`;
-            const currentPage = pageRollups.get(pageKey) || {
-                pagePath,
-                pageViews: 0,
-                clickCount: 0,
-                hoverCount: 0,
-                scrollCount: 0,
-                visibilityCount: 0,
-                dwellMsTotal: 0,
-                dwellSampleCount: 0,
-                maxScrollDepth: 0,
-            };
-
-            if (event.type === "page_view") currentPage.pageViews += 1;
-            if (event.type === "click") currentPage.clickCount += 1;
-            if (event.type === "hover") currentPage.hoverCount += 1;
-            if (event.type === "scroll") currentPage.scrollCount += 1;
-            if (event.type === "visibility") currentPage.visibilityCount += 1;
-            if (event.type === "page_leave" && typeof event.durationMs === "number" && event.durationMs > 0) {
-                currentPage.dwellMsTotal += event.durationMs;
-                currentPage.dwellSampleCount += 1;
-            }
-            currentPage.maxScrollDepth = Math.max(currentPage.maxScrollDepth, event.scrollDepthPercent || 0);
-            pageRollups.set(pageKey, currentPage);
-
-            if (event.type === "click" || event.type === "hover") {
-                const targetLabel = (event.targetText || event.targetId || event.targetTag || "unknown").slice(0, 80);
-                const targetKey = `${timeKeys.dayKey}__${encodeDocKey(pagePath)}__${encodeDocKey(targetLabel)}`;
-                const currentTarget = targetRollups.get(targetKey) || {
-                    pagePath,
-                    targetKey: targetLabel,
-                    targetText: event.targetText || event.targetId || "",
-                    targetTag: event.targetTag || "",
-                    clickCount: 0,
-                    hoverCount: 0,
-                    lastEventAt: 0,
-                };
-                if (event.type === "click") currentTarget.clickCount += 1;
-                if (event.type === "hover") currentTarget.hoverCount += 1;
-                currentTarget.lastEventAt = Math.max(currentTarget.lastEventAt, event.timestamp);
-                targetRollups.set(targetKey, currentTarget);
-            }
-        });
-
-        pageRollups.forEach((entry, docId) => {
-            rollupBatch.set(adminDb.collection("analytics_page_daily").doc(docId), {
-                dayKey: timeKeys.dayKey,
-                pagePath: entry.pagePath,
-                pageViews: FieldValue.increment(entry.pageViews),
-                clickCount: FieldValue.increment(entry.clickCount),
-                hoverCount: FieldValue.increment(entry.hoverCount),
-                scrollCount: FieldValue.increment(entry.scrollCount),
-                visibilityCount: FieldValue.increment(entry.visibilityCount),
-                dwellMsTotal: FieldValue.increment(entry.dwellMsTotal),
-                dwellSampleCount: FieldValue.increment(entry.dwellSampleCount),
-                maxScrollDepth: entry.maxScrollDepth,
-                updatedAt: FieldValue.serverTimestamp(),
-                lastEventAt: nowMs,
-            }, { merge: true });
-        });
-
-        targetRollups.forEach((entry, docId) => {
-            rollupBatch.set(adminDb.collection("analytics_target_daily").doc(docId), {
-                dayKey: timeKeys.dayKey,
-                pagePath: entry.pagePath,
-                targetKey: entry.targetKey,
-                targetText: entry.targetText,
-                targetTag: entry.targetTag,
-                clickCount: FieldValue.increment(entry.clickCount),
-                hoverCount: FieldValue.increment(entry.hoverCount),
-                updatedAt: FieldValue.serverTimestamp(),
-                lastEventAt: entry.lastEventAt || nowMs,
-            }, { merge: true });
-        });
-
-        await rollupBatch.commit();
-        await recordSemanticRollupFromGuestEvents({
-            timestamp: nowMs,
-            events: sanitizedEvents as Array<Record<string, unknown>>,
-            sourceKey: "analytics_guest_batches",
         });
 
         const response = NextResponse.json({ success: true, processed: events.length });

@@ -2,15 +2,19 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 import { NextRequest, NextResponse } from "next/server";
-import { BetaAnalyticsDataClient } from "@google-analytics/data";
 import { handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { ADMIN } from "@/lib/server/rate-limit";
-import { TELEMETRY_EVENT_NAMES, TELEMETRY_EVENT_QUERY_NAMES, TELEMETRY_MODULE_INDEXES } from "@/lib/telemetry-catalog";
+import { TELEMETRY_MODULE_INDEXES } from "@/lib/telemetry-catalog";
 import { ANALYTICS_SEMANTIC_SOURCE_REGISTRY, ANALYTICS_SEMANTIC_STRATEGIES } from "@/lib/analytics-semantics";
 import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
 import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 import { getAllDropReferenceMap, resolveDropTitle } from "@/lib/server/drop-references";
+import {
+    createAdminAnalyticsDataClient,
+    fetchAdminHistoricalAnalyticsSources,
+    getAdminAnalyticsPropertyId,
+} from "@/lib/server/admin-analytics-data";
 import { buildModuleCoverageReport, buildParityInsight, sumCountBuckets } from "@/lib/server/analytics-parity";
 import { buildSemanticCategorySummaries, summarizeSecurityReason } from "@/lib/server/analytics-semantics";
 import { buildAnalyticsMetricReport } from "@/lib/server/analytics-metrics";
@@ -33,7 +37,6 @@ import {
     buildMergedCountMap,
     dayKeyToLabel,
     dayKeyToRawDate,
-    fetchTelemetryLogs,
     formatTaskReason,
     getRangeWindow,
     getTelemetryDropId,
@@ -44,7 +47,6 @@ import {
     normalizeViewerIdentity,
     rawDateToDayKey,
     safeParams,
-    safeRunReport,
     sum,
     sumEventCounts,
     sumSnapshotField,
@@ -54,26 +56,8 @@ import {
 } from "@/lib/server/admin-analytics-shared";
 import { guardApiRequest } from "@/lib/server/request-guard";
 
-const propertyId = process.env.GA_PROPERTY_ID;
-const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
-
-// Initialize with explicit credentials if available, otherwise fallback to Default Application Credentials
-let analyticsClient: BetaAnalyticsDataClient;
-const ANALYTICS_EVENT_NAMES = TELEMETRY_EVENT_QUERY_NAMES;
-
-if (clientEmail && privateKey) {
-    analyticsClient = new BetaAnalyticsDataClient({
-        credentials: {
-            client_email: clientEmail,
-            private_key: privateKey,
-            project_id: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-        },
-    });
-} else {
-    // In Firebase App Hosting production, this will use the default service account automatically
-    analyticsClient = new BetaAnalyticsDataClient();
-}
+const propertyId = getAdminAnalyticsPropertyId();
+const analyticsClient = createAdminAnalyticsDataClient();
 
 export async function GET(request: NextRequest) {
     try {
@@ -100,7 +84,7 @@ export async function GET(request: NextRequest) {
             const dropReferences = await getAllDropReferenceMap();
             const startDayKey = new Date(startMs).toISOString().slice(0, 10);
 
-            const [
+            const {
                 response,
                 eventsResponse,
                 geoResponse,
@@ -119,134 +103,17 @@ export async function GET(request: NextRequest) {
                 guestBatchesSnapshot,
                 commerceSummarySnapshot,
                 dropsSnapshot,
-            ] = await Promise.all([
-            safeRunReport(analyticsClient, {
-                    property: `properties/${propertyId}`,
-                    dateRanges: [{ startDate, endDate: "today" }],
-                    metrics: [
-                        { name: "activeUsers" },
-                        { name: "screenPageViews" },
-                        { name: "sessions" },
-                        { name: "newUsers" },
-                        { name: "averageSessionDuration" },
-                        { name: "engagementRate" }
-                    ],
-                    dimensions: [{ name: "date" }],
-                    orderBys: [{
-                        dimension: { dimensionName: "date" },
-                        desc: false
-                    }]
-                }),
-            safeRunReport(analyticsClient, {
-                    property: `properties/${propertyId}`,
-                    dateRanges: [{ startDate, endDate: "today" }],
-                    metrics: [{ name: "eventCount" }],
-                    dimensions: [{ name: "eventName" }],
-                    dimensionFilter: {
-                        filter: {
-                            fieldName: "eventName",
-                            inListFilter: {
-                                values: ANALYTICS_EVENT_NAMES
-                            }
-                        }
-                    }
-                }),
-            safeRunReport(analyticsClient, {
-                    property: `properties/${propertyId}`,
-                    dateRanges: [{ startDate, endDate: "today" }],
-                    metrics: [{ name: "activeUsers" }],
-                    dimensions: [{ name: "country" }, { name: "city" }],
-                    orderBys: [{ metric: { metricName: "activeUsers" }, desc: true }],
-                    limit: 15
-                }),
-            safeRunReport(analyticsClient, {
-                    property: `properties/${propertyId}`,
-                    dateRanges: [{ startDate, endDate: "today" }],
-                    metrics: [{ name: "screenPageViews" }, { name: "averageSessionDuration" }, { name: "engagementRate" }],
-                    dimensions: [{ name: "pagePath" }],
-                    orderBys: [{ metric: { metricName: "screenPageViews" }, desc: true }],
-                    limit: 25
-                }),
-            safeRunReport(analyticsClient, {
-                    property: `properties/${propertyId}`,
-                    dateRanges: [{ startDate, endDate: "today" }],
-                    metrics: [
-                        { name: "activeUsers" },
-                        { name: "sessions" },
-                        { name: "engagementRate" }
-                    ],
-                    dimensions: [{ name: "deviceCategory" }],
-                    orderBys: [{ metric: { metricName: "activeUsers" }, desc: true }],
-                    limit: 3
-                }),
-            safeRunReport(analyticsClient, {
-                    property: `properties/${propertyId}`,
-                    dateRanges: [{ startDate, endDate: "today" }],
-                    metrics: [{ name: "eventCount" }],
-                    dimensions: [{ name: "customEvent:durationSeconds" }],
-                    dimensionFilter: {
-                        filter: {
-                            fieldName: "eventName",
-                            stringFilter: {
-                                value: "guided_onboarding_completed",
-                                matchType: "EXACT"
-                            }
-                        }
-                    }
-                }),
-                adminDb.collection("analytics_rollups_daily").get(),
-                adminDb.collection("analytics_page_daily")
-                    .where("dayKey", ">=", startDayKey)
-                    .get(),
-                adminDb.collection("analytics_drop_daily")
-                    .where("dayKey", ">=", startDayKey)
-                    .get(),
-                adminDb.collection("analytics_task_daily")
-                    .where("dayKey", ">=", startDayKey)
-                    .get(),
-                adminDb.collection("analytics_commerce_daily")
-                    .where("dayKey", ">=", startDayKey)
-                    .get(),
-                adminDb.collection("analytics_session_facts")
-                    .where("dayKey", ">=", startDayKey)
-                    .get(),
-                adminDb.collection("analytics_event_facts")
-                    .where("timestamp", ">=", startMs)
-                    .get(),
-                adminDb.collection("analytics_event_facts")
-                    .where("eventName", "==", "guided_onboarding_completed")
-                    .get(),
-                adminDb.collection("security_events")
-                    .where("timestamp", ">=", startMs)
-                    .orderBy("timestamp", "desc")
-                    .limit(period === "all" ? 500 : 300)
-                    .get(),
-                adminDb.collection("analytics_guest_batches")
-                    .where("receivedAtMs", ">=", startMs)
-                    .orderBy("receivedAtMs", "desc")
-                    .limit(period === "all" ? 120 : 80)
-                    .get(),
-                adminDb.collection("analytics_commerce_rollup")
-                    .doc("summary")
-                    .get(),
-                adminDb.collection("drops").get(),
-            ]);
-
-            const [
                 telemetryLogsByEvent,
                 taskEventsSnapshot,
                 transactionsInRangeSnapshot,
-            ] = await Promise.all([
-                fetchTelemetryLogs(TELEMETRY_EVENT_NAMES, startMs),
-                adminDb.collection("daily_task_events")
-                    .where("timestamp", ">=", startMs)
-                    .orderBy("timestamp", "desc")
-                    .get(),
-                adminDb.collection("transactions")
-                    .where("timestamp", ">=", startMs)
-                    .orderBy("timestamp", "desc")
-                    .get(),
-            ]);
+            } = await fetchAdminHistoricalAnalyticsSources({
+                analyticsClient,
+                propertyId,
+                startDate,
+                startDayKey,
+                startMs,
+                period,
+            });
 
             const rows = response.rows || [];
             const filteredDailyRollups = dailyRollupsSnapshot.docs.filter((doc) => doc.id >= startDayKey);
