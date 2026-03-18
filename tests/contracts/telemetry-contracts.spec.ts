@@ -73,12 +73,20 @@ describe("analytics consistency contracts", () => {
   });
 
   it("keeps admin analytics telemetry log queries tied to the shared event catalog", () => {
-    const adminAnalyticsRouteSource = readFileSync(
+    const adminAnalyticsHistoricalRouteSource = readFileSync(
+      path.resolve(process.cwd(), "src/app/api/admin/analytics/historical/route.ts"),
+      "utf8",
+    );
+    const adminAnalyticsEntryRouteSource = readFileSync(
       path.resolve(process.cwd(), "src/app/api/admin/analytics/route.ts"),
       "utf8",
     );
 
-    expect(adminAnalyticsRouteSource).toContain("fetchTelemetryLogs(TELEMETRY_EVENT_NAMES, startMs)");
-    expect(adminAnalyticsRouteSource).not.toContain("const telemetryEventNames = [");
+    expect(adminAnalyticsHistoricalRouteSource).toContain(
+      "fetchTelemetryLogs(TELEMETRY_EVENT_NAMES, startMs)",
+    );
+    expect(adminAnalyticsHistoricalRouteSource).not.toContain("const telemetryEventNames = [");
+    expect(adminAnalyticsEntryRouteSource).toContain("/api/admin/analytics/realtime");
+    expect(adminAnalyticsEntryRouteSource).toContain("/api/admin/analytics/historical");
   });
 });

@@ -712,7 +712,7 @@ export default function AdminAnalyticsPage() {
     error: liveError,
     isLoading: liveLoading,
     mutate: refreshLive,
-  } = useAuthSWR<RealtimeAnalyticsResponse>("/api/admin/analytics?type=realtime", {
+  } = useAuthSWR<RealtimeAnalyticsResponse>("/api/admin/analytics/realtime", {
     refreshInterval: 30_000,
     keepPreviousData: true,
   });
@@ -723,7 +723,7 @@ export default function AdminAnalyticsPage() {
     isLoading: historicalLoading,
     mutate: refreshHistorical,
   } = useAuthSWR<HistoricalAnalyticsResponse>(
-    `/api/admin/analytics?type=historical&period=${range}${viewerUserFilter ? `&viewerUser=${encodeURIComponent(viewerUserFilter)}` : ""}`,
+    `/api/admin/analytics/historical?period=${range}${viewerUserFilter ? `&viewerUser=${encodeURIComponent(viewerUserFilter)}` : ""}`,
     {
     refreshInterval: 60_000,
     keepPreviousData: true,
