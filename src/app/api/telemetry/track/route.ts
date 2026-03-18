@@ -11,6 +11,7 @@ import { UserProfile } from "@/types/db";
 import { createAnalyticsStorageKey, isValidAnalyticsEventId, normalizeAnalyticsClientTimestamp } from "@/lib/analytics-identifiers";
 import { buildAnalyticsTimeKeys, resolveTrackedTelemetryEvent } from "@/lib/server/analytics-event-utils";
 import { recordAnalyticsPipelineFailure } from "@/lib/server/analytics-pipeline-health";
+import { touchAnalyticsRuntime } from "@/lib/server/analytics-runtime";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 
@@ -342,6 +343,8 @@ export async function POST(req: NextRequest) {
                     receiptKey: event.eventId,
                 })),
         ]);
+
+        await touchAnalyticsRuntime(telemetryFacts[telemetryFacts.length - 1]?.nowMs ?? Date.now());
 
         return NextResponse.json({
             success: true,

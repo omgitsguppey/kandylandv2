@@ -5,6 +5,7 @@ import {buildIncrementUpdate, readNumber, readString, toTimeKeys} from "./analyt
 import {db} from "./firebase-admin.js"
 import {REGION} from "./firebase-runtime.js"
 import {incrementRealtimeNode} from "./analytics-realtime.js"
+import {touchAnalyticsRuntime} from "./analytics-runtime.js"
 
 interface TaskEventFact {
   type?: string;
@@ -77,10 +78,13 @@ export const onDailyTaskEventCreated = onDocumentCreated(
     }
 
     await batch.commit()
-    await incrementRealtimeNode("analytics/realtime/tasks", {
-      eventCount: 1,
-      rewardTotal: reward,
-      lastEventAt: timestamp,
-    })
+    await Promise.all([
+      incrementRealtimeNode("analytics/realtime/tasks", {
+        eventCount: 1,
+        rewardTotal: reward,
+        lastEventAt: timestamp,
+      }),
+      touchAnalyticsRuntime(timestamp),
+    ])
   },
 )

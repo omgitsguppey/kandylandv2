@@ -13,6 +13,7 @@ import {
 } from "./analytics-core.js"
 import {db, rtdb} from "./firebase-admin.js"
 import {REGION} from "./firebase-runtime.js"
+import {touchAnalyticsRuntime} from "./analytics-runtime.js"
 
 function buildWindowDocId(windowLabel: string) {
   return `window_${windowLabel.replace(/[^a-z0-9]+/gi, "_").toLowerCase()}`
@@ -23,6 +24,7 @@ async function writeWindowSummary(windowLabel: string, summary: AnalyticsWindowS
     ...summary,
     updatedAt: FieldValue.serverTimestamp(),
   }, {merge: true})
+  await touchAnalyticsRuntime()
 }
 
 async function queryEventsSince(sinceMs: number) {
@@ -39,6 +41,7 @@ async function writeCurrentAlerts(alerts: Array<Record<string, unknown>>) {
     alerts,
     updatedAt: FieldValue.serverTimestamp(),
   }, {merge: true})
+  await touchAnalyticsRuntime()
 }
 
 function roundCurrency(value: number) {
@@ -64,6 +67,7 @@ export const refreshRealtimeAnalytics = onSchedule(
         lastEventName: readString(entry.lastEventName),
       })),
     })
+    await touchAnalyticsRuntime()
   },
 )
 
@@ -115,6 +119,7 @@ export const materializeDropAnalyticsHourly = onSchedule(
       drops,
       updatedAt: FieldValue.serverTimestamp(),
     }, {merge: true})
+    await touchAnalyticsRuntime()
   },
 )
 
@@ -147,6 +152,7 @@ export const materializeUserAnalyticsDaily = onSchedule(
       users,
       updatedAt: FieldValue.serverTimestamp(),
     }, {merge: true})
+    await touchAnalyticsRuntime()
   },
 )
 
@@ -207,6 +213,7 @@ export const materializeCommerceEconomicsHourly = onSchedule(
       bundles,
       updatedAt: FieldValue.serverTimestamp(),
     }, {merge: true})
+    await touchAnalyticsRuntime()
   },
 )
 
@@ -250,6 +257,7 @@ export const materializeUserEconomicsLeaderboardHourly = onSchedule(
       users,
       updatedAt: FieldValue.serverTimestamp(),
     }, {merge: true})
+    await touchAnalyticsRuntime()
   },
 )
 
@@ -313,6 +321,7 @@ export const detectAnalyticsAnomaliesHourly = onSchedule(
         generatedAtMs: Date.now(),
         updatedAt: FieldValue.serverTimestamp(),
       }, {merge: true})
+      await touchAnalyticsRuntime()
     }
   },
 )

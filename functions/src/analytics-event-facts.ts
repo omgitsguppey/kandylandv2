@@ -14,6 +14,7 @@ import {db} from "./firebase-admin.js"
 import {REGION} from "./firebase-runtime.js"
 import {incrementRealtimeNode} from "./analytics-realtime.js"
 import {recordSemanticRollupFromEventFact} from "./analytics-semantics.js"
+import {touchAnalyticsRuntime} from "./analytics-runtime.js"
 
 function buildSessionFactId(event: AnalyticsEventFact) {
   const sessionKey = encodeKeyFragment(readString(event.sessionId) || readString(event.userId) || readString(event.minuteKey))
@@ -228,6 +229,7 @@ export const onAnalyticsEventFactCreated = onDocumentCreated(
         eventFact: data,
         sourceKey: "analytics_event_facts",
       }),
+      touchAnalyticsRuntime(timestamp),
     ])
   },
 )

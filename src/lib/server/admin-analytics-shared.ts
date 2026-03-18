@@ -158,12 +158,32 @@ export function getRangeWindow(period: string | null): RangeWindow {
   const now = Date.now();
   const oneDayMs = 24 * 60 * 60 * 1000;
 
+  if (period === "1h") {
+    return { startDate: "today", startMs: now - (60 * 60 * 1000) };
+  }
+
+  if (period === "6h") {
+    return { startDate: "today", startMs: now - (6 * 60 * 60 * 1000) };
+  }
+
   if (period === "24h") {
     return { startDate: "1daysAgo", startMs: now - oneDayMs };
   }
 
+  if (period === "3d") {
+    return { startDate: "3daysAgo", startMs: getCstDayStartMs(3) };
+  }
+
   if (period === "7d") {
     return { startDate: "7daysAgo", startMs: getCstDayStartMs(7) };
+  }
+
+  if (period === "14d") {
+    return { startDate: "14daysAgo", startMs: getCstDayStartMs(14) };
+  }
+
+  if (period === "90d") {
+    return { startDate: "90daysAgo", startMs: getCstDayStartMs(90) };
   }
 
   if (period === "all") {

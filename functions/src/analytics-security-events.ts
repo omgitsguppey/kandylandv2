@@ -5,6 +5,7 @@ import {buildIncrementUpdate, encodeKeyFragment, readString, readNumber, toTimeK
 import {db} from "./firebase-admin.js"
 import {REGION} from "./firebase-runtime.js"
 import {incrementRealtimeNode} from "./analytics-realtime.js"
+import {touchAnalyticsRuntime} from "./analytics-runtime.js"
 
 interface SecurityEventFact {
   eventName?: string;
@@ -124,6 +125,9 @@ export const onSecurityEventCreated = onDocumentCreated(
       )
     }
 
-    await Promise.all(realtimeUpdates)
+    await Promise.all([
+      ...realtimeUpdates,
+      touchAnalyticsRuntime(timestamp),
+    ])
   },
 )

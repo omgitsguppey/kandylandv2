@@ -37,7 +37,7 @@ import {
     toStringValue,
 } from "@/lib/server/admin-analytics-shared";
 import { guardApiRequest } from "@/lib/server/request-guard";
-import { ADMIN, HEAVY_READ } from "@/lib/server/rate-limit";
+import { ADMIN_ANALYTICS } from "@/lib/server/rate-limit";
 
 const propertyId = getAdminAnalyticsPropertyId();
 const analyticsClient = createAdminAnalyticsDataClient();
@@ -47,8 +47,8 @@ export async function GET(request: NextRequest) {
         await guardApiRequest(request, {
             routeName: "admin/analytics/historical",
             preAuthRouteName: "admin/analytics/historical/preauth",
-            preAuthRateLimit: HEAVY_READ,
-            rateLimit: ADMIN,
+            preAuthRateLimit: ADMIN_ANALYTICS,
+            rateLimit: ADMIN_ANALYTICS,
             auth: "admin",
             scopeToCaller: true,
         });

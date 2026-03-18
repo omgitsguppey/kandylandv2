@@ -14,6 +14,7 @@ import {db} from "./firebase-admin.js"
 import {REGION} from "./firebase-runtime.js"
 import {incrementRealtimeNode} from "./analytics-realtime.js"
 import {recordSemanticRollupFromGuestBatch} from "./analytics-semantics.js"
+import {touchAnalyticsRuntime} from "./analytics-runtime.js"
 
 function buildTargetLabel(rawEvent: {
   targetText?: string;
@@ -222,6 +223,7 @@ export const onGuestAnalyticsBatchCreated = onDocumentCreated(
         batch: data,
         sourceKey: "analytics_guest_batches",
       }),
+      touchAnalyticsRuntime(timestamp),
       incrementRealtimeNode("analytics/realtime/guest/overview", {
         batchCount: 1,
         eventCount: events.length,
