@@ -5,8 +5,6 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/context/AuthContext";
-import { readPreferredAuthenticatedPath } from "@/lib/navigation-persistence";
-
 const NotificationPromptBanner = dynamic(
     () => import("@/components/Dashboard/NotificationPromptBanner").then((mod) => mod.NotificationPromptBanner),
 );
@@ -29,10 +27,7 @@ export default function DashboardLayout({
             return;
         }
 
-        if (userProfile?.role === "admin") {
-            router.replace(readPreferredAuthenticatedPath("admin"));
-        }
-    }, [loading, router, user, userProfile?.role]);
+    }, [loading, router, user]);
 
     if (loading || !user) {
         return (

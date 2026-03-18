@@ -29,14 +29,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  if (navigationSession.role === "admin" && pathname.startsWith("/dashboard")) {
-    const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = destination.split("?")[0] || fallbackPath;
-    const queryIndex = destination.indexOf("?");
-    redirectUrl.search = queryIndex >= 0 ? destination.slice(queryIndex) : "";
-    return NextResponse.redirect(redirectUrl);
-  }
-
   if (navigationSession.role !== "admin" && pathname.startsWith("/admin")) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = destination.split("?")[0] || fallbackPath;
