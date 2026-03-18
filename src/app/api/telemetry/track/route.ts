@@ -8,10 +8,9 @@ import { getDropReferenceMap, resolveDropTitle } from "@/lib/server/drop-referen
 import { profileAllowsIdentifiedAnalytics, requestHasGlobalPrivacyControl } from "@/lib/server/privacy-consent";
 import { BUILT_IN_DAILY_TASKS } from "@/lib/tasks/task-catalog";
 import { UserProfile } from "@/types/db";
-import { isValidAnalyticsEventId, normalizeAnalyticsClientTimestamp } from "@/lib/analytics-identifiers";
+import { createAnalyticsStorageKey, isValidAnalyticsEventId, normalizeAnalyticsClientTimestamp } from "@/lib/analytics-identifiers";
 import { buildAnalyticsTimeKeys, resolveTrackedTelemetryEvent } from "@/lib/server/analytics-event-utils";
 import { recordAnalyticsPipelineFailure } from "@/lib/server/analytics-pipeline-health";
-import { claimAnalyticsReceipt } from "@/lib/server/analytics-receipts";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 
@@ -78,6 +77,15 @@ function sanitizeEventParams(value: unknown) {
         .filter(([, entryValue]) => entryValue !== undefined) as Array<[string, string | number | boolean]>;
 
     return Object.fromEntries(sanitizedEntries) as SanitizedEventParams;
+}
+
+function isAlreadyExistsError(error: unknown) {
+    if (!error || typeof error !== "object") {
+        return false;
+    }
+
+    const code = "code" in error ? (error as { code?: unknown }).code : undefined;
+    return code === 6 || code === "already-exists" || code === "ALREADY_EXISTS";
 }
 
 function normalizeIncomingTelemetryEvents(body: unknown): IncomingTelemetryEvent[] {
@@ -167,51 +175,34 @@ export async function POST(req: NextRequest) {
             };
         });
 
-        const acceptedEvents = (await Promise.all(resolvedEvents.map(async (event) => {
-            const accepted = await claimAnalyticsReceipt({
-                collectionName: "analytics_event_receipts",
-                receiptKey: `${userId}:${event.eventId}`,
-                data: {
-                    userId,
-                    eventId: event.eventId,
-                    eventName: event.canonicalEventName,
-                    eventTimestampMs: event.eventTimestampMs,
-                    route: "telemetry_track",
-                },
-            });
-
-            return accepted ? event : null;
-        }))).filter((event): event is ResolvedTelemetryEvent => Boolean(event));
-
-        const realtimeDb = admin.database();
         const profileSnapshot = await adminDb.collection("users").doc(userId).get();
         const profileData = profileSnapshot.data();
         const userProfile = (profileData as UserProfile | undefined) ?? null;
 
         const username = profileData?.username || profileData?.displayName || userEmail || "Unknown Collector";
         const allowIdentifiedAnalytics = profileAllowsIdentifiedAnalytics(userProfile, req);
-        const progressedTaskCount = acceptedEvents.filter((event) => event.canAdvanceTaskProgress).length;
+        const progressedTaskCount = resolvedEvents.filter((event) => event.canAdvanceTaskProgress).length;
 
-        if (acceptedEvents.length === 0) {
+        if (resolvedEvents.length === 0) {
             return NextResponse.json({
                 success: true,
                 logged: allowIdentifiedAnalytics,
                 eventCount: 0,
-                duplicateCount: resolvedEvents.length,
+                duplicateCount: 0,
                 progressedTaskCount: 0,
             });
         }
 
         if (!allowIdentifiedAnalytics) {
             if (progressedTaskCount > 0) {
-                await Promise.all(acceptedEvents
+                await Promise.all(resolvedEvents
                     .filter((event) => event.canAdvanceTaskProgress)
                     .map((event) => recordDailyTaskProgressFromEvent(
                         userId,
                         username,
                         event.canonicalEventName,
                         event.eventParamsWithMetadata,
-                        { source: "telemetry" },
+                        { source: "telemetry", receiptKey: event.eventId },
                     )));
             }
 
@@ -219,7 +210,7 @@ export async function POST(req: NextRequest) {
                 success: true,
                 logged: false,
                 eventCount: 0,
-                duplicateCount: resolvedEvents.length - acceptedEvents.length,
+                duplicateCount: 0,
                 progressedTaskCount,
                 reason: "identified_analytics_disabled",
             });
@@ -228,12 +219,12 @@ export async function POST(req: NextRequest) {
         const globalPrivacyControl = requestHasGlobalPrivacyControl(req);
         const userAgent = req.headers.get("user-agent") || "unknown";
         const uniqueDropIds = Array.from(new Set(
-            acceptedEvents
+            resolvedEvents
                 .map((event) => getStringParam(event.eventParamsWithMetadata, "drop_id"))
                 .filter((dropId) => dropId.length > 0),
         ));
         const dropReferences = uniqueDropIds.length > 0 ? await getDropReferenceMap(uniqueDropIds) : {};
-        const telemetryFacts = acceptedEvents.map((event) => {
+        const telemetryFacts = resolvedEvents.map((event) => {
             const nowMs = event.eventTimestampMs;
             const timeKeys = buildAnalyticsTimeKeys(nowMs);
             const pagePath = getStringParam(event.eventParamsWithMetadata, "page_path");
@@ -242,10 +233,12 @@ export async function POST(req: NextRequest) {
             const dropTitle = dropId
                 ? resolveDropTitle(dropReferences, dropId, getStringParam(event.eventParamsWithMetadata, "drop_title"))
                 : "";
+            const storageKey = createAnalyticsStorageKey("telemetry", userId, event.eventId);
 
             return {
                 ...event,
                 nowMs,
+                storageKey,
                 telemetryData: {
                     eventId: event.eventId,
                     eventName: event.canonicalEventName,
@@ -306,38 +299,55 @@ export async function POST(req: NextRequest) {
             };
         });
 
+        const acceptedEventIds = new Set<string>();
+        await Promise.all(telemetryFacts.map(async (event) => {
+            try {
+                await adminDb.collection("analytics_event_facts").doc(event.storageKey).create(event.analyticsEventFact);
+                acceptedEventIds.add(event.eventId);
+            } catch (error) {
+                if (isAlreadyExistsError(error)) {
+                    return;
+                }
+                throw error;
+            }
+        }));
+
+        const realtimeDb = admin.database();
         await Promise.all(telemetryFacts.flatMap((event) => [
-            realtimeDb.ref(`telemetry/events/${event.canonicalEventName}`).push(event.telemetryData),
-            realtimeDb.ref(`telemetry/users/${userId}`).push(event.telemetryData),
+            realtimeDb.ref(`telemetry/events/${event.canonicalEventName}/${event.storageKey}`).set(event.telemetryData),
+            realtimeDb.ref(`telemetry/users/${userId}/${event.storageKey}`).set(event.telemetryData),
         ]));
 
-        const factsBatch = adminDb.batch();
-        telemetryFacts.forEach((event) => {
-            factsBatch.set(adminDb.collection("analytics_event_facts").doc(), event.analyticsEventFact);
-        });
-        factsBatch.set(adminDb.collection("analytics_active_users").doc(userId), {
+        const activeUserRef = adminDb.collection("analytics_active_users").doc(userId);
+        const activeUserSnapshot = await activeUserRef.get();
+        await activeUserRef.set({
             uid: userId,
             username,
             lastSeenAt: telemetryFacts[telemetryFacts.length - 1]?.nowMs ?? Date.now(),
             lastEventName: telemetryFacts[telemetryFacts.length - 1]?.canonicalEventName ?? "",
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-            createdAt: telemetryFacts[0]?.nowMs ?? Date.now(),
+            ...(activeUserSnapshot.exists
+                ? {}
+                : {
+                    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                    firstSeenAtMs: telemetryFacts[0]?.nowMs ?? Date.now(),
+                }),
         }, { merge: true });
-        await factsBatch.commit();
 
         await Promise.all([
             ...telemetryFacts
                 .filter((event) => event.canAdvanceTaskProgress)
                 .map((event) => recordDailyTaskProgressFromEvent(userId, username, event.canonicalEventName, event.eventParamsWithMetadata, {
                     source: "telemetry",
+                    receiptKey: event.eventId,
                 })),
         ]);
 
         return NextResponse.json({
             success: true,
             logged: true,
-            eventCount: telemetryFacts.length,
-            duplicateCount: resolvedEvents.length - acceptedEvents.length,
+            eventCount: acceptedEventIds.size,
+            duplicateCount: telemetryFacts.length - acceptedEventIds.size,
             progressedTaskCount,
         });
     } catch (error) {

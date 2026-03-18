@@ -4,7 +4,7 @@ import { BetaAnalyticsDataClient } from "@google-analytics/data";
 
 import { adminDb } from "./firebase-admin";
 import { fetchTelemetryLogs, safeRunReport } from "./admin-analytics-shared";
-import { TELEMETRY_EVENT_NAMES, TELEMETRY_EVENT_QUERY_NAMES } from "@/lib/telemetry-catalog";
+import { ADMIN_TELEMETRY_LOG_EVENT_NAMES, TELEMETRY_EVENT_QUERY_NAMES } from "@/lib/telemetry-catalog";
 
 export function getAdminAnalyticsPropertyId() {
   return process.env.GA_PROPERTY_ID || "";
@@ -53,7 +53,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
     sessionFactsSnapshot,
     pipelineHealthSnapshot,
     analyticsEventFactsSnapshot,
-    onboardingFactsSnapshot,
+    analyticsEventStatsSnapshot,
     securityEventsSnapshot,
     guestBatchesSnapshot,
     commerceSummarySnapshot,
@@ -133,7 +133,9 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
         },
       },
     }),
-    adminDb.collection("analytics_rollups_daily").get(),
+    adminDb.collection("analytics_rollups_daily")
+      .where("dayKey", ">=", startDayKey)
+      .get(),
     adminDb.collection("analytics_page_daily")
       .where("dayKey", ">=", startDayKey)
       .get(),
@@ -152,12 +154,15 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
     adminDb.collection("analytics_pipeline_daily")
       .where("dayKey", ">=", startDayKey)
       .get(),
-    adminDb.collection("analytics_event_facts")
-      .where("timestamp", ">=", startMs)
-      .get(),
-    adminDb.collection("analytics_event_facts")
-      .where("eventName", "==", "guided_onboarding_completed")
-      .get(),
+    period === "all"
+      ? adminDb.collection("analytics_event_facts")
+        .orderBy("timestamp", "desc")
+        .limit(5000)
+        .get()
+      : adminDb.collection("analytics_event_facts")
+        .where("timestamp", ">=", startMs)
+        .get(),
+    adminDb.collection("analytics_event_stats").get(),
     adminDb.collection("security_events")
       .where("timestamp", ">=", startMs)
       .orderBy("timestamp", "desc")
@@ -171,7 +176,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
     adminDb.collection("analytics_commerce_rollup")
       .doc("summary")
       .get(),
-    adminDb.collection("drops").get(),
+    period === "all" ? adminDb.collection("drops").get() : Promise.resolve(null),
   ]);
 
   const [
@@ -179,15 +184,20 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
     taskEventsSnapshot,
     transactionsInRangeSnapshot,
   ] = await Promise.all([
-    fetchTelemetryLogs(TELEMETRY_EVENT_NAMES, startMs),
+    fetchTelemetryLogs(ADMIN_TELEMETRY_LOG_EVENT_NAMES, startMs),
     adminDb.collection("daily_task_events")
       .where("timestamp", ">=", startMs)
       .orderBy("timestamp", "desc")
       .get(),
-    adminDb.collection("transactions")
-      .where("timestamp", ">=", startMs)
-      .orderBy("timestamp", "desc")
-      .get(),
+    period === "all"
+      ? adminDb.collection("transactions")
+        .orderBy("timestamp", "desc")
+        .limit(500)
+        .get()
+      : adminDb.collection("transactions")
+        .where("timestamp", ">=", startMs)
+        .orderBy("timestamp", "desc")
+        .get(),
   ]);
 
   return {
@@ -205,7 +215,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
     sessionFactsSnapshot,
     pipelineHealthSnapshot,
     analyticsEventFactsSnapshot,
-    onboardingFactsSnapshot,
+    analyticsEventStatsSnapshot,
     securityEventsSnapshot,
     guestBatchesSnapshot,
     commerceSummarySnapshot,

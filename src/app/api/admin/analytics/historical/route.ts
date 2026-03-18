@@ -14,7 +14,9 @@ import {
     getAdminAnalyticsPropertyId,
 } from "@/lib/server/admin-analytics-data";
 import { buildHistoricalContentAnalytics } from "@/lib/server/admin-analytics-historical-content";
+import { buildHistoricalEngagementAnalytics } from "@/lib/server/admin-analytics-historical-engagement";
 import { buildHistoricalOnboardingOverview } from "@/lib/server/admin-analytics-historical-onboarding";
+import { buildHistoricalTaskAnalytics } from "@/lib/server/admin-analytics-historical-tasks";
 import { buildHistoricalTrafficOverview } from "@/lib/server/admin-analytics-historical-traffic";
 import { buildHistoricalValidationSummary } from "@/lib/server/admin-analytics-historical-validation";
 import { buildHistoricalViewerOverview } from "@/lib/server/admin-analytics-historical-viewer";
@@ -25,10 +27,7 @@ import {
     AUTHENTICATED_PAGE_VIEW_EVENT_NAMES,
     RegistrationFactRecord,
     TaskLifecycleLog,
-    TelemetryLogRecord,
-    buildDurationBuckets,
     buildMergedCountMap,
-    formatTaskReason,
     getRangeWindow,
     getTelemetryParamNumber,
     getTelemetryParamString,
@@ -86,7 +85,7 @@ export async function GET(request: NextRequest) {
                 sessionFactsSnapshot,
                 pipelineHealthSnapshot,
                 analyticsEventFactsSnapshot,
-                onboardingFactsSnapshot,
+                analyticsEventStatsSnapshot,
                 securityEventsSnapshot,
                 guestBatchesSnapshot,
                 commerceSummarySnapshot,
@@ -126,7 +125,7 @@ export async function GET(request: NextRequest) {
             const filteredDailyRollups = dailyRollupsSnapshot.docs.filter((doc) => doc.id >= startDayKey);
 
             const dropsData = period === "all"
-                ? dropsSnapshot.docs
+                ? (dropsSnapshot?.docs || [])
                     .map((doc: FirebaseFirestore.QueryDocumentSnapshot) => {
                         const data = doc.data() as Record<string, unknown>;
                         return {
@@ -225,16 +224,27 @@ export async function GET(request: NextRequest) {
             const telemetryEventCounts = Object.fromEntries(
                 Object.entries(telemetryLogsByEvent).map(([eventName, records]) => [eventName, records.length]),
             );
-            const canonicalEventCounts = analyticsEventFactsSnapshot.docs.reduce<Record<string, number>>((acc, doc) => {
-                const data = doc.data() as Record<string, unknown>;
-                const eventName = toStringValue(data.eventName);
-                if (!eventName) {
-                    return acc;
-                }
+            const canonicalEventCounts = period === "all"
+                ? analyticsEventStatsSnapshot.docs.reduce<Record<string, number>>((acc, doc) => {
+                    const data = doc.data() as Record<string, unknown>;
+                    const eventName = toStringValue(data.eventName) || doc.id;
+                    if (!eventName) {
+                        return acc;
+                    }
 
-                acc[eventName] = (acc[eventName] || 0) + 1;
-                return acc;
-            }, {});
+                    acc[eventName] = toNumber(data.totalCount);
+                    return acc;
+                }, {})
+                : analyticsEventFactsSnapshot.docs.reduce<Record<string, number>>((acc, doc) => {
+                    const data = doc.data() as Record<string, unknown>;
+                    const eventName = toStringValue(data.eventName);
+                    if (!eventName) {
+                        return acc;
+                    }
+
+                    acc[eventName] = (acc[eventName] || 0) + 1;
+                    return acc;
+                }, {});
             const eventsData = Object.fromEntries(buildMergedCountMap(
                 gaEventCounts,
                 telemetryEventCounts,
@@ -455,7 +465,12 @@ export async function GET(request: NextRequest) {
                     };
                 })
                 .filter((fact) => fact.eventName === "user_registered" && fact.timestamp >= startMs && fact.registrationMethod !== "");
-            const canonicalRegistrationCount = registrationFacts.length;
+            const canonicalRegistrationCount = period === "all"
+                ? Math.max(
+                    registrationFacts.length,
+                    toNumber(analyticsEventStatsSnapshot.docs.find((doc) => doc.id === "user_registered")?.data()?.totalCount),
+                )
+                : registrationFacts.length;
             const emailRegistrationCount = registrationFacts.filter((fact) => fact.registrationMethod === "email").length;
             const telemetryPurchaseCount = Math.max(eventsData.gumdrops_purchase_completed || 0, eventsData.purchase || 0);
             const purchases = Math.max(telemetryPurchaseCount, firstPartyPurchaseCount);
@@ -493,7 +508,6 @@ export async function GET(request: NextRequest) {
                 onboardingCompletionRate,
             } = buildHistoricalOnboardingOverview({
                 onboardingRows: onboardingResponse.rows || [],
-                onboardingFacts: onboardingFactsSnapshot.docs,
                 analyticsEventFacts: analyticsEventFactsSnapshot.docs,
                 startMs,
                 eventsData,
@@ -511,221 +525,32 @@ export async function GET(request: NextRequest) {
                 },
             });
 
-            const averageDuration = (records: TelemetryLogRecord[]) => {
-                const durations = records
-                    .map((record) => getTelemetryParamNumber(record, "duration_ms"))
-                    .filter((value) => value > 0);
-
-                if (durations.length === 0) {
-                    return 0;
-                }
-
-                return Math.round(durations.reduce((sum, value) => sum + value, 0) / durations.length);
-            };
-            const normalizedEmailSignUpCount = emailRegistrationCount > 0
-                ? emailRegistrationCount
-                : eventsData.auth_sign_up_success || 0;
-
-            const authBreakdown = [
-                {
-                    method: "Email sign in",
-                    attempts: eventsData.auth_sign_in_attempted || 0,
-                    successes: eventsData.auth_sign_in_success || 0,
-                    failures: eventsData.auth_sign_in_failed || 0,
-                    avgDurationMs: averageDuration(telemetryLogsByEvent.auth_sign_in_success || []),
-                },
-                {
-                    method: "Email sign up",
-                    attempts: eventsData.auth_sign_up_attempted || 0,
-                    successes: normalizedEmailSignUpCount,
-                    failures: eventsData.auth_sign_up_failed || 0,
-                    avgDurationMs: averageDuration(telemetryLogsByEvent.auth_sign_up_success || []),
-                },
-                {
-                    method: "Google sign in",
-                    attempts: eventsData.auth_google_sign_in_attempted || 0,
-                    successes: eventsData.auth_google_sign_in_success || 0,
-                    failures: eventsData.auth_google_sign_in_failed || 0,
-                    avgDurationMs: averageDuration(telemetryLogsByEvent.auth_google_sign_in_success || []),
-                },
-                {
-                    method: "Registered users",
-                    attempts: normalizedSignupCount,
-                    successes: normalizedSignupCount,
-                    failures: 0,
-                    avgDurationMs: 0,
-                },
-            ].map((entry) => ({
-                ...entry,
-                successRate: entry.attempts > 0 ? entry.successes / entry.attempts : 0,
-            }));
-
-            const onboardingDurationsMs = [
-                ...(onboardingDurationMsSamples.length > 0
-                    ? onboardingDurationMsSamples
-                    : telemetryLogsByEvent.guided_onboarding_completed.map((record) => {
-                        const directMs = getTelemetryParamNumber(record, "duration_ms");
-                        if (directMs > 0) {
-                            return directMs;
-                        }
-
-                        return getTelemetryParamNumber(record, "durationSeconds") * 1000;
-                    })),
-            ].filter((value) => value > 0);
-
-            const onboardingDurationBuckets = buildDurationBuckets(onboardingDurationsMs, [
-                { label: "<30s", max: 30_000 },
-                { label: "30-60s", max: 60_000 },
-                { label: "1-2m", max: 120_000 },
-                { label: "2-5m", max: 300_000 },
-                { label: "5m+", max: Number.POSITIVE_INFINITY },
-            ]);
-
-            const activeDaysByUser = new Map<string, Set<string>>();
-            telemetryLogs.forEach((record) => {
-                if (!record.userId) {
-                    return;
-                }
-
-                const dayKey = new Date(record.timestamp).toISOString().slice(0, 10);
-                if (!activeDaysByUser.has(record.userId)) {
-                    activeDaysByUser.set(record.userId, new Set());
-                }
-                activeDaysByUser.get(record.userId)?.add(dayKey);
+            const {
+                authBreakdown,
+                onboardingDurationBuckets,
+                repeatVisitSegments,
+                destinationMix,
+                notificationFunnel,
+                notificationActions,
+            } = buildHistoricalEngagementAnalytics({
+                telemetryLogs,
+                telemetryLogsByEvent,
+                eventsData,
+                onboardingDurationMsSamples,
+                emailRegistrationCount,
+                canonicalRegistrationCount,
             });
 
-            const activeDayCounts = Array.from(activeDaysByUser.values()).map((days) => days.size);
-            const repeatVisitSegments = [
-                { label: "1 day", users: activeDayCounts.filter((count) => count === 1).length },
-                { label: "2 days", users: activeDayCounts.filter((count) => count === 2).length },
-                { label: "3-4 days", users: activeDayCounts.filter((count) => count >= 3 && count <= 4).length },
-                { label: "5+ days", users: activeDayCounts.filter((count) => count >= 5).length },
-            ];
-
-            const destinationMap = new Map<string, number>();
-            (telemetryLogsByEvent.navigation_click || []).forEach((record) => {
-                const destination = getTelemetryParamString(record, "destination") || "/";
-                destinationMap.set(destination, (destinationMap.get(destination) || 0) + 1);
+            const {
+                taskGuidance,
+                taskPipeline,
+                taskLeaderboard,
+                taskDurationBuckets,
+                reminderReasons,
+            } = buildHistoricalTaskAnalytics({
+                eventsData,
+                normalizedTaskEvents,
             });
-            const destinationMix = Array.from(destinationMap.entries())
-                .map(([destination, count]) => ({ destination, count }))
-                .sort((left, right) => right.count - left.count)
-                .slice(0, 10);
-
-            const notificationFunnel = [
-                { label: "Prompt views", count: eventsData.notification_prompt_banner_viewed || 0 },
-                { label: "Prompt dismissals", count: eventsData.notification_prompt_banner_dismissed || 0 },
-                { label: "Notifications enabled", count: eventsData.task_notifications_enabled || 0 },
-                { label: "Dropdown opens", count: eventsData.notifications_dropdown_opened || 0 },
-                { label: "Notifications opened", count: eventsData.notification_opened || 0 },
-                { label: "Marked read", count: eventsData.notification_marked_read || 0 },
-            ];
-
-            const notificationActions = [
-                { label: "Dropdown", value: eventsData.notifications_dropdown_opened || 0 },
-                { label: "Open", value: eventsData.notification_opened || 0 },
-                { label: "Read", value: eventsData.notification_marked_read || 0 },
-                { label: "Clear all", value: eventsData.notification_mark_all_read || 0 },
-                { label: "Enable", value: eventsData.task_notifications_enabled || 0 },
-            ];
-
-            const taskGuidance = {
-                viewed: eventsData.task_guidance_banner_viewed || 0,
-                dismissed: eventsData.task_guidance_banner_dismissed || 0,
-                tapped: eventsData.task_guidance_cta_clicked || 0,
-                completed: eventsData.task_guidance_completed || 0,
-            };
-            const taskPipeline = [
-                { label: "Assigned", count: normalizedTaskEvents.filter((event) => event.type === "assigned").length },
-                { label: "Guides shown", count: taskGuidance.viewed },
-                { label: "Guide taps", count: taskGuidance.tapped },
-                { label: "Started", count: normalizedTaskEvents.filter((event) => event.type === "started").length },
-                { label: "Completed", count: normalizedTaskEvents.filter((event) => event.type === "completed").length },
-                { label: "Guide wins", count: taskGuidance.completed },
-                { label: "Failed", count: normalizedTaskEvents.filter((event) => event.type === "failed").length },
-                { label: "Reminders", count: normalizedTaskEvents.filter((event) => event.type === "reminder_sent").length },
-            ];
-
-            const taskPerformanceMap = new Map<string, {
-                taskId: string;
-                title: string;
-                assigned: number;
-                started: number;
-                completed: number;
-                failed: number;
-                rewardTotal: number;
-                durations: number[];
-            }>();
-            normalizedTaskEvents.forEach((event) => {
-                const key = event.taskId || event.title;
-                const current = taskPerformanceMap.get(key) || {
-                    taskId: event.taskId || key,
-                    title: event.title || key,
-                    assigned: 0,
-                    started: 0,
-                    completed: 0,
-                    failed: 0,
-                    rewardTotal: 0,
-                    durations: [],
-                };
-
-                if (event.type === "assigned") current.assigned += 1;
-                if (event.type === "started") current.started += 1;
-                if (event.type === "completed") {
-                    current.completed += 1;
-                    current.rewardTotal += event.reward;
-                    if (event.durationMs && event.durationMs > 0) {
-                        current.durations.push(event.durationMs);
-                    }
-                }
-                if (event.type === "failed") {
-                    current.failed += 1;
-                    if (event.durationMs && event.durationMs > 0) {
-                        current.durations.push(event.durationMs);
-                    }
-                }
-
-                taskPerformanceMap.set(key, current);
-            });
-
-            const taskLeaderboard = Array.from(taskPerformanceMap.values())
-                .map((entry) => ({
-                    taskId: entry.taskId,
-                    title: entry.title,
-                    assigned: entry.assigned,
-                    started: entry.started,
-                    completed: entry.completed,
-                    failed: entry.failed,
-                    rewardTotal: entry.rewardTotal,
-                    avgDurationMs: entry.durations.length > 0
-                        ? Math.round(entry.durations.reduce((sum, value) => sum + value, 0) / entry.durations.length)
-                        : 0,
-                    completionRate: entry.assigned > 0 ? entry.completed / entry.assigned : 0,
-                }))
-                .sort((left, right) => right.completed - left.completed || right.rewardTotal - left.rewardTotal)
-                .slice(0, 10);
-
-            const taskDurationBuckets = buildDurationBuckets(
-                normalizedTaskEvents
-                    .filter((event) => event.type === "completed" && (event.durationMs || 0) > 0)
-                    .map((event) => event.durationMs || 0),
-                [
-                    { label: "<1m", max: 60_000 },
-                    { label: "1-5m", max: 300_000 },
-                    { label: "5-15m", max: 900_000 },
-                    { label: "15-60m", max: 3_600_000 },
-                    { label: "60m+", max: Number.POSITIVE_INFINITY },
-                ],
-            );
-
-            const reminderReasonMap = new Map<string, number>();
-            normalizedTaskEvents
-                .filter((event) => event.type === "reminder_sent")
-                .forEach((event) => {
-                    const label = formatTaskReason(event.reason || "");
-                    reminderReasonMap.set(label, (reminderReasonMap.get(label) || 0) + 1);
-                });
-            const reminderReasons = Array.from(reminderReasonMap.entries()).map(([label, count]) => ({ label, count }));
 
             const {
                 packagePerformance,

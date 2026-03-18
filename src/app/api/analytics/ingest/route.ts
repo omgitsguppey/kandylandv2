@@ -7,10 +7,9 @@ import { requestAllowsAnonymousAnalytics, requestHasGlobalPrivacyControl } from 
 import { TELEMETRY_EVENT_INDEX_VERSION } from "@/lib/telemetry-catalog";
 import { buildAnalyticsTimeKeys } from "@/lib/server/analytics-event-utils";
 import { recordAnalyticsPipelineFailure } from "@/lib/server/analytics-pipeline-health";
-import { claimAnalyticsReceipt } from "@/lib/server/analytics-receipts";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
-import { ANALYTICS_BATCH_ID_PATTERN, createAnalyticsBatchId } from "@/lib/analytics-identifiers";
+import { ANALYTICS_BATCH_ID_PATTERN, createAnalyticsBatchId, createAnalyticsStorageKey } from "@/lib/analytics-identifiers";
 
 export const dynamic = "force-dynamic";
 const SESSION_COOKIE_NAME = "kandydrops_sid";
@@ -124,72 +123,91 @@ export async function POST(request: NextRequest) {
 
         // Group events by a unique minute-bucket to prevent writing thousands of tiny docs.
         const minuteBucket = timeKeys.minuteKey;
-        const claimedReceipt = await claimAnalyticsReceipt({
-            collectionName: "analytics_guest_receipts",
-            receiptKey: `${sessionKey}:${batchId}`,
-            data: {
-                batchId,
+        const docId = `${sessionKey}_${minuteBucket}`;
+        const docRef = adminDb.collection("analytics_sessions").doc(docId);
+        const guestBatchRef = adminDb.collection("analytics_guest_batches").doc(
+            createAnalyticsStorageKey("guest_batch", sessionKey, batchId),
+        );
+        const uniquePagePaths = Array.from(new Set(sanitizedEvents.map((event) => event.path)));
+        const uniqueInteractionTypes = Array.from(new Set(sanitizedEvents.map((event) => event.type)));
+        const batchScrollDepth = sanitizedEvents.reduce((maxDepth, event) => Math.max(maxDepth, event.scrollDepthPercent || 0), 0);
+        const hasPixelData = sanitizedEvents.some((event) => Number.isFinite(event.x) && Number.isFinite(event.y));
+        const transactionResult = await adminDb.runTransaction(async (transaction) => {
+            const [existingBatchSnapshot, sessionSnapshot] = await Promise.all([
+                transaction.get(guestBatchRef),
+                transaction.get(docRef),
+            ]);
+
+            if (existingBatchSnapshot.exists) {
+                return { deduped: true };
+            }
+
+            const existingSessionData = sessionSnapshot.exists
+                ? sessionSnapshot.data() as Record<string, unknown>
+                : null;
+            const existingPagePaths = Array.isArray(existingSessionData?.pagePaths)
+                ? (existingSessionData?.pagePaths as unknown[]).filter((value): value is string => typeof value === "string")
+                : [];
+            const existingInteractionTypes = Array.isArray(existingSessionData?.interactionTypes)
+                ? (existingSessionData?.interactionTypes as unknown[]).filter((value): value is string => typeof value === "string")
+                : [];
+            const mergedPagePaths = Array.from(new Set([...existingPagePaths, ...uniquePagePaths])).slice(0, 25);
+            const mergedInteractionTypes = Array.from(new Set([...existingInteractionTypes, ...uniqueInteractionTypes])).slice(0, 12);
+            const nextMaxScrollDepth = Math.max(
+                batchScrollDepth,
+                Number(existingSessionData?.maxScrollDepth) || 0,
+            );
+
+            transaction.set(docRef, {
                 sessionKey,
                 clientSessionId: sessionId || null,
                 minuteBucket,
+                consentMode: "anonymous",
+                globalPrivacyControl,
+                eventIndexVersion: TELEMETRY_EVENT_INDEX_VERSION,
+                trackingOrigin: "guest_client",
+                ...(sessionSnapshot.exists ? {} : { createdAt: FieldValue.serverTimestamp() }),
+                updatedAt: FieldValue.serverTimestamp(),
+                lastReceivedAtMs: nowMs,
+                expiresAt: Timestamp.fromMillis(nowMs + ANALYTICS_SESSION_TTL_MS),
+                batchCount: FieldValue.increment(1),
+                eventCount: FieldValue.increment(sanitizedEvents.length),
+                maxScrollDepth: nextMaxScrollDepth,
+                pagePaths: mergedPagePaths,
+                interactionTypes: mergedInteractionTypes,
+            }, { merge: true });
+
+            transaction.create(guestBatchRef, {
+                batchId,
+                sessionDocId: docId,
+                source: "guest",
+                sessionKey,
+                clientSessionId: sessionId || null,
+                minuteBucket,
+                consentMode: "anonymous",
+                globalPrivacyControl,
+                eventIndexVersion: TELEMETRY_EVENT_INDEX_VERSION,
+                trackingOrigin: "guest_client",
                 receivedAtMs: nowMs,
-                route: "analytics_ingest",
-            },
+                dayKey: timeKeys.dayKey,
+                hourKey: timeKeys.hourKey,
+                minuteKey: timeKeys.minuteKey,
+                expiresAt: Timestamp.fromMillis(nowMs + ANALYTICS_GUEST_BATCH_TTL_MS),
+                eventCount: sanitizedEvents.length,
+                pagePaths: uniquePagePaths,
+                interactionTypes: uniqueInteractionTypes,
+                maxScrollDepth: batchScrollDepth,
+                hasPixelData,
+                events: sanitizedEvents,
+                createdAt: FieldValue.serverTimestamp(),
+            });
+
+            return { deduped: false };
         });
 
-        if (!claimedReceipt) {
+        if (transactionResult.deduped) {
             return NextResponse.json({ success: true, deduped: true, processed: 0 });
         }
-
-        const docId = `${sessionKey}_${minuteBucket}`;
-        const docRef = adminDb.collection("analytics_sessions").doc(docId);
-        const guestBatchRef = adminDb.collection("analytics_guest_batches").doc(batchId);
-        const uniquePagePaths = Array.from(new Set(sanitizedEvents.map((event) => event.path)));
-        const uniqueInteractionTypes = Array.from(new Set(sanitizedEvents.map((event) => event.type)));
-
-        await docRef.set({
-            sessionKey,
-            clientSessionId: sessionId || null,
-            minuteBucket,
-            consentMode: "anonymous",
-            globalPrivacyControl,
-            eventIndexVersion: TELEMETRY_EVENT_INDEX_VERSION,
-            trackingOrigin: "guest_client",
-            createdAt: FieldValue.serverTimestamp(),
-            updatedAt: FieldValue.serverTimestamp(),
-            lastReceivedAtMs: nowMs,
-            expiresAt: Timestamp.fromMillis(nowMs + ANALYTICS_SESSION_TTL_MS),
-            batchCount: FieldValue.increment(1),
-            eventCount: FieldValue.increment(sanitizedEvents.length),
-            maxScrollDepth: sanitizedEvents.reduce((maxDepth, event) => Math.max(maxDepth, event.scrollDepthPercent || 0), 0),
-            pagePaths: uniquePagePaths.slice(0, 25),
-            interactionTypes: uniqueInteractionTypes.slice(0, 12),
-        }, { merge: true });
-
-        await guestBatchRef.set({
-            batchId,
-            sessionDocId: docId,
-            source: "guest",
-            sessionKey,
-            clientSessionId: sessionId || null,
-            minuteBucket,
-            consentMode: "anonymous",
-            globalPrivacyControl,
-            eventIndexVersion: TELEMETRY_EVENT_INDEX_VERSION,
-            trackingOrigin: "guest_client",
-            receivedAtMs: nowMs,
-            dayKey: timeKeys.dayKey,
-            hourKey: timeKeys.hourKey,
-            minuteKey: timeKeys.minuteKey,
-            expiresAt: Timestamp.fromMillis(nowMs + ANALYTICS_GUEST_BATCH_TTL_MS),
-            eventCount: sanitizedEvents.length,
-            pagePaths: uniquePagePaths,
-            interactionTypes: uniqueInteractionTypes,
-            maxScrollDepth: sanitizedEvents.reduce((maxDepth, event) => Math.max(maxDepth, event.scrollDepthPercent || 0), 0),
-            hasPixelData: sanitizedEvents.some((event) => Number.isFinite(event.x) && Number.isFinite(event.y)),
-            events: sanitizedEvents,
-            createdAt: FieldValue.serverTimestamp(),
-        });
 
         const response = NextResponse.json({ success: true, processed: events.length });
         if (shouldSetCookie) {
@@ -220,7 +238,6 @@ export async function POST(request: NextRequest) {
             routeName: "analytics/ingest",
             errorMessage: error instanceof Error ? error.message : String(error),
         });
-        // Fail silently to the client to avoid console spam for analytics
-        return NextResponse.json({ success: false }, { status: 200 });
+        return NextResponse.json({ success: false, retryable: true }, { status: 503 });
     }
 }

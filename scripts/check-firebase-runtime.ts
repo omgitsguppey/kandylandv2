@@ -14,6 +14,7 @@ async function main() {
   const fatalWarnings = warnings.filter((warning) => warning.includes("does not match"));
   const missingWarnings = warnings.filter((warning) => !warning.includes("does not match"));
   const shouldFailOnMissingWarnings = process.env.CI === "true" || process.env.NODE_ENV === "production";
+  const shouldRequireAppCheck = process.env.CI === "true" || process.env.NODE_ENV === "production";
 
   console.log("Firebase runtime snapshot:");
   console.log(JSON.stringify({
@@ -42,6 +43,16 @@ async function main() {
     console.error("Firebase runtime mismatches:");
     fatalWarnings.forEach((warning) => console.error(`- ${warning}`));
     process.exit(1);
+  }
+
+  if (!snapshot.appCheckEnabled) {
+    const message = "Firebase App Check is disabled.";
+    if (shouldRequireAppCheck) {
+      console.error(message);
+      process.exit(1);
+    }
+
+    console.warn(message);
   }
 
   console.log("Firebase runtime check passed.");

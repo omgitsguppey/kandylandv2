@@ -399,6 +399,29 @@ export const TELEMETRY_EVENT_QUERY_NAMES = Array.from(
   new Set([...TELEMETRY_EVENT_NAMES, ...Object.keys(TELEMETRY_EVENT_ALIAS_MAP)]),
 );
 
+export const ADMIN_TELEMETRY_LOG_EVENT_NAMES = [
+  "auth_sign_in_attempted",
+  "auth_sign_in_success",
+  "auth_sign_in_failed",
+  "auth_sign_up_attempted",
+  "auth_sign_up_success",
+  "auth_sign_up_failed",
+  "auth_google_sign_in_attempted",
+  "auth_google_sign_in_success",
+  "auth_google_sign_in_failed",
+  "guided_onboarding_completed",
+  "navigation_click",
+  "viewer_opened",
+  "viewer_content_loaded",
+  "viewer_session_started",
+  "viewer_session_completed",
+  "viewer_asset_started",
+  "viewer_asset_completed",
+  "viewer_asset_changed",
+  "viewer_source_downloaded",
+  "viewer_related_drop_clicked",
+] as const;
+
 export function normalizeTelemetryEventName(eventName: string) {
   return TELEMETRY_EVENT_ALIAS_MAP[eventName] || eventName;
 }

@@ -89,7 +89,8 @@ describe("analytics consistency contracts", () => {
     expect(adminAnalyticsHistoricalRouteSource).toContain("fetchAdminHistoricalAnalyticsSources");
     expect(adminAnalyticsEntryRouteSource).toContain("/api/admin/analytics/realtime");
     expect(adminAnalyticsEntryRouteSource).toContain("/api/admin/analytics/historical");
-    expect(adminAnalyticsDataSource).toContain("fetchTelemetryLogs(TELEMETRY_EVENT_NAMES, startMs)");
+    expect(adminAnalyticsDataSource).toContain("fetchTelemetryLogs(ADMIN_TELEMETRY_LOG_EVENT_NAMES, startMs)");
     expect(adminAnalyticsDataSource).not.toContain("const telemetryEventNames = [");
+    expect(adminAnalyticsDataSource).not.toContain("const ADMIN_TELEMETRY_LOG_EVENT_NAMES = [");
   });
 });

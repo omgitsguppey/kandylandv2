@@ -935,7 +935,7 @@ export async function recordDailyTaskProgressFromEvent(
   const userRef = adminDb.collection("users").doc(uid);
   const definitions = await resolveTaskDefinitionsForUser(uid);
   const definitionMap = createDefinitionMap(definitions);
-  const receiptRef = options?.source === "canonical" && options.receiptKey
+  const receiptRef = options?.receiptKey
     ? adminDb.collection(TASK_RECEIPT_COLLECTION).doc(
       buildTaskReceiptDocId(uid, eventName, options.receiptKey),
     )
@@ -968,7 +968,7 @@ export async function recordDailyTaskProgressFromEvent(
         params: eventParams ?? {},
         createdAt: FieldValue.serverTimestamp(),
         timestamp: nowMs,
-        source: "canonical",
+        source: options?.source ?? "canonical",
       });
     }
     const updatedTasks = [...result.state.tasks];

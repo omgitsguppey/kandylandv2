@@ -98,6 +98,7 @@ export type SessionFactRecord = {
 };
 
 export type OnboardingFactRecord = {
+  eventName?: string;
   timestamp: number;
   durationMs: number;
 };
@@ -218,15 +219,16 @@ export function getTelemetryParamNumber(record: TelemetryLogRecord, key: string)
 }
 
 export async function fetchTelemetryLogs(
-  eventNames: string[],
+  eventNames: readonly string[],
   startMs: number,
 ): Promise<Record<string, TelemetryLogRecord[]>> {
   const eventMap: Record<string, TelemetryLogRecord[]> = {};
 
   try {
     const database = firebaseAdmin.database();
-    const snapshots = await Promise.all(
+    await Promise.all(
       eventNames.map(async (eventName) => {
+        try {
         const snapshot = await database
           .ref(`telemetry/events/${eventName}`)
           .orderByChild("timestamp")
@@ -255,10 +257,12 @@ export async function fetchTelemetryLogs(
         eventMap[eventName] = records
           .filter((record) => record.timestamp >= startMs)
           .sort((left, right) => right.timestamp - left.timestamp);
+        } catch (error) {
+          console.warn(`Admin analytics telemetry query failed for ${eventName}:`, error);
+          eventMap[eventName] = [];
+        }
       }),
     );
-
-    await Promise.all(snapshots);
   } catch (error) {
     console.warn("Admin analytics telemetry query failed:", error);
     eventNames.forEach((eventName) => {

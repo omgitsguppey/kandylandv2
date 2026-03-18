@@ -31,7 +31,6 @@ export interface HistoricalOnboardingOverview {
 
 export function buildHistoricalOnboardingOverview(input: {
   onboardingRows: AnalyticsReportRow[];
-  onboardingFacts: FirebaseFirestore.QueryDocumentSnapshot[];
   analyticsEventFacts: FirebaseFirestore.QueryDocumentSnapshot[];
   startMs: number;
   eventsData: Record<string, number>;
@@ -39,16 +38,17 @@ export function buildHistoricalOnboardingOverview(input: {
   let totalOnboardingCompletions = 0;
   let totalOnboardingSeconds = 0;
 
-  const normalizedOnboardingFacts: OnboardingFactRecord[] = input.onboardingFacts
+  const normalizedOnboardingFacts: OnboardingFactRecord[] = input.analyticsEventFacts
     .map((doc) => {
       const data = doc.data() as Record<string, unknown>;
       const params = safeParams(data.params);
       return {
+        eventName: toStringValue(data.eventName),
         timestamp: toNumber(data.timestamp),
         durationMs: Math.max(toNumber(data.durationMs), toNumber(params.duration_ms)),
       };
     })
-    .filter((fact) => fact.timestamp >= input.startMs);
+    .filter((fact) => fact.eventName === "guided_onboarding_completed" && fact.timestamp >= input.startMs);
 
   const onboardingStepFacts: OnboardingStepFactRecord[] = input.analyticsEventFacts
     .map((doc) => {
