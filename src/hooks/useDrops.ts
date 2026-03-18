@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import useSWRInfinite from "swr/infinite";
+import { recordClientDiagnostic } from "@/lib/client-diagnostics";
 import { Drop } from "@/types/db";
 import { applyDropStatus } from "@/lib/drop-status";
 import { DROP_RUNTIME_COLLECTION, DROP_RUNTIME_DOC_ID } from "@/lib/drop-runtime";
@@ -16,12 +17,39 @@ interface DropFeedPage {
   nextCursor: string | null;
 }
 
+const dropPageEtagCache = new Map<string, string>();
+const dropPageResponseCache = new Map<string, DropFeedPage>();
+
 const fetcher = async (url: string) => {
-  const res = await fetch(url);
+  const headers = new Headers();
+  const cachedEtag = dropPageEtagCache.get(url);
+  if (cachedEtag) {
+    headers.set("If-None-Match", cachedEtag);
+  }
+
+  const res = await fetch(url, { headers });
+  if (res.status === 304) {
+    const cachedPage = dropPageResponseCache.get(url);
+    if (cachedPage) {
+      return cachedPage;
+    }
+
+    return {
+      drops: [],
+      nextCursor: null,
+    } satisfies DropFeedPage;
+  }
+
   const json = await res.json();
   if (!res.ok) {
     throw new Error(json.error || `HTTP error! status: ${res.status}`);
   }
+
+  const responseEtag = res.headers.get("etag");
+  if (responseEtag) {
+    dropPageEtagCache.set(url, responseEtag);
+  }
+  dropPageResponseCache.set(url, json as DropFeedPage);
   return json;
 };
 
@@ -110,11 +138,17 @@ export function useDrops(
           },
           (error) => {
             console.error("Failed to subscribe to drop runtime updates", error);
+            recordClientDiagnostic("realtime", "Drop runtime subscription failed", {
+              message: error.message,
+            });
           },
         );
       } catch (error) {
         if (!cancelled) {
           console.error("Failed to initialize drop runtime subscription", error);
+          recordClientDiagnostic("firebase", "Drop runtime setup failed", {
+            message: error instanceof Error ? error.message : String(error),
+          });
         }
       }
     }

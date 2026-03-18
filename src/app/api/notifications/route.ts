@@ -8,8 +8,11 @@ import { handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { broadcastFCM } from "@/lib/server/fcm-utils";
 import { fetchUnreadNotificationsForUser, isNotificationVisibleToUser } from "@/lib/server/notification-inbox";
+import { buildNotModifiedResponse, PRIVATE_REVALIDATE_CACHE_CONTROL, requestMatchesEtag } from "@/lib/http-cache";
+import { markNotificationsRuntimeChanged, touchNotificationsRuntime } from "@/lib/server/notification-runtime";
 import { HEAVY_READ, STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { touchUserRuntime } from "@/lib/server/user-runtime";
 
 const DUPLICATE_NOTIFICATION_WINDOW_MS = 2 * 60 * 1000;
 
@@ -69,14 +72,8 @@ export async function GET(request: NextRequest) {
     });
     const etag = buildNotificationsEtag(notifications);
 
-    if (request.headers.get("if-none-match") === etag) {
-      return new NextResponse(null, {
-        status: 304,
-        headers: {
-          ETag: etag,
-          "Cache-Control": "private, no-cache, must-revalidate",
-        },
-      });
+    if (requestMatchesEtag(request, etag)) {
+      return buildNotModifiedResponse(etag, PRIVATE_REVALIDATE_CACHE_CONTROL);
     }
 
     return NextResponse.json(
@@ -84,7 +81,7 @@ export async function GET(request: NextRequest) {
       {
         headers: {
           ETag: etag,
-          "Cache-Control": "private, no-cache, must-revalidate",
+          "Cache-Control": PRIVATE_REVALIDATE_CACHE_CONTROL,
         },
       },
     );
@@ -144,6 +141,7 @@ export async function POST(request: NextRequest) {
         notificationId: notificationRef.id,
         updatedAt: FieldValue.serverTimestamp(),
       }, { merge: true });
+      markNotificationsRuntimeChanged(transaction, nowMs);
 
       return { duplicate: false };
     });
@@ -159,6 +157,8 @@ export async function POST(request: NextRequest) {
         console.error("Notification broadcast failed after notification was recorded:", error);
       }
     }
+
+    await touchNotificationsRuntime(nowMs);
 
     return NextResponse.json({ success: true, duplicate: false });
   } catch (error) {
@@ -207,6 +207,9 @@ export async function PUT(request: NextRequest) {
     }
 
     await ref.update({ readBy: FieldValue.arrayUnion(caller?.uid ?? "") });
+    await touchUserRuntime(caller?.uid ?? "", {
+      notifications: true,
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -1,16 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Activity, ArrowDownLeft, ArrowUpRight, CheckCircle2, Loader2, TriangleAlert } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 import { useAuth } from "@/context/AuthContext";
 import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
+import { recordClientDiagnostic } from "@/lib/client-diagnostics";
 import { trackEvent } from "@/lib/telemetry";
 import type { Transaction } from "@/types/db";
 import { authFetch } from "@/lib/authFetch";
 import { ACTIVITY_SYNC_EVENT } from "@/lib/activity-sync";
+import { USER_RUNTIME_COLLECTION } from "@/lib/user-runtime";
 
 interface TaskEventRecord {
     id: string;
@@ -76,6 +78,7 @@ export function RecentActivityFeed() {
     const router = useRouter();
     const [activities, setActivities] = useState<ActivityItem[]>([]);
     const [loading, setLoading] = useState(true);
+    const etagRef = useRef<string | null>(null);
 
     useEffect(() => {
         if (!user) {
@@ -88,6 +91,8 @@ export function RecentActivityFeed() {
         trackEvent("recent_activity_viewed");
         let mounted = true;
         let inFlight = false;
+        let unsubscribeUserRuntime: (() => void) | undefined;
+        let sawUserRuntimeSnapshot = false;
 
         async function fetchRecentActivity() {
             if (inFlight) {
@@ -96,7 +101,16 @@ export function RecentActivityFeed() {
 
             inFlight = true;
             try {
-                const response = await authFetch("/api/user/activity");
+                const headers = new Headers();
+                if (etagRef.current) {
+                    headers.set("If-None-Match", etagRef.current);
+                }
+
+                const response = await authFetch("/api/user/activity", { headers });
+                if (response.status === 304) {
+                    return;
+                }
+
                 const result = await response.json() as {
                     success?: boolean;
                     transactions?: Transaction[];
@@ -110,6 +124,8 @@ export function RecentActivityFeed() {
                 if (!mounted) {
                     return;
                 }
+
+                etagRef.current = response.headers.get("etag");
 
                 const nextActivities: ActivityItem[] = [];
 
@@ -142,6 +158,10 @@ export function RecentActivityFeed() {
                 setActivities(nextActivities.slice(0, 8));
             } catch (error) {
                 console.error("Failed to fetch recent activity", error);
+                recordClientDiagnostic("cache", "Recent activity refresh failed", {
+                    userId: user?.uid ?? "",
+                    message: error instanceof Error ? error.message : String(error),
+                });
             } finally {
                 inFlight = false;
                 if (mounted) {
@@ -149,6 +169,45 @@ export function RecentActivityFeed() {
                 }
             }
         }
+
+        const subscribeToUserRuntime = async () => {
+            try {
+                const [{ doc, onSnapshot }, { db }] = await Promise.all([
+                    import("firebase/firestore"),
+                    import("@/lib/firebase-data"),
+                ]);
+
+                if (!mounted) {
+                    return;
+                }
+
+                unsubscribeUserRuntime = onSnapshot(
+                    doc(db, USER_RUNTIME_COLLECTION, user.uid),
+                    (snapshot) => {
+                        if (!sawUserRuntimeSnapshot) {
+                            sawUserRuntimeSnapshot = true;
+                            return;
+                        }
+
+                        const data = snapshot.data() as { activityVersion?: number; tasksVersion?: number } | undefined;
+                        if (typeof data?.activityVersion === "number" || typeof data?.tasksVersion === "number") {
+                            void fetchRecentActivity();
+                        }
+                    },
+                    (error) => {
+                        recordClientDiagnostic("realtime", "Recent activity runtime subscription failed", {
+                            userId: user.uid,
+                            message: error.message,
+                        });
+                    },
+                );
+            } catch (error) {
+                recordClientDiagnostic("firebase", "Recent activity runtime setup failed", {
+                    userId: user.uid,
+                    message: error instanceof Error ? error.message : String(error),
+                });
+            }
+        };
 
         const refreshRecentActivity = () => {
             void fetchRecentActivity();
@@ -160,11 +219,12 @@ export function RecentActivityFeed() {
         };
 
         void fetchRecentActivity();
+        void subscribeToUserRuntime();
         const intervalId = window.setInterval(() => {
             if (document.visibilityState === "visible") {
                 refreshRecentActivity();
             }
-        }, 30_000);
+        }, 90_000);
         window.addEventListener("focus", refreshRecentActivity);
         window.addEventListener(ACTIVITY_SYNC_EVENT, refreshRecentActivity);
         document.addEventListener("visibilitychange", handleVisibilityChange);
@@ -175,6 +235,9 @@ export function RecentActivityFeed() {
             window.removeEventListener("focus", refreshRecentActivity);
             window.removeEventListener(ACTIVITY_SYNC_EVENT, refreshRecentActivity);
             document.removeEventListener("visibilitychange", handleVisibilityChange);
+            if (unsubscribeUserRuntime) {
+                unsubscribeUserRuntime();
+            }
         };
     }, [user]);
 

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 
 import { CLIENT_RUNTIME_STORAGE_KEYS } from "@/hooks/client-runtime";
+import { recordClientDiagnostic } from "@/lib/client-diagnostics";
 import { buildAnalyticsSemanticParams, resolveAnalyticsSemanticContext } from "@/lib/analytics-semantics";
 import { canUseAnonymousAnalytics, readPrivacySettingsSnapshot, subscribeToPrivacySettings } from "@/lib/privacy-consent";
 import { trackEvent } from "@/lib/telemetry";
@@ -165,7 +166,12 @@ export function DeepTracker() {
                     method: "POST",
                     body: blob,
                     keepalive: true,
-                }).catch(() => { });
+                }).catch((error) => {
+                    recordClientDiagnostic("telemetry", "Guest analytics flush failed", {
+                        pagePath: pathname,
+                        message: error instanceof Error ? error.message : String(error),
+                    });
+                });
             }
         };
 
@@ -176,6 +182,9 @@ export function DeepTracker() {
 
             if (eventQueue.current.length > 500) {
                 eventQueue.current.shift();
+                recordClientDiagnostic("telemetry", "Guest analytics queue trimmed", {
+                    pagePath: pathname,
+                });
             }
 
             eventQueue.current.push(event);

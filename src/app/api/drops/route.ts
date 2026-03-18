@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { handleApiError } from "@/lib/server/auth";
+import { buildNotModifiedResponse, buildWeakEtag, PRIVATE_REVALIDATE_CACHE_CONTROL, requestMatchesEtag } from "@/lib/http-cache";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { getDrops } from "@/lib/server/drops";
 import { isDropActiveNow } from "@/lib/drop-status";
@@ -76,10 +77,24 @@ export async function GET(request: NextRequest) {
         const nextCursor = drops.length === limitParam && drops[drops.length - 1]
             ? buildCursor(drops[drops.length - 1])
             : null;
+        const etag = buildWeakEtag({
+            cursor: cursorParam ?? "",
+            nextCursor,
+            drops: drops.map((drop) => [drop.id, drop.validFrom, drop.validUntil ?? 0, drop.status]),
+        });
+
+        if (requestMatchesEtag(request, etag)) {
+            return buildNotModifiedResponse(etag, PRIVATE_REVALIDATE_CACHE_CONTROL);
+        }
 
         return NextResponse.json({
             drops,
             nextCursor,
+        }, {
+            headers: {
+                ETag: etag,
+                "Cache-Control": PRIVATE_REVALIDATE_CACHE_CONTROL,
+            },
         });
     } catch (error) {
         return handleApiError(error, "Drops.List");

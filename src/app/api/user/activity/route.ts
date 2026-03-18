@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
+import { buildNotModifiedResponse, buildWeakEtag, PRIVATE_REVALIDATE_CACHE_CONTROL, requestMatchesEtag } from "@/lib/http-cache";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 import { guardApiRequest } from "@/lib/server/request-guard";
@@ -65,10 +66,24 @@ export async function GET(request: NextRequest) {
             return normalized ? [normalized] : [];
         });
 
+        const etag = buildWeakEtag({
+            transactions: transactions.map((transaction) => [transaction.id, transaction.timestamp, transaction.amount, transaction.type, transaction.rewardSource ?? ""]),
+            taskEvents: taskEvents.map((event) => [event.id, event.timestamp, event.type, event.progress, event.maxProgress]),
+        });
+
+        if (requestMatchesEtag(request, etag)) {
+            return buildNotModifiedResponse(etag, PRIVATE_REVALIDATE_CACHE_CONTROL);
+        }
+
         return NextResponse.json({
             success: true,
             transactions,
             taskEvents,
+        }, {
+            headers: {
+                ETag: etag,
+                "Cache-Control": PRIVATE_REVALIDATE_CACHE_CONTROL,
+            },
         });
     } catch (error) {
         return handleApiError(error, "User.Activity.GET");

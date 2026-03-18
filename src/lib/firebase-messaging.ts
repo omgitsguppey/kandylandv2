@@ -2,6 +2,7 @@ import { getMessaging, getToken, isSupported, onMessage } from "firebase/messagi
 
 import { app } from "./firebase";
 import { isIOSNonStandalone, isStandalone } from "./browser-utils";
+import { recordClientDiagnostic } from "./client-diagnostics";
 import { FIREBASE_MESSAGING_CONFIG, FIREBASE_VAPID_KEY } from "./firebase-runtime";
 
 const APP_NOTIFICATION_ICON = "/icon-192x192.png";
@@ -38,6 +39,9 @@ export async function registerAppServiceWorker() {
     try {
         return await navigator.serviceWorker.register(getAppServiceWorkerUrl(), { scope: "/" });
     } catch (error) {
+        recordClientDiagnostic("firebase", "Service worker registration failed", {
+            message: error instanceof Error ? error.message : String(error),
+        });
         console.error("Failed to register app service worker:", error);
         return null;
     }
@@ -118,6 +122,9 @@ export async function requestBrowserNotificationAccess(): Promise<BrowserNotific
             state: nextState,
         };
     } catch (error) {
+        recordClientDiagnostic("firebase", "Browser notification setup failed", {
+            message: error instanceof Error ? error.message : String(error),
+        });
         console.error("Failed to finish browser notification setup:", error);
         return {
             granted: true,
@@ -145,6 +152,9 @@ export async function showBrowserNotification(title: string, body: string, url: 
             return true;
         }
     } catch (error) {
+        recordClientDiagnostic("firebase", "Browser notification display fallback triggered", {
+            message: error instanceof Error ? error.message : String(error),
+        });
         console.error("Service worker notification failed, falling back to window notification:", error);
     }
 
@@ -170,6 +180,9 @@ export const onNotificationMessage = (callback: (payload: unknown) => void) => {
         const messaging = getMessaging(app);
         unsubscribe = onMessage(messaging, callback);
     }).catch((error) => {
+        recordClientDiagnostic("firebase", "Foreground notification listener setup failed", {
+            message: error instanceof Error ? error.message : String(error),
+        });
         console.error("Foreground notification listener setup failed:", error);
     });
 

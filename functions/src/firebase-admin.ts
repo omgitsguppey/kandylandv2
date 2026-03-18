@@ -2,7 +2,7 @@ import {App, getApps, initializeApp} from "firebase-admin/app"
 import {getDatabase} from "firebase-admin/database"
 import {getFirestore} from "firebase-admin/firestore"
 
-import {resolveDatabaseUrl, resolveProjectId} from "./firebase-runtime.js"
+import {resolveDatabaseUrl, resolveProjectId, resolveStorageBucket} from "./firebase-runtime.js"
 
 const APP_NAME = "analytics-functions"
 
@@ -16,6 +16,7 @@ function getOrCreateAdminApp(): App {
   return initializeApp({
     projectId,
     databaseURL: resolveDatabaseUrl(projectId),
+    storageBucket: resolveStorageBucket(projectId),
   }, APP_NAME)
 }
 

@@ -8,6 +8,7 @@ import { getDailyCheckInProgress } from "@/lib/daily-checkin";
 import type { DailyTasksState } from "@/lib/tasks/task-catalog";
 import { recordCanonicalTaskEvent } from "@/lib/server/daily-tasks";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { touchUserRuntime } from "@/lib/server/user-runtime";
 import type { UserProfile } from "@/types/db";
 
 export async function POST(request: NextRequest) {
@@ -117,6 +118,10 @@ export async function POST(request: NextRequest) {
 
         const updatedUserSnapshot = await userRef.get();
         const updatedUserData = (updatedUserSnapshot.data() ?? {}) as Partial<UserProfile>;
+        await touchUserRuntime(userId, {
+            activity: true,
+            tasks: true,
+        }, result.lastCheckIn);
 
         return NextResponse.json({
             success: true,

@@ -8,9 +8,12 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit --pretty",
+    "check:telemetry": "tsx scripts/audit-telemetry.ts",
+    "check:firebase-runtime": "tsx scripts/check-firebase-runtime.ts",
+    "check:functions": "npm --prefix functions run check",
     "prebuild": "tsc --noEmit --pretty",
     "build:debug": "tsc --noEmit --pretty && next build > build.log 2>&1",
-    "check": "tsc --noEmit --pretty && eslint . --max-warnings=0",
+    "check": "tsc --noEmit --pretty && eslint . --max-warnings=0 && npm run check:telemetry",
     "analyze": "cross-env ANALYZE=true next build --webpack",
     "promote-admin": "tsx scripts/promote-admin.ts"
   },

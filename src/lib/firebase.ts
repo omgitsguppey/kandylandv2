@@ -3,10 +3,12 @@ import { getAuth } from "firebase/auth";
 import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
 import type { AppCheck } from "firebase/app-check";
 export { SITE_ORIGIN } from "@/lib/site-origin";
+import { recordClientDiagnostic } from "@/lib/client-diagnostics";
 import {
     FIREBASE_CLIENT_CONFIG,
     FIREBASE_RECAPTCHA_ENTERPRISE_SITE_KEY,
     IS_DEVELOPMENT_ENV,
+    getFirebaseRuntimeWarnings,
 } from "@/lib/firebase-runtime";
 
 const app = !getApps().length ? initializeApp(FIREBASE_CLIENT_CONFIG) : getApp();
@@ -39,6 +41,10 @@ function shouldEnableAppCheck() {
 
 // Client-only initialization (App Check)
 if (typeof window !== "undefined") {
+    getFirebaseRuntimeWarnings().forEach((warning) => {
+        recordClientDiagnostic("firebase", warning);
+    });
+
     // --- Firebase App Check (ReCaptcha Enterprise) ---
     try {
         // Enable debug token in development so local requests aren't rejected
@@ -54,6 +60,9 @@ if (typeof window !== "undefined") {
             });
         }
     } catch (error) {
+        recordClientDiagnostic("firebase", "Firebase App Check failed to initialize", {
+            message: error instanceof Error ? error.message : String(error),
+        });
         console.warn("Firebase App Check failed to initialize:", error);
     }
 }

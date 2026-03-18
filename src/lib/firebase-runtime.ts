@@ -43,3 +43,36 @@ export const FIREBASE_MESSAGING_CONFIG = {
   messagingSenderId: FIREBASE_MESSAGING_SENDER_ID,
   appId: FIREBASE_APP_ID,
 };
+
+export function buildFirebaseClientRuntimeSnapshot() {
+  return {
+    apiKey: FIREBASE_API_KEY,
+    authDomain: FIREBASE_AUTH_DOMAIN,
+    projectId: FIREBASE_PROJECT_ID,
+    storageBucket: FIREBASE_STORAGE_BUCKET,
+    databaseURL: FIREBASE_DATABASE_URL,
+    messagingSenderId: FIREBASE_MESSAGING_SENDER_ID,
+    appId: FIREBASE_APP_ID,
+    vapidKey: FIREBASE_VAPID_KEY,
+    appCheckEnabled: shouldRequireAppCheck(),
+  };
+}
+
+export function getFirebaseRuntimeWarnings() {
+  const warnings: string[] = [];
+
+  if (!FIREBASE_API_KEY) warnings.push("Missing NEXT_PUBLIC_FIREBASE_API_KEY");
+  if (!FIREBASE_AUTH_DOMAIN) warnings.push("Missing NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN");
+  if (!FIREBASE_PROJECT_ID) warnings.push("Missing NEXT_PUBLIC_FIREBASE_PROJECT_ID");
+  if (!FIREBASE_APP_ID) warnings.push("Missing NEXT_PUBLIC_FIREBASE_APP_ID");
+
+  if (FIREBASE_STORAGE_BUCKET && FIREBASE_PROJECT_ID && !FIREBASE_STORAGE_BUCKET.includes(FIREBASE_PROJECT_ID)) {
+    warnings.push("Firebase storage bucket does not match the configured project ID");
+  }
+
+  if (FIREBASE_DATABASE_URL && FIREBASE_PROJECT_ID && !FIREBASE_DATABASE_URL.includes(FIREBASE_PROJECT_ID)) {
+    warnings.push("Firebase Realtime Database URL does not match the configured project ID");
+  }
+
+  return warnings;
+}

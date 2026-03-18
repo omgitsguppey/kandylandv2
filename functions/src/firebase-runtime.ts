@@ -12,3 +12,19 @@ export function resolveDatabaseUrl(projectId: string) {
     process.env.DATABASE_URL ||
     `https://${projectId}-default-rtdb.firebaseio.com`
 }
+
+export function resolveStorageBucket(projectId: string) {
+  return process.env.FIREBASE_STORAGE_BUCKET ||
+    process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
+    `${projectId}.appspot.com`
+}
+
+export function buildFunctionsFirebaseRuntimeSnapshot() {
+  const projectId = resolveProjectId()
+  return {
+    projectId,
+    databaseUrl: resolveDatabaseUrl(projectId),
+    storageBucket: resolveStorageBucket(projectId),
+    region: REGION,
+  }
+}

@@ -14,7 +14,20 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 
 const TASK_PROGRESS_EVENT_NAMES = new Set(BUILT_IN_DAILY_TASKS.map((task) => task.eventName));
 type SanitizedEventParams = Record<string, string | number | boolean>;
-const MAX_TELEMETRY_BODY_BYTES = 16 * 1024;
+const MAX_TELEMETRY_BODY_BYTES = 48 * 1024;
+const MAX_TELEMETRY_EVENTS_PER_REQUEST = 25;
+
+interface IncomingTelemetryEvent {
+    eventName: unknown;
+    eventParams?: unknown;
+}
+
+interface ResolvedTelemetryEvent {
+    canonicalEventName: string;
+    option: ReturnType<typeof resolveTrackedTelemetryEvent>["option"];
+    eventParamsWithMetadata: SanitizedEventParams;
+    canAdvanceTaskProgress: boolean;
+}
 
 function getStringParam(params: SanitizedEventParams, key: string) {
     const value = params[key];
@@ -60,6 +73,31 @@ function sanitizeEventParams(value: unknown) {
     return Object.fromEntries(sanitizedEntries) as SanitizedEventParams;
 }
 
+function normalizeIncomingTelemetryEvents(body: unknown): IncomingTelemetryEvent[] {
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+        return [];
+    }
+
+    const payload = body as {
+        eventName?: unknown;
+        eventParams?: unknown;
+        events?: IncomingTelemetryEvent[];
+    };
+
+    if (Array.isArray(payload.events)) {
+        return payload.events;
+    }
+
+    if (typeof payload.eventName === "undefined") {
+        return [];
+    }
+
+    return [{
+        eventName: payload.eventName,
+        eventParams: payload.eventParams,
+    }];
+}
+
 export async function POST(req: NextRequest) {
     try {
         const decodedToken = await guardApiRequest(req, {
@@ -77,24 +115,38 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Payload too large" }, { status: 413 });
         }
 
-        // Extract payload
         const body = await req.json();
-        const { eventName, eventParams } = body;
+        const incomingEvents = normalizeIncomingTelemetryEvents(body);
 
-        if (!eventName) {
+        if (incomingEvents.length === 0) {
             return NextResponse.json({ error: "Missing eventName" }, { status: 400 });
         }
-        const { canonicalEventName, option, metadataParams, isKnownEvent } = resolveTrackedTelemetryEvent(String(eventName));
-        if (!isKnownEvent) {
-            return NextResponse.json({ error: "Unsupported eventName" }, { status: 400 });
+
+        if (incomingEvents.length > MAX_TELEMETRY_EVENTS_PER_REQUEST) {
+            return NextResponse.json({ error: "Too many events" }, { status: 413 });
         }
 
-        const sanitizedEventParams = sanitizeEventParams(eventParams);
-        const eventParamsWithMetadata: SanitizedEventParams = {
-            ...sanitizedEventParams,
-            ...metadataParams,
-        };
-        const canAdvanceTaskProgress = TASK_PROGRESS_EVENT_NAMES.has(canonicalEventName) && !CANONICAL_TASK_EVENT_NAMES.has(canonicalEventName);
+        const resolvedEvents: ResolvedTelemetryEvent[] = incomingEvents.map((entry) => {
+            const rawEventName = String(entry.eventName || "");
+            const { canonicalEventName, option, metadataParams, isKnownEvent } = resolveTrackedTelemetryEvent(rawEventName);
+            if (!rawEventName || !isKnownEvent) {
+                throw new Error("Unsupported eventName");
+            }
+
+            const sanitizedEventParams = sanitizeEventParams(entry.eventParams);
+            const eventParamsWithMetadata: SanitizedEventParams = {
+                ...sanitizedEventParams,
+                ...metadataParams,
+            };
+            const canAdvanceTaskProgress = TASK_PROGRESS_EVENT_NAMES.has(canonicalEventName) && !CANONICAL_TASK_EVENT_NAMES.has(canonicalEventName);
+
+            return {
+                canonicalEventName,
+                option,
+                eventParamsWithMetadata,
+                canAdvanceTaskProgress,
+            };
+        });
 
         const realtimeDb = admin.database();
         const profileSnapshot = await adminDb.collection("users").doc(userId).get();
@@ -103,126 +155,152 @@ export async function POST(req: NextRequest) {
 
         const username = profileData?.username || profileData?.displayName || userEmail || "Unknown Collector";
         const allowIdentifiedAnalytics = profileAllowsIdentifiedAnalytics(userProfile, req);
+        const progressedTaskCount = resolvedEvents.filter((event) => event.canAdvanceTaskProgress).length;
 
         if (!allowIdentifiedAnalytics) {
-            if (canAdvanceTaskProgress) {
-                await recordDailyTaskProgressFromEvent(userId, username, canonicalEventName, eventParamsWithMetadata, {
-                    source: "telemetry",
-                });
+            if (progressedTaskCount > 0) {
+                await Promise.all(resolvedEvents
+                    .filter((event) => event.canAdvanceTaskProgress)
+                    .map((event) => recordDailyTaskProgressFromEvent(
+                        userId,
+                        username,
+                        event.canonicalEventName,
+                        event.eventParamsWithMetadata,
+                        { source: "telemetry" },
+                    )));
             }
 
             return NextResponse.json({
                 success: true,
                 logged: false,
-                progressedTask: canAdvanceTaskProgress,
+                progressedTaskCount,
                 reason: "identified_analytics_disabled",
             });
         }
 
-        const nowMs = Date.now();
-        const timeKeys = buildAnalyticsTimeKeys(nowMs);
-        const pagePath = getStringParam(eventParamsWithMetadata, "page_path");
-        const sessionId = getStringParam(eventParamsWithMetadata, "session_id");
-        const dropId = getStringParam(eventParamsWithMetadata, "drop_id");
-        const dropReferences = dropId ? await getDropReferenceMap([dropId]) : {};
-        const dropTitle = dropId
-            ? resolveDropTitle(dropReferences, dropId, getStringParam(eventParamsWithMetadata, "drop_title"))
-            : "";
+        const globalPrivacyControl = requestHasGlobalPrivacyControl(req);
+        const userAgent = req.headers.get("user-agent") || "unknown";
+        const uniqueDropIds = Array.from(new Set(
+            resolvedEvents
+                .map((event) => getStringParam(event.eventParamsWithMetadata, "drop_id"))
+                .filter((dropId) => dropId.length > 0),
+        ));
+        const dropReferences = uniqueDropIds.length > 0 ? await getDropReferenceMap(uniqueDropIds) : {};
+        const telemetryFacts = resolvedEvents.map((event, index) => {
+            const nowMs = Date.now() + index;
+            const timeKeys = buildAnalyticsTimeKeys(nowMs);
+            const pagePath = getStringParam(event.eventParamsWithMetadata, "page_path");
+            const sessionId = getStringParam(event.eventParamsWithMetadata, "session_id");
+            const dropId = getStringParam(event.eventParamsWithMetadata, "drop_id");
+            const dropTitle = dropId
+                ? resolveDropTitle(dropReferences, dropId, getStringParam(event.eventParamsWithMetadata, "drop_title"))
+                : "";
 
-        // Construct Telemetry Event
-        const telemetryData = {
-            eventName: canonicalEventName,
-            params: {
-                ...eventParamsWithMetadata,
-                ...(dropId ? { drop_id: dropId, drop_title: dropTitle } : {}),
-            },
-            userId,
+            return {
+                ...event,
+                nowMs,
+                telemetryData: {
+                    eventName: event.canonicalEventName,
+                    params: {
+                        ...event.eventParamsWithMetadata,
+                        ...(dropId ? { drop_id: dropId, drop_title: dropTitle } : {}),
+                    },
+                    userId,
+                    username,
+                    timestamp: nowMs,
+                    userAgent,
+                },
+                analyticsEventFact: {
+                    source: "authenticated",
+                    consentMode: "identified",
+                    globalPrivacyControl,
+                    eventName: event.canonicalEventName,
+                    userId,
+                    username,
+                    timestamp: nowMs,
+                    userAgent,
+                    pagePath,
+                    sessionId,
+                    dayKey: timeKeys.dayKey,
+                    hourKey: timeKeys.hourKey,
+                    minuteKey: timeKeys.minuteKey,
+                    dropId,
+                    dropTitle,
+                    dropCategory: getStringParam(event.eventParamsWithMetadata, "drop_category"),
+                    assetKey: getStringParam(event.eventParamsWithMetadata, "asset_key"),
+                    assetIndex: getNumberParam(event.eventParamsWithMetadata, "asset_index"),
+                    contentKind: getStringParam(event.eventParamsWithMetadata, "content_kind"),
+                    destination: getStringParam(event.eventParamsWithMetadata, "destination"),
+                    destinationType: getStringParam(event.eventParamsWithMetadata, "destination_type"),
+                    sessionWatchSeconds: getNumberParam(event.eventParamsWithMetadata, "session_watch_seconds"),
+                    watchSeconds: getNumberParam(event.eventParamsWithMetadata, "watch_seconds"),
+                    durationMs: getNumberParam(event.eventParamsWithMetadata, "duration_ms"),
+                    loadMs: getNumberParam(event.eventParamsWithMetadata, "load_ms"),
+                    viewportWidth: getNumberParam(event.eventParamsWithMetadata, "viewport_width"),
+                    viewportHeight: getNumberParam(event.eventParamsWithMetadata, "viewport_height"),
+                    isMobileViewport: getBooleanParam(event.eventParamsWithMetadata, "is_mobile_viewport"),
+                    authState: getStringParam(event.eventParamsWithMetadata, "auth_state"),
+                    semanticCategory: getStringParam(event.eventParamsWithMetadata, "semantic_category"),
+                    semanticCategoryLabel: getStringParam(event.eventParamsWithMetadata, "semantic_category_label"),
+                    semanticScopeKey: getStringParam(event.eventParamsWithMetadata, "semantic_scope_key"),
+                    semanticScopeLabel: getStringParam(event.eventParamsWithMetadata, "semantic_scope_label"),
+                    semanticSurfaceKey: getStringParam(event.eventParamsWithMetadata, "semantic_surface_key"),
+                    semanticSurfaceLabel: getStringParam(event.eventParamsWithMetadata, "semantic_surface_label"),
+                    eventCategory: event.option?.category || "system",
+                    eventModules: event.option?.modules || [],
+                    trackingSources: event.option?.sources || [],
+                    eventIndexVersion: getStringParam(event.eventParamsWithMetadata, "event_index_version"),
+                    trackingOrigin: "authenticated_client",
+                    params: event.eventParamsWithMetadata,
+                    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                },
+            };
+        });
+
+        await Promise.all(telemetryFacts.flatMap((event) => [
+            realtimeDb.ref(`telemetry/events/${event.canonicalEventName}`).push(event.telemetryData),
+            realtimeDb.ref(`telemetry/users/${userId}`).push(event.telemetryData),
+        ]));
+
+        const factsBatch = adminDb.batch();
+        telemetryFacts.forEach((event) => {
+            factsBatch.set(adminDb.collection("analytics_event_facts").doc(), event.analyticsEventFact);
+        });
+        factsBatch.set(adminDb.collection("analytics_active_users").doc(userId), {
+            uid: userId,
             username,
-            timestamp: nowMs,
-            userAgent: req.headers.get("user-agent") || "unknown",
-        };
-        const analyticsEventFact = {
-            source: "authenticated",
-            consentMode: "identified",
-            globalPrivacyControl: requestHasGlobalPrivacyControl(req),
-            eventName: canonicalEventName,
-            userId,
-            username,
-            timestamp: nowMs,
-            userAgent: req.headers.get("user-agent") || "unknown",
-            pagePath,
-            sessionId,
-            dayKey: timeKeys.dayKey,
-            hourKey: timeKeys.hourKey,
-            minuteKey: timeKeys.minuteKey,
-            dropId,
-            dropTitle,
-            dropCategory: getStringParam(eventParamsWithMetadata, "drop_category"),
-            assetKey: getStringParam(eventParamsWithMetadata, "asset_key"),
-            assetIndex: getNumberParam(eventParamsWithMetadata, "asset_index"),
-            contentKind: getStringParam(eventParamsWithMetadata, "content_kind"),
-            destination: getStringParam(eventParamsWithMetadata, "destination"),
-            destinationType: getStringParam(eventParamsWithMetadata, "destination_type"),
-            sessionWatchSeconds: getNumberParam(eventParamsWithMetadata, "session_watch_seconds"),
-            watchSeconds: getNumberParam(eventParamsWithMetadata, "watch_seconds"),
-            durationMs: getNumberParam(eventParamsWithMetadata, "duration_ms"),
-            loadMs: getNumberParam(eventParamsWithMetadata, "load_ms"),
-            viewportWidth: getNumberParam(eventParamsWithMetadata, "viewport_width"),
-            viewportHeight: getNumberParam(eventParamsWithMetadata, "viewport_height"),
-            isMobileViewport: getBooleanParam(eventParamsWithMetadata, "is_mobile_viewport"),
-            authState: getStringParam(eventParamsWithMetadata, "auth_state"),
-            semanticCategory: getStringParam(eventParamsWithMetadata, "semantic_category"),
-            semanticCategoryLabel: getStringParam(eventParamsWithMetadata, "semantic_category_label"),
-            semanticScopeKey: getStringParam(eventParamsWithMetadata, "semantic_scope_key"),
-            semanticScopeLabel: getStringParam(eventParamsWithMetadata, "semantic_scope_label"),
-            semanticSurfaceKey: getStringParam(eventParamsWithMetadata, "semantic_surface_key"),
-            semanticSurfaceLabel: getStringParam(eventParamsWithMetadata, "semantic_surface_label"),
-            eventCategory: option?.category || "system",
-            eventModules: option?.modules || [],
-            trackingSources: option?.sources || [],
-            eventIndexVersion: getStringParam(eventParamsWithMetadata, "event_index_version"),
-            trackingOrigin: "authenticated_client",
-            params: eventParamsWithMetadata,
-            createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        };
-
-        // Write directly to Realtime Database
-        // Structure: telemetry/events/{eventName}/{pushId}
-        const eventsRef = realtimeDb.ref(`telemetry/events/${canonicalEventName}`);
-        await eventsRef.push(telemetryData);
-
-        // Also write a user-centric log: telemetry/users/{userId}/{pushId}
-        const userEventsRef = realtimeDb.ref(`telemetry/users/${userId}`);
-        await userEventsRef.push(telemetryData);
-        await adminDb.collection("analytics_event_facts").add(analyticsEventFact);
-
-        const taskProgressPromise = !canAdvanceTaskProgress
-            ? Promise.resolve()
-            : recordDailyTaskProgressFromEvent(userId, username, canonicalEventName, eventParamsWithMetadata, {
-                source: "telemetry",
-            });
+            lastSeenAt: telemetryFacts[telemetryFacts.length - 1]?.nowMs ?? Date.now(),
+            lastEventName: telemetryFacts[telemetryFacts.length - 1]?.canonicalEventName ?? "",
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            createdAt: telemetryFacts[0]?.nowMs ?? Date.now(),
+        }, { merge: true });
+        await factsBatch.commit();
 
         await Promise.all([
-            recordTelemetryEventStat(canonicalEventName, eventParamsWithMetadata),
-            taskProgressPromise,
-            recordSemanticRollupFromTelemetryEvent({
-                timestamp: nowMs,
-                eventName: canonicalEventName,
-                params: eventParamsWithMetadata,
+            ...telemetryFacts.map((event) => recordTelemetryEventStat(event.canonicalEventName, event.eventParamsWithMetadata)),
+            ...telemetryFacts
+                .filter((event) => event.canAdvanceTaskProgress)
+                .map((event) => recordDailyTaskProgressFromEvent(userId, username, event.canonicalEventName, event.eventParamsWithMetadata, {
+                    source: "telemetry",
+                })),
+            ...telemetryFacts.map((event) => recordSemanticRollupFromTelemetryEvent({
+                timestamp: event.nowMs,
+                eventName: event.canonicalEventName,
+                params: event.eventParamsWithMetadata,
                 sourceKey: "analytics_event_facts",
-            }),
-            adminDb.collection("analytics_active_users").doc(userId).set({
-                uid: userId,
-                username,
-                lastSeenAt: nowMs,
-                lastEventName: canonicalEventName,
-                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-                createdAt: nowMs,
-            }, { merge: true }),
+            })),
         ]);
 
-        return NextResponse.json({ success: true, logged: true });
+        return NextResponse.json({
+            success: true,
+            logged: true,
+            eventCount: telemetryFacts.length,
+            progressedTaskCount,
+        });
     } catch (error) {
+        if (error instanceof Error && error.message === "Unsupported eventName") {
+            return NextResponse.json({ error: "Unsupported eventName" }, { status: 400 });
+        }
         return handleApiError(error, "Telemetry.Track");
     }
 }

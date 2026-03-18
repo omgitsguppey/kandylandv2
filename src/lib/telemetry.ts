@@ -2,6 +2,7 @@ import { auth } from "./firebase";
 import { authFetch } from "./authFetch";
 import { prepareAnalyticsEvent } from "./analytics-client-engine";
 import { buildAnalyticsSemanticParams } from "./analytics-semantics";
+import { recordClientDiagnostic } from "./client-diagnostics";
 import { canUseAnonymousAnalytics, canUseIdentifiedAnalytics, readPrivacySettingsSnapshot } from "./privacy-consent";
 import { BUILT_IN_DAILY_TASKS } from "./tasks/task-catalog";
 
@@ -14,6 +15,19 @@ const SESSION_STORAGE_KEY = "kandydrops.telemetry.session";
 
 type SanitizedEventParams = Record<string, string | number | boolean>;
 const TASK_PROGRESS_EVENT_NAMES = new Set(BUILT_IN_DAILY_TASKS.map((task) => task.eventName));
+const IDENTIFIED_TELEMETRY_BATCH_LIMIT = 12;
+const IDENTIFIED_TELEMETRY_BATCH_WINDOW_MS = 1_500;
+
+interface IdentifiedTelemetryEvent {
+    eventName: string;
+    eventParams: SanitizedEventParams | undefined;
+}
+
+let telemetryQueue: IdentifiedTelemetryEvent[] = [];
+let telemetryFlushTimeout: number | null = null;
+let telemetryFlushInFlight: Promise<void> | null = null;
+let lifecycleFlushInstalled = false;
+let telemetryQueueUserId: string | null = null;
 
 function sanitizeEventParams(eventParams?: Record<string, unknown>) {
     if (!eventParams) {
@@ -168,6 +182,117 @@ export function consumeTimedFlow(flowKey: string, eventParams?: Record<string, u
     };
 }
 
+function clearTelemetryFlushTimeout() {
+    if (typeof window === "undefined" || telemetryFlushTimeout === null) {
+        return;
+    }
+
+    window.clearTimeout(telemetryFlushTimeout);
+    telemetryFlushTimeout = null;
+}
+
+async function flushQueuedTelemetry(reason: "scheduled" | "immediate" | "pagehide" | "visibility") {
+    if (!auth.currentUser || telemetryQueue.length === 0) {
+        if (!auth.currentUser) {
+            telemetryQueue = [];
+            telemetryQueueUserId = null;
+        }
+        clearTelemetryFlushTimeout();
+        return;
+    }
+
+    if (telemetryFlushInFlight) {
+        await telemetryFlushInFlight;
+        return;
+    }
+
+    clearTelemetryFlushTimeout();
+    const batch = telemetryQueue.splice(0, IDENTIFIED_TELEMETRY_BATCH_LIMIT);
+    if (batch.length === 0) {
+        return;
+    }
+
+    telemetryFlushInFlight = authFetch("/api/telemetry/track", {
+        method: "POST",
+        keepalive: reason !== "scheduled",
+        body: JSON.stringify({ events: batch }),
+    }).then(async (response) => {
+        if (!response.ok) {
+            const result = await response.json().catch(() => ({}));
+            throw new Error(typeof result?.error === "string" ? result.error : "Telemetry batch failed");
+        }
+    }).catch((error) => {
+        telemetryQueue = [...batch, ...telemetryQueue].slice(-50);
+        recordClientDiagnostic("telemetry", "Identified telemetry batch failed", {
+            reason,
+            batchSize: batch.length,
+            message: error instanceof Error ? error.message : String(error),
+        });
+        console.error("[Telemetry] Failed to flush queued telemetry:", error);
+    }).finally(() => {
+        telemetryFlushInFlight = null;
+    });
+
+    await telemetryFlushInFlight;
+
+    if (telemetryQueue.length > 0 && typeof window !== "undefined" && telemetryFlushTimeout === null) {
+        telemetryFlushTimeout = window.setTimeout(() => {
+            void flushQueuedTelemetry("scheduled");
+        }, IDENTIFIED_TELEMETRY_BATCH_WINDOW_MS);
+    }
+}
+
+function ensureTelemetryLifecycleFlush() {
+    if (typeof window === "undefined" || lifecycleFlushInstalled) {
+        return;
+    }
+
+    lifecycleFlushInstalled = true;
+    const flushOnPageHide = () => {
+        void flushQueuedTelemetry("pagehide");
+    };
+    const flushOnVisibilityHidden = () => {
+        if (document.visibilityState === "hidden") {
+            void flushQueuedTelemetry("visibility");
+        }
+    };
+
+    window.addEventListener("pagehide", flushOnPageHide);
+    document.addEventListener("visibilitychange", flushOnVisibilityHidden);
+}
+
+function enqueueIdentifiedTelemetryEvent(event: IdentifiedTelemetryEvent, immediate = false) {
+    if (typeof window === "undefined") {
+        return;
+    }
+
+    const currentUserId = auth.currentUser?.uid ?? null;
+    if (!currentUserId) {
+        return;
+    }
+
+    if (telemetryQueueUserId && telemetryQueueUserId !== currentUserId) {
+        telemetryQueue = [];
+    }
+
+    telemetryQueueUserId = currentUserId;
+    ensureTelemetryLifecycleFlush();
+    telemetryQueue.push(event);
+    if (telemetryQueue.length > 50) {
+        telemetryQueue = telemetryQueue.slice(-50);
+    }
+
+    if (immediate || telemetryQueue.length >= IDENTIFIED_TELEMETRY_BATCH_LIMIT) {
+        void flushQueuedTelemetry("immediate");
+        return;
+    }
+
+    clearTelemetryFlushTimeout();
+    telemetryFlushTimeout = window.setTimeout(() => {
+        void flushQueuedTelemetry("scheduled");
+    }, IDENTIFIED_TELEMETRY_BATCH_WINDOW_MS);
+}
+
 export function trackEvent(eventName: string, eventParams?: Record<string, unknown>) {
     const privacySettings = readPrivacySettingsSnapshot();
     const allowAnonymousAnalytics = canUseAnonymousAnalytics(privacySettings);
@@ -181,6 +306,9 @@ export function trackEvent(eventName: string, eventParams?: Record<string, unkno
     }
 
     if (!preparedEvent.isKnownEvent) {
+        recordClientDiagnostic("telemetry", "Unsupported telemetry event ignored", {
+            eventName,
+        });
         console.warn(`[Telemetry] Ignored unsupported event: ${eventName}`);
         return;
     }
@@ -195,13 +323,8 @@ export function trackEvent(eventName: string, eventParams?: Record<string, unkno
         return;
     }
 
-    // We don't await this because analytics/task syncing should never block UI.
-    authFetch("/api/telemetry/track", {
-        method: "POST",
-        keepalive: true,
-        body: JSON.stringify({ eventName: preparedEvent.canonicalEventName, eventParams: enrichedParams }),
-    }).catch((err) => {
-        // Silently fail on the client if telemetry drops.
-        console.error("[Telemetry] Failed to track event:", err);
-    });
+    enqueueIdentifiedTelemetryEvent({
+        eventName: preparedEvent.canonicalEventName,
+        eventParams: enrichedParams,
+    }, shouldSyncTaskProgress);
 }

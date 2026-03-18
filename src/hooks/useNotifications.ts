@@ -3,9 +3,12 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useAuthIdentity } from "@/context/AuthContext";
 import { CLIENT_RUNTIME_EVENTS, dispatchClientRuntimeEvent } from "@/hooks/client-runtime";
+import { recordClientDiagnostic } from "@/lib/client-diagnostics";
 import { markNotificationAsRead } from "@/lib/notifications";
+import { NOTIFICATION_RUNTIME_COLLECTION, NOTIFICATION_RUNTIME_DOC_ID } from "@/lib/notification-runtime";
 import { AppNotification } from "@/lib/notification-contracts";
 import { trackEvent } from "@/lib/telemetry";
+import { USER_RUNTIME_COLLECTION } from "@/lib/user-runtime";
 import { authFetch } from "@/lib/authFetch";
 
 type Notification = AppNotification;
@@ -27,6 +30,10 @@ export function useNotifications() {
         const currentUserId = userId;
 
         let cancelled = false;
+        let unsubscribeSystemRuntime: (() => void) | undefined;
+        let unsubscribeUserRuntime: (() => void) | undefined;
+        let sawSystemRuntimeSnapshot = false;
+        let sawUserRuntimeSnapshot = false;
 
         const fetchNotifications = async () => {
             try {
@@ -68,23 +75,86 @@ export function useNotifications() {
                 setLoadedForUserId(currentUserId);
             } catch (error) {
                 console.error("Failed to load notifications", error);
+                recordClientDiagnostic("realtime", "Notifications fetch failed", {
+                    userId: currentUserId,
+                    message: error instanceof Error ? error.message : String(error),
+                });
                 if (!cancelled) {
                     setLoadedForUserId(currentUserId);
                 }
             }
         };
 
+        const refreshOnDemand = () => {
+            void fetchNotifications();
+        };
+
+        const subscribeToRuntimeSignals = async () => {
+            try {
+                const [{ doc, onSnapshot }, { db }] = await Promise.all([
+                    import("firebase/firestore"),
+                    import("@/lib/firebase-data"),
+                ]);
+
+                if (cancelled) {
+                    return;
+                }
+
+                unsubscribeSystemRuntime = onSnapshot(
+                    doc(db, NOTIFICATION_RUNTIME_COLLECTION, NOTIFICATION_RUNTIME_DOC_ID),
+                    () => {
+                        if (!sawSystemRuntimeSnapshot) {
+                            sawSystemRuntimeSnapshot = true;
+                            return;
+                        }
+
+                        refreshOnDemand();
+                    },
+                    (error) => {
+                        recordClientDiagnostic("realtime", "Notifications runtime subscription failed", {
+                            scope: "system",
+                            message: error.message,
+                        });
+                    },
+                );
+
+                unsubscribeUserRuntime = onSnapshot(
+                    doc(db, USER_RUNTIME_COLLECTION, currentUserId),
+                    (snapshot) => {
+                        if (!sawUserRuntimeSnapshot) {
+                            sawUserRuntimeSnapshot = true;
+                            return;
+                        }
+
+                        const data = snapshot.data() as { notificationsVersion?: number } | undefined;
+                        if (typeof data?.notificationsVersion === "number") {
+                            refreshOnDemand();
+                        }
+                    },
+                    (error) => {
+                        recordClientDiagnostic("realtime", "Notifications user runtime subscription failed", {
+                            scope: "user",
+                            message: error.message,
+                        });
+                    },
+                );
+            } catch (error) {
+                recordClientDiagnostic("firebase", "Notifications runtime setup failed", {
+                    userId: currentUserId,
+                    message: error instanceof Error ? error.message : String(error),
+                });
+            }
+        };
+
         void fetchNotifications();
+        void subscribeToRuntimeSignals();
         const interval = window.setInterval(() => {
             void fetchNotifications();
-        }, 30_000);
+        }, 90_000);
         const refreshOnVisible = () => {
             if (document.visibilityState === "visible") {
                 void fetchNotifications();
             }
-        };
-        const refreshOnDemand = () => {
-            void fetchNotifications();
         };
 
         window.addEventListener("focus", refreshOnDemand);
@@ -97,6 +167,12 @@ export function useNotifications() {
             window.removeEventListener("focus", refreshOnDemand);
             window.removeEventListener(CLIENT_RUNTIME_EVENTS.notificationsSync, refreshOnDemand);
             document.removeEventListener("visibilitychange", refreshOnVisible);
+            if (unsubscribeSystemRuntime) {
+                unsubscribeSystemRuntime();
+            }
+            if (unsubscribeUserRuntime) {
+                unsubscribeUserRuntime();
+            }
         };
     }, [userId]);
 

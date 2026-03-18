@@ -21,6 +21,7 @@ import {
 import { isDropActiveNow } from "@/lib/drop-status";
 import { getCSTDayBoundaries, isSameCSTDay } from "@/lib/timezone";
 import type { UserProfile } from "@/types/db";
+import { touchUserRuntime } from "@/lib/server/user-runtime";
 
 const TASK_DEFINITION_COLLECTION = "daily_task_definitions";
 const TASK_EVENT_COLLECTION = "daily_task_events";
@@ -940,7 +941,7 @@ export async function recordDailyTaskProgressFromEvent(
     )
     : null;
 
-  await adminDb.runTransaction(async (transaction) => {
+  const progressResult = await adminDb.runTransaction(async (transaction) => {
     let existingReceipt: FirebaseFirestore.DocumentSnapshot | null = null;
     if (receiptRef) {
       existingReceipt = await transaction.get(receiptRef);
@@ -949,11 +950,11 @@ export async function recordDailyTaskProgressFromEvent(
     const snapshot = await transaction.get(userRef);
 
     if (existingReceipt?.exists) {
-      return;
+      return { stateChanged: false, activityChanged: false, taskChanged: false, nowMs: Date.now() };
     }
 
     if (!snapshot.exists) {
-      return;
+      return { stateChanged: false, activityChanged: false, taskChanged: false, nowMs: Date.now() };
     }
 
     const userData = snapshot.data() as UserProfile;
@@ -1082,7 +1083,12 @@ export async function recordDailyTaskProgressFromEvent(
       if (result.rotated) {
         transaction.update(userRef, { dailyTasksState: stripUndefinedDeep(result.state) });
       }
-      return;
+      return {
+        stateChanged: result.rotated,
+        activityChanged: false,
+        taskChanged: result.rotated,
+        nowMs,
+      };
     }
 
     const completedTaskHistory = {
@@ -1125,7 +1131,20 @@ export async function recordDailyTaskProgressFromEvent(
         link: "/experiences",
       });
     }
+    return {
+      stateChanged: true,
+      activityChanged: completedTasks.length > 0,
+      taskChanged: true,
+      nowMs,
+    };
   });
+
+  if (progressResult?.stateChanged) {
+    await touchUserRuntime(uid, {
+      ...(progressResult.taskChanged ? { tasks: true } : {}),
+      ...(progressResult.activityChanged ? { activity: true } : {}),
+    }, progressResult.nowMs);
+  }
 }
 
 export async function syncUserTaskReminder(uid: string) {
@@ -1134,7 +1153,7 @@ export async function syncUserTaskReminder(uid: string) {
   let sent = false;
   let nextRefreshMs = 0;
 
-  await adminDb.runTransaction(async (transaction) => {
+  const reminderResult = await adminDb.runTransaction(async (transaction) => {
     const snapshot = await transaction.get(userRef);
     if (!snapshot.exists) {
       throw new Error("User not found");
@@ -1211,7 +1230,15 @@ export async function syncUserTaskReminder(uid: string) {
         link: "/experiences",
       });
     }
+    return { sent: true, nowMs };
   });
+
+  if (reminderResult?.sent) {
+    await touchUserRuntime(uid, {
+      notifications: true,
+      tasks: true,
+    }, reminderResult.nowMs);
+  }
 
   return {
     sent,

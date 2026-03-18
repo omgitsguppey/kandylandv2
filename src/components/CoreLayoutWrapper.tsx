@@ -30,6 +30,10 @@ const TaskGuidanceBanner = dynamic(
     () => import("@/components/Dashboard/TaskGuidanceBanner").then((mod) => mod.TaskGuidanceBanner),
     { ssr: false },
 );
+const ClientDiagnosticsBridge = dynamic(
+    () => import("@/components/ClientDiagnosticsBridge").then((mod) => mod.ClientDiagnosticsBridge),
+    { ssr: false },
+);
 
 export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     const { user, userProfile } = useAuth();
@@ -95,6 +99,7 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
 
     return (
         <>
+            <ClientDiagnosticsBridge />
             {shouldTrackDeepAnalytics ? <DeepTracker /> : null}
             {shouldEnablePwaRuntime ? <PwaRuntimeBridge /> : null}
             {isUserShell ? <NotificationRuntimeBridge /> : null}

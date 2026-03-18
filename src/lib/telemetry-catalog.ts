@@ -56,6 +56,7 @@ export interface TelemetryResolvedEventMetadata {
 const DEFAULT_CLIENT_SOURCES: TelemetryEventSource[] = ["ga4", "client", "backend"];
 const DEFAULT_SERVER_SOURCES: TelemetryEventSource[] = ["ga4", "backend"];
 const DEFAULT_CANONICAL_SERVER_SOURCES: TelemetryEventSource[] = ["ga4", "backend", "canonical"];
+const DEFAULT_GA_ONLY_SOURCES: TelemetryEventSource[] = ["ga4"];
 
 export const TELEMETRY_EVENT_INDEX_VERSION = "2026.03.16.1";
 
@@ -122,6 +123,8 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "wallet_opened", label: "Wallet opened", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce"] },
   { eventName: "purchase_package_selected", label: "Wallet package selected", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce"] },
   { eventName: "begin_checkout", label: "Checkout started", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce"] },
+  { eventName: "purchase", label: "Purchase completed (GA)", category: "commerce", sources: DEFAULT_GA_ONLY_SOURCES, modules: ["commerce"] },
+  { eventName: "spend_virtual_currency", label: "Virtual currency spent (GA)", category: "commerce", sources: DEFAULT_GA_ONLY_SOURCES, modules: ["commerce", "content"] },
   { eventName: "gumdrops_purchase_completed", label: "Gum Drops purchase completed", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce", "tasks"] },
   { eventName: "gumdrops_purchase_failed", label: "Gum Drops purchase failed", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce"] },
   { eventName: "purchase_verified", label: "Purchase verified", category: "commerce", sources: DEFAULT_SERVER_SOURCES, modules: ["commerce"] },
@@ -139,6 +142,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "viewer_asset_changed", label: "Viewer asset changed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"] },
   { eventName: "viewer_asset_completed", label: "Viewer asset completed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"] },
   { eventName: "viewer_asset_consumed", label: "Viewer asset consumed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"] },
+  { eventName: "video_played", label: "Video played (GA)", category: "content", sources: DEFAULT_GA_ONLY_SOURCES, modules: ["viewer", "content"] },
   { eventName: "viewer_watch_checkpoint", label: "Viewer watch checkpoint", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"] },
   { eventName: "viewer_content_loaded", label: "Viewer content loaded", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"] },
   { eventName: "viewer_source_downloaded", label: "Viewer source downloaded", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"] },
@@ -287,6 +291,8 @@ export const TELEMETRY_MODULE_INDEXES: TelemetryModuleIndex[] = [
       "wallet_opened",
       "purchase_package_selected",
       "begin_checkout",
+      "purchase",
+      "spend_virtual_currency",
       "gumdrops_purchase_completed",
       "gumdrops_purchase_failed",
       "purchase_verified",
@@ -318,6 +324,7 @@ export const TELEMETRY_MODULE_INDEXES: TelemetryModuleIndex[] = [
       "viewer_asset_changed",
       "viewer_asset_completed",
       "viewer_asset_consumed",
+      "video_played",
       "viewer_watch_checkpoint",
       "viewer_content_loaded",
       "viewer_source_downloaded",
