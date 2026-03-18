@@ -392,6 +392,7 @@ function DropCardBase({
         </Link>
     ) : (
         <button
+            type="button"
             onClick={handleUnlock}
             disabled={unlocking}
             className={cn(
@@ -435,6 +436,7 @@ function DropCardBase({
         return (
             <div ref={cardRef} className="group relative p-1.5 md:p-3 rounded-2xl md:rounded-3xl glass-panel overflow-hidden h-full flex flex-col">
                 <button
+                    type="button"
                     onClick={() => {
                         handlePreviewOpen();
                     }}
@@ -484,6 +486,7 @@ function DropCardBase({
             <div className="absolute inset-0 bg-gradient-to-br from-brand-purple/5 via-transparent to-brand-purple/5 pointer-events-none" />
 
             <button
+                type="button"
                 onClick={() => {
                     handlePreviewOpen();
                 }}

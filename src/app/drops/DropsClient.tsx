@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { DropGrid } from "@/components/DropGrid";
 import StickyFilterBar from "@/components/StickyFilterBar";
 import { Drop } from "@/types/db";
@@ -90,7 +90,6 @@ function buildAccountOverviewViewModel(params: {
 }
 
 export function DropsClient({ initialDrops }: DropsClientProps) {
-    const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
     const { user, userProfile, loading: authLoading } = useAuth();
@@ -130,6 +129,23 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [previewDropId, setPreviewDropId] = useState<string | null>(null);
     const requestedPreviewDropId = searchParams.get("drop")?.trim() || "";
+    const [urlPreviewDropId, setUrlPreviewDropId] = useState(requestedPreviewDropId);
+
+    useEffect(() => {
+        setUrlPreviewDropId(requestedPreviewDropId);
+    }, [requestedPreviewDropId]);
+
+    useEffect(() => {
+        const handlePopState = () => {
+            const params = new URLSearchParams(window.location.search);
+            const nextDropId = params.get("drop")?.trim() || "";
+            setUrlPreviewDropId(nextDropId);
+            setPreviewDropId(nextDropId || null);
+        };
+
+        window.addEventListener("popstate", handlePopState);
+        return () => window.removeEventListener("popstate", handlePopState);
+    }, []);
 
     const sourceDrops = useMemo(() => {
         if (!userProfile?.unlockedContent || !Array.isArray(userProfile.unlockedContent)) {
@@ -179,7 +195,11 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
     }, [sourceDrops, searchQuery, selectedCategory]);
 
     const syncDropQuery = (dropId: string | null) => {
-        const params = new URLSearchParams(searchParams.toString());
+        if (typeof window === "undefined") {
+            return;
+        }
+
+        const params = new URLSearchParams(window.location.search);
         if (dropId) {
             params.set("drop", dropId);
         } else {
@@ -187,17 +207,18 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
         }
 
         const nextUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
-        router.replace(nextUrl, { scroll: false });
+        window.history.replaceState(window.history.state, "", nextUrl);
+        setUrlPreviewDropId(dropId ?? "");
     };
 
     const previewDrop = useMemo(() => {
-        const activePreviewDropId = previewDropId || requestedPreviewDropId;
+        const activePreviewDropId = previewDropId || urlPreviewDropId;
         if (!activePreviewDropId) {
             return null;
         }
 
         return liveDrops.find((drop) => drop.id === activePreviewDropId) ?? null;
-    }, [liveDrops, previewDropId, requestedPreviewDropId]);
+    }, [liveDrops, previewDropId, urlPreviewDropId]);
 
     const handleSelectDrop = (drop: Drop) => {
         setPreviewDropId(drop.id);
@@ -206,7 +227,7 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
 
     const handleClosePreview = () => {
         setPreviewDropId(null);
-        if (requestedPreviewDropId) {
+        if (urlPreviewDropId) {
             syncDropQuery(null);
         }
     };
