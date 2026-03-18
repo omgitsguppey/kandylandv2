@@ -4,7 +4,6 @@ export const fetchCache = "force-no-store";
 import { NextRequest, NextResponse } from "next/server";
 import { handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { TELEMETRY_MODULE_INDEXES } from "@/lib/telemetry-catalog";
 import { ANALYTICS_SEMANTIC_SOURCE_REGISTRY, ANALYTICS_SEMANTIC_STRATEGIES } from "@/lib/analytics-semantics";
 import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
 import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
@@ -14,10 +13,11 @@ import {
     fetchAdminHistoricalAnalyticsSources,
     getAdminAnalyticsPropertyId,
 } from "@/lib/server/admin-analytics-data";
+import { buildHistoricalContentAnalytics } from "@/lib/server/admin-analytics-historical-content";
 import { buildHistoricalOnboardingOverview } from "@/lib/server/admin-analytics-historical-onboarding";
 import { buildHistoricalTrafficOverview } from "@/lib/server/admin-analytics-historical-traffic";
+import { buildHistoricalValidationSummary } from "@/lib/server/admin-analytics-historical-validation";
 import { buildHistoricalViewerOverview } from "@/lib/server/admin-analytics-historical-viewer";
-import { buildModuleCoverageReport, buildParityInsight, sumCountBuckets } from "@/lib/server/analytics-parity";
 import { buildSemanticCategorySummaries, summarizeSecurityReason } from "@/lib/server/analytics-semantics";
 import { buildAnalyticsMetricReport } from "@/lib/server/analytics-metrics";
 import { getDropViewCount } from "@/lib/drop-engagement";
@@ -33,7 +33,6 @@ import {
     getTelemetryParamNumber,
     getTelemetryParamString,
     safeParams,
-    sumEventCounts,
     sumSnapshotField,
     toNumber,
     toStringValue,
@@ -85,6 +84,7 @@ export async function GET(request: NextRequest) {
                 taskDailySnapshot,
                 commerceDailySnapshot,
                 sessionFactsSnapshot,
+                pipelineHealthSnapshot,
                 analyticsEventFactsSnapshot,
                 onboardingFactsSnapshot,
                 securityEventsSnapshot,
@@ -727,109 +727,21 @@ export async function GET(request: NextRequest) {
                 });
             const reminderReasons = Array.from(reminderReasonMap.entries()).map(([label, count]) => ({ label, count }));
 
-            const packagePerformanceMap = new Map<string, {
-                label: string;
-                starts: number;
-                purchases: number;
-                failures: number;
-                revenueUsd: number;
-                drops: number;
-            }>();
-            const applyPackageEvent = (records: TelemetryLogRecord[], type: "start" | "purchase" | "failure") => {
-                records.forEach((record) => {
-                    const packageLabel = getTelemetryParamString(record, "package_label")
-                        || `${getTelemetryParamNumber(record, "package_drops")} GD`;
-                    const current = packagePerformanceMap.get(packageLabel) || {
-                        label: packageLabel,
-                        starts: 0,
-                        purchases: 0,
-                        failures: 0,
-                        revenueUsd: 0,
-                        drops: getTelemetryParamNumber(record, "package_drops"),
-                    };
-
-                    if (type === "start") current.starts += 1;
-                    if (type === "purchase") {
-                        current.purchases += 1;
-                        current.revenueUsd += getTelemetryParamNumber(record, "package_price");
-                    }
-                    if (type === "failure") current.failures += 1;
-
-                    packagePerformanceMap.set(packageLabel, current);
-                });
-            };
-            applyPackageEvent(telemetryLogsByEvent.begin_checkout || [], "start");
-            applyPackageEvent(telemetryLogsByEvent.gumdrops_purchase_completed || [], "purchase");
-            applyPackageEvent(telemetryLogsByEvent.gumdrops_purchase_failed || [], "failure");
-
-            const packagePerformance = Array.from(packagePerformanceMap.values())
-                .map((entry) => ({
-                    ...entry,
-                    conversionRate: entry.starts > 0 ? entry.purchases / entry.starts : 0,
-                    abandonmentRate: entry.starts > 0 ? Math.max(0, entry.starts - entry.purchases) / entry.starts : 0,
-                }))
-                .sort((left, right) => right.purchases - left.purchases || right.revenueUsd - left.revenueUsd);
-
-            const categoryMixMap = new Map<string, { label: string; previews: number; unlocks: number }>();
-            (telemetryLogsByEvent.drop_preview_opened || []).forEach((record) => {
-                const label = getTelemetryParamString(record, "drop_category") || "unknown";
-                const current = categoryMixMap.get(label) || { label, previews: 0, unlocks: 0 };
-                current.previews += 1;
-                categoryMixMap.set(label, current);
+            const {
+                packagePerformance,
+                unlockCategoryMix,
+                watchDepthBuckets,
+                contentJourney,
+                contentTagDemand,
+            } = buildHistoricalContentAnalytics({
+                telemetryLogsByEvent,
+                eventsData,
+                funnel: {
+                    previewOpens: funnel.previewOpens,
+                    unlocks: funnel.unlocks,
+                    viewerOpens: funnel.viewerOpens,
+                },
             });
-            (telemetryLogsByEvent.unlock_drop_success || []).forEach((record) => {
-                const label = getTelemetryParamString(record, "drop_category") || "unknown";
-                const current = categoryMixMap.get(label) || { label, previews: 0, unlocks: 0 };
-                current.unlocks += 1;
-                categoryMixMap.set(label, current);
-            });
-
-            const unlockCategoryMix = Array.from(categoryMixMap.values())
-                .map((entry) => ({
-                    ...entry,
-                    unlockRate: entry.previews > 0 ? entry.unlocks / entry.previews : 0,
-                }))
-                .sort((left, right) => right.unlocks - left.unlocks);
-
-            const watchDepthValues = [
-                ...(telemetryLogsByEvent.viewer_watch_checkpoint || []).map((record) => getTelemetryParamNumber(record, "watch_seconds")),
-                ...(telemetryLogsByEvent.viewer_asset_consumed || []).map((record) => getTelemetryParamNumber(record, "watch_seconds")),
-            ].filter((value) => value > 0);
-            const watchDepthBuckets = buildDurationBuckets(
-                watchDepthValues.map((value) => value * 1000),
-                [
-                    { label: "<30s", max: 30_000 },
-                    { label: "30-60s", max: 60_000 },
-                    { label: "60-90s", max: 90_000 },
-                    { label: "90-180s", max: 180_000 },
-                    { label: "180s+", max: Number.POSITIVE_INFINITY },
-                ],
-            );
-
-            const contentJourney = [
-                { label: "Previews", count: funnel.previewOpens },
-                { label: "Unlock attempts", count: eventsData.drop_unlock_attempted || 0 },
-                { label: "Unlocks", count: funnel.unlocks },
-                { label: "Viewer opens", count: funnel.viewerOpens },
-                { label: "Assets consumed", count: eventsData.viewer_asset_consumed || 0 },
-                { label: "Downloads", count: eventsData.viewer_source_downloaded || 0 },
-            ];
-
-            const tagDemandMap = new Map<string, number>();
-            (telemetryLogsByEvent.unlock_drop_success || []).forEach((record) => {
-                const rawTags = getTelemetryParamString(record, "drop_tags");
-                rawTags
-                    .split("|")
-                    .map((value) => value.trim())
-                    .filter(Boolean)
-                    .forEach((tag) => {
-                        tagDemandMap.set(tag, (tagDemandMap.get(tag) || 0) + 1);
-                    });
-            });
-            const contentTagDemand = Array.from(tagDemandMap.entries())
-                .map(([tag, count]) => ({ tag, count }))
-                .sort((left, right) => right.count - left.count)
-                .slice(0, 10);
 
             const {
                 filteredSessionFacts,
@@ -850,135 +762,59 @@ export async function GET(request: NextRequest) {
                 const data = doc.data() as Record<string, unknown>;
                 return total + toNumber(data.eventCount);
             }, 0);
+            const pipelineFailureCount = pipelineHealthSnapshot.docs.reduce((total, doc) => {
+                const data = doc.data() as Record<string, unknown>;
+                return total + toNumber(data.failureCount);
+            }, 0);
             const pageRollupViewCount = Array.from(pageRollupMap.values()).reduce((total, entry) => total + entry.views, 0);
             const dropRollupActivityCount = dropDailySnapshot.docs.reduce((total, doc) => {
                 const data = doc.data() as Record<string, unknown>;
                 return total + toNumber(data.eventCount) + toNumber(data.unwrapCount);
             }, 0);
             const viewerSessionFactCount = filteredSessionFacts.reduce((total, entry) => total + toNumber(entry.startedCount) + toNumber(entry.completedCount), 0);
-            const moduleCoverage = TELEMETRY_MODULE_INDEXES.map((moduleIndex) => {
-                const sources = [
-                    { key: "ga4", label: "GA4", count: sumEventCounts(gaEventCounts, moduleIndex.eventNames) },
-                    { key: "facts", label: "Event facts", count: sumEventCounts(canonicalEventCounts, moduleIndex.eventNames) },
-                    { key: "logs", label: "Telemetry logs", count: sumEventCounts(telemetryEventCounts, moduleIndex.eventNames) },
-                ];
-
-                if (moduleIndex.key === "navigation" || moduleIndex.key === "engagement") {
-                    sources.push({ key: "pages", label: "Page rollups", count: pageRollupViewCount });
-                }
-                if (moduleIndex.key === "engagement") {
-                    sources.push({ key: "guest", label: "Guest batches", count: guestInteractionCount });
-                }
-                if (moduleIndex.key === "tasks") {
-                    sources.push({ key: "task_events", label: "Task lifecycle", count: normalizedTaskEvents.length || firstPartyTaskLifecycleEvents });
-                }
-                if (moduleIndex.key === "task_guidance") {
-                    sources.push({ key: "task_pipeline", label: "Task pipeline", count: sumCountBuckets(taskPipeline) });
-                }
-                if (moduleIndex.key === "commerce") {
-                    sources.push({ key: "transactions", label: "Transactions", count: completedPurchaseTransactions.length + unlockTransactions.length });
-                    sources.push({ key: "commerce_rollups", label: "Commerce rollups", count: firstPartyPurchaseCount + firstPartyUnlockCount });
-                }
-                if (moduleIndex.key === "content") {
-                    sources.push({ key: "drop_rollups", label: "Drop rollups", count: dropRollupActivityCount });
-                    sources.push({ key: "unlock_transactions", label: "Unlock transactions", count: unlockTransactions.length });
-                }
-                if (moduleIndex.key === "viewer") {
-                    sources.push({ key: "session_facts", label: "Session facts", count: viewerSessionFactCount });
-                }
-                if (moduleIndex.key === "security") {
-                    sources.push({ key: "security_events", label: "Security logs", count: securityEventsSnapshot.size });
-                    sources.push({ key: "flagged_users", label: "Flagged accounts", count: securityLogs.length });
-                }
-
-                return buildModuleCoverageReport({
-                    key: moduleIndex.key,
-                    label: moduleIndex.label,
-                    sources,
-                    emptyDetail: `No indexed ${moduleIndex.label.toLowerCase()} signals landed in this range. Expected sources: ${moduleIndex.fallbackSources.join(", ")}.`,
-                });
+            const {
+                moduleCoverage,
+                unhealthyModules,
+                parityScore,
+                validations,
+            } = buildHistoricalValidationSummary({
+                propertyId,
+                gaEventCounts,
+                telemetryEventCounts,
+                canonicalEventCounts,
+                taskPipeline,
+                normalizedTaskEventCount: normalizedTaskEvents.length,
+                firstPartyTaskLifecycleEvents,
+                firstPartyPurchaseCount,
+                firstPartyUnlockCount,
+                completedPurchaseTransactionsCount: completedPurchaseTransactions.length,
+                unlockTransactionsCount: unlockTransactions.length,
+                guestInteractionCount,
+                pageRollupViewCount,
+                dropRollupActivityCount,
+                viewerSessionFactCount,
+                securityEventsCount: securityEventsSnapshot.size,
+                securityLogCount: securityLogs.length,
+                guidedOnboardingCompletionCount,
+                legacyOnboardingCompletionCount,
+                normalizedOnboardingCompletions,
+                onboardingStartCount,
+                onboardingStartSource,
+                taskGuidance: {
+                    viewed: taskGuidance.viewed,
+                    dismissed: taskGuidance.dismissed,
+                    tapped: taskGuidance.tapped,
+                    completed: taskGuidance.completed,
+                },
+                firstPartyAuthenticatedEvents,
+                telemetryLogCount: telemetryLogs.length,
+                telemetryPurchaseCount,
+                telemetryUnlockCount,
+                viewerSessionCount: viewerOverviewCanonical.sessionCount,
+                filteredSessionFactsLength: filteredSessionFacts.length,
+                viewerSessionStartedLogsLength: viewerSessionStartedLogs.length,
+                pipelineFailureCount,
             });
-            const unhealthyModules = moduleCoverage.filter((module) => module.status !== "healthy");
-            const purchaseParity = buildParityInsight([
-                { key: "transactions", label: "Transactions", count: completedPurchaseTransactions.length },
-                { key: "rollups", label: "Canonical rollups", count: firstPartyPurchaseCount },
-                { key: "telemetry", label: "Telemetry", count: telemetryPurchaseCount },
-            ]);
-            const unlockParity = buildParityInsight([
-                { key: "transactions", label: "Transactions", count: unlockTransactions.length },
-                { key: "rollups", label: "Canonical rollups", count: firstPartyUnlockCount },
-                { key: "telemetry", label: "Telemetry", count: telemetryUnlockCount },
-            ]);
-            const onboardingParity = buildParityInsight([
-                { key: "ga4", label: "GA4", count: guidedOnboardingCompletionCount + legacyOnboardingCompletionCount },
-                { key: "facts", label: "Onboarding facts", count: normalizedOnboardingCompletions },
-                { key: "starts", label: "Normalized starts", count: onboardingStartCount },
-            ], { tolerance: 2, relativeTolerance: 0.25 });
-            const taskGuidanceParity = buildParityInsight([
-                { key: "views", label: "Guide views", count: taskGuidance.viewed },
-                { key: "taps", label: "Guide taps", count: taskGuidance.tapped },
-                { key: "wins", label: "Guide wins", count: taskGuidance.completed },
-            ], { tolerance: 2, relativeTolerance: 0.35 });
-            const parityScore = Math.round((purchaseParity.score + unlockParity.score + onboardingParity.score + taskGuidanceParity.score) / 4);
-            const validations = [
-                {
-                    label: "GA property",
-                    status: propertyId ? "pass" : "fail",
-                    detail: propertyId ? "Google Analytics 4 reports loaded." : "GA property is missing.",
-                },
-                {
-                    label: "Telemetry depth",
-                    status: (telemetryLogs.length > 0 || firstPartyAuthenticatedEvents > 0) ? "pass" : "warn",
-                    detail: (telemetryLogs.length > 0 || firstPartyAuthenticatedEvents > 0)
-                        ? `${firstPartyAuthenticatedEvents.toLocaleString()} canonical authenticated events with ${telemetryLogs.length.toLocaleString()} realtime telemetry log records in range.`
-                        : "No authenticated telemetry events matched the selected range.",
-                },
-                {
-                    label: "Task lifecycle",
-                    status: (normalizedTaskEvents.length > 0 || firstPartyTaskLifecycleEvents > 0) ? "pass" : "warn",
-                    detail: (normalizedTaskEvents.length > 0 || firstPartyTaskLifecycleEvents > 0)
-                        ? `${firstPartyTaskLifecycleEvents.toLocaleString()} canonical task events with ${normalizedTaskEvents.length.toLocaleString()} raw lifecycle log entries in range.`
-                        : "No task lifecycle events matched the selected range.",
-                },
-                {
-                    label: "Purchase parity",
-                    status: purchaseParity.status,
-                    detail: `${completedPurchaseTransactions.length.toLocaleString()} completed purchase transactions vs ${firstPartyPurchaseCount.toLocaleString()} canonical purchase rollups. Telemetry captured ${telemetryPurchaseCount.toLocaleString()} purchase events in the same range. Confidence ${purchaseParity.score}%.`,
-                },
-                {
-                    label: "Unlock parity",
-                    status: unlockParity.status,
-                    detail: `${unlockTransactions.length.toLocaleString()} unlock transactions vs ${firstPartyUnlockCount.toLocaleString()} canonical unlock rollups. Telemetry captured ${telemetryUnlockCount.toLocaleString()} unlock events in the same range. Confidence ${unlockParity.score}%.`,
-                },
-                {
-                    label: "Onboarding coverage",
-                    status: normalizedOnboardingCompletions > 0 && onboardingStartSource === "completion_fallback" ? "warn" : "pass",
-                    detail: onboardingStartCount > 0
-                        ? onboardingStartSource === "tracked"
-                            ? `${onboardingStartCount.toLocaleString()} onboarding starts and ${normalizedOnboardingCompletions.toLocaleString()} completions were tracked directly. Confidence ${onboardingParity.score}%.`
-                            : `${normalizedOnboardingCompletions.toLocaleString()} onboarding completions were tracked, so the legacy start counter is falling back to completed sessions until more start events land. Confidence ${onboardingParity.score}%.`
-                        : "No onboarding activity matched the selected range.",
-                },
-                {
-                    label: "Task guidance parity",
-                    status: taskGuidance.completed <= taskGuidance.tapped && taskGuidance.tapped <= taskGuidance.viewed ? taskGuidanceParity.status : "warn",
-                    detail: `${taskGuidance.viewed.toLocaleString()} guide views, ${taskGuidance.dismissed.toLocaleString()} dismissals, ${taskGuidance.tapped.toLocaleString()} guide taps, and ${taskGuidance.completed.toLocaleString()} guided completions were collected in range. Confidence ${taskGuidanceParity.score}%.`,
-                },
-                {
-                    label: "Module coverage",
-                    status: unhealthyModules.length === 0 ? "pass" : unhealthyModules.length <= 3 ? "warn" : "fail",
-                    detail: unhealthyModules.length === 0
-                        ? `All ${moduleCoverage.length.toLocaleString()} indexed analytics modules are populated across the selected range. Parity score ${parityScore}%.`
-                        : `${unhealthyModules.length.toLocaleString()} of ${moduleCoverage.length.toLocaleString()} indexed analytics modules are partial or empty. Parity score ${parityScore}%.`,
-                },
-                {
-                    label: "Viewer drilldown",
-                    status: (viewerOverviewCanonical.sessionCount > 0 || filteredSessionFacts.length > 0) ? "pass" : "warn",
-                    detail: (viewerOverviewCanonical.sessionCount > 0 || filteredSessionFacts.length > 0)
-                        ? `${viewerOverviewCanonical.sessionCount.toLocaleString()} viewer sessions from canonical session facts with ${viewerSessionStartedLogs.length.toLocaleString()} raw session-start events in range.`
-                        : "No viewer sessions matched the selected range and filter.",
-                },
-            ];
 
             return NextResponse.json({
                 success: true,

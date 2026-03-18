@@ -3,7 +3,7 @@ import type { User } from "firebase/auth";
 
 import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
-import { ADMIN } from "@/lib/server/rate-limit";
+import { ADMIN, HEAVY_READ } from "@/lib/server/rate-limit";
 import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 import { normalizeUserProfile } from "@/lib/user-utils";
 import { describeSecurityEvent } from "@/lib/security-events";
@@ -48,8 +48,11 @@ export async function GET(
     try {
         await guardApiRequest(request, {
             routeName: "admin/user-detail",
+            preAuthRouteName: "admin/user-detail/preauth",
+            preAuthRateLimit: HEAVY_READ,
             rateLimit: ADMIN,
             auth: "admin",
+            scopeToCaller: true,
         });
 
         const { userId } = await context.params;

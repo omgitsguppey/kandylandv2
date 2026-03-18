@@ -325,20 +325,27 @@ export function resolveAnalyticsSemanticContext(input: {
   pagePath?: string | null;
   dropId?: string | null;
   dropCategory?: string | null;
+  semanticCategory?: string | null;
+  semanticCategoryLabel?: string | null;
+  semanticScopeKey?: string | null;
+  semanticScopeLabel?: string | null;
+  semanticSurfaceKey?: string | null;
+  semanticSurfaceLabel?: string | null;
   userRole?: string | null;
 }) {
   const pagePath = normalizePagePath(input.pagePath);
   const dropId = input.dropId?.trim() || undefined;
   const dropCategory = input.dropCategory?.trim() || undefined;
   const descriptor = buildScopeDescriptor(pagePath, dropId, dropCategory);
+  const category = (input.semanticCategory?.trim() as AnalyticsSemanticCategory | undefined) || descriptor.category;
 
   return {
-    category: descriptor.category,
-    categoryLabel: ANALYTICS_SEMANTIC_CATEGORY_LABELS[descriptor.category],
-    scopeKey: descriptor.scopeKey,
-    scopeLabel: descriptor.scopeLabel,
-    surfaceKey: descriptor.surfaceKey,
-    surfaceLabel: descriptor.surfaceLabel,
+    category,
+    categoryLabel: input.semanticCategoryLabel?.trim() || ANALYTICS_SEMANTIC_CATEGORY_LABELS[category],
+    scopeKey: input.semanticScopeKey?.trim() || descriptor.scopeKey,
+    scopeLabel: input.semanticScopeLabel?.trim() || descriptor.scopeLabel,
+    surfaceKey: input.semanticSurfaceKey?.trim() || descriptor.surfaceKey,
+    surfaceLabel: input.semanticSurfaceLabel?.trim() || descriptor.surfaceLabel,
     pagePath,
     dropId,
     dropCategory,
@@ -350,6 +357,12 @@ export function buildAnalyticsSemanticParams(input: {
   pagePath?: string | null;
   dropId?: string | null;
   dropCategory?: string | null;
+  semanticCategory?: string | null;
+  semanticCategoryLabel?: string | null;
+  semanticScopeKey?: string | null;
+  semanticScopeLabel?: string | null;
+  semanticSurfaceKey?: string | null;
+  semanticSurfaceLabel?: string | null;
   userRole?: string | null;
 }) {
   const context = resolveAnalyticsSemanticContext(input);

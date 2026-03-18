@@ -6,6 +6,7 @@ import { ANALYTICS_WRITE } from "@/lib/server/rate-limit";
 import { requestAllowsAnonymousAnalytics, requestHasGlobalPrivacyControl } from "@/lib/server/privacy-consent";
 import { TELEMETRY_EVENT_INDEX_VERSION } from "@/lib/telemetry-catalog";
 import { buildAnalyticsTimeKeys } from "@/lib/server/analytics-event-utils";
+import { recordAnalyticsPipelineFailure } from "@/lib/server/analytics-pipeline-health";
 import { claimAnalyticsReceipt } from "@/lib/server/analytics-receipts";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
@@ -214,6 +215,10 @@ export async function POST(request: NextRequest) {
                 route: "analytics/ingest",
                 error: error instanceof Error ? error.message : String(error),
             },
+        });
+        await recordAnalyticsPipelineFailure({
+            routeName: "analytics/ingest",
+            errorMessage: error instanceof Error ? error.message : String(error),
         });
         // Fail silently to the client to avoid console spam for analytics
         return NextResponse.json({ success: false }, { status: 200 });

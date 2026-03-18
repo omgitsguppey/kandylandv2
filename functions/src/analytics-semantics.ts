@@ -196,7 +196,7 @@ function buildFallbackSemanticContext(pagePath: string, dropId?: string, dropCat
   }
 }
 
-function resolveAnalyticsSemanticContext(input: {
+export function resolveAnalyticsSemanticContext(input: {
   pagePath?: string | null;
   dropId?: string | null;
   dropCategory?: string | null;

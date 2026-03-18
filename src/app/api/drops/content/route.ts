@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
-import { MEDIA_PROXY } from "@/lib/server/rate-limit";
+import { MEDIA_PROXY, STANDARD } from "@/lib/server/rate-limit";
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
 import { isAllowedRemoteMediaUrl } from "@/lib/media-hosts";
 import { guardApiRequest } from "@/lib/server/request-guard";
@@ -22,6 +22,8 @@ export async function GET(request: NextRequest) {
   try {
     const caller = await guardApiRequest(request, {
       routeName: "drops/content",
+      preAuthRouteName: "drops/content/preauth",
+      preAuthRateLimit: STANDARD,
       rateLimit: MEDIA_PROXY,
       requireTrustedOrigin: true,
       auth: "user",

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
-import { ADMIN } from "@/lib/server/rate-limit";
+import { ADMIN, HEAVY_READ } from "@/lib/server/rate-limit";
 import { BUILT_IN_DAILY_TASKS, DAILY_TASK_LIMIT, type DailyTaskAssignment } from "@/lib/tasks/task-catalog";
 import { CANONICAL_TASK_EVENT_NAMES } from "@/lib/server/daily-tasks";
 import { TELEMETRY_EVENT_LABELS, TELEMETRY_EVENT_NAMES } from "@/lib/telemetry-catalog";
@@ -70,8 +70,11 @@ export async function GET(request: NextRequest) {
     try {
         await guardApiRequest(request, {
             routeName: "admin/debug",
+            preAuthRouteName: "admin/debug/preauth",
+            preAuthRateLimit: HEAVY_READ,
             rateLimit: ADMIN,
             auth: "admin",
+            scopeToCaller: true,
         });
 
         const nowMs = Date.now();

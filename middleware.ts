@@ -8,11 +8,6 @@ import { verifyNavigationSessionCookieValue, NAV_SESSION_COOKIE } from "@/lib/na
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-
-  if (pathname !== "/") {
-    return NextResponse.next();
-  }
-
   const navigationSession = await verifyNavigationSessionCookieValue(
     request.cookies.get(NAV_SESSION_COOKIE)?.value,
   );
@@ -24,15 +19,35 @@ export async function middleware(request: NextRequest) {
   const destination = resolvePreferredAuthenticatedPath(navigationSession.role, lastVisitedPath);
   const fallbackPath = navigationSession.role === "admin" ? "/admin" : "/dashboard";
 
-  const redirectUrl = request.nextUrl.clone();
-  redirectUrl.pathname = destination.split("?")[0] || fallbackPath;
+  if (pathname === "/") {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = destination.split("?")[0] || fallbackPath;
 
-  const queryIndex = destination.indexOf("?");
-  redirectUrl.search = queryIndex >= 0 ? destination.slice(queryIndex) : "";
+    const queryIndex = destination.indexOf("?");
+    redirectUrl.search = queryIndex >= 0 ? destination.slice(queryIndex) : "";
 
-  return NextResponse.redirect(redirectUrl);
+    return NextResponse.redirect(redirectUrl);
+  }
+
+  if (navigationSession.role === "admin" && pathname.startsWith("/dashboard")) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = destination.split("?")[0] || fallbackPath;
+    const queryIndex = destination.indexOf("?");
+    redirectUrl.search = queryIndex >= 0 ? destination.slice(queryIndex) : "";
+    return NextResponse.redirect(redirectUrl);
+  }
+
+  if (navigationSession.role !== "admin" && pathname.startsWith("/admin")) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = destination.split("?")[0] || fallbackPath;
+    const queryIndex = destination.indexOf("?");
+    redirectUrl.search = queryIndex >= 0 ? destination.slice(queryIndex) : "";
+    return NextResponse.redirect(redirectUrl);
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/"],
+  matcher: ["/", "/dashboard/:path*", "/admin/:path*"],
 };

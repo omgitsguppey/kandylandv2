@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
-import { ADMIN } from "@/lib/server/rate-limit";
+import { ADMIN, HEAVY_READ } from "@/lib/server/rate-limit";
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
 import { applyDropStatus } from "@/lib/drop-status";
 import { APP_TIMEZONE, fromCSTInput, getCSTDateKey, shiftCSTDateKey } from "@/lib/timezone";
@@ -71,8 +71,11 @@ export async function GET(request: NextRequest) {
     try {
         await guardApiRequest(request, {
             routeName: "admin/overview",
+            preAuthRouteName: "admin/overview/preauth",
+            preAuthRateLimit: HEAVY_READ,
             rateLimit: ADMIN,
             auth: "admin",
+            scopeToCaller: true,
         });
 
         if (!adminDb) {

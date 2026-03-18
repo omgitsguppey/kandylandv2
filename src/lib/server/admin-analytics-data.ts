@@ -51,6 +51,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
     taskDailySnapshot,
     commerceDailySnapshot,
     sessionFactsSnapshot,
+    pipelineHealthSnapshot,
     analyticsEventFactsSnapshot,
     onboardingFactsSnapshot,
     securityEventsSnapshot,
@@ -148,6 +149,9 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
     adminDb.collection("analytics_session_facts")
       .where("dayKey", ">=", startDayKey)
       .get(),
+    adminDb.collection("analytics_pipeline_daily")
+      .where("dayKey", ">=", startDayKey)
+      .get(),
     adminDb.collection("analytics_event_facts")
       .where("timestamp", ">=", startMs)
       .get(),
@@ -199,6 +203,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
     taskDailySnapshot,
     commerceDailySnapshot,
     sessionFactsSnapshot,
+    pipelineHealthSnapshot,
     analyticsEventFactsSnapshot,
     onboardingFactsSnapshot,
     securityEventsSnapshot,

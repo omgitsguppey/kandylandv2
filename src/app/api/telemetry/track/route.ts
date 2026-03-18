@@ -10,6 +10,7 @@ import { BUILT_IN_DAILY_TASKS } from "@/lib/tasks/task-catalog";
 import { UserProfile } from "@/types/db";
 import { isValidAnalyticsEventId, normalizeAnalyticsClientTimestamp } from "@/lib/analytics-identifiers";
 import { buildAnalyticsTimeKeys, resolveTrackedTelemetryEvent } from "@/lib/server/analytics-event-utils";
+import { recordAnalyticsPipelineFailure } from "@/lib/server/analytics-pipeline-health";
 import { claimAnalyticsReceipt } from "@/lib/server/analytics-receipts";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
@@ -354,6 +355,10 @@ export async function POST(req: NextRequest) {
                 route: "telemetry/track",
                 error: error instanceof Error ? error.message : String(error),
             },
+        });
+        await recordAnalyticsPipelineFailure({
+            routeName: "telemetry/track",
+            errorMessage: error instanceof Error ? error.message : String(error),
         });
         return handleApiError(error, "Telemetry.Track");
     }

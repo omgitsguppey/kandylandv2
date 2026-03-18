@@ -13,6 +13,10 @@ function isAdminPath(path: string) {
   return path === "/admin" || path.startsWith("/admin/");
 }
 
+function isDashboardPath(path: string) {
+  return path === "/dashboard" || path.startsWith("/dashboard/");
+}
+
 function getDefaultAppPathForRole(role: NavigationRole | null | undefined) {
   return role === "admin" ? "/admin" : "/dashboard";
 }
@@ -27,6 +31,10 @@ export function resolvePreferredAuthenticatedPath(
   }
 
   if (role !== "admin" && isAdminPath(candidatePath)) {
+    return fallbackPath;
+  }
+
+  if (role === "admin" && isDashboardPath(candidatePath)) {
     return fallbackPath;
   }
 
