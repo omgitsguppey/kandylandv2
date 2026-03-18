@@ -3,6 +3,7 @@ import { config as loadEnv } from "dotenv";
 import * as admin from "firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
 
+import { buildAnalyticsTimeKeys } from "@/lib/analytics-time";
 import { deriveGumdropEconomics, getBundlePresentation } from "@/lib/gumdrop-economics";
 import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 
@@ -107,16 +108,6 @@ function toTimestampNumber(value: unknown): number {
   }
 
   return 0;
-}
-
-function toTimeKeys(timestamp: number) {
-  const date = new Date(timestamp);
-  const year = date.getUTCFullYear();
-  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-  const day = String(date.getUTCDate()).padStart(2, "0");
-  return {
-    dayKey: `${year}-${month}-${day}`,
-  };
 }
 
 function buildEmptyCommerceAggregate(): CommerceAggregate {
@@ -225,7 +216,7 @@ async function main() {
     try {
       const transaction = normalizeTransactionRecord(doc.data(), doc.id);
       const timestamp = typeof transaction.timestamp === "number" ? transaction.timestamp : toTimestampNumber(transaction.timestamp);
-      const dayKey = toTimeKeys(timestamp || Date.now()).dayKey;
+      const dayKey = buildAnalyticsTimeKeys(timestamp || Date.now()).dayKey;
       const isPurchase = transaction.status === "completed" && transaction.type === "purchase_currency";
       const isUnlock = transaction.type === "unlock_content";
       const unlockSpendAmount = isUnlock ? Math.abs(transaction.amount) : 0;
@@ -330,7 +321,7 @@ async function main() {
     }
 
     const timestamp = toTimestampNumber(data.lastEventAt) || toTimestampNumber(data.lastEventAtMs) || Date.now();
-    const dayKey = typeof data.dayKey === "string" ? data.dayKey : toTimeKeys(timestamp).dayKey;
+    const dayKey = typeof data.dayKey === "string" ? data.dayKey : buildAnalyticsTimeKeys(timestamp).dayKey;
     const startedCount = Number(data.startedCount || 0);
     const watchSecondsTotal = Number(data.watchSecondsTotal || 0);
     const loadMsTotal = Number(data.loadMsTotal || 0);
@@ -357,7 +348,7 @@ async function main() {
   eventFactsSnapshot.docs.forEach((doc) => {
     const data = doc.data() as Record<string, unknown>;
     const timestamp = toTimestampNumber(data.timestamp) || Date.now();
-    const dayKey = typeof data.dayKey === "string" ? data.dayKey : toTimeKeys(timestamp).dayKey;
+    const dayKey = typeof data.dayKey === "string" ? data.dayKey : buildAnalyticsTimeKeys(timestamp).dayKey;
     const eventName = typeof data.eventName === "string" ? data.eventName : "";
     const current = dailyRollups.get(dayKey) ?? buildEmptyDailyRollupAggregate();
     current.totalEvents += 1;
@@ -370,7 +361,7 @@ async function main() {
   taskEventsSnapshot.docs.forEach((doc) => {
     const data = doc.data() as Record<string, unknown>;
     const timestamp = toTimestampNumber(data.timestamp) || Date.now();
-    const dayKey = typeof data.dayKey === "string" ? data.dayKey : toTimeKeys(timestamp).dayKey;
+    const dayKey = typeof data.dayKey === "string" ? data.dayKey : buildAnalyticsTimeKeys(timestamp).dayKey;
     const taskId = typeof data.taskId === "string" ? data.taskId : doc.id;
     const title = typeof data.title === "string" ? data.title : taskId;
     const type = typeof data.type === "string" ? data.type : "unknown";

@@ -19,17 +19,17 @@ function clampStoredStreak(value: unknown): number {
     return Math.max(0, Math.min(7, Math.floor(Number(value))));
 }
 
-export function getWrappedDailyStreak(streak: number) {
+function getWrappedDailyStreak(streak: number) {
     const normalized = Math.max(1, Math.min(7, Math.floor(streak)));
     return normalized >= 7 ? 1 : normalized + 1;
 }
 
-export function getDailyCheckInReward(streak: number) {
+function getDailyCheckInReward(streak: number) {
     const normalized = Math.max(1, Math.min(7, Math.floor(streak)));
     return DAILY_CHECK_IN_REWARD_LADDER[normalized - 1];
 }
 
-export interface DailyCheckInProgress {
+interface DailyCheckInProgress {
     lastCheckInMs: number;
     activeStreak: number;
     isClaimedToday: boolean;

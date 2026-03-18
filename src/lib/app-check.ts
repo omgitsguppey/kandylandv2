@@ -1,15 +1,11 @@
 import { getToken } from "firebase/app-check";
 
 import { appCheck } from "@/lib/firebase";
-
-function shouldRequireClientAppCheck() {
-    return process.env.NODE_ENV === "production"
-        && Boolean(process.env.NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_SITE_KEY);
-}
+import { shouldRequireAppCheck } from "@/lib/firebase-runtime";
 
 export async function getAppCheckToken(): Promise<string | null> {
     if (!appCheck) {
-        if (shouldRequireClientAppCheck()) {
+        if (shouldRequireAppCheck()) {
             throw new Error("App Check is not initialized");
         }
         return null;
@@ -19,7 +15,7 @@ export async function getAppCheckToken(): Promise<string | null> {
         const token = await getToken(appCheck, false);
         return token.token || null;
     } catch (error) {
-        if (shouldRequireClientAppCheck()) {
+        if (shouldRequireAppCheck()) {
             throw error instanceof Error ? error : new Error("Failed to acquire App Check token");
         }
         return null;

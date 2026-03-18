@@ -15,11 +15,11 @@ import {
   readBoolean,
   readNumber,
   readString,
-  REGION,
   summarizeEventFacts,
   toTimeKeys,
 } from "./analytics-core.js"
 import {db, rtdb} from "./firebase-admin.js"
+import {REGION} from "./firebase-runtime.js"
 import {deriveGumdropEconomics} from "./gumdrop-economics.js"
 
 setGlobalOptions({

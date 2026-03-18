@@ -2,12 +2,13 @@
 
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useAuthIdentity } from "@/context/AuthContext";
+import { CLIENT_RUNTIME_EVENTS, dispatchClientRuntimeEvent } from "@/hooks/client-runtime";
 import { markNotificationAsRead } from "@/lib/notifications";
 import { AppNotification } from "@/lib/notification-contracts";
 import { trackEvent } from "@/lib/telemetry";
 import { authFetch } from "@/lib/authFetch";
 
-export type Notification = AppNotification;
+type Notification = AppNotification;
 
 export function useNotifications() {
     const { user } = useAuthIdentity();
@@ -87,14 +88,14 @@ export function useNotifications() {
         };
 
         window.addEventListener("focus", refreshOnDemand);
-        window.addEventListener("kandydrops:notifications-sync", refreshOnDemand);
+        window.addEventListener(CLIENT_RUNTIME_EVENTS.notificationsSync, refreshOnDemand);
         document.addEventListener("visibilitychange", refreshOnVisible);
 
         return () => {
             cancelled = true;
             window.clearInterval(interval);
             window.removeEventListener("focus", refreshOnDemand);
-            window.removeEventListener("kandydrops:notifications-sync", refreshOnDemand);
+            window.removeEventListener(CLIENT_RUNTIME_EVENTS.notificationsSync, refreshOnDemand);
             document.removeEventListener("visibilitychange", refreshOnVisible);
         };
     }, [userId]);
@@ -116,7 +117,7 @@ export function useNotifications() {
 
         const success = await markNotificationAsRead(id);
         if (!success) {
-            window.dispatchEvent(new Event("kandydrops:notifications-sync"));
+            dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync);
             return false;
         }
 
@@ -124,7 +125,7 @@ export function useNotifications() {
         trackEvent("notification_marked_read", {
             notification_id: id,
         });
-        window.dispatchEvent(new Event("kandydrops:notifications-sync"));
+        dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync);
         return true;
     };
 
@@ -157,7 +158,7 @@ export function useNotifications() {
             });
         }
 
-        window.dispatchEvent(new Event("kandydrops:notifications-sync"));
+        dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync);
         return {
             successCount: succeededIds.length,
             failedCount,

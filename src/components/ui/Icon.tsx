@@ -1,32 +1,20 @@
+import NextImage from "next/image";
 
-import NextImage from 'next/image';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
-interface IconProps {
+type CandyIconProps = {
   className?: string;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
-}
+};
 
-export function GumDropIcon({ className, size = 'md' }: IconProps) {
-  const sizes = {
-    sm: 'w-5 h-5',
-    md: 'w-10 h-10',
-    lg: 'w-16 h-16',
-    xl: 'w-24 h-24',
-  };
-
+export function CandyIcon({ className }: CandyIconProps) {
   return (
-    <div className={cn('relative flex items-center justify-center', sizes[size], className)}>
-      <div className="relative h-full w-full">
-        <div className="absolute inset-x-[15%] bottom-0 top-[10%] rounded-b-[40%] rounded-t-full border-t border-white/30 bg-gradient-to-b from-brand-purple to-blue-600 shadow-[0_0_20px_rgba(6,182,212,0.6)]">
-          <div className="absolute inset-0 rounded-b-[40%] rounded-t-full bg-gradient-to-tr from-transparent via-white/10 to-transparent" />
-        </div>
-        <div className="absolute left-[30%] top-[20%] h-[10%] w-[15%] rounded-full bg-white/70 blur-[1px]" />
-      </div>
-    </div>
+    <NextImage
+      src="/candy-3d-glass.png"
+      alt="Candy"
+      width={96}
+      height={96}
+      className={cn("object-contain", className)}
+      priority
+    />
   );
-}
-
-export function CandyIcon({ className }: { className?: string }) {
-  return <NextImage src="/candy-3d-glass.png" alt="Candy" width={96} height={96} className={cn('object-contain', className)} priority />;
 }

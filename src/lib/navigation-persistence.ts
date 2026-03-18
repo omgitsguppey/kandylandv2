@@ -5,7 +5,7 @@ export const NAV_ROLE_COOKIE = "kandydrops_nav_role";
 export const NAV_UID_COOKIE = "kandydrops_nav_uid";
 export type NavigationRole = "admin" | "creator" | "user";
 
-export function isPersistableAppPath(path: string) {
+function isPersistableAppPath(path: string) {
   return path.startsWith("/") && path !== "/" && !path.startsWith("/api");
 }
 
@@ -13,7 +13,7 @@ function isAdminPath(path: string) {
   return path === "/admin" || path.startsWith("/admin/");
 }
 
-export function getDefaultAppPathForRole(role: NavigationRole | null | undefined) {
+function getDefaultAppPathForRole(role: NavigationRole | null | undefined) {
   return role === "admin" ? "/admin" : "/dashboard";
 }
 
@@ -49,7 +49,7 @@ function clearCookie(name: string) {
   document.cookie = `${name}=; path=/; max-age=0; SameSite=Lax`;
 }
 
-export function readLastVisitedPath() {
+function readLastVisitedPath() {
   if (typeof window === "undefined") {
     return null;
   }

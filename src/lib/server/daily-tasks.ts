@@ -99,6 +99,22 @@ function normalizeHistory(value: unknown): Record<string, number> {
   );
 }
 
+function stripUndefinedDeep<T>(value: T): T {
+  if (Array.isArray(value)) {
+    return value.map((entry) => stripUndefinedDeep(entry)) as T;
+  }
+
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>)
+        .filter(([, entryValue]) => typeof entryValue !== "undefined")
+        .map(([key, entryValue]) => [key, stripUndefinedDeep(entryValue)]),
+    ) as T;
+  }
+
+  return value;
+}
+
 function normalizeTaskAssignment(raw: unknown): Partial<DailyTaskAssignment> | null {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
     return null;
@@ -163,14 +179,18 @@ function upgradeAssignment(
     return null;
   }
 
+  const assignedAt = partial.assignedAt || nowMs;
+  const startedAt = partial.startedAt ?? ((partial.progress ?? 0) > 0 ? assignedAt : undefined);
+  const claimedAt = partial.claimedAt;
+
   return {
     ...definition,
     progress: Math.max(0, Math.min(partial.progress ?? 0, definition.maxProgress)),
     claimed: partial.claimed ?? false,
     progressKeys: partial.progressKeys ?? [],
-    assignedAt: partial.assignedAt || nowMs,
-    startedAt: partial.startedAt,
-    claimedAt: partial.claimedAt,
+    assignedAt,
+    ...(typeof startedAt === "number" ? { startedAt } : {}),
+    ...(typeof claimedAt === "number" ? { claimedAt } : {}),
   };
 }
 
@@ -710,7 +730,7 @@ function writeTaskLifecycleEvent(
   },
 ) {
   const eventRef = adminDb.collection(TASK_EVENT_COLLECTION).doc();
-  transaction.set(eventRef, data);
+  transaction.set(eventRef, stripUndefinedDeep(data));
 }
 
 function buildTaskReceiptDocId(uid: string, eventName: string, receiptKey: string) {
@@ -848,7 +868,7 @@ export async function rotateUserTasks(uid: string) {
     responseResult = result;
 
     transaction.update(userRef, {
-      dailyTasksState: result.state,
+      dailyTasksState: stripUndefinedDeep(result.state),
     });
 
     applyRotationSideEffects({
@@ -1059,7 +1079,7 @@ export async function recordDailyTaskProgressFromEvent(
 
     if (!stateChanged) {
       if (result.rotated) {
-        transaction.update(userRef, { dailyTasksState: result.state });
+        transaction.update(userRef, { dailyTasksState: stripUndefinedDeep(result.state) });
       }
       return;
     }
@@ -1087,7 +1107,7 @@ export async function recordDailyTaskProgressFromEvent(
     };
 
     transaction.update(userRef, {
-      dailyTasksState: nextState,
+      dailyTasksState: stripUndefinedDeep(nextState),
       ...(totalReward > 0 ? { gumDropsBalance: FieldValue.increment(totalReward) } : {}),
     });
 
@@ -1151,7 +1171,7 @@ export async function syncUserTaskReminder(uid: string) {
 
     if (result.rotated || shouldSendReminder || (result.state.nextRefreshMs !== (userData.dailyTasksState?.nextRefreshMs ?? 0))) {
       transaction.update(userRef, {
-        dailyTasksState: nextState,
+        dailyTasksState: stripUndefinedDeep(nextState),
       });
     }
 

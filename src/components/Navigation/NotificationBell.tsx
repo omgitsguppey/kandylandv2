@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { useNotifications } from "@/hooks/useNotifications";
+import { CLIENT_RUNTIME_EVENTS } from "@/hooks/client-runtime";
 import { useAuthIdentity } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/telemetry";
@@ -247,8 +248,8 @@ export function NotificationBell() {
       });
     }
 
-    window.addEventListener("kandydrops:open-notifications", handleOpenRequest);
-    return () => window.removeEventListener("kandydrops:open-notifications", handleOpenRequest);
+    window.addEventListener(CLIENT_RUNTIME_EVENTS.openNotifications, handleOpenRequest);
+    return () => window.removeEventListener(CLIENT_RUNTIME_EVENTS.openNotifications, handleOpenRequest);
   }, [unreadCount]);
 
   const toggleDropdown = () => {

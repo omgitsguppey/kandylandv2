@@ -3,7 +3,7 @@
 /**
  * Detects if the current device is an iOS device (iPhone, iPad, iPod).
  */
-export const isIOS = () => {
+const isIOS = () => {
     if (typeof window === "undefined") return false;
 
     return (

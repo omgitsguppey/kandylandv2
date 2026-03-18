@@ -1,5 +1,8 @@
 import "server-only";
 import { NextRequest, NextResponse } from "next/server";
+
+import { shouldRequireAppCheck } from "@/lib/firebase-runtime";
+
 import { adminAppCheck, adminAuth, adminDb } from "./firebase-admin";
 import { RateLimitError, buildRateLimitResponse } from "./rate-limit";
 
@@ -9,12 +12,7 @@ export interface AuthResult {
     isAdmin?: boolean;
 }
 
-function shouldEnforceAppCheck() {
-    return process.env.NODE_ENV === "production"
-        && Boolean(process.env.NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_SITE_KEY);
-}
-
-export async function verifyAppCheck(request: NextRequest, required = shouldEnforceAppCheck()) {
+export async function verifyAppCheck(request: NextRequest, required = shouldRequireAppCheck()) {
     const appCheckToken = request.headers.get("X-Firebase-AppCheck")?.trim();
 
     if (!appCheckToken) {

@@ -1,6 +1,5 @@
 import {FieldValue} from "firebase-admin/firestore"
 
-export const REGION = "us-central1"
 export const DASHBOARD_CACHE_COLLECTION = "analytics_dashboard_cache"
 
 export interface AnalyticsEventFact {

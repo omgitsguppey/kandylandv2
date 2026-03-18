@@ -1,6 +1,7 @@
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
 import * as firebaseAdmin from "firebase-admin";
 
+import { fromCSTInput, getCSTDateKey, shiftCSTDateKey } from "@/lib/timezone";
 import { TELEMETRY_EVENT_ALIAS_MAP } from "@/lib/telemetry-catalog";
 
 export type RangeWindow = {
@@ -146,17 +147,10 @@ export const AUTHENTICATED_PAGE_VIEW_EVENT_NAMES = new Set([
   "home_page_viewed",
 ]);
 
-function getUtcDayStartMs(daysAgo: number) {
-  const now = new Date();
-  return Date.UTC(
-    now.getUTCFullYear(),
-    now.getUTCMonth(),
-    now.getUTCDate() - daysAgo,
-    0,
-    0,
-    0,
-    0,
-  );
+function getCstDayStartMs(daysAgo: number) {
+  const currentDayKey = getCSTDateKey(Date.now());
+  const shiftedDayKey = shiftCSTDateKey(currentDayKey, -daysAgo);
+  return fromCSTInput(`${shiftedDayKey}T00:00`);
 }
 
 export function getRangeWindow(period: string | null): RangeWindow {
@@ -168,18 +162,18 @@ export function getRangeWindow(period: string | null): RangeWindow {
   }
 
   if (period === "7d") {
-    return { startDate: "7daysAgo", startMs: getUtcDayStartMs(7) };
+    return { startDate: "7daysAgo", startMs: getCstDayStartMs(7) };
   }
 
   if (period === "all") {
-    return { startDate: "2020-01-01", startMs: getUtcDayStartMs(3650) };
+    return { startDate: "2020-01-01", startMs: getCstDayStartMs(3650) };
   }
 
-  return { startDate: "30daysAgo", startMs: getUtcDayStartMs(30) };
+  return { startDate: "30daysAgo", startMs: getCstDayStartMs(30) };
 }
 
 export function timestampToDayKey(timestamp: number) {
-  return new Date(timestamp).toISOString().slice(0, 10);
+  return getCSTDateKey(timestamp);
 }
 
 export function rawDateToDayKey(rawDate: string) {

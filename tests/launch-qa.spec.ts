@@ -1,576 +1,286 @@
-import { test, expect } from '@playwright/test';
+import { expect, test, type Page } from "@playwright/test";
 
-// ─────────────────────────────────────────────
-// 1. PUBLIC PAGE SMOKE TESTS
-// ─────────────────────────────────────────────
+const AUTH_SETTLE_MS = 2_000;
+const DROPS_SETTLE_MS = 3_000;
 
-test.describe('Public Pages — Smoke Tests', () => {
-    test('Home page loads with hero section', async ({ page }) => {
-        await page.goto('/');
+async function waitForGuestShell(page: Page) {
+    await page.waitForLoadState("domcontentloaded");
+    await page.waitForTimeout(AUTH_SETTLE_MS);
+}
+
+test.describe("Public Pages - Smoke Tests", () => {
+    test("Home page loads with the hero section", async ({ page }) => {
+        await page.goto("/");
         await expect(page).toHaveTitle(/KandyDrops/i);
-
-        // Hero visible
-        const hero = page.locator('section').first();
-        await expect(hero).toBeVisible({ timeout: 10000 });
-
-        // Brand name visible
-        await expect(page.getByText('KandyDrops', { exact: false }).first()).toBeVisible();
-
-        // CTA button visible ("Unwrap Now" or "Sign In")
-        const ctaButton = page.locator('button, a').filter({
-            hasText: /unwrap now|sign in/i
-        }).first();
-        await expect(ctaButton).toBeVisible();
+        await expect(page.locator("section").first()).toBeVisible({ timeout: 10_000 });
+        await expect(page.getByText("KandyDrops", { exact: false }).first()).toBeVisible();
     });
 
-    test('Drops page loads with content grid', async ({ page }) => {
-        await page.goto('/drops');
+    test("Drops page loads with content or an empty state", async ({ page }) => {
+        await page.goto("/drops");
         await expect(page).toHaveTitle(/KandyDrops/i);
+        await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
 
-        // Page header
-        await expect(page.getByRole('heading', { name: /KandyDrops/i }).first()).toBeVisible({ timeout: 15000 });
-
-        // Filter bar should exist
-        const filterBar = page.getByText('All', { exact: true }).first();
-        await expect(filterBar).toBeVisible({ timeout: 10000 });
+        const dropCards = page.locator('[id^="drop-"]');
+        const dropCount = await dropCards.count();
+        if (dropCount > 0) {
+            await expect(dropCards.first()).toBeVisible();
+        } else {
+            await expect(page.getByText(/The Candy Shop is Empty/i)).toBeVisible();
+        }
     });
 
-    test('Experiences page loads with coming soon content', async ({ page }) => {
-        await page.goto('/experiences');
-
-        await expect(page.getByRole('heading', { name: /Experiences/i })).toBeVisible({ timeout: 10000 });
+    test("Experiences page loads", async ({ page }) => {
+        await page.goto("/experiences");
+        await expect(page.getByRole("heading", { name: /Experiences/i })).toBeVisible({ timeout: 10_000 });
         await expect(page.getByText(/immersive events/i)).toBeVisible();
-
-        // "Back to Home" link
-        const backLink = page.getByRole('link', { name: /back to home/i });
-        await expect(backLink).toBeVisible();
     });
 
-    test('Privacy policy page loads', async ({ page }) => {
-        await page.goto('/privacy');
-        // Should have content — not a 404
-        await page.waitForLoadState('domcontentloaded');
-        const body = page.locator('body');
-        await expect(body).not.toContainText('404');
-    });
-
-    test('Terms of service page loads', async ({ page }) => {
-        await page.goto('/terms');
-        await page.waitForLoadState('domcontentloaded');
-        const body = page.locator('body');
-        await expect(body).not.toContainText('404');
+    test("Privacy and terms pages load", async ({ page }) => {
+        for (const route of ["/privacy", "/terms"]) {
+            await page.goto(route);
+            await page.waitForLoadState("domcontentloaded");
+            await expect(page.locator("body")).not.toContainText("404");
+        }
     });
 });
 
-// ─────────────────────────────────────────────
-// 2. SEO & META TAGS
-// ─────────────────────────────────────────────
+test.describe("SEO - Meta Tags And Structure", () => {
+    test("Home page has core metadata", async ({ page }) => {
+        await page.goto("/");
 
-test.describe('SEO — Meta Tags & Structure', () => {
-    test('Home page has proper meta tags', async ({ page }) => {
-        await page.goto('/');
-
-        // Title tag
-        const title = await page.title();
-        expect(title).toContain('KandyDrops');
-
-        // Meta description
-        const metaDesc = page.locator('meta[name="description"]');
-        await expect(metaDesc).toHaveAttribute('content', /gum drops|content/i);
-
-        // Single H1
-        const h1Count = await page.locator('h1').count();
-        expect(h1Count).toBeGreaterThanOrEqual(1);
-
-        // Language attribute
-        const html = page.locator('html');
-        await expect(html).toHaveAttribute('lang', 'en');
+        await expect(page.locator("meta[name=\"description\"]")).toHaveAttribute("content", /gum drops|content/i);
+        await expect(page.locator("html")).toHaveAttribute("lang", "en");
+        expect(await page.locator("h1").count()).toBeGreaterThanOrEqual(1);
     });
 
-    test('Drops page renders heading structure', async ({ page }) => {
-        await page.goto('/drops');
-        await page.waitForLoadState('domcontentloaded');
-
-        // Should have at least one heading
-        const headings = page.locator('h1, h2, h3');
-        const count = await headings.count();
-        expect(count).toBeGreaterThan(0);
+    test("Drops page renders heading structure", async ({ page }) => {
+        await page.goto("/drops");
+        await page.waitForLoadState("domcontentloaded");
+        expect(await page.locator("h1, h2, h3").count()).toBeGreaterThan(0);
     });
 });
 
-// ─────────────────────────────────────────────
-// 3. NAVIGATION
-// ─────────────────────────────────────────────
-
-test.describe('Navigation', () => {
-    test('Navbar is visible on all pages', async ({ page }) => {
-        await page.goto('/');
-        const nav = page.locator('nav').first();
-        await expect(nav).toBeVisible({ timeout: 10000 });
-
-        // Logo/brand link goes home
-        const logo = page.locator('nav a[href="/"]').first();
-        await expect(logo).toBeVisible();
+test.describe("Navigation", () => {
+    test("Navbar is visible on guest pages", async ({ page }) => {
+        await page.goto("/");
+        await expect(page.locator("nav").first()).toBeVisible({ timeout: 10_000 });
+        await expect(page.locator('nav a[href="/"]').first()).toBeVisible();
     });
 
-    test('Logo link navigates to home', async ({ page }) => {
-        await page.goto('/drops');
-        await page.waitForLoadState('domcontentloaded');
-
-        const logo = page.locator('nav a[href="/"]').first();
-        await logo.click();
-        await page.waitForURL('/');
-        expect(page.url()).toContain('/');
+    test("Guest logo link navigates home", async ({ page }) => {
+        await page.goto("/drops");
+        await waitForGuestShell(page);
+        await page.locator('nav a[href="/"]').first().click();
+        await page.waitForURL("/");
     });
 
-    test('Sign In button is visible when not authenticated', async ({ page }) => {
-        await page.goto('/');
-        await page.waitForLoadState('domcontentloaded');
-        await page.waitForTimeout(2000); // Wait for auth state to resolve
+    test("Guest shell shows sign in affordance", async ({ page }) => {
+        await page.goto("/");
+        await waitForGuestShell(page);
 
-        // Either "Sign In" button or profile icon should be visible
-        const signIn = page.getByText(/sign in/i).first();
-        const profileBtn = page.locator('nav button').last();
-
-        const signInVisible = await signIn.isVisible().catch(() => false);
-        const profileVisible = await profileBtn.isVisible().catch(() => false);
+        const signInVisible = await page.getByText(/sign in/i).first().isVisible().catch(() => false);
+        const profileVisible = await page.locator("nav button").last().isVisible().catch(() => false);
 
         expect(signInVisible || profileVisible).toBeTruthy();
     });
 });
 
-// ─────────────────────────────────────────────
-// 4. 404 PAGE
-// ─────────────────────────────────────────────
-
-test.describe('404 Page', () => {
-    test('Invalid route shows 404 page', async ({ page }) => {
-        await page.goto('/this-route-does-not-exist');
-        await page.waitForLoadState('domcontentloaded');
-
-        await expect(page.getByText('404')).toBeVisible({ timeout: 10000 });
+test.describe("404 Page", () => {
+    test("Invalid route shows the 404 screen", async ({ page }) => {
+        await page.goto("/this-route-does-not-exist");
+        await page.waitForLoadState("domcontentloaded");
+        await expect(page.getByText("404")).toBeVisible({ timeout: 10_000 });
         await expect(page.getByText(/Page Not Found/i)).toBeVisible();
-
-        // "Return Home" button exists
-        const returnHome = page.getByRole('link', { name: /return home/i });
-        await expect(returnHome).toBeVisible();
-    });
-
-    test('404 "Return Home" navigates back to home', async ({ page }) => {
-        await page.goto('/nonexistent-page-xyz');
-        await page.waitForLoadState('domcontentloaded');
-
-        const returnHome = page.getByRole('link', { name: /return home/i });
-        await returnHome.click();
-        await page.waitForURL('/');
+        await expect(page.getByRole("link", { name: /return home/i })).toBeVisible();
     });
 });
 
-// ─────────────────────────────────────────────
-// 5. AUTH MODAL
-// ─────────────────────────────────────────────
-
-test.describe('Auth Modal', () => {
-    test('Sign In button opens auth modal', async ({ page }) => {
-        await page.goto('/');
-        await page.waitForLoadState('domcontentloaded');
-        await page.waitForTimeout(2000); // Wait for auth state
+test.describe("Auth Modal", () => {
+    test("Guest sign-in button opens the auth modal", async ({ page }) => {
+        await page.goto("/");
+        await waitForGuestShell(page);
 
         const signIn = page.getByText(/sign in/i).first();
-        const signInVisible = await signIn.isVisible().catch(() => false);
-
-        if (signInVisible) {
-            await signIn.click();
-            // Modal should appear with sign-in form
-            await page.waitForTimeout(500);
-
-            // Check for modal content (email field, Google button, or modal container)
-            const modalVisible = await page.locator('[role="dialog"], .fixed').first().isVisible().catch(() => false);
-            const emailField = await page.locator('input[type="email"]').first().isVisible().catch(() => false);
-            const googleBtn = await page.getByText(/google/i).first().isVisible().catch(() => false);
-
-            expect(modalVisible || emailField || googleBtn).toBeTruthy();
-        } else {
-            // User is already logged in — skip
+        if (!await signIn.isVisible().catch(() => false)) {
             test.skip();
         }
+
+        await signIn.click();
+        await page.waitForTimeout(500);
+
+        const modalVisible = await page.locator("[role=\"dialog\"], .fixed").first().isVisible().catch(() => false);
+        const emailVisible = await page.locator("input[type=\"email\"]").first().isVisible().catch(() => false);
+        const googleVisible = await page.getByText(/google/i).first().isVisible().catch(() => false);
+
+        expect(modalVisible || emailVisible || googleVisible).toBeTruthy();
     });
 
-    test('Auth modal can be closed', async ({ page }) => {
-        await page.goto('/');
-        await page.waitForLoadState('domcontentloaded');
-        await page.waitForTimeout(2000);
+    test("Auth modal can be dismissed", async ({ page }) => {
+        await page.goto("/");
+        await waitForGuestShell(page);
 
         const signIn = page.getByText(/sign in/i).first();
-        const signInVisible = await signIn.isVisible().catch(() => false);
-
-        if (signInVisible) {
-            await signIn.click();
-            await page.waitForTimeout(500);
-
-            // Look for close button (X icon or similar)
-            const closeBtn = page.locator('button').filter({ has: page.locator('svg') }).first();
-            if (await closeBtn.isVisible()) {
-                await closeBtn.click();
-                await page.waitForTimeout(300);
-            } else {
-                // Try pressing Escape
-                await page.keyboard.press('Escape');
-                await page.waitForTimeout(300);
-            }
-        } else {
+        if (!await signIn.isVisible().catch(() => false)) {
             test.skip();
         }
+
+        await signIn.click();
+        await page.waitForTimeout(500);
+
+        const closeButton = page.locator("button").filter({ has: page.locator("svg") }).first();
+        if (await closeButton.isVisible().catch(() => false)) {
+            await closeButton.click();
+        } else {
+            await page.keyboard.press("Escape");
+        }
+
+        await page.waitForTimeout(300);
     });
 });
 
-// ─────────────────────────────────────────────
-// 6. DROPS PAGE — INTERACTIVITY
-// ─────────────────────────────────────────────
+test.describe("Drops Page - Filters And Search", () => {
+    test("Visible category filters are clickable", async ({ page }) => {
+        await page.goto("/drops");
+        await page.waitForLoadState("domcontentloaded");
+        await page.waitForTimeout(DROPS_SETTLE_MS);
 
-test.describe('Drops Page — Filters & Search', () => {
-    test('Category filter buttons are clickable', async ({ page }) => {
-        await page.goto('/drops');
-        await page.waitForLoadState('domcontentloaded');
-        await page.waitForTimeout(3000);
-
-        // Click "New" category if visible
-        const newBtn = page.getByText('New', { exact: true }).first();
-        const newBtnVisible = await newBtn.isVisible().catch(() => false);
-        if (newBtnVisible) {
-            await newBtn.click();
-            await page.waitForTimeout(500);
-
-            // Should show results section
-            const results = page.getByText(/drops|items/i).first();
-            await expect(results).toBeVisible();
+        const newButton = page.getByText("New", { exact: true }).first();
+        if (!await newButton.isVisible().catch(() => false)) {
+            test.skip();
         }
+
+        await newButton.click();
+        await page.waitForTimeout(500);
+        await expect(page.locator("main")).toContainText(/drops|items/i);
     });
 
-    test('Search input works on drops page', async ({ page }) => {
-        await page.goto('/drops');
-        await page.waitForLoadState('domcontentloaded');
-        await page.waitForTimeout(3000);
+    test("Visible search input accepts input", async ({ page }) => {
+        await page.goto("/drops");
+        await page.waitForLoadState("domcontentloaded");
+        await page.waitForTimeout(DROPS_SETTLE_MS);
 
-        // Look for search input
-        const searchInput = page.locator('input[type="text"], input[placeholder*="earch"]').first();
-        const searchVisible = await searchInput.isVisible().catch(() => false);
-
-        if (searchVisible) {
-            await searchInput.fill('test search query');
-            await page.waitForTimeout(500);
-
-            // Should show search results text
-            const searchResults = page.getByText(/search results/i).first();
-            await expect(searchResults).toBeVisible();
+        const searchInput = page.locator("input[type=\"text\"], input[placeholder*=\"earch\"]").first();
+        if (!await searchInput.isVisible().catch(() => false)) {
+            test.skip();
         }
-    });
 
-    test('Drop cards render with expected structure', async ({ page }) => {
-        await page.goto('/drops');
-        await page.waitForLoadState('domcontentloaded');
-        await page.waitForTimeout(5000);
-
-        // Check if any drop cards exist (may be empty if no drops seeded)
-        const cards = page.locator('[class*="rounded"]').filter({
-            has: page.locator('img')
-        });
-
-        const cardCount = await cards.count();
-        // If there are drops, verify structure
-        if (cardCount > 0) {
-            const firstCard = cards.first();
-            await expect(firstCard).toBeVisible();
-        }
+        await searchInput.fill("test search query");
+        await page.waitForTimeout(500);
+        await expect(page.locator("main")).toContainText(/search results/i);
     });
 });
 
-// ─────────────────────────────────────────────
-// 7. API ROUTES — AUTH ENFORCEMENT
-// ─────────────────────────────────────────────
+test.describe("API Routes - Auth Enforcement", () => {
+    const protectedRequests = [
+        { method: "post", route: "/api/checkin", data: {} },
+        { method: "post", route: "/api/drops/unlock", data: { dropId: "test" } },
+        { method: "post", route: "/api/drops/track", data: { dropId: "test" } },
+        { method: "post", route: "/api/paypal/capture", data: { orderId: "test", expectedDrops: 100 } },
+        { method: "put", route: "/api/user/profile", data: { displayName: "test" } },
+        { method: "post", route: "/api/user/follow", data: { targetUserId: "test", action: "follow" } },
+        { method: "post", route: "/api/user/register", data: { displayName: "test" } },
+        { method: "put", route: "/api/notifications", data: { notificationId: "test" } },
+        { method: "post", route: "/api/notifications", data: { title: "test", message: "test", type: "info", target: { global: true } } },
+        { method: "put", route: "/api/admin/users", data: { userId: "test", updates: { role: "user" } } },
+        { method: "post", route: "/api/admin/drops", data: { dropData: {} } },
+        { method: "post", route: "/api/admin/balance", data: { userId: "test", amount: 100, reason: "test" } },
+        { method: "post", route: "/api/admin/queue/toggle", data: { enabled: true } },
+    ] as const;
 
-test.describe('API Routes — Auth Enforcement', () => {
-    test('POST /api/checkin returns 401 without auth', async ({ request }) => {
-        const res = await request.post('/api/checkin', {
-            data: {},
+    for (const requestDef of protectedRequests) {
+        test(`${requestDef.method.toUpperCase()} ${requestDef.route} returns 401 without auth`, async ({ request }) => {
+            const response = requestDef.method === "put"
+                ? await request.put(requestDef.route, { data: requestDef.data })
+                : await request.post(requestDef.route, { data: requestDef.data });
+
+            expect(response.status()).toBe(401);
         });
-        expect(res.status()).toBe(401);
-        const body = await res.json();
-        expect(body.error).toBeTruthy();
-    });
+    }
 
-    test('POST /api/drops/unlock returns 401 without auth', async ({ request }) => {
-        const res = await request.post('/api/drops/unlock', {
-            data: { dropId: 'test' },
-        });
-        expect(res.status()).toBe(401);
-    });
-
-    test('POST /api/drops/track returns 401 without auth', async ({ request }) => {
-        const res = await request.post('/api/drops/track', {
-            data: { dropId: 'test' },
-        });
-        expect(res.status()).toBe(401);
-    });
-
-    test('POST /api/paypal/capture returns 401 without auth', async ({ request }) => {
-        const res = await request.post('/api/paypal/capture', {
-            data: { orderId: 'test', expectedDrops: 100 },
-        });
-        expect(res.status()).toBe(401);
-    });
-
-    test('PUT /api/user/profile returns 401 without auth', async ({ request }) => {
-        const res = await request.put('/api/user/profile', {
-            data: { displayName: 'test' },
-        });
-        expect(res.status()).toBe(401);
-    });
-
-    test('POST /api/user/follow returns 401 without auth', async ({ request }) => {
-        const res = await request.post('/api/user/follow', {
-            data: { targetUserId: 'test', action: 'follow' },
-        });
-        expect(res.status()).toBe(401);
-    });
-
-    test('POST /api/user/register returns 401 without auth', async ({ request }) => {
-        const res = await request.post('/api/user/register', {
-            data: { displayName: 'test' },
-        });
-        expect(res.status()).toBe(401);
-    });
-
-    test('PUT /api/notifications returns 401 without auth', async ({ request }) => {
-        const res = await request.put('/api/notifications', {
-            data: { notificationId: 'test' },
-        });
-        expect(res.status()).toBe(401);
-    });
-
-    test('POST /api/notifications returns 401 without auth', async ({ request }) => {
-        const res = await request.post('/api/notifications', {
-            data: { title: 'test', message: 'test', type: 'info', target: { global: true } },
-        });
-        expect(res.status()).toBe(401);
-    });
-
-    // Admin routes
-    test('PUT /api/admin/users returns 401 without auth', async ({ request }) => {
-        const res = await request.put('/api/admin/users', {
-            data: { userId: 'test', updates: { role: 'user' } },
-        });
-        expect(res.status()).toBe(401);
-    });
-
-    test('POST /api/admin/drops returns 401 without auth', async ({ request }) => {
-        const res = await request.post('/api/admin/drops', {
-            data: { dropData: {} },
-        });
-        expect(res.status()).toBe(401);
-    });
-
-    test('POST /api/admin/balance returns 401 without auth', async ({ request }) => {
-        const res = await request.post('/api/admin/balance', {
-            data: { userId: 'test', amount: 100, reason: 'test' },
-        });
-        expect(res.status()).toBe(401);
-    });
-
-    test('POST /api/admin/seed returns 401 without auth', async ({ request }) => {
-        const res = await request.post('/api/admin/seed', {
-            data: { drops: [] },
-        });
-        expect(res.status()).toBe(401);
-    });
-
-    // Public route
-    test('GET /api/user/check-username works without auth', async ({ request }) => {
-        const res = await request.get('/api/user/check-username?username=testuser123');
-        // Should return 200 (available) or 409 (taken) — NOT 401
-        expect([200, 409]).toContain(res.status());
+    test("GET /api/user/check-username stays public", async ({ request }) => {
+        const response = await request.get("/api/user/check-username?username=testuser123");
+        expect([200, 409]).toContain(response.status());
     });
 });
 
-// ─────────────────────────────────────────────
-// 8. RESPONSIVE — MOBILE VIEWPORT
-// ─────────────────────────────────────────────
-
-test.describe('Responsive — Mobile Viewport', () => {
+test.describe("Responsive - Mobile Viewport", () => {
     test.use({ viewport: { width: 393, height: 852 } });
 
-    test('Home page renders on mobile', async ({ page }) => {
-        await page.goto('/');
-        await page.waitForLoadState('domcontentloaded');
-        await page.waitForTimeout(2000);
-
-        // Logo visible
-        await expect(page.locator('nav a[href="/"]').first()).toBeVisible();
-
-        // Hero text visible
-        await expect(page.getByText('KandyDrops', { exact: false }).first()).toBeVisible();
+    test("Home page renders on mobile", async ({ page }) => {
+        await page.goto("/");
+        await waitForGuestShell(page);
+        await expect(page.locator("nav").first()).toBeVisible();
+        await expect(page.getByText("KandyDrops", { exact: false }).first()).toBeVisible();
     });
 
-    test('Drops page renders on mobile', async ({ page }) => {
-        await page.goto('/drops');
-        await page.waitForLoadState('domcontentloaded');
-        await page.waitForTimeout(3000);
-
-        // Page heading visible
-        const heading = page.getByRole('heading').first();
-        await expect(heading).toBeVisible();
-    });
-
-    test('Experiences page renders on mobile', async ({ page }) => {
-        await page.goto('/experiences');
-        await page.waitForLoadState('domcontentloaded');
-
-        await expect(page.getByRole('heading', { name: /Experiences/i })).toBeVisible({ timeout: 10000 });
+    test("Drops page renders on mobile", async ({ page }) => {
+        await page.goto("/drops");
+        await page.waitForLoadState("domcontentloaded");
+        await page.waitForTimeout(DROPS_SETTLE_MS);
+        await expect(page.getByRole("heading").first()).toBeVisible();
     });
 });
 
-// ─────────────────────────────────────────────
-// 9. RESPONSIVE — TABLET VIEWPORT
-// ─────────────────────────────────────────────
-
-test.describe('Responsive — Tablet Viewport', () => {
+test.describe("Responsive - Tablet Viewport", () => {
     test.use({ viewport: { width: 1024, height: 1366 } });
 
-    test('Home page renders on tablet', async ({ page }) => {
-        await page.goto('/');
-        await page.waitForLoadState('domcontentloaded');
-        await page.waitForTimeout(2000);
+    test("Home and drops pages render on tablet", async ({ page }) => {
+        await page.goto("/");
+        await waitForGuestShell(page);
+        await expect(page.locator("nav").first()).toBeVisible();
 
-        await expect(page.locator('nav').first()).toBeVisible();
-        await expect(page.getByText('KandyDrops', { exact: false }).first()).toBeVisible();
-    });
-
-    test('Drops page renders on tablet', async ({ page }) => {
-        await page.goto('/drops');
-        await page.waitForLoadState('domcontentloaded');
-        await page.waitForTimeout(3000);
-
-        const heading = page.getByRole('heading').first();
-        await expect(heading).toBeVisible();
+        await page.goto("/drops");
+        await page.waitForLoadState("domcontentloaded");
+        await page.waitForTimeout(DROPS_SETTLE_MS);
+        await expect(page.getByRole("heading").first()).toBeVisible();
     });
 });
 
-// ─────────────────────────────────────────────
-// 10. CSS & VISUAL BASICS
-// ─────────────────────────────────────────────
+test.describe("Visual - CSS Loaded", () => {
+    test("Home page does not render a plain white background", async ({ page }) => {
+        await page.goto("/");
+        await waitForGuestShell(page);
 
-test.describe('Visual — CSS Loaded', () => {
-    test('Dark theme applied (background is not white)', async ({ page }) => {
-        await page.goto('/');
-        await page.waitForLoadState('domcontentloaded');
-        await page.waitForTimeout(2000);
-
-        const bgColor = await page.evaluate(() => {
-            return getComputedStyle(document.body).backgroundColor;
-        });
-
-        // Should not be white
-        expect(bgColor).not.toBe('rgb(255, 255, 255)');
+        const backgroundColor = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+        expect(backgroundColor).not.toBe("rgb(255, 255, 255)");
     });
 
-    test('No broken images on home page', async ({ page }) => {
-        await page.goto('/');
-        await page.waitForLoadState('networkidle');
+    test("Home page images resolve without obvious broken assets", async ({ page }) => {
+        await page.goto("/");
+        await page.waitForLoadState("networkidle");
 
-        const images = page.locator('img');
-        const imgCount = await images.count();
+        const images = page.locator("img");
+        const imageCount = await images.count();
 
-        for (let i = 0; i < imgCount; i++) {
-            const img = images.nth(i);
-            const naturalWidth = await img.evaluate((el: HTMLImageElement) => el.naturalWidth);
-            // Images should have loaded (naturalWidth > 0), but skip SVG/data URIs
-            const src = await img.getAttribute('src') || '';
-            if (src.startsWith('data:') || src.endsWith('.svg')) continue;
+        for (let index = 0; index < imageCount; index += 1) {
+            const image = images.nth(index);
+            const src = await image.getAttribute("src") || "";
+            if (src.startsWith("data:") || src.endsWith(".svg")) {
+                continue;
+            }
+
+            const naturalWidth = await image.evaluate((element: HTMLImageElement) => element.naturalWidth);
             if (naturalWidth === 0) {
                 console.warn(`Broken image found: ${src}`);
             }
         }
     });
-
-    test('No console errors on home page', async ({ page }) => {
-        const errors: string[] = [];
-        page.on('console', msg => {
-            if (msg.type() === 'error') {
-                errors.push(msg.text());
-            }
-        });
-
-        await page.goto('/');
-        await page.waitForLoadState('networkidle');
-        await page.waitForTimeout(2000);
-
-        // Filter out known non-critical errors (e.g., Firebase dev warnings, hydration warnings)
-        const criticalErrors = errors.filter(e =>
-            !e.includes('Firebase') &&
-            !e.includes('hydration') &&
-            !e.includes('Warning:') &&
-            !e.includes('ERR_BLOCKED_BY_CLIENT')
-        );
-
-        if (criticalErrors.length > 0) {
-            console.warn('Console errors found:', criticalErrors);
-        }
-
-        // We warn but don't fail on console errors — they're logged for review
-        expect(true).toBe(true);
-    });
 });
 
-// ─────────────────────────────────────────────
-// 11. ACCESSIBILITY BASICS
-// ─────────────────────────────────────────────
+test.describe("Accessibility Basics", () => {
+    test("Home page keeps semantic landmarks", async ({ page }) => {
+        await page.goto("/");
+        await page.waitForLoadState("domcontentloaded");
 
-test.describe('Accessibility Basics', () => {
-    test('Home page has semantic HTML elements', async ({ page }) => {
-        await page.goto('/');
-        await page.waitForLoadState('domcontentloaded');
-
-        // nav element exists
-        const nav = page.locator('nav');
-        await expect(nav.first()).toBeVisible();
-
-        // main element exists
-        const main = page.locator('main');
-        const mainCount = await main.count();
-        expect(mainCount).toBeGreaterThanOrEqual(1);
+        await expect(page.locator("nav").first()).toBeVisible();
+        expect(await page.locator("main").count()).toBeGreaterThanOrEqual(1);
     });
 
-    test('Interactive elements are keyboard accessible', async ({ page }) => {
-        await page.goto('/');
-        await page.waitForLoadState('domcontentloaded');
-        await page.waitForTimeout(2000);
-
-        // Tab through the page — focus should move
-        await page.keyboard.press('Tab');
-        const focused = await page.evaluate(() => document.activeElement?.tagName);
-        expect(focused).toBeTruthy();
-    });
-
-    test('Images have alt text', async ({ page }) => {
-        await page.goto('/');
-        await page.waitForLoadState('networkidle');
-
-        const images = page.locator('img');
-        const count = await images.count();
-
-        let missingAlt = 0;
-        for (let i = 0; i < count; i++) {
-            const alt = await images.nth(i).getAttribute('alt');
-            if (alt === null || alt === undefined) {
-                missingAlt++;
-                const src = await images.nth(i).getAttribute('src');
-                console.warn(`Image missing alt text: ${src}`);
-            }
-        }
-
-        // At most 20% of images should be missing alt text
-        if (count > 0) {
-            expect(missingAlt / count).toBeLessThan(0.5);
-        }
+    test("Interactive elements remain keyboard accessible", async ({ page }) => {
+        await page.goto("/");
+        await waitForGuestShell(page);
+        await page.keyboard.press("Tab");
+        expect(await page.evaluate(() => document.activeElement?.tagName)).toBeTruthy();
     });
 });

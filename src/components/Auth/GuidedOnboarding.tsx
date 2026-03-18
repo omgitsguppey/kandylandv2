@@ -8,6 +8,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { toast } from "sonner";
 
 import { useAuth } from "@/context/AuthContext";
+import { buildOnboardingCompletionStorageKey } from "@/hooks/client-runtime";
 import { db } from "@/lib/firebase-data";
 import { trackEvent } from "@/lib/telemetry";
 import { authFetch } from "@/lib/authFetch";
@@ -134,7 +135,7 @@ export function GuidedOnboarding() {
     const { user, userProfile: profile } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
-    const completionStorageKey = user ? `kandydrops_onboarding_completed_${user.uid}` : null;
+    const completionStorageKey = user ? buildOnboardingCompletionStorageKey(user.uid) : null;
 
     const [isVisible, setIsVisible] = useState(false);
     const [currentStep, setCurrentStep] = useState(0);
@@ -342,7 +343,7 @@ export function GuidedOnboarding() {
 
     const handleCheckInAndContinue = async () => {
         if (hasCheckedInToday) {
-            toast.success("Daily check-in already claimed. Let’s keep going.");
+                toast.success("Daily check-in already claimed. Let's keep going.");
             completeStepAndAdvance("already_claimed");
             return;
         }
@@ -463,7 +464,6 @@ export function GuidedOnboarding() {
 
             setIsVisible(false);
             router.replace("/drops");
-            window.location.replace("/drops");
         } catch (error) {
             console.error("Error completing onboarding:", error);
             const message = error instanceof Error ? error.message : "Failed to finish onboarding.";

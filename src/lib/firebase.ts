@@ -3,7 +3,11 @@ import { getAuth } from "firebase/auth";
 import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
 import type { AppCheck } from "firebase/app-check";
 export { SITE_ORIGIN } from "@/lib/site-origin";
-import { FIREBASE_CLIENT_CONFIG } from "@/lib/firebase-runtime";
+import {
+    FIREBASE_CLIENT_CONFIG,
+    FIREBASE_RECAPTCHA_ENTERPRISE_SITE_KEY,
+    IS_DEVELOPMENT_ENV,
+} from "@/lib/firebase-runtime";
 
 const app = !getApps().length ? initializeApp(FIREBASE_CLIENT_CONFIG) : getApp();
 const auth = getAuth(app);
@@ -38,11 +42,11 @@ if (typeof window !== "undefined") {
     // --- Firebase App Check (ReCaptcha Enterprise) ---
     try {
         // Enable debug token in development so local requests aren't rejected
-        if (process.env.NODE_ENV === "development") {
+        if (IS_DEVELOPMENT_ENV) {
             (self as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
         }
 
-        const recaptchaKey = process.env.NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_SITE_KEY;
+        const recaptchaKey = FIREBASE_RECAPTCHA_ENTERPRISE_SITE_KEY;
         if (recaptchaKey && shouldEnableAppCheck()) {
             appCheck = initializeAppCheck(app, {
                 provider: new ReCaptchaEnterpriseProvider(recaptchaKey),

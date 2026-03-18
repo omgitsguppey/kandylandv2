@@ -1,84 +1,78 @@
-import { test, chromium } from '@playwright/test';
-import path from 'path';
-import fs from 'fs';
+import fs from "fs";
+import path from "path";
 
-const SCREENSHOT_DIR = path.join(__dirname, '..', 'qa-screenshots');
-const BASE_URL = 'http://localhost:3000';
+import { chromium, test } from "@playwright/test";
 
-// Ensure screenshot directory exists
+const BASE_URL = "http://localhost:3000";
+const SCREENSHOT_DIR = path.join(__dirname, "..", "qa-screenshots");
+
+const PAGES = [
+    { name: "home", path: "/" },
+    { name: "experiences", path: "/experiences" },
+] as const;
+
 if (!fs.existsSync(SCREENSHOT_DIR)) {
     fs.mkdirSync(SCREENSHOT_DIR, { recursive: true });
 }
 
-// Pages to test
-const PAGES = [
-    { name: 'home', path: '/' },
-    { name: 'experiences', path: '/experiences' },
-];
-
 async function captureWithViewport(
-    browserType: 'desktop' | 'mobile' | 'tablet',
+    browserType: "desktop" | "mobile" | "tablet",
     viewport: { width: number; height: number },
-    isMobile: boolean = false
+    isMobile = false,
 ) {
     const browser = await chromium.launch({ headless: true });
     const context = await browser.newContext({
         viewport,
         isMobile,
         hasTouch: isMobile,
-        colorScheme: 'dark',
-        // Force JavaScript to be enabled — this ensures CSS-in-JS styles load
+        colorScheme: "dark",
         javaScriptEnabled: true,
     });
 
-    for (const pg of PAGES) {
+    for (const targetPage of PAGES) {
         const page = await context.newPage();
 
         try {
-            // Navigate with domcontentloaded first, then wait for full load
-            await page.goto(`${BASE_URL}${pg.path}`, {
-                waitUntil: 'domcontentloaded',
-                timeout: 30000
+            await page.goto(`${BASE_URL}${targetPage.path}`, {
+                waitUntil: "domcontentloaded",
+                timeout: 30_000,
             });
 
-            // Wait for CSS to actually apply by checking for dark background
             await page.waitForFunction(() => {
-                const body = document.body;
-                const bg = getComputedStyle(body).backgroundColor;
-                // Check if background is NOT white/transparent (i.e., CSS has loaded)
-                return bg !== 'rgba(0, 0, 0, 0)' && bg !== 'rgb(255, 255, 255)' && bg !== '';
-            }, { timeout: 15000 }).catch(() => {
-                console.log(`CSS didn't load for ${pg.name}, capturing anyway`);
+                const backgroundColor = getComputedStyle(document.body).backgroundColor;
+                return backgroundColor !== "rgba(0, 0, 0, 0)"
+                    && backgroundColor !== "rgb(255, 255, 255)"
+                    && backgroundColor !== "";
+            }, { timeout: 15_000 }).catch(() => {
+                console.log(`CSS did not finish loading for ${targetPage.name}; capturing anyway.`);
             });
 
-            // Extra buffer for rendering
-            await page.waitForTimeout(3000);
+            await page.waitForTimeout(3_000);
 
-            // Take screenshot
             await page.screenshot({
-                path: path.join(SCREENSHOT_DIR, `${browserType}-${pg.name}.png`),
+                path: path.join(SCREENSHOT_DIR, `${browserType}-${targetPage.name}.png`),
                 fullPage: true,
             });
 
-            console.log(`✅ Captured ${browserType}-${pg.name}`);
-        } catch (err) {
-            console.error(`❌ Failed ${browserType}-${pg.name}:`, err);
+            console.log(`Captured ${browserType}-${targetPage.name}`);
+        } catch (error) {
+            console.error(`Failed ${browserType}-${targetPage.name}:`, error);
+        } finally {
+            await page.close();
         }
-
-        await page.close();
     }
 
     await browser.close();
 }
 
-test('Desktop screenshots (1440x900)', async () => {
-    await captureWithViewport('desktop', { width: 1440, height: 900 });
+test("Desktop screenshots (1440x900)", async () => {
+    await captureWithViewport("desktop", { width: 1440, height: 900 });
 });
 
-test('Mobile screenshots (393x852)', async () => {
-    await captureWithViewport('mobile', { width: 393, height: 852 }, true);
+test("Mobile screenshots (393x852)", async () => {
+    await captureWithViewport("mobile", { width: 393, height: 852 }, true);
 });
 
-test('Tablet screenshots (1024x1366)', async () => {
-    await captureWithViewport('tablet', { width: 1024, height: 1366 }, true);
+test("Tablet screenshots (1024x1366)", async () => {
+    await captureWithViewport("tablet", { width: 1024, height: 1366 }, true);
 });

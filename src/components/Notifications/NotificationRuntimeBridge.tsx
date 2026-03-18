@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 
 import { useAuth } from "@/context/AuthContext";
+import { CLIENT_RUNTIME_EVENTS, dispatchClientRuntimeEvent } from "@/hooks/client-runtime";
 import { authFetch } from "@/lib/authFetch";
 import { getCSTDayBoundaries, isSameCSTDay } from "@/lib/timezone";
 import { onNotificationMessage, showBrowserNotification } from "@/lib/firebase-messaging";
@@ -29,7 +30,7 @@ export function NotificationRuntimeBridge() {
                 return;
             }
 
-            window.dispatchEvent(new Event("kandydrops:notifications-sync"));
+            dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync);
             void showBrowserNotification(title, body, payload?.data?.url || "/dashboard");
         });
 

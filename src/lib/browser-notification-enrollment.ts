@@ -4,7 +4,7 @@ import type { UserProfile } from "@/types/db";
 import { authFetch } from "@/lib/authFetch";
 import { requestBrowserNotificationAccess } from "@/lib/firebase-messaging";
 
-export type BrowserNotificationEnrollmentResult =
+type BrowserNotificationEnrollmentResult =
   | { status: "enabled"; messagingSupported: boolean }
   | { status: "not_granted"; needsStandaloneInstall: boolean }
   | { status: "failed"; message: string };

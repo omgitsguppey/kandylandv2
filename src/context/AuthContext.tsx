@@ -13,6 +13,7 @@ import {
     signOut,
 } from "firebase/auth";
 import { auth, app } from "@/lib/firebase";
+import { CLIENT_RUNTIME_STORAGE_KEYS, readSessionStorageValue } from "@/hooks/client-runtime";
 import { UserProfile } from "@/types/db";
 import { normalizeUserProfile } from "@/lib/user-utils";
 import { useRouter, usePathname } from "next/navigation";
@@ -122,10 +123,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     const profile = normalizeUserProfile(snapshot.data(), user);
                     autoRegisterInFlight.delete(currentUserId);
 
-                    if (profile && (profile.status === "banned" || profile.status === "suspended") && window.location.pathname !== "/") {
-                        await signOut(auth);
-                        alert(`Your account has been ${profile.status}.\nReason: ${profile.statusReason || "Violation of terms."}`);
-                        window.location.href = "/";
+                    if (profile && (profile.status === "banned" || profile.status === "suspended")) {
+                        setUserProfile(profile);
+                        setLoading(false);
+                        if (pathname !== "/banned") {
+                            router.replace("/banned");
+                        }
                         return;
                     }
 
@@ -148,7 +151,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                             body: JSON.stringify({
                                 displayName: user.displayName || "User",
                                 registrationMethod,
-                                referredBy: typeof window !== "undefined" ? sessionStorage.getItem("kandy_referral") : undefined,
+                                referredBy: readSessionStorageValue(CLIENT_RUNTIME_STORAGE_KEYS.referralCode) ?? undefined,
                             }),
                         });
                         if (!response.ok) {
@@ -174,7 +177,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             autoRegisterInFlight.delete(currentUserId);
             if (unsubscribe) unsubscribe();
         };
-    }, [user]);
+    }, [pathname, router, user]);
 
     useEffect(() => {
         if (!user) {
@@ -240,7 +243,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     dateOfBirth: dob,
                     registrationMethod: "email",
                     welcomeBonus: true,
-                    referredBy: typeof window !== "undefined" ? sessionStorage.getItem("kandy_referral") : undefined,
+                    referredBy: readSessionStorageValue(CLIENT_RUNTIME_STORAGE_KEYS.referralCode) ?? undefined,
                 }),
             });
 
@@ -267,7 +270,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         clearLastVisitedPath();
         await signOut(auth);
-        router.push("/");
+        router.replace("/");
     }, [router]);
 
     const identityValue = useMemo(

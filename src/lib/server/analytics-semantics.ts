@@ -2,6 +2,7 @@ import "server-only";
 
 import { FieldValue, WriteBatch } from "firebase-admin/firestore";
 
+import { buildAnalyticsTimeKeys } from "./analytics-event-utils";
 import { adminDb } from "./firebase-admin";
 import {
   ANALYTICS_SEMANTIC_CATEGORY_LABELS,
@@ -396,8 +397,7 @@ function writeRollup(
   delta: SemanticMetricDelta,
   sourceKey: string,
 ) {
-  const date = new Date(timestamp);
-  const dayKey = `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
+  const { dayKey } = buildAnalyticsTimeKeys(timestamp);
   const docId = createDocKey(dayKey, context.category, context.scopeKey);
   const rollupRef = adminDb.collection("analytics_semantic_daily").doc(docId);
 

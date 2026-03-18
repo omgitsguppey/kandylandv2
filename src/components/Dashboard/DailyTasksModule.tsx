@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
+import { CLIENT_RUNTIME_EVENTS, dispatchClientRuntimeEvent } from "@/hooks/client-runtime";
 import { authFetch } from "@/lib/authFetch";
 import { enableBrowserNotifications } from "@/lib/browser-notification-enrollment";
 import { cn } from "@/lib/utils";
@@ -237,7 +238,7 @@ export function DailyTasksModule() {
       return;
     }
 
-    window.dispatchEvent(new Event("kandydrops:open-notifications"));
+    dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.openNotifications);
   }, []);
 
   const activateTaskGuidance = useCallback((task: DailyTaskAssignment) => {

@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { CLIENT_RUNTIME_STORAGE_KEYS, writeSessionStorageValue } from "@/hooks/client-runtime";
 import { applyAnalyticsConsentToGtag, persistPrivacySettingsSnapshot, readPrivacySettingsSnapshot } from "@/lib/privacy-consent";
 import { writeLastVisitedPath } from "@/lib/navigation-persistence";
 
@@ -57,7 +58,7 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
             const params = new URLSearchParams(window.location.search);
             const refCode = params.get("ref");
             if (refCode) {
-                sessionStorage.setItem("kandy_referral", refCode);
+                writeSessionStorageValue(CLIENT_RUNTIME_STORAGE_KEYS.referralCode, refCode);
             }
         }
     }, [userProfile?.role]);

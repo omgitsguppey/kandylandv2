@@ -4,9 +4,9 @@ import { app } from "./firebase";
 import { isIOSNonStandalone, isStandalone } from "./browser-utils";
 import { FIREBASE_MESSAGING_CONFIG, FIREBASE_VAPID_KEY } from "./firebase-runtime";
 
-export const APP_NOTIFICATION_ICON = "/icon-192x192.png";
+const APP_NOTIFICATION_ICON = "/icon-192x192.png";
 
-export interface BrowserNotificationState {
+interface BrowserNotificationState {
     browserCapable: boolean;
     messagingSupported: boolean;
     needsStandaloneInstall: boolean;
@@ -26,7 +26,7 @@ function buildServiceWorkerUrl() {
     return `/firebase-messaging-sw.js?apiKey=${FIREBASE_MESSAGING_CONFIG.apiKey}&projectId=${FIREBASE_MESSAGING_CONFIG.projectId}&messagingSenderId=${FIREBASE_MESSAGING_CONFIG.messagingSenderId}&appId=${FIREBASE_MESSAGING_CONFIG.appId}`;
 }
 
-export function getAppServiceWorkerUrl() {
+function getAppServiceWorkerUrl() {
     return buildServiceWorkerUrl();
 }
 

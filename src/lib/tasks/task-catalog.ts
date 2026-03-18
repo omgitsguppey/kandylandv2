@@ -91,31 +91,6 @@ export interface DailyTasksState {
   lastDeadlineReminderAt?: number;
 }
 
-export interface DailyTaskEventStat {
-  eventName: string;
-  totalCount: number;
-  lastSeenAt: number;
-  lastParams?: Record<string, string | number | boolean>;
-}
-
-export interface DailyTaskLifecycleEvent {
-  id: string;
-  type: "assigned" | "started" | "completed" | "failed" | "reminder_sent";
-  taskId: string;
-  title: string;
-  triggerEvent: string;
-  userId: string;
-  username?: string | null;
-  reward: number;
-  progress: number;
-  maxProgress: number;
-  timestamp: number;
-  reason?: string;
-  assignedAt?: number;
-  startedAt?: number;
-  durationMs?: number;
-}
-
 export const DAILY_TASK_ACTION_OPTIONS: Array<{ value: DailyTaskActionType; label: string }> = [
   { value: "open_dashboard", label: "Open dashboard" },
   { value: "open_drops", label: "Open drops" },
