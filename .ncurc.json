@@ -1,0 +1,7 @@
+{
+  "cooldown": "7d",
+  "format": [
+    "group",
+    "installedVersion"
+  ]
+}
