@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { FieldValue } from "firebase-admin/firestore";
+import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import { z } from "zod";
 import { ANALYTICS_WRITE } from "@/lib/server/rate-limit";
 import { requestAllowsAnonymousAnalytics, requestHasGlobalPrivacyControl } from "@/lib/server/privacy-consent";
@@ -8,12 +8,15 @@ import { TELEMETRY_EVENT_INDEX_VERSION } from "@/lib/telemetry-catalog";
 import { buildAnalyticsTimeKeys } from "@/lib/server/analytics-event-utils";
 import { claimAnalyticsReceipt } from "@/lib/server/analytics-receipts";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 import { ANALYTICS_BATCH_ID_PATTERN, createAnalyticsBatchId } from "@/lib/analytics-identifiers";
 
 export const dynamic = "force-dynamic";
 const SESSION_COOKIE_NAME = "kandydrops_sid";
 const SESSION_COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
 const MAX_ANALYTICS_BODY_BYTES = 64 * 1024;
+const ANALYTICS_SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 90;
+const ANALYTICS_GUEST_BATCH_TTL_MS = 1000 * 60 * 60 * 24 * 180;
 const SESSION_KEY_PATTERN = /^anon_[A-Za-z0-9-]{8,128}$/u;
 const CLIENT_SESSION_PATTERN = /^[A-Za-z0-9-]{8,128}$/u;
 
@@ -81,6 +84,8 @@ export async function POST(request: NextRequest) {
     try {
         await guardApiRequest(request, {
             routeName: "analytics/ingest",
+            preAuthRouteName: "analytics/ingest/preauth",
+            preAuthRateLimit: ANALYTICS_WRITE,
             rateLimit: ANALYTICS_WRITE,
             requireTrustedOrigin: true,
             requireAppCheck: true,
@@ -152,6 +157,7 @@ export async function POST(request: NextRequest) {
             createdAt: FieldValue.serverTimestamp(),
             updatedAt: FieldValue.serverTimestamp(),
             lastReceivedAtMs: nowMs,
+            expiresAt: Timestamp.fromMillis(nowMs + ANALYTICS_SESSION_TTL_MS),
             batchCount: FieldValue.increment(1),
             eventCount: FieldValue.increment(sanitizedEvents.length),
             maxScrollDepth: sanitizedEvents.reduce((maxDepth, event) => Math.max(maxDepth, event.scrollDepthPercent || 0), 0),
@@ -174,6 +180,7 @@ export async function POST(request: NextRequest) {
             dayKey: timeKeys.dayKey,
             hourKey: timeKeys.hourKey,
             minuteKey: timeKeys.minuteKey,
+            expiresAt: Timestamp.fromMillis(nowMs + ANALYTICS_GUEST_BATCH_TTL_MS),
             eventCount: sanitizedEvents.length,
             pagePaths: uniquePagePaths,
             interactionTypes: uniqueInteractionTypes,
@@ -199,6 +206,15 @@ export async function POST(request: NextRequest) {
         return response;
     } catch (error) {
         console.error("Telemetry ingestion failed:", error);
+        await recordServerDiagnostic({
+            channel: "analytics",
+            severity: "error",
+            message: "Anonymous analytics ingestion failed",
+            detail: {
+                route: "analytics/ingest",
+                error: error instanceof Error ? error.message : String(error),
+            },
+        });
         // Fail silently to the client to avoid console spam for analytics
         return NextResponse.json({ success: false }, { status: 200 });
     }

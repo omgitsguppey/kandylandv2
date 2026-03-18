@@ -12,6 +12,7 @@ import { isValidAnalyticsEventId, normalizeAnalyticsClientTimestamp } from "@/li
 import { buildAnalyticsTimeKeys, resolveTrackedTelemetryEvent } from "@/lib/server/analytics-event-utils";
 import { claimAnalyticsReceipt } from "@/lib/server/analytics-receipts";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 
 const TASK_PROGRESS_EVENT_NAMES = new Set(BUILT_IN_DAILY_TASKS.map((task) => task.eventName));
 type SanitizedEventParams = Record<string, string | number | boolean>;
@@ -107,6 +108,8 @@ export async function POST(req: NextRequest) {
     try {
         const decodedToken = await guardApiRequest(req, {
             routeName: "telemetry/track",
+            preAuthRouteName: "telemetry/track/preauth",
+            preAuthRateLimit: ANALYTICS_WRITE,
             rateLimit: ANALYTICS_WRITE,
             requireTrustedOrigin: true,
             auth: "user",
@@ -343,6 +346,15 @@ export async function POST(req: NextRequest) {
         if (error instanceof Error && error.message === "Unsupported event payload") {
             return NextResponse.json({ error: "Unsupported event payload" }, { status: 400 });
         }
+        await recordServerDiagnostic({
+            channel: "analytics",
+            severity: "error",
+            message: "Identified telemetry tracking failed",
+            detail: {
+                route: "telemetry/track",
+                error: error instanceof Error ? error.message : String(error),
+            },
+        });
         return handleApiError(error, "Telemetry.Track");
     }
 }

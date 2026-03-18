@@ -10,12 +10,15 @@ type RequestGuardAuthMode = "none" | "user" | "admin";
 
 interface RequestGuardOptions {
   routeName?: string;
+  preAuthRouteName?: string;
+  preAuthRateLimit?: RateLimitConfig;
   rateLimit?: RateLimitConfig;
   requireTrustedOrigin?: boolean;
   requireAppCheck?: boolean;
   auth?: RequestGuardAuthMode;
   scopeToCaller?: boolean;
   scopeId?: string | null;
+  preAuthScopeId?: string | null;
 }
 
 export async function guardApiRequest(
@@ -24,6 +27,16 @@ export async function guardApiRequest(
 ): Promise<AuthResult | null> {
   if (options.requireTrustedOrigin && !hasTrustedSiteOrigin(request)) {
     throw new AuthError("Untrusted origin", 403);
+  }
+
+  const preAuthRouteName = options.preAuthRouteName ?? options.routeName;
+  if (options.preAuthRateLimit && preAuthRouteName) {
+    await checkRateLimit(
+      request,
+      preAuthRouteName,
+      options.preAuthRateLimit,
+      options.preAuthScopeId ? { scopeId: options.preAuthScopeId } : undefined,
+    );
   }
 
   if (options.requireAppCheck) {

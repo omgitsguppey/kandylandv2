@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { ADMIN } from "@/lib/server/rate-limit";
+import { ADMIN, HEAVY_READ } from "@/lib/server/rate-limit";
 import { AnalyticsReportRow, safeRunRealtimeReport } from "@/lib/server/admin-analytics-shared";
 import { createAdminAnalyticsDataClient, getAdminAnalyticsPropertyId } from "@/lib/server/admin-analytics-data";
 import { guardApiRequest } from "@/lib/server/request-guard";
@@ -17,8 +17,11 @@ export async function GET(request: NextRequest) {
   try {
     await guardApiRequest(request, {
       routeName: "admin/analytics/realtime",
+      preAuthRouteName: "admin/analytics/realtime/preauth",
+      preAuthRateLimit: HEAVY_READ,
       rateLimit: ADMIN,
       auth: "admin",
+      scopeToCaller: true,
     });
 
     if (!propertyId) {
