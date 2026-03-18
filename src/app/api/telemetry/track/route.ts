@@ -9,7 +9,9 @@ import { recordSemanticRollupFromTelemetryEvent } from "@/lib/server/analytics-s
 import { profileAllowsIdentifiedAnalytics, requestHasGlobalPrivacyControl } from "@/lib/server/privacy-consent";
 import { BUILT_IN_DAILY_TASKS } from "@/lib/tasks/task-catalog";
 import { UserProfile } from "@/types/db";
+import { isValidAnalyticsEventId, normalizeAnalyticsClientTimestamp } from "@/lib/analytics-identifiers";
 import { buildAnalyticsTimeKeys, resolveTrackedTelemetryEvent } from "@/lib/server/analytics-event-utils";
+import { claimAnalyticsReceipt } from "@/lib/server/analytics-receipts";
 import { guardApiRequest } from "@/lib/server/request-guard";
 
 const TASK_PROGRESS_EVENT_NAMES = new Set(BUILT_IN_DAILY_TASKS.map((task) => task.eventName));
@@ -18,11 +20,15 @@ const MAX_TELEMETRY_BODY_BYTES = 48 * 1024;
 const MAX_TELEMETRY_EVENTS_PER_REQUEST = 25;
 
 interface IncomingTelemetryEvent {
+    eventId?: unknown;
+    eventTimestampMs?: unknown;
     eventName: unknown;
     eventParams?: unknown;
 }
 
 interface ResolvedTelemetryEvent {
+    eventId: string;
+    eventTimestampMs: number;
     canonicalEventName: string;
     option: ReturnType<typeof resolveTrackedTelemetryEvent>["option"];
     eventParamsWithMetadata: SanitizedEventParams;
@@ -133,20 +139,46 @@ export async function POST(req: NextRequest) {
                 throw new Error("Unsupported eventName");
             }
 
+            if (!isValidAnalyticsEventId(entry.eventId)) {
+                throw new Error("Unsupported event payload");
+            }
+
             const sanitizedEventParams = sanitizeEventParams(entry.eventParams);
             const eventParamsWithMetadata: SanitizedEventParams = {
                 ...sanitizedEventParams,
                 ...metadataParams,
             };
             const canAdvanceTaskProgress = TASK_PROGRESS_EVENT_NAMES.has(canonicalEventName) && !CANONICAL_TASK_EVENT_NAMES.has(canonicalEventName);
+            const eventTimestampMs = normalizeAnalyticsClientTimestamp(
+                entry.eventTimestampMs ?? sanitizedEventParams.event_timestamp_ms,
+                Date.now(),
+            );
 
             return {
+                eventId: entry.eventId,
+                eventTimestampMs,
                 canonicalEventName,
                 option,
                 eventParamsWithMetadata,
                 canAdvanceTaskProgress,
             };
         });
+
+        const acceptedEvents = (await Promise.all(resolvedEvents.map(async (event) => {
+            const accepted = await claimAnalyticsReceipt({
+                collectionName: "analytics_event_receipts",
+                receiptKey: `${userId}:${event.eventId}`,
+                data: {
+                    userId,
+                    eventId: event.eventId,
+                    eventName: event.canonicalEventName,
+                    eventTimestampMs: event.eventTimestampMs,
+                    route: "telemetry_track",
+                },
+            });
+
+            return accepted ? event : null;
+        }))).filter((event): event is ResolvedTelemetryEvent => Boolean(event));
 
         const realtimeDb = admin.database();
         const profileSnapshot = await adminDb.collection("users").doc(userId).get();
@@ -155,11 +187,21 @@ export async function POST(req: NextRequest) {
 
         const username = profileData?.username || profileData?.displayName || userEmail || "Unknown Collector";
         const allowIdentifiedAnalytics = profileAllowsIdentifiedAnalytics(userProfile, req);
-        const progressedTaskCount = resolvedEvents.filter((event) => event.canAdvanceTaskProgress).length;
+        const progressedTaskCount = acceptedEvents.filter((event) => event.canAdvanceTaskProgress).length;
+
+        if (acceptedEvents.length === 0) {
+            return NextResponse.json({
+                success: true,
+                logged: allowIdentifiedAnalytics,
+                eventCount: 0,
+                duplicateCount: resolvedEvents.length,
+                progressedTaskCount: 0,
+            });
+        }
 
         if (!allowIdentifiedAnalytics) {
             if (progressedTaskCount > 0) {
-                await Promise.all(resolvedEvents
+                await Promise.all(acceptedEvents
                     .filter((event) => event.canAdvanceTaskProgress)
                     .map((event) => recordDailyTaskProgressFromEvent(
                         userId,
@@ -173,6 +215,8 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({
                 success: true,
                 logged: false,
+                eventCount: 0,
+                duplicateCount: resolvedEvents.length - acceptedEvents.length,
                 progressedTaskCount,
                 reason: "identified_analytics_disabled",
             });
@@ -181,13 +225,13 @@ export async function POST(req: NextRequest) {
         const globalPrivacyControl = requestHasGlobalPrivacyControl(req);
         const userAgent = req.headers.get("user-agent") || "unknown";
         const uniqueDropIds = Array.from(new Set(
-            resolvedEvents
+            acceptedEvents
                 .map((event) => getStringParam(event.eventParamsWithMetadata, "drop_id"))
                 .filter((dropId) => dropId.length > 0),
         ));
         const dropReferences = uniqueDropIds.length > 0 ? await getDropReferenceMap(uniqueDropIds) : {};
-        const telemetryFacts = resolvedEvents.map((event, index) => {
-            const nowMs = Date.now() + index;
+        const telemetryFacts = acceptedEvents.map((event) => {
+            const nowMs = event.eventTimestampMs;
             const timeKeys = buildAnalyticsTimeKeys(nowMs);
             const pagePath = getStringParam(event.eventParamsWithMetadata, "page_path");
             const sessionId = getStringParam(event.eventParamsWithMetadata, "session_id");
@@ -200,6 +244,7 @@ export async function POST(req: NextRequest) {
                 ...event,
                 nowMs,
                 telemetryData: {
+                    eventId: event.eventId,
                     eventName: event.canonicalEventName,
                     params: {
                         ...event.eventParamsWithMetadata,
@@ -251,6 +296,7 @@ export async function POST(req: NextRequest) {
                     trackingSources: event.option?.sources || [],
                     eventIndexVersion: getStringParam(event.eventParamsWithMetadata, "event_index_version"),
                     trackingOrigin: "authenticated_client",
+                    eventId: event.eventId,
                     params: event.eventParamsWithMetadata,
                     createdAt: admin.firestore.FieldValue.serverTimestamp(),
                 },
@@ -295,11 +341,15 @@ export async function POST(req: NextRequest) {
             success: true,
             logged: true,
             eventCount: telemetryFacts.length,
+            duplicateCount: resolvedEvents.length - acceptedEvents.length,
             progressedTaskCount,
         });
     } catch (error) {
         if (error instanceof Error && error.message === "Unsupported eventName") {
             return NextResponse.json({ error: "Unsupported eventName" }, { status: 400 });
+        }
+        if (error instanceof Error && error.message === "Unsupported event payload") {
+            return NextResponse.json({ error: "Unsupported event payload" }, { status: 400 });
         }
         return handleApiError(error, "Telemetry.Track");
     }

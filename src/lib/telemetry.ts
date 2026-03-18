@@ -1,6 +1,7 @@
 import { auth } from "./firebase";
 import { authFetch } from "./authFetch";
 import { prepareAnalyticsEvent } from "./analytics-client-engine";
+import { createAnalyticsEventId } from "./analytics-identifiers";
 import { buildAnalyticsSemanticParams } from "./analytics-semantics";
 import { recordClientDiagnostic } from "./client-diagnostics";
 import { canUseAnonymousAnalytics, canUseIdentifiedAnalytics, readPrivacySettingsSnapshot } from "./privacy-consent";
@@ -12,6 +13,7 @@ import { BUILT_IN_DAILY_TASKS } from "./tasks/task-catalog";
  */
 const FLOW_STORAGE_KEY = "kandydrops.telemetry.flows";
 const SESSION_STORAGE_KEY = "kandydrops.telemetry.session";
+const IDENTIFIED_QUEUE_STORAGE_KEY = "kandydrops.telemetry.identified-queue";
 
 type SanitizedEventParams = Record<string, string | number | boolean>;
 const TASK_PROGRESS_EVENT_NAMES = new Set(BUILT_IN_DAILY_TASKS.map((task) => task.eventName));
@@ -19,6 +21,8 @@ const IDENTIFIED_TELEMETRY_BATCH_LIMIT = 12;
 const IDENTIFIED_TELEMETRY_BATCH_WINDOW_MS = 1_500;
 
 interface IdentifiedTelemetryEvent {
+    eventId: string;
+    eventTimestampMs: number;
     eventName: string;
     eventParams: SanitizedEventParams | undefined;
 }
@@ -28,6 +32,7 @@ let telemetryFlushTimeout: number | null = null;
 let telemetryFlushInFlight: Promise<void> | null = null;
 let lifecycleFlushInstalled = false;
 let telemetryQueueUserId: string | null = null;
+let telemetryQueueLoaded = false;
 
 function sanitizeEventParams(eventParams?: Record<string, unknown>) {
     if (!eventParams) {
@@ -74,6 +79,54 @@ function writeJsonStorage(storageKey: string, value: unknown) {
         window.sessionStorage.setItem(storageKey, JSON.stringify(value));
     } catch {
         // Ignore storage write failures in private browsing / restricted contexts.
+    }
+}
+
+function ensureTelemetryQueueLoaded() {
+    if (telemetryQueueLoaded || typeof window === "undefined") {
+        return;
+    }
+
+    telemetryQueueLoaded = true;
+    const persistedState = readJsonStorage<{
+        userId: string | null;
+        events: IdentifiedTelemetryEvent[];
+    } | IdentifiedTelemetryEvent[]>(IDENTIFIED_QUEUE_STORAGE_KEY);
+    if (!persistedState) {
+        telemetryQueue = [];
+        return;
+    }
+
+    const persistedQueue = Array.isArray(persistedState) ? persistedState : persistedState.events;
+    telemetryQueueUserId = Array.isArray(persistedState) ? null : (persistedState.userId ?? null);
+    telemetryQueue = persistedQueue.filter((entry) => (
+        typeof entry?.eventId === "string"
+        && typeof entry?.eventName === "string"
+        && typeof entry?.eventTimestampMs === "number"
+        && Number.isFinite(entry.eventTimestampMs)
+    )).slice(-50);
+}
+
+function persistTelemetryQueue() {
+    if (typeof window === "undefined") {
+        return;
+    }
+
+    writeJsonStorage(IDENTIFIED_QUEUE_STORAGE_KEY, {
+        userId: telemetryQueueUserId,
+        events: telemetryQueue,
+    });
+}
+
+function clearPersistedTelemetryQueue() {
+    if (typeof window === "undefined") {
+        return;
+    }
+
+    try {
+        window.sessionStorage.removeItem(IDENTIFIED_QUEUE_STORAGE_KEY);
+    } catch {
+        // Ignore storage failures in restricted contexts.
     }
 }
 
@@ -192,10 +245,20 @@ function clearTelemetryFlushTimeout() {
 }
 
 async function flushQueuedTelemetry(reason: "scheduled" | "immediate" | "pagehide" | "visibility") {
+    ensureTelemetryQueueLoaded();
+    const currentUserId = auth.currentUser?.uid ?? null;
+
+    if (currentUserId && telemetryQueueUserId && telemetryQueueUserId !== currentUserId) {
+        telemetryQueue = [];
+        telemetryQueueUserId = currentUserId;
+        clearPersistedTelemetryQueue();
+    }
+
     if (!auth.currentUser || telemetryQueue.length === 0) {
         if (!auth.currentUser) {
             telemetryQueue = [];
             telemetryQueueUserId = null;
+            clearPersistedTelemetryQueue();
         }
         clearTelemetryFlushTimeout();
         return;
@@ -208,6 +271,7 @@ async function flushQueuedTelemetry(reason: "scheduled" | "immediate" | "pagehid
 
     clearTelemetryFlushTimeout();
     const batch = telemetryQueue.splice(0, IDENTIFIED_TELEMETRY_BATCH_LIMIT);
+    persistTelemetryQueue();
     if (batch.length === 0) {
         return;
     }
@@ -223,6 +287,7 @@ async function flushQueuedTelemetry(reason: "scheduled" | "immediate" | "pagehid
         }
     }).catch((error) => {
         telemetryQueue = [...batch, ...telemetryQueue].slice(-50);
+        persistTelemetryQueue();
         recordClientDiagnostic("telemetry", "Identified telemetry batch failed", {
             reason,
             batchSize: batch.length,
@@ -266,6 +331,7 @@ function enqueueIdentifiedTelemetryEvent(event: IdentifiedTelemetryEvent, immedi
         return;
     }
 
+    ensureTelemetryQueueLoaded();
     const currentUserId = auth.currentUser?.uid ?? null;
     if (!currentUserId) {
         return;
@@ -273,6 +339,7 @@ function enqueueIdentifiedTelemetryEvent(event: IdentifiedTelemetryEvent, immedi
 
     if (telemetryQueueUserId && telemetryQueueUserId !== currentUserId) {
         telemetryQueue = [];
+        persistTelemetryQueue();
     }
 
     telemetryQueueUserId = currentUserId;
@@ -281,6 +348,7 @@ function enqueueIdentifiedTelemetryEvent(event: IdentifiedTelemetryEvent, immedi
     if (telemetryQueue.length > 50) {
         telemetryQueue = telemetryQueue.slice(-50);
     }
+    persistTelemetryQueue();
 
     if (immediate || telemetryQueue.length >= IDENTIFIED_TELEMETRY_BATCH_LIMIT) {
         void flushQueuedTelemetry("immediate");
@@ -314,6 +382,10 @@ export function trackEvent(eventName: string, eventParams?: Record<string, unkno
     }
 
     const enrichedParams = getEnrichedEventParams(preparedEvent.enrichedParams);
+    const sessionId = typeof enrichedParams?.session_id === "string" ? enrichedParams.session_id : getSessionId();
+    const eventTimestampMs = typeof enrichedParams?.event_timestamp_ms === "number"
+        ? enrichedParams.event_timestamp_ms
+        : Date.now();
 
     if (allowAnonymousAnalytics && typeof window !== "undefined" && typeof window.gtag === "function") {
         window.gtag("event", eventNameForDispatch, enrichedParams);
@@ -324,6 +396,8 @@ export function trackEvent(eventName: string, eventParams?: Record<string, unkno
     }
 
     enqueueIdentifiedTelemetryEvent({
+        eventId: createAnalyticsEventId(sessionId),
+        eventTimestampMs,
         eventName: preparedEvent.canonicalEventName,
         eventParams: enrichedParams,
     }, shouldSyncTaskProgress);

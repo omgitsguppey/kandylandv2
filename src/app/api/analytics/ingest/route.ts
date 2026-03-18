@@ -7,7 +7,9 @@ import { requestAllowsAnonymousAnalytics, requestHasGlobalPrivacyControl } from 
 import { TELEMETRY_EVENT_INDEX_VERSION } from "@/lib/telemetry-catalog";
 import { recordSemanticRollupFromGuestEvents } from "@/lib/server/analytics-semantics";
 import { buildAnalyticsTimeKeys } from "@/lib/server/analytics-event-utils";
+import { claimAnalyticsReceipt } from "@/lib/server/analytics-receipts";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { ANALYTICS_BATCH_ID_PATTERN, createAnalyticsBatchId } from "@/lib/analytics-identifiers";
 
 export const dynamic = "force-dynamic";
 const SESSION_COOKIE_NAME = "kandydrops_sid";
@@ -49,6 +51,7 @@ const TelemetryEventSchema = z.object({
 
 const PayloadSchema = z.object({
     sessionId: z.string().min(8).max(100).regex(CLIENT_SESSION_PATTERN).optional(),
+    batchId: z.string().regex(ANALYTICS_BATCH_ID_PATTERN).optional(),
     events: z.array(TelemetryEventSchema).max(200), // Cap events to 200 per payload
 });
 
@@ -109,6 +112,7 @@ export async function POST(request: NextRequest) {
         const nowMs = Date.now();
         const timeKeys = buildAnalyticsTimeKeys(nowMs);
         const globalPrivacyControl = requestHasGlobalPrivacyControl(request);
+        const batchId = parsed.data.batchId || createAnalyticsBatchId(sessionId || sessionKey);
         const sanitizedEvents = events.map((event) => ({
             ...event,
             targetText: sanitizeTargetLabel(event.targetText),
@@ -118,10 +122,26 @@ export async function POST(request: NextRequest) {
 
         // Group events by a unique minute-bucket to prevent writing thousands of tiny docs.
         const minuteBucket = timeKeys.minuteKey;
+        const claimedReceipt = await claimAnalyticsReceipt({
+            collectionName: "analytics_guest_receipts",
+            receiptKey: `${sessionKey}:${batchId}`,
+            data: {
+                batchId,
+                sessionKey,
+                clientSessionId: sessionId || null,
+                minuteBucket,
+                receivedAtMs: nowMs,
+                route: "analytics_ingest",
+            },
+        });
+
+        if (!claimedReceipt) {
+            return NextResponse.json({ success: true, deduped: true, processed: 0 });
+        }
 
         const docId = `${sessionKey}_${minuteBucket}`;
         const docRef = adminDb.collection("analytics_sessions").doc(docId);
-        const batchDocRef = adminDb.collection("analytics_session_batches").doc();
+        const guestBatchRef = adminDb.collection("analytics_guest_batches").doc(batchId);
         const uniquePagePaths = Array.from(new Set(sanitizedEvents.map((event) => event.path)));
         const uniqueInteractionTypes = Array.from(new Set(sanitizedEvents.map((event) => event.type)));
 
@@ -143,30 +163,13 @@ export async function POST(request: NextRequest) {
             interactionTypes: uniqueInteractionTypes.slice(0, 12),
         }, { merge: true });
 
-        await batchDocRef.set({
+        await guestBatchRef.set({
+            batchId,
             sessionDocId: docId,
-            sessionKey,
-            clientSessionId: sessionId || null,
-            minuteBucket,
-            consentMode: "anonymous",
-            globalPrivacyControl,
-            eventIndexVersion: TELEMETRY_EVENT_INDEX_VERSION,
-            trackingOrigin: "guest_client",
-            receivedAtMs: nowMs,
-            dayKey: timeKeys.dayKey,
-            hourKey: timeKeys.hourKey,
-            minuteKey: timeKeys.minuteKey,
-            eventCount: sanitizedEvents.length,
-            pagePaths: uniquePagePaths,
-            interactionTypes: uniqueInteractionTypes,
-            hasPixelData: sanitizedEvents.some((event) => Number.isFinite(event.x) && Number.isFinite(event.y)),
-            events: sanitizedEvents,
-            createdAt: FieldValue.serverTimestamp(),
-        });
-        await adminDb.collection("analytics_guest_batches").add({
             source: "guest",
             sessionKey,
             clientSessionId: sessionId || null,
+            minuteBucket,
             consentMode: "anonymous",
             globalPrivacyControl,
             eventIndexVersion: TELEMETRY_EVENT_INDEX_VERSION,

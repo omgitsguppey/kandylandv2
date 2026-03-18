@@ -1,0 +1,145 @@
+import { FIREBASE_PROJECT_ID } from "@/lib/firebase-runtime";
+
+export const NAV_SESSION_COOKIE = "kandydrops_nav_session";
+export const NAV_SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
+export type NavigationSessionRole = "admin" | "creator" | "user";
+
+const VALID_NAV_ROLES = new Set<NavigationSessionRole>(["admin", "creator", "user"]);
+const UID_COOKIE_PATTERN = /^[A-Za-z0-9:_-]{8,128}$/u;
+
+function getNavigationSessionSecret() {
+  const secret = process.env.NAVIGATION_COOKIE_SECRET
+    || process.env.FIREBASE_PRIVATE_KEY
+    || process.env.FIREBASE_CLIENT_EMAIL
+    || FIREBASE_PROJECT_ID;
+
+  return secret?.trim() || "";
+}
+
+function bytesToBase64Url(bytes: Uint8Array) {
+  if (typeof Buffer !== "undefined") {
+    return Buffer.from(bytes).toString("base64url");
+  }
+
+  let binary = "";
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte);
+  });
+
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/u, "");
+}
+
+function base64UrlToBytes(value: string) {
+  if (typeof Buffer !== "undefined") {
+    return new Uint8Array(Buffer.from(value, "base64url"));
+  }
+
+  const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = normalized + "=".repeat((4 - (normalized.length % 4 || 4)) % 4);
+  const binary = atob(padded);
+  return Uint8Array.from(binary, (character) => character.charCodeAt(0));
+}
+
+function encodeBase64Url(value: string) {
+  return bytesToBase64Url(new TextEncoder().encode(value));
+}
+
+function decodeBase64Url(value: string) {
+  try {
+    return new TextDecoder().decode(base64UrlToBytes(value));
+  } catch {
+    return "";
+  }
+}
+
+async function getNavigationSessionKey() {
+  const secret = getNavigationSessionSecret();
+  if (!secret) {
+    return null;
+  }
+
+  return crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign", "verify"],
+  );
+}
+
+async function signNavigationSessionPayload(payload: string) {
+  const key = await getNavigationSessionKey();
+  if (!key) {
+    return "";
+  }
+
+  const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload));
+  return bytesToBase64Url(new Uint8Array(signature));
+}
+
+export async function createNavigationSessionCookieValue(uid: string, role: NavigationSessionRole) {
+  if (!UID_COOKIE_PATTERN.test(uid) || !VALID_NAV_ROLES.has(role)) {
+    return null;
+  }
+
+  const expiresAtMs = Date.now() + (NAV_SESSION_MAX_AGE_SECONDS * 1000);
+  const payload = `${uid}.${role}.${expiresAtMs}`;
+  const signature = await signNavigationSessionPayload(payload);
+  if (!signature) {
+    return null;
+  }
+
+  return `${encodeBase64Url(payload)}.${signature}`;
+}
+
+export async function verifyNavigationSessionCookieValue(value: string | null | undefined) {
+  if (!value) {
+    return null;
+  }
+
+  const [encodedPayload, signature] = value.split(".");
+  if (!encodedPayload || !signature) {
+    return null;
+  }
+
+  const payload = decodeBase64Url(encodedPayload);
+  if (!payload) {
+    return null;
+  }
+
+  const [uid, role, expiresAtRaw] = payload.split(".");
+  if (!uid || !role || !expiresAtRaw) {
+    return null;
+  }
+
+  if (!UID_COOKIE_PATTERN.test(uid) || !VALID_NAV_ROLES.has(role as NavigationSessionRole)) {
+    return null;
+  }
+
+  const expiresAtMs = Number(expiresAtRaw);
+  if (!Number.isFinite(expiresAtMs) || expiresAtMs <= Date.now()) {
+    return null;
+  }
+
+  const key = await getNavigationSessionKey();
+  if (!key) {
+    return null;
+  }
+
+  const isValid = await crypto.subtle.verify(
+    "HMAC",
+    key,
+    base64UrlToBytes(signature),
+    new TextEncoder().encode(payload),
+  );
+
+  if (!isValid) {
+    return null;
+  }
+
+  return {
+    uid,
+    role: role as NavigationSessionRole,
+    expiresAtMs,
+  };
+}

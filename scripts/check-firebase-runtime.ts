@@ -12,6 +12,7 @@ const snapshot = buildFirebaseClientRuntimeSnapshot();
 const warnings = getFirebaseRuntimeWarnings();
 const fatalWarnings = warnings.filter((warning) => warning.includes("does not match"));
 const missingWarnings = warnings.filter((warning) => !warning.includes("does not match"));
+const shouldFailOnMissingWarnings = process.env.CI === "true" || process.env.NODE_ENV === "production";
 
 console.log("Firebase runtime snapshot:");
 console.log(JSON.stringify({
@@ -28,6 +29,11 @@ console.log(JSON.stringify({
 if (missingWarnings.length > 0) {
   console.warn("Firebase runtime warnings:");
   missingWarnings.forEach((warning) => console.warn(`- ${warning}`));
+
+  if (shouldFailOnMissingWarnings) {
+    console.error("Firebase runtime validation failed due to missing required public environment variables.");
+    process.exit(1);
+  }
 }
 
 if (fatalWarnings.length > 0) {

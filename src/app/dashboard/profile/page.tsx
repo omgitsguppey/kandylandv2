@@ -18,6 +18,7 @@ import { getBrowserNotificationState } from "@/lib/firebase-messaging";
 import { enableBrowserNotifications } from "@/lib/browser-notification-enrollment";
 import { getBrowserGlobalPrivacyControl, persistPrivacySettingsSnapshot } from "@/lib/privacy-consent";
 import { PRIVACY_POLICY_LAST_UPDATED } from "@/lib/privacy-policy";
+import { trackEvent } from "@/lib/telemetry";
 
 const TIMEZONE_OPTIONS = [
     "Auto",
@@ -462,6 +463,7 @@ export default function ProfilePage() {
             }
 
             await updateProfile(user, { photoURL: downloadUrl });
+            trackEvent("avatar_uploaded", { source: "profile_settings" });
 
             toast.success("Avatar updated successfully.");
 

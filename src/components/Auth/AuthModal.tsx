@@ -244,7 +244,11 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                 error_code: firebaseErr.code || "unknown",
                 entry_mode: initialMode,
             });
-            trackEvent(mode === "signup" ? "auth_sign_up_failed" : "auth_sign_in_failed", mergedParams);
+            if (mode === "signup") {
+                trackEvent("auth_sign_up_failed", mergedParams);
+            } else {
+                trackEvent("auth_sign_in_failed", mergedParams);
+            }
             if (firebaseErr.code === "auth/email-already-in-use") {
                 setAuthError("Email is already registered.");
             } else if (firebaseErr.message === "Username is already taken.") {

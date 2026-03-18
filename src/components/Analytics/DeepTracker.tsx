@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 
 import { CLIENT_RUNTIME_STORAGE_KEYS } from "@/hooks/client-runtime";
+import { createAnalyticsBatchId } from "@/lib/analytics-identifiers";
 import { recordClientDiagnostic } from "@/lib/client-diagnostics";
 import { buildAnalyticsSemanticParams, resolveAnalyticsSemanticContext } from "@/lib/analytics-semantics";
 import { canUseAnonymousAnalytics, readPrivacySettingsSnapshot, subscribeToPrivacySettings } from "@/lib/privacy-consent";
@@ -152,6 +153,7 @@ export function DeepTracker() {
             }
 
             const payload = {
+                batchId: createAnalyticsBatchId(getClientSessionId()),
                 sessionId: getClientSessionId(),
                 events: [...eventQueue.current],
             };

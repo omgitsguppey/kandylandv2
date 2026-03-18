@@ -1,6 +1,8 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 
+import ts from "typescript";
+
 import {
   TELEMETRY_EVENT_NAME_SET,
   TELEMETRY_EVENT_OPTIONS,
@@ -34,30 +36,126 @@ function walkFiles(directory: string, results: string[] = []) {
   return results;
 }
 
-function collectMatches(filePath: string) {
-  const content = readFileSync(filePath, "utf8");
-  const matchers = [
-    { label: "trackEvent", pattern: /trackEvent\(\s*["'`]([^"'`]+)["'`]/g },
-    { label: "trackServerEvent", pattern: /trackServerEvent\(\s*["'`]([^"'`]+)["'`]/g },
-    { label: "sendGAEvent", pattern: /sendGAEvent\(\s*["'`]event["'`]\s*,\s*["'`]([^"'`]+)["'`]/g },
-    { label: "window.gtag", pattern: /gtag\(\s*["'`]event["'`]\s*,\s*["'`]([^"'`]+)["'`]/g },
-  ];
-
-  const matches: MatchRecord[] = [];
-
-  for (const matcher of matchers) {
-    for (const match of content.matchAll(matcher.pattern)) {
-      const index = match.index ?? 0;
-      const line = content.slice(0, index).split(/\r?\n/u).length;
-      matches.push({
-        file: filePath,
-        line,
-        eventName: match[1],
-        matcher: matcher.label,
-      });
-    }
+function collectStringLiteralValues(
+  expression: ts.Expression | undefined,
+  constValueMap: Map<string, string[]>,
+): string[] {
+  if (!expression) {
+    return [];
   }
 
+  if (ts.isStringLiteralLike(expression)) {
+    return [expression.text];
+  }
+
+  if (ts.isNoSubstitutionTemplateLiteral(expression)) {
+    return [expression.text];
+  }
+
+  if (ts.isParenthesizedExpression(expression)) {
+    return collectStringLiteralValues(expression.expression, constValueMap);
+  }
+
+  if (ts.isConditionalExpression(expression)) {
+    return [
+      ...collectStringLiteralValues(expression.whenTrue, constValueMap),
+      ...collectStringLiteralValues(expression.whenFalse, constValueMap),
+    ];
+  }
+
+  if (ts.isIdentifier(expression)) {
+    return constValueMap.get(expression.text) ?? [];
+  }
+
+  return [];
+}
+
+function buildConstValueMap(sourceFile: ts.SourceFile) {
+  const constValueMap = new Map<string, string[]>();
+
+  function visit(node: ts.Node) {
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer) {
+      const values = collectStringLiteralValues(node.initializer, constValueMap);
+      if (values.length > 0) {
+        constValueMap.set(node.name.text, Array.from(new Set(values)));
+      }
+    }
+
+    ts.forEachChild(node, visit);
+  }
+
+  visit(sourceFile);
+  return constValueMap;
+}
+
+function isIdentifierNamed(expression: ts.LeftHandSideExpression, expected: string) {
+  return ts.isIdentifier(expression) && expression.text === expected;
+}
+
+function extractEventNamesFromCall(
+  callExpression: ts.CallExpression,
+  constValueMap: Map<string, string[]>,
+): { matcher: string; eventNames: string[] } | null {
+  const expression = callExpression.expression;
+  const args = callExpression.arguments;
+
+  if (isIdentifierNamed(expression, "trackEvent") || isIdentifierNamed(expression, "trackServerEvent")) {
+    const matcher = ts.isIdentifier(expression) ? expression.text : "trackEvent";
+    const eventNames = collectStringLiteralValues(args[0], constValueMap);
+    return eventNames.length > 0
+      ? { matcher, eventNames }
+      : null;
+  }
+
+  if (isIdentifierNamed(expression, "incrementEventStat")) {
+    const eventNames = collectStringLiteralValues(args[1], constValueMap);
+    return eventNames.length > 0
+      ? { matcher: "incrementEventStat", eventNames }
+      : null;
+  }
+
+  if (isIdentifierNamed(expression, "sendGAEvent") || isIdentifierNamed(expression, "gtag")) {
+    const matcher = ts.isIdentifier(expression) ? expression.text : "sendGAEvent";
+    const callTypeValues = collectStringLiteralValues(args[0], constValueMap);
+    if (!callTypeValues.includes("event")) {
+      return null;
+    }
+
+    const eventNames = collectStringLiteralValues(args[1], constValueMap);
+    return eventNames.length > 0
+      ? { matcher, eventNames }
+      : null;
+  }
+
+  return null;
+}
+
+function collectMatches(filePath: string) {
+  const content = readFileSync(filePath, "utf8");
+  const sourceFile = ts.createSourceFile(filePath, content, ts.ScriptTarget.Latest, true);
+  const constValueMap = buildConstValueMap(sourceFile);
+  const matches: MatchRecord[] = [];
+
+  function visit(node: ts.Node) {
+    if (ts.isCallExpression(node)) {
+      const result = extractEventNamesFromCall(node, constValueMap);
+      if (result) {
+        const line = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1;
+        result.eventNames.forEach((eventName) => {
+          matches.push({
+            file: filePath,
+            line,
+            eventName,
+            matcher: result.matcher,
+          });
+        });
+      }
+    }
+
+    ts.forEachChild(node, visit);
+  }
+
+  visit(sourceFile);
   return matches;
 }
 
@@ -87,8 +185,8 @@ const catalogedButUnemitted = TELEMETRY_EVENT_OPTIONS
   .map((event) => event.eventName)
   .filter((eventName) => !emittedEventNames.has(eventName));
 
-console.log(`Telemetry audit passed. ${matches.length} literal emitters checked across ${files.length} files.`);
-console.log(`Cataloged events with no literal emitters: ${catalogedButUnemitted.length}`);
+console.log(`Telemetry audit passed. ${matches.length} literal or resolvable emitters checked across ${files.length} files.`);
+console.log(`Cataloged events with no detected emitters: ${catalogedButUnemitted.length}`);
 if (catalogedButUnemitted.length > 0) {
   console.log(catalogedButUnemitted.join(", "));
 }

@@ -1,0 +1,73 @@
+import { NextRequest, NextResponse } from "next/server";
+
+import { NAV_AUTH_COOKIE, NAV_ROLE_COOKIE, NAV_UID_COOKIE, NavigationRole } from "@/lib/navigation-persistence";
+import { createNavigationSessionCookieValue, NAV_SESSION_COOKIE, NAV_SESSION_MAX_AGE_SECONDS } from "@/lib/navigation-session";
+import { handleApiError } from "@/lib/server/auth";
+import { adminDb } from "@/lib/server/firebase-admin";
+import { RELAXED } from "@/lib/server/rate-limit";
+import { guardApiRequest } from "@/lib/server/request-guard";
+
+export async function POST(request: NextRequest) {
+  try {
+    const caller = await guardApiRequest(request, {
+      routeName: "auth/navigation-session",
+      rateLimit: RELAXED,
+      requireTrustedOrigin: true,
+      auth: "user",
+      scopeToCaller: true,
+    });
+
+    const userId = caller?.uid ?? "";
+    if (!userId) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    const profileSnapshot = await adminDb.collection("users").doc(userId).get();
+    const role = (profileSnapshot.data()?.role || "user") as NavigationRole;
+    const cookieValue = await createNavigationSessionCookieValue(userId, role);
+    if (!cookieValue) {
+      return NextResponse.json({ error: "Navigation session unavailable" }, { status: 503 });
+    }
+
+    const response = NextResponse.json({ success: true, role });
+    response.cookies.set({
+      name: NAV_SESSION_COOKIE,
+      value: cookieValue,
+      httpOnly: true,
+      sameSite: "lax",
+      secure: request.nextUrl.protocol === "https:",
+      path: "/",
+      maxAge: NAV_SESSION_MAX_AGE_SECONDS,
+    });
+
+    return response;
+  } catch (error) {
+    return handleApiError(error, "auth/navigation-session");
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  const response = NextResponse.json({ success: true });
+  response.cookies.set({
+    name: NAV_SESSION_COOKIE,
+    value: "",
+    httpOnly: true,
+    sameSite: "lax",
+    secure: request.nextUrl.protocol === "https:",
+    path: "/",
+    maxAge: 0,
+  });
+
+  [NAV_AUTH_COOKIE, NAV_ROLE_COOKIE, NAV_UID_COOKIE].forEach((cookieName) => {
+    response.cookies.set({
+      name: cookieName,
+      value: "",
+      sameSite: "lax",
+      secure: request.nextUrl.protocol === "https:",
+      path: "/",
+      maxAge: 0,
+    });
+  });
+
+  return response;
+}

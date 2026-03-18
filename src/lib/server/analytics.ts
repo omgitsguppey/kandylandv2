@@ -1,5 +1,7 @@
 import "server-only";
 
+import * as admin from "firebase-admin";
+
 import { adminDb } from "./firebase-admin";
 import { recordTelemetryEventStat } from "./daily-tasks";
 import { recordSemanticRollupFromTelemetryEvent } from "./analytics-semantics";
@@ -116,7 +118,7 @@ export async function trackServerEvent(
         eventIndexVersion: readStringParam(enrichedParams, "event_index_version"),
         trackingOrigin: "server",
         params: enrichedParams,
-        createdAt: nowMs,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
       }),
       recordTelemetryEventStat(canonicalEventName, enrichedParams),
       recordSemanticRollupFromTelemetryEvent({

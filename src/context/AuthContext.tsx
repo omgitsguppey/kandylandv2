@@ -69,6 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [loading, setLoading] = useState(true);
     const initialAuthResolvedRef = useRef(false);
     const autoRegisterInFlightRef = useRef<Set<string>>(new Set());
+    const navigationSessionSyncKeyRef = useRef<string | null>(null);
     const router = useRouter();
     const pathname = usePathname();
 
@@ -102,7 +103,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         if (!user) {
+            navigationSessionSyncKeyRef.current = null;
             setNavigationAuthCookies(null);
+            void fetch("/api/auth/navigation-session", {
+                method: "DELETE",
+                keepalive: true,
+            }).catch(() => { });
             setUserProfile(null);
             setLoading(false);
             return;
@@ -181,12 +187,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         if (!user) {
+            navigationSessionSyncKeyRef.current = null;
             setNavigationAuthCookies(null);
             return;
         }
 
         if (userProfile) {
             setNavigationAuthCookies(userProfile.role ?? "user", user.uid);
+            const syncKey = `${user.uid}:${userProfile.role ?? "user"}`;
+            if (navigationSessionSyncKeyRef.current === syncKey) {
+                return;
+            }
+
+            navigationSessionSyncKeyRef.current = syncKey;
+            void authFetch("/api/auth/navigation-session", {
+                method: "POST",
+            }).catch(() => {
+                navigationSessionSyncKeyRef.current = null;
+            });
         }
     }, [user, userProfile]);
 
@@ -269,6 +287,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             });
         }
         clearLastVisitedPath();
+        navigationSessionSyncKeyRef.current = null;
+        await fetch("/api/auth/navigation-session", {
+            method: "DELETE",
+            keepalive: true,
+        }).catch(() => { });
         await signOut(auth);
         router.replace("/");
     }, [router]);

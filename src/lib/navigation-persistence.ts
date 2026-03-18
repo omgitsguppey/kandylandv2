@@ -94,6 +94,16 @@ export function clearLastVisitedPath() {
   clearCookie(LAST_VISITED_PATH_COOKIE);
 }
 
+export function clearLegacyNavigationAuthCookies() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  clearCookie(NAV_AUTH_COOKIE);
+  clearCookie(NAV_ROLE_COOKIE);
+  clearCookie(NAV_UID_COOKIE);
+}
+
 export function setNavigationAuthCookies(
   role: "admin" | "creator" | "user" | null | undefined,
   uid?: string | null,
@@ -103,12 +113,11 @@ export function setNavigationAuthCookies(
   }
 
   if (!role || !uid) {
-    clearCookie(NAV_AUTH_COOKIE);
-    clearCookie(NAV_ROLE_COOKIE);
-    clearCookie(NAV_UID_COOKIE);
+    clearLegacyNavigationAuthCookies();
     return;
   }
 
+  // Legacy client-readable cookies are kept only for backwards compatibility.
   writeCookie(NAV_AUTH_COOKIE, "1", 60 * 60 * 24 * 30);
   writeCookie(NAV_ROLE_COOKIE, role, 60 * 60 * 24 * 30);
   writeCookie(NAV_UID_COOKIE, uid, 60 * 60 * 24 * 30);
