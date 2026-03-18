@@ -94,7 +94,9 @@ export function TransactionHistoryModal({ user, onClose }: Props) {
                                             ) : tx.type === "purchase_currency" ? (
                                                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-purple/10 text-brand-purple border border-brand-purple/20 capitalize">Purchase</span>
                                             ) : tx.type === "daily_reward" ? (
-                                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-purple/10 text-brand-purple border border-brand-purple/20 capitalize">Reward</span>
+                                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-purple/10 text-brand-purple border border-brand-purple/20 capitalize">
+                                                    {tx.rewardSource === "check_in" ? "Check-in" : tx.rewardSource === "task" ? "Task reward" : "Reward"}
+                                                </span>
                                             ) : tx.type === "referral_bonus" ? (
                                                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-purple/10 text-brand-purple border border-brand-purple/20 capitalize">Referral</span>
                                             ) : (

@@ -135,15 +135,9 @@ export function DailyTasksModule() {
   const headerCountdownLabel = isCompleteForToday ? "Next batch in" : "Deadline in";
 
   useEffect(() => {
-    setExpandedTaskIds((current) => {
-      const valid = current.filter((taskId) => activeTasks.some((task) => task.id === taskId && !task.claimed));
-      if (valid.length > 0) {
-        return valid;
-      }
-
-      const firstPendingTask = activeTasks.find((task) => !task.claimed);
-      return firstPendingTask ? [firstPendingTask.id] : [];
-    });
+    setExpandedTaskIds((current) => (
+      current.filter((taskId) => activeTasks.some((task) => task.id === taskId && !task.claimed))
+    ));
   }, [activeTasks]);
 
   const applyAuthoritativeTaskState = useCallback((
@@ -655,7 +649,7 @@ export function DailyTasksModule() {
       ) : null}
 
       {activeTasks.length > 0 && !isCompleteForToday ? (
-        <div className="grid gap-3">
+        <div className="grid gap-2.5">
           {activeTasks.map((task) => {
             const Icon = ICONS[task.icon] || Gift;
             const progressPercent = Math.min(100, Math.round((task.progress / Math.max(1, task.maxProgress)) * 100));
@@ -673,7 +667,7 @@ export function DailyTasksModule() {
               <article
                 key={task.id}
                 className={cn(
-                  "overflow-hidden rounded-[1.8rem] border p-4 transition-colors",
+                  "overflow-hidden rounded-[1.6rem] border p-3.5 transition-colors",
                   task.claimed
                     ? "border-brand-purple/25 bg-brand-purple/10"
                     : "border-white/10 bg-black/30",
@@ -687,7 +681,7 @@ export function DailyTasksModule() {
                 >
                   <div className="flex items-start gap-3">
                     <div className={cn(
-                      "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border",
+                      "flex h-11 w-11 shrink-0 items-center justify-center rounded-[1.15rem] border",
                       task.claimed
                         ? "border-brand-purple/30 bg-brand-purple text-white"
                         : "border-white/10 bg-white/5 text-brand-purple",
@@ -698,17 +692,17 @@ export function DailyTasksModule() {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <div className="mb-2 flex flex-wrap items-center gap-2">
-                            <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-200">
+                          <div className="mb-2 flex flex-wrap items-center gap-1.5">
+                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-gray-200">
                               Deadline {waitLabel}
                             </span>
                             {task.oneTime ? (
-                              <span className="rounded-full border border-emerald-400/25 bg-emerald-400/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-300">
+                              <span className="rounded-full border border-emerald-400/25 bg-emerald-400/10 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-emerald-300">
                                 One time
                               </span>
                             ) : null}
                           </div>
-                          <h3 className="text-base font-bold text-white">{task.title}</h3>
+                          <h3 className="text-[15px] font-bold leading-5 text-white">{task.title}</h3>
                         </div>
                         <div className="flex shrink-0 items-center gap-2">
                           {isExpanded ? (
@@ -719,7 +713,7 @@ export function DailyTasksModule() {
                         </div>
                       </div>
 
-                      <div className="mt-4">
+                      <div className="mt-3">
                         <div className="h-2 rounded-full bg-white/8">
                           <div
                             className={cn(
@@ -735,17 +729,17 @@ export function DailyTasksModule() {
                 </button>
 
                 {isExpanded ? (
-                  <div className="ml-[3.75rem] mt-4 border-t border-white/10 pt-4">
-                    <p className="text-sm leading-6 text-gray-400">{task.subtitle}</p>
-                    <div className="mt-3 flex flex-wrap items-center gap-2">
-                      <span className="rounded-full border border-brand-purple/30 bg-brand-purple/15 px-3 py-1 text-xs font-bold text-white">
+                  <div className="ml-[3.25rem] mt-3 border-t border-white/10 pt-3">
+                    <p className="text-[13px] leading-5 text-gray-400">{task.subtitle}</p>
+                    <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+                      <span className="rounded-full border border-brand-purple/30 bg-brand-purple/15 px-2.5 py-1 text-[10px] font-bold text-white">
                         +{task.reward} GD
                       </span>
-                      <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-300">
+                      <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-300">
                         {Math.min(task.progress, task.maxProgress)} / {task.maxProgress}
                       </span>
                       <span className={cn(
-                        "rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em]",
+                        "rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.1em]",
                         task.claimed
                           ? "border-brand-purple/30 bg-brand-purple/15 text-brand-purple"
                           : "border-white/10 bg-white/5 text-gray-300",
@@ -754,9 +748,9 @@ export function DailyTasksModule() {
                       </span>
                     </div>
 
-                    <div className="mt-4">
+                    <div className="mt-3">
                       {task.claimed ? (
-                        <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/30 bg-brand-purple px-4 py-2 text-sm font-bold text-white">
+                        <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/30 bg-brand-purple px-3.5 py-2 text-xs font-bold text-white">
                           <CheckCircle2 className="h-4 w-4" />
                           Completed
                         </div>
@@ -766,7 +760,7 @@ export function DailyTasksModule() {
                           onClick={() => void handleTaskAction(task)}
                           disabled={isBusy}
                           className={cn(
-                            "inline-flex min-h-11 items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold transition-opacity disabled:opacity-60",
+                            "inline-flex min-h-10 items-center gap-2 rounded-full border px-3.5 py-2 text-xs font-bold transition-opacity disabled:opacity-60",
                             task.actionType === "open_wallet"
                               ? "border-brand-purple bg-brand-purple text-white"
                               : "border-white/10 bg-white/5 text-white hover:bg-white/10",

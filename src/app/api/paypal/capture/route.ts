@@ -6,20 +6,16 @@ import { FieldValue } from "firebase-admin/firestore";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { SENSITIVE_WRITE } from "@/lib/server/rate-limit";
 import { deriveGumdropEconomics, getBundlePresentation } from "@/lib/gumdrop-economics";
+import type { DailyTasksState } from "@/lib/tasks/task-catalog";
 import { recordCanonicalTaskEvent } from "@/lib/server/daily-tasks";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { resolveExpectedGumdropPrice } from "@/lib/gumdrops-packages";
+import type { UserProfile } from "@/types/db";
 
 const bodySchema = z.object({
   orderId: z.string().min(1),
   expectedDrops: z.number().int().positive(),
 });
-
-const VALID_PACKAGES: Record<string, number> = {
-  "1.00": 100,
-  "5.00": 550,
-  "10.00": 1100,
-  "20.00": 2500,
-};
 
 const PAYPAL_BASE_URL = "https://api-m.paypal.com";
 
@@ -129,15 +125,8 @@ export async function POST(request: NextRequest) {
     const paidAmountStr = Number.parseFloat(capture.amount.value).toFixed(2);
 
     // Strict backend secondary verification
-    let expectedPrice: string | null = null;
+    const expectedPrice = resolveExpectedGumdropPrice(expectedDrops);
     let dropsToCredit: number | null = null;
-
-    if (expectedDrops >= 5000 && expectedDrops <= 100000 && expectedDrops % 1000 === 0) {
-      expectedPrice = ((expectedDrops / 1000) * 5).toFixed(2);
-    } else {
-      const packageEntry = Object.entries(VALID_PACKAGES).find(([_, drops]) => drops === expectedDrops);
-      if (packageEntry) expectedPrice = packageEntry[0];
-    }
 
     // Ensures the package exists / mathematical logic is met, AND that the exact price matches PayPal
     if (!expectedPrice || paidAmountStr !== expectedPrice) {
@@ -280,7 +269,17 @@ export async function POST(request: NextRequest) {
       console.error("Purchase completed but daily task progress sync failed", taskEventResult.reason);
     }
 
-    return NextResponse.json({ success: true, drops: dropsToCredit });
+    const updatedUserSnapshot = await userRef.get();
+    const updatedUserData = (updatedUserSnapshot.data() ?? {}) as Partial<UserProfile>;
+
+    return NextResponse.json({
+      success: true,
+      drops: dropsToCredit,
+      gumDropsBalance: Number.isFinite(updatedUserData.gumDropsBalance)
+        ? Number(updatedUserData.gumDropsBalance)
+        : null,
+      dailyTasksState: (updatedUserData.dailyTasksState ?? null) as DailyTasksState | null,
+    });
   } catch (error) {
     // We cannot easily determine orderId and expectedDrops cleanly here if parsing fails,
     // but the global handleApiError will still capture the throw.

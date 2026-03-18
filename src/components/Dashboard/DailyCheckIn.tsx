@@ -12,6 +12,7 @@ import { trackEvent } from "@/lib/telemetry";
 import { getCSTDayBoundaries } from "@/lib/timezone";
 import { cn } from "@/lib/utils";
 import { dispatchActivitySync } from "@/lib/activity-sync";
+import type { DailyTasksState } from "@/lib/tasks/task-catalog";
 
 function formatCountdown(remainingMs: number): string {
     const totalSeconds = Math.max(0, Math.floor(remainingMs / 1000));
@@ -33,7 +34,7 @@ function emitGuidedCheckIn(status: "success" | "already-claimed" | "error", mess
 }
 
 export function DailyCheckIn() {
-    const { user, userProfile } = useAuth();
+    const { user, userProfile, setUserProfile } = useAuth();
     const [loading, setLoading] = useState(false);
     const [optimisticCheckInMs, setOptimisticCheckInMs] = useState<number | null>(null);
     const [optimisticStreak, setOptimisticStreak] = useState<number | null>(null);
@@ -93,7 +94,15 @@ export function DailyCheckIn() {
             const response = await authFetch("/api/checkin", {
                 method: "POST",
             });
-            const result = await response.json().catch(() => ({}));
+            const result = await response.json().catch(() => ({})) as {
+                alreadyClaimed?: boolean;
+                error?: string;
+                reward?: number;
+                streak?: number;
+                lastCheckIn?: number;
+                gumDropsBalance?: number | null;
+                dailyTasksState?: DailyTasksState | null;
+            };
 
             if (!response.ok) {
                 if (result.alreadyClaimed) {
@@ -113,6 +122,19 @@ export function DailyCheckIn() {
 
             setOptimisticCheckInMs(claimedAt);
             setOptimisticStreak(streak);
+            setUserProfile((currentProfile) => (
+                currentProfile
+                    ? {
+                        ...currentProfile,
+                        lastCheckIn: claimedAt,
+                        streakCount: streak,
+                        gumDropsBalance: Number.isFinite(result.gumDropsBalance)
+                            ? Number(result.gumDropsBalance)
+                            : currentProfile.gumDropsBalance,
+                        dailyTasksState: result.dailyTasksState ?? currentProfile.dailyTasksState,
+                    }
+                    : currentProfile
+            ));
             dispatchActivitySync();
 
             toast.success(`Claimed ${reward} Gum Drops!`, {

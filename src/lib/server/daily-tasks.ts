@@ -1071,6 +1071,7 @@ export async function recordDailyTaskProgressFromEvent(
           userId: uid,
           amount: task.reward,
           type: "daily_reward",
+          rewardSource: "task",
           description: `Daily Task: ${task.title}`,
           timestamp: FieldValue.serverTimestamp(),
         });

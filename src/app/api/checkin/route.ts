@@ -5,8 +5,10 @@ import { FieldValue } from "firebase-admin/firestore";
 import { getCSTDateKey, getCSTDayBoundaries } from "@/lib/timezone";
 import { SENSITIVE_WRITE } from "@/lib/server/rate-limit";
 import { getDailyCheckInProgress } from "@/lib/daily-checkin";
+import type { DailyTasksState } from "@/lib/tasks/task-catalog";
 import { recordCanonicalTaskEvent } from "@/lib/server/daily-tasks";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import type { UserProfile } from "@/types/db";
 
 export async function POST(request: NextRequest) {
     try {
@@ -55,6 +57,7 @@ export async function POST(request: NextRequest) {
                     nextStreak: progress.activeStreak,
                     lastCheckIn: progress.lastCheckInMs,
                     nextCheckInAt: endOfDay,
+                    newBalance: Number.isFinite(userData.gumDropsBalance) ? Number(userData.gumDropsBalance) : 0,
                 };
             }
 
@@ -73,6 +76,7 @@ export async function POST(request: NextRequest) {
             transaction.set(transactionRef, {
                 userId,
                 type: "daily_reward",
+                rewardSource: "check_in",
                 amount: reward,
                 description: `Daily Check-in: Day ${nextStreak}`,
                 timestamp: FieldValue.serverTimestamp(),
@@ -85,6 +89,7 @@ export async function POST(request: NextRequest) {
                     nextStreak,
                     lastCheckIn: now,
                     nextCheckInAt: endOfDay,
+                    newBalance: (Number.isFinite(userData.gumDropsBalance) ? Number(userData.gumDropsBalance) : 0) + reward,
                     username,
                 };
         });
@@ -110,12 +115,19 @@ export async function POST(request: NextRequest) {
             console.error("Check-in completed but daily task progress sync failed", taskEventError);
         }
 
+        const updatedUserSnapshot = await userRef.get();
+        const updatedUserData = (updatedUserSnapshot.data() ?? {}) as Partial<UserProfile>;
+
         return NextResponse.json({
             success: true,
             reward: result.reward,
             streak: result.nextStreak,
             lastCheckIn: result.lastCheckIn,
             nextCheckInAt: result.nextCheckInAt,
+            gumDropsBalance: Number.isFinite(updatedUserData.gumDropsBalance)
+                ? Number(updatedUserData.gumDropsBalance)
+                : result.newBalance,
+            dailyTasksState: (updatedUserData.dailyTasksState ?? null) as DailyTasksState | null,
         });
     } catch (error) {
         return handleApiError(error, "Checkin.POST");

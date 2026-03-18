@@ -112,11 +112,27 @@ export function NotificationRuntimeBridge() {
         const reminderAt = nextRefreshMs - ONE_HOUR_MS;
         if (nowMs >= reminderAt && nowMs < nextRefreshMs) {
             void triggerReminder();
-            return;
         }
 
+        const syncIfVisible = () => {
+            if (document.visibilityState === "visible") {
+                void triggerReminder();
+            }
+        };
+
+        window.addEventListener("focus", syncIfVisible);
+        document.addEventListener("visibilitychange", syncIfVisible);
+
+        const intervalId = window.setInterval(() => {
+            void triggerReminder();
+        }, 60_000);
+
         if (reminderAt <= nowMs) {
-            return;
+            return () => {
+                window.clearInterval(intervalId);
+                window.removeEventListener("focus", syncIfVisible);
+                document.removeEventListener("visibilitychange", syncIfVisible);
+            };
         }
 
         const timeoutId = window.setTimeout(() => {
@@ -125,6 +141,9 @@ export function NotificationRuntimeBridge() {
 
         return () => {
             window.clearTimeout(timeoutId);
+            window.clearInterval(intervalId);
+            window.removeEventListener("focus", syncIfVisible);
+            document.removeEventListener("visibilitychange", syncIfVisible);
         };
     }, [
         user,

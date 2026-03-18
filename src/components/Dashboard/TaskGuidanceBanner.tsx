@@ -311,26 +311,26 @@ export function TaskGuidanceBanner() {
             dismissBanner();
           }
         }}
-        className="pointer-events-none fixed inset-x-0 top-[calc(var(--kandy-cookie-offset,0px)+4.5rem)] z-[70] px-3 sm:px-4"
+        className="pointer-events-none fixed inset-x-0 top-[calc(var(--kandy-cookie-offset,0px)+4.25rem)] z-[70] px-3 sm:px-4"
       >
-        <div className="pointer-events-auto mx-auto max-w-4xl overflow-hidden rounded-[1.6rem] border border-white/10 bg-[linear-gradient(135deg,rgba(236,72,153,0.18),rgba(17,17,22,0.95)_32%,rgba(250,204,21,0.12))] shadow-[0_24px_80px_rgba(0,0,0,0.38)] backdrop-blur-xl">
-          <div className="flex items-start gap-3 px-4 py-3 sm:px-5">
+        <div className="pointer-events-auto mx-auto max-w-3xl overflow-hidden rounded-[1.35rem] border border-white/10 bg-[linear-gradient(135deg,rgba(236,72,153,0.18),rgba(17,17,22,0.95)_32%,rgba(250,204,21,0.12))] shadow-[0_20px_56px_rgba(0,0,0,0.34)] backdrop-blur-xl">
+          <div className="flex items-start gap-3 px-3.5 py-3 sm:px-4">
             <div className={cn(
-              "mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border",
+              "mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-[1rem] border",
               activeGuidance.completedAt
                 ? "border-emerald-300/30 bg-emerald-400/15 text-emerald-200"
                 : "border-white/10 bg-white/10 text-white",
             )}>
-              {activeGuidance.completedAt ? <CheckCircle2 className="h-5 w-5" /> : <Sparkles className="h-5 w-5" />}
+              {activeGuidance.completedAt ? <CheckCircle2 className="h-4 w-4" /> : <Sparkles className="h-4 w-4" />}
             </div>
 
             <div className="min-w-0 flex-1">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.16em] text-gray-300">
+                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-gray-300">
                     {activeGuidance.completedAt ? "Task complete" : "Task guide"}
                   </p>
-                  <h3 className="mt-1 text-sm font-bold text-white sm:text-base">
+                  <h3 className="mt-1 text-sm font-bold text-white">
                     {activeGuidance.completedAt ? "Earn more gumdrops" : activeGuidance.title}
                   </h3>
                 </div>
@@ -338,30 +338,30 @@ export function TaskGuidanceBanner() {
                 <button
                   type="button"
                   onClick={dismissBanner}
-                  className="rounded-full border border-white/10 bg-white/5 p-2 text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
+                  className="rounded-full border border-white/10 bg-white/5 p-1.5 text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
                   aria-label="Dismiss task guidance"
                 >
                   <X className="h-4 w-4" />
                 </button>
               </div>
 
-              <p className="mt-1 text-sm leading-6 text-gray-200">
+              <p className="mt-1 text-[13px] leading-5 text-gray-200 sm:pr-2">
                 {activeGuidance.completedAt
                   ? "Jump back into Experiences to pick up another mission and keep stacking rewards."
                   : activeGuidance.instruction}
               </p>
 
-              <div className="mt-3 flex flex-wrap items-center gap-2">
+              <div className="mt-2.5 flex flex-wrap items-center gap-2">
                 <button
                   type="button"
                   onClick={handleAction}
-                  className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/15 bg-white px-4 py-2 text-sm font-bold text-black transition-transform hover:-translate-y-0.5"
+                  className="inline-flex min-h-9 items-center gap-2 rounded-full border border-white/15 bg-white px-3.5 py-2 text-xs font-bold text-black transition-transform hover:-translate-y-0.5"
                 >
                   {activeGuidance.completedAt ? "Earn more gumdrops" : activeGuidance.ctaLabel}
                   <ArrowUpRight className="h-4 w-4" />
                 </button>
 
-                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-300">
+                <span className="hidden rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-300 sm:inline-flex">
                   Swipe up to dismiss
                 </span>
 
@@ -372,7 +372,7 @@ export function TaskGuidanceBanner() {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -10, scale: 0.94 }}
                       transition={{ duration: 0.22, ease: "easeOut" }}
-                      className="rounded-full border border-emerald-300/25 bg-emerald-400/15 px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-emerald-200"
+                      className="rounded-full border border-emerald-300/25 bg-emerald-400/15 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.1em] text-emerald-200"
                     >
                       +{activeGuidance.reward} Gum Drops
                     </motion.span>

@@ -7,6 +7,7 @@ import { Coins, X, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
 import { motion, AnimatePresence } from "framer-motion";
+import { isBundleGumdropAmount, resolvePreferredGumdropAmount } from "@/lib/gumdrops-packages";
 
 export function InsufficientBalanceModal() {
     const {
@@ -23,16 +24,8 @@ export function InsufficientBalanceModal() {
     const missingAmount = Math.max(0, requiredCost - currentBalance);
     const exactAmountSupported =
         [100, 550, 1100, 2500].includes(missingAmount) ||
-        (missingAmount >= 5000 && missingAmount <= 100000 && missingAmount % 1000 === 0);
-    const recommendedDrops = missingAmount >= 5000
-        ? Math.min(100000, Math.max(5000, Math.ceil(missingAmount / 1000) * 1000))
-        : missingAmount <= 100
-            ? 100
-            : missingAmount <= 550
-                ? 550
-                : missingAmount <= 1100
-                    ? 1100
-                    : 2500;
+        isBundleGumdropAmount(missingAmount);
+    const recommendedDrops = resolvePreferredGumdropAmount(missingAmount);
 
     const handleGetMore = () => {
         closeInsufficientBalanceModal();

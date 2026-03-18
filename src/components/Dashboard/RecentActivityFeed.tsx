@@ -45,6 +45,12 @@ function renderTransactionLabel(transaction: Transaction) {
         case "admin_adjustment":
             return transaction.description || "Balance updated";
         case "daily_reward":
+            if (transaction.rewardSource === "check_in") {
+                return transaction.description || "Daily check-in reward collected";
+            }
+            if (transaction.rewardSource === "task") {
+                return transaction.description || "Daily task reward collected";
+            }
             return transaction.description || "Daily reward collected";
         case "referral_bonus":
             return transaction.description || "Referral bonus earned";

@@ -17,6 +17,8 @@ import { useUI } from "@/context/UIContext";
 import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
 import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
 import { dispatchActivitySync } from "@/lib/activity-sync";
+import { FIXED_GUMDROP_PACKAGES } from "@/lib/gumdrops-packages";
+import type { DailyTasksState } from "@/lib/tasks/task-catalog";
 
 interface PurchaseModalProps {
   isOpen: boolean;
@@ -25,18 +27,18 @@ interface PurchaseModalProps {
 
 type PurchasePackage = { drops: number; price: number; label: string; bonus?: string; isPopular?: boolean };
 
-const PACKAGES: PurchasePackage[] = [
-  { drops: 100, price: 1.0, label: "Starter Pack" },
-  { drops: 550, price: 5.0, label: "Fan Pack", bonus: "+50 Bonus" },
-  { drops: 1100, price: 10.0, label: "Premium Stash", bonus: "+100 Bonus" },
-  { drops: 2500, price: 20.0, label: "Ultimate Kandy", bonus: "+500 Bonus" },
-];
+const PACKAGES: PurchasePackage[] = FIXED_GUMDROP_PACKAGES.map((entry) => ({
+  drops: entry.drops,
+  price: entry.priceUsd,
+  label: entry.label,
+  bonus: entry.bonus,
+}));
 
 const PAYPAL_READY = (process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE?.trim()?.length ?? 0) > 0;
 const CHECKOUT_FLOW_KEY = "wallet_checkout";
 
 export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
-  const { user } = useAuth();
+  const { user, setUserProfile } = useAuth();
   const { preferredPurchaseDrops } = useUI();
   const router = useRouter();
   const [selectedPackage, setSelectedPackage] = useState<PurchasePackage>(PACKAGES[1]);
@@ -44,6 +46,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [creditedDrops, setCreditedDrops] = useState<number | null>(null);
   const [{ isPending }] = usePayPalScriptReducer();
   const paypalReady = PAYPAL_READY;
   const paypalLoading = isPending;
@@ -63,6 +66,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   const closeModal = useCallback(() => {
     setSuccess(false);
     setError(null);
+    setCreditedDrops(null);
     clearTimedFlow(CHECKOUT_FLOW_KEY);
     requestAnimationFrame(onClose);
   }, [onClose]);
@@ -83,6 +87,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
     () => deriveGumdropEconomics(selectedPackage.drops, selectedPackage.price),
     [selectedPackage.drops, selectedPackage.price],
   );
+  const creditedDropsValue = creditedDrops ?? selectedPackage.drops;
 
   useEffect(() => {
     if (isOpen && !hasTrackedOpenRef.current) {
@@ -177,7 +182,13 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
         body: JSON.stringify({ orderId, expectedDrops: selectedPackage.drops }),
       });
 
-      const result = await response.json();
+      const result = await response.json() as {
+        error?: string;
+        duplicate?: boolean;
+        drops?: number;
+        gumDropsBalance?: number | null;
+        dailyTasksState?: DailyTasksState | null;
+      };
       if (!response.ok) throw new Error(result.error || "Payment verification failed");
 
       if (result.duplicate) toast.info("This payment was already processed.");
@@ -187,6 +198,16 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
         .catch(() => undefined);
 
       setSuccess(true);
+      setCreditedDrops(Number.isFinite(result.drops) ? Number(result.drops) : selectedPackage.drops);
+      setUserProfile((currentProfile) => (
+        currentProfile
+          ? {
+            ...currentProfile,
+            gumDropsBalance: Number.isFinite(result.gumDropsBalance) ? Number(result.gumDropsBalance) : currentProfile.gumDropsBalance,
+            dailyTasksState: result.dailyTasksState ?? currentProfile.dailyTasksState,
+          }
+          : currentProfile
+      ));
       dispatchActivitySync();
       toast.success(`${result.drops || selectedPackage.drops} Gum Drops added!`);
 
@@ -426,13 +447,13 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                       </div>
                       <p className="text-[10px] font-black uppercase tracking-[0.18em] text-brand-purple">Wallet refilled</p>
                       <h3 className="mt-2 text-3xl font-bold text-white tracking-tight">Your Gum Drops are ready</h3>
-                      <p className="mt-3 text-gray-300 max-w-[280px] mx-auto leading-6">
-                        You just added <strong>{selectedPackage.drops} Gum Drops</strong>. Your next unwrap is one tap away.
-                      </p>
-                      <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
-                        <span className="rounded-full border border-brand-purple/30 bg-brand-purple/15 px-3 py-1 text-xs font-bold text-white">
-                          +{selectedPackage.drops} GD
-                        </span>
+                        <p className="mt-3 text-gray-300 max-w-[280px] mx-auto leading-6">
+                          You just added <strong>{creditedDropsValue} Gum Drops</strong>. Your next unwrap is one tap away.
+                        </p>
+                        <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+                          <span className="rounded-full border border-brand-purple/30 bg-brand-purple/15 px-3 py-1 text-xs font-bold text-white">
+                            +{creditedDropsValue} GD
+                          </span>
                         {selectedEconomics.bonusGumDrops > 0 ? (
                           <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-gray-200">
                             +{selectedEconomics.bonusGumDrops} bonus
