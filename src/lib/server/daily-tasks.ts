@@ -636,12 +636,12 @@ async function resolveTaskEligibilityContext(
   const hasDownloadableUnlockedContent = unlockedDropDocs.some((drop) => (
     typeof drop.creatorId === "string" && drop.creatorId === uid
   ));
-  const hasLiveDrops = liveDropsResult.status === "fulfilled" ? liveDropsResult.value : true;
+  const hasLiveDrops = liveDropsResult.status === "fulfilled" ? liveDropsResult.value : false;
 
   return {
     hasUnlockedContent,
     hasLiveDrops,
-    hasUnreadNotifications: unreadNotificationsResult.status === "fulfilled" ? unreadNotificationsResult.value : true,
+    hasUnreadNotifications: unreadNotificationsResult.status === "fulfilled" ? unreadNotificationsResult.value : false,
     hasCheckedInToday: isSameCSTDay(userData.lastCheckIn ?? 0, nowMs),
     hasMultiAssetUnlockedContent,
     hasRelatedUnlockedDrops,

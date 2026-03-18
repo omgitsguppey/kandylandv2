@@ -9,6 +9,9 @@ import { useAuth } from "@/context/AuthContext";
 import { trackEvent } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
 import {
+  focusTaskDestinationAnchor,
+  getTaskDestinationPath,
+  isSamePageTaskViewEvent,
   type TaskGuidancePendingAction,
   type TaskGuidanceState,
   isTaskGuidanceActionType,
@@ -47,7 +50,9 @@ function readStoredGuidance() {
 
     return {
       ...parsed,
+      eventName: typeof parsed.eventName === "string" ? parsed.eventName : "",
       actionType: typeof parsed.actionType === "string" ? parsed.actionType : "open_experiences",
+      assignedAt: typeof parsed.assignedAt === "number" ? parsed.assignedAt : 0,
     } as TaskGuidanceState;
   } catch {
     return null;
@@ -104,12 +109,29 @@ export function TaskGuidanceBanner() {
   }, []);
 
   useEffect(() => {
-    if (!guidance || guidance.completedAt || guidance.dismissedAt) {
+    if (!guidance) {
+      return;
+    }
+
+    const lastResetMs = userProfile?.dailyTasksState?.lastResetMs ?? 0;
+    if (lastResetMs > guidance.activatedAt && (guidance.completedAt || guidance.dismissedAt)) {
+      writeStoredGuidance(null);
+      setGuidance(null);
+      return;
+    }
+
+    if (guidance.completedAt || guidance.dismissedAt) {
       return;
     }
 
     const matchingTask = userProfile?.dailyTasksState?.tasks?.find((task) => task.id === guidance.taskId);
-    if (!matchingTask && (userProfile?.dailyTasksState?.lastResetMs ?? 0) > guidance.activatedAt) {
+    const taskWasReassigned = Boolean(
+      matchingTask
+      && guidance.assignedAt > 0
+      && matchingTask.assignedAt !== guidance.assignedAt,
+    );
+
+    if (taskWasReassigned || (!matchingTask && lastResetMs > guidance.activatedAt)) {
       writeStoredGuidance(null);
       setGuidance(null);
       return;
@@ -234,7 +256,7 @@ export function TaskGuidanceBanner() {
         createdAt: Date.now(),
       };
 
-      if (pathname === activeGuidance.destinationHref.split("#")[0]) {
+      if (pathname === getTaskDestinationPath(activeGuidance.destinationHref)) {
         writeTaskGuidancePendingAction(null);
         window.dispatchEvent(new CustomEvent(TASK_GUIDANCE_ACTION_EVENT, {
           detail: pendingAction,
@@ -247,7 +269,20 @@ export function TaskGuidanceBanner() {
       return;
     }
 
-    if (pathname !== activeGuidance.destinationHref.split("#")[0] || activeGuidance.destinationHref.includes("#")) {
+    const destinationPath = getTaskDestinationPath(activeGuidance.destinationHref);
+    if (pathname === destinationPath) {
+      if (isSamePageTaskViewEvent(activeGuidance.eventName)) {
+        trackEvent(activeGuidance.eventName, {
+          source: "task_guidance_same_page",
+          task_id: activeGuidance.taskId,
+        });
+      }
+
+      void focusTaskDestinationAnchor(activeGuidance.destinationHref);
+      return;
+    }
+
+    if (pathname !== destinationPath || activeGuidance.destinationHref.includes("#")) {
       router.push(activeGuidance.destinationHref);
     }
   };

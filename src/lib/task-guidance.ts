@@ -16,7 +16,9 @@ export interface TaskGuidanceState {
   instruction: string;
   ctaLabel: string;
   destinationHref: string;
+  eventName: string;
   actionType: DailyTaskAssignment["actionType"];
+  assignedAt: number;
   activatedAt: number;
   completedAt?: number;
   dismissedAt?: number;
@@ -60,6 +62,38 @@ export function isTaskGuidanceActionType(actionType: DailyTaskAssignment["action
     || actionType === "open_wallet"
     || actionType === "enable_notifications"
     || actionType === "give_feedback";
+}
+
+export function getTaskDestinationPath(destinationHref: string) {
+  const [path] = destinationHref.split("#");
+  return path || "/";
+}
+
+export function focusTaskDestinationAnchor(destinationHref: string) {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  const [, anchorId = ""] = destinationHref.split("#");
+  if (!anchorId) {
+    return false;
+  }
+
+  const target = window.document.getElementById(anchorId);
+  if (!target) {
+    return false;
+  }
+
+  target.scrollIntoView({ behavior: "smooth", block: "start" });
+  window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}#${anchorId}`);
+  return true;
+}
+
+export function isSamePageTaskViewEvent(eventName: string) {
+  return eventName === "experience_hub_viewed"
+    || eventName === "dashboard_viewed"
+    || eventName === "library_viewed"
+    || eventName === "drops_page_viewed";
 }
 
 export function readTaskGuidancePendingAction() {
@@ -177,7 +211,9 @@ export function createTaskGuidanceState(task: DailyTaskAssignment): TaskGuidance
     instruction: getTaskInstruction(task),
     ctaLabel: task.ctaLabel,
     destinationHref: getTaskDestinationHref(task),
+    eventName: task.eventName,
     actionType: task.actionType,
+    assignedAt: task.assignedAt,
     activatedAt: Date.now(),
   };
 }

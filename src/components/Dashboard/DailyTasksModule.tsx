@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Bell,
   Candy,
@@ -38,7 +38,10 @@ import { trackEvent } from "@/lib/telemetry";
 import {
   TASK_GUIDANCE_ACTION_EVENT,
   createTaskGuidanceState,
+  focusTaskDestinationAnchor,
+  getTaskDestinationPath,
   getTaskDestinationHref,
+  isSamePageTaskViewEvent,
   isTaskGuidanceActionType,
   readTaskGuidancePendingAction,
   writeTaskGuidancePendingAction,
@@ -80,6 +83,7 @@ function formatCountdown(targetMs: number, nowMs: number) {
 
 export function DailyTasksModule() {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, userProfile, setUserProfile } = useAuth();
   const { openPurchaseModal } = useUI();
   const [rotating, setRotating] = useState(false);
@@ -93,6 +97,18 @@ export function DailyTasksModule() {
   const [localTaskState, setLocalTaskState] = useState<DailyTasksState | null>(null);
   const [expandedTaskIds, setExpandedTaskIds] = useState<string[]>([]);
   const lastSuccessfulRefreshRef = useRef<number>(0);
+
+  useEffect(() => {
+    lastSuccessfulRefreshRef.current = 0;
+  }, [userProfile?.uid]);
+
+  useEffect(() => {
+    if (!userProfile?.uid) {
+      return;
+    }
+
+    trackEvent("daily_tasks_viewed");
+  }, [userProfile?.uid]);
 
   useEffect(() => {
     const timerId = window.setInterval(() => {
@@ -144,13 +160,15 @@ export function DailyTasksModule() {
     };
 
     setLocalTaskState(mergedState);
-    if (userProfile) {
-      setUserProfile({
-        ...userProfile,
-        dailyTasksState: mergedState,
-      });
-    }
-  }, [localTaskState, nowMs, setUserProfile, userProfile]);
+    setUserProfile((currentProfile) => (
+      currentProfile
+        ? {
+          ...currentProfile,
+          dailyTasksState: mergedState,
+        }
+        : currentProfile
+    ));
+  }, [localTaskState, nowMs, setUserProfile, userProfile?.dailyTasksState?.lastDeadlineReminderAt, userProfile?.dailyTasksState?.lastProgressAt, userProfile?.dailyTasksState?.lastResetMs, userProfile?.dailyTasksState?.retiredTaskIds, userProfile?.dailyTasksState?.completedTaskHistory]);
 
   const rotateTasks = useCallback(async () => {
     setRotating(true);
@@ -178,8 +196,15 @@ export function DailyTasksModule() {
     if (!userProfile?.uid) {
       return;
     }
+    const shouldRotateImmediately = !dailyTaskState
+      || dailyTaskState.tasks.length !== DAILY_TASK_LIMIT
+      || !Number.isFinite(dailyTaskState.nextRefreshMs)
+      || dailyTaskState.nextRefreshMs <= Date.now();
 
-    trackEvent("daily_tasks_viewed");
+    if (!shouldRotateImmediately) {
+      return;
+    }
+
     let cancelled = false;
 
     async function rotateTasksOnMount() {
@@ -197,7 +222,7 @@ export function DailyTasksModule() {
     return () => {
       cancelled = true;
     };
-  }, [rotateTasks, userProfile?.uid]);
+  }, [dailyTaskState, rotateTasks, userProfile?.uid]);
 
   useEffect(() => {
     if (!userProfile?.uid || nowMs < nextRefreshMs || rotating || lastSuccessfulRefreshRef.current === nextRefreshMs) {
@@ -349,18 +374,33 @@ export function DailyTasksModule() {
       return;
     }
 
+    const destinationHref = getTaskDestinationHref(task);
+    const destinationPath = getTaskDestinationPath(destinationHref);
+
+    if (pathname === destinationPath) {
+      if (isSamePageTaskViewEvent(task.eventName)) {
+        trackEvent(task.eventName, {
+          source: "daily_task_same_page",
+          task_id: task.id,
+        });
+      }
+
+      void focusTaskDestinationAnchor(destinationHref);
+      return;
+    }
+
     switch (task.actionType) {
       case "open_dashboard":
-        router.push(getTaskDestinationHref(task));
+        router.push(destinationHref);
         return;
       case "open_drops":
-        router.push(getTaskDestinationHref(task));
+        router.push(destinationHref);
         return;
       case "open_experiences":
-        router.push(getTaskDestinationHref(task));
+        router.push(destinationHref);
         return;
       case "open_library":
-        router.push(getTaskDestinationHref(task));
+        router.push(destinationHref);
         return;
       default:
         return;

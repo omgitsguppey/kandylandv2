@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
 import {
     onAuthStateChanged,
     User,
@@ -33,7 +33,7 @@ interface AuthIdentityContextType {
 interface UserProfileContextType {
     userProfile: UserProfile | null;
     refreshProfile: () => Promise<void>;
-    setUserProfile: (profile: UserProfile | null) => void;
+    setUserProfile: Dispatch<SetStateAction<UserProfile | null>>;
 }
 
 interface AuthLoadingContextType {
