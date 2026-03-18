@@ -7,8 +7,11 @@ import { PRIVACY_POLICY_LAST_UPDATED, PRIVACY_SUPPORT_EMAIL } from "@/lib/privac
 import { SITE_ORIGIN } from "@/lib/site-origin";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | KandyDrops",
+  title: "Privacy Policy",
   description: "How KandyDrops collects, uses, shares, and protects personal data.",
+  alternates: {
+    canonical: "/privacy",
+  },
 };
 
 function Section({
@@ -168,7 +171,7 @@ export default function PrivacyPage() {
 
         <Section title="8. Your rights and choices">
           <ul className="list-disc space-y-2 pl-5">
-            <li><strong>Access and portability:</strong> use the “Download My Data” action in Profile Settings.</li>
+            <li><strong>Access and portability:</strong> use the &ldquo;Download My Data&rdquo; action in Profile Settings.</li>
             <li><strong>Correction:</strong> update your profile details and settings from your dashboard.</li>
             <li><strong>Withdrawal of consent:</strong> turn off optional analytics or recommendation settings at any time.</li>
             <li><strong>Deletion:</strong> use the account deletion flow in the dashboard, or contact support if you cannot access your account.</li>
@@ -200,15 +203,15 @@ export default function PrivacyPage() {
             <Link href="/dashboard/profile" className="text-brand-purple hover:underline">
               Profile Settings
             </Link>
-            {" · "}
+            {" | "}
             <Link href="/faq" className="text-brand-purple hover:underline">
               FAQ
             </Link>
-            {" · "}
+            {" | "}
             <a href={`mailto:${PRIVACY_SUPPORT_EMAIL}`} className="text-brand-purple hover:underline">
               Contact Support
             </a>
-            {" · "}
+            {" | "}
             <a href={SITE_ORIGIN} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-brand-purple hover:underline">
               Visit site
               <ExternalLink className="h-3.5 w-3.5" />

@@ -1,225 +1,99 @@
-"use client";
+import type { Metadata } from "next";
 
-import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
-import { UserProfile, Drop } from "@/types/db";
-import { DropGrid } from "@/components/DropGrid";
-import { useAuth } from "@/context/AuthContext";
-import { useUI } from "@/context/UIContext";
-import { Loader2, UserPlus, UserCheck, CheckCircle2, Lock } from "lucide-react";
+import { SITE_ORIGIN } from "@/lib/site-origin";
+import { adminDb } from "@/lib/server/firebase-admin";
 
+import CreatorProfileClient from "./CreatorProfileClient";
 
-import { toast } from "sonner";
-import { authFetch } from "@/lib/authFetch";
-import Image from "next/image";
+export const dynamic = "force-dynamic";
 
+type CreatorMetadataRecord = {
+    username: string;
+    displayName: string;
+    bio?: string;
+    photoURL?: string;
+};
 
-export default function CreatorProfilePage() {
-    const params = useParams();
-    const { user: currentUser, userProfile: currentUserProfile, loading: authLoading } = useAuth();
-    const { openAuthModal } = useUI();
-    const username = params.username as string;
-
-    const [creator, setCreator] = useState<UserProfile | null>(null);
-    const [drops, setDrops] = useState<Drop[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [following, setFollowing] = useState(false);
-    const [followLoading, setFollowLoading] = useState(false);
-
-    useEffect(() => {
-        if (!username) return;
-
-        async function fetchData() {
-            try {
-                const response = await fetch(`/api/creators/${encodeURIComponent(username)}`, {
-                    cache: "no-store",
-                });
-                const result = await response.json() as {
-                    success?: boolean;
-                    creator?: UserProfile;
-                    drops?: Drop[];
-                };
-
-                if (!response.ok || !result.success || !result.creator) {
-                    setLoading(false);
-                    return;
-                }
-
-                setCreator(result.creator);
-                setDrops(result.drops || []);
-            } catch (error) {
-                console.error("Error fetching creator:", error);
-                toast.error("Failed to load profile.");
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        fetchData();
-    }, [username]);
-
-    useEffect(() => {
-        if (currentUserProfile && creator) {
-            setFollowing(currentUserProfile.following?.includes(creator.uid) || false);
-        }
-    }, [currentUserProfile, creator]);
-
-    const handleFollow = async () => {
-        if (!currentUser || !creator) {
-            toast.error("Please sign in to follow creators.");
-            return;
-        }
-        if (currentUser.uid === creator.uid) {
-            toast.error("You cannot follow yourself!");
-            return;
-        }
-
-        setFollowLoading(true);
-
-        try {
-            const action = following ? "unfollow" : "follow";
-            const response = await authFetch("/api/user/follow", {
-                method: "POST",
-                body: JSON.stringify({
-                    targetUserId: creator.uid,
-                    action,
-                }),
-            });
-
-            const result = await response.json();
-            if (!response.ok) throw new Error(result.error);
-
-            setFollowing(!following);
-            toast.success(following ? `Unfollowed ${creator.displayName}` : `Following ${creator.displayName}!`);
-        } catch (error: any) {
-            console.error("Follow error:", error);
-            toast.error(error.message || "Action failed.");
-        } finally {
-            setFollowLoading(false);
-        }
-    };
-
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-[50vh]">
-                <Loader2 className="w-8 h-8 animate-spin text-brand-purple" />
-            </div>
-        );
+async function getCreatorMetadataRecord(username: string): Promise<CreatorMetadataRecord | null> {
+    if (!adminDb) {
+        return null;
     }
+
+    try {
+        const snapshot = await adminDb
+            .collection("users")
+            .where("username", "==", username.toLowerCase())
+            .limit(1)
+            .get();
+
+        const doc = snapshot.docs[0];
+        if (!doc) {
+            return null;
+        }
+
+        const data = doc.data();
+        const role = typeof data.role === "string" ? data.role : "user";
+        const status = typeof data.status === "string" ? data.status : "active";
+        if (!(role === "creator" || role === "admin") || status !== "active") {
+            return null;
+        }
+
+        return {
+            username,
+            displayName: typeof data.displayName === "string" && data.displayName.trim()
+                ? data.displayName.trim()
+                : `@${username}`,
+            bio: typeof data.bio === "string" ? data.bio.trim() : undefined,
+            photoURL: typeof data.photoURL === "string" ? data.photoURL : undefined,
+        };
+    } catch (error) {
+        console.error("Failed to resolve creator metadata:", error);
+        return null;
+    }
+}
+
+export async function generateMetadata(
+    { params }: { params: Promise<{ username: string }> },
+): Promise<Metadata> {
+    const { username } = await params;
+    const canonicalPath = `/creators/${encodeURIComponent(username)}`;
+    const creator = await getCreatorMetadataRecord(username);
 
     if (!creator) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-[50vh] text-center p-8">
-                <div className="text-6xl mb-4">👻</div>
-                <h1 className="text-2xl font-bold text-white mb-2">Creator Not Found</h1>
-                <p className="text-gray-400">The user @{username} does not exist or has been removed.</p>
-            </div>
-        );
+        return {
+            title: "Creator Profile",
+            description: "Browse creator profiles and live KandyDrops exclusives.",
+            alternates: {
+                canonical: canonicalPath,
+            },
+        };
     }
 
-    return (
-        <div className="min-h-screen pb-20">
-            {/* Banner */}
-            <div className="h-48 md:h-64 bg-zinc-800 relative overflow-hidden group">
-                {creator.bannerUrl ? (
-                    <Image src={creator.bannerUrl} alt="Banner" fill priority className="object-cover" />
-                ) : (
-                    <div className="w-full h-full bg-gradient-to-r from-brand-purple/20 to-brand-purple/20" />
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-            </div>
+    const description = creator.bio || `Browse ${creator.displayName}'s latest KandyDrops and creator exclusives.`;
+    const image = creator.photoURL;
 
-            <div className="container mx-auto px-4 -mt-20 relative z-10">
-                <div className="flex flex-col md:flex-row items-end md:items-end gap-6 mb-8">
-                    {/* Avatar */}
-                    <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-black bg-zinc-800 overflow-hidden shrink-0 shadow-2xl relative">
-                        {creator.photoURL ? (
-                            <Image src={creator.photoURL} alt={creator.displayName || ""} fill sizes="160px" priority className="object-cover" />
-                        ) : (
-                            <div className="w-full h-full flex items-center justify-center text-4xl">👤</div>
-                        )}
-                    </div>
+    return {
+        title: creator.displayName,
+        description,
+        alternates: {
+            canonical: canonicalPath,
+        },
+        openGraph: {
+            title: creator.displayName,
+            description,
+            url: `${SITE_ORIGIN}${canonicalPath}`,
+            type: "profile",
+            images: image ? [{ url: image, alt: creator.displayName }] : undefined,
+        },
+        twitter: {
+            card: image ? "summary_large_image" : "summary",
+            title: creator.displayName,
+            description,
+            images: image ? [image] : undefined,
+        },
+    };
+}
 
-                    {/* Info */}
-                    <div className="flex-1 pb-2">
-                        <div className="flex flex-wrap items-center gap-2 mb-1">
-                            <h1 className="text-3xl font-bold text-white">{creator.displayName}</h1>
-                            {creator.isVerified && (
-                                <CheckCircle2 className="w-5 h-5 text-brand-purple shrink-0" />
-                            )}
-                        </div>
-                        <p className="text-brand-purple font-medium mb-3">@{creator.username}</p>
-
-                        {creator.bio && (
-                            <p className="text-gray-300 max-w-2xl text-sm md:text-base leading-relaxed mb-4">{creator.bio}</p>
-                        )}
-
-                    </div>
-
-
-
-                    {/* Actions */}
-                    <div className="mb-4 md:mb-6 shrink-0 w-full md:w-auto">
-                        <button
-                            onClick={handleFollow}
-                            disabled={followLoading}
-                            className={`w-full md:w-auto px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all ${following ? "bg-white/10 text-white " : "bg-brand-purple text-white shadow-lg shadow-brand-purple/20"}`}
-                        >
-                            {followLoading ? (
-                                <Loader2 className="w-5 h-5 animate-spin" />
-                            ) : following ? (
-                                <>
-                                    <UserCheck className="w-5 h-5" /> Following
-                                </>
-                            ) : (
-                                <>
-                                    <UserPlus className="w-5 h-5" /> Follow
-                                </>
-                            )}
-                        </button>
-                    </div>
-                </div>
-
-                {/* Content Grid */}
-                <div className="space-y-6">
-                    <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                        <h2 className="text-xl font-bold text-white">Latest Drops</h2>
-                        <span className="text-sm text-gray-500">{drops.length} items</span>
-                    </div>
-
-                    {drops.length > 0 ? (
-                        <div className="relative">
-                            {!authLoading && !currentUser && (
-                                <div className="absolute inset-0 z-50 flex items-center justify-center pt-10 pb-20 glass-panel !bg-black/60 backdrop-blur-md rounded-3xl m-2 border border-white/5">
-                                    <div className="flex flex-col items-center text-center p-8 max-w-md animate-in fade-in zoom-in duration-500">
-                                        <div className="w-20 h-20 rounded-full bg-brand-purple/20 flex items-center justify-center mb-6 border border-brand-purple/30 shadow-[0_0_30px_rgba(236,72,153,0.3)]">
-                                            <Lock className="w-10 h-10 text-brand-purple" />
-                                        </div>
-                                        <h3 className="text-3xl font-black text-white mb-4 tracking-tight">Members Only</h3>
-                                        <p className="text-gray-400 font-medium mb-8 leading-relaxed">
-                                            Sign in to preview and unwrap this creator&apos;s exclusive drops.
-                                        </p>
-                                        <button
-                                            onClick={() => openAuthModal("signup")}
-                                            className="px-8 py-4 w-full rounded-xl bg-brand-purple text-white font-black text-lg transition-transform hover:scale-105 active:scale-95 shadow-[0_0_40px_rgba(217,70,239,0.2)]"
-                                        >
-                                            Sign Up / Sign In
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-
-                            <div className={!authLoading && !currentUser ? "opacity-30 pointer-events-none select-none grayscale transition-all duration-700" : ""}>
-                                <DropGrid drops={drops} onSelectDrop={() => {}} />
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="text-center py-20 bg-white/5 rounded-3xl border border-white/5 border-dashed">
-                            <p className="text-gray-400">This creator hasn&apos;t dropped anything yet.</p>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
+export default function CreatorProfilePage() {
+    return <CreatorProfileClient />;
 }

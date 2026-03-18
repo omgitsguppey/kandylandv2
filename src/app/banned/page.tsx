@@ -47,7 +47,9 @@ export default function BannedPage() {
                 )}
 
                 <button
-                    onClick={() => logout().then(() => router.replace("/"))}
+                    onClick={() => {
+                        void logout();
+                    }}
                     className="w-full py-4 rounded-xl bg-white text-black font-bold transition-colors flex items-center justify-center gap-2"
                 >
                     <LogOut className="w-5 h-5" />

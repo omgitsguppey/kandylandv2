@@ -17,8 +17,10 @@ export default function Home() {
   const shouldRedirectSignedInUser = !loading && !!user;
 
   useEffect(() => {
-    trackEvent("home_page_viewed");
-  }, []);
+    if (!loading && !user) {
+      trackEvent("home_page_viewed");
+    }
+  }, [loading, user]);
 
   useEffect(() => {
     if (!loading && user) {

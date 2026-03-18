@@ -14,6 +14,8 @@ env:
     value: kandydrops-by-ikandy
   - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
     value: kandydrops-by-ikandy.firebasestorage.app
+  - variable: NEXT_PUBLIC_FIREBASE_DATABASE_URL
+    value: https://kandydrops-by-ikandy-default-rtdb.firebaseio.com
   - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
     value: "588753156317"
   - variable: NEXT_PUBLIC_FIREBASE_APP_ID

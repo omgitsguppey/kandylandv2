@@ -1,6 +1,15 @@
+import type { Metadata } from "next";
+
 import { LegalBackLink } from "@/components/Legal/LegalBackLink";
 import { TERMS_LAST_UPDATED_LABEL } from "@/lib/legal-documents";
 
+export const metadata: Metadata = {
+    title: "Terms of Service",
+    description: "Terms of Service for using KandyDrops, including platform rules, virtual currency terms, and contact details.",
+    alternates: {
+        canonical: "/terms",
+    },
+};
 
 export default function TermsPage() {
     return (

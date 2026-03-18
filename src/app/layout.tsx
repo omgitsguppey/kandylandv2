@@ -21,6 +21,11 @@ const geistMono = Geist_Mono({
 
 const siteTitle = "KandyDrops";
 const siteDescription = "Get Gum Drops, unlock exclusive digital content, and stay ready for the next live drop.";
+const googleAnalyticsId =
+  process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ||
+  process.env.GA_MEASUREMENT_ID ||
+  process.env.NEXT_PUBLIC_MEASUREMENT_ID ||
+  "G-V8PWC2L31H";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_ORIGIN),
@@ -98,7 +103,7 @@ export default function RootLayout({
           </SWRProvider>
         </AuthProvider>
       </body>
-      <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_MEASUREMENT_ID || "G-V8PWC2L31H"} />
+      <GoogleAnalytics gaId={googleAnalyticsId} />
     </html>
   );
 }

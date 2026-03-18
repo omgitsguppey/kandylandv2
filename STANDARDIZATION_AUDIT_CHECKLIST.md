@@ -5,9 +5,19 @@ Purpose: complete a full-file standardization sweep before any new UI tweaks or 
 Rule: do not mark this audit complete until every section below is checked and every tracked file in the inventory has been reviewed.
 
 Current inventory baseline:
-- Total tracked files: `346`
+- Tracked files in `git ls-files`: `347`
+- Pending new worktree files already included in this checklist: `2`
 - Source of truth: `git ls-files`
 - Last checklist refresh: `2026-03-17`
+
+## Phase Progress
+
+- [x] Phase 1 complete: root config and infrastructure reviewed on `2026-03-17`
+- [x] Phase 2 complete: app routes, pages, layouts, and metadata reviewed on `2026-03-17`
+- [ ] Phase 3: components, context, hooks, and types
+- [ ] Phase 4: shared lib and server lib
+- [ ] Phase 5: functions, Data Connect, and generated clients
+- [ ] Phase 6: public assets, scripts, tests, and QA artifacts
 
 ## Audit Workflow
 
@@ -101,7 +111,13 @@ Use the section checkboxes below to make sure no tracked file is skipped.
 
 ### 1. Root Config And Infra
 
-- [ ] Audit every root/config/infra file below.
+- [x] Audit every root/config/infra file below.
+
+Phase 1 notes:
+- Cleaned pre-commit workflow doc encoding and aligned it to the current `build.log` debug flow.
+- Added `build.log` and `check.log` to root ignores.
+- Added explicit `NEXT_PUBLIC_FIREBASE_DATABASE_URL` to App Hosting env declarations so Firebase runtime config is fully declared.
+- Aligned ESLint ignores with the actual generated debug log filenames.
 
 ```text
 .agent/workflows/pre-commit.md
@@ -127,7 +143,14 @@ tsconfig.json
 
 ### 2. App Routes, Pages, Layouts, Metadata
 
-- [ ] Audit every file below.
+- [x] Audit every file below.
+
+Phase 2 notes:
+- Added canonical metadata coverage for FAQ, Drops, Experiences, Terms, Privacy, and creator profile surfaces.
+- Split client-only Experiences and Creator profile pages behind server wrappers so metadata stays standardized without changing UX behavior.
+- Extended sitemap coverage to `/experiences`, tightened robots coverage for `/offline`, and aligned root GA injection with the current env naming scheme.
+- Cleaned app-layer routing/copy drift by removing the banned-page double redirect and limiting home-page telemetry to actual guest views.
+- Refreshed the section inventory to include the new wrapper-backed app files created during Phase 2.
 
 ```text
 src/app/(legal)/privacy/page.tsx
@@ -187,6 +210,7 @@ src/app/api/user/profile/route.ts
 src/app/api/user/register/route.ts
 src/app/api/user/revoke-sessions/route.ts
 src/app/banned/page.tsx
+src/app/creators/[username]/CreatorProfileClient.tsx
 src/app/creators/[username]/page.tsx
 src/app/dashboard/DashboardClient.tsx
 src/app/dashboard/layout.tsx
@@ -201,6 +225,7 @@ src/app/drops/[id]/opengraph-image.tsx
 src/app/drops/loading.tsx
 src/app/drops/page.tsx
 src/app/error.tsx
+src/app/experiences/ExperiencesClient.tsx
 src/app/experiences/page.tsx
 src/app/faq/FAQClient.tsx
 src/app/faq/HowItWorksStory.tsx

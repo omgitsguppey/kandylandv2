@@ -4,36 +4,40 @@ description: Pre-commit verification checklist to run before every git commit an
 
 # Pre-Commit Verification
 
-// turbo-all
-
-Run these checks **before every `git commit` and `git push`** to catch build-breaking issues before they reach App Hosting.
+Run these checks before every `git commit` and `git push` to catch build-breaking issues before they reach App Hosting.
 
 ## Steps
 
-1. **TypeScript Check** — Catch type errors and missing imports instantly (fast, ~5s)
-```
+1. TypeScript check. Catch type errors and missing imports quickly.
+
+```bash
 npm run typecheck
 ```
 
-2. **Production Build** — Catch runtime/bundler errors (edge vs node mismatches, missing modules, SSR failures)
-```
+2. Production build. Catch runtime and bundler errors, including missing modules, SSR failures, and server/client boundary issues.
+
+```bash
 npm run build
 ```
 
-3. **If build fails with hard-to-read output**, use the debug build to get a clean log file:
-```
+3. If the build output is hard to read, run the debug build.
+
+```bash
 npm run build:debug
 ```
-This saves full output to `build.log` — grep it for the actual error.
 
-4. **Review Build Output** — Look for:
-   - ❌ `Cannot find module 'node:*'` → Edge runtime importing Node.js-only modules
-   - ❌ `Failed to collect page data` → SSR/SSG page crashes
-   - ❌ `Module not found` → Missing or deleted component/dependency
-   - ❌ Any non-zero exit code
+This saves full output to `build.log`.
 
-5. **Only commit if both pass with exit code 0**
-```
+4. Review the build output for the usual failure patterns.
+
+- `Cannot find module 'node:*'`: Edge runtime importing Node-only modules
+- `Failed to collect page data`: SSR or SSG page crash
+- `Module not found`: missing or deleted dependency or component
+- Any non-zero exit code
+
+5. Only commit if the checks pass.
+
+```bash
 git add -A
 git commit -m "your message"
 git push
@@ -44,16 +48,16 @@ git push
 | Script | Purpose |
 |---|---|
 | `npm run typecheck` | TypeScript check only (`tsc --noEmit`) |
-| `npm run check` | TypeScript + ESLint in one shot |
-| `npm run build` | Standard production build (auto-runs typecheck via `prebuild`) |
-| `npm run build:debug` | TypeScript check → build with full output saved to `build.log` |
+| `npm run check` | TypeScript plus ESLint |
+| `npm run build` | Standard production build (`prebuild` runs typecheck first) |
+| `npm run build:debug` | TypeScript check plus build with full output saved to `build.log` |
 
 ## Common Failure Patterns
 
 | Error | Cause | Fix |
 |---|---|---|
-| `Cannot find module 'node:process'` | Edge runtime + firebase-admin | Switch `runtime = "edge"` → `"nodejs"` |
-| `Module not found: server-only` | Client component importing server module | Move import to server component |
+| `Cannot find module 'node:process'` | Edge runtime importing `firebase-admin` or another Node-only package | Switch to `runtime = "nodejs"` or move the import server-side |
+| `Module not found: server-only` | Client component importing a server module | Move the import into a server-only path |
 | `Module not found: @/components/...` | Component was deleted but still imported | Remove or replace the import |
-| `Failed to collect page data` | Runtime crash during SSG | Check the failing route's imports |
-| `Dynamic server usage` | Using cookies/headers in static page | Add `export const dynamic = "force-dynamic"` |
+| `Failed to collect page data` | Runtime crash during SSG | Check the failing route's imports and data reads |
+| `Dynamic server usage` | Using cookies or headers in a static page | Add `export const dynamic = "force-dynamic"` where appropriate |
