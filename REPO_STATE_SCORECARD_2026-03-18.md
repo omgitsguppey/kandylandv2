@@ -2,22 +2,23 @@
 
 Date: 2026-03-18
 Workspace: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
-Assessment type: post-audit engineering scorecard
+Assessment type: final post-audit engineering scorecard
 
 ## Overall
 
-Current estimated completion: `96%`
+Current estimated completion: `98%`
 
 Why it is not `100%` yet:
-- local Firebase/App Check parity is still incomplete in this environment
-- admin analytics still has one large historical reducer surface
-- dependency audit pressure still exists in both root and `functions`
-- admin telemetry reads are improved, but still depend on RTDB fan-out queries rather than a single materialized read model
+- root and `functions` still have low-severity upstream `npm audit` findings in the `firebase-admin` / Google client dependency chain
+- admin analytics still has one relatively large historical route assembly surface at [src/app/api/admin/analytics/historical/route.ts](/Users/uylus/OneDrive/Documents/KandyDrops_Final/src/app/api/admin/analytics/historical/route.ts)
+- admin telemetry still uses RTDB supplemental fan-out reads instead of a fully materialized single-read model
+- the cycle checker still reports 4 skipped non-runtime imports from CSS and generated Data Connect React peer references
 
 ## Validation Status
 
 Passing:
 - `npm run check`
+- `npm run check:consistency`
 - `npm run build`
 - `npm --prefix functions run check`
 - `npm run check:telemetry`
@@ -26,18 +27,19 @@ Passing:
 - `npm run test:contracts`
 
 Operational note:
-- Firebase runtime check now passes, but local runtime still reports `appCheckEnabled: false`
-- guest analytics API now requires App Check at runtime, so deployment parity is stronger than local parity
+- Firebase runtime now reports `appCheckConfigured: true`
+- local runtime reports `appCheckRequired: false`, which is correct for local/debug operation
+- guest analytics still requires App Check in the guarded backend path; the local client uses the debug-capable App Check setup
 
 ## File Inventory
 
-Tracked file count: `388`
+Tracked file count: `390`
 
 Area counts:
-- Root files: `21`
+- Root files: `22`
 - `src/app/**`: `90`
 - `src/components/**`: `60`
-- `src/lib/**`: `82`
+- `src/lib/**`: `83`
 - `src/hooks/**`: `5`
 - `src/context/**`: `3`
 - `src/types/**`: `3`
@@ -51,62 +53,63 @@ Area counts:
 ## Area Scorecard
 
 ### Root / Config
-- Score: `96%`
+- Score: `99%`
 - State: standardized, checked, and stable
-- Remaining gap: App Check enforcement is only fatal in CI/production, not local development
+- Remaining gap: only upstream audit pressure plus a few harmless cycle-check skips
 
 ### App Routes / API
-- Score: `95%`
-- State: route guards, analytics endpoints, and realtime/cache flows are much more consistent than earlier audit phases
-- Remaining gap: [src/app/api/admin/analytics/historical/route.ts](/Users/uylus/OneDrive/Documents/KandyDrops_Final/src/app/api/admin/analytics/historical/route.ts) is still the single biggest route assembly surface
+- Score: `98%`
+- State: route guards, analytics endpoints, realtime/cache flows, and idempotent telemetry paths are in strong shape
+- Remaining gap: [src/app/api/admin/analytics/historical/route.ts](/Users/uylus/OneDrive/Documents/KandyDrops_Final/src/app/api/admin/analytics/historical/route.ts) is still the single largest route assembly surface, though it is down to about `579` lines
 
 ### Components / Hooks / Context
-- Score: `97%`
+- Score: `99%`
 - State: task guidance, realtime dashboards, notifications, onboarding, and runtime bridges have been standardized and repeatedly audited
-- Remaining gap: most issues here are now UX-density or future cleanup items rather than structural correctness blockers
+- Remaining gap: this area is mostly in UX refinement territory now, not structural correctness risk
 
 ### Shared Libraries
-- Score: `95%`
-- State: analytics semantics, runtime helpers, request guards, identifiers, and telemetry catalog are now centrally defined and contract-checked
-- Remaining gap: admin analytics data loading still spans a few large helper files
+- Score: `98%`
+- State: analytics semantics, runtime helpers, request guards, identifiers, and telemetry catalog are centrally defined and contract-checked
+- Remaining gap: admin analytics helper coverage is strong, but a few large data/summary helpers still exist by design
 
 ### Analytics / Telemetry
-- Score: `94%`
+- Score: `98%`
 - State:
   - idempotent identified event facts
   - transactional guest ingestion
+  - semantic materialization moved off request paths
   - semantic contract tests passing
   - telemetry audit reports `0` uncovered catalog events
 - Remaining gap:
-  - RTDB admin telemetry reads still use per-event fan-out queries
-  - some all-time analytics views still rely on bounded raw subsets plus rollups, not a fully materialized warehouse-style model
+  - RTDB admin telemetry reads are still supplemental and per-event
+  - all-time analytics still mixes raw bounded reads with rollups instead of a fully materialized warehouse-style model
 
 ### Firebase Runtime / Backend
-- Score: `93%`
+- Score: `98%`
 - State:
   - client/admin runtime config is consistent
   - signed navigation session middleware is active
   - request guards are reused widely
   - server diagnostics and analytics pipeline health are recorded
+  - App Check reporting now accurately distinguishes configured vs required
 - Remaining gap:
-  - local App Check still disabled
-  - runtime validation is strong, but local environment is not yet “production-parity complete”
+  - final production parity still depends on deployed environment and secrets, not additional repo-side code changes
 
 ### Cloud Functions
-- Score: `94%`
-- State: Functions analytics logic is split by domain instead of centered in one monolith
-- Remaining gap: the surface is much healthier, but still depends on a few large trigger/materializer files and inherits dependency audit pressure
+- Score: `97%`
+- State: Functions analytics logic is split by domain and no longer centered in one oversized file
+- Remaining gap: the surface is healthy, but still inherits the same upstream low-severity dependency pressure as the app
 
 ### Tests / Tooling
-- Score: `97%`
+- Score: `99%`
 - State:
-  - consistency, telemetry, semantics, and runtime checks are in place
-  - contract tests are aligned with the new analytics route structure
+  - consistency, telemetry, semantics, runtime, and contract checks are in place
   - dependency maintenance tooling is installed
-- Remaining gap: there is still more room for route-level integration coverage on heavy analytics/admin APIs
+  - Functions lint/build checks are aligned with the root workflow better than before
+- Remaining gap: the cycle checker still reports 4 skipped non-runtime imports, and there is always room for more route-level integration coverage
 
 ### Dependencies
-- Score: `89%`
+- Score: `94%`
 - State:
   - root runtime deps: `31`
   - root dev deps: `23`
@@ -114,10 +117,11 @@ Area counts:
   - functions runtime deps: `3`
   - functions dev deps: `7`
   - functions scripts: `9`
+  - high and moderate `npm audit` findings were eliminated in this pass
 - Remaining gap:
-  - root `npm audit` currently reports `13` findings
-  - `functions` `npm audit` currently reports `11` findings
-  - most remaining findings are transitive, but they still prevent a truthful `100%`
+  - root `npm audit` currently reports `9 low`
+  - `functions` `npm audit` currently reports `9 low`
+  - those remaining advisories are upstream/transitive and do not have a sane repo-side upgrade path without regressing supported package versions
 
 ## Functions State
 
@@ -128,47 +132,52 @@ Current `functions/src` files and status:
 - `analytics-realtime.ts`: healthy support layer
 - `analytics-schedules.ts`: healthy schedule split from old monolith
 - `analytics-security-events.ts`: healthy domain split
-- `analytics-semantics.ts`: healthy, now aligned with app semantics contract
+- `analytics-semantics.ts`: healthy and aligned with app semantics contract
 - `analytics-task-events.ts`: healthy domain split
 - `analytics-transactions.ts`: healthy commerce domain split
 - `firebase-admin.ts`: stable
 - `firebase-runtime.ts`: stable
 - `gumdrop-economics.ts`: stable
-- `index.ts`: much healthier thin export surface, but still worth keeping small
+- `index.ts`: thin export surface
 
-Functions completion estimate: `94%`
+Functions completion estimate: `97%`
 
 ## Dependency State
 
 Root audit snapshot:
-- vulnerabilities: `13 total`
-- severity mix: `9 low`, `1 moderate`, `3 high`
+- vulnerabilities: `9 total`
+- severity mix: `9 low`, `0 moderate`, `0 high`
 
 Functions audit snapshot:
-- vulnerabilities: `11 total`
-- severity mix: `9 low`, `2 high`
+- vulnerabilities: `9 total`
+- severity mix: `9 low`, `0 moderate`, `0 high`
 
 Most notable remaining packages under audit pressure:
 - `firebase-admin`
 - `firebase-functions`
 - `@google-analytics/data`
-- `fast-xml-parser`
-- `flatted`
 - `google-gax`
+- `@google-cloud/storage`
+- `@google-cloud/firestore`
 
 Interpretation:
-- dependency health is much better managed operationally now
-- dependency health is still the biggest reason this repo cannot honestly be called `100% complete`
+- direct and transitive repo-side fixes have already removed the fixable high/moderate issues
+- the remaining advisories are upstream library-chain items rather than actionable codebase defects
 
 ## Biggest Remaining Blockers
 
-1. Finish App Check parity in the local/runtime environment.
-2. Keep shrinking [src/app/api/admin/analytics/historical/route.ts](/Users/uylus/OneDrive/Documents/KandyDrops_Final/src/app/api/admin/analytics/historical/route.ts) until it stops being the dominant admin maintenance hotspot.
-3. Replace or further materialize RTDB per-event admin telemetry reads so admin dashboards do not depend on fan-out query patterns.
-4. Burn down the remaining root and `functions` audit findings.
+1. Further materialize admin telemetry reads so dashboards stop depending on RTDB per-event supplemental queries.
+2. Keep shrinking [src/app/api/admin/analytics/historical/route.ts](/Users/uylus/OneDrive/Documents/KandyDrops_Final/src/app/api/admin/analytics/historical/route.ts) when there is clear value, even though it is already much smaller than earlier audit phases.
+3. Wait for upstream dependency chains to publish/land compatible low-severity audit fixes.
+4. If desired, quiet the 4 madge skipped-import warnings by adding extra tool-specific filtering or by installing the generated Data Connect React peer packages.
 
 ## Honest Read
 
-The codebase is now in a strong post-audit state. It is no longer in the “we need to keep re-auditing everything because nothing is standardized” phase. It is in the “final hardening and dependency cleanup” phase.
+The repo is out of the "standardize and harden everything" phase. It is now in the "small remaining architecture polish plus upstream dependency watch" phase.
 
-If the remaining blockers above are resolved, the repo can realistically move from `96%` into the `98-99%` range. A truthful `100%` still requires dependency audit cleanup plus full App Check/runtime parity, not just more code refactors.
+At this point, I am not seeing additional high-signal, clearly fixable correctness issues from inside the codebase. The remaining gaps are mostly:
+- upstream dependency advisories
+- optional admin analytics architecture cleanup
+- tool-noise reduction
+
+That is why the honest score is `98%` and not `100%`.

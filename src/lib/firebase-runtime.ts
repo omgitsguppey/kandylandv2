@@ -23,8 +23,12 @@ export const FIREBASE_RECAPTCHA_ENTERPRISE_SITE_KEY = normalizePublicEnv(
   process.env.NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_SITE_KEY,
 );
 
+export function isAppCheckConfigured() {
+  return Boolean(FIREBASE_RECAPTCHA_ENTERPRISE_SITE_KEY);
+}
+
 export function shouldRequireAppCheck() {
-  return IS_PRODUCTION_ENV && Boolean(FIREBASE_RECAPTCHA_ENTERPRISE_SITE_KEY);
+  return IS_PRODUCTION_ENV && isAppCheckConfigured();
 }
 
 export const FIREBASE_CLIENT_CONFIG = {
@@ -54,7 +58,8 @@ export function buildFirebaseClientRuntimeSnapshot() {
     messagingSenderId: FIREBASE_MESSAGING_SENDER_ID,
     appId: FIREBASE_APP_ID,
     vapidKey: FIREBASE_VAPID_KEY,
-    appCheckEnabled: shouldRequireAppCheck(),
+    appCheckConfigured: isAppCheckConfigured(),
+    appCheckRequired: shouldRequireAppCheck(),
   };
 }
 

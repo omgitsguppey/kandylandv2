@@ -26,7 +26,8 @@ async function main() {
     appIdPresent: Boolean(snapshot.appId),
     vapidKeyPresent: Boolean(snapshot.vapidKey),
     recaptchaSiteKeyPresent: Boolean(process.env.NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_SITE_KEY),
-    appCheckEnabled: snapshot.appCheckEnabled,
+    appCheckConfigured: snapshot.appCheckConfigured,
+    appCheckRequired: snapshot.appCheckRequired,
   }, null, 2));
 
   if (missingWarnings.length > 0) {
@@ -45,14 +46,16 @@ async function main() {
     process.exit(1);
   }
 
-  if (!snapshot.appCheckEnabled) {
-    const message = "Firebase App Check is disabled.";
+  if (!snapshot.appCheckConfigured) {
+    const message = "Firebase App Check is not configured.";
     if (shouldRequireAppCheck) {
       console.error(message);
       process.exit(1);
     }
 
     console.warn(message);
+  } else if (!snapshot.appCheckRequired) {
+    console.log("Firebase App Check is configured and available for local/debug runtime.");
   }
 
   console.log("Firebase runtime check passed.");
