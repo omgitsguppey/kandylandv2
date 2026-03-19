@@ -70,6 +70,23 @@ export const FIREBASE_CLIENT_CONFIG = {
   appId: FIREBASE_APP_ID,
 };
 
+export function getFirebaseClientConfigForRuntime() {
+  if (typeof window === "undefined") {
+    return FIREBASE_CLIENT_CONFIG;
+  }
+
+  const currentHost = window.location.host;
+  const configuredSiteHosts = new Set(getConfiguredSiteHosts().filter((host) => !isLocalHost(host)));
+  const authDomain = configuredSiteHosts.has(currentHost)
+    ? currentHost
+    : FIREBASE_AUTH_DOMAIN;
+
+  return {
+    ...FIREBASE_CLIENT_CONFIG,
+    authDomain,
+  };
+}
+
 export const FIREBASE_MESSAGING_CONFIG = {
   apiKey: FIREBASE_API_KEY,
   projectId: FIREBASE_PROJECT_ID,

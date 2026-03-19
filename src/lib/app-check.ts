@@ -1,9 +1,11 @@
 import { getToken } from "firebase/app-check";
 
-import { appCheck } from "@/lib/firebase";
+import { getAppCheckInstance } from "@/lib/firebase";
 import { shouldRequireAppCheck } from "@/lib/firebase-runtime";
 
 export async function getAppCheckToken(): Promise<string | null> {
+    const appCheck = getAppCheckInstance();
+
     if (!appCheck) {
         if (shouldRequireAppCheck()) {
             throw new Error("App Check is not initialized");
