@@ -101,6 +101,14 @@ function hasGoogleRedirectPending() {
     return window.sessionStorage.getItem(GOOGLE_REDIRECT_PENDING_KEY) === "1";
 }
 
+function shouldPreferRedirectGoogleSignIn() {
+    if (typeof window === "undefined") {
+        return false;
+    }
+
+    return /(^|\.)kandydrops\.com$/i.test(window.location.host);
+}
+
 
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -293,6 +301,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             await ensureAuthPersistence();
             const provider = new GoogleAuthProvider();
             provider.setCustomParameters({ prompt: "select_account" });
+
+            if (shouldPreferRedirectGoogleSignIn()) {
+                setGoogleRedirectPending(true);
+                await signInWithRedirect(auth, provider);
+                return;
+            }
 
             await signInWithPopup(auth, provider);
 
