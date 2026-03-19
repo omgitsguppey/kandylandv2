@@ -15,7 +15,7 @@
     "check:deps": "knip --config knip.json",
     "check:versions": "syncpack lint",
     "check:outdated": "ncu --packageFile package.json --format group,installedVersion --cooldown 7d && ncu --packageFile functions/package.json --format group,installedVersion --cooldown 7d",
-    "check:cycles:app": "madge --circular --extensions ts,tsx --ts-config tsconfig.json src",
+    "check:cycles:app": "madge --circular --extensions ts,tsx --exclude \"globals\\\\.css$|dataconnect-generated|dataconnect-admin-generated|^tailwindcss$|^react-loading-skeleton/dist/skeleton\\\\.css$|^@tanstack-query-firebase/react/data-connect$|^@tanstack/react-query$\" --ts-config tsconfig.json src",
     "check:cycles:functions": "madge --circular --extensions ts --ts-config functions/tsconfig.json functions/src",
     "check:cycles": "npm run check:cycles:app && npm run check:cycles:functions",
     "check:functions": "npm --prefix functions run check",

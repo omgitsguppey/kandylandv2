@@ -6,6 +6,7 @@ const eslintConfig = [
     {
         ignores: [
             "src/dataconnect-generated/**",
+            "src/dataconnect-admin-generated/**",
             "output/**",
             "qa-screenshots/**",
             ".playwright-cli/**",
