@@ -1,5 +1,6 @@
 const PRIMARY_SITE_ORIGIN = "https://www.kandydrops.com";
 const LEGACY_SITE_ORIGINS = [
+    "https://kandydrops.com",
     "https://kandydrops--kandydrops-by-ikandy.us-central1.hosted.app",
 ];
 
@@ -31,6 +32,10 @@ export function resolveSiteOrigin() {
 }
 
 export const SITE_ORIGIN = resolveSiteOrigin();
+
+export function getCanonicalSiteHost() {
+    return tryGetHost(SITE_ORIGIN) || "www.kandydrops.com";
+}
 
 function parseOriginList(value: string | undefined) {
     if (!value) {

@@ -5,9 +5,20 @@ import {
   resolvePreferredAuthenticatedPath,
 } from "@/lib/navigation-persistence";
 import { verifyNavigationSessionCookieValue, NAV_SESSION_COOKIE } from "@/lib/navigation-session";
+import { getCanonicalSiteHost } from "@/lib/site-origin";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const requestHost = request.nextUrl.host;
+  const canonicalSiteHost = getCanonicalSiteHost();
+
+  if (requestHost === "kandydrops.com" && canonicalSiteHost && requestHost !== canonicalSiteHost) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.host = canonicalSiteHost;
+    redirectUrl.protocol = "https:";
+    return NextResponse.redirect(redirectUrl, 308);
+  }
+
   const navigationSession = await verifyNavigationSessionCookieValue(
     request.cookies.get(NAV_SESSION_COOKIE)?.value,
   );
@@ -49,5 +60,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/dashboard/:path*", "/admin/:path*"],
+  matcher: ["/((?!api|_next|.*\\..*|__/).*)"],
 };
