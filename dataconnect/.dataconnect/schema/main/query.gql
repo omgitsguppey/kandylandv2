@@ -19,6 +19,329 @@ extend type Query {
     first: AiInteraction_FirstRow
   ): AiInteraction @fdc_generated(from: "AiInteraction", purpose: QUERY_SINGLE)
   """
+  ✨ Look up a single `AnalyticsAlert` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  analyticsAlert(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AnalyticsAlert_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AnalyticsAlert_FirstRow
+  ): AnalyticsAlert @fdc_generated(from: "AnalyticsAlert", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `AnalyticsBundleDaily` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  analyticsBundleDaily(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AnalyticsBundleDaily_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AnalyticsBundleDaily_FirstRow
+  ): AnalyticsBundleDaily @fdc_generated(from: "AnalyticsBundleDaily", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `AnalyticsCommerceDaily` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  analyticsCommerceDaily(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AnalyticsCommerceDaily_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AnalyticsCommerceDaily_FirstRow
+  ): AnalyticsCommerceDaily @fdc_generated(from: "AnalyticsCommerceDaily", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `AnalyticsCommerceRollup` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  analyticsCommerceRollup(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AnalyticsCommerceRollup_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AnalyticsCommerceRollup_FirstRow
+  ): AnalyticsCommerceRollup @fdc_generated(from: "AnalyticsCommerceRollup", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `AnalyticsDropDaily` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  analyticsDropDaily(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AnalyticsDropDaily_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AnalyticsDropDaily_FirstRow
+  ): AnalyticsDropDaily @fdc_generated(from: "AnalyticsDropDaily", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `AnalyticsEventFact` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  analyticsEventFact(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AnalyticsEventFact_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AnalyticsEventFact_FirstRow
+  ): AnalyticsEventFact @fdc_generated(from: "AnalyticsEventFact", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `AnalyticsExportStatus` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  analyticsExportStatus(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AnalyticsExportStatus_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AnalyticsExportStatus_FirstRow
+  ): AnalyticsExportStatus @fdc_generated(from: "AnalyticsExportStatus", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `AnalyticsHeatmapPoint` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  analyticsHeatmapPoint(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AnalyticsHeatmapPoint_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AnalyticsHeatmapPoint_FirstRow
+  ): AnalyticsHeatmapPoint @fdc_generated(from: "AnalyticsHeatmapPoint", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `AnalyticsPageDaily` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  analyticsPageDaily(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AnalyticsPageDaily_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AnalyticsPageDaily_FirstRow
+  ): AnalyticsPageDaily @fdc_generated(from: "AnalyticsPageDaily", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `AnalyticsSecurityDaily` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  analyticsSecurityDaily(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AnalyticsSecurityDaily_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AnalyticsSecurityDaily_FirstRow
+  ): AnalyticsSecurityDaily @fdc_generated(from: "AnalyticsSecurityDaily", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `AnalyticsSessionFact` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  analyticsSessionFact(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AnalyticsSessionFact_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AnalyticsSessionFact_FirstRow
+  ): AnalyticsSessionFact @fdc_generated(from: "AnalyticsSessionFact", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `AnalyticsTargetDaily` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  analyticsTargetDaily(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AnalyticsTargetDaily_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AnalyticsTargetDaily_FirstRow
+  ): AnalyticsTargetDaily @fdc_generated(from: "AnalyticsTargetDaily", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `AnalyticsTaskDaily` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  analyticsTaskDaily(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AnalyticsTaskDaily_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AnalyticsTaskDaily_FirstRow
+  ): AnalyticsTaskDaily @fdc_generated(from: "AnalyticsTaskDaily", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `AnalyticsTaskRollup` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  analyticsTaskRollup(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AnalyticsTaskRollup_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AnalyticsTaskRollup_FirstRow
+  ): AnalyticsTaskRollup @fdc_generated(from: "AnalyticsTaskRollup", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `AnalyticsUserDaily` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  analyticsUserDaily(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AnalyticsUserDaily_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AnalyticsUserDaily_FirstRow
+  ): AnalyticsUserDaily @fdc_generated(from: "AnalyticsUserDaily", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `AnalyticsUserRollup` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  analyticsUserRollup(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AnalyticsUserRollup_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AnalyticsUserRollup_FirstRow
+  ): AnalyticsUserRollup @fdc_generated(from: "AnalyticsUserRollup", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `AnalyticsUserSecurityRollup` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  analyticsUserSecurityRollup(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AnalyticsUserSecurityRollup_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AnalyticsUserSecurityRollup_FirstRow
+  ): AnalyticsUserSecurityRollup @fdc_generated(from: "AnalyticsUserSecurityRollup", purpose: QUERY_SINGLE)
+  """
   ✨ List `AiInteraction` objects in the table and return selected fields, optionally filtered by `where` conditions
   """
   aiInteractions(
@@ -52,4 +375,582 @@ extend type Query {
     """
     having: AiInteraction_Having
   ): [AiInteraction!]! @fdc_generated(from: "AiInteraction", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `AnalyticsAlert` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  analyticsAlerts(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: AnalyticsAlert_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [AnalyticsAlert_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: AnalyticsAlert_Having
+  ): [AnalyticsAlert!]! @fdc_generated(from: "AnalyticsAlert", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `AnalyticsBundleDaily` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  analyticsBundleDailies(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: AnalyticsBundleDaily_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [AnalyticsBundleDaily_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: AnalyticsBundleDaily_Having
+  ): [AnalyticsBundleDaily!]! @fdc_generated(from: "AnalyticsBundleDaily", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `AnalyticsCommerceDaily` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  analyticsCommerceDailies(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: AnalyticsCommerceDaily_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [AnalyticsCommerceDaily_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: AnalyticsCommerceDaily_Having
+  ): [AnalyticsCommerceDaily!]! @fdc_generated(from: "AnalyticsCommerceDaily", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `AnalyticsCommerceRollup` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  analyticsCommerceRollups(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: AnalyticsCommerceRollup_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [AnalyticsCommerceRollup_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: AnalyticsCommerceRollup_Having
+  ): [AnalyticsCommerceRollup!]! @fdc_generated(from: "AnalyticsCommerceRollup", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `AnalyticsDropDaily` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  analyticsDropDailies(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: AnalyticsDropDaily_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [AnalyticsDropDaily_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: AnalyticsDropDaily_Having
+  ): [AnalyticsDropDaily!]! @fdc_generated(from: "AnalyticsDropDaily", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `AnalyticsEventFact` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  analyticsEventFacts(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: AnalyticsEventFact_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [AnalyticsEventFact_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: AnalyticsEventFact_Having
+  ): [AnalyticsEventFact!]! @fdc_generated(from: "AnalyticsEventFact", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `AnalyticsExportStatus` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  analyticsExportStatuses(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: AnalyticsExportStatus_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [AnalyticsExportStatus_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: AnalyticsExportStatus_Having
+  ): [AnalyticsExportStatus!]! @fdc_generated(from: "AnalyticsExportStatus", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `AnalyticsHeatmapPoint` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  analyticsHeatmapPoints(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: AnalyticsHeatmapPoint_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [AnalyticsHeatmapPoint_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: AnalyticsHeatmapPoint_Having
+  ): [AnalyticsHeatmapPoint!]! @fdc_generated(from: "AnalyticsHeatmapPoint", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `AnalyticsPageDaily` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  analyticsPageDailies(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: AnalyticsPageDaily_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [AnalyticsPageDaily_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: AnalyticsPageDaily_Having
+  ): [AnalyticsPageDaily!]! @fdc_generated(from: "AnalyticsPageDaily", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `AnalyticsSecurityDaily` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  analyticsSecurityDailies(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: AnalyticsSecurityDaily_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [AnalyticsSecurityDaily_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: AnalyticsSecurityDaily_Having
+  ): [AnalyticsSecurityDaily!]! @fdc_generated(from: "AnalyticsSecurityDaily", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `AnalyticsSessionFact` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  analyticsSessionFacts(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: AnalyticsSessionFact_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [AnalyticsSessionFact_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: AnalyticsSessionFact_Having
+  ): [AnalyticsSessionFact!]! @fdc_generated(from: "AnalyticsSessionFact", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `AnalyticsTargetDaily` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  analyticsTargetDailies(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: AnalyticsTargetDaily_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [AnalyticsTargetDaily_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: AnalyticsTargetDaily_Having
+  ): [AnalyticsTargetDaily!]! @fdc_generated(from: "AnalyticsTargetDaily", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `AnalyticsTaskDaily` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  analyticsTaskDailies(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: AnalyticsTaskDaily_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [AnalyticsTaskDaily_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: AnalyticsTaskDaily_Having
+  ): [AnalyticsTaskDaily!]! @fdc_generated(from: "AnalyticsTaskDaily", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `AnalyticsTaskRollup` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  analyticsTaskRollups(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: AnalyticsTaskRollup_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [AnalyticsTaskRollup_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: AnalyticsTaskRollup_Having
+  ): [AnalyticsTaskRollup!]! @fdc_generated(from: "AnalyticsTaskRollup", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `AnalyticsUserDaily` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  analyticsUserDailies(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: AnalyticsUserDaily_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [AnalyticsUserDaily_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: AnalyticsUserDaily_Having
+  ): [AnalyticsUserDaily!]! @fdc_generated(from: "AnalyticsUserDaily", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `AnalyticsUserRollup` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  analyticsUserRollups(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: AnalyticsUserRollup_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [AnalyticsUserRollup_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: AnalyticsUserRollup_Having
+  ): [AnalyticsUserRollup!]! @fdc_generated(from: "AnalyticsUserRollup", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `AnalyticsUserSecurityRollup` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  analyticsUserSecurityRollups(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: AnalyticsUserSecurityRollup_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [AnalyticsUserSecurityRollup_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: AnalyticsUserSecurityRollup_Having
+  ): [AnalyticsUserSecurityRollup!]! @fdc_generated(from: "AnalyticsUserSecurityRollup", purpose: QUERY_MULTIPLE)
 }

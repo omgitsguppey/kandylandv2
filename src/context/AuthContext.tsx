@@ -15,6 +15,7 @@ import {
     signOut,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { getAppCheckToken } from "@/lib/app-check";
 import { CLIENT_RUNTIME_STORAGE_KEYS, readSessionStorageValue } from "@/hooks/client-runtime";
 import { UserProfile } from "@/types/db";
 import { normalizeUserProfile } from "@/lib/user-utils";
@@ -109,6 +110,10 @@ function shouldPreferRedirectGoogleSignIn() {
     return /(^|\.)kandydrops\.com$/i.test(window.location.host);
 }
 
+async function prepareAuthAppCheck() {
+    await getAppCheckToken();
+}
+
 
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -132,6 +137,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const initializeAuth = async () => {
             try {
                 await ensureAuthPersistence();
+                await prepareAuthAppCheck().catch(() => null);
 
                 try {
                     const redirectResult = await getRedirectResult(auth);
@@ -299,6 +305,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const signInWithGoogle = useCallback(async () => {
         try {
             await ensureAuthPersistence();
+            await prepareAuthAppCheck();
             const provider = new GoogleAuthProvider();
             provider.setCustomParameters({ prompt: "select_account" });
 
@@ -334,6 +341,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const signInWithEmail = useCallback(async (email: string, pass: string) => {
         try {
             await ensureAuthPersistence();
+            await prepareAuthAppCheck();
             await signInWithEmailAndPassword(auth, email, pass);
 
 
@@ -349,6 +357,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const signUpWithEmail = useCallback(async (email: string, pass: string, username: string, dob: string) => {
         try {
             await ensureAuthPersistence();
+            await prepareAuthAppCheck();
             await createUserWithEmailAndPassword(auth, email, pass);
 
             const response = await authFetch("/api/user/register", {
