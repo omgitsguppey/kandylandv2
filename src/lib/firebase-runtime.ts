@@ -1,22 +1,8 @@
+import { getConfiguredSiteHosts } from "./site-origin";
+
 function normalizePublicEnv(value: string | undefined) {
   const trimmed = value?.trim();
   return trimmed ? trimmed : undefined;
-}
-
-const LEGACY_SITE_ORIGINS = [
-  "https://kandydrops--kandydrops-by-ikandy.us-central1.hosted.app",
-];
-
-function tryGetHost(origin: string | undefined) {
-  if (!origin) {
-    return undefined;
-  }
-
-  try {
-    return new URL(origin).host;
-  } catch {
-    return undefined;
-  }
 }
 
 function isLocalHost(host: string | undefined) {
@@ -29,38 +15,6 @@ function isFirebaseDefaultAuthHost(host: string | undefined) {
     || host.endsWith(".web.app")
     || host.endsWith(".hosted.app")
   ));
-}
-
-function parseOriginList(value: string | undefined) {
-  if (!value) {
-    return [];
-  }
-
-  return value
-    .split(",")
-    .map((origin) => origin.trim())
-    .filter(Boolean);
-}
-
-function getConfiguredSiteHosts() {
-  const hosts = new Set<string>();
-  const configuredOrigins = [
-    normalizePublicEnv(process.env.NEXT_PUBLIC_SITE_ORIGIN),
-    normalizePublicEnv(process.env.SITE_ORIGIN),
-    normalizePublicEnv(process.env.NEXT_PUBLIC_APP_URL),
-    ...parseOriginList(process.env.NEXT_PUBLIC_SITE_ORIGIN_ALIASES),
-    ...parseOriginList(process.env.SITE_ORIGIN_ALIASES),
-    ...LEGACY_SITE_ORIGINS,
-  ];
-
-  configuredOrigins.forEach((origin) => {
-    const host = tryGetHost(origin);
-    if (host) {
-      hosts.add(host);
-    }
-  });
-
-  return Array.from(hosts);
 }
 
 function resolvePreferredAuthDomain() {

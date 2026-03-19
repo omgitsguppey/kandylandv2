@@ -23,7 +23,8 @@ export function resolveSiteOrigin() {
     const configuredOrigin = (
         process.env.NEXT_PUBLIC_SITE_ORIGIN ||
         process.env.SITE_ORIGIN ||
-        process.env.NEXT_PUBLIC_APP_URL
+        process.env.NEXT_PUBLIC_APP_URL ||
+        process.env.APP_URL
     )?.trim();
 
     return normalizeOrigin(configuredOrigin || PRIMARY_SITE_ORIGIN);
@@ -46,6 +47,13 @@ function parseOriginList(value: string | undefined) {
 export function getConfiguredSiteOrigins() {
     const origins = new Set<string>([
         SITE_ORIGIN,
+        ...[
+            process.env.NEXT_PUBLIC_APP_URL,
+            process.env.APP_URL,
+        ]
+            .map((origin) => origin?.trim())
+            .filter((origin): origin is string => Boolean(origin))
+            .map(normalizeOrigin),
         ...LEGACY_SITE_ORIGINS,
         ...parseOriginList(process.env.NEXT_PUBLIC_SITE_ORIGIN_ALIASES),
         ...parseOriginList(process.env.SITE_ORIGIN_ALIASES),

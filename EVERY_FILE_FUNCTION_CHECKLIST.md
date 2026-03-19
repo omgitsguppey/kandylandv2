@@ -1,0 +1,8635 @@
+# Every File and Function Checklist
+
+Generated: 2026-03-19T03:53:06.280Z
+
+Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
+
+Scoring: all entries start unchecked with `0%` confidence until manually reviewed. Confidence here is review confidence, not code quality.
+
+Current repo-wide state snapshot: see [REPO_STATE_SCORECARD_2026-03-19.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_STATE_SCORECARD_2026-03-19.md) for the latest validated completion estimate and remaining non-code blockers.
+
+Repository files in scope: 411
+Detected function-like implementations: 3158
+
+## [ ] .agent/workflows/pre-commit.md
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] .gitignore
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] .ncurc.json
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] .npmrc
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] .vscode/settings.json
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] .vscode/tailwind.json
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] AGENTS.md
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] ANALYTICS_SYSTEM_AUDIT_2026-03-18.md
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] apphosting.yaml
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] dataconnect/.dataconnect/schema/main/input.gql
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] dataconnect/.dataconnect/schema/main/mutation.gql
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] dataconnect/.dataconnect/schema/main/query.gql
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] dataconnect/.dataconnect/schema/main/relation.gql
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] dataconnect/.dataconnect/schema/prelude.gql
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] dataconnect/analytics_export/connector.yaml
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] dataconnect/analytics_export/mutations.gql
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] dataconnect/analytics_export/queries.gql
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] dataconnect/dataconnect.yaml
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] dataconnect/example/connector.yaml
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] dataconnect/example/mutations.gql
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] dataconnect/example/queries.gql
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] dataconnect/schema/machine_learning.gql
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] dataconnect/schema/schema.gql
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] eslint.config.mjs
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] EVERY_FILE_FUNCTION_CHECKLIST.md
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] firebase.json
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] firestore.indexes.json
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] firestore.rules
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] FULL_CODEBASE_POST_AUDIT_2026-03-18.md
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] functions/.gitignore
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] functions/eslint.config.js
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] functions/package-lock.json
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] functions/package.json
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] functions/src/analytics-core.ts
+- Confidence: 0%
+- Functions detected: 18
+- Functions:
+  - [ ] pad (function, line 89)
+    - Confidence: 0%
+  - [ ] toTimeKeys (function, line 93)
+    - Confidence: 0%
+  - [ ] encodeKeyFragment (function, line 102)
+    - Confidence: 0%
+  - [ ] readString (function, line 110)
+    - Confidence: 0%
+  - [ ] readNumber (function, line 114)
+    - Confidence: 0%
+  - [ ] readBoolean (function, line 118)
+    - Confidence: 0%
+  - [ ] quantizePixelPoint (function, line 122)
+    - Confidence: 0%
+  - [ ] sum (function, line 128)
+    - Confidence: 0%
+  - [ ] values.reduce callback (arrow, line 129)
+    - Confidence: 0%
+  - [ ] average (function, line 132)
+    - Confidence: 0%
+  - [ ] buildIncrementUpdate (function, line 140)
+    - Confidence: 0%
+  - [ ] topEntries (function, line 144)
+    - Confidence: 0%
+  - [ ] Array.from(map.entries())     .map callback (arrow, line 146)
+    - Confidence: 0%
+  - [ ] Array.from(map.entries())     .map(([key, count]) => ({key, count}))     .sort callback (arrow, line 147)
+    - Confidence: 0%
+  - [ ] summarizeEventFacts (function, line 151)
+    - Confidence: 0%
+  - [ ] events.forEach callback (arrow, line 168)
+    - Confidence: 0%
+  - [ ] Array.from(dropCounts.entries())       .map callback (arrow, line 231)
+    - Confidence: 0%
+  - [ ] Array.from(dropCounts.entries())       .map(([key, count]) => ({         key,         count,         label: dropLabels.get(key) || key,       }))       .sort callback (arrow, line 236)
+    - Confidence: 0%
+
+## [ ] functions/src/analytics-event-facts.ts
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] buildSessionFactId (function, line 19)
+    - Confidence: 0%
+  - [ ] onDocumentCreated callback (arrow, line 27)
+    - Confidence: 0%
+
+## [ ] functions/src/analytics-export-dataconnect.ts
+- Confidence: 0%
+- Functions detected: 12
+- Functions:
+  - [ ] toUuid (function, line 16)
+    - Confidence: 0%
+  - [ ] buildStableAnalyticsExportId (function, line 30)
+    - Confidence: 0%
+  - [ ] getAnalyticsExportDataConnect (function, line 34)
+    - Confidence: 0%
+  - [ ] readTimestampMillis (function, line 38)
+    - Confidence: 0%
+  - [ ] readInt (function, line 64)
+    - Confidence: 0%
+  - [ ] readFloat (function, line 68)
+    - Confidence: 0%
+  - [ ] readStringValue (function, line 72)
+    - Confidence: 0%
+  - [ ] readNullableInt (function, line 76)
+    - Confidence: 0%
+  - [ ] readNullableStringValue (function, line 80)
+    - Confidence: 0%
+  - [ ] recordAnalyticsExportFailure (function, line 84)
+    - Confidence: 0%
+  - [ ] upsertAnalyticsExportStatus (function, line 105)
+    - Confidence: 0%
+  - [ ] markAnalyticsExportStatusError (function, line 128)
+    - Confidence: 0%
+
+## [ ] functions/src/analytics-export-sync.ts
+- Confidence: 0%
+- Functions detected: 20
+- Functions:
+  - [ ] fallbackSourceUpdatedAtMs (function, line 30)
+    - Confidence: 0%
+  - [ ] getDocumentParam (function, line 41)
+    - Confidence: 0%
+  - [ ] createExportSyncTrigger (function, line 45)
+    - Confidence: 0%
+  - [ ] onDocumentWritten callback (arrow, line 49)
+    - Confidence: 0%
+  - [ ] createExportSyncTrigger callback (arrow, line 135)
+    - Confidence: 0%
+  - [ ] createExportSyncTrigger callback (arrow, line 161)
+    - Confidence: 0%
+  - [ ] createExportSyncTrigger callback (arrow, line 191)
+    - Confidence: 0%
+  - [ ] createExportSyncTrigger callback (arrow, line 233)
+    - Confidence: 0%
+  - [ ] createExportSyncTrigger callback (arrow, line 274)
+    - Confidence: 0%
+  - [ ] createExportSyncTrigger callback (arrow, line 306)
+    - Confidence: 0%
+  - [ ] createExportSyncTrigger callback (arrow, line 336)
+    - Confidence: 0%
+  - [ ] createExportSyncTrigger callback (arrow, line 367)
+    - Confidence: 0%
+  - [ ] createExportSyncTrigger callback (arrow, line 388)
+    - Confidence: 0%
+  - [ ] createExportSyncTrigger callback (arrow, line 410)
+    - Confidence: 0%
+  - [ ] createExportSyncTrigger callback (arrow, line 428)
+    - Confidence: 0%
+  - [ ] onDocumentWritten callback (arrow, line 453)
+    - Confidence: 0%
+  - [ ] rows.map callback (arrow, line 465)
+    - Confidence: 0%
+  - [ ] alerts.map callback (arrow, line 505)
+    - Confidence: 0%
+  - [ ] existingRows         .filter callback (arrow, line 522)
+    - Confidence: 0%
+  - [ ] existingRows         .filter((row) => !nextTypeIds.has(row.id))         .map callback (arrow, line 523)
+    - Confidence: 0%
+
+## [ ] functions/src/analytics-guest-batches.ts
+- Confidence: 0%
+- Functions detected: 9
+- Functions:
+  - [ ] buildTargetLabel (function, line 19)
+    - Confidence: 0%
+  - [ ] onDocumentCreated callback (arrow, line 32)
+    - Confidence: 0%
+  - [ ] events.forEach callback (arrow, line 69)
+    - Confidence: 0%
+  - [ ] pageMap.forEach callback (arrow, line 146)
+    - Confidence: 0%
+  - [ ] typeMap.forEach callback (arrow, line 160)
+    - Confidence: 0%
+  - [ ] pageRollups.forEach callback (arrow, line 172)
+    - Confidence: 0%
+  - [ ] targetRollups.forEach callback (arrow, line 189)
+    - Confidence: 0%
+  - [ ] heatMap.forEach callback (arrow, line 203)
+    - Confidence: 0%
+  - [ ] Array.from(pageMap.entries()).map callback (arrow, line 232)
+    - Confidence: 0%
+
+## [ ] functions/src/analytics-realtime.ts
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] incrementRealtimeNode (function, line 3)
+    - Confidence: 0%
+  - [ ] rtdb.ref(path).transaction callback (arrow, line 4)
+    - Confidence: 0%
+  - [ ] Object.entries(patch).forEach callback (arrow, line 6)
+    - Confidence: 0%
+
+## [ ] functions/src/analytics-runtime.ts
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] buildRuntimePayload (function, line 10)
+    - Confidence: 0%
+  - [ ] markAnalyticsRuntimeChanged (function, line 18)
+    - Confidence: 0%
+  - [ ] touchAnalyticsRuntime (function, line 29)
+    - Confidence: 0%
+
+## [ ] functions/src/analytics-schedules.ts
+- Confidence: 0%
+- Functions detected: 21
+- Functions:
+  - [ ] buildWindowDocId (function, line 18)
+    - Confidence: 0%
+  - [ ] writeWindowSummary (function, line 22)
+    - Confidence: 0%
+  - [ ] queryEventsSince (function, line 30)
+    - Confidence: 0%
+  - [ ] snapshot.docs.map callback (arrow, line 35)
+    - Confidence: 0%
+  - [ ] writeCurrentAlerts (function, line 38)
+    - Confidence: 0%
+  - [ ] roundCurrency (function, line 47)
+    - Confidence: 0%
+  - [ ] onSchedule callback (arrow, line 53)
+    - Confidence: 0%
+  - [ ] snapshot.docs.map callback (arrow, line 59)
+    - Confidence: 0%
+  - [ ] activeUsers.slice(0, 50).map callback (arrow, line 63)
+    - Confidence: 0%
+  - [ ] onSchedule callback (arrow, line 76)
+    - Confidence: 0%
+  - [ ] onSchedule callback (arrow, line 85)
+    - Confidence: 0%
+  - [ ] onSchedule callback (arrow, line 94)
+    - Confidence: 0%
+  - [ ] snapshot.docs.map callback (arrow, line 100)
+    - Confidence: 0%
+  - [ ] onSchedule callback (arrow, line 128)
+    - Confidence: 0%
+  - [ ] snapshot.docs.map callback (arrow, line 134)
+    - Confidence: 0%
+  - [ ] onSchedule callback (arrow, line 161)
+    - Confidence: 0%
+  - [ ] dailySnapshot.docs.map callback (arrow, line 167)
+    - Confidence: 0%
+  - [ ] bundleSnapshot.docs.map callback (arrow, line 187)
+    - Confidence: 0%
+  - [ ] onSchedule callback (arrow, line 222)
+    - Confidence: 0%
+  - [ ] snapshot.docs.map callback (arrow, line 228)
+    - Confidence: 0%
+  - [ ] onSchedule callback (arrow, line 266)
+    - Confidence: 0%
+
+## [ ] functions/src/analytics-security-events.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] onDocumentCreated callback (arrow, line 35)
+    - Confidence: 0%
+
+## [ ] functions/src/analytics-semantics.ts
+- Confidence: 0%
+- Functions detected: 15
+- Functions:
+  - [ ] humanizeAnalyticsKey (function, line 38)
+    - Confidence: 0%
+  - [ ] value     .replace(/[._-]+/g, " ")     .replace callback (arrow, line 45)
+    - Confidence: 0%
+  - [ ] getLegacyPagePathForEvent (function, line 58)
+    - Confidence: 0%
+  - [ ] normalizePagePath (function, line 66)
+    - Confidence: 0%
+  - [ ] buildFallbackSemanticContext (function, line 79)
+    - Confidence: 0%
+  - [ ] resolveAnalyticsSemanticContext (function, line 199)
+    - Confidence: 0%
+  - [ ] asNumber (function, line 229)
+    - Confidence: 0%
+  - [ ] asString (function, line 234)
+    - Confidence: 0%
+  - [ ] createDocKey (function, line 238)
+    - Confidence: 0%
+  - [ ] buildGuestSemanticDelta (function, line 243)
+    - Confidence: 0%
+  - [ ] buildTelemetrySemanticDelta (function, line 284)
+    - Confidence: 0%
+  - [ ] writeRollup (function, line 350)
+    - Confidence: 0%
+  - [ ] recordSemanticRollupFromEventFact (function, line 410)
+    - Confidence: 0%
+  - [ ] recordSemanticRollupFromGuestBatch (function, line 453)
+    - Confidence: 0%
+  - [ ] events.map callback (arrow, line 459)
+    - Confidence: 0%
+
+## [ ] functions/src/analytics-task-events.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] onDocumentCreated callback (arrow, line 25)
+    - Confidence: 0%
+
+## [ ] functions/src/analytics-transactions.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] onDocumentCreated callback (arrow, line 41)
+    - Confidence: 0%
+
+## [ ] functions/src/dataconnect-admin-generated/esm/index.esm.js
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] createAiInteraction (function, line 9)
+    - Confidence: 0%
+  - [ ] listAiInteractions (function, line 15)
+    - Confidence: 0%
+
+## [ ] functions/src/dataconnect-admin-generated/esm/package.json
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] functions/src/dataconnect-admin-generated/index.cjs.js
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] createAiInteraction (function, line 10)
+    - Confidence: 0%
+  - [ ] listAiInteractions (function, line 17)
+    - Confidence: 0%
+
+## [ ] functions/src/dataconnect-admin-generated/index.d.ts
+- Confidence: 0%
+- Functions detected: 4
+- Functions:
+  - [ ] createAiInteraction (function, line 128)
+    - Confidence: 0%
+  - [ ] createAiInteraction (function, line 130)
+    - Confidence: 0%
+  - [ ] listAiInteractions (function, line 133)
+    - Confidence: 0%
+  - [ ] listAiInteractions (function, line 135)
+    - Confidence: 0%
+
+## [ ] functions/src/dataconnect-admin-generated/package.json
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] functions/src/firebase-admin.ts
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] getOrCreateAdminApp (function, line 9)
+    - Confidence: 0%
+  - [ ] getApps().find callback (arrow, line 10)
+    - Confidence: 0%
+
+## [ ] functions/src/firebase-runtime.ts
+- Confidence: 0%
+- Functions detected: 4
+- Functions:
+  - [ ] resolveProjectId (function, line 3)
+    - Confidence: 0%
+  - [ ] resolveDatabaseUrl (function, line 10)
+    - Confidence: 0%
+  - [ ] resolveStorageBucket (function, line 16)
+    - Confidence: 0%
+  - [ ] buildFunctionsFirebaseRuntimeSnapshot (function, line 22)
+    - Confidence: 0%
+
+## [ ] functions/src/gumdrop-economics.ts
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] roundCurrency (function, line 29)
+    - Confidence: 0%
+  - [ ] deriveGumdropEconomics (function, line 39)
+    - Confidence: 0%
+
+## [ ] functions/src/index.ts
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] functions/tsconfig.dev.json
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] functions/tsconfig.json
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] knip.json
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] makeAdmin.js
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] makeAdmin (function, line 25)
+    - Confidence: 0%
+
+## [ ] middleware.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] middleware (function, line 9)
+    - Confidence: 0%
+
+## [ ] next.config.ts
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] package-lock.json
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] package.json
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] playwright.config.ts
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] postcss.config.mjs
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] public/candy-3d-glass.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] public/candy-main.svg
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] public/file.svg
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] public/firebase-messaging-sw.js
+- Confidence: 0%
+- Functions detected: 19
+- Functions:
+  - [ ] self.addEventListener callback (arrow, line 30)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 31)
+    - Confidence: 0%
+  - [ ] PRECACHE_URLS.map callback (arrow, line 33)
+    - Confidence: 0%
+  - [ ] results.forEach callback (arrow, line 35)
+    - Confidence: 0%
+  - [ ] self.addEventListener callback (arrow, line 45)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 46)
+    - Confidence: 0%
+  - [ ] cacheNames                 .filter callback (arrow, line 50)
+    - Confidence: 0%
+  - [ ] cacheNames                 .filter((cacheName) => cacheName !== APP_SHELL_CACHE && cacheName !== APP_RUNTIME_CACHE)                 .map callback (arrow, line 51)
+    - Confidence: 0%
+  - [ ] cacheRuntimeResponse (function, line 58)
+    - Confidence: 0%
+  - [ ] handleNavigationRequest (function, line 68)
+    - Confidence: 0%
+  - [ ] handleStaticRequest (function, line 82)
+    - Confidence: 0%
+  - [ ] fetch(request)         .then callback (arrow, line 85)
+    - Confidence: 0%
+  - [ ] fetch(request)         .then((response) => cacheRuntimeResponse(request, response))         .catch callback (arrow, line 86)
+    - Confidence: 0%
+  - [ ] self.addEventListener callback (arrow, line 96)
+    - Confidence: 0%
+  - [ ] messaging.onBackgroundMessage callback (arrow, line 124)
+    - Confidence: 0%
+  - [ ] self.addEventListener callback (arrow, line 143)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 147)
+    - Confidence: 0%
+  - [ ] allClients.find callback (arrow, line 150)
+    - Confidence: 0%
+  - [ ] allClients.find callback (arrow, line 157)
+    - Confidence: 0%
+
+## [ ] public/globe.svg
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] public/icon-192x192.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] public/icon-512x512.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] public/manifest.json
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] public/next.svg
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] public/vercel.svg
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] public/window.svg
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/desktop-admin-create-full.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/desktop-admin-create-viewport.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/desktop-admin-drops-full.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/desktop-admin-drops-viewport.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/desktop-admin-full.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/desktop-admin-viewport.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/desktop-dashboard-full.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/desktop-dashboard-viewport.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/desktop-drops-full.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/desktop-drops-viewport.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/desktop-experiences-full.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/desktop-experiences-viewport.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/desktop-experiences.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/desktop-home-full.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/desktop-home-viewport.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/desktop-home.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/mobile-admin-create-full.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/mobile-admin-create-viewport.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/mobile-admin-drops-full.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/mobile-admin-drops-viewport.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/mobile-admin-full.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/mobile-admin-viewport.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/mobile-dashboard-full.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/mobile-dashboard-viewport.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/mobile-drops-full.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/mobile-drops-viewport.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/mobile-experiences-full.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/mobile-experiences-viewport.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/mobile-experiences.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/mobile-home-full.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/mobile-home-viewport.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/mobile-home.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/tablet-dashboard-full.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/tablet-drops-full.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/tablet-experiences.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/tablet-home-full.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] qa-screenshots/tablet-home.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] REPO_STATE_SCORECARD_2026-03-18.md
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] scripts/audit-telemetry.ts
+- Confidence: 0%
+- Functions detected: 15
+- Functions:
+  - [ ] walkFiles (function, line 22)
+    - Confidence: 0%
+  - [ ] collectStringLiteralValues (function, line 39)
+    - Confidence: 0%
+  - [ ] buildConstValueMap (function, line 73)
+    - Confidence: 0%
+  - [ ] visit (function, line 76)
+    - Confidence: 0%
+  - [ ] isIdentifierNamed (function, line 91)
+    - Confidence: 0%
+  - [ ] extractEventNamesFromCall (function, line 95)
+    - Confidence: 0%
+  - [ ] firstArg.properties.find callback (arrow, line 136)
+    - Confidence: 0%
+  - [ ] collectMatches (function, line 155)
+    - Confidence: 0%
+  - [ ] visit (function, line 161)
+    - Confidence: 0%
+  - [ ] result.eventNames.forEach callback (arrow, line 166)
+    - Confidence: 0%
+  - [ ] files.flatMap callback (arrow, line 185)
+    - Confidence: 0%
+  - [ ] matches.forEach callback (arrow, line 189)
+    - Confidence: 0%
+  - [ ] unknownMatches.forEach callback (arrow, line 200)
+    - Confidence: 0%
+  - [ ] TELEMETRY_EVENT_OPTIONS   .map callback (arrow, line 207)
+    - Confidence: 0%
+  - [ ] TELEMETRY_EVENT_OPTIONS   .map((event) => event.eventName)   .filter callback (arrow, line 208)
+    - Confidence: 0%
+
+## [ ] scripts/backfill-analytics-parity.ts
+- Confidence: 0%
+- Functions detected: 33
+- Functions:
+  - [ ] roundCurrency (function, line 92)
+    - Confidence: 0%
+  - [ ] toTimestampNumber (function, line 96)
+    - Confidence: 0%
+  - [ ] buildEmptyCommerceAggregate (function, line 113)
+    - Confidence: 0%
+  - [ ] buildEmptyUserAggregate (function, line 137)
+    - Confidence: 0%
+  - [ ] buildEmptyDailyRollupAggregate (function, line 167)
+    - Confidence: 0%
+  - [ ] buildEmptyTaskAggregate (function, line 176)
+    - Confidence: 0%
+  - [ ] commitEntries (function, line 189)
+    - Confidence: 0%
+  - [ ] main (function, line 197)
+    - Confidence: 0%
+  - [ ] transactionsSnapshot.docs.forEach callback (arrow, line 215)
+    - Confidence: 0%
+  - [ ] applyCommerce (arrow, line 237)
+    - Confidence: 0%
+  - [ ] applyUserCommerce (arrow, line 259)
+    - Confidence: 0%
+  - [ ] sessionFactsSnapshot.docs.forEach callback (arrow, line 316)
+    - Confidence: 0%
+  - [ ] eventFactsSnapshot.docs.forEach callback (arrow, line 348)
+    - Confidence: 0%
+  - [ ] taskEventsSnapshot.docs.forEach callback (arrow, line 361)
+    - Confidence: 0%
+  - [ ] commerceDaily.forEach callback (arrow, line 392)
+    - Confidence: 0%
+  - [ ] writes.push callback (arrow, line 393)
+    - Confidence: 0%
+  - [ ] writes.push callback (arrow, line 402)
+    - Confidence: 0%
+  - [ ] bundleDaily.forEach callback (arrow, line 409)
+    - Confidence: 0%
+  - [ ] writes.push callback (arrow, line 410)
+    - Confidence: 0%
+  - [ ] bundleRollup.forEach callback (arrow, line 419)
+    - Confidence: 0%
+  - [ ] writes.push callback (arrow, line 420)
+    - Confidence: 0%
+  - [ ] userDaily.forEach callback (arrow, line 428)
+    - Confidence: 0%
+  - [ ] writes.push callback (arrow, line 431)
+    - Confidence: 0%
+  - [ ] userRollup.forEach callback (arrow, line 443)
+    - Confidence: 0%
+  - [ ] writes.push callback (arrow, line 444)
+    - Confidence: 0%
+  - [ ] dailyRollups.forEach callback (arrow, line 461)
+    - Confidence: 0%
+  - [ ] writes.push callback (arrow, line 462)
+    - Confidence: 0%
+  - [ ] taskDaily.forEach callback (arrow, line 474)
+    - Confidence: 0%
+  - [ ] writes.push callback (arrow, line 475)
+    - Confidence: 0%
+  - [ ] taskRollup.forEach callback (arrow, line 489)
+    - Confidence: 0%
+  - [ ] writes.push callback (arrow, line 490)
+    - Confidence: 0%
+  - [ ] main()   .then callback (arrow, line 510)
+    - Confidence: 0%
+  - [ ] main()   .then(() => process.exit(0))   .catch callback (arrow, line 511)
+    - Confidence: 0%
+
+## [ ] scripts/check-analytics-semantics.ts
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] SAMPLES.forEach callback (arrow, line 41)
+    - Confidence: 0%
+  - [ ] fieldsToCompare.forEach callback (arrow, line 55)
+    - Confidence: 0%
+  - [ ] mismatches.forEach callback (arrow, line 64)
+    - Confidence: 0%
+
+## [ ] scripts/check-firebase-runtime.ts
+- Confidence: 0%
+- Functions detected: 5
+- Functions:
+  - [ ] main (function, line 6)
+    - Confidence: 0%
+  - [ ] warnings.filter callback (arrow, line 14)
+    - Confidence: 0%
+  - [ ] warnings.filter callback (arrow, line 15)
+    - Confidence: 0%
+  - [ ] missingWarnings.forEach callback (arrow, line 35)
+    - Confidence: 0%
+  - [ ] fatalWarnings.forEach callback (arrow, line 45)
+    - Confidence: 0%
+
+## [ ] scripts/promote-admin.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] main (function, line 13)
+    - Confidence: 0%
+
+## [ ] scripts/remove-hovers.mjs
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] walkDir (function, line 4)
+    - Confidence: 0%
+  - [ ] newContent.replace callback (arrow, line 19)
+    - Confidence: 0%
+  - [ ] newContent.replace callback (arrow, line 23)
+    - Confidence: 0%
+
+## [ ] scripts/replace-colors.js
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] walk (function, line 6)
+    - Confidence: 0%
+  - [ ] list.forEach callback (function expression, line 9)
+    - Confidence: 0%
+  - [ ] files.forEach callback (arrow, line 26)
+    - Confidence: 0%
+
+## [ ] scripts/replace-icons.mjs
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] walkDir (function, line 4)
+    - Confidence: 0%
+  - [ ] match[1].split(',').map callback (arrow, line 24)
+    - Confidence: 0%
+
+## [ ] src/app/(legal)/privacy/page.tsx
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] Section (function, line 17)
+    - Confidence: 0%
+  - [ ] PrivacyPage (function, line 32)
+    - Confidence: 0%
+
+## [ ] src/app/(legal)/terms/page.tsx
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] TermsPage (function, line 14)
+    - Confidence: 0%
+
+## [ ] src/app/admin/analytics/page.tsx
+- Confidence: 0%
+- Functions detected: 197
+- Functions:
+  - [ ] RANGE_OPTIONS.filter callback (arrow, line 553)
+    - Confidence: 0%
+  - [ ] buildSectionRangeState (function, line 644)
+    - Confidence: 0%
+  - [ ] ALL_HISTORICAL_SECTION_IDS.map callback (arrow, line 646)
+    - Confidence: 0%
+  - [ ] buildHistoricalOverrideKey (function, line 650)
+    - Confidence: 0%
+  - [ ] filterOptionLabel (function, line 654)
+    - Confidence: 0%
+  - [ ] RANGE_OPTIONS.find callback (arrow, line 655)
+    - Confidence: 0%
+  - [ ] AnalyticsTooltip (function, line 658)
+    - Confidence: 0%
+  - [ ] payload.map callback (arrow, line 665)
+    - Confidence: 0%
+  - [ ] CompactPreviewList (function, line 681)
+    - Confidence: 0%
+  - [ ] items.map callback (arrow, line 690)
+    - Confidence: 0%
+  - [ ] SectionCard (function, line 700)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 740)
+    - Confidence: 0%
+  - [ ] setIsExpanded callback (arrow, line 740)
+    - Confidence: 0%
+  - [ ] rangeOptions.map callback (arrow, line 752)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 756)
+    - Confidence: 0%
+  - [ ] MetricCard (function, line 779)
+    - Confidence: 0%
+  - [ ] formatCompactNumber (function, line 792)
+    - Confidence: 0%
+  - [ ] formatMoney (function, line 799)
+    - Confidence: 0%
+  - [ ] formatPercent (function, line 807)
+    - Confidence: 0%
+  - [ ] formatDuration (function, line 811)
+    - Confidence: 0%
+  - [ ] formatDataSourceLabel (function, line 822)
+    - Confidence: 0%
+  - [ ] formatRelativeTime (function, line 828)
+    - Confidence: 0%
+  - [ ] formatDateTime (function, line 840)
+    - Confidence: 0%
+  - [ ] getValidationClasses (function, line 845)
+    - Confidence: 0%
+  - [ ] getModuleCoverageClasses (function, line 857)
+    - Confidence: 0%
+  - [ ] getMetricStatusClasses (function, line 869)
+    - Confidence: 0%
+  - [ ] getOpsHealthClasses (function, line 881)
+    - Confidence: 0%
+  - [ ] getSeverityClasses (function, line 893)
+    - Confidence: 0%
+  - [ ] describeEvent (function, line 905)
+    - Confidence: 0%
+  - [ ] getDeviceIcon (function, line 913)
+    - Confidence: 0%
+  - [ ] isRecentViolation (function, line 917)
+    - Confidence: 0%
+  - [ ] AdminAnalyticsPage (function, line 923)
+    - Confidence: 0%
+  - [ ] useState callback (arrow, line 929)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 936)
+    - Confidence: 0%
+  - [ ] window.setInterval callback (arrow, line 937)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 941)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 973)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 977)
+    - Confidence: 0%
+  - [ ] setHistoricalOverrides callback (arrow, line 992)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 1002)
+    - Confidence: 0%
+  - [ ] setHistoricalOverrides callback (arrow, line 1013)
+    - Confidence: 0%
+  - [ ] setHistoricalOverrides callback (arrow, line 1023)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 1042)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 1046)
+    - Confidence: 0%
+  - [ ] visibleSectionIds.forEach callback (arrow, line 1050)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 1068)
+    - Confidence: 0%
+  - [ ] activeOverrideTargets.forEach callback (arrow, line 1069)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 1074)
+    - Confidence: 0%
+  - [ ] refreshVisibleOverrides (arrow, line 1075)
+    - Confidence: 0%
+  - [ ] activeOverrideTargets.forEach callback (arrow, line 1076)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 1084)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 1090)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 1095)
+    - Confidence: 0%
+  - [ ] setSectionRanges callback (arrow, line 1096)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 1102)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 1111)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 1115)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 1124)
+    - Confidence: 0%
+  - [ ] scheduleRealtimeRefresh (arrow, line 1131)
+    - Confidence: 0%
+  - [ ] window.setTimeout callback (arrow, line 1136)
+    - Confidence: 0%
+  - [ ] subscribeToAnalyticsRuntime (function, line 1142)
+    - Confidence: 0%
+  - [ ] onSnapshot callback (arrow, line 1155)
+    - Confidence: 0%
+  - [ ] scheduleRealtimeRefresh callback (arrow, line 1161)
+    - Confidence: 0%
+  - [ ] scheduleRealtimeRefresh callback (arrow, line 1164)
+    - Confidence: 0%
+  - [ ] activeOverrideTargets.forEach callback (arrow, line 1166)
+    - Confidence: 0%
+  - [ ] onSnapshot callback (arrow, line 1171)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 1188)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 1205)
+    - Confidence: 0%
+  - [ ] (liveResponse?.data ?? []).map callback (arrow, line 1206)
+    - Confidence: 0%
+  - [ ] devices.reduce callback (arrow, line 1328)
+    - Confidence: 0%
+  - [ ] devices.find callback (arrow, line 1329)
+    - Confidence: 0%
+  - [ ] eventBreakdown.slice(0, 8).map callback (arrow, line 1332)
+    - Confidence: 0%
+  - [ ] stationSnapshotDevices.reduce callback (arrow, line 1343)
+    - Confidence: 0%
+  - [ ] stationSnapshotDevices.find callback (arrow, line 1344)
+    - Confidence: 0%
+  - [ ] stationSnapshotSecurity.reduce callback (arrow, line 1346)
+    - Confidence: 0%
+  - [ ] eventMixBreakdown.slice(0, 8).map callback (arrow, line 1369)
+    - Confidence: 0%
+  - [ ] opsHealthView.materializers.filter callback (arrow, line 1380)
+    - Confidence: 0%
+  - [ ] opsHealthView.materializers.filter callback (arrow, line 1381)
+    - Confidence: 0%
+  - [ ] moduleCoverageView.filter callback (arrow, line 1388)
+    - Confidence: 0%
+  - [ ] moduleCoverageView.filter callback (arrow, line 1389)
+    - Confidence: 0%
+  - [ ] moduleCoverageView.filter callback (arrow, line 1390)
+    - Confidence: 0%
+  - [ ] categorySemantics.map callback (arrow, line 1394)
+    - Confidence: 0%
+  - [ ] creatorMetricsData.categories.map callback (arrow, line 1403)
+    - Confidence: 0%
+  - [ ] category.metrics.filter callback (arrow, line 1406)
+    - Confidence: 0%
+  - [ ] deviceMixItems.reduce callback (arrow, line 1428)
+    - Confidence: 0%
+  - [ ] viewerDropInsightsView.slice(0, 8).map callback (arrow, line 1459)
+    - Confidence: 0%
+  - [ ] securityPostureItems.reduce callback (arrow, line 1475)
+    - Confidence: 0%
+  - [ ] applyViewerFilter (arrow, line 1497)
+    - Confidence: 0%
+  - [ ] clearViewerFilter (arrow, line 1501)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 1538)
+    - Confidence: 0%
+  - [ ] TAB_OPTIONS.map callback (arrow, line 1572)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 1579)
+    - Confidence: 0%
+  - [ ] GLOBAL_RANGE_OPTIONS.map callback (arrow, line 1602)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 1606)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 1640)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 1696)
+    - Confidence: 0%
+  - [ ] [                   { label: "Auth modal opens", count: journeyFunnelMetrics.authModalOpens, ratio: 1, icon: Users },                   { label: "Drop previews", count: journeyFunnelMetrics.previewOpens, ratio: journeyFunnelMetrics.authModalOpens > 0 ? journeyFunnelMetrics.previewOpens / journeyFunnelMetrics.authModalOpens : 0, icon: Eye },                   { label: "Viewer opens", count: journeyFunnelMetrics.viewerOpens, ratio: journeyFunnelMetrics.previewOpens > 0 ? journeyFunnelMetrics.viewerOpens / journeyFunnelMetrics.previewOpens : 0, icon: PlayCircle },                   { label: "Unlocks", count: journeyFunnelMetrics.unlocks, ratio: journeyFunnelMetrics.previewOpens > 0 ? journeyFunnelMetrics.unlocks / journeyFunnelMetrics.previewOpens : 0, icon: Sparkles },                   { label: "Checkout starts", count: journeyFunnelMetrics.checkoutStarts, ratio: journeyFunnelMetrics.unlocks > 0 ? journeyFunnelMetrics.checkoutStarts / journeyFunnelMetrics.unlocks : 0, icon: Wallet },                   { label: "Purchases", count: journeyFunnelMetrics.purchases, ratio: journeyFunnelMetrics.checkoutStarts > 0 ? journeyFunnelMetrics.purchases / journeyFunnelMetrics.checkoutStarts : 0, icon: ShoppingBag },                 ].map callback (arrow, line 1720)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 1753)
+    - Confidence: 0%
+  - [ ] authOutcomeBreakdown.slice(0, 4).map callback (arrow, line 1760)
+    - Confidence: 0%
+  - [ ] authOutcomeBreakdown.map callback (arrow, line 1773)
+    - Confidence: 0%
+  - [ ] authOutcomeBreakdown.map callback (arrow, line 1780)
+    - Confidence: 0%
+  - [ ] authOutcomeBreakdown.map callback (arrow, line 1791)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 1816)
+    - Confidence: 0%
+  - [ ] onboardingStepStatsView.map callback (arrow, line 1859)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 1887)
+    - Confidence: 0%
+  - [ ] topEventsView.slice(0, 4).map callback (arrow, line 1894)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 1917)
+    - Confidence: 0%
+  - [ ] liveInteractionEvents.slice(0, 4).map callback (arrow, line 1924)
+    - Confidence: 0%
+  - [ ] liveInteractionEvents.slice(0, 8).map callback (arrow, line 1934)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 1959)
+    - Confidence: 0%
+  - [ ] [                         { label: "GA property", ready: opsHealthView.runtime.gaPropertyConfigured },                         { label: "Navigation session", ready: opsHealthView.runtime.navigationSessionSigningReady },                         { label: "App Check", ready: opsHealthView.runtime.appCheckConfigured || !opsHealthView.runtime.appCheckRequired },                         { label: "Realtime DB", ready: opsHealthView.runtime.databaseUrlConfigured },                         { label: "VAPID", ready: opsHealthView.runtime.vapidConfigured },                         { label: "reCAPTCHA", ready: opsHealthView.runtime.recaptchaConfigured || !opsHealthView.runtime.appCheckRequired },                       ].map callback (arrow, line 1994)
+    - Confidence: 0%
+  - [ ] opsHealthView.runtime.warnings.map callback (arrow, line 2013)
+    - Confidence: 0%
+  - [ ] opsHealthView.pipeline.routes.map callback (arrow, line 2041)
+    - Confidence: 0%
+  - [ ] opsHealthView.materializers.map callback (arrow, line 2059)
+    - Confidence: 0%
+  - [ ] opsHealthView.diagnostics.recent.map callback (arrow, line 2089)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 2120)
+    - Confidence: 0%
+  - [ ] moduleCoverageView.map callback (arrow, line 2144)
+    - Confidence: 0%
+  - [ ] module.sources.map callback (arrow, line 2172)
+    - Confidence: 0%
+  - [ ] unhealthyModulesView.map callback (arrow, line 2187)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 2201)
+    - Confidence: 0%
+  - [ ] semanticCategoryCardsView.map callback (arrow, line 2208)
+    - Confidence: 0%
+  - [ ] semanticCategoryCardsView.map callback (arrow, line 2216)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 2263)
+    - Confidence: 0%
+  - [ ] socialMetricCategoryCardsView.map callback (arrow, line 2287)
+    - Confidence: 0%
+  - [ ] category.metrics.map callback (arrow, line 2302)
+    - Confidence: 0%
+  - [ ] metric.sources.map callback (arrow, line 2333)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 2346)
+    - Confidence: 0%
+  - [ ] semanticsEngineView.sources.map callback (arrow, line 2365)
+    - Confidence: 0%
+  - [ ] semanticsEngineView.strategies.map callback (arrow, line 2382)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 2396)
+    - Confidence: 0%
+  - [ ] validationsView.map callback (arrow, line 2403)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 2423)
+    - Confidence: 0%
+  - [ ] audienceSnapshotData.devices.find callback (arrow, line 2433)
+    - Confidence: 0%
+  - [ ] audienceSnapshotData.devices.reduce callback (arrow, line 2433)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 2470)
+    - Confidence: 0%
+  - [ ] returnCadenceSegments.map callback (arrow, line 2477)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 2496)
+    - Confidence: 0%
+  - [ ] navigationDestinations.slice(0, 4).map callback (arrow, line 2503)
+    - Confidence: 0%
+  - [ ] navigationDestinations.slice(0, 6).map callback (arrow, line 2513)
+    - Confidence: 0%
+  - [ ] navigationDestinations.slice(0, 6).map callback (arrow, line 2520)
+    - Confidence: 0%
+  - [ ] navigationDestinations.slice(0, 6).map callback (arrow, line 2531)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 2558)
+    - Confidence: 0%
+  - [ ] deviceMixItems.slice(0, 4).map callback (arrow, line 2565)
+    - Confidence: 0%
+  - [ ] deviceMixItems.map callback (arrow, line 2571)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 2607)
+    - Confidence: 0%
+  - [ ] topPathsItems.slice(0, 4).map callback (arrow, line 2614)
+    - Confidence: 0%
+  - [ ] topPathsItems.slice(0, 8).map callback (arrow, line 2621)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 2647)
+    - Confidence: 0%
+  - [ ] regionsItems.slice(0, 4).map callback (arrow, line 2654)
+    - Confidence: 0%
+  - [ ] regionsItems.slice(0, 10).map callback (arrow, line 2661)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 2689)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 2732)
+    - Confidence: 0%
+  - [ ] packagePerformanceItems.slice(0, 4).map callback (arrow, line 2739)
+    - Confidence: 0%
+  - [ ] packagePerformanceItems.slice(0, 5).map callback (arrow, line 2757)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 2776)
+    - Confidence: 0%
+  - [ ] contentConversionItems.slice(0, 4).map callback (arrow, line 2783)
+    - Confidence: 0%
+  - [ ] contentConversionItems.slice(0, 5).map callback (arrow, line 2802)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 2819)
+    - Confidence: 0%
+  - [ ] topDropConversionItems.slice(0, 4).map callback (arrow, line 2826)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 2840)
+    - Confidence: 0%
+  - [ ] topDropConversionItems.slice(0, 6).map callback (arrow, line 2853)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 2878)
+    - Confidence: 0%
+  - [ ] recentCommerceFeedItems.slice(0, 4).map callback (arrow, line 2885)
+    - Confidence: 0%
+  - [ ] recentCommerceFeedItems.slice(0, 10).map callback (arrow, line 2892)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 2933)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 2961)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 2962)
+    - Confidence: 0%
+  - [ ] viewerUsersView.map callback (arrow, line 2991)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 2995)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 3036)
+    - Confidence: 0%
+  - [ ] viewerDropInsightsView.slice(0, 5).map callback (arrow, line 3058)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 3086)
+    - Confidence: 0%
+  - [ ] viewerJourneyItems.slice(0, 5).map callback (arrow, line 3093)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 3112)
+    - Confidence: 0%
+  - [ ] watchDepthItems.slice(0, 2).map callback (arrow, line 3120)
+    - Confidence: 0%
+  - [ ] contentTagDemandItems.slice(0, 2).map callback (arrow, line 3121)
+    - Confidence: 0%
+  - [ ] watchDepthItems.map callback (arrow, line 3130)
+    - Confidence: 0%
+  - [ ] contentTagDemandItems.map callback (arrow, line 3148)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 3168)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 3196)
+    - Confidence: 0%
+  - [ ] taskPipelineView.slice(0, 6).map callback (arrow, line 3203)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 3228)
+    - Confidence: 0%
+  - [ ] taskDurationBucketsView.map callback (arrow, line 3235)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 3256)
+    - Confidence: 0%
+  - [ ] taskLeaderboardView.slice(0, 4).map callback (arrow, line 3263)
+    - Confidence: 0%
+  - [ ] taskLeaderboardView.map callback (arrow, line 3270)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 3298)
+    - Confidence: 0%
+  - [ ] notificationFunnelView.slice(0, 5).map callback (arrow, line 3305)
+    - Confidence: 0%
+  - [ ] notificationFunnelView.filter callback (arrow, line 3314)
+    - Confidence: 0%
+  - [ ] notificationFunnelView.filter((item) => item.count > 0).map callback (arrow, line 3314)
+    - Confidence: 0%
+  - [ ] notificationFunnelView.filter callback (arrow, line 3321)
+    - Confidence: 0%
+  - [ ] notificationFunnelView.filter((item) => item.count > 0).map callback (arrow, line 3321)
+    - Confidence: 0%
+  - [ ] notificationActionsView.map callback (arrow, line 3331)
+    - Confidence: 0%
+  - [ ] reminderReasonsView.map callback (arrow, line 3346)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 3360)
+    - Confidence: 0%
+  - [ ] flaggedAccountsItems.slice(0, 4).map callback (arrow, line 3367)
+    - Confidence: 0%
+  - [ ] flaggedAccountsItems.map callback (arrow, line 3374)
+    - Confidence: 0%
+
+## [ ] src/app/admin/content/page.tsx
+- Confidence: 0%
+- Functions detected: 17
+- Functions:
+  - [ ] ContentManagerPage (function, line 22)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 28)
+    - Confidence: 0%
+  - [ ] fetchFiles (arrow, line 32)
+    - Confidence: 0%
+  - [ ] res.items.map callback (arrow, line 39)
+    - Confidence: 0%
+  - [ ] handleUpload (arrow, line 57)
+    - Confidence: 0%
+  - [ ] setRefreshTrigger callback (arrow, line 65)
+    - Confidence: 0%
+  - [ ] handleDelete (arrow, line 74)
+    - Confidence: 0%
+  - [ ] files.filter callback (arrow, line 79)
+    - Confidence: 0%
+  - [ ] copyToClipboard (arrow, line 86)
+    - Confidence: 0%
+  - [ ] getFileIcon (arrow, line 91)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 106)
+    - Confidence: 0%
+  - [ ] setRefreshTrigger callback (arrow, line 106)
+    - Confidence: 0%
+  - [ ] files.map callback (arrow, line 149)
+    - Confidence: 0%
+  - [ ] ['jpg', 'jpeg', 'png', 'webp', 'gif'].some callback (arrow, line 153)
+    - Confidence: 0%
+  - [ ] ['mp4', 'webm', 'ogg', 'mov'].some callback (arrow, line 155)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 169)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 176)
+    - Confidence: 0%
+
+## [ ] src/app/admin/debug/page.tsx
+- Confidence: 0%
+- Functions detected: 64
+- Functions:
+  - [ ] formatTimestamp (function, line 138)
+    - Confidence: 0%
+  - [ ] formatRelativeTime (function, line 139)
+    - Confidence: 0%
+  - [ ] getOpsHealthClasses (function, line 148)
+    - Confidence: 0%
+  - [ ] getSeverityClasses (function, line 153)
+    - Confidence: 0%
+  - [ ] PreviewGrid (function, line 159)
+    - Confidence: 0%
+  - [ ] items.map callback (arrow, line 162)
+    - Confidence: 0%
+  - [ ] SectionCard (function, line 172)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 185)
+    - Confidence: 0%
+  - [ ] setExpanded callback (arrow, line 185)
+    - Confidence: 0%
+  - [ ] MetricTile (function, line 202)
+    - Confidence: 0%
+  - [ ] TrackingBadge (function, line 206)
+    - Confidence: 0%
+  - [ ] FilterChips (function, line 210)
+    - Confidence: 0%
+  - [ ] options.map callback (arrow, line 221)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 225)
+    - Confidence: 0%
+  - [ ] DebugConsole (function, line 240)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 253)
+    - Confidence: 0%
+  - [ ] (data?.taskParity ?? []).filter callback (arrow, line 253)
+    - Confidence: 0%
+  - [ ] opsHealth.materializers.filter callback (arrow, line 254)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 256)
+    - Confidence: 0%
+  - [ ] (data?.coverage ?? []).filter callback (arrow, line 256)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 260)
+    - Confidence: 0%
+  - [ ] (data?.eventStats ?? []).filter callback (arrow, line 260)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 264)
+    - Confidence: 0%
+  - [ ] opsHealth.diagnostics.recent.filter callback (arrow, line 264)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 268)
+    - Confidence: 0%
+  - [ ] (data?.bugReports ?? []).filter callback (arrow, line 268)
+    - Confidence: 0%
+  - [ ] handleSimulateBalance (function, line 275)
+    - Confidence: 0%
+  - [ ] TABS.map callback (arrow, line 303)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 305)
+    - Confidence: 0%
+  - [ ] [                     { label: "GA property", ready: opsHealth.runtime.gaPropertyConfigured },                     { label: "Navigation session", ready: opsHealth.runtime.navigationSessionSigningReady },                     { label: "App Check", ready: opsHealth.runtime.appCheckConfigured || !opsHealth.runtime.appCheckRequired },                     { label: "Realtime DB", ready: opsHealth.runtime.databaseUrlConfigured },                     { label: "VAPID", ready: opsHealth.runtime.vapidConfigured },                     { label: "reCAPTCHA", ready: opsHealth.runtime.recaptchaConfigured || !opsHealth.runtime.appCheckRequired },                   ].map callback (arrow, line 328)
+    - Confidence: 0%
+  - [ ] opsHealth.runtime.warnings.map callback (arrow, line 330)
+    - Confidence: 0%
+  - [ ] opsHealth.diagnostics.recent.slice(0, 5).map callback (arrow, line 335)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 366)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 368)
+    - Confidence: 0%
+  - [ ] filteredCoverage.map callback (arrow, line 391)
+    - Confidence: 0%
+  - [ ] highRiskParityItems.slice(0, 4).map callback (arrow, line 394)
+    - Confidence: 0%
+  - [ ] highRiskParityItems.map callback (arrow, line 395)
+    - Confidence: 0%
+  - [ ] (data?.assignmentIssues ?? []).slice(0, 4).map callback (arrow, line 397)
+    - Confidence: 0%
+  - [ ] (data?.assignmentIssues ?? []).map callback (arrow, line 398)
+    - Confidence: 0%
+  - [ ] item.issues.map callback (arrow, line 398)
+    - Confidence: 0%
+  - [ ] (data?.taskRollups ?? []).slice(0, 4).map callback (arrow, line 402)
+    - Confidence: 0%
+  - [ ] (data?.taskRollups ?? []).slice(0, 8).map callback (arrow, line 403)
+    - Confidence: 0%
+  - [ ] (data?.dailyTaskSeries ?? []).slice(-4).reverse().map callback (arrow, line 405)
+    - Confidence: 0%
+  - [ ] (data?.dailyTaskSeries ?? []).slice(-6).reverse().map callback (arrow, line 406)
+    - Confidence: 0%
+  - [ ] (data?.receiptSummary ?? []).slice(0, 4).map callback (arrow, line 414)
+    - Confidence: 0%
+  - [ ] (data?.recentReceipts ?? []).slice(0, 12).map callback (arrow, line 415)
+    - Confidence: 0%
+  - [ ] (data?.eventStats ?? []).slice(0, 4).map callback (arrow, line 417)
+    - Confidence: 0%
+  - [ ] filteredEventStats.slice(0, 12).map callback (arrow, line 430)
+    - Confidence: 0%
+  - [ ] (data?.orphanedEventStats ?? []).slice(0, 4).map callback (arrow, line 433)
+    - Confidence: 0%
+  - [ ] (data?.orphanedEventStats ?? []).slice(0, 8).map callback (arrow, line 434)
+    - Confidence: 0%
+  - [ ] (data?.recentTaskEvents ?? []).slice(0, 8).map callback (arrow, line 434)
+    - Confidence: 0%
+  - [ ] (filteredBugReports.slice(0, 4)).map callback (arrow, line 441)
+    - Confidence: 0%
+  - [ ] filteredBugReports.slice(0, 12).map callback (arrow, line 465)
+    - Confidence: 0%
+  - [ ] (data?.rollouts ?? []).slice(0, 4).map callback (arrow, line 490)
+    - Confidence: 0%
+  - [ ] (data?.rollouts ?? []).map callback (arrow, line 492)
+    - Confidence: 0%
+  - [ ] rollout.variants.map callback (arrow, line 508)
+    - Confidence: 0%
+  - [ ] filteredBugReports.slice(0, 4).map callback (arrow, line 518)
+    - Confidence: 0%
+  - [ ] filteredBugReports.slice(0, 8).map callback (arrow, line 520)
+    - Confidence: 0%
+  - [ ] opsHealth.materializers.slice(0, 4).map callback (arrow, line 538)
+    - Confidence: 0%
+  - [ ] opsHealth.materializers.map callback (arrow, line 539)
+    - Confidence: 0%
+  - [ ] opsHealth.diagnostics.channels.slice(0, 4).map callback (arrow, line 542)
+    - Confidence: 0%
+  - [ ] opsHealth.diagnostics.channels.map callback (arrow, line 543)
+    - Confidence: 0%
+  - [ ] opsHealth.diagnostics.recent.slice(0, 4).map callback (arrow, line 545)
+    - Confidence: 0%
+  - [ ] filteredDiagnostics.map callback (arrow, line 558)
+    - Confidence: 0%
+
+## [ ] src/app/admin/drops/page.tsx
+- Confidence: 0%
+- Functions detected: 40
+- Functions:
+  - [ ] AdminDropsPage (function, line 27)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 40)
+    - Confidence: 0%
+  - [ ] onSnapshot callback (arrow, line 42)
+    - Confidence: 0%
+  - [ ] snapshot.forEach callback (arrow, line 45)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 63)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 66)
+    - Confidence: 0%
+  - [ ] fetchQueueMembership (arrow, line 69)
+    - Confidence: 0%
+  - [ ] window.setInterval callback (arrow, line 86)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 90)
+    - Confidence: 0%
+  - [ ] handleDelete (arrow, line 96)
+    - Confidence: 0%
+  - [ ] toggleSelection (arrow, line 113)
+    - Confidence: 0%
+  - [ ] setSelectedDropIds callback (arrow, line 114)
+    - Confidence: 0%
+  - [ ] toggleAll (arrow, line 122)
+    - Confidence: 0%
+  - [ ] drops.map callback (arrow, line 126)
+    - Confidence: 0%
+  - [ ] handleBulkDelete (arrow, line 130)
+    - Confidence: 0%
+  - [ ] limit.map callback (arrow, line 135)
+    - Confidence: 0%
+  - [ ] toggleAutoQueue (arrow, line 145)
+    - Confidence: 0%
+  - [ ] setQueueIds callback (arrow, line 154)
+    - Confidence: 0%
+  - [ ] openNotificationDraft (arrow, line 169)
+    - Confidence: 0%
+  - [ ] handleSendDropNotification (arrow, line 183)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 255)
+    - Confidence: 0%
+  - [ ] drops.map callback (arrow, line 303)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 318)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 319)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 323)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 371)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 378)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 385)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 397)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 409)
+    - Confidence: 0%
+  - [ ] drops.map callback (arrow, line 425)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 466)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 472)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 478)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 487)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 522)
+    - Confidence: 0%
+  - [ ] setNotificationDraft callback (arrow, line 522)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 532)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 551)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 557)
+    - Confidence: 0%
+
+## [ ] src/app/admin/layout.tsx
+- Confidence: 0%
+- Functions detected: 4
+- Functions:
+  - [ ] AdminLayout (function, line 21)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 27)
+    - Confidence: 0%
+  - [ ] NAV_ITEMS.map callback (arrow, line 60)
+    - Confidence: 0%
+  - [ ] NAV_ITEMS.map callback (arrow, line 80)
+    - Confidence: 0%
+
+## [ ] src/app/admin/page.tsx
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] AdminDashboardPage (function, line 12)
+    - Confidence: 0%
+
+## [ ] src/app/admin/queue/page.tsx
+- Confidence: 0%
+- Functions detected: 19
+- Functions:
+  - [ ] formatProjectedSlot (function, line 28)
+    - Confidence: 0%
+  - [ ] ManageQueuePage (function, line 41)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 47)
+    - Confidence: 0%
+  - [ ] fetchQueueData (function, line 48)
+    - Confidence: 0%
+  - [ ] dropsSnap.forEach callback (arrow, line 59)
+    - Confidence: 0%
+  - [ ] handleSave (arrow, line 87)
+    - Confidence: 0%
+  - [ ] moveDrop (arrow, line 105)
+    - Confidence: 0%
+  - [ ] removeDrop (arrow, line 116)
+    - Confidence: 0%
+  - [ ] config.queue.filter callback (arrow, line 118)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 123)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 178)
+    - Confidence: 0%
+  - [ ] config.timesPerDay.map callback (arrow, line 194)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 200)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 221)
+    - Confidence: 0%
+  - [ ] config.queue.map callback (arrow, line 249)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 257)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 315)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 322)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 330)
+    - Confidence: 0%
+
+## [ ] src/app/admin/roster/page.tsx
+- Confidence: 0%
+- Functions detected: 25
+- Functions:
+  - [ ] initialsFor (function, line 30)
+    - Confidence: 0%
+  - [ ] parts.slice(0, 2).map callback (arrow, line 33)
+    - Confidence: 0%
+  - [ ] AdminRosterPage (function, line 37)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 47)
+    - Confidence: 0%
+  - [ ] fetchRoster (arrow, line 54)
+    - Confidence: 0%
+  - [ ] (result.users || []).map callback (arrow, line 66)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 92)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 97)
+    - Confidence: 0%
+  - [ ] users.filter callback (arrow, line 103)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 111)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 115)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 118)
+    - Confidence: 0%
+  - [ ] users.filter callback (arrow, line 118)
+    - Confidence: 0%
+  - [ ] handleRoleUpdate (arrow, line 122)
+    - Confidence: 0%
+  - [ ] setUsers callback (arrow, line 132)
+    - Confidence: 0%
+  - [ ] current.map callback (arrow, line 132)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 172)
+    - Confidence: 0%
+  - [ ] creatorUsers.filter callback (arrow, line 188)
+    - Confidence: 0%
+  - [ ] creatorUsers.filter callback (arrow, line 193)
+    - Confidence: 0%
+  - [ ] users.filter callback (arrow, line 198)
+    - Confidence: 0%
+  - [ ] [                     {                         icon: Sparkles,                         title: "Creator onboarding pipeline",                         copy: "Work in progress. This panel will map invite status, onboarding milestones, verification, and readiness for first-drop setup.",                     },                     {                         icon: HeartHandshake,                         title: "Social + follow graph",                         copy: "Work in progress. This panel will track fan follows, creator affinity, social prompts, and follow-driven retention loops.",                     },                     {                         icon: Wand2,                         title: "Creator experiences + drops",                         copy: "Work in progress. This panel will coordinate creator-specific experiences, drop calendars, and roster programming.",                     },                 ].map callback (arrow, line 220)
+    - Confidence: 0%
+  - [ ] visibleUsers.map callback (arrow, line 256)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 298)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 350)
+    - Confidence: 0%
+  - [ ] setVisibleCount callback (arrow, line 350)
+    - Confidence: 0%
+
+## [ ] src/app/admin/user/[userId]/page.tsx
+- Confidence: 0%
+- Functions detected: 41
+- Functions:
+  - [ ] getValidationClasses (function, line 122)
+    - Confidence: 0%
+  - [ ] getCoverageClasses (function, line 134)
+    - Confidence: 0%
+  - [ ] AdminUserAnalyticsPage (function, line 146)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 166)
+    - Confidence: 0%
+  - [ ] fetchUserData (function, line 169)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 203)
+    - Confidence: 0%
+  - [ ] transactions             .filter callback (arrow, line 205)
+    - Confidence: 0%
+  - [ ] transactions             .filter((transaction) => transaction.status === "completed" && (transaction.type === "purchase_currency" || String(transaction.type) === "purchase"))             .map callback (arrow, line 206)
+    - Confidence: 0%
+  - [ ] purchaseTransactions.reduce callback (arrow, line 215)
+    - Confidence: 0%
+  - [ ] purchaseTransactions.reduce callback (arrow, line 216)
+    - Confidence: 0%
+  - [ ] purchaseTransactions.reduce callback (arrow, line 217)
+    - Confidence: 0%
+  - [ ] purchaseTransactions.reduce callback (arrow, line 218)
+    - Confidence: 0%
+  - [ ] purchaseTransactions.reduce callback (arrow, line 219)
+    - Confidence: 0%
+  - [ ] purchaseTransactions.reduce callback (arrow, line 220)
+    - Confidence: 0%
+  - [ ] purchaseTransactions.reduce callback (arrow, line 221)
+    - Confidence: 0%
+  - [ ] transactions.filter callback (arrow, line 225)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 228)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 240)
+    - Confidence: 0%
+  - [ ] securityEvents                 .filter callback (arrow, line 243)
+    - Confidence: 0%
+  - [ ] securityEvents                 .filter((event) => event.reason)                 .map callback (arrow, line 244)
+    - Confidence: 0%
+  - [ ] Array.from(new Map(             securityEvents                 .filter((event) => event.reason)                 .map((event) => [event.reason, event.label] as const),         ).entries())             .sort callback (arrow, line 246)
+    - Confidence: 0%
+  - [ ] Array.from(new Map(             securityEvents                 .filter((event) => event.reason)                 .map((event) => [event.reason, event.label] as const),         ).entries())             .sort((left, right) => left[1].localeCompare(right[1]))             .map callback (arrow, line 247)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 250)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 251)
+    - Confidence: 0%
+  - [ ] securityEvents.filter callback (arrow, line 252)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 283)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 296)
+    - Confidence: 0%
+  - [ ] transactions.map callback (arrow, line 455)
+    - Confidence: 0%
+  - [ ] [                         { label: "Purchases", insight: parity?.purchase },                         { label: "Unlocks", insight: parity?.unlock },                     ].map callback (arrow, line 540)
+    - Confidence: 0%
+  - [ ] (entry.insight?.sources ?? []).map callback (arrow, line 554)
+    - Confidence: 0%
+  - [ ] (parity?.coverage ?? []).map callback (arrow, line 566)
+    - Confidence: 0%
+  - [ ] module.sources.map callback (arrow, line 578)
+    - Confidence: 0%
+  - [ ] (parity?.validations ?? []).map callback (arrow, line 589)
+    - Confidence: 0%
+  - [ ] analytics!.topViewedDrops.map callback (arrow, line 612)
+    - Confidence: 0%
+  - [ ] [                             { key: "all" as const, label: "All time" },                             { key: "30d" as const, label: "Last 30 days" },                         ].map callback (arrow, line 669)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 673)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 690)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 703)
+    - Confidence: 0%
+  - [ ] securityReasonOptions.map callback (arrow, line 707)
+    - Confidence: 0%
+  - [ ] securitySummary.reasons.map callback (arrow, line 715)
+    - Confidence: 0%
+  - [ ] filteredSecurityEvents.map callback (arrow, line 726)
+    - Confidence: 0%
+
+## [ ] src/app/admin/users/page.tsx
+- Confidence: 0%
+- Functions detected: 60
+- Functions:
+  - [ ] UserManagementPage (function, line 90)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 112)
+    - Confidence: 0%
+  - [ ] fetchUsers (arrow, line 116)
+    - Confidence: 0%
+  - [ ] fetchFeedback (arrow, line 137)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 154)
+    - Confidence: 0%
+  - [ ] users.filter callback (arrow, line 160)
+    - Confidence: 0%
+  - [ ] getUserAnalytics (arrow, line 167)
+    - Confidence: 0%
+  - [ ] formatMoney (arrow, line 168)
+    - Confidence: 0%
+  - [ ] formatLastSeen (arrow, line 170)
+    - Confidence: 0%
+  - [ ] formatLastPurchase (arrow, line 172)
+    - Confidence: 0%
+  - [ ] [...filteredUsers]         .sort callback (arrow, line 179)
+    - Confidence: 0%
+  - [ ] handleUpdateStatus (arrow, line 182)
+    - Confidence: 0%
+  - [ ] users.map callback (arrow, line 206)
+    - Confidence: 0%
+  - [ ] handleManageContent (arrow, line 223)
+    - Confidence: 0%
+  - [ ] (contentUser.unlockedContent || []).filter callback (arrow, line 245)
+    - Confidence: 0%
+  - [ ] users.map callback (arrow, line 247)
+    - Confidence: 0%
+  - [ ] setDropReferences callback (arrow, line 250)
+    - Confidence: 0%
+  - [ ] handleRoleUpdate (arrow, line 265)
+    - Confidence: 0%
+  - [ ] users.map callback (arrow, line 274)
+    - Confidence: 0%
+  - [ ] handleVerification (arrow, line 282)
+    - Confidence: 0%
+  - [ ] users.map callback (arrow, line 291)
+    - Confidence: 0%
+  - [ ] getStatusColor (arrow, line 298)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 319)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 328)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 337)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 402)
+    - Confidence: 0%
+  - [ ] topTrackedUsers.map callback (arrow, line 414)
+    - Confidence: 0%
+  - [ ] filteredUsers.map callback (arrow, line 463)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 499)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 500)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 534)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 548)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 551)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 563)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 564)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 567)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 569)
+    - Confidence: 0%
+  - [ ] filteredUsers.map callback (arrow, line 587)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 705)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 718)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 722)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 726)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 730)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 746)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 755)
+    - Confidence: 0%
+  - [ ] feedback.map callback (arrow, line 783)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 819)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 858)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 863)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 877)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 878)
+    - Confidence: 0%
+  - [ ] users.map callback (arrow, line 879)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 886)
+    - Confidence: 0%
+  - [ ] contentUser.unlockedContent.map callback (arrow, line 897)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 903)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 912)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 913)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 917)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 970)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 972)
+    - Confidence: 0%
+
+## [ ] src/app/api/admin/analytics/historical/route.ts
+- Confidence: 0%
+- Functions detected: 44
+- Functions:
+  - [ ] scopeHistoricalResponse (function, line 45)
+    - Confidence: 0%
+  - [ ] GET (function, line 159)
+    - Confidence: 0%
+  - [ ] dailyRollupsSnapshot.docs.filter callback (arrow, line 242)
+    - Confidence: 0%
+  - [ ] (dropsSnapshot?.docs || [])                     .map callback (arrow, line 246)
+    - Confidence: 0%
+  - [ ] (dropsSnapshot?.docs || [])                     .map((doc: FirebaseFirestore.QueryDocumentSnapshot) => {                         const data = doc.data() as Record<string, unknown>;                         return {                             dropId: doc.id,                             dropTitle: resolveDropTitle(dropReferences, doc.id),                             views: getDropViewCount(data),                             unlocks: toNumber(data.totalUnlocks),                         };                     })                     .filter callback (arrow, line 255)
+    - Confidence: 0%
+  - [ ] (dropsSnapshot?.docs || [])                     .map((doc: FirebaseFirestore.QueryDocumentSnapshot) => {                         const data = doc.data() as Record<string, unknown>;                         return {                             dropId: doc.id,                             dropTitle: resolveDropTitle(dropReferences, doc.id),                             views: getDropViewCount(data),                             unlocks: toNumber(data.totalUnlocks),                         };                     })                     .filter((drop: { views: number; unlocks: number }) => drop.views > 0 || drop.unlocks > 0)                     .sort callback (arrow, line 256)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 258)
+    - Confidence: 0%
+  - [ ] dropDailySnapshot.docs.forEach callback (arrow, line 260)
+    - Confidence: 0%
+  - [ ] Array.from(dropMap.entries())                         .map callback (arrow, line 274)
+    - Confidence: 0%
+  - [ ] Array.from(dropMap.entries())                         .map(([id, stats]) => ({                             dropId: id,                             dropTitle: resolveDropTitle(dropReferences, id),                             views: stats.views,                             unlocks: stats.unlocks,                         }))                         .sort callback (arrow, line 280)
+    - Confidence: 0%
+  - [ ] transactionsInRangeSnapshot.docs.flatMap callback (arrow, line 284)
+    - Confidence: 0%
+  - [ ] rawTransactions.forEach callback (arrow, line 300)
+    - Confidence: 0%
+  - [ ] telemetryLogsByEvent.viewer_opened?.forEach callback (arrow, line 305)
+    - Confidence: 0%
+  - [ ] securityEventsSnapshot.docs.forEach callback (arrow, line 310)
+    - Confidence: 0%
+  - [ ] usersSnapshot.docs.forEach callback (arrow, line 324)
+    - Confidence: 0%
+  - [ ] Object.values(telemetryLogsByEvent).flat().sort callback (arrow, line 334)
+    - Confidence: 0%
+  - [ ] Object.entries(telemetryLogsByEvent).map callback (arrow, line 336)
+    - Confidence: 0%
+  - [ ] analyticsEventStatsSnapshot.docs.reduce callback (arrow, line 339)
+    - Confidence: 0%
+  - [ ] analyticsEventFactsSnapshot.docs.reduce callback (arrow, line 349)
+    - Confidence: 0%
+  - [ ] Array.from(buildMergedCountMap(                 gaEventCounts,                 telemetryEventCounts,                 canonicalEventCounts,             ).entries())                 .map callback (arrow, line 369)
+    - Confidence: 0%
+  - [ ] Array.from(buildMergedCountMap(                 gaEventCounts,                 telemetryEventCounts,                 canonicalEventCounts,             ).entries())                 .map(([eventName, count]) => ({ eventName, count }))                 .sort callback (arrow, line 370)
+    - Confidence: 0%
+  - [ ] filteredDailyRollups.reduce callback (arrow, line 371)
+    - Confidence: 0%
+  - [ ] taskEventsSnapshot.docs.flatMap callback (arrow, line 382)
+    - Confidence: 0%
+  - [ ] normalizedTransactionsInRange.reduce callback (arrow, line 430)
+    - Confidence: 0%
+  - [ ] analyticsEventFactsSnapshot.docs.map callback (arrow, line 469)
+    - Confidence: 0%
+  - [ ] guestBatchesSnapshot.docs.map callback (arrow, line 470)
+    - Confidence: 0%
+  - [ ] sessionFactsSnapshot.docs.map callback (arrow, line 471)
+    - Confidence: 0%
+  - [ ] buildSemanticCategorySummaries({                 eventFacts: analyticsEventFactsSnapshot.docs.map((doc) => doc.data() as Record<string, unknown>),                 guestBatches: guestBatchesSnapshot.docs.map((doc) => doc.data() as Record<string, unknown>),                 sessionFacts: sessionFactsSnapshot.docs.map((doc) => doc.data() as Record<string, unknown>),             }).map callback (arrow, line 472)
+    - Confidence: 0%
+  - [ ] analyticsEventFactsSnapshot.docs                 .map callback (arrow, line 482)
+    - Confidence: 0%
+  - [ ] analyticsEventFactsSnapshot.docs                 .map((doc) => {                     const data = doc.data() as Record<string, unknown>;                     const params = safeParams(data.params);                     return {                         eventName: toStringValue(data.eventName),                         timestamp: toNumber(data.timestamp),                         registrationMethod: toStringValue(params.registration_method || params.auth_provider || ""),                     };                 })                 .filter callback (arrow, line 491)
+    - Confidence: 0%
+  - [ ] analyticsEventStatsSnapshot.docs.find callback (arrow, line 495)
+    - Confidence: 0%
+  - [ ] registrationFacts.filter callback (arrow, line 498)
+    - Confidence: 0%
+  - [ ] analyticsEventFactsSnapshot.docs.map callback (arrow, line 540)
+    - Confidence: 0%
+  - [ ] guestBatchesSnapshot.docs.map callback (arrow, line 541)
+    - Confidence: 0%
+  - [ ] sessionFactsSnapshot.docs.map callback (arrow, line 542)
+    - Confidence: 0%
+  - [ ] onboardingStepFacts.filter callback (arrow, line 547)
+    - Confidence: 0%
+  - [ ] onboardingStepFacts.filter callback (arrow, line 548)
+    - Confidence: 0%
+  - [ ] normalizedTransactionsInRange.filter callback (arrow, line 608)
+    - Confidence: 0%
+  - [ ] normalizedTransactionsInRange.filter callback (arrow, line 609)
+    - Confidence: 0%
+  - [ ] guestBatchesSnapshot.docs.reduce callback (arrow, line 610)
+    - Confidence: 0%
+  - [ ] pipelineHealthSnapshot.docs.reduce callback (arrow, line 614)
+    - Confidence: 0%
+  - [ ] Array.from(pageRollupMap.values()).reduce callback (arrow, line 618)
+    - Confidence: 0%
+  - [ ] dropDailySnapshot.docs.reduce callback (arrow, line 619)
+    - Confidence: 0%
+  - [ ] filteredSessionFacts.reduce callback (arrow, line 623)
+    - Confidence: 0%
+
+## [ ] src/app/api/admin/analytics/realtime/route.ts
+- Confidence: 0%
+- Functions detected: 4
+- Functions:
+  - [ ] GET (function, line 17)
+    - Confidence: 0%
+  - [ ] Array.from callback (arrow, line 52)
+    - Confidence: 0%
+  - [ ] rows.forEach callback (arrow, line 58)
+    - Confidence: 0%
+  - [ ] liveData.sort callback (arrow, line 68)
+    - Confidence: 0%
+
+## [ ] src/app/api/admin/analytics/route.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] GET (function, line 6)
+    - Confidence: 0%
+
+## [ ] src/app/api/admin/balance/route.ts
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] z.number().int().gte(-1_000_000).lte(1_000_000).refine callback (arrow, line 12)
+    - Confidence: 0%
+  - [ ] POST (function, line 18)
+    - Confidence: 0%
+  - [ ] adminDb.runTransaction callback (arrow, line 37)
+    - Confidence: 0%
+
+## [ ] src/app/api/admin/debug/route.ts
+- Confidence: 0%
+- Functions detected: 48
+- Functions:
+  - [ ] toNumber (function, line 15)
+    - Confidence: 0%
+  - [ ] toStringValue (function, line 20)
+    - Confidence: 0%
+  - [ ] toTimestampNumber (function, line 24)
+    - Confidence: 0%
+  - [ ] inferTrackingSource (function, line 41)
+    - Confidence: 0%
+  - [ ] normalizeTaskIds (function, line 53)
+    - Confidence: 0%
+  - [ ] rawTasks         .map callback (arrow, line 59)
+    - Confidence: 0%
+  - [ ] rawTasks         .map((task) => (task && typeof task === "object" ? task as DailyTaskAssignment : null))         .filter callback (arrow, line 60)
+    - Confidence: 0%
+  - [ ] rawTasks         .map((task) => (task && typeof task === "object" ? task as DailyTaskAssignment : null))         .filter((task): task is DailyTaskAssignment => Boolean(task))         .map callback (arrow, line 61)
+    - Confidence: 0%
+  - [ ] rawTasks         .map((task) => (task && typeof task === "object" ? task as DailyTaskAssignment : null))         .filter((task): task is DailyTaskAssignment => Boolean(task))         .map((task) => ({             id: toStringValue(task.id),             title: toStringValue(task.title),             progress: toNumber(task.progress),             maxProgress: toNumber(task.maxProgress) || 1,             claimed: task.claimed === true,             claimedAt: toNumber(task.claimedAt),             assignedAt: toNumber(task.assignedAt),         }))         .filter callback (arrow, line 70)
+    - Confidence: 0%
+  - [ ] hasInvalidRefreshMetadata (function, line 73)
+    - Confidence: 0%
+  - [ ] GET (function, line 88)
+    - Confidence: 0%
+  - [ ] BUILT_IN_DAILY_TASKS.map callback (arrow, line 158)
+    - Confidence: 0%
+  - [ ] coverage.filter callback (arrow, line 170)
+    - Confidence: 0%
+  - [ ] coverage.filter callback (arrow, line 171)
+    - Confidence: 0%
+  - [ ] coverage.filter callback (arrow, line 172)
+    - Confidence: 0%
+  - [ ] usersSnapshot.docs.flatMap callback (arrow, line 174)
+    - Confidence: 0%
+  - [ ] tasks.map callback (arrow, line 180)
+    - Confidence: 0%
+  - [ ] ids.filter callback (arrow, line 181)
+    - Confidence: 0%
+  - [ ] tasks.some callback (arrow, line 189)
+    - Confidence: 0%
+  - [ ] tasks.some callback (arrow, line 192)
+    - Confidence: 0%
+  - [ ] tasks.some callback (arrow, line 195)
+    - Confidence: 0%
+  - [ ] taskEventsSnapshot.docs.map callback (arrow, line 215)
+    - Confidence: 0%
+  - [ ] receiptsSnapshot.docs.map callback (arrow, line 234)
+    - Confidence: 0%
+  - [ ] transactionsSnapshot.docs.map callback (arrow, line 246)
+    - Confidence: 0%
+  - [ ] transactionEntries             .filter callback (arrow, line 252)
+    - Confidence: 0%
+  - [ ] recentTaskEvents.filter callback (arrow, line 253)
+    - Confidence: 0%
+  - [ ] recentReceipts.filter callback (arrow, line 254)
+    - Confidence: 0%
+  - [ ] completedEvents7d.forEach callback (arrow, line 265)
+    - Confidence: 0%
+  - [ ] rewardTransactions7d.forEach callback (arrow, line 279)
+    - Confidence: 0%
+  - [ ] BUILT_IN_DAILY_TASKS.find callback (arrow, line 282)
+    - Confidence: 0%
+  - [ ] receiptEvents7d.forEach callback (arrow, line 296)
+    - Confidence: 0%
+  - [ ] BUILT_IN_DAILY_TASKS.find callback (arrow, line 301)
+    - Confidence: 0%
+  - [ ] Array.from(rewardParityByTask.values())             .sort callback (arrow, line 316)
+    - Confidence: 0%
+  - [ ] eventStatsSnapshot.docs.map callback (arrow, line 318)
+    - Confidence: 0%
+  - [ ] BUILT_IN_DAILY_TASKS.filter callback (arrow, line 320)
+    - Confidence: 0%
+  - [ ] taskMatches.map callback (arrow, line 327)
+    - Confidence: 0%
+  - [ ] eventStatsSnapshot.docs.map((doc) => {             const data = doc.data() as Record<string, unknown>;             const taskMatches = BUILT_IN_DAILY_TASKS.filter((task) => task.eventName === doc.id);             return {                 eventName: doc.id,                 label: TELEMETRY_EVENT_LABELS[doc.id] || doc.id,                 totalCount: toNumber(data.totalCount),                 lastSeenAt: toNumber(data.lastSeenAt),                 mappedTaskCount: taskMatches.length,                 mappedTaskTitles: taskMatches.map((task) => task.title),                 trackingSource: inferTrackingSource(doc.id),             };         }).sort callback (arrow, line 330)
+    - Confidence: 0%
+  - [ ] eventStats             .filter callback (arrow, line 333)
+    - Confidence: 0%
+  - [ ] receiptEvents7d.reduce callback (arrow, line 336)
+    - Confidence: 0%
+  - [ ] Array.from(receiptEvents7d.reduce((map, entry) => {             const current = map.get(entry.eventName) || {                 eventName: entry.eventName,                 count: 0,                 lastSeenAt: 0,             };             current.count += 1;             current.lastSeenAt = Math.max(current.lastSeenAt, entry.timestamp);             map.set(entry.eventName, current);             return map;         }, new Map<string, { eventName: string; count: number; lastSeenAt: number }>()).values())             .sort callback (arrow, line 347)
+    - Confidence: 0%
+  - [ ] taskRollupSnapshot.docs.map callback (arrow, line 349)
+    - Confidence: 0%
+  - [ ] taskRollupSnapshot.docs.map((doc) => {             const data = doc.data() as Record<string, unknown>;             return {                 taskId: doc.id,                 title: toStringValue(data.title) || doc.id,                 eventCount: toNumber(data.eventCount),                 rewardTotal: toNumber(data.rewardTotal),                 completed: toNumber((data.types as Record<string, unknown> | undefined)?.completed),                 started: toNumber((data.types as Record<string, unknown> | undefined)?.started),                 failed: toNumber((data.types as Record<string, unknown> | undefined)?.failed),                 reminders: toNumber((data.types as Record<string, unknown> | undefined)?.reminder_sent),                 lastEventAt: toNumber(data.lastEventAt),             };         }).sort callback (arrow, line 362)
+    - Confidence: 0%
+  - [ ] taskDailySnapshot.docs.map callback (arrow, line 364)
+    - Confidence: 0%
+  - [ ] taskDailySnapshot.docs.map((doc) => {             const data = doc.data() as Record<string, unknown>;             return {                 dayKey: doc.id,                 eventCount: toNumber(data.eventCount),                 rewardTotal: toNumber(data.rewardTotal),                 completed: toNumber((data.types as Record<string, unknown> | undefined)?.completed),                 failed: toNumber((data.types as Record<string, unknown> | undefined)?.failed),             };         }).sort callback (arrow, line 373)
+    - Confidence: 0%
+  - [ ] feedbackSnapshot.docs             .map callback (arrow, line 376)
+    - Confidence: 0%
+  - [ ] feedbackSnapshot.docs             .map((doc) => {                 const data = doc.data() as Record<string, unknown>;                 return {                     id: doc.id,                     userId: toStringValue(data.userId),                     email: toStringValue(data.email) || null,                     summary: toStringValue(data.summary) || toStringValue(data.message),                     message: toStringValue(data.message),                     category: toStringValue(data.category) || "general",                     status: toStringValue(data.status) || "new",                     issueType: toStringValue(data.issueType) || "other",                     severity: toStringValue(data.severity) || "medium",                     contextId: toStringValue(data.contextId),                     currentPath: toStringValue(data.currentPath),                     componentName: toStringValue(data.componentName),                     diagnosticsCount: toNumber(data.diagnosticsCount),                     breadcrumbsCount: toNumber(data.breadcrumbsCount),                     rolloutCount: toNumber(data.rolloutCount),                     timestamp: toTimestampNumber(data.timestamp),                     autoContext: (data.autoContext as Record<string, unknown> | undefined) ?? null,                     component: (data.component as Record<string, unknown> | undefined) ?? null,                 };             })             .filter callback (arrow, line 399)
+    - Confidence: 0%
+  - [ ] getConfiguredRollouts().map callback (arrow, line 402)
+    - Confidence: 0%
+  - [ ] bugReports.filter callback (arrow, line 428)
+    - Confidence: 0%
+
+## [ ] src/app/api/admin/drops/route.ts
+- Confidence: 0%
+- Functions detected: 4
+- Functions:
+  - [ ] sanitizeDropData (function, line 22)
+    - Confidence: 0%
+  - [ ] POST (function, line 33)
+    - Confidence: 0%
+  - [ ] PUT (function, line 93)
+    - Confidence: 0%
+  - [ ] DELETE (function, line 164)
+    - Confidence: 0%
+
+## [ ] src/app/api/admin/feedback/route.ts
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] toTimestampNumber (function, line 8)
+    - Confidence: 0%
+  - [ ] GET (function, line 25)
+    - Confidence: 0%
+  - [ ] snapshot.docs.map callback (arrow, line 34)
+    - Confidence: 0%
+
+## [ ] src/app/api/admin/overview/route.ts
+- Confidence: 0%
+- Functions detected: 21
+- Functions:
+  - [ ] toTimestampNumber (function, line 19)
+    - Confidence: 0%
+  - [ ] serializeRecentTransaction (function, line 36)
+    - Confidence: 0%
+  - [ ] formatChartDayLabel (function, line 44)
+    - Confidence: 0%
+  - [ ] buildThirtyDayChart (function, line 53)
+    - Confidence: 0%
+  - [ ] GET (function, line 70)
+    - Confidence: 0%
+  - [ ] usersSnapshot.docs.forEach callback (arrow, line 95)
+    - Confidence: 0%
+  - [ ] dropsSnapshot.docs.flatMap callback (arrow, line 108)
+    - Confidence: 0%
+  - [ ] recentTransactionsSnapshot.docs.flatMap callback (arrow, line 116)
+    - Confidence: 0%
+  - [ ] purchaseTransactionsSnapshot.docs.flatMap callback (arrow, line 123)
+    - Confidence: 0%
+  - [ ] purchaseTransactionsSnapshot.docs.flatMap((doc) => {             try {                 return [normalizeTransactionRecord(doc.data(), doc.id)];             } catch {                 return [];             }         }).filter callback (arrow, line 129)
+    - Confidence: 0%
+  - [ ] unlockTransactionsSnapshot.docs.flatMap callback (arrow, line 130)
+    - Confidence: 0%
+  - [ ] unlockTransactionsSnapshot.docs.flatMap((doc) => {             try {                 return [normalizeTransactionRecord(doc.data(), doc.id)];             } catch {                 return [];             }         }).filter callback (arrow, line 136)
+    - Confidence: 0%
+  - [ ] recentTransactionsSource             .slice(0, 20)             .map callback (arrow, line 140)
+    - Confidence: 0%
+  - [ ] adminActivitySnapshot.docs             .flatMap callback (arrow, line 143)
+    - Confidence: 0%
+  - [ ] adminActivitySnapshot.docs             .flatMap((doc) => {                 try {                     return [normalizeTransactionRecord(doc.data(), doc.id)];                 } catch {                     return [];                 }             })             .map callback (arrow, line 150)
+    - Confidence: 0%
+  - [ ] [...drops]             .sort callback (arrow, line 153)
+    - Confidence: 0%
+  - [ ] chartSeed.map callback (arrow, line 157)
+    - Confidence: 0%
+  - [ ] [...purchaseTransactions, ...unlockTransactions].forEach callback (arrow, line 159)
+    - Confidence: 0%
+  - [ ] drops.filter callback (arrow, line 181)
+    - Confidence: 0%
+  - [ ] purchaseTransactions.reduce callback (arrow, line 183)
+    - Confidence: 0%
+  - [ ] drops.reduce callback (arrow, line 184)
+    - Confidence: 0%
+
+## [ ] src/app/api/admin/queue/route.ts
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] GET (function, line 7)
+    - Confidence: 0%
+  - [ ] PUT (function, line 20)
+    - Confidence: 0%
+
+## [ ] src/app/api/admin/queue/toggle/route.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] POST (function, line 7)
+    - Confidence: 0%
+
+## [ ] src/app/api/admin/tasks/route.ts
+- Confidence: 0%
+- Functions detected: 11
+- Functions:
+  - [ ] z.object({   paramEquals: z.object({     key: z.string().trim().min(1).max(60),     value: scalarValueSchema,   }).optional(),   minNumberParam: z.object({     key: z.string().trim().min(1).max(60),     value: z.number().finite(),   }).optional(),   includesAnyParam: z.object({     key: z.string().trim().min(1).max(60),     values: z.array(z.string().trim().min(1).max(60)).min(1).max(12),   }).optional(), }).refine callback (arrow, line 31)
+    - Confidence: 0%
+  - [ ] DAILY_TASK_ACTION_OPTIONS.map callback (arrow, line 44)
+    - Confidence: 0%
+  - [ ] DAILY_TASK_ICON_OPTIONS.map callback (arrow, line 46)
+    - Confidence: 0%
+  - [ ] GET (function, line 59)
+    - Confidence: 0%
+  - [ ] taskSnapshot.docs.map callback (arrow, line 74)
+    - Confidence: 0%
+  - [ ] taskEventsSnapshot.docs.map callback (arrow, line 75)
+    - Confidence: 0%
+  - [ ] eventStatsSnapshot.docs.map callback (arrow, line 76)
+    - Confidence: 0%
+  - [ ] taskRollupSnapshot.docs.map callback (arrow, line 77)
+    - Confidence: 0%
+  - [ ] POST (function, line 95)
+    - Confidence: 0%
+  - [ ] TELEMETRY_EVENT_OPTIONS.some callback (arrow, line 104)
+    - Confidence: 0%
+  - [ ] PUT (function, line 141)
+    - Confidence: 0%
+
+## [ ] src/app/api/admin/user/[userId]/route.ts
+- Confidence: 0%
+- Functions detected: 63
+- Functions:
+  - [ ] toTimestampNumber (function, line 15)
+    - Confidence: 0%
+  - [ ] readNumber (function, line 32)
+    - Confidence: 0%
+  - [ ] readString (function, line 36)
+    - Confidence: 0%
+  - [ ] roundToSingleDecimal (function, line 40)
+    - Confidence: 0%
+  - [ ] GET (function, line 44)
+    - Confidence: 0%
+  - [ ] transactionsSnap.docs.flatMap callback (arrow, line 106)
+    - Confidence: 0%
+  - [ ] transactions             .filter callback (arrow, line 123)
+    - Confidence: 0%
+  - [ ] transactions             .filter((transaction) => transaction.status === "completed" && transaction.type === "purchase_currency")             .map callback (arrow, line 124)
+    - Confidence: 0%
+  - [ ] transactions             .filter callback (arrow, line 136)
+    - Confidence: 0%
+  - [ ] sessionFactsSnap.docs.map callback (arrow, line 141)
+    - Confidence: 0%
+  - [ ] userDailySnapshot.docs.map callback (arrow, line 157)
+    - Confidence: 0%
+  - [ ] analyticsFactsSnap.docs             .map callback (arrow, line 160)
+    - Confidence: 0%
+  - [ ] analyticsFactsSnap.docs             .map((doc) => {                 const data = doc.data() as Record<string, unknown>;                 return {                     id: doc.id,                     eventName: readString(data.eventName),                     timestamp: toTimestampNumber(data.timestamp),                     dropId: readString(data.dropId),                     dropTitle: readString(data.dropTitle),                     sessionWatchSeconds: readNumber(data.sessionWatchSeconds),                     watchSeconds: readNumber(data.watchSeconds),                     loadMs: readNumber(data.loadMs),                 };             })             .sort callback (arrow, line 173)
+    - Confidence: 0%
+  - [ ] analyticsFacts.map callback (arrow, line 176)
+    - Confidence: 0%
+  - [ ] transactions.map callback (arrow, line 177)
+    - Confidence: 0%
+  - [ ] securityEventsSnap.docs.map callback (arrow, line 179)
+    - Confidence: 0%
+  - [ ] analyticsFacts.filter callback (arrow, line 186)
+    - Confidence: 0%
+  - [ ] analyticsFacts.filter callback (arrow, line 187)
+    - Confidence: 0%
+  - [ ] analyticsFacts.filter callback (arrow, line 188)
+    - Confidence: 0%
+  - [ ] analyticsFacts.filter callback (arrow, line 189)
+    - Confidence: 0%
+  - [ ] analyticsFacts.filter callback (arrow, line 190)
+    - Confidence: 0%
+  - [ ] analyticsFacts.filter callback (arrow, line 191)
+    - Confidence: 0%
+  - [ ] analyticsFacts.filter callback (arrow, line 192)
+    - Confidence: 0%
+  - [ ] analyticsFacts.filter callback (arrow, line 193)
+    - Confidence: 0%
+  - [ ] analyticsFacts.filter callback (arrow, line 194)
+    - Confidence: 0%
+  - [ ] analyticsFacts.reduce callback (arrow, line 197)
+    - Confidence: 0%
+  - [ ] analyticsFacts.reduce callback (arrow, line 198)
+    - Confidence: 0%
+  - [ ] analyticsFacts.filter callback (arrow, line 205)
+    - Confidence: 0%
+  - [ ] analyticsFacts.filter((event) => event.loadMs > 0).map callback (arrow, line 205)
+    - Confidence: 0%
+  - [ ] loadSamples.reduce callback (arrow, line 207)
+    - Confidence: 0%
+  - [ ] sessionFacts.reduce callback (arrow, line 209)
+    - Confidence: 0%
+  - [ ] sessionFacts.reduce callback (arrow, line 210)
+    - Confidence: 0%
+  - [ ] sessionFacts.reduce callback (arrow, line 211)
+    - Confidence: 0%
+  - [ ] sessionFacts.reduce callback (arrow, line 212)
+    - Confidence: 0%
+  - [ ] sessionFacts.reduce callback (arrow, line 213)
+    - Confidence: 0%
+  - [ ] sessionFacts.reduce callback (arrow, line 214)
+    - Confidence: 0%
+  - [ ] userDaily.reduce callback (arrow, line 215)
+    - Confidence: 0%
+  - [ ] userDaily.reduce callback (arrow, line 216)
+    - Confidence: 0%
+  - [ ] userDaily.reduce callback (arrow, line 217)
+    - Confidence: 0%
+  - [ ] userDaily.reduce callback (arrow, line 218)
+    - Confidence: 0%
+  - [ ] analyticsFacts.forEach callback (arrow, line 223)
+    - Confidence: 0%
+  - [ ] sessionFacts.forEach callback (arrow, line 252)
+    - Confidence: 0%
+  - [ ] purchaseTransactions.reduce callback (arrow, line 272)
+    - Confidence: 0%
+  - [ ] purchaseTransactions.reduce callback (arrow, line 273)
+    - Confidence: 0%
+  - [ ] purchaseTransactions.reduce callback (arrow, line 274)
+    - Confidence: 0%
+  - [ ] purchaseTransactions.reduce callback (arrow, line 275)
+    - Confidence: 0%
+  - [ ] purchaseTransactions.reduce callback (arrow, line 276)
+    - Confidence: 0%
+  - [ ] purchaseTransactions.reduce callback (arrow, line 277)
+    - Confidence: 0%
+  - [ ] purchaseTransactions.reduce callback (arrow, line 278)
+    - Confidence: 0%
+  - [ ] purchaseTransactions.reduce callback (arrow, line 279)
+    - Confidence: 0%
+  - [ ] transactions             .filter callback (arrow, line 281)
+    - Confidence: 0%
+  - [ ] transactions             .filter((transaction) => transaction.status === "completed" && transaction.type === "unlock_content")             .reduce callback (arrow, line 282)
+    - Confidence: 0%
+  - [ ] moduleCoverage.every callback (arrow, line 325)
+    - Confidence: 0%
+  - [ ] moduleCoverage.some callback (arrow, line 327)
+    - Confidence: 0%
+  - [ ] moduleCoverage.filter callback (arrow, line 330)
+    - Confidence: 0%
+  - [ ] analyticsFacts.filter callback (arrow, line 345)
+    - Confidence: 0%
+  - [ ] Array.from(viewedDrops.values())                 .sort callback (arrow, line 370)
+    - Confidence: 0%
+  - [ ] securityEventsSnap.docs             .map callback (arrow, line 396)
+    - Confidence: 0%
+  - [ ] securityEventsSnap.docs             .map((doc) => {                 const data = doc.data() as Record<string, unknown>;                 const descriptor = describeSecurityEvent(readString(data.reason));                 return {                     id: doc.id,                     reason: descriptor.reason,                     label: readString(data.label) || descriptor.label,                     message: readString(data.message) || descriptor.message,                     locationLabel: readString(data.locationLabel) || descriptor.locationLabel,                     severity: readString(data.severity) || descriptor.severity,                     dropId: readString(data.dropId) || null,                     dropTitle: readString(data.dropId) ? resolveDropTitle(dropReferences, readString(data.dropId)) : null,                     pagePath: readString(data.pagePath) || null,                     sessionId: readString(data.sessionId) || null,                     contentKind: readString(data.contentKind) || null,                     assetKey: readString(data.assetKey) || null,                     assetIndex: readNumber(data.assetIndex, -1),                     timestamp: toTimestampNumber(data.timestamp) || toTimestampNumber(data.createdAt),                 };             })             .sort callback (arrow, line 416)
+    - Confidence: 0%
+  - [ ] securityEvents.reduce callback (arrow, line 442)
+    - Confidence: 0%
+  - [ ] Object.entries({             ...legacyReasonCounts,             ...eventReasonCounts,         })             .map callback (arrow, line 450)
+    - Confidence: 0%
+  - [ ] Object.entries({             ...legacyReasonCounts,             ...eventReasonCounts,         })             .map(([reason, count]) => {                 const descriptor = describeSecurityEvent(reason);                 return {                     reason: descriptor.reason,                     label: descriptor.label,                     count: Math.max(readNumber(count), eventReasonCounts[reason] || 0),                 };             })             .sort callback (arrow, line 458)
+    - Confidence: 0%
+  - [ ] securityEvents.filter callback (arrow, line 461)
+    - Confidence: 0%
+
+## [ ] src/app/api/admin/users/route.ts
+- Confidence: 0%
+- Functions detected: 48
+- Functions:
+  - [ ] toTimestampNumber (function, line 12)
+    - Confidence: 0%
+  - [ ] toStringArray (function, line 29)
+    - Confidence: 0%
+  - [ ] value.filter callback (arrow, line 30)
+    - Confidence: 0%
+  - [ ] roundCurrency (function, line 53)
+    - Confidence: 0%
+  - [ ] readMetric (function, line 57)
+    - Confidence: 0%
+  - [ ] buildEmptyCommerceMetrics (function, line 68)
+    - Confidence: 0%
+  - [ ] buildCommerceMetricsFromRollup (function, line 90)
+    - Confidence: 0%
+  - [ ] chunkValues (function, line 128)
+    - Confidence: 0%
+  - [ ] serializeUserDoc (function, line 138)
+    - Confidence: 0%
+  - [ ] dailyTasksState.tasks.map callback (arrow, line 150)
+    - Confidence: 0%
+  - [ ] Object.entries(securityFlags.reasonCounts as Record<string, unknown>)             .filter callback (arrow, line 208)
+    - Confidence: 0%
+  - [ ] Object.entries(securityFlags.reasonCounts as Record<string, unknown>)             .filter(([, value]) => typeof value === "number" && Number.isFinite(value))             .map callback (arrow, line 209)
+    - Confidence: 0%
+  - [ ] GET (function, line 228)
+    - Confidence: 0%
+  - [ ] usersSnapshot.docs.map callback (arrow, line 243)
+    - Confidence: 0%
+  - [ ] userDailySnapshot.docs.forEach callback (arrow, line 246)
+    - Confidence: 0%
+  - [ ] analyticsSnapshot.docs.map callback (arrow, line 278)
+    - Confidence: 0%
+  - [ ] users       .map callback (arrow, line 349)
+    - Confidence: 0%
+  - [ ] users       .map((user) => user.uid)       .filter callback (arrow, line 350)
+    - Confidence: 0%
+  - [ ] chunkValues(fallbackUserIds, 30).map callback (arrow, line 361)
+    - Confidence: 0%
+  - [ ] eventSnapshots.forEach callback (arrow, line 376)
+    - Confidence: 0%
+  - [ ] snapshot.docs.forEach callback (arrow, line 377)
+    - Confidence: 0%
+  - [ ] fallbackStats.forEach callback (arrow, line 416)
+    - Confidence: 0%
+  - [ ] users.find callback (arrow, line 419)
+    - Confidence: 0%
+  - [ ] users.forEach callback (arrow, line 447)
+    - Confidence: 0%
+  - [ ] users.flatMap callback (arrow, line 487)
+    - Confidence: 0%
+  - [ ] Object.values(analyticsByUser).reduce callback (arrow, line 499)
+    - Confidence: 0%
+  - [ ] Object.values(analyticsByUser).reduce callback (arrow, line 503)
+    - Confidence: 0%
+  - [ ] users.filter callback (arrow, line 508)
+    - Confidence: 0%
+  - [ ] users.filter callback (arrow, line 509)
+    - Confidence: 0%
+  - [ ] users.filter callback (arrow, line 510)
+    - Confidence: 0%
+  - [ ] users.filter callback (arrow, line 511)
+    - Confidence: 0%
+  - [ ] users.filter callback (arrow, line 512)
+    - Confidence: 0%
+  - [ ] users.filter callback (arrow, line 513)
+    - Confidence: 0%
+  - [ ] users.filter callback (arrow, line 514)
+    - Confidence: 0%
+  - [ ] users.filter callback (arrow, line 515)
+    - Confidence: 0%
+  - [ ] Object.values(analyticsByUser).filter callback (arrow, line 516)
+    - Confidence: 0%
+  - [ ] Object.values(analyticsByUser).reduce callback (arrow, line 517)
+    - Confidence: 0%
+  - [ ] Object.values(analyticsByUser).reduce callback (arrow, line 518)
+    - Confidence: 0%
+  - [ ] Object.values(analyticsByUser).reduce callback (arrow, line 522)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 532)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 535)
+    - Confidence: 0%
+  - [ ] Object.values(analyticsByUser).filter callback (arrow, line 540)
+    - Confidence: 0%
+  - [ ] PUT (function, line 555)
+    - Confidence: 0%
+  - [ ] POST (function, line 589)
+    - Confidence: 0%
+  - [ ] adminDb.runTransaction callback (arrow, line 617)
+    - Confidence: 0%
+  - [ ] userData.unlockedContent.filter callback (arrow, line 633)
+    - Confidence: 0%
+  - [ ] trackServerEvent("unlock_drop_success", {         drop_id: normalizedDropId,         drop_title: result.dropTitle,         unlock_cost: 0,         grant_source: "admin",         transaction_id: `admin-grant:${userId}:${normalizedDropId}:${result.grantedAt ?? "unknown"}`,       }, userId).catch callback (arrow, line 687)
+    - Confidence: 0%
+  - [ ] buildEmptyDailyAggregate (function, line 723)
+    - Confidence: 0%
+
+## [ ] src/app/api/analytics/ingest/route.ts
+- Confidence: 0%
+- Functions detected: 11
+- Functions:
+  - [ ] getOrCreateSessionKey (function, line 60)
+    - Confidence: 0%
+  - [ ] sanitizeTargetLabel (function, line 72)
+    - Confidence: 0%
+  - [ ] POST (function, line 83)
+    - Confidence: 0%
+  - [ ] events.map callback (arrow, line 117)
+    - Confidence: 0%
+  - [ ] sanitizedEvents.map callback (arrow, line 131)
+    - Confidence: 0%
+  - [ ] sanitizedEvents.map callback (arrow, line 132)
+    - Confidence: 0%
+  - [ ] sanitizedEvents.reduce callback (arrow, line 133)
+    - Confidence: 0%
+  - [ ] sanitizedEvents.some callback (arrow, line 134)
+    - Confidence: 0%
+  - [ ] adminDb.runTransaction callback (arrow, line 135)
+    - Confidence: 0%
+  - [ ] (existingSessionData?.pagePaths as unknown[]).filter callback (arrow, line 149)
+    - Confidence: 0%
+  - [ ] (existingSessionData?.interactionTypes as unknown[]).filter callback (arrow, line 152)
+    - Confidence: 0%
+
+## [ ] src/app/api/auth/navigation-session/route.ts
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] POST (function, line 10)
+    - Confidence: 0%
+  - [ ] DELETE (function, line 49)
+    - Confidence: 0%
+  - [ ] [NAV_AUTH_COOKIE, NAV_ROLE_COOKIE, NAV_UID_COOKIE].forEach callback (arrow, line 61)
+    - Confidence: 0%
+
+## [ ] src/app/api/checkin/route.ts
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] POST (function, line 14)
+    - Confidence: 0%
+  - [ ] adminDb.runTransaction callback (arrow, line 34)
+    - Confidence: 0%
+
+## [ ] src/app/api/creators/[username]/route.ts
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] GET (function, line 10)
+    - Confidence: 0%
+  - [ ] dropsSnapshot.docs.flatMap callback (arrow, line 64)
+    - Confidence: 0%
+  - [ ] dropsSnapshot.docs.flatMap((doc) => {             try {                 const normalized = applyDropStatus(normalizeDropRecord(doc.data(), doc.id), nowMs);                 return normalized.status === "active" ? [normalized] : [];             } catch {                 return [];             }         }).sort callback (arrow, line 71)
+    - Confidence: 0%
+
+## [ ] src/app/api/cron/notify-active-drops/route.ts
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] GET (function, line 10)
+    - Confidence: 0%
+  - [ ] ownersSnap.forEach callback (arrow, line 76)
+    - Confidence: 0%
+  - [ ] activationNotifications.map callback (arrow, line 114)
+    - Confidence: 0%
+
+## [ ] src/app/api/cron/process-queue/route.ts
+- Confidence: 0%
+- Functions detected: 5
+- Functions:
+  - [ ] chunkArray (function, line 9)
+    - Confidence: 0%
+  - [ ] GET (function, line 20)
+    - Confidence: 0%
+  - [ ] chunkArray(config.queue, 10).map callback (arrow, line 39)
+    - Confidence: 0%
+  - [ ] queuedDropSnapshots.forEach callback (arrow, line 43)
+    - Confidence: 0%
+  - [ ] snapshot.forEach callback (arrow, line 44)
+    - Confidence: 0%
+
+## [ ] src/app/api/drops/[dropId]/click/route.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] POST (function, line 9)
+    - Confidence: 0%
+
+## [ ] src/app/api/drops/content/route.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] GET (function, line 21)
+    - Confidence: 0%
+
+## [ ] src/app/api/drops/impression/route.ts
+- Confidence: 0%
+- Functions detected: 5
+- Functions:
+  - [ ] buildDayKey (function, line 18)
+    - Confidence: 0%
+  - [ ] buildAnonymousFingerprint (function, line 22)
+    - Confidence: 0%
+  - [ ] buildImpressionReceiptId (function, line 30)
+    - Confidence: 0%
+  - [ ] POST (function, line 36)
+    - Confidence: 0%
+  - [ ] adminDb.runTransaction callback (arrow, line 62)
+    - Confidence: 0%
+
+## [ ] src/app/api/drops/route.ts
+- Confidence: 0%
+- Functions detected: 8
+- Functions:
+  - [ ] compareDropFeedOrder (function, line 12)
+    - Confidence: 0%
+  - [ ] buildCursor (function, line 20)
+    - Confidence: 0%
+  - [ ] parseCursor (function, line 24)
+    - Confidence: 0%
+  - [ ] GET (function, line 43)
+    - Confidence: 0%
+  - [ ] allDrops             .filter callback (arrow, line 57)
+    - Confidence: 0%
+  - [ ] visibleDrops.findIndex callback (arrow, line 63)
+    - Confidence: 0%
+  - [ ] visibleDrops.findIndex callback (arrow, line 68)
+    - Confidence: 0%
+  - [ ] drops.map callback (arrow, line 83)
+    - Confidence: 0%
+
+## [ ] src/app/api/drops/track/route.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] POST (function, line 14)
+    - Confidence: 0%
+
+## [ ] src/app/api/drops/unlock/route.ts
+- Confidence: 0%
+- Functions detected: 4
+- Functions:
+  - [ ] POST (function, line 19)
+    - Confidence: 0%
+  - [ ] adminDb.runTransaction callback (arrow, line 38)
+    - Confidence: 0%
+  - [ ] unlockedContentRaw.filter callback (arrow, line 68)
+    - Confidence: 0%
+  - [ ] dropData.tags.filter callback (arrow, line 114)
+    - Confidence: 0%
+
+## [ ] src/app/api/notifications/route.ts
+- Confidence: 0%
+- Functions detected: 7
+- Functions:
+  - [ ] buildNotificationsEtag (function, line 19)
+    - Confidence: 0%
+  - [ ] notifications.map callback (arrow, line 27)
+    - Confidence: 0%
+  - [ ] buildDispatchFingerprint (function, line 31)
+    - Confidence: 0%
+  - [ ] GET (function, line 54)
+    - Confidence: 0%
+  - [ ] POST (function, line 93)
+    - Confidence: 0%
+  - [ ] adminDb.runTransaction callback (arrow, line 117)
+    - Confidence: 0%
+  - [ ] PUT (function, line 169)
+    - Confidence: 0%
+
+## [ ] src/app/api/paypal/capture/route.ts
+- Confidence: 0%
+- Functions detected: 8
+- Functions:
+  - [ ] getPayPalCredentials (function, line 22)
+    - Confidence: 0%
+  - [ ] getPayPalAccessToken (function, line 28)
+    - Confidence: 0%
+  - [ ] capturePayPalOrder (function, line 47)
+    - Confidence: 0%
+  - [ ] logFailedTransaction (function, line 61)
+    - Confidence: 0%
+  - [ ] POST (function, line 78)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 139)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 147)
+    - Confidence: 0%
+  - [ ] adminDb.runTransaction callback (arrow, line 175)
+    - Confidence: 0%
+
+## [ ] src/app/api/paypal/create/route.ts
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] getPayPalCredentials (function, line 14)
+    - Confidence: 0%
+  - [ ] getPayPalAccessToken (function, line 20)
+    - Confidence: 0%
+  - [ ] POST (function, line 39)
+    - Confidence: 0%
+
+## [ ] src/app/api/privacy/consent/route.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] POST (function, line 12)
+    - Confidence: 0%
+
+## [ ] src/app/api/security/log-attempt/route.ts
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] POST (function, line 10)
+    - Confidence: 0%
+  - [ ] adminDb.runTransaction callback (arrow, line 41)
+    - Confidence: 0%
+
+## [ ] src/app/api/settings/landing/route.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] GET (function, line 9)
+    - Confidence: 0%
+
+## [ ] src/app/api/settings/landing/upload/route.ts
+- Confidence: 0%
+- Functions detected: 5
+- Functions:
+  - [ ] isImageFormat (function, line 8)
+    - Confidence: 0%
+  - [ ] extractStorageObjectPath (function, line 12)
+    - Confidence: 0%
+  - [ ] POST (function, line 31)
+    - Confidence: 0%
+  - [ ] fileRef.delete({ ignoreNotFound: true }).catch callback (arrow, line 96)
+    - Confidence: 0%
+  - [ ] bucket.file(previousObjectPath).delete({ ignoreNotFound: true }).catch callback (arrow, line 106)
+    - Confidence: 0%
+
+## [ ] src/app/api/tasks/claim/route.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] POST (function, line 4)
+    - Confidence: 0%
+
+## [ ] src/app/api/tasks/feedback/route.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] POST (function, line 65)
+    - Confidence: 0%
+
+## [ ] src/app/api/tasks/reminders/sync/route.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] POST (function, line 8)
+    - Confidence: 0%
+
+## [ ] src/app/api/tasks/rotate/route.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] POST (function, line 8)
+    - Confidence: 0%
+
+## [ ] src/app/api/tasks/track-share/route.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] POST (function, line 8)
+    - Confidence: 0%
+
+## [ ] src/app/api/telemetry/track/route.ts
+- Confidence: 0%
+- Functions detected: 22
+- Functions:
+  - [ ] BUILT_IN_DAILY_TASKS.map callback (arrow, line 17)
+    - Confidence: 0%
+  - [ ] getStringParam (function, line 38)
+    - Confidence: 0%
+  - [ ] getNumberParam (function, line 43)
+    - Confidence: 0%
+  - [ ] getBooleanParam (function, line 48)
+    - Confidence: 0%
+  - [ ] sanitizeTelemetryValue (function, line 53)
+    - Confidence: 0%
+  - [ ] sanitizeEventParams (function, line 69)
+    - Confidence: 0%
+  - [ ] entries         .map callback (arrow, line 76)
+    - Confidence: 0%
+  - [ ] entries         .map(([key, entryValue]) => [key.slice(0, 60), sanitizeTelemetryValue(entryValue)] as const)         .filter callback (arrow, line 77)
+    - Confidence: 0%
+  - [ ] isAlreadyExistsError (function, line 82)
+    - Confidence: 0%
+  - [ ] normalizeIncomingTelemetryEvents (function, line 91)
+    - Confidence: 0%
+  - [ ] POST (function, line 116)
+    - Confidence: 0%
+  - [ ] incomingEvents.map callback (arrow, line 146)
+    - Confidence: 0%
+  - [ ] resolvedEvents.filter callback (arrow, line 184)
+    - Confidence: 0%
+  - [ ] resolvedEvents                     .filter callback (arrow, line 199)
+    - Confidence: 0%
+  - [ ] resolvedEvents                     .filter((event) => event.canAdvanceTaskProgress)                     .map callback (arrow, line 200)
+    - Confidence: 0%
+  - [ ] resolvedEvents                 .map callback (arrow, line 223)
+    - Confidence: 0%
+  - [ ] resolvedEvents                 .map((event) => getStringParam(event.eventParamsWithMetadata, "drop_id"))                 .filter callback (arrow, line 224)
+    - Confidence: 0%
+  - [ ] resolvedEvents.map callback (arrow, line 227)
+    - Confidence: 0%
+  - [ ] telemetryFacts.map callback (arrow, line 303)
+    - Confidence: 0%
+  - [ ] telemetryFacts.flatMap callback (arrow, line 316)
+    - Confidence: 0%
+  - [ ] telemetryFacts                 .filter callback (arrow, line 339)
+    - Confidence: 0%
+  - [ ] telemetryFacts                 .filter((event) => event.canAdvanceTaskProgress)                 .map callback (arrow, line 340)
+    - Confidence: 0%
+
+## [ ] src/app/api/user/activity/route.ts
+- Confidence: 0%
+- Functions detected: 16
+- Functions:
+  - [ ] toTimestampNumber (function, line 28)
+    - Confidence: 0%
+  - [ ] toTaskEvent (function, line 49)
+    - Confidence: 0%
+  - [ ] renderTransactionLabel (function, line 70)
+    - Confidence: 0%
+  - [ ] renderTaskEventLabel (function, line 93)
+    - Confidence: 0%
+  - [ ] fetchTransactions (function, line 105)
+    - Confidence: 0%
+  - [ ] [...fallbackSnapshot.docs].sort callback (arrow, line 134)
+    - Confidence: 0%
+  - [ ] fetchTaskEvents (function, line 146)
+    - Confidence: 0%
+  - [ ] [...fallbackSnapshot.docs].sort callback (arrow, line 175)
+    - Confidence: 0%
+  - [ ] buildActivityItems (function, line 187)
+    - Confidence: 0%
+  - [ ] transactionsSnapshot.docs.flatMap callback (arrow, line 191)
+    - Confidence: 0%
+  - [ ] taskEventsSnapshot.docs.flatMap callback (arrow, line 206)
+    - Confidence: 0%
+  - [ ] [...transactionItems, ...taskItems].sort callback (arrow, line 221)
+    - Confidence: 0%
+  - [ ] GET (function, line 224)
+    - Confidence: 0%
+  - [ ] activities.flatMap callback (arrow, line 244)
+    - Confidence: 0%
+  - [ ] activities.flatMap callback (arrow, line 245)
+    - Confidence: 0%
+  - [ ] activities.map callback (arrow, line 249)
+    - Confidence: 0%
+
+## [ ] src/app/api/user/check-username/route.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] GET (function, line 8)
+    - Confidence: 0%
+
+## [ ] src/app/api/user/complete-onboarding/route.ts
+- Confidence: 0%
+- Functions detected: 9
+- Functions:
+  - [ ] toNumber (function, line 21)
+    - Confidence: 0%
+  - [ ] toStringValue (function, line 25)
+    - Confidence: 0%
+  - [ ] sanitizeOnboardingStepMetrics (function, line 29)
+    - Confidence: 0%
+  - [ ] value         .slice(0, 12)         .map callback (arrow, line 36)
+    - Confidence: 0%
+  - [ ] value         .slice(0, 12)         .map((entry) => {             if (!entry || typeof entry !== "object" || Array.isArray(entry)) {                 return null;             }              const candidate = entry as Record<string, unknown>;             const stepId = toStringValue(candidate.stepId).slice(0, 60);             const stepTitle = toStringValue(candidate.stepTitle).slice(0, 120);             const stepPath = toStringValue(candidate.stepPath).slice(0, 120) || "/dashboard";             const completionReason = toStringValue(candidate.completionReason).slice(0, 80) || "completed";             const stepIndex = Math.max(1, toNumber(candidate.stepIndex));             const startedAtMs = Math.max(0, toNumber(candidate.startedAtMs));             const completedAtMs = Math.max(startedAtMs, toNumber(candidate.completedAtMs));             const durationMs = Math.max(0, toNumber(candidate.durationMs) || (completedAtMs - startedAtMs));              if (!stepId || !stepTitle) {                 return null;             }              return {                 stepId,                 stepIndex,                 stepTitle,                 stepPath,                 startedAtMs,                 completedAtMs,                 durationMs,                 completionReason,             } satisfies OnboardingStepMetricInput;         })         .filter callback (arrow, line 66)
+    - Confidence: 0%
+  - [ ] buildAnalyticsEventFact (function, line 69)
+    - Confidence: 0%
+  - [ ] POST (function, line 117)
+    - Confidence: 0%
+  - [ ] req.json().catch callback (arrow, line 130)
+    - Confidence: 0%
+  - [ ] adminDb.runTransaction callback (arrow, line 147)
+    - Confidence: 0%
+
+## [ ] src/app/api/user/data/route.ts
+- Confidence: 0%
+- Functions detected: 6
+- Functions:
+  - [ ] serializeForExport (function, line 8)
+    - Confidence: 0%
+  - [ ] value.map callback (arrow, line 14)
+    - Confidence: 0%
+  - [ ] Object.entries(value as Record<string, unknown>).map callback (arrow, line 31)
+    - Confidence: 0%
+  - [ ] exportQueryDocs (function, line 38)
+    - Confidence: 0%
+  - [ ] snapshot.docs.map callback (arrow, line 40)
+    - Confidence: 0%
+  - [ ] GET (function, line 46)
+    - Confidence: 0%
+
+## [ ] src/app/api/user/delete/route.ts
+- Confidence: 0%
+- Functions detected: 6
+- Functions:
+  - [ ] getFirebaseErrorCode (function, line 22)
+    - Confidence: 0%
+  - [ ] deleteDocumentTree (function, line 31)
+    - Confidence: 0%
+  - [ ] deleteQueryMatches (function, line 49)
+    - Confidence: 0%
+  - [ ] snapshot.docs.forEach callback (arrow, line 54)
+    - Confidence: 0%
+  - [ ] DELETE (function, line 58)
+    - Confidence: 0%
+  - [ ] bulkWriter.onWriteError callback (arrow, line 78)
+    - Confidence: 0%
+
+## [ ] src/app/api/user/follow/route.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] POST (function, line 14)
+    - Confidence: 0%
+
+## [ ] src/app/api/user/profile/route.ts
+- Confidence: 0%
+- Functions detected: 7
+- Functions:
+  - [ ] normalizeNotificationSettings (function, line 24)
+    - Confidence: 0%
+  - [ ] normalizePrivacySettings (function, line 49)
+    - Confidence: 0%
+  - [ ] normalizeAccountSettings (function, line 86)
+    - Confidence: 0%
+  - [ ] normalizeBrowserPushToken (function, line 104)
+    - Confidence: 0%
+  - [ ] PUT (function, line 121)
+    - Confidence: 0%
+  - [ ] existingUserData.fcmTokens.filter callback (arrow, line 199)
+    - Confidence: 0%
+  - [ ] POST (function, line 248)
+    - Confidence: 0%
+
+## [ ] src/app/api/user/register/route.ts
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] normalizeRegistrationMethod (function, line 12)
+    - Confidence: 0%
+  - [ ] POST (function, line 16)
+    - Confidence: 0%
+
+## [ ] src/app/api/user/revoke-sessions/route.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] POST (function, line 7)
+    - Confidence: 0%
+
+## [ ] src/app/banned/page.tsx
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] BannedPage (function, line 10)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 14)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 50)
+    - Confidence: 0%
+
+## [ ] src/app/creators/[username]/CreatorProfileClient.tsx
+- Confidence: 0%
+- Functions detected: 7
+- Functions:
+  - [ ] CreatorProfileClient (function, line 15)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 27)
+    - Confidence: 0%
+  - [ ] fetchData (function, line 30)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 59)
+    - Confidence: 0%
+  - [ ] handleFollow (arrow, line 65)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 191)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 201)
+    - Confidence: 0%
+
+## [ ] src/app/creators/[username]/page.tsx
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] getCreatorMetadataRecord (function, line 17)
+    - Confidence: 0%
+  - [ ] generateMetadata (function, line 55)
+    - Confidence: 0%
+  - [ ] CreatorProfilePage (function, line 97)
+    - Confidence: 0%
+
+## [ ] src/app/dashboard/DashboardClient.tsx
+- Confidence: 0%
+- Functions detected: 11
+- Functions:
+  - [ ] dynamic callback (arrow, line 17)
+    - Confidence: 0%
+  - [ ] import("@/components/Dashboard/RecentActivityFeed").then callback (arrow, line 17)
+    - Confidence: 0%
+  - [ ] loading (arrow, line 19)
+    - Confidence: 0%
+  - [ ] DashboardClient (function, line 38)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 42)
+    - Confidence: 0%
+  - [ ] drops.filter callback (arrow, line 42)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 44)
+    - Confidence: 0%
+  - [ ] drops.forEach callback (arrow, line 47)
+    - Confidence: 0%
+  - [ ] liveActiveDrops.forEach callback (arrow, line 51)
+    - Confidence: 0%
+  - [ ] Array.from(mergedDrops.values()).sort callback (arrow, line 55)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 58)
+    - Confidence: 0%
+
+## [ ] src/app/dashboard/layout.tsx
+- Confidence: 0%
+- Functions detected: 4
+- Functions:
+  - [ ] dynamic callback (arrow, line 9)
+    - Confidence: 0%
+  - [ ] import("@/components/Dashboard/NotificationPromptBanner").then callback (arrow, line 9)
+    - Confidence: 0%
+  - [ ] DashboardLayout (function, line 12)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 20)
+    - Confidence: 0%
+
+## [ ] src/app/dashboard/library/LibraryClient.tsx
+- Confidence: 0%
+- Functions detected: 10
+- Functions:
+  - [ ] getRatio (function, line 16)
+    - Confidence: 0%
+  - [ ] getItemSpanClass (function, line 24)
+    - Confidence: 0%
+  - [ ] LibraryClient (function, line 35)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 37)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 44)
+    - Confidence: 0%
+  - [ ] [1, 2, 3, 4].map callback (arrow, line 60)
+    - Confidence: 0%
+  - [ ] drops.filter callback (arrow, line 77)
+    - Confidence: 0%
+  - [ ] drops.filter callback (arrow, line 94)
+    - Confidence: 0%
+  - [ ] drops.filter((d) => unlockedIds.has(d.id)).map callback (arrow, line 94)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 99)
+    - Confidence: 0%
+
+## [ ] src/app/dashboard/library/page.tsx
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] LibraryPage (function, line 6)
+    - Confidence: 0%
+
+## [ ] src/app/dashboard/page.tsx
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] DashboardPage (function, line 6)
+    - Confidence: 0%
+
+## [ ] src/app/dashboard/profile/page.tsx
+- Confidence: 0%
+- Functions detected: 44
+- Functions:
+  - [ ] normalizeTimezone (function, line 52)
+    - Confidence: 0%
+  - [ ] sanitizeUsername (function, line 61)
+    - Confidence: 0%
+  - [ ] buildFormState (function, line 65)
+    - Confidence: 0%
+  - [ ] SectionCard (function, line 95)
+    - Confidence: 0%
+  - [ ] ToggleRow (function, line 104)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 136)
+    - Confidence: 0%
+  - [ ] StaticSettingRow (function, line 148)
+    - Confidence: 0%
+  - [ ] ProfilePage (function, line 176)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 180)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 218)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 220)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 224)
+    - Confidence: 0%
+  - [ ] updateForm (arrow, line 235)
+    - Confidence: 0%
+  - [ ] setFormState callback (arrow, line 237)
+    - Confidence: 0%
+  - [ ] savePrivacyPreferences (arrow, line 240)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 275)
+    - Confidence: 0%
+  - [ ] loadNotificationSupport (function, line 278)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 306)
+    - Confidence: 0%
+  - [ ] handleBrowserPushToggle (arrow, line 311)
+    - Confidence: 0%
+  - [ ] handleWithdrawOptionalTracking (arrow, line 348)
+    - Confidence: 0%
+  - [ ] setFormState callback (arrow, line 362)
+    - Confidence: 0%
+  - [ ] handleSave (arrow, line 377)
+    - Confidence: 0%
+  - [ ] handleChangeAvatar (arrow, line 440)
+    - Confidence: 0%
+  - [ ] response.json().catch callback (arrow, line 460)
+    - Confidence: 0%
+  - [ ] mutate callback (arrow, line 471)
+    - Confidence: 0%
+  - [ ] handleSignOutAllSessions (arrow, line 480)
+    - Confidence: 0%
+  - [ ] response.json().catch callback (arrow, line 483)
+    - Confidence: 0%
+  - [ ] handleRequestDeletion (arrow, line 497)
+    - Confidence: 0%
+  - [ ] handleDownloadData (arrow, line 521)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 596)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 611)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 634)
+    - Confidence: 0%
+  - [ ] TIMEZONE_OPTIONS.map callback (arrow, line 637)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 652)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 661)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 668)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 675)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 691)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 704)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 717)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 729)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 740)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 763)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 795)
+    - Confidence: 0%
+
+## [ ] src/app/dashboard/viewer/page.tsx
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] ViewerPage (function, line 8)
+    - Confidence: 0%
+
+## [ ] src/app/dashboard/viewer/ViewerClient.tsx
+- Confidence: 0%
+- Functions detected: 102
+- Functions:
+  - [ ] normalizeMimeType (function, line 52)
+    - Confidence: 0%
+  - [ ] resolveContentKind (function, line 68)
+    - Confidence: 0%
+  - [ ] resolveContent (function, line 76)
+    - Confidence: 0%
+  - [ ] createVideoThumbnail (function, line 115)
+    - Confidence: 0%
+  - [ ] Promise callback (arrow, line 116)
+    - Confidence: 0%
+  - [ ] finish (arrow, line 120)
+    - Confidence: 0%
+  - [ ] drawFrame (arrow, line 133)
+    - Confidence: 0%
+  - [ ] window.setTimeout callback (arrow, line 160)
+    - Confidence: 0%
+  - [ ] video.addEventListener callback (arrow, line 166)
+    - Confidence: 0%
+  - [ ] video.addEventListener callback (arrow, line 168)
+    - Confidence: 0%
+  - [ ] revokeObjectUrl (function, line 188)
+    - Confidence: 0%
+  - [ ] fetchSecureContent (function, line 194)
+    - Confidence: 0%
+  - [ ] fetchAssetRecord (function, line 201)
+    - Confidence: 0%
+  - [ ] response.json().catch callback (arrow, line 204)
+    - Confidence: 0%
+  - [ ] clearCachedAssets (function, line 225)
+    - Confidence: 0%
+  - [ ] cache.forEach callback (arrow, line 226)
+    - Confidence: 0%
+  - [ ] getThumbnailFallback (function, line 230)
+    - Confidence: 0%
+  - [ ] buildThumbnailItemsWithUpdate (function, line 239)
+    - Confidence: 0%
+  - [ ] Array.from callback (arrow, line 246)
+    - Confidence: 0%
+  - [ ] buildThumbnailFetchOrder (function, line 251)
+    - Confidence: 0%
+  - [ ] sumNumbers (function, line 276)
+    - Confidence: 0%
+  - [ ] buildThumbnailFromRecord (function, line 285)
+    - Confidence: 0%
+  - [ ] formatUnwrappedLabel (function, line 300)
+    - Confidence: 0%
+  - [ ] sanitizeDropTags (function, line 312)
+    - Confidence: 0%
+  - [ ] tags.filter callback (arrow, line 318)
+    - Confidence: 0%
+  - [ ] ViewerClient (function, line 322)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 353)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 357)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 370)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 375)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 385)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 389)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 403)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 415)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 453)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 476)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 501)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 521)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 537)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 541)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 549)
+    - Confidence: 0%
+  - [ ] handlePageExit (arrow, line 554)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 561)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 567)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 572)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 591)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 605)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 610)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 614)
+    - Confidence: 0%
+  - [ ] setActiveIndex callback (arrow, line 620)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 623)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 649)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 671)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 694)
+    - Confidence: 0%
+  - [ ] window.setTimeout callback (arrow, line 703)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 709)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 714)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 722)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 744)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 751)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 759)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 777)
+    - Confidence: 0%
+  - [ ] getSecuritySessionId (arrow, line 780)
+    - Confidence: 0%
+  - [ ] logViolation (arrow, line 788)
+    - Confidence: 0%
+  - [ ] setTimeout callback (arrow, line 807)
+    - Confidence: 0%
+  - [ ] handleKeyDown (arrow, line 812)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 840)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 846)
+    - Confidence: 0%
+  - [ ] buildThumbnailFromRecord(cachedRecord, currentDrop.imageUrl).then callback (arrow, line 869)
+    - Confidence: 0%
+  - [ ] setThumbnailItems callback (arrow, line 871)
+    - Confidence: 0%
+  - [ ] fetchContent (function, line 884)
+    - Confidence: 0%
+  - [ ] buildThumbnailFromRecord(assetRecord, currentDrop.imageUrl).then callback (arrow, line 900)
+    - Confidence: 0%
+  - [ ] setThumbnailItems callback (arrow, line 906)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 929)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 935)
+    - Confidence: 0%
+  - [ ] Array.from callback (arrow, line 948)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 952)
+    - Confidence: 0%
+  - [ ] buildThumbnails (function, line 957)
+    - Confidence: 0%
+  - [ ] buildThumbnailFetchOrder(assetCount, activeIndex).filter callback (arrow, line 958)
+    - Confidence: 0%
+  - [ ] setThumbnailItems callback (arrow, line 983)
+    - Confidence: 0%
+  - [ ] setThumbnailItems callback (arrow, line 1003)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 1011)
+    - Confidence: 0%
+  - [ ] controllers.forEach callback (arrow, line 1013)
+    - Confidence: 0%
+  - [ ] preventContextMenu (arrow, line 1019)
+    - Confidence: 0%
+  - [ ] (allDrops || [])         .filter callback (arrow, line 1075)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 1129)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 1144)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 1150)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 1153)
+    - Confidence: 0%
+  - [ ] videoFallbackTypes.filter callback (arrow, line 1158)
+    - Confidence: 0%
+  - [ ] videoFallbackTypes.filter((type) => type !== resolvedContent.mimeType).map callback (arrow, line 1158)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 1181)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 1184)
+    - Confidence: 0%
+  - [ ] audioFallbackTypes.filter callback (arrow, line 1189)
+    - Confidence: 0%
+  - [ ] audioFallbackTypes.filter((type) => type !== resolvedContent.mimeType).map callback (arrow, line 1189)
+    - Confidence: 0%
+  - [ ] Array.from({ length: assetCount }).map callback (arrow, line 1250)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 1259)
+    - Confidence: 0%
+  - [ ] previewTags.map callback (arrow, line 1310)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 1347)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 1364)
+    - Confidence: 0%
+  - [ ] retentionDrops.map callback (arrow, line 1378)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 1382)
+    - Confidence: 0%
+
+## [ ] src/app/drops/[id]/opengraph-image.tsx
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] renderUnavailableImage (function, line 12)
+    - Confidence: 0%
+  - [ ] Image (function, line 34)
+    - Confidence: 0%
+
+## [ ] src/app/drops/DropsClient.tsx
+- Confidence: 0%
+- Functions detected: 33
+- Functions:
+  - [ ] dynamic callback (arrow, line 15)
+    - Confidence: 0%
+  - [ ] import("@/components/FeaturedCarousel").then callback (arrow, line 15)
+    - Confidence: 0%
+  - [ ] loading (arrow, line 17)
+    - Confidence: 0%
+  - [ ] dynamic callback (arrow, line 20)
+    - Confidence: 0%
+  - [ ] import("@/components/DropPreviewModal").then callback (arrow, line 20)
+    - Confidence: 0%
+  - [ ] toPositiveInteger (function, line 39)
+    - Confidence: 0%
+  - [ ] buildAccountOverviewViewModel (function, line 48)
+    - Confidence: 0%
+  - [ ] DropsClient (function, line 92)
+    - Confidence: 0%
+  - [ ] useState callback (arrow, line 98)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 107)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 111)
+    - Confidence: 0%
+  - [ ] IntersectionObserver callback (arrow, line 113)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 125)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 134)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 138)
+    - Confidence: 0%
+  - [ ] handlePopState (arrow, line 139)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 147)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 150)
+    - Confidence: 0%
+  - [ ] liveDrops.filter callback (arrow, line 154)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 157)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 165)
+    - Confidence: 0%
+  - [ ] result.filter callback (arrow, line 172)
+    - Confidence: 0%
+  - [ ] [...result].sort callback (arrow, line 180)
+    - Confidence: 0%
+  - [ ] [...result].sort callback (arrow, line 182)
+    - Confidence: 0%
+  - [ ] [...result].sort callback (arrow, line 188)
+    - Confidence: 0%
+  - [ ] result.filter callback (arrow, line 190)
+    - Confidence: 0%
+  - [ ] syncDropQuery (arrow, line 197)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 214)
+    - Confidence: 0%
+  - [ ] liveDrops.find callback (arrow, line 220)
+    - Confidence: 0%
+  - [ ] handleSelectDrop (arrow, line 223)
+    - Confidence: 0%
+  - [ ] handleClosePreview (arrow, line 228)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 248)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 255)
+    - Confidence: 0%
+
+## [ ] src/app/drops/loading.tsx
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] DropsLoading (function, line 3)
+    - Confidence: 0%
+  - [ ] [1, 2, 3, 4, 5].map callback (arrow, line 16)
+    - Confidence: 0%
+  - [ ] [1, 2, 3, 4, 5, 6].map callback (arrow, line 32)
+    - Confidence: 0%
+
+## [ ] src/app/drops/page.tsx
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] DropsPage (function, line 16)
+    - Confidence: 0%
+  - [ ] (await getDrops()).filter callback (arrow, line 17)
+    - Confidence: 0%
+
+## [ ] src/app/error.tsx
+- Confidence: 0%
+- Functions detected: 4
+- Functions:
+  - [ ] Error (function, line 10)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 17)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 41)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 44)
+    - Confidence: 0%
+
+## [ ] src/app/experiences/ExperiencesClient.tsx
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] ExperiencesClient (function, line 15)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 19)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 83)
+    - Confidence: 0%
+
+## [ ] src/app/experiences/page.tsx
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] ExperiencesPage (function, line 13)
+    - Confidence: 0%
+
+## [ ] src/app/faq/faq-data.ts
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] src/app/faq/FAQClient.tsx
+- Confidence: 0%
+- Functions detected: 23
+- Functions:
+  - [ ] normalizeQuery (function, line 29)
+    - Confidence: 0%
+  - [ ] buildSearchableSections (function, line 33)
+    - Confidence: 0%
+  - [ ] sections.map callback (arrow, line 34)
+    - Confidence: 0%
+  - [ ] section.questions.map callback (arrow, line 36)
+    - Confidence: 0%
+  - [ ] FAQClient (function, line 45)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 52)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 54)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 58)
+    - Confidence: 0%
+  - [ ] searchableSections           .map callback (arrow, line 63)
+    - Confidence: 0%
+  - [ ] section.questions.filter callback (arrow, line 66)
+    - Confidence: 0%
+  - [ ] searchableSections           .map((section) => ({             category: section.category,             questions: section.questions.filter(               (item) =>                 item.qNormalized.includes(normalizedQuery) ||                 item.aNormalized.includes(normalizedQuery)             ),           }))           .filter callback (arrow, line 71)
+    - Confidence: 0%
+  - [ ] searchedSections.filter callback (arrow, line 77)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 81)
+    - Confidence: 0%
+  - [ ] filteredSections.reduce callback (arrow, line 81)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 85)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 105)
+    - Confidence: 0%
+  - [ ] sections.map callback (arrow, line 105)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 137)
+    - Confidence: 0%
+  - [ ] categoryFilters.map callback (arrow, line 145)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 152)
+    - Confidence: 0%
+  - [ ] filteredSections.map callback (arrow, line 183)
+    - Confidence: 0%
+  - [ ] section.questions.map callback (arrow, line 191)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 208)
+    - Confidence: 0%
+
+## [ ] src/app/faq/HowItWorksStory.tsx
+- Confidence: 0%
+- Functions detected: 15
+- Functions:
+  - [ ] HowItWorksStory (function, line 32)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 39)
+    - Confidence: 0%
+  - [ ] steps.find callback (arrow, line 39)
+    - Confidence: 0%
+  - [ ] handlePrimaryAction (arrow, line 47)
+    - Confidence: 0%
+  - [ ] handleSecondaryAction (arrow, line 61)
+    - Confidence: 0%
+  - [ ] steps.map callback (arrow, line 73)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 81)
+    - Confidence: 0%
+  - [ ] activeStep.callouts.map callback (arrow, line 134)
+    - Confidence: 0%
+  - [ ] StoryVisual (function, line 175)
+    - Confidence: 0%
+  - [ ] ["Email address", "Password", "Day 1 ready"].map callback (arrow, line 195)
+    - Confidence: 0%
+  - [ ] ["Save your library", "Track daily rewards", "Unwrap live KandyDrops"].map callback (arrow, line 208)
+    - Confidence: 0%
+  - [ ] ["250", "1000"].map callback (arrow, line 236)
+    - Confidence: 0%
+  - [ ] ["10", "20", "30", "40"].map callback (arrow, line 257)
+    - Confidence: 0%
+  - [ ] [0, 1, 2, 3].map callback (arrow, line 352)
+    - Confidence: 0%
+  - [ ] ["10", "20", "30", "40", "50", "60", "70"].map callback (arrow, line 393)
+    - Confidence: 0%
+
+## [ ] src/app/faq/page.tsx
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] FAQPage (function, line 14)
+    - Confidence: 0%
+
+## [ ] src/app/favicon.ico
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] src/app/globals.css
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] src/app/layout.tsx
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] RootLayout (function, line 81)
+    - Confidence: 0%
+
+## [ ] src/app/loading.tsx
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] Loading (function, line 3)
+    - Confidence: 0%
+
+## [ ] src/app/not-found.tsx
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] NotFound (function, line 4)
+    - Confidence: 0%
+
+## [ ] src/app/offline/page.tsx
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] OfflinePage (function, line 6)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 28)
+    - Confidence: 0%
+
+## [ ] src/app/page.tsx
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] Home (function, line 13)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 19)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 25)
+    - Confidence: 0%
+
+## [ ] src/app/robots.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] robots (function, line 4)
+    - Confidence: 0%
+
+## [ ] src/app/sitemap.ts
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] getLatestPublicDropTimestamp (function, line 10)
+    - Confidence: 0%
+  - [ ] sitemap (function, line 34)
+    - Confidence: 0%
+
+## [ ] src/components/Admin/AdminActivityLogPanel.tsx
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] AdminActivityLogPanel (function, line 7)
+    - Confidence: 0%
+  - [ ] logs.map callback (arrow, line 30)
+    - Confidence: 0%
+
+## [ ] src/components/Admin/AdminAnalyticsCharts.tsx
+- Confidence: 0%
+- Functions detected: 5
+- Functions:
+  - [ ] AdminAnalyticsCharts (function, line 16)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 20)
+    - Confidence: 0%
+  - [ ] (data?.chartData || []).map callback (arrow, line 20)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 55)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 59)
+    - Confidence: 0%
+
+## [ ] src/components/Admin/AdminPageHeader.tsx
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] AdminPageHeader (function, line 17)
+    - Confidence: 0%
+
+## [ ] src/components/Admin/AdminStatsBar.tsx
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] AdminStatsBar (function, line 18)
+    - Confidence: 0%
+
+## [ ] src/components/Admin/AdminTasksManager.tsx
+- Confidence: 0%
+- Functions detected: 46
+- Functions:
+  - [ ] formatRelativeTime (function, line 39)
+    - Confidence: 0%
+  - [ ] normalizeString (function, line 50)
+    - Confidence: 0%
+  - [ ] normalizeNumber (function, line 54)
+    - Confidence: 0%
+  - [ ] TaskCard (function, line 58)
+    - Confidence: 0%
+  - [ ] AdminTasksManager (function, line 85)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 113)
+    - Confidence: 0%
+  - [ ] users.find callback (arrow, line 113)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 118)
+    - Confidence: 0%
+  - [ ] (data?.taskRollups ?? []).map callback (arrow, line 119)
+    - Confidence: 0%
+  - [ ] (data?.taskRollups ?? []).map((rollup) => {         const assigned = normalizeNumber(rollup.types && (rollup.types as Record<string, unknown>).assigned);         const completed = normalizeNumber(rollup.types && (rollup.types as Record<string, unknown>).completed);         const failed = normalizeNumber(rollup.types && (rollup.types as Record<string, unknown>).failed);         const durationSampleCount = normalizeNumber(rollup.durationSampleCount);         const avgCompletionMins = durationSampleCount > 0           ? Math.round(normalizeNumber(rollup.durationMsTotal) / durationSampleCount / 60000)           : 0;         return {           id: rollup.id,           title: normalizeString(rollup.title, "Untitled task"),           assigned,           completed,           failed,           rewardTotal: normalizeNumber(rollup.rewardTotal),           avgCompletionMins,           completionRate: assigned > 0 ? Math.round((completed / assigned) * 100) : 0,           lastEventAt: normalizeNumber(rollup.lastEventAt),         };       }).sort callback (arrow, line 138)
+    - Confidence: 0%
+  - [ ] buildCriteriaPayload (arrow, line 142)
+    - Confidence: 0%
+  - [ ] trimmedValue       .split(",")       .map callback (arrow, line 185)
+    - Confidence: 0%
+  - [ ] handleCreateTask (arrow, line 200)
+    - Confidence: 0%
+  - [ ] response.json().catch callback (arrow, line 226)
+    - Confidence: 0%
+  - [ ] toggleTaskState (arrow, line 257)
+    - Confidence: 0%
+  - [ ] response.json().catch callback (arrow, line 266)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 288)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 294)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 300)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 306)
+    - Confidence: 0%
+  - [ ] (data?.eventOptions ?? []).map callback (arrow, line 309)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 317)
+    - Confidence: 0%
+  - [ ] (data?.actionOptions ?? []).map callback (arrow, line 320)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 328)
+    - Confidence: 0%
+  - [ ] (data?.iconOptions ?? []).map callback (arrow, line 331)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 339)
+    - Confidence: 0%
+  - [ ] ["visit", "notifications", "unwrap", "watch", "wallet", "purchase", "feedback", "share"].map callback (arrow, line 342)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 353)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 361)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 369)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 374)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 380)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 390)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 396)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 402)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 425)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 435)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 450)
+    - Confidence: 0%
+  - [ ] users.map callback (arrow, line 455)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 491)
+    - Confidence: 0%
+  - [ ] setOneTime callback (arrow, line 491)
+    - Confidence: 0%
+  - [ ] data?.customTasks.map callback (arrow, line 527)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 563)
+    - Confidence: 0%
+  - [ ] taskPerformance.slice(0, 8).map callback (arrow, line 590)
+    - Confidence: 0%
+  - [ ] data?.eventStats.slice(0, 12).map callback (arrow, line 624)
+    - Confidence: 0%
+  - [ ] data?.recentTaskEvents.map callback (arrow, line 658)
+    - Confidence: 0%
+
+## [ ] src/components/Admin/AssetUploader.tsx
+- Confidence: 0%
+- Functions detected: 46
+- Functions:
+  - [ ] ratioToNumber (function, line 52)
+    - Confidence: 0%
+  - [ ] classifyFile (function, line 58)
+    - Confidence: 0%
+  - [ ] isCanvasImageType (function, line 64)
+    - Confidence: 0%
+  - [ ] createInitialAssets (function, line 68)
+    - Confidence: 0%
+  - [ ] initialAssets.map callback (arrow, line 70)
+    - Confidence: 0%
+  - [ ] buildCroppedBlobPixels (function, line 96)
+    - Confidence: 0%
+  - [ ] Promise callback (arrow, line 97)
+    - Confidence: 0%
+  - [ ] image.onload (arrow, line 99)
+    - Confidence: 0%
+  - [ ] canvas.toBlob callback (arrow, line 122)
+    - Confidence: 0%
+  - [ ] image.onerror (arrow, line 131)
+    - Confidence: 0%
+  - [ ] AssetUploader (function, line 136)
+    - Confidence: 0%
+  - [ ] useState callback (arrow, line 150)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 156)
+    - Confidence: 0%
+  - [ ] window.setTimeout callback (arrow, line 159)
+    - Confidence: 0%
+  - [ ] setAssets callback (arrow, line 160)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 163)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 166)
+    - Confidence: 0%
+  - [ ] assets       .filter callback (arrow, line 168)
+    - Confidence: 0%
+  - [ ] assets       .filter((asset) => typeof asset.uploadUrl === "string" && asset.uploadUrl.length > 0)       .map callback (arrow, line 169)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 179)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 182)
+    - Confidence: 0%
+  - [ ] setAssets callback (arrow, line 185)
+    - Confidence: 0%
+  - [ ] current.map callback (arrow, line 185)
+    - Confidence: 0%
+  - [ ] Promise callback (arrow, line 206)
+    - Confidence: 0%
+  - [ ] uploadTask.on callback (arrow, line 207)
+    - Confidence: 0%
+  - [ ] setAssets callback (arrow, line 215)
+    - Confidence: 0%
+  - [ ] current.map callback (arrow, line 215)
+    - Confidence: 0%
+  - [ ] setAssets callback (arrow, line 229)
+    - Confidence: 0%
+  - [ ] current.map callback (arrow, line 229)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 233)
+    - Confidence: 0%
+  - [ ] Array.from(selectedFiles).map callback (arrow, line 236)
+    - Confidence: 0%
+  - [ ] incoming.forEach callback (arrow, line 251)
+    - Confidence: 0%
+  - [ ] removeAsset (arrow, line 258)
+    - Confidence: 0%
+  - [ ] setAssets callback (arrow, line 259)
+    - Confidence: 0%
+  - [ ] current.filter callback (arrow, line 259)
+    - Confidence: 0%
+  - [ ] persistCropAndUpload (arrow, line 262)
+    - Confidence: 0%
+  - [ ] renderThumbnail (arrow, line 268)
+    - Confidence: 0%
+  - [ ] RATIO_OPTIONS.map callback (arrow, line 294)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 298)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 315)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 328)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 340)
+    - Confidence: 0%
+  - [ ] setAssets callback (arrow, line 341)
+    - Confidence: 0%
+  - [ ] curr.map callback (arrow, line 341)
+    - Confidence: 0%
+  - [ ] assets.map callback (arrow, line 362)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 369)
+    - Confidence: 0%
+
+## [ ] src/components/Admin/BalanceAdjustmentModal.tsx
+- Confidence: 0%
+- Functions detected: 4
+- Functions:
+  - [ ] BalanceAdjustmentModal (function, line 19)
+    - Confidence: 0%
+  - [ ] handleConfirm (arrow, line 27)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 94)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 104)
+    - Confidence: 0%
+
+## [ ] src/components/Admin/CreateDropModal.tsx
+- Confidence: 0%
+- Functions detected: 22
+- Functions:
+  - [ ] inferAssetTypeFromUrl (function, line 51)
+    - Confidence: 0%
+  - [ ] summarizeMediaCounts (function, line 73)
+    - Confidence: 0%
+  - [ ] assets.reduce callback (arrow, line 75)
+    - Confidence: 0%
+  - [ ] FilesAndAssetsSection (function expression, line 104)
+    - Confidence: 0%
+  - [ ] CreateDropModal (function, line 179)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 216)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 221)
+    - Confidence: 0%
+  - [ ] fetchDrop (function, line 248)
+    - Confidence: 0%
+  - [ ] existingContentUrls.map callback (arrow, line 282)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 302)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 307)
+    - Confidence: 0%
+  - [ ] assets.map callback (arrow, line 309)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 325)
+    - Confidence: 0%
+  - [ ] setUploadsOpen callback (arrow, line 326)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 329)
+    - Confidence: 0%
+  - [ ] currentTags.filter callback (arrow, line 331)
+    - Confidence: 0%
+  - [ ] onSubmit (arrow, line 336)
+    - Confidence: 0%
+  - [ ] onError (arrow, line 402)
+    - Confidence: 0%
+  - [ ] Object.values(errors)             .map callback (arrow, line 404)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 417)
+    - Confidence: 0%
+  - [ ] AVAILABLE_TAGS.map callback (arrow, line 478)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 482)
+    - Confidence: 0%
+
+## [ ] src/components/Admin/RecentTransactionsPanel.tsx
+- Confidence: 0%
+- Functions detected: 23
+- Functions:
+  - [ ] resolveUserLabel (function, line 14)
+    - Confidence: 0%
+  - [ ] RecentTransactionsPanel (function, line 30)
+    - Confidence: 0%
+  - [ ] transactionsSource.map callback (arrow, line 38)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 43)
+    - Confidence: 0%
+  - [ ] data.recentTransactions                 .filter callback (arrow, line 50)
+    - Confidence: 0%
+  - [ ] data.recentTransactions                 .filter((tx) => typeof tx.username === "string" && tx.username.trim().length > 0)                 .map callback (arrow, line 51)
+    - Confidence: 0%
+  - [ ] setUsernameMap callback (arrow, line 58)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 65)
+    - Confidence: 0%
+  - [ ] window.setInterval callback (arrow, line 66)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 70)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 73)
+    - Confidence: 0%
+  - [ ] hydrateUsernames (arrow, line 76)
+    - Confidence: 0%
+  - [ ] [...new Set(userIds)].filter callback (arrow, line 77)
+    - Confidence: 0%
+  - [ ] uniqueUserIds.map callback (arrow, line 82)
+    - Confidence: 0%
+  - [ ] setUsernameMap callback (arrow, line 99)
+    - Confidence: 0%
+  - [ ] resolvedEntries.forEach callback (arrow, line 101)
+    - Confidence: 0%
+  - [ ] onSnapshot callback (arrow, line 115)
+    - Confidence: 0%
+  - [ ] snapshot.docs.flatMap callback (arrow, line 116)
+    - Confidence: 0%
+  - [ ] snapshot.docs.flatMap((txDoc) => {                 try {                     return [normalizeTransactionRecord(txDoc.data(), txDoc.id)];                 } catch {                     return [];                 }             }).map callback (arrow, line 122)
+    - Confidence: 0%
+  - [ ] normalizedTransactions.map callback (arrow, line 128)
+    - Confidence: 0%
+  - [ ] onSnapshot callback (arrow, line 129)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 133)
+    - Confidence: 0%
+  - [ ] transactions.map callback (arrow, line 148)
+    - Confidence: 0%
+
+## [ ] src/components/Admin/TopDropsPanel.tsx
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] TopDropsPanel (function, line 10)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 14)
+    - Confidence: 0%
+  - [ ] topDrops.map callback (arrow, line 27)
+    - Confidence: 0%
+
+## [ ] src/components/Admin/TransactionHistoryModal.tsx
+- Confidence: 0%
+- Functions detected: 6
+- Functions:
+  - [ ] TransactionHistoryModal (function, line 16)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 20)
+    - Confidence: 0%
+  - [ ] fetchHistory (arrow, line 23)
+    - Confidence: 0%
+  - [ ] formatTxTime (arrow, line 45)
+    - Confidence: 0%
+  - [ ] transactions.map callback (arrow, line 79)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 110)
+    - Confidence: 0%
+
+## [ ] src/components/Analytics/DeepTracker.tsx
+- Confidence: 0%
+- Functions detected: 23
+- Functions:
+  - [ ] quantizeCoordinate (function, line 47)
+    - Confidence: 0%
+  - [ ] isSensitiveTarget (function, line 51)
+    - Confidence: 0%
+  - [ ] getSafeTargetLabel (function, line 57)
+    - Confidence: 0%
+  - [ ] getClientSessionId (function, line 72)
+    - Confidence: 0%
+  - [ ] readTelemetryContext (function, line 85)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 88)
+    - Confidence: 0%
+  - [ ] DeepTracker (function, line 105)
+    - Confidence: 0%
+  - [ ] useState callback (arrow, line 107)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 117)
+    - Confidence: 0%
+  - [ ] subscribeToPrivacySettings callback (arrow, line 118)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 123)
+    - Confidence: 0%
+  - [ ] flushQueue (arrow, line 151)
+    - Confidence: 0%
+  - [ ] getAppCheckToken().catch callback (arrow, line 166)
+    - Confidence: 0%
+  - [ ] pushEvent (arrow, line 197)
+    - Confidence: 0%
+  - [ ] emitPageSummary (arrow, line 212)
+    - Confidence: 0%
+  - [ ] handleClick (arrow, line 280)
+    - Confidence: 0%
+  - [ ] handleScroll (arrow, line 316)
+    - Confidence: 0%
+  - [ ] throttledScroll (arrow, line 339)
+    - Confidence: 0%
+  - [ ] handleMouseOver (arrow, line 347)
+    - Confidence: 0%
+  - [ ] handleMouseOut (arrow, line 371)
+    - Confidence: 0%
+  - [ ] handleVisibilityChange (arrow, line 405)
+    - Confidence: 0%
+  - [ ] handlePageHide (arrow, line 428)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 441)
+    - Confidence: 0%
+
+## [ ] src/components/Auth/AuthModal.tsx
+- Confidence: 0%
+- Functions detected: 22
+- Functions:
+  - [ ] AuthModal (function, line 36)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 49)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 60)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 66)
+    - Confidence: 0%
+  - [ ] z.string().refine callback (arrow, line 79)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 99)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 122)
+    - Confidence: 0%
+  - [ ] setTimeout callback (arrow, line 130)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 153)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 156)
+    - Confidence: 0%
+  - [ ] setTimeout callback (arrow, line 172)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 194)
+    - Confidence: 0%
+  - [ ] switchMode (arrow, line 197)
+    - Confidence: 0%
+  - [ ] handleGoogleSignIn (arrow, line 210)
+    - Confidence: 0%
+  - [ ] onSubmit (arrow, line 229)
+    - Confidence: 0%
+  - [ ] handlePasswordReset (arrow, line 283)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 398)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 437)
+    - Confidence: 0%
+  - [ ] onChange (arrow, line 454)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 527)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 565)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 575)
+    - Confidence: 0%
+
+## [ ] src/components/Auth/GuestComponentBlur.tsx
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] GuestComponentBlur (function, line 16)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 51)
+    - Confidence: 0%
+
+## [ ] src/components/Auth/GuidedOnboarding.tsx
+- Confidence: 0%
+- Functions detected: 28
+- Functions:
+  - [ ] normalizeTimestamp (function, line 115)
+    - Confidence: 0%
+  - [ ] hasClaimedToday (function, line 124)
+    - Confidence: 0%
+  - [ ] GuidedOnboarding (function, line 134)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 152)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 162)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 168)
+    - Confidence: 0%
+  - [ ] hydrateLegacyCompletion (arrow, line 184)
+    - Confidence: 0%
+  - [ ] setDoc(doc(db, "users", user.uid), { onboardingCompleted: true }, { merge: true }).catch callback (arrow, line 198)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 239)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 244)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 280)
+    - Confidence: 0%
+  - [ ] goToNextStep (arrow, line 287)
+    - Confidence: 0%
+  - [ ] setCurrentStep callback (arrow, line 288)
+    - Confidence: 0%
+  - [ ] buildStepMetric (arrow, line 294)
+    - Confidence: 0%
+  - [ ] commitStepMetric (arrow, line 314)
+    - Confidence: 0%
+  - [ ] completeCurrentStep (arrow, line 334)
+    - Confidence: 0%
+  - [ ] completeStepAndAdvance (arrow, line 339)
+    - Confidence: 0%
+  - [ ] handleCheckInAndContinue (arrow, line 344)
+    - Confidence: 0%
+  - [ ] response.json().catch callback (arrow, line 357)
+    - Confidence: 0%
+  - [ ] handleEnableNotifications (arrow, line 375)
+    - Confidence: 0%
+  - [ ] completeOnboarding (arrow, line 406)
+    - Confidence: 0%
+  - [ ] response.json().catch callback (arrow, line 433)
+    - Confidence: 0%
+  - [ ] FLAVOR_OPTIONS.map callback (arrow, line 512)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 520)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 541)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 590)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 612)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 648)
+    - Confidence: 0%
+
+## [ ] src/components/ClientDiagnosticsBridge.tsx
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] ClientDiagnosticsBridge (function, line 12)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 16)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 21)
+    - Confidence: 0%
+
+## [ ] src/components/CookieBanner.tsx
+- Confidence: 0%
+- Functions detected: 12
+- Functions:
+  - [ ] CookieBanner (function, line 8)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 24)
+    - Confidence: 0%
+  - [ ] syncViewport (arrow, line 25)
+    - Confidence: 0%
+  - [ ] window.setTimeout callback (arrow, line 30)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 35)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 46)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 54)
+    - Confidence: 0%
+  - [ ] handleConsent (arrow, line 61)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 102)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 110)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 137)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 145)
+    - Confidence: 0%
+
+## [ ] src/components/CoreLayoutWrapper.tsx
+- Confidence: 0%
+- Functions detected: 33
+- Functions:
+  - [ ] dynamic callback (arrow, line 16)
+    - Confidence: 0%
+  - [ ] dynamic callback (arrow, line 17)
+    - Confidence: 0%
+  - [ ] import("@/components/Navbar").then callback (arrow, line 17)
+    - Confidence: 0%
+  - [ ] dynamic callback (arrow, line 18)
+    - Confidence: 0%
+  - [ ] import("@/components/GlobalPurchaseModal").then callback (arrow, line 18)
+    - Confidence: 0%
+  - [ ] dynamic callback (arrow, line 19)
+    - Confidence: 0%
+  - [ ] import("@/components/GlobalAuthModal").then callback (arrow, line 19)
+    - Confidence: 0%
+  - [ ] dynamic callback (arrow, line 20)
+    - Confidence: 0%
+  - [ ] import("@/components/Auth/GuidedOnboarding").then callback (arrow, line 20)
+    - Confidence: 0%
+  - [ ] dynamic callback (arrow, line 21)
+    - Confidence: 0%
+  - [ ] import("@/components/Debug/DebugBreakpoints").then callback (arrow, line 21)
+    - Confidence: 0%
+  - [ ] dynamic callback (arrow, line 22)
+    - Confidence: 0%
+  - [ ] import("@/components/InsufficientBalanceModal").then callback (arrow, line 22)
+    - Confidence: 0%
+  - [ ] dynamic callback (arrow, line 23)
+    - Confidence: 0%
+  - [ ] import("@/components/Navigation/ScrollToTop").then callback (arrow, line 23)
+    - Confidence: 0%
+  - [ ] dynamic callback (arrow, line 24)
+    - Confidence: 0%
+  - [ ] import("@/components/Navigation/AutoScrollToTop").then callback (arrow, line 24)
+    - Confidence: 0%
+  - [ ] dynamic callback (arrow, line 25)
+    - Confidence: 0%
+  - [ ] import("@/components/Analytics/DeepTracker").then callback (arrow, line 25)
+    - Confidence: 0%
+  - [ ] dynamic callback (arrow, line 26)
+    - Confidence: 0%
+  - [ ] import("@/components/PwaRuntimeBridge").then callback (arrow, line 26)
+    - Confidence: 0%
+  - [ ] dynamic callback (arrow, line 28)
+    - Confidence: 0%
+  - [ ] import("@/components/Notifications/NotificationRuntimeBridge").then callback (arrow, line 28)
+    - Confidence: 0%
+  - [ ] dynamic callback (arrow, line 32)
+    - Confidence: 0%
+  - [ ] import("@/components/Dashboard/TaskGuidanceBanner").then callback (arrow, line 32)
+    - Confidence: 0%
+  - [ ] dynamic callback (arrow, line 36)
+    - Confidence: 0%
+  - [ ] import("@/components/ClientDiagnosticsBridge").then callback (arrow, line 36)
+    - Confidence: 0%
+  - [ ] dynamic callback (arrow, line 40)
+    - Confidence: 0%
+  - [ ] import("@/components/Feedback/GlobalBugReportTrigger").then callback (arrow, line 40)
+    - Confidence: 0%
+  - [ ] CoreLayoutWrapper (function, line 44)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 68)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 86)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 106)
+    - Confidence: 0%
+
+## [ ] src/components/Dashboard/CollectionList.tsx
+- Confidence: 0%
+- Functions detected: 14
+- Functions:
+  - [ ] getRatio (function, line 15)
+    - Confidence: 0%
+  - [ ] getItemSpanClass (function, line 23)
+    - Confidence: 0%
+  - [ ] CollectionList (function, line 36)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 40)
+    - Confidence: 0%
+  - [ ] drops.map callback (arrow, line 44)
+    - Confidence: 0%
+  - [ ] resolvedDrops.filter callback (arrow, line 48)
+    - Confidence: 0%
+  - [ ] visible.filter callback (arrow, line 49)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 55)
+    - Confidence: 0%
+  - [ ] visibleDrops.filter callback (arrow, line 56)
+    - Confidence: 0%
+  - [ ] visibleDrops.filter callback (arrow, line 57)
+    - Confidence: 0%
+  - [ ] (["all", "owned", "locked"] as const).map callback (arrow, line 80)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 83)
+    - Confidence: 0%
+  - [ ] filteredDrops.map callback (arrow, line 97)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 104)
+    - Confidence: 0%
+
+## [ ] src/components/Dashboard/DailyCheckIn.tsx
+- Confidence: 0%
+- Functions detected: 18
+- Functions:
+  - [ ] formatCountdown (function, line 17)
+    - Confidence: 0%
+  - [ ] [hours, minutes, seconds].map callback (arrow, line 23)
+    - Confidence: 0%
+  - [ ] emitGuidedCheckIn (function, line 26)
+    - Confidence: 0%
+  - [ ] DailyCheckIn (function, line 36)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 44)
+    - Confidence: 0%
+  - [ ] window.setInterval callback (arrow, line 46)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 50)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 60)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 62)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 68)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 73)
+    - Confidence: 0%
+  - [ ] handleClaim (arrow, line 86)
+    - Confidence: 0%
+  - [ ] response.json().catch callback (arrow, line 97)
+    - Confidence: 0%
+  - [ ] setUserProfile callback (arrow, line 125)
+    - Confidence: 0%
+  - [ ] import("canvas-confetti").then callback (arrow, line 144)
+    - Confidence: 0%
+  - [ ] frame (function expression, line 149)
+    - Confidence: 0%
+  - [ ] import("canvas-confetti").then((confettiModule) => {                 const launchConfetti = confettiModule.default;                 const end = Date.now() + 1000;                 const colors = ["#ec4899", "#facc15"];                  (function frame() {                     launchConfetti({ particleCount: 2, angle: 60, spread: 55, origin: { x: 0 }, colors });                     launchConfetti({ particleCount: 2, angle: 120, spread: 55, origin: { x: 1 }, colors });                     if (Date.now() < end) {                         requestAnimationFrame(frame);                     }                 }());             }).catch callback (arrow, line 156)
+    - Confidence: 0%
+  - [ ] DAILY_CHECK_IN_REWARD_LADDER.map callback (arrow, line 209)
+    - Confidence: 0%
+
+## [ ] src/components/Dashboard/DailyTasksModule.tsx
+- Confidence: 0%
+- Functions detected: 52
+- Functions:
+  - [ ] formatCountdown (function, line 75)
+    - Confidence: 0%
+  - [ ] [hours, minutes, seconds].map callback (arrow, line 81)
+    - Confidence: 0%
+  - [ ] DailyTasksModule (function, line 84)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 101)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 105)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 113)
+    - Confidence: 0%
+  - [ ] window.setInterval callback (arrow, line 114)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 118)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 121)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 126)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 128)
+    - Confidence: 0%
+  - [ ] activeTasks.filter callback (arrow, line 128)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 131)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 137)
+    - Confidence: 0%
+  - [ ] setExpandedTaskIds callback (arrow, line 138)
+    - Confidence: 0%
+  - [ ] current.filter callback (arrow, line 139)
+    - Confidence: 0%
+  - [ ] activeTasks.some callback (arrow, line 139)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 143)
+    - Confidence: 0%
+  - [ ] setUserProfile callback (arrow, line 157)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 167)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 189)
+    - Confidence: 0%
+  - [ ] rotateTasksOnMount (function, line 204)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 216)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 221)
+    - Confidence: 0%
+  - [ ] rotateTasksAfterDeadline (function, line 227)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 242)
+    - Confidence: 0%
+  - [ ] toggleTaskExpanded (arrow, line 247)
+    - Confidence: 0%
+  - [ ] setExpandedTaskIds callback (arrow, line 248)
+    - Confidence: 0%
+  - [ ] current.filter callback (arrow, line 250)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 255)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 268)
+    - Confidence: 0%
+  - [ ] runPendingAction (arrow, line 275)
+    - Confidence: 0%
+  - [ ] onOpenFeedback (arrow, line 294)
+    - Confidence: 0%
+  - [ ] handleRuntimeAction (arrow, line 306)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 314)
+    - Confidence: 0%
+  - [ ] handleTaskAction (arrow, line 320)
+    - Confidence: 0%
+  - [ ] onOpenFeedback (arrow, line 335)
+    - Confidence: 0%
+  - [ ] submitFeedback (arrow, line 381)
+    - Confidence: 0%
+  - [ ] response.json().catch callback (arrow, line 399)
+    - Confidence: 0%
+  - [ ] FEEDBACK_CATEGORY_OPTIONS.map callback (arrow, line 440)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 444)
+    - Confidence: 0%
+  - [ ] [1, 2, 3, 4, 5].map callback (arrow, line 461)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 465)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 483)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 493)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 551)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 564)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 596)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 609)
+    - Confidence: 0%
+  - [ ] activeTasks.map callback (arrow, line 630)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 656)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 741)
+    - Confidence: 0%
+
+## [ ] src/components/Dashboard/LiveDropsForYouCarousel.tsx
+- Confidence: 0%
+- Functions detected: 8
+- Functions:
+  - [ ] LiveDropsForYouCarousel (function, line 14)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 19)
+    - Confidence: 0%
+  - [ ] window.setInterval callback (arrow, line 20)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 24)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 28)
+    - Confidence: 0%
+  - [ ] drops         .filter callback (arrow, line 30)
+    - Confidence: 0%
+  - [ ] activeDrops.map callback (arrow, line 68)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 72)
+    - Confidence: 0%
+
+## [ ] src/components/Dashboard/NotificationPromptBanner.tsx
+- Confidence: 0%
+- Functions detected: 11
+- Functions:
+  - [ ] getDismissKey (function, line 12)
+    - Confidence: 0%
+  - [ ] NotificationPromptBanner (function, line 16)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 23)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 34)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 43)
+    - Confidence: 0%
+  - [ ] evaluateBanner (function, line 51)
+    - Confidence: 0%
+  - [ ] window.setTimeout callback (arrow, line 68)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 80)
+    - Confidence: 0%
+  - [ ] handleEnable (arrow, line 85)
+    - Confidence: 0%
+  - [ ] handleDismiss (arrow, line 125)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 165)
+    - Confidence: 0%
+
+## [ ] src/components/Dashboard/OwnedDropGalleryCard.tsx
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] OwnedDropGalleryCard (function, line 16)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 20)
+    - Confidence: 0%
+
+## [ ] src/components/Dashboard/RecentActivityFeed.tsx
+- Confidence: 0%
+- Functions detected: 29
+- Functions:
+  - [ ] renderTransactionLabel (function, line 57)
+    - Confidence: 0%
+  - [ ] renderTaskEventLabel (function, line 80)
+    - Confidence: 0%
+  - [ ] RecentActivityFeed (function, line 92)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 108)
+    - Confidence: 0%
+  - [ ] fetchActivity (function, line 124)
+    - Confidence: 0%
+  - [ ] subscribeToUserRuntime (arrow, line 191)
+    - Confidence: 0%
+  - [ ] onSnapshot callback (arrow, line 204)
+    - Confidence: 0%
+  - [ ] onSnapshot callback (arrow, line 218)
+    - Confidence: 0%
+  - [ ] refreshRecentActivity (arrow, line 233)
+    - Confidence: 0%
+  - [ ] handleVisibilityChange (arrow, line 239)
+    - Confidence: 0%
+  - [ ] window.setInterval callback (arrow, line 247)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 256)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 268)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 274)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 311)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 318)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 322)
+    - Confidence: 0%
+  - [ ] historyActivities.filter callback (arrow, line 328)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 342)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 348)
+    - Confidence: 0%
+  - [ ] renderActivityItem (function, line 353)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 421)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 449)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 462)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 487)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 517)
+    - Confidence: 0%
+  - [ ] setCurrentPage callback (arrow, line 517)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 529)
+    - Confidence: 0%
+  - [ ] setCurrentPage callback (arrow, line 529)
+    - Confidence: 0%
+
+## [ ] src/components/Dashboard/TaskGuidanceBanner.tsx
+- Confidence: 0%
+- Functions detected: 20
+- Functions:
+  - [ ] readStoredGuidance (function, line 30)
+    - Confidence: 0%
+  - [ ] writeStoredGuidance (function, line 65)
+    - Confidence: 0%
+  - [ ] TaskGuidanceBanner (function, line 78)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 87)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 91)
+    - Confidence: 0%
+  - [ ] handleGuidanceEvent (function, line 92)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 112)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 115)
+    - Confidence: 0%
+  - [ ] userProfile?.dailyTasksState?.tasks?.find callback (arrow, line 132)
+    - Confidence: 0%
+  - [ ] import("canvas-confetti").then callback (arrow, line 159)
+    - Confidence: 0%
+  - [ ] frame (function expression, line 164)
+    - Confidence: 0%
+  - [ ] import("canvas-confetti").then((confettiModule) => {       const launchConfetti = confettiModule.default;       const end = Date.now() + 900;       const colors = ["#ec4899", "#facc15", "#ffffff"];        (function frame() {         launchConfetti({           particleCount: 2,           angle: 70,           spread: 45,           origin: { x: 0.25, y: 0.15 },           colors,         });         launchConfetti({           particleCount: 2,           angle: 110,           spread: 45,           origin: { x: 0.75, y: 0.15 },           colors,         });         if (Date.now() < end) {           requestAnimationFrame(frame);         }       }());     }).catch callback (arrow, line 183)
+    - Confidence: 0%
+  - [ ] window.setTimeout callback (arrow, line 185)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 189)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 192)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 205)
+    - Confidence: 0%
+  - [ ] dismissBanner (arrow, line 213)
+    - Confidence: 0%
+  - [ ] handleAction (arrow, line 232)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 324)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 327)
+    - Confidence: 0%
+
+## [ ] src/components/Debug/DebugBreakpoints.tsx
+- Confidence: 0%
+- Functions detected: 4
+- Functions:
+  - [ ] DebugBreakpoints (function, line 5)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 8)
+    - Confidence: 0%
+  - [ ] handleResize (function, line 11)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 20)
+    - Confidence: 0%
+
+## [ ] src/components/DropCard.tsx
+- Confidence: 0%
+- Functions detected: 29
+- Functions:
+  - [ ] DropCardBadge (arrow, line 47)
+    - Confidence: 0%
+  - [ ] FileCountChip (arrow, line 68)
+    - Confidence: 0%
+  - [ ] DropCardTimer (function, line 92)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 97)
+    - Confidence: 0%
+  - [ ] updateTimer (arrow, line 98)
+    - Confidence: 0%
+  - [ ] pad (arrow, line 126)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 132)
+    - Confidence: 0%
+  - [ ] DropCardBase (function, line 148)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 168)
+    - Confidence: 0%
+  - [ ] setTimeout callback (arrow, line 171)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 173)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 176)
+    - Confidence: 0%
+  - [ ] flushImpression (arrow, line 189)
+    - Confidence: 0%
+  - [ ] IntersectionObserver callback (arrow, line 223)
+    - Confidence: 0%
+  - [ ] setTimeout callback (arrow, line 235)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 248)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 260)
+    - Confidence: 0%
+  - [ ] (drop.tags || []).filter callback (arrow, line 261)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 264)
+    - Confidence: 0%
+  - [ ] triggerHaptic (arrow, line 278)
+    - Confidence: 0%
+  - [ ] handlePreviewOpen (arrow, line 284)
+    - Confidence: 0%
+  - [ ] fetch(`/api/drops/${drop.id}/click`, { method: "POST" }).catch callback (arrow, line 291)
+    - Confidence: 0%
+  - [ ] handleUnlock (arrow, line 295)
+    - Confidence: 0%
+  - [ ] setUserProfile callback (arrow, line 346)
+    - Confidence: 0%
+  - [ ] onTaste (arrow, line 369)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 440)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 451)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 490)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 504)
+    - Confidence: 0%
+
+## [ ] src/components/DropGrid.tsx
+- Confidence: 0%
+- Functions detected: 11
+- Functions:
+  - [ ] DropGrid (function, line 23)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 35)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 37)
+    - Confidence: 0%
+  - [ ] setTimeout callback (arrow, line 39)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 40)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 45)
+    - Confidence: 0%
+  - [ ] drops.map callback (arrow, line 46)
+    - Confidence: 0%
+  - [ ] getGridSpanClass (arrow, line 53)
+    - Confidence: 0%
+  - [ ] Array.from({ length: 8 }).map callback (arrow, line 68)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 105)
+    - Confidence: 0%
+  - [ ] dropEntries.map callback (arrow, line 126)
+    - Confidence: 0%
+
+## [ ] src/components/DropPreviewModal.tsx
+- Confidence: 0%
+- Functions detected: 22
+- Functions:
+  - [ ] getTimerLabel (function, line 33)
+    - Confidence: 0%
+  - [ ] DropPreviewModal (function, line 50)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 58)
+    - Confidence: 0%
+  - [ ] setTimeout callback (arrow, line 61)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 63)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 66)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 67)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 68)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 69)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 72)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 78)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 90)
+    - Confidence: 0%
+  - [ ] triggerHaptic (arrow, line 100)
+    - Confidence: 0%
+  - [ ] handleUnwrap (arrow, line 106)
+    - Confidence: 0%
+  - [ ] setUserProfile callback (arrow, line 176)
+    - Confidence: 0%
+  - [ ] onTaste (arrow, line 200)
+    - Confidence: 0%
+  - [ ] handleShare (arrow, line 213)
+    - Confidence: 0%
+  - [ ] navigator.clipboard.writeText(url)       .then callback (arrow, line 217)
+    - Confidence: 0%
+  - [ ] navigator.clipboard.writeText(url)       .then(() => {         toast.success("Link copied to clipboard!");         trackEvent("drop_share_copied", {           drop_id: drop.id,           drop_category: drop.type,           share_url: url,         });       })       .catch callback (arrow, line 225)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 229)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 275)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 299)
+    - Confidence: 0%
+
+## [ ] src/components/ErrorBoundary.tsx
+- Confidence: 0%
+- Functions detected: 4
+- Functions:
+  - [ ] getDerivedStateFromError (method, line 25)
+    - Confidence: 0%
+  - [ ] componentDidCatch (method, line 29)
+    - Confidence: 0%
+  - [ ] render (method, line 38)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 61)
+    - Confidence: 0%
+
+## [ ] src/components/FeaturedCarousel.tsx
+- Confidence: 0%
+- Functions detected: 27
+- Functions:
+  - [ ] FeaturedCarousel (function, line 23)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 29)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 31)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 36)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 43)
+    - Confidence: 0%
+  - [ ] window.setInterval callback (arrow, line 46)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 50)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 57)
+    - Confidence: 0%
+  - [ ] window.setInterval callback (arrow, line 64)
+    - Confidence: 0%
+  - [ ] featuredDrops.map callback (arrow, line 94)
+    - Confidence: 0%
+  - [ ] urls.forEach callback (arrow, line 105)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 119)
+    - Confidence: 0%
+  - [ ] featuredDrops.map callback (arrow, line 191)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 194)
+    - Confidence: 0%
+  - [ ] TimerWithProgress (function, line 208)
+    - Confidence: 0%
+  - [ ] LifetimeProgressBar (function, line 227)
+    - Confidence: 0%
+  - [ ] ActivityTicker (function, line 241)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 245)
+    - Confidence: 0%
+  - [ ] window.setTimeout callback (arrow, line 250)
+    - Confidence: 0%
+  - [ ] window.setTimeout callback (arrow, line 253)
+    - Confidence: 0%
+  - [ ] window.setTimeout callback (arrow, line 256)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 260)
+    - Confidence: 0%
+  - [ ] useDropTiming (function, line 272)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 277)
+    - Confidence: 0%
+  - [ ] updateTiming (arrow, line 278)
+    - Confidence: 0%
+  - [ ] pad (arrow, line 311)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 318)
+    - Confidence: 0%
+
+## [ ] src/components/Feedback/GlobalBugReportTrigger.tsx
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] GlobalBugReportTrigger (function, line 10)
+    - Confidence: 0%
+  - [ ] HIDDEN_PATH_PREFIXES.some callback (arrow, line 14)
+    - Confidence: 0%
+
+## [ ] src/components/Feedback/ReportBugButton.tsx
+- Confidence: 0%
+- Functions detected: 23
+- Functions:
+  - [ ] ReportBugButton (function, line 34)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 54)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 59)
+    - Confidence: 0%
+  - [ ] assignments.map callback (arrow, line 59)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 69)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 75)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 88)
+    - Confidence: 0%
+  - [ ] openComposer (arrow, line 95)
+    - Confidence: 0%
+  - [ ] closeComposer (arrow, line 110)
+    - Confidence: 0%
+  - [ ] submitBugReport (arrow, line 122)
+    - Confidence: 0%
+  - [ ] response.json().catch callback (arrow, line 149)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 207)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 215)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 235)
+    - Confidence: 0%
+  - [ ] BUG_REPORT_ISSUE_OPTIONS.map callback (arrow, line 260)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 264)
+    - Confidence: 0%
+  - [ ] ([                       { value: "low", label: "Low" },                       { value: "medium", label: "Medium" },                       { value: "high", label: "High" },                     ] as const).map callback (arrow, line 290)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 294)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 314)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 324)
+    - Confidence: 0%
+  - [ ] setShowAutoContext callback (arrow, line 324)
+    - Confidence: 0%
+  - [ ] snapshotPreview.rolloutAssignments.map callback (arrow, line 365)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 384)
+    - Confidence: 0%
+
+## [ ] src/components/GlobalAuthModal.tsx
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] dynamic callback (arrow, line 8)
+    - Confidence: 0%
+  - [ ] import("@/components/Auth/AuthModal").then callback (arrow, line 8)
+    - Confidence: 0%
+  - [ ] GlobalAuthModal (function, line 12)
+    - Confidence: 0%
+
+## [ ] src/components/GlobalPurchaseModal.tsx
+- Confidence: 0%
+- Functions detected: 4
+- Functions:
+  - [ ] dynamic callback (arrow, line 7)
+    - Confidence: 0%
+  - [ ] import("@/components/PurchaseModal").then callback (arrow, line 7)
+    - Confidence: 0%
+  - [ ] loading (arrow, line 10)
+    - Confidence: 0%
+  - [ ] GlobalPurchaseModal (function, line 14)
+    - Confidence: 0%
+
+## [ ] src/components/Hero.tsx
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] Hero (function, line 17)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 58)
+    - Confidence: 0%
+  - [ ] ActivityTicker (function, line 90)
+    - Confidence: 0%
+
+## [ ] src/components/HomeDropTicker.tsx
+- Confidence: 0%
+- Functions detected: 4
+- Functions:
+  - [ ] HomeDropTicker (function, line 11)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 12)
+    - Confidence: 0%
+  - [ ] renderTrack (arrow, line 15)
+    - Confidence: 0%
+  - [ ] [...tickerDrops, ...tickerDrops].map callback (arrow, line 17)
+    - Confidence: 0%
+
+## [ ] src/components/InsufficientBalanceModal.tsx
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] InsufficientBalanceModal (function, line 12)
+    - Confidence: 0%
+  - [ ] handleGetMore (arrow, line 30)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 85)
+    - Confidence: 0%
+
+## [ ] src/components/KandyDropsAccountOverview.tsx
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] KandyDropsAccountOverview (function, line 20)
+    - Confidence: 0%
+
+## [ ] src/components/Landing/HomeActiveDropsCarousel.tsx
+- Confidence: 0%
+- Functions detected: 10
+- Functions:
+  - [ ] HomeActiveDropsCarousel (function, line 20)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 24)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 29)
+    - Confidence: 0%
+  - [ ] syncSelected (arrow, line 34)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 42)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 48)
+    - Confidence: 0%
+  - [ ] activeDrops.map callback (arrow, line 67)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 77)
+    - Confidence: 0%
+  - [ ] activeDrops.map callback (arrow, line 135)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 139)
+    - Confidence: 0%
+
+## [ ] src/components/Landing/HowItWorks.tsx
+- Confidence: 0%
+- Functions detected: 5
+- Functions:
+  - [ ] HowItWorks (function, line 16)
+    - Confidence: 0%
+  - [ ] handleLandingCta (arrow, line 21)
+    - Confidence: 0%
+  - [ ] features.map callback (arrow, line 61)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 78)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 98)
+    - Confidence: 0%
+
+## [ ] src/components/Legal/LegalBackLink.tsx
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] LegalBackLink (function, line 17)
+    - Confidence: 0%
+
+## [ ] src/components/Navbar.tsx
+- Confidence: 0%
+- Functions detected: 14
+- Functions:
+  - [ ] dynamic callback (arrow, line 14)
+    - Confidence: 0%
+  - [ ] import("@/components/Navigation/ProfileDropdown").then callback (arrow, line 14)
+    - Confidence: 0%
+  - [ ] dynamic callback (arrow, line 17)
+    - Confidence: 0%
+  - [ ] import("@/components/Navigation/ProfileSidebar").then callback (arrow, line 17)
+    - Confidence: 0%
+  - [ ] dynamic callback (arrow, line 20)
+    - Confidence: 0%
+  - [ ] import("@/components/Navigation/AdminDropdown").then callback (arrow, line 20)
+    - Confidence: 0%
+  - [ ] dynamic callback (arrow, line 23)
+    - Confidence: 0%
+  - [ ] import("@/components/Navigation/NotificationBell").then callback (arrow, line 23)
+    - Confidence: 0%
+  - [ ] dynamic callback (arrow, line 26)
+    - Confidence: 0%
+  - [ ] import("@/components/Navigation/AnimateBalance").then callback (arrow, line 26)
+    - Confidence: 0%
+  - [ ] Navbar (function, line 29)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 58)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 82)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 115)
+    - Confidence: 0%
+
+## [ ] src/components/Navigation/AdminDropdown.tsx
+- Confidence: 0%
+- Functions detected: 8
+- Functions:
+  - [ ] AdminDropdown (function, line 10)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 19)
+    - Confidence: 0%
+  - [ ] handleClickOutside (function, line 20)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 26)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 43)
+    - Confidence: 0%
+  - [ ] navItems.map callback (arrow, line 70)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 74)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 85)
+    - Confidence: 0%
+
+## [ ] src/components/Navigation/AnimateBalance.tsx
+- Confidence: 0%
+- Functions detected: 7
+- Functions:
+  - [ ] AnimateBalance (function, line 11)
+    - Confidence: 0%
+  - [ ] useTransform callback (arrow, line 24)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 26)
+    - Confidence: 0%
+  - [ ] setTimeout callback (arrow, line 38)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 39)
+    - Confidence: 0%
+  - [ ] setTimeout callback (arrow, line 44)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 45)
+    - Confidence: 0%
+
+## [ ] src/components/Navigation/AutoScrollToTop.tsx
+- Confidence: 0%
+- Functions detected: 4
+- Functions:
+  - [ ] AutoScrollToTop (function, line 6)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 9)
+    - Confidence: 0%
+  - [ ] setTimeout callback (arrow, line 15)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 19)
+    - Confidence: 0%
+
+## [ ] src/components/Navigation/MobileBottomBar.tsx
+- Confidence: 0%
+- Functions detected: 5
+- Functions:
+  - [ ] triggerHaptic (function, line 18)
+    - Confidence: 0%
+  - [ ] MobileBottomBar (function, line 24)
+    - Confidence: 0%
+  - [ ] NAV_ITEMS.map callback (arrow, line 42)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 59)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 76)
+    - Confidence: 0%
+
+## [ ] src/components/Navigation/NotificationBell.tsx
+- Confidence: 0%
+- Functions detected: 22
+- Functions:
+  - [ ] getTypePill (function, line 40)
+    - Confidence: 0%
+  - [ ] NotificationThumbnail (function, line 69)
+    - Confidence: 0%
+  - [ ] NotificationItem (function, line 98)
+    - Confidence: 0%
+  - [ ] openDrop (arrow, line 113)
+    - Confidence: 0%
+  - [ ] handleMarkAsRead (arrow, line 134)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 166)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 193)
+    - Confidence: 0%
+  - [ ] setIsExpanded callback (arrow, line 193)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 203)
+    - Confidence: 0%
+  - [ ] NotificationBell (function, line 224)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 231)
+    - Confidence: 0%
+  - [ ] handleClickOutside (function, line 232)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 239)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 242)
+    - Confidence: 0%
+  - [ ] handleOpenRequest (function, line 243)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 252)
+    - Confidence: 0%
+  - [ ] toggleDropdown (arrow, line 255)
+    - Confidence: 0%
+  - [ ] setIsOpen callback (arrow, line 256)
+    - Confidence: 0%
+  - [ ] handleMarkAllAsRead (arrow, line 268)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 318)
+    - Confidence: 0%
+  - [ ] notifications.map callback (arrow, line 343)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 348)
+    - Confidence: 0%
+
+## [ ] src/components/Navigation/ProfileDropdown.tsx
+- Confidence: 0%
+- Functions detected: 11
+- Functions:
+  - [ ] ProfileDropdown (function, line 10)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 19)
+    - Confidence: 0%
+  - [ ] handleClickOutside (function, line 20)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 26)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 34)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 72)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 78)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 79)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 80)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 85)
+    - Confidence: 0%
+  - [ ] DropdownItem (function, line 101)
+    - Confidence: 0%
+
+## [ ] src/components/Navigation/ProfileSidebar.tsx
+- Confidence: 0%
+- Functions detected: 7
+- Functions:
+  - [ ] ProfileSidebar (function, line 23)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 30)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 32)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 78)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 106)
+    - Confidence: 0%
+  - [ ] SidebarItem (function, line 130)
+    - Confidence: 0%
+  - [ ] handleClick (arrow, line 131)
+    - Confidence: 0%
+
+## [ ] src/components/Navigation/ScrollToTop.tsx
+- Confidence: 0%
+- Functions detected: 5
+- Functions:
+  - [ ] ScrollToTop (function, line 8)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 11)
+    - Confidence: 0%
+  - [ ] toggleVisibility (arrow, line 12)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 21)
+    - Confidence: 0%
+  - [ ] scrollToTop (arrow, line 24)
+    - Confidence: 0%
+
+## [ ] src/components/Notifications/NotificationRuntimeBridge.tsx
+- Confidence: 0%
+- Functions detected: 16
+- Functions:
+  - [ ] NotificationRuntimeBridge (function, line 16)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 21)
+    - Confidence: 0%
+  - [ ] onNotificationMessage callback (arrow, line 26)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 37)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 42)
+    - Confidence: 0%
+  - [ ] tasks.filter callback (arrow, line 48)
+    - Confidence: 0%
+  - [ ] syncReminder (arrow, line 63)
+    - Confidence: 0%
+  - [ ] authFetch("/api/tasks/reminders/sync", { method: "POST" })                 .then callback (arrow, line 70)
+    - Confidence: 0%
+  - [ ] response.json().catch callback (arrow, line 75)
+    - Confidence: 0%
+  - [ ] authFetch("/api/tasks/reminders/sync", { method: "POST" })                 .then(async (response) => {                     if (!response.ok) {                         throw new Error("Reminder sync failed");                     }                      const payload = await response.json().catch(() => ({}));                     return payload?.sent === true;                 })                 .catch callback (arrow, line 78)
+    - Confidence: 0%
+  - [ ] triggerReminder (arrow, line 85)
+    - Confidence: 0%
+  - [ ] syncIfVisible (arrow, line 117)
+    - Confidence: 0%
+  - [ ] window.setInterval callback (arrow, line 126)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 131)
+    - Confidence: 0%
+  - [ ] window.setTimeout callback (arrow, line 138)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 142)
+    - Confidence: 0%
+
+## [ ] src/components/PayPalProvider.tsx
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] PayPalProvider (function, line 21)
+    - Confidence: 0%
+
+## [ ] src/components/PromoCard.tsx
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] PromoCard (function, line 12)
+    - Confidence: 0%
+  - [ ] handleClick (arrow, line 13)
+    - Confidence: 0%
+  - [ ] request.catch callback (arrow, line 28)
+    - Confidence: 0%
+
+## [ ] src/components/PurchaseModal.tsx
+- Confidence: 0%
+- Functions detected: 32
+- Functions:
+  - [ ] FIXED_GUMDROP_PACKAGES.map callback (arrow, line 30)
+    - Confidence: 0%
+  - [ ] PurchaseModal (function, line 40)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 59)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 61)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 66)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 74)
+    - Confidence: 0%
+  - [ ] requestAnimationFrame callback (arrow, line 80)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 85)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 87)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 92)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 115)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 135)
+    - Confidence: 0%
+  - [ ] setCustomDrops callback (arrow, line 136)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 143)
+    - Confidence: 0%
+  - [ ] PACKAGES.find callback (arrow, line 145)
+    - Confidence: 0%
+  - [ ] PACKAGES.find callback (arrow, line 159)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 162)
+    - Confidence: 0%
+  - [ ] handleApprove (arrow, line 174)
+    - Confidence: 0%
+  - [ ] import("canvas-confetti")         .then callback (arrow, line 197)
+    - Confidence: 0%
+  - [ ] import("canvas-confetti")         .then((mod) => mod.default({ particleCount: 100, spread: 70, origin: { y: 0.6 } }))         .catch callback (arrow, line 198)
+    - Confidence: 0%
+  - [ ] setUserProfile callback (arrow, line 202)
+    - Confidence: 0%
+  - [ ] PACKAGES.map callback (arrow, line 286)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 292)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 326)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 329)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 355)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 374)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 408)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 433)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 436)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 468)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 474)
+    - Confidence: 0%
+
+## [ ] src/components/PwaRuntimeBridge.tsx
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] PwaRuntimeBridge (function, line 7)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 8)
+    - Confidence: 0%
+
+## [ ] src/components/StickyFilterBar.tsx
+- Confidence: 0%
+- Functions detected: 14
+- Functions:
+  - [ ] StickyFilterBar (function, line 17)
+    - Confidence: 0%
+  - [ ] triggerHaptic (arrow, line 28)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 35)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 40)
+    - Confidence: 0%
+  - [ ] setTimeout callback (arrow, line 41)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 47)
+    - Confidence: 0%
+  - [ ] handleSearchChange (arrow, line 50)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 54)
+    - Confidence: 0%
+  - [ ] handleScroll (arrow, line 57)
+    - Confidence: 0%
+  - [ ] requestAnimationFrame callback (arrow, line 60)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 71)
+    - Confidence: 0%
+  - [ ] categories.map callback (arrow, line 111)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 118)
+    - Confidence: 0%
+  - [ ] GridIcon (function, line 154)
+    - Confidence: 0%
+
+## [ ] src/components/Toasts/UnwrapSuccessToast.tsx
+- Confidence: 0%
+- Functions detected: 4
+- Functions:
+  - [ ] showUnwrapSuccessToast (function, line 12)
+    - Confidence: 0%
+  - [ ] toast.custom callback (arrow, line 13)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 35)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 46)
+    - Confidence: 0%
+
+## [ ] src/components/ui/Button.tsx
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] React.forwardRef callback (arrow, line 14)
+    - Confidence: 0%
+
+## [ ] src/components/ui/Icon.tsx
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] CandyIcon (function, line 9)
+    - Confidence: 0%
+
+## [ ] src/context/AuthContext.tsx
+- Confidence: 0%
+- Functions detected: 29
+- Functions:
+  - [ ] ensureAuthPersistence (function, line 53)
+    - Confidence: 0%
+  - [ ] setPersistence(auth, browserLocalPersistence).catch callback (arrow, line 55)
+    - Confidence: 0%
+  - [ ] AuthProvider (function, line 66)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 76)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 80)
+    - Confidence: 0%
+  - [ ] ensureAuthPersistence().catch callback (arrow, line 81)
+    - Confidence: 0%
+  - [ ] onAuthStateChanged callback (arrow, line 83)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 101)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 104)
+    - Confidence: 0%
+  - [ ] fetch("/api/auth/navigation-session", {                 method: "DELETE",                 keepalive: true,             }).catch callback (arrow, line 111)
+    - Confidence: 0%
+  - [ ] setupProfileListener (arrow, line 121)
+    - Confidence: 0%
+  - [ ] onSnapshot callback (arrow, line 127)
+    - Confidence: 0%
+  - [ ] onSnapshot callback (arrow, line 175)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 182)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 188)
+    - Confidence: 0%
+  - [ ] authFetch("/api/auth/navigation-session", {                 method: "POST",             }).catch callback (arrow, line 205)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 211)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 217)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 236)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 251)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 283)
+    - Confidence: 0%
+  - [ ] fetch("/api/auth/navigation-session", {             method: "DELETE",             keepalive: true,         }).catch callback (arrow, line 294)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 300)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 311)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 320)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 327)
+    - Confidence: 0%
+  - [ ] useAuthIdentity (arrow, line 346)
+    - Confidence: 0%
+  - [ ] useUserProfile (arrow, line 352)
+    - Confidence: 0%
+  - [ ] useAuth (arrow, line 358)
+    - Confidence: 0%
+
+## [ ] src/context/RolloutContext.tsx
+- Confidence: 0%
+- Functions detected: 17
+- Functions:
+  - [ ] readExposureKeys (function, line 22)
+    - Confidence: 0%
+  - [ ] writeExposureKeys (function, line 40)
+    - Confidence: 0%
+  - [ ] RolloutProvider (function, line 52)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 57)
+    - Confidence: 0%
+  - [ ] window.requestAnimationFrame callback (arrow, line 58)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 65)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 69)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 78)
+    - Confidence: 0%
+  - [ ] assignments.forEach callback (arrow, line 86)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 118)
+    - Confidence: 0%
+  - [ ] getVariant (arrow, line 120)
+    - Confidence: 0%
+  - [ ] assignments.find callback (arrow, line 121)
+    - Confidence: 0%
+  - [ ] isEnabled (arrow, line 123)
+    - Confidence: 0%
+  - [ ] assignments.find callback (arrow, line 124)
+    - Confidence: 0%
+  - [ ] useRollouts (function, line 136)
+    - Confidence: 0%
+  - [ ] useRolloutVariant (function, line 144)
+    - Confidence: 0%
+  - [ ] useRolloutEnabled (function, line 148)
+    - Confidence: 0%
+
+## [ ] src/context/SWRProvider.tsx
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] SWRProvider (function, line 10)
+    - Confidence: 0%
+
+## [ ] src/context/UIContext.tsx
+- Confidence: 0%
+- Functions detected: 11
+- Functions:
+  - [ ] UIProvider (function, line 27)
+    - Confidence: 0%
+  - [ ] openPurchaseModal (arrow, line 36)
+    - Confidence: 0%
+  - [ ] closePurchaseModal (arrow, line 44)
+    - Confidence: 0%
+  - [ ] openAuthModal (arrow, line 48)
+    - Confidence: 0%
+  - [ ] closeAuthModal (arrow, line 52)
+    - Confidence: 0%
+  - [ ] openInsufficientBalanceModal (arrow, line 54)
+    - Confidence: 0%
+  - [ ] closeInsufficientBalanceModal (arrow, line 58)
+    - Confidence: 0%
+  - [ ] openProfileSidebar (arrow, line 59)
+    - Confidence: 0%
+  - [ ] closeProfileSidebar (arrow, line 60)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 62)
+    - Confidence: 0%
+  - [ ] useUI (function, line 87)
+    - Confidence: 0%
+
+## [ ] src/dataconnect-admin-generated/esm/index.esm.js
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] createAiInteraction (function, line 9)
+    - Confidence: 0%
+  - [ ] listAiInteractions (function, line 15)
+    - Confidence: 0%
+
+## [ ] src/dataconnect-admin-generated/esm/package.json
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] src/dataconnect-admin-generated/index.cjs.js
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] createAiInteraction (function, line 10)
+    - Confidence: 0%
+  - [ ] listAiInteractions (function, line 17)
+    - Confidence: 0%
+
+## [ ] src/dataconnect-admin-generated/index.d.ts
+- Confidence: 0%
+- Functions detected: 4
+- Functions:
+  - [ ] createAiInteraction (function, line 128)
+    - Confidence: 0%
+  - [ ] createAiInteraction (function, line 130)
+    - Confidence: 0%
+  - [ ] listAiInteractions (function, line 133)
+    - Confidence: 0%
+  - [ ] listAiInteractions (function, line 135)
+    - Confidence: 0%
+
+## [ ] src/dataconnect-admin-generated/package.json
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] src/dataconnect-generated/.guides/config.json
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] src/dataconnect-generated/.guides/setup.md
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] src/dataconnect-generated/.guides/usage.md
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] src/dataconnect-generated/esm/index.esm.js
+- Confidence: 0%
+- Functions detected: 4
+- Functions:
+  - [ ] createAiInteractionRef (arrow, line 9)
+    - Confidence: 0%
+  - [ ] createAiInteraction (function, line 16)
+    - Confidence: 0%
+  - [ ] listAiInteractionsRef (arrow, line 20)
+    - Confidence: 0%
+  - [ ] listAiInteractions (function, line 27)
+    - Confidence: 0%
+
+## [ ] src/dataconnect-generated/esm/package.json
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] src/dataconnect-generated/index.cjs.js
+- Confidence: 0%
+- Functions detected: 4
+- Functions:
+  - [ ] createAiInteractionRef (arrow, line 10)
+    - Confidence: 0%
+  - [ ] createAiInteraction (function expression, line 18)
+    - Confidence: 0%
+  - [ ] listAiInteractionsRef (arrow, line 22)
+    - Confidence: 0%
+  - [ ] listAiInteractions (function expression, line 30)
+    - Confidence: 0%
+
+## [ ] src/dataconnect-generated/index.d.ts
+- Confidence: 0%
+- Functions detected: 4
+- Functions:
+  - [ ] createAiInteraction (function, line 138)
+    - Confidence: 0%
+  - [ ] createAiInteraction (function, line 139)
+    - Confidence: 0%
+  - [ ] listAiInteractions (function, line 150)
+    - Confidence: 0%
+  - [ ] listAiInteractions (function, line 151)
+    - Confidence: 0%
+
+## [ ] src/dataconnect-generated/package.json
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] src/dataconnect-generated/react/esm/index.esm.js
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] useCreateAiInteraction (function, line 5)
+    - Confidence: 0%
+  - [ ] refFactory (function, line 7)
+    - Confidence: 0%
+  - [ ] useListAiInteractions (function, line 14)
+    - Confidence: 0%
+
+## [ ] src/dataconnect-generated/react/esm/package.json
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] src/dataconnect-generated/react/index.cjs.js
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] useCreateAiInteraction (function expression, line 5)
+    - Confidence: 0%
+  - [ ] refFactory (function, line 7)
+    - Confidence: 0%
+  - [ ] useListAiInteractions (function expression, line 14)
+    - Confidence: 0%
+
+## [ ] src/dataconnect-generated/react/index.d.ts
+- Confidence: 0%
+- Functions detected: 4
+- Functions:
+  - [ ] useCreateAiInteraction (function, line 8)
+    - Confidence: 0%
+  - [ ] useCreateAiInteraction (function, line 9)
+    - Confidence: 0%
+  - [ ] useListAiInteractions (function, line 11)
+    - Confidence: 0%
+  - [ ] useListAiInteractions (function, line 12)
+    - Confidence: 0%
+
+## [ ] src/dataconnect-generated/react/package.json
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] src/dataconnect-generated/react/README.md
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] src/dataconnect-generated/README.md
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] src/hooks/client-runtime.ts
+- Confidence: 0%
+- Functions detected: 4
+- Functions:
+  - [ ] buildOnboardingCompletionStorageKey (function, line 14)
+    - Confidence: 0%
+  - [ ] readSessionStorageValue (function, line 18)
+    - Confidence: 0%
+  - [ ] writeSessionStorageValue (function, line 26)
+    - Confidence: 0%
+  - [ ] dispatchClientRuntimeEvent (function, line 34)
+    - Confidence: 0%
+
+## [ ] src/hooks/useAdminOverview.ts
+- Confidence: 0%
+- Functions detected: 4
+- Functions:
+  - [ ] useAdminOverview (function, line 28)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 35)
+    - Confidence: 0%
+  - [ ] handleSync (arrow, line 40)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 45)
+    - Confidence: 0%
+
+## [ ] src/hooks/useAuthSWR.ts
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] authFetcher (function, line 11)
+    - Confidence: 0%
+  - [ ] response.json().catch callback (arrow, line 14)
+    - Confidence: 0%
+  - [ ] useAuthSWR (function, line 31)
+    - Confidence: 0%
+
+## [ ] src/hooks/useDeferredClientReady.ts
+- Confidence: 0%
+- Functions detected: 6
+- Functions:
+  - [ ] useDeferredClientReady (function, line 11)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 18)
+    - Confidence: 0%
+  - [ ] markReady (arrow, line 27)
+    - Confidence: 0%
+  - [ ] window.setTimeout callback (arrow, line 33)
+    - Confidence: 0%
+  - [ ] window.requestIdleCallback callback (arrow, line 45)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 54)
+    - Confidence: 0%
+
+## [ ] src/hooks/useDrops.ts
+- Confidence: 0%
+- Functions detected: 25
+- Functions:
+  - [ ] fetcher (arrow, line 23)
+    - Confidence: 0%
+  - [ ] buildDropCursor (function, line 56)
+    - Confidence: 0%
+  - [ ] useDrops (function, line 60)
+    - Confidence: 0%
+  - [ ] getKey (arrow, line 66)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 72)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 88)
+    - Confidence: 0%
+  - [ ] data.flatMap callback (arrow, line 89)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 92)
+    - Confidence: 0%
+  - [ ] syncDrops (arrow, line 93)
+    - Confidence: 0%
+  - [ ] handleVisibilityChange (arrow, line 98)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 107)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 113)
+    - Confidence: 0%
+  - [ ] subscribeToDropRuntime (function, line 118)
+    - Confidence: 0%
+  - [ ] onSnapshot callback (arrow, line 130)
+    - Confidence: 0%
+  - [ ] onSnapshot callback (arrow, line 139)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 158)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 166)
+    - Confidence: 0%
+  - [ ] swrDrops       .map callback (arrow, line 168)
+    - Confidence: 0%
+  - [ ] swrDrops       .map((drop) => applyDropStatus(drop, sweepNowMs))       .map callback (arrow, line 169)
+    - Confidence: 0%
+  - [ ] swrDrops       .map((drop) => applyDropStatus(drop, sweepNowMs))       .map((drop) => (drop.status === "active" && drop.validUntil && drop.validUntil > sweepNowMs ? drop.validUntil : null))       .filter callback (arrow, line 170)
+    - Confidence: 0%
+  - [ ] window.setTimeout callback (arrow, line 178)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 183)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 188)
+    - Confidence: 0%
+  - [ ] swrDrops       .map callback (arrow, line 190)
+    - Confidence: 0%
+  - [ ] swrDrops       .map((drop) => applyDropStatus(drop, sweepNowMs))       .filter callback (arrow, line 191)
+    - Confidence: 0%
+
+## [ ] src/hooks/useNotifications.ts
+- Confidence: 0%
+- Functions detected: 25
+- Functions:
+  - [ ] useNotifications (function, line 16)
+    - Confidence: 0%
+  - [ ] useEffect callback (arrow, line 23)
+    - Confidence: 0%
+  - [ ] fetchNotifications (arrow, line 38)
+    - Confidence: 0%
+  - [ ] (result.notifications || []).map callback (arrow, line 66)
+    - Confidence: 0%
+  - [ ] toDate (arrow, line 69)
+    - Confidence: 0%
+  - [ ] refreshOnDemand (arrow, line 88)
+    - Confidence: 0%
+  - [ ] subscribeToRuntimeSignals (arrow, line 92)
+    - Confidence: 0%
+  - [ ] onSnapshot callback (arrow, line 105)
+    - Confidence: 0%
+  - [ ] onSnapshot callback (arrow, line 113)
+    - Confidence: 0%
+  - [ ] onSnapshot callback (arrow, line 123)
+    - Confidence: 0%
+  - [ ] onSnapshot callback (arrow, line 134)
+    - Confidence: 0%
+  - [ ] window.setInterval callback (arrow, line 151)
+    - Confidence: 0%
+  - [ ] refreshOnVisible (arrow, line 154)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 164)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 180)
+    - Confidence: 0%
+  - [ ] useMemo callback (arrow, line 187)
+    - Confidence: 0%
+  - [ ] markAsRead (arrow, line 191)
+    - Confidence: 0%
+  - [ ] setNotificationsState callback (arrow, line 200)
+    - Confidence: 0%
+  - [ ] prev.filter callback (arrow, line 200)
+    - Confidence: 0%
+  - [ ] markAllAsRead (arrow, line 208)
+    - Confidence: 0%
+  - [ ] notifications.map callback (arrow, line 213)
+    - Confidence: 0%
+  - [ ] unreadIds.map callback (arrow, line 223)
+    - Confidence: 0%
+  - [ ] unreadIds.filter callback (arrow, line 224)
+    - Confidence: 0%
+  - [ ] setNotificationsState callback (arrow, line 231)
+    - Confidence: 0%
+  - [ ] prev.filter callback (arrow, line 231)
+    - Confidence: 0%
+
+## [ ] src/hooks/useTaskGuidanceActions.ts
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] useTaskGuidanceActions (function, line 18)
+    - Confidence: 0%
+  - [ ] useCallback callback (arrow, line 22)
+    - Confidence: 0%
+
+## [ ] src/lib/activity-sync.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] dispatchActivitySync (function, line 3)
+    - Confidence: 0%
+
+## [ ] src/lib/admin-ops-health.ts
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] src/lib/analytics-client-engine.ts
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] prepareAnalyticsEvent (function, line 16)
+    - Confidence: 0%
+  - [ ] Object.entries(eventParams ?? {}).forEach callback (arrow, line 24)
+    - Confidence: 0%
+
+## [ ] src/lib/analytics-identifiers.ts
+- Confidence: 0%
+- Functions detected: 10
+- Functions:
+  - [ ] normalizeSessionFragment (function, line 8)
+    - Confidence: 0%
+  - [ ] buildRandomFragment (function, line 12)
+    - Confidence: 0%
+  - [ ] buildIdentifier (function, line 20)
+    - Confidence: 0%
+  - [ ] normalizeStorageFragment (function, line 27)
+    - Confidence: 0%
+  - [ ] createAnalyticsEventId (function, line 31)
+    - Confidence: 0%
+  - [ ] createAnalyticsBatchId (function, line 35)
+    - Confidence: 0%
+  - [ ] createAnalyticsStorageKey (function, line 39)
+    - Confidence: 0%
+  - [ ] isValidAnalyticsEventId (function, line 45)
+    - Confidence: 0%
+  - [ ] isValidAnalyticsBatchId (function, line 49)
+    - Confidence: 0%
+  - [ ] normalizeAnalyticsClientTimestamp (function, line 53)
+    - Confidence: 0%
+
+## [ ] src/lib/analytics-metric-catalog.ts
+- Confidence: 0%
+- Functions detected: 8
+- Functions:
+  - [ ] defineMetric (function, line 16)
+    - Confidence: 0%
+  - [ ] metricSources (function, line 20)
+    - Confidence: 0%
+  - [ ] metricFormula (function, line 24)
+    - Confidence: 0%
+  - [ ] metricReference (function, line 28)
+    - Confidence: 0%
+  - [ ] percentMetric (function, line 32)
+    - Confidence: 0%
+  - [ ] ratioMetric (function, line 57)
+    - Confidence: 0%
+  - [ ] ANALYTICS_SOCIAL_METRIC_DEFINITIONS.map callback (arrow, line 416)
+    - Confidence: 0%
+  - [ ] formatAnalyticsMetricValue (function, line 419)
+    - Confidence: 0%
+
+## [ ] src/lib/analytics-runtime.ts
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] src/lib/analytics-semantics.ts
+- Confidence: 0%
+- Functions detected: 8
+- Functions:
+  - [ ] humanizeAnalyticsKey (function, line 172)
+    - Confidence: 0%
+  - [ ] value     .replaceAll(/[._-]+/g, " ")     .replace callback (arrow, line 179)
+    - Confidence: 0%
+  - [ ] getLegacyPagePathForEvent (function, line 183)
+    - Confidence: 0%
+  - [ ] normalizePagePath (function, line 191)
+    - Confidence: 0%
+  - [ ] buildScopeDescriptor (function, line 204)
+    - Confidence: 0%
+  - [ ] resolveAnalyticsSemanticContext (function, line 324)
+    - Confidence: 0%
+  - [ ] buildAnalyticsSemanticParams (function, line 356)
+    - Confidence: 0%
+  - [ ] resolveRawInteractionLabel (function, line 380)
+    - Confidence: 0%
+
+## [ ] src/lib/analytics-time.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] buildAnalyticsTimeKeys (function, line 1)
+    - Confidence: 0%
+
+## [ ] src/lib/app-check.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] getAppCheckToken (function, line 6)
+    - Confidence: 0%
+
+## [ ] src/lib/authFetch.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] authFetch (function, line 11)
+    - Confidence: 0%
+
+## [ ] src/lib/browser-notification-enrollment.ts
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] buildNotificationSettings (function, line 12)
+    - Confidence: 0%
+  - [ ] enableBrowserNotifications (function, line 21)
+    - Confidence: 0%
+  - [ ] response.json().catch callback (arrow, line 53)
+    - Confidence: 0%
+
+## [ ] src/lib/browser-utils.ts
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] isIOS (arrow, line 6)
+    - Confidence: 0%
+  - [ ] isStandalone (arrow, line 18)
+    - Confidence: 0%
+  - [ ] isIOSNonStandalone (arrow, line 32)
+    - Confidence: 0%
+
+## [ ] src/lib/bug-reporting.ts
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] resolveBugReportComponentMeta (function, line 93)
+    - Confidence: 0%
+  - [ ] buildBugReportSummary (function, line 123)
+    - Confidence: 0%
+
+## [ ] src/lib/client-diagnostics.ts
+- Confidence: 0%
+- Functions detected: 24
+- Functions:
+  - [ ] canUseStorage (function, line 93)
+    - Confidence: 0%
+  - [ ] safeStringify (function, line 97)
+    - Confidence: 0%
+  - [ ] readEntries (function, line 109)
+    - Confidence: 0%
+  - [ ] writeEntries (function, line 127)
+    - Confidence: 0%
+  - [ ] readClientDiagnostics (function, line 139)
+    - Confidence: 0%
+  - [ ] readClientBreadcrumbs (function, line 143)
+    - Confidence: 0%
+  - [ ] readClientErrors (function, line 147)
+    - Confidence: 0%
+  - [ ] recordClientDiagnostic (function, line 151)
+    - Confidence: 0%
+  - [ ] recordClientBreadcrumb (function, line 179)
+    - Confidence: 0%
+  - [ ] recordClientError (function, line 206)
+    - Confidence: 0%
+  - [ ] clearClientDiagnostics (function, line 242)
+    - Confidence: 0%
+  - [ ] getClientDebugSnapshot (function, line 252)
+    - Confidence: 0%
+  - [ ] installGlobalErrorListeners (function, line 289)
+    - Confidence: 0%
+  - [ ] window.addEventListener callback (arrow, line 294)
+    - Confidence: 0%
+  - [ ] window.addEventListener callback (arrow, line 307)
+    - Confidence: 0%
+  - [ ] extractInteractionLabel (function, line 312)
+    - Confidence: 0%
+  - [ ] installInteractionBreadcrumbs (function, line 331)
+    - Confidence: 0%
+  - [ ] document.addEventListener callback (arrow, line 336)
+    - Confidence: 0%
+  - [ ] installClientDiagnosticsBridge (function, line 354)
+    - Confidence: 0%
+  - [ ] getDiagnostics (arrow, line 364)
+    - Confidence: 0%
+  - [ ] getBreadcrumbs (arrow, line 365)
+    - Confidence: 0%
+  - [ ] getErrors (arrow, line 366)
+    - Confidence: 0%
+  - [ ] clearDiagnostics (arrow, line 367)
+    - Confidence: 0%
+  - [ ] getSnapshot (arrow, line 368)
+    - Confidence: 0%
+
+## [ ] src/lib/client-session.ts
+- Confidence: 0%
+- Functions detected: 5
+- Functions:
+  - [ ] generateId (function, line 6)
+    - Confidence: 0%
+  - [ ] readStorageValue (function, line 14)
+    - Confidence: 0%
+  - [ ] writeStorageValue (function, line 27)
+    - Confidence: 0%
+  - [ ] getClientSessionId (function, line 40)
+    - Confidence: 0%
+  - [ ] getClientSubjectId (function, line 55)
+    - Confidence: 0%
+
+## [ ] src/lib/daily-checkin.ts
+- Confidence: 0%
+- Functions detected: 5
+- Functions:
+  - [ ] normalizeTimestamp (function, line 5)
+    - Confidence: 0%
+  - [ ] clampStoredStreak (function, line 14)
+    - Confidence: 0%
+  - [ ] getWrappedDailyStreak (function, line 22)
+    - Confidence: 0%
+  - [ ] getDailyCheckInReward (function, line 27)
+    - Confidence: 0%
+  - [ ] getDailyCheckInProgress (function, line 43)
+    - Confidence: 0%
+
+## [ ] src/lib/drop-engagement.ts
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] toNonNegativeInteger (function, line 1)
+    - Confidence: 0%
+  - [ ] getDropViewCount (function, line 10)
+    - Confidence: 0%
+
+## [ ] src/lib/drop-normalizers.ts
+- Confidence: 0%
+- Functions detected: 6
+- Functions:
+  - [ ] isTimestampLike (function, line 6)
+    - Confidence: 0%
+  - [ ] toMillis (function, line 110)
+    - Confidence: 0%
+  - [ ] classifyLegacyUrl (function, line 131)
+    - Confidence: 0%
+  - [ ] normalizeDropRecord (function, line 147)
+    - Confidence: 0%
+  - [ ] parsed.contentUrls.filter callback (arrow, line 151)
+    - Confidence: 0%
+  - [ ] urls.forEach callback (arrow, line 162)
+    - Confidence: 0%
+
+## [ ] src/lib/drop-presentation.ts
+- Confidence: 0%
+- Functions detected: 8
+- Functions:
+  - [ ] parseDimensions (function, line 11)
+    - Confidence: 0%
+  - [ ] getSupportedDropAspectRatio (function, line 27)
+    - Confidence: 0%
+  - [ ] (Object.entries(SUPPORTED_RATIOS) as Array<[SupportedAspectRatio, number]>).forEach callback (arrow, line 43)
+    - Confidence: 0%
+  - [ ] getAspectRatioCssValue (function, line 54)
+    - Confidence: 0%
+  - [ ] classifyUrlKind (function, line 58)
+    - Confidence: 0%
+  - [ ] getDropAssetCount (function, line 74)
+    - Confidence: 0%
+  - [ ] getDropMediaSummary (function, line 88)
+    - Confidence: 0%
+  - [ ] urlsToCheck.forEach callback (arrow, line 108)
+    - Confidence: 0%
+
+## [ ] src/lib/drop-queue-schedule.ts
+- Confidence: 0%
+- Functions detected: 5
+- Functions:
+  - [ ] normalizeQueueTimes (function, line 5)
+    - Confidence: 0%
+  - [ ] timesPerDay         .filter callback (arrow, line 7)
+    - Confidence: 0%
+  - [ ] timesPerDay         .filter((value) => VALID_QUEUE_TIME.test(value))         .sort callback (arrow, line 8)
+    - Confidence: 0%
+  - [ ] getNextQueueSlotAfter (function, line 11)
+    - Confidence: 0%
+  - [ ] buildProjectedQueueSchedule (function, line 31)
+    - Confidence: 0%
+
+## [ ] src/lib/drop-runtime.ts
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] src/lib/drop-status.ts
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] resolveDropStatusFromTiming (function, line 5)
+    - Confidence: 0%
+  - [ ] applyDropStatus (function, line 17)
+    - Confidence: 0%
+  - [ ] isDropActiveNow (function, line 29)
+    - Confidence: 0%
+
+## [ ] src/lib/firebase-data.ts
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] src/lib/firebase-messaging.ts
+- Confidence: 0%
+- Functions detected: 13
+- Functions:
+  - [ ] buildServiceWorkerUrl (function, line 26)
+    - Confidence: 0%
+  - [ ] getAppServiceWorkerUrl (function, line 30)
+    - Confidence: 0%
+  - [ ] registerAppServiceWorker (function, line 34)
+    - Confidence: 0%
+  - [ ] getBrowserNotificationState (function, line 50)
+    - Confidence: 0%
+  - [ ] isSupported().catch callback (arrow, line 55)
+    - Confidence: 0%
+  - [ ] requestBrowserNotificationAccess (function, line 69)
+    - Confidence: 0%
+  - [ ] showBrowserNotification (function, line 137)
+    - Confidence: 0%
+  - [ ] notification.onclick (arrow, line 162)
+    - Confidence: 0%
+  - [ ] onNotificationMessage (arrow, line 171)
+    - Confidence: 0%
+  - [ ] unsubscribe (arrow, line 173)
+    - Confidence: 0%
+  - [ ] isSupported().then callback (arrow, line 175)
+    - Confidence: 0%
+  - [ ] isSupported().then((supported) => {         if (!supported || cancelled) {             return;         }          const messaging = getMessaging(app);         unsubscribe = onMessage(messaging, callback);     }).catch callback (arrow, line 182)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 189)
+    - Confidence: 0%
+
+## [ ] src/lib/firebase-runtime.ts
+- Confidence: 0%
+- Functions detected: 16
+- Functions:
+  - [ ] normalizePublicEnv (function, line 1)
+    - Confidence: 0%
+  - [ ] tryGetHost (function, line 10)
+    - Confidence: 0%
+  - [ ] isLocalHost (function, line 22)
+    - Confidence: 0%
+  - [ ] isFirebaseDefaultAuthHost (function, line 26)
+    - Confidence: 0%
+  - [ ] parseOriginList (function, line 34)
+    - Confidence: 0%
+  - [ ] value     .split(",")     .map callback (arrow, line 41)
+    - Confidence: 0%
+  - [ ] getConfiguredSiteHosts (function, line 45)
+    - Confidence: 0%
+  - [ ] configuredOrigins.forEach callback (arrow, line 56)
+    - Confidence: 0%
+  - [ ] resolvePreferredAuthDomain (function, line 66)
+    - Confidence: 0%
+  - [ ] configuredSiteHosts.find callback (arrow, line 75)
+    - Confidence: 0%
+  - [ ] buildDefaultDatabaseUrl (function, line 86)
+    - Confidence: 0%
+  - [ ] isAppCheckConfigured (function, line 106)
+    - Confidence: 0%
+  - [ ] shouldRequireAppCheck (function, line 110)
+    - Confidence: 0%
+  - [ ] buildFirebaseClientRuntimeSnapshot (function, line 131)
+    - Confidence: 0%
+  - [ ] getFirebaseRuntimeWarnings (function, line 146)
+    - Confidence: 0%
+  - [ ] getConfiguredSiteHosts().filter callback (arrow, line 149)
+    - Confidence: 0%
+
+## [ ] src/lib/firebase.ts
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] shouldEnableAppCheck (function, line 19)
+    - Confidence: 0%
+  - [ ] getFirebaseRuntimeWarnings().forEach callback (arrow, line 44)
+    - Confidence: 0%
+
+## [ ] src/lib/firebase/admin-actions.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] adjustUserBalance (function, line 12)
+    - Confidence: 0%
+
+## [ ] src/lib/gumdrop-economics.ts
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] roundCurrency (function, line 29)
+    - Confidence: 0%
+  - [ ] getBundlePresentation (function, line 39)
+    - Confidence: 0%
+  - [ ] deriveGumdropEconomics (function, line 60)
+    - Confidence: 0%
+
+## [ ] src/lib/gumdrops-packages.ts
+- Confidence: 0%
+- Functions detected: 4
+- Functions:
+  - [ ] isBundleGumdropAmount (function, line 15)
+    - Confidence: 0%
+  - [ ] resolveExpectedGumdropPrice (function, line 22)
+    - Confidence: 0%
+  - [ ] FIXED_GUMDROP_PACKAGES.find callback (arrow, line 31)
+    - Confidence: 0%
+  - [ ] resolvePreferredGumdropAmount (function, line 35)
+    - Confidence: 0%
+
+## [ ] src/lib/http-cache.ts
+- Confidence: 0%
+- Functions detected: 4
+- Functions:
+  - [ ] buildWeakEtag (function, line 7)
+    - Confidence: 0%
+  - [ ] requestMatchesEtag (function, line 11)
+    - Confidence: 0%
+  - [ ] requestEtag     .split(",")     .map callback (arrow, line 19)
+    - Confidence: 0%
+  - [ ] buildNotModifiedResponse (function, line 23)
+    - Confidence: 0%
+
+## [ ] src/lib/landing-assets.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] isAllowedLandingAssetKey (function, line 12)
+    - Confidence: 0%
+
+## [ ] src/lib/legal-documents.ts
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] src/lib/marketing-copy.ts
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] src/lib/media-hosts.ts
+- Confidence: 0%
+- Functions detected: 5
+- Functions:
+  - [ ] normalizeBucketHost (function, line 17)
+    - Confidence: 0%
+  - [ ] getAllowedRemoteMediaHosts (function, line 42)
+    - Confidence: 0%
+  - [ ] getAllowedRemoteImagePatterns (function, line 52)
+    - Confidence: 0%
+  - [ ] getAllowedRemoteMediaHosts().map callback (arrow, line 53)
+    - Confidence: 0%
+  - [ ] isAllowedRemoteMediaUrl (function, line 59)
+    - Confidence: 0%
+
+## [ ] src/lib/monitoring.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] captureException (function, line 3)
+    - Confidence: 0%
+
+## [ ] src/lib/navigation-persistence.ts
+- Confidence: 0%
+- Functions detected: 12
+- Functions:
+  - [ ] isPersistableAppPath (function, line 8)
+    - Confidence: 0%
+  - [ ] isAdminPath (function, line 12)
+    - Confidence: 0%
+  - [ ] getDefaultAppPathForRole (function, line 16)
+    - Confidence: 0%
+  - [ ] resolvePreferredAuthenticatedPath (function, line 20)
+    - Confidence: 0%
+  - [ ] writeCookie (function, line 36)
+    - Confidence: 0%
+  - [ ] clearCookie (function, line 44)
+    - Confidence: 0%
+  - [ ] readLastVisitedPath (function, line 52)
+    - Confidence: 0%
+  - [ ] readPreferredAuthenticatedPath (function, line 65)
+    - Confidence: 0%
+  - [ ] writeLastVisitedPath (function, line 69)
+    - Confidence: 0%
+  - [ ] clearLastVisitedPath (function, line 83)
+    - Confidence: 0%
+  - [ ] clearLegacyNavigationAuthCookies (function, line 97)
+    - Confidence: 0%
+  - [ ] setNavigationAuthCookies (function, line 107)
+    - Confidence: 0%
+
+## [ ] src/lib/navigation-session.ts
+- Confidence: 0%
+- Functions detected: 11
+- Functions:
+  - [ ] getNavigationSessionSecret (function, line 10)
+    - Confidence: 0%
+  - [ ] bytesToBase64Url (function, line 19)
+    - Confidence: 0%
+  - [ ] bytes.forEach callback (arrow, line 25)
+    - Confidence: 0%
+  - [ ] base64UrlToBytes (function, line 32)
+    - Confidence: 0%
+  - [ ] Uint8Array.from callback (arrow, line 40)
+    - Confidence: 0%
+  - [ ] encodeBase64Url (function, line 43)
+    - Confidence: 0%
+  - [ ] decodeBase64Url (function, line 47)
+    - Confidence: 0%
+  - [ ] getNavigationSessionKey (function, line 55)
+    - Confidence: 0%
+  - [ ] signNavigationSessionPayload (function, line 70)
+    - Confidence: 0%
+  - [ ] createNavigationSessionCookieValue (function, line 80)
+    - Confidence: 0%
+  - [ ] verifyNavigationSessionCookieValue (function, line 95)
+    - Confidence: 0%
+
+## [ ] src/lib/notification-contracts.ts
+- Confidence: 0%
+- Functions detected: 9
+- Functions:
+  - [ ] normalizeNotificationDoc (function, line 48)
+    - Confidence: 0%
+  - [ ] data.readBy.filter callback (arrow, line 58)
+    - Confidence: 0%
+  - [ ] targetObj.userIds.filter callback (arrow, line 62)
+    - Confidence: 0%
+  - [ ] targetObj.excludedUserIds.filter callback (arrow, line 65)
+    - Confidence: 0%
+  - [ ] normalizeDropContext (function, line 89)
+    - Confidence: 0%
+  - [ ] normalizeNotificationCreatePayload (function, line 115)
+    - Confidence: 0%
+  - [ ] normalizeTarget (function, line 162)
+    - Confidence: 0%
+  - [ ] source.userIds.filter callback (arrow, line 169)
+    - Confidence: 0%
+  - [ ] source.excludedUserIds.filter callback (arrow, line 172)
+    - Confidence: 0%
+
+## [ ] src/lib/notification-runtime.ts
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] src/lib/notifications.ts
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] sendNotification (function, line 14)
+    - Confidence: 0%
+  - [ ] markNotificationAsRead (function, line 33)
+    - Confidence: 0%
+
+## [ ] src/lib/privacy-consent.ts
+- Confidence: 0%
+- Functions detected: 15
+- Functions:
+  - [ ] canUseDom (function, line 29)
+    - Confidence: 0%
+  - [ ] getBrowserGlobalPrivacyControl (function, line 33)
+    - Confidence: 0%
+  - [ ] normalizePrivacySettingsSnapshot (function, line 42)
+    - Confidence: 0%
+  - [ ] readPrivacySettingsSnapshot (function, line 55)
+    - Confidence: 0%
+  - [ ] emitPrivacySettingsChanged (function, line 72)
+    - Confidence: 0%
+  - [ ] subscribeToPrivacySettings (function, line 80)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 82)
+    - Confidence: 0%
+  - [ ] handler (arrow, line 85)
+    - Confidence: 0%
+  - [ ] returned function (arrow, line 88)
+    - Confidence: 0%
+  - [ ] applyAnalyticsConsentToGtag (function, line 94)
+    - Confidence: 0%
+  - [ ] persistPrivacySettingsSnapshot (function, line 112)
+    - Confidence: 0%
+  - [ ] saveGuestAnalyticsConsent (function, line 153)
+    - Confidence: 0%
+  - [ ] response.json().catch callback (arrow, line 170)
+    - Confidence: 0%
+  - [ ] canUseAnonymousAnalytics (function, line 181)
+    - Confidence: 0%
+  - [ ] canUseIdentifiedAnalytics (function, line 193)
+    - Confidence: 0%
+
+## [ ] src/lib/privacy-policy.ts
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] src/lib/rollouts.ts
+- Confidence: 0%
+- Functions detected: 13
+- Functions:
+  - [ ] clampPercent (function, line 103)
+    - Confidence: 0%
+  - [ ] hashToUnitInterval (function, line 111)
+    - Confidence: 0%
+  - [ ] parseRolloutOverrides (function, line 121)
+    - Confidence: 0%
+  - [ ] mergeRolloutDefinitions (function, line 135)
+    - Confidence: 0%
+  - [ ] DEFAULT_ROLLOUTS.map callback (arrow, line 138)
+    - Confidence: 0%
+  - [ ] override.variants.map callback (arrow, line 149)
+    - Confidence: 0%
+  - [ ] getIdentityKey (function, line 159)
+    - Confidence: 0%
+  - [ ] isAudienceEligible (function, line 175)
+    - Confidence: 0%
+  - [ ] selectVariant (function, line 192)
+    - Confidence: 0%
+  - [ ] definition.variants.reduce callback (arrow, line 193)
+    - Confidence: 0%
+  - [ ] getConfiguredRollouts (function, line 211)
+    - Confidence: 0%
+  - [ ] resolveRolloutAssignments (function, line 215)
+    - Confidence: 0%
+  - [ ] getConfiguredRollouts().map callback (arrow, line 218)
+    - Confidence: 0%
+
+## [ ] src/lib/security-events.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] describeSecurityEvent (function, line 32)
+    - Confidence: 0%
+
+## [ ] src/lib/server/admin-analytics-data.ts
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] getAdminAnalyticsPropertyId (function, line 9)
+    - Confidence: 0%
+  - [ ] createAdminAnalyticsDataClient (function, line 13)
+    - Confidence: 0%
+  - [ ] fetchAdminHistoricalAnalyticsSources (function, line 30)
+    - Confidence: 0%
+
+## [ ] src/lib/server/admin-analytics-historical-activity.ts
+- Confidence: 0%
+- Functions detected: 11
+- Functions:
+  - [ ] buildHistoricalActivityFeeds (function, line 51)
+    - Confidence: 0%
+  - [ ] rawTransactions.map callback (arrow, line 70)
+    - Confidence: 0%
+  - [ ] securityEventDocs.forEach callback (arrow, line 78)
+    - Confidence: 0%
+  - [ ] Array.from(securityByUser.values())     .sort callback (arrow, line 112)
+    - Confidence: 0%
+  - [ ] guestBatchDocs.flatMap callback (arrow, line 118)
+    - Confidence: 0%
+  - [ ] events.map callback (arrow, line 121)
+    - Confidence: 0%
+  - [ ] telemetryLogs.map callback (arrow, line 136)
+    - Confidence: 0%
+  - [ ] rawTransactions.map callback (arrow, line 154)
+    - Confidence: 0%
+  - [ ] normalizedTaskEvents.map callback (arrow, line 166)
+    - Confidence: 0%
+  - [ ] [...authActivity, ...guestActivity, ...transactionActivity, ...taskActivity]     .filter callback (arrow, line 177)
+    - Confidence: 0%
+  - [ ] [...authActivity, ...guestActivity, ...transactionActivity, ...taskActivity]     .filter((event) => event.timestamp >= startMs)     .sort callback (arrow, line 178)
+    - Confidence: 0%
+
+## [ ] src/lib/server/admin-analytics-historical-content.ts
+- Confidence: 0%
+- Functions detected: 18
+- Functions:
+  - [ ] buildHistoricalContentAnalytics (function, line 35)
+    - Confidence: 0%
+  - [ ] applyPackageEvent (arrow, line 53)
+    - Confidence: 0%
+  - [ ] records.forEach callback (arrow, line 54)
+    - Confidence: 0%
+  - [ ] Array.from(packagePerformanceMap.values())     .map callback (arrow, line 82)
+    - Confidence: 0%
+  - [ ] Array.from(packagePerformanceMap.values())     .map((entry) => ({       ...entry,       conversionRate: entry.starts > 0 ? entry.purchases / entry.starts : 0,       abandonmentRate: entry.starts > 0 ? Math.max(0, entry.starts - entry.purchases) / entry.starts : 0,     }))     .sort callback (arrow, line 87)
+    - Confidence: 0%
+  - [ ] (input.telemetryLogsByEvent.drop_preview_opened || []).forEach callback (arrow, line 90)
+    - Confidence: 0%
+  - [ ] (input.telemetryLogsByEvent.unlock_drop_success || []).forEach callback (arrow, line 96)
+    - Confidence: 0%
+  - [ ] Array.from(categoryMixMap.values())     .map callback (arrow, line 104)
+    - Confidence: 0%
+  - [ ] Array.from(categoryMixMap.values())     .map((entry) => ({       ...entry,       unlockRate: entry.previews > 0 ? entry.unlocks / entry.previews : 0,     }))     .sort callback (arrow, line 108)
+    - Confidence: 0%
+  - [ ] (input.telemetryLogsByEvent.viewer_watch_checkpoint || []).map callback (arrow, line 111)
+    - Confidence: 0%
+  - [ ] (input.telemetryLogsByEvent.viewer_asset_consumed || []).map callback (arrow, line 112)
+    - Confidence: 0%
+  - [ ] [     ...(input.telemetryLogsByEvent.viewer_watch_checkpoint || []).map((record) => getTelemetryParamNumber(record, "watch_seconds")),     ...(input.telemetryLogsByEvent.viewer_asset_consumed || []).map((record) => getTelemetryParamNumber(record, "watch_seconds")),   ].filter callback (arrow, line 113)
+    - Confidence: 0%
+  - [ ] watchDepthValues.map callback (arrow, line 115)
+    - Confidence: 0%
+  - [ ] (input.telemetryLogsByEvent.unlock_drop_success || []).forEach callback (arrow, line 135)
+    - Confidence: 0%
+  - [ ] rawTags       .split("|")       .map callback (arrow, line 139)
+    - Confidence: 0%
+  - [ ] rawTags       .split("|")       .map((value) => value.trim())       .filter(Boolean)       .forEach callback (arrow, line 141)
+    - Confidence: 0%
+  - [ ] Array.from(tagDemandMap.entries())     .map callback (arrow, line 146)
+    - Confidence: 0%
+  - [ ] Array.from(tagDemandMap.entries())     .map(([tag, count]) => ({ tag, count }))     .sort callback (arrow, line 147)
+    - Confidence: 0%
+
+## [ ] src/lib/server/admin-analytics-historical-engagement.ts
+- Confidence: 0%
+- Functions detected: 17
+- Functions:
+  - [ ] averageDuration (function, line 25)
+    - Confidence: 0%
+  - [ ] records     .map callback (arrow, line 27)
+    - Confidence: 0%
+  - [ ] records     .map((record) => getTelemetryParamNumber(record, "duration_ms"))     .filter callback (arrow, line 28)
+    - Confidence: 0%
+  - [ ] durations.reduce callback (arrow, line 34)
+    - Confidence: 0%
+  - [ ] buildHistoricalEngagementAnalytics (function, line 37)
+    - Confidence: 0%
+  - [ ] [     {       method: "Email sign in",       attempts: input.eventsData.auth_sign_in_attempted || 0,       successes: input.eventsData.auth_sign_in_success || 0,       failures: input.eventsData.auth_sign_in_failed || 0,       avgDurationMs: averageDuration(input.telemetryLogsByEvent.auth_sign_in_success || []),     },     {       method: "Email sign up",       attempts: input.eventsData.auth_sign_up_attempted || 0,       successes: normalizedEmailSignUpCount,       failures: input.eventsData.auth_sign_up_failed || 0,       avgDurationMs: averageDuration(input.telemetryLogsByEvent.auth_sign_up_success || []),     },     {       method: "Google sign in",       attempts: input.eventsData.auth_google_sign_in_attempted || 0,       successes: input.eventsData.auth_google_sign_in_success || 0,       failures: input.eventsData.auth_google_sign_in_failed || 0,       avgDurationMs: averageDuration(input.telemetryLogsByEvent.auth_google_sign_in_success || []),     },     {       method: "Registered users",       attempts: normalizedSignupCount,       successes: normalizedSignupCount,       failures: 0,       avgDurationMs: 0,     },   ].map callback (arrow, line 81)
+    - Confidence: 0%
+  - [ ] (input.telemetryLogsByEvent.guided_onboarding_completed || []).map callback (arrow, line 89)
+    - Confidence: 0%
+  - [ ] [     ...(input.onboardingDurationMsSamples.length > 0       ? input.onboardingDurationMsSamples       : (input.telemetryLogsByEvent.guided_onboarding_completed || []).map((record) => {         const directMs = getTelemetryParamNumber(record, "duration_ms");         if (directMs > 0) {           return directMs;         }          return getTelemetryParamNumber(record, "durationSeconds") * 1000;       })),   ].filter callback (arrow, line 97)
+    - Confidence: 0%
+  - [ ] input.telemetryLogs.forEach callback (arrow, line 108)
+    - Confidence: 0%
+  - [ ] Array.from(activeDaysByUser.values()).map callback (arrow, line 119)
+    - Confidence: 0%
+  - [ ] activeDayCounts.filter callback (arrow, line 121)
+    - Confidence: 0%
+  - [ ] activeDayCounts.filter callback (arrow, line 122)
+    - Confidence: 0%
+  - [ ] activeDayCounts.filter callback (arrow, line 123)
+    - Confidence: 0%
+  - [ ] activeDayCounts.filter callback (arrow, line 124)
+    - Confidence: 0%
+  - [ ] (input.telemetryLogsByEvent.navigation_click || []).forEach callback (arrow, line 128)
+    - Confidence: 0%
+  - [ ] Array.from(destinationMap.entries())       .map callback (arrow, line 138)
+    - Confidence: 0%
+  - [ ] Array.from(destinationMap.entries())       .map(([destination, count]) => ({ destination, count }))       .sort callback (arrow, line 139)
+    - Confidence: 0%
+
+## [ ] src/lib/server/admin-analytics-historical-onboarding.ts
+- Confidence: 0%
+- Functions detected: 26
+- Functions:
+  - [ ] toPositiveMs (function, line 52)
+    - Confidence: 0%
+  - [ ] buildFallbackBucketKey (function, line 57)
+    - Confidence: 0%
+  - [ ] dedupeOnboardingStarts (function, line 61)
+    - Confidence: 0%
+  - [ ] [...records]     .sort callback (arrow, line 65)
+    - Confidence: 0%
+  - [ ] [...records]     .sort((left, right) => {       const leftHasFlowStart = left.flowStartedAtMs > 0 ? 1 : 0;       const rightHasFlowStart = right.flowStartedAtMs > 0 ? 1 : 0;       if (leftHasFlowStart !== rightHasFlowStart) {         return rightHasFlowStart - leftHasFlowStart;       }       return left.timestamp - right.timestamp;     })     .filter callback (arrow, line 73)
+    - Confidence: 0%
+  - [ ] dedupeOnboardingCompletions (function, line 90)
+    - Confidence: 0%
+  - [ ] [...records]     .sort callback (arrow, line 94)
+    - Confidence: 0%
+  - [ ] [...records]     .sort((left, right) => {       const leftCanonical = left.source === "complete_onboarding_route" ? 1 : 0;       const rightCanonical = right.source === "complete_onboarding_route" ? 1 : 0;       if (leftCanonical !== rightCanonical) {         return rightCanonical - leftCanonical;       }       return left.timestamp - right.timestamp;     })     .filter callback (arrow, line 102)
+    - Confidence: 0%
+  - [ ] dedupeOnboardingStepFacts (function, line 119)
+    - Confidence: 0%
+  - [ ] [...records]     .sort callback (arrow, line 123)
+    - Confidence: 0%
+  - [ ] [...records]     .sort((left, right) => {       const leftCanonical = left.source === "complete_onboarding_route" ? 1 : 0;       const rightCanonical = right.source === "complete_onboarding_route" ? 1 : 0;       if (leftCanonical !== rightCanonical) {         return rightCanonical - leftCanonical;       }       return left.timestamp - right.timestamp;     })     .filter callback (arrow, line 131)
+    - Confidence: 0%
+  - [ ] buildHistoricalOnboardingOverview (function, line 153)
+    - Confidence: 0%
+  - [ ] input.analyticsEventFacts     .map callback (arrow, line 162)
+    - Confidence: 0%
+  - [ ] input.analyticsEventFacts     .map((doc) => {       const data = doc.data() as Record<string, unknown>;       const params = safeParams(data.params);       const eventName = toStringValue(data.eventName);       const timestamp = toNumber(data.timestamp);       return {         eventName,         timestamp,         userId: toStringValue(data.userId),         flowStartedAtMs: Math.max(           toPositiveMs(params.overall_started_at_ms),           toPositiveMs(params.started_at_ms),         ),       };     })     .filter callback (arrow, line 177)
+    - Confidence: 0%
+  - [ ] input.analyticsEventFacts     .map callback (arrow, line 183)
+    - Confidence: 0%
+  - [ ] input.analyticsEventFacts     .map((doc) => {       const data = doc.data() as Record<string, unknown>;       const params = safeParams(data.params);       const timestamp = toNumber(data.timestamp);       const durationMs = Math.max(toNumber(data.durationMs), toNumber(params.duration_ms));       const flowStartedAtMs = Math.max(         toPositiveMs(params.started_at_ms),         toPositiveMs(params.overall_started_at_ms),         durationMs > 0 ? Math.max(0, timestamp - durationMs) : 0,       );        return {         eventName: toStringValue(data.eventName),         timestamp,         userId: toStringValue(data.userId),         flowStartedAtMs,         durationMs,         source: toStringValue(params.source),       };     })     .filter callback (arrow, line 203)
+    - Confidence: 0%
+  - [ ] input.analyticsEventFacts     .map callback (arrow, line 206)
+    - Confidence: 0%
+  - [ ] input.analyticsEventFacts     .map((doc) => {       const data = doc.data() as Record<string, unknown>;       const params = safeParams(data.params);       const timestamp = toNumber(data.timestamp);       return {         eventName: toStringValue(data.eventName),         timestamp,         userId: toStringValue(data.userId),         stepKey: toStringValue(params.step_key),         stepTitle: toStringValue(params.step_title),         stepIndex: toNumber(params.step_index),         durationMs: Math.max(toNumber(data.durationMs), toNumber(params.duration_ms)),         flowStartedAtMs: Math.max(           toPositiveMs(params.overall_started_at_ms),           toPositiveMs(params.started_at_ms),         ),         startedAtMs: toPositiveMs(params.started_at_ms),         source: toStringValue(params.source),       };     })     .filter callback (arrow, line 226)
+    - Confidence: 0%
+  - [ ] dedupeOnboardingStepFacts(input.analyticsEventFacts     .map((doc) => {       const data = doc.data() as Record<string, unknown>;       const params = safeParams(data.params);       const timestamp = toNumber(data.timestamp);       return {         eventName: toStringValue(data.eventName),         timestamp,         userId: toStringValue(data.userId),         stepKey: toStringValue(params.step_key),         stepTitle: toStringValue(params.step_title),         stepIndex: toNumber(params.step_index),         durationMs: Math.max(toNumber(data.durationMs), toNumber(params.duration_ms)),         flowStartedAtMs: Math.max(           toPositiveMs(params.overall_started_at_ms),           toPositiveMs(params.started_at_ms),         ),         startedAtMs: toPositiveMs(params.started_at_ms),         source: toStringValue(params.source),       };     })     .filter((fact) =>       fact.timestamp >= input.startMs       && (fact.eventName === "guided_onboarding_step_started" || fact.eventName === "guided_onboarding_step_completed")       && fact.stepKey.length > 0,     ))     .map callback (arrow, line 231)
+    - Confidence: 0%
+  - [ ] input.onboardingRows.forEach callback (arrow, line 233)
+    - Confidence: 0%
+  - [ ] normalizedOnboardingFacts.reduce callback (arrow, line 249)
+    - Confidence: 0%
+  - [ ] onboardingStepFacts.forEach callback (arrow, line 261)
+    - Confidence: 0%
+  - [ ] Array.from(onboardingStepStatsMap.values())     .sort callback (arrow, line 283)
+    - Confidence: 0%
+  - [ ] Array.from(onboardingStepStatsMap.values())     .sort((left, right) => left.stepIndex - right.stepIndex)     .map callback (arrow, line 284)
+    - Confidence: 0%
+  - [ ] normalizedOnboardingFacts.map callback (arrow, line 321)
+    - Confidence: 0%
+  - [ ] normalizedOnboardingFacts.map((fact) => fact.durationMs).filter callback (arrow, line 321)
+    - Confidence: 0%
+
+## [ ] src/lib/server/admin-analytics-historical-tasks.ts
+- Confidence: 0%
+- Functions detected: 15
+- Functions:
+  - [ ] buildHistoricalTaskAnalytics (function, line 32)
+    - Confidence: 0%
+  - [ ] input.normalizedTaskEvents.filter callback (arrow, line 44)
+    - Confidence: 0%
+  - [ ] input.normalizedTaskEvents.filter callback (arrow, line 47)
+    - Confidence: 0%
+  - [ ] input.normalizedTaskEvents.filter callback (arrow, line 48)
+    - Confidence: 0%
+  - [ ] input.normalizedTaskEvents.filter callback (arrow, line 50)
+    - Confidence: 0%
+  - [ ] input.normalizedTaskEvents.filter callback (arrow, line 51)
+    - Confidence: 0%
+  - [ ] input.normalizedTaskEvents.forEach callback (arrow, line 65)
+    - Confidence: 0%
+  - [ ] Array.from(taskPerformanceMap.values())     .map callback (arrow, line 98)
+    - Confidence: 0%
+  - [ ] entry.durations.reduce callback (arrow, line 107)
+    - Confidence: 0%
+  - [ ] Array.from(taskPerformanceMap.values())     .map((entry) => ({       taskId: entry.taskId,       title: entry.title,       assigned: entry.assigned,       started: entry.started,       completed: entry.completed,       failed: entry.failed,       rewardTotal: entry.rewardTotal,       avgDurationMs: entry.durations.length > 0         ? Math.round(entry.durations.reduce((sum, value) => sum + value, 0) / entry.durations.length)         : 0,       completionRate: entry.assigned > 0 ? entry.completed / entry.assigned : 0,     }))     .sort callback (arrow, line 111)
+    - Confidence: 0%
+  - [ ] input.normalizedTaskEvents       .filter callback (arrow, line 116)
+    - Confidence: 0%
+  - [ ] input.normalizedTaskEvents       .filter((event) => event.type === "completed" && (event.durationMs || 0) > 0)       .map callback (arrow, line 117)
+    - Confidence: 0%
+  - [ ] input.normalizedTaskEvents     .filter callback (arrow, line 129)
+    - Confidence: 0%
+  - [ ] input.normalizedTaskEvents     .filter((event) => event.type === "reminder_sent")     .forEach callback (arrow, line 130)
+    - Confidence: 0%
+  - [ ] Array.from(reminderReasonMap.entries()).map callback (arrow, line 140)
+    - Confidence: 0%
+
+## [ ] src/lib/server/admin-analytics-historical-traffic.ts
+- Confidence: 0%
+- Functions detected: 21
+- Functions:
+  - [ ] buildHistoricalTrafficOverview (function, line 13)
+    - Confidence: 0%
+  - [ ] dailyRollups     .filter callback (arrow, line 40)
+    - Confidence: 0%
+  - [ ] dailyRollups     .filter((doc) => doc.id >= startDayKey)     .forEach callback (arrow, line 41)
+    - Confidence: 0%
+  - [ ] pageRollups.forEach callback (arrow, line 52)
+    - Confidence: 0%
+  - [ ] analyticsEventFacts.forEach callback (arrow, line 75)
+    - Confidence: 0%
+  - [ ] responseRows.forEach callback (arrow, line 96)
+    - Confidence: 0%
+  - [ ] Array.from(chartDayKeys)     .sort callback (arrow, line 117)
+    - Confidence: 0%
+  - [ ] Array.from(chartDayKeys)     .sort((left, right) => left.localeCompare(right))     .map callback (arrow, line 118)
+    - Confidence: 0%
+  - [ ] chartData.reduce callback (arrow, line 135)
+    - Confidence: 0%
+  - [ ] chartData.reduce callback (arrow, line 136)
+    - Confidence: 0%
+  - [ ] chartData.reduce callback (arrow, line 137)
+    - Confidence: 0%
+  - [ ] chartData.reduce callback (arrow, line 138)
+    - Confidence: 0%
+  - [ ] chartData.reduce callback (arrow, line 139)
+    - Confidence: 0%
+  - [ ] chartData.reduce callback (arrow, line 140)
+    - Confidence: 0%
+  - [ ] eventRows.reduce callback (arrow, line 143)
+    - Confidence: 0%
+  - [ ] geoRows.map callback (arrow, line 150)
+    - Confidence: 0%
+  - [ ] deviceRows.map callback (arrow, line 156)
+    - Confidence: 0%
+  - [ ] pageRows.forEach callback (arrow, line 164)
+    - Confidence: 0%
+  - [ ] authenticatedPageViewsByPath.forEach callback (arrow, line 173)
+    - Confidence: 0%
+  - [ ] Array.from(allPagePaths)     .map callback (arrow, line 185)
+    - Confidence: 0%
+  - [ ] Array.from(allPagePaths)     .map((path) => {       const ga = gaPagesMap.get(path);       const firstParty = pageRollupMap.get(path) || { views: 0, clicks: 0, dwellMsTotal: 0, dwellSamples: 0 };       return {         path,         views: Math.max(ga?.views ?? 0, firstParty.views),         avgTime: ga?.avgTime || (firstParty.dwellSamples > 0 ? firstParty.dwellMsTotal / 1000 / firstParty.dwellSamples : 0),         engagementRate: Math.max(ga?.engagementRate ?? 0, firstParty.views > 0 ? firstParty.clicks / firstParty.views : 0),       };     })     .sort callback (arrow, line 195)
+    - Confidence: 0%
+
+## [ ] src/lib/server/admin-analytics-historical-validation.ts
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] buildHistoricalValidationSummary (function, line 26)
+    - Confidence: 0%
+  - [ ] TELEMETRY_MODULE_INDEXES.map callback (arrow, line 59)
+    - Confidence: 0%
+  - [ ] moduleCoverage.filter callback (arrow, line 102)
+    - Confidence: 0%
+
+## [ ] src/lib/server/admin-analytics-historical-viewer.ts
+- Confidence: 0%
+- Functions detected: 47
+- Functions:
+  - [ ] buildHistoricalViewerOverview (function, line 38)
+    - Confidence: 0%
+  - [ ] input.sessionFacts     .map callback (arrow, line 45)
+    - Confidence: 0%
+  - [ ] input.sessionFacts     .map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) }) as SessionFactRecord)     .filter callback (arrow, line 46)
+    - Confidence: 0%
+  - [ ] (input.telemetryLogsByEvent.viewer_opened || []).filter callback (arrow, line 57)
+    - Confidence: 0%
+  - [ ] (input.telemetryLogsByEvent.viewer_session_started || []).filter callback (arrow, line 58)
+    - Confidence: 0%
+  - [ ] (input.telemetryLogsByEvent.viewer_session_completed || []).filter callback (arrow, line 59)
+    - Confidence: 0%
+  - [ ] (input.telemetryLogsByEvent.viewer_asset_started || []).filter callback (arrow, line 60)
+    - Confidence: 0%
+  - [ ] (input.telemetryLogsByEvent.viewer_asset_completed || []).filter callback (arrow, line 61)
+    - Confidence: 0%
+  - [ ] (input.telemetryLogsByEvent.viewer_asset_changed || []).filter callback (arrow, line 62)
+    - Confidence: 0%
+  - [ ] (input.telemetryLogsByEvent.viewer_source_downloaded || []).filter callback (arrow, line 63)
+    - Confidence: 0%
+  - [ ] (input.telemetryLogsByEvent.viewer_related_drop_clicked || []).filter callback (arrow, line 64)
+    - Confidence: 0%
+  - [ ] (input.telemetryLogsByEvent.viewer_content_loaded || []).filter callback (arrow, line 65)
+    - Confidence: 0%
+  - [ ] viewerSessionStartedLogs.forEach callback (arrow, line 69)
+    - Confidence: 0%
+  - [ ] viewerOpenLogs.forEach callback (arrow, line 78)
+    - Confidence: 0%
+  - [ ] viewerSessionCompletedLogs.forEach callback (arrow, line 84)
+    - Confidence: 0%
+  - [ ] viewerSessionCompletedLogs     .map callback (arrow, line 92)
+    - Confidence: 0%
+  - [ ] viewerSessionCompletedLogs     .map((record) => {       const seconds = getTelemetryParamNumber(record, "duration_seconds");       if (seconds > 0) {         return seconds;       }        const durationMs = getTelemetryParamNumber(record, "duration_ms");       return durationMs > 0 ? Math.round(durationMs / 1000) : 0;     })     .filter callback (arrow, line 101)
+    - Confidence: 0%
+  - [ ] viewerSessionCompletedLogs     .map callback (arrow, line 103)
+    - Confidence: 0%
+  - [ ] viewerSessionCompletedLogs     .map((record) => getTelemetryParamNumber(record, "session_watch_seconds"))     .filter callback (arrow, line 104)
+    - Confidence: 0%
+  - [ ] viewerContentLoadedLogs     .map callback (arrow, line 106)
+    - Confidence: 0%
+  - [ ] viewerContentLoadedLogs     .map((record) => getTelemetryParamNumber(record, "load_ms"))     .filter callback (arrow, line 107)
+    - Confidence: 0%
+  - [ ] Array.from(viewerSessionCountsByUser.values()).reduce callback (arrow, line 109)
+    - Confidence: 0%
+  - [ ] filteredSessionFacts.reduce callback (arrow, line 128)
+    - Confidence: 0%
+  - [ ] Array.from(sessionFactOverview.sessionCounts.values()).reduce callback (arrow, line 162)
+    - Confidence: 0%
+  - [ ] ensureViewerDropInsight (arrow, line 182)
+    - Confidence: 0%
+  - [ ] registerViewerRecord (arrow, line 218)
+    - Confidence: 0%
+  - [ ] viewerOpenLogs.forEach callback (arrow, line 220)
+    - Confidence: 0%
+  - [ ] viewerSessionStartedLogs.forEach callback (arrow, line 228)
+    - Confidence: 0%
+  - [ ] viewerSessionCompletedLogs.forEach callback (arrow, line 237)
+    - Confidence: 0%
+  - [ ] viewerAssetStartedLogs.forEach callback (arrow, line 251)
+    - Confidence: 0%
+  - [ ] viewerAssetCompletedLogs.forEach callback (arrow, line 254)
+    - Confidence: 0%
+  - [ ] viewerAssetChangedLogs.forEach callback (arrow, line 257)
+    - Confidence: 0%
+  - [ ] viewerDownloadLogs.forEach callback (arrow, line 260)
+    - Confidence: 0%
+  - [ ] viewerRelatedLogs.forEach callback (arrow, line 263)
+    - Confidence: 0%
+  - [ ] viewerContentLoadedLogs.forEach callback (arrow, line 266)
+    - Confidence: 0%
+  - [ ] Array.from(viewerDropInsightMap.values())     .map callback (arrow, line 274)
+    - Confidence: 0%
+  - [ ] Array.from(entry.sessionCountsByUser.values()).reduce callback (arrow, line 281)
+    - Confidence: 0%
+  - [ ] Array.from(viewerDropInsightMap.values())     .map((entry) => ({       dropId: entry.dropId,       dropTitle: resolveDropTitle(input.dropReferences, entry.dropId, entry.dropTitle),       viewCount: entry.viewCount,       sessionCount: entry.sessionCount,       uniqueViewerCount: entry.uniqueViewerKeys.size,       repeatSessionCount: Array.from(entry.sessionCountsByUser.values()).reduce(         (total, value) => total + Math.max(0, value - 1),         0,       ),       totalWatchSeconds: entry.totalWatchSeconds,       avgSessionSeconds: average(entry.sessionDurations),       avgWatchSeconds: average(entry.watchDurations),       assetStarts: entry.assetStarts,       assetCompletions: entry.assetCompletions,       assetSwitches: entry.assetSwitches,       downloads: entry.downloads,       relatedClicks: entry.relatedClicks,       avgLoadMs: average(entry.loadSamples),     }))     .sort callback (arrow, line 294)
+    - Confidence: 0%
+  - [ ] filteredSessionFacts.reduce callback (arrow, line 301)
+    - Confidence: 0%
+  - [ ] Array.from(viewerDropFactsMap.values())     .map callback (arrow, line 334)
+    - Confidence: 0%
+  - [ ] Array.from(entry.sessionCounts.values()).reduce callback (arrow, line 341)
+    - Confidence: 0%
+  - [ ] Array.from(viewerDropFactsMap.values())     .map((entry) => ({       dropId: entry.dropId,       dropTitle: entry.dropTitle,       viewCount: entry.viewCount,       sessionCount: entry.sessionCount,       uniqueViewerCount: entry.uniqueViewerKeys.size,       repeatSessionCount: Array.from(entry.sessionCounts.values()).reduce(         (total, value) => total + Math.max(0, value - 1),         0,       ),       totalWatchSeconds: entry.totalWatchSeconds,       avgSessionSeconds: entry.sessionCount > 0 ? Math.round(entry.totalWatchSeconds / entry.sessionCount) : 0,       avgWatchSeconds: entry.sessionCount > 0 ? Math.round(entry.totalWatchSeconds / entry.sessionCount) : 0,       assetStarts: 0,       assetCompletions: 0,       assetSwitches: 0,       downloads: 0,       relatedClicks: 0,       avgLoadMs: entry.loadSampleCount > 0 ? Math.round(entry.loadMsTotal / entry.loadSampleCount) : 0,     }))     .sort callback (arrow, line 354)
+    - Confidence: 0%
+  - [ ] ensureViewerUser (arrow, line 362)
+    - Confidence: 0%
+  - [ ] (input.telemetryLogsByEvent.viewer_opened || []).forEach callback (arrow, line 387)
+    - Confidence: 0%
+  - [ ] (input.telemetryLogsByEvent.viewer_session_started || []).forEach callback (arrow, line 393)
+    - Confidence: 0%
+  - [ ] (input.telemetryLogsByEvent.viewer_session_completed || []).forEach callback (arrow, line 399)
+    - Confidence: 0%
+  - [ ] Array.from(viewerUserMap.values())     .sort callback (arrow, line 407)
+    - Confidence: 0%
+
+## [ ] src/lib/server/admin-analytics-shared.ts
+- Confidence: 0%
+- Functions detected: 38
+- Functions:
+  - [ ] getCstDayStartMs (function, line 151)
+    - Confidence: 0%
+  - [ ] getRangeWindow (function, line 157)
+    - Confidence: 0%
+  - [ ] timestampToDayKey (function, line 196)
+    - Confidence: 0%
+  - [ ] rawDateToDayKey (function, line 200)
+    - Confidence: 0%
+  - [ ] dayKeyToRawDate (function, line 208)
+    - Confidence: 0%
+  - [ ] dayKeyToLabel (function, line 212)
+    - Confidence: 0%
+  - [ ] toNumber (function, line 216)
+    - Confidence: 0%
+  - [ ] toStringValue (function, line 221)
+    - Confidence: 0%
+  - [ ] safeParams (function, line 225)
+    - Confidence: 0%
+  - [ ] getTelemetryParamString (function, line 233)
+    - Confidence: 0%
+  - [ ] getTelemetryParamNumber (function, line 237)
+    - Confidence: 0%
+  - [ ] fetchTelemetryLogs (function, line 241)
+    - Confidence: 0%
+  - [ ] eventNames.map callback (arrow, line 250)
+    - Confidence: 0%
+  - [ ] Object.values(rawValue as Record<string, unknown>).flatMap callback (arrow, line 260)
+    - Confidence: 0%
+  - [ ] records           .filter callback (arrow, line 278)
+    - Confidence: 0%
+  - [ ] records           .filter((record) => record.timestamp >= startMs)           .sort callback (arrow, line 279)
+    - Confidence: 0%
+  - [ ] eventNames.forEach callback (arrow, line 288)
+    - Confidence: 0%
+  - [ ] eventNames.forEach callback (arrow, line 293)
+    - Confidence: 0%
+  - [ ] buildDurationBuckets (function, line 302)
+    - Confidence: 0%
+  - [ ] bucketEdges.map callback (arrow, line 303)
+    - Confidence: 0%
+  - [ ] values.filter callback (arrow, line 305)
+    - Confidence: 0%
+  - [ ] formatTaskReason (function, line 309)
+    - Confidence: 0%
+  - [ ] normalizeViewerIdentity (function, line 317)
+    - Confidence: 0%
+  - [ ] matchesViewerFilter (function, line 321)
+    - Confidence: 0%
+  - [ ] getTelemetryDropId (function, line 336)
+    - Confidence: 0%
+  - [ ] getTelemetryDropTitle (function, line 340)
+    - Confidence: 0%
+  - [ ] average (function, line 344)
+    - Confidence: 0%
+  - [ ] sum (function, line 352)
+    - Confidence: 0%
+  - [ ] values.reduce callback (arrow, line 353)
+    - Confidence: 0%
+  - [ ] buildMergedCountMap (function, line 356)
+    - Confidence: 0%
+  - [ ] sources.forEach callback (arrow, line 359)
+    - Confidence: 0%
+  - [ ] Object.entries(source).forEach callback (arrow, line 360)
+    - Confidence: 0%
+  - [ ] sumEventCounts (function, line 369)
+    - Confidence: 0%
+  - [ ] Object.entries(counts).reduce callback (arrow, line 374)
+    - Confidence: 0%
+  - [ ] sumSnapshotField (function, line 383)
+    - Confidence: 0%
+  - [ ] snapshot.docs.reduce callback (arrow, line 387)
+    - Confidence: 0%
+  - [ ] safeRunReport (function, line 390)
+    - Confidence: 0%
+  - [ ] safeRunRealtimeReport (function, line 403)
+    - Confidence: 0%
+
+## [ ] src/lib/server/admin-ops-health.ts
+- Confidence: 0%
+- Functions detected: 30
+- Functions:
+  - [ ] toTimestampNumber (function, line 19)
+    - Confidence: 0%
+  - [ ] getDocData (function, line 40)
+    - Confidence: 0%
+  - [ ] readLatestTimestamp (function, line 46)
+    - Confidence: 0%
+  - [ ] docs.reduce callback (arrow, line 50)
+    - Confidence: 0%
+  - [ ] keys.reduce callback (arrow, line 52)
+    - Confidence: 0%
+  - [ ] getMaterializerStatus (function, line 57)
+    - Confidence: 0%
+  - [ ] buildMaterializer (function, line 75)
+    - Confidence: 0%
+  - [ ] buildChannelLabel (function, line 95)
+    - Confidence: 0%
+  - [ ] buildDiagnosticPreview (function, line 104)
+    - Confidence: 0%
+  - [ ] entries     .map callback (arrow, line 111)
+    - Confidence: 0%
+  - [ ] buildRouteLabel (function, line 115)
+    - Confidence: 0%
+  - [ ] routeKey     .replaceAll("_", " ")     .replace callback (arrow, line 118)
+    - Confidence: 0%
+  - [ ] getNavigationSessionSigningReady (function, line 121)
+    - Confidence: 0%
+  - [ ] buildAdminOpsHealth (function, line 130)
+    - Confidence: 0%
+  - [ ] input.diagnosticsDocs.map callback (arrow, line 144)
+    - Confidence: 0%
+  - [ ] input.diagnosticsDocs.map((doc) => {     const data = getDocData(doc);     return {       id: doc.id,       channel: toStringValue(data.channel) || "runtime",       severity: (toStringValue(data.severity) || "warn") as AdminOpsHealthDiagnosticItem["severity"],       message: toStringValue(data.message) || "Unknown diagnostic",       timestamp: toNumber(data.createdAtMs) || toTimestampNumber(data.createdAt),       detailPreview: buildDiagnosticPreview((data.detail as Record<string, unknown> | undefined) ?? {}),     };   }).sort callback (arrow, line 154)
+    - Confidence: 0%
+  - [ ] diagnostics.reduce callback (arrow, line 156)
+    - Confidence: 0%
+  - [ ] input.pipelineDocs.map callback (arrow, line 183)
+    - Confidence: 0%
+  - [ ] pipelineDocs.reduce callback (arrow, line 195)
+    - Confidence: 0%
+  - [ ] Object.entries(entry.routeCounts).forEach callback (arrow, line 196)
+    - Confidence: 0%
+  - [ ] Array.from(routeCountMap.entries())     .map callback (arrow, line 203)
+    - Confidence: 0%
+  - [ ] Array.from(routeCountMap.entries())     .map(([routeKey, count]) => ({       routeKey,       label: buildRouteLabel(routeKey),       count,     }))     .sort callback (arrow, line 208)
+    - Confidence: 0%
+  - [ ] pipelineDocs.reduce callback (arrow, line 211)
+    - Confidence: 0%
+  - [ ] pipelineDocs.sort callback (arrow, line 212)
+    - Confidence: 0%
+  - [ ] materializers.filter callback (arrow, line 284)
+    - Confidence: 0%
+  - [ ] materializers.filter callback (arrow, line 285)
+    - Confidence: 0%
+  - [ ] diagnostics.filter callback (arrow, line 286)
+    - Confidence: 0%
+  - [ ] diagnostics.filter callback (arrow, line 287)
+    - Confidence: 0%
+  - [ ] diagnostics.filter callback (arrow, line 319)
+    - Confidence: 0%
+  - [ ] Array.from(diagnosticsByChannel.values()).sort callback (arrow, line 321)
+    - Confidence: 0%
+
+## [ ] src/lib/server/analytics-event-utils.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] resolveTrackedTelemetryEvent (function, line 11)
+    - Confidence: 0%
+
+## [ ] src/lib/server/analytics-metrics.ts
+- Confidence: 0%
+- Functions detected: 56
+- Functions:
+  - [ ] toNumber (function, line 67)
+    - Confidence: 0%
+  - [ ] toStringValue (function, line 72)
+    - Confidence: 0%
+  - [ ] normalizePagePath (function, line 76)
+    - Confidence: 0%
+  - [ ] resolvePagePathFromFact (function, line 89)
+    - Confidence: 0%
+  - [ ] resolveSessionIdFromFact (function, line 98)
+    - Confidence: 0%
+  - [ ] resolveActorIdFromFact (function, line 110)
+    - Confidence: 0%
+  - [ ] resolveSessionIdFromGuestBatch (function, line 130)
+    - Confidence: 0%
+  - [ ] resolveActorIdFromGuestBatch (function, line 137)
+    - Confidence: 0%
+  - [ ] getOrCreateSession (function, line 151)
+    - Confidence: 0%
+  - [ ] applyPageSurface (function, line 189)
+    - Confidence: 0%
+  - [ ] isPageViewEvent (function, line 238)
+    - Confidence: 0%
+  - [ ] isClickLikeEvent (function, line 251)
+    - Confidence: 0%
+  - [ ] buildSessionSummaries (function, line 265)
+    - Confidence: 0%
+  - [ ] (input.eventFacts ?? []).forEach callback (arrow, line 268)
+    - Confidence: 0%
+  - [ ] (input.guestBatches ?? []).forEach callback (arrow, line 310)
+    - Confidence: 0%
+  - [ ] (batch.events ?? []).forEach callback (arrow, line 315)
+    - Confidence: 0%
+  - [ ] buildViewerAccumulator (function, line 359)
+    - Confidence: 0%
+  - [ ] (input.sessionFacts ?? []).forEach callback (arrow, line 367)
+    - Confidence: 0%
+  - [ ] countMatchingSessions (function, line 391)
+    - Confidence: 0%
+  - [ ] countMatchingActors (function, line 398)
+    - Confidence: 0%
+  - [ ] sessions.forEach callback (arrow, line 403)
+    - Confidence: 0%
+  - [ ] Array.from(actorSessions.values()).filter callback (arrow, line 413)
+    - Confidence: 0%
+  - [ ] percent (function, line 417)
+    - Confidence: 0%
+  - [ ] ratio (function, line 425)
+    - Confidence: 0%
+  - [ ] createResult (function, line 433)
+    - Confidence: 0%
+  - [ ] buildAnalyticsMetricReport (function, line 449)
+    - Confidence: 0%
+  - [ ] Array.from(sessions.values()).reduce callback (arrow, line 455)
+    - Confidence: 0%
+  - [ ] countMatchingSessions callback (arrow, line 456)
+    - Confidence: 0%
+  - [ ] countMatchingSessions callback (arrow, line 457)
+    - Confidence: 0%
+  - [ ] countMatchingSessions callback (arrow, line 458)
+    - Confidence: 0%
+  - [ ] countMatchingSessions callback (arrow, line 459)
+    - Confidence: 0%
+  - [ ] countMatchingSessions callback (arrow, line 460)
+    - Confidence: 0%
+  - [ ] countMatchingSessions callback (arrow, line 461)
+    - Confidence: 0%
+  - [ ] countMatchingSessions callback (arrow, line 464)
+    - Confidence: 0%
+  - [ ] Array.from(sessions.values()).reduce callback (arrow, line 467)
+    - Confidence: 0%
+  - [ ] countMatchingActors callback (arrow, line 470)
+    - Confidence: 0%
+  - [ ] countMatchingSessions callback (arrow, line 474)
+    - Confidence: 0%
+  - [ ] countMatchingSessions callback (arrow, line 476)
+    - Confidence: 0%
+  - [ ] countMatchingSessions callback (arrow, line 477)
+    - Confidence: 0%
+  - [ ] countMatchingSessions callback (arrow, line 478)
+    - Confidence: 0%
+  - [ ] countMatchingSessions callback (arrow, line 479)
+    - Confidence: 0%
+  - [ ] countMatchingSessions callback (arrow, line 482)
+    - Confidence: 0%
+  - [ ] countMatchingSessions callback (arrow, line 485)
+    - Confidence: 0%
+  - [ ] countMatchingSessions callback (arrow, line 488)
+    - Confidence: 0%
+  - [ ] countMatchingSessions callback (arrow, line 492)
+    - Confidence: 0%
+  - [ ] countMatchingSessions callback (arrow, line 496)
+    - Confidence: 0%
+  - [ ] countMatchingSessions callback (arrow, line 500)
+    - Confidence: 0%
+  - [ ] countMatchingActors callback (arrow, line 502)
+    - Confidence: 0%
+  - [ ] countMatchingSessions callback (arrow, line 504)
+    - Confidence: 0%
+  - [ ] Array.from(viewer.actorSessionCounts.values()).filter callback (arrow, line 512)
+    - Confidence: 0%
+  - [ ] ANALYTICS_SOCIAL_METRIC_DEFINITIONS.map callback (arrow, line 730)
+    - Confidence: 0%
+  - [ ] (["global", "user", "admin", "drop"] as AnalyticsMetricCategory[])     .map callback (arrow, line 732)
+    - Confidence: 0%
+  - [ ] metrics.filter callback (arrow, line 735)
+    - Confidence: 0%
+  - [ ] metrics.filter callback (arrow, line 744)
+    - Confidence: 0%
+  - [ ] metrics.filter callback (arrow, line 745)
+    - Confidence: 0%
+  - [ ] metrics.filter callback (arrow, line 746)
+    - Confidence: 0%
+
+## [ ] src/lib/server/analytics-parity.ts
+- Confidence: 0%
+- Functions detected: 12
+- Functions:
+  - [ ] clamp (function, line 29)
+    - Confidence: 0%
+  - [ ] buildParityInsight (function, line 33)
+    - Confidence: 0%
+  - [ ] sources     .map callback (arrow, line 41)
+    - Confidence: 0%
+  - [ ] sources     .map((source) => Math.max(0, Math.round(source.count)))     .filter callback (arrow, line 42)
+    - Confidence: 0%
+  - [ ] [...normalizedCounts].sort callback (arrow, line 54)
+    - Confidence: 0%
+  - [ ] normalizedCounts.filter callback (arrow, line 60)
+    - Confidence: 0%
+  - [ ] buildModuleCoverageReport (function, line 85)
+    - Confidence: 0%
+  - [ ] input.sources.map callback (arrow, line 91)
+    - Confidence: 0%
+  - [ ] normalizedSources.reduce callback (arrow, line 95)
+    - Confidence: 0%
+  - [ ] normalizedSources.filter callback (arrow, line 96)
+    - Confidence: 0%
+  - [ ] sumCountBuckets (function, line 122)
+    - Confidence: 0%
+  - [ ] items.reduce callback (arrow, line 123)
+    - Confidence: 0%
+
+## [ ] src/lib/server/analytics-pipeline-health.ts
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] normalizeRouteKey (function, line 10)
+    - Confidence: 0%
+  - [ ] recordAnalyticsPipelineFailure (function, line 14)
+    - Confidence: 0%
+
+## [ ] src/lib/server/analytics-runtime.ts
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] buildRuntimePayload (function, line 10)
+    - Confidence: 0%
+  - [ ] markAnalyticsRuntimeChanged (function, line 18)
+    - Confidence: 0%
+  - [ ] touchAnalyticsRuntime (function, line 33)
+    - Confidence: 0%
+
+## [ ] src/lib/server/analytics-semantics.ts
+- Confidence: 0%
+- Functions detected: 17
+- Functions:
+  - [ ] createEmptySummary (function, line 75)
+    - Confidence: 0%
+  - [ ] asNumber (function, line 96)
+    - Confidence: 0%
+  - [ ] asString (function, line 101)
+    - Confidence: 0%
+  - [ ] createDocKey (function, line 105)
+    - Confidence: 0%
+  - [ ] buildGuestSemanticDelta (function, line 110)
+    - Confidence: 0%
+  - [ ] buildTelemetrySemanticDelta (function, line 151)
+    - Confidence: 0%
+  - [ ] applyDelta (function, line 235)
+    - Confidence: 0%
+  - [ ] buildSemanticCategorySummaries (function, line 266)
+    - Confidence: 0%
+  - [ ] (input.eventFacts ?? []).some callback (arrow, line 273)
+    - Confidence: 0%
+  - [ ] (input.eventFacts ?? []).some callback (arrow, line 274)
+    - Confidence: 0%
+  - [ ] (input.eventFacts ?? []).some callback (arrow, line 275)
+    - Confidence: 0%
+  - [ ] (input.eventFacts ?? []).forEach callback (arrow, line 277)
+    - Confidence: 0%
+  - [ ] (input.guestBatches ?? []).forEach callback (arrow, line 310)
+    - Confidence: 0%
+  - [ ] events.forEach callback (arrow, line 312)
+    - Confidence: 0%
+  - [ ] (input.sessionFacts ?? []).forEach callback (arrow, line 342)
+    - Confidence: 0%
+  - [ ] (["global", "user", "admin", "drop"] as AnalyticsSemanticCategory[]).map callback (arrow, line 358)
+    - Confidence: 0%
+  - [ ] summarizeSecurityReason (function, line 363)
+    - Confidence: 0%
+
+## [ ] src/lib/server/analytics.ts
+- Confidence: 0%
+- Functions detected: 5
+- Functions:
+  - [ ] sanitizeServerParams (function, line 9)
+    - Confidence: 0%
+  - [ ] Object.entries(params).forEach callback (arrow, line 12)
+    - Confidence: 0%
+  - [ ] readStringParam (function, line 28)
+    - Confidence: 0%
+  - [ ] readNumberParam (function, line 39)
+    - Confidence: 0%
+  - [ ] trackServerEvent (function, line 50)
+    - Confidence: 0%
+
+## [ ] src/lib/server/auth.ts
+- Confidence: 0%
+- Functions detected: 5
+- Functions:
+  - [ ] verifyAppCheck (function, line 15)
+    - Confidence: 0%
+  - [ ] verifyAuth (function, line 39)
+    - Confidence: 0%
+  - [ ] verifyAdmin (function, line 67)
+    - Confidence: 0%
+  - [ ] handleApiError (function, line 88)
+    - Confidence: 0%
+  - [ ] constructor (constructor, line 119)
+    - Confidence: 0%
+
+## [ ] src/lib/server/daily-tasks.ts
+- Confidence: 0%
+- Functions detected: 79
+- Functions:
+  - [ ] readQuerySnapshot (function, line 72)
+    - Confidence: 0%
+  - [ ] normalizeStringArray (function, line 83)
+    - Confidence: 0%
+  - [ ] value.filter callback (arrow, line 88)
+    - Confidence: 0%
+  - [ ] normalizeHistory (function, line 91)
+    - Confidence: 0%
+  - [ ] Object.entries(value as Record<string, unknown>)       .filter callback (arrow, line 98)
+    - Confidence: 0%
+  - [ ] Object.entries(value as Record<string, unknown>)       .filter(([, rawValue]) => Number.isFinite(rawValue))       .map callback (arrow, line 99)
+    - Confidence: 0%
+  - [ ] stripUndefinedDeep (function, line 103)
+    - Confidence: 0%
+  - [ ] value.map callback (arrow, line 105)
+    - Confidence: 0%
+  - [ ] Object.entries(value as Record<string, unknown>)         .filter callback (arrow, line 111)
+    - Confidence: 0%
+  - [ ] Object.entries(value as Record<string, unknown>)         .filter(([, entryValue]) => typeof entryValue !== "undefined")         .map callback (arrow, line 112)
+    - Confidence: 0%
+  - [ ] normalizeTaskAssignment (function, line 119)
+    - Confidence: 0%
+  - [ ] hydrateAssignment (function, line 158)
+    - Confidence: 0%
+  - [ ] upgradeAssignment (function, line 168)
+    - Confidence: 0%
+  - [ ] getCooldownMs (function, line 198)
+    - Confidence: 0%
+  - [ ] shuffle (function, line 203)
+    - Confidence: 0%
+  - [ ] pickTasksForCycle (function, line 214)
+    - Confidence: 0%
+  - [ ] definitions.filter callback (arrow, line 222)
+    - Confidence: 0%
+  - [ ] basePool.filter callback (arrow, line 286)
+    - Confidence: 0%
+  - [ ] pool.filter callback (arrow, line 292)
+    - Confidence: 0%
+  - [ ] pool.filter callback (arrow, line 293)
+    - Confidence: 0%
+  - [ ] pushIfPossible (arrow, line 297)
+    - Confidence: 0%
+  - [ ] selected.some callback (arrow, line 301)
+    - Confidence: 0%
+  - [ ] shuffle(pool).forEach callback (arrow, line 316)
+    - Confidence: 0%
+  - [ ] selected.some callback (arrow, line 317)
+    - Confidence: 0%
+  - [ ] shuffle(basePool).forEach callback (arrow, line 324)
+    - Confidence: 0%
+  - [ ] selected.some callback (arrow, line 325)
+    - Confidence: 0%
+  - [ ] taskMatchesEvent (function, line 334)
+    - Confidence: 0%
+  - [ ] rawValue.split("|").map callback (arrow, line 364)
+    - Confidence: 0%
+  - [ ] criteria.includesAnyParam.values.some callback (arrow, line 365)
+    - Confidence: 0%
+  - [ ] fetchCustomTaskDefinitions (function, line 391)
+    - Confidence: 0%
+  - [ ] snapshot.docs.forEach callback (arrow, line 398)
+    - Confidence: 0%
+  - [ ] createDefinitionMap (function, line 437)
+    - Confidence: 0%
+  - [ ] definitions.map callback (arrow, line 438)
+    - Confidence: 0%
+  - [ ] getUserDisplayName (function, line 441)
+    - Confidence: 0%
+  - [ ] normalizeTaskState (function, line 453)
+    - Confidence: 0%
+  - [ ] currentState.tasks       .map callback (arrow, line 461)
+    - Confidence: 0%
+  - [ ] currentState.tasks       .map((task) => upgradeAssignment(task, definitionMap, nowMs))       .filter callback (arrow, line 462)
+    - Confidence: 0%
+  - [ ] shouldRotateIncompleteCycle (function, line 478)
+    - Confidence: 0%
+  - [ ] state.tasks.every callback (arrow, line 482)
+    - Confidence: 0%
+  - [ ] shouldRotateCompletedCycle (function, line 498)
+    - Confidence: 0%
+  - [ ] state.tasks.every callback (arrow, line 499)
+    - Confidence: 0%
+  - [ ] buildRotatedState (function, line 507)
+    - Confidence: 0%
+  - [ ] selectedDefinitions.map callback (arrow, line 525)
+    - Confidence: 0%
+  - [ ] resolveTaskDefinitionsForUser (function, line 544)
+    - Confidence: 0%
+  - [ ] resolveTaskEligibilityContext (function, line 549)
+    - Confidence: 0%
+  - [ ] userData.unlockedContent.filter callback (arrow, line 556)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 561)
+    - Confidence: 0%
+  - [ ] snapshot.docs.some callback (arrow, line 570)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 581)
+    - Confidence: 0%
+  - [ ] snapshot.docs.some callback (arrow, line 591)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 604)
+    - Confidence: 0%
+  - [ ] unlockedContentIds.map callback (arrow, line 609)
+    - Confidence: 0%
+  - [ ] dropRefs.map callback (arrow, line 610)
+    - Confidence: 0%
+  - [ ] snapshots         .filter callback (arrow, line 615)
+    - Confidence: 0%
+  - [ ] snapshots         .filter((snapshot) => snapshot.exists)         .map callback (arrow, line 616)
+    - Confidence: 0%
+  - [ ] unlockedDropDocs.some callback (arrow, line 624)
+    - Confidence: 0%
+  - [ ] drop.contentUrls.filter callback (arrow, line 627)
+    - Confidence: 0%
+  - [ ] unlockedDropDocs.some callback (arrow, line 637)
+    - Confidence: 0%
+  - [ ] buildFreshTaskStateForUser (function, line 654)
+    - Confidence: 0%
+  - [ ] normalizedState.tasks.filter callback (arrow, line 677)
+    - Confidence: 0%
+  - [ ] incrementEventStat (function, line 700)
+    - Confidence: 0%
+  - [ ] writeTaskLifecycleEvent (function, line 714)
+    - Confidence: 0%
+  - [ ] buildTaskReceiptDocId (function, line 737)
+    - Confidence: 0%
+  - [ ] buildDefaultReceiptKey (function, line 741)
+    - Confidence: 0%
+  - [ ] queueUserNotification (function, line 759)
+    - Confidence: 0%
+  - [ ] applyRotationSideEffects (function, line 786)
+    - Confidence: 0%
+  - [ ] result.assignedTasks.forEach callback (arrow, line 798)
+    - Confidence: 0%
+  - [ ] result.failedTasks.forEach callback (arrow, line 820)
+    - Confidence: 0%
+  - [ ] rotateUserTasks (function, line 855)
+    - Confidence: 0%
+  - [ ] adminDb.runTransaction callback (arrow, line 860)
+    - Confidence: 0%
+  - [ ] recordTelemetryEventStat (function, line 900)
+    - Confidence: 0%
+  - [ ] recordCanonicalTaskEvent (function, line 910)
+    - Confidence: 0%
+  - [ ] recordDailyTaskProgressFromEvent (function, line 925)
+    - Confidence: 0%
+  - [ ] adminDb.runTransaction callback (arrow, line 944)
+    - Confidence: 0%
+  - [ ] updatedTasks.forEach callback (arrow, line 988)
+    - Confidence: 0%
+  - [ ] updatedTasks.forEach callback (arrow, line 1099)
+    - Confidence: 0%
+  - [ ] syncUserTaskReminder (function, line 1150)
+    - Confidence: 0%
+  - [ ] adminDb.runTransaction callback (arrow, line 1156)
+    - Confidence: 0%
+  - [ ] result.state.tasks.filter callback (arrow, line 1167)
+    - Confidence: 0%
+
+## [ ] src/lib/server/drop-queue.ts
+- Confidence: 0%
+- Functions detected: 11
+- Functions:
+  - [ ] normalizeTimesPerDay (function, line 20)
+    - Confidence: 0%
+  - [ ] timesPerDay.filter callback (arrow, line 22)
+    - Confidence: 0%
+  - [ ] [...rawTimes].sort callback (arrow, line 24)
+    - Confidence: 0%
+  - [ ] Array.from callback (arrow, line 27)
+    - Confidence: 0%
+  - [ ] normalizeQueueConfig (function, line 40)
+    - Confidence: 0%
+  - [ ] raw.queue.filter callback (arrow, line 44)
+    - Confidence: 0%
+  - [ ] getLegacyQueuedDropIds (function, line 55)
+    - Confidence: 0%
+  - [ ] snapshot.docs.map callback (arrow, line 61)
+    - Confidence: 0%
+  - [ ] getResolvedQueueConfig (function, line 64)
+    - Confidence: 0%
+  - [ ] saveResolvedQueueConfig (function, line 81)
+    - Confidence: 0%
+  - [ ] setDropQueueMembership (function, line 91)
+    - Confidence: 0%
+
+## [ ] src/lib/server/drop-references.ts
+- Confidence: 0%
+- Functions detected: 9
+- Functions:
+  - [ ] normalizeDropReference (function, line 10)
+    - Confidence: 0%
+  - [ ] getDropReferenceMap (function, line 19)
+    - Confidence: 0%
+  - [ ] dropIds.map callback (arrow, line 20)
+    - Confidence: 0%
+  - [ ] uniqueIds.map callback (arrow, line 26)
+    - Confidence: 0%
+  - [ ] snapshots       .filter callback (arrow, line 38)
+    - Confidence: 0%
+  - [ ] snapshots       .filter((entry): entry is DropReference => !!entry)       .map callback (arrow, line 39)
+    - Confidence: 0%
+  - [ ] getAllDropReferenceMap (function, line 43)
+    - Confidence: 0%
+  - [ ] snapshot.docs.map callback (arrow, line 46)
+    - Confidence: 0%
+  - [ ] resolveDropTitle (function, line 50)
+    - Confidence: 0%
+
+## [ ] src/lib/server/drop-runtime.ts
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] buildRuntimePayload (function, line 10)
+    - Confidence: 0%
+  - [ ] markDropsRuntimeChanged (function, line 18)
+    - Confidence: 0%
+  - [ ] touchDropsRuntime (function, line 29)
+    - Confidence: 0%
+
+## [ ] src/lib/server/drops.ts
+- Confidence: 0%
+- Functions detected: 7
+- Functions:
+  - [ ] resolveDropStatus (function, line 12)
+    - Confidence: 0%
+  - [ ] sanitizeDropForClient (function, line 20)
+    - Confidence: 0%
+  - [ ] drop.contentUrls.map callback (arrow, line 22)
+    - Confidence: 0%
+  - [ ] cache callback (arrow, line 28)
+    - Confidence: 0%
+  - [ ] snapshot.docs.map callback (arrow, line 36)
+    - Confidence: 0%
+  - [ ] cache callback (arrow, line 50)
+    - Confidence: 0%
+  - [ ] getDropRaw (function, line 71)
+    - Confidence: 0%
+
+## [ ] src/lib/server/fcm-utils.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] broadcastFCM (function, line 14)
+    - Confidence: 0%
+
+## [ ] src/lib/server/firebase-admin.ts
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] src/lib/server/notification-inbox.ts
+- Confidence: 0%
+- Functions detected: 8
+- Functions:
+  - [ ] toTimestampNumber (function, line 30)
+    - Confidence: 0%
+  - [ ] isNotificationVisibleToUser (function, line 47)
+    - Confidence: 0%
+  - [ ] isUnreadNotificationForUser (function, line 67)
+    - Confidence: 0%
+  - [ ] normalizeInboxEntry (function, line 79)
+    - Confidence: 0%
+  - [ ] fetchUnreadNotificationsForUser (function, line 96)
+    - Confidence: 0%
+  - [ ] snapshot.docs.forEach callback (arrow, line 127)
+    - Confidence: 0%
+  - [ ] results     .sort callback (arrow, line 140)
+    - Confidence: 0%
+  - [ ] hasUnreadNotificationsForUser (function, line 144)
+    - Confidence: 0%
+
+## [ ] src/lib/server/notification-runtime.ts
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] buildRuntimePayload (function, line 10)
+    - Confidence: 0%
+  - [ ] markNotificationsRuntimeChanged (function, line 18)
+    - Confidence: 0%
+  - [ ] touchNotificationsRuntime (function, line 29)
+    - Confidence: 0%
+
+## [ ] src/lib/server/privacy-consent.ts
+- Confidence: 0%
+- Functions detected: 4
+- Functions:
+  - [ ] requestHasGlobalPrivacyControl (function, line 6)
+    - Confidence: 0%
+  - [ ] requestAllowsAnonymousAnalytics (function, line 10)
+    - Confidence: 0%
+  - [ ] profileAllowsAnonymousAnalytics (function, line 18)
+    - Confidence: 0%
+  - [ ] profileAllowsIdentifiedAnalytics (function, line 30)
+    - Confidence: 0%
+
+## [ ] src/lib/server/push-notifications.ts
+- Confidence: 0%
+- Functions detected: 5
+- Functions:
+  - [ ] reserveDropActivationNotification (function, line 10)
+    - Confidence: 0%
+  - [ ] adminDb.runTransaction callback (arrow, line 18)
+    - Confidence: 0%
+  - [ ] queueDropNotificationDoc (function, line 42)
+    - Confidence: 0%
+  - [ ] sendGlobalDropNotification (function, line 70)
+    - Confidence: 0%
+  - [ ] sendTargetedDropNotification (function, line 104)
+    - Confidence: 0%
+
+## [ ] src/lib/server/rate-limit.ts
+- Confidence: 0%
+- Functions detected: 11
+- Functions:
+  - [ ] maybeCleanupLocal (function, line 35)
+    - Confidence: 0%
+  - [ ] maybeCleanupRemote (function, line 47)
+    - Confidence: 0%
+  - [ ] <anonymous arrow> (arrow, line 58)
+    - Confidence: 0%
+  - [ ] snapshot.docs.forEach callback (arrow, line 71)
+    - Confidence: 0%
+  - [ ] constructor (constructor, line 89)
+    - Confidence: 0%
+  - [ ] resolveCallerIdentifier (function, line 102)
+    - Confidence: 0%
+  - [ ] buildDocumentId (function, line 111)
+    - Confidence: 0%
+  - [ ] checkRateLimitLocally (function, line 117)
+    - Confidence: 0%
+  - [ ] checkRateLimit (function, line 148)
+    - Confidence: 0%
+  - [ ] adminDb.runTransaction callback (arrow, line 168)
+    - Confidence: 0%
+  - [ ] buildRateLimitResponse (function, line 195)
+    - Confidence: 0%
+
+## [ ] src/lib/server/request-guard.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] guardApiRequest (function, line 24)
+    - Confidence: 0%
+
+## [ ] src/lib/server/request-origin.ts
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] getHost (function, line 5)
+    - Confidence: 0%
+  - [ ] hasTrustedSiteOrigin (function, line 17)
+    - Confidence: 0%
+
+## [ ] src/lib/server/server-diagnostics.ts
+- Confidence: 0%
+- Functions detected: 3
+- Functions:
+  - [ ] sanitizeDetail (function, line 23)
+    - Confidence: 0%
+  - [ ] Object.entries(detail)     .slice(0, 20)     .forEach callback (arrow, line 31)
+    - Confidence: 0%
+  - [ ] recordServerDiagnostic (function, line 53)
+    - Confidence: 0%
+
+## [ ] src/lib/server/user-runtime.ts
+- Confidence: 0%
+- Functions detected: 5
+- Functions:
+  - [ ] buildRuntimePatch (function, line 17)
+    - Confidence: 0%
+  - [ ] Object.entries(options)     .filter callback (arrow, line 25)
+    - Confidence: 0%
+  - [ ] Object.entries(options)     .filter(([, enabled]) => enabled === true)     .map callback (arrow, line 26)
+    - Confidence: 0%
+  - [ ] keys.forEach callback (arrow, line 28)
+    - Confidence: 0%
+  - [ ] touchUserRuntime (function, line 36)
+    - Confidence: 0%
+
+## [ ] src/lib/server/username-suggestions.ts
+- Confidence: 0%
+- Functions detected: 5
+- Functions:
+  - [ ] buildFallbackUsername (function, line 4)
+    - Confidence: 0%
+  - [ ] isUsernameAvailable (function, line 8)
+    - Confidence: 0%
+  - [ ] generateUniqueUsernameSuggestion (function, line 30)
+    - Confidence: 0%
+  - [ ] [         normalizeUsername(input.preferredUsername),         ...buildUsernameBaseCandidates({ displayName: input.displayName, email: input.email }),         normalizeUsername(buildFallbackUsername(input.uid)),     ].filter callback (arrow, line 41)
+    - Confidence: 0%
+  - [ ] checkUsernameAvailability (function, line 65)
+    - Confidence: 0%
+
+## [ ] src/lib/site-origin.ts
+- Confidence: 0%
+- Functions detected: 8
+- Functions:
+  - [ ] normalizeOrigin (function, line 6)
+    - Confidence: 0%
+  - [ ] tryGetHost (function, line 10)
+    - Confidence: 0%
+  - [ ] resolveSiteOrigin (function, line 22)
+    - Confidence: 0%
+  - [ ] parseOriginList (function, line 34)
+    - Confidence: 0%
+  - [ ] value         .split(",")         .map callback (arrow, line 41)
+    - Confidence: 0%
+  - [ ] getConfiguredSiteOrigins (function, line 46)
+    - Confidence: 0%
+  - [ ] getConfiguredSiteHosts (function, line 57)
+    - Confidence: 0%
+  - [ ] configuredOrigins.forEach callback (arrow, line 61)
+    - Confidence: 0%
+
+## [ ] src/lib/task-guidance.ts
+- Confidence: 0%
+- Functions detected: 16
+- Functions:
+  - [ ] readLocalStorageValue (function, line 35)
+    - Confidence: 0%
+  - [ ] writeLocalStorageValue (function, line 48)
+    - Confidence: 0%
+  - [ ] isTaskGuidanceActionType (function, line 61)
+    - Confidence: 0%
+  - [ ] getTaskDestinationPath (function, line 68)
+    - Confidence: 0%
+  - [ ] focusTaskDestinationAnchor (function, line 73)
+    - Confidence: 0%
+  - [ ] isSamePageTaskViewEvent (function, line 93)
+    - Confidence: 0%
+  - [ ] readTaskGuidancePendingAction (function, line 100)
+    - Confidence: 0%
+  - [ ] writeTaskGuidancePendingAction (function, line 123)
+    - Confidence: 0%
+  - [ ] formatTaskCountLabel (function, line 127)
+    - Confidence: 0%
+  - [ ] createTaskGuidancePendingAction (function, line 131)
+    - Confidence: 0%
+  - [ ] findCurrentTaskGuidanceTask (function, line 145)
+    - Confidence: 0%
+  - [ ] tasks.find callback (arrow, line 153)
+    - Confidence: 0%
+  - [ ] getTaskInstruction (function, line 159)
+    - Confidence: 0%
+  - [ ] getTaskActionLabel (function, line 267)
+    - Confidence: 0%
+  - [ ] getTaskDestinationHref (function, line 371)
+    - Confidence: 0%
+  - [ ] createTaskGuidanceState (function, line 394)
+    - Confidence: 0%
+
+## [ ] src/lib/tasks/task-catalog.ts
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] createTask (function, line 118)
+    - Confidence: 0%
+  - [ ] BUILT_IN_DAILY_TASKS.map callback (arrow, line 787)
+    - Confidence: 0%
+
+## [ ] src/lib/telemetry-catalog.ts
+- Confidence: 0%
+- Functions detected: 9
+- Functions:
+  - [ ] TELEMETRY_EVENT_OPTIONS.map callback (arrow, line 392)
+    - Confidence: 0%
+  - [ ] TELEMETRY_EVENT_OPTIONS.map callback (arrow, line 396)
+    - Confidence: 0%
+  - [ ] TELEMETRY_EVENT_OPTIONS.flatMap callback (arrow, line 400)
+    - Confidence: 0%
+  - [ ] (event.aliases ?? []).map callback (arrow, line 400)
+    - Confidence: 0%
+  - [ ] TELEMETRY_EVENT_OPTIONS.flatMap callback (arrow, line 404)
+    - Confidence: 0%
+  - [ ] (event.aliases ?? []).map callback (arrow, line 406)
+    - Confidence: 0%
+  - [ ] normalizeTelemetryEventName (function, line 437)
+    - Confidence: 0%
+  - [ ] getTelemetryEventOption (function, line 441)
+    - Confidence: 0%
+  - [ ] buildTelemetryEventMetadata (function, line 449)
+    - Confidence: 0%
+
+## [ ] src/lib/telemetry.ts
+- Confidence: 0%
+- Functions detected: 29
+- Functions:
+  - [ ] BUILT_IN_DAILY_TASKS.map callback (arrow, line 19)
+    - Confidence: 0%
+  - [ ] sanitizeEventParams (function, line 37)
+    - Confidence: 0%
+  - [ ] Object.entries(eventParams).forEach callback (arrow, line 44)
+    - Confidence: 0%
+  - [ ] readJsonStorage (function, line 60)
+    - Confidence: 0%
+  - [ ] writeJsonStorage (function, line 73)
+    - Confidence: 0%
+  - [ ] ensureTelemetryQueueLoaded (function, line 85)
+    - Confidence: 0%
+  - [ ] persistedQueue.filter callback (arrow, line 102)
+    - Confidence: 0%
+  - [ ] persistTelemetryQueue (function, line 110)
+    - Confidence: 0%
+  - [ ] clearPersistedTelemetryQueue (function, line 121)
+    - Confidence: 0%
+  - [ ] getSessionId (function, line 133)
+    - Confidence: 0%
+  - [ ] getEnrichedEventParams (function, line 137)
+    - Confidence: 0%
+  - [ ] readFlowMap (function, line 165)
+    - Confidence: 0%
+  - [ ] writeFlowMap (function, line 169)
+    - Confidence: 0%
+  - [ ] startTimedFlow (function, line 173)
+    - Confidence: 0%
+  - [ ] clearTimedFlow (function, line 186)
+    - Confidence: 0%
+  - [ ] consumeTimedFlow (function, line 200)
+    - Confidence: 0%
+  - [ ] clearTelemetryFlushTimeout (function, line 224)
+    - Confidence: 0%
+  - [ ] flushQueuedTelemetry (function, line 233)
+    - Confidence: 0%
+  - [ ] authFetch("/api/telemetry/track", {         method: "POST",         keepalive: reason !== "scheduled",         body: JSON.stringify({ events: batch }),     }).then callback (arrow, line 269)
+    - Confidence: 0%
+  - [ ] response.json().catch callback (arrow, line 271)
+    - Confidence: 0%
+  - [ ] authFetch("/api/telemetry/track", {         method: "POST",         keepalive: reason !== "scheduled",         body: JSON.stringify({ events: batch }),     }).then(async (response) => {         if (!response.ok) {             const result = await response.json().catch(() => ({}));             throw new Error(typeof result?.error === "string" ? result.error : "Telemetry batch failed");         }     }).catch callback (arrow, line 274)
+    - Confidence: 0%
+  - [ ] authFetch("/api/telemetry/track", {         method: "POST",         keepalive: reason !== "scheduled",         body: JSON.stringify({ events: batch }),     }).then(async (response) => {         if (!response.ok) {             const result = await response.json().catch(() => ({}));             throw new Error(typeof result?.error === "string" ? result.error : "Telemetry batch failed");         }     }).catch((error) => {         telemetryQueue = [...batch, ...telemetryQueue].slice(-50);         persistTelemetryQueue();         recordClientDiagnostic("telemetry", "Identified telemetry batch failed", {             reason,             batchSize: batch.length,             message: error instanceof Error ? error.message : String(error),         });         console.error("[Telemetry] Failed to flush queued telemetry:", error);     }).finally callback (arrow, line 283)
+    - Confidence: 0%
+  - [ ] window.setTimeout callback (arrow, line 290)
+    - Confidence: 0%
+  - [ ] ensureTelemetryLifecycleFlush (function, line 296)
+    - Confidence: 0%
+  - [ ] flushOnPageHide (arrow, line 302)
+    - Confidence: 0%
+  - [ ] flushOnVisibilityHidden (arrow, line 305)
+    - Confidence: 0%
+  - [ ] enqueueIdentifiedTelemetryEvent (function, line 315)
+    - Confidence: 0%
+  - [ ] window.setTimeout callback (arrow, line 345)
+    - Confidence: 0%
+  - [ ] trackEvent (function, line 350)
+    - Confidence: 0%
+
+## [ ] src/lib/timezone.ts
+- Confidence: 0%
+- Functions detected: 18
+- Functions:
+  - [ ] pad (function, line 44)
+    - Confidence: 0%
+  - [ ] buildComparableUtc (function, line 48)
+    - Confidence: 0%
+  - [ ] extractCentralDateParts (function, line 52)
+    - Confidence: 0%
+  - [ ] lookup (arrow, line 54)
+    - Confidence: 0%
+  - [ ] parts.find callback (arrow, line 55)
+    - Confidence: 0%
+  - [ ] parseCentralOffsetMs (function, line 70)
+    - Confidence: 0%
+  - [ ] parts.find callback (arrow, line 72)
+    - Confidence: 0%
+  - [ ] resolveCentralLocalToUtc (function, line 84)
+    - Confidence: 0%
+  - [ ] shiftCentralDate (function, line 100)
+    - Confidence: 0%
+  - [ ] getCSTDateParts (function, line 109)
+    - Confidence: 0%
+  - [ ] getCSTDateKey (function, line 113)
+    - Confidence: 0%
+  - [ ] shiftCSTDateKey (function, line 118)
+    - Confidence: 0%
+  - [ ] toCSTString (function, line 128)
+    - Confidence: 0%
+  - [ ] fromCSTInput (function, line 137)
+    - Confidence: 0%
+  - [ ] getCSTDayBoundaries (function, line 175)
+    - Confidence: 0%
+  - [ ] isSameCSTDay (function, line 199)
+    - Confidence: 0%
+  - [ ] isPreviousCSTDay (function, line 208)
+    - Confidence: 0%
+  - [ ] getDefaultCSTDates (function, line 238)
+    - Confidence: 0%
+
+## [ ] src/lib/transaction-normalizers.ts
+- Confidence: 0%
+- Functions detected: 4
+- Functions:
+  - [ ] normalizeTimestamp (function, line 50)
+    - Confidence: 0%
+  - [ ] normalizeType (function, line 77)
+    - Confidence: 0%
+  - [ ] normalizeTransactionRecord (function, line 97)
+    - Confidence: 0%
+  - [ ] getTransactionRevenueCents (function, line 137)
+    - Confidence: 0%
+
+## [ ] src/lib/user-profile-validation.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] parseAdultDateOfBirth (function, line 1)
+    - Confidence: 0%
+
+## [ ] src/lib/user-runtime.ts
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] src/lib/user-utils.ts
+- Confidence: 0%
+- Functions detected: 16
+- Functions:
+  - [ ] normalizeUsername (function, line 9)
+    - Confidence: 0%
+  - [ ] buildUsernameBaseCandidates (function, line 23)
+    - Confidence: 0%
+  - [ ] pushCandidate (arrow, line 26)
+    - Confidence: 0%
+  - [ ] displayName             .split(/[\s._]+/)             .map callback (arrow, line 38)
+    - Confidence: 0%
+  - [ ] displayName             .split(/[\s._]+/)             .map((part) => normalizeUsername(part))             .filter callback (arrow, line 39)
+    - Confidence: 0%
+  - [ ] normalizeUserProfile (function, line 67)
+    - Confidence: 0%
+  - [ ] toStringArray (arrow, line 74)
+    - Confidence: 0%
+  - [ ] value.filter callback (arrow, line 75)
+    - Confidence: 0%
+  - [ ] toStringNumberRecord (arrow, line 77)
+    - Confidence: 0%
+  - [ ] entries             .filter callback (arrow, line 84)
+    - Confidence: 0%
+  - [ ] entries             .filter(([key, entry]) => typeof key === "string" && Number.isFinite(entry))             .map callback (arrow, line 85)
+    - Confidence: 0%
+  - [ ] source.dailyTasksState.tasks.reduce callback (arrow, line 150)
+    - Confidence: 0%
+  - [ ] Object.entries(source.dailyTasksState.completedTaskHistory as Record<string, unknown>)                         .filter callback (arrow, line 206)
+    - Confidence: 0%
+  - [ ] Object.entries(source.dailyTasksState.completedTaskHistory as Record<string, unknown>)                         .filter(([, rawValue]) => Number.isFinite(rawValue))                         .map callback (arrow, line 207)
+    - Confidence: 0%
+  - [ ] Object.entries(source.securityFlags.reasonCounts as Record<string, unknown>)                         .filter callback (arrow, line 220)
+    - Confidence: 0%
+  - [ ] Object.entries(source.securityFlags.reasonCounts as Record<string, unknown>)                         .filter(([, rawValue]) => Number.isFinite(rawValue))                         .map callback (arrow, line 221)
+    - Confidence: 0%
+
+## [ ] src/lib/utils.ts
+- Confidence: 0%
+- Functions detected: 1
+- Functions:
+  - [ ] cn (function, line 4)
+    - Confidence: 0%
+
+## [ ] src/types/analytics.ts
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] src/types/db.ts
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] src/types/gtag.d.ts
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] STANDARDIZATION_AUDIT_CHECKLIST.md
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] tests/auth.spec.ts
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] test.describe callback (arrow, line 3)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 4)
+    - Confidence: 0%
+
+## [ ] tests/contracts/analytics-export-contract.spec.ts
+- Confidence: 0%
+- Functions detected: 8
+- Functions:
+  - [ ] describe callback (arrow, line 51)
+    - Confidence: 0%
+  - [ ] it callback (arrow, line 69)
+    - Confidence: 0%
+  - [ ] it callback (arrow, line 73)
+    - Confidence: 0%
+  - [ ] REQUIRED_EXPORT_MUTATIONS.forEach callback (arrow, line 74)
+    - Confidence: 0%
+  - [ ] it callback (arrow, line 79)
+    - Confidence: 0%
+  - [ ] REQUIRED_EXPORT_QUERIES.forEach callback (arrow, line 80)
+    - Confidence: 0%
+  - [ ] it callback (arrow, line 85)
+    - Confidence: 0%
+  - [ ] [       "onAnalyticsAlertsExportMirror",       "onAnalyticsBundleDailyExportSync",       "onAnalyticsCommerceDailyExportSync",       "onAnalyticsCommerceRollupExportSync",       "onAnalyticsDropDailyExportSync",       "onAnalyticsPageDailyExportSync",       "onAnalyticsSecurityDailyExportSync",       "onAnalyticsTaskDailyExportSync",       "onAnalyticsTaskRollupExportSync",       "onAnalyticsUserDailyExportSync",       "onAnalyticsUserRollupExportSync",       "onAnalyticsUserSecurityRollupExportSync",     ].forEach callback (arrow, line 99)
+    - Confidence: 0%
+
+## [ ] tests/contracts/telemetry-contracts.spec.ts
+- Confidence: 0%
+- Functions detected: 13
+- Functions:
+  - [ ] describe callback (arrow, line 15)
+    - Confidence: 0%
+  - [ ] it callback (arrow, line 16)
+    - Confidence: 0%
+  - [ ] it callback (arrow, line 22)
+    - Confidence: 0%
+  - [ ] aliases.forEach callback (arrow, line 28)
+    - Confidence: 0%
+  - [ ] it callback (arrow, line 33)
+    - Confidence: 0%
+  - [ ] TELEMETRY_MODULE_INDEXES.forEach callback (arrow, line 36)
+    - Confidence: 0%
+  - [ ] moduleIndex.eventNames.forEach callback (arrow, line 37)
+    - Confidence: 0%
+  - [ ] it callback (arrow, line 43)
+    - Confidence: 0%
+  - [ ] TELEMETRY_EVENT_NAMES.forEach callback (arrow, line 44)
+    - Confidence: 0%
+  - [ ] Object.keys(TELEMETRY_EVENT_ALIAS_MAP).forEach callback (arrow, line 48)
+    - Confidence: 0%
+  - [ ] describe callback (arrow, line 54)
+    - Confidence: 0%
+  - [ ] it callback (arrow, line 55)
+    - Confidence: 0%
+  - [ ] it callback (arrow, line 75)
+    - Confidence: 0%
+
+## [ ] tests/drops.spec.ts
+- Confidence: 0%
+- Functions detected: 2
+- Functions:
+  - [ ] test.describe callback (arrow, line 3)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 4)
+    - Confidence: 0%
+
+## [ ] tests/launch-qa.spec.ts
+- Confidence: 0%
+- Functions detected: 48
+- Functions:
+  - [ ] waitForGuestShell (function, line 6)
+    - Confidence: 0%
+  - [ ] test.describe callback (arrow, line 11)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 12)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 19)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 33)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 39)
+    - Confidence: 0%
+  - [ ] test.describe callback (arrow, line 48)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 49)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 57)
+    - Confidence: 0%
+  - [ ] test.describe callback (arrow, line 64)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 65)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 71)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 78)
+    - Confidence: 0%
+  - [ ] page.getByText(/sign in/i).first().isVisible().catch callback (arrow, line 82)
+    - Confidence: 0%
+  - [ ] page.locator("nav button").last().isVisible().catch callback (arrow, line 83)
+    - Confidence: 0%
+  - [ ] test.describe callback (arrow, line 89)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 90)
+    - Confidence: 0%
+  - [ ] test.describe callback (arrow, line 99)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 100)
+    - Confidence: 0%
+  - [ ] signIn.isVisible().catch callback (arrow, line 105)
+    - Confidence: 0%
+  - [ ] page.locator("[role=\"dialog\"], .fixed").first().isVisible().catch callback (arrow, line 112)
+    - Confidence: 0%
+  - [ ] page.locator("input[type=\"email\"]").first().isVisible().catch callback (arrow, line 113)
+    - Confidence: 0%
+  - [ ] page.getByText(/google/i).first().isVisible().catch callback (arrow, line 114)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 119)
+    - Confidence: 0%
+  - [ ] signIn.isVisible().catch callback (arrow, line 124)
+    - Confidence: 0%
+  - [ ] closeButton.isVisible().catch callback (arrow, line 132)
+    - Confidence: 0%
+  - [ ] test.describe callback (arrow, line 142)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 143)
+    - Confidence: 0%
+  - [ ] newButton.isVisible().catch callback (arrow, line 149)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 158)
+    - Confidence: 0%
+  - [ ] searchInput.isVisible().catch callback (arrow, line 164)
+    - Confidence: 0%
+  - [ ] test.describe callback (arrow, line 174)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 192)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 201)
+    - Confidence: 0%
+  - [ ] test.describe callback (arrow, line 207)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 210)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 217)
+    - Confidence: 0%
+  - [ ] test.describe callback (arrow, line 225)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 228)
+    - Confidence: 0%
+  - [ ] test.describe callback (arrow, line 240)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 241)
+    - Confidence: 0%
+  - [ ] page.evaluate callback (arrow, line 245)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 249)
+    - Confidence: 0%
+  - [ ] image.evaluate callback (arrow, line 263)
+    - Confidence: 0%
+  - [ ] test.describe callback (arrow, line 271)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 272)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 280)
+    - Confidence: 0%
+  - [ ] page.evaluate callback (arrow, line 284)
+    - Confidence: 0%
+
+## [ ] tests/qa-audit.spec.ts
+- Confidence: 0%
+- Functions detected: 6
+- Functions:
+  - [ ] captureWithViewport (function, line 18)
+    - Confidence: 0%
+  - [ ] page.waitForFunction callback (arrow, line 41)
+    - Confidence: 0%
+  - [ ] page.waitForFunction(() => {                 const backgroundColor = getComputedStyle(document.body).backgroundColor;                 return backgroundColor !== "rgba(0, 0, 0, 0)"                     && backgroundColor !== "rgb(255, 255, 255)"                     && backgroundColor !== "";             }, { timeout: 15_000 }).catch callback (arrow, line 46)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 68)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 72)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 76)
+    - Confidence: 0%
+
+## [ ] tests/visual.spec.ts
+- Confidence: 0%
+- Functions detected: 4
+- Functions:
+  - [ ] test.describe callback (arrow, line 3)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 5)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 17)
+    - Confidence: 0%
+  - [ ] test callback (arrow, line 28)
+    - Confidence: 0%
+
+## [ ] tests/visual.spec.ts-snapshots/admin-login-chromium-win32.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] tests/visual.spec.ts-snapshots/drops-grid-chromium-win32.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] tests/visual.spec.ts-snapshots/home-hero-chromium-win32.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] tests/visual.spec.ts-snapshots/home-hero-Mobile-Chrome-win32.png
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] tsconfig.json
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%
+
+## [ ] vitest.config.ts
+- Confidence: 0%
+- Functions detected: 0
+- Functions:
+  - [ ] None detected
+    - Confidence: 0%

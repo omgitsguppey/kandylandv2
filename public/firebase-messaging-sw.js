@@ -1,5 +1,7 @@
-importScripts("https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js");
-importScripts("https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js");
+const FIREBASE_SDK_VERSION = "12.10.0";
+
+importScripts(`https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}/firebase-app-compat.js`);
+importScripts(`https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}/firebase-messaging-compat.js`);
 
 const APP_SHELL_CACHE = "kandydrops-app-shell-v2";
 const APP_RUNTIME_CACHE = "kandydrops-runtime-v2";
