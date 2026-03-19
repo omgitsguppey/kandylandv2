@@ -42,6 +42,7 @@ export default function MobileBottomBar() {
                 {NAV_ITEMS.map((item) => {
                     const isAdmin = userProfile?.role === "admin";
                     const isGuest = !user;
+                    const href = item.label === "Home" && isAdmin ? "/?publicHome=1" : item.href;
 
                     // Role-based visibility
                     if (item.label === "Dashboard" && isGuest) return null;
@@ -53,11 +54,11 @@ export default function MobileBottomBar() {
                     return (
                         <Link
                             key={item.label}
-                            href={item.href}
+                            href={href}
                             data-onboarding-target={`${item.label.toLowerCase()}-nav`}
                             onClick={() => {
                                 triggerHaptic();
-                                trackEvent('navigation_click', { destination: item.href, source: 'mobile_bottom_bar' });
+                                trackEvent('navigation_click', { destination: href, source: 'mobile_bottom_bar' });
                             }}
                             className={cn(
                                 "flex h-10 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-full px-2 py-1 text-center transition-colors active:scale-95",
