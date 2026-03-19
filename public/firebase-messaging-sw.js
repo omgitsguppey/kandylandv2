@@ -3,8 +3,8 @@ const FIREBASE_SDK_VERSION = "12.10.0";
 importScripts(`https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}/firebase-app-compat.js`);
 importScripts(`https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}/firebase-messaging-compat.js`);
 
-const APP_SHELL_CACHE = "kandydrops-app-shell-v2";
-const APP_RUNTIME_CACHE = "kandydrops-runtime-v2";
+const APP_SHELL_CACHE = "kandydrops-app-shell-v3";
+const APP_RUNTIME_CACHE = "kandydrops-runtime-v3";
 const NOTIFICATION_ICON = "/icon-192x192.png";
 const OFFLINE_FALLBACK_URL = "/offline";
 const PRECACHE_URLS = [
@@ -119,7 +119,6 @@ self.addEventListener("fetch", (event) => {
         PRECACHE_URLS.includes(requestUrl.pathname) ||
         request.destination === "image" ||
         request.destination === "style" ||
-        request.destination === "script" ||
         request.destination === "font";
 
     if (shouldHandleAsStatic) {
