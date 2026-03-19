@@ -102,7 +102,11 @@ self.addEventListener("fetch", (event) => {
     }
 
     const requestUrl = new URL(request.url);
-    if (requestUrl.origin !== self.location.origin || requestUrl.pathname.startsWith("/api/")) {
+    if (
+        requestUrl.origin !== self.location.origin
+        || requestUrl.pathname.startsWith("/api/")
+        || requestUrl.pathname.startsWith("/__/")
+    ) {
         return;
     }
 

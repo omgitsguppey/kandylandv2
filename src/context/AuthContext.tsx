@@ -303,11 +303,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } catch (error: unknown) {
             const firebaseError = error as { code?: string };
 
-            if (
-                firebaseError?.code === "auth/internal-error"
-                || firebaseError?.code === "auth/popup-blocked"
-                || firebaseError?.code === "auth/cancelled-popup-request"
-            ) {
+            if (firebaseError?.code === "auth/popup-blocked") {
                 const provider = new GoogleAuthProvider();
                 provider.setCustomParameters({ prompt: "select_account" });
                 setGoogleRedirectPending(true);
