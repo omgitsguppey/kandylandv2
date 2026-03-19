@@ -61,6 +61,23 @@ function ensureAuthPersistence() {
     return persistencePromise;
 }
 
+function normalizeAuthErrorMessage(error: unknown) {
+    const firebaseError = error as { code?: string; message?: string };
+
+    switch (firebaseError?.code) {
+        case "auth/popup-closed-by-user":
+            return "Google sign-in was cancelled before it finished.";
+        case "auth/popup-blocked":
+            return "Your browser blocked the Google sign-in popup. Please allow popups and try again.";
+        case "auth/cancelled-popup-request":
+            return "Another sign-in request interrupted the Google popup. Please try again.";
+        case "auth/internal-error":
+            return "Google sign-in could not finish on this domain. Please refresh and try again.";
+        default:
+            return firebaseError?.message || "Authentication failed";
+    }
+}
+
 
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -227,9 +244,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 router.push(getPostAuthDestination(userProfile?.role));
             }
         } catch (error: unknown) {
-            const message = error instanceof Error ? error.message : "Login failed";
+            const message = normalizeAuthErrorMessage(error);
             toast.error(message);
-            throw error;
+            throw new Error(message);
         }
     }, [getPostAuthDestination, pathname, router, userProfile?.role]);
 

@@ -17,24 +17,19 @@ function isFirebaseDefaultAuthHost(host: string | undefined) {
   ));
 }
 
+function buildDefaultAuthDomain(projectId: string | undefined) {
+  return projectId ? `${projectId}.firebaseapp.com` : undefined;
+}
+
 function resolvePreferredAuthDomain() {
   const configuredAuthDomain = normalizePublicEnv(process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN);
-  const configuredSiteHosts = getConfiguredSiteHosts();
-  const runtimeSiteHost = typeof window !== "undefined" ? window.location.host : undefined;
+  const configuredProjectId = normalizePublicEnv(process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID);
 
-  if (runtimeSiteHost && configuredSiteHosts.includes(runtimeSiteHost) && !isLocalHost(runtimeSiteHost)) {
-    return runtimeSiteHost;
+  if (configuredAuthDomain) {
+    return configuredAuthDomain;
   }
 
-  const configuredSiteHost = configuredSiteHosts.find((host) => !isLocalHost(host));
-
-  if (configuredSiteHost && !isLocalHost(configuredSiteHost)) {
-    if (!configuredAuthDomain || isFirebaseDefaultAuthHost(configuredAuthDomain)) {
-      return configuredSiteHost;
-    }
-  }
-
-  return configuredAuthDomain;
+  return buildDefaultAuthDomain(configuredProjectId);
 }
 
 function buildDefaultDatabaseUrl(projectId: string | undefined) {
@@ -121,6 +116,7 @@ export function getFirebaseRuntimeWarnings() {
   if (
     configuredSiteHosts.length > 0
     && FIREBASE_AUTH_DOMAIN
+    && !isFirebaseDefaultAuthHost(FIREBASE_AUTH_DOMAIN)
     && !configuredSiteHosts.includes(FIREBASE_AUTH_DOMAIN)
   ) {
     warnings.push("Firebase auth domain does not match any configured site origin host");
