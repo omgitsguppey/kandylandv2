@@ -6,6 +6,8 @@ import {
     User,
     GoogleAuthProvider,
     signInWithPopup,
+    signInWithRedirect,
+    getRedirectResult,
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     setPersistence,
@@ -49,6 +51,7 @@ interface AuthContextType extends AuthIdentityContextType, UserProfileContextTyp
 const AuthContext = createContext<AuthContextType | null>(null);
 
 let persistencePromise: Promise<void> | null = null;
+const GOOGLE_REDIRECT_PENDING_KEY = "auth_google_redirect_pending";
 
 function ensureAuthPersistence() {
     if (!persistencePromise) {
@@ -78,6 +81,51 @@ function normalizeAuthErrorMessage(error: unknown) {
     }
 }
 
+function isLocalBrowserHost(host: string | undefined) {
+    return Boolean(host && /^(localhost|127\.0\.0\.1)(:\d+)?$/i.test(host));
+}
+
+function isFirebaseHostedBrowserHost(host: string | undefined) {
+    return Boolean(host && (
+        host.endsWith(".firebaseapp.com")
+        || host.endsWith(".web.app")
+        || host.endsWith(".hosted.app")
+    ));
+}
+
+function shouldPreferGoogleRedirect() {
+    if (typeof window === "undefined") {
+        return false;
+    }
+
+    const host = window.location.host;
+    if (!host || isLocalBrowserHost(host)) {
+        return false;
+    }
+
+    return !isFirebaseHostedBrowserHost(host);
+}
+
+function setGoogleRedirectPending(value: boolean) {
+    if (typeof window === "undefined") {
+        return;
+    }
+
+    if (value) {
+        window.sessionStorage.setItem(GOOGLE_REDIRECT_PENDING_KEY, "1");
+    } else {
+        window.sessionStorage.removeItem(GOOGLE_REDIRECT_PENDING_KEY);
+    }
+}
+
+function hasGoogleRedirectPending() {
+    if (typeof window === "undefined") {
+        return false;
+    }
+
+    return window.sessionStorage.getItem(GOOGLE_REDIRECT_PENDING_KEY) === "1";
+}
+
 
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -95,28 +143,62 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     useEffect(() => {
-        ensureAuthPersistence().catch(() => { });
+        let unsubscribe = () => { };
+        let cancelled = false;
 
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-            setUser(currentUser);
+        const initializeAuth = async () => {
+            try {
+                await ensureAuthPersistence();
 
-            if (!initialAuthResolvedRef.current && currentUser) {
-                trackEvent("auth_session_restored", {
-                    restoration_source: "browser_local_persistence",
-                    auth_provider: currentUser.providerData[0]?.providerId || "unknown",
+                try {
+                    const redirectResult = await getRedirectResult(auth);
+                    if (!cancelled && redirectResult?.user) {
+                        setGoogleRedirectPending(false);
+                        toast.success("Welcome back!");
+                        if (pathname === "/") {
+                            router.push(getPostAuthDestination(userProfile?.role));
+                        }
+                    } else if (!cancelled && hasGoogleRedirectPending()) {
+                        setGoogleRedirectPending(false);
+                    }
+                } catch (error: unknown) {
+                    if (!cancelled) {
+                        setGoogleRedirectPending(false);
+                        toast.error(normalizeAuthErrorMessage(error));
+                    }
+                }
+
+                unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+                    setUser(currentUser);
+
+                    if (!initialAuthResolvedRef.current && currentUser) {
+                        trackEvent("auth_session_restored", {
+                            restoration_source: "browser_local_persistence",
+                            auth_provider: currentUser.providerData[0]?.providerId || "unknown",
+                        });
+                    }
+                    initialAuthResolvedRef.current = true;
+
+                    if (currentUser === null) {
+                        autoRegisterInFlightRef.current.clear();
+                        setUserProfile(null);
+                        setLoading(false);
+                    }
                 });
+            } catch {
+                if (!cancelled) {
+                    setLoading(false);
+                }
             }
-            initialAuthResolvedRef.current = true;
+        };
 
-            if (currentUser === null) {
-                autoRegisterInFlightRef.current.clear();
-                setUserProfile(null);
-                setLoading(false);
-            }
-        });
+        void initializeAuth();
 
-        return () => unsubscribe();
-    }, []);
+        return () => {
+            cancelled = true;
+            unsubscribe();
+        };
+    }, [getPostAuthDestination, pathname, router, userProfile?.role]);
 
     useEffect(() => {
         if (!user) {
@@ -237,6 +319,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const provider = new GoogleAuthProvider();
             provider.setCustomParameters({ prompt: "select_account" });
 
+            if (shouldPreferGoogleRedirect()) {
+                setGoogleRedirectPending(true);
+                await signInWithRedirect(auth, provider);
+                return;
+            }
+
             await signInWithPopup(auth, provider);
 
             toast.success("Welcome back!");
@@ -244,6 +332,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 router.push(getPostAuthDestination(userProfile?.role));
             }
         } catch (error: unknown) {
+            const firebaseError = error as { code?: string };
+
+            if (
+                firebaseError?.code === "auth/internal-error"
+                || firebaseError?.code === "auth/popup-blocked"
+                || firebaseError?.code === "auth/cancelled-popup-request"
+            ) {
+                const provider = new GoogleAuthProvider();
+                provider.setCustomParameters({ prompt: "select_account" });
+                setGoogleRedirectPending(true);
+                await signInWithRedirect(auth, provider);
+                return;
+            }
+
             const message = normalizeAuthErrorMessage(error);
             toast.error(message);
             throw new Error(message);
