@@ -30,6 +30,7 @@ async function proxyFirebaseHelper(
 
     const responseHeaders = new Headers(upstreamResponse.headers);
     responseHeaders.delete("content-encoding");
+    responseHeaders.delete("content-length");
     responseHeaders.delete("transfer-encoding");
 
     return new Response(upstreamResponse.body, {
