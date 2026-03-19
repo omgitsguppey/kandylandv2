@@ -2,6 +2,8 @@ import { NextRequest } from "next/server";
 
 import { FIREBASE_PROJECT_ID } from "@/lib/firebase-runtime";
 
+const FIREBASE_AUTH_HELPER_ASSET_VERSION = "20260319c";
+
 function buildFirebaseAuthProxyUrl(pathSegments: string[], search: string) {
     const projectId = FIREBASE_PROJECT_ID?.trim();
     if (!projectId) {
@@ -36,7 +38,15 @@ async function proxyAuthHelper(request: NextRequest, pathSegments: string[]) {
         body: request.method === "GET" || request.method === "HEAD" ? undefined : await request.arrayBuffer(),
         redirect: "manual",
     });
-    const upstreamBody = await upstreamResponse.arrayBuffer();
+    const contentType = upstreamResponse.headers.get("content-type") || "";
+    let responseBody: BodyInit = await upstreamResponse.arrayBuffer();
+
+    if (contentType.includes("text/html")) {
+        const html = new TextDecoder().decode(responseBody as ArrayBuffer);
+        responseBody = html
+            .replaceAll('src="experiments.js"', `src="experiments.js?v=${FIREBASE_AUTH_HELPER_ASSET_VERSION}"`)
+            .replaceAll('src="handler.js"', `src="handler.js?v=${FIREBASE_AUTH_HELPER_ASSET_VERSION}"`);
+    }
 
     const responseHeaders = new Headers(upstreamResponse.headers);
     responseHeaders.delete("content-encoding");
@@ -46,7 +56,7 @@ async function proxyAuthHelper(request: NextRequest, pathSegments: string[]) {
     responseHeaders.set("pragma", "no-cache");
     responseHeaders.set("expires", "0");
 
-    return new Response(upstreamBody, {
+    return new Response(responseBody, {
         status: upstreamResponse.status,
         statusText: upstreamResponse.statusText,
         headers: responseHeaders,
