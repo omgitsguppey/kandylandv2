@@ -7,7 +7,6 @@ import { requestAllowsAnonymousAnalytics, requestHasGlobalPrivacyControl } from 
 import { TELEMETRY_EVENT_INDEX_VERSION } from "@/lib/telemetry-catalog";
 import { buildAnalyticsTimeKeys } from "@/lib/server/analytics-event-utils";
 import { recordAnalyticsPipelineFailure } from "@/lib/server/analytics-pipeline-health";
-import { touchAnalyticsRuntime } from "@/lib/server/analytics-runtime";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 import { ANALYTICS_BATCH_ID_PATTERN, createAnalyticsBatchId, createAnalyticsStorageKey } from "@/lib/analytics-identifiers";
@@ -209,8 +208,6 @@ export async function POST(request: NextRequest) {
         if (transactionResult.deduped) {
             return NextResponse.json({ success: true, deduped: true, processed: 0 });
         }
-
-        await touchAnalyticsRuntime(nowMs);
 
         const response = NextResponse.json({ success: true, processed: events.length });
         if (shouldSetCookie) {

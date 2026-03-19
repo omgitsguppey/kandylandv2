@@ -42,6 +42,120 @@ import { ADMIN_ANALYTICS } from "@/lib/server/rate-limit";
 const propertyId = getAdminAnalyticsPropertyId();
 const analyticsClient = createAdminAnalyticsDataClient();
 
+function scopeHistoricalResponse(section: string | null, payload: Record<string, unknown>) {
+    switch (section) {
+        case "stationSnapshot":
+            return {
+                totals: payload.totals,
+                devices: payload.devices,
+                commerce: payload.commerce,
+                security: payload.security,
+            };
+        case "livePulse":
+            return {
+                funnel: payload.funnel,
+                onboardingStats: payload.onboardingStats,
+            };
+        case "journeyFunnel":
+            return { funnel: payload.funnel };
+        case "authOutcomeSplit":
+            return { authBreakdown: payload.authBreakdown };
+        case "onboardingVelocity":
+            return {
+                onboardingStats: payload.onboardingStats,
+                onboardingStepStats: payload.onboardingStepStats,
+                onboardingDurationBuckets: payload.onboardingDurationBuckets,
+            };
+        case "eventMix":
+            return { eventBreakdown: payload.eventBreakdown };
+        case "liveInteractionStream":
+            return { rawEvents: payload.rawEvents };
+        case "serverTelemetryHealth":
+            return { opsHealth: payload.opsHealth };
+        case "coverageEngine":
+            return {
+                moduleCoverage: payload.moduleCoverage,
+                unhealthyModules: payload.unhealthyModules,
+                parityScore: payload.parityScore,
+            };
+        case "categorySemantics":
+            return { semanticCategories: payload.semanticCategories };
+        case "creatorMetrics":
+            return { socialMetrics: payload.socialMetrics };
+        case "semanticsEngine":
+            return { semanticEngine: payload.semanticEngine };
+        case "dataValidation":
+            return { validations: payload.validations };
+        case "audienceSnapshot":
+            return {
+                data: payload.data,
+                totals: payload.totals,
+                devices: payload.devices,
+            };
+        case "returnCadence":
+            return { repeatVisitSegments: payload.repeatVisitSegments };
+        case "navigationDestinations":
+            return { destinationMix: payload.destinationMix };
+        case "deviceMix":
+            return { devices: payload.devices };
+        case "topPaths":
+            return { pages: payload.pages };
+        case "regions":
+            return { geo: payload.geo };
+        case "commerceSnapshot":
+            return {
+                commerce: payload.commerce,
+                funnel: payload.funnel,
+            };
+        case "packagePerformance":
+            return { packagePerformance: payload.packagePerformance };
+        case "contentConversion":
+            return { unlockCategoryMix: payload.unlockCategoryMix };
+        case "topDropConversion":
+            return { topDrops: payload.topDrops };
+        case "recentCommerceFeed":
+            return { commerce: payload.commerce };
+        case "viewerDrilldown":
+            return {
+                viewerOverview: payload.viewerOverview,
+                viewerDropInsights: payload.viewerDropInsights,
+                viewerUsers: payload.viewerUsers,
+                viewerFilter: payload.viewerFilter,
+            };
+        case "viewerJourney":
+            return { contentJourney: payload.contentJourney };
+        case "watchDepthTags":
+            return {
+                watchDepthBuckets: payload.watchDepthBuckets,
+                contentTagDemand: payload.contentTagDemand,
+            };
+        case "securityPosture":
+            return {
+                security: payload.security,
+                funnel: payload.funnel,
+            };
+        case "dailyTaskPipeline":
+            return {
+                taskGuidance: payload.taskGuidance,
+                taskPipeline: payload.taskPipeline,
+            };
+        case "taskCompletionSpeed":
+            return { taskDurationBuckets: payload.taskDurationBuckets };
+        case "taskLeaderboard":
+            return { taskLeaderboard: payload.taskLeaderboard };
+        case "notificationFunnel":
+            return {
+                notificationFunnel: payload.notificationFunnel,
+                notificationActions: payload.notificationActions,
+                reminderReasons: payload.reminderReasons,
+            };
+        case "flaggedAccounts":
+            return { security: payload.security };
+        default:
+            return payload;
+    }
+}
+
 export async function GET(request: NextRequest) {
     try {
         await guardApiRequest(request, {
@@ -56,6 +170,7 @@ export async function GET(request: NextRequest) {
         const searchParams = request.nextUrl.searchParams;
         const period = searchParams.get("period"); // "24h", "7d", "30d", "all"
         const viewerUser = searchParams.get("viewerUser")?.trim() || "";
+        const section = searchParams.get("section")?.trim() || null;
 
         if (!propertyId) {
             return NextResponse.json({
@@ -559,8 +674,7 @@ export async function GET(request: NextRequest) {
                 commerceSummaryDoc: commerceSummarySnapshot,
             });
 
-            return NextResponse.json({
-                success: true,
+            const payload = {
                 data: chartData,
                 totals,
                 events: eventsData,
@@ -613,6 +727,11 @@ export async function GET(request: NextRequest) {
                 parityScore,
                 validations,
                 opsHealth,
+            };
+
+            return NextResponse.json({
+                success: true,
+                ...scopeHistoricalResponse(section, payload),
             });
 
     } catch (error) {

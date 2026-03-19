@@ -4,7 +4,6 @@ import * as admin from "firebase-admin";
 
 import { adminDb } from "./firebase-admin";
 import { buildAnalyticsTimeKeys, resolveTrackedTelemetryEvent } from "./analytics-event-utils";
-import { touchAnalyticsRuntime } from "./analytics-runtime";
 import { buildAnalyticsSemanticParams } from "@/lib/analytics-semantics";
 
 function sanitizeServerParams(params: Record<string, unknown>) {
@@ -119,7 +118,6 @@ export async function trackServerEvent(
         params: enrichedParams,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
       }),
-      touchAnalyticsRuntime(nowMs),
     ]);
   } catch (error) {
     console.error("Failed to mirror server event into analytics facts:", error);

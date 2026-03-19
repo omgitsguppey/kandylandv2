@@ -543,7 +543,8 @@ const EVENT_LABELS: Record<string, string> = TELEMETRY_EVENT_LABELS;
 const PIE_COLORS = ["#b28cff", "#7c3aed", "#22d3ee", "#f472b6", "#34d399", "#f59e0b"];
 
 const INITIAL_ANALYTICS_NOW = Date.now();
-const SECTION_FILTER_OPTIONS = RANGE_OPTIONS;
+const GLOBAL_RANGE_OPTIONS = RANGE_OPTIONS.filter((option) => option.value !== "1h" && option.value !== "6h");
+const SECTION_FILTER_OPTIONS = GLOBAL_RANGE_OPTIONS;
 const EMPTY_OPS_HEALTH: AdminOpsHealth = {
   score: 0,
   runtime: {
@@ -639,8 +640,8 @@ function buildSectionRangeState(defaultRange: RangeOption): Record<HistoricalSec
   ) as Record<HistoricalSectionId, RangeOption>;
 }
 
-function buildHistoricalOverrideKey(period: RangeOption, viewerUserFilter: string) {
-  return `${period}::${viewerUserFilter.trim().toLowerCase() || "__all__"}`;
+function buildHistoricalOverrideKey(sectionId: HistoricalSectionId, period: RangeOption, viewerUserFilter: string) {
+  return `${sectionId}::${period}::${viewerUserFilter.trim().toLowerCase() || "__all__"}`;
 }
 
 function filterOptionLabel(value: RangeOption) {
@@ -966,8 +967,8 @@ export default function AdminAnalyticsPage() {
     historicalOverridesRef.current = historicalOverrides;
   }, [historicalOverrides]);
 
-  const fetchHistoricalOverride = useCallback(async (period: RangeOption, viewerFilterValue: string, force = false) => {
-    const key = buildHistoricalOverrideKey(period, viewerFilterValue);
+  const fetchHistoricalOverride = useCallback(async (sectionId: HistoricalSectionId, period: RangeOption, viewerFilterValue: string, force = false) => {
+    const key = buildHistoricalOverrideKey(sectionId, period, viewerFilterValue);
     const existingEntry = historicalOverridesRef.current[key];
     const staleAfterMs = period === "24h" || period === "3d" ? 15_000 : 25_000;
 
@@ -994,7 +995,7 @@ export default function AdminAnalyticsPage() {
     const requestPromise = (async () => {
       try {
         const response = await authFetch(
-          `/api/admin/analytics/historical?period=${period}${viewerFilterValue ? `&viewerUser=${encodeURIComponent(viewerFilterValue)}` : ""}`,
+          `/api/admin/analytics/historical?period=${period}&section=${sectionId}${viewerFilterValue ? `&viewerUser=${encodeURIComponent(viewerFilterValue)}` : ""}`,
         );
         const result = await response.json() as HistoricalAnalyticsResponse;
 
@@ -1037,7 +1038,7 @@ export default function AdminAnalyticsPage() {
 
   const activeOverrideTargets = useMemo(() => {
     const seen = new Set<string>();
-    const targets: Array<{ key: string; period: RangeOption; viewerFilterValue: string }> = [];
+    const targets: Array<{ key: string; sectionId: HistoricalSectionId; period: RangeOption; viewerFilterValue: string }> = [];
 
     visibleSectionIds.forEach((sectionId) => {
       const sectionRange = sectionRanges[sectionId] ?? range;
@@ -1045,13 +1046,13 @@ export default function AdminAnalyticsPage() {
         return;
       }
 
-      const key = buildHistoricalOverrideKey(sectionRange, viewerUserFilter);
+      const key = buildHistoricalOverrideKey(sectionId, sectionRange, viewerUserFilter);
       if (seen.has(key)) {
         return;
       }
 
       seen.add(key);
-      targets.push({ key, period: sectionRange, viewerFilterValue: viewerUserFilter });
+      targets.push({ key, sectionId, period: sectionRange, viewerFilterValue: viewerUserFilter });
     });
 
     return targets;
@@ -1059,14 +1060,14 @@ export default function AdminAnalyticsPage() {
 
   useEffect(() => {
     activeOverrideTargets.forEach((target) => {
-      void fetchHistoricalOverride(target.period, target.viewerFilterValue);
+      void fetchHistoricalOverride(target.sectionId, target.period, target.viewerFilterValue);
     });
   }, [activeOverrideTargets, fetchHistoricalOverride]);
 
   useEffect(() => {
     const refreshVisibleOverrides = () => {
       activeOverrideTargets.forEach((target) => {
-        void fetchHistoricalOverride(target.period, target.viewerFilterValue, true);
+        void fetchHistoricalOverride(target.sectionId, target.period, target.viewerFilterValue, true);
       });
     };
 
@@ -1097,7 +1098,7 @@ export default function AdminAnalyticsPage() {
       return historicalResponse;
     }
 
-    return historicalOverrides[buildHistoricalOverrideKey(sectionRange, viewerUserFilter)]?.data;
+    return historicalOverrides[buildHistoricalOverrideKey(sectionId, sectionRange, viewerUserFilter)]?.data;
   }, [historicalOverrides, historicalResponse, range, sectionRanges, viewerUserFilter]);
 
   const getSectionRangeValue = useCallback((sectionId: HistoricalSectionId) => {
@@ -1110,7 +1111,7 @@ export default function AdminAnalyticsPage() {
       return historicalLoading;
     }
 
-    return historicalOverrides[buildHistoricalOverrideKey(sectionRange, viewerUserFilter)]?.isLoading ?? false;
+    return historicalOverrides[buildHistoricalOverrideKey(sectionId, sectionRange, viewerUserFilter)]?.isLoading ?? false;
   }, [historicalLoading, historicalOverrides, range, sectionRanges, viewerUserFilter]);
 
   useEffect(() => {
@@ -1156,7 +1157,7 @@ export default function AdminAnalyticsPage() {
             scheduleRealtimeRefresh(historyTimeoutRef, 3_500, () => {
               void refreshHistorical();
               activeOverrideTargets.forEach((target) => {
-                void fetchHistoricalOverride(target.period, target.viewerFilterValue, true);
+                void fetchHistoricalOverride(target.sectionId, target.period, target.viewerFilterValue, true);
               });
             });
           },
@@ -1320,45 +1321,22 @@ export default function AdminAnalyticsPage() {
   const totalDeviceUsers = devices.reduce((sum, item) => sum + item.users, 0);
   const mobileUsers = devices.find((item) => item.device.toLowerCase() === "mobile")?.users ?? 0;
   const mobileShare = totalDeviceUsers > 0 ? mobileUsers / totalDeviceUsers : 0;
-  const previewToUnlockRate = funnel.previewOpens > 0 ? funnel.unlocks / funnel.previewOpens : 0;
-  const checkoutToPurchaseRate = funnel.checkoutStarts > 0 ? funnel.purchases / funnel.checkoutStarts : 0;
-  const securityAlerts = security.filter((item) => isRecentViolation(item.lastViolation, nowMs)).length;
-  const onboardingSourceLabel = formatDataSourceLabel(onboardingStats.startSource);
-  const healthyModuleCount = moduleCoverage.filter((item) => item.status === "healthy").length;
-  const partialModuleCount = moduleCoverage.filter((item) => item.status === "partial").length;
-  const emptyModuleCount = moduleCoverage.filter((item) => item.status === "empty").length;
-  const healthyMaterializerCount = opsHealth.materializers.filter((item) => item.status === "healthy").length;
-  const unhealthyMaterializerCount = opsHealth.materializers.filter((item) => item.status !== "healthy").length;
 
   const topEvents = eventBreakdown.slice(0, 8).map((entry) => ({
     ...entry,
     label: EVENT_LABELS[entry.eventName] || entry.eventName.replaceAll("_", " "),
   }));
-  const semanticCategoryCards = semanticCategories.map((item) => ({
-    ...item,
-    avgViewLabel: formatDuration(item.avgViewSeconds * 1000),
-    watchLabel: item.watchSecondsTotal > 0 ? formatDuration(item.watchSecondsTotal * 1000) : "0s",
-    returnActions: item.signInCount + item.returnCount + item.logoutCount,
-  }));
-  const socialMetricCategoryCards = socialMetrics.categories.map((category) => ({
-    ...category,
-    headline: category.metrics[0]?.formattedValue ?? "0",
-    healthyCount: category.metrics.filter((metric) => metric.status === "healthy").length,
-  }));
-  const viewerDropChartData = viewerDropInsights.slice(0, 8).map((item) => ({
-    ...item,
-    shortLabel: item.dropTitle.length > 16 ? `${item.dropTitle.slice(0, 16)}...` : item.dropTitle,
-  }));
 
   const stationSnapshotRange = getSectionRangeValue("stationSnapshot");
   const stationSnapshotData = getHistoricalResponseForSection("stationSnapshot");
+  const stationSnapshotTotals = stationSnapshotData?.totals ?? totals;
   const stationSnapshotCommerce = stationSnapshotData?.commerce ?? commerce;
   const stationSnapshotDevices = stationSnapshotData?.devices ?? devices;
   const stationSnapshotSecurity = stationSnapshotData?.security ?? security;
   const stationSnapshotTotalDeviceUsers = stationSnapshotDevices.reduce((sum, item) => sum + item.users, 0);
   const stationSnapshotMobileUsers = stationSnapshotDevices.find((item) => item.device.toLowerCase() === "mobile")?.users ?? 0;
   const stationSnapshotMobileShare = stationSnapshotTotalDeviceUsers > 0 ? stationSnapshotMobileUsers / stationSnapshotTotalDeviceUsers : 0;
-  const stationSnapshotSecurityAlerts = stationSnapshotSecurity.filter((item) => isRecentViolation(item.lastViolation, nowMs)).length;
+  const stationSnapshotSecuritySignals = stationSnapshotSecurity.reduce((sum, item) => sum + item.ripAttempts, 0);
 
   const livePulseRange = getSectionRangeValue("livePulse");
   const livePulseData = getHistoricalResponseForSection("livePulse");
@@ -1487,7 +1465,7 @@ export default function AdminAnalyticsPage() {
   const securityPostureData = getHistoricalResponseForSection("securityPosture");
   const securityPostureItems = securityPostureData?.security ?? security;
   const securityPostureFunnel = securityPostureData?.funnel ?? funnel;
-  const securityPostureAlerts = securityPostureItems.filter((item) => isRecentViolation(item.lastViolation, nowMs)).length;
+  const securityPostureViolationCount = securityPostureItems.reduce((sum, item) => sum + item.ripAttempts, 0);
 
   const dailyTaskPipelineRange = getSectionRangeValue("dailyTaskPipeline");
   const dailyTaskPipelineData = getHistoricalResponseForSection("dailyTaskPipeline");
@@ -1560,24 +1538,24 @@ export default function AdminAnalyticsPage() {
         collapsedPreview={(
           <CompactPreviewList
             items={[
-              { label: "Live GA", value: formatCompactNumber(liveResponse?.totalActive ?? 0), tone: "accent" },
+              { label: "Users", value: formatCompactNumber(stationSnapshotTotals.users), tone: "accent" },
               { label: "Mobile Share", value: formatPercent(stationSnapshotMobileShare) },
               { label: "Revenue", value: formatMoney(stationSnapshotCommerce.revenueUsd) },
-              { label: "Security Alerts", value: stationSnapshotSecurityAlerts.toLocaleString() },
+              { label: "Violation Events", value: stationSnapshotSecuritySignals.toLocaleString() },
             ]}
           />
         )}
       >
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <MetricCard label="Live GA" value={formatCompactNumber(liveResponse?.totalActive ?? 0)} hint="Active in the last 30 mins" icon={Activity} />
+          <MetricCard label="Active Users" value={formatCompactNumber(stationSnapshotTotals.users)} hint={`${stationSnapshotTotals.newUsers.toLocaleString()} new users in range`} icon={Users} />
           <MetricCard label="Mobile Share" value={formatPercent(stationSnapshotMobileShare)} hint={`${stationSnapshotMobileUsers.toLocaleString()} mobile users in range`} icon={Smartphone} />
           <MetricCard label="Revenue" value={formatMoney(stationSnapshotCommerce.revenueUsd)} hint={`${filterOptionLabel(stationSnapshotRange)} tracked revenue`} icon={DollarSign} />
           <MetricCard
-            label="Security Alerts"
-            value={stationSnapshotSecurityAlerts.toLocaleString()}
-            hint={stationSnapshotSecurityAlerts > 0 ? "Violations in the last 24h" : "No fresh violations"}
+            label="Violation Events"
+            value={stationSnapshotSecuritySignals.toLocaleString()}
+            hint={`${stationSnapshotSecurity.length.toLocaleString()} flagged accounts in range`}
             icon={ShieldAlert}
-            valueClassName={stationSnapshotSecurityAlerts > 0 ? "text-2xl font-black tracking-tight text-red-400" : undefined}
+            valueClassName={stationSnapshotSecuritySignals > 0 ? "text-2xl font-black tracking-tight text-red-400" : undefined}
           />
         </div>
       </SectionCard>
@@ -1614,7 +1592,7 @@ export default function AdminAnalyticsPage() {
         </div>
 
         <div className="flex gap-2 overflow-x-auto pb-1">
-          {RANGE_OPTIONS.map((option) => (
+          {GLOBAL_RANGE_OPTIONS.map((option) => (
             <button
               key={option.value}
               type="button"
@@ -3190,7 +3168,7 @@ export default function AdminAnalyticsPage() {
               <CompactPreviewList
                 items={[
                   { label: "Flagged", value: securityPostureItems.length.toLocaleString(), tone: "accent" },
-                  { label: "Fresh alerts", value: securityPostureAlerts.toLocaleString() },
+                  { label: "Violation events", value: securityPostureViolationCount.toLocaleString() },
                   { label: "Experience views", value: securityPostureFunnel.experienceViews.toLocaleString() },
                   { label: "Viewer switches", value: securityPostureFunnel.assetSwitches.toLocaleString() },
                 ]}
@@ -3199,7 +3177,7 @@ export default function AdminAnalyticsPage() {
             >
               <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                 <MetricCard label="Flagged Users" value={securityPostureItems.length.toLocaleString()} hint="Users with recorded rip attempts" icon={ShieldAlert} />
-                <MetricCard label="Fresh Alerts" value={securityPostureAlerts.toLocaleString()} hint="Last 24 hours" icon={AlertTriangle} valueClassName={securityPostureAlerts > 0 ? "text-2xl font-black tracking-tight text-red-400" : undefined} />
+                <MetricCard label="Violation Events" value={securityPostureViolationCount.toLocaleString()} hint={`${filterOptionLabel(securityPostureRange)} recorded security events`} icon={AlertTriangle} valueClassName={securityPostureViolationCount > 0 ? "text-2xl font-black tracking-tight text-red-400" : undefined} />
                 <MetricCard label="Experience Views" value={securityPostureFunnel.experienceViews.toLocaleString()} hint="Signals around discovery" icon={Sparkles} />
                 <MetricCard label="Viewer Switches" value={securityPostureFunnel.assetSwitches.toLocaleString()} hint="Asset interactions in viewer" icon={PlayCircle} />
               </div>
