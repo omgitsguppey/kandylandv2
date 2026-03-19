@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
+import { RolloutProvider } from "@/context/RolloutContext";
 import { SWRProvider } from "@/context/SWRProvider";
 import { UIProvider } from "@/context/UIContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -86,21 +87,23 @@ export default function RootLayout({
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="antialiased min-h-[100dvh] app-bg text-white selection:bg-brand-purple selection:text-white flex flex-col">
         <AuthProvider>
-          <SWRProvider>
-            <UIProvider>
-              <CoreLayoutWrapper>
-                <main className="pt-24 pb-32 md:pb-0 flex-1 relative flex flex-col overflow-x-hidden">
+          <RolloutProvider>
+            <SWRProvider>
+              <UIProvider>
+                <CoreLayoutWrapper>
+                  <main className="pt-24 pb-32 md:pb-0 flex-1 relative flex flex-col overflow-x-hidden">
 
-                  {/* Content */}
-                  <div className="relative z-10 flex-1 w-full">
-                    <ErrorBoundary>
-                      {children}
-                    </ErrorBoundary>
-                  </div>
-                </main>
-              </CoreLayoutWrapper>
-            </UIProvider>
-          </SWRProvider>
+                    {/* Content */}
+                    <div className="relative z-10 flex-1 w-full">
+                      <ErrorBoundary>
+                        {children}
+                      </ErrorBoundary>
+                    </div>
+                  </main>
+                </CoreLayoutWrapper>
+              </UIProvider>
+            </SWRProvider>
+          </RolloutProvider>
         </AuthProvider>
       </body>
       <GoogleAnalytics gaId={googleAnalyticsId} />

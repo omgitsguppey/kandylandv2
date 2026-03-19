@@ -29,7 +29,8 @@ export type TelemetryModuleKey =
   | "viewer"
   | "engagement"
   | "admin"
-  | "security";
+  | "security"
+  | "runtime";
 
 export interface TelemetryEventOption {
   eventName: string;
@@ -158,6 +159,8 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "notification_prompt_install_help_opened", label: "Notification install help opened", category: "notifications", sources: DEFAULT_CLIENT_SOURCES, modules: ["notifications"] },
   { eventName: "feedback_modal_opened", label: "Feedback modal opened", category: "tasks", sources: DEFAULT_CLIENT_SOURCES, modules: ["tasks"] },
   { eventName: "feedback_submitted", label: "Feedback submitted", category: "tasks", sources: DEFAULT_CLIENT_SOURCES, modules: ["tasks"] },
+  { eventName: "feature_flag_exposed", label: "Feature flag exposed", category: "system", sources: DEFAULT_CLIENT_SOURCES, modules: ["runtime"] },
+  { eventName: "experiment_variant_exposed", label: "Experiment variant exposed", category: "system", sources: DEFAULT_CLIENT_SOURCES, modules: ["runtime"] },
   { eventName: "navigation_click", label: "Navigation click", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation"] },
   { eventName: "semantic_page_viewed", label: "Semantic page viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
   { eventName: "semantic_page_engaged", label: "Semantic page engaged", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
@@ -364,6 +367,15 @@ export const TELEMETRY_MODULE_INDEXES: TelemetryModuleIndex[] = [
       "asset_upload_failed",
     ],
     fallbackSources: ["analytics_event_facts", "ga4"],
+  },
+  {
+    key: "runtime",
+    label: "Runtime",
+    eventNames: [
+      "feature_flag_exposed",
+      "experiment_variant_exposed",
+    ],
+    fallbackSources: ["analytics_event_facts", "telemetry_logs"],
   },
   {
     key: "security",

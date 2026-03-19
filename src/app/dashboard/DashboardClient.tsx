@@ -1,10 +1,11 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { Star } from "lucide-react";
 
 import { useAuth } from "@/context/AuthContext";
+import { useRolloutVariant } from "@/context/RolloutContext";
 import { DailyCheckIn } from "@/components/Dashboard/DailyCheckIn";
 import { CollectionList } from "@/components/Dashboard/CollectionList";
 import { useDrops } from "@/hooks/useDrops";
@@ -28,19 +29,16 @@ interface DashboardClientProps {
     drops: Drop[];
 }
 
-const DASHBOARD_GREETING_VARIANTS = [
-    "Back for another taste, {name}?",
-    "We missed you, {name}!",
-    "Wanna unwrap more Kandy, {name}?",
-    "Welcome back to the Kandy Shop, {name}",
-    "Glad to see you here, {name}",
-];
+const DASHBOARD_GREETING_VARIANTS: Record<string, string> = {
+    taste: "Back for another taste, {name}?",
+    missed: "We missed you, {name}!",
+    shop: "Welcome back to the Kandy Shop, {name}",
+};
 
 export default function DashboardClient({ drops }: DashboardClientProps) {
     const { userProfile, loading } = useAuth();
-    const [greetingTemplate] = useState(
-        () => DASHBOARD_GREETING_VARIANTS[Math.floor(Math.random() * DASHBOARD_GREETING_VARIANTS.length)],
-    );
+    const greetingVariant = useRolloutVariant("dashboard_greeting_experiment", "taste");
+    const greetingTemplate = DASHBOARD_GREETING_VARIANTS[greetingVariant] || DASHBOARD_GREETING_VARIANTS.taste;
     const initialActiveDrops = useMemo(() => drops.filter((drop) => isDropActiveNow(drop)), [drops]);
     const { drops: liveActiveDrops, nowMs } = useDrops(["active"], initialActiveDrops);
     const visibleDrops = useMemo(() => {

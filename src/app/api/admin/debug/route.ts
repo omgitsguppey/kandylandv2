@@ -8,6 +8,7 @@ import { CANONICAL_TASK_EVENT_NAMES } from "@/lib/server/daily-tasks";
 import { TELEMETRY_EVENT_LABELS, TELEMETRY_EVENT_NAMES } from "@/lib/telemetry-catalog";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { buildAdminOpsHealth } from "@/lib/server/admin-ops-health";
+import { getConfiguredRollouts } from "@/lib/rollouts";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -18,6 +19,23 @@ function toNumber(value: unknown) {
 
 function toStringValue(value: unknown) {
     return typeof value === "string" ? value : "";
+}
+
+function toTimestampNumber(value: unknown) {
+    if (typeof value === "number" && Number.isFinite(value)) {
+        return value;
+    }
+
+    if (
+        value
+        && typeof value === "object"
+        && "toMillis" in value
+        && typeof (value as { toMillis: () => number }).toMillis === "function"
+    ) {
+        return (value as { toMillis: () => number }).toMillis();
+    }
+
+    return 0;
 }
 
 function inferTrackingSource(eventName: string) {
@@ -95,6 +113,7 @@ export async function GET(request: NextRequest) {
             guestBatchesSnapshot,
             securityEventsSnapshot,
             commerceSummarySnapshot,
+            feedbackSnapshot,
         ] = await Promise.all([
             adminDb.collection("users").get(),
             adminDb.collection("daily_task_events").orderBy("timestamp", "desc").limit(300).get(),
@@ -122,6 +141,7 @@ export async function GET(request: NextRequest) {
                 .limit(80)
                 .get(),
             adminDb.collection("analytics_commerce_rollup").doc("summary").get(),
+            adminDb.collection("platform_feedback").orderBy("timestamp", "desc").limit(160).get(),
         ]);
 
         const opsHealth = buildAdminOpsHealth({
@@ -352,6 +372,45 @@ export async function GET(request: NextRequest) {
             };
         }).sort((left, right) => left.dayKey.localeCompare(right.dayKey));
 
+        const bugReports = feedbackSnapshot.docs
+            .map((doc) => {
+                const data = doc.data() as Record<string, unknown>;
+                return {
+                    id: doc.id,
+                    userId: toStringValue(data.userId),
+                    email: toStringValue(data.email) || null,
+                    summary: toStringValue(data.summary) || toStringValue(data.message),
+                    message: toStringValue(data.message),
+                    category: toStringValue(data.category) || "general",
+                    status: toStringValue(data.status) || "new",
+                    issueType: toStringValue(data.issueType) || "other",
+                    severity: toStringValue(data.severity) || "medium",
+                    contextId: toStringValue(data.contextId),
+                    currentPath: toStringValue(data.currentPath),
+                    componentName: toStringValue(data.componentName),
+                    diagnosticsCount: toNumber(data.diagnosticsCount),
+                    breadcrumbsCount: toNumber(data.breadcrumbsCount),
+                    rolloutCount: toNumber(data.rolloutCount),
+                    timestamp: toTimestampNumber(data.timestamp),
+                    autoContext: (data.autoContext as Record<string, unknown> | undefined) ?? null,
+                    component: (data.component as Record<string, unknown> | undefined) ?? null,
+                };
+            })
+            .filter((item) => item.category === "bug_report")
+            .slice(0, 100);
+
+        const rollouts = getConfiguredRollouts().map((rollout) => ({
+            id: rollout.id,
+            label: rollout.label,
+            description: rollout.description,
+            kind: rollout.kind,
+            audience: rollout.audience,
+            enabled: rollout.enabled,
+            rolloutPercent: rollout.rolloutPercent,
+            defaultVariant: rollout.defaultVariant,
+            variants: rollout.variants,
+        }));
+
         return NextResponse.json({
             success: true,
             stats: {
@@ -366,6 +425,7 @@ export async function GET(request: NextRequest) {
                 rewardEventDeltaLast7d: completedEvents7d.length - rewardTransactions7d.length,
                 trackedTelemetryEvents: eventStats.length,
                 orphanedTelemetryEvents: orphanedEventStats.length,
+                bugReportsLast7d: bugReports.filter((report) => report.timestamp >= weekAgoMs).length,
             },
             coverage,
             unsupportedTasks,
@@ -379,6 +439,8 @@ export async function GET(request: NextRequest) {
             orphanedEventStats,
             taskRollups: taskRollups.slice(0, 30),
             dailyTaskSeries,
+            bugReports,
+            rollouts,
             opsHealth,
         });
     } catch (error) {

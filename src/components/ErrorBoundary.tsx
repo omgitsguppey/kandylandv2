@@ -3,6 +3,8 @@
 import { Component, ErrorInfo, ReactNode } from "react";
 import { AlertCircle, RefreshCw } from "lucide-react";
 import { captureException } from "@/lib/monitoring";
+import { recordClientError } from "@/lib/client-diagnostics";
+import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
 
 
 interface Props {
@@ -27,6 +29,10 @@ export class ErrorBoundary extends Component<Props, State> {
     public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
         console.error("Uncaught error:", error, errorInfo);
         captureException(error, { componentStack: errorInfo.componentStack });
+        recordClientError(error, {
+            componentStack: errorInfo.componentStack ?? undefined,
+            source: "error_boundary",
+        });
     }
 
     public render() {
@@ -50,13 +56,18 @@ export class ErrorBoundary extends Component<Props, State> {
                             </div>
                         )}
 
-                        <button
-                            onClick={() => window.location.reload()}
-                            className="inline-flex items-center gap-2 px-6 py-3 bg-white text-black rounded-xl font-bold transition-colors"
-                        >
-                            <RefreshCw className="w-4 h-4" />
-                            Reload Page
-                        </button>
+                        <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+                            <button
+                                onClick={() => window.location.reload()}
+                                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 font-bold text-black transition-colors"
+                            >
+                                <RefreshCw className="w-4 h-4" />
+                                Reload Page
+                            </button>
+                            <div className="inline-flex justify-center">
+                                <ReportBugButton context="error-boundary" label="Report this issue" variant="pill" />
+                            </div>
+                        </div>
                     </div>
                 </div>
             );

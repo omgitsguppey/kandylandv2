@@ -1,162 +1,348 @@
 "use client";
 
-import { useState } from "react";
-import { Bug, Loader2, X } from "lucide-react";
+import { useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
+import { Bug, ChevronDown, ChevronUp, Loader2, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { useAuth } from "@/context/AuthContext";
+import { useRolloutEnabled, useRollouts } from "@/context/RolloutContext";
 import { useUI } from "@/context/UIContext";
+import { dispatchActivitySync } from "@/lib/activity-sync";
 import { authFetch } from "@/lib/authFetch";
+import {
+  BUG_REPORT_ISSUE_OPTIONS,
+  type BugReportIssueType,
+  type BugReportSeverity,
+  buildBugReportSummary,
+  resolveBugReportComponentMeta,
+} from "@/lib/bug-reporting";
+import { getClientDebugSnapshot, recordClientDiagnostic } from "@/lib/client-diagnostics";
 import { trackEvent } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
-import { dispatchActivitySync } from "@/lib/activity-sync";
+
+type ReportBugButtonVariant = "text" | "pill" | "icon" | "floating";
 
 interface ReportBugButtonProps {
-    context: string;
-    className?: string;
-    label?: string;
+  context: string;
+  className?: string;
+  label?: string;
+  variant?: ReportBugButtonVariant;
+  defaultIssueType?: BugReportIssueType;
 }
 
 export function ReportBugButton({
-    context,
-    className,
-    label = "Report a bug",
+  context,
+  className,
+  label = "Report a bug",
+  variant = "text",
+  defaultIssueType = "action_failed",
 }: ReportBugButtonProps) {
-    const { user } = useAuth();
-    const { openAuthModal } = useUI();
-    const [isOpen, setIsOpen] = useState(false);
-    const [message, setMessage] = useState("");
-    const [submitting, setSubmitting] = useState(false);
+  const pathname = usePathname();
+  const { user } = useAuth();
+  const { assignments } = useRollouts();
+  const { openAuthModal } = useUI();
+  const autoContextEnabled = useRolloutEnabled("bug_report_auto_context_v2");
+  const [isOpen, setIsOpen] = useState(false);
+  const [note, setNote] = useState("");
+  const [issueType, setIssueType] = useState<BugReportIssueType>(defaultIssueType);
+  const [severity, setSeverity] = useState<BugReportSeverity>("medium");
+  const [submitting, setSubmitting] = useState(false);
+  const [showAutoContext, setShowAutoContext] = useState(false);
 
-    const openComposer = () => {
-        if (!user) {
-            openAuthModal("signup");
-            toast.info("Create a free profile so we can follow up on your report.");
-            return;
-        }
+  const componentMeta = useMemo(
+    () => resolveBugReportComponentMeta(context, pathname || "/"),
+    [context, pathname],
+  );
 
-        trackEvent("feedback_modal_opened", {
-            source: "inline_bug_report",
-            context,
-        });
-        setIsOpen(true);
-    };
+  const rolloutSnapshot = useMemo(
+    () => assignments.map((assignment) => ({
+      id: assignment.id,
+      variant: assignment.variant,
+      reason: assignment.reason,
+      active: assignment.active,
+    })),
+    [assignments],
+  );
 
-    const closeComposer = (force = false) => {
-        if (submitting && !force) {
-            return;
-        }
+  const snapshotPreview = useMemo(
+    () => autoContextEnabled
+      ? getClientDebugSnapshot(componentMeta, rolloutSnapshot)
+      : getClientDebugSnapshot(componentMeta, []),
+    [autoContextEnabled, componentMeta, rolloutSnapshot],
+  );
 
-        setIsOpen(false);
-        setMessage("");
-    };
+  const openComposer = () => {
+    if (!user) {
+      openAuthModal("signup");
+      toast.info("Create a free profile so we can follow up on your report.");
+      return;
+    }
 
-    const submitBugReport = async () => {
-        const trimmedMessage = message.trim();
+    trackEvent("feedback_modal_opened", {
+      source: "inline_bug_report",
+      context,
+      component_name: componentMeta.componentName,
+    });
+    setIsOpen(true);
+  };
 
-        if (trimmedMessage.length < 12) {
-            toast.error("Add a little more detail so we know what went wrong.");
-            return;
-        }
+  const closeComposer = (force = false) => {
+    if (submitting && !force) {
+      return;
+    }
 
-        setSubmitting(true);
-        try {
-            const response = await authFetch("/api/tasks/feedback", {
-                method: "POST",
-                body: JSON.stringify({
-                    message: `[${context}] ${trimmedMessage}`,
-                    category: "bug_report",
-                }),
-            });
-            const result = await response.json().catch(() => ({}));
+    setIsOpen(false);
+    setNote("");
+    setIssueType(defaultIssueType);
+    setSeverity("medium");
+    setShowAutoContext(false);
+  };
 
-            if (!response.ok) {
-                throw new Error(typeof result.error === "string" ? result.error : "Bug report failed");
-            }
+  const submitBugReport = async () => {
+    setSubmitting(true);
+    try {
+      const snapshot = autoContextEnabled
+        ? getClientDebugSnapshot(componentMeta, rolloutSnapshot)
+        : undefined;
+      const summary = buildBugReportSummary({
+        issueType,
+        severity,
+        component: componentMeta,
+        pathname: snapshot?.currentPath || pathname || componentMeta.routeHint || "/",
+        note,
+      });
 
-            trackEvent("feedback_submitted", {
-                category: "bug_report",
-                context,
-                message_length: trimmedMessage.length,
-            });
-            dispatchActivitySync();
-            toast.success("Bug report sent. Thanks for helping tighten things up.");
-            closeComposer(true);
-        } catch (error) {
-            toast.error(error instanceof Error ? error.message : "Bug report failed");
-        } finally {
-            setSubmitting(false);
-        }
-    };
+      const response = await authFetch("/api/tasks/feedback", {
+        method: "POST",
+        body: JSON.stringify({
+          message: note.trim(),
+          summary,
+          category: "bug_report",
+          contextId: context,
+          issueType,
+          severity,
+          component: componentMeta,
+          autoContext: snapshot,
+        }),
+      });
+      const result = await response.json().catch(() => ({}));
 
-    return (
-        <>
-            <button
+      if (!response.ok) {
+        throw new Error(typeof result.error === "string" ? result.error : "Bug report failed");
+      }
+
+      trackEvent("feedback_submitted", {
+        category: "bug_report",
+        context,
+        message_length: note.trim().length,
+        issue_type: issueType,
+        severity,
+      });
+      dispatchActivitySync();
+      toast.success("Bug report sent with runtime diagnostics attached.");
+      closeComposer(true);
+    } catch (error) {
+      recordClientDiagnostic("feedback", "Bug report submission failed", {
+        context,
+        issueType,
+        severity,
+        message: error instanceof Error ? error.message : String(error),
+      }, "error");
+      toast.error(error instanceof Error ? error.message : "Bug report failed");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const buttonClassName = cn(
+    "transition-colors active:scale-95",
+    variant === "floating"
+      ? "inline-flex h-11 items-center gap-2 rounded-full border border-white/10 bg-black/60 px-4 text-xs font-semibold text-gray-200 shadow-xl shadow-black/40 backdrop-blur-md hover:border-brand-purple/30 hover:text-white"
+      : variant === "pill"
+        ? "inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-gray-300 hover:border-brand-purple/30 hover:text-white"
+        : variant === "icon"
+          ? "inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-400 hover:border-brand-purple/30 hover:text-white"
+          : "inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400 hover:text-white",
+    className,
+  );
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={openComposer}
+        className={buttonClassName}
+        data-breadcrumb-label={`report-bug-${context}`}
+        aria-label={variant === "icon" ? label : undefined}
+      >
+        <Bug className="h-3.5 w-3.5" />
+        {variant === "icon" ? null : label}
+      </button>
+
+      {isOpen ? (
+        <div className="fixed inset-0 z-[140] flex items-end justify-center bg-black/80 p-0 backdrop-blur-md md:items-center md:p-4">
+          <div className="glass-panel flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-[2rem] border border-white/10 bg-zinc-950/95 p-5 md:max-w-xl md:rounded-[2rem] md:p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0">
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-brand-purple">
+                  Bug Report
+                </p>
+                <h2 className="mt-1 text-xl font-bold text-white">Share what broke</h2>
+                <p className="mt-2 text-sm leading-6 text-gray-400">
+                  {autoContextEnabled
+                    ? "We'll attach route state, diagnostics, recent actions, errors, and rollout assignments automatically."
+                    : "We'll capture the current screen context automatically and keep the rest lightweight."}
+                </p>
+              </div>
+              <button
                 type="button"
-                onClick={openComposer}
-                className={cn(
-                    "inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400 transition-colors hover:text-white",
-                    className,
-                )}
-            >
-                <Bug className="h-3.5 w-3.5" />
-                {label}
-            </button>
+                onClick={() => closeComposer()}
+                className="rounded-full border border-white/10 bg-white/5 p-2 text-gray-400 transition-colors hover:text-white"
+                aria-label="Close bug report"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
 
-            {isOpen ? (
-                <div className="fixed inset-0 z-[140] flex items-center justify-center bg-black/80 p-4 backdrop-blur-md">
-                    <div className="glass-panel w-full max-w-md rounded-[2rem] border border-white/10 p-5">
-                        <div className="flex items-start justify-between gap-4">
-                            <div>
-                                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-brand-purple">
-                                    Bug Report
-                                </p>
-                                <h2 className="mt-1 text-xl font-bold text-white">Tell us what felt off</h2>
-                                <p className="mt-2 text-sm leading-6 text-gray-400">
-                                    We&apos;ll log this with its screen context so the team can tighten the flow.
-                                </p>
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => closeComposer()}
-                                className="rounded-full border border-white/10 bg-white/5 p-2 text-gray-400 transition-colors hover:text-white"
-                                aria-label="Close bug report"
-                            >
-                                <X className="h-4 w-4" />
-                            </button>
-                        </div>
+            <div className="mt-4 flex flex-wrap gap-2 text-[11px]">
+              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-2 font-semibold text-gray-300">
+                Screen: {componentMeta.routeHint || snapshotPreview.currentPath}
+              </span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-2 font-semibold text-gray-300">
+                Component: {componentMeta.componentName}
+              </span>
+            </div>
 
-                        <div className="mt-4 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-[11px] font-semibold text-gray-300">
-                            Screen: {context}
-                        </div>
-
-                        <textarea
-                            value={message}
-                            onChange={(event) => setMessage(event.target.value)}
-                            className="mt-4 h-32 w-full rounded-[1.4rem] border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-gray-500 focus:border-brand-purple"
-                            placeholder="What happened, and what did you expect instead?"
-                        />
-
-                        <div className="mt-5 flex gap-3">
-                            <button
-                                type="button"
-                                onClick={() => closeComposer()}
-                                className="flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                type="button"
-                                onClick={submitBugReport}
-                                disabled={submitting}
-                                className="flex-1 rounded-full border border-brand-purple bg-brand-purple px-4 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
-                            >
-                                {submitting ? <Loader2 className="mx-auto h-5 w-5 animate-spin" /> : "Send report"}
-                            </button>
-                        </div>
-                    </div>
+            <div className="mt-5 space-y-3 overflow-y-auto pr-1">
+              <div>
+                <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">What happened?</p>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {BUG_REPORT_ISSUE_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setIssueType(option.value)}
+                      className={cn(
+                        "rounded-[1.2rem] border px-3 py-3 text-left text-xs transition-colors",
+                        issueType === option.value
+                          ? "border-brand-purple/40 bg-brand-purple/15 text-white"
+                          : "border-white/10 bg-white/5 text-gray-300 hover:border-brand-purple/30",
+                      )}
+                    >
+                      <div className="font-semibold">{option.label}</div>
+                      <div className="mt-1 text-[11px] leading-5 text-gray-400">{option.description}</div>
+                    </button>
+                  ))}
                 </div>
-            ) : null}
-        </>
-    );
+              </div>
+
+              <div>
+                <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Severity</p>
+                <div className="flex gap-2">
+                  {([
+                    { value: "low", label: "Low" },
+                    { value: "medium", label: "Medium" },
+                    { value: "high", label: "High" },
+                  ] as const).map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setSeverity(option.value)}
+                      className={cn(
+                        "flex-1 rounded-full border px-3 py-2 text-xs font-semibold transition-colors",
+                        severity === option.value
+                          ? "border-brand-purple/40 bg-brand-purple/15 text-white"
+                          : "border-white/10 bg-white/5 text-gray-300",
+                      )}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">
+                  Optional note
+                </label>
+                <textarea
+                  value={note}
+                  onChange={(event) => setNote(event.target.value)}
+                  className="h-28 w-full rounded-[1.4rem] border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-gray-500 focus:border-brand-purple"
+                  placeholder="What were you trying to do? Any detail helps, but we already attached the latest logs."
+                />
+              </div>
+
+              <div className="rounded-[1.4rem] border border-white/10 bg-white/[0.03] p-4">
+                <button
+                  type="button"
+                  onClick={() => setShowAutoContext((current) => !current)}
+                  className="flex w-full items-center justify-between gap-3 text-left"
+                >
+                  <div>
+                    <p className="text-sm font-semibold text-white">Auto-captured context</p>
+                    <p className="mt-1 text-xs leading-5 text-gray-400">
+                      {snapshotPreview.diagnostics.length} diagnostics, {snapshotPreview.breadcrumbs.length} recent actions, {snapshotPreview.recentErrors.length} captured errors
+                    </p>
+                  </div>
+                  {showAutoContext ? <ChevronUp className="h-4 w-4 text-brand-purple" /> : <ChevronDown className="h-4 w-4 text-brand-purple" />}
+                </button>
+
+                {showAutoContext ? (
+                  <div className="mt-4 space-y-3 text-xs text-gray-300">
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      <div className="rounded-xl border border-white/10 bg-black/25 p-3">
+                        <p className="font-semibold text-white">Route</p>
+                        <p className="mt-1 break-all text-gray-400">{snapshotPreview.currentPath}{snapshotPreview.currentSearch}</p>
+                      </div>
+                      <div className="rounded-xl border border-white/10 bg-black/25 p-3">
+                        <p className="font-semibold text-white">Viewport</p>
+                        <p className="mt-1 text-gray-400">{snapshotPreview.viewportWidth} x {snapshotPreview.viewportHeight}</p>
+                      </div>
+                    </div>
+                    <div className="rounded-xl border border-white/10 bg-black/25 p-3">
+                      <p className="font-semibold text-white">Component source</p>
+                      <p className="mt-1 text-gray-400">{componentMeta.sourcePath || "No mapped source path"}</p>
+                      {componentMeta.codeSnippet ? <pre className="mt-2 overflow-x-auto rounded-lg bg-black/40 p-3 text-[11px] text-brand-purple">{componentMeta.codeSnippet}</pre> : null}
+                    </div>
+                    {snapshotPreview.rolloutAssignments.length > 0 ? (
+                      <div className="rounded-xl border border-white/10 bg-black/25 p-3">
+                        <p className="font-semibold text-white">Rollout assignments</p>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {snapshotPreview.rolloutAssignments.map((assignment) => (
+                            <span key={`${assignment.id}:${assignment.variant}`} className="rounded-full border border-white/10 px-2.5 py-1 text-[11px] text-gray-300">
+                              {assignment.id}: {assignment.variant}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="mt-5 flex gap-3 border-t border-white/10 pt-4">
+              <button
+                type="button"
+                onClick={() => closeComposer()}
+                className="flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={submitBugReport}
+                disabled={submitting}
+                className="flex flex-1 items-center justify-center gap-2 rounded-full border border-brand-purple bg-brand-purple px-4 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+              >
+                {submitting ? <Loader2 className="h-5 w-5 animate-spin" /> : <><Sparkles className="h-4 w-4" />Send report</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </>
+  );
 }

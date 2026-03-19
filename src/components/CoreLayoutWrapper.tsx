@@ -34,6 +34,10 @@ const ClientDiagnosticsBridge = dynamic(
     () => import("@/components/ClientDiagnosticsBridge").then((mod) => mod.ClientDiagnosticsBridge),
     { ssr: false },
 );
+const GlobalBugReportTrigger = dynamic(
+    () => import("@/components/Feedback/GlobalBugReportTrigger").then((mod) => mod.GlobalBugReportTrigger),
+    { ssr: false },
+);
 
 export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     const { user, userProfile } = useAuth();
@@ -42,6 +46,7 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     const isLegalRoute = pathname === "/privacy" || pathname === "/terms";
     const isUserShell = Boolean(user) && userProfile?.role !== "admin" && !isAdminRoute;
     const shouldShowPublicChrome = !isAdminRoute;
+    const shouldShowBugReportTrigger = !isLegalRoute;
     const shouldShowPurchaseUi = !isAdminRoute;
     const shouldShowAuthUi = !isAdminRoute;
     const shouldShowCookieBanner = !isAdminRoute;
@@ -106,6 +111,7 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
             {isUserShell ? <TaskGuidanceBanner /> : null}
             <Navbar />
             {children}
+            {shouldShowBugReportTrigger ? <GlobalBugReportTrigger /> : null}
             {shouldShowPublicChrome && !isLegalRoute ? <MobileBottomBar /> : null}
             <ScrollToTop />
             <AutoScrollToTop />

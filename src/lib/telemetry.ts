@@ -3,6 +3,7 @@ import { authFetch } from "./authFetch";
 import { prepareAnalyticsEvent } from "./analytics-client-engine";
 import { createAnalyticsEventId } from "./analytics-identifiers";
 import { buildAnalyticsSemanticParams } from "./analytics-semantics";
+import { getClientSessionId } from "./client-session";
 import { recordClientDiagnostic } from "./client-diagnostics";
 import { canUseAnonymousAnalytics, canUseIdentifiedAnalytics, readPrivacySettingsSnapshot } from "./privacy-consent";
 import { BUILT_IN_DAILY_TASKS } from "./tasks/task-catalog";
@@ -12,7 +13,6 @@ import { BUILT_IN_DAILY_TASKS } from "./tasks/task-catalog";
  * Sends analytics to GA when available and mirrors them to the backend for authenticated users.
  */
 const FLOW_STORAGE_KEY = "kandydrops.telemetry.flows";
-const SESSION_STORAGE_KEY = "kandydrops.telemetry.session";
 const IDENTIFIED_QUEUE_STORAGE_KEY = "kandydrops.telemetry.identified-queue";
 
 type SanitizedEventParams = Record<string, string | number | boolean>;
@@ -131,21 +131,7 @@ function clearPersistedTelemetryQueue() {
 }
 
 function getSessionId() {
-    if (typeof window === "undefined") {
-        return "server";
-    }
-
-    const existing = window.sessionStorage.getItem(SESSION_STORAGE_KEY);
-    if (existing) {
-        return existing;
-    }
-
-    const token = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-        ? crypto.randomUUID().slice(0, 8)
-        : Math.random().toString(36).slice(2, 10);
-    const generated = `sess_${Date.now().toString(36)}_${token}`;
-    window.sessionStorage.setItem(SESSION_STORAGE_KEY, generated);
-    return generated;
+    return getClientSessionId();
 }
 
 function getEnrichedEventParams(eventParams?: Record<string, unknown>) {

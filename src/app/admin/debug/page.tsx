@@ -3,11 +3,14 @@
 import { useMemo, useState } from "react";
 import {
   Activity,
+  AlertTriangle,
   ArrowRightLeft,
   BellRing,
+  Bug,
   ChevronDown,
   ChevronUp,
   Database,
+  Flag,
   Layers3,
   Loader2,
   Monitor,
@@ -28,7 +31,7 @@ import { authFetch } from "@/lib/authFetch";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-type DebugTab = "overview" | "tasks" | "telemetry" | "ops";
+type DebugTab = "overview" | "tasks" | "telemetry" | "reports" | "ops";
 type TrackingSource = "canonical" | "telemetry" | "unsupported";
 
 interface DebugStats {
@@ -43,6 +46,7 @@ interface DebugStats {
   rewardEventDeltaLast7d: number;
   trackedTelemetryEvents: number;
   orphanedTelemetryEvents: number;
+  bugReportsLast7d: number;
 }
 
 interface CoverageItem { taskId: string; title: string; eventName: string; eventLabel: string; trackingSource: TrackingSource; reward: number; maxProgress: number; }
@@ -53,6 +57,37 @@ interface EventStatItem { eventName: string; label: string; totalCount: number; 
 interface TaskEventItem { id: string; type: string; title: string; triggerEvent: string; username: string; timestamp: number; }
 interface DailyTaskSeriesItem { dayKey: string; eventCount: number; rewardTotal: number; completed: number; failed: number; }
 interface TaskRollupItem { taskId: string; title: string; eventCount: number; rewardTotal: number; completed: number; failed: number; lastEventAt: number; }
+interface BugReportItem {
+  id: string;
+  userId: string;
+  email: string | null;
+  summary: string;
+  message: string;
+  category: string;
+  status: string;
+  issueType: string;
+  severity: string;
+  contextId: string;
+  currentPath: string;
+  componentName: string;
+  diagnosticsCount: number;
+  breadcrumbsCount: number;
+  rolloutCount: number;
+  timestamp: number;
+  autoContext: Record<string, unknown> | null;
+  component: Record<string, unknown> | null;
+}
+interface RolloutDebugItem {
+  id: string;
+  label: string;
+  description: string;
+  kind: string;
+  audience: string;
+  enabled: boolean;
+  rolloutPercent: number;
+  defaultVariant: string;
+  variants: Array<{ key: string; weight: number; label: string }>;
+}
 
 interface DebugResponse {
   success: boolean;
@@ -69,6 +104,8 @@ interface DebugResponse {
   orphanedEventStats: EventStatItem[];
   taskRollups: TaskRollupItem[];
   dailyTaskSeries: DailyTaskSeriesItem[];
+  bugReports: BugReportItem[];
+  rollouts: RolloutDebugItem[];
   opsHealth: AdminOpsHealth;
 }
 
@@ -94,6 +131,7 @@ const TABS: Array<{ id: DebugTab; label: string; icon: typeof Activity }> = [
   { id: "overview", label: "Overview", icon: Monitor },
   { id: "tasks", label: "Tasks", icon: Layers3 },
   { id: "telemetry", label: "Telemetry", icon: Radar },
+  { id: "reports", label: "Reports", icon: Bug },
   { id: "ops", label: "Ops", icon: Terminal },
 ];
 
@@ -169,16 +207,70 @@ function TrackingBadge({ source }: { source: TrackingSource }) {
   return <span className={cn("inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold", source === "canonical" ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-300" : source === "telemetry" ? "border-brand-purple/20 bg-brand-purple/10 text-brand-purple" : "border-red-400/20 bg-red-500/10 text-red-300")}>{source}</span>;
 }
 
+function FilterChips<T extends string>({
+  value,
+  onChange,
+  options,
+}: {
+  value: T;
+  onChange: (nextValue: T) => void;
+  options: Array<{ value: T; label: string }>;
+}) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {options.map((option) => (
+        <button
+          key={option.value}
+          type="button"
+          onClick={() => onChange(option.value)}
+          className={cn(
+            "rounded-full border px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors",
+            value === option.value
+              ? "border-brand-purple/40 bg-brand-purple/15 text-white"
+              : "border-white/10 bg-white/5 text-gray-400 hover:text-white",
+          )}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export default function DebugConsole() {
   const { user, userProfile } = useAuth();
   const [activeTab, setActiveTab] = useState<DebugTab>("overview");
   const [processing, setProcessing] = useState(false);
   const [simAmount, setSimAmount] = useState("500");
+  const [coverageFilter, setCoverageFilter] = useState<"all" | TrackingSource>("all");
+  const [telemetryFilter, setTelemetryFilter] = useState<"all" | TrackingSource>("all");
+  const [diagnosticSeverityFilter, setDiagnosticSeverityFilter] = useState<"all" | AdminOpsHealthSeverity>("all");
+  const [reportSeverityFilter, setReportSeverityFilter] = useState<"all" | string>("all");
+  const [reportStatusFilter, setReportStatusFilter] = useState<"all" | string>("all");
   const { data, mutate, isLoading } = useAuthSWR<DebugResponse>("/api/admin/debug", { refreshInterval: 30_000, revalidateOnFocus: true });
   const stats = data?.stats;
   const opsHealth = data?.opsHealth ?? EMPTY_OPS_HEALTH;
   const highRiskParityItems = useMemo(() => (data?.taskParity ?? []).filter((item) => item.completedCount !== item.rewardedCount || item.completedCount !== item.receiptCount).slice(0, 8), [data?.taskParity]);
   const unhealthyMaterializers = opsHealth.materializers.filter((item) => item.status !== "healthy");
+  const filteredCoverage = useMemo(
+    () => (data?.coverage ?? []).filter((task) => coverageFilter === "all" || task.trackingSource === coverageFilter),
+    [coverageFilter, data?.coverage],
+  );
+  const filteredEventStats = useMemo(
+    () => (data?.eventStats ?? []).filter((event) => telemetryFilter === "all" || event.trackingSource === telemetryFilter),
+    [data?.eventStats, telemetryFilter],
+  );
+  const filteredDiagnostics = useMemo(
+    () => opsHealth.diagnostics.recent.filter((entry) => diagnosticSeverityFilter === "all" || entry.severity === diagnosticSeverityFilter),
+    [diagnosticSeverityFilter, opsHealth.diagnostics.recent],
+  );
+  const filteredBugReports = useMemo(
+    () => (data?.bugReports ?? []).filter((report) => (
+      (reportSeverityFilter === "all" || report.severity === reportSeverityFilter)
+      && (reportStatusFilter === "all" || report.status === reportStatusFilter)
+    )),
+    [data?.bugReports, reportSeverityFilter, reportStatusFilter],
+  );
 
   async function handleSimulateBalance() {
     if (!user) return;
@@ -205,7 +297,7 @@ export default function DebugConsole() {
         <MetricTile label="Coverage" value={`${stats?.canonicalTasks ?? 0}/${stats?.builtInTasks ?? 0}`} hint="Built-in tasks with canonical validation" />
         <MetricTile label="Task Issues" value={(stats?.usersWithTaskIssues ?? 0).toLocaleString()} hint="Users with invalid task state" />
         <MetricTile label="Receipt Delta" value={(stats?.rewardEventDeltaLast7d ?? 0).toLocaleString()} hint="Completed events minus reward TX" />
-        <MetricTile label="Orphaned Events" value={(stats?.orphanedTelemetryEvents ?? 0).toLocaleString()} hint="Tracked events without a task mapping" />
+        <MetricTile label="Bug Reports" value={(stats?.bugReportsLast7d ?? 0).toLocaleString()} hint="Bug reports received in the last 7 days" />
       </div>
       <div className="flex gap-2 overflow-x-auto pb-1">
         {TABS.map((tab) => {
@@ -284,7 +376,19 @@ export default function DebugConsole() {
       {activeTab === "tasks" ? (
         <div className="space-y-6">
           <SectionCard title="Task Coverage Matrix" subtitle="Every built-in task and whether it is validated canonically, by telemetry, or unsupported." icon={Layers3} defaultExpanded preview={<PreviewGrid items={[{ label: "Canonical", value: (stats?.canonicalTasks ?? 0).toLocaleString(), tone: "accent" }, { label: "Telemetry", value: (stats?.telemetryOnlyTasks ?? 0).toLocaleString() }, { label: "Unsupported", value: (stats?.unsupportedTasks ?? 0).toLocaleString() }, { label: "Issues", value: (stats?.usersWithTaskIssues ?? 0).toLocaleString() }]} />}>
-            <div className="space-y-3">{(data?.coverage ?? []).map((task) => <div key={task.taskId} className="rounded-2xl border border-white/8 bg-black/25 p-4"><div className="flex items-start justify-between gap-3"><div><div className="text-sm font-black text-white">{task.title}</div><div className="mt-1 text-xs text-gray-400">{task.eventLabel}</div></div><TrackingBadge source={task.trackingSource} /></div><div className="mt-3 flex flex-wrap gap-2 text-[11px] text-gray-400"><span className="rounded-full border border-white/10 px-2 py-1">Reward {task.reward}</span><span className="rounded-full border border-white/10 px-2 py-1">Progress {task.maxProgress}</span></div></div>)}</div>
+            <div className="mb-4">
+              <FilterChips
+                value={coverageFilter}
+                onChange={setCoverageFilter}
+                options={[
+                  { value: "all", label: "All" },
+                  { value: "canonical", label: "Canonical" },
+                  { value: "telemetry", label: "Telemetry" },
+                  { value: "unsupported", label: "Unsupported" },
+                ]}
+              />
+            </div>
+            <div className="space-y-3">{filteredCoverage.map((task) => <div key={task.taskId} className="rounded-2xl border border-white/8 bg-black/25 p-4"><div className="flex items-start justify-between gap-3"><div><div className="text-sm font-black text-white">{task.title}</div><div className="mt-1 text-xs text-gray-400">{task.eventLabel}</div></div><TrackingBadge source={task.trackingSource} /></div><div className="mt-3 flex flex-wrap gap-2 text-[11px] text-gray-400"><span className="rounded-full border border-white/10 px-2 py-1">Reward {task.reward}</span><span className="rounded-full border border-white/10 px-2 py-1">Progress {task.maxProgress}</span></div></div>)}</div>
           </SectionCard>
           <div className="grid gap-6 xl:grid-cols-2">
             <SectionCard title="Reward Parity" subtitle="Completed task events versus reward transactions and receipts." icon={ArrowRightLeft} preview={<PreviewGrid items={highRiskParityItems.slice(0, 4).map((item) => ({ label: item.title, value: `${item.completedCount}/${item.rewardedCount}/${item.receiptCount}`, tone: "accent" }))} />}>
@@ -311,12 +415,122 @@ export default function DebugConsole() {
               <div className="space-y-3">{(data?.recentReceipts ?? []).slice(0, 12).map((receipt) => <div key={receipt.id} className="rounded-2xl border border-white/8 bg-black/25 p-4 text-sm"><div className="flex items-center justify-between gap-3"><div className="font-black text-white">{receipt.eventName}</div><div className="text-xs text-gray-400">{formatTimestamp(receipt.timestamp)}</div></div><div className="mt-2 text-xs text-gray-400">{receipt.receiptKey}</div><div className="mt-1 text-xs text-brand-purple">{receipt.uid}</div></div>)}</div>
             </SectionCard>
             <SectionCard title="Telemetry Event Stats" subtitle="Tracked events, how often they fire, and whether any task depends on them." icon={Radar} preview={<PreviewGrid items={(data?.eventStats ?? []).slice(0, 4).map((entry) => ({ label: entry.label, value: entry.totalCount.toLocaleString(), tone: "accent" }))} />}>
-              <div className="space-y-3">{(data?.eventStats ?? []).slice(0, 12).map((entry) => <div key={entry.eventName} className="rounded-2xl border border-white/8 bg-black/25 p-4"><div className="flex items-center justify-between gap-3"><div><div className="text-sm font-black text-white">{entry.label}</div><div className="text-xs text-gray-400">{entry.eventName}</div></div><TrackingBadge source={entry.trackingSource} /></div><div className="mt-3 flex items-center justify-between text-xs text-gray-300"><span>{entry.totalCount.toLocaleString()} total</span><span>{entry.mappedTaskCount} mapped</span><span>{formatTimestamp(entry.lastSeenAt)}</span></div></div>)}</div>
+              <div className="mb-4">
+                <FilterChips
+                  value={telemetryFilter}
+                  onChange={setTelemetryFilter}
+                  options={[
+                    { value: "all", label: "All" },
+                    { value: "canonical", label: "Canonical" },
+                    { value: "telemetry", label: "Telemetry" },
+                    { value: "unsupported", label: "Unsupported" },
+                  ]}
+                />
+              </div>
+              <div className="space-y-3">{filteredEventStats.slice(0, 12).map((entry) => <div key={entry.eventName} className="rounded-2xl border border-white/8 bg-black/25 p-4"><div className="flex items-center justify-between gap-3"><div><div className="text-sm font-black text-white">{entry.label}</div><div className="text-xs text-gray-400">{entry.eventName}</div></div><TrackingBadge source={entry.trackingSource} /></div><div className="mt-3 flex items-center justify-between text-xs text-gray-300"><span>{entry.totalCount.toLocaleString()} total</span><span>{entry.mappedTaskCount} mapped</span><span>{formatTimestamp(entry.lastSeenAt)}</span></div></div>)}</div>
             </SectionCard>
           </div>
           <SectionCard title="Orphaned Telemetry & Recent Lifecycle" subtitle="Events without task mappings plus the latest task lifecycle stream for parity debugging." icon={Database} preview={<PreviewGrid items={(data?.orphanedEventStats ?? []).slice(0, 4).map((entry) => ({ label: entry.label, value: `${entry.totalCount} events` }))} />}>
             <div className="grid gap-4 xl:grid-cols-2"><div className="space-y-3">{(data?.orphanedEventStats ?? []).slice(0, 8).map((entry) => <div key={entry.eventName} className="rounded-2xl border border-white/8 bg-black/25 p-4"><div className="text-sm font-black text-white">{entry.label}</div><div className="mt-1 text-xs text-gray-400">{entry.eventName}</div><div className="mt-2 text-xs text-brand-purple">{entry.totalCount.toLocaleString()} events</div></div>)}</div><div className="space-y-3">{(data?.recentTaskEvents ?? []).slice(0, 8).map((event) => <div key={event.id} className="rounded-2xl border border-white/8 bg-black/25 p-4"><div className="flex items-center justify-between gap-3"><div className="text-sm font-black text-white">{event.title}</div><span className="rounded-full bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-gray-300">{event.type}</span></div><div className="mt-1 text-xs text-gray-400">{event.triggerEvent}</div><div className="mt-2 text-xs text-brand-purple">@{event.username}</div><div className="mt-1 text-xs text-gray-400">{formatTimestamp(event.timestamp)}</div></div>)}</div></div>
           </SectionCard>
+        </div>
+      ) : null}
+      {activeTab === "reports" ? (
+        <div className="space-y-6">
+          <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+            <SectionCard title="Bug Report Intake" subtitle="Mobile-first bug reports with attached diagnostics, errors, rollout assignments, and component metadata." icon={Bug} defaultExpanded preview={<PreviewGrid items={(filteredBugReports.slice(0, 4)).map((report) => ({ label: report.issueType, value: report.currentPath || report.componentName || "Unknown", tone: "accent" }))} />}>
+              <div className="mb-4 space-y-3">
+                <FilterChips
+                  value={reportSeverityFilter}
+                  onChange={setReportSeverityFilter}
+                  options={[
+                    { value: "all", label: "All severities" },
+                    { value: "low", label: "Low" },
+                    { value: "medium", label: "Medium" },
+                    { value: "high", label: "High" },
+                  ]}
+                />
+                <FilterChips
+                  value={reportStatusFilter}
+                  onChange={setReportStatusFilter}
+                  options={[
+                    { value: "all", label: "All statuses" },
+                    { value: "new", label: "New" },
+                    { value: "triaged", label: "Triaged" },
+                    { value: "closed", label: "Closed" },
+                  ]}
+                />
+              </div>
+              <div className="space-y-3">
+                {filteredBugReports.length > 0 ? filteredBugReports.slice(0, 12).map((report) => (
+                  <div key={report.id} className="rounded-2xl border border-white/8 bg-black/25 p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">{report.issueType}</span>
+                          <span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em]", report.severity === "high" ? "border-red-400/20 bg-red-500/10 text-red-300" : report.severity === "medium" ? "border-amber-400/20 bg-amber-500/10 text-amber-300" : "border-cyan-400/20 bg-cyan-500/10 text-cyan-300")}>{report.severity}</span>
+                          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">{report.status}</span>
+                        </div>
+                        <p className="mt-2 text-sm font-semibold text-white">{report.summary}</p>
+                        <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-gray-400">
+                          <span className="rounded-full border border-white/10 px-2 py-1">{report.currentPath || "Unknown route"}</span>
+                          <span className="rounded-full border border-white/10 px-2 py-1">{report.componentName || "Unknown component"}</span>
+                          <span className="rounded-full border border-white/10 px-2 py-1">{report.diagnosticsCount} diagnostics</span>
+                          <span className="rounded-full border border-white/10 px-2 py-1">{report.breadcrumbsCount} actions</span>
+                        </div>
+                        {report.message && report.message !== report.summary ? <p className="mt-3 text-xs leading-6 text-gray-400">{report.message}</p> : null}
+                      </div>
+                      <span className="shrink-0 text-[11px] text-gray-500">{formatRelativeTime(report.timestamp)}</span>
+                    </div>
+                  </div>
+                )) : <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-4 text-sm text-emerald-200">No bug reports match the current filters.</div>}
+              </div>
+            </SectionCard>
+            <div className="space-y-6">
+              <SectionCard title="Rollout Registry" subtitle="Deterministic experiments and phased features currently available to the client runtime." icon={Flag} defaultExpanded preview={<PreviewGrid items={(data?.rollouts ?? []).slice(0, 4).map((rollout) => ({ label: rollout.label, value: `${rollout.rolloutPercent}%`, tone: "accent" }))} />}>
+                <div className="space-y-3">
+                  {(data?.rollouts ?? []).map((rollout) => (
+                    <div key={rollout.id} className="rounded-2xl border border-white/8 bg-black/25 p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <div className="text-sm font-black text-white">{rollout.label}</div>
+                          <div className="mt-1 text-xs leading-6 text-gray-400">{rollout.description}</div>
+                        </div>
+                        <span className={cn("rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em]", rollout.enabled ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-300" : "border-white/10 bg-white/5 text-gray-400")}>{rollout.enabled ? "Live" : "Off"}</span>
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-gray-400">
+                        <span className="rounded-full border border-white/10 px-2 py-1">{rollout.kind}</span>
+                        <span className="rounded-full border border-white/10 px-2 py-1">{rollout.audience}</span>
+                        <span className="rounded-full border border-white/10 px-2 py-1">{rollout.rolloutPercent}% rollout</span>
+                        <span className="rounded-full border border-white/10 px-2 py-1">Default {rollout.defaultVariant}</span>
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-2 text-[11px]">
+                        {rollout.variants.map((variant) => (
+                          <span key={variant.key} className="rounded-full border border-white/10 bg-white/[0.03] px-2 py-1 text-gray-300">
+                            {variant.label}: {variant.weight}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </SectionCard>
+              <SectionCard title="Report Quality" subtitle="How much automatic context each recent bug report carried into the debug pipeline." icon={AlertTriangle} preview={<PreviewGrid items={filteredBugReports.slice(0, 4).map((report) => ({ label: report.componentName || "Unknown", value: `${report.diagnosticsCount}/${report.breadcrumbsCount}/${report.rolloutCount}` }))} />}>
+                <div className="space-y-3">
+                  {filteredBugReports.slice(0, 8).map((report) => (
+                    <div key={`quality-${report.id}`} className="rounded-2xl border border-white/8 bg-black/25 p-4">
+                      <div className="text-sm font-black text-white">{report.componentName || report.contextId || "Unknown surface"}</div>
+                      <div className="mt-3 grid grid-cols-3 gap-2 text-xs text-gray-300">
+                        <div className="rounded-xl border border-white/8 bg-white/[0.03] p-3"><div className="text-gray-500">Diagnostics</div><div className="mt-1 text-base font-black text-white">{report.diagnosticsCount}</div></div>
+                        <div className="rounded-xl border border-white/8 bg-white/[0.03] p-3"><div className="text-gray-500">Actions</div><div className="mt-1 text-base font-black text-white">{report.breadcrumbsCount}</div></div>
+                        <div className="rounded-xl border border-white/8 bg-white/[0.03] p-3"><div className="text-gray-500">Rollouts</div><div className="mt-1 text-base font-black text-white">{report.rolloutCount}</div></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </SectionCard>
+            </div>
+          </div>
         </div>
       ) : null}
       {activeTab === "ops" ? (
@@ -329,7 +543,19 @@ export default function DebugConsole() {
               <div className="space-y-3">{opsHealth.diagnostics.channels.length > 0 ? opsHealth.diagnostics.channels.map((channel) => <div key={channel.key} className="rounded-2xl border border-white/8 bg-black/25 p-4"><div className="flex items-center justify-between gap-3"><div className="text-sm font-black text-white">{channel.label}</div><div className="text-xs text-gray-400">{formatRelativeTime(channel.lastSeenAt)}</div></div><div className="mt-3 grid grid-cols-4 gap-2 text-xs text-gray-300"><div className="rounded-xl border border-white/8 bg-white/[0.03] p-3"><div className="text-gray-500">Total</div><div className="mt-1 text-base font-black text-white">{channel.count}</div></div><div className="rounded-xl border border-white/8 bg-white/[0.03] p-3"><div className="text-gray-500">Errors</div><div className="mt-1 text-base font-black text-white">{channel.errorCount}</div></div><div className="rounded-xl border border-white/8 bg-white/[0.03] p-3"><div className="text-gray-500">Warn</div><div className="mt-1 text-base font-black text-white">{channel.warnCount}</div></div><div className="rounded-xl border border-white/8 bg-white/[0.03] p-3"><div className="text-gray-500">Info</div><div className="mt-1 text-base font-black text-white">{channel.infoCount}</div></div></div></div>) : <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-4 text-sm text-emerald-200">No recent diagnostics by channel.</div>}</div>
             </SectionCard>
             <SectionCard title="Recent Diagnostics" subtitle="Latest server-side traces flowing into the debug engine." icon={BellRing} preview={<PreviewGrid items={opsHealth.diagnostics.recent.slice(0, 4).map((entry) => ({ label: entry.channel, value: entry.severity, tone: entry.severity === "info" ? "accent" : "default" }))} />}>
-              <div className="space-y-3">{opsHealth.diagnostics.recent.length > 0 ? opsHealth.diagnostics.recent.map((entry) => <div key={entry.id} className="rounded-2xl border border-white/8 bg-black/25 p-4"><div className="flex items-start justify-between gap-3"><div><div className="flex flex-wrap items-center gap-2"><span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em]", getSeverityClasses(entry.severity))}>{entry.severity}</span><span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">{entry.channel}</span></div><p className="mt-2 text-sm font-semibold text-white">{entry.message}</p>{entry.detailPreview ? <p className="mt-1 text-xs leading-6 text-gray-400">{entry.detailPreview}</p> : null}</div><span className="text-[11px] text-gray-500">{formatTimestamp(entry.timestamp)}</span></div></div>) : <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-4 text-sm text-emerald-200">No recent diagnostics found.</div>}</div>
+              <div className="mb-4">
+                <FilterChips
+                  value={diagnosticSeverityFilter}
+                  onChange={setDiagnosticSeverityFilter}
+                  options={[
+                    { value: "all", label: "All severities" },
+                    { value: "error", label: "Errors" },
+                    { value: "warn", label: "Warnings" },
+                    { value: "info", label: "Info" },
+                  ]}
+                />
+              </div>
+              <div className="space-y-3">{filteredDiagnostics.length > 0 ? filteredDiagnostics.map((entry) => <div key={entry.id} className="rounded-2xl border border-white/8 bg-black/25 p-4"><div className="flex items-start justify-between gap-3"><div><div className="flex flex-wrap items-center gap-2"><span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em]", getSeverityClasses(entry.severity))}>{entry.severity}</span><span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">{entry.channel}</span></div><p className="mt-2 text-sm font-semibold text-white">{entry.message}</p>{entry.detailPreview ? <p className="mt-1 text-xs leading-6 text-gray-400">{entry.detailPreview}</p> : null}</div><span className="text-[11px] text-gray-500">{formatTimestamp(entry.timestamp)}</span></div></div>) : <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-4 text-sm text-emerald-200">No recent diagnostics found.</div>}</div>
             </SectionCard>
           </div>
         </div>

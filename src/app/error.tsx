@@ -3,6 +3,8 @@
 import { useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { AlertCircle } from "lucide-react";
+import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
+import { recordClientError } from "@/lib/client-diagnostics";
 
 
 export default function Error({
@@ -15,6 +17,7 @@ export default function Error({
     useEffect(() => {
         // Log the error to an error reporting service
         console.error(error);
+        recordClientError(error, { source: "app_error_boundary" });
     }, [error]);
 
     return (
@@ -34,13 +37,16 @@ export default function Error({
                 </p>
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex flex-col gap-3 sm:flex-row">
                 <Button variant="glass" onClick={() => window.location.reload()}>
                     Refresh Page
                 </Button>
                 <Button variant="brand" onClick={() => reset()}>
                     Try Again
                 </Button>
+                <div className="flex items-center justify-center">
+                    <ReportBugButton context="error-boundary" label="Report this issue" variant="pill" />
+                </div>
             </div>
         </div>
     );
