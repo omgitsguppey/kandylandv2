@@ -27,13 +27,14 @@ async function proxyFirebaseHelper(
         headers: request.headers,
         redirect: "manual",
     });
+    const upstreamBody = await upstreamResponse.arrayBuffer();
 
     const responseHeaders = new Headers(upstreamResponse.headers);
     responseHeaders.delete("content-encoding");
     responseHeaders.delete("content-length");
     responseHeaders.delete("transfer-encoding");
 
-    return new Response(upstreamResponse.body, {
+    return new Response(upstreamBody, {
         status: upstreamResponse.status,
         statusText: upstreamResponse.statusText,
         headers: responseHeaders,
