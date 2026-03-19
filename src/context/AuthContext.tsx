@@ -81,31 +81,6 @@ function normalizeAuthErrorMessage(error: unknown) {
     }
 }
 
-function isLocalBrowserHost(host: string | undefined) {
-    return Boolean(host && /^(localhost|127\.0\.0\.1)(:\d+)?$/i.test(host));
-}
-
-function isFirebaseHostedBrowserHost(host: string | undefined) {
-    return Boolean(host && (
-        host.endsWith(".firebaseapp.com")
-        || host.endsWith(".web.app")
-        || host.endsWith(".hosted.app")
-    ));
-}
-
-function shouldPreferGoogleRedirect() {
-    if (typeof window === "undefined") {
-        return false;
-    }
-
-    const host = window.location.host;
-    if (!host || isLocalBrowserHost(host)) {
-        return false;
-    }
-
-    return !isFirebaseHostedBrowserHost(host);
-}
-
 function setGoogleRedirectPending(value: boolean) {
     if (typeof window === "undefined") {
         return;
@@ -318,12 +293,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             await ensureAuthPersistence();
             const provider = new GoogleAuthProvider();
             provider.setCustomParameters({ prompt: "select_account" });
-
-            if (shouldPreferGoogleRedirect()) {
-                setGoogleRedirectPending(true);
-                await signInWithRedirect(auth, provider);
-                return;
-            }
 
             await signInWithPopup(auth, provider);
 
