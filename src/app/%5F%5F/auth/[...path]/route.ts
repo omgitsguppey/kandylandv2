@@ -39,14 +39,12 @@ async function proxyAuthHelper(request: NextRequest, pathSegments: string[]) {
         redirect: "manual",
     });
     const contentType = upstreamResponse.headers.get("content-type") || "";
-    let responseBody: BodyInit = await upstreamResponse.arrayBuffer();
-
-    if (contentType.includes("text/html")) {
-        const html = new TextDecoder().decode(responseBody as ArrayBuffer);
-        responseBody = html
+    const shouldRewriteHtml = contentType.includes("text/html");
+    const responseBody: BodyInit = shouldRewriteHtml
+        ? (await upstreamResponse.text())
             .replaceAll('src="experiments.js"', `src="experiments.js?v=${FIREBASE_AUTH_HELPER_ASSET_VERSION}"`)
-            .replaceAll('src="handler.js"', `src="handler.js?v=${FIREBASE_AUTH_HELPER_ASSET_VERSION}"`);
-    }
+            .replaceAll('src="handler.js"', `src="handler.js?v=${FIREBASE_AUTH_HELPER_ASSET_VERSION}"`)
+        : await upstreamResponse.arrayBuffer();
 
     const responseHeaders = new Headers(upstreamResponse.headers);
     responseHeaders.delete("content-encoding");
