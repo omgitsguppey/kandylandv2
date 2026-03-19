@@ -124,6 +124,10 @@ export function writeTaskGuidancePendingAction(action: TaskGuidancePendingAction
   writeLocalStorageValue(TASK_GUIDANCE_ACTION_STORAGE_KEY, action);
 }
 
+function formatTaskCountLabel(task: Pick<DailyTaskAssignment, "maxProgress">, singular: string, plural: string) {
+  return task.maxProgress > 1 ? plural : singular;
+}
+
 export function createTaskGuidancePendingAction(task: Pick<TaskGuidanceState, "taskId" | "actionType" | "destinationHref" | "assignedAt">): TaskGuidancePendingAction {
   if (!isTaskGuidanceActionType(task.actionType)) {
     throw new Error("Task guidance pending actions only support runtime action types.");
@@ -185,6 +189,10 @@ export function getTaskInstruction(task: DailyTaskAssignment) {
     return "Purchase the required Gum Drops bundle and wait for the balance update to finish this task.";
   }
 
+  if (task.eventName === "wallet_opened") {
+    return "Open the Gum Drops wallet and let the bundle list finish loading so the visit counts.";
+  }
+
   if (task.eventName === "unlock_drop_success") {
     return `${task.title} by unwrapping the matching live drop, then wait for the reward to sync.`;
   }
@@ -201,6 +209,18 @@ export function getTaskInstruction(task: DailyTaskAssignment) {
     return "Open an unlocked drop and switch through different files in the viewer until the count is complete.";
   }
 
+  if (task.eventName === "viewer_asset_completed") {
+    return `Open an unlocked drop and finish ${formatTaskCountLabel(task, "the required file", "enough files")} all the way through until playback completes.`;
+  }
+
+  if (task.eventName === "viewer_source_downloaded") {
+    return "Open one of your eligible unlocked drops in the library and tap Download on a file to count this task.";
+  }
+
+  if (task.eventName === "viewer_related_drop_clicked") {
+    return "Open an unlocked drop, scroll to the related picks, and tap one recommendation to complete this task.";
+  }
+
   if (task.eventName === "drop_preview_opened" || task.eventName === "view_drop_details") {
     return "Browse live drops and open the required previews or detail views until the progress bar fills.";
   }
@@ -211,6 +231,22 @@ export function getTaskInstruction(task: DailyTaskAssignment) {
 
   if (task.actionType === "open_dashboard") {
     return "Open your dashboard and stay on the page for a moment so the visit can register.";
+  }
+
+  if (task.eventName === "dashboard_viewed") {
+    return "Open your dashboard home and keep it on screen for a moment so the visit counts.";
+  }
+
+  if (task.eventName === "experience_hub_viewed") {
+    return "Open Experiences and let the page settle so the visit can register toward this task.";
+  }
+
+  if (task.eventName === "library_viewed") {
+    return "Open your library and keep the gallery in view for a moment so the visit counts.";
+  }
+
+  if (task.eventName === "drops_page_viewed") {
+    return "Open live drops and keep the grid in view for a moment so the visit counts.";
   }
 
   if (task.actionType === "open_experiences") {
@@ -226,6 +262,110 @@ export function getTaskInstruction(task: DailyTaskAssignment) {
   }
 
   return "Follow the guided steps on the destination screen and this task will complete as soon as it syncs.";
+}
+
+export function getTaskActionLabel(task: DailyTaskAssignment) {
+  if (task.eventName === "daily_check_in_claim") {
+    return "Claim reward";
+  }
+
+  if (task.eventName === "notifications_dropdown_opened") {
+    return "Open bell";
+  }
+
+  if (task.eventName === "notification_marked_read") {
+    return "Mark one read";
+  }
+
+  if (task.eventName === "notification_opened") {
+    return "Open an alert";
+  }
+
+  if (task.eventName === "task_notifications_enabled") {
+    return "Enable alerts";
+  }
+
+  if (task.eventName === "feedback_submitted") {
+    return "Share feedback";
+  }
+
+  if (task.eventName === "wallet_opened") {
+    return "Open wallet";
+  }
+
+  if (task.eventName === "begin_checkout") {
+    return "Start checkout";
+  }
+
+  if (task.eventName === "gumdrops_purchase_completed") {
+    return "Buy Gum Drops";
+  }
+
+  if (task.eventName === "unlock_drop_success") {
+    return "Unwrap live drops";
+  }
+
+  if (task.eventName === "viewer_opened") {
+    return "Open unlocked drop";
+  }
+
+  if (task.eventName === "viewer_session_completed") {
+    return "Finish a session";
+  }
+
+  if (task.eventName === "viewer_asset_consumed") {
+    return "Watch unlocked files";
+  }
+
+  if (task.eventName === "viewer_asset_completed") {
+    return "Finish a file";
+  }
+
+  if (task.eventName === "viewer_watch_checkpoint") {
+    return "Keep watching";
+  }
+
+  if (task.eventName === "viewer_asset_changed") {
+    return "Switch files";
+  }
+
+  if (task.eventName === "viewer_source_downloaded") {
+    return "Download file";
+  }
+
+  if (task.eventName === "viewer_related_drop_clicked") {
+    return "Open related drop";
+  }
+
+  if (task.eventName === "drop_preview_opened") {
+    return "Preview drops";
+  }
+
+  if (task.eventName === "view_drop_details") {
+    return "Open details";
+  }
+
+  if (task.eventName === "drop_share_copied") {
+    return "Copy share link";
+  }
+
+  if (task.eventName === "dashboard_viewed") {
+    return "Visit dashboard";
+  }
+
+  if (task.eventName === "experience_hub_viewed") {
+    return "Visit Experiences";
+  }
+
+  if (task.eventName === "library_viewed") {
+    return "Visit library";
+  }
+
+  if (task.eventName === "drops_page_viewed") {
+    return "Visit drops";
+  }
+
+  return task.ctaLabel;
 }
 
 export function getTaskDestinationHref(task: DailyTaskAssignment) {
@@ -257,7 +397,7 @@ export function createTaskGuidanceState(task: DailyTaskAssignment): TaskGuidance
     title: task.title,
     reward: task.reward,
     instruction: getTaskInstruction(task),
-    ctaLabel: task.ctaLabel,
+    ctaLabel: getTaskActionLabel(task),
     destinationHref: getTaskDestinationHref(task),
     eventName: task.eventName,
     actionType: task.actionType,

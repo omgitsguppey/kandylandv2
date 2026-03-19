@@ -234,6 +234,17 @@ export function TaskGuidanceBanner() {
       return;
     }
 
+    const currentTask = activeGuidance.completedAt
+      ? null
+      : findCurrentTaskGuidanceTask(userProfile?.dailyTasksState?.tasks, activeGuidance);
+
+    if (!activeGuidance.completedAt && (!currentTask || currentTask.claimed)) {
+      writeStoredGuidance(null);
+      writeTaskGuidancePendingAction(null);
+      setGuidance(null);
+      return;
+    }
+
     trackEvent("task_guidance_cta_clicked", {
       task_id: activeGuidance.taskId,
       task_title: activeGuidance.title,

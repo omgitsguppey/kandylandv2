@@ -38,8 +38,10 @@ import {
   createTaskGuidanceState,
   findCurrentTaskGuidanceTask,
   focusTaskDestinationAnchor,
+  getTaskActionLabel,
   getTaskDestinationPath,
   getTaskDestinationHref,
+  getTaskInstruction,
   isSamePageTaskViewEvent,
   isTaskGuidanceActionType,
   readTaskGuidancePendingAction,
@@ -630,6 +632,7 @@ export function DailyTasksModule() {
             const progressPercent = Math.min(100, Math.round((task.progress / Math.max(1, task.maxProgress)) * 100));
             const isBusy = notificationLoading && task.actionType === "enable_notifications";
             const isExpanded = expandedTaskIds.includes(task.id);
+            const taskInstruction = getTaskInstruction(task);
             const statusLabel = task.claimed
               ? task.oneTime
                 ? "Retired forever"
@@ -705,7 +708,10 @@ export function DailyTasksModule() {
 
                 {isExpanded ? (
                   <div className="ml-[3.25rem] mt-3 border-t border-white/10 pt-3">
-                    <p className="text-[13px] leading-5 text-gray-400">{task.subtitle}</p>
+                    <p className="text-[13px] leading-5 text-gray-300">{taskInstruction}</p>
+                    {task.subtitle && task.subtitle !== taskInstruction ? (
+                      <p className="mt-1.5 text-[12px] leading-5 text-gray-500">{task.subtitle}</p>
+                    ) : null}
                     <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
                       <span className="rounded-full border border-brand-purple/30 bg-brand-purple/15 px-2.5 py-1 text-[10px] font-bold text-white">
                         +{task.reward} GD
@@ -742,7 +748,7 @@ export function DailyTasksModule() {
                           )}
                         >
                           {isBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Icon className="h-4 w-4" />}
-                          {task.actionType === "open_wallet" ? "Get Gum Drops" : task.ctaLabel}
+                          {getTaskActionLabel(task)}
                         </button>
                       )}
                     </div>
