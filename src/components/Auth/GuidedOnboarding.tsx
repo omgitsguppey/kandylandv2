@@ -452,12 +452,6 @@ export function GuidedOnboarding() {
                 commitStepMetric(finalStepMetric, {
                     completed_step_count: stepMetrics.length,
                 });
-                trackEvent("guided_onboarding_completed", {
-                    durationSeconds,
-                    duration_ms: durationMs,
-                    completed_step_count: stepMetrics.length,
-                    registration_method: user.providerData[0]?.providerId === "google.com" ? "google" : "email",
-                });
             } catch {
                 // noop
             }

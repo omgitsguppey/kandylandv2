@@ -481,6 +481,13 @@ interface RealtimeAnalyticsResponse {
   totalActive?: number;
   deepTrackerActive?: number;
   data?: RealtimePoint[];
+  onboardingStats?: {
+    starts: number;
+    completions: number;
+    avgDuration: number;
+    completionRate: number;
+    startSource: "tracked" | "completion_fallback" | "none";
+  };
 }
 
 interface TooltipValue {
@@ -1642,7 +1649,7 @@ export default function AdminAnalyticsPage() {
                   items={[
                     { label: "GA active", value: formatCompactNumber(liveResponse?.totalActive ?? 0), tone: "accent" },
                     { label: "Tracked users", value: formatCompactNumber(liveResponse?.deepTrackerActive ?? 0) },
-                    { label: "Onboarding", value: livePulseOnboardingStats.completions.toLocaleString() },
+                    { label: "Onboarding (24h)", value: livePulseOnboardingStats.completions.toLocaleString() },
                     { label: "Purchases", value: livePulseFunnel.purchases.toLocaleString() },
                   ]}
                 />
@@ -1651,7 +1658,7 @@ export default function AdminAnalyticsPage() {
               <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                 <MetricCard label="GA Active" value={formatCompactNumber(liveResponse?.totalActive ?? 0)} hint="Google Analytics realtime" icon={Users} />
                 <MetricCard label="Tracked Users" value={formatCompactNumber(liveResponse?.deepTrackerActive ?? 0)} hint="Authenticated users active in the last 30 minutes" icon={Sparkles} />
-                <MetricCard label="Onboarding" value={livePulseOnboardingStats.completions.toLocaleString()} hint={`Avg ${formatDuration(livePulseOnboardingStats.avgDuration)}`} icon={PlayCircle} />
+                <MetricCard label="Onboarding (24h)" value={livePulseOnboardingStats.completions.toLocaleString()} hint={`Avg ${formatDuration(livePulseOnboardingStats.avgDuration)} over the last 24h`} icon={PlayCircle} />
                 <MetricCard
                   label="Purchases"
                   value={livePulseFunnel.purchases.toLocaleString()}
@@ -1809,7 +1816,7 @@ export default function AdminAnalyticsPage() {
                 onSectionRangeChange={(nextRange) => handleSectionRangeChange("onboardingVelocity", nextRange)}
                 loading={isSectionLoading("onboardingVelocity")}
                 title="Onboarding Velocity"
-                subtitle="How long new users take to finish the guided tour on mobile, with legacy start counts repaired against completion data."
+                subtitle="How long new users take to finish the guided tour on mobile, using deduped onboarding starts, completions, and step facts."
                 icon={PlayCircle}
                 rightSlot={<span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-400">{onboardingSourceLabelView}</span>}
                 collapsedPreview={(

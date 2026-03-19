@@ -142,8 +142,6 @@ export async function POST(req: NextRequest) {
         const legacyProfileRef = userRef.collection("profile").doc("default");
         const balanceRef = adminDb.collection("users").doc(uid).collection("economy").doc("balance");
         const analyticsEventRef = adminDb.collection("analytics_event_facts").doc();
-        const onboardingStepStartRefs = stepMetrics.map(() => adminDb.collection("analytics_event_facts").doc());
-        const onboardingStepCompletionRefs = stepMetrics.map(() => adminDb.collection("analytics_event_facts").doc());
         const nowMs = Date.now();
 
         return await adminDb.runTransaction(async (transaction) => {
@@ -221,48 +219,6 @@ export async function POST(req: NextRequest) {
                     source: "complete_onboarding_route",
                 },
             }));
-
-            stepMetrics.forEach((stepMetric, index) => {
-                transaction.set(onboardingStepStartRefs[index], buildAnalyticsEventFact({
-                    eventName: "guided_onboarding_step_started",
-                    timestamp: stepMetric.startedAtMs || nowMs,
-                    userId: uid,
-                    username,
-                    pagePath: stepMetric.stepPath,
-                    eventParams: {
-                        step_key: stepMetric.stepId,
-                        step_index: stepMetric.stepIndex,
-                        step_title: stepMetric.stepTitle,
-                        step_path: stepMetric.stepPath,
-                        started_at_ms: stepMetric.startedAtMs,
-                        overall_started_at_ms: startedAtMs,
-                        source: "complete_onboarding_route",
-                    },
-                }));
-
-                transaction.set(onboardingStepCompletionRefs[index], buildAnalyticsEventFact({
-                    eventName: "guided_onboarding_step_completed",
-                    timestamp: stepMetric.completedAtMs || nowMs,
-                    userId: uid,
-                    username,
-                    pagePath: stepMetric.stepPath,
-                    durationMs: stepMetric.durationMs,
-                    eventParams: {
-                        step_key: stepMetric.stepId,
-                        step_index: stepMetric.stepIndex,
-                        step_title: stepMetric.stepTitle,
-                        step_path: stepMetric.stepPath,
-                        started_at_ms: stepMetric.startedAtMs,
-                        completed_at_ms: stepMetric.completedAtMs,
-                        duration_ms: stepMetric.durationMs,
-                        duration_seconds: Math.round(stepMetric.durationMs / 1000),
-                        completion_reason: stepMetric.completionReason,
-                        overall_started_at_ms: startedAtMs,
-                        source: "complete_onboarding_route",
-                    },
-                }));
-            });
-
             return NextResponse.json({
                 success: true,
                 rewardAmount,

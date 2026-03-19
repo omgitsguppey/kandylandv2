@@ -8,6 +8,7 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { ADMIN_REALTIME } from "@/lib/server/rate-limit";
 import { AnalyticsReportRow, safeRunRealtimeReport } from "@/lib/server/admin-analytics-shared";
 import { createAdminAnalyticsDataClient, getAdminAnalyticsPropertyId } from "@/lib/server/admin-analytics-data";
+import { buildHistoricalOnboardingOverview } from "@/lib/server/admin-analytics-historical-onboarding";
 import { guardApiRequest } from "@/lib/server/request-guard";
 
 const propertyId = getAdminAnalyticsPropertyId();
@@ -31,7 +32,9 @@ export async function GET(request: NextRequest) {
       }, { status: 400 });
     }
 
-    const thirtyMinsAgo = Date.now() - 30 * 60 * 1000;
+    const nowMs = Date.now();
+    const thirtyMinsAgo = nowMs - 30 * 60 * 1000;
+    const onboardingWindowStartMs = nowMs - 24 * 60 * 60 * 1000;
 
     const totalActiveResponse = await safeRunRealtimeReport(analyticsClient, {
       property: `properties/${propertyId}`,
@@ -64,15 +67,34 @@ export async function GET(request: NextRequest) {
 
     liveData.sort((a, b) => b.minute - a.minute);
 
-    const sessionsQuery = await adminDb.collection("analytics_active_users")
-      .where("lastSeenAt", ">=", thirtyMinsAgo)
-      .get();
+    const [sessionsQuery, onboardingFactsSnapshot] = await Promise.all([
+      adminDb.collection("analytics_active_users")
+        .where("lastSeenAt", ">=", thirtyMinsAgo)
+        .get(),
+      adminDb.collection("analytics_event_facts")
+        .where("timestamp", ">=", onboardingWindowStartMs)
+        .get(),
+    ]);
+
+    const onboardingOverview = buildHistoricalOnboardingOverview({
+      onboardingRows: [],
+      analyticsEventFacts: onboardingFactsSnapshot.docs,
+      startMs: onboardingWindowStartMs,
+      eventsData: {},
+    });
 
     return NextResponse.json({
       success: true,
       totalActive,
       deepTrackerActive: sessionsQuery.size,
       data: liveData,
+      onboardingStats: {
+        starts: onboardingOverview.onboardingStartCount,
+        completions: onboardingOverview.normalizedOnboardingCompletions,
+        avgDuration: onboardingOverview.avgOnboardingDuration,
+        completionRate: onboardingOverview.onboardingCompletionRate,
+        startSource: onboardingOverview.onboardingStartSource,
+      },
     });
   } catch (error) {
     return handleApiError(error, "Admin.Analytics.Realtime.GET");

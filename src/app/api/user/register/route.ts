@@ -157,12 +157,6 @@ export async function POST(request: NextRequest) {
                 has_referral_code: typeof referredBy === "string" && referredBy.trim().length > 0,
                 page_path: "/dashboard",
             }, caller.uid),
-            trackServerEvent("guided_onboarding_started", {
-                source: "auto_after_signup",
-                registration_method: normalizedRegistrationMethod,
-                page_path: "/dashboard",
-                onboarding_entry: "post_registration",
-            }, caller.uid),
         ]);
 
         return NextResponse.json({ success: true, welcomeBonus: 50 });
