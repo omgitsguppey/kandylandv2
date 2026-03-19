@@ -10,18 +10,19 @@ Current estimated completion: `99%`
 
 Why it is not `100%` yet:
 - root and `functions` still inherit `9 low` `npm audit` findings each from upstream Google/Firebase dependency chains
-- the cycle checker still reports `4` skipped non-runtime imports from CSS and generated Data Connect peer references
-- [EVERY_FILE_FUNCTION_CHECKLIST.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/EVERY_FILE_FUNCTION_CHECKLIST.md) is now exhaustive, but its per-function confidence values are still baseline placeholders rather than individually hand-scored review outcomes
+- the cycle checker intentionally ignores `4` known non-runtime imports from CSS and generated Data Connect peer references
+- [EVERY_FILE_FUNCTION_CHECKLIST.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/EVERY_FILE_FUNCTION_CHECKLIST.md) is now exhaustive and scored, but the confidence values are still derived from the current validated sweep rather than a fresh hand-written note for every single function
 
 ## Current Inventory
 
 Tracked files: `410`
 
-Files currently in checklist scope: `411`
+Files currently in checklist scope: `413`
 - includes every tracked file
 - plus [EVERY_FILE_FUNCTION_CHECKLIST.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/EVERY_FILE_FUNCTION_CHECKLIST.md) itself
+- plus the new [REPO_STATE_SCORECARD_2026-03-19.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_STATE_SCORECARD_2026-03-19.md) and [scripts/check-cycles.ts](/Users/uylus/OneDrive/Documents/KandyDrops_Final/scripts/check-cycles.ts)
 
-Detected function-like implementations indexed in the checklist: `3158`
+Detected function-like implementations indexed in the checklist: `3161`
 
 ## Validation Status
 
@@ -44,6 +45,7 @@ Additional current signals:
 3. Aligned the Firebase messaging service worker CDN runtime with the installed app SDK version in [public/firebase-messaging-sw.js](/Users/uylus/OneDrive/Documents/KandyDrops_Final/public/firebase-messaging-sw.js).
 4. Generated the exhaustive file/function checklist in [EVERY_FILE_FUNCTION_CHECKLIST.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/EVERY_FILE_FUNCTION_CHECKLIST.md).
 5. Removed stale generated screenshot/log output directories that were outside the tracked source tree.
+6. Replaced the raw `madge` CLI cycle check with the typed wrapper in [scripts/check-cycles.ts](/Users/uylus/OneDrive/Documents/KandyDrops_Final/scripts/check-cycles.ts), so the cycle gate now reports only real dependency problems instead of generic warning noise.
 
 ## Area Read
 
@@ -70,8 +72,8 @@ Additional current signals:
 ## Honest Remaining Gaps
 
 1. The remaining `npm audit` issues are upstream low-severity advisories, not clear repo-side code defects.
-2. The `madge` warning count is tool noise from skipped imports rather than circular-dependency failures.
-3. The new checklist is exhaustive and usable, but it is still a baseline inventory document. Replacing every generated `0%` confidence value with a manually justified per-file and per-function score would be a larger editorial audit pass rather than a code fix.
+2. The cycle check is now accurate, but it still depends on an explicit allowlist for known non-runtime imports.
+3. The new checklist is exhaustive and scored, but those confidence values are still automation-assisted. A truly bespoke function-by-function written review would be an editorial pass, not another code fix.
 
 ## Bottom Line
 
