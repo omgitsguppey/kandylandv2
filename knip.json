@@ -29,7 +29,6 @@
     "tailwindcss",
     "eslint-import-resolver-typescript",
     "eslint-plugin-jsx-a11y",
-    "eslint-plugin-tailwindcss",
     "firebase-functions"
   ]
 }

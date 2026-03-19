@@ -46,6 +46,7 @@ Additional current signals:
 4. Generated the exhaustive file/function checklist in [EVERY_FILE_FUNCTION_CHECKLIST.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/EVERY_FILE_FUNCTION_CHECKLIST.md).
 5. Removed stale generated screenshot/log output directories that were outside the tracked source tree.
 6. Replaced the raw `madge` CLI cycle check with the typed wrapper in [scripts/check-cycles.ts](/Users/uylus/OneDrive/Documents/KandyDrops_Final/scripts/check-cycles.ts), so the cycle gate now reports only real dependency problems instead of generic warning noise.
+7. Removed the unused `eslint-plugin-tailwindcss` package and its stale `knip` ignore entry, which cleared the last local Tailwind peer-version inconsistency from the dependency tree.
 
 ## Area Read
 
