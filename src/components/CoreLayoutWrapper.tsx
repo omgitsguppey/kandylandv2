@@ -7,7 +7,9 @@ import dynamic from "next/dynamic";
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useUI } from "@/context/UIContext";
 import { CLIENT_RUNTIME_STORAGE_KEYS, writeSessionStorageValue } from "@/hooks/client-runtime";
+import { useDeferredClientReady } from "@/hooks/useDeferredClientReady";
 import { applyAnalyticsConsentToGtag, persistPrivacySettingsSnapshot, readPrivacySettingsSnapshot } from "@/lib/privacy-consent";
 import { writeLastVisitedPath } from "@/lib/navigation-persistence";
 
@@ -41,6 +43,11 @@ const GlobalBugReportTrigger = dynamic(
 
 export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     const { user, userProfile } = useAuth();
+    const {
+        isAuthModalOpen,
+        isInsufficientBalanceModalOpen,
+        isPurchaseModalOpen,
+    } = useUI();
     const pathname = usePathname();
     const isAdminRoute = pathname?.startsWith("/admin") ?? false;
     const isLegalRoute = pathname === "/privacy" || pathname === "/terms";
@@ -53,6 +60,10 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     const shouldShowDebugBreakpoints = process.env.NODE_ENV !== "production";
     const shouldTrackDeepAnalytics = !isAdminRoute && !isLegalRoute;
     const shouldEnablePwaRuntime = !isAdminRoute;
+    const shouldLoadOnboarding = isUserShell && userProfile?.onboardingCompleted !== true;
+    const runtimeReady = useDeferredClientReady();
+    const afterPaintReady = useDeferredClientReady({ delayMs: 180 });
+    const idleReady = useDeferredClientReady({ delayMs: 500, idle: true });
 
     useEffect(() => {
         if (typeof window !== "undefined") {
@@ -104,29 +115,28 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
 
     return (
         <>
-            <ClientDiagnosticsBridge />
-            {shouldTrackDeepAnalytics ? <DeepTracker /> : null}
-            {shouldEnablePwaRuntime ? <PwaRuntimeBridge /> : null}
-            {isUserShell ? <NotificationRuntimeBridge /> : null}
-            {isUserShell ? <TaskGuidanceBanner /> : null}
             <Navbar />
             {children}
-            {shouldShowBugReportTrigger ? <GlobalBugReportTrigger /> : null}
             {shouldShowPublicChrome && !isLegalRoute ? <MobileBottomBar /> : null}
             <ScrollToTop />
             <AutoScrollToTop />
-            {shouldShowPurchaseUi ? (
+            {runtimeReady ? <ClientDiagnosticsBridge /> : null}
+            {afterPaintReady && shouldTrackDeepAnalytics ? <DeepTracker /> : null}
+            {afterPaintReady && isUserShell ? <NotificationRuntimeBridge /> : null}
+            {afterPaintReady && isUserShell ? <TaskGuidanceBanner /> : null}
+            {idleReady && shouldEnablePwaRuntime ? <PwaRuntimeBridge /> : null}
+            {idleReady && shouldShowBugReportTrigger ? <GlobalBugReportTrigger /> : null}
+            {afterPaintReady && shouldShowPurchaseUi && isPurchaseModalOpen ? (
                 <PayPalProvider>
                     <GlobalPurchaseModal />
                 </PayPalProvider>
             ) : null}
-
-            {isUserShell ? <InsufficientBalanceModal /> : null}
-            {shouldShowAuthUi ? <GlobalAuthModal /> : null}
-            {isUserShell ? <GuidedOnboarding /> : null}
+            {afterPaintReady && isUserShell && isInsufficientBalanceModalOpen ? <InsufficientBalanceModal /> : null}
+            {afterPaintReady && shouldShowAuthUi && isAuthModalOpen ? <GlobalAuthModal /> : null}
+            {idleReady && shouldLoadOnboarding ? <GuidedOnboarding /> : null}
             <Toaster position="top-center" theme="dark" richColors closeButton />
-            {shouldShowCookieBanner ? <CookieBanner /> : null}
-            {shouldShowDebugBreakpoints ? <DebugBreakpoints /> : null}
+            {afterPaintReady && shouldShowCookieBanner ? <CookieBanner /> : null}
+            {afterPaintReady && shouldShowDebugBreakpoints ? <DebugBreakpoints /> : null}
         </>
     );
 }

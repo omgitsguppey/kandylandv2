@@ -41,6 +41,7 @@ export function Navbar() {
             ? "/admin"
             : "/dashboard"
         : "/";
+    const isAdmin = userProfile?.role === "admin";
 
     return (
         <>
@@ -65,7 +66,7 @@ export function Navbar() {
                     <div className="flex min-w-0 items-center gap-2 sm:gap-4">
                         {user ? (
                             <>
-                                <AdminDropdown />
+                                {isAdmin ? <AdminDropdown /> : null}
                                 <NotificationBell />
 
                                 <div className="hidden items-center gap-3 rounded-full border border-white/5 px-4 py-1.5 pr-1.5 md:flex">
@@ -123,7 +124,9 @@ export function Navbar() {
                 </div>
             </nav>
 
-            <ProfileSidebar isOpen={isProfileSidebarOpen} onClose={closeProfileSidebar} />
+            {isProfileSidebarOpen ? (
+                <ProfileSidebar isOpen={isProfileSidebarOpen} onClose={closeProfileSidebar} />
+            ) : null}
         </>
     );
 }
