@@ -1,0 +1,322 @@
+query GetAnalyticsExportStatuses {
+  analyticsExportStatuses(
+    orderBy: [{ domain: ASC }]
+    limit: 50
+  ) {
+    id
+    domain
+    sourceCollection
+    sourceKey
+    timeZone
+    exportVersion
+    status
+    lastSourceUpdatedAtMs
+    lastExportedAtMs
+    lastError
+  }
+}
+
+query ListAnalyticsExportCommerceDaily(
+  $startDayKey: String!
+  $limit: Int! = 90
+) {
+  analyticsCommerceDailies(
+    where: { dayKey: { gte: $startDayKey } }
+    orderBy: [{ dayKey: DESC }]
+    limit: $limit
+  ) {
+    id
+    dayKey
+    transactionCount
+    purchaseCount
+    unlockCount
+    grossRevenueUsdTotal
+    paypalFeeUsdTotal
+    paypalFeeCentsTotal
+    netRevenueUsdTotal
+    netRevenueCentsTotal
+    adjustedProfitUsdTotal
+    bonusValueUsdTotal
+    bonusGumDropsTotal
+    deliveredGumDropsTotal
+    paidGumDropsTotal
+    spendGdTotal
+    unlockSpendGdTotal
+    lastTransactionAtMs
+  }
+}
+
+query GetAnalyticsExportCommerceRollup {
+  analyticsCommerceRollups(limit: 1) {
+    id
+    transactionCount
+    purchaseCount
+    unlockCount
+    grossRevenueUsdTotal
+    paypalFeeUsdTotal
+    paypalFeeCentsTotal
+    netRevenueUsdTotal
+    netRevenueCentsTotal
+    adjustedProfitUsdTotal
+    bonusValueUsdTotal
+    bonusGumDropsTotal
+    deliveredGumDropsTotal
+    paidGumDropsTotal
+    unlockSpendGdTotal
+    lastTransactionAtMs
+  }
+}
+
+query ListAnalyticsExportBundleDaily(
+  $startDayKey: String!
+  $limit: Int! = 90
+) {
+  analyticsBundleDailies(
+    where: { dayKey: { gte: $startDayKey } }
+    orderBy: [{ dayKey: DESC }, { grossRevenueUsdTotal: DESC }]
+    limit: $limit
+  ) {
+    id
+    dayKey
+    bundleKey
+    bundleLabel
+    bundleTier
+    purchaseCount
+    grossRevenueUsdTotal
+    paypalFeeUsdTotal
+    paypalFeeCentsTotal
+    netRevenueUsdTotal
+    netRevenueCentsTotal
+    adjustedProfitUsdTotal
+    bonusValueUsdTotal
+    bonusGumDropsTotal
+    deliveredGumDropsTotal
+    paidGumDropsTotal
+    lastTransactionAtMs
+  }
+}
+
+query GetAnalyticsExportTopPagesByDay(
+  $dayKey: String!
+  $limit: Int! = 25
+) {
+  analyticsPageDailies(
+    where: { dayKey: { eq: $dayKey } }
+    orderBy: [{ pageViews: DESC }, { clickCount: DESC }]
+    limit: $limit
+  ) {
+    id
+    dayKey
+    pagePath
+    pageViews
+    clickCount
+    hoverCount
+    scrollCount
+    visibilityCount
+    dwellMsTotal
+    dwellSampleCount
+    maxScrollDepth
+    lastEventAtMs
+  }
+}
+
+query GetAnalyticsExportTopDropsByDay(
+  $dayKey: String!
+  $limit: Int! = 25
+) {
+  analyticsDropDailies(
+    where: { dayKey: { eq: $dayKey } }
+    orderBy: [{ viewerSessionCount: DESC }, { unwrapCount: DESC }]
+    limit: $limit
+  ) {
+    id
+    dayKey
+    dropId
+    dropTitle
+    dropCategory
+    eventCount
+    viewerSessionCount
+    unwrapCount
+    unlockTransactionCount
+    downloadCount
+    relatedClickCount
+    spendGdTotal
+    watchSecondsTotal
+    loadMsTotal
+    loadSampleCount
+    lastEventAtMs
+  }
+}
+
+query GetAnalyticsExportTopUsersByDay(
+  $dayKey: String!
+  $limit: Int! = 25
+) {
+  analyticsUserDailies(
+    where: { dayKey: { eq: $dayKey } }
+    orderBy: [{ revenueCentsTotal: DESC }, { eventCount: DESC }]
+    limit: $limit
+  ) {
+    id
+    dayKey
+    uid
+    username
+    eventCount
+    sessionCount
+    unwrapCount
+    unlockCount
+    purchaseCount
+    taskEventCount
+    taskRewardTotal
+    spendGdTotal
+    revenueCentsTotal
+    grossRevenueUsdTotal
+    paypalFeeUsdTotal
+    paypalFeeCentsTotal
+    netRevenueUsdTotal
+    netRevenueCentsTotal
+    adjustedProfitUsdTotal
+    bonusValueUsdTotal
+    bonusGumDropsTotal
+    deliveredGumDropsTotal
+    paidGumDropsTotal
+    unlockSpendGdTotal
+    watchSecondsTotal
+    loadMsTotal
+    loadSampleCount
+    lastSeenAtMs
+  }
+}
+
+query GetAnalyticsExportTopUsersAllTime($limit: Int! = 25) {
+  analyticsUserRollups(
+    orderBy: [{ revenueCentsTotal: DESC }, { eventCount: DESC }]
+    limit: $limit
+  ) {
+    id
+    uid
+    username
+    eventCount
+    sessionCount
+    unwrapCount
+    unlockCount
+    purchaseCount
+    taskEventCount
+    taskRewardTotal
+    spendGdTotal
+    revenueCentsTotal
+    grossRevenueUsdTotal
+    paypalFeeUsdTotal
+    paypalFeeCentsTotal
+    netRevenueUsdTotal
+    netRevenueCentsTotal
+    adjustedProfitUsdTotal
+    bonusValueUsdTotal
+    bonusGumDropsTotal
+    deliveredGumDropsTotal
+    paidGumDropsTotal
+    unlockSpendGdTotal
+    watchSecondsTotal
+    loadMsTotal
+    loadSampleCount
+    lastSeenAtMs
+  }
+}
+
+query ListAnalyticsExportTaskDaily(
+  $startDayKey: String!
+  $limit: Int! = 90
+) {
+  analyticsTaskDailies(
+    where: { dayKey: { gte: $startDayKey } }
+    orderBy: [{ dayKey: DESC }]
+    limit: $limit
+  ) {
+    id
+    dayKey
+    eventCount
+    rewardTotal
+    durationMsTotal
+    durationSampleCount
+    lastEventAtMs
+  }
+}
+
+query GetAnalyticsExportTopTasks($limit: Int! = 25) {
+  analyticsTaskRollups(
+    orderBy: [{ eventCount: DESC }, { rewardTotal: DESC }]
+    limit: $limit
+  ) {
+    id
+    taskId
+    title
+    eventCount
+    rewardTotal
+    durationMsTotal
+    durationSampleCount
+    lastEventAtMs
+  }
+}
+
+query ListAnalyticsExportSecurityDaily(
+  $startDayKey: String!
+  $limit: Int! = 90
+) {
+  analyticsSecurityDailies(
+    where: { dayKey: { gte: $startDayKey } }
+    orderBy: [{ dayKey: DESC }]
+    limit: $limit
+  ) {
+    id
+    dayKey
+    eventCount
+    lastEventAtMs
+  }
+}
+
+query GetAnalyticsExportTopUserSecurity($limit: Int! = 25) {
+  analyticsUserSecurityRollups(
+    orderBy: [{ eventCount: DESC }, { lastEventAtMs: DESC }]
+    limit: $limit
+  ) {
+    id
+    uid
+    username
+    eventCount
+    lastEventAtMs
+    lastReason
+    lastLabel
+    lastMessage
+    lastLocationLabel
+    lastDropId
+    lastPagePath
+  }
+}
+
+query ListAnalyticsExportAlerts($limit: Int! = 50) {
+  analyticsAlerts(
+    orderBy: [{ generatedAtMs: DESC }]
+    limit: $limit
+  ) {
+    id
+    hourKey
+    type
+    severity
+    message
+    baseline
+    current
+    generatedAtMs
+  }
+}
+
+query ListAnalyticsExportAlertsByHourKey($hourKey: String!) {
+  analyticsAlerts(
+    where: { hourKey: { eq: $hourKey } }
+    orderBy: [{ type: ASC }]
+    limit: 50
+  ) {
+    id
+    type
+    hourKey
+  }
+}

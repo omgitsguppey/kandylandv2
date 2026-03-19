@@ -3,6 +3,20 @@ import {setGlobalOptions} from "firebase-functions/v2"
 import {REGION} from "./firebase-runtime.js"
 
 export {onAnalyticsEventFactCreated} from "./analytics-event-facts.js"
+export {
+  onAnalyticsAlertsExportMirror,
+  onAnalyticsBundleDailyExportSync,
+  onAnalyticsCommerceDailyExportSync,
+  onAnalyticsCommerceRollupExportSync,
+  onAnalyticsDropDailyExportSync,
+  onAnalyticsPageDailyExportSync,
+  onAnalyticsSecurityDailyExportSync,
+  onAnalyticsTaskDailyExportSync,
+  onAnalyticsTaskRollupExportSync,
+  onAnalyticsUserDailyExportSync,
+  onAnalyticsUserRollupExportSync,
+  onAnalyticsUserSecurityRollupExportSync,
+} from "./analytics-export-sync.js"
 export {onGuestAnalyticsBatchCreated} from "./analytics-guest-batches.js"
 export {onDailyTaskEventCreated} from "./analytics-task-events.js"
 export {onSecurityEventCreated} from "./analytics-security-events.js"

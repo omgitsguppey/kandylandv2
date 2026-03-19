@@ -271,3 +271,16 @@ type AnalyticsTargetDaily @table {
   hoverCount: Int! @default(value: 0)
   lastEventAtMs: Int
 }
+
+type AnalyticsExportStatus @table {
+  id: UUID! @default(expr: "uuidV4()")
+  domain: String!
+  sourceCollection: String!
+  sourceKey: String!
+  timeZone: String!
+  exportVersion: String!
+  status: String!
+  lastSourceUpdatedAtMs: Int
+  lastExportedAtMs: Int!
+  lastError: String
+}

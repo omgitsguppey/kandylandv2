@@ -9,4 +9,4 @@ schema:
       cloudSql:
         instanceId: "kandydrops-by-ikandy-instance"
         schemaValidation: "STRICT"
-connectorDirs: ["./example"]
+connectorDirs: ["./example", "./analytics_export"]

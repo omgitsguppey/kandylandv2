@@ -24,3 +24,4 @@ const adminApp = getOrCreateAdminApp()
 
 export const db = getFirestore(adminApp)
 export const rtdb = getDatabase(adminApp)
+export {adminApp}

@@ -1,0 +1,539 @@
+mutation UpsertAnalyticsExportStatus(
+  $id: UUID!
+  $domain: String!
+  $sourceCollection: String!
+  $sourceKey: String!
+  $timeZone: String!
+  $exportVersion: String!
+  $status: String!
+  $lastSourceUpdatedAtMs: Int
+  $lastExportedAtMs: Int!
+  $lastError: String
+) {
+  analyticsExportStatus_upsert(data: {
+    id: $id
+    domain: $domain
+    sourceCollection: $sourceCollection
+    sourceKey: $sourceKey
+    timeZone: $timeZone
+    exportVersion: $exportVersion
+    status: $status
+    lastSourceUpdatedAtMs: $lastSourceUpdatedAtMs
+    lastExportedAtMs: $lastExportedAtMs
+    lastError: $lastError
+  }) {
+    id
+  }
+}
+
+mutation UpsertAnalyticsPageDaily(
+  $id: UUID!
+  $dayKey: String!
+  $pagePath: String!
+  $pageViews: Int!
+  $clickCount: Int!
+  $hoverCount: Int!
+  $scrollCount: Int!
+  $visibilityCount: Int!
+  $dwellMsTotal: Int!
+  $dwellSampleCount: Int!
+  $maxScrollDepth: Int!
+  $lastEventAtMs: Int
+) {
+  analyticsPageDaily_upsert(data: {
+    id: $id
+    dayKey: $dayKey
+    pagePath: $pagePath
+    pageViews: $pageViews
+    clickCount: $clickCount
+    hoverCount: $hoverCount
+    scrollCount: $scrollCount
+    visibilityCount: $visibilityCount
+    dwellMsTotal: $dwellMsTotal
+    dwellSampleCount: $dwellSampleCount
+    maxScrollDepth: $maxScrollDepth
+    lastEventAtMs: $lastEventAtMs
+  }) {
+    id
+  }
+}
+
+mutation UpsertAnalyticsDropDaily(
+  $id: UUID!
+  $dayKey: String!
+  $dropId: String!
+  $dropTitle: String
+  $dropCategory: String
+  $eventCount: Int!
+  $viewerSessionCount: Int!
+  $unwrapCount: Int!
+  $unlockTransactionCount: Int!
+  $downloadCount: Int!
+  $relatedClickCount: Int!
+  $spendGdTotal: Int!
+  $watchSecondsTotal: Int!
+  $loadMsTotal: Int!
+  $loadSampleCount: Int!
+  $lastEventAtMs: Int
+) {
+  analyticsDropDaily_upsert(data: {
+    id: $id
+    dayKey: $dayKey
+    dropId: $dropId
+    dropTitle: $dropTitle
+    dropCategory: $dropCategory
+    eventCount: $eventCount
+    viewerSessionCount: $viewerSessionCount
+    unwrapCount: $unwrapCount
+    unlockTransactionCount: $unlockTransactionCount
+    downloadCount: $downloadCount
+    relatedClickCount: $relatedClickCount
+    spendGdTotal: $spendGdTotal
+    watchSecondsTotal: $watchSecondsTotal
+    loadMsTotal: $loadMsTotal
+    loadSampleCount: $loadSampleCount
+    lastEventAtMs: $lastEventAtMs
+  }) {
+    id
+  }
+}
+
+mutation UpsertAnalyticsUserDaily(
+  $id: UUID!
+  $dayKey: String!
+  $uid: String!
+  $username: String
+  $eventCount: Int!
+  $sessionCount: Int!
+  $unwrapCount: Int!
+  $unlockCount: Int!
+  $purchaseCount: Int!
+  $taskEventCount: Int!
+  $taskRewardTotal: Int!
+  $spendGdTotal: Int!
+  $revenueCentsTotal: Int!
+  $grossRevenueUsdTotal: Float!
+  $paypalFeeUsdTotal: Float!
+  $paypalFeeCentsTotal: Int!
+  $netRevenueUsdTotal: Float!
+  $netRevenueCentsTotal: Int!
+  $adjustedProfitUsdTotal: Float!
+  $bonusValueUsdTotal: Float!
+  $bonusGumDropsTotal: Int!
+  $deliveredGumDropsTotal: Int!
+  $paidGumDropsTotal: Int!
+  $unlockSpendGdTotal: Int!
+  $watchSecondsTotal: Int!
+  $loadMsTotal: Int!
+  $loadSampleCount: Int!
+  $lastSeenAtMs: Int
+) {
+  analyticsUserDaily_upsert(data: {
+    id: $id
+    dayKey: $dayKey
+    uid: $uid
+    username: $username
+    eventCount: $eventCount
+    sessionCount: $sessionCount
+    unwrapCount: $unwrapCount
+    unlockCount: $unlockCount
+    purchaseCount: $purchaseCount
+    taskEventCount: $taskEventCount
+    taskRewardTotal: $taskRewardTotal
+    spendGdTotal: $spendGdTotal
+    revenueCentsTotal: $revenueCentsTotal
+    grossRevenueUsdTotal: $grossRevenueUsdTotal
+    paypalFeeUsdTotal: $paypalFeeUsdTotal
+    paypalFeeCentsTotal: $paypalFeeCentsTotal
+    netRevenueUsdTotal: $netRevenueUsdTotal
+    netRevenueCentsTotal: $netRevenueCentsTotal
+    adjustedProfitUsdTotal: $adjustedProfitUsdTotal
+    bonusValueUsdTotal: $bonusValueUsdTotal
+    bonusGumDropsTotal: $bonusGumDropsTotal
+    deliveredGumDropsTotal: $deliveredGumDropsTotal
+    paidGumDropsTotal: $paidGumDropsTotal
+    unlockSpendGdTotal: $unlockSpendGdTotal
+    watchSecondsTotal: $watchSecondsTotal
+    loadMsTotal: $loadMsTotal
+    loadSampleCount: $loadSampleCount
+    lastSeenAtMs: $lastSeenAtMs
+  }) {
+    id
+  }
+}
+
+mutation UpsertAnalyticsUserRollup(
+  $id: UUID!
+  $uid: String!
+  $username: String
+  $eventCount: Int!
+  $sessionCount: Int!
+  $unwrapCount: Int!
+  $unlockCount: Int!
+  $purchaseCount: Int!
+  $taskEventCount: Int!
+  $taskRewardTotal: Int!
+  $spendGdTotal: Int!
+  $revenueCentsTotal: Int!
+  $grossRevenueUsdTotal: Float!
+  $paypalFeeUsdTotal: Float!
+  $paypalFeeCentsTotal: Int!
+  $netRevenueUsdTotal: Float!
+  $netRevenueCentsTotal: Int!
+  $adjustedProfitUsdTotal: Float!
+  $bonusValueUsdTotal: Float!
+  $bonusGumDropsTotal: Int!
+  $deliveredGumDropsTotal: Int!
+  $paidGumDropsTotal: Int!
+  $unlockSpendGdTotal: Int!
+  $watchSecondsTotal: Int!
+  $loadMsTotal: Int!
+  $loadSampleCount: Int!
+  $lastSeenAtMs: Int
+) {
+  analyticsUserRollup_upsert(data: {
+    id: $id
+    uid: $uid
+    username: $username
+    eventCount: $eventCount
+    sessionCount: $sessionCount
+    unwrapCount: $unwrapCount
+    unlockCount: $unlockCount
+    purchaseCount: $purchaseCount
+    taskEventCount: $taskEventCount
+    taskRewardTotal: $taskRewardTotal
+    spendGdTotal: $spendGdTotal
+    revenueCentsTotal: $revenueCentsTotal
+    grossRevenueUsdTotal: $grossRevenueUsdTotal
+    paypalFeeUsdTotal: $paypalFeeUsdTotal
+    paypalFeeCentsTotal: $paypalFeeCentsTotal
+    netRevenueUsdTotal: $netRevenueUsdTotal
+    netRevenueCentsTotal: $netRevenueCentsTotal
+    adjustedProfitUsdTotal: $adjustedProfitUsdTotal
+    bonusValueUsdTotal: $bonusValueUsdTotal
+    bonusGumDropsTotal: $bonusGumDropsTotal
+    deliveredGumDropsTotal: $deliveredGumDropsTotal
+    paidGumDropsTotal: $paidGumDropsTotal
+    unlockSpendGdTotal: $unlockSpendGdTotal
+    watchSecondsTotal: $watchSecondsTotal
+    loadMsTotal: $loadMsTotal
+    loadSampleCount: $loadSampleCount
+    lastSeenAtMs: $lastSeenAtMs
+  }) {
+    id
+  }
+}
+
+mutation UpsertAnalyticsCommerceDaily(
+  $id: UUID!
+  $dayKey: String!
+  $transactionCount: Int!
+  $purchaseCount: Int!
+  $unlockCount: Int!
+  $grossRevenueUsdTotal: Float!
+  $paypalFeeUsdTotal: Float!
+  $paypalFeeCentsTotal: Int!
+  $netRevenueUsdTotal: Float!
+  $netRevenueCentsTotal: Int!
+  $adjustedProfitUsdTotal: Float!
+  $bonusValueUsdTotal: Float!
+  $bonusGumDropsTotal: Int!
+  $deliveredGumDropsTotal: Int!
+  $paidGumDropsTotal: Int!
+  $spendGdTotal: Int!
+  $unlockSpendGdTotal: Int!
+  $lastTransactionAtMs: Int
+) {
+  analyticsCommerceDaily_upsert(data: {
+    id: $id
+    dayKey: $dayKey
+    transactionCount: $transactionCount
+    purchaseCount: $purchaseCount
+    unlockCount: $unlockCount
+    grossRevenueUsdTotal: $grossRevenueUsdTotal
+    paypalFeeUsdTotal: $paypalFeeUsdTotal
+    paypalFeeCentsTotal: $paypalFeeCentsTotal
+    netRevenueUsdTotal: $netRevenueUsdTotal
+    netRevenueCentsTotal: $netRevenueCentsTotal
+    adjustedProfitUsdTotal: $adjustedProfitUsdTotal
+    bonusValueUsdTotal: $bonusValueUsdTotal
+    bonusGumDropsTotal: $bonusGumDropsTotal
+    deliveredGumDropsTotal: $deliveredGumDropsTotal
+    paidGumDropsTotal: $paidGumDropsTotal
+    spendGdTotal: $spendGdTotal
+    unlockSpendGdTotal: $unlockSpendGdTotal
+    lastTransactionAtMs: $lastTransactionAtMs
+  }) {
+    id
+  }
+}
+
+mutation UpsertAnalyticsCommerceRollup(
+  $id: UUID!
+  $transactionCount: Int!
+  $purchaseCount: Int!
+  $unlockCount: Int!
+  $grossRevenueUsdTotal: Float!
+  $paypalFeeUsdTotal: Float!
+  $paypalFeeCentsTotal: Int!
+  $netRevenueUsdTotal: Float!
+  $netRevenueCentsTotal: Int!
+  $adjustedProfitUsdTotal: Float!
+  $bonusValueUsdTotal: Float!
+  $bonusGumDropsTotal: Int!
+  $deliveredGumDropsTotal: Int!
+  $paidGumDropsTotal: Int!
+  $unlockSpendGdTotal: Int!
+  $lastTransactionAtMs: Int
+) {
+  analyticsCommerceRollup_upsert(data: {
+    id: $id
+    transactionCount: $transactionCount
+    purchaseCount: $purchaseCount
+    unlockCount: $unlockCount
+    grossRevenueUsdTotal: $grossRevenueUsdTotal
+    paypalFeeUsdTotal: $paypalFeeUsdTotal
+    paypalFeeCentsTotal: $paypalFeeCentsTotal
+    netRevenueUsdTotal: $netRevenueUsdTotal
+    netRevenueCentsTotal: $netRevenueCentsTotal
+    adjustedProfitUsdTotal: $adjustedProfitUsdTotal
+    bonusValueUsdTotal: $bonusValueUsdTotal
+    bonusGumDropsTotal: $bonusGumDropsTotal
+    deliveredGumDropsTotal: $deliveredGumDropsTotal
+    paidGumDropsTotal: $paidGumDropsTotal
+    unlockSpendGdTotal: $unlockSpendGdTotal
+    lastTransactionAtMs: $lastTransactionAtMs
+  }) {
+    id
+  }
+}
+
+mutation UpsertAnalyticsBundleDaily(
+  $id: UUID!
+  $dayKey: String!
+  $bundleKey: String!
+  $bundleLabel: String
+  $bundleTier: String
+  $purchaseCount: Int!
+  $grossRevenueUsdTotal: Float!
+  $paypalFeeUsdTotal: Float!
+  $paypalFeeCentsTotal: Int!
+  $netRevenueUsdTotal: Float!
+  $netRevenueCentsTotal: Int!
+  $adjustedProfitUsdTotal: Float!
+  $bonusValueUsdTotal: Float!
+  $bonusGumDropsTotal: Int!
+  $deliveredGumDropsTotal: Int!
+  $paidGumDropsTotal: Int!
+  $lastTransactionAtMs: Int
+) {
+  analyticsBundleDaily_upsert(data: {
+    id: $id
+    dayKey: $dayKey
+    bundleKey: $bundleKey
+    bundleLabel: $bundleLabel
+    bundleTier: $bundleTier
+    purchaseCount: $purchaseCount
+    grossRevenueUsdTotal: $grossRevenueUsdTotal
+    paypalFeeUsdTotal: $paypalFeeUsdTotal
+    paypalFeeCentsTotal: $paypalFeeCentsTotal
+    netRevenueUsdTotal: $netRevenueUsdTotal
+    netRevenueCentsTotal: $netRevenueCentsTotal
+    adjustedProfitUsdTotal: $adjustedProfitUsdTotal
+    bonusValueUsdTotal: $bonusValueUsdTotal
+    bonusGumDropsTotal: $bonusGumDropsTotal
+    deliveredGumDropsTotal: $deliveredGumDropsTotal
+    paidGumDropsTotal: $paidGumDropsTotal
+    lastTransactionAtMs: $lastTransactionAtMs
+  }) {
+    id
+  }
+}
+
+mutation UpsertAnalyticsTaskDaily(
+  $id: UUID!
+  $dayKey: String!
+  $eventCount: Int!
+  $rewardTotal: Int!
+  $durationMsTotal: Int!
+  $durationSampleCount: Int!
+  $lastEventAtMs: Int
+) {
+  analyticsTaskDaily_upsert(data: {
+    id: $id
+    dayKey: $dayKey
+    eventCount: $eventCount
+    rewardTotal: $rewardTotal
+    durationMsTotal: $durationMsTotal
+    durationSampleCount: $durationSampleCount
+    lastEventAtMs: $lastEventAtMs
+  }) {
+    id
+  }
+}
+
+mutation UpsertAnalyticsTaskRollup(
+  $id: UUID!
+  $taskId: String!
+  $title: String
+  $eventCount: Int!
+  $rewardTotal: Int!
+  $durationMsTotal: Int!
+  $durationSampleCount: Int!
+  $lastEventAtMs: Int
+) {
+  analyticsTaskRollup_upsert(data: {
+    id: $id
+    taskId: $taskId
+    title: $title
+    eventCount: $eventCount
+    rewardTotal: $rewardTotal
+    durationMsTotal: $durationMsTotal
+    durationSampleCount: $durationSampleCount
+    lastEventAtMs: $lastEventAtMs
+  }) {
+    id
+  }
+}
+
+mutation UpsertAnalyticsSecurityDaily(
+  $id: UUID!
+  $dayKey: String!
+  $eventCount: Int!
+  $lastEventAtMs: Int
+) {
+  analyticsSecurityDaily_upsert(data: {
+    id: $id
+    dayKey: $dayKey
+    eventCount: $eventCount
+    lastEventAtMs: $lastEventAtMs
+  }) {
+    id
+  }
+}
+
+mutation UpsertAnalyticsUserSecurityRollup(
+  $id: UUID!
+  $uid: String!
+  $username: String
+  $eventCount: Int!
+  $lastEventAtMs: Int
+  $lastReason: String
+  $lastLabel: String
+  $lastMessage: String
+  $lastLocationLabel: String
+  $lastDropId: String
+  $lastPagePath: String
+) {
+  analyticsUserSecurityRollup_upsert(data: {
+    id: $id
+    uid: $uid
+    username: $username
+    eventCount: $eventCount
+    lastEventAtMs: $lastEventAtMs
+    lastReason: $lastReason
+    lastLabel: $lastLabel
+    lastMessage: $lastMessage
+    lastLocationLabel: $lastLocationLabel
+    lastDropId: $lastDropId
+    lastPagePath: $lastPagePath
+  }) {
+    id
+  }
+}
+
+mutation UpsertAnalyticsAlert(
+  $id: UUID!
+  $hourKey: String!
+  $type: String!
+  $severity: String!
+  $message: String!
+  $baseline: Int
+  $current: Int
+  $generatedAtMs: Int!
+) {
+  analyticsAlert_upsert(data: {
+    id: $id
+    hourKey: $hourKey
+    type: $type
+    severity: $severity
+    message: $message
+    baseline: $baseline
+    current: $current
+    generatedAtMs: $generatedAtMs
+  }) {
+    id
+  }
+}
+
+mutation DeleteAnalyticsPageDaily($id: UUID!) {
+  analyticsPageDaily_delete(id: $id) {
+    id
+  }
+}
+
+mutation DeleteAnalyticsDropDaily($id: UUID!) {
+  analyticsDropDaily_delete(id: $id) {
+    id
+  }
+}
+
+mutation DeleteAnalyticsUserDaily($id: UUID!) {
+  analyticsUserDaily_delete(id: $id) {
+    id
+  }
+}
+
+mutation DeleteAnalyticsUserRollup($id: UUID!) {
+  analyticsUserRollup_delete(id: $id) {
+    id
+  }
+}
+
+mutation DeleteAnalyticsCommerceDaily($id: UUID!) {
+  analyticsCommerceDaily_delete(id: $id) {
+    id
+  }
+}
+
+mutation DeleteAnalyticsCommerceRollup($id: UUID!) {
+  analyticsCommerceRollup_delete(id: $id) {
+    id
+  }
+}
+
+mutation DeleteAnalyticsBundleDaily($id: UUID!) {
+  analyticsBundleDaily_delete(id: $id) {
+    id
+  }
+}
+
+mutation DeleteAnalyticsTaskDaily($id: UUID!) {
+  analyticsTaskDaily_delete(id: $id) {
+    id
+  }
+}
+
+mutation DeleteAnalyticsTaskRollup($id: UUID!) {
+  analyticsTaskRollup_delete(id: $id) {
+    id
+  }
+}
+
+mutation DeleteAnalyticsSecurityDaily($id: UUID!) {
+  analyticsSecurityDaily_delete(id: $id) {
+    id
+  }
+}
+
+mutation DeleteAnalyticsUserSecurityRollup($id: UUID!) {
+  analyticsUserSecurityRollup_delete(id: $id) {
+    id
+  }
+}
+
+mutation DeleteAnalyticsAlert($id: UUID!) {
+  analyticsAlert_delete(id: $id) {
+    id
+  }
+}

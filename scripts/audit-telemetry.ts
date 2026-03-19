@@ -127,6 +127,28 @@ function extractEventNamesFromCall(
       : null;
   }
 
+  if (isIdentifierNamed(expression, "buildAnalyticsEventFact")) {
+    const [firstArg] = args;
+    if (!firstArg || !ts.isObjectLiteralExpression(firstArg)) {
+      return null;
+    }
+
+    const eventNameProperty = firstArg.properties.find((property) =>
+      ts.isPropertyAssignment(property)
+      && ((ts.isIdentifier(property.name) && property.name.text === "eventName")
+        || (ts.isStringLiteral(property.name) && property.name.text === "eventName")),
+    );
+
+    if (!eventNameProperty || !ts.isPropertyAssignment(eventNameProperty)) {
+      return null;
+    }
+
+    const eventNames = collectStringLiteralValues(eventNameProperty.initializer, constValueMap);
+    return eventNames.length > 0
+      ? { matcher: "buildAnalyticsEventFact", eventNames }
+      : null;
+  }
+
   return null;
 }
 
