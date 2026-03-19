@@ -28,6 +28,7 @@ export interface TaskGuidancePendingAction {
   taskId: string;
   actionType: TaskGuidanceActionType;
   destinationHref: string;
+  assignedAt: number;
   createdAt: number;
 }
 
@@ -97,11 +98,58 @@ export function isSamePageTaskViewEvent(eventName: string) {
 }
 
 export function readTaskGuidancePendingAction() {
-  return readLocalStorageValue<TaskGuidancePendingAction>(TASK_GUIDANCE_ACTION_STORAGE_KEY);
+  const rawValue = readLocalStorageValue<Partial<TaskGuidancePendingAction>>(TASK_GUIDANCE_ACTION_STORAGE_KEY);
+  const actionType = typeof rawValue?.actionType === "string" ? rawValue.actionType : null;
+  if (
+    !rawValue
+    || typeof rawValue.taskId !== "string"
+    || !actionType
+    || !isTaskGuidanceActionType(actionType)
+    || typeof rawValue.destinationHref !== "string"
+    || typeof rawValue.createdAt !== "number"
+  ) {
+    return null;
+  }
+
+  return {
+    taskId: rawValue.taskId,
+    actionType,
+    destinationHref: rawValue.destinationHref,
+    assignedAt: typeof rawValue.assignedAt === "number" ? rawValue.assignedAt : 0,
+    createdAt: rawValue.createdAt,
+  } satisfies TaskGuidancePendingAction;
 }
 
 export function writeTaskGuidancePendingAction(action: TaskGuidancePendingAction | null) {
   writeLocalStorageValue(TASK_GUIDANCE_ACTION_STORAGE_KEY, action);
+}
+
+export function createTaskGuidancePendingAction(task: Pick<TaskGuidanceState, "taskId" | "actionType" | "destinationHref" | "assignedAt">): TaskGuidancePendingAction {
+  if (!isTaskGuidanceActionType(task.actionType)) {
+    throw new Error("Task guidance pending actions only support runtime action types.");
+  }
+
+  return {
+    taskId: task.taskId,
+    actionType: task.actionType,
+    destinationHref: task.destinationHref,
+    assignedAt: task.assignedAt,
+    createdAt: Date.now(),
+  };
+}
+
+export function findCurrentTaskGuidanceTask(
+  tasks: DailyTaskAssignment[] | null | undefined,
+  reference: Pick<TaskGuidanceState, "taskId" | "assignedAt"> | Pick<TaskGuidancePendingAction, "taskId" | "assignedAt">,
+) {
+  if (!Array.isArray(tasks)) {
+    return null;
+  }
+
+  return tasks.find((task) => (
+    task.id === reference.taskId
+    && (reference.assignedAt <= 0 || task.assignedAt === reference.assignedAt)
+  )) ?? null;
 }
 
 export function getTaskInstruction(task: DailyTaskAssignment) {

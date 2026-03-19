@@ -21,11 +21,9 @@ import {
 import { toast } from "sonner";
 
 import { useAuth } from "@/context/AuthContext";
-import { useUI } from "@/context/UIContext";
 import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
-import { CLIENT_RUNTIME_EVENTS, dispatchClientRuntimeEvent } from "@/hooks/client-runtime";
+import { useTaskGuidanceActions } from "@/hooks/useTaskGuidanceActions";
 import { authFetch } from "@/lib/authFetch";
-import { enableBrowserNotifications } from "@/lib/browser-notification-enrollment";
 import { cn } from "@/lib/utils";
 import {
   type DailyTaskAssignment,
@@ -38,6 +36,7 @@ import { trackEvent } from "@/lib/telemetry";
 import {
   TASK_GUIDANCE_ACTION_EVENT,
   createTaskGuidanceState,
+  findCurrentTaskGuidanceTask,
   focusTaskDestinationAnchor,
   getTaskDestinationPath,
   getTaskDestinationHref,
@@ -46,7 +45,6 @@ import {
   readTaskGuidancePendingAction,
   writeTaskGuidancePendingAction,
   type TaskGuidancePendingAction,
-  type TaskGuidanceActionType,
 } from "@/lib/task-guidance";
 import { dispatchActivitySync } from "@/lib/activity-sync";
 
@@ -84,8 +82,8 @@ function formatCountdown(targetMs: number, nowMs: number) {
 export function DailyTasksModule() {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, userProfile, setUserProfile } = useAuth();
-  const { openPurchaseModal } = useUI();
+  const { userProfile, setUserProfile } = useAuth();
+  const { executeTaskGuidanceAction } = useTaskGuidanceActions();
   const [rotating, setRotating] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState("");
@@ -252,14 +250,6 @@ export function DailyTasksModule() {
     ));
   };
 
-  const openNotifications = useCallback(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.openNotifications);
-  }, []);
-
   const activateTaskGuidance = useCallback((task: DailyTaskAssignment) => {
     if (typeof window === "undefined") {
       return;
@@ -273,59 +263,6 @@ export function DailyTasksModule() {
     }));
   }, []);
 
-  const handleEnableNotifications = useCallback(async () => {
-    if (!user || !userProfile) {
-      return;
-    }
-
-    setNotificationLoading(true);
-    try {
-      const result = await enableBrowserNotifications(userProfile);
-      if (result.status === "not_granted") {
-        if (result.needsStandaloneInstall) {
-          toast.info("Add KandyDrops to your Home Screen, then reopen it there to enable notifications on iPhone.");
-        } else {
-          toast.info("Browser notifications were not enabled.");
-        }
-        return;
-      }
-      if (result.status === "failed") {
-        throw new Error(result.message);
-      }
-
-      trackEvent("task_notifications_enabled", {
-        source: "daily_tasks",
-        messaging_supported: result.messagingSupported,
-      });
-      toast.success("Notifications enabled.");
-    } catch (error) {
-      console.error("Failed to enable notifications", error);
-      toast.error("We could not enable notifications right now.");
-    } finally {
-      setNotificationLoading(false);
-    }
-  }, [user, userProfile]);
-
-  const executeRuntimeTaskAction = useCallback(async (actionType: TaskGuidanceActionType) => {
-    switch (actionType) {
-      case "open_notifications":
-        openNotifications();
-        return;
-      case "open_wallet":
-        openPurchaseModal();
-        return;
-      case "enable_notifications":
-        await handleEnableNotifications();
-        return;
-      case "give_feedback":
-        trackEvent("feedback_modal_opened");
-        setShowFeedbackModal(true);
-        return;
-      default:
-        return;
-    }
-  }, [handleEnableNotifications, openNotifications, openPurchaseModal]);
-
   useEffect(() => {
     if (typeof window === "undefined") {
       return;
@@ -334,12 +271,34 @@ export function DailyTasksModule() {
     let cancelled = false;
 
     const runPendingAction = async (pendingAction: TaskGuidancePendingAction | null) => {
-      if (!pendingAction || cancelled) {
+      if (!pendingAction || cancelled || !dailyTaskState || dailyTaskState.tasks.length === 0) {
+        return;
+      }
+
+      const matchingTask = findCurrentTaskGuidanceTask(dailyTaskState.tasks, pendingAction);
+      if (!matchingTask || matchingTask.claimed || matchingTask.actionType !== pendingAction.actionType) {
+        writeTaskGuidancePendingAction(null);
         return;
       }
 
       writeTaskGuidancePendingAction(null);
-      await executeRuntimeTaskAction(pendingAction.actionType);
+      if (matchingTask.actionType === "enable_notifications") {
+        setNotificationLoading(true);
+      }
+
+      try {
+        const handled = await executeTaskGuidanceAction(pendingAction.actionType, {
+          source: "task_guidance",
+          onOpenFeedback: () => setShowFeedbackModal(true),
+        });
+        if (handled) {
+          void focusTaskDestinationAnchor(pendingAction.destinationHref);
+        }
+      } finally {
+        if (matchingTask.actionType === "enable_notifications") {
+          setNotificationLoading(false);
+        }
+      }
     };
 
     const handleRuntimeAction = (event: Event) => {
@@ -354,7 +313,7 @@ export function DailyTasksModule() {
       cancelled = true;
       window.removeEventListener(TASK_GUIDANCE_ACTION_EVENT, handleRuntimeAction as EventListener);
     };
-  }, [executeRuntimeTaskAction]);
+  }, [dailyTaskState, executeTaskGuidanceAction]);
 
   const handleTaskAction = async (task: DailyTaskAssignment) => {
     trackEvent("daily_task_action_clicked", {
@@ -364,7 +323,23 @@ export function DailyTasksModule() {
     activateTaskGuidance(task);
 
     if (isTaskGuidanceActionType(task.actionType)) {
-      await executeRuntimeTaskAction(task.actionType);
+      if (task.actionType === "enable_notifications") {
+        setNotificationLoading(true);
+      }
+
+      try {
+        const handled = await executeTaskGuidanceAction(task.actionType, {
+          source: "daily_tasks",
+          onOpenFeedback: () => setShowFeedbackModal(true),
+        });
+        if (handled) {
+          void focusTaskDestinationAnchor(getTaskDestinationHref(task));
+        }
+      } finally {
+        if (task.actionType === "enable_notifications") {
+          setNotificationLoading(false);
+        }
+      }
       return;
     }
 

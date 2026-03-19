@@ -6,9 +6,12 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, CheckCircle2, Sparkles, X } from "lucide-react";
 
 import { useAuth } from "@/context/AuthContext";
+import { useTaskGuidanceActions } from "@/hooks/useTaskGuidanceActions";
 import { trackEvent } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
 import {
+  createTaskGuidancePendingAction,
+  findCurrentTaskGuidanceTask,
   focusTaskDestinationAnchor,
   getTaskDestinationPath,
   isSamePageTaskViewEvent,
@@ -76,6 +79,7 @@ export function TaskGuidanceBanner() {
   const router = useRouter();
   const pathname = usePathname();
   const { userProfile } = useAuth();
+  const { executeTaskGuidanceAction } = useTaskGuidanceActions();
   const [guidance, setGuidance] = useState<TaskGuidanceState | null>(null);
   const [rewardFlashVisible, setRewardFlashVisible] = useState(false);
   const touchStartYRef = useRef<number | null>(null);
@@ -124,12 +128,9 @@ export function TaskGuidanceBanner() {
       return;
     }
 
+    const exactTaskMatch = findCurrentTaskGuidanceTask(userProfile?.dailyTasksState?.tasks, guidance);
     const matchingTask = userProfile?.dailyTasksState?.tasks?.find((task) => task.id === guidance.taskId);
-    const taskWasReassigned = Boolean(
-      matchingTask
-      && guidance.assignedAt > 0
-      && matchingTask.assignedAt !== guidance.assignedAt,
-    );
+    const taskWasReassigned = Boolean(matchingTask && !exactTaskMatch);
 
     if (taskWasReassigned || (!matchingTask && lastResetMs > guidance.activatedAt)) {
       writeStoredGuidance(null);
@@ -228,7 +229,7 @@ export function TaskGuidanceBanner() {
     setGuidance(nextGuidance);
   };
 
-  const handleAction = () => {
+  const handleAction = async () => {
     if (!activeGuidance) {
       return;
     }
@@ -244,23 +245,33 @@ export function TaskGuidanceBanner() {
       writeStoredGuidance(null);
       writeTaskGuidancePendingAction(null);
       setGuidance(null);
-      router.push("/experiences#daily-tasks");
+      if (pathname === "/experiences") {
+        void focusTaskDestinationAnchor("/experiences#daily-tasks");
+      } else {
+        router.push("/experiences#daily-tasks");
+      }
       return;
     }
 
     if (isTaskGuidanceActionType(activeGuidance.actionType)) {
-      const pendingAction: TaskGuidancePendingAction = {
-        taskId: activeGuidance.taskId,
-        actionType: activeGuidance.actionType,
-        destinationHref: activeGuidance.destinationHref,
-        createdAt: Date.now(),
-      };
+      const handled = await executeTaskGuidanceAction(activeGuidance.actionType, {
+        source: "task_guidance",
+      });
+      if (handled) {
+        if (pathname === getTaskDestinationPath(activeGuidance.destinationHref)) {
+          void focusTaskDestinationAnchor(activeGuidance.destinationHref);
+        }
+        return;
+      }
+
+      const pendingAction: TaskGuidancePendingAction = createTaskGuidancePendingAction(activeGuidance);
 
       if (pathname === getTaskDestinationPath(activeGuidance.destinationHref)) {
         writeTaskGuidancePendingAction(null);
         window.dispatchEvent(new CustomEvent(TASK_GUIDANCE_ACTION_EVENT, {
           detail: pendingAction,
         }));
+        void focusTaskDestinationAnchor(activeGuidance.destinationHref);
         return;
       }
 
