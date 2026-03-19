@@ -82,7 +82,7 @@ const BUG_REPORT_CONTEXT_REGISTRY: Record<string, BugReportComponentMeta> = {
 };
 
 export const BUG_REPORT_ISSUE_OPTIONS: BugReportIssueOption[] = [
-  { value: "action_failed", label: "Action failed", description: "A button or flow didn’t complete." },
+  { value: "action_failed", label: "Action failed", description: "A button or flow did not complete." },
   { value: "wrong_data", label: "Wrong data", description: "Counts, lists, or content looked off." },
   { value: "broken_ui", label: "Broken UI", description: "Layout, spacing, or visuals broke." },
   { value: "performance", label: "Slow or stuck", description: "The page lagged, stalled, or kept loading." },

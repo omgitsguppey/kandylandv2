@@ -9,6 +9,21 @@ import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 import { guardApiRequest } from "@/lib/server/request-guard";
 
 type TaskEventType = "assigned" | "started" | "completed" | "failed" | "reminder_sent";
+type ActivityItem =
+    | {
+        id: string;
+        timestamp: number;
+        kind: "transaction";
+        label: string;
+        transaction: ReturnType<typeof normalizeTransactionRecord>;
+    }
+    | {
+        id: string;
+        timestamp: number;
+        kind: "task";
+        label: string;
+        taskEvent: ReturnType<typeof toTaskEvent>;
+    };
 
 function toTimestampNumber(value: unknown) {
     if (typeof value === "number" && Number.isFinite(value)) {
@@ -52,13 +67,50 @@ function toTaskEvent(raw: Record<string, unknown>, id: string) {
     };
 }
 
-async function fetchRecentTransactions(uid: string) {
+function renderTransactionLabel(transaction: ReturnType<typeof normalizeTransactionRecord>) {
+    switch (transaction.type) {
+        case "unlock_content":
+            return transaction.description || "Unwrapped KandyDrop";
+        case "purchase_currency":
+            return transaction.description || "Gum Drops added";
+        case "admin_adjustment":
+            return transaction.description || "Balance updated";
+        case "daily_reward":
+            if (transaction.rewardSource === "check_in") {
+                return transaction.description || "Daily check-in reward collected";
+            }
+            if (transaction.rewardSource === "task") {
+                return transaction.description || "Daily task reward collected";
+            }
+            return transaction.description || "Daily reward collected";
+        case "referral_bonus":
+            return transaction.description || "Referral bonus earned";
+        default:
+            return transaction.description || "Recent activity";
+    }
+}
+
+function renderTaskEventLabel(taskEvent: NonNullable<ReturnType<typeof toTaskEvent>>) {
+    if (taskEvent.type === "completed") {
+        return `Task complete: ${taskEvent.title}`;
+    }
+
+    if (taskEvent.type === "failed") {
+        return `Task reset: ${taskEvent.title}`;
+    }
+
+    return taskEvent.title;
+}
+
+async function fetchTransactions(uid: string, limitCount?: number) {
     try {
-        return await adminDb.collection("transactions")
+        let query = adminDb.collection("transactions")
             .where("userId", "==", uid)
-            .orderBy("timestamp", "desc")
-            .limit(8)
-            .get();
+            .orderBy("timestamp", "desc");
+        if (typeof limitCount === "number") {
+            query = query.limit(limitCount);
+        }
+        return await query.get();
     } catch (error) {
         await recordServerDiagnostic({
             channel: "firebase",
@@ -72,10 +124,12 @@ async function fetchRecentTransactions(uid: string) {
             },
         });
 
-        const fallbackSnapshot = await adminDb.collection("transactions")
-            .where("userId", "==", uid)
-            .limit(24)
-            .get();
+        let fallbackQuery = adminDb.collection("transactions")
+            .where("userId", "==", uid);
+        if (typeof limitCount === "number") {
+            fallbackQuery = fallbackQuery.limit(Math.max(limitCount * 3, 24));
+        }
+        const fallbackSnapshot = await fallbackQuery.get();
 
         const sortedDocs = [...fallbackSnapshot.docs].sort((left, right) => {
             const leftTimestamp = toTimestampNumber(left.data().timestamp);
@@ -84,18 +138,20 @@ async function fetchRecentTransactions(uid: string) {
         });
 
         return {
-            docs: sortedDocs.slice(0, 8),
+            docs: typeof limitCount === "number" ? sortedDocs.slice(0, limitCount) : sortedDocs,
         };
     }
 }
 
-async function fetchRecentTaskEvents(uid: string) {
+async function fetchTaskEvents(uid: string, limitCount?: number) {
     try {
-        return await adminDb.collection("daily_task_events")
+        let query = adminDb.collection("daily_task_events")
             .where("userId", "==", uid)
-            .orderBy("timestamp", "desc")
-            .limit(8)
-            .get();
+            .orderBy("timestamp", "desc");
+        if (typeof limitCount === "number") {
+            query = query.limit(limitCount);
+        }
+        return await query.get();
     } catch (error) {
         await recordServerDiagnostic({
             channel: "firebase",
@@ -109,10 +165,12 @@ async function fetchRecentTaskEvents(uid: string) {
             },
         });
 
-        const fallbackSnapshot = await adminDb.collection("daily_task_events")
-            .where("userId", "==", uid)
-            .limit(24)
-            .get();
+        let fallbackQuery = adminDb.collection("daily_task_events")
+            .where("userId", "==", uid);
+        if (typeof limitCount === "number") {
+            fallbackQuery = fallbackQuery.limit(Math.max(limitCount * 3, 24));
+        }
+        const fallbackSnapshot = await fallbackQuery.get();
 
         const sortedDocs = [...fallbackSnapshot.docs].sort((left, right) => {
             const leftTimestamp = toTimestampNumber(left.data().timestamp);
@@ -121,9 +179,46 @@ async function fetchRecentTaskEvents(uid: string) {
         });
 
         return {
-            docs: sortedDocs.slice(0, 8),
+            docs: typeof limitCount === "number" ? sortedDocs.slice(0, limitCount) : sortedDocs,
         };
     }
+}
+
+function buildActivityItems(
+    transactionsSnapshot: { docs: Array<{ id: string; data: () => Record<string, unknown> }> },
+    taskEventsSnapshot: { docs: Array<{ id: string; data: () => Record<string, unknown> }> },
+) {
+    const transactionItems = transactionsSnapshot.docs.flatMap((doc) => {
+        try {
+            const transaction = normalizeTransactionRecord(doc.data(), doc.id);
+            return [{
+                id: transaction.id,
+                timestamp: typeof transaction.timestamp === "number" ? transaction.timestamp : toTimestampNumber(transaction.timestamp),
+                kind: "transaction" as const,
+                label: renderTransactionLabel(transaction),
+                transaction,
+            }];
+        } catch {
+            return [];
+        }
+    });
+
+    const taskItems = taskEventsSnapshot.docs.flatMap((doc) => {
+        const normalized = toTaskEvent(doc.data() as Record<string, unknown>, doc.id);
+        if (!normalized || (normalized.type !== "completed" && normalized.type !== "failed")) {
+            return [];
+        }
+
+        return [{
+            id: normalized.id,
+            timestamp: normalized.timestamp,
+            kind: "task" as const,
+            label: renderTaskEventLabel(normalized),
+            taskEvent: normalized,
+        }];
+    });
+
+    return [...transactionItems, ...taskItems].sort((left, right) => right.timestamp - left.timestamp);
 }
 
 export async function GET(request: NextRequest) {
@@ -137,28 +232,23 @@ export async function GET(request: NextRequest) {
         });
 
         const uid = caller?.uid ?? "";
+        const view = request.nextUrl.searchParams.get("view") === "history" ? "history" : "summary";
+        const itemLimit = view === "history" ? undefined : 1;
 
         const [transactionsSnapshot, taskEventsSnapshot] = await Promise.all([
-            fetchRecentTransactions(uid),
-            fetchRecentTaskEvents(uid),
+            fetchTransactions(uid, itemLimit),
+            fetchTaskEvents(uid, itemLimit),
         ]);
 
-        const transactions = transactionsSnapshot.docs.flatMap((doc) => {
-            try {
-                return [normalizeTransactionRecord(doc.data(), doc.id)];
-            } catch {
-                return [];
-            }
-        });
-
-        const taskEvents = taskEventsSnapshot.docs.flatMap((doc) => {
-            const normalized = toTaskEvent(doc.data() as Record<string, unknown>, doc.id);
-            return normalized ? [normalized] : [];
-        });
+        const activities = buildActivityItems(transactionsSnapshot, taskEventsSnapshot);
+        const transactions = activities.flatMap((item) => item.kind === "transaction" ? [item.transaction] : []);
+        const taskEvents = activities.flatMap((item) => item.kind === "task" && item.taskEvent ? [item.taskEvent] : []);
 
         const etag = buildWeakEtag({
-            transactions: transactions.map((transaction) => [transaction.id, transaction.timestamp, transaction.amount, transaction.type, transaction.rewardSource ?? ""]),
-            taskEvents: taskEvents.map((event) => [event.id, event.timestamp, event.type, event.progress, event.maxProgress]),
+            view,
+            activities: activities.map((item) => item.kind === "transaction"
+                ? [item.id, item.timestamp, item.kind, item.transaction.amount, item.transaction.type, item.transaction.rewardSource ?? ""]
+                : [item.id, item.timestamp, item.kind, item.taskEvent?.type ?? "", item.taskEvent?.progress ?? 0, item.taskEvent?.maxProgress ?? 0]),
         });
 
         if (requestMatchesEtag(request, etag)) {
@@ -167,6 +257,8 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json({
             success: true,
+            view,
+            activities,
             transactions,
             taskEvents,
         }, {

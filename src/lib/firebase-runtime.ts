@@ -3,6 +3,86 @@ function normalizePublicEnv(value: string | undefined) {
   return trimmed ? trimmed : undefined;
 }
 
+const LEGACY_SITE_ORIGINS = [
+  "https://kandydrops--kandydrops-by-ikandy.us-central1.hosted.app",
+];
+
+function tryGetHost(origin: string | undefined) {
+  if (!origin) {
+    return undefined;
+  }
+
+  try {
+    return new URL(origin).host;
+  } catch {
+    return undefined;
+  }
+}
+
+function isLocalHost(host: string | undefined) {
+  return Boolean(host && /^(localhost|127\.0\.0\.1)(:\d+)?$/i.test(host));
+}
+
+function isFirebaseDefaultAuthHost(host: string | undefined) {
+  return Boolean(host && (
+    host.endsWith(".firebaseapp.com")
+    || host.endsWith(".web.app")
+    || host.endsWith(".hosted.app")
+  ));
+}
+
+function parseOriginList(value: string | undefined) {
+  if (!value) {
+    return [];
+  }
+
+  return value
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+}
+
+function getConfiguredSiteHosts() {
+  const hosts = new Set<string>();
+  const configuredOrigins = [
+    normalizePublicEnv(process.env.NEXT_PUBLIC_SITE_ORIGIN),
+    normalizePublicEnv(process.env.SITE_ORIGIN),
+    normalizePublicEnv(process.env.NEXT_PUBLIC_APP_URL),
+    ...parseOriginList(process.env.NEXT_PUBLIC_SITE_ORIGIN_ALIASES),
+    ...parseOriginList(process.env.SITE_ORIGIN_ALIASES),
+    ...LEGACY_SITE_ORIGINS,
+  ];
+
+  configuredOrigins.forEach((origin) => {
+    const host = tryGetHost(origin);
+    if (host) {
+      hosts.add(host);
+    }
+  });
+
+  return Array.from(hosts);
+}
+
+function resolvePreferredAuthDomain() {
+  const configuredAuthDomain = normalizePublicEnv(process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN);
+  const configuredSiteHosts = getConfiguredSiteHosts();
+  const runtimeSiteHost = typeof window !== "undefined" ? window.location.host : undefined;
+
+  if (runtimeSiteHost && configuredSiteHosts.includes(runtimeSiteHost) && !isLocalHost(runtimeSiteHost)) {
+    return runtimeSiteHost;
+  }
+
+  const configuredSiteHost = configuredSiteHosts.find((host) => !isLocalHost(host));
+
+  if (configuredSiteHost && !isLocalHost(configuredSiteHost)) {
+    if (!configuredAuthDomain || isFirebaseDefaultAuthHost(configuredAuthDomain)) {
+      return configuredSiteHost;
+    }
+  }
+
+  return configuredAuthDomain;
+}
+
 function buildDefaultDatabaseUrl(projectId: string | undefined) {
   return projectId ? `https://${projectId}-default-rtdb.firebaseio.com` : undefined;
 }
@@ -10,7 +90,7 @@ function buildDefaultDatabaseUrl(projectId: string | undefined) {
 export const IS_PRODUCTION_ENV = process.env.NODE_ENV === "production";
 export const IS_DEVELOPMENT_ENV = process.env.NODE_ENV === "development";
 export const FIREBASE_API_KEY = normalizePublicEnv(process.env.NEXT_PUBLIC_FIREBASE_API_KEY);
-export const FIREBASE_AUTH_DOMAIN = normalizePublicEnv(process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN);
+export const FIREBASE_AUTH_DOMAIN = resolvePreferredAuthDomain();
 export const FIREBASE_PROJECT_ID = normalizePublicEnv(process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID);
 export const FIREBASE_STORAGE_BUCKET = normalizePublicEnv(process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET)
   ?? (FIREBASE_PROJECT_ID ? `${FIREBASE_PROJECT_ID}.appspot.com` : undefined);
@@ -66,6 +146,7 @@ export function buildFirebaseClientRuntimeSnapshot() {
 export function getFirebaseRuntimeWarnings() {
   const warnings: string[] = [];
   const shouldAuditAppCheck = IS_PRODUCTION_ENV || process.env.CI === "true";
+  const configuredSiteHosts = getConfiguredSiteHosts().filter((host) => !isLocalHost(host));
 
   if (!FIREBASE_API_KEY) warnings.push("Missing NEXT_PUBLIC_FIREBASE_API_KEY");
   if (!FIREBASE_AUTH_DOMAIN) warnings.push("Missing NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN");
@@ -81,6 +162,14 @@ export function getFirebaseRuntimeWarnings() {
 
   if (FIREBASE_DATABASE_URL && FIREBASE_PROJECT_ID && !FIREBASE_DATABASE_URL.includes(FIREBASE_PROJECT_ID)) {
     warnings.push("Firebase Realtime Database URL does not match the configured project ID");
+  }
+
+  if (
+    configuredSiteHosts.length > 0
+    && FIREBASE_AUTH_DOMAIN
+    && !configuredSiteHosts.includes(FIREBASE_AUTH_DOMAIN)
+  ) {
+    warnings.push("Firebase auth domain does not match any configured site origin host");
   }
 
   return warnings;

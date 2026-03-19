@@ -47,6 +47,23 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
     const availabilityRequestRef = useRef(0);
 
     useEffect(() => {
+        if (!isOpen) {
+            return;
+        }
+
+        const previousHtmlOverflow = document.documentElement.style.overflow;
+        const previousBodyOverflow = document.body.style.overflow;
+
+        document.documentElement.style.overflow = "hidden";
+        document.body.style.overflow = "hidden";
+
+        return () => {
+            document.documentElement.style.overflow = previousHtmlOverflow;
+            document.body.style.overflow = previousBodyOverflow;
+        };
+    }, [isOpen]);
+
+    useEffect(() => {
         if (isOpen && !wasOpenRef.current) {
             trackEvent("auth_modal_opened", { mode });
         }
@@ -306,13 +323,13 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                 className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 transition-opacity"
             />
 
-            <div className="fixed inset-0 z-50 flex items-end justify-center p-2 sm:items-center sm:p-4 pointer-events-none">
-                <div className="w-full max-w-md max-h-[calc(100dvh-0.5rem)] sm:max-h-[min(90vh,44rem)] bg-zinc-900 border border-white/10 rounded-[1.75rem] sm:rounded-3xl shadow-2xl pointer-events-auto overflow-hidden flex flex-col">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 pointer-events-none">
+                <div className="flex w-full max-w-md min-w-0 max-h-[min(92dvh,44rem)] flex-col overflow-hidden rounded-[1.75rem] border border-white/10 bg-zinc-900 shadow-2xl pointer-events-auto sm:rounded-3xl">
                     <div className="relative shrink-0 px-5 py-4 sm:p-6 border-b border-white/5 bg-zinc-900/95 backdrop-blur-sm">
                         <h2 className="text-xl sm:text-2xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-purple-400">
                             {mode === "signin" ? "Welcome Back" : mode === "signup" ? "Unwrap your Kandy" : "Reset Password"}
                         </h2>
-                        <p className="mt-2 px-6 text-center text-xs sm:text-sm text-gray-500">
+                        <p className="mx-auto mt-2 max-w-sm px-4 text-center text-xs sm:text-sm text-gray-500">
                             {mode === "signin"
                                 ? "Jump back into your stash and keep unwrapping."
                                 : mode === "signup"
@@ -327,7 +344,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                         </button>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 sm:p-6 sm:space-y-6">
+                    <div className="flex-1 min-w-0 overflow-x-hidden overflow-y-auto px-4 py-4 space-y-4 sm:p-6 sm:space-y-6">
                         <button
                             onClick={handleGoogleSignIn}
                             disabled={isLoading}
@@ -385,19 +402,19 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                     </button>
                                 </div>
                             ) : (
-                                <form onSubmit={handlePasswordReset} className="space-y-3 sm:space-y-4">
+                                <form onSubmit={handlePasswordReset} className="min-w-0 space-y-3 sm:space-y-4">
                                     <p className="text-sm text-gray-400 text-center mb-5 sm:mb-6">
                                         Enter your email address and we&apos;ll send you a link to reset your password.
                                     </p>
                                     <div className="space-y-2">
                                         <label className="text-xs sm:text-sm font-medium text-gray-400">Email</label>
-                                        <div className="relative">
+                                        <div className="relative min-w-0 overflow-hidden">
                                             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                                             <input
                                                 name="resetEmail"
                                                 type="email"
                                                 required
-                                                className="w-full bg-black/50 border border-white/10 rounded-xl px-10 py-2.5 sm:py-3 text-white text-sm sm:text-base focus:outline-none focus:border-brand-purple transition-colors"
+                                                className="block w-full min-w-0 max-w-full bg-black/50 border border-white/10 rounded-xl px-10 py-2.5 sm:py-3 text-white text-sm sm:text-base focus:outline-none focus:border-brand-purple transition-colors"
                                                 placeholder="Enter your email"
                                             />
                                         </div>
@@ -425,19 +442,19 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                 </form>
                             )
                         ) : (
-                            <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4">
+                            <form onSubmit={handleSubmit(onSubmit)} className="min-w-0 space-y-3 sm:space-y-4">
                                 {mode === "signup" && (
                                     <>
                                         <div className="space-y-2">
                                             <label className="text-xs sm:text-sm font-medium text-gray-400">Username</label>
-                                            <div className="relative">
+                                            <div className="relative min-w-0 overflow-hidden">
                                                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                                                 <input
                                                     {...register("username", {
                                                         onChange: () => setUsernameTouched(true),
                                                     })}
                                                     type="text"
-                                                    className="w-full bg-black/50 border border-white/10 rounded-xl px-10 py-2.5 sm:py-3 text-white text-sm sm:text-base focus:outline-none focus:border-brand-purple transition-colors"
+                                                    className="block w-full min-w-0 max-w-full bg-black/50 border border-white/10 rounded-xl px-10 py-2.5 sm:py-3 text-white text-sm sm:text-base focus:outline-none focus:border-brand-purple transition-colors"
                                                     placeholder="Create a username"
                                                 />
                                             </div>
@@ -457,12 +474,12 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
 
                                         <div className="space-y-2">
                                             <label className="text-xs sm:text-sm font-medium text-gray-400">Date of Birth</label>
-                                            <div className="relative">
+                                            <div className="relative min-w-0 overflow-hidden">
                                                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                                                 <input
                                                     {...register("dob")}
                                                     type="date"
-                                                    className="w-full bg-black/50 border border-white/10 rounded-xl px-10 py-2.5 sm:py-3 text-white text-sm sm:text-base focus:outline-none focus:border-brand-purple transition-colors [color-scheme:dark]"
+                                                    className="block w-full min-w-0 max-w-full appearance-none bg-black/50 border border-white/10 rounded-xl px-10 py-2.5 pr-4 sm:py-3 text-white text-sm sm:text-base focus:outline-none focus:border-brand-purple transition-colors [color-scheme:dark]"
                                                 />
                                             </div>
                                             {errors.dob && (
@@ -475,12 +492,12 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
 
                                 <div className="space-y-2">
                                     <label className="text-xs sm:text-sm font-medium text-gray-400">Email</label>
-                                    <div className="relative">
+                                    <div className="relative min-w-0 overflow-hidden">
                                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                                         <input
                                             {...register("email")}
                                             type="email"
-                                            className="w-full bg-black/50 border border-white/10 rounded-xl px-10 py-2.5 sm:py-3 text-white text-sm sm:text-base focus:outline-none focus:border-brand-purple transition-colors"
+                                            className="block w-full min-w-0 max-w-full bg-black/50 border border-white/10 rounded-xl px-10 py-2.5 sm:py-3 text-white text-sm sm:text-base focus:outline-none focus:border-brand-purple transition-colors"
                                             placeholder="Enter your email"
                                         />
                                     </div>
@@ -491,12 +508,12 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
 
                                 <div className="space-y-2">
                                     <label className="text-xs sm:text-sm font-medium text-gray-400">Password</label>
-                                    <div className="relative">
+                                    <div className="relative min-w-0 overflow-hidden">
                                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                                         <input
                                             {...register("password")}
                                             type="password"
-                                            className="w-full bg-black/50 border border-white/10 rounded-xl px-10 py-2.5 sm:py-3 text-white text-sm sm:text-base focus:outline-none focus:border-brand-purple transition-colors"
+                                            className="block w-full min-w-0 max-w-full bg-black/50 border border-white/10 rounded-xl px-10 py-2.5 sm:py-3 text-white text-sm sm:text-base focus:outline-none focus:border-brand-purple transition-colors"
                                             placeholder="Password"
                                         />
                                     </div>

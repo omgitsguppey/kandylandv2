@@ -6,10 +6,18 @@ runConfig:
   maxInstances: 2
 
 env:
+  - variable: NEXT_PUBLIC_SITE_ORIGIN
+    value: https://www.kandydrops.com
+  - variable: SITE_ORIGIN
+    value: https://www.kandydrops.com
+  - variable: NEXT_PUBLIC_SITE_ORIGIN_ALIASES
+    value: https://kandydrops--kandydrops-by-ikandy.us-central1.hosted.app
+  - variable: SITE_ORIGIN_ALIASES
+    value: https://kandydrops--kandydrops-by-ikandy.us-central1.hosted.app
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
     value: AIzaSyAgaplGHL_q1IHWEkTNbvHI343V5fFEVvY
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
-    value: kandydrops-by-ikandy.firebaseapp.com
+    value: www.kandydrops.com
   - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
     value: kandydrops-by-ikandy
   - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET

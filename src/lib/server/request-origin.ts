@@ -1,6 +1,6 @@
 import "server-only";
 import { NextRequest } from "next/server";
-import { SITE_ORIGIN } from "@/lib/site-origin";
+import { getConfiguredSiteHosts } from "@/lib/site-origin";
 
 function getHost(input: string | null): string | null {
     if (!input) {
@@ -15,13 +15,20 @@ function getHost(input: string | null): string | null {
 }
 
 export function hasTrustedSiteOrigin(request: NextRequest) {
-    const expectedHost = getHost(SITE_ORIGIN);
+    const requestHost = request.nextUrl.host;
     const originHost = getHost(request.headers.get("origin"));
     const refererHost = getHost(request.headers.get("referer"));
+    const trustedHosts = new Set<string>([
+        requestHost,
+        ...getConfiguredSiteHosts(),
+    ]);
 
-    if (!expectedHost) {
+    if (trustedHosts.size === 0) {
         return false;
     }
 
-    return originHost === expectedHost || refererHost === expectedHost;
+    return Boolean(
+        (originHost && trustedHosts.has(originHost))
+        || (refererHost && trustedHosts.has(refererHost)),
+    );
 }

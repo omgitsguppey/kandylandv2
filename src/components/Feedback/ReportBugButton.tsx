@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Bug, ChevronDown, ChevronUp, Loader2, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
@@ -71,6 +71,26 @@ export function ReportBugButton({
       : getClientDebugSnapshot(componentMeta, []),
     [autoContextEnabled, componentMeta, rolloutSnapshot],
   );
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousBodyTouchAction = document.body.style.touchAction;
+
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    document.body.style.touchAction = "none";
+
+    return () => {
+      document.documentElement.style.overflow = previousHtmlOverflow;
+      document.body.style.overflow = previousBodyOverflow;
+      document.body.style.touchAction = previousBodyTouchAction;
+    };
+  }, [isOpen]);
 
   const openComposer = () => {
     if (!user) {
@@ -181,164 +201,200 @@ export function ReportBugButton({
       </button>
 
       {isOpen ? (
-        <div className="fixed inset-0 z-[140] flex items-end justify-center bg-black/80 p-0 backdrop-blur-md md:items-center md:p-4">
-          <div className="glass-panel flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-[2rem] border border-white/10 bg-zinc-950/95 p-5 md:max-w-xl md:rounded-[2rem] md:p-6">
-            <div className="flex items-start justify-between gap-4">
-              <div className="min-w-0">
-                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-brand-purple">
-                  Bug Report
-                </p>
-                <h2 className="mt-1 text-xl font-bold text-white">Share what broke</h2>
-                <p className="mt-2 text-sm leading-6 text-gray-400">
-                  {autoContextEnabled
-                    ? "We'll attach route state, diagnostics, recent actions, errors, and rollout assignments automatically."
-                    : "We'll capture the current screen context automatically and keep the rest lightweight."}
-                </p>
+        <div className="fixed inset-0 z-[140] bg-black/80 backdrop-blur-md">
+          <button
+            type="button"
+            onClick={() => closeComposer()}
+            className="absolute inset-0 h-full w-full cursor-default"
+            aria-label="Dismiss bug report overlay"
+          />
+
+          <div className="relative flex h-full items-end justify-center p-0 md:items-center md:p-4">
+            <div
+              className="glass-panel flex w-full max-w-lg flex-col overflow-hidden rounded-t-[1.75rem] border border-white/10 bg-zinc-950/95 px-4 pb-4 pt-3 md:max-h-[min(42rem,88dvh)] md:rounded-[1.75rem] md:px-5 md:pb-5 md:pt-4"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="mb-3 flex justify-center md:hidden">
+                <span className="h-1.5 w-12 rounded-full bg-white/15" />
               </div>
-              <button
-                type="button"
-                onClick={() => closeComposer()}
-                className="rounded-full border border-white/10 bg-white/5 p-2 text-gray-400 transition-colors hover:text-white"
-                aria-label="Close bug report"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
 
-            <div className="mt-4 flex flex-wrap gap-2 text-[11px]">
-              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-2 font-semibold text-gray-300">
-                Screen: {componentMeta.routeHint || snapshotPreview.currentPath}
-              </span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-2 font-semibold text-gray-300">
-                Component: {componentMeta.componentName}
-              </span>
-            </div>
-
-            <div className="mt-5 space-y-3 overflow-y-auto pr-1">
-              <div>
-                <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">What happened?</p>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                  {BUG_REPORT_ISSUE_OPTIONS.map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => setIssueType(option.value)}
-                      className={cn(
-                        "rounded-[1.2rem] border px-3 py-3 text-left text-xs transition-colors",
-                        issueType === option.value
-                          ? "border-brand-purple/40 bg-brand-purple/15 text-white"
-                          : "border-white/10 bg-white/5 text-gray-300 hover:border-brand-purple/30",
-                      )}
-                    >
-                      <div className="font-semibold">{option.label}</div>
-                      <div className="mt-1 text-[11px] leading-5 text-gray-400">{option.description}</div>
-                    </button>
-                  ))}
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-brand-purple">
+                    Bug Report
+                  </p>
+                  <h2 className="mt-1 text-lg font-bold text-white md:text-xl">Share what broke</h2>
+                  <p className="mt-1 text-xs leading-5 text-gray-400 md:text-sm">
+                    {autoContextEnabled
+                      ? "Logs and screen context are attached automatically."
+                      : "We attach the current screen context automatically."}
+                  </p>
                 </div>
-              </div>
-
-              <div>
-                <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Severity</p>
-                <div className="flex gap-2">
-                  {([
-                    { value: "low", label: "Low" },
-                    { value: "medium", label: "Medium" },
-                    { value: "high", label: "High" },
-                  ] as const).map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => setSeverity(option.value)}
-                      className={cn(
-                        "flex-1 rounded-full border px-3 py-2 text-xs font-semibold transition-colors",
-                        severity === option.value
-                          ? "border-brand-purple/40 bg-brand-purple/15 text-white"
-                          : "border-white/10 bg-white/5 text-gray-300",
-                      )}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">
-                  Optional note
-                </label>
-                <textarea
-                  value={note}
-                  onChange={(event) => setNote(event.target.value)}
-                  className="h-28 w-full rounded-[1.4rem] border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-gray-500 focus:border-brand-purple"
-                  placeholder="What were you trying to do? Any detail helps, but we already attached the latest logs."
-                />
-              </div>
-
-              <div className="rounded-[1.4rem] border border-white/10 bg-white/[0.03] p-4">
                 <button
                   type="button"
-                  onClick={() => setShowAutoContext((current) => !current)}
-                  className="flex w-full items-center justify-between gap-3 text-left"
+                  onClick={() => closeComposer()}
+                  className="rounded-full border border-white/10 bg-white/5 p-2 text-gray-400 transition-colors hover:text-white"
+                  aria-label="Close bug report"
                 >
-                  <div>
-                    <p className="text-sm font-semibold text-white">Auto-captured context</p>
-                    <p className="mt-1 text-xs leading-5 text-gray-400">
-                      {snapshotPreview.diagnostics.length} diagnostics, {snapshotPreview.breadcrumbs.length} recent actions, {snapshotPreview.recentErrors.length} captured errors
-                    </p>
-                  </div>
-                  {showAutoContext ? <ChevronUp className="h-4 w-4 text-brand-purple" /> : <ChevronDown className="h-4 w-4 text-brand-purple" />}
+                  <X className="h-4 w-4" />
                 </button>
+              </div>
 
-                {showAutoContext ? (
-                  <div className="mt-4 space-y-3 text-xs text-gray-300">
-                    <div className="grid gap-2 sm:grid-cols-2">
-                      <div className="rounded-xl border border-white/10 bg-black/25 p-3">
-                        <p className="font-semibold text-white">Route</p>
-                        <p className="mt-1 break-all text-gray-400">{snapshotPreview.currentPath}{snapshotPreview.currentSearch}</p>
-                      </div>
-                      <div className="rounded-xl border border-white/10 bg-black/25 p-3">
-                        <p className="font-semibold text-white">Viewport</p>
-                        <p className="mt-1 text-gray-400">{snapshotPreview.viewportWidth} x {snapshotPreview.viewportHeight}</p>
-                      </div>
+              <div className="mt-3 grid grid-cols-2 gap-2 text-[10px] md:text-[11px]">
+                <div className="rounded-full border border-white/10 bg-white/5 px-3 py-2 font-semibold text-gray-300">
+                  <span className="text-gray-500">Screen</span>
+                  <div className="mt-0.5 truncate text-white">{componentMeta.routeHint || snapshotPreview.currentPath}</div>
+                </div>
+                <div className="rounded-full border border-white/10 bg-white/5 px-3 py-2 font-semibold text-gray-300">
+                  <span className="text-gray-500">Component</span>
+                  <div className="mt-0.5 truncate text-white">{componentMeta.componentName}</div>
+                </div>
+              </div>
+
+              <div className="mt-4 space-y-3">
+                <div>
+                  <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500 md:text-[11px]">
+                    What happened?
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {BUG_REPORT_ISSUE_OPTIONS.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setIssueType(option.value)}
+                        className={cn(
+                          "rounded-[1rem] border px-3 py-2.5 text-left text-[11px] transition-colors md:text-xs",
+                          issueType === option.value
+                            ? "border-brand-purple/40 bg-brand-purple/15 text-white"
+                            : "border-white/10 bg-white/5 text-gray-300 hover:border-brand-purple/30",
+                        )}
+                      >
+                        <div className="font-semibold leading-4">{option.label}</div>
+                        <div className="mt-1 hidden text-[10px] leading-4 text-gray-400 md:block">
+                          {option.description}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500 md:text-[11px]">
+                    Severity
+                  </p>
+                  <div className="flex gap-2">
+                    {([
+                      { value: "low", label: "Low" },
+                      { value: "medium", label: "Medium" },
+                      { value: "high", label: "High" },
+                    ] as const).map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setSeverity(option.value)}
+                        className={cn(
+                          "flex-1 rounded-full border px-3 py-2 text-xs font-semibold transition-colors",
+                          severity === option.value
+                            ? "border-brand-purple/40 bg-brand-purple/15 text-white"
+                            : "border-white/10 bg-white/5 text-gray-300",
+                        )}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500 md:text-[11px]">
+                    Optional detail
+                  </label>
+                  <textarea
+                    value={note}
+                    onChange={(event) => setNote(event.target.value)}
+                    rows={3}
+                    className="min-h-[5.5rem] w-full rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-gray-500 focus:border-brand-purple"
+                    placeholder="Optional: tell us what you tapped or expected."
+                  />
+                </div>
+
+                <div className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowAutoContext((current) => !current)}
+                    className="flex w-full items-center justify-between gap-3 text-left"
+                  >
+                    <div>
+                      <p className="text-sm font-semibold text-white">Auto-captured context</p>
+                      <p className="mt-1 text-[11px] leading-5 text-gray-400">
+                        {snapshotPreview.diagnostics.length} diagnostics, {snapshotPreview.breadcrumbs.length} actions, {snapshotPreview.recentErrors.length} errors
+                      </p>
                     </div>
-                    <div className="rounded-xl border border-white/10 bg-black/25 p-3">
-                      <p className="font-semibold text-white">Component source</p>
-                      <p className="mt-1 text-gray-400">{componentMeta.sourcePath || "No mapped source path"}</p>
-                      {componentMeta.codeSnippet ? <pre className="mt-2 overflow-x-auto rounded-lg bg-black/40 p-3 text-[11px] text-brand-purple">{componentMeta.codeSnippet}</pre> : null}
-                    </div>
-                    {snapshotPreview.rolloutAssignments.length > 0 ? (
-                      <div className="rounded-xl border border-white/10 bg-black/25 p-3">
-                        <p className="font-semibold text-white">Rollout assignments</p>
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          {snapshotPreview.rolloutAssignments.map((assignment) => (
-                            <span key={`${assignment.id}:${assignment.variant}`} className="rounded-full border border-white/10 px-2.5 py-1 text-[11px] text-gray-300">
-                              {assignment.id}: {assignment.variant}
-                            </span>
-                          ))}
+                    {showAutoContext ? <ChevronUp className="h-4 w-4 text-brand-purple" /> : <ChevronDown className="h-4 w-4 text-brand-purple" />}
+                  </button>
+
+                  {showAutoContext ? (
+                    <div className="mt-3 space-y-3 text-xs text-gray-300">
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        <div className="rounded-xl border border-white/10 bg-black/25 p-3">
+                          <p className="font-semibold text-white">Route</p>
+                          <p className="mt-1 break-all text-gray-400">
+                            {snapshotPreview.currentPath}{snapshotPreview.currentSearch}
+                          </p>
+                        </div>
+                        <div className="rounded-xl border border-white/10 bg-black/25 p-3">
+                          <p className="font-semibold text-white">Viewport</p>
+                          <p className="mt-1 text-gray-400">
+                            {snapshotPreview.viewportWidth} x {snapshotPreview.viewportHeight}
+                          </p>
                         </div>
                       </div>
-                    ) : null}
-                  </div>
-                ) : null}
+                      <div className="rounded-xl border border-white/10 bg-black/25 p-3">
+                        <p className="font-semibold text-white">Component source</p>
+                        <p className="mt-1 text-gray-400">{componentMeta.sourcePath || "No mapped source path"}</p>
+                        {componentMeta.codeSnippet ? (
+                          <pre className="mt-2 overflow-x-auto rounded-lg bg-black/40 p-3 text-[11px] text-brand-purple">
+                            {componentMeta.codeSnippet}
+                          </pre>
+                        ) : null}
+                      </div>
+                      {snapshotPreview.rolloutAssignments.length > 0 ? (
+                        <div className="rounded-xl border border-white/10 bg-black/25 p-3">
+                          <p className="font-semibold text-white">Rollout assignments</p>
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {snapshotPreview.rolloutAssignments.map((assignment) => (
+                              <span
+                                key={`${assignment.id}:${assignment.variant}`}
+                                className="rounded-full border border-white/10 px-2.5 py-1 text-[11px] text-gray-300"
+                              >
+                                {assignment.id}: {assignment.variant}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </div>
               </div>
-            </div>
 
-            <div className="mt-5 flex gap-3 border-t border-white/10 pt-4">
-              <button
-                type="button"
-                onClick={() => closeComposer()}
-                className="flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={submitBugReport}
-                disabled={submitting}
-                className="flex flex-1 items-center justify-center gap-2 rounded-full border border-brand-purple bg-brand-purple px-4 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
-              >
-                {submitting ? <Loader2 className="h-5 w-5 animate-spin" /> : <><Sparkles className="h-4 w-4" />Send report</>}
-              </button>
+              <div className="mt-4 flex gap-3 border-t border-white/10 pt-4">
+                <button
+                  type="button"
+                  onClick={() => closeComposer()}
+                  className="flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={submitBugReport}
+                  disabled={submitting}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-full border border-brand-purple bg-brand-purple px-4 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+                >
+                  {submitting ? <Loader2 className="h-5 w-5 animate-spin" /> : <><Sparkles className="h-4 w-4" />Send report</>}
+                </button>
+              </div>
             </div>
           </div>
         </div>
