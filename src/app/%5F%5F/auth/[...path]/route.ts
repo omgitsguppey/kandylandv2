@@ -42,6 +42,9 @@ async function proxyAuthHelper(request: NextRequest, pathSegments: string[]) {
     responseHeaders.delete("content-encoding");
     responseHeaders.delete("content-length");
     responseHeaders.delete("transfer-encoding");
+    responseHeaders.set("cache-control", "no-store, no-cache, must-revalidate, max-age=0");
+    responseHeaders.set("pragma", "no-cache");
+    responseHeaders.set("expires", "0");
 
     return new Response(upstreamBody, {
         status: upstreamResponse.status,
