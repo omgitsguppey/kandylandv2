@@ -14,7 +14,9 @@ export default function Home() {
   const { user, userProfile, loading } = useAuth();
   const { drops: activeDrops } = useDrops(["active"]);
   const router = useRouter();
-  const shouldRedirectSignedInUser = !loading && !!user;
+  const isAdmin = userProfile?.role === "admin";
+  // We strictly wait until we know they aren't an admin. If userProfile is null, we assume they MIGHT be an admin and show the spinner momentarily, unless we explicitly know they are a standard user.
+  const shouldRedirectSignedInUser = !loading && !!user && (userProfile ? !isAdmin : true);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -24,10 +26,10 @@ export default function Home() {
   }, [loading, user]);
 
   useEffect(() => {
-    if (!loading && user) {
-      router.replace(readPreferredAuthenticatedPath(userProfile?.role ?? "user"));
+    if (!loading && user && userProfile && !isAdmin) {
+      router.replace(readPreferredAuthenticatedPath(userProfile.role));
     }
-  }, [loading, router, user, userProfile]);
+  }, [loading, router, user, userProfile, isAdmin]);
 
   if (shouldRedirectSignedInUser) {
     return (
