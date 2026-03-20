@@ -19,7 +19,13 @@ export default function Home() {
   const shouldRedirectSignedInUser = !loading && !!user && (userProfile ? !isAdmin : true);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    const timer = setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }, 50);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
     if (!loading && !user) {
       trackEvent("home_page_viewed");
     }
