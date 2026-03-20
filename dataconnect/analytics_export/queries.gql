@@ -21,7 +21,7 @@ query ListAnalyticsExportCommerceDaily(
   $limit: Int! = 90
 ) {
   analyticsCommerceDailies(
-    where: { dayKey: { gte: $startDayKey } }
+    where: { dayKey: { ge: $startDayKey } }
     orderBy: [{ dayKey: DESC }]
     limit: $limit
   ) {
@@ -72,7 +72,7 @@ query ListAnalyticsExportBundleDaily(
   $limit: Int! = 90
 ) {
   analyticsBundleDailies(
-    where: { dayKey: { gte: $startDayKey } }
+    where: { dayKey: { ge: $startDayKey } }
     orderBy: [{ dayKey: DESC }, { grossRevenueUsdTotal: DESC }]
     limit: $limit
   ) {
@@ -228,7 +228,7 @@ query ListAnalyticsExportTaskDaily(
   $limit: Int! = 90
 ) {
   analyticsTaskDailies(
-    where: { dayKey: { gte: $startDayKey } }
+    where: { dayKey: { ge: $startDayKey } }
     orderBy: [{ dayKey: DESC }]
     limit: $limit
   ) {
@@ -263,7 +263,7 @@ query ListAnalyticsExportSecurityDaily(
   $limit: Int! = 90
 ) {
   analyticsSecurityDailies(
-    where: { dayKey: { gte: $startDayKey } }
+    where: { dayKey: { ge: $startDayKey } }
     orderBy: [{ dayKey: DESC }]
     limit: $limit
   ) {

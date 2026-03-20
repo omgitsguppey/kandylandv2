@@ -21,9 +21,7 @@ mutation UpsertAnalyticsExportStatus(
     lastSourceUpdatedAtMs: $lastSourceUpdatedAtMs
     lastExportedAtMs: $lastExportedAtMs
     lastError: $lastError
-  }) {
-    id
-  }
+  })
 }
 
 mutation UpsertAnalyticsPageDaily(
@@ -53,9 +51,7 @@ mutation UpsertAnalyticsPageDaily(
     dwellSampleCount: $dwellSampleCount
     maxScrollDepth: $maxScrollDepth
     lastEventAtMs: $lastEventAtMs
-  }) {
-    id
-  }
+  })
 }
 
 mutation UpsertAnalyticsDropDaily(
@@ -93,9 +89,7 @@ mutation UpsertAnalyticsDropDaily(
     loadMsTotal: $loadMsTotal
     loadSampleCount: $loadSampleCount
     lastEventAtMs: $lastEventAtMs
-  }) {
-    id
-  }
+  })
 }
 
 mutation UpsertAnalyticsUserDaily(
@@ -157,9 +151,7 @@ mutation UpsertAnalyticsUserDaily(
     loadMsTotal: $loadMsTotal
     loadSampleCount: $loadSampleCount
     lastSeenAtMs: $lastSeenAtMs
-  }) {
-    id
-  }
+  })
 }
 
 mutation UpsertAnalyticsUserRollup(
@@ -219,9 +211,7 @@ mutation UpsertAnalyticsUserRollup(
     loadMsTotal: $loadMsTotal
     loadSampleCount: $loadSampleCount
     lastSeenAtMs: $lastSeenAtMs
-  }) {
-    id
-  }
+  })
 }
 
 mutation UpsertAnalyticsCommerceDaily(
@@ -263,9 +253,7 @@ mutation UpsertAnalyticsCommerceDaily(
     spendGdTotal: $spendGdTotal
     unlockSpendGdTotal: $unlockSpendGdTotal
     lastTransactionAtMs: $lastTransactionAtMs
-  }) {
-    id
-  }
+  })
 }
 
 mutation UpsertAnalyticsCommerceRollup(
@@ -303,9 +291,7 @@ mutation UpsertAnalyticsCommerceRollup(
     paidGumDropsTotal: $paidGumDropsTotal
     unlockSpendGdTotal: $unlockSpendGdTotal
     lastTransactionAtMs: $lastTransactionAtMs
-  }) {
-    id
-  }
+  })
 }
 
 mutation UpsertAnalyticsBundleDaily(
@@ -345,9 +331,7 @@ mutation UpsertAnalyticsBundleDaily(
     deliveredGumDropsTotal: $deliveredGumDropsTotal
     paidGumDropsTotal: $paidGumDropsTotal
     lastTransactionAtMs: $lastTransactionAtMs
-  }) {
-    id
-  }
+  })
 }
 
 mutation UpsertAnalyticsTaskDaily(
@@ -367,9 +351,7 @@ mutation UpsertAnalyticsTaskDaily(
     durationMsTotal: $durationMsTotal
     durationSampleCount: $durationSampleCount
     lastEventAtMs: $lastEventAtMs
-  }) {
-    id
-  }
+  })
 }
 
 mutation UpsertAnalyticsTaskRollup(
@@ -391,9 +373,7 @@ mutation UpsertAnalyticsTaskRollup(
     durationMsTotal: $durationMsTotal
     durationSampleCount: $durationSampleCount
     lastEventAtMs: $lastEventAtMs
-  }) {
-    id
-  }
+  })
 }
 
 mutation UpsertAnalyticsSecurityDaily(
@@ -407,9 +387,7 @@ mutation UpsertAnalyticsSecurityDaily(
     dayKey: $dayKey
     eventCount: $eventCount
     lastEventAtMs: $lastEventAtMs
-  }) {
-    id
-  }
+  })
 }
 
 mutation UpsertAnalyticsUserSecurityRollup(
@@ -437,9 +415,7 @@ mutation UpsertAnalyticsUserSecurityRollup(
     lastLocationLabel: $lastLocationLabel
     lastDropId: $lastDropId
     lastPagePath: $lastPagePath
-  }) {
-    id
-  }
+  })
 }
 
 mutation UpsertAnalyticsAlert(
@@ -461,79 +437,53 @@ mutation UpsertAnalyticsAlert(
     baseline: $baseline
     current: $current
     generatedAtMs: $generatedAtMs
-  }) {
-    id
-  }
+  })
 }
 
 mutation DeleteAnalyticsPageDaily($id: UUID!) {
-  analyticsPageDaily_delete(id: $id) {
-    id
-  }
+  analyticsPageDaily_delete(id: $id)
 }
 
 mutation DeleteAnalyticsDropDaily($id: UUID!) {
-  analyticsDropDaily_delete(id: $id) {
-    id
-  }
+  analyticsDropDaily_delete(id: $id)
 }
 
 mutation DeleteAnalyticsUserDaily($id: UUID!) {
-  analyticsUserDaily_delete(id: $id) {
-    id
-  }
+  analyticsUserDaily_delete(id: $id)
 }
 
 mutation DeleteAnalyticsUserRollup($id: UUID!) {
-  analyticsUserRollup_delete(id: $id) {
-    id
-  }
+  analyticsUserRollup_delete(id: $id)
 }
 
 mutation DeleteAnalyticsCommerceDaily($id: UUID!) {
-  analyticsCommerceDaily_delete(id: $id) {
-    id
-  }
+  analyticsCommerceDaily_delete(id: $id)
 }
 
 mutation DeleteAnalyticsCommerceRollup($id: UUID!) {
-  analyticsCommerceRollup_delete(id: $id) {
-    id
-  }
+  analyticsCommerceRollup_delete(id: $id)
 }
 
 mutation DeleteAnalyticsBundleDaily($id: UUID!) {
-  analyticsBundleDaily_delete(id: $id) {
-    id
-  }
+  analyticsBundleDaily_delete(id: $id)
 }
 
 mutation DeleteAnalyticsTaskDaily($id: UUID!) {
-  analyticsTaskDaily_delete(id: $id) {
-    id
-  }
+  analyticsTaskDaily_delete(id: $id)
 }
 
 mutation DeleteAnalyticsTaskRollup($id: UUID!) {
-  analyticsTaskRollup_delete(id: $id) {
-    id
-  }
+  analyticsTaskRollup_delete(id: $id)
 }
 
 mutation DeleteAnalyticsSecurityDaily($id: UUID!) {
-  analyticsSecurityDaily_delete(id: $id) {
-    id
-  }
+  analyticsSecurityDaily_delete(id: $id)
 }
 
 mutation DeleteAnalyticsUserSecurityRollup($id: UUID!) {
-  analyticsUserSecurityRollup_delete(id: $id) {
-    id
-  }
+  analyticsUserSecurityRollup_delete(id: $id)
 }
 
 mutation DeleteAnalyticsAlert($id: UUID!) {
-  analyticsAlert_delete(id: $id) {
-    id
-  }
+  analyticsAlert_delete(id: $id)
 }

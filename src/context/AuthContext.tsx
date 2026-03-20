@@ -322,7 +322,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 router.push(getPostAuthDestination(userProfile?.role));
             }
         } catch (error: unknown) {
-            const firebaseError = error as { code?: string };
+            const firebaseError = error as { code?: string; message?: string };
 
             if (firebaseError?.code === "auth/popup-blocked") {
                 const provider = new GoogleAuthProvider();
@@ -330,6 +330,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 setGoogleRedirectPending(true);
                 await signInWithRedirect(auth, provider);
                 return;
+            }
+
+            if (
+                firebaseError?.code === "auth/app-check-token-is-invalid" ||
+                firebaseError?.message?.toLowerCase().includes("app check token") || 
+                firebaseError?.message?.toLowerCase().includes("recaptcha")
+            ) {
+                try {
+                    toast.loading("Analyzing reCAPTCHA rejection reasons from Google...", { id: "recaptcha-debug" });
+                    const { verifyManualRecaptchaToken } = await import("@/lib/manual-recaptcha");
+                    const result = await verifyManualRecaptchaToken("LOGIN");
+                    toast.dismiss("recaptcha-debug");
+                    
+                    if (result.error) {
+                        toast.error(`Google API Error: ${result.error}`, { duration: 8000 });
+                    } else if (result.tokenProperties?.valid === false) {
+                        toast.error(`App Check rejected your browser. Reason: ${result.tokenProperties?.invalidReason}`, { duration: 10000 });
+                    } else {
+                        toast.error(`App Check blocked Auth. Manual reCAPTCHA test succeeded (Score: ${result.riskAnalysis?.score}). Your Firebase Console is NOT linked to this key!`, { duration: 10000 });
+                    }
+                } catch (recaptchaErr: any) {
+                    toast.dismiss("recaptcha-debug");
+                    toast.error(`App Check Failed & Manual Check Failed: ${recaptchaErr.message}`, { duration: 8000 });
+                }
+                throw error;
             }
 
             const message = normalizeAuthErrorMessage(error);

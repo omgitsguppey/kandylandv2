@@ -289,6 +289,32 @@ export default function DebugConsole() {
     }
   }
 
+  async function handleTestRecaptcha() {
+    setProcessing(true);
+    try {
+      const { verifyManualRecaptchaToken } = await import("@/lib/manual-recaptcha");
+      const result = await verifyManualRecaptchaToken("DEBUG_TEST");
+      
+      if (result.error) {
+        toast.error(`reCAPTCHA API Error: ${result.error}`);
+      } else {
+        const isValid = result.tokenProperties?.valid;
+        const score = result.riskAnalysis?.score ?? "N/A";
+        
+        if (isValid) {
+          toast.success(`Success! Score: ${score} - Valid: ${isValid}`);
+        } else {
+          toast.error(`Invalid Token. Reason: ${result.tokenProperties?.invalidReason}`);
+        }
+        console.log("reCAPTCHA Manual Assessment Details:", result);
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Manual reCAPTCHA test failed");
+    } finally {
+      setProcessing(false);
+    }
+  }
+
   return (
     <div className="space-y-6">
       <AdminPageHeader eyebrow="Admin Debug" title="Telemetry & Task Console" subtitle="Shared task, telemetry, diagnostics, and function-pipeline health from one mobile-friendly debug surface." actions={<div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-4 py-2 text-sm text-gray-300"><Terminal className="h-4 w-4 text-brand-purple" /> Shared debug engine</div>} />
@@ -365,6 +391,7 @@ export default function DebugConsole() {
                 <div className="flex gap-2">
                   <input type="number" value={simAmount} onChange={(event) => setSimAmount(event.target.value)} className="flex-1 rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-white" />
                   <Button variant="brand" onClick={handleSimulateBalance} disabled={processing}>{processing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Add"}</Button>
+                  <Button variant="glass" onClick={handleTestRecaptcha} disabled={processing}>Test reCAPTCHA</Button>
                   <Button variant="glass" onClick={() => void mutate()}><RefreshCw className="h-4 w-4" /></Button>
                 </div>
                 <div className="text-xs text-gray-400">Signed in as <span className="font-semibold text-white">{userProfile?.username || user?.email || "Unknown"}</span></div>
