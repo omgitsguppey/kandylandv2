@@ -106,9 +106,9 @@ const FLAVOR_OPTIONS: Array<{
         label: "RAW",
         description: "Direct, intense, and unfiltered.",
         icon: Droplets,
-        accentClass: "text-red-400",
-        activeClass: "border-red-400/60 bg-red-500/10 shadow-[0_0_24px_rgba(239,68,68,0.16)]",
-        iconClass: "bg-red-500 text-white",
+        accentClass: "text-brand-purple",
+        activeClass: "border-brand-purple/60 bg-brand-purple/10 shadow-[0_0_24px_rgba(168,85,247,0.16)]",
+        iconClass: "bg-brand-purple text-white",
     },
 ];
 

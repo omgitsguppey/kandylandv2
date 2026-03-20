@@ -24,7 +24,7 @@ export default function BannedPage() {
 
     return (
         <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4 text-center z-50 relative">
-            <div className="glass-panel p-8 rounded-3xl max-w-md w-full border border-red-500/20 shadow-2xl shadow-red-500/10">
+            <div className="glass-panel p-8 rounded-3xl max-w-md w-full border border-red-500/20 shadow-2xl shadow-brand-purple/10">
                 <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/20">
                     <Ban className="w-10 h-10 text-red-500" />
                 </div>

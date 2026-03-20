@@ -80,7 +80,7 @@ export function DropGrid({
                     <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
 
                     <div className="w-28 h-28 bg-zinc-900 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-white/10 shadow-inner transition-transform duration-500 ease-out">
-                        <span className="text-6xl filter drop-shadow-[0_0_15px_rgba(236,72,153,0.4)]">🍬</span>
+                        <span className="text-6xl filter drop-shadow-[0_0_15px_rgba(168,85,247,0.4)]">🍬</span>
                     </div>
 
                     <h3 className="text-3xl md:text-4xl font-black text-white mb-4 tracking-tight">
