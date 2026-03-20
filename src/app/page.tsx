@@ -17,6 +17,7 @@ export default function Home() {
   const shouldRedirectSignedInUser = !loading && !!user;
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     if (!loading && !user) {
       trackEvent("home_page_viewed");
     }
