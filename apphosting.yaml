@@ -32,8 +32,8 @@ env:
     value: production
   - variable: GA_PROPERTY_ID
     value: "524442937"
-  - variable: NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_SITE_KEY
-    value: 6Le6gZAsAAAAAOSafMA9NuZGwIODXMHoIf_HNijc
+#  - variable: NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_SITE_KEY
+#    value: 6Le6gZAsAAAAAOSafMA9NuZGwIODXMHoIf_HNijc
   - variable: GA_MEASUREMENT_ID
     value: G-V8PWC2L31H
   - variable: GA_API_SECRET
