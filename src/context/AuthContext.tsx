@@ -103,11 +103,7 @@ function hasGoogleRedirectPending() {
 }
 
 function shouldPreferRedirectGoogleSignIn() {
-    if (typeof window === "undefined") {
-        return false;
-    }
-
-    return /(^|\.)kandydrops\.com$/i.test(window.location.host);
+    return false;
 }
 
 async function prepareAuthAppCheck() {
