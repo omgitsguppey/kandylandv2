@@ -232,24 +232,19 @@ export function ReportBugButton({
                 </div>
                 <button
                   type="button"
-                  onClick={() => closeComposer()}
-                  className="rounded-full border border-white/10 bg-white/5 p-2 text-gray-400 transition-colors hover:text-white"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeComposer();
+                  }}
+                  className="rounded-full border border-white/10 bg-white/5 p-3 text-gray-400 transition-colors hover:text-white relative z-50"
                   aria-label="Close bug report"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-5 w-5" />
                 </button>
               </div>
 
-              <div className="mt-3 grid grid-cols-2 gap-2 text-[10px] md:text-[11px]">
-                <div className="rounded-full border border-white/10 bg-white/5 px-3 py-2 font-semibold text-gray-300">
-                  <span className="text-gray-500">Screen</span>
-                  <div className="mt-0.5 truncate text-white">{componentMeta.routeHint || snapshotPreview.currentPath}</div>
-                </div>
-                <div className="rounded-full border border-white/10 bg-white/5 px-3 py-2 font-semibold text-gray-300">
-                  <span className="text-gray-500">Component</span>
-                  <div className="mt-0.5 truncate text-white">{componentMeta.componentName}</div>
-                </div>
-              </div>
+
 
               <div className="mt-4 space-y-3">
                 <div>
@@ -270,40 +265,12 @@ export function ReportBugButton({
                         )}
                       >
                         <div className="font-semibold leading-4">{option.label}</div>
-                        <div className="mt-1 hidden text-[10px] leading-4 text-gray-400 md:block">
-                          {option.description}
-                        </div>
                       </button>
                     ))}
                   </div>
                 </div>
 
-                <div>
-                  <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500 md:text-[11px]">
-                    Severity
-                  </p>
-                  <div className="flex gap-2">
-                    {([
-                      { value: "low", label: "Low" },
-                      { value: "medium", label: "Medium" },
-                      { value: "high", label: "High" },
-                    ] as const).map((option) => (
-                      <button
-                        key={option.value}
-                        type="button"
-                        onClick={() => setSeverity(option.value)}
-                        className={cn(
-                          "flex-1 rounded-full border px-3 py-2 text-xs font-semibold transition-colors",
-                          severity === option.value
-                            ? "border-brand-purple/40 bg-brand-purple/15 text-white"
-                            : "border-white/10 bg-white/5 text-gray-300",
-                        )}
-                      >
-                        {option.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+
 
                 <div>
                   <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500 md:text-[11px]">
@@ -379,13 +346,7 @@ export function ReportBugButton({
               </div>
 
               <div className="mt-4 flex gap-3 border-t border-white/10 pt-4">
-                <button
-                  type="button"
-                  onClick={() => closeComposer()}
-                  className="flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10"
-                >
-                  Cancel
-                </button>
+
                 <button
                   type="button"
                   onClick={submitBugReport}
