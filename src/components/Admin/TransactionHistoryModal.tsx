@@ -99,6 +99,8 @@ export function TransactionHistoryModal({ user, onClose }: Props) {
                                                 </span>
                                             ) : tx.type === "referral_bonus" ? (
                                                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-purple/10 text-brand-purple border border-brand-purple/20 capitalize">Referral</span>
+                                            ) : tx.type === "onboarding_reward" ? (
+                                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-purple/10 text-brand-purple border border-brand-purple/20 capitalize">Onboarding</span>
                                             ) : (
                                                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-500/10 text-gray-400 border border-gray-500/20 capitalize">{tx.type}</span>
                                             )}

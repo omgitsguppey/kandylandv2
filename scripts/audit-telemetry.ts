@@ -127,7 +127,7 @@ function extractEventNamesFromCall(
       : null;
   }
 
-  if (isIdentifierNamed(expression, "buildAnalyticsEventFact")) {
+  if (isIdentifierNamed(expression, "buildAnalyticsEventFact") || isIdentifierNamed(expression, "buildOnboardingAnalyticsEventFact")) {
     const [firstArg] = args;
     if (!firstArg || !ts.isObjectLiteralExpression(firstArg)) {
       return null;
@@ -145,7 +145,7 @@ function extractEventNamesFromCall(
 
     const eventNames = collectStringLiteralValues(eventNameProperty.initializer, constValueMap);
     return eventNames.length > 0
-      ? { matcher: "buildAnalyticsEventFact", eventNames }
+      ? { matcher: ts.isIdentifier(expression) ? expression.text : "buildAnalyticsEventFact", eventNames }
       : null;
   }
 

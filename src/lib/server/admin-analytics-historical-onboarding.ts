@@ -32,6 +32,7 @@ type ParsedOnboardingStartRecord = {
   timestamp: number;
   userId: string;
   flowStartedAtMs: number;
+  source: string;
 };
 
 type ParsedOnboardingCompletionRecord = {
@@ -49,6 +50,18 @@ type ParsedOnboardingStepRecord = OnboardingStepFactRecord & {
   source: string;
 };
 
+function getOnboardingSourceRank(source: string) {
+  if (source === "complete_onboarding_route") {
+    return 2;
+  }
+
+  if (source === "onboarding_progress_route") {
+    return 1;
+  }
+
+  return 0;
+}
+
 function toPositiveMs(value: unknown) {
   const numeric = toNumber(value);
   return numeric > 0 ? numeric : 0;
@@ -63,6 +76,11 @@ function dedupeOnboardingStarts(records: ParsedOnboardingStartRecord[]) {
 
   return [...records]
     .sort((left, right) => {
+      const leftSourceRank = getOnboardingSourceRank(left.source);
+      const rightSourceRank = getOnboardingSourceRank(right.source);
+      if (leftSourceRank !== rightSourceRank) {
+        return rightSourceRank - leftSourceRank;
+      }
       const leftHasFlowStart = left.flowStartedAtMs > 0 ? 1 : 0;
       const rightHasFlowStart = right.flowStartedAtMs > 0 ? 1 : 0;
       if (leftHasFlowStart !== rightHasFlowStart) {
@@ -92,10 +110,10 @@ function dedupeOnboardingCompletions(records: ParsedOnboardingCompletionRecord[]
 
   return [...records]
     .sort((left, right) => {
-      const leftCanonical = left.source === "complete_onboarding_route" ? 1 : 0;
-      const rightCanonical = right.source === "complete_onboarding_route" ? 1 : 0;
-      if (leftCanonical !== rightCanonical) {
-        return rightCanonical - leftCanonical;
+      const leftSourceRank = getOnboardingSourceRank(left.source);
+      const rightSourceRank = getOnboardingSourceRank(right.source);
+      if (leftSourceRank !== rightSourceRank) {
+        return rightSourceRank - leftSourceRank;
       }
       return left.timestamp - right.timestamp;
     })
@@ -121,10 +139,10 @@ function dedupeOnboardingStepFacts(records: ParsedOnboardingStepRecord[]) {
 
   return [...records]
     .sort((left, right) => {
-      const leftCanonical = left.source === "complete_onboarding_route" ? 1 : 0;
-      const rightCanonical = right.source === "complete_onboarding_route" ? 1 : 0;
-      if (leftCanonical !== rightCanonical) {
-        return rightCanonical - leftCanonical;
+      const leftSourceRank = getOnboardingSourceRank(left.source);
+      const rightSourceRank = getOnboardingSourceRank(right.source);
+      if (leftSourceRank !== rightSourceRank) {
+        return rightSourceRank - leftSourceRank;
       }
       return left.timestamp - right.timestamp;
     })
@@ -172,6 +190,7 @@ export function buildHistoricalOnboardingOverview(input: {
           toPositiveMs(params.overall_started_at_ms),
           toPositiveMs(params.started_at_ms),
         ),
+        source: toStringValue(params.source),
       };
     })
     .filter((fact) =>

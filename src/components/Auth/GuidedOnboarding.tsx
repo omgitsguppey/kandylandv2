@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
 import { Sparkles, Flame, Droplets, Gift, BellRing, ChevronRight, Compass, CalendarCheck2 } from "lucide-react";
@@ -14,6 +14,7 @@ import { trackEvent } from "@/lib/telemetry";
 import { authFetch } from "@/lib/authFetch";
 import { getCSTDayBoundaries } from "@/lib/timezone";
 import { enableBrowserNotifications } from "@/lib/browser-notification-enrollment";
+import { recordClientDiagnostic } from "@/lib/client-diagnostics";
 
 type FlavorPreference = "Sweet" | "Spicy" | "RAW" | "";
 
@@ -132,7 +133,7 @@ function hasClaimedToday(value: unknown): boolean {
 }
 
 export function GuidedOnboarding() {
-    const { user, userProfile: profile } = useAuth();
+    const { user, userProfile: profile, setUserProfile } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
     const completionStorageKey = user ? buildOnboardingCompletionStorageKey(user.uid) : null;
@@ -148,6 +149,7 @@ export function GuidedOnboarding() {
     const stepStartedAtRef = useRef<Record<string, number>>({});
     const completedStepIdsRef = useRef<Set<string>>(new Set());
     const stepMetricsRef = useRef<Record<string, OnboardingStepMetric>>({});
+    const serverProgressKeysRef = useRef<Set<string>>(new Set());
 
     useEffect(() => {
         if (!isVisible) {
@@ -164,6 +166,73 @@ export function GuidedOnboarding() {
             document.body.style.overflow = previousBodyOverflow;
         };
     }, [isVisible]);
+
+    const buildViewportPayload = useCallback(() => ({
+        viewportWidth: typeof window !== "undefined" ? window.innerWidth : 0,
+        viewportHeight: typeof window !== "undefined" ? window.innerHeight : 0,
+        isMobileViewport: typeof window !== "undefined" ? window.innerWidth < 768 : false,
+    }), []);
+
+    const sendCanonicalProgressEvent = useCallback(async (
+        eventName: "guided_onboarding_started" | "guided_onboarding_step_started" | "guided_onboarding_step_completed",
+        dedupeKey: string,
+        payload: Record<string, string | number | boolean>,
+    ) => {
+        if (serverProgressKeysRef.current.has(dedupeKey)) {
+            return;
+        }
+
+        serverProgressKeysRef.current.add(dedupeKey);
+        try {
+            const response = await authFetch("/api/user/onboarding-progress", {
+                method: "POST",
+                body: JSON.stringify({
+                    eventName,
+                    ...payload,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to sync onboarding progress");
+            }
+        } catch (error) {
+            serverProgressKeysRef.current.delete(dedupeKey);
+            recordClientDiagnostic("telemetry", "Onboarding progress sync failed", {
+                eventName,
+                dedupeKey,
+                message: error instanceof Error ? error.message : String(error),
+            });
+        }
+    }, []);
+
+    const startOnboardingFlow = useCallback(() => {
+        if (!user || !profile?.username || isVisible) {
+            return;
+        }
+
+        const startedAtMs = Date.now();
+        const registrationMethod = user.providerData[0]?.providerId === "google.com" ? "google" : "email";
+        flowStartedAtRef.current = startedAtMs;
+        activeStepIdRef.current = null;
+        stepStartedAtRef.current = {};
+        completedStepIdsRef.current = new Set();
+        stepMetricsRef.current = {};
+        serverProgressKeysRef.current = new Set();
+
+        trackEvent("guided_onboarding_started", {
+            source: "auto_after_signup",
+            registration_method: registrationMethod,
+            overall_started_at_ms: startedAtMs,
+        });
+        void sendCanonicalProgressEvent("guided_onboarding_started", `flow:${startedAtMs}`, {
+            flowStartedAtMs: startedAtMs,
+            registrationMethod,
+            stepPath: STEP_DEFINITIONS[0]?.path || "/dashboard",
+            ...buildViewportPayload(),
+        });
+        setCurrentStep(0);
+        setIsVisible(true);
+    }, [buildViewportPayload, isVisible, profile?.username, sendCanonicalProgressEvent, user]);
 
     useEffect(() => {
         if (!user || !profile) {
@@ -200,46 +269,20 @@ export function GuidedOnboarding() {
                     return;
                 }
 
-                if (profile.username && !isVisible) {
-                    const startedAtMs = Date.now();
-                    flowStartedAtRef.current = startedAtMs;
-                    activeStepIdRef.current = null;
-                    stepStartedAtRef.current = {};
-                    completedStepIdsRef.current = new Set();
-                    stepMetricsRef.current = {};
-                    trackEvent("guided_onboarding_started", {
-                        source: "auto_after_signup",
-                        registration_method: user.providerData[0]?.providerId === "google.com" ? "google" : "email",
-                        overall_started_at_ms: startedAtMs,
-                    });
-                    setCurrentStep(0);
-                    setIsVisible(true);
-                }
+                startOnboardingFlow();
             } catch {
-                if (!cancelled && profile.username && !isVisible) {
-                    const startedAtMs = Date.now();
-                    flowStartedAtRef.current = startedAtMs;
-                    activeStepIdRef.current = null;
-                    stepStartedAtRef.current = {};
-                    completedStepIdsRef.current = new Set();
-                    stepMetricsRef.current = {};
-                    trackEvent("guided_onboarding_started", {
-                        source: "auto_after_signup",
-                        registration_method: user.providerData[0]?.providerId === "google.com" ? "google" : "email",
-                        overall_started_at_ms: startedAtMs,
-                    });
-                    setCurrentStep(0);
-                    setIsVisible(true);
+                if (!cancelled) {
+                    startOnboardingFlow();
                 }
             }
         };
 
-        hydrateLegacyCompletion();
+        void hydrateLegacyCompletion();
 
         return () => {
             cancelled = true;
         };
-    }, [completionStorageKey, isVisible, profile, user]);
+    }, [completionStorageKey, profile, startOnboardingFlow, user]);
 
     useEffect(() => {
         if (!isVisible) {
@@ -255,6 +298,7 @@ export function GuidedOnboarding() {
             const startedAtMs = Date.now();
             activeStepIdRef.current = step.id;
             stepStartedAtRef.current[step.id] = startedAtMs;
+            const registrationMethod = user?.providerData[0]?.providerId === "google.com" ? "google" : "email";
 
             trackEvent("guided_onboarding_step_started", {
                 step_key: step.id,
@@ -263,6 +307,20 @@ export function GuidedOnboarding() {
                 step_path: step.path,
                 overall_started_at_ms: flowStartedAtRef.current,
             });
+            void sendCanonicalProgressEvent(
+                "guided_onboarding_step_started",
+                `step-start:${flowStartedAtRef.current}:${step.id}:${startedAtMs}`,
+                {
+                    flowStartedAtMs: flowStartedAtRef.current,
+                    stepId: step.id,
+                    stepIndex: currentStep + 1,
+                    stepTitle: step.title,
+                    stepPath: step.path,
+                    startedAtMs,
+                    registrationMethod,
+                    ...buildViewportPayload(),
+                },
+            );
             trackEvent("onboarding_step_viewed", {
                 step: currentStep + 1,
                 step_key: step.id,
@@ -274,7 +332,7 @@ export function GuidedOnboarding() {
         if (pathname !== step.path) {
             router.replace(step.path);
         }
-    }, [currentStep, isVisible, pathname, router]);
+    }, [buildViewportPayload, currentStep, isVisible, pathname, router, sendCanonicalProgressEvent, user]);
 
     const isNotificationStepCompleted = useMemo(
         () => profile?.notificationSettings?.browserPushEnabled === true,
@@ -329,6 +387,23 @@ export function GuidedOnboarding() {
             overall_started_at_ms: flowStartedAtRef.current,
             ...extraParams,
         });
+        void sendCanonicalProgressEvent(
+            "guided_onboarding_step_completed",
+            `step-complete:${flowStartedAtRef.current}:${metric.stepId}:${metric.completedAtMs}`,
+            {
+                flowStartedAtMs: flowStartedAtRef.current,
+                stepId: metric.stepId,
+                stepIndex: metric.stepIndex,
+                stepTitle: metric.stepTitle,
+                stepPath: metric.stepPath,
+                startedAtMs: metric.startedAtMs,
+                completedAtMs: metric.completedAtMs,
+                durationMs: metric.durationMs,
+                completionReason: metric.completionReason,
+                selectedFlavor: metric.stepId === "flavor_preference" ? (typeof extraParams?.selected_flavor === "string" ? extraParams.selected_flavor : flavorPreference || "Sweet") : "",
+                ...buildViewportPayload(),
+            },
+        );
     };
 
     const completeCurrentStep = (completionReason: string, extraParams?: Record<string, string | number | boolean>) => {
@@ -424,9 +499,8 @@ export function GuidedOnboarding() {
                     durationMs,
                     durationSeconds,
                     stepMetrics,
-                    viewportWidth: typeof window !== "undefined" ? window.innerWidth : 0,
-                    viewportHeight: typeof window !== "undefined" ? window.innerHeight : 0,
-                    isMobileViewport: typeof window !== "undefined" ? window.innerWidth < 768 : false,
+                    selectedFlavor: flavorPreference || "Sweet",
+                    ...buildViewportPayload(),
                 }),
             });
 
@@ -435,15 +509,15 @@ export function GuidedOnboarding() {
                 throw new Error(typeof result?.error === "string" ? result.error : "Failed to complete onboarding.");
             }
 
-            try {
-                await setDoc(doc(db, "users", user.uid), {
-                    preferences: { flavor: flavorPreference || "Sweet" },
-                    onboardingCompleted: true,
-                }, { merge: true });
-            } catch (syncError) {
-                console.error("Error syncing onboarding preferences:", syncError);
-            }
-
+            setUserProfile((currentProfile) => currentProfile ? {
+                ...currentProfile,
+                onboardingCompleted: true,
+                gumDropsBalance: typeof result?.newBalance === "number" ? result.newBalance : currentProfile.gumDropsBalance,
+                preferences: {
+                    ...(currentProfile.preferences || {}),
+                    flavor: flavorPreference || "Sweet",
+                },
+            } : currentProfile);
             if (completionStorageKey) {
                 window.localStorage.setItem(completionStorageKey, "true");
             }

@@ -20,6 +20,10 @@ const TASK_PROGRESS_EVENT_NAMES = new Set(BUILT_IN_DAILY_TASKS.map((task) => tas
 const IMMEDIATE_IDENTIFIED_EVENT_NAMES = new Set([
     "semantic_page_viewed",
     "semantic_target_clicked",
+    "guided_onboarding_started",
+    "guided_onboarding_step_started",
+    "guided_onboarding_step_completed",
+    "guided_onboarding_completed",
     "gumdrops_purchase_completed",
     "gumdrops_purchase_failed",
     "unlock_drop_success",

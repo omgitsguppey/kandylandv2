@@ -9,13 +9,13 @@ type TimestampLike = {
   _nanoseconds?: number;
 };
 
-const transactionTypeSchema = z.enum(["purchase_currency", "unlock_content", "admin_adjustment", "daily_reward", "referral_bonus"]);
+const transactionTypeSchema = z.enum(["purchase_currency", "unlock_content", "admin_adjustment", "daily_reward", "referral_bonus", "onboarding_reward"]);
 
 const transactionRecordSchema = z.object({
   userId: z.string().min(1),
   amount: z.number().finite().default(0),
   type: z.string().min(1),
-  rewardSource: z.enum(["check_in", "task"]).optional(),
+  rewardSource: z.enum(["check_in", "task", "onboarding"]).optional(),
   relatedDropId: z.string().optional(),
   description: z.string().default(""),
   timestamp: z.unknown().optional(),
@@ -85,6 +85,10 @@ function normalizeType(rawType: string): z.infer<typeof transactionTypeSchema> {
 
   if (rawType === "referral_bonus") {
     return "referral_bonus";
+  }
+
+  if (rawType === "onboarding_reward") {
+    return "onboarding_reward";
   }
 
   if (rawType === "purchase_currency" || rawType === "unlock_content" || rawType === "admin_adjustment") {

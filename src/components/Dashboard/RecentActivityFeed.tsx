@@ -72,6 +72,8 @@ function renderTransactionLabel(transaction: Transaction) {
             return transaction.description || "Daily reward collected";
         case "referral_bonus":
             return transaction.description || "Referral bonus earned";
+        case "onboarding_reward":
+            return transaction.description || "Onboarding reward collected";
         default:
             return transaction.description || "Recent activity";
     }
@@ -352,7 +354,7 @@ export function RecentActivityFeed() {
 
     function renderActivityItem(item: ActivityItem) {
         if (item.kind === "transaction") {
-            const isPositive = ["purchase_currency", "daily_reward", "admin_adjustment", "referral_bonus"].includes(item.transaction.type);
+            const isPositive = ["purchase_currency", "daily_reward", "admin_adjustment", "referral_bonus", "onboarding_reward"].includes(item.transaction.type);
             return (
                 <div key={item.id} className="flex items-center justify-between rounded-2xl border border-white/5 bg-white/5 p-3">
                     <div className="flex min-w-0 items-center gap-3">

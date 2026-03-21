@@ -85,6 +85,8 @@ function renderTransactionLabel(transaction: ReturnType<typeof normalizeTransact
             return transaction.description || "Daily reward collected";
         case "referral_bonus":
             return transaction.description || "Referral bonus earned";
+        case "onboarding_reward":
+            return transaction.description || "Onboarding reward collected";
         default:
             return transaction.description || "Recent activity";
     }
