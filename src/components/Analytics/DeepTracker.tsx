@@ -44,6 +44,9 @@ interface TelemetryEvent {
     semanticSurfaceLabel?: string;
 }
 
+const GUEST_ANALYTICS_QUEUE_STORAGE_KEY = "kandydrops.analytics.guest-queue";
+const GUEST_ANALYTICS_FLUSH_INTERVAL_MS = 5_000;
+
 function quantizeCoordinate(value: number) {
     return Math.floor(value / 24) * 24;
 }
@@ -82,6 +85,66 @@ function getClientSessionId() {
     return kSessionId;
 }
 
+function sanitizeStoredTelemetryEvent(value: unknown): TelemetryEvent | null {
+    if (!value || typeof value !== "object") {
+        return null;
+    }
+
+    const event = value as Partial<TelemetryEvent>;
+    if (
+        typeof event.type !== "string"
+        || typeof event.timestamp !== "number"
+        || !Number.isFinite(event.timestamp)
+        || typeof event.path !== "string"
+    ) {
+        return null;
+    }
+
+    return event as TelemetryEvent;
+}
+
+function readPersistedGuestQueue() {
+    if (typeof window === "undefined") {
+        return [];
+    }
+
+    try {
+        const raw = window.sessionStorage.getItem(GUEST_ANALYTICS_QUEUE_STORAGE_KEY);
+        if (!raw) {
+            return [];
+        }
+
+        const parsed = JSON.parse(raw) as unknown[];
+        if (!Array.isArray(parsed)) {
+            return [];
+        }
+
+        return parsed
+            .map((entry) => sanitizeStoredTelemetryEvent(entry))
+            .filter((entry): entry is TelemetryEvent => Boolean(entry))
+            .slice(-500);
+    } catch {
+        return [];
+    }
+}
+
+function persistGuestQueue(events: TelemetryEvent[]) {
+    if (typeof window === "undefined") {
+        return;
+    }
+
+    try {
+        if (events.length === 0) {
+            window.sessionStorage.removeItem(GUEST_ANALYTICS_QUEUE_STORAGE_KEY);
+            return;
+        }
+
+        window.sessionStorage.setItem(GUEST_ANALYTICS_QUEUE_STORAGE_KEY, JSON.stringify(events.slice(-500)));
+    } catch {
+        // Ignore storage write failures in restricted contexts.
+    }
+}
+
 function readTelemetryContext() {
     return {
         referrerHost: typeof document !== "undefined" && document.referrer
@@ -106,6 +169,8 @@ export function DeepTracker() {
     const pathname = usePathname();
     const [trackingAllowed, setTrackingAllowed] = useState(() => canUseAnonymousAnalytics(readPrivacySettingsSnapshot()));
     const eventQueue = useRef<TelemetryEvent[]>([]);
+    const guestQueueHydratedRef = useRef(false);
+    const guestFlushInFlightRef = useRef<Promise<void> | null>(null);
     const lastScrollDepth = useRef<number>(0);
     const clickCountRef = useRef(0);
     const hoverCountRef = useRef(0);
@@ -119,6 +184,24 @@ export function DeepTracker() {
             setTrackingAllowed(canUseAnonymousAnalytics(readPrivacySettingsSnapshot()));
         });
     }, []);
+
+    useEffect(() => {
+        if (guestQueueHydratedRef.current || typeof window === "undefined") {
+            return;
+        }
+
+        guestQueueHydratedRef.current = true;
+        eventQueue.current = readPersistedGuestQueue();
+    }, []);
+
+    useEffect(() => {
+        if (trackingAllowed || typeof window === "undefined") {
+            return;
+        }
+
+        eventQueue.current = [];
+        persistGuestQueue([]);
+    }, [trackingAllowed]);
 
     useEffect(() => {
         if (!pathname) {
@@ -140,6 +223,7 @@ export function DeepTracker() {
         let currentHoverTarget: HTMLElement | null = null;
         let currentHoverKey: string | null = null;
         let finalized = false;
+        const shouldCaptureAnonymousBatch = !pathname.startsWith("/admin");
 
         pageEnteredAt.current = Date.now();
         lastScrollDepth.current = 0;
@@ -148,54 +232,75 @@ export function DeepTracker() {
         scrollCountRef.current = 0;
         viewerBackgroundTrackedRef.current = false;
 
-        const flushQueue = async () => {
-            if (!trackingAllowed || eventQueue.current.length === 0) {
+        const flushQueue = async (reason: "interval" | "page_view" | "visibility" | "pagehide" | "cleanup" | "online") => {
+            if (!trackingAllowed || !shouldCaptureAnonymousBatch || eventQueue.current.length === 0) {
                 return;
             }
 
+            if (guestFlushInFlightRef.current) {
+                await guestFlushInFlightRef.current;
+                return;
+            }
+
+            const queuedEvents = [...eventQueue.current];
             const payload = {
                 batchId: createAnalyticsBatchId(getClientSessionId()),
                 sessionId: getClientSessionId(),
-                events: [...eventQueue.current],
+                events: queuedEvents,
             };
 
-            eventQueue.current = [];
+            guestFlushInFlightRef.current = (async () => {
+                const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
+                try {
+                    const appCheckToken = await getAppCheckToken().catch(() => null);
+                    if (appCheckToken) {
+                        const response = await fetch("/api/analytics/ingest", {
+                            method: "POST",
+                            body: blob,
+                            keepalive: true,
+                            headers: {
+                                "X-Firebase-AppCheck": appCheckToken,
+                            },
+                        });
+                        if (!response.ok) {
+                            throw new Error(`Guest analytics flush failed (${response.status})`);
+                        }
+                    } else if (navigator?.sendBeacon) {
+                        const accepted = navigator.sendBeacon("/api/analytics/ingest", blob);
+                        if (!accepted) {
+                            throw new Error("Guest analytics sendBeacon was rejected");
+                        }
+                    } else {
+                        const response = await fetch("/api/analytics/ingest", {
+                            method: "POST",
+                            body: blob,
+                            keepalive: true,
+                        });
+                        if (!response.ok) {
+                            throw new Error(`Guest analytics flush failed (${response.status})`);
+                        }
+                    }
 
-            const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
-            try {
-                const appCheckToken = await getAppCheckToken().catch(() => null);
-                if (appCheckToken) {
-                    await fetch("/api/analytics/ingest", {
-                        method: "POST",
-                        body: blob,
-                        keepalive: true,
-                        headers: {
-                            "X-Firebase-AppCheck": appCheckToken,
-                        },
+                    eventQueue.current = eventQueue.current.slice(queuedEvents.length);
+                    persistGuestQueue(eventQueue.current);
+                } catch (error) {
+                    persistGuestQueue(eventQueue.current);
+                    recordClientDiagnostic("telemetry", "Guest analytics flush failed", {
+                        pagePath: pathname,
+                        reason,
+                        queuedEvents: queuedEvents.length,
+                        message: error instanceof Error ? error.message : String(error),
                     });
-                    return;
+                } finally {
+                    guestFlushInFlightRef.current = null;
                 }
+            })();
 
-                if (navigator?.sendBeacon) {
-                    navigator.sendBeacon("/api/analytics/ingest", blob);
-                    return;
-                }
-
-                await fetch("/api/analytics/ingest", {
-                    method: "POST",
-                    body: blob,
-                    keepalive: true,
-                });
-            } catch (error) {
-                recordClientDiagnostic("telemetry", "Guest analytics flush failed", {
-                    pagePath: pathname,
-                    message: error instanceof Error ? error.message : String(error),
-                });
-            }
+            await guestFlushInFlightRef.current;
         };
 
         const pushEvent = (event: TelemetryEvent) => {
-            if (!trackingAllowed) {
+            if (!trackingAllowed || !shouldCaptureAnonymousBatch) {
                 return;
             }
 
@@ -207,6 +312,7 @@ export function DeepTracker() {
             }
 
             eventQueue.current.push(event);
+            persistGuestQueue(eventQueue.current);
         };
 
         const emitPageSummary = (reason: "pagehide" | "cleanup" | "visibility") => {
@@ -261,7 +367,7 @@ export function DeepTracker() {
                 exit_reason: reason,
             });
 
-            void flushQueue();
+            void flushQueue(reason);
         };
 
         pushEvent({
@@ -271,6 +377,7 @@ export function DeepTracker() {
             ...rawSemanticFields,
             ...readTelemetryContext(),
         });
+        void flushQueue("page_view");
 
         trackEvent("semantic_page_viewed", {
             ...semanticParams,
@@ -421,12 +528,15 @@ export function DeepTracker() {
                     });
                 }
 
-                void flushQueue();
+                void flushQueue("visibility");
             }
         };
 
         const handlePageHide = () => {
             emitPageSummary("pagehide");
+        };
+        const handleOnline = () => {
+            void flushQueue("online");
         };
 
         document.addEventListener("click", handleClick, { capture: true, passive: true });
@@ -435,8 +545,11 @@ export function DeepTracker() {
         document.addEventListener("mouseout", handleMouseOut, { passive: true });
         document.addEventListener("visibilitychange", handleVisibilityChange);
         window.addEventListener("pagehide", handlePageHide);
+        window.addEventListener("online", handleOnline);
 
-        trackingInterval = window.setInterval(flushQueue, 15_000);
+        trackingInterval = window.setInterval(() => {
+            void flushQueue("interval");
+        }, GUEST_ANALYTICS_FLUSH_INTERVAL_MS);
 
         return () => {
             document.removeEventListener("click", handleClick, true);
@@ -445,6 +558,7 @@ export function DeepTracker() {
             document.removeEventListener("mouseout", handleMouseOut);
             document.removeEventListener("visibilitychange", handleVisibilityChange);
             window.removeEventListener("pagehide", handlePageHide);
+            window.removeEventListener("online", handleOnline);
             if (trackingInterval) {
                 window.clearInterval(trackingInterval);
             }

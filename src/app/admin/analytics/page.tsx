@@ -46,6 +46,7 @@ import {
   YAxis,
 } from "recharts";
 import { useAuthSWR } from "@/hooks/useAuthSWR";
+import { useCompactViewport } from "@/hooks/useCompactViewport";
 import { cn } from "@/lib/utils";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
@@ -56,7 +57,7 @@ import { authFetch } from "@/lib/authFetch";
 import type { AdminOpsHealth, AdminOpsHealthSeverity, AdminOpsHealthStatus } from "@/lib/admin-ops-health";
 
 type ViewTab = "operations" | "audience" | "commerce" | "security";
-type RangeOption = "1h" | "6h" | "24h" | "3d" | "7d" | "14d" | "30d" | "90d" | "all";
+type RangeOption = "24h" | "3d" | "7d" | "14d" | "30d" | "90d" | "all";
 type HistoricalSectionId =
   | "stationSnapshot"
   | "livePulse"
@@ -504,6 +505,7 @@ interface AnalyticsTooltipProps {
 }
 
 interface SectionCardProps {
+  panelId?: HistoricalSectionId;
   sectionRange?: RangeOption;
   onSectionRangeChange?: (nextRange: RangeOption) => void;
   rangeOptions?: Array<{ value: RangeOption; label: string }>;
@@ -527,9 +529,20 @@ interface MetricCardProps {
   valueClassName?: string;
 }
 
+interface PanelGuideContent {
+  summary: string;
+  takeaways: string[];
+  deepDiveTitle: string;
+  deepDiveBody: string[];
+}
+
+interface FlowGroup {
+  title: string;
+  subtitle: string;
+  panels: HistoricalSectionId[];
+}
+
 const RANGE_OPTIONS: Array<{ value: RangeOption; label: string }> = [
-  { value: "1h", label: "1H" },
-  { value: "6h", label: "6H" },
   { value: "24h", label: "24H" },
   { value: "3d", label: "3D" },
   { value: "7d", label: "7D" },
@@ -550,7 +563,7 @@ const EVENT_LABELS: Record<string, string> = TELEMETRY_EVENT_LABELS;
 const PIE_COLORS = ["#b28cff", "#7c3aed", "#22d3ee", "#f472b6", "#34d399", "#f59e0b"];
 
 const INITIAL_ANALYTICS_NOW = Date.now();
-const GLOBAL_RANGE_OPTIONS = RANGE_OPTIONS.filter((option) => option.value !== "1h" && option.value !== "6h");
+const GLOBAL_RANGE_OPTIONS = RANGE_OPTIONS.filter((option) => option.value !== "24h");
 const SECTION_FILTER_OPTIONS = GLOBAL_RANGE_OPTIONS;
 const EMPTY_OPS_HEALTH: AdminOpsHealth = {
   score: 0,
@@ -583,6 +596,413 @@ const EMPTY_OPS_HEALTH: AdminOpsHealth = {
   },
   materializers: [],
 };
+
+const PANEL_LABELS = {
+  stationSnapshot: "Station Snapshot",
+  livePulse: "Live Pulse",
+  journeyFunnel: "Journey Funnel",
+  authOutcomeSplit: "Auth Outcome Split",
+  onboardingVelocity: "Onboarding Velocity",
+  eventMix: "Event Mix",
+  liveInteractionStream: "Interaction Stream",
+  serverTelemetryHealth: "Telemetry Health",
+  coverageEngine: "Coverage Engine",
+  categorySemantics: "Category Semantics",
+  creatorMetrics: "Creator Metrics",
+  semanticsEngine: "Semantics Engine",
+  dataValidation: "Data Validation",
+  audienceSnapshot: "Audience Snapshot",
+  returnCadence: "Return Cadence",
+  navigationDestinations: "Destinations",
+  deviceMix: "Device Mix",
+  topPaths: "Top Paths",
+  regions: "Regions",
+  commerceSnapshot: "Commerce Snapshot",
+  packagePerformance: "Package Performance",
+  contentConversion: "Content Conversion",
+  topDropConversion: "Top Drop Conversion",
+  recentCommerceFeed: "Commerce Feed",
+  viewerDrilldown: "Viewer Drilldown",
+  viewerJourney: "Viewer Journey",
+  watchDepthTags: "Watch Depth & Tags",
+  securityPosture: "Security Posture",
+  dailyTaskPipeline: "Task Pipeline",
+  taskCompletionSpeed: "Task Speed",
+  taskLeaderboard: "Task Leaderboard",
+  notificationFunnel: "Notification Funnel",
+  flaggedAccounts: "Flagged Accounts",
+} satisfies Record<HistoricalSectionId, string>;
+
+const FLOW_GROUPS_BY_TAB = {
+  operations: [
+    {
+      title: "Start with health",
+      subtitle: "Open the big-picture panels first so you know whether traffic and systems look normal before drilling in.",
+      panels: ["stationSnapshot", "livePulse", "journeyFunnel"],
+    },
+    {
+      title: "Explain what changed",
+      subtitle: "Use these panels when the headline moves and you need to know whether auth, onboarding, or event mix caused it.",
+      panels: ["authOutcomeSplit", "onboardingVelocity", "eventMix", "liveInteractionStream"],
+    },
+    {
+      title: "Validate trust",
+      subtitle: "Finish with coverage and health so you know whether the story you are reading is complete enough to share.",
+      panels: ["serverTelemetryHealth", "coverageEngine", "categorySemantics", "creatorMetrics", "semanticsEngine", "dataValidation"],
+    },
+  ],
+  audience: [
+    {
+      title: "Start with audience size",
+      subtitle: "Begin with who showed up and whether engagement looks healthy at a glance.",
+      panels: ["audienceSnapshot", "returnCadence"],
+    },
+    {
+      title: "Then follow movement",
+      subtitle: "Use the navigation and device panels to understand how people are moving through the product and on which screens.",
+      panels: ["navigationDestinations", "deviceMix", "topPaths"],
+    },
+    {
+      title: "Finish with geography",
+      subtitle: "Check location only after you know traffic quality, so demand by place is easier to interpret.",
+      panels: ["regions"],
+    },
+  ],
+  commerce: [
+    {
+      title: "Start with revenue quality",
+      subtitle: "Begin with the top-level commerce state before breaking into packs, content, and viewer behavior.",
+      panels: ["commerceSnapshot", "packagePerformance", "contentConversion"],
+    },
+    {
+      title: "Then inspect drop demand",
+      subtitle: "These panels tell you which specific drops and transactions are driving the commercial story.",
+      panels: ["topDropConversion", "recentCommerceFeed"],
+    },
+    {
+      title: "Finish with post-unlock depth",
+      subtitle: "Use viewer and watch-depth panels to understand whether the content experience is sustaining value after payment.",
+      panels: ["viewerDrilldown", "viewerJourney", "watchDepthTags"],
+    },
+  ],
+  security: [
+    {
+      title: "Start with risk level",
+      subtitle: "Check whether the system is broadly healthy or whether a risk spike is driving the tab.",
+      panels: ["securityPosture", "flaggedAccounts"],
+    },
+    {
+      title: "Then inspect task health",
+      subtitle: "These panels explain whether task assignment, guidance, and completion are behaving as expected.",
+      panels: ["dailyTaskPipeline", "taskCompletionSpeed", "taskLeaderboard"],
+    },
+    {
+      title: "Finish with notification behavior",
+      subtitle: "Close with the notification funnel to see whether reminder and enablement behavior supports or undermines retention.",
+      panels: ["notificationFunnel"],
+    },
+  ],
+} satisfies Record<ViewTab, FlowGroup[]>;
+
+const PANEL_GUIDES = {
+  stationSnapshot: {
+    summary: "Start here first. This panel is the fastest way to tell whether traffic, revenue, device mix, or risk changed enough to justify a deeper investigation elsewhere.",
+    takeaways: ["Open with totals", "Compare mobile share", "Check risk beside revenue"],
+    deepDiveTitle: "Go deeper when the headline looks off",
+    deepDiveBody: [
+      "If users rise without revenue, move next to Journey Funnel or Commerce Snapshot to see where intent is dropping.",
+      "If violations rise at the same time as traffic, check Security Posture before trusting conversion movement at face value.",
+    ],
+  },
+  livePulse: {
+    summary: "This panel mixes true realtime activity with selected-range funnel history so you can compare what is happening now against what has been normal for the chosen window.",
+    takeaways: ["Realtime is immediate", "Funnel is windowed", "Use it as a sanity check"],
+    deepDiveTitle: "How to read the mix correctly",
+    deepDiveBody: [
+      "GA Active Now and Tracked Users (30m) tell you whether something is currently happening; they are not historical counts.",
+      "Onboarding and Purchases in this card follow the selected panel window, so use them to judge whether the current pulse is converting the way it usually does.",
+    ],
+  },
+  journeyFunnel: {
+    summary: "Read this top to bottom. Each step shows how many people made it to the next product moment, so large gaps reveal where intent is leaking out.",
+    takeaways: ["Follow the drop-off", "Check unlock to checkout", "Use shares and check-ins as side signals"],
+    deepDiveTitle: "What large gaps usually mean",
+    deepDiveBody: [
+      "A big preview-to-viewer gap usually points to friction in the preview experience or weak motivation to continue.",
+      "A big unlock-to-checkout gap usually means value is landing, but purchase intent is failing after the content moment.",
+    ],
+  },
+  authOutcomeSplit: {
+    summary: "This isolates sign-in and sign-up quality by method, so you can tell whether completion problems belong to Google, email, or another entry path.",
+    takeaways: ["Compare success rate", "Watch failure volume", "Use average completion time as friction"],
+    deepDiveTitle: "How to interpret method health",
+    deepDiveBody: [
+      "A low success rate with normal attempts usually means the method is available but failing during completion.",
+      "A long average duration with okay success usually means users are hesitating, retrying, or hitting extra prompts before finishing.",
+    ],
+  },
+  onboardingVelocity: {
+    summary: "This is your onboarding completion quality panel. It shows how many people started, how many finished, and where time is being spent in the guided flow.",
+    takeaways: ["Watch starts vs completions", "Use step timings", "Check the data source chip"],
+    deepDiveTitle: "Best way to use this panel",
+    deepDiveBody: [
+      "If completion rate falls, inspect the step cards first to find the slowest or least-finished stage.",
+      "If the source chip shows fallback coverage, treat start counts more cautiously and lean on completions plus duration buckets.",
+    ],
+  },
+  eventMix: {
+    summary: "This tells you which tracked behaviors dominate the selected range, so you can tell whether the app is being used more for discovery, commerce, viewing, or system actions.",
+    takeaways: ["Use for behavior share", "Spot unusual event spikes", "Cross-check against feature launches"],
+    deepDiveTitle: "When this panel matters most",
+    deepDiveBody: [
+      "Use it after product changes or campaigns to confirm that the expected user actions actually became a larger share of activity.",
+      "If one event suddenly dominates, compare it with the relevant funnel panel to see whether the spike is healthy or just noisy.",
+    ],
+  },
+  liveInteractionStream: {
+    summary: "This is the raw recent interaction feed. It helps you see what people are actually doing on the site without leaving the dashboard.",
+    takeaways: ["Use for recency", "Watch paths and targets", "Best for debugging user behavior"],
+    deepDiveTitle: "How to use the stream efficiently",
+    deepDiveBody: [
+      "Look for repeated actions on the same path to spot loops, hesitation, or users hunting for a control.",
+      "Use the details here to validate whether a spike in another panel corresponds to real user movement or just background noise.",
+    ],
+  },
+  serverTelemetryHealth: {
+    summary: "This is the backend confidence layer for analytics. It tells you whether the runtime, diagnostics, and materializers are healthy enough for the dashboard to be trusted.",
+    takeaways: ["Check score first", "Watch failures", "Use before diagnosing missing data"],
+    deepDiveTitle: "How to treat a weak health score",
+    deepDiveBody: [
+      "If health is degraded, missing or stale panels may be a pipeline problem rather than a product problem.",
+      "Use this before chasing data gaps, especially when a panel suddenly empties without a matching product explanation.",
+    ],
+  },
+  coverageEngine: {
+    summary: "Coverage answers a simple question: which analytics modules actually populated for this range, and which ones are partial or empty.",
+    takeaways: ["Use for trust", "Watch empty modules", "Confirm parity before reporting"],
+    deepDiveTitle: "When to drill deeper here",
+    deepDiveBody: [
+      "A partial or empty module means the dashboard may still render, but that slice should be treated as incomplete.",
+      "Use the unhealthy list before sharing reports externally so you do not summarize a window with known gaps.",
+    ],
+  },
+  categorySemantics: {
+    summary: "This groups behavior by semantic intent, helping you see whether time is being spent on discovery, engagement, commerce, onboarding, or return actions.",
+    takeaways: ["Use for intent mix", "Compare category watch time", "Spot demand shifts fast"],
+    deepDiveTitle: "What semantic changes usually reveal",
+    deepDiveBody: [
+      "If commerce semantics rise without matching revenue, users are showing intent but not completing payment or unlock flows.",
+      "If engagement dominates while discovery falls, current users may be consuming content well but new entry points may be underperforming.",
+    ],
+  },
+  creatorMetrics: {
+    summary: "This is a creator-side signal health panel. It shows whether the tracked creator and social-style metrics are landing consistently enough to trust.",
+    takeaways: ["Read as signal quality", "Compare categories", "Use for creator reporting confidence"],
+    deepDiveTitle: "How to use this in practice",
+    deepDiveBody: [
+      "Healthy categories mean you can trust creator-facing trend summaries; partial or empty categories mean those reads are incomplete.",
+      "Use the category breakdown to see whether the issue is isolated to one source or broad across the creator signal set.",
+    ],
+  },
+  semanticsEngine: {
+    summary: "This panel explains how semantic analytics are being resolved under the hood, so admins can understand which source and strategy produced the grouped results above.",
+    takeaways: ["Read for attribution", "Check strategy usage", "Validate interpretation rules"],
+    deepDiveTitle: "Why this panel exists",
+    deepDiveBody: [
+      "If category summaries look surprising, use this panel to see which semantic strategies actually classified the events.",
+      "It is most useful when validating new analytics changes or explaining why a category total moved unexpectedly.",
+    ],
+  },
+  dataValidation: {
+    summary: "Validation is the dashboard’s self-check. It highlights parity or completeness issues that could make a polished chart misleading.",
+    takeaways: ["Read before reporting", "Watch warnings", "Use failure text to target fixes"],
+    deepDiveTitle: "How to act on failures",
+    deepDiveBody: [
+      "A warning usually means the panel is usable with caution; a fail means the underlying data source relationship is actively broken.",
+      "Use the detailed copy here to decide whether the issue belongs to ingestion, materialization, or historical aggregation.",
+    ],
+  },
+  audienceSnapshot: {
+    summary: "This is the broad audience health panel. Use it to understand how many people showed up, how many were new, and how deeply they engaged over the selected range.",
+    takeaways: ["Start with total users", "Check new vs returning", "Use engagement for quality"],
+    deepDiveTitle: "Where to look next from here",
+    deepDiveBody: [
+      "If audience volume changes sharply, move to Return Cadence, Top Paths, and Regions to explain who changed and where they came from.",
+      "If engagement falls while users rise, the traffic mix may have widened faster than the product experience can retain.",
+    ],
+  },
+  returnCadence: {
+    summary: "This shows how often people come back, which is useful for telling the difference between one-time spikes and genuinely sticky behavior.",
+    takeaways: ["Watch repeat share", "Use for stickiness", "Pair with audience volume"],
+    deepDiveTitle: "How to read return quality",
+    deepDiveBody: [
+      "If first-time volume rises but repeat cadence does not, growth may be top-of-funnel only.",
+      "If repeat segments rise while total users stay flat, the product may be deepening with the existing audience rather than expanding outward.",
+    ],
+  },
+  navigationDestinations: {
+    summary: "This panel tells you where tracked taps actually send people, making it easier to judge whether navigation intent lines up with the content you expected to win.",
+    takeaways: ["Read for destination demand", "Use after CTA changes", "Look for misaligned traffic"],
+    deepDiveTitle: "What to look for in destination shifts",
+    deepDiveBody: [
+      "A destination that climbs without matching downstream engagement may be attracting taps but not satisfying intent.",
+      "A destination that falls after a UI update can explain why another funnel suddenly looks weaker.",
+    ],
+  },
+  deviceMix: {
+    summary: "Device mix shows which device categories are carrying usage and whether engagement quality differs by screen type.",
+    takeaways: ["Check mobile first", "Compare sessions", "Use engagement rate as quality"],
+    deepDiveTitle: "Why device mix matters",
+    deepDiveBody: [
+      "If mobile share rises, compare mobile-facing panels and UX before assuming the whole funnel changed for everyone.",
+      "A weaker engagement rate on one device type usually points to UI friction rather than content demand.",
+    ],
+  },
+  topPaths: {
+    summary: "Top Paths answers the simple question: where are people actually spending their visits, and which pages hold attention best.",
+    takeaways: ["Use for demand concentration", "Check dwell quality", "Find the true traffic winners"],
+    deepDiveTitle: "How to read the path list",
+    deepDiveBody: [
+      "High views with low time usually signal skim traffic or weak landing relevance.",
+      "High views with stronger time or engagement usually indicate pages worth promoting harder or learning from.",
+    ],
+  },
+  regions: {
+    summary: "Regions highlights where demand is coming from geographically so you can identify unexpected pockets of traffic or underserved markets.",
+    takeaways: ["Watch top cities", "Compare relative demand", "Use for launch timing clues"],
+    deepDiveTitle: "Best uses for this panel",
+    deepDiveBody: [
+      "Use it after campaigns or creator pushes to confirm that traffic landed where you expected.",
+      "If a new city appears suddenly, compare it with drop launches, referrals, or external promotion before calling it organic growth.",
+    ],
+  },
+  commerceSnapshot: {
+    summary: "This is the fastest revenue quality read in the dashboard. It brings revenue, profit, Gum Drop movement, and purchase funnel health into one view.",
+    takeaways: ["Start with revenue", "Check profit next", "Use funnel counts to explain performance"],
+    deepDiveTitle: "How to interpret a weak commerce day",
+    deepDiveBody: [
+      "If revenue is down but wallet opens are stable, users may still be interested but dropping before checkout or completion.",
+      "If delivered Gum Drops rise faster than profit, promotional or bonus activity may be outpacing paid demand.",
+    ],
+  },
+  packagePerformance: {
+    summary: "Package Performance compares each wallet pack by starts, purchases, abandonment, and realized revenue so you can see which offer shapes are actually working.",
+    takeaways: ["Compare conversion", "Watch abandonment", "Use revenue and starts together"],
+    deepDiveTitle: "What strong vs weak packs look like",
+    deepDiveBody: [
+      "A pack with many starts but weak purchases is attracting interest but losing confidence before completion.",
+      "A pack with fewer starts but higher conversion may be more persuasive once reached, even if it is not the most visible option.",
+    ],
+  },
+  contentConversion: {
+    summary: "This panel compares previews to unwraps by content type, which helps you see which content formats attract curiosity and which ones actually convert.",
+    takeaways: ["Use unlock rate", "Compare preview appetite", "Spot content mismatch"],
+    deepDiveTitle: "How to use content conversion",
+    deepDiveBody: [
+      "High previews with low unwraps usually mean the concept is interesting but the value proposition is not landing.",
+      "High unwrap rates on a smaller preview base can point to niche content that converts extremely well once seen.",
+    ],
+  },
+  topDropConversion: {
+    summary: "This isolates the individual drops doing the most work so you can see which specific experiences are driving views versus actual unlock demand.",
+    takeaways: ["Compare views to unlocks", "Find over-performing drops", "Use for content prioritization"],
+    deepDiveTitle: "What to watch in drop-level conversion",
+    deepDiveBody: [
+      "A high-view, low-unlock drop may be a discovery winner but a conversion miss.",
+      "A lower-view, high-unlock drop is often a strong candidate for promotion because intent is already proven.",
+    ],
+  },
+  recentCommerceFeed: {
+    summary: "This is the inline recent commerce feed, useful for quickly validating whether transaction activity matches what the summary cards are saying.",
+    takeaways: ["Use for recency", "Spot unusual transaction types", "Confirm the summary with real examples"],
+    deepDiveTitle: "When to rely on the feed",
+    deepDiveBody: [
+      "Use it when summary totals move suddenly and you need to see whether the underlying events look normal.",
+      "The feed is especially helpful for checking whether a spike came from repeated small transactions or a handful of large ones.",
+    ],
+  },
+  viewerDrilldown: {
+    summary: "Viewer Drilldown is the main content-consumption quality panel. It shows how deeply people engage once they have unlocked content.",
+    takeaways: ["Watch watch time", "Compare unique viewers", "Use load time and completion together"],
+    deepDiveTitle: "How to diagnose content quality here",
+    deepDiveBody: [
+      "If views are high but watch time or completion is low, the content is being opened more than it is being consumed.",
+      "If load time rises while completion falls, playback friction may be dragging down otherwise strong content interest.",
+    ],
+  },
+  viewerJourney: {
+    summary: "This panel shows what people actually do inside the viewer, making it easier to tell whether they watch through, switch assets, or leave early.",
+    takeaways: ["Read sequence behavior", "Use for viewer UX tuning", "Watch switch and completion balance"],
+    deepDiveTitle: "What the journey tells you",
+    deepDiveBody: [
+      "Frequent switching can mean the asset set is interesting, but it can also signal users are searching for the one file they really want.",
+      "A healthy journey usually shows both starts and meaningful completion, not just repeated opens.",
+    ],
+  },
+  watchDepthTags: {
+    summary: "Watch depth and tags help explain not just what gets opened, but what kinds of content people stay with once they are inside.",
+    takeaways: ["Use bucket depth", "Check top tags", "Find durable demand"],
+    deepDiveTitle: "How to use depth plus tags together",
+    deepDiveBody: [
+      "If a tag gets many starts but shallow depth, it may be curiosity-driven more than satisfying.",
+      "Tags that show both strong demand and deep watch time are usually the most reliable candidates for future expansion.",
+    ],
+  },
+  securityPosture: {
+    summary: "Security Posture is the top-level risk view. It pairs flagged-account activity with related usage signals so you can judge whether risk is isolated or intertwined with normal demand.",
+    takeaways: ["Start with violation count", "Compare flagged users", "Use engagement context"],
+    deepDiveTitle: "How to interpret risk with context",
+    deepDiveBody: [
+      "If violations rise while normal experience views remain flat, risk may be concentrated rather than broad-based.",
+      "If violations rise alongside broader viewer activity, check whether a specific drop or traffic source is attracting abuse.",
+    ],
+  },
+  dailyTaskPipeline: {
+    summary: "This panel tracks the task system from guide exposure through completion, so you can see whether tasks are being seen, tapped, and actually finished.",
+    takeaways: ["Watch guide taps", "Compare taps to wins", "Use it for task UX health"],
+    deepDiveTitle: "How to diagnose task friction",
+    deepDiveBody: [
+      "High guide views with low taps usually mean the prompt is visible but not persuasive.",
+      "High taps with low completions usually mean the task intent is clear, but the downstream action is breaking or too heavy.",
+    ],
+  },
+  taskCompletionSpeed: {
+    summary: "This shows how quickly completed tasks finish, helping you spot missions that are either too trivial or too demanding for the daily loop.",
+    takeaways: ["Use for pacing", "Watch long-tail tasks", "Pair with leaderboard data"],
+    deepDiveTitle: "What duration buckets reveal",
+    deepDiveBody: [
+      "Very fast completions usually indicate low-friction or passive tasks.",
+      "A heavy long-tail bucket usually means one or more tasks are creating too much effort relative to their reward or clarity.",
+    ],
+  },
+  taskLeaderboard: {
+    summary: "The leaderboard compares tasks by starts, completions, reward payout, and average duration so you can see which missions really drive behavior.",
+    takeaways: ["Compare completion rate", "Use reward totals carefully", "Watch average duration"],
+    deepDiveTitle: "How to rank tasks the right way",
+    deepDiveBody: [
+      "A task can pay out a lot simply because it is assigned often; completion rate and average duration tell you whether it is actually healthy.",
+      "The best performers usually balance strong completion with reasonable duration and clear player value.",
+    ],
+  },
+  notificationFunnel: {
+    summary: "This panel shows how people move from prompt to permission to open and read, plus why reminders are being sent.",
+    takeaways: ["Start with enablement", "Check opens and reads", "Use reminder reasons as context"],
+    deepDiveTitle: "How to read notification performance",
+    deepDiveBody: [
+      "If prompts are shown often but enablement stays weak, the ask or timing likely needs work.",
+      "If reminders are sent but reads stay flat, delivery may be happening without enough message relevance or urgency.",
+    ],
+  },
+  flaggedAccounts: {
+    summary: "This is the account-level risk list for manual review. Use it when Security Posture tells you the risk is real and you need to see who is involved.",
+    takeaways: ["Use for triage", "Check repeat offenders", "Pair with violation reason"],
+    deepDiveTitle: "Best way to use the flagged list",
+    deepDiveBody: [
+      "Start with the accounts showing the most attempts or the most recent activity, especially if they map to the same drop or pattern.",
+      "This panel is for investigation, not trend reading; treat it as the follow-up step after broader risk panels move.",
+    ],
+  },
+} satisfies Record<HistoricalSectionId, PanelGuideContent>;
 
 const HISTORICAL_SECTION_IDS_BY_TAB: Record<ViewTab, HistoricalSectionId[]> = {
   operations: [
@@ -697,7 +1117,186 @@ function CompactPreviewList({
   );
 }
 
+function RangeFilterControl({
+  title,
+  value,
+  options,
+  onChange,
+  compactViewport,
+}: {
+  title: string;
+  value: RangeOption;
+  options: Array<{ value: RangeOption; label: string }>;
+  onChange: (nextRange: RangeOption) => void;
+  compactViewport: boolean;
+}) {
+  if (compactViewport) {
+    return (
+      <label className="block md:hidden">
+        <span className="sr-only">{title} range</span>
+        <div className="relative">
+          <select
+            value={value}
+            onChange={(event) => onChange(event.target.value as RangeOption)}
+            className="min-h-11 w-full appearance-none rounded-2xl border border-white/10 bg-white/5 px-4 py-3 pr-11 text-sm font-semibold text-white outline-none transition-colors focus:border-brand-purple/40"
+            aria-label={`${title} time range`}
+          >
+            {options.map((option) => (
+              <option key={`${title}-${option.value}`} value={option.value} className="bg-zinc-950 text-white">
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-purple" />
+        </div>
+      </label>
+    );
+  }
+
+  return (
+    <div className="hidden gap-2 overflow-x-auto pb-1 md:flex">
+      {options.map((option) => (
+        <button
+          key={`${title}-${option.value}`}
+          type="button"
+          onClick={() => onChange(option.value)}
+          className={cn(
+            "shrink-0 rounded-full border px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] transition-colors",
+            value === option.value
+              ? "border-white bg-white text-black"
+              : "border-white/10 bg-white/5 text-gray-400 hover:border-brand-purple/30 hover:text-white",
+          )}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function SectionGuide({ guide }: { guide: PanelGuideContent }) {
+  const [isDeepReadOpen, setIsDeepReadOpen] = useState(false);
+
+  return (
+    <div className="mb-4 rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-4">
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+            <FileText className="h-3.5 w-3.5 text-brand-purple" />
+            <span>How To Read This Panel</span>
+          </div>
+          <p className="mt-2 text-sm leading-6 text-gray-300">{guide.summary}</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setIsDeepReadOpen((current) => !current)}
+          className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-2xl border border-white/10 bg-black/20 px-4 py-2 text-sm font-semibold text-white transition-colors hover:border-brand-purple/40 hover:bg-brand-purple/10"
+          aria-expanded={isDeepReadOpen}
+        >
+          <span>{isDeepReadOpen ? "Hide deeper view" : "Tap to go deeper"}</span>
+          {isDeepReadOpen ? <ChevronUp className="h-4 w-4 text-brand-purple" /> : <ChevronDown className="h-4 w-4 text-brand-purple" />}
+        </button>
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        {guide.takeaways.map((item) => (
+          <span key={item} className="rounded-full border border-white/10 bg-black/20 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-300">
+            {item}
+          </span>
+        ))}
+      </div>
+
+      {isDeepReadOpen ? (
+        <div className="mt-4 rounded-[1.25rem] border border-brand-purple/20 bg-brand-purple/[0.08] p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-purple">{guide.deepDiveTitle}</p>
+          <ul className="mt-3 space-y-2 pl-5 text-sm leading-6 text-gray-200">
+            {guide.deepDiveBody.map((item) => (
+              <li key={item} className="list-disc marker:text-brand-purple">
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function getPanelAnchorId(panelId: HistoricalSectionId) {
+  return `analytics-panel-${panelId}`;
+}
+
+function FlowNavigator({
+  tab,
+  compactViewport,
+}: {
+  tab: ViewTab;
+  compactViewport: boolean;
+}) {
+  const groups = FLOW_GROUPS_BY_TAB[tab];
+
+  const jumpToPanel = useCallback((panelId: HistoricalSectionId) => {
+    const element = document.getElementById(getPanelAnchorId(panelId));
+    if (!element) {
+      return;
+    }
+
+    element.scrollIntoView({
+      behavior: "smooth",
+      block: compactViewport ? "start" : "center",
+    });
+  }, [compactViewport]);
+
+  return (
+    <section className="rounded-[1.8rem] border border-white/10 bg-black/35 p-4 md:p-5">
+      <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500">Recommended Flow</p>
+          <h2 className="mt-2 text-lg font-bold text-white">Read this tab in order</h2>
+          <p className="mt-1 text-sm text-gray-400">
+            Each step keeps the same data, but makes the page easier to navigate by telling you what to read first, what explains it, and what validates it.
+          </p>
+        </div>
+        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-300">
+          {groups.reduce((sum, group) => sum + group.panels.length, 0)} panels in this tab
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-3 xl:grid-cols-3">
+        {groups.map((group, index) => (
+          <div key={`${tab}-${group.title}`} className="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-4">
+            <div className="flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-2xl border border-brand-purple/25 bg-brand-purple/12 text-sm font-bold text-brand-purple">
+                {index + 1}
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-white">{group.title}</p>
+                <p className="text-xs text-gray-500">{group.panels.length} linked panels</p>
+              </div>
+            </div>
+            <p className="mt-3 text-sm leading-6 text-gray-300">{group.subtitle}</p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {group.panels.map((panelId) => (
+                <button
+                  key={panelId}
+                  type="button"
+                  onClick={() => jumpToPanel(panelId)}
+                  className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 bg-black/20 px-3 py-2 text-xs font-semibold text-white transition-colors hover:border-brand-purple/40 hover:bg-brand-purple/10"
+                >
+                  <Route className="h-3.5 w-3.5 text-brand-purple" />
+                  <span>{PANEL_LABELS[panelId]}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function SectionCard({
+  panelId,
   sectionRange,
   onSectionRangeChange,
   rangeOptions = SECTION_FILTER_OPTIONS,
@@ -711,11 +1310,17 @@ function SectionCard({
   collapsedPreview,
   defaultExpanded = false,
 }: SectionCardProps) {
-  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+  const compactViewport = useCompactViewport();
+  const [manualExpanded, setManualExpanded] = useState<boolean | null>(null);
   const hasSectionFilter = Boolean(sectionRange && onSectionRangeChange);
+  const isExpanded = manualExpanded ?? defaultExpanded;
+  const panelGuide = panelId ? PANEL_GUIDES[panelId] : null;
 
   return (
-    <section className={cn("glass-panel rounded-[2rem] border border-white/10 p-4 md:p-6", className)}>
+    <section
+      id={panelId ? getPanelAnchorId(panelId) : undefined}
+      className={cn("glass-panel rounded-[2rem] border border-white/10 p-4 md:p-6", className)}
+    >
       <div className="mb-4 flex flex-col gap-3">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
@@ -737,7 +1342,9 @@ function SectionCard({
             ) : null}
             <button
               type="button"
-              onClick={() => setIsExpanded((current) => !current)}
+              onClick={() => {
+                setManualExpanded((current) => !(current ?? defaultExpanded));
+              }}
               className="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition-colors hover:border-brand-purple/40 hover:bg-brand-purple/10"
               aria-expanded={isExpanded}
               aria-label={`${isExpanded ? "Collapse" : "Expand"} ${title}`}
@@ -747,27 +1354,22 @@ function SectionCard({
             </button>
           </div>
         </div>
-        {hasSectionFilter ? (
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            {rangeOptions.map((option) => (
-              <button
-                key={`${title}-${option.value}`}
-                type="button"
-                onClick={() => onSectionRangeChange?.(option.value)}
-                className={cn(
-                  "shrink-0 rounded-full border px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] transition-colors",
-                  sectionRange === option.value
-                    ? "border-white bg-white text-black"
-                    : "border-white/10 bg-white/5 text-gray-400 hover:border-brand-purple/30 hover:text-white",
-                )}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
+        {hasSectionFilter && sectionRange ? (
+          <RangeFilterControl
+            title={title}
+            value={sectionRange}
+            options={rangeOptions}
+            onChange={(nextRange) => onSectionRangeChange?.(nextRange)}
+            compactViewport={compactViewport}
+          />
         ) : null}
       </div>
-      {isExpanded ? children : collapsedPreview ?? (
+      {isExpanded ? (
+        <>
+          {panelGuide ? <SectionGuide guide={panelGuide} /> : null}
+          {children}
+        </>
+      ) : collapsedPreview ?? (
         <div className="rounded-[1.4rem] border border-dashed border-white/10 bg-black/20 px-4 py-4 text-sm text-gray-500">
           Tap the arrow button above to expand this panel.
         </div>
@@ -921,6 +1523,7 @@ function isRecentViolation(timestamp: string | null, nowMs: number): boolean {
 }
 
 export default function AdminAnalyticsPage() {
+  const isCompactViewport = useCompactViewport();
   const [activeTab, setActiveTab] = useState<ViewTab>("operations");
   const [range, setRange] = useState<RangeOption>("30d");
   const [nowMs, setNowMs] = useState(INITIAL_ANALYTICS_NOW);
@@ -1534,13 +2137,14 @@ export default function AdminAnalyticsPage() {
       />
 
       <SectionCard
+        panelId="stationSnapshot"
         sectionRange={stationSnapshotRange}
         onSectionRangeChange={(nextRange) => handleSectionRangeChange("stationSnapshot", nextRange)}
         loading={isSectionLoading("stationSnapshot")}
         title="Station Snapshot"
         subtitle="Quick-glance metrics stay collapsible now, so the dashboard opens lighter on mobile while still surfacing the essentials."
         icon={Monitor}
-        defaultExpanded
+        defaultExpanded={!isCompactViewport}
         rightSlot={<span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-300">{filterOptionLabel(stationSnapshotRange)}</span>}
         collapsedPreview={(
           <CompactPreviewList
@@ -1598,21 +2202,13 @@ export default function AdminAnalyticsPage() {
           </span>
         </div>
 
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          {GLOBAL_RANGE_OPTIONS.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => handleApplyRangeToAllSections(option.value)}
-              className={cn(
-                "shrink-0 rounded-full border px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] transition-colors",
-                range === option.value ? "border-white bg-white text-black" : "border-white/10 bg-white/5 text-gray-400",
-              )}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
+        <RangeFilterControl
+          title="Global analytics range"
+          value={range}
+          options={GLOBAL_RANGE_OPTIONS}
+          onChange={handleApplyRangeToAllSections}
+          compactViewport={isCompactViewport}
+        />
       </div>
 
       {(liveError || historicalError) && (
@@ -1632,37 +2228,40 @@ export default function AdminAnalyticsPage() {
         </div>
       ) : null}
 
+      <FlowNavigator tab={activeTab} compactViewport={isCompactViewport} />
+
       <main className="space-y-5 md:space-y-6">
         {activeTab === "operations" ? (
           <>
             <SectionCard
+              panelId="livePulse"
               sectionRange={livePulseRange}
               onSectionRangeChange={(nextRange) => handleSectionRangeChange("livePulse", nextRange)}
               loading={isSectionLoading("livePulse")}
               title="Live Pulse"
-              subtitle="Current traffic against the selected historical window so mobile admins can sanity-check activity fast."
+              subtitle="Realtime traffic sits beside selected-range funnel and onboarding history so mobile admins can sanity-check both without leaving the page."
               icon={Activity}
-              defaultExpanded
+              defaultExpanded={!isCompactViewport}
               rightSlot={<span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-gray-400">{filterOptionLabel(livePulseRange)}</span>}
               collapsedPreview={(
                 <CompactPreviewList
                   items={[
-                    { label: "GA active", value: formatCompactNumber(liveResponse?.totalActive ?? 0), tone: "accent" },
-                    { label: "Tracked users", value: formatCompactNumber(liveResponse?.deepTrackerActive ?? 0) },
-                    { label: "Onboarding (24h)", value: livePulseOnboardingStats.completions.toLocaleString() },
-                    { label: "Purchases", value: livePulseFunnel.purchases.toLocaleString() },
+                    { label: "GA active now", value: formatCompactNumber(liveResponse?.totalActive ?? 0), tone: "accent" },
+                    { label: "Tracked users (30m)", value: formatCompactNumber(liveResponse?.deepTrackerActive ?? 0) },
+                    { label: `Onboarding (${filterOptionLabel(livePulseRange)})`, value: livePulseOnboardingStats.completions.toLocaleString() },
+                    { label: `Purchases (${filterOptionLabel(livePulseRange)})`, value: livePulseFunnel.purchases.toLocaleString() },
                   ]}
                 />
               )}
             >
               <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-                <MetricCard label="GA Active" value={formatCompactNumber(liveResponse?.totalActive ?? 0)} hint="Google Analytics realtime" icon={Users} />
-                <MetricCard label="Tracked Users" value={formatCompactNumber(liveResponse?.deepTrackerActive ?? 0)} hint="Authenticated users active in the last 30 minutes" icon={Sparkles} />
-                <MetricCard label="Onboarding (24h)" value={livePulseOnboardingStats.completions.toLocaleString()} hint={`Avg ${formatDuration(livePulseOnboardingStats.avgDuration)} over the last 24h`} icon={PlayCircle} />
+                <MetricCard label="GA Active Now" value={formatCompactNumber(liveResponse?.totalActive ?? 0)} hint="Google Analytics realtime" icon={Users} />
+                <MetricCard label="Tracked Users (30m)" value={formatCompactNumber(liveResponse?.deepTrackerActive ?? 0)} hint="Authenticated users active in the last 30 minutes" icon={Sparkles} />
+                <MetricCard label={`Onboarding (${filterOptionLabel(livePulseRange)})`} value={livePulseOnboardingStats.completions.toLocaleString()} hint={`Avg ${formatDuration(livePulseOnboardingStats.avgDuration)} across ${filterOptionLabel(livePulseRange)}`} icon={PlayCircle} />
                 <MetricCard
-                  label="Purchases"
+                  label={`Purchases (${filterOptionLabel(livePulseRange)})`}
                   value={livePulseFunnel.purchases.toLocaleString()}
-                  hint={`${formatPercent(livePulseFunnel.checkoutStarts > 0 ? livePulseFunnel.purchases / livePulseFunnel.checkoutStarts : 0)} of checkout starts`}
+                  hint={`${formatPercent(livePulseFunnel.checkoutStarts > 0 ? livePulseFunnel.purchases / livePulseFunnel.checkoutStarts : 0)} of checkout starts in ${filterOptionLabel(livePulseRange)}`}
                   icon={ShoppingBag}
                 />
               </div>
@@ -1692,6 +2291,7 @@ export default function AdminAnalyticsPage() {
             </SectionCard>
 
             <SectionCard
+              panelId="journeyFunnel"
               sectionRange={journeyFunnelRange}
               onSectionRangeChange={(nextRange) => handleSectionRangeChange("journeyFunnel", nextRange)}
               loading={isSectionLoading("journeyFunnel")}
@@ -1749,6 +2349,7 @@ export default function AdminAnalyticsPage() {
 
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
               <SectionCard
+                panelId="authOutcomeSplit"
                 sectionRange={authOutcomeRange}
                 onSectionRangeChange={(nextRange) => handleSectionRangeChange("authOutcomeSplit", nextRange)}
                 loading={isSectionLoading("authOutcomeSplit")}
@@ -1812,6 +2413,7 @@ export default function AdminAnalyticsPage() {
               </SectionCard>
 
               <SectionCard
+                panelId="onboardingVelocity"
                 sectionRange={onboardingRange}
                 onSectionRangeChange={(nextRange) => handleSectionRangeChange("onboardingVelocity", nextRange)}
                 loading={isSectionLoading("onboardingVelocity")}
@@ -1883,6 +2485,7 @@ export default function AdminAnalyticsPage() {
 
             <div className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
               <SectionCard
+                panelId="eventMix"
                 sectionRange={eventMixRange}
                 onSectionRangeChange={(nextRange) => handleSectionRangeChange("eventMix", nextRange)}
                 loading={isSectionLoading("eventMix")}
@@ -1913,6 +2516,7 @@ export default function AdminAnalyticsPage() {
               </SectionCard>
 
               <SectionCard
+                panelId="liveInteractionStream"
                 sectionRange={liveInteractionRange}
                 onSectionRangeChange={(nextRange) => handleSectionRangeChange("liveInteractionStream", nextRange)}
                 loading={isSectionLoading("liveInteractionStream")}
@@ -1954,8 +2558,9 @@ export default function AdminAnalyticsPage() {
               </SectionCard>
             </div>
 
-            <SectionCard
-              sectionRange={serverTelemetryHealthRange}
+              <SectionCard
+                panelId="serverTelemetryHealth"
+                sectionRange={serverTelemetryHealthRange}
               onSectionRangeChange={(nextRange) => handleSectionRangeChange("serverTelemetryHealth", nextRange)}
               loading={isSectionLoading("serverTelemetryHealth")}
               title="Server Telemetry Health"
@@ -2115,8 +2720,9 @@ export default function AdminAnalyticsPage() {
               </div>
             </SectionCard>
 
-            <SectionCard
-              sectionRange={coverageEngineRange}
+              <SectionCard
+                panelId="coverageEngine"
+                sectionRange={coverageEngineRange}
               onSectionRangeChange={(nextRange) => handleSectionRangeChange("coverageEngine", nextRange)}
               loading={isSectionLoading("coverageEngine")}
               title="Coverage Engine"
@@ -2197,6 +2803,7 @@ export default function AdminAnalyticsPage() {
 
             <div className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
               <SectionCard
+                panelId="categorySemantics"
                 sectionRange={categorySemanticsRange}
                 onSectionRangeChange={(nextRange) => handleSectionRangeChange("categorySemantics", nextRange)}
                 loading={isSectionLoading("categorySemantics")}
@@ -2259,6 +2866,7 @@ export default function AdminAnalyticsPage() {
               </SectionCard>
 
               <SectionCard
+                panelId="creatorMetrics"
                 sectionRange={creatorMetricsRange}
                 onSectionRangeChange={(nextRange) => handleSectionRangeChange("creatorMetrics", nextRange)}
                 loading={isSectionLoading("creatorMetrics")}
@@ -2342,6 +2950,7 @@ export default function AdminAnalyticsPage() {
               </SectionCard>
 
               <SectionCard
+                panelId="semanticsEngine"
                 sectionRange={semanticsEngineRange}
                 onSectionRangeChange={(nextRange) => handleSectionRangeChange("semanticsEngine", nextRange)}
                 loading={isSectionLoading("semanticsEngine")}
@@ -2391,8 +3000,9 @@ export default function AdminAnalyticsPage() {
               </SectionCard>
             </div>
 
-            <SectionCard
-              sectionRange={dataValidationRange}
+              <SectionCard
+                panelId="dataValidation"
+                sectionRange={dataValidationRange}
               onSectionRangeChange={(nextRange) => handleSectionRangeChange("dataValidation", nextRange)}
               loading={isSectionLoading("dataValidation")}
               title="Data Validation"
@@ -2419,14 +3029,15 @@ export default function AdminAnalyticsPage() {
         {activeTab === "audience" ? (
           <>
               <SectionCard
+                panelId="audienceSnapshot"
                 sectionRange={audienceSnapshotRange}
                 onSectionRangeChange={(nextRange) => handleSectionRangeChange("audienceSnapshot", nextRange)}
-                loading={isSectionLoading("audienceSnapshot")}
-                title="Audience Snapshot"
-                subtitle="The selected time range emphasizes mobile traffic, retention quality, and visit depth."
-                icon={Users}
-                defaultExpanded
-                collapsedPreview={(
+              loading={isSectionLoading("audienceSnapshot")}
+              title="Audience Snapshot"
+              subtitle="The selected time range emphasizes mobile traffic, retention quality, and visit depth."
+              icon={Users}
+              defaultExpanded={!isCompactViewport}
+              collapsedPreview={(
                 <CompactPreviewList
                   items={[
                     { label: "Users", value: formatCompactNumber(audienceTotals.users), tone: "accent" },
@@ -2466,6 +3077,7 @@ export default function AdminAnalyticsPage() {
 
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
               <SectionCard
+                panelId="returnCadence"
                 sectionRange={returnCadenceRange}
                 onSectionRangeChange={(nextRange) => handleSectionRangeChange("returnCadence", nextRange)}
                 loading={isSectionLoading("returnCadence")}
@@ -2492,6 +3104,7 @@ export default function AdminAnalyticsPage() {
               </SectionCard>
 
               <SectionCard
+                panelId="navigationDestinations"
                 sectionRange={navigationDestinationsRange}
                 onSectionRangeChange={(nextRange) => handleSectionRangeChange("navigationDestinations", nextRange)}
                 loading={isSectionLoading("navigationDestinations")}
@@ -2554,6 +3167,7 @@ export default function AdminAnalyticsPage() {
 
             <div className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
               <SectionCard
+                panelId="deviceMix"
                 sectionRange={deviceMixRange}
                 onSectionRangeChange={(nextRange) => handleSectionRangeChange("deviceMix", nextRange)}
                 loading={isSectionLoading("deviceMix")}
@@ -2603,6 +3217,7 @@ export default function AdminAnalyticsPage() {
               </SectionCard>
 
               <SectionCard
+                panelId="topPaths"
                 sectionRange={topPathsRange}
                 onSectionRangeChange={(nextRange) => handleSectionRangeChange("topPaths", nextRange)}
                 loading={isSectionLoading("topPaths")}
@@ -2643,6 +3258,7 @@ export default function AdminAnalyticsPage() {
             </div>
 
               <SectionCard
+                panelId="regions"
                 sectionRange={regionsRange}
                 onSectionRangeChange={(nextRange) => handleSectionRangeChange("regions", nextRange)}
                 loading={isSectionLoading("regions")}
@@ -2685,14 +3301,15 @@ export default function AdminAnalyticsPage() {
         {activeTab === "commerce" ? (
           <>
               <SectionCard
+                panelId="commerceSnapshot"
                 sectionRange={commerceSnapshotRange}
                 onSectionRangeChange={(nextRange) => handleSectionRangeChange("commerceSnapshot", nextRange)}
-                loading={isSectionLoading("commerceSnapshot")}
-                title="Commerce Snapshot"
-                subtitle="A tighter mobile revenue view with unlock and purchase efficiency kept above the fold."
-                icon={DollarSign}
-                defaultExpanded
-                collapsedPreview={(
+              loading={isSectionLoading("commerceSnapshot")}
+              title="Commerce Snapshot"
+              subtitle="A tighter mobile revenue view with unlock and purchase efficiency kept above the fold."
+              icon={DollarSign}
+              defaultExpanded={!isCompactViewport}
+              collapsedPreview={(
                 <CompactPreviewList
                   items={[
                     { label: "Revenue", value: formatMoney(commerceSnapshot.revenueUsd), tone: "accent" },
@@ -2728,6 +3345,7 @@ export default function AdminAnalyticsPage() {
 
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
               <SectionCard
+                panelId="packagePerformance"
                 sectionRange={packagePerformanceRange}
                 onSectionRangeChange={(nextRange) => handleSectionRangeChange("packagePerformance", nextRange)}
                 loading={isSectionLoading("packagePerformance")}
@@ -2772,6 +3390,7 @@ export default function AdminAnalyticsPage() {
               </SectionCard>
 
               <SectionCard
+                panelId="contentConversion"
                 sectionRange={contentConversionRange}
                 onSectionRangeChange={(nextRange) => handleSectionRangeChange("contentConversion", nextRange)}
                 loading={isSectionLoading("contentConversion")}
@@ -2815,6 +3434,7 @@ export default function AdminAnalyticsPage() {
 
             <div className="grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
               <SectionCard
+                panelId="topDropConversion"
                 sectionRange={topDropConversionRange}
                 onSectionRangeChange={(nextRange) => handleSectionRangeChange("topDropConversion", nextRange)}
                 loading={isSectionLoading("topDropConversion")}
@@ -2874,6 +3494,7 @@ export default function AdminAnalyticsPage() {
               </SectionCard>
 
               <SectionCard
+                panelId="recentCommerceFeed"
                 sectionRange={recentCommerceFeedRange}
                 onSectionRangeChange={(nextRange) => handleSectionRangeChange("recentCommerceFeed", nextRange)}
                 loading={isSectionLoading("recentCommerceFeed")}
@@ -2929,6 +3550,7 @@ export default function AdminAnalyticsPage() {
 
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
               <SectionCard
+                panelId="viewerDrilldown"
                 sectionRange={viewerDrilldownRange}
                 onSectionRangeChange={(nextRange) => handleSectionRangeChange("viewerDrilldown", nextRange)}
                 loading={isSectionLoading("viewerDrilldown")}
@@ -3082,6 +3704,7 @@ export default function AdminAnalyticsPage() {
               </SectionCard>
 
               <SectionCard
+                panelId="viewerJourney"
                 sectionRange={viewerJourneyRange}
                 onSectionRangeChange={(nextRange) => handleSectionRangeChange("viewerJourney", nextRange)}
                 loading={isSectionLoading("viewerJourney")}
@@ -3108,6 +3731,7 @@ export default function AdminAnalyticsPage() {
               </SectionCard>
 
               <SectionCard
+                panelId="watchDepthTags"
                 sectionRange={watchDepthTagsRange}
                 onSectionRangeChange={(nextRange) => handleSectionRangeChange("watchDepthTags", nextRange)}
                 loading={isSectionLoading("watchDepthTags")}
@@ -3164,13 +3788,14 @@ export default function AdminAnalyticsPage() {
         {activeTab === "security" ? (
           <>
             <SectionCard
+              panelId="securityPosture"
               sectionRange={securityPostureRange}
               onSectionRangeChange={(nextRange) => handleSectionRangeChange("securityPosture", nextRange)}
               loading={isSectionLoading("securityPosture")}
               title="Security Posture"
               subtitle="Flagged accounts are grouped into mobile cards with the newest risk surfaced first."
               icon={ShieldAlert}
-              defaultExpanded
+              defaultExpanded={!isCompactViewport}
               collapsedPreview={(
               <CompactPreviewList
                 items={[
@@ -3192,6 +3817,7 @@ export default function AdminAnalyticsPage() {
 
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
               <SectionCard
+                panelId="dailyTaskPipeline"
                 sectionRange={dailyTaskPipelineRange}
                 onSectionRangeChange={(nextRange) => handleSectionRangeChange("dailyTaskPipeline", nextRange)}
                 loading={isSectionLoading("dailyTaskPipeline")}
@@ -3224,6 +3850,7 @@ export default function AdminAnalyticsPage() {
               </SectionCard>
 
               <SectionCard
+                panelId="taskCompletionSpeed"
                 sectionRange={taskCompletionSpeedRange}
                 onSectionRangeChange={(nextRange) => handleSectionRangeChange("taskCompletionSpeed", nextRange)}
                 loading={isSectionLoading("taskCompletionSpeed")}
@@ -3252,6 +3879,7 @@ export default function AdminAnalyticsPage() {
 
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
               <SectionCard
+                panelId="taskLeaderboard"
                 sectionRange={taskLeaderboardRange}
                 onSectionRangeChange={(nextRange) => handleSectionRangeChange("taskLeaderboard", nextRange)}
                 loading={isSectionLoading("taskLeaderboard")}
@@ -3294,6 +3922,7 @@ export default function AdminAnalyticsPage() {
               </SectionCard>
 
               <SectionCard
+                panelId="notificationFunnel"
                 sectionRange={notificationFunnelRange}
                 onSectionRangeChange={(nextRange) => handleSectionRangeChange("notificationFunnel", nextRange)}
                 loading={isSectionLoading("notificationFunnel")}
@@ -3355,8 +3984,9 @@ export default function AdminAnalyticsPage() {
               </SectionCard>
             </div>
 
-            <SectionCard
-              sectionRange={flaggedAccountsRange}
+              <SectionCard
+                panelId="flaggedAccounts"
+                sectionRange={flaggedAccountsRange}
               onSectionRangeChange={(nextRange) => handleSectionRangeChange("flaggedAccounts", nextRange)}
               loading={isSectionLoading("flaggedAccounts")}
               title="Flagged Accounts"

@@ -159,30 +159,41 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
     period === "all"
       ? adminDb.collection("analytics_event_facts")
         .orderBy("timestamp", "desc")
-        .limit(5000)
         .get()
       : adminDb.collection("analytics_event_facts")
         .where("timestamp", ">=", startMs)
         .get(),
     adminDb.collection("analytics_event_stats").get(),
-    adminDb.collection("security_events")
-      .where("timestamp", ">=", startMs)
-      .orderBy("timestamp", "desc")
-      .limit(period === "all" ? 500 : 300)
-      .get(),
-    adminDb.collection("analytics_guest_batches")
-      .where("receivedAtMs", ">=", startMs)
-      .orderBy("receivedAtMs", "desc")
-      .limit(period === "all" ? 120 : 80)
-      .get(),
+    period === "all"
+      ? adminDb.collection("security_events")
+        .orderBy("timestamp", "desc")
+        .get()
+      : adminDb.collection("security_events")
+        .where("timestamp", ">=", startMs)
+        .orderBy("timestamp", "desc")
+        .limit(300)
+        .get(),
+    period === "all"
+      ? adminDb.collection("analytics_guest_batches")
+        .orderBy("receivedAtMs", "desc")
+        .get()
+      : adminDb.collection("analytics_guest_batches")
+        .where("receivedAtMs", ">=", startMs)
+        .orderBy("receivedAtMs", "desc")
+        .limit(80)
+        .get(),
     adminDb.collection("analytics_commerce_rollup")
       .doc("summary")
       .get(),
-    adminDb.collection("server_diagnostics")
-      .where("createdAtMs", ">=", startMs)
-      .orderBy("createdAtMs", "desc")
-      .limit(period === "all" ? 200 : 120)
-      .get(),
+    period === "all"
+      ? adminDb.collection("server_diagnostics")
+        .orderBy("createdAtMs", "desc")
+        .get()
+      : adminDb.collection("server_diagnostics")
+        .where("createdAtMs", ">=", startMs)
+        .orderBy("createdAtMs", "desc")
+        .limit(120)
+        .get(),
     adminDb.collection("analytics_task_rollup").get(),
     period === "all" ? adminDb.collection("drops").get() : Promise.resolve(null),
   ]);
@@ -200,7 +211,6 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
     period === "all"
       ? adminDb.collection("transactions")
         .orderBy("timestamp", "desc")
-        .limit(500)
         .get()
       : adminDb.collection("transactions")
         .where("timestamp", ">=", startMs)

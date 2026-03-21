@@ -17,6 +17,15 @@ const IDENTIFIED_QUEUE_STORAGE_KEY = "kandydrops.telemetry.identified-queue";
 
 type SanitizedEventParams = Record<string, string | number | boolean>;
 const TASK_PROGRESS_EVENT_NAMES = new Set(BUILT_IN_DAILY_TASKS.map((task) => task.eventName));
+const IMMEDIATE_IDENTIFIED_EVENT_NAMES = new Set([
+    "semantic_page_viewed",
+    "semantic_target_clicked",
+    "gumdrops_purchase_completed",
+    "gumdrops_purchase_failed",
+    "unlock_drop_success",
+    "viewer_session_completed",
+    "feedback_submitted",
+]);
 const IDENTIFIED_TELEMETRY_BATCH_LIMIT = 12;
 const IDENTIFIED_TELEMETRY_BATCH_WINDOW_MS = 1_500;
 
@@ -230,6 +239,23 @@ function clearTelemetryFlushTimeout() {
     telemetryFlushTimeout = null;
 }
 
+function shouldFlushIdentifiedTelemetryImmediately(
+    eventName: string,
+    eventParams: SanitizedEventParams | undefined,
+    shouldSyncTaskProgress: boolean,
+) {
+    if (shouldSyncTaskProgress || IMMEDIATE_IDENTIFIED_EVENT_NAMES.has(eventName)) {
+        return true;
+    }
+
+    if (eventName.startsWith("auth_") || eventName.startsWith("security_")) {
+        return true;
+    }
+
+    const pagePath = typeof eventParams?.page_path === "string" ? eventParams.page_path : "";
+    return pagePath.startsWith("/admin");
+}
+
 async function flushQueuedTelemetry(reason: "scheduled" | "immediate" | "pagehide" | "visibility") {
     ensureTelemetryQueueLoaded();
     const currentUserId = auth.currentUser?.uid ?? null;
@@ -307,9 +333,13 @@ function ensureTelemetryLifecycleFlush() {
             void flushQueuedTelemetry("visibility");
         }
     };
+    const flushOnReconnect = () => {
+        void flushQueuedTelemetry("immediate");
+    };
 
     window.addEventListener("pagehide", flushOnPageHide);
     document.addEventListener("visibilitychange", flushOnVisibilityHidden);
+    window.addEventListener("online", flushOnReconnect);
 }
 
 function enqueueIdentifiedTelemetryEvent(event: IdentifiedTelemetryEvent, immediate = false) {
@@ -386,5 +416,5 @@ export function trackEvent(eventName: string, eventParams?: Record<string, unkno
         eventTimestampMs,
         eventName: preparedEvent.canonicalEventName,
         eventParams: enrichedParams,
-    }, shouldSyncTaskProgress);
+    }, shouldFlushIdentifiedTelemetryImmediately(preparedEvent.canonicalEventName, enrichedParams, shouldSyncTaskProgress));
 }

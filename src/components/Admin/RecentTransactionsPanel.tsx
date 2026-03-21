@@ -142,7 +142,7 @@ export function RecentTransactionsPanel() {
                 <h3 className="text-lg font-bold text-white">Recent Transactions</h3>
                 <span className="text-xs text-gray-400">Realtime</span>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-4 max-h-[340px] overflow-y-auto pr-1 md:max-h-[420px] md:pr-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
                 {transactions.length === 0 ? (
                     <div className="text-sm text-gray-500 py-4 text-center">No recent transactions.</div>
                 ) : transactions.map((tx) => {

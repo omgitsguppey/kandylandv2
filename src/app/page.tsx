@@ -43,19 +43,19 @@ export default function Home() {
     }
   }, [loading, router, user, userProfile, isAdmin]);
 
-  if (shouldRedirectSignedInUser) {
-    return (
-      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center overflow-hidden">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-purple border-t-transparent" />
-      </div>
-    );
-  }
-
-    return (
+  return (
     <div
-      className="min-h-screen overflow-y-auto bg-black pb-[calc(7.75rem+env(safe-area-inset-bottom))] md:pb-0"
+      className="relative min-h-screen overflow-y-auto bg-black pb-[calc(7.75rem+env(safe-area-inset-bottom))] md:pb-0"
       style={{ paddingTop: "var(--kandy-cookie-offset, 0px)" }}
     >
+      {shouldRedirectSignedInUser ? (
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-black/55 backdrop-blur-sm">
+          <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-black/70 px-4 py-3 text-sm font-medium text-white shadow-xl shadow-black/30">
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-brand-purple border-t-transparent" />
+            Returning you to your dashboard
+          </div>
+        </div>
+      ) : null}
       <Hero activeDrops={activeDrops} />
       <HowItWorks activeDrops={activeDrops} />
 

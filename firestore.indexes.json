@@ -5,6 +5,20 @@
             "queryScope": "COLLECTION",
             "fields": [
                 {
+                    "fieldPath": "type",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "timestamp",
+                    "order": "DESCENDING"
+                }
+            ]
+        },
+        {
+            "collectionGroup": "transactions",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
                     "fieldPath": "userId",
                     "order": "ASCENDING"
                 },

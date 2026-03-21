@@ -25,6 +25,7 @@ import {
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
+import { useCompactViewport } from "@/hooks/useCompactViewport";
 import { useAuthSWR } from "@/hooks/useAuthSWR";
 import type { AdminOpsHealth, AdminOpsHealthSeverity, AdminOpsHealthStatus } from "@/lib/admin-ops-health";
 import { authFetch } from "@/lib/authFetch";
@@ -179,10 +180,14 @@ function SectionCard({
   preview?: React.ReactNode;
   defaultExpanded?: boolean;
 }) {
-  const [expanded, setExpanded] = useState(defaultExpanded);
+  const [manualExpanded, setManualExpanded] = useState<boolean | null>(null);
+  const expanded = manualExpanded ?? defaultExpanded;
+
   return (
     <section className="rounded-[1.75rem] border border-white/8 bg-white/[0.04] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.28)] md:p-5">
-      <button type="button" onClick={() => setExpanded((current) => !current)} className="mb-4 flex w-full items-start justify-between gap-3 text-left" aria-expanded={expanded}>
+      <button type="button" onClick={() => {
+        setManualExpanded((current) => !(current ?? defaultExpanded));
+      }} className="mb-4 flex w-full items-start justify-between gap-3 text-left" aria-expanded={expanded}>
         <div className="min-w-0">
           <div className="mb-2 flex items-center gap-2">
             <div className="rounded-2xl border border-brand-purple/20 bg-brand-purple/10 p-2.5"><Icon className="h-5 w-5 text-brand-purple" /></div>
@@ -238,6 +243,7 @@ function FilterChips<T extends string>({
 }
 
 export default function DebugConsole() {
+  const isCompactViewport = useCompactViewport();
   const { user, userProfile } = useAuth();
   const [activeTab, setActiveTab] = useState<DebugTab>("overview");
   const [processing, setProcessing] = useState(false);
@@ -325,7 +331,25 @@ export default function DebugConsole() {
         <MetricTile label="Receipt Delta" value={(stats?.rewardEventDeltaLast7d ?? 0).toLocaleString()} hint="Completed events minus reward TX" />
         <MetricTile label="Bug Reports" value={(stats?.bugReportsLast7d ?? 0).toLocaleString()} hint="Bug reports received in the last 7 days" />
       </div>
-      <div className="flex gap-2 overflow-x-auto pb-1">
+      <label className="block md:hidden">
+        <span className="sr-only">Debug view</span>
+        <div className="relative">
+          <select
+            value={activeTab}
+            onChange={(event) => setActiveTab(event.target.value as DebugTab)}
+            className="min-h-11 w-full appearance-none rounded-2xl border border-white/10 bg-black/20 px-4 py-3 pr-11 text-sm font-semibold text-white outline-none transition-colors focus:border-brand-purple/40"
+            aria-label="Debug view"
+          >
+            {TABS.map((tab) => (
+              <option key={tab.id} value={tab.id} className="bg-zinc-950 text-white">
+                {tab.label}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-purple" />
+        </div>
+      </label>
+      <div className="hidden gap-2 overflow-x-auto pb-1 md:flex">
         {TABS.map((tab) => {
           const Icon = tab.icon;
           return <button key={tab.id} type="button" onClick={() => setActiveTab(tab.id)} className={cn("inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition", activeTab === tab.id ? "border-brand-purple/30 bg-brand-purple/15 text-white" : "border-white/10 bg-black/20 text-gray-400 hover:text-white")}><Icon className="h-4 w-4" />{tab.label}</button>;
@@ -333,7 +357,7 @@ export default function DebugConsole() {
       </div>
       {activeTab === "overview" ? (
         <div className="grid gap-6 xl:grid-cols-[1.08fr_0.92fr]">
-          <SectionCard title="Debug Engine" subtitle="Runtime readiness, diagnostics, and function-fed materializers behind the admin tools." icon={Monitor} defaultExpanded preview={<PreviewGrid items={[{ label: "Health", value: `${opsHealth.score}%`, tone: "accent" }, { label: "Pipeline", value: opsHealth.pipeline.failureCount.toLocaleString() }, { label: "Errors", value: opsHealth.diagnostics.errorCount.toLocaleString() }, { label: "Warnings", value: unhealthyMaterializers.length.toLocaleString() }]} />}>
+          <SectionCard title="Debug Engine" subtitle="Runtime readiness, diagnostics, and function-fed materializers behind the admin tools." icon={Monitor} defaultExpanded={!isCompactViewport} preview={<PreviewGrid items={[{ label: "Health", value: `${opsHealth.score}%`, tone: "accent" }, { label: "Pipeline", value: opsHealth.pipeline.failureCount.toLocaleString() }, { label: "Errors", value: opsHealth.diagnostics.errorCount.toLocaleString() }, { label: "Warnings", value: unhealthyMaterializers.length.toLocaleString() }]} />}>
             <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
               <MetricTile label="Diagnostics" value={opsHealth.diagnostics.total.toLocaleString()} hint={`${opsHealth.diagnostics.errorCount} errors - ${opsHealth.diagnostics.warnCount} warnings`} />
               <MetricTile label="Pipeline" value={opsHealth.pipeline.failureCount.toLocaleString()} hint={opsHealth.pipeline.lastFailureAt ? formatRelativeTime(opsHealth.pipeline.lastFailureAt) : "No recent failures"} />
@@ -378,7 +402,7 @@ export default function DebugConsole() {
             </div>
           </SectionCard>
           <div className="space-y-6">
-            <SectionCard title="Integrity Snapshot" subtitle="Top-level signals for task assignment, reward parity, receipts, and telemetry depth." icon={ShieldCheck} defaultExpanded preview={<PreviewGrid items={[{ label: "Receipts", value: (stats?.receiptsLast7d ?? 0).toLocaleString(), tone: "accent" }, { label: "Completed", value: (stats?.completedEventsLast7d ?? 0).toLocaleString() }, { label: "Reward TX", value: (stats?.rewardTransactionsLast7d ?? 0).toLocaleString() }, { label: "Tracked", value: (stats?.trackedTelemetryEvents ?? 0).toLocaleString() }]} />}>
+          <SectionCard title="Integrity Snapshot" subtitle="Top-level signals for task assignment, reward parity, receipts, and telemetry depth." icon={ShieldCheck} defaultExpanded={!isCompactViewport} preview={<PreviewGrid items={[{ label: "Receipts", value: (stats?.receiptsLast7d ?? 0).toLocaleString(), tone: "accent" }, { label: "Completed", value: (stats?.completedEventsLast7d ?? 0).toLocaleString() }, { label: "Reward TX", value: (stats?.rewardTransactionsLast7d ?? 0).toLocaleString() }, { label: "Tracked", value: (stats?.trackedTelemetryEvents ?? 0).toLocaleString() }]} />}>
               <div className="grid gap-3 sm:grid-cols-2">
                 <MetricTile label="Receipts 7d" value={(stats?.receiptsLast7d ?? 0).toLocaleString()} hint="Canonical task receipts written" />
                 <MetricTile label="Completed 7d" value={(stats?.completedEventsLast7d ?? 0).toLocaleString()} hint="Lifecycle completion events" />
@@ -386,7 +410,7 @@ export default function DebugConsole() {
                 <MetricTile label="Tracked Events" value={(stats?.trackedTelemetryEvents ?? 0).toLocaleString()} hint="Telemetry counters in analytics_event_stats" />
               </div>
             </SectionCard>
-            <SectionCard title="Quick Actions" subtitle="Safe balance simulation and refresh controls without leaving the panel." icon={Wrench} defaultExpanded preview={<PreviewGrid items={[{ label: "Signed in", value: userProfile?.username || user?.email || "Unknown", tone: "accent" }, { label: "Adjustment", value: simAmount }]} />}>
+          <SectionCard title="Quick Actions" subtitle="Safe balance simulation and refresh controls without leaving the panel." icon={Wrench} defaultExpanded={!isCompactViewport} preview={<PreviewGrid items={[{ label: "Signed in", value: userProfile?.username || user?.email || "Unknown", tone: "accent" }, { label: "Adjustment", value: simAmount }]} />}>
               <div className="space-y-4">
                 <div className="flex gap-2">
                   <input type="number" value={simAmount} onChange={(event) => setSimAmount(event.target.value)} className="flex-1 rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-white" />
@@ -402,7 +426,7 @@ export default function DebugConsole() {
       ) : null}
       {activeTab === "tasks" ? (
         <div className="space-y-6">
-          <SectionCard title="Task Coverage Matrix" subtitle="Every built-in task and whether it is validated canonically, by telemetry, or unsupported." icon={Layers3} defaultExpanded preview={<PreviewGrid items={[{ label: "Canonical", value: (stats?.canonicalTasks ?? 0).toLocaleString(), tone: "accent" }, { label: "Telemetry", value: (stats?.telemetryOnlyTasks ?? 0).toLocaleString() }, { label: "Unsupported", value: (stats?.unsupportedTasks ?? 0).toLocaleString() }, { label: "Issues", value: (stats?.usersWithTaskIssues ?? 0).toLocaleString() }]} />}>
+          <SectionCard title="Task Coverage Matrix" subtitle="Every built-in task and whether it is validated canonically, by telemetry, or unsupported." icon={Layers3} defaultExpanded={!isCompactViewport} preview={<PreviewGrid items={[{ label: "Canonical", value: (stats?.canonicalTasks ?? 0).toLocaleString(), tone: "accent" }, { label: "Telemetry", value: (stats?.telemetryOnlyTasks ?? 0).toLocaleString() }, { label: "Unsupported", value: (stats?.unsupportedTasks ?? 0).toLocaleString() }, { label: "Issues", value: (stats?.usersWithTaskIssues ?? 0).toLocaleString() }]} />}>
             <div className="mb-4">
               <FilterChips
                 value={coverageFilter}
@@ -438,7 +462,7 @@ export default function DebugConsole() {
       {activeTab === "telemetry" ? (
         <div className="space-y-6">
           <div className="grid gap-6 xl:grid-cols-2">
-            <SectionCard title="Canonical Receipts" subtitle="Recent idempotency receipts proving canonical task events only count once." icon={Receipt} defaultExpanded preview={<PreviewGrid items={(data?.receiptSummary ?? []).slice(0, 4).map((entry) => ({ label: entry.eventName, value: entry.count.toLocaleString(), tone: "accent" }))} />}>
+          <SectionCard title="Canonical Receipts" subtitle="Recent idempotency receipts proving canonical task events only count once." icon={Receipt} defaultExpanded={!isCompactViewport} preview={<PreviewGrid items={(data?.receiptSummary ?? []).slice(0, 4).map((entry) => ({ label: entry.eventName, value: entry.count.toLocaleString(), tone: "accent" }))} />}>
               <div className="space-y-3">{(data?.recentReceipts ?? []).slice(0, 12).map((receipt) => <div key={receipt.id} className="rounded-2xl border border-white/8 bg-black/25 p-4 text-sm"><div className="flex items-center justify-between gap-3"><div className="font-black text-white">{receipt.eventName}</div><div className="text-xs text-gray-400">{formatTimestamp(receipt.timestamp)}</div></div><div className="mt-2 text-xs text-gray-400">{receipt.receiptKey}</div><div className="mt-1 text-xs text-brand-purple">{receipt.uid}</div></div>)}</div>
             </SectionCard>
             <SectionCard title="Telemetry Event Stats" subtitle="Tracked events, how often they fire, and whether any task depends on them." icon={Radar} preview={<PreviewGrid items={(data?.eventStats ?? []).slice(0, 4).map((entry) => ({ label: entry.label, value: entry.totalCount.toLocaleString(), tone: "accent" }))} />}>
@@ -465,7 +489,7 @@ export default function DebugConsole() {
       {activeTab === "reports" ? (
         <div className="space-y-6">
           <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-            <SectionCard title="Bug Report Intake" subtitle="Mobile-first bug reports with attached diagnostics, errors, rollout assignments, and component metadata." icon={Bug} defaultExpanded preview={<PreviewGrid items={(filteredBugReports.slice(0, 4)).map((report) => ({ label: report.issueType, value: report.currentPath || report.componentName || "Unknown", tone: "accent" }))} />}>
+          <SectionCard title="Bug Report Intake" subtitle="Mobile-first bug reports with attached diagnostics, errors, rollout assignments, and component metadata." icon={Bug} defaultExpanded={!isCompactViewport} preview={<PreviewGrid items={(filteredBugReports.slice(0, 4)).map((report) => ({ label: report.issueType, value: report.currentPath || report.componentName || "Unknown", tone: "accent" }))} />}>
               <div className="mb-4 space-y-3">
                 <FilterChips
                   value={reportSeverityFilter}
@@ -514,7 +538,7 @@ export default function DebugConsole() {
               </div>
             </SectionCard>
             <div className="space-y-6">
-              <SectionCard title="Rollout Registry" subtitle="Deterministic experiments and phased features currently available to the client runtime." icon={Flag} defaultExpanded preview={<PreviewGrid items={(data?.rollouts ?? []).slice(0, 4).map((rollout) => ({ label: rollout.label, value: `${rollout.rolloutPercent}%`, tone: "accent" }))} />}>
+          <SectionCard title="Rollout Registry" subtitle="Deterministic experiments and phased features currently available to the client runtime." icon={Flag} defaultExpanded={!isCompactViewport} preview={<PreviewGrid items={(data?.rollouts ?? []).slice(0, 4).map((rollout) => ({ label: rollout.label, value: `${rollout.rolloutPercent}%`, tone: "accent" }))} />}>
                 <div className="space-y-3">
                   {(data?.rollouts ?? []).map((rollout) => (
                     <div key={rollout.id} className="rounded-2xl border border-white/8 bg-black/25 p-4">
@@ -562,11 +586,11 @@ export default function DebugConsole() {
       ) : null}
       {activeTab === "ops" ? (
         <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-          <SectionCard title="Pipeline & Materializers" subtitle="Function-fed rollups, route failures, and source freshness behind admin reporting." icon={Database} defaultExpanded preview={<PreviewGrid items={opsHealth.materializers.slice(0, 4).map((item) => ({ label: item.label, value: item.status, tone: item.status === "healthy" ? "accent" : "default" }))} />}>
+          <SectionCard title="Pipeline & Materializers" subtitle="Function-fed rollups, route failures, and source freshness behind admin reporting." icon={Database} defaultExpanded={!isCompactViewport} preview={<PreviewGrid items={opsHealth.materializers.slice(0, 4).map((item) => ({ label: item.label, value: item.status, tone: item.status === "healthy" ? "accent" : "default" }))} />}>
             <div className="space-y-3">{opsHealth.materializers.map((item) => <div key={item.key} className="rounded-2xl border border-white/8 bg-black/25 p-4"><div className="flex items-start justify-between gap-3"><div><div className="text-sm font-black text-white">{item.label}</div><div className="mt-1 text-xs leading-6 text-gray-400">{item.detail}</div></div><span className={cn("rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em]", getOpsHealthClasses(item.status))}>{item.status}</span></div><div className="mt-3 flex flex-wrap gap-2 text-[11px] text-gray-400"><span className="rounded-full border border-white/10 px-2 py-1">{item.engine}</span><span className="rounded-full border border-white/10 px-2 py-1">{item.count.toLocaleString()} records</span><span className="rounded-full border border-white/10 px-2 py-1">{item.lastSeenAt ? formatRelativeTime(item.lastSeenAt) : "No recent activity"}</span></div></div>)}</div>
           </SectionCard>
           <div className="space-y-6">
-            <SectionCard title="Diagnostics Channels" subtitle="Grouped by severity and channel so failures stay visible." icon={ShieldCheck} defaultExpanded preview={<PreviewGrid items={opsHealth.diagnostics.channels.slice(0, 4).map((channel) => ({ label: channel.label, value: `${channel.errorCount}/${channel.warnCount}/${channel.infoCount}` }))} />}>
+          <SectionCard title="Diagnostics Channels" subtitle="Grouped by severity and channel so failures stay visible." icon={ShieldCheck} defaultExpanded={!isCompactViewport} preview={<PreviewGrid items={opsHealth.diagnostics.channels.slice(0, 4).map((channel) => ({ label: channel.label, value: `${channel.errorCount}/${channel.warnCount}/${channel.infoCount}` }))} />}>
               <div className="space-y-3">{opsHealth.diagnostics.channels.length > 0 ? opsHealth.diagnostics.channels.map((channel) => <div key={channel.key} className="rounded-2xl border border-white/8 bg-black/25 p-4"><div className="flex items-center justify-between gap-3"><div className="text-sm font-black text-white">{channel.label}</div><div className="text-xs text-gray-400">{formatRelativeTime(channel.lastSeenAt)}</div></div><div className="mt-3 grid grid-cols-4 gap-2 text-xs text-gray-300"><div className="rounded-xl border border-white/8 bg-white/[0.03] p-3"><div className="text-gray-500">Total</div><div className="mt-1 text-base font-black text-white">{channel.count}</div></div><div className="rounded-xl border border-white/8 bg-white/[0.03] p-3"><div className="text-gray-500">Errors</div><div className="mt-1 text-base font-black text-white">{channel.errorCount}</div></div><div className="rounded-xl border border-white/8 bg-white/[0.03] p-3"><div className="text-gray-500">Warn</div><div className="mt-1 text-base font-black text-white">{channel.warnCount}</div></div><div className="rounded-xl border border-white/8 bg-white/[0.03] p-3"><div className="text-gray-500">Info</div><div className="mt-1 text-base font-black text-white">{channel.infoCount}</div></div></div></div>) : <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-4 text-sm text-emerald-200">No recent diagnostics by channel.</div>}</div>
             </SectionCard>
             <SectionCard title="Recent Diagnostics" subtitle="Latest server-side traces flowing into the debug engine." icon={BellRing} preview={<PreviewGrid items={opsHealth.diagnostics.recent.slice(0, 4).map((entry) => ({ label: entry.channel, value: entry.severity, tone: entry.severity === "info" ? "accent" : "default" }))} />}>

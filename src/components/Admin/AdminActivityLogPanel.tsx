@@ -10,8 +10,8 @@ export function AdminActivityLogPanel() {
     const loading = isLoading;
 
     return (
-        <div className="glass-panel p-6 rounded-3xl border border-white/10 flex flex-col h-full lg:col-span-2">
-            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+        <div className="glass-panel p-4 md:p-6 rounded-3xl border border-white/10 flex flex-col h-full lg:col-span-2">
+            <h2 className="text-lg md:text-xl font-bold text-white mb-5 md:mb-6 flex items-center gap-2">
                 <ShieldAlert className="w-5 h-5 text-brand-purple" />
                 Admin Activity Log
             </h2>
@@ -26,7 +26,7 @@ export function AdminActivityLogPanel() {
                     <p className="text-sm">No recent admin adjustments found.</p>
                 </div>
             ) : (
-                <div className="flex flex-col gap-4 overflow-y-auto pr-2 max-h-[300px] scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                <div className="flex flex-col gap-4 overflow-y-auto pr-1 max-h-[320px] md:max-h-[300px] md:pr-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
                     {logs.map((log) => (
                         <div key={log.id} className="flex gap-4 items-start pb-4 border-b border-white/5 last:border-0 last:pb-0">
                             <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center shrink-0 border border-red-500/20">
