@@ -5,8 +5,17 @@ export const NAV_ROLE_COOKIE = "kandydrops_nav_role";
 export const NAV_UID_COOKIE = "kandydrops_nav_uid";
 export type NavigationRole = "admin" | "creator" | "user";
 
+function isSpecialPublicHomePath(path: string) {
+  return path === "/?publicHome=1" || path.startsWith("/?publicHome=1&");
+}
+
 function isPersistableAppPath(path: string) {
-  return path.startsWith("/") && path !== "/" && !path.startsWith("/api");
+  return (
+    path.startsWith("/")
+    && path !== "/"
+    && !path.startsWith("/api")
+    && !isSpecialPublicHomePath(path)
+  );
 }
 
 function isAdminPath(path: string) {

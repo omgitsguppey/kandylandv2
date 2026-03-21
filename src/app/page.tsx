@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import Hero from "@/components/Hero";
 import { HowItWorks } from "@/components/Landing/HowItWorks";
@@ -14,9 +14,15 @@ export default function Home() {
   const { user, userProfile, loading } = useAuth();
   const { drops: activeDrops } = useDrops(["active"]);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const isAdmin = userProfile?.role === "admin";
+  const isExplicitAdminPublicHome = searchParams.get("publicHome") === "1";
   // We strictly wait until we know they aren't an admin. If userProfile is null, we assume they MIGHT be an admin and show the spinner momentarily, unless we explicitly know they are a standard user.
-  const shouldRedirectSignedInUser = !loading && !!user && (userProfile ? !isAdmin : true);
+  const shouldRedirectSignedInUser =
+    !isExplicitAdminPublicHome &&
+    !loading &&
+    !!user &&
+    (userProfile ? !isAdmin : true);
 
   useEffect(() => {
     const timer = setTimeout(() => {
