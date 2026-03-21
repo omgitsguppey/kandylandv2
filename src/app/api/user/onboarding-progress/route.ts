@@ -111,15 +111,27 @@ export async function POST(request: NextRequest) {
             },
         });
 
+        const factRef = adminDb.collection("analytics_event_facts").doc(storageKey);
+        let deduped = false;
+
         try {
-            await adminDb.collection("analytics_event_facts").doc(storageKey).create(fact);
+            await adminDb.runTransaction(async (transaction) => {
+                const existingFact = await transaction.get(factRef);
+                if (existingFact.exists) {
+                    deduped = true;
+                    return;
+                }
+
+                transaction.create(factRef, fact);
+            });
         } catch (error) {
             if (!isAlreadyExistsError(error)) {
                 throw error;
             }
+            deduped = true;
         }
 
-        return NextResponse.json({ success: true });
+        return NextResponse.json({ success: true, deduped });
     } catch (error) {
         return handleApiError(error, "User.OnboardingProgress");
     }

@@ -11,6 +11,11 @@ import {
     toOnboardingNumber,
 } from "@/lib/server/onboarding-analytics";
 
+type OnboardingFactWrite = {
+    key: string;
+    data: FirebaseFirestore.DocumentData;
+};
+
 export async function POST(req: NextRequest) {
     try {
         const caller = await guardApiRequest(req, {
@@ -102,15 +107,16 @@ export async function POST(req: NextRequest) {
                 timestamp: nowMs,
             });
 
+            const onboardingFactWrites: OnboardingFactWrite[] = [];
             if (startedAtMs > 0) {
-                transaction.set(
-                    adminDb.collection("analytics_event_facts").doc(buildOnboardingAnalyticsStorageKey({
+                onboardingFactWrites.push({
+                    key: buildOnboardingAnalyticsStorageKey({
                         userId: uid,
                         eventName: "guided_onboarding_started",
                         flowStartedAtMs: startedAtMs,
                         timestamp: startedAtMs,
-                    })),
-                    buildOnboardingAnalyticsEventFact({
+                    }),
+                    data: buildOnboardingAnalyticsEventFact({
                         eventName: "guided_onboarding_started",
                         timestamp: startedAtMs,
                         userId: uid,
@@ -122,20 +128,19 @@ export async function POST(req: NextRequest) {
                         viewportHeight,
                         isMobileViewport,
                     }),
-                    { merge: true },
-                );
+                });
             }
 
             stepMetrics.forEach((stepMetric) => {
-                transaction.set(
-                    adminDb.collection("analytics_event_facts").doc(buildOnboardingAnalyticsStorageKey({
+                onboardingFactWrites.push({
+                    key: buildOnboardingAnalyticsStorageKey({
                         userId: uid,
                         eventName: "guided_onboarding_step_started",
                         flowStartedAtMs: startedAtMs,
                         stepId: stepMetric.stepId,
                         timestamp: stepMetric.startedAtMs,
-                    })),
-                    buildOnboardingAnalyticsEventFact({
+                    }),
+                    data: buildOnboardingAnalyticsEventFact({
                         eventName: "guided_onboarding_step_started",
                         timestamp: stepMetric.startedAtMs || startedAtMs || nowMs,
                         userId: uid,
@@ -152,18 +157,17 @@ export async function POST(req: NextRequest) {
                         viewportHeight,
                         isMobileViewport,
                     }),
-                    { merge: true },
-                );
+                });
 
-                transaction.set(
-                    adminDb.collection("analytics_event_facts").doc(buildOnboardingAnalyticsStorageKey({
+                onboardingFactWrites.push({
+                    key: buildOnboardingAnalyticsStorageKey({
                         userId: uid,
                         eventName: "guided_onboarding_step_completed",
                         flowStartedAtMs: startedAtMs,
                         stepId: stepMetric.stepId,
                         timestamp: stepMetric.completedAtMs,
-                    })),
-                    buildOnboardingAnalyticsEventFact({
+                    }),
+                    data: buildOnboardingAnalyticsEventFact({
                         eventName: "guided_onboarding_step_completed",
                         timestamp: stepMetric.completedAtMs || nowMs,
                         userId: uid,
@@ -186,18 +190,17 @@ export async function POST(req: NextRequest) {
                             ...(stepMetric.stepId === "flavor_preference" && selectedFlavor ? { selected_flavor: selectedFlavor } : {}),
                         },
                     }),
-                    { merge: true },
-                );
+                });
             });
 
-            transaction.set(
-                adminDb.collection("analytics_event_facts").doc(buildOnboardingAnalyticsStorageKey({
+            onboardingFactWrites.push({
+                key: buildOnboardingAnalyticsStorageKey({
                     userId: uid,
                     eventName: "guided_onboarding_completed",
                     flowStartedAtMs: startedAtMs,
                     timestamp: nowMs,
-                })),
-                buildOnboardingAnalyticsEventFact({
+                }),
+                data: buildOnboardingAnalyticsEventFact({
                     eventName: "guided_onboarding_completed",
                     timestamp: nowMs,
                     userId: uid,
@@ -215,8 +218,16 @@ export async function POST(req: NextRequest) {
                         ...(selectedFlavor ? { selected_flavor: selectedFlavor } : {}),
                     },
                 }),
-                { merge: true },
-            );
+            });
+
+            for (const factWrite of onboardingFactWrites) {
+                const factRef = adminDb.collection("analytics_event_facts").doc(factWrite.key);
+                const existingFact = await transaction.get(factRef);
+                if (existingFact.exists) {
+                    continue;
+                }
+                transaction.create(factRef, factWrite.data);
+            }
 
             return NextResponse.json({
                 success: true,
