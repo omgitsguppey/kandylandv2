@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 
 import { FIREBASE_PROJECT_ID } from "@/lib/firebase-runtime";
+import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 
 const FIREBASE_AUTH_HELPER_ASSET_VERSION = "20260319c";
 
@@ -29,15 +30,39 @@ function buildForwardHeaders(request: NextRequest) {
 async function proxyAuthHelper(request: NextRequest, pathSegments: string[]) {
     const targetUrl = buildFirebaseAuthProxyUrl(pathSegments, request.nextUrl.search);
     if (!targetUrl) {
+        await recordServerDiagnostic({
+            channel: "firebase",
+            severity: "error",
+            message: "Firebase auth helper proxy missing project configuration",
+            detail: {
+                route: "/__/auth",
+                path: pathSegments.join("/"),
+            },
+        });
         return new Response("Firebase project is not configured", { status: 500 });
     }
 
-    const upstreamResponse = await fetch(targetUrl, {
-        method: request.method,
-        headers: buildForwardHeaders(request),
-        body: request.method === "GET" || request.method === "HEAD" ? undefined : await request.arrayBuffer(),
-        redirect: "manual",
-    });
+    let upstreamResponse: Response;
+    try {
+        upstreamResponse = await fetch(targetUrl, {
+            method: request.method,
+            headers: buildForwardHeaders(request),
+            body: request.method === "GET" || request.method === "HEAD" ? undefined : await request.arrayBuffer(),
+            redirect: "manual",
+        });
+    } catch (error) {
+        await recordServerDiagnostic({
+            channel: "firebase",
+            severity: "error",
+            message: "Firebase auth helper proxy request failed",
+            detail: {
+                route: "/__/auth",
+                path: pathSegments.join("/"),
+                error: error instanceof Error ? error.message : String(error),
+            },
+        });
+        return new Response("Firebase auth helper is unavailable", { status: 502 });
+    }
     const contentType = upstreamResponse.headers.get("content-type") || "";
     const shouldRewriteHtml = contentType.includes("text/html");
     const responseBody: BodyInit = shouldRewriteHtml

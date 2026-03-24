@@ -23,6 +23,23 @@ interface BrowserNotificationAccess {
     state: BrowserNotificationState;
 }
 
+function resolveSafeNotificationUrl(rawUrl: string | undefined) {
+    if (!rawUrl || typeof window === "undefined") {
+        return "/experiences";
+    }
+
+    try {
+        const parsed = new URL(rawUrl, window.location.origin);
+        if (parsed.origin !== window.location.origin) {
+            return "/experiences";
+        }
+
+        return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+    } catch {
+        return "/experiences";
+    }
+}
+
 function buildServiceWorkerUrl() {
     return `/firebase-messaging-sw.js?apiKey=${FIREBASE_MESSAGING_CONFIG.apiKey}&projectId=${FIREBASE_MESSAGING_CONFIG.projectId}&messagingSenderId=${FIREBASE_MESSAGING_CONFIG.messagingSenderId}&appId=${FIREBASE_MESSAGING_CONFIG.appId}`;
 }
@@ -161,7 +178,7 @@ export async function showBrowserNotification(title: string, body: string, url: 
     const notification = new Notification(title, options);
     notification.onclick = () => {
         window.focus();
-        window.location.assign(url);
+        window.location.assign(resolveSafeNotificationUrl(url));
         notification.close();
     };
 

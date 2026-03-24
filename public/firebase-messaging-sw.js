@@ -25,6 +25,19 @@ const firebaseConfig = {
     appId: new URL(location).searchParams.get("appId"),
 };
 
+function resolveSafeNotificationUrl(rawUrl) {
+    try {
+        const parsed = new URL(rawUrl || "/experiences", self.location.origin);
+        if (parsed.origin !== self.location.origin) {
+            return new URL("/experiences", self.location.origin);
+        }
+
+        return parsed;
+    } catch {
+        return new URL("/experiences", self.location.origin);
+    }
+}
+
 firebase.initializeApp(firebaseConfig);
 
 const messaging = firebase.messaging();
@@ -150,7 +163,7 @@ self.addEventListener("notificationclick", (event) => {
 
     const rawTargetUrl = event.notification?.data?.url || "/experiences";
     event.waitUntil((async () => {
-        const targetUrl = new URL(rawTargetUrl, self.location.origin);
+        const targetUrl = resolveSafeNotificationUrl(rawTargetUrl);
         const allClients = await clients.matchAll({ type: "window", includeUncontrolled: true });
         const exactClient = allClients.find((client) => client.url === targetUrl.toString());
 

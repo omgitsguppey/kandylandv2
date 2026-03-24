@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { Transaction } from "@/types/db";
+import { getTransactionRevenueCents as readTransactionRevenueCents, normalizeLedgerStatus } from "@/lib/gumdrop-ledger";
 
 type TimestampLike = {
   toMillis?: () => number;
@@ -19,6 +20,9 @@ const transactionRecordSchema = z.object({
   relatedDropId: z.string().optional(),
   description: z.string().default(""),
   timestamp: z.unknown().optional(),
+  timestampMs: z.number().finite().nonnegative().optional(),
+  balanceBefore: z.number().finite().optional(),
+  balanceAfter: z.number().finite().optional(),
   cost: z.number().finite().nonnegative().optional(),
   grossRevenueUsd: z.number().finite().nonnegative().optional(),
   grossRevenueCents: z.number().finite().nonnegative().optional(),
@@ -45,6 +49,7 @@ const transactionRecordSchema = z.object({
   bundleTier: z.string().optional(),
   currency: z.string().optional(),
   status: z.enum(["completed", "failed", "pending"]).optional(),
+  verifiedServerSide: z.boolean().optional(),
 });
 
 function normalizeTimestamp(value: unknown): number {
@@ -109,6 +114,9 @@ export function normalizeTransactionRecord(raw: unknown, id: string): Transactio
     relatedDropId: parsed.relatedDropId,
     description: parsed.description || parsed.type,
     timestamp: normalizeTimestamp(parsed.timestamp),
+    timestampMs: parsed.timestampMs,
+    balanceBefore: parsed.balanceBefore,
+    balanceAfter: parsed.balanceAfter,
     cost: parsed.cost,
     grossRevenueUsd: parsed.grossRevenueUsd,
     grossRevenueCents: parsed.grossRevenueCents,
@@ -134,18 +142,11 @@ export function normalizeTransactionRecord(raw: unknown, id: string): Transactio
     bundleKey: parsed.bundleKey,
     bundleTier: parsed.bundleTier,
     currency: parsed.currency,
-    status: parsed.status as "completed" | "failed" | "pending" | undefined,
+    status: normalizeLedgerStatus(parsed.status),
+    verifiedServerSide: parsed.verifiedServerSide,
   };
 }
 
 export function getTransactionRevenueCents(tx: Transaction): number {
-  if (tx.type !== "purchase_currency") {
-    return 0;
-  }
-
-  if (Number.isFinite(tx.cost) && tx.cost !== undefined) {
-    return Math.round(tx.cost * 100);
-  }
-
-  return 0;
+  return readTransactionRevenueCents(tx);
 }

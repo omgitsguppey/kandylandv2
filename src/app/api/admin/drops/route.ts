@@ -35,6 +35,7 @@ export async function POST(request: NextRequest) {
         await guardApiRequest(request, {
             routeName: "admin/drops",
             rateLimit: ADMIN,
+            requireTrustedOrigin: true,
             auth: "admin",
         });
 
@@ -95,6 +96,7 @@ export async function PUT(request: NextRequest) {
         await guardApiRequest(request, {
             routeName: "admin/drops",
             rateLimit: ADMIN,
+            requireTrustedOrigin: true,
             auth: "admin",
         });
 
@@ -166,6 +168,7 @@ export async function DELETE(request: NextRequest) {
         await guardApiRequest(request, {
             routeName: "admin/drops",
             rateLimit: ADMIN,
+            requireTrustedOrigin: true,
             auth: "admin",
         });
 

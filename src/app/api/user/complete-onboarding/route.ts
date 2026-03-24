@@ -10,6 +10,8 @@ import {
     sanitizeOnboardingStepMetrics,
     toOnboardingNumber,
 } from "@/lib/server/onboarding-analytics";
+import { normalizeGumdropBalance } from "@/lib/gumdrop-ledger";
+import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 
 type OnboardingFactWrite = {
     key: string;
@@ -68,8 +70,8 @@ export async function POST(req: NextRequest) {
 
             const rewardAmount = 50;
             const balanceDoc = await transaction.get(balanceRef);
-            const currentBalance = Number(userData?.gumDropsBalance)
-                || (balanceDoc.exists ? Number(balanceDoc.data()?.gumDrops || 0) : 0);
+            const currentBalance = normalizeGumdropBalance(Number(userData?.gumDropsBalance)
+                || (balanceDoc.exists ? Number(balanceDoc.data()?.gumDrops || 0) : 0));
             const newBalance = currentBalance + rewardAmount;
             const username = typeof userData?.username === "string" && userData.username.trim().length > 0
                 ? userData.username.trim()
@@ -98,17 +100,19 @@ export async function POST(req: NextRequest) {
             }, { merge: true });
 
             const txRef = adminDb.collection("transactions").doc();
-            transaction.set(txRef, {
+            transaction.set(txRef, buildCompletedGumdropTransaction({
                 userId: uid,
                 type: "onboarding_reward",
                 rewardSource: "onboarding",
-                status: "completed",
                 amount: rewardAmount,
-                currency: "USD",
-                balanceAfter: newBalance,
                 description: "Completed Guided Onboarding Flow",
-                timestamp: nowMs,
-            });
+                balanceBefore: currentBalance,
+                balanceAfter: newBalance,
+                timestampMs: nowMs,
+                extra: {
+                    currency: "USD",
+                },
+            }));
 
             const onboardingFactWrites: OnboardingFactWrite[] = [];
             if (startedAtMs > 0) {

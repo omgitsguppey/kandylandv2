@@ -33,6 +33,7 @@ export async function POST(request: NextRequest) {
         await guardApiRequest(request, {
             routeName: "settings/landing/upload",
             rateLimit: ADMIN,
+            requireTrustedOrigin: true,
             auth: "admin",
         });
 

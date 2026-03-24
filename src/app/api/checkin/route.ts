@@ -5,6 +5,8 @@ import { FieldValue } from "firebase-admin/firestore";
 import { getCSTDateKey, getCSTDayBoundaries } from "@/lib/timezone";
 import { SENSITIVE_WRITE } from "@/lib/server/rate-limit";
 import { getDailyCheckInProgress } from "@/lib/daily-checkin";
+import { normalizeGumdropBalance } from "@/lib/gumdrop-ledger";
+import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import type { DailyTasksState } from "@/lib/tasks/task-catalog";
 import { recordCanonicalTaskEvent } from "@/lib/server/daily-tasks";
 import { guardApiRequest } from "@/lib/server/request-guard";
@@ -45,11 +47,10 @@ export async function POST(request: NextRequest) {
                     : caller?.email || userId;
             const now = Date.now();
             const lastCheckIn = userData.lastCheckIn || 0;
-            const currentStreak = userData.streakCount || 0;
-
             // 2. Check if already claimed today (CST day boundaries)
             const { endOfDay } = getCSTDayBoundaries(now);
-            const progress = getDailyCheckInProgress(lastCheckIn, currentStreak, now);
+            const progress = getDailyCheckInProgress(lastCheckIn, userData.streakCount || 0, now);
+            const currentBalance = normalizeGumdropBalance(userData.gumDropsBalance);
 
             if (progress.isClaimedToday && progress.lastCheckInMs > 0) {
                 return {
@@ -58,13 +59,14 @@ export async function POST(request: NextRequest) {
                     nextStreak: progress.activeStreak,
                     lastCheckIn: progress.lastCheckInMs,
                     nextCheckInAt: endOfDay,
-                    newBalance: Number.isFinite(userData.gumDropsBalance) ? Number(userData.gumDropsBalance) : 0,
+                    newBalance: currentBalance,
                 };
             }
 
             // 3. Calculate streak using normalized continuity rather than trusting stale profile data.
             const nextStreak = progress.claimStreak;
             const reward = progress.claimRewardAmount;
+            const newBalance = currentBalance + reward;
 
             // 4. Atomic update: balance + streak + reward ledger entry
             transaction.update(userRef, {
@@ -74,15 +76,16 @@ export async function POST(request: NextRequest) {
             });
 
             const transactionRef = adminDb.collection("transactions").doc();
-            transaction.set(transactionRef, {
+            transaction.set(transactionRef, buildCompletedGumdropTransaction({
                 userId,
                 type: "daily_reward",
                 rewardSource: "check_in",
                 amount: reward,
                 description: `Daily Check-in: Day ${nextStreak}`,
-                timestamp: FieldValue.serverTimestamp(),
-                verifiedServerSide: true,
-            });
+                balanceBefore: currentBalance,
+                balanceAfter: newBalance,
+                timestampMs: now,
+            }));
 
                 return {
                     alreadyClaimed: false,
@@ -90,7 +93,7 @@ export async function POST(request: NextRequest) {
                     nextStreak,
                     lastCheckIn: now,
                     nextCheckInAt: endOfDay,
-                    newBalance: (Number.isFinite(userData.gumDropsBalance) ? Number(userData.gumDropsBalance) : 0) + reward,
+                    newBalance,
                     username,
                 };
         });

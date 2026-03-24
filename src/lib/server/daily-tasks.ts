@@ -22,8 +22,10 @@ import {
 } from "@/lib/tasks/task-catalog";
 import { isDropActiveNow } from "@/lib/drop-status";
 import { getCSTDayBoundaries, isSameCSTDay } from "@/lib/timezone";
+import { computeNextGumdropBalance, normalizeGumdropBalance } from "@/lib/gumdrop-ledger";
 import type { UserProfile } from "@/types/db";
 import { touchUserRuntime } from "@/lib/server/user-runtime";
+import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 
 const TASK_DEFINITION_COLLECTION = "daily_task_definitions";
 const TASK_EVENT_COLLECTION = "daily_task_events";
@@ -964,6 +966,8 @@ export async function recordDailyTaskProgressFromEvent(
     const userData = snapshot.data() as UserProfile;
     const nowMs = Date.now();
     const result = await buildFreshTaskStateForUser(uid, userData, definitions, nowMs, transaction);
+    const currentBalance = normalizeGumdropBalance(userData.gumDropsBalance);
+    let ledgerBalanceCursor = currentBalance;
     if (receiptRef) {
       transaction.set(receiptRef, {
         uid,
@@ -1072,14 +1076,19 @@ export async function recordDailyTaskProgressFromEvent(
         });
 
         const txRef = adminDb.collection("transactions").doc();
-        transaction.set(txRef, {
+        const balanceBefore = ledgerBalanceCursor;
+        const balanceAfter = computeNextGumdropBalance(balanceBefore, task.reward);
+        ledgerBalanceCursor = balanceAfter;
+        transaction.set(txRef, buildCompletedGumdropTransaction({
           userId: uid,
           amount: task.reward,
           type: "daily_reward",
           rewardSource: "task",
           description: `Daily Task: ${task.title}`,
-          timestamp: FieldValue.serverTimestamp(),
-        });
+          balanceBefore,
+          balanceAfter,
+          timestampMs: nowMs,
+        }));
       }
     });
 
@@ -1119,7 +1128,7 @@ export async function recordDailyTaskProgressFromEvent(
 
     transaction.update(userRef, {
       dailyTasksState: stripUndefinedDeep(nextState),
-      ...(totalReward > 0 ? { gumDropsBalance: FieldValue.increment(totalReward) } : {}),
+      ...(totalReward > 0 ? { gumDropsBalance: ledgerBalanceCursor } : {}),
     });
 
     if (completedTasks.length > 0 && userData.notificationSettings?.inAppEnabled !== false) {

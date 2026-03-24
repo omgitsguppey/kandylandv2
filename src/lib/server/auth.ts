@@ -105,8 +105,12 @@ export function handleApiError(error: any, context: string) {
         raw: String(error)
     }));
 
+    const clientMessage = status >= 500
+        ? "Internal server error"
+        : (error instanceof Error ? error.message : "Request failed");
+
     return NextResponse.json(
-        { error: error instanceof Error ? error.message : "Internal server error" },
+        { error: clientMessage },
         { status }
     );
 }

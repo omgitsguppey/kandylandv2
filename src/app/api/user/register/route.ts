@@ -8,6 +8,8 @@ import { PRIVACY_POLICY_VERSION } from "@/lib/privacy-policy";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { parseAdultDateOfBirth } from "@/lib/user-profile-validation";
+import { computeNextGumdropBalance, normalizeGumdropBalance } from "@/lib/gumdrop-ledger";
+import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 
 function normalizeRegistrationMethod(value: unknown) {
     return value === "google" ? "google" : "email";
@@ -126,22 +128,32 @@ export async function POST(request: NextRequest) {
                 const referrerRef = adminDb.collection("users").doc(referredBy);
                 const referrerSnap = await referrerRef.get();
                 if (referrerSnap.exists) {
-                    // Update referrer balance
-                    await referrerRef.update({
-                        gumDropsBalance: FieldValue.increment(25)
-                    });
-
-                    // Create transaction record for referrer
-                    const transactionRef = adminDb.collection("transactions").doc();
-                    await transactionRef.set({
-                        userId: referredBy,
-                        type: "referral_bonus",
-                        amount: 25,
-                        timestamp: Date.now(),
-                        description: `Referral bonus for inviting ${displayName || "a new user"}`,
-                        metadata: {
-                            referredUserId: caller.uid
+                    await adminDb.runTransaction(async (transaction) => {
+                        const latestReferrerSnap = await transaction.get(referrerRef);
+                        if (!latestReferrerSnap.exists) {
+                            return;
                         }
+
+                        const currentBalance = normalizeGumdropBalance(latestReferrerSnap.data()?.gumDropsBalance);
+                        const nextBalance = computeNextGumdropBalance(currentBalance, 25);
+                        const transactionRef = adminDb.collection("transactions").doc();
+
+                        transaction.update(referrerRef, {
+                            gumDropsBalance: FieldValue.increment(25),
+                        });
+                        transaction.set(transactionRef, buildCompletedGumdropTransaction({
+                            userId: referredBy,
+                            type: "referral_bonus",
+                            amount: 25,
+                            description: `Referral bonus for inviting ${displayName || "a new user"}`,
+                            balanceBefore: currentBalance,
+                            balanceAfter: nextBalance,
+                            extra: {
+                                metadata: {
+                                    referredUserId: caller.uid,
+                                },
+                            },
+                        }));
                     });
                 }
             } catch (err) {

@@ -6,6 +6,8 @@ import { FieldValue } from "firebase-admin/firestore";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { SENSITIVE_WRITE } from "@/lib/server/rate-limit";
 import { deriveGumdropEconomics, getBundlePresentation } from "@/lib/gumdrop-economics";
+import { computeNextGumdropBalance, normalizeGumdropBalance } from "@/lib/gumdrop-ledger";
+import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import type { DailyTasksState } from "@/lib/tasks/task-catalog";
 import { recordCanonicalTaskEvent } from "@/lib/server/daily-tasks";
 import { guardApiRequest } from "@/lib/server/request-guard";
@@ -180,6 +182,8 @@ export async function POST(request: NextRequest) {
 
       const userSnapshot = await transaction.get(userRef);
       const userData = userSnapshot.data() ?? {};
+      const currentBalance = normalizeGumdropBalance(userData.gumDropsBalance);
+      const nextBalance = computeNextGumdropBalance(currentBalance, dropsToCredit);
       const username = typeof userData.username === "string" && userData.username.trim().length > 0
         ? userData.username.trim()
         : typeof userData.displayName === "string" && userData.displayName.trim().length > 0
@@ -187,42 +191,43 @@ export async function POST(request: NextRequest) {
           : caller?.email || userId;
 
       transaction.update(userRef, { gumDropsBalance: FieldValue.increment(dropsToCredit) });
-      transaction.set(adminDb.collection("transactions").doc(), {
+      transaction.set(adminDb.collection("transactions").doc(), buildCompletedGumdropTransaction({
         userId,
         type: "purchase_currency",
         amount: dropsToCredit,
-        cost: paidUsd,
-        grossRevenueUsd: economics.grossRevenueUsd,
-        grossRevenueCents: economics.grossRevenueCents,
-        paypalFeeUsd: economics.paypalFeeUsd,
-        paypalFeeCents: economics.paypalFeeCents,
-        netRevenueUsd: economics.netRevenueUsd,
-        netRevenueCents: economics.netRevenueCents,
-        deliveredGumDrops: economics.deliveredGumDrops,
-        paidGumDrops: economics.paidGumDrops,
-        bonusGumDrops: economics.bonusGumDrops,
-        retailValueUsd: economics.retailValueUsd,
-        retailValueCents: economics.retailValueCents,
-        bonusValueUsd: economics.bonusValueUsd,
-        bonusValueCents: economics.bonusValueCents,
-        adjustedProfitUsd: economics.adjustedProfitUsd,
-        adjustedProfitCents: economics.adjustedProfitCents,
-        discountUsd: economics.discountUsd,
-        discountCents: economics.discountCents,
-        effectiveUsdPer100Gd: economics.effectiveUsdPer100Gd,
-        effectiveCentsPer100Gd: economics.effectiveCentsPer100Gd,
-        effectiveYieldRatio: economics.effectiveYieldRatio,
-        bundleLabel: bundlePresentation.bundleLabel,
-        bundleKey: bundlePresentation.bundleKey,
-        bundleTier: bundlePresentation.bundleTier,
         description: `Purchased ${dropsToCredit} Gum Drops`,
-        currency: "USD",
-        paymentId: orderId,
-        paypalCaptureId: capture.id,
-        status: "completed",
-        timestamp: FieldValue.serverTimestamp(),
-        verifiedServerSide: true,
-      });
+        balanceBefore: currentBalance,
+        balanceAfter: nextBalance,
+        extra: {
+          cost: paidUsd,
+          grossRevenueUsd: economics.grossRevenueUsd,
+          grossRevenueCents: economics.grossRevenueCents,
+          paypalFeeUsd: economics.paypalFeeUsd,
+          paypalFeeCents: economics.paypalFeeCents,
+          netRevenueUsd: economics.netRevenueUsd,
+          netRevenueCents: economics.netRevenueCents,
+          deliveredGumDrops: economics.deliveredGumDrops,
+          paidGumDrops: economics.paidGumDrops,
+          bonusGumDrops: economics.bonusGumDrops,
+          retailValueUsd: economics.retailValueUsd,
+          retailValueCents: economics.retailValueCents,
+          bonusValueUsd: economics.bonusValueUsd,
+          bonusValueCents: economics.bonusValueCents,
+          adjustedProfitUsd: economics.adjustedProfitUsd,
+          adjustedProfitCents: economics.adjustedProfitCents,
+          discountUsd: economics.discountUsd,
+          discountCents: economics.discountCents,
+          effectiveUsdPer100Gd: economics.effectiveUsdPer100Gd,
+          effectiveCentsPer100Gd: economics.effectiveCentsPer100Gd,
+          effectiveYieldRatio: economics.effectiveYieldRatio,
+          bundleLabel: bundlePresentation.bundleLabel,
+          bundleKey: bundlePresentation.bundleKey,
+          bundleTier: bundlePresentation.bundleTier,
+          currency: "USD",
+          paymentId: orderId,
+          paypalCaptureId: capture.id,
+        },
+      }));
 
       transaction.set(paymentLockRef, {
         orderId,

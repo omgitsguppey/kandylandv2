@@ -64,6 +64,7 @@ export async function GET(request: NextRequest) {
     await guardApiRequest(request, {
       routeName: "admin/tasks",
       rateLimit: ADMIN,
+      requireTrustedOrigin: true,
       auth: "admin",
     });
 
@@ -108,6 +109,7 @@ export async function POST(request: NextRequest) {
     const adminUser = await guardApiRequest(request, {
       routeName: "admin/tasks",
       rateLimit: ADMIN,
+      requireTrustedOrigin: true,
       auth: "admin",
     });
     const parsed = taskSchema.parse(await request.json());
@@ -156,6 +158,7 @@ export async function PUT(request: NextRequest) {
     await guardApiRequest(request, {
       routeName: "admin/tasks",
       rateLimit: ADMIN,
+      requireTrustedOrigin: true,
       auth: "admin",
     });
     const { taskId, active } = updateSchema.parse(await request.json());

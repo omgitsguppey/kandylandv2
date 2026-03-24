@@ -13,6 +13,7 @@ interface TransactionFact {
   status?: string;
   userId?: string;
   amount?: number;
+  rewardSource?: string;
   cost?: number;
   grossRevenueUsd?: number;
   grossRevenueCents?: number;
@@ -32,8 +33,139 @@ interface TransactionFact {
   bundleKey?: string;
   bundleTier?: string;
   timestamp?: number;
+  timestampMs?: number;
   description?: string;
   dropId?: string;
+  relatedDropId?: string;
+}
+
+function readOptionalNumber(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined
+}
+
+function readTimestampMillis(value: unknown) {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return Math.trunc(value)
+  }
+
+  if (!value || typeof value !== "object") {
+    return undefined
+  }
+
+  if ("toMillis" in value && typeof (value as {toMillis?: () => number}).toMillis === "function") {
+    const millis = (value as {toMillis: () => number}).toMillis()
+    return Number.isFinite(millis) ? Math.trunc(millis) : undefined
+  }
+
+  const seconds = readOptionalNumber((value as {seconds?: unknown; _seconds?: unknown}).seconds)
+    ?? readOptionalNumber((value as {seconds?: unknown; _seconds?: unknown})._seconds)
+  if (typeof seconds !== "number") {
+    return undefined
+  }
+
+  const nanoseconds = readOptionalNumber((value as {nanoseconds?: unknown; _nanoseconds?: unknown}).nanoseconds)
+    ?? readOptionalNumber((value as {nanoseconds?: unknown; _nanoseconds?: unknown})._nanoseconds)
+    ?? 0
+
+  return Math.trunc(seconds * 1000 + nanoseconds / 1_000_000)
+}
+
+function classifyTransaction(data: TransactionFact, amount: number, status: string) {
+  const rewardSource = readString(data.rewardSource)
+  const isCompleted = status === "completed"
+
+  if (!isCompleted) {
+    return {
+      gumdropDelta: 0,
+      gumdropCreditTotal: 0,
+      gumdropDebitTotal: 0,
+      gumdropRewardTotal: 0,
+      gumdropPurchaseTotal: 0,
+      gumdropSpendTotal: 0,
+      gumdropAdjustmentPositiveTotal: 0,
+      gumdropAdjustmentNegativeTotal: 0,
+      rewardTransactionCount: 0,
+      checkInRewardCount: 0,
+      taskRewardCount: 0,
+      onboardingRewardCount: 0,
+      referralBonusCount: 0,
+      purchaseTransactionCount: 0,
+      spendTransactionCount: 0,
+      adminAdjustmentCount: 0,
+    }
+  }
+
+  const positiveAmount = Math.max(0, amount)
+  const negativeAmount = Math.max(0, Math.abs(Math.min(0, amount)))
+  const type = readString(data.type)
+  const isRewardTransaction = type === "daily_reward" || type === "onboarding_reward" || type === "referral_bonus"
+  const isPurchaseTransaction = type === "purchase_currency"
+  const isSpendTransaction = type === "unlock_content"
+  const isAdminAdjustment = type === "admin_adjustment"
+
+  return {
+    gumdropDelta: amount,
+    gumdropCreditTotal: positiveAmount,
+    gumdropDebitTotal: negativeAmount,
+    gumdropRewardTotal: isRewardTransaction ? positiveAmount : 0,
+    gumdropPurchaseTotal: isPurchaseTransaction ? positiveAmount : 0,
+    gumdropSpendTotal: isSpendTransaction ? negativeAmount : 0,
+    gumdropAdjustmentPositiveTotal: isAdminAdjustment ? positiveAmount : 0,
+    gumdropAdjustmentNegativeTotal: isAdminAdjustment ? negativeAmount : 0,
+    rewardTransactionCount: isRewardTransaction ? 1 : 0,
+    checkInRewardCount: type === "daily_reward" && rewardSource === "check_in" ? 1 : 0,
+    taskRewardCount: type === "daily_reward" && rewardSource === "task" ? 1 : 0,
+    onboardingRewardCount: type === "onboarding_reward" ? 1 : 0,
+    referralBonusCount: type === "referral_bonus" ? 1 : 0,
+    purchaseTransactionCount: isPurchaseTransaction ? 1 : 0,
+    spendTransactionCount: isSpendTransaction ? 1 : 0,
+    adminAdjustmentCount: isAdminAdjustment ? 1 : 0,
+  }
+}
+
+function resolveEconomics(data: TransactionFact, amount: number) {
+  const storedGrossRevenueUsd = readOptionalNumber(data.grossRevenueUsd)
+  const storedGrossRevenueCents = readOptionalNumber(data.grossRevenueCents)
+  const storedPaypalFeeUsd = readOptionalNumber(data.paypalFeeUsd)
+  const storedPaypalFeeCents = readOptionalNumber(data.paypalFeeCents)
+  const storedNetRevenueUsd = readOptionalNumber(data.netRevenueUsd)
+  const storedNetRevenueCents = readOptionalNumber(data.netRevenueCents)
+  const storedDeliveredGumDrops = readOptionalNumber(data.deliveredGumDrops)
+  const storedPaidGumDrops = readOptionalNumber(data.paidGumDrops)
+  const storedBonusGumDrops = readOptionalNumber(data.bonusGumDrops)
+  const storedRetailValueUsd = readOptionalNumber(data.retailValueUsd)
+  const storedBonusValueUsd = readOptionalNumber(data.bonusValueUsd)
+  const storedAdjustedProfitUsd = readOptionalNumber(data.adjustedProfitUsd)
+  const storedAdjustedProfitCents = readOptionalNumber(data.adjustedProfitCents)
+  const storedEffectiveUsdPer100Gd = readOptionalNumber(data.effectiveUsdPer100Gd)
+  const grossRevenueUsdFromCents = typeof storedGrossRevenueCents === "number" ? storedGrossRevenueCents / 100 : undefined
+  const paypalFeeUsdFromCents = typeof storedPaypalFeeCents === "number" ? storedPaypalFeeCents / 100 : undefined
+  const netRevenueUsdFromCents = typeof storedNetRevenueCents === "number" ? storedNetRevenueCents / 100 : undefined
+  const adjustedProfitUsdFromCents = typeof storedAdjustedProfitCents === "number" ? storedAdjustedProfitCents / 100 : undefined
+
+  const fallbackGrossRevenueUsd = storedGrossRevenueUsd ?? grossRevenueUsdFromCents ?? readOptionalNumber(data.cost) ?? 0
+  const fallbackDeliveredGumDrops = storedDeliveredGumDrops ?? amount
+  const derived = deriveGumdropEconomics(fallbackDeliveredGumDrops, fallbackGrossRevenueUsd, {
+    paypalFeeUsd: storedPaypalFeeUsd ?? paypalFeeUsdFromCents,
+    netRevenueUsd: storedNetRevenueUsd ?? netRevenueUsdFromCents,
+  })
+
+  return {
+    grossRevenueUsd: storedGrossRevenueUsd ?? grossRevenueUsdFromCents ?? derived.grossRevenueUsd,
+    grossRevenueCents: storedGrossRevenueCents ?? derived.grossRevenueCents,
+    paypalFeeUsd: storedPaypalFeeUsd ?? paypalFeeUsdFromCents ?? derived.paypalFeeUsd,
+    paypalFeeCents: storedPaypalFeeCents ?? derived.paypalFeeCents,
+    netRevenueUsd: storedNetRevenueUsd ?? netRevenueUsdFromCents ?? derived.netRevenueUsd,
+    netRevenueCents: storedNetRevenueCents ?? derived.netRevenueCents,
+    deliveredGumDrops: storedDeliveredGumDrops ?? derived.deliveredGumDrops,
+    paidGumDrops: storedPaidGumDrops ?? derived.paidGumDrops,
+    bonusGumDrops: storedBonusGumDrops ?? derived.bonusGumDrops,
+    retailValueUsd: storedRetailValueUsd ?? derived.retailValueUsd,
+    bonusValueUsd: storedBonusValueUsd ?? derived.bonusValueUsd,
+    adjustedProfitUsd: storedAdjustedProfitUsd ?? adjustedProfitUsdFromCents ?? derived.adjustedProfitUsd,
+    adjustedProfitCents: storedAdjustedProfitCents ?? derived.adjustedProfitCents,
+    effectiveUsdPer100Gd: storedEffectiveUsdPer100Gd ?? derived.effectiveUsdPer100Gd,
+  }
 }
 
 export const onTransactionCreated = onDocumentCreated(
@@ -44,26 +176,18 @@ export const onTransactionCreated = onDocumentCreated(
       return
     }
 
-    const timestamp = readNumber(data.timestamp) || Date.now()
+    const timestamp = readOptionalNumber(data.timestampMs)
+      ?? readTimestampMillis(data.timestamp)
+      ?? Date.now()
     const timeKeys = toTimeKeys(timestamp)
     const type = readString(data.type) || "unknown"
     const status = readString(data.status) || "unknown"
     const userId = readString(data.userId)
-    const dropId = readString(data.dropId)
+    const dropId = readString(data.dropId) || readString(data.relatedDropId)
     const amount = readNumber(data.amount)
     const unlockSpendAmount = type === "unlock_content" ? Math.abs(amount) : 0
-    const cost = readNumber(data.cost)
-    const grossRevenueUsd = readNumber(data.grossRevenueUsd) || cost
-    const paypalFeeUsd = readNumber(data.paypalFeeUsd)
-    const netRevenueUsd = readNumber(data.netRevenueUsd)
-    const economics = deriveGumdropEconomics(
-      readNumber(data.deliveredGumDrops) || amount,
-      grossRevenueUsd,
-      {
-        paypalFeeUsd: paypalFeeUsd > 0 ? paypalFeeUsd : undefined,
-        netRevenueUsd: netRevenueUsd > 0 ? netRevenueUsd : undefined,
-      },
-    )
+    const economics = resolveEconomics(data, amount)
+    const economyMetrics = classifyTransaction(data, amount, status)
     const bundleLabel = readString(data.bundleLabel) || `${economics.deliveredGumDrops} GD`
     const bundleKey = readString(data.bundleKey) || encodeKeyFragment(bundleLabel)
     const bundleTier = readString(data.bundleTier) || (economics.bonusGumDrops > 0 ? "bonus" : "standard")
@@ -161,8 +285,6 @@ export const onTransactionCreated = onDocumentCreated(
     if (userId) {
       const commercePatch: Record<string, number | ReturnType<typeof buildIncrementUpdate>> = {}
       if (type === "purchase_currency" && status === "completed") {
-        commercePatch.purchaseCount = buildIncrementUpdate(1)
-        commercePatch.purchaseTransactionCount = buildIncrementUpdate(1)
         commercePatch.grossRevenueUsdTotal = buildIncrementUpdate(economics.grossRevenueUsd)
         commercePatch.paypalFeeUsdTotal = buildIncrementUpdate(economics.paypalFeeUsd)
         commercePatch.paypalFeeCentsTotal = buildIncrementUpdate(economics.paypalFeeCents)
@@ -181,12 +303,27 @@ export const onTransactionCreated = onDocumentCreated(
         dayKey: timeKeys.dayKey,
         uid: userId,
         transactionCount: buildIncrementUpdate(1),
+        gumdropDeltaTotal: buildIncrementUpdate(economyMetrics.gumdropDelta),
+        gumdropCreditTotal: buildIncrementUpdate(economyMetrics.gumdropCreditTotal),
+        gumdropDebitTotal: buildIncrementUpdate(economyMetrics.gumdropDebitTotal),
+        gumdropRewardTotal: buildIncrementUpdate(economyMetrics.gumdropRewardTotal),
+        gumdropPurchaseTotal: buildIncrementUpdate(economyMetrics.gumdropPurchaseTotal),
+        gumdropSpendTotal: buildIncrementUpdate(economyMetrics.gumdropSpendTotal),
+        gumdropAdjustmentPositiveTotal: buildIncrementUpdate(economyMetrics.gumdropAdjustmentPositiveTotal),
+        gumdropAdjustmentNegativeTotal: buildIncrementUpdate(economyMetrics.gumdropAdjustmentNegativeTotal),
+        rewardTransactionCount: buildIncrementUpdate(economyMetrics.rewardTransactionCount),
+        checkInRewardCount: buildIncrementUpdate(economyMetrics.checkInRewardCount),
+        taskRewardCount: buildIncrementUpdate(economyMetrics.taskRewardCount),
+        onboardingRewardCount: buildIncrementUpdate(economyMetrics.onboardingRewardCount),
+        referralBonusCount: buildIncrementUpdate(economyMetrics.referralBonusCount),
+        adminAdjustmentCount: buildIncrementUpdate(economyMetrics.adminAdjustmentCount),
         spendGdTotal: buildIncrementUpdate(unlockSpendAmount),
         unlockSpendGdTotal: buildIncrementUpdate(unlockSpendAmount),
         revenueCentsTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.grossRevenueCents : 0),
         purchaseCount: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? 1 : 0),
-        purchaseTransactionCount: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? 1 : 0),
+        purchaseTransactionCount: buildIncrementUpdate(economyMetrics.purchaseTransactionCount),
         unlockCount: buildIncrementUpdate(type === "unlock_content" ? 1 : 0),
+        spendTransactionCount: buildIncrementUpdate(economyMetrics.spendTransactionCount),
         ...commercePatch,
         updatedAt: FieldValue.serverTimestamp(),
         lastSeenAt: timestamp,
@@ -194,9 +331,25 @@ export const onTransactionCreated = onDocumentCreated(
 
       batch.set(db.collection("analytics_users_rollup").doc(userId), {
         uid: userId,
+        transactionCount: buildIncrementUpdate(1),
+        gumdropDeltaTotal: buildIncrementUpdate(economyMetrics.gumdropDelta),
+        gumdropCreditTotal: buildIncrementUpdate(economyMetrics.gumdropCreditTotal),
+        gumdropDebitTotal: buildIncrementUpdate(economyMetrics.gumdropDebitTotal),
+        gumdropRewardTotal: buildIncrementUpdate(economyMetrics.gumdropRewardTotal),
+        gumdropPurchaseTotal: buildIncrementUpdate(economyMetrics.gumdropPurchaseTotal),
+        gumdropSpendTotal: buildIncrementUpdate(economyMetrics.gumdropSpendTotal),
+        gumdropAdjustmentPositiveTotal: buildIncrementUpdate(economyMetrics.gumdropAdjustmentPositiveTotal),
+        gumdropAdjustmentNegativeTotal: buildIncrementUpdate(economyMetrics.gumdropAdjustmentNegativeTotal),
+        rewardTransactionCount: buildIncrementUpdate(economyMetrics.rewardTransactionCount),
+        checkInRewardCount: buildIncrementUpdate(economyMetrics.checkInRewardCount),
+        taskRewardCount: buildIncrementUpdate(economyMetrics.taskRewardCount),
+        onboardingRewardCount: buildIncrementUpdate(economyMetrics.onboardingRewardCount),
+        referralBonusCount: buildIncrementUpdate(economyMetrics.referralBonusCount),
         purchaseCount: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? 1 : 0),
-        purchaseTransactionCount: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? 1 : 0),
+        purchaseTransactionCount: buildIncrementUpdate(economyMetrics.purchaseTransactionCount),
         unlockCount: buildIncrementUpdate(type === "unlock_content" ? 1 : 0),
+        spendTransactionCount: buildIncrementUpdate(economyMetrics.spendTransactionCount),
+        adminAdjustmentCount: buildIncrementUpdate(economyMetrics.adminAdjustmentCount),
         spendGdTotal: buildIncrementUpdate(unlockSpendAmount),
         unlockSpendGdTotal: buildIncrementUpdate(unlockSpendAmount),
         revenueCentsTotal: buildIncrementUpdate(type === "purchase_currency" && status === "completed" ? economics.grossRevenueCents : 0),

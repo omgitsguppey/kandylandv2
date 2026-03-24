@@ -6,6 +6,7 @@ import { handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { RELAXED } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,6 +27,16 @@ export async function POST(request: NextRequest) {
     const role = (profileSnapshot.data()?.role || "user") as NavigationRole;
     const cookieValue = await createNavigationSessionCookieValue(userId, role);
     if (!cookieValue) {
+      await recordServerDiagnostic({
+        channel: "auth",
+        severity: "error",
+        message: "Navigation session signing unavailable",
+        detail: {
+          route: "auth/navigation-session",
+          userId,
+          role,
+        },
+      });
       return NextResponse.json({ error: "Navigation session unavailable" }, { status: 503 });
     }
 
@@ -47,16 +58,26 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const response = NextResponse.json({ success: true });
-  response.cookies.set({
-    name: NAV_SESSION_COOKIE,
-    value: "",
-    httpOnly: true,
-    sameSite: "lax",
-    secure: request.nextUrl.protocol === "https:",
-    path: "/",
-    maxAge: 0,
-  });
+  try {
+    await guardApiRequest(request, {
+      routeName: "auth/navigation-session",
+      rateLimit: RELAXED,
+      requireTrustedOrigin: true,
+    });
 
-  return response;
+    const response = NextResponse.json({ success: true });
+    response.cookies.set({
+      name: NAV_SESSION_COOKIE,
+      value: "",
+      httpOnly: true,
+      sameSite: "lax",
+      secure: request.nextUrl.protocol === "https:",
+      path: "/",
+      maxAge: 0,
+    });
+
+    return response;
+  } catch (error) {
+    return handleApiError(error, "auth/navigation-session");
+  }
 }

@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
         await guardApiRequest(request, {
             routeName: "admin/queue",
             rateLimit: ADMIN,
+            requireTrustedOrigin: true,
             auth: "admin",
         });
         return NextResponse.json(await getResolvedQueueConfig());
@@ -22,6 +23,7 @@ export async function PUT(request: NextRequest) {
         await guardApiRequest(request, {
             routeName: "admin/queue",
             rateLimit: ADMIN,
+            requireTrustedOrigin: true,
             auth: "admin",
         });
         const data = await request.json();

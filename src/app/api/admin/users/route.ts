@@ -8,6 +8,8 @@ import { BUILT_IN_DAILY_TASK_MAP } from "@/lib/tasks/task-catalog";
 import { getDropReferenceMap } from "@/lib/server/drop-references";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { normalizeGumdropBalance } from "@/lib/gumdrop-ledger";
+import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 
 function toTimestampNumber(value: unknown): number {
   if (typeof value === "number" && Number.isFinite(value)) {
@@ -230,6 +232,7 @@ export async function GET(request: NextRequest) {
     await guardApiRequest(request, {
       routeName: "admin/users",
       rateLimit: ADMIN,
+      requireTrustedOrigin: true,
       auth: "admin",
     });
 
@@ -666,6 +669,7 @@ export async function PUT(request: NextRequest) {
     await guardApiRequest(request, {
       routeName: "admin/users",
       rateLimit: ADMIN,
+      requireTrustedOrigin: true,
       auth: "admin",
     });
 
@@ -700,6 +704,7 @@ export async function POST(request: NextRequest) {
     await guardApiRequest(request, {
       routeName: "admin/users",
       rateLimit: ADMIN,
+      requireTrustedOrigin: true,
       auth: "admin",
     });
 
@@ -738,6 +743,7 @@ export async function POST(request: NextRequest) {
       }
 
       const userData = userSnap.data() as Record<string, unknown>;
+      const currentBalance = normalizeGumdropBalance(userData.gumDropsBalance);
       const unlockedContent = Array.isArray(userData.unlockedContent)
         ? userData.unlockedContent.filter((entry): entry is string => typeof entry === "string")
         : [];
@@ -759,17 +765,19 @@ export async function POST(request: NextRequest) {
         transaction.update(dropRef, {
           totalUnlocks: FieldValue.increment(1),
         });
-        transaction.set(transactionRef, {
+        transaction.set(transactionRef, buildCompletedGumdropTransaction({
           userId,
           type: "unlock_content",
           amount: 0,
           relatedDropId: normalizedDropId,
           description: `Admin granted: ${dropTitle}`,
-          timestamp: FieldValue.serverTimestamp(),
-          status: "completed",
-          verifiedServerSide: true,
-          grantSource: "admin",
-        });
+          balanceBefore: currentBalance,
+          balanceAfter: currentBalance,
+          timestampMs: grantedAt,
+          extra: {
+            grantSource: "admin",
+          },
+        }));
 
         return { changed: true, actionTaken: "add" as const, grantedAt, dropTitle };
       }

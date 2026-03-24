@@ -9,6 +9,7 @@ export async function POST(request: NextRequest) {
         await guardApiRequest(request, {
             routeName: "admin/queue/toggle",
             rateLimit: ADMIN,
+            requireTrustedOrigin: true,
             auth: "admin",
         });
 

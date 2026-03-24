@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { FieldValue } from "firebase-admin/firestore";
 
 import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { computeNextGumdropBalance, normalizeGumdropBalance } from "@/lib/gumdrop-ledger";
+import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 
 const bodySchema = z.object({
     userId: z.string().trim().min(1).max(128),
@@ -20,6 +21,7 @@ export async function POST(request: NextRequest) {
         const caller = await guardApiRequest(request, {
             routeName: "admin/balance",
             rateLimit: ADMIN,
+            requireTrustedOrigin: true,
             auth: "admin",
         });
         if (!caller) {
@@ -41,10 +43,8 @@ export async function POST(request: NextRequest) {
             }
 
             const currentBalanceRaw = userDoc.data()?.gumDropsBalance;
-            const currentBalance = typeof currentBalanceRaw === "number" && Number.isFinite(currentBalanceRaw)
-                ? currentBalanceRaw
-                : 0;
-            const nextBalance = currentBalance + amount;
+            const currentBalance = normalizeGumdropBalance(currentBalanceRaw);
+            const nextBalance = computeNextGumdropBalance(currentBalance, amount);
 
             if (nextBalance < 0) {
                 return {
@@ -56,18 +56,17 @@ export async function POST(request: NextRequest) {
             transaction.update(userRef, {
                 gumDropsBalance: nextBalance,
             });
-            transaction.set(transactionRef, {
+            transaction.set(transactionRef, buildCompletedGumdropTransaction({
                 userId,
                 type: "admin_adjustment",
                 amount,
                 description: `Admin Adjustment: ${reason}`,
-                adjustedBy: caller.email || "admin",
                 balanceBefore: currentBalance,
                 balanceAfter: nextBalance,
-                status: "completed",
-                timestamp: FieldValue.serverTimestamp(),
-                verifiedServerSide: true,
-            });
+                extra: {
+                    adjustedBy: caller.email || "admin",
+                },
+            }));
 
             return {
                 status: "ok" as const,

@@ -1,5 +1,3 @@
-import { FIREBASE_PROJECT_ID } from "@/lib/firebase-runtime";
-
 export const NAV_SESSION_COOKIE = "kandydrops_nav_session";
 export const NAV_SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
 export type NavigationSessionRole = "admin" | "creator" | "user";
@@ -9,9 +7,7 @@ const UID_COOKIE_PATTERN = /^[A-Za-z0-9:_-]{8,128}$/u;
 
 function getNavigationSessionSecret() {
   const secret = process.env.NAVIGATION_COOKIE_SECRET
-    || process.env.FIREBASE_PRIVATE_KEY
-    || process.env.FIREBASE_CLIENT_EMAIL
-    || FIREBASE_PROJECT_ID;
+    || process.env.FIREBASE_PRIVATE_KEY;
 
   return secret?.trim() || "";
 }

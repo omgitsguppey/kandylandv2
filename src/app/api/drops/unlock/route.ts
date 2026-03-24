@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { SENSITIVE_WRITE } from "@/lib/server/rate-limit";
 import { recordCanonicalTaskEvent } from "@/lib/server/daily-tasks";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 
 const unlockRequestSchema = z.object({
   dropId: z
@@ -89,15 +90,16 @@ export async function POST(request: NextRequest) {
         [`unlockedContentTimestamps.${dropId}`]: unwrappedAt,
       });
 
-      transaction.set(transactionRef, {
+      transaction.set(transactionRef, buildCompletedGumdropTransaction({
         userId,
         type: "unlock_content",
         amount: -unlockCost,
         relatedDropId: dropId,
         description: `Unlocked: ${typeof dropData.title === "string" ? dropData.title : "Drop"}`,
-        timestamp: FieldValue.serverTimestamp(),
-        verifiedServerSide: true,
-      });
+        balanceBefore: balance,
+        balanceAfter: balance - unlockCost,
+        timestampMs: unwrappedAt,
+      }));
 
       transaction.update(dropRef, {
         totalUnlocks: FieldValue.increment(1),

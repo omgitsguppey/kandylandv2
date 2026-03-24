@@ -107,6 +107,9 @@ export interface Transaction {
     relatedDropId?: string; // If unlocking content
     description: string;
     timestamp: number | Record<string, unknown>; // Firestore Timestamp or number
+    timestampMs?: number;
+    balanceBefore?: number;
+    balanceAfter?: number;
     cost?: number; // USD cost for purchase transactions
     grossRevenueUsd?: number;
     grossRevenueCents?: number;
@@ -133,4 +136,5 @@ export interface Transaction {
     bundleTier?: string;
     currency?: string;
     status?: 'completed' | 'failed' | 'pending';
+    verifiedServerSide?: boolean;
 }

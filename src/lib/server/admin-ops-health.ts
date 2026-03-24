@@ -8,7 +8,6 @@ import {
 } from "@/lib/admin-ops-health";
 import {
   buildFirebaseClientRuntimeSnapshot,
-  FIREBASE_PROJECT_ID,
   getFirebaseRuntimeWarnings,
 } from "@/lib/firebase-runtime";
 import { toNumber, toStringValue } from "./admin-analytics-shared";
@@ -152,9 +151,7 @@ function buildRouteLabel(routeKey: string) {
 function getNavigationSessionSigningReady() {
   return Boolean(
     process.env.NAVIGATION_COOKIE_SECRET?.trim()
-    || process.env.FIREBASE_PRIVATE_KEY?.trim()
-    || process.env.FIREBASE_CLIENT_EMAIL?.trim()
-    || FIREBASE_PROJECT_ID,
+    || process.env.FIREBASE_PRIVATE_KEY?.trim(),
   );
 }
 

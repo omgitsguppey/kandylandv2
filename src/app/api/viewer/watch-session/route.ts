@@ -9,6 +9,8 @@ import { ANALYTICS_WRITE } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { createAnalyticsStorageKey, isValidAnalyticsWatchSessionId } from "@/lib/analytics-identifiers";
 import { buildAnalyticsTimeKeys } from "@/lib/server/analytics-event-utils";
+import { recordAnalyticsPipelineFailure } from "@/lib/server/analytics-pipeline-health";
+import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 import {
     ANALYTICS_CANONICAL_COLLECTIONS,
     ANALYTICS_ROUTE_POLICIES,
@@ -282,6 +284,19 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Invalid watch session payload" }, { status: 400 });
         }
 
+        await recordServerDiagnostic({
+            channel: "analytics",
+            severity: "error",
+            message: "Viewer watch session write failed",
+            detail: {
+                route: "viewer/watch-session",
+                error: error instanceof Error ? error.message : String(error),
+            },
+        });
+        await recordAnalyticsPipelineFailure({
+            routeName: "viewer/watch-session",
+            errorMessage: error instanceof Error ? error.message : String(error),
+        });
         return handleApiError(error, "Viewer.WatchSession.POST");
     }
 }
