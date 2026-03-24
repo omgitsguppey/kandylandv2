@@ -363,7 +363,7 @@ export const ANALYTICS_SOCIAL_METRIC_DEFINITIONS: AnalyticsMetricDefinition[] = 
     "Share of successful unlocks that continued into the viewer.",
     "viewer_opened / unlock_drop_success",
     "Comparable to purchase-to-consumption continuation.",
-    metricSources("analytics_event_facts", "analytics_session_facts"),
+    metricSources("analytics_event_facts", "analytics_watch_sessions", "analytics_session_facts"),
     "cross_source",
   ),
   percentMetric(
@@ -374,7 +374,7 @@ export const ANALYTICS_SOCIAL_METRIC_DEFINITIONS: AnalyticsMetricDefinition[] = 
     "Share of viewer sessions that reached a completed state.",
     "viewer_sessions_completed / viewer_sessions_started",
     "Comparable to video completion rate.",
-    metricSources("analytics_session_facts", "analytics_event_facts"),
+    metricSources("analytics_watch_sessions", "analytics_session_facts", "analytics_event_facts"),
     "canonical",
   ),
   percentMetric(
@@ -385,7 +385,7 @@ export const ANALYTICS_SOCIAL_METRIC_DEFINITIONS: AnalyticsMetricDefinition[] = 
     "Share of viewer sessions that accumulated at least 60 seconds of watch time.",
     "viewer_sessions_with_60_plus_watch_seconds / viewer_sessions_started",
     "Comparable to strong watch-time retention on short-form media.",
-    metricSources("analytics_session_facts"),
+    metricSources("analytics_watch_sessions", "analytics_session_facts"),
     "canonical",
   ),
   percentMetric(
@@ -396,7 +396,7 @@ export const ANALYTICS_SOCIAL_METRIC_DEFINITIONS: AnalyticsMetricDefinition[] = 
     "Share of tracked viewer actors who started more than one viewer session in the selected range.",
     "viewer_actors_with_2_plus_sessions / viewer_actors",
     "Comparable to returning viewers for a creator or reel.",
-    metricSources("analytics_session_facts", "analytics_event_facts"),
+    metricSources("analytics_watch_sessions", "analytics_session_facts", "analytics_event_facts"),
     "canonical",
   ),
   percentMetric(

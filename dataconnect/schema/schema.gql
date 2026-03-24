@@ -43,6 +43,81 @@ type AnalyticsSessionFact @table {
   loadSampleCount: Int! @default(value: 0)
 }
 
+type AnalyticsWatchSession @table {
+  id: UUID! @default(expr: "uuidV4()")
+  watchSessionId: String!
+  clientSessionId: String
+  userId: String
+  username: String
+  dropId: String!
+  dropTitle: String
+  dropCategory: String
+  pagePath: String
+  startedDayKey: String!
+  startedHourKey: String!
+  lastDayKey: String!
+  lastHourKey: String!
+  sessionStartedAtMs: Int!
+  firstSeenAtMs: Int!
+  lastSeenAtMs: Int!
+  closedAtMs: Int
+  isClosed: Boolean! @default(value: false)
+  closeReason: String
+  contentCount: Int! @default(value: 0)
+  activeAssetKey: String
+  activeAssetIndex: Int
+  totalWatchSeconds: Float! @default(value: 0)
+  totalVisibleSeconds: Float! @default(value: 0)
+  maxAssetWatchSeconds: Float! @default(value: 0)
+  viewedAssetCount: Int! @default(value: 0)
+  completedAssetCount: Int! @default(value: 0)
+  consumedAssetCount: Int! @default(value: 0)
+  assetSwitchCount: Int! @default(value: 0)
+  downloadCount: Int! @default(value: 0)
+  relatedClickCount: Int! @default(value: 0)
+  loadMsTotal: Int! @default(value: 0)
+  loadSampleCount: Int! @default(value: 0)
+  averageLoadMs: Int! @default(value: 0)
+  lastSequence: Int! @default(value: 0)
+  unwrappedAtMs: Int
+}
+
+type AnalyticsWatchAsset @table {
+  id: UUID! @default(expr: "uuidV4()")
+  watchSessionId: String!
+  clientSessionId: String
+  userId: String
+  username: String
+  dropId: String!
+  dropTitle: String
+  dropCategory: String
+  pagePath: String
+  assetKey: String!
+  assetIndex: Int!
+  contentKind: String
+  startedDayKey: String!
+  startedHourKey: String!
+  lastDayKey: String!
+  lastHourKey: String!
+  sessionStartedAtMs: Int!
+  firstSeenAtMs: Int!
+  lastSeenAtMs: Int!
+  startedAtMs: Int!
+  totalWatchSeconds: Float! @default(value: 0)
+  totalVisibleSeconds: Float! @default(value: 0)
+  maxProgressSeconds: Int! @default(value: 0)
+  checkpointMaxSeconds: Int! @default(value: 0)
+  durationSeconds: Int
+  consumedAtMs: Int
+  completedAtMs: Int
+  isConsumed: Boolean! @default(value: false)
+  isCompleted: Boolean! @default(value: false)
+  heartbeatCount: Int! @default(value: 0)
+  loadMsTotal: Int! @default(value: 0)
+  loadSampleCount: Int! @default(value: 0)
+  lastSequence: Int! @default(value: 0)
+}
+
 type AnalyticsDropDaily @table {
   id: UUID! @default(expr: "uuidV4()")
   dayKey: String!

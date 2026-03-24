@@ -4,7 +4,7 @@ import {getDataConnect} from "firebase-admin/data-connect"
 
 import {adminApp, db} from "./firebase-admin.js"
 
-export const ANALYTICS_EXPORT_VERSION = "2026-03-18"
+export const ANALYTICS_EXPORT_VERSION = "2026-03-24"
 const ANALYTICS_EXPORT_TIME_ZONE = "Etc/UTC"
 
 const analyticsExportConnectorConfig = {

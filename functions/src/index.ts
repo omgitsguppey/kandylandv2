@@ -13,6 +13,8 @@ export {
   onAnalyticsSecurityDailyExportSync,
   onAnalyticsTaskDailyExportSync,
   onAnalyticsTaskRollupExportSync,
+  onAnalyticsWatchAssetExportSync,
+  onAnalyticsWatchSessionExportSync,
   onAnalyticsUserDailyExportSync,
   onAnalyticsUserRollupExportSync,
   onAnalyticsUserSecurityRollupExportSync,

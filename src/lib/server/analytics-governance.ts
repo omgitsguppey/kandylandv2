@@ -1,6 +1,8 @@
 export const ANALYTICS_CANONICAL_COLLECTIONS = {
   guestBatches: "analytics_guest_batches",
   identifiedEventFacts: "analytics_event_facts",
+  watchSessions: "analytics_watch_sessions",
+  watchAssets: "analytics_watch_assets",
   taskEvents: "daily_task_events",
   securityEvents: "security_events",
   transactions: "transactions",
@@ -21,6 +23,13 @@ export const ANALYTICS_ROUTE_POLICIES = {
   identifiedTrack: {
     routeName: "telemetry/track",
     preAuthRouteName: "telemetry/track/preauth",
+    requireTrustedOrigin: true,
+    auth: "user" as const,
+    scopeToCaller: true,
+  },
+  viewerWatchSession: {
+    routeName: "viewer/watch-session",
+    preAuthRouteName: "viewer/watch-session/preauth",
     requireTrustedOrigin: true,
     auth: "user" as const,
     scopeToCaller: true,

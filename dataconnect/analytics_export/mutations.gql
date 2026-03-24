@@ -54,6 +54,156 @@ mutation UpsertAnalyticsPageDaily(
   })
 }
 
+mutation UpsertAnalyticsWatchSession(
+  $id: UUID!
+  $watchSessionId: String!
+  $clientSessionId: String
+  $userId: String
+  $username: String
+  $dropId: String!
+  $dropTitle: String
+  $dropCategory: String
+  $pagePath: String
+  $startedDayKey: String!
+  $startedHourKey: String!
+  $lastDayKey: String!
+  $lastHourKey: String!
+  $sessionStartedAtMs: Int!
+  $firstSeenAtMs: Int!
+  $lastSeenAtMs: Int!
+  $closedAtMs: Int
+  $isClosed: Boolean!
+  $closeReason: String
+  $contentCount: Int!
+  $activeAssetKey: String
+  $activeAssetIndex: Int
+  $totalWatchSeconds: Float!
+  $totalVisibleSeconds: Float!
+  $maxAssetWatchSeconds: Float!
+  $viewedAssetCount: Int!
+  $completedAssetCount: Int!
+  $consumedAssetCount: Int!
+  $assetSwitchCount: Int!
+  $downloadCount: Int!
+  $relatedClickCount: Int!
+  $loadMsTotal: Int!
+  $loadSampleCount: Int!
+  $averageLoadMs: Int!
+  $lastSequence: Int!
+  $unwrappedAtMs: Int
+) {
+  analyticsWatchSession_upsert(data: {
+    id: $id
+    watchSessionId: $watchSessionId
+    clientSessionId: $clientSessionId
+    userId: $userId
+    username: $username
+    dropId: $dropId
+    dropTitle: $dropTitle
+    dropCategory: $dropCategory
+    pagePath: $pagePath
+    startedDayKey: $startedDayKey
+    startedHourKey: $startedHourKey
+    lastDayKey: $lastDayKey
+    lastHourKey: $lastHourKey
+    sessionStartedAtMs: $sessionStartedAtMs
+    firstSeenAtMs: $firstSeenAtMs
+    lastSeenAtMs: $lastSeenAtMs
+    closedAtMs: $closedAtMs
+    isClosed: $isClosed
+    closeReason: $closeReason
+    contentCount: $contentCount
+    activeAssetKey: $activeAssetKey
+    activeAssetIndex: $activeAssetIndex
+    totalWatchSeconds: $totalWatchSeconds
+    totalVisibleSeconds: $totalVisibleSeconds
+    maxAssetWatchSeconds: $maxAssetWatchSeconds
+    viewedAssetCount: $viewedAssetCount
+    completedAssetCount: $completedAssetCount
+    consumedAssetCount: $consumedAssetCount
+    assetSwitchCount: $assetSwitchCount
+    downloadCount: $downloadCount
+    relatedClickCount: $relatedClickCount
+    loadMsTotal: $loadMsTotal
+    loadSampleCount: $loadSampleCount
+    averageLoadMs: $averageLoadMs
+    lastSequence: $lastSequence
+    unwrappedAtMs: $unwrappedAtMs
+  })
+}
+
+mutation UpsertAnalyticsWatchAsset(
+  $id: UUID!
+  $watchSessionId: String!
+  $clientSessionId: String
+  $userId: String
+  $username: String
+  $dropId: String!
+  $dropTitle: String
+  $dropCategory: String
+  $pagePath: String
+  $assetKey: String!
+  $assetIndex: Int!
+  $contentKind: String
+  $startedDayKey: String!
+  $startedHourKey: String!
+  $lastDayKey: String!
+  $lastHourKey: String!
+  $sessionStartedAtMs: Int!
+  $firstSeenAtMs: Int!
+  $lastSeenAtMs: Int!
+  $startedAtMs: Int!
+  $totalWatchSeconds: Float!
+  $totalVisibleSeconds: Float!
+  $maxProgressSeconds: Int!
+  $checkpointMaxSeconds: Int!
+  $durationSeconds: Int
+  $consumedAtMs: Int
+  $completedAtMs: Int
+  $isConsumed: Boolean!
+  $isCompleted: Boolean!
+  $heartbeatCount: Int!
+  $loadMsTotal: Int!
+  $loadSampleCount: Int!
+  $lastSequence: Int!
+) {
+  analyticsWatchAsset_upsert(data: {
+    id: $id
+    watchSessionId: $watchSessionId
+    clientSessionId: $clientSessionId
+    userId: $userId
+    username: $username
+    dropId: $dropId
+    dropTitle: $dropTitle
+    dropCategory: $dropCategory
+    pagePath: $pagePath
+    assetKey: $assetKey
+    assetIndex: $assetIndex
+    contentKind: $contentKind
+    startedDayKey: $startedDayKey
+    startedHourKey: $startedHourKey
+    lastDayKey: $lastDayKey
+    lastHourKey: $lastHourKey
+    sessionStartedAtMs: $sessionStartedAtMs
+    firstSeenAtMs: $firstSeenAtMs
+    lastSeenAtMs: $lastSeenAtMs
+    startedAtMs: $startedAtMs
+    totalWatchSeconds: $totalWatchSeconds
+    totalVisibleSeconds: $totalVisibleSeconds
+    maxProgressSeconds: $maxProgressSeconds
+    checkpointMaxSeconds: $checkpointMaxSeconds
+    durationSeconds: $durationSeconds
+    consumedAtMs: $consumedAtMs
+    completedAtMs: $completedAtMs
+    isConsumed: $isConsumed
+    isCompleted: $isCompleted
+    heartbeatCount: $heartbeatCount
+    loadMsTotal: $loadMsTotal
+    loadSampleCount: $loadSampleCount
+    lastSequence: $lastSequence
+  })
+}
+
 mutation UpsertAnalyticsDropDaily(
   $id: UUID!
   $dayKey: String!
@@ -442,6 +592,14 @@ mutation UpsertAnalyticsAlert(
 
 mutation DeleteAnalyticsPageDaily($id: UUID!) {
   analyticsPageDaily_delete(id: $id)
+}
+
+mutation DeleteAnalyticsWatchSession($id: UUID!) {
+  analyticsWatchSession_delete(id: $id)
+}
+
+mutation DeleteAnalyticsWatchAsset($id: UUID!) {
+  analyticsWatchAsset_delete(id: $id)
 }
 
 mutation DeleteAnalyticsDropDaily($id: UUID!) {

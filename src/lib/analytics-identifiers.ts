@@ -4,6 +4,7 @@ const MAX_ANALYTICS_STORAGE_KEY_LENGTH = 180;
 
 export const ANALYTICS_EVENT_ID_PATTERN = /^evt_[A-Za-z0-9:_-]{16,160}$/u;
 export const ANALYTICS_BATCH_ID_PATTERN = /^batch_[A-Za-z0-9:_-]{16,160}$/u;
+export const ANALYTICS_WATCH_SESSION_ID_PATTERN = /^watch_[A-Za-z0-9:_-]{16,160}$/u;
 
 function normalizeSessionFragment(sessionId: string) {
   return sessionId.replace(/[^A-Za-z0-9:_-]+/gu, "").slice(-32) || "session";
@@ -17,7 +18,7 @@ function buildRandomFragment() {
   return randomValue.slice(0, 32);
 }
 
-function buildIdentifier(prefix: "evt" | "batch", sessionId: string) {
+function buildIdentifier(prefix: "evt" | "batch" | "watch", sessionId: string) {
   const sessionFragment = normalizeSessionFragment(sessionId);
   const timeFragment = Date.now().toString(36);
   const randomFragment = buildRandomFragment();
@@ -36,6 +37,10 @@ export function createAnalyticsBatchId(sessionId: string) {
   return buildIdentifier("batch", sessionId);
 }
 
+export function createAnalyticsWatchSessionId(sessionId: string) {
+  return buildIdentifier("watch", sessionId);
+}
+
 export function createAnalyticsStorageKey(prefix: string, ...parts: string[]) {
   return [normalizeStorageFragment(prefix), ...parts.map(normalizeStorageFragment)]
     .join("_")
@@ -48,6 +53,10 @@ export function isValidAnalyticsEventId(value: unknown): value is string {
 
 export function isValidAnalyticsBatchId(value: unknown): value is string {
   return typeof value === "string" && ANALYTICS_BATCH_ID_PATTERN.test(value);
+}
+
+export function isValidAnalyticsWatchSessionId(value: unknown): value is string {
+  return typeof value === "string" && ANALYTICS_WATCH_SESSION_ID_PATTERN.test(value);
 }
 
 export function normalizeAnalyticsClientTimestamp(value: unknown, fallbackMs = Date.now()) {

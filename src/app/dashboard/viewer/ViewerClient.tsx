@@ -16,6 +16,7 @@ import { getDropAssetCount } from "@/lib/drop-presentation";
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import useEmblaCarousel from "embla-carousel-react";
 import { trackEvent } from "@/lib/telemetry";
+import { useViewerWatchSession } from "@/hooks/useViewerWatchSession";
 
 
 
@@ -284,7 +285,7 @@ function sumNumbers(values: Iterable<number>): number {
 
 const WATCH_CHECKPOINT_SECONDS = [15, 45, 90, 180, 300] as const;
 
-function buildWatchTelemetryMetrics(watchSeconds: number, assetDurationSeconds?: number) {
+function buildWatchTelemetryMetrics(watchSeconds: number, assetDurationSeconds?: number): Record<string, number> {
     const normalizedWatchSeconds = Math.max(1, Math.round(watchSeconds));
     if (!Number.isFinite(assetDurationSeconds) || !assetDurationSeconds || assetDurationSeconds <= 0) {
         return {
@@ -405,6 +406,31 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     const assetCount = useMemo(() => {
         return drop ? getDropAssetCount(drop) : 0;
     }, [drop]);
+    const {
+        watchSessionId,
+        flushSession: flushWatchSession,
+        recordDownload: recordWatchDownload,
+        recordRelatedClick: recordWatchRelatedClick,
+        reportAssetCompleted: reportWatchAssetCompleted,
+        reportAssetConsumed: reportWatchAssetConsumed,
+        reportAssetLoaded: reportWatchAssetLoaded,
+        reportAssetProgress: reportWatchAssetProgress,
+        reportAssetStarted: reportWatchAssetStarted,
+        reportMediaEnded: reportWatchMediaEnded,
+        reportMediaPause: reportWatchMediaPause,
+        reportMediaPlay: reportWatchMediaPlay,
+    } = useViewerWatchSession({
+        enabled: isAuthorized && Boolean(dropId),
+        dropId,
+        dropTitle,
+        dropCategory: dropType,
+        contentCount: assetCount,
+        activeAssetIndex: activeIndex,
+        activeContentKind: resolvedContent.kind,
+    });
+    const withWatchSessionParams = useCallback(<T extends Record<string, string | number | boolean>>(params: T) => (
+        watchSessionId ? { ...params, watch_session_id: watchSessionId } : params
+    ), [watchSessionId]);
 
     const resetViewerSessionMetrics = useCallback(() => {
         sessionWatchSecondsByAssetRef.current.clear();
@@ -438,6 +464,11 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
             return;
         }
 
+        void flushWatchSession(reason, {
+            close: true,
+            keepalive: reason === "page_exit" || reason === "viewer_unmounted",
+        });
+
         const sessionDurationMs = Math.max(0, Date.now() - sessionStartedAtRef.current);
         const watchValues = Array.from(sessionWatchSecondsByAssetRef.current.values());
         const totalWatchSeconds = sumNumbers(watchValues);
@@ -445,10 +476,10 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
             ? Math.round(sumNumbers(sessionLoadSamplesRef.current) / sessionLoadSamplesRef.current.length)
             : 0;
 
-        trackEvent("viewer_session_completed", {
+        trackEvent("viewer_session_completed", withWatchSessionParams({
             drop_id: drop.id,
             drop_title: drop.title,
-            drop_category: drop.type,
+            drop_category: dropType,
             content_count: assetCount,
             session_end_reason: reason,
             duration_ms: sessionDurationMs,
@@ -464,11 +495,16 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
             related_click_count: sessionRelatedClickCountRef.current,
             average_load_ms: averageLoadMs,
             load_sample_count: sessionLoadSamplesRef.current.length,
-        });
+        }));
 
         sessionStartedAtRef.current = null;
         resetViewerSessionMetrics();
-    }, [assetCount, drop, resetViewerSessionMetrics]);
+    }, [assetCount, drop, dropType, flushWatchSession, resetViewerSessionMetrics, withWatchSessionParams]);
+    const finalizeViewerSessionRef = useRef(finalizeViewerSession);
+
+    useEffect(() => {
+        finalizeViewerSessionRef.current = finalizeViewerSession;
+    }, [finalizeViewerSession]);
 
     const trackAssetStarted = useCallback(() => {
         if (!drop) {
@@ -480,18 +516,19 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
             return;
         }
 
+        reportWatchAssetStarted();
         startedAssetKeysRef.current.add(assetKey);
         sessionViewedAssetsRef.current.add(assetKey);
-        trackEvent("viewer_asset_started", {
+        trackEvent("viewer_asset_started", withWatchSessionParams({
             drop_id: drop.id,
             drop_title: drop.title,
-            drop_category: drop.type,
+            drop_category: dropType,
             asset_index: activeIndex + 1,
             asset_total: assetCount,
             asset_key: assetKey,
             content_kind: resolvedContent.kind,
-        });
-    }, [activeIndex, assetCount, drop, resolvedContent.kind]);
+        }));
+    }, [activeIndex, assetCount, drop, dropType, reportWatchAssetStarted, resolvedContent.kind, withWatchSessionParams]);
 
     const trackAssetCompleted = useCallback((watchSeconds: number, assetDurationSeconds?: number) => {
         if (!drop) {
@@ -504,31 +541,33 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         }
 
         updateSessionWatchTime(watchSeconds);
+        reportWatchAssetCompleted(watchSeconds, assetDurationSeconds);
         if (!consumedAssetKeysRef.current.has(assetKey)) {
             consumedAssetKeysRef.current.add(assetKey);
-            trackEvent("viewer_asset_consumed", {
+            reportWatchAssetConsumed(watchSeconds, assetDurationSeconds);
+            trackEvent("viewer_asset_consumed", withWatchSessionParams({
                 drop_id: drop.id,
                 drop_title: drop.title,
-                drop_category: drop.type,
+                drop_category: dropType,
                 asset_index: activeIndex + 1,
                 asset_key: assetKey,
                 content_kind: resolvedContent.kind,
                 ...buildWatchTelemetryMetrics(watchSeconds, assetDurationSeconds),
-            });
+            }));
         }
         completedAssetKeysRef.current.add(assetKey);
         sessionCompletedAssetsRef.current.add(assetKey);
-        trackEvent("viewer_asset_completed", {
+        trackEvent("viewer_asset_completed", withWatchSessionParams({
             drop_id: drop.id,
             drop_title: drop.title,
-            drop_category: drop.type,
+            drop_category: dropType,
             asset_index: activeIndex + 1,
             asset_total: assetCount,
             asset_key: assetKey,
             content_kind: resolvedContent.kind,
             ...buildWatchTelemetryMetrics(watchSeconds, assetDurationSeconds),
-        });
-    }, [activeIndex, assetCount, drop, resolvedContent.kind, updateSessionWatchTime]);
+        }));
+    }, [activeIndex, assetCount, drop, dropType, reportWatchAssetCompleted, reportWatchAssetConsumed, resolvedContent.kind, updateSessionWatchTime, withWatchSessionParams]);
 
     const trackContentLoaded = useCallback((loadMs: number, fromCache: boolean, contentKind: ContentKind) => {
         if (!drop) {
@@ -537,18 +576,19 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
 
         const normalizedLoadMs = Math.max(1, Math.round(loadMs));
         sessionLoadSamplesRef.current.push(normalizedLoadMs);
-        trackEvent("viewer_content_loaded", {
+        reportWatchAssetLoaded(normalizedLoadMs);
+        trackEvent("viewer_content_loaded", withWatchSessionParams({
             drop_id: drop.id,
             drop_title: drop.title,
-            drop_category: drop.type,
+            drop_category: dropType,
             asset_index: activeIndex + 1,
             asset_total: assetCount,
             asset_key: `${drop.id}:${activeIndex}`,
             content_kind: contentKind,
             load_ms: normalizedLoadMs,
             from_cache: fromCache,
-        });
-    }, [activeIndex, assetCount, drop]);
+        }));
+    }, [activeIndex, assetCount, drop, dropType, reportWatchAssetLoaded, withWatchSessionParams]);
 
     const handleRelatedDropClick = useCallback((destination: string, destinationType: string) => {
         if (!drop) {
@@ -556,27 +596,28 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         }
 
         sessionRelatedClickCountRef.current += 1;
-        trackEvent("viewer_related_drop_clicked", {
+        recordWatchRelatedClick();
+        trackEvent("viewer_related_drop_clicked", withWatchSessionParams({
             drop_id: drop.id,
             drop_title: drop.title,
-            drop_category: drop.type,
+            drop_category: dropType,
             destination,
             destination_type: destinationType,
             asset_index: activeIndex + 1,
-        });
-    }, [activeIndex, drop]);
+        }));
+    }, [activeIndex, drop, dropType, recordWatchRelatedClick, withWatchSessionParams]);
 
     useEffect(() => {
         const assetCache = assetCacheRef.current;
         const thumbnailCache = thumbnailCacheRef.current;
 
         return () => {
-            finalizeViewerSession("viewer_unmounted");
+            finalizeViewerSessionRef.current("viewer_unmounted");
             clearCachedAssets(assetCache);
             contentObjectUrlRef.current = null;
             thumbnailCache.clear();
         };
-    }, [finalizeViewerSession]);
+    }, []);
 
     useEffect(() => {
         if (!drop || !isAuthorized) {
@@ -584,7 +625,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         }
 
         const handlePageExit = () => {
-            finalizeViewerSession("page_exit");
+            finalizeViewerSessionRef.current("page_exit");
         };
 
         window.addEventListener("pagehide", handlePageExit);
@@ -594,7 +635,33 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
             window.removeEventListener("pagehide", handlePageExit);
             window.removeEventListener("beforeunload", handlePageExit);
         };
-    }, [drop, finalizeViewerSession, isAuthorized]);
+    }, [drop, isAuthorized]);
+
+    useEffect(() => {
+        if (!drop || !isAuthorized || !watchSessionId) {
+            return;
+        }
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState !== "hidden") {
+                return;
+            }
+
+            trackEvent("viewer_backgrounded", withWatchSessionParams({
+                drop_id: drop.id,
+                drop_title: drop.title,
+                drop_category: dropType,
+                asset_index: activeIndex + 1,
+                asset_key: `${drop.id}:${activeIndex}`,
+                content_kind: resolvedContent.kind,
+            }));
+        };
+
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+        return () => {
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
+        };
+    }, [activeIndex, drop, dropType, isAuthorized, resolvedContent.kind, watchSessionId, withWatchSessionParams]);
 
     useEffect(() => {
         if (!emblaApi) return;
@@ -602,42 +669,42 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     }, [emblaApi, activeIndex]);
 
     useEffect(() => {
-        if (!drop || !isAuthorized) {
+        if (!drop || !isAuthorized || !watchSessionId) {
             hasTrackedViewerOpenRef.current = null;
             return;
         }
 
-        if (hasTrackedViewerOpenRef.current === drop.id) {
+        if (hasTrackedViewerOpenRef.current === watchSessionId) {
             return;
         }
 
-        hasTrackedViewerOpenRef.current = drop.id;
-        trackEvent("viewer_opened", {
+        hasTrackedViewerOpenRef.current = watchSessionId;
+        trackEvent("viewer_opened", withWatchSessionParams({
             drop_id: drop.id,
             drop_title: drop.title,
-            drop_category: drop.type,
+            drop_category: dropType,
             content_count: assetCount,
-        });
-    }, [assetCount, drop, isAuthorized]);
+        }));
+    }, [assetCount, drop, dropType, isAuthorized, watchSessionId, withWatchSessionParams]);
 
     useEffect(() => {
-        if (!dropId || !isAuthorized) {
+        if (!dropId || !isAuthorized || !watchSessionId) {
             return;
         }
 
         sessionStartedAtRef.current = Date.now();
         resetViewerSessionMetrics();
-        trackEvent("viewer_session_started", {
+        trackEvent("viewer_session_started", withWatchSessionParams({
             drop_id: dropId,
             drop_title: dropTitle,
             drop_category: dropType,
             content_count: assetCount,
-        });
+        }));
 
         return () => {
             finalizeViewerSession("drop_changed");
         };
-    }, [assetCount, dropId, dropTitle, dropType, finalizeViewerSession, isAuthorized, resetViewerSessionMetrics]);
+    }, [assetCount, dropId, dropTitle, dropType, finalizeViewerSession, isAuthorized, resetViewerSessionMetrics, watchSessionId, withWatchSessionParams]);
 
     useEffect(() => {
         setActiveIndex(0);
@@ -665,18 +732,18 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
 
         if (lastTrackedAssetRef.current !== null) {
             sessionAssetSwitchCountRef.current += 1;
-            trackEvent("viewer_asset_changed", {
+            trackEvent("viewer_asset_changed", withWatchSessionParams({
                 drop_id: drop.id,
                 drop_title: drop.title,
-                drop_category: drop.type,
+                drop_category: dropType,
                 asset_index: activeIndex + 1,
                 asset_total: assetCount,
                 asset_key: `${drop.id}:${activeIndex}`,
-            });
+            }));
         }
 
         lastTrackedAssetRef.current = assetKey;
-    }, [activeIndex, assetCount, drop, isAuthorized]);
+    }, [activeIndex, assetCount, drop, dropType, isAuthorized, withWatchSessionParams]);
 
     const trackAssetConsumed = useCallback((watchSeconds: number, assetDurationSeconds?: number) => {
         if (!drop) {
@@ -689,16 +756,17 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         }
 
         consumedAssetKeysRef.current.add(assetKey);
-        trackEvent("viewer_asset_consumed", {
+        reportWatchAssetConsumed(watchSeconds, assetDurationSeconds);
+        trackEvent("viewer_asset_consumed", withWatchSessionParams({
             drop_id: drop.id,
             drop_title: drop.title,
-            drop_category: drop.type,
+            drop_category: dropType,
             asset_index: activeIndex + 1,
             asset_key: assetKey,
             content_kind: resolvedContent.kind,
             ...buildWatchTelemetryMetrics(watchSeconds, assetDurationSeconds),
-        });
-    }, [activeIndex, drop, resolvedContent.kind]);
+        }));
+    }, [activeIndex, drop, dropType, reportWatchAssetConsumed, resolvedContent.kind, withWatchSessionParams]);
 
     const trackWatchCheckpoint = useCallback((watchSeconds: number, assetDurationSeconds?: number) => {
         if (!drop) {
@@ -712,17 +780,17 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         }
 
         watchCheckpointKeysRef.current.add(checkpointKey);
-        trackEvent("viewer_watch_checkpoint", {
+        trackEvent("viewer_watch_checkpoint", withWatchSessionParams({
             drop_id: drop.id,
             drop_title: drop.title,
-            drop_category: drop.type,
+            drop_category: dropType,
             asset_index: activeIndex + 1,
             asset_key: assetKey,
             content_kind: resolvedContent.kind,
             checkpoint_seconds: watchSeconds,
             ...buildWatchTelemetryMetrics(watchSeconds, assetDurationSeconds),
-        });
-    }, [activeIndex, drop, resolvedContent.kind]);
+        }));
+    }, [activeIndex, drop, dropType, resolvedContent.kind, withWatchSessionParams]);
 
     useEffect(() => {
         if (!drop || !isAuthorized || contentLoading || !contentBlobUrl) {
@@ -757,6 +825,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
             return;
         }
 
+        reportWatchAssetProgress(currentTime, assetDurationSeconds);
         updateSessionWatchTime(currentTime);
 
         WATCH_CHECKPOINT_SECONDS.forEach((checkpointSeconds) => {
@@ -767,7 +836,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                 trackWatchCheckpoint(checkpointSeconds, assetDurationSeconds);
             }
         });
-    }, [trackAssetConsumed, trackWatchCheckpoint, updateSessionWatchTime]);
+    }, [reportWatchAssetProgress, trackAssetConsumed, trackWatchCheckpoint, updateSessionWatchTime]);
 
     // Redirect if not logged in (once auth is ready)
     useEffect(() => {
@@ -1171,10 +1240,23 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                             onContextMenu={preventContextMenu}
                                             draggable={false}
                                             onPlay={() => {
+                                                reportWatchMediaPlay();
                                                 sendGAEvent("event", "video_played", {
                                                     content_id: drop.id,
                                                     video_title: drop.title
                                                 });
+                                            }}
+                                            onPause={(event) => {
+                                                reportWatchMediaPause(
+                                                    event.currentTarget.currentTime,
+                                                    event.currentTarget.duration,
+                                                );
+                                            }}
+                                            onSeeked={(event) => {
+                                                reportWatchAssetProgress(
+                                                    event.currentTarget.currentTime,
+                                                    event.currentTarget.duration,
+                                                );
                                             }}
                                             onTimeUpdate={(event) => {
                                                 handleMediaTimeUpdate(
@@ -1183,6 +1265,10 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                                 );
                                             }}
                                             onEnded={(event) => {
+                                                reportWatchMediaEnded(
+                                                    event.currentTarget.duration || event.currentTarget.currentTime || 15,
+                                                    event.currentTarget.duration,
+                                                );
                                                 trackAssetCompleted(
                                                     event.currentTarget.duration || event.currentTarget.currentTime || 15,
                                                     event.currentTarget.duration,
@@ -1213,6 +1299,21 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                                 controlsList="nodownload"
                                                 className="relative z-10 w-full max-w-md"
                                                 onContextMenu={preventContextMenu}
+                                                onPlay={() => {
+                                                    reportWatchMediaPlay();
+                                                }}
+                                                onPause={(event) => {
+                                                    reportWatchMediaPause(
+                                                        event.currentTarget.currentTime,
+                                                        event.currentTarget.duration,
+                                                    );
+                                                }}
+                                                onSeeked={(event) => {
+                                                    reportWatchAssetProgress(
+                                                        event.currentTarget.currentTime,
+                                                        event.currentTarget.duration,
+                                                    );
+                                                }}
                                                 onTimeUpdate={(event) => {
                                                     handleMediaTimeUpdate(
                                                         event.currentTarget.currentTime,
@@ -1220,6 +1321,10 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                                     );
                                                 }}
                                                 onEnded={(event) => {
+                                                    reportWatchMediaEnded(
+                                                        event.currentTarget.duration || event.currentTarget.currentTime || 15,
+                                                        event.currentTarget.duration,
+                                                    );
                                                     trackAssetCompleted(
                                                         event.currentTarget.duration || event.currentTarget.currentTime || 15,
                                                         event.currentTarget.duration,
@@ -1387,12 +1492,13 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                 download={drop.title}
                                 onClick={() => {
                                     sessionDownloadCountRef.current += 1;
-                                    trackEvent("viewer_source_downloaded", {
+                                    recordWatchDownload();
+                                    trackEvent("viewer_source_downloaded", withWatchSessionParams({
                                         drop_id: drop.id,
                                         drop_title: drop.title,
-                                        drop_category: drop.type,
+                                        drop_category: dropType,
                                         asset_index: activeIndex + 1,
-                                    });
+                                    }));
                                 }}
                                 className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-sm flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-sm mt-1 hover:bg-white/10"
                             >

@@ -16,6 +16,99 @@ query GetAnalyticsExportStatuses {
   }
 }
 
+query ListAnalyticsExportWatchSessionsByDrop(
+  $dropId: String!
+  $limit: Int! = 50
+) {
+  analyticsWatchSessions(
+    where: { dropId: { eq: $dropId } }
+    orderBy: [{ lastSeenAtMs: DESC }]
+    limit: $limit
+  ) {
+    id
+    watchSessionId
+    clientSessionId
+    userId
+    username
+    dropId
+    dropTitle
+    dropCategory
+    pagePath
+    startedDayKey
+    startedHourKey
+    lastDayKey
+    lastHourKey
+    sessionStartedAtMs
+    firstSeenAtMs
+    lastSeenAtMs
+    closedAtMs
+    isClosed
+    closeReason
+    contentCount
+    activeAssetKey
+    activeAssetIndex
+    totalWatchSeconds
+    totalVisibleSeconds
+    maxAssetWatchSeconds
+    viewedAssetCount
+    completedAssetCount
+    consumedAssetCount
+    assetSwitchCount
+    downloadCount
+    relatedClickCount
+    loadMsTotal
+    loadSampleCount
+    averageLoadMs
+    lastSequence
+    unwrappedAtMs
+  }
+}
+
+query ListAnalyticsExportWatchAssetsBySession(
+  $watchSessionId: String!
+  $limit: Int! = 100
+) {
+  analyticsWatchAssets(
+    where: { watchSessionId: { eq: $watchSessionId } }
+    orderBy: [{ assetIndex: ASC }]
+    limit: $limit
+  ) {
+    id
+    watchSessionId
+    clientSessionId
+    userId
+    username
+    dropId
+    dropTitle
+    dropCategory
+    pagePath
+    assetKey
+    assetIndex
+    contentKind
+    startedDayKey
+    startedHourKey
+    lastDayKey
+    lastHourKey
+    sessionStartedAtMs
+    firstSeenAtMs
+    lastSeenAtMs
+    startedAtMs
+    totalWatchSeconds
+    totalVisibleSeconds
+    maxProgressSeconds
+    checkpointMaxSeconds
+    durationSeconds
+    consumedAtMs
+    completedAtMs
+    isConsumed
+    isCompleted
+    heartbeatCount
+    loadMsTotal
+    loadSampleCount
+    lastSequence
+  }
+}
+
 query ListAnalyticsExportCommerceDaily(
   $startDayKey: String!
   $limit: Int! = 90

@@ -71,6 +71,62 @@
             ]
         },
         {
+            "collectionGroup": "analytics_watch_sessions",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "userId",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "lastSeenAtMs",
+                    "order": "DESCENDING"
+                }
+            ]
+        },
+        {
+            "collectionGroup": "analytics_watch_sessions",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "dropId",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "lastSeenAtMs",
+                    "order": "DESCENDING"
+                }
+            ]
+        },
+        {
+            "collectionGroup": "analytics_watch_assets",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "userId",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "lastSeenAtMs",
+                    "order": "DESCENDING"
+                }
+            ]
+        },
+        {
+            "collectionGroup": "analytics_watch_assets",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "watchSessionId",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "assetIndex",
+                    "order": "ASCENDING"
+                }
+            ]
+        },
+        {
             "collectionGroup": "analytics_user_daily",
             "queryScope": "COLLECTION",
             "fields": [

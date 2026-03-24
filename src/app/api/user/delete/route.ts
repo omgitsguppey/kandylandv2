@@ -13,6 +13,8 @@ type DeletedDataSummary = {
     securityEvents: number;
     analyticsEventFacts: number;
     analyticsSessionFacts: number;
+    analyticsWatchSessions: number;
+    analyticsWatchAssets: number;
     analyticsUserDaily: number;
     analyticsUsersRollup: number;
     analyticsActiveUser: number;
@@ -100,6 +102,8 @@ export async function DELETE(request: NextRequest) {
             deleteQueryMatches(adminDb.collection("security_events").where("userId", "==", uid), bulkWriter),
             deleteQueryMatches(adminDb.collection("analytics_event_facts").where("userId", "==", uid), bulkWriter),
             deleteQueryMatches(adminDb.collection("analytics_session_facts").where("userId", "==", uid), bulkWriter),
+            deleteQueryMatches(adminDb.collection("analytics_watch_sessions").where("userId", "==", uid), bulkWriter),
+            deleteQueryMatches(adminDb.collection("analytics_watch_assets").where("userId", "==", uid), bulkWriter),
             deleteQueryMatches(adminDb.collection("analytics_user_daily").where("uid", "==", uid), bulkWriter),
             deleteQueryMatches(adminDb.collection("paymentLocks").where("userId", "==", uid), bulkWriter),
         ]);
@@ -116,8 +120,10 @@ export async function DELETE(request: NextRequest) {
             securityEvents: deletedSummaryValues[4],
             analyticsEventFacts: deletedSummaryValues[5],
             analyticsSessionFacts: deletedSummaryValues[6],
-            analyticsUserDaily: deletedSummaryValues[7],
-            paymentLocks: deletedSummaryValues[8],
+            analyticsWatchSessions: deletedSummaryValues[7],
+            analyticsWatchAssets: deletedSummaryValues[8],
+            analyticsUserDaily: deletedSummaryValues[9],
+            paymentLocks: deletedSummaryValues[10],
             analyticsUsersRollup: 1,
             analyticsActiveUser: 1,
         };

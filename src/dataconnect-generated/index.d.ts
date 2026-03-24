@@ -100,6 +100,16 @@ export interface AnalyticsUserSecurityRollup_Key {
   __typename?: 'AnalyticsUserSecurityRollup_Key';
 }
 
+export interface AnalyticsWatchAsset_Key {
+  id: UUIDString;
+  __typename?: 'AnalyticsWatchAsset_Key';
+}
+
+export interface AnalyticsWatchSession_Key {
+  id: UUIDString;
+  __typename?: 'AnalyticsWatchSession_Key';
+}
+
 export interface CreateAiInteractionData {
   aiInteraction_insert: AiInteraction_Key;
 }

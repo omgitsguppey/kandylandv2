@@ -35,6 +35,7 @@ const IMMEDIATE_IDENTIFIED_EVENT_NAMES = new Set([
     "viewer_watch_checkpoint",
     "viewer_source_downloaded",
     "viewer_related_drop_clicked",
+    "viewer_backgrounded",
     "feedback_submitted",
 ]);
 const IDENTIFIED_TELEMETRY_BATCH_LIMIT = 12;

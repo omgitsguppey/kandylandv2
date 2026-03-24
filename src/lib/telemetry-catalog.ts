@@ -357,7 +357,7 @@ export const TELEMETRY_MODULE_INDEXES: TelemetryModuleIndex[] = [
       "viewer_related_drop_clicked",
       "viewer_backgrounded",
     ],
-    fallbackSources: ["analytics_session_facts", "analytics_event_facts", "ga4", "telemetry_logs"],
+    fallbackSources: ["analytics_watch_sessions", "analytics_watch_assets", "analytics_session_facts", "analytics_event_facts", "ga4", "telemetry_logs"],
   },
   {
     key: "engagement",
