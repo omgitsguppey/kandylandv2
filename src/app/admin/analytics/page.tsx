@@ -18,7 +18,6 @@ import {
   Monitor,
   PlayCircle,
   Route,
-  RefreshCw,
   Share2,
   ShieldAlert,
   ShoppingBag,
@@ -402,8 +401,11 @@ const TAB_OPTIONS: Array<{ id: ViewTab; label: string; icon: typeof Activity }> 
 
 const EVENT_LABELS: Record<string, string> = TELEMETRY_EVENT_LABELS;
 const PIE_COLORS = ["#b28cff", "#7c3aed", "#22d3ee", "#f472b6", "#34d399", "#f59e0b"];
-
-const INITIAL_ANALYTICS_NOW = Date.now();
+const ANALYTICS_DATE_TIME_FORMATTER = new Intl.DateTimeFormat("en-US", {
+  dateStyle: "medium",
+  timeStyle: "short",
+  timeZone: "America/Chicago",
+});
 
 function AnalyticsTooltip({ active, payload, label, valueFormatter }: AnalyticsTooltipProps) {
   if (!active || !payload?.length) return null;
@@ -515,6 +517,7 @@ function formatDuration(seconds: number): string {
 }
 
 function formatRelativeTime(timestamp: number, nowMs: number): string {
+  if (!timestamp || !nowMs) return "Just now";
   const diff = Math.max(0, nowMs - timestamp);
   const seconds = Math.floor(diff / 1000);
   if (seconds < 60) return `${seconds}s ago`;
@@ -524,6 +527,20 @@ function formatRelativeTime(timestamp: number, nowMs: number): string {
   if (hours < 24) return `${hours}h ago`;
   const days = Math.floor(hours / 24);
   return `${days}d ago`;
+}
+
+function formatAbsoluteDateTime(timestamp: string | number | null | undefined) {
+  if (!timestamp) return "Unknown";
+
+  const normalizedTimestamp = typeof timestamp === "string"
+    ? new Date(timestamp).getTime()
+    : timestamp;
+
+  if (!Number.isFinite(normalizedTimestamp)) {
+    return "Unknown";
+  }
+
+  return ANALYTICS_DATE_TIME_FORMATTER.format(new Date(normalizedTimestamp));
 }
 
 function getValidationClasses(status: ValidationItem["status"]) {
@@ -559,7 +576,7 @@ function isRecentViolation(timestamp: string | null, nowMs: number): boolean {
 export default function AdminAnalyticsPage() {
   const [activeTab, setActiveTab] = useState<ViewTab>("operations");
   const [range, setRange] = useState<RangeOption>("30d");
-  const [nowMs, setNowMs] = useState(INITIAL_ANALYTICS_NOW);
+  const [nowMs, setNowMs] = useState(0);
   const [viewerUserDraft, setViewerUserDraft] = useState("");
   const [viewerUserFilter, setViewerUserFilter] = useState("");
 
@@ -575,7 +592,6 @@ export default function AdminAnalyticsPage() {
     data: liveResponse,
     error: liveError,
     isLoading: liveLoading,
-    mutate: refreshLive,
   } = useAuthSWR<RealtimeAnalyticsResponse>("/api/admin/analytics?type=realtime", {
     refreshInterval: 30_000,
     keepPreviousData: true,
@@ -585,7 +601,6 @@ export default function AdminAnalyticsPage() {
     data: historicalResponse,
     error: historicalError,
     isLoading: historicalLoading,
-    mutate: refreshHistorical,
   } = useAuthSWR<HistoricalAnalyticsResponse>(
     `/api/admin/analytics?type=historical&period=${range}${viewerUserFilter ? `&viewerUser=${encodeURIComponent(viewerUserFilter)}` : ""}`,
     {
@@ -766,11 +781,6 @@ export default function AdminAnalyticsPage() {
     shortLabel: item.dropTitle.length > 16 ? `${item.dropTitle.slice(0, 16)}...` : item.dropTitle,
   }));
 
-  const refreshAll = () => {
-    void refreshLive();
-    void refreshHistorical();
-  };
-
   const applyViewerFilter = () => {
     setViewerUserFilter(viewerUserDraft.trim());
   };
@@ -808,17 +818,6 @@ export default function AdminAnalyticsPage() {
         eyebrow="Admin Analytics"
         title="Mobile Monitoring Station"
         subtitle="Live pulse, device mix, funnel health, revenue signals, and risk monitoring tuned for small screens first."
-        actions={
-          <button
-            type="button"
-            onClick={refreshAll}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-black/30 px-4 text-sm font-semibold text-gray-200 transition-colors hover:border-brand-purple/40 hover:text-white"
-            aria-label="Refresh analytics"
-          >
-            <RefreshCw className={cn("h-4 w-4", liveLoading || historicalLoading ? "animate-spin" : "")} />
-            Refresh analytics
-          </button>
-        }
       />
 
       <div className="grid grid-cols-2 gap-2.5 md:grid-cols-4">
@@ -1912,7 +1911,7 @@ export default function AdminAnalyticsPage() {
                         <div className="mt-4 grid gap-3 md:grid-cols-3">
                           <div className="rounded-2xl border border-white/10 bg-black/30 p-3">
                             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">Last seen</p>
-                            <p className="mt-2 text-sm text-white">{item.lastViolation ? new Date(item.lastViolation).toLocaleString() : "Unknown"}</p>
+                            <p className="mt-2 text-sm text-white">{formatAbsoluteDateTime(item.lastViolation)}</p>
                           </div>
                           <div className="rounded-2xl border border-white/10 bg-black/30 p-3">
                             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">Vector</p>

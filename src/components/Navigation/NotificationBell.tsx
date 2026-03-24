@@ -28,7 +28,8 @@ interface NotificationNote {
   title: string;
   message: string;
   type: string;
-  createdAt?: { toDate: () => Date };
+  readBy: string[];
+  createdAt?: { toDate: () => Date } | null;
   link?: string;
   dropContext?: {
     previewImageUrl?: string;
@@ -65,19 +66,93 @@ function getTypePill(type: string) {
   }
 }
 
-function getNotificationPreview(message: string) {
-  const trimmed = message.trim();
-  if (trimmed.length <= 108) {
-    return {
-      preview: trimmed,
-      expandable: false,
-    };
+function normalizeNotificationText(value: string) {
+  return value.trim().replace(/\s+/g, " ");
+}
+
+function extractMessageSubject(message: string) {
+  const normalized = normalizeNotificationText(message);
+  if (!normalized) {
+    return "";
   }
 
-  return {
-    preview: `${trimmed.slice(0, 105).trimEnd()}…`,
-    expandable: true,
-  };
+  const firstSentence = normalized.split(/(?<=[.!?])\s+/u)[0] ?? normalized;
+  return firstSentence.replace(/[.!?]+$/u, "").slice(0, 72).trim();
+}
+
+function isTaskRelatedNotification(note: NotificationNote) {
+  return note.link?.includes("/experiences") || /task|reward|deadline|check-in/i.test(`${note.title} ${note.message}`);
+}
+
+function getTaskSubject(note: NotificationNote) {
+  const combinedText = `${note.title} ${note.message}`;
+  if (/check-?in/i.test(combinedText)) {
+    return "Daily check-in";
+  }
+  if (/deadline|before midnight|expires/i.test(combinedText)) {
+    return "Daily task deadline";
+  }
+  if (/reward/i.test(combinedText)) {
+    return "Task reward";
+  }
+  if (/reminder/i.test(combinedText)) {
+    return "Task reminder";
+  }
+
+  return "Task update";
+}
+
+function getNotificationSubject(note: NotificationNote) {
+  if (note.dropContext?.dropTitle) {
+    return note.dropContext.dropTitle;
+  }
+
+  const messageSubject = extractMessageSubject(note.message);
+  if (isTaskRelatedNotification(note)) {
+    return messageSubject || getTaskSubject(note);
+  }
+
+  if (note.link?.includes("/dashboard/profile")) {
+    return "Profile settings";
+  }
+
+  if (note.link?.includes("/drops")) {
+    return "Drop library";
+  }
+
+  return messageSubject;
+}
+
+function getNotificationDetails(note: NotificationNote, subject: string) {
+  const normalized = normalizeNotificationText(note.message);
+  if (!normalized) {
+    return "";
+  }
+
+  if (!subject) {
+    return normalized;
+  }
+
+  if (normalized.toLowerCase() === subject.toLowerCase()) {
+    return "";
+  }
+
+  if (normalized.toLowerCase().startsWith(subject.toLowerCase())) {
+    const remainder = normalized.slice(subject.length).replace(/^[:\-.,!\s]+/u, "").trim();
+    if (remainder) {
+      return remainder;
+    }
+  }
+
+  const firstSentence = extractMessageSubject(note.message);
+  if (firstSentence && firstSentence.toLowerCase() === subject.toLowerCase()) {
+    const remainder = normalized.slice(firstSentence.length).replace(/^[:\-.,!\s]+/u, "").trim();
+    if (remainder) {
+      return remainder;
+    }
+  }
+
+  return normalized;
 }
 
 function getNotificationActionLabel(note: NotificationNote) {
@@ -90,10 +165,6 @@ function getNotificationActionLabel(note: NotificationNote) {
   }
 
   return "Open";
-}
-
-function isTaskRelatedNotification(note: NotificationNote) {
-  return note.link?.includes("/experiences") || /task|reward|deadline|check-in/i.test(`${note.title} ${note.message}`);
 }
 
 function NotificationThumbnail({ note }: { note: NotificationNote }) {
@@ -129,23 +200,38 @@ function NotificationItem({
   note,
   markAsRead,
   closeDropdown,
+  currentUserId,
 }: {
   note: NotificationNote;
-  markAsRead: (id: string) => Promise<boolean>;
+  markAsRead: (id: string, options?: { preserveVisible?: boolean }) => Promise<boolean>;
   closeDropdown: () => void;
+  currentUserId: string | null;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const router = useRouter();
   const pill = getTypePill(note.type);
   const PillIcon = pill.icon;
-  const { preview, expandable } = getNotificationPreview(note.message);
   const taskRelated = isTaskRelatedNotification(note);
+  const subject = getNotificationSubject(note);
+  const details = getNotificationDetails(note, subject);
+  const expandable = details.length > 0;
+  const isRead = Boolean(currentUserId && note.readBy.includes(currentUserId));
   const relativeTime = note.createdAt?.toDate
     ? formatDistanceToNow(note.createdAt.toDate(), { addSuffix: true })
     : "Just now";
+  const autoMarkedReadRef = useRef(false);
 
-  const openDrop = async () => {
+  const markViewedAsRead = async () => {
+    if (autoMarkedReadRef.current || isRead) {
+      return;
+    }
+
+    autoMarkedReadRef.current = true;
+    await markAsRead(note.id, { preserveVisible: true });
+  };
+
+  const openNotification = async () => {
     if (isPending) {
       return;
     }
@@ -158,7 +244,7 @@ function NotificationItem({
         destination,
         notification_id: note.id,
       });
-      await markAsRead(note.id);
+      await markAsRead(note.id, { preserveVisible: true });
       router.push(destination);
       closeDropdown();
     } finally {
@@ -167,7 +253,7 @@ function NotificationItem({
   };
 
   const handleMarkAsRead = async () => {
-    if (isPending) {
+    if (isPending || isRead) {
       return;
     }
 
@@ -179,6 +265,15 @@ function NotificationItem({
       }
     } finally {
       setIsPending(false);
+    }
+  };
+
+  const handleToggleExpanded = () => {
+    const nextExpanded = !isExpanded;
+    setIsExpanded(nextExpanded);
+
+    if (nextExpanded && !isPending) {
+      void markViewedAsRead();
     }
   };
 
@@ -194,21 +289,31 @@ function NotificationItem({
                 <span className="text-[10px] font-black uppercase tracking-[0.16em] text-gray-400">
                   KandyDrops
                 </span>
-                <span className={cn(
-                  "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.14em]",
-                  pill.className,
-                )}>
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.14em]",
+                    pill.className,
+                  )}
+                >
                   <PillIcon className="h-2.5 w-2.5" />
                   {taskRelated ? "Task" : pill.label}
                 </span>
+                {isRead ? (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.14em] text-gray-300">
+                    <Check className="h-2.5 w-2.5" />
+                    Read
+                  </span>
+                ) : null}
               </div>
               <p className="mt-1 text-sm font-semibold leading-5 text-white">{note.title}</p>
-              <p className="mt-1 text-[11px] leading-5 text-gray-300">
-                {isExpanded ? note.message : preview}
-              </p>
-              {note.dropContext?.dropTitle ? (
+              {subject ? (
                 <p className="mt-1 text-[11px] font-medium text-gray-400">
-                  {note.dropContext.dropTitle}
+                  {subject}
+                </p>
+              ) : null}
+              {isExpanded && details ? (
+                <p className="mt-2 text-[11px] leading-5 text-gray-300">
+                  {details}
                 </p>
               ) : null}
             </div>
@@ -220,12 +325,12 @@ function NotificationItem({
                 onClick={() => {
                   void handleMarkAsRead();
                 }}
-                disabled={isPending}
-                className="inline-flex h-7 items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 text-[10px] font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-white/10"
+                disabled={isPending || isRead}
+                className="inline-flex h-7 items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 text-[10px] font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-white/10 disabled:cursor-default disabled:opacity-70"
                 title="Mark as read"
               >
                 <Check className="h-3 w-3" />
-                Read
+                {isRead ? "Viewed" : "Read"}
               </button>
             </div>
           </div>
@@ -235,10 +340,10 @@ function NotificationItem({
               <button
                 type="button"
                 onClick={() => {
-                  void openDrop();
+                  void openNotification();
                 }}
                 disabled={isPending}
-                className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-brand-purple/25 bg-white px-3 py-1.5 text-[11px] font-bold text-black transition-opacity hover:opacity-90"
+                className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-brand-purple/25 bg-white px-3 py-1.5 text-[11px] font-bold text-black transition-opacity hover:opacity-90 disabled:opacity-75"
               >
                 <ExternalLink className="h-3.5 w-3.5" />
                 {getNotificationActionLabel(note)}
@@ -248,7 +353,7 @@ function NotificationItem({
             {expandable ? (
               <button
                 type="button"
-                onClick={() => setIsExpanded((current) => !current)}
+                onClick={handleToggleExpanded}
                 className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-white/10"
               >
                 <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", isExpanded ? "rotate-180" : "")} />
@@ -388,6 +493,7 @@ export function NotificationBell() {
                 note={note as NotificationNote}
                 markAsRead={markAsRead}
                 closeDropdown={() => setIsOpen(false)}
+                currentUserId={user?.uid ?? null}
               />
             ))
           )}

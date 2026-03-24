@@ -13,6 +13,10 @@ import { authFetch } from "@/lib/authFetch";
 
 type Notification = AppNotification;
 
+interface MarkNotificationAsReadOptions {
+    preserveVisible?: boolean;
+}
+
 export function useNotifications() {
     const { user } = useAuthIdentity();
     const userId = user?.uid ?? null;
@@ -182,26 +186,46 @@ export function useNotifications() {
     );
     const loading = Boolean(userId) && loadedForUserId !== userId;
 
-    // Unread count is simply the length now, since strictly unread notifications are present
     const unreadCount = useMemo(
-        () => (userId ? notifications.length : 0),
+        () => (userId ? notifications.filter((notification) => !notification.readBy.includes(userId)).length : 0),
         [notifications, userId]
     );
 
-    const markAsRead = async (id: string) => {
+    const markAsRead = async (id: string, options?: MarkNotificationAsReadOptions) => {
         if (!userId) return false;
+
+        const existingNotification = notificationsState.find((notification) => notification.id === id);
+        if (existingNotification?.readBy.includes(userId)) {
+            return true;
+        }
 
         const success = await markNotificationAsRead(id);
         if (!success) {
-            dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync);
             return false;
         }
 
-        setNotificationsState((prev) => prev.filter((notification) => notification.id !== id));
+        setNotificationsState((prev) => prev.map((notification) => {
+            if (notification.id !== id) {
+                return notification;
+            }
+
+            if (notification.readBy.includes(userId)) {
+                return notification;
+            }
+
+            return {
+                ...notification,
+                readBy: [...notification.readBy, userId],
+            };
+        }));
         trackEvent("notification_marked_read", {
             notification_id: id,
         });
-        dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync);
+
+        if (!options?.preserveVisible) {
+            dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync);
+        }
+
         return true;
     };
 
@@ -210,7 +234,9 @@ export function useNotifications() {
             return { successCount: 0, failedCount: 0 };
         }
 
-        const unreadIds = notifications.map((notification) => notification.id);
+        const unreadIds = notifications
+            .filter((notification) => !notification.readBy.includes(userId))
+            .map((notification) => notification.id);
 
         if (unreadIds.length === 0) {
             return { successCount: 0, failedCount: 0 };
@@ -228,7 +254,16 @@ export function useNotifications() {
         const failedCount = unreadIds.length - succeededIds.length;
 
         if (succeededIds.length > 0) {
-            setNotificationsState((prev) => prev.filter((notification) => !succeededIds.includes(notification.id)));
+            setNotificationsState((prev) => prev.map((notification) => (
+                succeededIds.includes(notification.id)
+                    ? {
+                        ...notification,
+                        readBy: notification.readBy.includes(userId)
+                            ? notification.readBy
+                            : [...notification.readBy, userId],
+                    }
+                    : notification
+            )));
         }
 
         dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync);
