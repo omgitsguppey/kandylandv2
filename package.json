@@ -87,7 +87,7 @@
   },
   "overrides": {
     "@google-cloud/storage": {
-      "fast-xml-parser": "^5.5.6"
+      "fast-xml-parser": "^5.5.9"
     },
     "flat-cache": {
       "flatted": "^3.4.2"
