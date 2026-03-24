@@ -14,7 +14,7 @@ export function PromoCard({ drop }: PromoCardProps) {
         const endpoint = `/api/drops/${encodeURIComponent(drop.id)}/click`;
 
         // Track click server-side (fire-and-forget)
-        const request = auth.currentUser
+        const request = auth?.currentUser
             ? authFetch(endpoint, {
                 method: "POST",
                 keepalive: true,

@@ -154,6 +154,7 @@ function getEnrichedEventParams(eventParams?: Record<string, unknown>) {
         return Object.keys(sanitizedParams).length > 0 ? sanitizedParams : undefined;
     }
 
+    const isAuthenticated = Boolean(auth?.currentUser);
     const viewportWidth = Math.round(window.innerWidth || 0);
     const viewportHeight = Math.round(window.innerHeight || 0);
     const enriched: SanitizedEventParams = {
@@ -164,7 +165,7 @@ function getEnrichedEventParams(eventParams?: Record<string, unknown>) {
         viewport_height: viewportHeight,
         is_mobile_viewport: viewportWidth <= 768,
         event_timestamp_ms: Date.now(),
-        auth_state: auth.currentUser ? "authenticated" : "guest",
+        auth_state: isAuthenticated ? "authenticated" : "guest",
         ...buildAnalyticsSemanticParams({
             pagePath: window.location.pathname,
             dropId: typeof sanitizedParams.drop_id === "string" ? sanitizedParams.drop_id : undefined,
@@ -262,7 +263,7 @@ function shouldFlushIdentifiedTelemetryImmediately(
 
 async function flushQueuedTelemetry(reason: "scheduled" | "immediate" | "pagehide" | "visibility") {
     ensureTelemetryQueueLoaded();
-    const currentUserId = auth.currentUser?.uid ?? null;
+    const currentUserId = auth?.currentUser?.uid ?? null;
 
     if (currentUserId && telemetryQueueUserId && telemetryQueueUserId !== currentUserId) {
         telemetryQueue = [];
@@ -270,8 +271,8 @@ async function flushQueuedTelemetry(reason: "scheduled" | "immediate" | "pagehid
         clearPersistedTelemetryQueue();
     }
 
-    if (!auth.currentUser || telemetryQueue.length === 0) {
-        if (!auth.currentUser) {
+    if (!auth?.currentUser || telemetryQueue.length === 0) {
+        if (!auth?.currentUser) {
             telemetryQueue = [];
             telemetryQueueUserId = null;
             clearPersistedTelemetryQueue();
@@ -352,7 +353,7 @@ function enqueueIdentifiedTelemetryEvent(event: IdentifiedTelemetryEvent, immedi
     }
 
     ensureTelemetryQueueLoaded();
-    const currentUserId = auth.currentUser?.uid ?? null;
+    const currentUserId = auth?.currentUser?.uid ?? null;
     if (!currentUserId) {
         return;
     }
@@ -411,7 +412,7 @@ export function trackEvent(eventName: string, eventParams?: Record<string, unkno
         window.gtag("event", eventNameForDispatch, enrichedParams);
     }
 
-    if (!preparedEvent.isKnownEvent || !auth.currentUser || (!allowIdentifiedAnalytics && !shouldSyncTaskProgress)) {
+    if (!preparedEvent.isKnownEvent || !auth?.currentUser || (!allowIdentifiedAnalytics && !shouldSyncTaskProgress)) {
         return;
     }
 

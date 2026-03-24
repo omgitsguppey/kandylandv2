@@ -92,6 +92,37 @@ function buildMaterializer(input: {
   };
 }
 
+function readRouteFailureCount(
+  pipelineDocs: Array<{
+    routeCounts: Record<string, unknown>;
+    lastFailureAtMs: number;
+    lastRouteName: string;
+  }>,
+  routeKey: string,
+) {
+  return pipelineDocs.reduce((sum, entry) => sum + toNumber(entry.routeCounts[routeKey]), 0);
+}
+
+function readRouteFailureLastSeenAt(
+  pipelineDocs: Array<{
+    routeCounts: Record<string, unknown>;
+    lastFailureAtMs: number;
+    lastRouteName: string;
+  }>,
+  routeKey: string,
+  routeName: string,
+) {
+  return pipelineDocs.reduce((latest, entry) => {
+    const hasRouteFailures = toNumber(entry.routeCounts[routeKey]) > 0;
+    const routeMatched = entry.lastRouteName === routeName || entry.lastRouteName === routeKey;
+    if (!hasRouteFailures && !routeMatched) {
+      return latest;
+    }
+
+    return Math.max(latest, entry.lastFailureAtMs);
+  }, 0);
+}
+
 function buildChannelLabel(channel: string) {
   if (channel === "analytics") return "Analytics";
   if (channel === "auth") return "Auth";
@@ -210,10 +241,28 @@ export function buildAdminOpsHealth(input: {
 
   const pipelineFailureCount = pipelineDocs.reduce((sum, entry) => sum + entry.failureCount, 0);
   const lastPipelineEntry = pipelineDocs.sort((left, right) => right.lastFailureAtMs - left.lastFailureAtMs)[0];
+  const guestIngestFailureCount = readRouteFailureCount(pipelineDocs, "analytics_ingest");
+  const guestIngestFailureLastSeenAt = readRouteFailureLastSeenAt(
+    pipelineDocs,
+    "analytics_ingest",
+    "analytics/ingest",
+  );
 
   const commerceSummaryData = input.commerceSummaryDoc?.exists ? getDocData(input.commerceSummaryDoc) : {};
   const commerceCount = toNumber(commerceSummaryData.transactionCount) || toNumber(commerceSummaryData.purchaseCount);
   const commerceLastSeenAt = toNumber(commerceSummaryData.lastTransactionAt) || toTimestampNumber(commerceSummaryData.updatedAt);
+  const guestBatchCount = input.guestBatchDocs.length;
+  const guestBatchLastSeenAt = readLatestTimestamp(input.guestBatchDocs, ["receivedAtMs", "createdAt", "updatedAt"]);
+  const guestBatchesStatus: AdminOpsHealthStatus = guestBatchCount > 0
+    ? getMaterializerStatus(nowMs, guestBatchCount, guestBatchLastSeenAt)
+    : guestIngestFailureCount > 0
+      ? (guestIngestFailureLastSeenAt && nowMs - guestIngestFailureLastSeenAt >= STALE_FAIL_MS ? "fail" : "warn")
+      : "healthy";
+  const guestBatchesDetail = guestBatchCount > 0
+    ? "Guest interaction batches are the canonical raw source for anonymous browse telemetry."
+    : guestIngestFailureCount > 0
+      ? "No recent guest batches landed and the anonymous ingest route has recorded failures. Check guest tracking and route diagnostics."
+      : "No recent anonymous traffic landed in the current window, but the guest ingest pipeline has no recorded failures.";
 
   const materializers = [
     buildMaterializer({
@@ -243,15 +292,15 @@ export function buildAdminOpsHealth(input: {
       lastSeenAt: commerceLastSeenAt,
       detail: "Commerce rollups mirror completed transactions into revenue, unlock, and bundle summaries.",
     }),
-    buildMaterializer({
-      nowMs,
+    {
       key: "analytics_guest_batches",
       label: "Guest Batches",
       engine: "route",
-      count: input.guestBatchDocs.length,
-      lastSeenAt: readLatestTimestamp(input.guestBatchDocs, ["receivedAtMs", "createdAt", "updatedAt"]),
-      detail: "Guest interaction batches are the canonical raw source for anonymous browse telemetry.",
-    }),
+      status: guestBatchesStatus,
+      count: guestBatchCount,
+      lastSeenAt: guestBatchLastSeenAt,
+      detail: guestBatchesDetail,
+    },
     buildMaterializer({
       nowMs,
       key: "security_events",

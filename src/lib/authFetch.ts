@@ -9,6 +9,10 @@ import { recordClientBreadcrumb, recordClientDiagnostic } from "@/lib/client-dia
  * Usage: const res = await authFetch("/api/some-route", { method: "POST", body: JSON.stringify(data) });
  */
 export async function authFetch(url: string, options: RequestInit = {}): Promise<Response> {
+    if (!auth) {
+        throw new Error("Authentication is unavailable in this environment");
+    }
+
     const currentUser = auth.currentUser;
     if (!currentUser) {
         recordClientDiagnostic("network", "Authenticated request attempted without a signed-in user", {

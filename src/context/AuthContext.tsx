@@ -14,7 +14,7 @@ import {
     browserLocalPersistence,
     signOut,
 } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, firebaseClientConfigured } from "@/lib/firebase";
 import { getAppCheckToken } from "@/lib/app-check";
 import { CLIENT_RUNTIME_STORAGE_KEYS, readSessionStorageValue } from "@/hooks/client-runtime";
 import { UserProfile } from "@/types/db";
@@ -55,6 +55,10 @@ let persistencePromise: Promise<void> | null = null;
 const GOOGLE_REDIRECT_PENDING_KEY = "auth_google_redirect_pending";
 
 function ensureAuthPersistence() {
+    if (!auth) {
+        return Promise.resolve();
+    }
+
     if (!persistencePromise) {
         persistencePromise = setPersistence(auth, browserLocalPersistence).catch((error) => {
             persistencePromise = null;
@@ -110,8 +114,6 @@ async function prepareAuthAppCheck() {
     await getAppCheckToken();
 }
 
-
-
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -133,6 +135,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         const initializeAuth = async () => {
             try {
+                if (!auth) {
+                    if (!cancelled) {
+                        setAuthStateResolved(true);
+                        setLoading(false);
+                    }
+                    return;
+                }
+
                 await ensureAuthPersistence();
                 await prepareAuthAppCheck().catch(() => null);
 
@@ -204,7 +214,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         const currentUserId = user.uid;
         const autoRegisterInFlight = autoRegisterInFlightRef.current;
-        let unsubscribe: () => void;
+        let unsubscribe: (() => void) | undefined;
 
         const setupProfileListener = async () => {
             const { db } = await import("@/lib/firebase-data");
@@ -237,7 +247,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
                     autoRegisterInFlight.add(currentUserId);
 
-                    // Profile doesn't exist yet, trigger auto-registration
                     try {
                         const registrationMethod = user.providerData[0]?.providerId === "google.com" ? "google" : "email";
                         const response = await authFetch("/api/user/register", {
@@ -252,24 +261,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                             autoRegisterInFlight.delete(currentUserId);
                             setLoading(false);
                         }
-                        // Do not set loading false here immediately; let the onSnapshot retry handle it 
-                        // when the creation resolves.
-                    } catch (err) {
+                    } catch {
                         autoRegisterInFlight.delete(currentUserId);
                         setLoading(false);
                     }
-                    // onSnapshot will trigger again once the doc is created
                 }
             }, () => {
                 setLoading(false);
             });
         };
 
-        setupProfileListener();
+        void setupProfileListener();
 
         return () => {
             autoRegisterInFlight.delete(currentUserId);
-            if (unsubscribe) unsubscribe();
+            if (unsubscribe) {
+                unsubscribe();
+            }
         };
     }, [authStateResolved, pathname, router, user]);
 
@@ -297,12 +305,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, [user, userProfile]);
 
     const refreshProfile = useCallback(async () => {
-        // No-op now as onSnapshot handles updates. 
+        // No-op now as onSnapshot handles updates.
         // Kept for backward compatibility if any component calls it.
     }, []);
 
-
     const signInWithGoogle = useCallback(async () => {
+        if (!auth || !firebaseClientConfigured) {
+            throw new Error("Authentication is unavailable in this environment.");
+        }
+
         try {
             await ensureAuthPersistence();
             await prepareAuthAppCheck();
@@ -316,7 +327,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
 
             await signInWithPopup(auth, provider);
-
             toast.success("Welcome back!");
         } catch (error: unknown) {
             const firebaseError = error as { code?: string; message?: string };
@@ -330,16 +340,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
 
             if (
-                firebaseError?.code === "auth/app-check-token-is-invalid" ||
-                firebaseError?.message?.toLowerCase().includes("app check token") || 
-                firebaseError?.message?.toLowerCase().includes("recaptcha")
+                firebaseError?.code === "auth/app-check-token-is-invalid"
+                || firebaseError?.message?.toLowerCase().includes("app check token")
+                || firebaseError?.message?.toLowerCase().includes("recaptcha")
             ) {
                 try {
                     toast.loading("Analyzing reCAPTCHA rejection reasons from Google...", { id: "recaptcha-debug" });
                     const { verifyManualRecaptchaToken } = await import("@/lib/manual-recaptcha");
                     const result = await verifyManualRecaptchaToken("LOGIN");
                     toast.dismiss("recaptcha-debug");
-                    
+
                     if (result.error) {
                         toast.error(`Google API Error: ${result.error}`, { duration: 8000 });
                     } else if (result.tokenProperties?.valid === false) {
@@ -361,12 +371,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const signInWithEmail = useCallback(async (email: string, pass: string) => {
+        if (!auth || !firebaseClientConfigured) {
+            throw new Error("Authentication is unavailable in this environment.");
+        }
+
         try {
             await ensureAuthPersistence();
             await prepareAuthAppCheck();
             await signInWithEmailAndPassword(auth, email, pass);
-
-
             toast.success("Welcome back!");
         } catch (error: unknown) {
             throw error;
@@ -374,6 +386,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const signUpWithEmail = useCallback(async (email: string, pass: string, username: string, dob: string) => {
+        if (!auth || !firebaseClientConfigured) {
+            throw new Error("Authentication is unavailable in this environment.");
+        }
+
         try {
             await ensureAuthPersistence();
             await prepareAuthAppCheck();
@@ -396,7 +412,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 throw new Error(result.error || "Registration failed");
             }
 
-
             toast.success("Account created! +100 Gum Drops");
             if (pathname === "/") {
                 router.push(getPostAuthDestination("user"));
@@ -407,17 +422,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, [getPostAuthDestination, pathname, router]);
 
     const logout = useCallback(async () => {
-        if (auth.currentUser) {
-            trackEvent("auth_logout", {
-                auth_provider: auth.currentUser.providerData[0]?.providerId || "unknown",
-            });
-        }
         clearLastVisitedPath();
         navigationSessionSyncKeyRef.current = null;
         await fetch("/api/auth/navigation-session", {
             method: "DELETE",
             keepalive: true,
         }).catch(() => { });
+
+        if (!auth) {
+            router.replace("/");
+            return;
+        }
+
+        if (auth.currentUser) {
+            trackEvent("auth_logout", {
+                auth_provider: auth.currentUser.providerData[0]?.providerId || "unknown",
+            });
+        }
+
         await signOut(auth);
         router.replace("/");
     }, [router]);
@@ -430,7 +452,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             signUpWithEmail,
             logout,
         }),
-        [logout, signInWithEmail, signInWithGoogle, signUpWithEmail, user]
+        [logout, signInWithEmail, signInWithGoogle, signUpWithEmail, user],
     );
 
     const profileValue = useMemo(
@@ -439,14 +461,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             refreshProfile,
             setUserProfile,
         }),
-        [refreshProfile, userProfile]
+        [refreshProfile, userProfile],
     );
 
     const loadingValue = useMemo(
         () => ({
             loading,
         }),
-        [loading]
+        [loading],
     );
 
     const combinedValue = useMemo(
@@ -455,7 +477,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             ...profileValue,
             ...loadingValue,
         }),
-        [identityValue, profileValue, loadingValue]
+        [identityValue, loadingValue, profileValue],
     );
 
     return (

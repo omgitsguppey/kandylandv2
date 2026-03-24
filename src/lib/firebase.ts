@@ -2,6 +2,7 @@ import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
 import type { AppCheck } from "firebase/app-check";
+
 export { SITE_ORIGIN } from "@/lib/site-origin";
 import { recordClientDiagnostic } from "@/lib/client-diagnostics";
 import {
@@ -11,8 +12,53 @@ import {
     getFirebaseRuntimeWarnings,
 } from "@/lib/firebase-runtime";
 
-const app = !getApps().length ? initializeApp(getFirebaseClientConfigForRuntime()) : getApp();
-const auth = getAuth(app);
+type FirebaseClientConfig = ReturnType<typeof getFirebaseClientConfigForRuntime>;
+
+function normalizeFirebaseClientConfig(): {
+    config: FirebaseClientConfig;
+    isConfigured: boolean;
+} {
+    const runtimeConfig = getFirebaseClientConfigForRuntime();
+    const apiKey = runtimeConfig.apiKey?.trim() ?? "";
+    const projectId = runtimeConfig.projectId?.trim() ?? "";
+    const appId = runtimeConfig.appId?.trim() ?? "";
+    const databaseUrl = runtimeConfig.databaseURL?.trim();
+
+    const isConfigured = apiKey.length > 0 && projectId.length > 0 && appId.length > 0;
+
+    if (isConfigured) {
+        return {
+            isConfigured: true,
+            config: {
+                apiKey,
+                authDomain: runtimeConfig.authDomain?.trim() || `${projectId}.firebaseapp.com`,
+                projectId,
+                storageBucket: runtimeConfig.storageBucket?.trim() || `${projectId}.appspot.com`,
+                databaseURL: databaseUrl,
+                messagingSenderId: runtimeConfig.messagingSenderId?.trim() || "000000000000",
+                appId,
+            },
+        };
+    }
+
+    return {
+        isConfigured: false,
+        config: {
+            apiKey: "AIzaSyD-FALLBACK-CLIENT-CONFIG-000000000000000",
+            authDomain: "local-placeholder.firebaseapp.com",
+            projectId: "local-placeholder",
+            storageBucket: "local-placeholder.appspot.com",
+            databaseURL: "https://local-placeholder-default-rtdb.firebaseio.com",
+            messagingSenderId: "000000000000",
+            appId: "1:000000000000:web:0000000000000000000000",
+        },
+    };
+}
+
+const { config: firebaseConfig, isConfigured: firebaseClientConfigured } = normalizeFirebaseClientConfig();
+
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+const auth = firebaseClientConfigured ? getAuth(app) : null;
 
 let appCheck: AppCheck | undefined;
 
@@ -29,11 +75,11 @@ function shouldEnableAppCheck() {
         __nightmare?: unknown;
     };
     const automatedContext = Boolean(
-        navigator.webdriver ||
-        automationGlobals.__playwright__binding__ ||
-        automationGlobals.__pwManual ||
-        automationGlobals.__nightmare ||
-        /HeadlessChrome|Playwright|Electron/i.test(userAgent),
+        navigator.webdriver
+        || automationGlobals.__playwright__binding__
+        || automationGlobals.__pwManual
+        || automationGlobals.__nightmare
+        || /HeadlessChrome|Playwright|Electron/i.test(userAgent),
     );
 
     return !automatedContext;
@@ -72,4 +118,4 @@ export function getAppCheckInstance() {
     return appCheck;
 }
 
-export { app, auth, appCheck };
+export { app, auth, appCheck, firebaseClientConfigured };
