@@ -48,11 +48,23 @@ function humanizeAnalyticsKey(value: string | null | undefined) {
 
 const LEGACY_PAGE_EVENT_PATHS: Record<string, string> = {
   home_page_viewed: "/",
+  privacy_page_viewed: "/privacy",
+  terms_page_viewed: "/terms",
   dashboard_viewed: "/dashboard",
   library_viewed: "/dashboard/library",
+  profile_settings_viewed: "/dashboard/profile",
   experience_hub_viewed: "/experiences",
   drops_page_viewed: "/drops",
   faq_page_viewed: "/faq",
+  admin_dashboard_viewed: "/admin",
+  admin_analytics_viewed: "/admin/analytics",
+  admin_debug_viewed: "/admin/debug",
+  admin_users_viewed: "/admin/users",
+  admin_content_viewed: "/admin/content",
+  admin_drops_viewed: "/admin/drops",
+  admin_queue_viewed: "/admin/queue",
+  admin_roster_viewed: "/admin/roster",
+  admin_user_detail_viewed: "/admin/user",
 }
 
 function getLegacyPagePathForEvent(eventName: string | null | undefined) {

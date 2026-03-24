@@ -451,11 +451,23 @@ export async function GET(request: NextRequest) {
           current.viewCount += (
             eventName === "semantic_page_viewed"
             || eventName === "home_page_viewed"
+            || eventName === "privacy_page_viewed"
+            || eventName === "terms_page_viewed"
             || eventName === "dashboard_viewed"
             || eventName === "library_viewed"
+            || eventName === "profile_settings_viewed"
             || eventName === "experience_hub_viewed"
             || eventName === "drops_page_viewed"
             || eventName === "faq_page_viewed"
+            || eventName === "admin_dashboard_viewed"
+            || eventName === "admin_analytics_viewed"
+            || eventName === "admin_debug_viewed"
+            || eventName === "admin_users_viewed"
+            || eventName === "admin_content_viewed"
+            || eventName === "admin_drops_viewed"
+            || eventName === "admin_queue_viewed"
+            || eventName === "admin_roster_viewed"
+            || eventName === "admin_user_detail_viewed"
             || eventName === "viewer_opened"
           ) ? 1 : 0;
           current.engagedViewCount += eventName === "semantic_page_engaged" ? 1 : 0;

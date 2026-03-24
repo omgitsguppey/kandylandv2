@@ -8,10 +8,12 @@ import { RecentTransactionsPanel } from "@/components/Admin/RecentTransactionsPa
 import { AdminActivityLogPanel } from "@/components/Admin/AdminActivityLogPanel";
 import { AdminAnalyticsCharts } from "@/components/Admin/AdminAnalyticsCharts";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 
 export default function AdminDashboardPage() {
     return (
         <div className="space-y-4 md:space-y-6">
+            <PageViewEvent eventName="admin_dashboard_viewed" />
             <AdminPageHeader
                 eyebrow="Control Room"
                 title="Admin Dashboard"

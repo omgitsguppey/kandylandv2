@@ -7,6 +7,7 @@ import { Loader2, Upload, Trash2, Copy, FileIcon, ImageIcon, Video, RefreshCw } 
 
 import { Button } from "@/components/ui/Button";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 
 import Image from "next/image";
 
@@ -97,6 +98,7 @@ export default function ContentManagerPage() {
 
     return (
         <div className="space-y-6">
+            <PageViewEvent eventName="admin_content_viewed" />
             <AdminPageHeader
                 eyebrow="Admin Storage"
                 title="Content Manager"

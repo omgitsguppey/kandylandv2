@@ -12,6 +12,7 @@ import NextImage from "next/image";
 import { APP_TIMEZONE } from "@/lib/timezone";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { buildProjectedQueueSchedule } from "@/lib/drop-queue-schedule";
+import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 
 const PROJECTED_DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
     timeZone: APP_TIMEZONE,
@@ -138,6 +139,7 @@ export default function ManageQueuePage() {
 
     return (
         <div className="max-w-4xl mx-auto pb-32">
+            <PageViewEvent eventName="admin_queue_viewed" />
             <AdminPageHeader
                 eyebrow="Admin Queue"
                 topSlot={

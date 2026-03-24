@@ -46,6 +46,7 @@ import {
 import { useAuthSWR } from "@/hooks/useAuthSWR";
 import { cn } from "@/lib/utils";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
 
 type ViewTab = "operations" | "audience" | "commerce" | "security";
@@ -802,6 +803,7 @@ export default function AdminAnalyticsPage() {
 
   return (
     <div className="space-y-4 pb-20 md:space-y-5 md:pb-8">
+      <PageViewEvent eventName="admin_analytics_viewed" />
       <AdminPageHeader
         eyebrow="Admin Analytics"
         title="Mobile Monitoring Station"

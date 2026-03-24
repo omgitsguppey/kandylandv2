@@ -223,7 +223,7 @@ export function DeepTracker() {
         let currentHoverTarget: HTMLElement | null = null;
         let currentHoverKey: string | null = null;
         let finalized = false;
-        const shouldCaptureAnonymousBatch = !pathname.startsWith("/admin");
+        const shouldCaptureAnonymousBatch = true;
 
         pageEnteredAt.current = Date.now();
         lastScrollDepth.current = 0;

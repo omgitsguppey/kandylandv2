@@ -162,11 +162,23 @@ function buildTelemetrySemanticDelta(
     case "semantic_page_viewed":
       return { viewCount: 1, pagePath };
     case "home_page_viewed":
+    case "privacy_page_viewed":
+    case "terms_page_viewed":
     case "dashboard_viewed":
     case "library_viewed":
+    case "profile_settings_viewed":
     case "experience_hub_viewed":
     case "drops_page_viewed":
     case "faq_page_viewed":
+    case "admin_dashboard_viewed":
+    case "admin_analytics_viewed":
+    case "admin_debug_viewed":
+    case "admin_users_viewed":
+    case "admin_content_viewed":
+    case "admin_drops_viewed":
+    case "admin_queue_viewed":
+    case "admin_roster_viewed":
+    case "admin_user_detail_viewed":
     case "viewer_opened":
       return options?.preferSemanticPageSignals ? null : { viewCount: 1, pagePath };
     case "semantic_page_engaged":

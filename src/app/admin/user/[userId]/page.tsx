@@ -18,6 +18,7 @@ import {
 
 import { useAuth } from "@/context/AuthContext";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
 import { Transaction, UserProfile } from "@/types/db";
 import { authFetch } from "@/lib/authFetch";
@@ -289,6 +290,7 @@ export default function AdminUserAnalyticsPage() {
 
     return (
         <div className="mx-auto max-w-5xl space-y-6 pb-20">
+            <PageViewEvent eventName="admin_user_detail_viewed" />
             <AdminPageHeader
                 eyebrow="Admin Roster"
                 topSlot={(

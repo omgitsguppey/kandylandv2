@@ -18,6 +18,7 @@ import {
 import { toast } from "sonner";
 
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
 import { useAdminOverview } from "@/hooks/useAdminOverview";
@@ -218,6 +219,7 @@ export default function DebugConsole() {
 
     return (
         <div className="space-y-4 md:space-y-6">
+            <PageViewEvent eventName="admin_debug_viewed" />
             <AdminPageHeader
                 eyebrow="Admin Debug"
                 title="Compact Debug Console"

@@ -152,6 +152,50 @@ function extractEventNamesFromCall(
   return null;
 }
 
+function extractEventNamesFromJsx(
+  node: ts.JsxSelfClosingElement | ts.JsxOpeningElement,
+  constValueMap: Map<string, string[]>,
+): { matcher: string; eventNames: string[] } | null {
+  const tagName = node.tagName.getText();
+  if (tagName !== "PageViewEvent") {
+    return null;
+  }
+
+  const eventNameAttribute = node.attributes.properties.find((attribute) =>
+    ts.isJsxAttribute(attribute)
+    && ts.isIdentifier(attribute.name)
+    && attribute.name.text === "eventName",
+  );
+
+  if (!eventNameAttribute || !ts.isJsxAttribute(eventNameAttribute)) {
+    return null;
+  }
+
+  const initializer = eventNameAttribute.initializer;
+  if (!initializer) {
+    return null;
+  }
+
+  if (ts.isStringLiteral(initializer)) {
+    return {
+      matcher: "PageViewEvent",
+      eventNames: [initializer.text],
+    };
+  }
+
+  if (ts.isJsxExpression(initializer)) {
+    const eventNames = collectStringLiteralValues(initializer.expression ?? undefined, constValueMap);
+    return eventNames.length > 0
+      ? {
+          matcher: "PageViewEvent",
+          eventNames,
+        }
+      : null;
+  }
+
+  return null;
+}
+
 function collectMatches(filePath: string) {
   const content = readFileSync(filePath, "utf8");
   const sourceFile = ts.createSourceFile(filePath, content, ts.ScriptTarget.Latest, true);
@@ -161,6 +205,21 @@ function collectMatches(filePath: string) {
   function visit(node: ts.Node) {
     if (ts.isCallExpression(node)) {
       const result = extractEventNamesFromCall(node, constValueMap);
+      if (result) {
+        const line = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1;
+        result.eventNames.forEach((eventName) => {
+          matches.push({
+            file: filePath,
+            line,
+            eventName,
+            matcher: result.matcher,
+          });
+        });
+      }
+    }
+
+    if (ts.isJsxSelfClosingElement(node) || ts.isJsxOpeningElement(node)) {
+      const result = extractEventNamesFromJsx(node, constValueMap);
       if (result) {
         const line = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1;
         result.eventNames.forEach((eventName) => {

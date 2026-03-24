@@ -16,6 +16,7 @@ import { sendNotification } from "@/lib/notifications";
 import { CreateDropModal } from "@/components/Admin/CreateDropModal";
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 
 interface DropNotificationDraft {
     dropId: string;
@@ -239,6 +240,7 @@ export default function AdminDropsPage() {
 
     return (
         <div>
+            <PageViewEvent eventName="admin_drops_viewed" />
             <AdminPageHeader
                 eyebrow="Admin Drops"
                 title="Manage Drops"

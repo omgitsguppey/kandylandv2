@@ -150,6 +150,7 @@ export function GuidedOnboarding() {
     const completedStepIdsRef = useRef<Set<string>>(new Set());
     const stepMetricsRef = useRef<Record<string, OnboardingStepMetric>>({});
     const serverProgressKeysRef = useRef<Set<string>>(new Set());
+    const viewedStepKeysRef = useRef<Set<string>>(new Set());
 
     useEffect(() => {
         if (!isVisible) {
@@ -218,6 +219,7 @@ export function GuidedOnboarding() {
         completedStepIdsRef.current = new Set();
         stepMetricsRef.current = {};
         serverProgressKeysRef.current = new Set();
+        viewedStepKeysRef.current = new Set();
 
         trackEvent("guided_onboarding_started", {
             source: "auto_after_signup",
@@ -321,18 +323,36 @@ export function GuidedOnboarding() {
                     ...buildViewportPayload(),
                 },
             );
-            trackEvent("onboarding_step_viewed", {
-                step: currentStep + 1,
-                step_key: step.id,
-                step_title: step.title,
-                step_path: step.path,
-            });
         }
 
         if (pathname !== step.path) {
             router.replace(step.path);
         }
     }, [buildViewportPayload, currentStep, isVisible, pathname, router, sendCanonicalProgressEvent, user]);
+
+    useEffect(() => {
+        if (!isVisible) {
+            return;
+        }
+
+        const step = STEP_DEFINITIONS[currentStep];
+        if (!step || pathname !== step.path) {
+            return;
+        }
+
+        const viewKey = `${flowStartedAtRef.current}:${step.id}`;
+        if (viewedStepKeysRef.current.has(viewKey)) {
+            return;
+        }
+
+        viewedStepKeysRef.current.add(viewKey);
+        trackEvent("onboarding_step_viewed", {
+            step: currentStep + 1,
+            step_key: step.id,
+            step_title: step.title,
+            step_path: step.path,
+        });
+    }, [currentStep, isVisible, pathname]);
 
     const isNotificationStepCompleted = useMemo(
         () => profile?.notificationSettings?.browserPushEnabled === true,

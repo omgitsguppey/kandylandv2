@@ -13,6 +13,7 @@ import { authFetch } from "@/lib/authFetch";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { AdminTasksManager } from "@/components/Admin/AdminTasksManager";
 import { describeSecurityEvent } from "@/lib/security-events";
 import { toast } from "sonner";
@@ -330,6 +331,7 @@ export default function UserManagementPage() {
 
     return (
         <div className="space-y-6">
+            <PageViewEvent eventName="admin_users_viewed" />
             <AdminPageHeader
                 eyebrow="Admin Users"
                 title={viewMode === 'users' ? 'User Management' : viewMode === 'feedback' ? 'Platform Feedback' : 'Daily Task Control'}

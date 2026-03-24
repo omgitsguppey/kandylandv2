@@ -65,10 +65,22 @@ export function buildHistoricalTrafficOverview(input: {
   const authenticatedPagePathFallbacks: Record<string, string> = {
     dashboard_viewed: "/dashboard",
     library_viewed: "/dashboard/library",
+    profile_settings_viewed: "/dashboard/profile",
     experience_hub_viewed: "/experiences",
     drops_page_viewed: "/drops",
     faq_page_viewed: "/faq",
     home_page_viewed: "/",
+    privacy_page_viewed: "/privacy",
+    terms_page_viewed: "/terms",
+    admin_dashboard_viewed: "/admin",
+    admin_analytics_viewed: "/admin/analytics",
+    admin_debug_viewed: "/admin/debug",
+    admin_users_viewed: "/admin/users",
+    admin_content_viewed: "/admin/content",
+    admin_drops_viewed: "/admin/drops",
+    admin_queue_viewed: "/admin/queue",
+    admin_roster_viewed: "/admin/roster",
+    admin_user_detail_viewed: "/admin/user",
   };
   const authenticatedPageViewsByPath = new Map<string, number>();
   const authenticatedPageViewsByDay = new Map<string, number>();

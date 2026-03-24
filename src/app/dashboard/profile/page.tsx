@@ -19,6 +19,7 @@ import { enableBrowserNotifications } from "@/lib/browser-notification-enrollmen
 import { getBrowserGlobalPrivacyControl, persistPrivacySettingsSnapshot } from "@/lib/privacy-consent";
 import { PRIVACY_POLICY_LAST_UPDATED } from "@/lib/privacy-policy";
 import { trackEvent } from "@/lib/telemetry";
+import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 
 const TIMEZONE_OPTIONS = [
     "Auto",
@@ -547,6 +548,7 @@ export default function ProfilePage() {
 
     return (
         <div className="w-full px-4 max-w-2xl mx-auto">
+            <PageViewEvent eventName="profile_settings_viewed" />
             <header className="mb-5">
                 <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-brand-purple">Profile Settings</h1>
                 <p className="text-gray-400 text-sm mt-1">Manage account identity, notifications, privacy, and security.</p>

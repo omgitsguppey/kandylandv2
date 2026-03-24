@@ -29,10 +29,10 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!loading && (!user || isAdmin)) {
       trackEvent("home_page_viewed");
     }
-  }, [loading, user]);
+  }, [isAdmin, loading, user]);
 
   useEffect(() => {
     if (!loading && user && userProfile && !isAdmin) {

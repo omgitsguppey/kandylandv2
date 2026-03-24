@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { LegalBackLink } from "@/components/Legal/LegalBackLink";
 import { TERMS_LAST_UPDATED_LABEL } from "@/lib/legal-documents";
 
@@ -17,6 +18,7 @@ export default function TermsPage() {
             className="w-full px-6 text-gray-300"
             style={{ paddingTop: "calc(2.5rem + var(--kandy-cookie-offset, 0px))" }}
         >
+            <PageViewEvent eventName="terms_page_viewed" />
             <div className="max-w-3xl mx-auto space-y-8">
                 <LegalBackLink />
 

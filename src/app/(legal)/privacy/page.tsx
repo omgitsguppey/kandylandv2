@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ExternalLink, FileText, Lock, ShieldCheck } from "lucide-react";
 
+import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { LegalBackLink } from "@/components/Legal/LegalBackLink";
 import { PRIVACY_POLICY_LAST_UPDATED, PRIVACY_SUPPORT_EMAIL } from "@/lib/privacy-policy";
 import { SITE_ORIGIN } from "@/lib/site-origin";
@@ -35,6 +36,7 @@ export default function PrivacyPage() {
       className="w-full px-6 py-10 text-gray-300"
       style={{ paddingTop: "calc(2.5rem + var(--kandy-cookie-offset, 0px))" }}
     >
+      <PageViewEvent eventName="privacy_page_viewed" />
       <div className="mx-auto max-w-4xl space-y-6">
         <LegalBackLink />
 

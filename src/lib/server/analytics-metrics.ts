@@ -239,11 +239,23 @@ function isPageViewEvent(eventName: string) {
   return new Set([
     "semantic_page_viewed",
     "home_page_viewed",
+    "privacy_page_viewed",
+    "terms_page_viewed",
     "dashboard_viewed",
     "library_viewed",
+    "profile_settings_viewed",
     "experience_hub_viewed",
     "drops_page_viewed",
     "faq_page_viewed",
+    "admin_dashboard_viewed",
+    "admin_analytics_viewed",
+    "admin_debug_viewed",
+    "admin_users_viewed",
+    "admin_content_viewed",
+    "admin_drops_viewed",
+    "admin_queue_viewed",
+    "admin_roster_viewed",
+    "admin_user_detail_viewed",
     "viewer_opened",
   ]).has(eventName);
 }

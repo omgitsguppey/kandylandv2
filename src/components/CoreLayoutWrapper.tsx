@@ -58,7 +58,7 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     const shouldShowAuthUi = !isAdminRoute;
     const shouldShowCookieBanner = !isAdminRoute;
     const shouldShowDebugBreakpoints = process.env.NODE_ENV !== "production";
-    const shouldTrackDeepAnalytics = !isLegalRoute;
+    const shouldTrackDeepAnalytics = true;
     const shouldEnablePwaRuntime = !isAdminRoute;
     const shouldLoadOnboarding = isUserShell && userProfile?.onboardingCompleted !== true;
     const runtimeReady = useDeferredClientReady();

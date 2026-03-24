@@ -9,6 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 
 type RosterRole = "user" | "creator" | "admin";
 type RosterStatus = "active" | "suspended" | "banned";
@@ -159,6 +160,7 @@ export default function AdminRosterPage() {
 
     return (
         <div className="space-y-5">
+            <PageViewEvent eventName="admin_roster_viewed" />
             <AdminPageHeader
                 eyebrow="Admin Roster"
                 title="Roster"

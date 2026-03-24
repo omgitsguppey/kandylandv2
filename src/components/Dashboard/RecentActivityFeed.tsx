@@ -106,6 +106,23 @@ export function RecentActivityFeed() {
     const historyEtagRef = useRef<string | null>(null);
     const summaryInFlightRef = useRef(false);
     const historyInFlightRef = useRef(false);
+    const trackedSummaryViewRef = useRef<string | null>(null);
+
+    useEffect(() => {
+        if (!user) {
+            trackedSummaryViewRef.current = null;
+            return;
+        }
+
+        if (trackedSummaryViewRef.current === user.uid) {
+            return;
+        }
+
+        trackedSummaryViewRef.current = user.uid;
+        trackEvent("recent_activity_viewed", {
+            mode: "summary",
+        });
+    }, [user]);
 
     useEffect(() => {
         if (!user) {
@@ -118,7 +135,6 @@ export function RecentActivityFeed() {
         }
 
         setLoadingSummary(true);
-        trackEvent("recent_activity_viewed");
         let mounted = true;
         let unsubscribeUserRuntime: (() => void) | undefined;
         let sawUserRuntimeSnapshot = false;
@@ -423,7 +439,7 @@ export function RecentActivityFeed() {
                     onClick={() => {
                         const nextExpanded = !expanded;
                         setExpanded(nextExpanded);
-                        trackEvent("recent_activity_viewed", {
+                        trackEvent("recent_activity_toggled", {
                             mode: nextExpanded ? "expanded" : "collapsed",
                         });
                     }}

@@ -191,5 +191,13 @@ export function canUseAnonymousAnalytics(settings: PrivacySettingsSnapshot = rea
 }
 
 export function canUseIdentifiedAnalytics(settings: PrivacySettingsSnapshot = readPrivacySettingsSnapshot()) {
-    return canUseAnonymousAnalytics(settings) && settings.identifiedAnalyticsEnabled;
+    if (!settings.identifiedAnalyticsEnabled) {
+        return false;
+    }
+
+    if (settings.honorGlobalPrivacyControl && getBrowserGlobalPrivacyControl()) {
+        return false;
+    }
+
+    return true;
 }
