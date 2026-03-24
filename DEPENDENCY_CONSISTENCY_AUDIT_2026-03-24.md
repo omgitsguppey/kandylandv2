@@ -203,9 +203,9 @@ Added:
 
 Current status:
 
-- The Firestore rules suite is wired correctly.
-- Running it locally is currently blocked by missing Java on this machine, because the Firestore emulator requires Java.
-- The script was intentionally kept out of default `check` so local builds do not fail on machines without a JRE/JDK.
+- The Firestore rules suite is wired correctly and now passes locally.
+- A local Temurin JDK 21 install was added on this machine so the Firestore emulator can run from terminal workflows.
+- The script is still intentionally kept out of default `check` because emulator-backed rules tests are heavier than the normal consistency path.
 
 ## Remaining Intentional Holds
 

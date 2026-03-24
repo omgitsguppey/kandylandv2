@@ -9,7 +9,8 @@
     "src/types/**/*.ts",
     "scripts/**/*.{ts,js,mjs}",
     "tests/**/*.{ts,tsx}",
-    "functions/src/**/*.ts"
+    "functions/src/**/*.ts",
+    "vitest.rules.config.ts"
   ],
   "project": [
     "src/**/*.{ts,tsx}",
