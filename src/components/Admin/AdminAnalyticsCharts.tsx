@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     BarChart, Bar
@@ -16,6 +16,7 @@ interface ChartDataPoint {
 export function AdminAnalyticsCharts() {
     const { data, isLoading } = useAdminOverview();
     const loading = isLoading;
+    const [chartView, setChartView] = useState<"revenue" | "unwraps">("revenue");
     const chartData = useMemo<ChartDataPoint[]>(
         () => (data?.chartData || []).map((entry) => ({
             date: entry.date,
@@ -27,16 +28,37 @@ export function AdminAnalyticsCharts() {
 
     if (loading) {
         return (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
-                <div className="h-72 md:h-80 bg-white/5 animate-pulse rounded-3xl border border-white/10" />
-                <div className="h-72 md:h-80 bg-white/5 animate-pulse rounded-3xl border border-white/10" />
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
+                <div className="h-64 animate-pulse rounded-[1.6rem] border border-white/10 bg-white/5 md:h-72" />
+                <div className="h-64 animate-pulse rounded-[1.6rem] border border-white/10 bg-white/5 md:h-72" />
             </div>
         );
     }
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
-            <div className="glass-panel p-4 md:p-6 rounded-3xl border border-white/10">
+        <div className="space-y-3">
+            <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-black/30 p-2">
+                <p className="px-2 text-xs font-bold uppercase tracking-[0.14em] text-gray-500">Trend focus</p>
+                <div className="inline-flex items-center gap-1 rounded-xl bg-black/40 p-1">
+                    <button
+                        type="button"
+                        onClick={() => setChartView("revenue")}
+                        className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${chartView === "revenue" ? "bg-brand-purple/25 text-white" : "text-gray-400"}`}
+                    >
+                        Revenue
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setChartView("unwraps")}
+                        className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${chartView === "unwraps" ? "bg-pink-500/25 text-white" : "text-gray-400"}`}
+                    >
+                        Unwraps
+                    </button>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
+            <div className={`glass-panel rounded-[1.6rem] border border-white/10 p-3.5 md:p-5 ${chartView === "unwraps" ? "hidden md:block" : ""}`}>
                 <h3 className="text-white font-bold mb-4 md:mb-6 flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-brand-purple shadow-[0_0_10px_#d946ef]" />
                     30-Day Revenue
@@ -64,7 +86,7 @@ export function AdminAnalyticsCharts() {
                 </div>
             </div>
 
-            <div className="glass-panel p-4 md:p-6 rounded-3xl border border-white/10">
+            <div className={`glass-panel rounded-[1.6rem] border border-white/10 p-3.5 md:p-5 ${chartView === "revenue" ? "hidden md:block" : ""}`}>
                 <h3 className="text-white font-bold mb-4 md:mb-6 flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-pink-500 shadow-[0_0_10px_#ec4899]" />
                     30-Day Unwraps
@@ -84,6 +106,7 @@ export function AdminAnalyticsCharts() {
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
+            </div>
             </div>
         </div>
     );
