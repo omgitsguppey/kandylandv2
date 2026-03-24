@@ -592,7 +592,7 @@ export default function AdminAnalyticsPage() {
     data: liveResponse,
     error: liveError,
     isLoading: liveLoading,
-  } = useAuthSWR<RealtimeAnalyticsResponse>("/api/admin/analytics?type=realtime", {
+  } = useAuthSWR<RealtimeAnalyticsResponse>("/api/admin/analytics/realtime", {
     refreshInterval: 30_000,
     keepPreviousData: true,
   });
@@ -602,10 +602,10 @@ export default function AdminAnalyticsPage() {
     error: historicalError,
     isLoading: historicalLoading,
   } = useAuthSWR<HistoricalAnalyticsResponse>(
-    `/api/admin/analytics?type=historical&period=${range}${viewerUserFilter ? `&viewerUser=${encodeURIComponent(viewerUserFilter)}` : ""}`,
+    `/api/admin/analytics/historical?period=${range}${viewerUserFilter ? `&viewerUser=${encodeURIComponent(viewerUserFilter)}` : ""}`,
     {
-    refreshInterval: 60_000,
-    keepPreviousData: true,
+      refreshInterval: 60_000,
+      keepPreviousData: true,
     },
   );
 
@@ -708,6 +708,10 @@ export default function AdminAnalyticsPage() {
     historicalResponse?.requiresSetup ||
     (liveError as { info?: { requiresSetup?: boolean } } | undefined)?.info?.requiresSetup ||
     (historicalError as { info?: { requiresSetup?: boolean } } | undefined)?.info?.requiresSetup;
+  const blockingAnalyticsError =
+    (!liveResponse && (liveError as Error | undefined)) ||
+    (!historicalResponse && (historicalError as Error | undefined)) ||
+    null;
 
   const totalDeviceUsers = devices.reduce((sum, item) => sum + item.users, 0);
   const mobileUsers = devices.find((item) => item.device.toLowerCase() === "mobile")?.users ?? 0;
@@ -855,48 +859,53 @@ export default function AdminAnalyticsPage() {
           })}
         </div>
 
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          {RANGE_OPTIONS.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => setRange(option.value)}
-              className={cn(
-                "shrink-0 rounded-full border px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] transition-colors",
-                range === option.value ? "border-white bg-white text-black" : "border-white/10 bg-white/5 text-gray-400",
-              )}
+        <div className="flex items-center gap-2">
+          <label className="flex min-w-0 flex-1 items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 md:hidden">
+            <Funnel className="h-4 w-4 shrink-0 text-gray-500" />
+            <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-gray-500">Window</span>
+            <select
+              value={range}
+              onChange={(event) => setRange(event.target.value as RangeOption)}
+              className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-white outline-none"
             >
-              {option.label}
-            </button>
-          ))}
-        </div>
+              {RANGE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value} className="bg-black text-white">
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
 
-        <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] p-2">
-          <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-gray-500">Filters</span>
-          <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-200">
-            Range: {range}
-          </span>
-          {activeViewerFilter ? (
-            <span className="rounded-full border border-brand-purple/30 bg-brand-purple/10 px-2.5 py-1 text-[10px] font-semibold text-brand-purple">
-              Viewer: {activeViewerFilter}
-            </span>
-          ) : (
-            <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold text-gray-400">Viewer: all</span>
-          )}
+          <div className="hidden gap-2 overflow-x-auto pb-1 md:flex">
+            {RANGE_OPTIONS.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => setRange(option.value)}
+                className={cn(
+                  "shrink-0 rounded-full border px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] transition-colors",
+                  range === option.value ? "border-white bg-white text-black" : "border-white/10 bg-white/5 text-gray-400",
+                )}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+
           <button
             type="button"
             onClick={clearAllFilters}
-            className="ml-auto rounded-full border border-white/15 bg-black/40 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300 transition-colors hover:border-brand-purple/40 hover:text-white"
+            className="ml-auto shrink-0 rounded-full border border-white/15 bg-black/40 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300 transition-colors hover:border-brand-purple/40 hover:text-white"
           >
-            Reset all
+            Reset
           </button>
         </div>
       </div>
 
-      {(liveError || historicalError) && (
+      {blockingAnalyticsError && (
         <div className="rounded-[1.8rem] border border-red-500/20 bg-red-500/10 p-4">
           <p className="text-sm font-medium text-red-300">
-            {(liveError as Error | undefined)?.message || (historicalError as Error | undefined)?.message || "Analytics request failed."}
+            {blockingAnalyticsError.message || "Analytics request failed."}
           </p>
         </div>
       )}

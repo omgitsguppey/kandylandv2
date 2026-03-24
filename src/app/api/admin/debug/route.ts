@@ -8,8 +8,10 @@ import { CANONICAL_TASK_EVENT_NAMES } from "@/lib/server/daily-tasks";
 import { TELEMETRY_EVENT_LABELS, TELEMETRY_EVENT_NAMES } from "@/lib/telemetry-catalog";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { buildAdminOpsHealth } from "@/lib/server/admin-ops-health";
+import { buildAdminOrchestrationSnapshot } from "@/lib/server/admin-orchestration";
 import { getConfiguredRollouts } from "@/lib/rollouts";
 import { getCSTDateKey } from "@/lib/timezone";
+import { ORCHESTRATION_COLLECTIONS } from "@/lib/orchestration/contract";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -115,6 +117,11 @@ export async function GET(request: NextRequest) {
             securityEventsSnapshot,
             commerceSummarySnapshot,
             feedbackSnapshot,
+            orchestrationEventsSnapshot,
+            orchestrationFindingsSnapshot,
+            orchestrationRepairProposalsSnapshot,
+            orchestrationActorSummariesSnapshot,
+            orchestrationRepairActionsSnapshot,
         ] = await Promise.all([
             adminDb.collection("users").get(),
             adminDb.collection("daily_task_events").orderBy("timestamp", "desc").limit(300).get(),
@@ -143,6 +150,11 @@ export async function GET(request: NextRequest) {
                 .get(),
             adminDb.collection("analytics_commerce_rollup").doc("summary").get(),
             adminDb.collection("platform_feedback").orderBy("timestamp", "desc").limit(160).get(),
+            adminDb.collection(ORCHESTRATION_COLLECTIONS.events).orderBy("observedAtMs", "desc").limit(120).get(),
+            adminDb.collection(ORCHESTRATION_COLLECTIONS.findings).orderBy("updatedAtMs", "desc").limit(80).get(),
+            adminDb.collection(ORCHESTRATION_COLLECTIONS.repairProposals).orderBy("updatedAtMs", "desc").limit(80).get(),
+            adminDb.collection(ORCHESTRATION_COLLECTIONS.actorSummaries).orderBy("lastSeenAtMs", "desc").limit(60).get(),
+            adminDb.collection(ORCHESTRATION_COLLECTIONS.repairActions).orderBy("createdAtMs", "desc").limit(60).get(),
         ]);
 
         const opsHealth = buildAdminOpsHealth({
@@ -412,6 +424,14 @@ export async function GET(request: NextRequest) {
             variants: rollout.variants,
         }));
 
+        const orchestration = buildAdminOrchestrationSnapshot({
+            eventDocs: orchestrationEventsSnapshot.docs,
+            findingDocs: orchestrationFindingsSnapshot.docs,
+            proposalDocs: orchestrationRepairProposalsSnapshot.docs,
+            actorSummaryDocs: orchestrationActorSummariesSnapshot.docs,
+            repairActionDocs: orchestrationRepairActionsSnapshot.docs,
+        });
+
         return NextResponse.json({
             success: true,
             stats: {
@@ -429,6 +449,10 @@ export async function GET(request: NextRequest) {
                 trackedTelemetryEvents: eventStats.length,
                 orphanedTelemetryEvents: orphanedEventStats.length,
                 bugReportsLast7d: bugReports.filter((report) => report.timestamp >= weekAgoMs).length,
+                orchestrationEvents: orchestration.summary.eventCount,
+                orchestrationOpenFindings: orchestration.summary.openFindings,
+                orchestrationActionableRepairs: orchestration.summary.actionableProposals,
+                orchestrationLowConfidence: orchestration.summary.lowConfidenceEvents,
             },
             coverage,
             unsupportedTasks,
@@ -445,6 +469,7 @@ export async function GET(request: NextRequest) {
             bugReports,
             rollouts,
             opsHealth,
+            orchestration,
         });
     } catch (error) {
         return handleApiError(error, "Admin.Debug.GET");

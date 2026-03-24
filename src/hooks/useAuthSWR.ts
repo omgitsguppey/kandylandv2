@@ -25,7 +25,7 @@ async function authFetcher<T>(url: string): Promise<T> {
  * not authenticated (returns `data: undefined, isLoading: false`).
  *
  * ```tsx
- * const { data, error, isLoading, mutate } = useAuthSWR<AnalyticsData>("/api/admin/analytics?type=realtime");
+ * const { data, error, isLoading } = useAuthSWR<AnalyticsData>("/api/admin/analytics/realtime");
  * ```
  */
 export function useAuthSWR<T = any>(
@@ -35,7 +35,7 @@ export function useAuthSWR<T = any>(
     const { user } = useAuth();
 
     return useSWR<T>(
-        // Key is null when no user → SWR skips the request entirely
+        // Key is null when no user, so SWR skips the request entirely.
         user && url ? url : null,
         authFetcher<T>,
         config,

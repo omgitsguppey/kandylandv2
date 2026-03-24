@@ -103,6 +103,10 @@ export const CREATOR_COLLECTIONS = {
 } as const;
 
 export function isCreatorRole(role: unknown) {
+    return role === "creator";
+}
+
+export function isCreatorOrAdminRole(role: unknown) {
     return role === "creator" || role === "admin";
 }
 

@@ -6,7 +6,7 @@ import { RELAXED } from "@/lib/server/rate-limit";
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
 import { applyDropStatus } from "@/lib/drop-status";
 import { guardApiRequest } from "@/lib/server/request-guard";
-import { normalizeCreatorSettings } from "@/lib/creator-experiences";
+import { isCreatorRole, normalizeCreatorSettings } from "@/lib/creator-experiences";
 
 export async function GET(
     request: NextRequest,
@@ -39,9 +39,8 @@ export async function GET(
 
         const creatorDoc = creatorSnapshot.docs[0];
         const creatorRaw = creatorDoc.data() as Record<string, unknown>;
-        const creatorRole = creatorRaw.role;
         const creatorStatus = creatorRaw.status;
-        const isPublicCreator = creatorRole === "creator" || creatorRole === "admin";
+        const isPublicCreator = isCreatorRole(creatorRaw.role);
         const isPublicStatus = creatorStatus === undefined || creatorStatus === "active";
 
         if (!isPublicCreator || !isPublicStatus) {

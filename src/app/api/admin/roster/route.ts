@@ -1,0 +1,287 @@
+import { NextRequest, NextResponse } from "next/server";
+
+import { adminDb } from "@/lib/server/firebase-admin";
+import { handleApiError } from "@/lib/server/auth";
+import { ADMIN } from "@/lib/server/rate-limit";
+import { guardApiRequest } from "@/lib/server/request-guard";
+import { CREATOR_COLLECTIONS, isCreatorRole } from "@/lib/creator-experiences";
+
+type RosterRole = "user" | "creator" | "admin";
+type RosterStatus = "active" | "suspended" | "banned";
+
+type RosterEntry = {
+    uid: string;
+    displayName: string;
+    email: string;
+    username: string;
+    photoURL: string | null;
+    role: RosterRole;
+    status: RosterStatus;
+    isVerified: boolean;
+    createdAt: number;
+};
+
+type CreatorOpsAggregate = {
+    followerCount: number;
+    favoriteCount: number;
+    notificationsEnabledCount: number;
+    activeSubscribers: number;
+    openRequests: number;
+    bookedCalls: number;
+    pendingPayouts: number;
+    openThreads: number;
+    pendingDropSubmissions: number;
+    totalAccruedGd: number;
+    pendingCashoutGd: number;
+};
+
+const PRIMARY_ROSTER_ADMIN_EMAIL = "uylusjohnson@gmail.com";
+
+function toTimestampNumber(value: unknown): number {
+    if (typeof value === "number" && Number.isFinite(value)) {
+        return value;
+    }
+
+    if (
+        value
+        && typeof value === "object"
+        && "toMillis" in value
+        && typeof (value as { toMillis: () => number }).toMillis === "function"
+    ) {
+        return (value as { toMillis: () => number }).toMillis();
+    }
+
+    return 0;
+}
+
+function buildEmptyCreatorOpsAggregate(): CreatorOpsAggregate {
+    return {
+        followerCount: 0,
+        favoriteCount: 0,
+        notificationsEnabledCount: 0,
+        activeSubscribers: 0,
+        openRequests: 0,
+        bookedCalls: 0,
+        pendingPayouts: 0,
+        openThreads: 0,
+        pendingDropSubmissions: 0,
+        totalAccruedGd: 0,
+        pendingCashoutGd: 0,
+    };
+}
+
+function serializeRosterEntry(id: string, raw: Record<string, unknown>): RosterEntry {
+    return {
+        uid: id,
+        displayName: typeof raw.displayName === "string" && raw.displayName.trim().length > 0 ? raw.displayName.trim() : "Unknown user",
+        email: typeof raw.email === "string" && raw.email.trim().length > 0 ? raw.email.trim() : "",
+        username: typeof raw.username === "string" ? raw.username.trim() : "",
+        photoURL: typeof raw.photoURL === "string" ? raw.photoURL : null,
+        role: raw.role === "creator" || raw.role === "admin" || raw.role === "user" ? raw.role : "user",
+        status: raw.status === "suspended" || raw.status === "banned" || raw.status === "active" ? raw.status : "active",
+        isVerified: raw.isVerified === true,
+        createdAt: toTimestampNumber(raw.createdAt),
+    };
+}
+
+function matchesQuery(entry: RosterEntry, query: string) {
+    const normalizedQuery = query.trim().toLowerCase();
+    if (!normalizedQuery) {
+        return true;
+    }
+
+    return entry.displayName.toLowerCase().includes(normalizedQuery)
+        || entry.email.toLowerCase().includes(normalizedQuery)
+        || entry.username.toLowerCase().includes(normalizedQuery)
+        || entry.uid.toLowerCase().includes(normalizedQuery);
+}
+
+export async function GET(request: NextRequest) {
+    try {
+        await guardApiRequest(request, {
+            routeName: "admin/roster",
+            rateLimit: ADMIN,
+            requireTrustedOrigin: true,
+            auth: "admin",
+        });
+
+        if (!adminDb) {
+            return NextResponse.json({ error: "Database not available" }, { status: 500 });
+        }
+
+        const query = request.nextUrl.searchParams.get("q")?.trim().toLowerCase() || "";
+        const [
+            usersSnapshot,
+            creatorRelationshipsSnap,
+            creatorSubscriptionsSnap,
+            creatorRequestsSnap,
+            creatorBookingsSnap,
+            creatorPayoutsSnap,
+            creatorThreadsSnap,
+            creatorAccrualsSnap,
+            pendingCreatorDropsSnap,
+        ] = await Promise.all([
+            adminDb.collection("users").orderBy("createdAt", "desc").get(),
+            adminDb.collection(CREATOR_COLLECTIONS.relationships).get(),
+            adminDb.collection(CREATOR_COLLECTIONS.subscriptions).get(),
+            adminDb.collection(CREATOR_COLLECTIONS.requests).get(),
+            adminDb.collection(CREATOR_COLLECTIONS.bookings).get(),
+            adminDb.collection(CREATOR_COLLECTIONS.payoutRequests).get(),
+            adminDb.collection(CREATOR_COLLECTIONS.messageThreads).get(),
+            adminDb.collection(CREATOR_COLLECTIONS.ledgerAccruals).get(),
+            adminDb.collection("drops").where("approvalStatus", "==", "pending_review").get(),
+        ]);
+
+        const allUsers = usersSnapshot.docs.map((doc) => serializeRosterEntry(doc.id, doc.data() as Record<string, unknown>));
+        const creatorOpsByUser = new Map<string, CreatorOpsAggregate>();
+        const readCreatorOps = (creatorId: string) => {
+            const current = creatorOpsByUser.get(creatorId) ?? buildEmptyCreatorOpsAggregate();
+            creatorOpsByUser.set(creatorId, current);
+            return current;
+        };
+
+        creatorRelationshipsSnap.docs.forEach((doc) => {
+            const raw = doc.data() as Record<string, unknown>;
+            const creatorId = typeof raw.creatorId === "string" ? raw.creatorId : "";
+            if (!creatorId) {
+                return;
+            }
+
+            const current = readCreatorOps(creatorId);
+            if (raw.following === true) {
+                current.followerCount += 1;
+            }
+            if (raw.favorited === true) {
+                current.favoriteCount += 1;
+            }
+            if (raw.notificationsEnabled === true) {
+                current.notificationsEnabledCount += 1;
+            }
+        });
+
+        creatorSubscriptionsSnap.docs.forEach((doc) => {
+            const raw = doc.data() as Record<string, unknown>;
+            const creatorId = typeof raw.creatorId === "string" ? raw.creatorId : "";
+            if (!creatorId) {
+                return;
+            }
+            if (raw.status === "active") {
+                readCreatorOps(creatorId).activeSubscribers += 1;
+            }
+        });
+
+        creatorRequestsSnap.docs.forEach((doc) => {
+            const raw = doc.data() as Record<string, unknown>;
+            const creatorId = typeof raw.creatorId === "string" ? raw.creatorId : "";
+            if (!creatorId) {
+                return;
+            }
+            if (raw.status === "pending") {
+                readCreatorOps(creatorId).openRequests += 1;
+            }
+        });
+
+        creatorBookingsSnap.docs.forEach((doc) => {
+            const raw = doc.data() as Record<string, unknown>;
+            const creatorId = typeof raw.creatorId === "string" ? raw.creatorId : "";
+            if (!creatorId) {
+                return;
+            }
+            if (raw.status === "booked") {
+                readCreatorOps(creatorId).bookedCalls += 1;
+            }
+        });
+
+        creatorPayoutsSnap.docs.forEach((doc) => {
+            const raw = doc.data() as Record<string, unknown>;
+            const creatorId = typeof raw.creatorId === "string" ? raw.creatorId : "";
+            if (!creatorId) {
+                return;
+            }
+            if (raw.status === "pending") {
+                const current = readCreatorOps(creatorId);
+                current.pendingPayouts += 1;
+                current.pendingCashoutGd += typeof raw.requestedGd === "number" ? Math.round(raw.requestedGd) : 0;
+            }
+        });
+
+        creatorThreadsSnap.docs.forEach((doc) => {
+            const raw = doc.data() as Record<string, unknown>;
+            const creatorId = typeof raw.creatorId === "string" ? raw.creatorId : "";
+            if (!creatorId) {
+                return;
+            }
+            readCreatorOps(creatorId).openThreads += 1;
+        });
+
+        creatorAccrualsSnap.docs.forEach((doc) => {
+            const raw = doc.data() as Record<string, unknown>;
+            const creatorId = typeof raw.creatorId === "string" ? raw.creatorId : "";
+            if (!creatorId) {
+                return;
+            }
+            readCreatorOps(creatorId).totalAccruedGd += typeof raw.creatorShareGd === "number" ? Math.round(raw.creatorShareGd) : 0;
+        });
+
+        pendingCreatorDropsSnap.docs.forEach((doc) => {
+            const raw = doc.data() as Record<string, unknown>;
+            const creatorId = typeof raw.submittedByCreatorId === "string"
+                ? raw.submittedByCreatorId
+                : typeof raw.creatorId === "string"
+                    ? raw.creatorId
+                    : "";
+            if (!creatorId) {
+                return;
+            }
+            readCreatorOps(creatorId).pendingDropSubmissions += 1;
+        });
+
+        const rosterUsers = allUsers
+            .filter((entry) => isCreatorRole(entry.role) || (entry.role === "admin" && entry.email.toLowerCase() === PRIMARY_ROSTER_ADMIN_EMAIL))
+            .sort((left, right) => {
+                if (left.role !== right.role) {
+                    return left.role === "admin" ? -1 : 1;
+                }
+                return left.displayName.localeCompare(right.displayName);
+            });
+
+        const rosterUserIds = new Set(rosterUsers.map((entry) => entry.uid));
+        const creatorUsers = rosterUsers.filter((entry) => entry.role === "creator");
+        const searchResults = query.length >= 2
+            ? allUsers
+                .filter((entry) => entry.role === "user")
+                .filter((entry) => !rosterUserIds.has(entry.uid))
+                .filter((entry) => entry.status !== "banned")
+                .filter((entry) => matchesQuery(entry, query))
+                .slice(0, 8)
+            : [];
+
+        const creatorOpsValues = creatorUsers.map((entry) => creatorOpsByUser.get(entry.uid) ?? buildEmptyCreatorOpsAggregate());
+        const summary = {
+            creatorCount: creatorUsers.length,
+            verifiedCreatorCount: creatorUsers.filter((entry) => entry.isVerified).length,
+            activeCreatorCount: creatorUsers.filter((entry) => entry.status === "active").length,
+            totalFollowers: creatorOpsValues.reduce((sum, entry) => sum + entry.followerCount, 0),
+            totalFavorites: creatorOpsValues.reduce((sum, entry) => sum + entry.favoriteCount, 0),
+            totalAlertOptIns: creatorOpsValues.reduce((sum, entry) => sum + entry.notificationsEnabledCount, 0),
+            activeSubscriptions: creatorOpsValues.reduce((sum, entry) => sum + entry.activeSubscribers, 0),
+            openRequests: creatorOpsValues.reduce((sum, entry) => sum + entry.openRequests, 0),
+            bookedCalls: creatorOpsValues.reduce((sum, entry) => sum + entry.bookedCalls, 0),
+            pendingPayouts: creatorOpsValues.reduce((sum, entry) => sum + entry.pendingPayouts, 0),
+            openThreads: creatorOpsValues.reduce((sum, entry) => sum + entry.openThreads, 0),
+            pendingDropSubmissions: creatorOpsValues.reduce((sum, entry) => sum + entry.pendingDropSubmissions, 0),
+            totalAccruedGd: creatorOpsValues.reduce((sum, entry) => sum + entry.totalAccruedGd, 0),
+            pendingCashoutGd: creatorOpsValues.reduce((sum, entry) => sum + entry.pendingCashoutGd, 0),
+        };
+
+        return NextResponse.json({
+            success: true,
+            rosterUsers,
+            searchResults,
+            creatorOpsByUser: Object.fromEntries(creatorOpsByUser),
+            summary,
+        });
+    } catch (error) {
+        return handleApiError(error, "Admin.Roster.GET");
+    }
+}

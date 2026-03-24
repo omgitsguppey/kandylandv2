@@ -92,6 +92,29 @@ export function ReportBugButton({
     };
   }, [isOpen]);
 
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape" || submitting) {
+        return;
+      }
+
+      setIsOpen(false);
+      setNote("");
+      setIssueType(defaultIssueType);
+      setSeverity("medium");
+      setShowAutoContext(false);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, submitting, defaultIssueType]);
+
   const openComposer = () => {
     if (!user) {
       openAuthModal("signup");
@@ -202,16 +225,18 @@ export function ReportBugButton({
 
       {isOpen ? (
         <div className="fixed inset-0 z-[140] bg-black/80 backdrop-blur-md">
-          <button
-            type="button"
+          <div
+            className="absolute inset-0"
             onClick={() => closeComposer()}
-            className="absolute inset-0 h-full w-full cursor-default"
-            aria-label="Dismiss bug report overlay"
+            aria-hidden="true"
           />
 
-          <div className="relative flex h-full items-end justify-center p-0 md:items-center md:p-4">
+          <div className="relative z-10 flex h-full items-end justify-center p-0 md:items-center md:p-4 pointer-events-none">
             <div
-              className="glass-panel flex w-full max-w-lg flex-col overflow-hidden rounded-t-[1.75rem] border border-white/10 bg-zinc-950/95 px-4 pb-4 pt-3 md:max-h-[min(42rem,88dvh)] md:rounded-[1.75rem] md:px-5 md:pb-5 md:pt-4"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Bug report"
+              className="glass-panel pointer-events-auto flex w-full max-w-lg flex-col overflow-hidden rounded-t-[1.75rem] border border-white/10 bg-zinc-950/95 px-4 pb-4 pt-3 md:max-h-[min(42rem,88dvh)] md:rounded-[1.75rem] md:px-5 md:pb-5 md:pt-4"
               onClick={(event) => event.stopPropagation()}
             >
               <div className="mb-3 flex justify-center md:hidden">
@@ -232,12 +257,10 @@ export function ReportBugButton({
                 </div>
                 <button
                   type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
+                  onClick={() => {
                     closeComposer();
                   }}
-                  className="rounded-full border border-white/10 bg-white/5 p-3 text-gray-400 transition-colors hover:text-white relative z-50"
+                  className="relative z-50 rounded-full border border-white/10 bg-white/5 p-3 text-gray-400 transition-colors hover:text-white"
                   aria-label="Close bug report"
                 >
                   <X className="h-5 w-5" />

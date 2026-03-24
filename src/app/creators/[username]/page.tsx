@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { SITE_ORIGIN } from "@/lib/site-origin";
 import { adminDb } from "@/lib/server/firebase-admin";
+import { isCreatorRole } from "@/lib/creator-experiences";
 
 import CreatorProfileClient from "./CreatorProfileClient";
 
@@ -32,9 +33,8 @@ async function getCreatorMetadataRecord(username: string): Promise<CreatorMetada
         }
 
         const data = doc.data();
-        const role = typeof data.role === "string" ? data.role : "user";
         const status = typeof data.status === "string" ? data.status : "active";
-        if (!(role === "creator" || role === "admin") || status !== "active") {
+        if (!isCreatorRole(data.role) || status !== "active") {
             return null;
         }
 

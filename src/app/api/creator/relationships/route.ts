@@ -87,10 +87,25 @@ export async function GET(request: NextRequest) {
             .where("userId", "==", caller.uid)
             .get();
 
-        const relationships = relationshipsSnap.docs.map((doc) => ({
+        const rawRelationships = relationshipsSnap.docs.map((doc) => ({
             id: doc.id,
             ...(doc.data() as Record<string, unknown>),
         }) as CreatorRelationshipRecord);
+
+        const recommendedCreatorDocs = await adminDb.collection("users").get();
+        const validCreators = recommendedCreatorDocs.docs
+            .map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) }) as RecommendedCreatorRecord)
+            .filter((entry) => isCreatorRole(entry.role) && entry.status !== "suspended" && entry.status !== "banned")
+            .map((entry) => ({
+                uid: entry.id,
+                displayName: typeof entry.displayName === "string" && entry.displayName.trim().length > 0 ? entry.displayName.trim() : "Creator",
+                username: typeof entry.username === "string" ? entry.username : "",
+                photoURL: typeof entry.photoURL === "string" ? entry.photoURL : null,
+                bio: typeof entry.bio === "string" ? entry.bio : "",
+                isVerified: entry.isVerified === true,
+            }));
+        const validCreatorIds = new Set(validCreators.map((entry) => entry.uid));
+        const relationships = rawRelationships.filter((entry) => typeof entry.creatorId === "string" && validCreatorIds.has(entry.creatorId));
 
         if (creatorId) {
             const relationship = relationships.find((entry) => entry.creatorId === creatorId) || null;
@@ -106,19 +121,16 @@ export async function GET(request: NextRequest) {
         const followedCreatorIds = relationships
             .filter((entry) => entry.following === true && typeof entry.creatorId === "string")
             .map((entry) => String(entry.creatorId));
-        const recommendedCreatorDocs = await adminDb.collection("users").get();
-        const recommendedCreators = recommendedCreatorDocs.docs
-            .map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) }) as RecommendedCreatorRecord)
-            .filter((entry) => isCreatorRole(entry.role) && entry.status !== "suspended" && entry.status !== "banned")
-            .filter((entry) => !followedCreatorIds.includes(entry.id))
+        const recommendedCreators = validCreators
+            .filter((entry) => !followedCreatorIds.includes(entry.uid))
             .slice(0, 12)
             .map((entry) => ({
-                uid: entry.id,
-                displayName: typeof entry.displayName === "string" && entry.displayName.trim().length > 0 ? entry.displayName.trim() : "Creator",
-                username: typeof entry.username === "string" ? entry.username : "",
-                photoURL: typeof entry.photoURL === "string" ? entry.photoURL : null,
-                bio: typeof entry.bio === "string" ? entry.bio : "",
-                isVerified: entry.isVerified === true,
+                uid: entry.uid,
+                displayName: entry.displayName,
+                username: entry.username,
+                photoURL: entry.photoURL,
+                bio: entry.bio,
+                isVerified: entry.isVerified,
             }));
 
         return NextResponse.json({

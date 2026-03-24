@@ -102,7 +102,7 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
         [followedCreators, recommendedCreators],
     );
 
-    if (loading || primaryCreators.length === 0) {
+    if (loading) {
         return null;
     }
 
@@ -110,6 +110,37 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
     const support = followedCreators.length > 0
         ? "Jump back into the creator experiences already in your loop."
         : "Start following creators to unlock their adjacent experience layer.";
+    const emptyTitle = surface === "dashboard"
+        ? "Creator experiences are warming up"
+        : surface === "drops"
+            ? "No creators are live here yet"
+            : "Creator discovery will land here soon";
+    const emptySupport = surface === "dashboard"
+        ? "Once creators are live, the dashboard will surface the ones you follow first and recommend the rest."
+        : surface === "drops"
+            ? "As creator drops come online, this rail will surface them here without mixing admins into discovery."
+            : "This space will start routing fans into real creator pages as creator experiences roll out.";
+
+    if (primaryCreators.length === 0) {
+        return (
+            <section className={cn(
+                "glass-panel rounded-[2rem] border border-white/10 p-4 sm:p-5",
+                compact ? "space-y-3" : "space-y-4",
+            )}>
+                <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
+                    <Sparkles className="h-3.5 w-3.5" />
+                    Kreator Experiences
+                </div>
+                <div className="rounded-[1.7rem] border border-dashed border-white/10 bg-black/25 px-4 py-6 text-center">
+                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-400">
+                        <Users className="h-6 w-6" />
+                    </div>
+                    <h3 className="mt-4 text-lg font-black text-white">{emptyTitle}</h3>
+                    <p className="mt-2 text-sm leading-6 text-gray-400">{emptySupport}</p>
+                </div>
+            </section>
+        );
+    }
 
     return (
         <section className={cn(

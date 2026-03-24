@@ -129,6 +129,7 @@ export default function DebugConsole() {
     const { user, userProfile } = useAuth();
     const isCompactViewport = useCompactViewport();
     const [processing, setProcessing] = useState(false);
+    const [repairingId, setRepairingId] = useState<string | null>(null);
     const [simAmount, setSimAmount] = useState("500");
     const [activeTab, setActiveTab] = useState<DebugTabId>("overview");
 
@@ -174,6 +175,28 @@ export default function DebugConsole() {
             toast.error(issue instanceof Error ? issue.message : "Simulation failed");
         } finally {
             setProcessing(false);
+        }
+    };
+
+    const handleRepairProposal = async (proposalId: string, action: "apply" | "dismiss") => {
+        setRepairingId(proposalId);
+        try {
+            const response = await authFetch("/api/admin/orchestration/repairs", {
+                method: "POST",
+                body: JSON.stringify({ proposalId, action }),
+            });
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.error || "Repair action failed");
+            }
+
+            toast.success(action === "apply" ? "Repair action queued" : "Proposal dismissed");
+            await mutate();
+        } catch (issue) {
+            console.error(issue);
+            toast.error(issue instanceof Error ? issue.message : "Repair action failed");
+        } finally {
+            setRepairingId(null);
         }
     };
 
@@ -247,6 +270,7 @@ export default function DebugConsole() {
                 <StatCard label="Receipts 7d" value={data?.stats?.receiptsLast7d ?? "--"} meta={`${data?.stats?.completedEventsLast7d ?? 0} completions`} />
                 <StatCard label="Bug reports 7d" value={data?.stats?.bugReportsLast7d ?? "--"} meta={`${data?.bugReports?.length ?? 0} loaded`} />
                 <StatCard label="Users with issues" value={data?.stats?.usersWithTaskIssues ?? "--"} meta="Task assignment integrity" />
+                <StatCard label="Orchestration" value={data?.orchestration ? `${data.orchestration.summary.score}%` : "--"} meta={`${data?.stats?.orchestrationOpenFindings ?? 0} open findings`} />
             </div>
 
             {error ? <div className="rounded-[1.35rem] border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-100">Debug data could not be loaded right now.</div> : null}
@@ -254,6 +278,67 @@ export default function DebugConsole() {
 
             {activeTab === "overview" ? (
                 <div className="space-y-4">
+                    <Section
+                        title="Behavior orchestration"
+                        subtitle="The new async coordination layer watches canonical signals, resolves identity ownership, and translates mismatches into plain-English repair suggestions."
+                        defaultOpen
+                        summary={
+                            <>
+                                <Pill label="Health" value={`${data?.orchestration?.summary?.score ?? 0}%`} tone={(data?.orchestration?.summary?.score ?? 0) >= 90 ? "good" : (data?.orchestration?.summary?.score ?? 0) >= 70 ? "warn" : "bad"} />
+                                <Pill label="Open findings" value={data?.orchestration?.summary?.openFindings ?? 0} tone={(data?.orchestration?.summary?.openFindings ?? 0) ? "warn" : "good"} />
+                                <Pill label="Actionable repairs" value={data?.orchestration?.summary?.actionableProposals ?? 0} tone={(data?.orchestration?.summary?.actionableProposals ?? 0) ? "warn" : "good"} />
+                                <Pill label="Recommendation-ready" value={data?.orchestration?.summary?.recommendationReady ?? 0} />
+                            </>
+                        }
+                    >
+                        <div className="grid gap-4 xl:grid-cols-[1fr_1fr]">
+                            <div className="space-y-3">
+                                <div className="grid grid-cols-2 gap-3">
+                                    <StatCard label="Normalized events" value={data?.orchestration?.summary?.eventCount ?? 0} meta="Recent orchestration sample" />
+                                    <StatCard label="Training-ready" value={data?.orchestration?.summary?.trainingEligible ?? 0} meta={`${data?.orchestration?.summary?.lowConfidenceEvents ?? 0} low confidence`} />
+                                </div>
+                                <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                    <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Dependency readiness</p>
+                                    <div className="mt-3 flex flex-wrap gap-2">
+                                        <Pill label="Missing actor" value={data?.orchestration?.dependencyReadiness?.actorMissingCount ?? 0} tone={(data?.orchestration?.dependencyReadiness?.actorMissingCount ?? 0) ? "warn" : "good"} />
+                                        <Pill label="Missing session" value={data?.orchestration?.dependencyReadiness?.sessionMissingCount ?? 0} tone={(data?.orchestration?.dependencyReadiness?.sessionMissingCount ?? 0) ? "warn" : "good"} />
+                                        <Pill label="Missing route" value={data?.orchestration?.dependencyReadiness?.routeMissingCount ?? 0} tone={(data?.orchestration?.dependencyReadiness?.routeMissingCount ?? 0) ? "warn" : "good"} />
+                                        <Pill label="Missing creator" value={data?.orchestration?.dependencyReadiness?.creatorContextMissingCount ?? 0} tone={(data?.orchestration?.dependencyReadiness?.creatorContextMissingCount ?? 0) ? "warn" : "good"} />
+                                    </div>
+                                </div>
+                                <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                    <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Domain coverage</p>
+                                    <div className="mt-3 space-y-2">
+                                        {(data?.orchestration?.domainSummary || []).slice(0, 6).map((entry: any) => (
+                                            <div key={entry.key} className="flex flex-wrap items-center justify-between gap-2 text-sm text-gray-300">
+                                                <span className="font-semibold text-white">{entry.key}</span>
+                                                <div className="flex flex-wrap gap-2">
+                                                    <Pill label="Events" value={entry.eventCount} />
+                                                    <Pill label="Open" value={entry.openFindingCount} tone={entry.openFindingCount ? "warn" : "good"} />
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="space-y-3">
+                                {(data?.orchestration?.findings || []).slice(0, 4).map((finding: any) => (
+                                    <div key={finding.id} className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                        <div className="flex flex-wrap items-start justify-between gap-3">
+                                            <div className="min-w-0">
+                                                <p className="font-semibold text-white">{finding.title}</p>
+                                                <p className="mt-1 text-xs text-gray-400">{finding.domain} | {finding.systemKey}</p>
+                                            </div>
+                                            <Pill label="Severity" value={finding.severity} tone={finding.severity === "error" ? "bad" : finding.severity === "warn" ? "warn" : "neutral"} />
+                                        </div>
+                                        <p className="mt-3 text-sm text-gray-200">{finding.humanSummary}</p>
+                                        <p className="mt-2 text-xs text-gray-400">{finding.fixSummary}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </Section>
+
                     <Section
                         title="Simulation tools"
                         subtitle="Keep quick admin-side checks available without turning them into the whole page."
@@ -514,6 +599,40 @@ export default function DebugConsole() {
                     </Section>
 
                     <Section
+                        title="Normalized orchestration stream"
+                        subtitle="Recent normalized events translated out of raw telemetry, watch-time, creator, ledger, and notification signals."
+                        defaultOpen={!isCompactViewport}
+                        summary={<><Pill label="Events" value={data?.stats?.orchestrationEvents ?? 0} /><Pill label="Low confidence" value={data?.stats?.orchestrationLowConfidence ?? 0} tone={(data?.stats?.orchestrationLowConfidence ?? 0) ? "warn" : "good"} /></>}
+                    >
+                        <ScrollWrap>
+                            <div className="divide-y divide-white/10">
+                                {(data?.orchestration?.events || []).map((event: any) => (
+                                    <div key={event.id} className="space-y-2 px-4 py-3">
+                                        <div className="flex flex-wrap items-start justify-between gap-2">
+                                            <div>
+                                                <p className="font-semibold text-white">{event.normalizedLabel}</p>
+                                                <p className="text-xs text-gray-400">{event.domain} | {event.systemKey}</p>
+                                            </div>
+                                            <Pill label="Status" value={event.status} tone={event.status === "critical" ? "bad" : event.status === "attention" ? "warn" : "good"} />
+                                        </div>
+                                        <p className="text-sm text-gray-200">{event.humanSummary}</p>
+                                        <div className="flex flex-wrap gap-2">
+                                            <Pill label="Actor" value={event.actor.actorLabel || event.actor.actorType} />
+                                            <Pill label="Surface" value={event.session.sourceSurface || "background"} />
+                                            <Pill label="Findings" value={event.findingCount} tone={event.findingCount ? "warn" : "good"} />
+                                            <Pill label="Training" value={event.readiness.trainingEligible ? "ready" : "blocked"} tone={event.readiness.trainingEligible ? "good" : "warn"} />
+                                            <Pill label="Recommend" value={event.readiness.recommendationReady ? "ready" : "blocked"} tone={event.readiness.recommendationReady ? "good" : "warn"} />
+                                        </div>
+                                        {event.dependencyReadiness.missing?.length ? (
+                                            <p className="text-xs text-gray-400">Missing: {event.dependencyReadiness.missing.join(", ")}</p>
+                                        ) : null}
+                                    </div>
+                                ))}
+                            </div>
+                        </ScrollWrap>
+                    </Section>
+
+                    <Section
                         title="Receipt visibility"
                         subtitle="Keeps the dedupe layer visible without forcing two full tables on screen at once."
                         defaultOpen={!isCompactViewport}
@@ -645,6 +764,72 @@ export default function DebugConsole() {
 
             {activeTab === "ops" ? (
                 <div className="space-y-4">
+                    <Section
+                        title="Repair proposals and actor ownership"
+                        subtitle="Admin-confirmed rebuilds stay inline here, and actor summaries help spot cross-session bleed before it becomes a reporting problem."
+                        defaultOpen
+                        summary={<><Pill label="Actionable" value={data?.stats?.orchestrationActionableRepairs ?? 0} tone={(data?.stats?.orchestrationActionableRepairs ?? 0) ? "warn" : "good"} /><Pill label="Contamination" value={data?.orchestration?.summary?.contaminationRisks ?? 0} tone={(data?.orchestration?.summary?.contaminationRisks ?? 0) ? "bad" : "good"} /></>}
+                    >
+                        <div className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
+                            <ScrollWrap>
+                                <div className="divide-y divide-white/10">
+                                    {(data?.orchestration?.proposals || []).length ? (data?.orchestration?.proposals || []).map((proposal: any) => (
+                                        <div key={proposal.id} className="space-y-2 px-4 py-3">
+                                            <div className="flex flex-wrap items-start justify-between gap-2">
+                                                <div>
+                                                    <p className="font-semibold text-white">{proposal.label}</p>
+                                                    <p className="text-xs text-gray-400">{proposal.sourceDocumentPath}</p>
+                                                </div>
+                                                <Pill label="Status" value={proposal.status} tone={proposal.status === "open" ? "warn" : proposal.status === "resolved" ? "good" : "neutral"} />
+                                            </div>
+                                            <p className="text-sm text-gray-200">{proposal.detail}</p>
+                                            <div className="flex flex-wrap gap-2">
+                                                <Button
+                                                    variant="glass"
+                                                    size="sm"
+                                                    disabled={repairingId === proposal.id || proposal.actionType !== "rebuild_projection" || proposal.status !== "open"}
+                                                    onClick={() => handleRepairProposal(proposal.id, "apply")}
+                                                >
+                                                    {repairingId === proposal.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                                    Apply
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    disabled={repairingId === proposal.id || proposal.status !== "open"}
+                                                    onClick={() => handleRepairProposal(proposal.id, "dismiss")}
+                                                >
+                                                    Dismiss
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    )) : <div className="px-4 py-4 text-sm text-emerald-100">No repair proposals are open in the current orchestration sample.</div>}
+                                </div>
+                            </ScrollWrap>
+                            <ScrollWrap>
+                                <div className="divide-y divide-white/10">
+                                    {(data?.orchestration?.actorSummaries || []).map((actor: any) => (
+                                        <div key={actor.id} className="space-y-2 px-4 py-3">
+                                            <div className="flex flex-wrap items-start justify-between gap-2">
+                                                <div>
+                                                    <p className="font-semibold text-white">{actor.actorLabel || actor.actorId || actor.actorType}</p>
+                                                    <p className="text-xs text-gray-400">{actor.actorType} | {actor.actorId || "anonymous"}</p>
+                                                </div>
+                                                <Pill label="Events" value={actor.eventCount} />
+                                            </div>
+                                            <div className="flex flex-wrap gap-2">
+                                                <Pill label="Warnings" value={actor.warningCount} tone={actor.warningCount ? "warn" : "good"} />
+                                                <Pill label="Critical" value={actor.criticalCount} tone={actor.criticalCount ? "bad" : "good"} />
+                                                <Pill label="Bleed risk" value={actor.contaminationCount} tone={actor.contaminationCount ? "bad" : "good"} />
+                                            </div>
+                                            {actor.topDomains?.length ? <p className="text-xs text-gray-400">Domains: {actor.topDomains.join(", ")}</p> : null}
+                                        </div>
+                                    ))}
+                                </div>
+                            </ScrollWrap>
+                        </div>
+                    </Section>
+
                     <Section
                         title="Pipeline health"
                         subtitle="High-level runtime, diagnostics, and materializer health without forcing every list open by default."

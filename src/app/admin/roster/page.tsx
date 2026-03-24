@@ -1,20 +1,21 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
-import { CheckCircle2, Search, User, UserX, Sparkles, Users, HeartHandshake, Wand2 } from "lucide-react";
-import { authFetch } from "@/lib/authFetch";
-import { useAuth } from "@/context/AuthContext";
-import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { CheckCircle2, Search, ShieldUser, Sparkles, UserPlus2 } from "lucide-react";
 import { toast } from "sonner";
-import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
+import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { useAuth } from "@/context/AuthContext";
+import { authFetch } from "@/lib/authFetch";
+import { cn } from "@/lib/utils";
 
 type RosterRole = "user" | "creator" | "admin";
 type RosterStatus = "active" | "suspended" | "banned";
 
-interface RosterEntry {
+type RosterEntry = {
     uid: string;
     displayName: string;
     email: string;
@@ -23,58 +24,77 @@ interface RosterEntry {
     role: RosterRole;
     status: RosterStatus;
     isVerified: boolean;
-    createdAt: number;
-}
+};
 
-interface RosterCreatorOps {
+type RosterCreatorOps = {
     followerCount: number;
-    favoriteCount: number;
-    notificationsEnabledCount: number;
     activeSubscribers: number;
-    openRequests: number;
-    bookedCalls: number;
-    pendingPayouts: number;
     openThreads: number;
     pendingDropSubmissions: number;
     totalAccruedGd: number;
-    pendingCashoutGd: number;
-}
+};
 
-interface RosterSummary {
-    creatorOps?: {
-        creatorsWithFollowers: number;
-        totalFollowers: number;
-        totalFavorites: number;
-        totalAlertOptIns: number;
-        activeSubscriptions: number;
-        openRequests: number;
-        bookedCalls: number;
-        pendingPayouts: number;
-        openThreads: number;
-        pendingDropSubmissions: number;
-        totalAccruedGd: number;
-        pendingCashoutGd: number;
-    };
-}
+type RosterSummary = {
+    creatorCount: number;
+    activeCreatorCount: number;
+    totalFollowers: number;
+    activeSubscriptions: number;
+    pendingDropSubmissions: number;
+    totalAccruedGd: number;
+};
 
-const PAGE_SIZE = 25;
+type RosterResponse = {
+    success?: boolean;
+    rosterUsers?: RosterEntry[];
+    searchResults?: RosterEntry[];
+    creatorOpsByUser?: Record<string, RosterCreatorOps>;
+    summary?: RosterSummary;
+};
 
-function initialsFor(name: string): string {
+const SEARCH_MIN_LENGTH = 2;
+
+function initialsFor(name: string) {
     const parts = name.split(" ").filter(Boolean);
-    if (parts.length === 0) return "U";
-    const initials = parts.slice(0, 2).map((segment) => segment[0]?.toUpperCase() || "").join("");
-    return initials || "U";
+    return parts.slice(0, 2).map((part) => part[0]?.toUpperCase() || "").join("") || "U";
+}
+
+async function fetchRoster(query = ""): Promise<RosterResponse> {
+    const suffix = query.trim() ? `?q=${encodeURIComponent(query.trim())}` : "";
+    const response = await authFetch(`/api/admin/roster${suffix}`);
+    const result = await response.json() as RosterResponse;
+    if (!response.ok || !result.success) {
+        throw new Error("Unable to load creator roster right now.");
+    }
+    return result;
+}
+
+function Avatar({ entry }: { entry: RosterEntry }) {
+    if (entry.photoURL) {
+        return (
+            <div className="relative h-12 w-12 overflow-hidden rounded-2xl border border-white/10 bg-black/30">
+                <Image src={entry.photoURL} alt={entry.displayName} fill sizes="48px" className="object-cover" />
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-black/30 text-sm font-black text-white">
+            {initialsFor(entry.displayName)}
+        </div>
+    );
 }
 
 export default function AdminRosterPage() {
-    const { user, userProfile, loading: authLoading } = useAuth();
-    const [users, setUsers] = useState<RosterEntry[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+    const { userProfile, loading: authLoading } = useAuth();
+    const [rosterUsers, setRosterUsers] = useState<RosterEntry[]>([]);
+    const [searchResults, setSearchResults] = useState<RosterEntry[]>([]);
+    const [selectedCandidate, setSelectedCandidate] = useState<RosterEntry | null>(null);
     const [summary, setSummary] = useState<RosterSummary | null>(null);
     const [creatorOpsByUser, setCreatorOpsByUser] = useState<Record<string, RosterCreatorOps>>({});
+    const [searchTerm, setSearchTerm] = useState("");
+    const [loading, setLoading] = useState(true);
+    const [searchLoading, setSearchLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const isAdmin = userProfile?.role === "admin";
 
@@ -85,126 +105,121 @@ export default function AdminRosterPage() {
 
         let cancelled = false;
 
-        const fetchRoster = async () => {
+        const load = async () => {
             try {
-                const response = await authFetch("/api/admin/users");
-                const result = await response.json() as {
-                    success?: boolean;
-                    users?: Array<Record<string, unknown>>;
-                    summary?: RosterSummary;
-                    creatorOpsByUser?: Record<string, RosterCreatorOps>;
-                };
-                if (!response.ok || !result.success) {
-                    throw new Error("Unable to load roster right now. Please try again shortly.");
-                }
-
-                if (cancelled) {
-                    return;
-                }
-
-                const normalized = (result.users || []).map((entry) => ({
-                    uid: typeof entry.uid === "string" ? entry.uid : "",
-                    displayName: typeof entry.displayName === "string" && entry.displayName.trim().length > 0 ? entry.displayName : "Unknown user",
-                    email: typeof entry.email === "string" && entry.email.trim().length > 0 ? entry.email : "No email",
-                    username: typeof entry.username === "string" ? entry.username : "",
-                    photoURL: typeof entry.photoURL === "string" ? entry.photoURL : null,
-                    role: entry.role === "admin" || entry.role === "creator" || entry.role === "user" ? entry.role : "user",
-                    status: entry.status === "suspended" || entry.status === "banned" || entry.status === "active" ? entry.status : "active",
-                    isVerified: entry.isVerified === true,
-                    createdAt: typeof entry.createdAt === "number" ? entry.createdAt : 0,
-                })) as RosterEntry[];
-
-                setUsers(normalized);
+                const result = await fetchRoster();
+                if (cancelled) return;
+                setRosterUsers(result.rosterUsers || []);
                 setSummary(result.summary || null);
                 setCreatorOpsByUser(result.creatorOpsByUser || {});
                 setError(null);
                 setLoading(false);
-            } catch (snapshotError) {
-                console.error("Failed to load roster", snapshotError);
+            } catch (loadError) {
+                console.error("Failed to load creator roster", loadError);
                 if (!cancelled) {
-                    setError("Unable to load roster right now. Please try again shortly.");
+                    setError("Unable to load creator roster right now.");
                     setLoading(false);
                 }
             }
         };
 
-        void fetchRoster();
-
+        void load();
         return () => {
             cancelled = true;
         };
     }, [authLoading, isAdmin]);
 
-    const filteredUsers = useMemo(() => {
-        const normalizedSearch = searchTerm.trim().toLowerCase();
-        if (!normalizedSearch) {
-            return users;
+    useEffect(() => {
+        if (authLoading || !isAdmin) {
+            return;
         }
 
-        return users.filter((entry) =>
-            entry.displayName.toLowerCase().includes(normalizedSearch)
-            || entry.email.toLowerCase().includes(normalizedSearch)
-            || entry.username.toLowerCase().includes(normalizedSearch)
-            || entry.uid.toLowerCase().includes(normalizedSearch)
-        );
-    }, [searchTerm, users]);
+        if (searchTerm.trim().length < SEARCH_MIN_LENGTH) {
+            setSearchResults([]);
+            setSearchLoading(false);
+            return;
+        }
 
-    useEffect(() => {
-        setVisibleCount(PAGE_SIZE);
-    }, [searchTerm]);
+        let cancelled = false;
+        const timeoutId = window.setTimeout(async () => {
+            try {
+                setSearchLoading(true);
+                const result = await fetchRoster(searchTerm);
+                if (!cancelled) {
+                    setSearchResults(result.searchResults || []);
+                }
+            } catch (searchError) {
+                console.error("Failed to search roster users", searchError);
+                if (!cancelled) {
+                    setSearchResults([]);
+                }
+            } finally {
+                if (!cancelled) {
+                    setSearchLoading(false);
+                }
+            }
+        }, 180);
 
-    const visibleUsers = useMemo(() => filteredUsers.slice(0, visibleCount), [filteredUsers, visibleCount]);
-    const hasMore = visibleCount < filteredUsers.length;
-    const creatorUsers = useMemo(
-        () => users.filter((entry) => entry.role === "creator" || entry.role === "admin"),
-        [users],
+        return () => {
+            cancelled = true;
+            window.clearTimeout(timeoutId);
+        };
+    }, [authLoading, isAdmin, searchTerm]);
+
+    const primaryAdmin = useMemo(
+        () => rosterUsers.find((entry) => entry.role === "admin") ?? null,
+        [rosterUsers],
     );
-    const topCreatorEntries = useMemo(() => (
-        creatorUsers
-            .map((entry) => ({
-                ...entry,
-                ops: creatorOpsByUser[entry.uid],
-            }))
-            .sort((left, right) => (right.ops?.followerCount || 0) - (left.ops?.followerCount || 0))
-            .slice(0, 3)
-    ), [creatorOpsByUser, creatorUsers]);
+    const creators = useMemo(
+        () => rosterUsers.filter((entry) => entry.role === "creator"),
+        [rosterUsers],
+    );
 
-    const handleRoleUpdate = async (uid: string, role: RosterRole) => {
+    const refreshRoster = async () => {
+        const [baseResult, searchResult] = await Promise.all([
+            fetchRoster(),
+            searchTerm.trim().length >= SEARCH_MIN_LENGTH ? fetchRoster(searchTerm) : Promise.resolve<RosterResponse>({ searchResults: [] }),
+        ]);
+        setRosterUsers(baseResult.rosterUsers || []);
+        setSummary(baseResult.summary || null);
+        setCreatorOpsByUser(baseResult.creatorOpsByUser || {});
+        setSearchResults(searchResult.searchResults || []);
+    };
+
+    const handleRoleUpdate = async (entry: RosterEntry, role: RosterRole) => {
         try {
             const response = await authFetch("/api/admin/users", {
                 method: "PUT",
-                body: JSON.stringify({ userId: uid, updates: { role } }),
+                body: JSON.stringify({ userId: entry.uid, updates: { role } }),
             });
-            const result = await response.json();
+            const result = await response.json() as { error?: string };
             if (!response.ok) {
-                throw new Error(typeof result.error === "string" ? result.error : "Failed to update role");
+                throw new Error(result.error || "Failed to update role");
             }
-            setUsers((current) => current.map((entry) => (
-                entry.uid === uid
-                    ? { ...entry, role }
-                    : entry
-            )));
+
+            await refreshRoster();
+            if (selectedCandidate?.uid === entry.uid) {
+                setSelectedCandidate(null);
+                setSearchTerm("");
+                setSearchResults([]);
+            }
             toast.success(`Role updated to ${role}`);
         } catch (updateError) {
-            console.error("Role update failed", updateError);
-            toast.error("Could not update role. Please try again.");
+            console.error("Failed to update roster role", updateError);
+            toast.error(updateError instanceof Error ? updateError.message : "Could not update role.");
         }
     };
 
     if (authLoading) {
         return (
-            <div className="flex items-center justify-center min-h-[300px]">
-                <div className="w-8 h-8 rounded-full border-2 border-brand-purple border-t-transparent animate-spin" />
+            <div className="flex min-h-[300px] items-center justify-center">
+                <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-purple border-t-transparent" />
             </div>
         );
     }
 
     if (!isAdmin) {
-        return (
-            <div className="glass-panel rounded-2xl p-6 text-center text-gray-300">
-                Access denied.
-            </div>
-        );
+        return <div className="glass-panel rounded-2xl p-6 text-center text-gray-300">Access denied.</div>;
     }
 
     return (
@@ -212,239 +227,250 @@ export default function AdminRosterPage() {
             <PageViewEvent eventName="admin_roster_viewed" />
             <AdminPageHeader
                 eyebrow="Admin Roster"
-                title="Roster"
-                subtitle="Manage the creator roster today while prepping the pipeline for creator onboarding, follow systems, and roster-led drop programming."
+                title="Creator + Admin Roster"
+                subtitle="Search signed-up users only when you need to elevate them. The live roster stays focused on creators plus your primary admin record."
                 actions={
-                <div className="relative w-full sm:w-80">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                    <input
-                        type="text"
-                        value={searchTerm}
-                        onChange={(event) => setSearchTerm(event.target.value)}
-                        placeholder="Search by name, email, username"
-                        className="w-full bg-black/40 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-white text-sm focus:outline-none focus:border-brand-purple"
-                    />
-                </div>
+                    <div className="relative w-full sm:w-[24rem]">
+                        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+                        <input
+                            type="text"
+                            value={searchTerm}
+                            onChange={(event) => setSearchTerm(event.target.value)}
+                            placeholder="Search signed-up users to add to creator management"
+                            className="w-full rounded-2xl border border-white/10 bg-black/40 py-2.5 pl-10 pr-4 text-sm text-white focus:border-brand-purple focus:outline-none"
+                        />
+
+                        {searchTerm.trim().length >= SEARCH_MIN_LENGTH ? (
+                            <div className="absolute left-0 right-0 top-[calc(100%+0.6rem)] z-20 overflow-hidden rounded-[1.4rem] border border-white/10 bg-black/95 shadow-2xl shadow-black/40">
+                                {searchLoading ? (
+                                    <div className="px-4 py-3 text-sm text-gray-400">Searching signed-up users...</div>
+                                ) : searchResults.length > 0 ? (
+                                    searchResults.map((entry) => (
+                                        <button
+                                            key={entry.uid}
+                                            type="button"
+                                            onClick={() => {
+                                                setSelectedCandidate(entry);
+                                                setSearchTerm("");
+                                                setSearchResults([]);
+                                            }}
+                                            className="flex w-full items-center gap-3 border-b border-white/5 px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-white/[0.04]"
+                                        >
+                                            <Avatar entry={entry} />
+                                            <div className="min-w-0 flex-1">
+                                                <p className="truncate text-sm font-semibold text-white">{entry.displayName}</p>
+                                                <p className="truncate text-xs text-gray-500">{entry.username ? `@${entry.username}` : entry.email || entry.uid}</p>
+                                            </div>
+                                            <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
+                                                {entry.status}
+                                            </span>
+                                        </button>
+                                    ))
+                                ) : (
+                                    <div className="px-4 py-3 text-sm text-gray-400">No signed-up users matched that search.</div>
+                                )}
+                            </div>
+                        ) : null}
+                    </div>
                 }
             />
 
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                 <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
                     <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Creators on roster</p>
-                    <p className="mt-2 text-3xl font-black text-white">{creatorUsers.length}</p>
-                    <p className="mt-1 text-xs text-gray-400">Accounts already positioned for creator-facing experiences.</p>
-                </div>
-                <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Verified roster</p>
-                    <p className="mt-2 text-3xl font-black text-white">{creatorUsers.filter((entry) => entry.isVerified).length}</p>
-                    <p className="mt-1 text-xs text-gray-400">Verified talent with public-facing trust signals.</p>
+                    <p className="mt-2 text-3xl font-black text-white">{summary?.creatorCount ?? 0}</p>
+                    <p className="mt-1 text-xs text-gray-400">Only creator accounts stay in this curated view.</p>
                 </div>
                 <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
                     <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Active creators</p>
-                    <p className="mt-2 text-3xl font-black text-white">{creatorUsers.filter((entry) => entry.status === "active").length}</p>
-                    <p className="mt-1 text-xs text-gray-400">Ready for onboarding connections and future follow prompts.</p>
+                    <p className="mt-2 text-3xl font-black text-white">{summary?.activeCreatorCount ?? 0}</p>
+                    <p className="mt-1 text-xs text-gray-400">Ready for discovery, follows, and creator experiences.</p>
                 </div>
                 <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Scouting pool</p>
-                    <p className="mt-2 text-3xl font-black text-white">{users.filter((entry) => entry.role === "user").length}</p>
-                    <p className="mt-1 text-xs text-gray-400">Potential accounts that could be promoted into the creator roster.</p>
+                    <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Follower graph</p>
+                    <p className="mt-2 text-3xl font-black text-white">{summary?.totalFollowers ?? 0}</p>
+                    <p className="mt-1 text-xs text-gray-400">Durable creator relationships tied to rostered creators.</p>
+                </div>
+                <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Creator revenue</p>
+                    <p className="mt-2 text-3xl font-black text-white">{(summary?.totalAccruedGd ?? 0).toLocaleString()}</p>
+                    <p className="mt-1 text-xs text-gray-400">Accrued GD still sitting inside the creator ledger.</p>
                 </div>
             </div>
 
-            <div className="grid gap-4 xl:grid-cols-3">
-                {[
-                    {
-                        icon: Sparkles,
-                        title: "Relationship graph",
-                        copy: `${summary?.creatorOps?.totalFollowers || 0} follower links, ${summary?.creatorOps?.totalFavorites || 0} favorites, and ${summary?.creatorOps?.totalAlertOptIns || 0} creator alert opt-ins are currently durable.`,
-                    },
-                    {
-                        icon: HeartHandshake,
-                        title: "Revenue + services",
-                        copy: `${summary?.creatorOps?.activeSubscriptions || 0} active subscriptions, ${summary?.creatorOps?.bookedCalls || 0} booked calls, ${summary?.creatorOps?.openRequests || 0} open requests, and ${(summary?.creatorOps?.totalAccruedGd || 0).toLocaleString()} accrued GD are live.`,
-                    },
-                    {
-                        icon: Wand2,
-                        title: "Moderation queue",
-                        copy: `${summary?.creatorOps?.openThreads || 0} message threads, ${summary?.creatorOps?.pendingDropSubmissions || 0} pending creator submissions, and ${summary?.creatorOps?.pendingPayouts || 0} payout reviews are currently waiting in admin ops.`,
-                    },
-                ].map((item) => {
-                    const Icon = item.icon;
-                    return (
-                        <div key={item.title} className="glass-panel rounded-[1.8rem] border border-white/10 p-5">
-                            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
-                                <Users className="h-3.5 w-3.5" />
-                                Creator ops live
-                            </div>
-                            <div className="flex items-start gap-3">
-                                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-brand-purple/25 bg-brand-purple/15 text-white">
-                                    <Icon className="h-5 w-5" />
+            {selectedCandidate ? (
+                <div className="glass-panel rounded-[1.9rem] border border-brand-purple/20 p-5">
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                        <div className="flex items-start gap-3">
+                            <Avatar entry={selectedCandidate} />
+                            <div>
+                                <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
+                                    <UserPlus2 className="h-3.5 w-3.5" />
+                                    Search result
                                 </div>
-                                <div>
-                                    <h3 className="text-lg font-bold text-white">{item.title}</h3>
-                                    <p className="mt-2 text-sm leading-6 text-gray-400">{item.copy}</p>
-                                </div>
+                                <h3 className="mt-3 text-lg font-bold text-white">{selectedCandidate.displayName}</h3>
+                                <p className="mt-1 text-sm text-gray-400">{selectedCandidate.username ? `@${selectedCandidate.username}` : selectedCandidate.email || selectedCandidate.uid}</p>
+                                <p className="mt-2 text-sm leading-6 text-gray-400">
+                                    Promote this signed-up user into creator management when you are ready. Once they become a creator, they will move into the curated roster automatically.
+                                </p>
                             </div>
                         </div>
-                    );
-                })}
-            </div>
 
-            {topCreatorEntries.length > 0 ? (
-                <div className="glass-panel rounded-[1.8rem] border border-white/10 p-5">
-                    <div className="flex items-start justify-between gap-3">
-                        <div>
-                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Top creator momentum</p>
-                            <h3 className="mt-2 text-lg font-bold text-white">Roster leaders by live follows</h3>
-                            <p className="mt-1 text-sm text-gray-400">A quick view of who is pulling the most follower, subscriber, and queue activity right now.</p>
+                        <div className="flex flex-col gap-2 sm:flex-row">
+                            <button
+                                type="button"
+                                onClick={() => void handleRoleUpdate(selectedCandidate, "creator")}
+                                className="rounded-2xl border border-brand-purple/30 bg-brand-purple/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-purple/20"
+                            >
+                                Promote to creator
+                            </button>
+                            <Link
+                                href={`/admin/user/${selectedCandidate.uid}`}
+                                className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-gray-200 transition-colors hover:border-white/20 hover:text-white"
+                            >
+                                Open user detail
+                            </Link>
                         </div>
-                    </div>
-                    <div className="mt-4 grid gap-3 lg:grid-cols-3">
-                        {topCreatorEntries.map((entry) => (
-                            <div key={entry.uid} className="rounded-[1.2rem] border border-white/10 bg-black/25 p-4">
-                                <div className="flex items-center gap-3">
-                                    <div className="relative h-10 w-10 overflow-hidden rounded-2xl border border-white/10 bg-black/30">
-                                        {entry.photoURL ? (
-                                            <Image src={entry.photoURL} alt={entry.displayName} fill sizes="40px" className="object-cover" />
-                                        ) : (
-                                            <div className="flex h-full w-full items-center justify-center text-sm font-black text-white">
-                                                {initialsFor(entry.displayName)}
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="min-w-0">
-                                        <p className="truncate text-sm font-bold text-white">{entry.displayName}</p>
-                                        <p className="truncate text-[11px] text-gray-500">{entry.username ? `@${entry.username}` : entry.email}</p>
-                                    </div>
-                                </div>
-                                <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] text-gray-400">
-                                    <span className="rounded-full border border-white/10 bg-black/20 px-2.5 py-1">Followers: {entry.ops?.followerCount || 0}</span>
-                                    <span className="rounded-full border border-white/10 bg-black/20 px-2.5 py-1">Subs: {entry.ops?.activeSubscribers || 0}</span>
-                                    <span className="rounded-full border border-white/10 bg-black/20 px-2.5 py-1">Threads: {entry.ops?.openThreads || 0}</span>
-                                    <span className="rounded-full border border-white/10 bg-black/20 px-2.5 py-1">Queue: {entry.ops?.pendingDropSubmissions || 0}</span>
-                                </div>
-                            </div>
-                        ))}
                     </div>
                 </div>
             ) : null}
 
-            <div className="rounded-2xl overflow-hidden">
+            {primaryAdmin ? (
+                <div className="glass-panel rounded-[1.9rem] border border-red-500/20 p-5">
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                        <div className="flex items-start gap-3">
+                            <Avatar entry={primaryAdmin} />
+                            <div>
+                                <div className="inline-flex items-center gap-2 rounded-full border border-red-500/25 bg-red-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-red-200">
+                                    <ShieldUser className="h-3.5 w-3.5" />
+                                    Primary admin record
+                                </div>
+                                <h3 className="mt-3 text-lg font-bold text-white">{primaryAdmin.displayName}</h3>
+                                <p className="mt-1 text-sm text-gray-400">{primaryAdmin.email || primaryAdmin.uid}</p>
+                            </div>
+                        </div>
+
+                        <Link
+                            href={`/admin/user/${primaryAdmin.uid}`}
+                            className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-gray-200 transition-colors hover:border-white/20 hover:text-white"
+                        >
+                            Open admin detail
+                        </Link>
+                    </div>
+                </div>
+            ) : null}
+
+            <div className="rounded-[2rem] border border-white/10 bg-black/20 p-4 md:p-5">
+                <div className="mb-4 flex items-start justify-between gap-3">
+                    <div>
+                        <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Creator roster</p>
+                        <h3 className="mt-2 text-lg font-bold text-white">Live creator management</h3>
+                        <p className="mt-1 text-sm text-gray-400">The roster stays creator-first, while user discovery happens through the search box instead of an all-user wall.</p>
+                    </div>
+                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
+                        {creators.length} creators
+                    </span>
+                </div>
+
                 {loading ? (
-                    <div className="flex items-center justify-center min-h-[260px]">
-                        <div className="w-8 h-8 rounded-full border-2 border-brand-purple border-t-transparent animate-spin" />
+                    <div className="flex min-h-[220px] items-center justify-center">
+                        <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-purple border-t-transparent" />
                     </div>
                 ) : error ? (
-                    <div className="p-8 text-center text-gray-300">{error}</div>
-                ) : filteredUsers.length === 0 ? (
-                    <div className="p-8 text-center text-gray-400 inline-flex flex-col items-center gap-2 w-full">
-                        <UserX className="w-10 h-10 opacity-30" />
-                        <p>No roster entries yet.</p>
+                    <div className="rounded-[1.6rem] border border-red-500/20 bg-red-500/10 p-5 text-sm text-red-200">{error}</div>
+                ) : creators.length === 0 ? (
+                    <div className="rounded-[1.7rem] border border-dashed border-white/10 bg-black/25 px-5 py-10 text-center">
+                        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-3xl border border-white/10 bg-white/5 text-gray-400">
+                            <Sparkles className="h-6 w-6" />
+                        </div>
+                        <h4 className="mt-4 text-lg font-bold text-white">No creators are live in roster right now</h4>
+                        <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-gray-400">
+                            Search for a signed-up user above and promote them into creator management when you are ready.
+                        </p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 p-4 md:p-6 bg-black/20">
-                        {visibleUsers.map((entry) => {
-                            const isAdminUser = entry.role === "admin";
-                            const isCreator = entry.role === "creator";
-                            const creatorOps = creatorOpsByUser[entry.uid];
+                    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                        {creators.map((entry) => {
+                            const ops = creatorOpsByUser[entry.uid];
 
                             return (
-                                <div key={entry.uid} className={`glass-panel rounded-3xl p-5 border relative overflow-hidden group transition-all hover:-translate-y-1 ${isAdminUser ? "border-red-500/30 hover:shadow-[0_0_30px_-5px_rgba(239,68,68,0.3)] bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-red-500/10 via-black to-black" :
-                                        isCreator ? "border-brand-purple/30 hover:shadow-[0_0_30px_-5px_rgba(178,140,255,0.3)] bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-purple/10 via-black to-black" :
-                                            "border-white/10 hover:border-white/20 bg-black/40"
-                                    }`}>
-                                    {/* Card Header */}
-                                    <div className="flex items-start justify-between mb-4">
+                                <div key={entry.uid} className="glass-panel rounded-[1.8rem] border border-brand-purple/15 p-5">
+                                    <div className="flex items-start justify-between gap-3">
                                         <div className="flex items-center gap-3">
-                                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-lg relative overflow-hidden shrink-0 border shadow-inner ${isAdminUser ? 'border-red-500/50 bg-red-500/20 text-red-500' :
-                                                    isCreator ? 'border-brand-purple/50 bg-brand-purple/20 text-brand-purple' :
-                                                        'border-white/10 bg-zinc-800 text-gray-400'
-                                                }`}>
-                                                {entry.photoURL ? (
-                                                    <Image src={entry.photoURL} alt={entry.displayName} fill sizes="48px" className="object-cover" />
-                                                ) : (
-                                                    initialsFor(entry.displayName)
-                                                )}
-                                            </div>
-                                            <div>
-                                                <Link href={`/admin/user/${entry.uid}`} className="text-sm font-black text-white truncate inline-flex items-center gap-1 hover:text-brand-purple transition-colors max-w-[140px]">
+                                            <Avatar entry={entry} />
+                                            <div className="min-w-0">
+                                                <Link href={`/admin/user/${entry.uid}`} className="inline-flex max-w-[14rem] items-center gap-1 truncate text-sm font-black text-white transition-colors hover:text-brand-purple">
                                                     {entry.displayName}
-                                                    {entry.isVerified ? <CheckCircle2 className="w-3.5 h-3.5 text-brand-purple shrink-0" /> : null}
+                                                    {entry.isVerified ? <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-brand-purple" /> : null}
                                                 </Link>
-                                                <div className="text-[10px] text-gray-500 font-mono truncate max-w-[140px]">{entry.username ? `@${entry.username}` : entry.email}</div>
+                                                <p className="truncate text-[11px] text-gray-500">{entry.username ? `@${entry.username}` : entry.email || entry.uid}</p>
                                             </div>
+                                        </div>
+
+                                        <select
+                                            className="rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-white outline-none"
+                                            value={entry.role}
+                                            onChange={(event) => void handleRoleUpdate(entry, event.target.value as RosterRole)}
+                                        >
+                                            <option value="user" className="bg-black">User</option>
+                                            <option value="creator" className="bg-black">Creator</option>
+                                            <option value="admin" className="bg-black">Admin</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="mt-4 flex flex-wrap gap-2">
+                                        <span className={cn(
+                                            "rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em]",
+                                            entry.status === "active"
+                                                ? "border-green-500/25 bg-green-500/10 text-green-200"
+                                                : "border-amber-500/20 bg-amber-500/10 text-amber-200",
+                                        )}>
+                                            {entry.status}
+                                        </span>
+                                        <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
+                                            {ops?.followerCount || 0} followers
+                                        </span>
+                                        <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
+                                            {ops?.activeSubscribers || 0} subscribers
+                                        </span>
+                                    </div>
+
+                                    <div className="mt-4 grid grid-cols-2 gap-2">
+                                        <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2.5">
+                                            <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-gray-500">Threads</p>
+                                            <p className="mt-1 text-sm font-black text-white">{ops?.openThreads || 0}</p>
+                                        </div>
+                                        <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2.5">
+                                            <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-gray-500">Pending drops</p>
+                                            <p className="mt-1 text-sm font-black text-white">{ops?.pendingDropSubmissions || 0}</p>
+                                        </div>
+                                        <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2.5">
+                                            <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-gray-500">Followers</p>
+                                            <p className="mt-1 text-sm font-black text-white">{ops?.followerCount || 0}</p>
+                                        </div>
+                                        <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2.5">
+                                            <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-gray-500">Accrued GD</p>
+                                            <p className="mt-1 text-sm font-black text-white">{(ops?.totalAccruedGd || 0).toLocaleString()}</p>
                                         </div>
                                     </div>
 
-                                    {/* Account Information */}
-                                    <div className="space-y-3">
-                                        <div className="flex justify-between items-center bg-black/50 px-3 py-2 rounded-xl border border-white/5">
-                                            <span className="text-gray-500 font-bold uppercase tracking-wider text-[9px]">Permission Level</span>
-                                            <select
-                                                className={`bg-transparent text-xs font-bold uppercase tracking-wider outline-none transition-colors appearance-none text-right cursor-pointer ${isAdminUser ? "text-red-400" :
-                                                        isCreator ? "text-brand-purple" :
-                                                            "text-gray-300"
-                                                    }`}
-                                                value={entry.role}
-                                                onChange={(event) => handleRoleUpdate(entry.uid, event.target.value as RosterRole)}
-                                            >
-                                                <option value="user" className="bg-black">User</option>
-                                                <option value="creator" className="bg-black text-brand-purple">Creator</option>
-                                                <option value="admin" className="bg-black text-red-500">Admin</option>
-                                            </select>
-                                        </div>
-
-                                        <div className="flex justify-between items-center bg-black/50 px-3 py-2 rounded-xl border border-white/5">
-                                            <span className="text-gray-500 font-bold uppercase tracking-wider text-[9px]">Status</span>
-                                            <span className={cn(
-                                                "text-[10px] font-black uppercase tracking-widest",
-                                                entry.status === "active" ? "text-green-500" : "text-red-500 opacity-80"
-                                            )}>
-                                                {entry.status}
-                                            </span>
-                                        </div>
-
-                                        {(isCreator || isAdminUser) && creatorOps ? (
-                                            <div className="grid grid-cols-2 gap-2">
-                                                <div className="rounded-xl border border-white/10 bg-black/35 px-3 py-2">
-                                                    <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-gray-500">Followers</p>
-                                                    <p className="mt-1 text-sm font-black text-white">{creatorOps.followerCount}</p>
-                                                </div>
-                                                <div className="rounded-xl border border-white/10 bg-black/35 px-3 py-2">
-                                                    <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-gray-500">Subscribers</p>
-                                                    <p className="mt-1 text-sm font-black text-white">{creatorOps.activeSubscribers}</p>
-                                                </div>
-                                                <div className="rounded-xl border border-white/10 bg-black/35 px-3 py-2">
-                                                    <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-gray-500">Threads</p>
-                                                    <p className="mt-1 text-sm font-black text-white">{creatorOps.openThreads}</p>
-                                                </div>
-                                                <div className="rounded-xl border border-white/10 bg-black/35 px-3 py-2">
-                                                    <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-gray-500">Queue</p>
-                                                    <p className="mt-1 text-sm font-black text-white">{creatorOps.pendingDropSubmissions}</p>
-                                                </div>
-                                            </div>
-                                        ) : null}
-                                    </div>
-
-                                    {/* Card Footer Actions */}
-                                    <div className="mt-4 pt-4 border-t border-white/5 grid grid-cols-2 gap-2">
+                                    <div className="mt-4 grid grid-cols-2 gap-2">
                                         <Link
                                             href={`/admin/user/${entry.uid}`}
-                                            className="flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-wider py-2 rounded-xl bg-white/5 border border-white/10 text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
+                                            className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-gray-200 transition-colors hover:border-white/20 hover:text-white"
                                         >
-                                            Analytics
+                                            Admin detail
                                         </Link>
                                         {entry.username ? (
                                             <Link
                                                 href={`/creators/${entry.username}`}
-                                                className="flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-wider py-2 rounded-xl bg-brand-purple/10 border border-brand-purple/20 text-brand-purple hover:bg-brand-purple/20 transition-colors"
+                                                className="inline-flex items-center justify-center rounded-2xl border border-brand-purple/25 bg-brand-purple/10 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-brand-purple transition-colors hover:bg-brand-purple/20"
                                             >
-                                                <User className="w-3 h-3" />
-                                                Profile
+                                                Creator page
                                             </Link>
                                         ) : (
-                                            <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-wider py-2 rounded-xl bg-black/40 border border-white/5 text-gray-600 cursor-not-allowed">
-                                                No Profile
+                                            <div className="inline-flex items-center justify-center rounded-2xl border border-white/5 bg-black/25 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-gray-600">
+                                                No public page
                                             </div>
                                         )}
                                     </div>
@@ -454,18 +480,6 @@ export default function AdminRosterPage() {
                     </div>
                 )}
             </div>
-
-            {hasMore ? (
-                <div className="flex justify-center">
-                    <button
-                        type="button"
-                        onClick={() => setVisibleCount((prev) => prev + PAGE_SIZE)}
-                        className="px-4 py-2 rounded-xl text-sm font-semibold border border-white/10 bg-white/5 text-gray-200"
-                    >
-                        Load more
-                    </button>
-                </div>
-            ) : null}
         </div>
     );
 }
