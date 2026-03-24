@@ -229,9 +229,6 @@ export function useNotifications() {
 
         if (succeededIds.length > 0) {
             setNotificationsState((prev) => prev.filter((notification) => !succeededIds.includes(notification.id)));
-            trackEvent("notification_marked_read", {
-                unread_count: succeededIds.length,
-            });
         }
 
         dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync);

@@ -138,35 +138,43 @@ export function NotificationPromptBanner() {
     }
 
     return (
-        <div className="sticky top-0 z-40 border-b border-white/10 bg-black/85 backdrop-blur-xl">
-            <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3">
-                <div className="flex items-start justify-between gap-3">
-                    <div className="flex min-w-0 items-center gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-brand-purple/25 bg-brand-purple/15 text-brand-purple">
+        <div className="sticky top-0 z-40 px-3 pt-3 sm:px-4">
+            <div className="mx-auto max-w-5xl overflow-hidden rounded-[1.6rem] border border-white/10 bg-[#17171c]/90 shadow-[0_16px_36px_rgba(0,0,0,0.28)] backdrop-blur-xl">
+                <div className="flex items-start gap-3 px-3.5 py-3 sm:px-4">
+                    <div className="flex min-w-0 flex-1 items-start gap-3">
+                        <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[1rem] border border-brand-purple/25 bg-brand-purple/12 text-brand-purple">
                             {needsStandaloneInstall ? <Smartphone className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
                         </div>
-                        <p className="min-w-0 pt-0.5 text-sm font-semibold leading-6 text-white">
-                            Enable notifications so you never miss a drop!
-                        </p>
+                        <div className="min-w-0">
+                            <p className="text-[10px] font-black uppercase tracking-[0.16em] text-gray-400">
+                                Task Alerts
+                            </p>
+                            <p className="mt-1 text-sm font-semibold leading-5 text-white">
+                                {needsStandaloneInstall ? "Use Home Screen alerts on iPhone" : "Turn on deadline reminders"}
+                            </p>
+                            <p className="mt-1 text-[12px] leading-5 text-gray-300">
+                                {needsStandaloneInstall
+                                    ? "Add KandyDrops to your Home Screen to get iPhone task reminders."
+                                    : "We'll warn you before daily rewards and task progress expire."}
+                            </p>
+                        </div>
                     </div>
-                    <button
-                        type="button"
-                        onClick={handleDismiss}
-                        className="rounded-full p-2 text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
-                        aria-label="Dismiss notification prompt"
-                    >
-                        <X className="h-4 w-4" />
-                    </button>
-                </div>
-
-                <div className="flex">
                     <button
                         type="button"
                         onClick={() => void handleEnable()}
                         disabled={loading}
-                        className="w-full rounded-2xl border border-brand-purple bg-brand-purple px-4 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60 sm:w-auto"
+                        className="mt-0.5 inline-flex min-h-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white px-4 py-2.5 text-xs font-black uppercase tracking-[0.12em] text-black transition-opacity hover:opacity-90 disabled:opacity-60"
                     >
-                        {loading ? "Please wait" : needsStandaloneInstall ? "How to enable" : "Enable notifications"}
+                        {loading ? "Please wait" : needsStandaloneInstall ? "How to" : "Enable"}
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={handleDismiss}
+                        className="mt-0.5 rounded-full border border-white/10 bg-white/5 p-2 text-gray-400 transition-colors hover:bg-white/10 hover:text-white"
+                        aria-label="Dismiss notification prompt"
+                    >
+                        <X className="h-4 w-4" />
                     </button>
                 </div>
             </div>

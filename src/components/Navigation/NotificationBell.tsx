@@ -6,7 +6,6 @@ import {
   Check,
   CheckCircle,
   ChevronDown,
-  ChevronUp,
   ExternalLink,
   Info,
   Sparkles,
@@ -66,15 +65,46 @@ function getTypePill(type: string) {
   }
 }
 
+function getNotificationPreview(message: string) {
+  const trimmed = message.trim();
+  if (trimmed.length <= 108) {
+    return {
+      preview: trimmed,
+      expandable: false,
+    };
+  }
+
+  return {
+    preview: `${trimmed.slice(0, 105).trimEnd()}…`,
+    expandable: true,
+  };
+}
+
+function getNotificationActionLabel(note: NotificationNote) {
+  if (note.link?.includes("/experiences")) {
+    return "Open tasks";
+  }
+
+  if (note.dropContext) {
+    return "Open drop";
+  }
+
+  return "Open";
+}
+
+function isTaskRelatedNotification(note: NotificationNote) {
+  return note.link?.includes("/experiences") || /task|reward|deadline|check-in/i.test(`${note.title} ${note.message}`);
+}
+
 function NotificationThumbnail({ note }: { note: NotificationNote }) {
   if (note.dropContext?.previewImageUrl) {
     return (
-      <div className="relative h-16 w-16 overflow-hidden rounded-2xl border border-white/10 bg-black/50">
+      <div className="relative h-12 w-12 overflow-hidden rounded-[1.1rem] border border-white/10 bg-black/50 shadow-inner shadow-black/25">
         <Image
           src={note.dropContext.previewImageUrl}
           alt={note.dropContext.dropTitle || note.title}
           fill
-          sizes="64px"
+          sizes="48px"
           className="object-cover"
         />
       </div>
@@ -86,10 +116,10 @@ function NotificationThumbnail({ note }: { note: NotificationNote }) {
   const fallbackLetter = (note.title.trim()[0] || "K").toUpperCase();
 
   return (
-    <div className="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-[radial-gradient(circle_at_top,rgba(178,140,255,0.45),rgba(20,20,24,0.95)_72%)]">
-      <span className="text-2xl font-black text-white/90">{fallbackLetter}</span>
-      <div className="absolute bottom-1.5 right-1.5 rounded-full border border-white/15 bg-black/55 p-1 text-brand-purple">
-        <Icon className="h-3 w-3" />
+    <div className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-[1.1rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(178,140,255,0.35),rgba(20,20,24,0.95)_72%)]">
+      <span className="text-lg font-black text-white/90">{fallbackLetter}</span>
+      <div className="absolute bottom-1 right-1 rounded-full border border-white/15 bg-black/60 p-1 text-brand-purple">
+        <Icon className="h-2.5 w-2.5" />
       </div>
     </div>
   );
@@ -109,6 +139,11 @@ function NotificationItem({
   const router = useRouter();
   const pill = getTypePill(note.type);
   const PillIcon = pill.icon;
+  const { preview, expandable } = getNotificationPreview(note.message);
+  const taskRelated = isTaskRelatedNotification(note);
+  const relativeTime = note.createdAt?.toDate
+    ? formatDistanceToNow(note.createdAt.toDate(), { addSuffix: true })
+    : "Just now";
 
   const openDrop = async () => {
     if (isPending) {
@@ -148,75 +183,81 @@ function NotificationItem({
   };
 
   return (
-    <div className="rounded-[1.4rem] border border-white/10 bg-white/[0.04] p-3 shadow-lg shadow-black/20 transition-colors hover:bg-white/[0.06]">
+    <div className="rounded-[1.5rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] p-3 shadow-[0_14px_34px_rgba(0,0,0,0.28)] transition-colors hover:bg-white/[0.08]">
       <div className="flex gap-3">
         <NotificationThumbnail note={note} />
 
         <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-2">
+          <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-white">{note.title}</p>
-              <p className="mt-1 text-[11px] text-gray-500">
-                {note.createdAt?.toDate ? formatDistanceToNow(note.createdAt.toDate(), { addSuffix: true }) : "Just now"}
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="text-[10px] font-black uppercase tracking-[0.16em] text-gray-400">
+                  KandyDrops
+                </span>
+                <span className={cn(
+                  "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.14em]",
+                  pill.className,
+                )}>
+                  <PillIcon className="h-2.5 w-2.5" />
+                  {taskRelated ? "Task" : pill.label}
+                </span>
+              </div>
+              <p className="mt-1 text-sm font-semibold leading-5 text-white">{note.title}</p>
+              <p className="mt-1 text-[11px] leading-5 text-gray-300">
+                {isExpanded ? note.message : preview}
               </p>
+              {note.dropContext?.dropTitle ? (
+                <p className="mt-1 text-[11px] font-medium text-gray-400">
+                  {note.dropContext.dropTitle}
+                </p>
+              ) : null}
             </div>
 
-            <button
-              type="button"
-              onClick={() => {
-                void handleMarkAsRead();
-              }}
-              disabled={isPending}
-              className="inline-flex h-8 shrink-0 items-center gap-1 rounded-full border border-brand-purple/30 bg-brand-purple/15 px-2.5 text-[10px] font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-brand-purple/25"
-              title="Mark as read"
-            >
-              <Check className="h-3 w-3" />
-              Read
-            </button>
+            <div className="flex shrink-0 flex-col items-end gap-2">
+              <span className="text-[10px] font-medium text-gray-500">{relativeTime}</span>
+              <button
+                type="button"
+                onClick={() => {
+                  void handleMarkAsRead();
+                }}
+                disabled={isPending}
+                className="inline-flex h-7 items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 text-[10px] font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-white/10"
+                title="Mark as read"
+              >
+                <Check className="h-3 w-3" />
+                Read
+              </button>
+            </div>
           </div>
 
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <span className={cn("inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em]", pill.className)}>
-              <PillIcon className="h-3 w-3" />
-              {pill.label}
-            </span>
-            {note.dropContext?.dropTitle ? (
-              <span className="truncate text-[11px] font-medium text-gray-300">{note.dropContext.dropTitle}</span>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            {(note.dropContext || note.link) ? (
+              <button
+                type="button"
+                onClick={() => {
+                  void openDrop();
+                }}
+                disabled={isPending}
+                className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-brand-purple/25 bg-white px-3 py-1.5 text-[11px] font-bold text-black transition-opacity hover:opacity-90"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                {getNotificationActionLabel(note)}
+              </button>
+            ) : null}
+
+            {expandable ? (
+              <button
+                type="button"
+                onClick={() => setIsExpanded((current) => !current)}
+                className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-white/10"
+              >
+                <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", isExpanded ? "rotate-180" : "")} />
+                {isExpanded ? "Less" : "Details"}
+              </button>
             ) : null}
           </div>
         </div>
       </div>
-
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          onClick={() => setIsExpanded((current) => !current)}
-          className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-white/10"
-        >
-          {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-          {isExpanded ? "Collapse" : "Expand"}
-        </button>
-
-        {note.dropContext || note.link ? (
-          <button
-            type="button"
-            onClick={() => {
-              void openDrop();
-            }}
-            disabled={isPending}
-            className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple/30 bg-brand-purple px-3 py-1.5 text-[11px] font-semibold text-white transition-opacity hover:opacity-90"
-          >
-            <ExternalLink className="h-3.5 w-3.5" />
-            {note.dropContext ? "Open drop" : "Open"}
-          </button>
-        ) : null}
-      </div>
-
-      {isExpanded ? (
-        <div className="mt-3 rounded-2xl border border-white/8 bg-black/30 p-3">
-          <p className="text-xs leading-6 text-gray-300">{note.message}</p>
-        </div>
-      ) : null}
     </div>
   );
 }
@@ -298,16 +339,17 @@ export function NotificationBell() {
 
       <div
         className={cn(
-          "absolute -right-1 top-full z-50 mt-3 flex max-h-[28rem] w-[min(21rem,calc(100vw-0.75rem))] origin-top-right flex-col overflow-hidden rounded-[1.8rem] border border-white/10 bg-black/95 shadow-2xl shadow-black/70 transition-all duration-200 sm:right-0 sm:w-80",
+          "absolute -right-1 top-full z-50 mt-3 flex max-h-[30rem] w-[min(22rem,calc(100vw-0.75rem))] origin-top-right flex-col overflow-hidden rounded-[1.9rem] border border-white/10 bg-[#111114]/95 shadow-2xl shadow-black/70 transition-all duration-200 sm:right-0 sm:w-[22rem]",
           isOpen ? "translate-y-0 scale-100 opacity-100" : "pointer-events-none -translate-y-2 scale-95 opacity-0",
         )}
         style={{ WebkitBackdropFilter: "blur(30px)", backdropFilter: "blur(30px)" }}
       >
-        <div className="border-b border-white/10 bg-white/[0.03] px-4 py-3">
+        <div className="border-b border-white/10 bg-white/[0.03] px-4 py-3.5">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <h3 className="text-sm font-bold text-white">Notifications</h3>
-              <p className="mt-1 text-[11px] text-gray-500">
+              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-gray-500">Inbox</p>
+              <h3 className="mt-1 text-sm font-bold text-white">Notifications</h3>
+              <p className="mt-1 text-[11px] text-gray-400">
                 {unreadCount > 0 ? `${unreadCount} unread updates` : "You are all caught up"}
               </p>
             </div>
@@ -319,19 +361,19 @@ export function NotificationBell() {
                   void handleMarkAllAsRead();
                 }}
                 disabled={isClearingAll}
-                className="inline-flex h-8 items-center gap-1 rounded-full border border-brand-purple/30 bg-brand-purple/15 px-2.5 text-[10px] font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-brand-purple/25"
+                className="inline-flex h-8 items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 text-[10px] font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-white/10"
               >
                 <Sparkles className="h-3 w-3" />
-                Clear all
+                Clear
               </button>
             ) : null}
           </div>
         </div>
 
-        <div className="flex-1 space-y-2 overflow-y-auto p-2 custom-scrollbar">
+        <div className="flex-1 space-y-2 overflow-y-auto p-2.5 custom-scrollbar">
           {!user || notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center px-6 py-10 text-center">
-              <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-brand-purple">
+              <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-[1.4rem] border border-white/10 bg-white/5 text-brand-purple">
                 <Bell className="h-6 w-6" />
               </div>
               <p className="text-sm font-semibold text-white">No notifications yet</p>

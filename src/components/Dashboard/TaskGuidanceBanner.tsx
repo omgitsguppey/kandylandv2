@@ -335,26 +335,41 @@ export function TaskGuidanceBanner() {
         }}
         className="pointer-events-none fixed inset-x-0 top-[calc(var(--kandy-cookie-offset,0px)+4.25rem)] z-[70] px-3 sm:px-4"
       >
-        <div className="pointer-events-auto mx-auto max-w-3xl overflow-hidden rounded-[1.35rem] border border-white/10 bg-[linear-gradient(135deg,rgba(236,72,153,0.18),rgba(17,17,22,0.95)_32%,rgba(250,204,21,0.12))] shadow-[0_20px_56px_rgba(0,0,0,0.34)] backdrop-blur-xl">
-          <div className="flex items-start gap-3 px-3.5 py-3 sm:px-4">
+        <div className="pointer-events-auto mx-auto max-w-2xl overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#16161b]/92 shadow-[0_18px_44px_rgba(0,0,0,0.3)] backdrop-blur-xl">
+          <div className="flex items-start gap-3 px-3.5 py-3.5 sm:px-4">
             <div className={cn(
-              "mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-[1rem] border",
+              "mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[1rem] border",
               activeGuidance.completedAt
                 ? "border-emerald-300/30 bg-emerald-400/15 text-emerald-200"
-                : "border-white/10 bg-white/10 text-white",
+                : "border-brand-purple/25 bg-brand-purple/12 text-brand-purple",
             )}>
               {activeGuidance.completedAt ? <CheckCircle2 className="h-4 w-4" /> : <Sparkles className="h-4 w-4" />}
             </div>
 
             <div className="min-w-0 flex-1">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-gray-300">
-                    {activeGuidance.completedAt ? "Task complete" : "Task guide"}
-                  </p>
-                  <h3 className="mt-1 text-sm font-bold text-white">
-                    {activeGuidance.completedAt ? "Earn more gumdrops" : activeGuidance.title}
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-[10px] font-black uppercase tracking-[0.16em] text-gray-400">
+                      {activeGuidance.completedAt ? "Task complete" : "Task reminder"}
+                    </p>
+                    <span className={cn(
+                      "inline-flex items-center rounded-full border px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.14em]",
+                      activeGuidance.completedAt
+                        ? "border-emerald-300/25 bg-emerald-400/12 text-emerald-200"
+                        : "border-white/10 bg-white/5 text-gray-300",
+                    )}>
+                      +{activeGuidance.reward} Gum Drops
+                    </span>
+                  </div>
+                  <h3 className="mt-1 truncate text-sm font-bold text-white">
+                    {activeGuidance.completedAt ? "Ready for your next reward?" : activeGuidance.title}
                   </h3>
+                  <p className="mt-1 text-[12px] leading-5 text-gray-300 sm:pr-2">
+                    {activeGuidance.completedAt
+                      ? "Jump back into daily tasks and keep the streak moving."
+                      : activeGuidance.instruction}
+                  </p>
                 </div>
 
                 <button
@@ -367,24 +382,18 @@ export function TaskGuidanceBanner() {
                 </button>
               </div>
 
-              <p className="mt-1 text-[13px] leading-5 text-gray-200 sm:pr-2">
-                {activeGuidance.completedAt
-                  ? "Jump back into Experiences to pick up another mission and keep stacking rewards."
-                  : activeGuidance.instruction}
-              </p>
-
-              <div className="mt-2.5 flex flex-wrap items-center gap-2">
+              <div className="mt-3 flex flex-wrap items-center gap-2">
                 <button
                   type="button"
                   onClick={handleAction}
                   className="inline-flex min-h-9 items-center gap-2 rounded-full border border-white/15 bg-white px-3.5 py-2 text-xs font-bold text-black transition-transform hover:-translate-y-0.5"
                 >
-                  {activeGuidance.completedAt ? "Earn more gumdrops" : activeGuidance.ctaLabel}
+                  {activeGuidance.completedAt ? "Open daily tasks" : activeGuidance.ctaLabel}
                   <ArrowUpRight className="h-4 w-4" />
                 </button>
 
-                <span className="hidden rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-300 sm:inline-flex">
-                  Swipe up to dismiss
+                <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-300">
+                  {activeGuidance.completedAt ? "Reward ready" : "Dismiss anytime"}
                 </span>
 
                 <AnimatePresence>

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { NAV_AUTH_COOKIE, NAV_ROLE_COOKIE, NAV_UID_COOKIE, NavigationRole } from "@/lib/navigation-persistence";
+import { NavigationRole } from "@/lib/navigation-persistence";
 import { createNavigationSessionCookieValue, NAV_SESSION_COOKIE, NAV_SESSION_MAX_AGE_SECONDS } from "@/lib/navigation-session";
 import { handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
@@ -56,17 +56,6 @@ export async function DELETE(request: NextRequest) {
     secure: request.nextUrl.protocol === "https:",
     path: "/",
     maxAge: 0,
-  });
-
-  [NAV_AUTH_COOKIE, NAV_ROLE_COOKIE, NAV_UID_COOKIE].forEach((cookieName) => {
-    response.cookies.set({
-      name: cookieName,
-      value: "",
-      sameSite: "lax",
-      secure: request.nextUrl.protocol === "https:",
-      path: "/",
-      maxAge: 0,
-    });
   });
 
   return response;

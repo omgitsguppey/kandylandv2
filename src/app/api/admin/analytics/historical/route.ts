@@ -335,6 +335,17 @@ export async function GET(request: NextRequest) {
             const telemetryEventCounts = Object.fromEntries(
                 Object.entries(telemetryLogsByEvent).map(([eventName, records]) => [eventName, records.length]),
             );
+            const rawCanonicalEventCounts = analyticsEventFactsSnapshot.docs.reduce<Record<string, number>>((acc, doc) => {
+                const data = doc.data() as Record<string, unknown>;
+                const eventName = toStringValue(data.eventName);
+                const timestamp = toNumber(data.timestamp);
+                if (!eventName || timestamp < startMs) {
+                    return acc;
+                }
+
+                acc[eventName] = (acc[eventName] || 0) + 1;
+                return acc;
+            }, {});
             const canonicalEventCounts = period === "all"
                 ? analyticsEventStatsSnapshot.docs.reduce<Record<string, number>>((acc, doc) => {
                     const data = doc.data() as Record<string, unknown>;
@@ -343,19 +354,13 @@ export async function GET(request: NextRequest) {
                         return acc;
                     }
 
-                    acc[eventName] = toNumber(data.totalCount);
+                    acc[eventName] = Math.max(
+                        toNumber(data.totalCount),
+                        rawCanonicalEventCounts[eventName] || 0,
+                    );
                     return acc;
-                }, {})
-                : analyticsEventFactsSnapshot.docs.reduce<Record<string, number>>((acc, doc) => {
-                    const data = doc.data() as Record<string, unknown>;
-                    const eventName = toStringValue(data.eventName);
-                    if (!eventName) {
-                        return acc;
-                    }
-
-                    acc[eventName] = (acc[eventName] || 0) + 1;
-                    return acc;
-                }, {});
+                }, { ...rawCanonicalEventCounts })
+                : rawCanonicalEventCounts;
             const eventsData = Object.fromEntries(buildMergedCountMap(
                 gaEventCounts,
                 telemetryEventCounts,
@@ -373,12 +378,17 @@ export async function GET(request: NextRequest) {
                 return total + toNumber(data.authenticatedEvents);
             }, 0);
             const firstPartyTaskLifecycleEvents = sumSnapshotField(taskDailySnapshot, "eventCount");
+            const completedPurchaseTransactions = normalizedTransactionsInRange.filter((tx) => tx.type === "purchase_currency" && tx.status === "completed");
+            const unlockTransactions = normalizedTransactionsInRange.filter((tx) => tx.type === "unlock_content");
+            const commerceSummaryData = commerceSummarySnapshot.exists
+                ? (commerceSummarySnapshot.data() as Record<string, unknown>)
+                : {};
             const firstPartyPurchaseCount = period === "all"
-                ? toNumber(commerceSummarySnapshot.data()?.purchaseCount)
-                : sumSnapshotField(commerceDailySnapshot, "purchaseCount");
+                ? Math.max(toNumber(commerceSummaryData.purchaseCount), completedPurchaseTransactions.length)
+                : Math.max(sumSnapshotField(commerceDailySnapshot, "purchaseCount"), completedPurchaseTransactions.length);
             const firstPartyUnlockCount = period === "all"
-                ? toNumber(commerceSummarySnapshot.data()?.unlockCount)
-                : sumSnapshotField(commerceDailySnapshot, "unlockCount");
+                ? Math.max(toNumber(commerceSummaryData.unlockCount), unlockTransactions.length)
+                : Math.max(sumSnapshotField(commerceDailySnapshot, "unlockCount"), unlockTransactions.length);
             const normalizedTaskEvents: TaskLifecycleLog[] = taskEventsSnapshot.docs.flatMap((doc) => {
                 const data = doc.data();
                 const timestamp = toNumber(data.timestamp);
@@ -418,43 +428,44 @@ export async function GET(request: NextRequest) {
                 dropReferences,
                 startMs,
             });
+            const derivedCommerceTotals = normalizedTransactionsInRange.reduce((acc, transaction) => {
+                if (transaction.type === "purchase_currency" && transaction.status === "completed") {
+                    const economics = deriveGumdropEconomics(
+                        transaction.deliveredGumDrops ?? transaction.amount,
+                        transaction.grossRevenueUsd ?? transaction.cost ?? 0,
+                        {
+                            paypalFeeUsd: transaction.paypalFeeUsd,
+                            netRevenueUsd: transaction.netRevenueUsd,
+                        },
+                    );
+                    acc.revenueUsd += economics.grossRevenueUsd;
+                    acc.adjustedProfitUsd += economics.adjustedProfitUsd;
+                    acc.bonusValueUsd += economics.bonusValueUsd;
+                    acc.deliveredGumDrops += economics.deliveredGumDrops;
+                    acc.bonusGumDrops += economics.bonusGumDrops;
+                } else if (transaction.type === "unlock_content") {
+                    acc.gdSpent += Math.abs(toNumber(transaction.amount));
+                }
+
+                return acc;
+            }, {
+                revenueUsd: 0,
+                adjustedProfitUsd: 0,
+                bonusValueUsd: 0,
+                deliveredGumDrops: 0,
+                bonusGumDrops: 0,
+                gdSpent: 0,
+            });
             const commerceTotals = period === "all" && commerceSummarySnapshot.exists
                 ? {
-                    revenueUsd: toNumber(commerceSummarySnapshot.data()?.grossRevenueUsdTotal),
-                    adjustedProfitUsd: toNumber(commerceSummarySnapshot.data()?.adjustedProfitUsdTotal),
-                    bonusValueUsd: toNumber(commerceSummarySnapshot.data()?.bonusValueUsdTotal),
-                    deliveredGumDrops: toNumber(commerceSummarySnapshot.data()?.deliveredGumDropsTotal),
-                    bonusGumDrops: toNumber(commerceSummarySnapshot.data()?.bonusGumDropsTotal),
-                    gdSpent: toNumber(commerceSummarySnapshot.data()?.spendGdTotal),
+                    revenueUsd: Math.max(toNumber(commerceSummaryData.grossRevenueUsdTotal), derivedCommerceTotals.revenueUsd),
+                    adjustedProfitUsd: Math.max(toNumber(commerceSummaryData.adjustedProfitUsdTotal), derivedCommerceTotals.adjustedProfitUsd),
+                    bonusValueUsd: Math.max(toNumber(commerceSummaryData.bonusValueUsdTotal), derivedCommerceTotals.bonusValueUsd),
+                    deliveredGumDrops: Math.max(toNumber(commerceSummaryData.deliveredGumDropsTotal), derivedCommerceTotals.deliveredGumDrops),
+                    bonusGumDrops: Math.max(toNumber(commerceSummaryData.bonusGumDropsTotal), derivedCommerceTotals.bonusGumDrops),
+                    gdSpent: Math.max(toNumber(commerceSummaryData.spendGdTotal), derivedCommerceTotals.gdSpent),
                 }
-                : normalizedTransactionsInRange.reduce((acc, transaction) => {
-                    if (transaction.type === "purchase_currency" && transaction.status === "completed") {
-                        const economics = deriveGumdropEconomics(
-                            transaction.deliveredGumDrops ?? transaction.amount,
-                            transaction.grossRevenueUsd ?? transaction.cost ?? 0,
-                            {
-                                paypalFeeUsd: transaction.paypalFeeUsd,
-                                netRevenueUsd: transaction.netRevenueUsd,
-                            },
-                        );
-                        acc.revenueUsd += economics.grossRevenueUsd;
-                        acc.adjustedProfitUsd += economics.adjustedProfitUsd;
-                        acc.bonusValueUsd += economics.bonusValueUsd;
-                        acc.deliveredGumDrops += economics.deliveredGumDrops;
-                        acc.bonusGumDrops += economics.bonusGumDrops;
-                    } else if (transaction.type === "unlock_content") {
-                        acc.gdSpent += Math.abs(toNumber(transaction.amount));
-                    }
-
-                    return acc;
-                }, {
-                    revenueUsd: 0,
-                    adjustedProfitUsd: 0,
-                    bonusValueUsd: 0,
-                    deliveredGumDrops: 0,
-                    bonusGumDrops: 0,
-                    gdSpent: 0,
-                });
+                : derivedCommerceTotals;
             const commerce = {
                 revenueUsd: commerceTotals.revenueUsd,
                 adjustedProfitUsd: commerceTotals.adjustedProfitUsd,
@@ -605,8 +616,6 @@ export async function GET(request: NextRequest) {
                 dropReferences,
             });
 
-            const completedPurchaseTransactions = normalizedTransactionsInRange.filter((tx) => tx.type === "purchase_currency" && tx.status === "completed");
-            const unlockTransactions = normalizedTransactionsInRange.filter((tx) => tx.type === "unlock_content");
             const guestInteractionCount = guestBatchesSnapshot.docs.reduce((total, doc) => {
                 const data = doc.data() as Record<string, unknown>;
                 return total + toNumber(data.eventCount);

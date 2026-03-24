@@ -22,7 +22,7 @@ import { normalizeUserProfile } from "@/lib/user-utils";
 import { useRouter, usePathname } from "next/navigation";
 import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
-import { clearLastVisitedPath, readPreferredAuthenticatedPath, setNavigationAuthCookies } from "@/lib/navigation-persistence";
+import { clearLastVisitedPath, readPreferredAuthenticatedPath } from "@/lib/navigation-persistence";
 import { trackEvent } from "@/lib/telemetry";
 
 interface AuthIdentityContextType {
@@ -201,7 +201,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (!user) {
             navigationSessionSyncKeyRef.current = null;
-            setNavigationAuthCookies(null);
             void fetch("/api/auth/navigation-session", {
                 method: "DELETE",
                 keepalive: true,
@@ -283,12 +282,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         if (!user) {
             navigationSessionSyncKeyRef.current = null;
-            setNavigationAuthCookies(null);
             return;
         }
 
         if (userProfile) {
-            setNavigationAuthCookies(userProfile.role ?? "user", user.uid);
             const syncKey = `${user.uid}:${userProfile.role ?? "user"}`;
             if (navigationSessionSyncKeyRef.current === syncKey) {
                 return;

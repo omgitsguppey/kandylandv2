@@ -171,7 +171,6 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       : adminDb.collection("security_events")
         .where("timestamp", ">=", startMs)
         .orderBy("timestamp", "desc")
-        .limit(300)
         .get(),
     period === "all"
       ? adminDb.collection("analytics_guest_batches")
@@ -180,7 +179,6 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       : adminDb.collection("analytics_guest_batches")
         .where("receivedAtMs", ">=", startMs)
         .orderBy("receivedAtMs", "desc")
-        .limit(80)
         .get(),
     adminDb.collection("analytics_commerce_rollup")
       .doc("summary")
@@ -192,7 +190,6 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       : adminDb.collection("server_diagnostics")
         .where("createdAtMs", ">=", startMs)
         .orderBy("createdAtMs", "desc")
-        .limit(120)
         .get(),
     adminDb.collection("analytics_task_rollup").get(),
     period === "all" ? adminDb.collection("drops").get() : Promise.resolve(null),
