@@ -1,37 +1,161 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useAuth } from "@/context/AuthContext";
-import { Button } from "@/components/ui/Button";
-import { Loader2, Terminal, RefreshCw, Plus, PlayCircle } from "lucide-react";
-
-import { authFetch } from "@/lib/authFetch";
+import { useMemo, useState } from "react";
+import {
+    Activity,
+    Bug,
+    ChevronDown,
+    ChevronUp,
+    Loader2,
+    PlayCircle,
+    Plus,
+    Radio,
+    RefreshCw,
+    ShieldAlert,
+    Terminal,
+    Workflow,
+} from "lucide-react";
 import { toast } from "sonner";
+
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { Button } from "@/components/ui/Button";
+import { useAuth } from "@/context/AuthContext";
 import { useAdminOverview } from "@/hooks/useAdminOverview";
+import { useAuthSWR } from "@/hooks/useAuthSWR";
+import { useCompactViewport } from "@/hooks/useCompactViewport";
+import { authFetch } from "@/lib/authFetch";
+import { cn } from "@/lib/utils";
+
+type DebugTabId = "overview" | "tasks" | "telemetry" | "reports" | "ops";
+
+const DEBUG_TABS: Array<{ id: DebugTabId; label: string; icon: typeof Activity }> = [
+    { id: "overview", label: "Overview", icon: Activity },
+    { id: "tasks", label: "Tasks", icon: Workflow },
+    { id: "telemetry", label: "Telemetry", icon: Radio },
+    { id: "reports", label: "Reports", icon: Bug },
+    { id: "ops", label: "Ops", icon: ShieldAlert },
+];
+
+function formatTimestamp(timestamp?: number) {
+    if (!timestamp) return "Not recorded";
+    return new Date(timestamp).toLocaleString();
+}
+
+function formatRelative(timestamp?: number) {
+    if (!timestamp) return "No recent activity";
+    const deltaMs = Math.max(0, Date.now() - timestamp);
+    const minutes = Math.floor(deltaMs / 60_000);
+    if (minutes < 1) return "Just now";
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    return `${Math.floor(hours / 24)}d ago`;
+}
+
+function compactNumber(value?: number) {
+    return new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(value || 0);
+}
+
+function Pill({ label, value, tone = "neutral" }: { label: string; value: string | number; tone?: "neutral" | "good" | "warn" | "bad" }) {
+    const toneClassName = tone === "good"
+        ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-100"
+        : tone === "warn"
+            ? "border-amber-400/20 bg-amber-500/10 text-amber-100"
+            : tone === "bad"
+                ? "border-red-400/20 bg-red-500/10 text-red-100"
+                : "border-white/10 bg-white/5 text-gray-200";
+
+    return (
+        <div className={cn("inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs", toneClassName)}>
+            <span className="text-gray-400">{label}</span>
+            <span className="font-semibold text-white">{value}</span>
+        </div>
+    );
+}
+
+function StatCard({ label, value, meta }: { label: string; value: string | number; meta?: string }) {
+    return (
+        <div className="rounded-[1.25rem] border border-white/10 bg-white/[0.04] p-4">
+            <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">{label}</p>
+            <div className="mt-2 text-2xl font-black text-white">{value}</div>
+            {meta ? <p className="mt-1 text-xs text-gray-400">{meta}</p> : null}
+        </div>
+    );
+}
+
+function Section({
+    title,
+    subtitle,
+    summary,
+    defaultOpen,
+    children,
+}: {
+    title: string;
+    subtitle?: string;
+    summary?: React.ReactNode;
+    defaultOpen: boolean;
+    children: React.ReactNode;
+}) {
+    const [open, setOpen] = useState(defaultOpen);
+
+    return (
+        <section className="overflow-hidden rounded-[1.35rem] border border-white/10 bg-black/25">
+            <button
+                type="button"
+                onClick={() => setOpen((current) => !current)}
+                className="flex w-full items-start justify-between gap-4 px-4 py-4 text-left md:px-5"
+                aria-expanded={open}
+            >
+                <div className="min-w-0">
+                    <h2 className="text-base font-bold text-white md:text-lg">{title}</h2>
+                    {subtitle ? <p className="mt-1 text-sm text-gray-400">{subtitle}</p> : null}
+                    {summary ? <div className="mt-3 flex flex-wrap gap-2">{summary}</div> : null}
+                </div>
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-300">
+                    {open ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </div>
+            </button>
+            {open ? <div className="border-t border-white/10 px-4 py-4 md:px-5">{children}</div> : null}
+        </section>
+    );
+}
+
+function ScrollWrap({ children }: { children: React.ReactNode }) {
+    return <div className="max-h-[24rem] overflow-auto rounded-[1rem] border border-white/10 bg-black/25">{children}</div>;
+}
 
 export default function DebugConsole() {
     const { user, userProfile } = useAuth();
-    const [logs, setLogs] = useState<any[]>([]);
+    const isCompactViewport = useCompactViewport();
     const [processing, setProcessing] = useState(false);
     const [simAmount, setSimAmount] = useState("500");
-    const { data } = useAdminOverview();
+    const [activeTab, setActiveTab] = useState<DebugTabId>("overview");
 
-    useEffect(() => {
-        const recentLogs = (data?.recentTransactions || []).map((log) => ({
-            ...log,
-            timestamp: typeof log.timestamp === "number" && log.timestamp > 0
-                ? new Date(log.timestamp).toLocaleString()
-                : "Pending...",
-        }));
-        setLogs(recentLogs);
-    }, [data]);
+    const { data, error, isLoading, mutate } = useAuthSWR<any>("/api/admin/debug", {
+        refreshInterval: 30_000,
+        revalidateOnFocus: true,
+    });
+    const { data: overviewData, isLoading: overviewLoading, mutate: mutateOverview } = useAdminOverview();
+
+    const recentTransactions = useMemo(() => (
+        (overviewData?.recentTransactions || []).map((entry: any) => ({
+            ...entry,
+            timestampLabel: typeof entry.timestamp === "number" && entry.timestamp > 0
+                ? new Date(entry.timestamp).toLocaleString()
+                : "Pending",
+        }))
+    ), [overviewData?.recentTransactions]);
+
+    const refreshAll = async () => {
+        await Promise.all([mutate(), mutateOverview()]);
+        toast.success("Debug console refreshed");
+    };
 
     const handleSimulatePurchase = async () => {
         if (!user) return;
         setProcessing(true);
         try {
-            const amount = parseInt(simAmount);
+            const amount = Number.parseInt(simAmount, 10);
             const response = await authFetch("/api/admin/balance", {
                 method: "POST",
                 body: JSON.stringify({
@@ -41,125 +165,570 @@ export default function DebugConsole() {
                 }),
             });
             const result = await response.json();
-            if (!response.ok) throw new Error(result.error);
-            toast.success("Simulation Successful!");
-        } catch (error: any) {
-            console.error(error);
-            toast.error(error.message || "Simulation Failed");
+            if (!response.ok) throw new Error(result.error || "Simulation failed");
+            toast.success("Simulation successful");
+            await mutateOverview();
+        } catch (issue) {
+            console.error(issue);
+            toast.error(issue instanceof Error ? issue.message : "Simulation failed");
         } finally {
             setProcessing(false);
         }
     };
 
-    const handleTestWebhook = async () => {
-        alert("Webhook simulation requires backend endpoint. (Not Implemented)");
+    const renderTabControls = () => {
+        if (isCompactViewport) {
+            return (
+                <div className="rounded-[1.2rem] border border-white/10 bg-black/25 p-3">
+                    <label className="mb-2 block text-[11px] uppercase tracking-[0.18em] text-gray-400">Debug lane</label>
+                    <select
+                        value={activeTab}
+                        onChange={(event) => setActiveTab(event.target.value as DebugTabId)}
+                        className="min-h-11 w-full rounded-[1rem] border border-white/10 bg-black/40 px-3 text-sm font-semibold text-white"
+                    >
+                        {DEBUG_TABS.map((tab) => <option key={tab.id} value={tab.id}>{tab.label}</option>)}
+                    </select>
+                </div>
+            );
+        }
+
+        return (
+            <div className="flex flex-wrap gap-2">
+                {DEBUG_TABS.map((tab) => {
+                    const Icon = tab.icon;
+                    const active = activeTab === tab.id;
+                    return (
+                        <button
+                            key={tab.id}
+                            type="button"
+                            onClick={() => setActiveTab(tab.id)}
+                            className={cn(
+                                "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold",
+                                active ? "border-brand-purple/40 bg-brand-purple/20 text-white" : "border-white/10 bg-white/5 text-gray-300"
+                            )}
+                        >
+                            <Icon className="h-4 w-4" />
+                            {tab.label}
+                        </button>
+                    );
+                })}
+            </div>
+        );
     };
 
     return (
         <div className="space-y-4 md:space-y-6">
             <AdminPageHeader
                 eyebrow="Admin Debug"
-                title="Debug Console"
-                subtitle="Run safe admin-side checks and inspect recent transaction activity."
+                title="Compact Debug Console"
+                subtitle="Inspect task coverage, telemetry health, bug intake, and runtime ops in a tighter mobile-first flow without removing any debug surfaces."
                 actions={
-                    <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-4 py-2 text-sm text-gray-300">
-                        <Terminal className="w-4 h-4 text-brand-purple" />
-                        Production Firebase tools
-                    </div>
+                    <>
+                        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-4 py-2 text-sm text-gray-300">
+                            <Terminal className="h-4 w-4 text-brand-purple" />
+                            Production Firebase tools
+                        </div>
+                        <Button variant="glass" onClick={refreshAll}>
+                            <RefreshCw className="mr-2 h-4 w-4" />
+                            Refresh
+                        </Button>
+                    </>
                 }
             />
 
-            <div className="grid grid-cols-1 gap-3.5 md:grid-cols-2 md:gap-5">
-                {/* Simulation Tools */}
-                <div className="glass-panel space-y-3.5 rounded-[1.4rem] border border-white/5 p-4 md:p-5">
-                    <h2 className="flex items-center gap-2 text-lg font-bold text-white">
-                        <PlayCircle className="w-5 h-5 text-brand-purple" />
-                        Simulate Actions
-                    </h2>
+            {renderTabControls()}
 
-                    <div className="space-y-2">
-                        <label className="text-xs font-bold text-gray-500 uppercase">Add Gum Drops (To Self)</label>
-                        <div className="flex gap-2">
-                            <input
-                                type="number"
-                                className="min-h-10 flex-1 rounded-lg border border-white/10 bg-black/50 px-3 py-2 text-white"
-                                value={simAmount}
-                                onChange={(e) => setSimAmount(e.target.value)}
-                            />
-                            <Button variant="brand" onClick={handleSimulatePurchase} disabled={processing}>
-                                {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-                            </Button>
-                        </div>
-                        <p className="text-xs text-gray-500">Adds Gum Drops to your current admin account.</p>
-                    </div>
-
-                    <div className="border-t border-white/5 pt-3">
-                        <Button variant="glass" className="w-full" onClick={handleTestWebhook}>
-                            Test Payment Webhook (Mock)
-                        </Button>
-                    </div>
-                </div>
-
-                {/* System Info */}
-                <div className="glass-panel rounded-[1.4rem] border border-white/5 p-4 md:p-5">
-                    <h2 className="mb-3 text-lg font-bold text-white">System Status</h2>
-                    <div className="space-y-2 text-sm text-gray-400">
-                        <div className="flex justify-between">
-                            <span>Environment</span>
-                            <span className="text-white">Production (Firebase)</span>
-                        </div>
-                        <div className="flex justify-between">
-                            <span>User ID</span>
-                            <span className="font-mono text-xs">{user?.uid}</span>
-                        </div>
-                        <div className="flex justify-between">
-                            <span>Email</span>
-                            <span className="text-white">{user?.email}</span>
-                        </div>
-                        <div className="flex justify-between">
-                            <span>Role</span>
-                            <span className="text-brand-purple font-bold uppercase">{userProfile?.role || 'User'}</span>
-                        </div>
-                    </div>
-                </div>
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+                <StatCard label="Ops score" value={data?.opsHealth ? `${data.opsHealth.score}%` : "--"} meta={`${data?.opsHealth?.pipeline?.failureCount || 0} pipeline failures`} />
+                <StatCard label="Built-in tasks" value={data?.stats?.builtInTasks ?? "--"} meta={`${data?.stats?.validatedTasks ?? 0} validated`} />
+                <StatCard label="Telemetry events" value={data?.stats?.trackedTelemetryEvents ?? "--"} meta={`${data?.stats?.orphanedTelemetryEvents ?? 0} orphaned`} />
+                <StatCard label="Receipts 7d" value={data?.stats?.receiptsLast7d ?? "--"} meta={`${data?.stats?.completedEventsLast7d ?? 0} completions`} />
+                <StatCard label="Bug reports 7d" value={data?.stats?.bugReportsLast7d ?? "--"} meta={`${data?.bugReports?.length ?? 0} loaded`} />
+                <StatCard label="Users with issues" value={data?.stats?.usersWithTaskIssues ?? "--"} meta="Task assignment integrity" />
             </div>
 
-            {/* Live Logs */}
-            <div className="glass-panel overflow-hidden rounded-[1.4rem] border border-white/5">
-                <div className="flex items-center justify-between border-b border-white/5 bg-white/5 p-3.5">
-                    <h3 className="font-bold text-white flex items-center gap-2">
-                        <RefreshCw className="w-4 h-4 text-gray-400" />
-                        Live Transaction Logs
-                    </h3>
-                    <span className="text-xs text-gray-500">Last 20 entries</span>
+            {error ? <div className="rounded-[1.35rem] border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-100">Debug data could not be loaded right now.</div> : null}
+            {(isLoading || overviewLoading) && !data ? <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-6 text-sm text-gray-300"><Loader2 className="mr-2 inline h-4 w-4 animate-spin" />Loading debug surfaces...</div> : null}
+
+            {activeTab === "overview" ? (
+                <div className="space-y-4">
+                    <Section
+                        title="Simulation tools"
+                        subtitle="Keep quick admin-side checks available without turning them into the whole page."
+                        defaultOpen
+                        summary={<><Pill label="Self top-up" value={`${simAmount} drops`} /><Pill label="Webhook" value="Placeholder" tone="warn" /></>}
+                    >
+                        <div className="grid gap-4 lg:grid-cols-[1.3fr_1fr]">
+                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Add Gum Drops (to self)</p>
+                                <div className="mt-3 flex gap-2">
+                                    <input
+                                        type="number"
+                                        className="min-h-11 flex-1 rounded-[1rem] border border-white/10 bg-black/40 px-3 text-white"
+                                        value={simAmount}
+                                        onChange={(event) => setSimAmount(event.target.value)}
+                                    />
+                                    <Button variant="brand" onClick={handleSimulatePurchase} disabled={processing}>
+                                        {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+                                    </Button>
+                                </div>
+                            </div>
+                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Webhook test</p>
+                                <Button variant="glass" className="mt-3 w-full" onClick={() => toast.info("Webhook simulation is still backend-gated and not implemented here yet.")}>
+                                    <PlayCircle className="mr-2 h-4 w-4" />
+                                    Test Payment Webhook
+                                </Button>
+                            </div>
+                        </div>
+                    </Section>
+
+                    <Section
+                        title="Session and runtime"
+                        subtitle="Shows who is using the console plus the runtime switches most likely to affect debugging."
+                        defaultOpen={!isCompactViewport}
+                        summary={
+                            <>
+                                <Pill label="Role" value={userProfile?.role || "user"} tone="good" />
+                                <Pill label="GA" value={data?.opsHealth?.runtime?.gaPropertyConfigured ? "Ready" : "Missing"} tone={data?.opsHealth?.runtime?.gaPropertyConfigured ? "good" : "warn"} />
+                                <Pill label="App Check" value={data?.opsHealth?.runtime?.appCheckConfigured ? "Configured" : "Not configured"} tone={data?.opsHealth?.runtime?.appCheckConfigured ? "good" : "warn"} />
+                            </>
+                        }
+                    >
+                        <div className="grid gap-4 lg:grid-cols-[1fr_1.2fr]">
+                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4 text-sm text-gray-300">
+                                <div className="flex justify-between gap-3 border-b border-white/10 py-2"><span className="text-gray-400">User ID</span><span className="truncate font-mono text-xs text-white">{user?.uid || "--"}</span></div>
+                                <div className="flex justify-between gap-3 border-b border-white/10 py-2"><span className="text-gray-400">Email</span><span className="truncate text-white">{user?.email || "--"}</span></div>
+                                <div className="flex justify-between gap-3 border-b border-white/10 py-2"><span className="text-gray-400">Project</span><span className="truncate text-white">{data?.opsHealth?.runtime?.projectId || "--"}</span></div>
+                                <div className="flex justify-between gap-3 py-2"><span className="text-gray-400">Warnings</span><span className="text-white">{data?.opsHealth?.runtime?.warnings?.length || 0}</span></div>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                                <Pill label="reCAPTCHA" value={data?.opsHealth?.runtime?.recaptchaConfigured ? "Yes" : "No"} tone={data?.opsHealth?.runtime?.recaptchaConfigured ? "good" : "warn"} />
+                                <Pill label="VAPID" value={data?.opsHealth?.runtime?.vapidConfigured ? "Yes" : "No"} tone={data?.opsHealth?.runtime?.vapidConfigured ? "good" : "warn"} />
+                                <Pill label="Database URL" value={data?.opsHealth?.runtime?.databaseUrlConfigured ? "Ready" : "Missing"} tone={data?.opsHealth?.runtime?.databaseUrlConfigured ? "good" : "warn"} />
+                                <Pill label="Navigation signing" value={data?.opsHealth?.runtime?.navigationSessionSigningReady ? "Ready" : "Missing"} tone={data?.opsHealth?.runtime?.navigationSessionSigningReady ? "good" : "warn"} />
+                                {(data?.opsHealth?.runtime?.warnings || []).map((warning: string) => <Pill key={warning} label="Warning" value={warning} tone="warn" />)}
+                            </div>
+                        </div>
+                    </Section>
+
+                    <Section
+                        title="Recent transactions"
+                        subtitle="Keeps the legacy live transaction view, but inside a bounded inline panel instead of a full-page table."
+                        defaultOpen={!isCompactViewport}
+                        summary={<><Pill label="Loaded" value={recentTransactions.length} /><Pill label="Feed" value="Last 20 entries" /></>}
+                    >
+                        <ScrollWrap>
+                            <table className="w-full text-left text-sm">
+                                <thead className="sticky top-0 bg-black/80 text-[11px] uppercase tracking-[0.16em] text-gray-400">
+                                    <tr><th className="px-3 py-3">Time</th><th className="px-3 py-3">Type</th><th className="px-3 py-3">Amount</th><th className="px-3 py-3">User</th><th className="px-3 py-3">Description</th></tr>
+                                </thead>
+                                <tbody className="divide-y divide-white/10">
+                                    {recentTransactions.map((entry: any) => (
+                                        <tr key={entry.id}>
+                                            <td className="px-3 py-3 text-gray-400">{entry.timestampLabel}</td>
+                                            <td className="px-3 py-3 text-brand-purple">{entry.type}</td>
+                                            <td className="px-3 py-3 text-white">{entry.amount}</td>
+                                            <td className="px-3 py-3 text-gray-300">{entry.username ? `@${entry.username}` : entry.userId}</td>
+                                            <td className="px-3 py-3 text-gray-400">{entry.description}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </ScrollWrap>
+                    </Section>
                 </div>
-                <div className="max-h-[22rem] overflow-y-auto font-mono text-xs">
-                    <table className="w-full text-left">
-                        <thead className="bg-black/50 text-gray-500 sticky top-0">
-                            <tr>
-                                <th className="p-3">Time</th>
-                                <th className="p-3">Type</th>
-                                <th className="p-3">Amount</th>
-                                <th className="p-3">User</th>
-                                <th className="p-3">Description</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-white/5">
-                            {logs.map((log) => (
-                                <tr key={log.id} className="">
-                                    <td className="p-3 text-gray-400">{log.timestamp}</td>
-                                    <td className="p-3 text-brand-purple">{log.type}</td>
-                                    <td className="p-3 text-white">{log.amount}</td>
-                                    <td className="p-3 text-gray-500 font-bold truncate max-w-[100px]" title={log.userId}>
-                                        {log.username ? `@${log.username}` : log.userId}
-                                    </td>
-                                    <td className="p-3 text-gray-300">{log.description}</td>
-                                </tr>
+            ) : null}
+
+            {activeTab === "tasks" ? (
+                <div className="space-y-4">
+                    <Section
+                        title="Coverage matrix"
+                        subtitle="Every built-in task, its trigger source, and whether it relies on canonical or telemetry-backed validation."
+                        defaultOpen
+                        summary={<><Pill label="Built-in" value={data?.stats?.builtInTasks ?? 0} /><Pill label="Canonical" value={data?.stats?.canonicalTasks ?? 0} tone="good" /><Pill label="Telemetry" value={data?.stats?.telemetryValidatedTasks ?? 0} tone="good" /><Pill label="Unsupported" value={data?.stats?.unsupportedTasks ?? 0} tone={data?.stats?.unsupportedTasks ? "warn" : "good"} /></>}
+                    >
+                        <ScrollWrap>
+                            <div className="divide-y divide-white/10">
+                                {(data?.coverage || []).map((task: any) => (
+                                    <div key={task.taskId} className="space-y-2 px-4 py-3">
+                                        <div className="flex flex-wrap items-start justify-between gap-2">
+                                            <div>
+                                                <p className="font-semibold text-white">{task.title}</p>
+                                                <p className="text-xs text-gray-400">{task.taskId} | {task.eventLabel}</p>
+                                            </div>
+                                            <Pill label="Source" value={task.trackingSource} tone={task.trackingSource === "unsupported" ? "bad" : "good"} />
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            <Pill label="Reward" value={task.reward} />
+                                            <Pill label="Max" value={task.maxProgress} />
+                                            {task.oneTime ? <Pill label="Mode" value="one-time" /> : null}
+                                            {task.hasUniqueKey ? <Pill label="Keying" value="unique" /> : null}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </ScrollWrap>
+                    </Section>
+
+                    <Section
+                        title="Integrity and parity"
+                        subtitle="Combines user assignment issues with reward parity so the highest-signal task problems stay together."
+                        defaultOpen={!isCompactViewport}
+                        summary={<><Pill label="Affected users" value={data?.stats?.usersWithTaskIssues ?? 0} tone={data?.stats?.usersWithTaskIssues ? "warn" : "good"} /><Pill label="Reward delta 7d" value={data?.stats?.rewardEventDeltaLast7d ?? 0} tone={(data?.stats?.rewardEventDeltaLast7d ?? 0) === 0 ? "good" : "warn"} /></>}
+                    >
+                        <div className="grid gap-4 xl:grid-cols-[1fr_1fr]">
+                            <ScrollWrap>
+                                <div className="divide-y divide-white/10">
+                                    {(data?.assignmentIssues || []).length ? (data?.assignmentIssues || []).map((issue: any) => (
+                                        <div key={issue.uid} className="space-y-2 px-4 py-3">
+                                            <div className="flex flex-wrap items-start justify-between gap-2">
+                                                <div>
+                                                    <p className="font-semibold text-white">{issue.username}</p>
+                                                    <p className="text-xs text-gray-400">{issue.uid}</p>
+                                                </div>
+                                                <Pill label="Issues" value={issue.issueCount} tone="warn" />
+                                            </div>
+                                            <div className="flex flex-wrap gap-2">{(issue.taskIds || []).map((taskId: string) => <Pill key={taskId} label="Task" value={taskId} />)}</div>
+                                            <div className="space-y-1 text-sm text-amber-100">{(issue.issues || []).map((entry: string) => <div key={entry}>- {entry}</div>)}</div>
+                                        </div>
+                                    )) : <div className="px-4 py-4 text-sm text-emerald-100">No assignment integrity issues were detected in the sampled users.</div>}
+                                </div>
+                            </ScrollWrap>
+                            <ScrollWrap>
+                                <div className="divide-y divide-white/10">
+                                    {(data?.taskParity || []).map((entry: any) => (
+                                        <div key={entry.taskId} className="space-y-2 px-4 py-3">
+                                            <div className="flex flex-wrap items-start justify-between gap-2">
+                                                <div>
+                                                    <p className="font-semibold text-white">{entry.title}</p>
+                                                    <p className="text-xs text-gray-400">{entry.taskId}</p>
+                                                </div>
+                                                <Pill label="Completed" value={entry.completedCount} />
+                                            </div>
+                                            <div className="flex flex-wrap gap-2">
+                                                <Pill label="Rewarded" value={entry.rewardedCount} tone={entry.completedCount !== entry.rewardedCount ? "warn" : "good"} />
+                                                <Pill label="Receipts" value={entry.receiptCount} />
+                                                <Pill label="Reward total" value={entry.rewardTotal} />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </ScrollWrap>
+                        </div>
+                    </Section>
+
+                    <Section
+                        title="Recent task flow and rollups"
+                        subtitle="Recent event flow on one side, long-tail rollups and daily series on the other."
+                        defaultOpen={!isCompactViewport}
+                        summary={<><Pill label="Recent events" value={(data?.recentTaskEvents || []).length} /><Pill label="Rollups" value={(data?.taskRollups || []).length} /><Pill label="Daily points" value={(data?.dailyTaskSeries || []).length} /></>}
+                    >
+                        <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+                            <ScrollWrap>
+                                <div className="divide-y divide-white/10">
+                                    {(data?.recentTaskEvents || []).map((event: any) => (
+                                        <div key={event.id} className="space-y-2 px-4 py-3">
+                                            <div className="flex flex-wrap items-start justify-between gap-2">
+                                                <div>
+                                                    <p className="font-semibold text-white">{event.title}</p>
+                                                    <p className="text-xs text-gray-400">{event.triggerEvent}</p>
+                                                </div>
+                                                <Pill label={event.type} value={formatRelative(event.timestamp)} />
+                                            </div>
+                                            <div className="flex flex-wrap gap-2">
+                                                <Pill label="User" value={event.username} />
+                                                <Pill label="Reward" value={event.reward} />
+                                                <Pill label="Progress" value={`${event.progress}/${event.maxProgress}`} />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </ScrollWrap>
+                            <ScrollWrap>
+                                <div className="divide-y divide-white/10">
+                                    {(data?.taskRollups || []).map((rollup: any) => (
+                                        <div key={rollup.taskId} className="space-y-2 px-4 py-3">
+                                            <div className="flex flex-wrap items-start justify-between gap-2">
+                                                <div>
+                                                    <p className="font-semibold text-white">{rollup.title}</p>
+                                                    <p className="text-xs text-gray-400">Last event {formatRelative(rollup.lastEventAt)}</p>
+                                                </div>
+                                                <Pill label="Completed" value={rollup.completed} />
+                                            </div>
+                                            <div className="flex flex-wrap gap-2">
+                                                <Pill label="Started" value={rollup.started} />
+                                                <Pill label="Failed" value={rollup.failed} tone={rollup.failed ? "warn" : "good"} />
+                                                <Pill label="Reminders" value={rollup.reminders} />
+                                                <Pill label="Reward total" value={rollup.rewardTotal} />
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {(data?.dailyTaskSeries || []).map((day: any) => (
+                                        <div key={day.dayKey} className="flex flex-wrap items-center gap-2 px-4 py-3 text-sm text-gray-300">
+                                            <span className="font-semibold text-white">{day.dayKey}</span>
+                                            <Pill label="Events" value={day.eventCount} />
+                                            <Pill label="Completed" value={day.completed} />
+                                            <Pill label="Failed" value={day.failed} tone={day.failed ? "warn" : "good"} />
+                                            <Pill label="Rewards" value={day.rewardTotal} />
+                                        </div>
+                                    ))}
+                                </div>
+                            </ScrollWrap>
+                        </div>
+                    </Section>
+                </div>
+            ) : null}
+
+            {activeTab === "telemetry" ? (
+                <div className="space-y-4">
+                    <Section
+                        title="Event coverage"
+                        subtitle="Tracked events, mapped tasks, and last-seen visibility in one bounded panel."
+                        defaultOpen
+                        summary={<><Pill label="Tracked events" value={data?.stats?.trackedTelemetryEvents ?? 0} /><Pill label="Orphaned" value={data?.stats?.orphanedTelemetryEvents ?? 0} tone={data?.stats?.orphanedTelemetryEvents ? "warn" : "good"} /></>}
+                    >
+                        <ScrollWrap>
+                            <div className="divide-y divide-white/10">
+                                {(data?.eventStats || []).map((event: any) => (
+                                    <div key={event.eventName} className="space-y-2 px-4 py-3">
+                                        <div className="flex flex-wrap items-start justify-between gap-2">
+                                            <div>
+                                                <p className="font-semibold text-white">{event.label}</p>
+                                                <p className="text-xs text-gray-400">{event.eventName}</p>
+                                            </div>
+                                            <Pill label="Total" value={compactNumber(event.totalCount)} />
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            <Pill label="Tasks" value={event.mappedTaskCount} tone={event.mappedTaskCount ? "good" : "warn"} />
+                                            <Pill label="Last seen" value={formatRelative(event.lastSeenAt)} />
+                                            <Pill label="Source" value={event.trackingSource} />
+                                        </div>
+                                        {event.mappedTaskTitles?.length ? <p className="text-xs text-gray-400">{event.mappedTaskTitles.join(", ")}</p> : null}
+                                    </div>
+                                ))}
+                            </div>
+                        </ScrollWrap>
+                    </Section>
+
+                    <Section
+                        title="Receipt visibility"
+                        subtitle="Keeps the dedupe layer visible without forcing two full tables on screen at once."
+                        defaultOpen={!isCompactViewport}
+                        summary={<><Pill label="Receipts 7d" value={data?.stats?.receiptsLast7d ?? 0} /><Pill label="Recent" value={(data?.recentReceipts || []).length} /></>}
+                    >
+                        <div className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
+                            <ScrollWrap>
+                                <div className="divide-y divide-white/10">
+                                    {(data?.receiptSummary || []).map((receipt: any) => (
+                                        <div key={receipt.eventName} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
+                                            <div>
+                                                <p className="font-semibold text-white">{receipt.eventName}</p>
+                                                <p className="text-xs text-gray-400">{formatTimestamp(receipt.lastSeenAt)}</p>
+                                            </div>
+                                            <Pill label="Count" value={receipt.count} />
+                                        </div>
+                                    ))}
+                                </div>
+                            </ScrollWrap>
+                            <ScrollWrap>
+                                <div className="divide-y divide-white/10">
+                                    {(data?.recentReceipts || []).map((receipt: any) => (
+                                        <div key={receipt.id} className="space-y-2 px-4 py-3">
+                                            <div className="flex flex-wrap items-start justify-between gap-2">
+                                                <div>
+                                                    <p className="font-semibold text-white">{receipt.eventName}</p>
+                                                    <p className="text-xs text-gray-400">{receipt.uid || "guest"} | {receipt.receiptKey}</p>
+                                                </div>
+                                                <Pill label="Source" value={receipt.source} />
+                                            </div>
+                                            <p className="text-xs text-gray-400">{formatTimestamp(receipt.timestamp)}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </ScrollWrap>
+                        </div>
+                    </Section>
+
+                    <Section
+                        title="Orphaned telemetry"
+                        subtitle="Compact warning list for tracked events that do not map to a task."
+                        defaultOpen={!isCompactViewport}
+                        summary={<><Pill label="Orphaned" value={(data?.orphanedEventStats || []).length} tone={(data?.orphanedEventStats || []).length ? "warn" : "good"} /></>}
+                    >
+                        {(data?.orphanedEventStats || []).length ? (
+                            <div className="grid gap-3 md:grid-cols-2">
+                                {(data?.orphanedEventStats || []).map((event: any) => (
+                                    <div key={event.eventName} className="rounded-[1rem] border border-amber-400/20 bg-amber-500/10 p-4">
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div>
+                                                <p className="font-semibold text-white">{event.label}</p>
+                                                <p className="text-xs text-gray-400">{event.eventName}</p>
+                                            </div>
+                                            <Pill label="Count" value={compactNumber(event.totalCount)} tone="warn" />
+                                        </div>
+                                        <p className="mt-3 text-sm text-amber-100">Last seen {formatRelative(event.lastSeenAt)}. This event is tracked, but does not currently power any task mapping.</p>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="rounded-[1rem] border border-emerald-400/20 bg-emerald-500/10 p-4 text-sm text-emerald-100">Every tracked telemetry event in this slice is mapped to at least one task.</div>
+                        )}
+                    </Section>
+                </div>
+            ) : null}
+
+            {activeTab === "reports" ? (
+                <div className="space-y-4">
+                    <Section
+                        title="Bug intake"
+                        subtitle="Keeps incoming bug reports readable on mobile without pushing the user into a separate detail surface."
+                        defaultOpen
+                        summary={<><Pill label="Loaded" value={(data?.bugReports || []).length} /><Pill label="Last 7d" value={data?.stats?.bugReportsLast7d ?? 0} tone={(data?.stats?.bugReportsLast7d ?? 0) > 0 ? "warn" : "good"} /></>}
+                    >
+                        <div className="space-y-3">
+                            {(data?.bugReports || []).length ? (data?.bugReports || []).map((report: any) => (
+                                <div key={report.id} className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                    <div className="flex flex-wrap items-start justify-between gap-3">
+                                        <div className="min-w-0">
+                                            <p className="truncate font-semibold text-white">{report.summary || "Untitled bug report"}</p>
+                                            <p className="mt-1 text-xs text-gray-400">{report.currentPath || "Unknown path"} | {report.componentName || "Unknown component"}</p>
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            <Pill label="Status" value={report.status} />
+                                            <Pill label="Severity" value={report.severity} tone={report.severity === "high" || report.severity === "critical" ? "bad" : report.severity === "medium" ? "warn" : "neutral"} />
+                                        </div>
+                                    </div>
+                                    <p className="mt-3 line-clamp-3 text-sm text-gray-300">{report.message}</p>
+                                    <div className="mt-3 flex flex-wrap gap-2">
+                                        <Pill label="Breadcrumbs" value={report.breadcrumbsCount} />
+                                        <Pill label="Diagnostics" value={report.diagnosticsCount} />
+                                        <Pill label="Rollouts" value={report.rolloutCount} />
+                                        <Pill label="When" value={formatRelative(report.timestamp)} />
+                                    </div>
+                                </div>
+                            )) : <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4 text-sm text-gray-300">No bug reports are loaded in the current sample.</div>}
+                        </div>
+                    </Section>
+
+                    <Section
+                        title="Rollout registry"
+                        subtitle="Makes the current experimentation footprint readable without leaving the debug console."
+                        defaultOpen={!isCompactViewport}
+                        summary={<><Pill label="Configured rollouts" value={(data?.rollouts || []).length} /></>}
+                    >
+                        <div className="grid gap-3 lg:grid-cols-2">
+                            {(data?.rollouts || []).map((rollout: any) => (
+                                <div key={rollout.id} className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div>
+                                            <p className="font-semibold text-white">{rollout.label}</p>
+                                            <p className="mt-1 text-xs text-gray-400">{rollout.id}</p>
+                                        </div>
+                                        <Pill label="Enabled" value={rollout.enabled ? "Yes" : "No"} tone={rollout.enabled ? "good" : "warn"} />
+                                    </div>
+                                    <p className="mt-3 text-sm text-gray-300">{rollout.description}</p>
+                                    <div className="mt-3 flex flex-wrap gap-2">
+                                        <Pill label="Kind" value={rollout.kind} />
+                                        <Pill label="Audience" value={rollout.audience} />
+                                        <Pill label="Rollout" value={`${rollout.rolloutPercent}%`} />
+                                        <Pill label="Default" value={rollout.defaultVariant} />
+                                    </div>
+                                </div>
                             ))}
-                        </tbody>
-                    </table>
+                        </div>
+                    </Section>
                 </div>
-            </div>
+            ) : null}
+
+            {activeTab === "ops" ? (
+                <div className="space-y-4">
+                    <Section
+                        title="Pipeline health"
+                        subtitle="High-level runtime, diagnostics, and materializer health without forcing every list open by default."
+                        defaultOpen
+                        summary={<><Pill label="Score" value={`${data?.opsHealth?.score ?? 0}%`} tone={(data?.opsHealth?.score ?? 0) >= 90 ? "good" : (data?.opsHealth?.score ?? 0) >= 70 ? "warn" : "bad"} /><Pill label="Failures" value={data?.opsHealth?.pipeline?.failureCount ?? 0} tone={data?.opsHealth?.pipeline?.failureCount ? "warn" : "good"} /><Pill label="Diagnostics" value={data?.opsHealth?.diagnostics?.total ?? 0} /></>}
+                    >
+                        <div className="grid gap-4 lg:grid-cols-3">
+                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4"><p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Pipeline</p><p className="mt-2 text-xl font-black text-white">{data?.opsHealth?.pipeline?.failureCount ?? 0}</p><p className="mt-1 text-sm text-gray-400">Last failure {formatRelative(data?.opsHealth?.pipeline?.lastFailureAt)}</p></div>
+                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4"><p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Diagnostics</p><p className="mt-2 text-xl font-black text-white">{data?.opsHealth?.diagnostics?.errorCount ?? 0}</p><p className="mt-1 text-sm text-gray-400">Errors in recent sample</p></div>
+                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4"><p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Materializers</p><p className="mt-2 text-xl font-black text-white">{(data?.opsHealth?.materializers || []).length}</p><p className="mt-1 text-sm text-gray-400">Tracked downstream writers</p></div>
+                        </div>
+                    </Section>
+
+                    <Section
+                        title="Diagnostics and materializers"
+                        subtitle="Shows noisy channels, recent diagnostics, route failures, and downstream freshness in one lane."
+                        defaultOpen={!isCompactViewport}
+                        summary={<><Pill label="Channels" value={(data?.opsHealth?.diagnostics?.channels || []).length} /><Pill label="Recent diagnostics" value={(data?.opsHealth?.diagnostics?.recent || []).length} /><Pill label="Routes" value={(data?.opsHealth?.pipeline?.routes || []).length} /></>}
+                    >
+                        <div className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
+                            <ScrollWrap>
+                                <div className="divide-y divide-white/10">
+                                    {(data?.opsHealth?.diagnostics?.channels || []).map((channel: any) => (
+                                        <div key={channel.key} className="space-y-2 px-4 py-3">
+                                            <div className="flex flex-wrap items-start justify-between gap-2">
+                                                <div>
+                                                    <p className="font-semibold text-white">{channel.label}</p>
+                                                    <p className="text-xs text-gray-400">{formatRelative(channel.lastSeenAt)}</p>
+                                                </div>
+                                                <Pill label="Count" value={channel.count} />
+                                            </div>
+                                            <div className="flex flex-wrap gap-2">
+                                                <Pill label="Errors" value={channel.errorCount} tone={channel.errorCount ? "bad" : "good"} />
+                                                <Pill label="Warns" value={channel.warnCount} tone={channel.warnCount ? "warn" : "good"} />
+                                                <Pill label="Info" value={channel.infoCount} />
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {(data?.opsHealth?.pipeline?.routes || []).map((route: any) => (
+                                        <div key={route.routeKey} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
+                                            <div>
+                                                <p className="font-semibold text-white">{route.label}</p>
+                                                <p className="text-xs text-gray-400">{route.routeKey}</p>
+                                            </div>
+                                            <Pill label="Failures" value={route.count} tone={route.count ? "warn" : "good"} />
+                                        </div>
+                                    ))}
+                                </div>
+                            </ScrollWrap>
+                            <ScrollWrap>
+                                <div className="divide-y divide-white/10">
+                                    {(data?.opsHealth?.diagnostics?.recent || []).map((entry: any) => (
+                                        <div key={entry.id} className="space-y-2 px-4 py-3">
+                                            <div className="flex flex-wrap items-start justify-between gap-2">
+                                                <div>
+                                                    <p className="font-semibold text-white">{entry.channel}</p>
+                                                    <p className="text-xs text-gray-400">{formatTimestamp(entry.timestamp)}</p>
+                                                </div>
+                                                <Pill label="Severity" value={entry.severity} tone={entry.severity === "error" ? "bad" : entry.severity === "warn" ? "warn" : "neutral"} />
+                                            </div>
+                                            <p className="text-sm text-gray-200">{entry.message}</p>
+                                            {entry.detailPreview ? <p className="text-xs text-gray-400">{entry.detailPreview}</p> : null}
+                                        </div>
+                                    ))}
+                                    {(data?.opsHealth?.materializers || []).map((materializer: any) => (
+                                        <div key={materializer.key} className="space-y-2 px-4 py-3">
+                                            <div className="flex flex-wrap items-start justify-between gap-2">
+                                                <div>
+                                                    <p className="font-semibold text-white">{materializer.label}</p>
+                                                    <p className="text-xs text-gray-400">{materializer.engine}</p>
+                                                </div>
+                                                <Pill label="Status" value={materializer.status} tone={materializer.status === "healthy" ? "good" : materializer.status === "warn" ? "warn" : "bad"} />
+                                            </div>
+                                            <div className="flex flex-wrap gap-2">
+                                                <Pill label="Count" value={materializer.count} />
+                                                <Pill label="Last seen" value={formatRelative(materializer.lastSeenAt)} />
+                                            </div>
+                                            <p className="text-sm text-gray-300">{materializer.detail}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </ScrollWrap>
+                        </div>
+                    </Section>
+                </div>
+            ) : null}
         </div>
     );
 }

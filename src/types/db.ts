@@ -70,6 +70,7 @@ export interface Drop {
     unlockCost: number;
     validFrom: number; // Timestamp
     validUntil?: number; // Timestamp (Optional - if missing, never expires)
+    autoQueueOnExpire?: boolean;
     status: 'active' | 'expired' | 'scheduled';
     totalUnlocks: number;
     totalViews?: number; // Persistent viewport-based card views

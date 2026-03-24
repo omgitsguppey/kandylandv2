@@ -12,7 +12,7 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 // Whitelist of allowed drop fields to prevent arbitrary writes
 const ALLOWED_DROP_FIELDS = [
     "title", "description", "imageUrl", "contentUrl", "contentUrls", "unlockCost",
-    "validFrom", "validUntil", "status", "type", "tags",
+    "validFrom", "validUntil", "autoQueueOnExpire", "status", "type", "tags",
     "ctaText", "actionUrl", "accentColor", "fileMetadata", "mediaCounts",
     "creatorId",
 ];

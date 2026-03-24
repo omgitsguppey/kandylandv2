@@ -25,6 +25,7 @@ const dropSchema = z.object({
     unlockCost: z.coerce.number().min(0, "Cost cannot be negative"),
     validFrom: z.string(),
     validUntil: z.string().optional().or(z.literal("")),
+    autoQueueOnExpire: z.boolean().optional().default(false),
     type: z.enum(["content", "promo", "external"]),
     tags: z.array(z.string()).optional(),
     ctaText: z.string().optional(),
@@ -202,6 +203,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
             contentUrls: [],
             unlockCost: 100,
             type: "content",
+            autoQueueOnExpire: false,
             tags: [],
             accentColor: "#ec4899",
             ctaText: "",
@@ -229,6 +231,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                 contentUrls: [],
                 unlockCost: 100,
                 type: "content",
+                autoQueueOnExpire: false,
                 tags: [],
                 accentColor: "#ec4899",
                 ctaText: "",
@@ -260,6 +263,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                     setValue("contentUrl", existingContentUrls[0] || "");
                     setValue("contentUrls", existingContentUrls);
                     setValue("unlockCost", data.unlockCost);
+                    setValue("autoQueueOnExpire", data.autoQueueOnExpire === true);
 
                     if (dropId) {
                         setValue("validFrom", toCSTString(data.validFrom));
@@ -358,6 +362,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                 unlockCost: data.unlockCost,
                 validFrom,
                 validUntil,
+                autoQueueOnExpire: data.autoQueueOnExpire === true,
                 status,
                 type: data.type,
                 tags: data.tags,
@@ -549,6 +554,20 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                                 />
                                             </div>
                                         </div>
+
+                                        <label className="flex items-start gap-3 rounded-2xl border border-white/10 bg-black/30 px-3.5 py-3 text-sm text-gray-300">
+                                            <input
+                                                {...register("autoQueueOnExpire")}
+                                                type="checkbox"
+                                                className="mt-0.5 h-4 w-4 rounded border-white/20 bg-black/40 text-brand-purple focus:ring-brand-purple/50"
+                                            />
+                                            <span className="space-y-1">
+                                                <span className="block font-semibold text-white">Auto queue when expired</span>
+                                                <span className="block text-xs text-gray-400">
+                                                    Automatically add this drop back into the admin queue once its live window ends.
+                                                </span>
+                                            </span>
+                                        </label>
                                     </div>
 
                                     {dropType !== "content" && (
