@@ -35,7 +35,6 @@ interface AuthIdentityContextType {
 
 interface UserProfileContextType {
     userProfile: UserProfile | null;
-    refreshProfile: () => Promise<void>;
     setUserProfile: Dispatch<SetStateAction<UserProfile | null>>;
 }
 
@@ -304,11 +303,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }, [user, userProfile]);
 
-    const refreshProfile = useCallback(async () => {
-        // No-op now as onSnapshot handles updates.
-        // Kept for backward compatibility if any component calls it.
-    }, []);
-
     const signInWithGoogle = useCallback(async () => {
         if (!auth || !firebaseClientConfigured) {
             throw new Error("Authentication is unavailable in this environment.");
@@ -458,10 +452,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const profileValue = useMemo(
         () => ({
             userProfile,
-            refreshProfile,
             setUserProfile,
         }),
-        [refreshProfile, userProfile],
+        [userProfile],
     );
 
     const loadingValue = useMemo(
