@@ -181,9 +181,8 @@ export async function GET(request: NextRequest) {
 
         // Removed old !analyticsClient check since ADC is supported on App Hosting
 
-            const { startDate, startMs } = getRangeWindow(period);
+            const { startDate, endDate, startMs, endMs, startDayKey, endDayKey, timelineBucket } = getRangeWindow(period);
             const dropReferences = await getAllDropReferenceMap();
-            const startDayKey = new Date(startMs).toISOString().slice(0, 10);
 
             const {
                 response,
@@ -214,9 +213,11 @@ export async function GET(request: NextRequest) {
                 analyticsClient,
                 propertyId,
                 startDate,
+                endDate,
                 startDayKey,
                 startMs,
                 period,
+                timelineBucket,
             });
 
             const {
@@ -236,7 +237,13 @@ export async function GET(request: NextRequest) {
                 dailyRollups: dailyRollupsSnapshot.docs,
                 pageRollups: pageRollupsSnapshot.docs,
                 analyticsEventFacts: analyticsEventFactsSnapshot.docs,
+                guestBatchDocs: guestBatchesSnapshot.docs,
+                sessionFacts: sessionFactsSnapshot.docs,
+                startMs,
+                endMs,
                 startDayKey,
+                endDayKey,
+                timelineBucket,
                 authenticatedPageViewEventNames: AUTHENTICATED_PAGE_VIEW_EVENT_NAMES,
             });
             const filteredDailyRollups = dailyRollupsSnapshot.docs.filter((doc) => doc.id >= startDayKey);

@@ -1,14 +1,15 @@
+import { getCSTDateParts } from "@/lib/timezone";
+
 export function buildAnalyticsTimeKeys(timestamp: number) {
-  const date = new Date(timestamp);
-  const year = date.getUTCFullYear();
-  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-  const day = String(date.getUTCDate()).padStart(2, "0");
-  const hour = String(date.getUTCHours()).padStart(2, "0");
-  const minute = String(date.getUTCMinutes()).padStart(2, "0");
+  const { year, month, day, hour, minute } = getCSTDateParts(timestamp);
+  const paddedMonth = String(month).padStart(2, "0");
+  const paddedDay = String(day).padStart(2, "0");
+  const paddedHour = String(hour).padStart(2, "0");
+  const paddedMinute = String(minute).padStart(2, "0");
 
   return {
-    dayKey: `${year}-${month}-${day}`,
-    hourKey: `${year}-${month}-${day}T${hour}`,
-    minuteKey: `${year}-${month}-${day}T${hour}:${minute}`,
+    dayKey: `${year}-${paddedMonth}-${paddedDay}`,
+    hourKey: `${year}-${paddedMonth}-${paddedDay}T${paddedHour}`,
+    minuteKey: `${year}-${paddedMonth}-${paddedDay}T${paddedHour}:${paddedMinute}`,
   };
 }

@@ -31,12 +31,15 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
   analyticsClient: BetaAnalyticsDataClient;
   propertyId: string;
   startDate: string;
+  endDate: string;
   startDayKey: string;
   startMs: number;
   period: string | null;
+  timelineBucket: "day" | "hour";
 }) {
-  const { analyticsClient, propertyId, startDate, startDayKey, startMs, period } = input;
+  const { analyticsClient, propertyId, startDate, endDate, startDayKey, startMs, period, timelineBucket } = input;
   const analyticsEventNames = TELEMETRY_EVENT_QUERY_NAMES;
+  const trafficDimensionName = timelineBucket === "hour" ? "dateHour" : "date";
 
   const [
     response,
@@ -63,7 +66,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
   ] = await Promise.all([
     safeRunReport(analyticsClient, {
       property: `properties/${propertyId}`,
-      dateRanges: [{ startDate, endDate: "today" }],
+      dateRanges: [{ startDate, endDate }],
       metrics: [
         { name: "activeUsers" },
         { name: "screenPageViews" },
@@ -72,15 +75,15 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
         { name: "averageSessionDuration" },
         { name: "engagementRate" },
       ],
-      dimensions: [{ name: "date" }],
+      dimensions: [{ name: trafficDimensionName }],
       orderBys: [{
-        dimension: { dimensionName: "date" },
+        dimension: { dimensionName: trafficDimensionName },
         desc: false,
       }],
     }),
     safeRunReport(analyticsClient, {
       property: `properties/${propertyId}`,
-      dateRanges: [{ startDate, endDate: "today" }],
+      dateRanges: [{ startDate, endDate }],
       metrics: [{ name: "eventCount" }],
       dimensions: [{ name: "eventName" }],
       dimensionFilter: {
@@ -94,7 +97,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
     }),
     safeRunReport(analyticsClient, {
       property: `properties/${propertyId}`,
-      dateRanges: [{ startDate, endDate: "today" }],
+      dateRanges: [{ startDate, endDate }],
       metrics: [{ name: "activeUsers" }],
       dimensions: [{ name: "country" }, { name: "city" }],
       orderBys: [{ metric: { metricName: "activeUsers" }, desc: true }],
@@ -102,7 +105,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
     }),
     safeRunReport(analyticsClient, {
       property: `properties/${propertyId}`,
-      dateRanges: [{ startDate, endDate: "today" }],
+      dateRanges: [{ startDate, endDate }],
       metrics: [{ name: "screenPageViews" }, { name: "averageSessionDuration" }, { name: "engagementRate" }],
       dimensions: [{ name: "pagePath" }],
       orderBys: [{ metric: { metricName: "screenPageViews" }, desc: true }],
@@ -110,7 +113,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
     }),
     safeRunReport(analyticsClient, {
       property: `properties/${propertyId}`,
-      dateRanges: [{ startDate, endDate: "today" }],
+      dateRanges: [{ startDate, endDate }],
       metrics: [
         { name: "activeUsers" },
         { name: "sessions" },
@@ -122,7 +125,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
     }),
     safeRunReport(analyticsClient, {
       property: `properties/${propertyId}`,
-      dateRanges: [{ startDate, endDate: "today" }],
+      dateRanges: [{ startDate, endDate }],
       metrics: [{ name: "eventCount" }],
       dimensions: [{ name: "customEvent:durationSeconds" }],
       dimensionFilter: {

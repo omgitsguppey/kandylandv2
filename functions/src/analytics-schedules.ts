@@ -3,6 +3,7 @@ import * as logger from "firebase-functions/logger"
 import {FieldValue} from "firebase-admin/firestore"
 
 import {
+  ANALYTICS_TIMEZONE,
   DASHBOARD_CACHE_COLLECTION,
   type AnalyticsEventFact,
   type AnalyticsWindowSummary,
@@ -49,7 +50,7 @@ function roundCurrency(value: number) {
 }
 
 export const refreshRealtimeAnalytics = onSchedule(
-  {schedule: "every 5 minutes", region: REGION, timeZone: "Etc/UTC"},
+  {schedule: "every 5 minutes", region: REGION, timeZone: ANALYTICS_TIMEZONE},
   async () => {
     const activeSince = Date.now() - (30 * 60 * 1000)
     const snapshot = await db.collection("analytics_active_users")
@@ -72,7 +73,7 @@ export const refreshRealtimeAnalytics = onSchedule(
 )
 
 export const materializeAnalyticsWindow15m = onSchedule(
-  {schedule: "every 15 minutes", region: REGION, timeZone: "Etc/UTC"},
+  {schedule: "every 15 minutes", region: REGION, timeZone: ANALYTICS_TIMEZONE},
   async () => {
     const events = await queryEventsSince(Date.now() - (15 * 60 * 1000))
     const summary = summarizeEventFacts(events, "15m")
@@ -81,7 +82,7 @@ export const materializeAnalyticsWindow15m = onSchedule(
 )
 
 export const materializeAnalyticsWindow24h = onSchedule(
-  {schedule: "every 60 minutes", region: REGION, timeZone: "Etc/UTC"},
+  {schedule: "every 60 minutes", region: REGION, timeZone: ANALYTICS_TIMEZONE},
   async () => {
     const events = await queryEventsSince(Date.now() - (24 * 60 * 60 * 1000))
     const summary = summarizeEventFacts(events, "24h")
@@ -90,7 +91,7 @@ export const materializeAnalyticsWindow24h = onSchedule(
 )
 
 export const materializeDropAnalyticsHourly = onSchedule(
-  {schedule: "every 60 minutes", region: REGION, timeZone: "Etc/UTC"},
+  {schedule: "every 60 minutes", region: REGION, timeZone: ANALYTICS_TIMEZONE},
   async () => {
     const snapshot = await db.collection("analytics_drops_rollup")
       .orderBy("viewerSessionCount", "desc")
@@ -124,7 +125,7 @@ export const materializeDropAnalyticsHourly = onSchedule(
 )
 
 export const materializeUserAnalyticsDaily = onSchedule(
-  {schedule: "every day 00:20", region: REGION, timeZone: "Etc/UTC"},
+  {schedule: "every day 00:20", region: REGION, timeZone: ANALYTICS_TIMEZONE},
   async () => {
     const snapshot = await db.collection("analytics_users_rollup")
       .orderBy("eventCount", "desc")
@@ -157,7 +158,7 @@ export const materializeUserAnalyticsDaily = onSchedule(
 )
 
 export const materializeCommerceEconomicsHourly = onSchedule(
-  {schedule: "every 60 minutes", region: REGION, timeZone: "Etc/UTC"},
+  {schedule: "every 60 minutes", region: REGION, timeZone: ANALYTICS_TIMEZONE},
   async () => {
     const [dailySnapshot, bundleSnapshot] = await Promise.all([
       db.collection("analytics_commerce_daily").orderBy("dayKey", "desc").limit(30).get(),
@@ -218,7 +219,7 @@ export const materializeCommerceEconomicsHourly = onSchedule(
 )
 
 export const materializeUserEconomicsLeaderboardHourly = onSchedule(
-  {schedule: "every 60 minutes", region: REGION, timeZone: "Etc/UTC"},
+  {schedule: "every 60 minutes", region: REGION, timeZone: ANALYTICS_TIMEZONE},
   async () => {
     const snapshot = await db.collection("analytics_users_rollup")
       .orderBy("grossRevenueUsdTotal", "desc")
@@ -262,7 +263,7 @@ export const materializeUserEconomicsLeaderboardHourly = onSchedule(
 )
 
 export const detectAnalyticsAnomaliesHourly = onSchedule(
-  {schedule: "every 60 minutes", region: REGION, timeZone: "Etc/UTC"},
+  {schedule: "every 60 minutes", region: REGION, timeZone: ANALYTICS_TIMEZONE},
   async () => {
     const [window15mDoc, window24hDoc] = await Promise.all([
       db.collection(DASHBOARD_CACHE_COLLECTION).doc("window_15m").get(),

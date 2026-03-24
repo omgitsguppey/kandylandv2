@@ -2,9 +2,14 @@ import "server-only";
 
 import {
   AnalyticsReportRow,
+  buildTimelineKeys,
   dayKeyToLabel,
   dayKeyToRawDate,
+  hourKeyToLabel,
+  hourKeyToRawDate,
   rawDateToDayKey,
+  rawDateHourToHourKey,
+  timestampToHourKey,
   timestampToDayKey,
   toNumber,
   toStringValue,
@@ -19,7 +24,13 @@ export function buildHistoricalTrafficOverview(input: {
   dailyRollups: FirebaseFirestore.QueryDocumentSnapshot[];
   pageRollups: FirebaseFirestore.QueryDocumentSnapshot[];
   analyticsEventFacts: FirebaseFirestore.QueryDocumentSnapshot[];
+  guestBatchDocs: FirebaseFirestore.QueryDocumentSnapshot[];
+  sessionFacts: FirebaseFirestore.QueryDocumentSnapshot[];
+  startMs: number;
+  endMs: number;
   startDayKey: string;
+  endDayKey: string;
+  timelineBucket: "day" | "hour";
   authenticatedPageViewEventNames: Set<string>;
 }) {
   const {
@@ -31,7 +42,13 @@ export function buildHistoricalTrafficOverview(input: {
     dailyRollups,
     pageRollups,
     analyticsEventFacts,
+    guestBatchDocs,
+    sessionFacts,
+    startMs,
+    endMs,
     startDayKey,
+    endDayKey,
+    timelineBucket,
     authenticatedPageViewEventNames,
   } = input;
 
@@ -84,17 +101,93 @@ export function buildHistoricalTrafficOverview(input: {
   };
   const authenticatedPageViewsByPath = new Map<string, number>();
   const authenticatedPageViewsByDay = new Map<string, number>();
+  const authenticatedPageViewsByHour = new Map<string, number>();
+  const viewerSessionsByDay = new Map<string, number>();
+  const viewerSessionsByHour = new Map<string, number>();
   analyticsEventFacts.forEach((doc) => {
     const data = doc.data() as Record<string, unknown>;
     const eventName = toStringValue(data.eventName);
-    if (!authenticatedPageViewEventNames.has(eventName)) {
+    const timestamp = toNumber(data.timestamp);
+    if (timestamp < startMs || timestamp > endMs) {
       return;
     }
 
-    const pagePath = toStringValue(data.pagePath) || authenticatedPagePathFallbacks[eventName] || "/";
-    const dayKey = toStringValue(data.dayKey) || timestampToDayKey(toNumber(data.timestamp));
-    authenticatedPageViewsByPath.set(pagePath, (authenticatedPageViewsByPath.get(pagePath) || 0) + 1);
-    authenticatedPageViewsByDay.set(dayKey, (authenticatedPageViewsByDay.get(dayKey) || 0) + 1);
+    if (authenticatedPageViewEventNames.has(eventName)) {
+      const pagePath = toStringValue(data.pagePath) || authenticatedPagePathFallbacks[eventName] || "/";
+      const dayKey = toStringValue(data.dayKey) || timestampToDayKey(timestamp);
+      const hourKey = toStringValue(data.hourKey) || timestampToHourKey(timestamp);
+      authenticatedPageViewsByPath.set(pagePath, (authenticatedPageViewsByPath.get(pagePath) || 0) + 1);
+      authenticatedPageViewsByDay.set(dayKey, (authenticatedPageViewsByDay.get(dayKey) || 0) + 1);
+      authenticatedPageViewsByHour.set(hourKey, (authenticatedPageViewsByHour.get(hourKey) || 0) + 1);
+    }
+
+    if (eventName === "viewer_session_started") {
+      const dayKey = toStringValue(data.dayKey) || timestampToDayKey(timestamp);
+      const hourKey = toStringValue(data.hourKey) || timestampToHourKey(timestamp);
+      viewerSessionsByDay.set(dayKey, (viewerSessionsByDay.get(dayKey) || 0) + 1);
+      viewerSessionsByHour.set(hourKey, (viewerSessionsByHour.get(hourKey) || 0) + 1);
+    }
+  });
+
+  const guestPageViewsByDay = new Map<string, number>();
+  const guestPageViewsByHour = new Map<string, number>();
+  const rawGuestPageStatsByPath = new Map<string, { views: number; clicks: number; dwellMsTotal: number; dwellSamples: number }>();
+  guestBatchDocs.forEach((doc) => {
+    const data = doc.data() as Record<string, unknown>;
+    const events = Array.isArray(data.events) ? (data.events as Array<Record<string, unknown>>) : [];
+    events.forEach((event) => {
+      const timestamp = toNumber(event.timestamp) || toNumber(data.receivedAtMs);
+      if (timestamp < startMs || timestamp > endMs) {
+        return;
+      }
+
+      const eventType = toStringValue(event.type);
+      const pagePath = toStringValue(event.path) || "/";
+      const pageStats = rawGuestPageStatsByPath.get(pagePath) || { views: 0, clicks: 0, dwellMsTotal: 0, dwellSamples: 0 };
+
+      if (eventType === "page_view") {
+        const dayKey = timestampToDayKey(timestamp);
+        const hourKey = timestampToHourKey(timestamp);
+        guestPageViewsByDay.set(dayKey, (guestPageViewsByDay.get(dayKey) || 0) + 1);
+        guestPageViewsByHour.set(hourKey, (guestPageViewsByHour.get(hourKey) || 0) + 1);
+        pageStats.views += 1;
+      }
+
+      if (eventType === "click") {
+        pageStats.clicks += 1;
+      }
+
+      const durationMs = toNumber(event.durationMs);
+      if (eventType === "page_leave" && durationMs > 0) {
+        pageStats.dwellMsTotal += durationMs;
+        pageStats.dwellSamples += 1;
+      }
+
+      rawGuestPageStatsByPath.set(pagePath, pageStats);
+    });
+  });
+
+  const sessionFactSessionsByDay = new Map<string, number>();
+  const sessionFactSessionsByHour = new Map<string, number>();
+  sessionFacts.forEach((doc) => {
+    const data = doc.data() as Record<string, unknown>;
+    const startedCount = toNumber(data.startedCount);
+    if (startedCount <= 0) {
+      return;
+    }
+
+    const anchorTimestamp = toNumber(data.firstEventAtMs)
+      || toNumber(data.firstEventAt)
+      || toNumber(data.lastEventAtMs)
+      || toNumber(data.lastEventAt);
+    if (anchorTimestamp > 0 && (anchorTimestamp < startMs || anchorTimestamp > endMs)) {
+      return;
+    }
+
+    const dayKey = toStringValue(data.dayKey) || (anchorTimestamp > 0 ? timestampToDayKey(anchorTimestamp) : startDayKey);
+    const hourKey = toStringValue(data.hourKey) || (anchorTimestamp > 0 ? timestampToHourKey(anchorTimestamp) : `${dayKey}T00`);
+    sessionFactSessionsByDay.set(dayKey, (sessionFactSessionsByDay.get(dayKey) || 0) + startedCount);
+    sessionFactSessionsByHour.set(hourKey, (sessionFactSessionsByHour.get(hourKey) || 0) + startedCount);
   });
 
   const gaChartMap = new Map<string, {
@@ -107,8 +200,10 @@ export function buildHistoricalTrafficOverview(input: {
   }>();
   responseRows.forEach((row) => {
     const rawDate = row.dimensionValues?.[0]?.value || "";
-    const dayKey = rawDateToDayKey(rawDate);
-    gaChartMap.set(dayKey, {
+    const bucketKey = timelineBucket === "hour"
+      ? rawDateHourToHourKey(rawDate)
+      : rawDateToDayKey(rawDate);
+    gaChartMap.set(bucketKey, {
       users: parseInt(row.metricValues?.[0]?.value || "0", 10),
       views: parseInt(row.metricValues?.[1]?.value || "0", 10),
       sessions: parseInt(row.metricValues?.[2]?.value || "0", 10),
@@ -118,30 +213,40 @@ export function buildHistoricalTrafficOverview(input: {
     });
   });
 
-  const chartDayKeys = new Set<string>([
-    ...gaChartMap.keys(),
-    ...dayRollupMap.keys(),
-    ...pageViewsByDay.keys(),
-    ...authenticatedPageViewsByDay.keys(),
-  ]);
+  const chartKeys = buildTimelineKeys({
+    startMs,
+    endMs,
+    startDayKey,
+    endDayKey,
+    timelineBucket,
+  });
 
-  const chartData = Array.from(chartDayKeys)
-    .sort((left, right) => left.localeCompare(right))
-    .map((dayKey) => {
-      const ga = gaChartMap.get(dayKey);
-      const rollup = dayRollupMap.get(dayKey);
-      const firstPartyViews = (pageViewsByDay.get(dayKey) || 0) + (authenticatedPageViewsByDay.get(dayKey) || 0);
-      return {
-        date: dayKeyToLabel(dayKey),
-        rawDate: dayKeyToRawDate(dayKey),
-        users: ga?.users ?? 0,
-        views: Math.max(ga?.views ?? 0, firstPartyViews, rollup?.totalEvents ?? 0),
-        sessions: Math.max(ga?.sessions ?? 0, rollup?.viewerSessions ?? 0),
-        newUsers: ga?.newUsers ?? 0,
-        avgSessionDuration: ga?.avgSessionDuration ?? 0,
-        engagementRate: ga?.engagementRate ?? 0,
-      };
-    });
+  const chartData = chartKeys.map((bucketKey) => {
+    const ga = gaChartMap.get(bucketKey);
+    const isHourly = timelineBucket === "hour";
+    const rollup = isHourly ? null : dayRollupMap.get(bucketKey);
+    const firstPartyViews = isHourly
+      ? (guestPageViewsByHour.get(bucketKey) || 0) + (authenticatedPageViewsByHour.get(bucketKey) || 0)
+      : Math.max(pageViewsByDay.get(bucketKey) || 0, guestPageViewsByDay.get(bucketKey) || 0) + (authenticatedPageViewsByDay.get(bucketKey) || 0);
+    const firstPartySessions = isHourly
+      ? Math.max(viewerSessionsByHour.get(bucketKey) || 0, sessionFactSessionsByHour.get(bucketKey) || 0)
+      : Math.max(
+          rollup?.viewerSessions ?? 0,
+          viewerSessionsByDay.get(bucketKey) || 0,
+          sessionFactSessionsByDay.get(bucketKey) || 0,
+        );
+
+    return {
+      date: isHourly ? hourKeyToLabel(bucketKey) : dayKeyToLabel(bucketKey),
+      rawDate: isHourly ? hourKeyToRawDate(bucketKey) : dayKeyToRawDate(bucketKey),
+      users: ga?.users ?? 0,
+      views: Math.max(ga?.views ?? 0, firstPartyViews, rollup?.totalEvents ?? 0),
+      sessions: Math.max(ga?.sessions ?? 0, firstPartySessions),
+      newUsers: ga?.newUsers ?? 0,
+      avgSessionDuration: ga?.avgSessionDuration ?? 0,
+      engagementRate: ga?.engagementRate ?? 0,
+    };
+  });
 
   const totals = {
     users: chartData.reduce((acc: number, curr) => acc + curr.users, 0),
@@ -191,17 +296,21 @@ export function buildHistoricalTrafficOverview(input: {
   const allPagePaths = new Set<string>([
     ...gaPagesMap.keys(),
     ...pageRollupMap.keys(),
+    ...rawGuestPageStatsByPath.keys(),
   ]);
 
   const pagesData = Array.from(allPagePaths)
     .map((path) => {
       const ga = gaPagesMap.get(path);
-      const firstParty = pageRollupMap.get(path) || { views: 0, clicks: 0, dwellMsTotal: 0, dwellSamples: 0 };
+      const firstParty = timelineBucket === "hour"
+        ? rawGuestPageStatsByPath.get(path) || { views: 0, clicks: 0, dwellMsTotal: 0, dwellSamples: 0 }
+        : pageRollupMap.get(path) || { views: 0, clicks: 0, dwellMsTotal: 0, dwellSamples: 0 };
+      const firstPartyViews = firstParty.views + (timelineBucket === "hour" ? (authenticatedPageViewsByPath.get(path) || 0) : 0);
       return {
         path,
-        views: Math.max(ga?.views ?? 0, firstParty.views),
+        views: Math.max(ga?.views ?? 0, firstPartyViews),
         avgTime: ga?.avgTime || (firstParty.dwellSamples > 0 ? firstParty.dwellMsTotal / 1000 / firstParty.dwellSamples : 0),
-        engagementRate: Math.max(ga?.engagementRate ?? 0, firstParty.views > 0 ? firstParty.clicks / firstParty.views : 0),
+        engagementRate: Math.max(ga?.engagementRate ?? 0, firstPartyViews > 0 ? firstParty.clicks / firstPartyViews : 0),
       };
     })
     .sort((a, b) => b.views - a.views)

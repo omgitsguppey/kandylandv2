@@ -9,6 +9,7 @@ import { TELEMETRY_EVENT_LABELS, TELEMETRY_EVENT_NAMES } from "@/lib/telemetry-c
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { buildAdminOpsHealth } from "@/lib/server/admin-ops-health";
 import { getConfiguredRollouts } from "@/lib/rollouts";
+import { getCSTDateKey } from "@/lib/timezone";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -98,7 +99,7 @@ export async function GET(request: NextRequest) {
 
         const nowMs = Date.now();
         const weekAgoMs = nowMs - ONE_WEEK_MS;
-        const weekAgoDayKey = new Date(weekAgoMs).toISOString().slice(0, 10);
+        const weekAgoDayKey = getCSTDateKey(weekAgoMs);
 
         const [
             usersSnapshot,

@@ -4,6 +4,7 @@ import {
   buildDurationBuckets,
   getTelemetryParamNumber,
   TelemetryLogRecord,
+  timestampToDayKey,
 } from "./admin-analytics-shared";
 
 export interface HistoricalEngagementAnalytics {
@@ -110,7 +111,7 @@ export function buildHistoricalEngagementAnalytics(input: {
       return;
     }
 
-    const dayKey = new Date(record.timestamp).toISOString().slice(0, 10);
+    const dayKey = timestampToDayKey(record.timestamp);
     if (!activeDaysByUser.has(record.userId)) {
       activeDaysByUser.set(record.userId, new Set());
     }

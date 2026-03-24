@@ -1,12 +1,17 @@
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
 import * as firebaseAdmin from "firebase-admin";
 
-import { fromCSTInput, getCSTDateKey, shiftCSTDateKey } from "@/lib/timezone";
+import { fromCSTInput, getCSTDateKey, getCSTDateParts, shiftCSTDateKey } from "@/lib/timezone";
 import { TELEMETRY_EVENT_ALIAS_MAP } from "@/lib/telemetry-catalog";
 
 export type RangeWindow = {
   startDate: string;
+  endDate: string;
   startMs: number;
+  endMs: number;
+  startDayKey: string;
+  endDayKey: string;
+  timelineBucket: "day" | "hour";
 };
 
 export type TelemetryLogRecord = {
@@ -166,47 +171,138 @@ function getCstDayStartMs(daysAgo: number) {
   return fromCSTInput(`${shiftedDayKey}T00:00`);
 }
 
+function pad(value: number) {
+  return String(value).padStart(2, "0");
+}
+
 export function getRangeWindow(period: string | null): RangeWindow {
   const now = Date.now();
   const oneDayMs = 24 * 60 * 60 * 1000;
+  const endDayKey = getCSTDateKey(now);
 
   if (period === "1h") {
-    return { startDate: "today", startMs: now - (60 * 60 * 1000) };
+    const startMs = now - (60 * 60 * 1000);
+    return {
+      startDate: getCSTDateKey(startMs),
+      endDate: endDayKey,
+      startMs,
+      endMs: now,
+      startDayKey: getCSTDateKey(startMs),
+      endDayKey,
+      timelineBucket: "hour",
+    };
   }
 
   if (period === "6h") {
-    return { startDate: "today", startMs: now - (6 * 60 * 60 * 1000) };
+    const startMs = now - (6 * 60 * 60 * 1000);
+    return {
+      startDate: getCSTDateKey(startMs),
+      endDate: endDayKey,
+      startMs,
+      endMs: now,
+      startDayKey: getCSTDateKey(startMs),
+      endDayKey,
+      timelineBucket: "hour",
+    };
   }
 
   if (period === "24h") {
-    return { startDate: "1daysAgo", startMs: now - oneDayMs };
+    const startMs = now - oneDayMs;
+    return {
+      startDate: getCSTDateKey(startMs),
+      endDate: endDayKey,
+      startMs,
+      endMs: now,
+      startDayKey: getCSTDateKey(startMs),
+      endDayKey,
+      timelineBucket: "hour",
+    };
   }
 
   if (period === "3d") {
-    return { startDate: "3daysAgo", startMs: getCstDayStartMs(3) };
+    const startMs = getCstDayStartMs(3);
+    return {
+      startDate: getCSTDateKey(startMs),
+      endDate: endDayKey,
+      startMs,
+      endMs: now,
+      startDayKey: getCSTDateKey(startMs),
+      endDayKey,
+      timelineBucket: "day",
+    };
   }
 
   if (period === "7d") {
-    return { startDate: "7daysAgo", startMs: getCstDayStartMs(7) };
+    const startMs = getCstDayStartMs(7);
+    return {
+      startDate: getCSTDateKey(startMs),
+      endDate: endDayKey,
+      startMs,
+      endMs: now,
+      startDayKey: getCSTDateKey(startMs),
+      endDayKey,
+      timelineBucket: "day",
+    };
   }
 
   if (period === "14d") {
-    return { startDate: "14daysAgo", startMs: getCstDayStartMs(14) };
+    const startMs = getCstDayStartMs(14);
+    return {
+      startDate: getCSTDateKey(startMs),
+      endDate: endDayKey,
+      startMs,
+      endMs: now,
+      startDayKey: getCSTDateKey(startMs),
+      endDayKey,
+      timelineBucket: "day",
+    };
   }
 
   if (period === "90d") {
-    return { startDate: "90daysAgo", startMs: getCstDayStartMs(90) };
+    const startMs = getCstDayStartMs(90);
+    return {
+      startDate: getCSTDateKey(startMs),
+      endDate: endDayKey,
+      startMs,
+      endMs: now,
+      startDayKey: getCSTDateKey(startMs),
+      endDayKey,
+      timelineBucket: "day",
+    };
   }
 
   if (period === "all") {
-    return { startDate: "2020-01-01", startMs: getCstDayStartMs(3650) };
+    const startMs = getCstDayStartMs(3650);
+    return {
+      startDate: "2020-01-01",
+      endDate: endDayKey,
+      startMs,
+      endMs: now,
+      startDayKey: "2020-01-01",
+      endDayKey,
+      timelineBucket: "day",
+    };
   }
 
-  return { startDate: "30daysAgo", startMs: getCstDayStartMs(30) };
+  const startMs = getCstDayStartMs(30);
+  return {
+    startDate: getCSTDateKey(startMs),
+    endDate: endDayKey,
+    startMs,
+    endMs: now,
+    startDayKey: getCSTDateKey(startMs),
+    endDayKey,
+    timelineBucket: "day",
+  };
 }
 
 export function timestampToDayKey(timestamp: number) {
   return getCSTDateKey(timestamp);
+}
+
+export function timestampToHourKey(timestamp: number) {
+  const { year, month, day, hour } = getCSTDateParts(timestamp);
+  return `${year}-${pad(month)}-${pad(day)}T${pad(hour)}`;
 }
 
 export function rawDateToDayKey(rawDate: string) {
@@ -221,8 +317,63 @@ export function dayKeyToRawDate(dayKey: string) {
   return dayKey.replaceAll("-", "");
 }
 
+export function rawDateHourToHourKey(rawDateHour: string) {
+  if (rawDateHour.length !== 10) {
+    return rawDateHour;
+  }
+
+  return `${rawDateHour.slice(0, 4)}-${rawDateHour.slice(4, 6)}-${rawDateHour.slice(6, 8)}T${rawDateHour.slice(8, 10)}`;
+}
+
+export function hourKeyToRawDate(hourKey: string) {
+  return hourKey.replaceAll("-", "").replace("T", "").replaceAll(":", "");
+}
+
 export function dayKeyToLabel(dayKey: string) {
   return dayKey.slice(5).replace("-", "/");
+}
+
+export function hourKeyToLabel(hourKey: string) {
+  const [datePart, hourPart = "00"] = hourKey.split("T");
+  const monthDay = dayKeyToLabel(datePart);
+  return `${monthDay} ${hourPart}:00`;
+}
+
+export function buildTimelineKeys(input: {
+  startMs: number;
+  endMs: number;
+  startDayKey: string;
+  endDayKey: string;
+  timelineBucket: "day" | "hour";
+}) {
+  if (input.timelineBucket === "day") {
+    const keys: string[] = [];
+    let currentDayKey = input.startDayKey;
+    while (currentDayKey <= input.endDayKey) {
+      keys.push(currentDayKey);
+      currentDayKey = shiftCSTDateKey(currentDayKey, 1);
+    }
+    return keys;
+  }
+
+  const keys: string[] = [];
+  const seen = new Set<string>();
+  let bucketMs = Math.floor(input.startMs / (60 * 60 * 1000)) * (60 * 60 * 1000);
+  while (bucketMs <= input.endMs) {
+    const hourKey = timestampToHourKey(bucketMs);
+    if (!seen.has(hourKey)) {
+      seen.add(hourKey);
+      keys.push(hourKey);
+    }
+    bucketMs += 60 * 60 * 1000;
+  }
+
+  const endHourKey = timestampToHourKey(input.endMs);
+  if (!seen.has(endHourKey)) {
+    keys.push(endHourKey);
+  }
+
+  return keys;
 }
 
 export function toNumber(value: unknown): number {

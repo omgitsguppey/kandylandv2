@@ -1,6 +1,7 @@
 import {FieldValue} from "firebase-admin/firestore"
 
 export const DASHBOARD_CACHE_COLLECTION = "analytics_dashboard_cache"
+export const ANALYTICS_TIMEZONE = "America/Chicago"
 
 export interface AnalyticsEventFact {
   eventName: string;
@@ -86,16 +87,31 @@ export interface AnalyticsWindowSummary {
   topDrops: Array<{key: string; count: number; label: string}>;
 }
 
-function pad(value: number) {
-  return String(value).padStart(2, "0")
+const ANALYTICS_TIME_FORMATTER = new Intl.DateTimeFormat("en-US", {
+  timeZone: ANALYTICS_TIMEZONE,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+})
+
+function readTimePart(parts: Intl.DateTimeFormatPart[], type: Intl.DateTimeFormatPartTypes, fallback: string) {
+  return parts.find((part) => part.type === type)?.value ?? fallback
 }
 
 export function toTimeKeys(timestamp: number) {
-  const date = new Date(timestamp)
+  const parts = ANALYTICS_TIME_FORMATTER.formatToParts(new Date(timestamp))
+  const year = readTimePart(parts, "year", "1970")
+  const month = readTimePart(parts, "month", "01")
+  const day = readTimePart(parts, "day", "01")
+  const hour = readTimePart(parts, "hour", "00")
+  const minute = readTimePart(parts, "minute", "00")
   return {
-    dayKey: `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`,
-    hourKey: `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}T${pad(date.getUTCHours())}`,
-    minuteKey: `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}T${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}`,
+    dayKey: `${year}-${month}-${day}`,
+    hourKey: `${year}-${month}-${day}T${hour}`,
+    minuteKey: `${year}-${month}-${day}T${hour}:${minute}`,
   }
 }
 
