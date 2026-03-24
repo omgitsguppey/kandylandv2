@@ -89,6 +89,7 @@
     "@google-cloud/storage": {
       "fast-xml-parser": "^5.5.9"
     },
+    "@tootallnate/once": "^3.0.1",
     "flat-cache": {
       "flatted": "^3.4.2"
     },
