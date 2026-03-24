@@ -5,6 +5,9 @@ import { handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { buildCreatorRelationshipId, isCreatorRole } from "@/lib/creator-experiences";
+import { buildRelationshipPatch } from "@/lib/server/creator-experiences";
+import { trackServerEvent } from "@/lib/server/analytics";
 
 const followRequestSchema = z.object({
     targetUserId: z.string().trim().min(1).max(128),
@@ -38,10 +41,7 @@ export async function POST(request: NextRequest) {
 
         const userRef = adminDb.collection("users").doc(userId);
         const targetRef = adminDb.collection("users").doc(targetUserId);
-        const [targetSnap, creatorDropsSnapshot] = await Promise.all([
-            targetRef.get(),
-            adminDb.collection("drops").where("creatorId", "==", targetUserId).limit(1).get(),
-        ]);
+        const targetSnap = await targetRef.get();
 
         if (!targetSnap.exists) {
             return NextResponse.json({ error: "Creator not found" }, { status: 404 });
@@ -49,19 +49,39 @@ export async function POST(request: NextRequest) {
 
         const targetData = targetSnap.data() ?? {};
         const targetRole = typeof targetData.role === "string" ? targetData.role : "";
-        const hasCreatorContent = !creatorDropsSnapshot.empty;
-        if (targetRole !== "creator" && targetRole !== "admin" && !hasCreatorContent) {
+        if (!isCreatorRole(targetRole)) {
             return NextResponse.json({ error: "Target user is not a creator" }, { status: 400 });
         }
         if (targetData.status === "banned" || targetData.status === "suspended") {
             return NextResponse.json({ error: "Creator is unavailable" }, { status: 409 });
         }
 
-        if (action === "follow") {
-            await userRef.update({ following: FieldValue.arrayUnion(targetUserId) });
-        } else {
-            await userRef.update({ following: FieldValue.arrayRemove(targetUserId) });
-        }
+        const relationshipRef = adminDb.collection("creator_relationships").doc(buildCreatorRelationshipId(userId, targetUserId));
+        await adminDb.runTransaction(async (transaction) => {
+            const relationshipSnap = await transaction.get(relationshipRef);
+            const existing = relationshipSnap.exists ? relationshipSnap.data() as Record<string, unknown> : {};
+            transaction.set(relationshipRef, buildRelationshipPatch({
+                userId,
+                creatorId: targetUserId,
+                creatorDisplayName: typeof targetData.displayName === "string" ? targetData.displayName : "Creator",
+                creatorUsername: typeof targetData.username === "string" ? targetData.username : "",
+                creatorPhotoURL: typeof targetData.photoURL === "string" ? targetData.photoURL : null,
+                following: action === "follow",
+                existing,
+            }), { merge: true });
+            if (action === "follow") {
+                transaction.update(userRef, { following: FieldValue.arrayUnion(targetUserId) });
+            } else {
+                transaction.update(userRef, { following: FieldValue.arrayRemove(targetUserId) });
+            }
+        });
+
+        await trackServerEvent(action === "follow" ? "creator_followed" : "creator_unfollowed", {
+            creator_id: targetUserId,
+            creator_username: typeof targetData.username === "string" ? targetData.username : "",
+            creator_display_name: typeof targetData.displayName === "string" ? targetData.displayName : "Creator",
+            transaction_id: `${userId}:${targetUserId}:${action}`,
+        }, userId).catch(() => null);
 
         return NextResponse.json({ success: true, action });
     } catch (error) {

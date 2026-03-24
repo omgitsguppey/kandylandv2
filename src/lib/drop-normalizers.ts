@@ -55,6 +55,12 @@ const dropSchema = z.object({
   validUntil: z.number().finite().nullable().optional(),
   autoQueueOnExpire: z.boolean().default(false),
   status: z.enum(["active", "expired", "scheduled"]).default("scheduled"),
+  approvalStatus: z.enum(["approved", "pending_review", "rejected"]).optional(),
+  approvalReviewedAt: z.number().finite().nullable().optional(),
+  approvalReviewedBy: z.string().optional(),
+  approvalNote: z.string().nullable().optional(),
+  submittedByCreatorId: z.string().optional(),
+  requiresActiveSubscription: z.boolean().optional(),
   totalUnlocks: z.number().int().nonnegative().default(0),
   totalViews: z.number().int().nonnegative().optional(),
   totalClicks: z.number().int().nonnegative().optional(),
@@ -72,6 +78,8 @@ const dropSchema = z.object({
     })
     .nullable()
     .optional(),
+  coverFileName: z.string().optional(),
+  contentFileNames: z.array(z.string()).optional(),
   mediaCounts: z.object({ images: z.number().int().nonnegative(), videos: z.number().int().nonnegative() }).optional(),
   contentUrls: z.array(z.string()).optional(),
 });
@@ -88,6 +96,12 @@ const dropRecordSchema = z.object({
   validUntil: timestampSchema.nullable().optional(),
   autoQueueOnExpire: z.boolean().optional(),
   status: z.enum(["active", "expired", "scheduled"]).optional(),
+  approvalStatus: z.enum(["approved", "pending_review", "rejected"]).optional(),
+  approvalReviewedAt: timestampSchema.nullable().optional(),
+  approvalReviewedBy: z.string().optional(),
+  approvalNote: z.string().nullable().optional(),
+  submittedByCreatorId: z.string().optional(),
+  requiresActiveSubscription: z.boolean().optional(),
   totalUnlocks: z.number().optional(),
   totalViews: z.number().optional(),
   totalClicks: z.number().optional(),
@@ -105,6 +119,8 @@ const dropRecordSchema = z.object({
     })
     .nullable()
     .optional(),
+  coverFileName: z.string().optional(),
+  contentFileNames: z.array(z.string()).optional(),
   mediaCounts: z.object({ images: z.number().int().nonnegative(), videos: z.number().int().nonnegative() }).optional(),
   contentUrls: z.array(z.string()).optional(),
 });
@@ -180,6 +196,7 @@ export function normalizeDropRecord(raw: unknown, id: string): Drop {
     mediaCounts,
     validFrom: toMillis(parsed.validFrom),
     validUntil: parsed.validUntil != null ? toMillis(parsed.validUntil) : null,
+    approvalReviewedAt: parsed.approvalReviewedAt != null ? toMillis(parsed.approvalReviewedAt) : null,
     createdAt: parsed.createdAt != null ? toMillis(parsed.createdAt) : null,
   }) as Drop;
 }

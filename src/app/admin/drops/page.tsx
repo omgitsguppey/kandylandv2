@@ -34,6 +34,7 @@ export default function AdminDropsPage() {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [editingDropId, setEditingDropId] = useState<string | null>(null);
     const [duplicatingDropId, setDuplicatingDropId] = useState<string | null>(null);
+    const [reviewingDropId, setReviewingDropId] = useState<string | null>(null);
 
     const [queueIds, setQueueIds] = useState<Set<string>>(new Set());
     const [legacyQueueIds, setLegacyQueueIds] = useState<Set<string>>(new Set());
@@ -108,6 +109,32 @@ export default function AdminDropsPage() {
                 console.error("Error deleting drop:", err);
                 toast.error(err.message || "Failed to delete drop.");
             }
+        }
+    };
+
+    const handleReviewSubmission = async (dropId: string, approvalStatus: "approved" | "rejected") => {
+        try {
+            setReviewingDropId(dropId);
+            const response = await authFetch("/api/admin/drops", {
+                method: "PUT",
+                body: JSON.stringify({
+                    dropId,
+                    dropData: {
+                        approvalStatus,
+                        approvalReviewedAt: Date.now(),
+                    },
+                }),
+            });
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(typeof result.error === "string" ? result.error : "Review failed");
+            }
+            toast.success(approvalStatus === "approved" ? "Creator drop approved" : "Creator drop rejected");
+        } catch (error: any) {
+            console.error("Failed to review creator drop", error);
+            toast.error(error.message || "Review failed.");
+        } finally {
+            setReviewingDropId(null);
         }
     };
 
@@ -307,8 +334,16 @@ export default function AdminDropsPage() {
                                 const isQueueManaged = queueIds.has(drop.id) || legacyQueueIds.has(drop.id);
                                 let displayStatus = "expired";
                                 let statusColor = "bg-red-500/10 text-red-400 border-red-500/20";
+                                const approvalStatus = drop.approvalStatus || "approved";
+                                const isCreatorSubmission = Boolean(drop.submittedByCreatorId);
 
-                                if (now < drop.validFrom) {
+                                if (approvalStatus === "pending_review") {
+                                    displayStatus = "pending review";
+                                    statusColor = "bg-amber-500/10 text-amber-200 border-amber-500/20";
+                                } else if (approvalStatus === "rejected") {
+                                    displayStatus = "rejected";
+                                    statusColor = "bg-red-500/10 text-red-300 border-red-500/20";
+                                } else if (now < drop.validFrom) {
                                     displayStatus = "scheduled";
                                     statusColor = "bg-white/10 text-white border-white/15";
                                 } else if (!drop.validUntil || now < drop.validUntil) {
@@ -337,7 +372,14 @@ export default function AdminDropsPage() {
                                                 </div>
                                                 <div>
                                                     <div className="font-bold text-white">{drop.title}</div>
-                                                    <div className="text-xs text-gray-500 mt-1">{drop.id}</div>
+                                                    <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-500">
+                                                        <span>{drop.id}</span>
+                                                        {isCreatorSubmission ? (
+                                                            <span className="rounded-full border border-brand-purple/20 bg-brand-purple/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-brand-purple">
+                                                                Creator submission
+                                                            </span>
+                                                        ) : null}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </td>
@@ -368,7 +410,33 @@ export default function AdminDropsPage() {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                {approvalStatus === "pending_review" ? (
+                                                    <>
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                void handleReviewSubmission(drop.id, "approved");
+                                                            }}
+                                                            disabled={reviewingDropId === drop.id}
+                                                            className="px-3 py-1.5 rounded-full bg-brand-purple/15 border border-brand-purple/20 text-brand-purple text-xs font-bold transition-colors flex items-center gap-1 hover:bg-brand-purple/20 disabled:opacity-60"
+                                                            title="Approve creator submission"
+                                                        >
+                                                            Approve
+                                                        </button>
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                void handleReviewSubmission(drop.id, "rejected");
+                                                            }}
+                                                            disabled={reviewingDropId === drop.id}
+                                                            className="px-3 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-300 text-xs font-bold transition-colors flex items-center gap-1 hover:bg-red-500/15 disabled:opacity-60"
+                                                            title="Reject creator submission"
+                                                        >
+                                                            Reject
+                                                        </button>
+                                                    </>
+                                                ) : null}
                                                 <button
                                                     onClick={() => toggleAutoQueue(drop.id)}
                                                     className={cn("p-2.5 rounded-full text-white hover:bg-white/10 transition-colors border border-white/10", isQueueManaged ? "bg-brand-purple/20 border-brand-purple/30 text-brand-purple" : "bg-black")}
@@ -429,8 +497,16 @@ export default function AdminDropsPage() {
                         const isQueueManaged = queueIds.has(drop.id) || legacyQueueIds.has(drop.id);
                         let displayStatus = "expired";
                         let statusColor = "bg-red-500/10 text-red-400 border-red-500/20";
+                        const approvalStatus = drop.approvalStatus || "approved";
+                        const isCreatorSubmission = Boolean(drop.submittedByCreatorId);
 
-                        if (now < drop.validFrom) {
+                        if (approvalStatus === "pending_review") {
+                            displayStatus = "pending review";
+                            statusColor = "bg-amber-500/10 text-amber-200 border-amber-500/20";
+                        } else if (approvalStatus === "rejected") {
+                            displayStatus = "rejected";
+                            statusColor = "bg-red-500/10 text-red-300 border-red-500/20";
+                        } else if (now < drop.validFrom) {
                             displayStatus = "scheduled";
                             statusColor = "bg-white/10 text-white border-white/15";
                         } else if (!drop.validUntil || now < drop.validUntil) {
@@ -452,7 +528,14 @@ export default function AdminDropsPage() {
                                 </div>
                                 <div className="flex-1 min-w-0 space-y-2">
                                     <div className="flex justify-between items-start">
-                                        <h3 className="font-bold text-white truncate pr-2">{drop.title}</h3>
+                                        <div className="min-w-0 pr-2">
+                                            <h3 className="font-bold text-white truncate">{drop.title}</h3>
+                                            {isCreatorSubmission ? (
+                                                <span className="mt-1 inline-flex rounded-full border border-brand-purple/20 bg-brand-purple/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-brand-purple">
+                                                    Creator submission
+                                                </span>
+                                            ) : null}
+                                        </div>
                                         <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-bold border capitalize shrink-0", statusColor)}>
                                             {displayStatus}
                                         </span>
@@ -464,6 +547,24 @@ export default function AdminDropsPage() {
                                     </div>
 
                                     <div className="flex justify-end gap-2 pt-1">
+                                        {approvalStatus === "pending_review" ? (
+                                            <>
+                                                <button
+                                                    onClick={() => void handleReviewSubmission(drop.id, "approved")}
+                                                    disabled={reviewingDropId === drop.id}
+                                                    className="px-3 py-1.5 rounded-full border border-brand-purple/20 bg-brand-purple/10 text-brand-purple text-xs font-bold transition-colors flex items-center gap-1 hover:bg-brand-purple/20 disabled:opacity-60"
+                                                >
+                                                    Approve
+                                                </button>
+                                                <button
+                                                    onClick={() => void handleReviewSubmission(drop.id, "rejected")}
+                                                    disabled={reviewingDropId === drop.id}
+                                                    className="px-3 py-1.5 rounded-full border border-red-500/20 bg-red-500/10 text-red-300 text-xs font-bold transition-colors flex items-center gap-1 hover:bg-red-500/15 disabled:opacity-60"
+                                                >
+                                                    Reject
+                                                </button>
+                                            </>
+                                        ) : null}
                                         <button
                                             onClick={() => toggleAutoQueue(drop.id)}
                                             className={cn("px-3 py-1.5 rounded-full border border-white/10 text-xs font-bold transition-colors flex items-center gap-1 hover:bg-white/10", isQueueManaged ? "bg-brand-purple/20 border-brand-purple/30 text-brand-purple" : "bg-black text-gray-200")}

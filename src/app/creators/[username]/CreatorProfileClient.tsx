@@ -2,14 +2,20 @@
 
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { CheckCircle2, Loader2, Lock, UserCheck, UserPlus } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { CheckCircle2, Bell, CalendarClock, Heart, Loader2, Lock, MessageSquare, Sparkles, UserCheck, UserPlus, Wallet } from "lucide-react";
 import { toast } from "sonner";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 import { DropGrid } from "@/components/DropGrid";
+import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { authFetch } from "@/lib/authFetch";
+import { CREATOR_BOOKING_MIN_MINUTES, CREATOR_BOOKING_RATES, CREATOR_MESSAGE_COSTS, CREATOR_SUBSCRIPTION_MIN_GD, type CreatorRequestCategoryConfig, type CreatorSettings } from "@/lib/creator-experiences";
+import { storage } from "@/lib/firebase-data";
+import { trackEvent } from "@/lib/telemetry";
+import { cn } from "@/lib/utils";
 import { Drop, UserProfile } from "@/types/db";
 
 export default function CreatorProfileClient() {
@@ -22,7 +28,25 @@ export default function CreatorProfileClient() {
     const [drops, setDrops] = useState<Drop[]>([]);
     const [loading, setLoading] = useState(true);
     const [following, setFollowing] = useState(false);
+    const [favorited, setFavorited] = useState(false);
+    const [notificationsEnabled, setNotificationsEnabled] = useState(false);
     const [followLoading, setFollowLoading] = useState(false);
+    const [subscriptionActive, setSubscriptionActive] = useState(false);
+    const [subscribeLoading, setSubscribeLoading] = useState(false);
+    const [messageText, setMessageText] = useState("");
+    const [messageKind, setMessageKind] = useState<"text" | "image" | "video">("text");
+    const [messageFile, setMessageFile] = useState<File | null>(null);
+    const [sendingMessage, setSendingMessage] = useState(false);
+    const [messages, setMessages] = useState<Array<Record<string, unknown>>>([]);
+    const [requestCategoryId, setRequestCategoryId] = useState("");
+    const [requestDetails, setRequestDetails] = useState("");
+    const [creatingRequest, setCreatingRequest] = useState(false);
+    const [bookings, setBookings] = useState<Array<Record<string, unknown>>>([]);
+    const [broadcasts, setBroadcasts] = useState<Array<Record<string, unknown>>>([]);
+    const [bookingStartAt, setBookingStartAt] = useState("");
+    const [bookingDurationMinutes, setBookingDurationMinutes] = useState(CREATOR_BOOKING_MIN_MINUTES);
+    const [bookingServiceType, setBookingServiceType] = useState<"phone" | "video">("phone");
+    const [creatingBooking, setCreatingBooking] = useState(false);
 
     useEffect(() => {
         if (!username) return;
@@ -57,10 +81,98 @@ export default function CreatorProfileClient() {
     }, [username]);
 
     useEffect(() => {
+        if (!creator) {
+            return;
+        }
+
+        trackEvent("creator_profile_viewed", {
+            creator_id: creator.uid,
+            creator_username: creator.username || username,
+            page_path: `/creators/${username}`,
+        });
+    }, [creator, username]);
+
+    useEffect(() => {
         if (currentUserProfile && creator) {
             setFollowing(currentUserProfile.following?.includes(creator.uid) || false);
+            setFavorited(currentUserProfile.favoriteCreators?.includes(creator.uid) || false);
+            setNotificationsEnabled(currentUserProfile.creatorNotificationPreferences?.[creator.uid] === true);
         }
     }, [currentUserProfile, creator]);
+
+    useEffect(() => {
+        if (!currentUser || !creator) {
+            setMessages([]);
+            setBookings([]);
+            setBroadcasts([]);
+            setSubscriptionActive(false);
+            return;
+        }
+
+        let cancelled = false;
+        const creatorId = creator.uid;
+
+        async function hydrateCreatorRelationshipState() {
+            try {
+                const [relationshipResponse, messageResponse, bookingResponse, broadcastResponse] = await Promise.all([
+                    authFetch(`/api/creator/relationships?creatorId=${encodeURIComponent(creatorId)}`),
+                    authFetch(`/api/creator/messages?creatorId=${encodeURIComponent(creatorId)}`),
+                    authFetch(`/api/creator/bookings?creatorId=${encodeURIComponent(creatorId)}`),
+                    authFetch(`/api/creator/broadcasts?creatorId=${encodeURIComponent(creatorId)}`),
+                ]);
+                const relationshipResult = await relationshipResponse.json() as {
+                    relationship?: Record<string, unknown> | null;
+                    subscription?: Record<string, unknown> | null;
+                };
+                const messageResult = await messageResponse.json() as {
+                    messages?: Array<Record<string, unknown>>;
+                };
+                const bookingResult = await bookingResponse.json() as {
+                    bookings?: Array<Record<string, unknown>>;
+                    subscriptionActive?: boolean;
+                };
+                const broadcastResult = await broadcastResponse.json() as {
+                    broadcasts?: Array<Record<string, unknown>>;
+                };
+
+                if (cancelled) {
+                    return;
+                }
+
+                if (relationshipResult.relationship) {
+                    setFollowing(relationshipResult.relationship.following === true);
+                    setFavorited(relationshipResult.relationship.favorited === true);
+                    setNotificationsEnabled(relationshipResult.relationship.notificationsEnabled === true);
+                }
+                setSubscriptionActive(relationshipResult.subscription?.status === "active" || bookingResult.subscriptionActive === true);
+                setMessages(Array.isArray(messageResult.messages) ? messageResult.messages : []);
+                setBookings(Array.isArray(bookingResult.bookings) ? bookingResult.bookings : []);
+                setBroadcasts(Array.isArray(broadcastResult.broadcasts) ? broadcastResult.broadcasts : []);
+            } catch (error) {
+                console.error("Failed to hydrate creator experience state", error);
+            }
+        }
+
+        void hydrateCreatorRelationshipState();
+        return () => {
+            cancelled = true;
+        };
+    }, [creator, currentUser]);
+
+    const creatorSettings = useMemo(
+        () => (creator?.creatorSettings || null) as CreatorSettings | null,
+        [creator],
+    );
+
+    const refreshCreatorBroadcasts = async (creatorId: string) => {
+        try {
+            const response = await authFetch(`/api/creator/broadcasts?creatorId=${encodeURIComponent(creatorId)}`);
+            const result = await response.json() as { broadcasts?: Array<Record<string, unknown>> };
+            setBroadcasts(Array.isArray(result.broadcasts) ? result.broadcasts : []);
+        } catch (error) {
+            console.error("Failed to refresh creator broadcasts", error);
+        }
+    };
 
     const handleFollow = async () => {
         if (!currentUser || !creator) {
@@ -88,12 +200,220 @@ export default function CreatorProfileClient() {
             if (!response.ok) throw new Error(result.error);
 
             setFollowing(!following);
+            if (!following) {
+                await refreshCreatorBroadcasts(creator.uid);
+            } else if (!subscriptionActive) {
+                setBroadcasts([]);
+            }
             toast.success(following ? `Unfollowed ${creator.displayName}` : `Following ${creator.displayName}!`);
         } catch (error: any) {
             console.error("Follow error:", error);
             toast.error(error.message || "Action failed.");
         } finally {
             setFollowLoading(false);
+        }
+    };
+
+    const handleRelationshipAction = async (action: "favorite" | "unfavorite" | "enable_notifications" | "disable_notifications") => {
+        if (!currentUser || !creator) {
+            toast.error("Please sign in to manage creator relationships.");
+            return;
+        }
+
+        try {
+            const response = await authFetch("/api/creator/relationships", {
+                method: "POST",
+                body: JSON.stringify({
+                    creatorId: creator.uid,
+                    action,
+                }),
+            });
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(typeof result.error === "string" ? result.error : "Action failed.");
+            }
+
+            if (action === "favorite" || action === "unfavorite") {
+                setFavorited(action === "favorite");
+            }
+            if (action === "enable_notifications" || action === "disable_notifications") {
+                setNotificationsEnabled(action === "enable_notifications");
+            }
+        } catch (error: any) {
+            console.error("Creator relationship action failed", error);
+            toast.error(error.message || "Action failed.");
+        }
+    };
+
+    const handleSubscription = async () => {
+        if (!currentUser || !creator) {
+            toast.error("Please sign in to subscribe.");
+            return;
+        }
+
+        setSubscribeLoading(true);
+        try {
+            const response = await authFetch("/api/creator/subscriptions", {
+                method: "POST",
+                body: JSON.stringify({
+                    creatorId: creator.uid,
+                    action: subscriptionActive ? "cancel" : "subscribe",
+                }),
+            });
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(typeof result.error === "string" ? result.error : "Subscription update failed.");
+            }
+
+            const nextActive = !subscriptionActive;
+            setSubscriptionActive(nextActive);
+            if (nextActive) {
+                await refreshCreatorBroadcasts(creator.uid);
+            } else if (!following) {
+                setBroadcasts([]);
+            }
+            toast.success(nextActive ? "Subscription started." : "Subscription canceled.");
+        } catch (error: any) {
+            console.error("Subscription action failed", error);
+            toast.error(error.message || "Subscription update failed.");
+        } finally {
+            setSubscribeLoading(false);
+        }
+    };
+
+    const uploadMessageAttachment = async () => {
+        if (!messageFile) {
+            return null;
+        }
+
+        const storageRef = ref(storage, `creator/messages/${Date.now()}_${messageFile.name}`);
+        await uploadBytes(storageRef, messageFile, {
+            contentType: messageFile.type || "application/octet-stream",
+        });
+        const downloadUrl = await getDownloadURL(storageRef);
+        return {
+            assetUrl: downloadUrl,
+            assetName: messageFile.name,
+            assetMimeType: messageFile.type || "application/octet-stream",
+        };
+    };
+
+    const handleSendMessage = async () => {
+        if (!currentUser || !creator) {
+            toast.error("Please sign in to message creators.");
+            return;
+        }
+
+        if (!messageText.trim() && !messageFile) {
+            toast.error("Add a message or attachment first.");
+            return;
+        }
+
+        setSendingMessage(true);
+        try {
+            const attachment = await uploadMessageAttachment();
+            const response = await authFetch("/api/creator/messages", {
+                method: "POST",
+                body: JSON.stringify({
+                    creatorId: creator.uid,
+                    text: messageText.trim(),
+                    messageKind: messageFile
+                        ? (messageFile.type.startsWith("video/") ? "video" : "image")
+                        : messageKind,
+                    ...attachment,
+                }),
+            });
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(typeof result.error === "string" ? result.error : "Message failed.");
+            }
+
+            setMessageText("");
+            setMessageFile(null);
+            const refreshResponse = await authFetch(`/api/creator/messages?creatorId=${encodeURIComponent(creator.uid)}`);
+            const refreshResult = await refreshResponse.json() as { messages?: Array<Record<string, unknown>> };
+            setMessages(Array.isArray(refreshResult.messages) ? refreshResult.messages : []);
+            toast.success("Message sent.");
+        } catch (error: any) {
+            console.error("Creator message failed", error);
+            toast.error(error.message || "Message failed.");
+        } finally {
+            setSendingMessage(false);
+        }
+    };
+
+    const handleCreateRequest = async () => {
+        if (!currentUser || !creator) {
+            toast.error("Please sign in to request custom content.");
+            return;
+        }
+
+        if (!requestCategoryId || requestDetails.trim().length < 8) {
+            toast.error("Choose a request type and add a few details.");
+            return;
+        }
+
+        setCreatingRequest(true);
+        try {
+            const response = await authFetch("/api/creator/requests", {
+                method: "POST",
+                body: JSON.stringify({
+                    creatorId: creator.uid,
+                    categoryId: requestCategoryId,
+                    details: requestDetails.trim(),
+                }),
+            });
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(typeof result.error === "string" ? result.error : "Request failed.");
+            }
+
+            setRequestDetails("");
+            toast.success("Custom request submitted.");
+        } catch (error: any) {
+            console.error("Creator request failed", error);
+            toast.error(error.message || "Request failed.");
+        } finally {
+            setCreatingRequest(false);
+        }
+    };
+
+    const handleCreateBooking = async () => {
+        if (!currentUser || !creator) {
+            toast.error("Please sign in to book a creator experience.");
+            return;
+        }
+
+        if (!bookingStartAt) {
+            toast.error("Choose a booking start time.");
+            return;
+        }
+
+        setCreatingBooking(true);
+        try {
+            const response = await authFetch("/api/creator/bookings", {
+                method: "POST",
+                body: JSON.stringify({
+                    creatorId: creator.uid,
+                    serviceType: bookingServiceType,
+                    startAt: new Date(bookingStartAt).getTime(),
+                    durationMinutes: bookingDurationMinutes,
+                }),
+            });
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(typeof result.error === "string" ? result.error : "Booking failed.");
+            }
+
+            const refreshResponse = await authFetch(`/api/creator/bookings?creatorId=${encodeURIComponent(creator.uid)}`);
+            const refreshResult = await refreshResponse.json() as { bookings?: Array<Record<string, unknown>> };
+            setBookings(Array.isArray(refreshResult.bookings) ? refreshResult.bookings : []);
+            toast.success("Creator booking confirmed.");
+        } catch (error: any) {
+            console.error("Creator booking failed", error);
+            toast.error(error.message || "Booking failed.");
+        } finally {
+            setCreatingBooking(false);
         }
     };
 
@@ -117,6 +437,7 @@ export default function CreatorProfileClient() {
 
     return (
         <div className="min-h-screen pb-20">
+            <PageViewEvent eventName="creator_profile_viewed" />
             <div className="group relative h-48 overflow-hidden bg-zinc-800 md:h-64">
                 {creator.bannerUrl ? (
                     <Image src={creator.bannerUrl} alt="Banner" fill priority className="object-cover" />
@@ -149,27 +470,307 @@ export default function CreatorProfileClient() {
                     </div>
 
                     <div className="mb-4 w-full shrink-0 md:mb-6 md:w-auto">
-                        <button
-                            onClick={handleFollow}
-                            disabled={followLoading}
-                            className={`flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3 font-bold transition-all md:w-auto ${following ? "bg-white/10 text-white" : "bg-brand-purple text-white shadow-lg shadow-brand-purple/20"}`}
-                        >
-                            {followLoading ? (
-                                <Loader2 className="h-5 w-5 animate-spin" />
-                            ) : following ? (
-                                <>
-                                    <UserCheck className="h-5 w-5" /> Following
-                                </>
-                            ) : (
-                                <>
-                                    <UserPlus className="h-5 w-5" /> Follow
-                                </>
-                            )}
-                        </button>
+                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 md:w-[24rem]">
+                            <button
+                                onClick={handleFollow}
+                                disabled={followLoading}
+                                className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all ${following ? "bg-white/10 text-white" : "bg-brand-purple text-white shadow-lg shadow-brand-purple/20"}`}
+                            >
+                                {followLoading ? (
+                                    <Loader2 className="h-5 w-5 animate-spin" />
+                                ) : following ? (
+                                    <>
+                                        <UserCheck className="h-5 w-5" /> Following
+                                    </>
+                                ) : (
+                                    <>
+                                        <UserPlus className="h-5 w-5" /> Follow
+                                    </>
+                                )}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    if (!currentUser) {
+                                        openAuthModal("signup");
+                                        return;
+                                    }
+                                    void handleRelationshipAction(favorited ? "unfavorite" : "favorite");
+                                }}
+                                className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all ${favorited ? "bg-brand-purple/15 text-brand-purple border border-brand-purple/30" : "bg-white/10 text-white"}`}
+                            >
+                                <Heart className="h-4 w-4" />
+                                {favorited ? "Favorited" : "Favorite"}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    if (!currentUser) {
+                                        openAuthModal("signup");
+                                        return;
+                                    }
+                                    void handleRelationshipAction(notificationsEnabled ? "disable_notifications" : "enable_notifications");
+                                }}
+                                className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all ${notificationsEnabled ? "bg-white/15 text-white border border-white/20" : "bg-white/5 text-gray-200 border border-white/10"}`}
+                            >
+                                <Bell className="h-4 w-4" />
+                                {notificationsEnabled ? "Alerts on" : "Alerts"}
+                            </button>
+                        </div>
                     </div>
                 </div>
 
                 <div className="space-y-6">
+                    <div className="grid gap-4 lg:grid-cols-2">
+                        <section className="glass-panel rounded-[1.8rem] border border-white/10 p-5">
+                            <div className="flex items-start justify-between gap-4">
+                                <div>
+                                    <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
+                                        <Sparkles className="h-3.5 w-3.5" />
+                                        Subscription
+                                    </div>
+                                    <h2 className="mt-3 text-xl font-black text-white">All creator drops, one monthly access pass.</h2>
+                                    <p className="mt-2 text-sm leading-6 text-gray-400">
+                                        Free chat, all creator drops, and 50% off video calls. Renewals use purchased Gum Drops only.
+                                    </p>
+                                </div>
+                                <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-right">
+                                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Monthly</p>
+                                    <p className="mt-1 text-2xl font-black text-brand-purple">
+                                        {creatorSettings?.subscriptionPriceGd || CREATOR_SUBSCRIPTION_MIN_GD} GD
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    if (!currentUser) {
+                                        openAuthModal("signup");
+                                        return;
+                                    }
+                                    void handleSubscription();
+                                }}
+                                disabled={subscribeLoading}
+                                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-purple px-5 py-3 text-sm font-bold text-white"
+                            >
+                                {subscribeLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wallet className="h-4 w-4" />}
+                                {subscriptionActive ? "Cancel subscription" : "Subscribe now"}
+                            </button>
+                        </section>
+
+                        <section className="glass-panel rounded-[1.8rem] border border-white/10 p-5">
+                            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-gray-300">
+                                <MessageSquare className="h-3.5 w-3.5" />
+                                Paid creator chat
+                            </div>
+                            <p className="mt-3 text-sm leading-6 text-gray-400">
+                                Text costs {CREATOR_MESSAGE_COSTS.text} GD, images {CREATOR_MESSAGE_COSTS.image} GD, videos {CREATOR_MESSAGE_COSTS.video} GD. Subscribers chat free.
+                            </p>
+                            <div className="mt-4 flex flex-wrap gap-2">
+                                {(["text", "image", "video"] as const).map((kind) => (
+                                    <button
+                                        key={kind}
+                                        type="button"
+                                        onClick={() => setMessageKind(kind)}
+                                        className={cn(
+                                            "rounded-full border px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em]",
+                                            messageKind === kind
+                                                ? "border-brand-purple/40 bg-brand-purple/15 text-white"
+                                                : "border-white/10 bg-white/5 text-gray-400"
+                                        )}
+                                    >
+                                        {kind}
+                                    </button>
+                                ))}
+                            </div>
+                            <textarea
+                                value={messageText}
+                                onChange={(event) => setMessageText(event.target.value)}
+                                rows={3}
+                                placeholder="Say what you want from the creator..."
+                                className="mt-4 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-gray-600"
+                            />
+                            <input
+                                type="file"
+                                accept={messageKind === "video" ? "video/*" : messageKind === "image" ? "image/*" : "*"}
+                                onChange={(event) => setMessageFile(event.target.files?.[0] || null)}
+                                className="mt-3 block w-full text-xs text-gray-400 file:mr-3 file:rounded-full file:border-0 file:bg-white/10 file:px-3 file:py-2 file:text-xs file:font-bold file:text-white"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    if (!currentUser) {
+                                        openAuthModal("signup");
+                                        return;
+                                    }
+                                    void handleSendMessage();
+                                }}
+                                disabled={sendingMessage}
+                                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-bold text-white"
+                            >
+                                {sendingMessage ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquare className="h-4 w-4" />}
+                                Send message
+                            </button>
+                            {messages.length > 0 ? (
+                                <div className="mt-4 max-h-40 space-y-2 overflow-y-auto rounded-2xl border border-white/10 bg-black/20 p-3">
+                                    {messages.slice(-4).map((message) => (
+                                        <div key={String(message.id)} className="rounded-2xl border border-white/5 bg-white/5 px-3 py-2">
+                                            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-gray-500">
+                                                {message.senderRole === "creator" ? "Creator" : "You"}
+                                            </p>
+                                            <p className="mt-1 text-sm text-white">{typeof message.text === "string" && message.text.trim().length > 0 ? message.text : "Media message"}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : null}
+                        </section>
+                    </div>
+
+                    <div className="grid gap-4 lg:grid-cols-2">
+                        <section className="glass-panel rounded-[1.8rem] border border-white/10 p-5">
+                            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-gray-300">
+                                <Sparkles className="h-3.5 w-3.5" />
+                                Custom requests
+                            </div>
+                            <p className="mt-3 text-sm leading-6 text-gray-400">
+                                Request custom content for yourself only. Declined requests stay non-refundable by policy.
+                            </p>
+                            <select
+                                value={requestCategoryId}
+                                onChange={(event) => setRequestCategoryId(event.target.value)}
+                                className="mt-4 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white"
+                            >
+                                <option value="">Choose a request type</option>
+                                {(creatorSettings?.requestCategories || []).filter((category: CreatorRequestCategoryConfig) => category.enabled).map((category: CreatorRequestCategoryConfig) => (
+                                    <option key={category.id} value={category.id}>
+                                        {category.label} - {category.priceGd} GD
+                                    </option>
+                                ))}
+                            </select>
+                            <textarea
+                                value={requestDetails}
+                                onChange={(event) => setRequestDetails(event.target.value)}
+                                rows={3}
+                                placeholder="Tell the creator exactly what you want made for you."
+                                className="mt-3 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-gray-600"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    if (!currentUser) {
+                                        openAuthModal("signup");
+                                        return;
+                                    }
+                                    void handleCreateRequest();
+                                }}
+                                disabled={creatingRequest}
+                                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-bold text-white"
+                            >
+                                {creatingRequest ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                                Create request
+                            </button>
+                        </section>
+
+                        <section className="glass-panel rounded-[1.8rem] border border-white/10 p-5">
+                            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-gray-300">
+                                <CalendarClock className="h-3.5 w-3.5" />
+                                Phone + video experiences
+                            </div>
+                            <p className="mt-3 text-sm leading-6 text-gray-400">
+                                Phone is {CREATOR_BOOKING_RATES.phone} GD/min. Video is {CREATOR_BOOKING_RATES.video} GD/min with 50% off for subscribers only.
+                            </p>
+                            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                                <select
+                                    value={bookingServiceType}
+                                    onChange={(event) => setBookingServiceType(event.target.value as "phone" | "video")}
+                                    className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white"
+                                >
+                                    <option value="phone">Phone call</option>
+                                    <option value="video">Video call</option>
+                                </select>
+                                <input
+                                    type="number"
+                                    min={CREATOR_BOOKING_MIN_MINUTES}
+                                    step={5}
+                                    value={bookingDurationMinutes}
+                                    onChange={(event) => setBookingDurationMinutes(Number(event.target.value) || CREATOR_BOOKING_MIN_MINUTES)}
+                                    className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white"
+                                />
+                            </div>
+                            <input
+                                type="datetime-local"
+                                value={bookingStartAt}
+                                onChange={(event) => setBookingStartAt(event.target.value)}
+                                className="mt-3 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white [color-scheme:dark]"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    if (!currentUser) {
+                                        openAuthModal("signup");
+                                        return;
+                                    }
+                                    void handleCreateBooking();
+                                }}
+                                disabled={creatingBooking}
+                                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-bold text-white"
+                            >
+                                {creatingBooking ? <Loader2 className="h-4 w-4 animate-spin" /> : <CalendarClock className="h-4 w-4" />}
+                                Book creator time
+                            </button>
+                            {bookings.length > 0 ? (
+                                <div className="mt-4 rounded-2xl border border-white/10 bg-black/20 p-3">
+                                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Your latest booking</p>
+                                    <p className="mt-2 text-sm text-white">
+                                        {String(bookings[0].serviceType || "call")} - {typeof bookings[0].priceGd === "number" ? `${bookings[0].priceGd} GD` : ""}
+                                    </p>
+                                </div>
+                            ) : null}
+                        </section>
+                    </div>
+
+                    <section className="glass-panel rounded-[1.8rem] border border-white/10 p-5">
+                        <div className="flex items-start justify-between gap-4">
+                            <div>
+                                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-gray-300">
+                                    <Bell className="h-3.5 w-3.5" />
+                                    Creator broadcasts
+                                </div>
+                                <p className="mt-3 text-sm leading-6 text-gray-400">
+                                    Followers and subscribers can see quick creator updates here without leaving the drop flow.
+                                </p>
+                            </div>
+                        </div>
+                        {broadcasts.length === 0 ? (
+                            <div className="mt-4 rounded-2xl border border-white/10 bg-black/20 px-4 py-4 text-sm text-gray-500">
+                                {currentUser ? "Follow or subscribe to unlock creator updates when they go live." : "Sign in and follow this creator to unlock creator updates."}
+                            </div>
+                        ) : (
+                            <div className="mt-4 space-y-3">
+                                {broadcasts.slice(0, 4).map((broadcast) => (
+                                    <button
+                                        key={String(broadcast.id)}
+                                        type="button"
+                                        onClick={() => {
+                                            trackEvent("creator_broadcast_opened", {
+                                                creator_id: creator.uid,
+                                                broadcast_id: String(broadcast.id),
+                                            });
+                                        }}
+                                        className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-4 text-left"
+                                    >
+                                        <p className="text-sm font-semibold text-white">
+                                            {typeof broadcast.title === "string" && broadcast.title.trim().length > 0 ? broadcast.title : "Creator update"}
+                                        </p>
+                                        <p className="mt-1 text-xs leading-5 text-gray-400">
+                                            {typeof broadcast.message === "string" ? broadcast.message : ""}
+                                        </p>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </section>
+
                     <div className="flex items-center justify-between border-b border-white/10 pb-4">
                         <h2 className="text-xl font-bold text-white">Latest Drops</h2>
                         <span className="text-sm text-gray-500">{drops.length} items</span>

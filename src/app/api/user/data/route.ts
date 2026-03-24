@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { handleApiError } from "@/lib/server/auth";
+import { CREATOR_COLLECTIONS } from "@/lib/creator-experiences";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { RELAXED } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
@@ -78,6 +79,22 @@ export async function GET(request: NextRequest) {
             analyticsUsersRollupDoc,
             analyticsActiveUserDoc,
             paymentLocks,
+            creatorRelationshipsAsUser,
+            creatorRelationshipsAsCreator,
+            creatorSubscriptionsAsUser,
+            creatorSubscriptionsAsCreator,
+            creatorMessageThreadsAsUser,
+            creatorMessageThreadsAsCreator,
+            creatorMessagesAsUser,
+            creatorMessagesAsCreator,
+            creatorBroadcasts,
+            creatorCustomRequestsAsUser,
+            creatorCustomRequestsAsCreator,
+            creatorCallBookingsAsUser,
+            creatorCallBookingsAsCreator,
+            creatorLedgerAccrualsAsUser,
+            creatorLedgerAccrualsAsCreator,
+            creatorPayoutRequests,
         ] = await Promise.all([
             userRef.get(),
             userRef.collection("profile").doc("default").get(),
@@ -95,6 +112,22 @@ export async function GET(request: NextRequest) {
             adminDb.collection("analytics_users_rollup").doc(uid).get(),
             adminDb.collection("analytics_active_users").doc(uid).get(),
             exportQueryDocs(adminDb.collection("paymentLocks").where("userId", "==", uid)),
+            exportQueryDocs(adminDb.collection(CREATOR_COLLECTIONS.relationships).where("userId", "==", uid)),
+            exportQueryDocs(adminDb.collection(CREATOR_COLLECTIONS.relationships).where("creatorId", "==", uid)),
+            exportQueryDocs(adminDb.collection(CREATOR_COLLECTIONS.subscriptions).where("userId", "==", uid)),
+            exportQueryDocs(adminDb.collection(CREATOR_COLLECTIONS.subscriptions).where("creatorId", "==", uid)),
+            exportQueryDocs(adminDb.collection(CREATOR_COLLECTIONS.messageThreads).where("userId", "==", uid)),
+            exportQueryDocs(adminDb.collection(CREATOR_COLLECTIONS.messageThreads).where("creatorId", "==", uid)),
+            exportQueryDocs(adminDb.collection(CREATOR_COLLECTIONS.messages).where("userId", "==", uid)),
+            exportQueryDocs(adminDb.collection(CREATOR_COLLECTIONS.messages).where("creatorId", "==", uid)),
+            exportQueryDocs(adminDb.collection(CREATOR_COLLECTIONS.broadcasts).where("creatorId", "==", uid)),
+            exportQueryDocs(adminDb.collection(CREATOR_COLLECTIONS.requests).where("userId", "==", uid)),
+            exportQueryDocs(adminDb.collection(CREATOR_COLLECTIONS.requests).where("creatorId", "==", uid)),
+            exportQueryDocs(adminDb.collection(CREATOR_COLLECTIONS.bookings).where("userId", "==", uid)),
+            exportQueryDocs(adminDb.collection(CREATOR_COLLECTIONS.bookings).where("creatorId", "==", uid)),
+            exportQueryDocs(adminDb.collection(CREATOR_COLLECTIONS.ledgerAccruals).where("userId", "==", uid)),
+            exportQueryDocs(adminDb.collection(CREATOR_COLLECTIONS.ledgerAccruals).where("creatorId", "==", uid)),
+            exportQueryDocs(adminDb.collection(CREATOR_COLLECTIONS.payoutRequests).where("creatorId", "==", uid)),
         ]);
         const userData = userDoc.exists ? userDoc.data() : null;
 
@@ -119,6 +152,38 @@ export async function GET(request: NextRequest) {
                 dailyTaskEvents,
                 dailyTaskEventReceipts,
                 paymentLocks,
+            },
+            creatorExperiences: {
+                relationships: {
+                    asUser: creatorRelationshipsAsUser,
+                    asCreator: creatorRelationshipsAsCreator,
+                },
+                subscriptions: {
+                    asUser: creatorSubscriptionsAsUser,
+                    asCreator: creatorSubscriptionsAsCreator,
+                },
+                messageThreads: {
+                    asUser: creatorMessageThreadsAsUser,
+                    asCreator: creatorMessageThreadsAsCreator,
+                },
+                messages: {
+                    asUser: creatorMessagesAsUser,
+                    asCreator: creatorMessagesAsCreator,
+                },
+                broadcasts: creatorBroadcasts,
+                customRequests: {
+                    asUser: creatorCustomRequestsAsUser,
+                    asCreator: creatorCustomRequestsAsCreator,
+                },
+                callBookings: {
+                    asUser: creatorCallBookingsAsUser,
+                    asCreator: creatorCallBookingsAsCreator,
+                },
+                ledgerAccruals: {
+                    asUser: creatorLedgerAccrualsAsUser,
+                    asCreator: creatorLedgerAccrualsAsCreator,
+                },
+                payoutRequests: creatorPayoutRequests,
             },
             securityEvents,
             analytics: {

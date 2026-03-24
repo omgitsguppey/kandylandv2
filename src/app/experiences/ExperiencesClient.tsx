@@ -7,6 +7,7 @@ import { GuestComponentBlur } from "@/components/Auth/GuestComponentBlur";
 import { DailyCheckIn } from "@/components/Dashboard/DailyCheckIn";
 import { DailyTasksModule } from "@/components/Dashboard/DailyTasksModule";
 import { LiveDropsForYouCarousel } from "@/components/Dashboard/LiveDropsForYouCarousel";
+import { CreatorDiscoveryRail } from "@/components/CreatorDiscoveryRail";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { GUMDROPS_PRIMARY_CTA, GUMDROPS_SUPPORT_COPY, SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
@@ -63,6 +64,7 @@ export default function ExperiencesClient() {
                         supportText="Create a free profile to start Day 1 and stack Gum Drops daily."
                     >
                         <div className="space-y-5">
+                            <CreatorDiscoveryRail surface="experiences" />
                             <DailyCheckIn />
                             <DailyTasksModule />
                             <LiveDropsForYouCarousel />

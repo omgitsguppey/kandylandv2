@@ -15,6 +15,7 @@ type BuildCompletedGumdropTransactionInput = {
     description: string;
     balanceBefore: number;
     balanceAfter?: number;
+    creatorId?: string;
     rewardSource?: LedgerRewardSource;
     relatedDropId?: string;
     timestampMs?: number;
@@ -44,6 +45,7 @@ export function buildCompletedGumdropTransaction(input: BuildCompletedGumdropTra
         timestamp: FieldValue.serverTimestamp(),
         timestampMs,
         verifiedServerSide: true,
+        ...(input.creatorId ? { creatorId: input.creatorId } : {}),
         ...(input.rewardSource ? { rewardSource: input.rewardSource } : {}),
         ...(input.relatedDropId ? { relatedDropId: input.relatedDropId } : {}),
         ...(input.extra ?? {}),

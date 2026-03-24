@@ -6,6 +6,7 @@ import { RELAXED } from "@/lib/server/rate-limit";
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
 import { applyDropStatus } from "@/lib/drop-status";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { normalizeCreatorSettings } from "@/lib/creator-experiences";
 
 export async function GET(
     request: NextRequest,
@@ -55,6 +56,7 @@ export async function GET(
             bannerUrl: typeof creatorRaw.bannerUrl === "string" ? creatorRaw.bannerUrl : undefined,
             bio: typeof creatorRaw.bio === "string" ? creatorRaw.bio : undefined,
             isVerified: creatorRaw.isVerified === true,
+            creatorSettings: normalizeCreatorSettings(creatorRaw.creatorSettings),
         };
 
         const dropsSnapshot = await adminDb.collection("drops")
@@ -64,7 +66,11 @@ export async function GET(
         const drops = dropsSnapshot.docs.flatMap((doc) => {
             try {
                 const normalized = applyDropStatus(normalizeDropRecord(doc.data(), doc.id), nowMs);
-                return normalized.status === "active" ? [normalized] : [];
+                return normalized.status === "active"
+                    && normalized.approvalStatus !== "pending_review"
+                    && normalized.approvalStatus !== "rejected"
+                    ? [normalized]
+                    : [];
             } catch {
                 return [];
             }

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useAuth, useUserProfile } from "@/context/AuthContext";
 import { updateProfile } from "firebase/auth";
 import { Button } from "@/components/ui/Button";
-import { Loader2, Save, User, AtSign, Bell, Globe, ShieldAlert, Mail, Camera, LogOut, Download, Trash2, Lock, FileText } from "lucide-react";
+import { Loader2, Save, User, AtSign, Bell, Globe, ShieldAlert, Mail, Camera, LogOut, Download, Trash2, Lock, FileText, CalendarClock, MessageSquare, Sparkles, Wallet } from "lucide-react";
 
 import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";
@@ -16,10 +16,12 @@ import { SITE_ORIGIN } from "@/lib/site-origin";
 import { mutate } from "swr";
 import { getBrowserNotificationState } from "@/lib/firebase-messaging";
 import { enableBrowserNotifications } from "@/lib/browser-notification-enrollment";
+import { CREATOR_BOOKING_RATES, CREATOR_SUBSCRIPTION_MIN_GD, DEFAULT_CREATOR_SETTINGS, type CreatorRequestCategoryConfig, type CreatorSettings } from "@/lib/creator-experiences";
 import { getBrowserGlobalPrivacyControl, persistPrivacySettingsSnapshot } from "@/lib/privacy-consent";
 import { PRIVACY_POLICY_LAST_UPDATED } from "@/lib/privacy-policy";
 import { trackEvent } from "@/lib/telemetry";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
+import { CreateDropModal } from "@/components/Admin/CreateDropModal";
 
 const TIMEZONE_OPTIONS = [
     "Auto",
@@ -216,11 +218,80 @@ export default function ProfilePage() {
     const [notificationSetupLoading, setNotificationSetupLoading] = useState(false);
     const [notificationSupportMessage, setNotificationSupportMessage] = useState<string | null>(null);
     const [runtimeOrigin, setRuntimeOrigin] = useState(SITE_ORIGIN);
+    const [creatorSettingsState, setCreatorSettingsState] = useState<CreatorSettings>(DEFAULT_CREATOR_SETTINGS);
+    const [creatorSettingsLoading, setCreatorSettingsLoading] = useState(false);
+    const [creatorStats, setCreatorStats] = useState<{
+        earningsGd: number;
+        pendingCashoutGd: number;
+        activeSubscribers: number;
+        openRequests: number;
+        bookedCalls: number;
+    } | null>(null);
+    const [creatorBroadcasts, setCreatorBroadcasts] = useState<Array<Record<string, unknown>>>([]);
+    const [creatorBroadcastMessage, setCreatorBroadcastMessage] = useState("");
+    const [sendingCreatorBroadcast, setSendingCreatorBroadcast] = useState(false);
+    const [creatorDropModalOpen, setCreatorDropModalOpen] = useState(false);
+    const [creatorPayoutAmount, setCreatorPayoutAmount] = useState(100);
     const browserGpcEnabled = useMemo(() => getBrowserGlobalPrivacyControl(), []);
+    const isCreatorAccount = userProfile?.role === "creator" || userProfile?.role === "admin";
 
     useEffect(() => {
         setFormState(normalizedInitialState);
     }, [normalizedInitialState]);
+
+    useEffect(() => {
+        if (!isCreatorAccount) {
+            return;
+        }
+
+        let cancelled = false;
+
+        async function loadCreatorSettings() {
+            try {
+                setCreatorSettingsLoading(true);
+                const [response, broadcastsResponse] = await Promise.all([
+                    authFetch("/api/creator/settings"),
+                    authFetch("/api/creator/broadcasts"),
+                ]);
+                const result = await response.json() as {
+                    creatorSettings?: CreatorSettings | null;
+                    stats?: {
+                        earningsGd: number;
+                        pendingCashoutGd: number;
+                        activeSubscribers: number;
+                        openRequests: number;
+                        bookedCalls: number;
+                    };
+                };
+                const broadcastsResult = await broadcastsResponse.json().catch(() => ({})) as {
+                    broadcasts?: Array<Record<string, unknown>>;
+                };
+                if (!response.ok) {
+                    throw new Error("Failed to load creator settings");
+                }
+
+                if (!cancelled) {
+                    setCreatorSettingsState(result.creatorSettings || userProfile?.creatorSettings || DEFAULT_CREATOR_SETTINGS);
+                    setCreatorStats(result.stats || null);
+                    setCreatorBroadcasts(Array.isArray(broadcastsResult.broadcasts) ? broadcastsResult.broadcasts : []);
+                }
+            } catch (error) {
+                console.error("Failed to load creator settings", error);
+                if (!cancelled) {
+                    setCreatorSettingsState(userProfile?.creatorSettings || DEFAULT_CREATOR_SETTINGS);
+                }
+            } finally {
+                if (!cancelled) {
+                    setCreatorSettingsLoading(false);
+                }
+            }
+        }
+
+        void loadCreatorSettings();
+        return () => {
+            cancelled = true;
+        };
+    }, [isCreatorAccount, userProfile?.creatorSettings]);
 
     useEffect(() => {
         if (typeof window !== "undefined") {
@@ -546,6 +617,93 @@ export default function ProfilePage() {
         }
     };
 
+    const updateCreatorSettingsState = <K extends keyof CreatorSettings>(key: K, value: CreatorSettings[K]) => {
+        setCreatorSettingsState((current: CreatorSettings) => ({
+            ...current,
+            [key]: value,
+        }));
+    };
+
+    const handleSaveCreatorSettings = async () => {
+        if (!isCreatorAccount) {
+            return;
+        }
+
+        setCreatorSettingsLoading(true);
+        try {
+            const response = await authFetch("/api/creator/settings", {
+                method: "PUT",
+                body: JSON.stringify({
+                    creatorSettings: creatorSettingsState,
+                }),
+            });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(typeof result?.error === "string" ? result.error : "Failed to save creator settings.");
+            }
+            toast.success("Creator controls updated.");
+        } catch (error: any) {
+            toast.error(error.message || "Failed to save creator settings.");
+        } finally {
+            setCreatorSettingsLoading(false);
+        }
+    };
+
+    const handleRequestCreatorPayout = async () => {
+        if (!isCreatorAccount) {
+            return;
+        }
+
+        try {
+            const response = await authFetch("/api/creator/payouts", {
+                method: "POST",
+                body: JSON.stringify({
+                    requestedGd: creatorPayoutAmount,
+                }),
+            });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(typeof result?.error === "string" ? result.error : "Failed to request payout.");
+            }
+            toast.success("Payout request submitted. Manual review should take 5–7 business days.");
+        } catch (error: any) {
+            toast.error(error.message || "Failed to request payout.");
+        }
+    };
+
+    const handleSendCreatorBroadcast = async () => {
+        if (!isCreatorAccount || creatorBroadcastMessage.trim().length < 4) {
+            return;
+        }
+
+        setSendingCreatorBroadcast(true);
+        try {
+            const response = await authFetch("/api/creator/broadcasts", {
+                method: "POST",
+                body: JSON.stringify({
+                    message: creatorBroadcastMessage.trim(),
+                }),
+            });
+            const result = await response.json().catch(() => ({})) as {
+                broadcast?: Record<string, unknown>;
+                error?: string;
+            };
+            if (!response.ok) {
+                throw new Error(typeof result.error === "string" ? result.error : "Failed to send broadcast.");
+            }
+
+            setCreatorBroadcastMessage("");
+            if (result.broadcast) {
+                setCreatorBroadcasts((current) => [result.broadcast as Record<string, unknown>, ...current].slice(0, 6));
+            }
+            toast.success("Broadcast sent to followers.");
+        } catch (error: any) {
+            toast.error(error.message || "Failed to send broadcast.");
+        } finally {
+            setSendingCreatorBroadcast(false);
+        }
+    };
+
     return (
         <div className="w-full px-4 max-w-2xl mx-auto">
             <PageViewEvent eventName="profile_settings_viewed" />
@@ -645,6 +803,233 @@ export default function ProfilePage() {
                         </div>
                     </div>
                 </SectionCard>
+
+                {isCreatorAccount ? (
+                    <SectionCard title="Kreator Experiences">
+                        <div className="grid gap-3 md:grid-cols-2">
+                            <div className="rounded-[1.15rem] border border-white/10 bg-black/30 px-4 py-3">
+                                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Creator earnings</p>
+                                <p className="mt-2 text-2xl font-black text-brand-purple">{creatorStats?.earningsGd || 0} GD</p>
+                                <p className="mt-1 text-xs text-gray-500">Accrued across messaging, subscriptions, requests, and bookings.</p>
+                            </div>
+                            <div className="rounded-[1.15rem] border border-white/10 bg-black/30 px-4 py-3">
+                                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Subscribers</p>
+                                <p className="mt-2 text-2xl font-black text-white">{creatorStats?.activeSubscribers || 0}</p>
+                                <p className="mt-1 text-xs text-gray-500">Active monthly access members.</p>
+                            </div>
+                        </div>
+
+                        <ToggleRow
+                            label="Creator messaging"
+                            description="Turn paid 1:1 creator chat on or off."
+                            icon={<MessageSquare className="h-4 w-4 text-brand-purple" />}
+                            checked={creatorSettingsState.messagingEnabled}
+                            onChange={(value) => updateCreatorSettingsState("messagingEnabled", value)}
+                        />
+                        <ToggleRow
+                            label="Creator broadcasts"
+                            description="Allow broadcast posts to followers."
+                            icon={<Sparkles className="h-4 w-4 text-brand-purple" />}
+                            checked={creatorSettingsState.broadcastsEnabled}
+                            onChange={(value) => updateCreatorSettingsState("broadcastsEnabled", value)}
+                        />
+                        <ToggleRow
+                            label="Subscriptions"
+                            description="Control whether users can subscribe monthly."
+                            icon={<Wallet className="h-4 w-4 text-brand-purple" />}
+                            checked={creatorSettingsState.subscriptionsEnabled}
+                            onChange={(value) => updateCreatorSettingsState("subscriptionsEnabled", value)}
+                        />
+                        <ToggleRow
+                            label="Calls + bookings"
+                            description="Allow phone and video creator experiences."
+                            icon={<CalendarClock className="h-4 w-4 text-brand-purple" />}
+                            checked={creatorSettingsState.bookingsEnabled}
+                            onChange={(value) => updateCreatorSettingsState("bookingsEnabled", value)}
+                        />
+                        <ToggleRow
+                            label="Custom requests"
+                            description="Show paid custom-content request categories on your creator page."
+                            icon={<Sparkles className="h-4 w-4 text-brand-purple" />}
+                            checked={creatorSettingsState.customRequestsEnabled}
+                            onChange={(value) => updateCreatorSettingsState("customRequestsEnabled", value)}
+                        />
+
+                        <div className="grid gap-3 sm:grid-cols-2">
+                            <div>
+                                <label className="mb-1.5 block text-sm font-medium text-gray-300">Monthly subscription price</label>
+                                <input
+                                    type="number"
+                                    min={CREATOR_SUBSCRIPTION_MIN_GD}
+                                    value={creatorSettingsState.subscriptionPriceGd}
+                                    onChange={(event) => updateCreatorSettingsState("subscriptionPriceGd", Math.max(CREATOR_SUBSCRIPTION_MIN_GD, Number(event.target.value) || CREATOR_SUBSCRIPTION_MIN_GD))}
+                                    className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white"
+                                />
+                            </div>
+                            <div>
+                                <label className="mb-1.5 block text-sm font-medium text-gray-300">Booking minimum minutes</label>
+                                <input
+                                    type="number"
+                                    min={5}
+                                    step={5}
+                                    value={creatorSettingsState.bookingMinimumMinutes}
+                                    onChange={(event) => updateCreatorSettingsState("bookingMinimumMinutes", Math.max(5, Number(event.target.value) || 5))}
+                                    className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white"
+                                />
+                            </div>
+                            <div>
+                                <label className="mb-1.5 block text-sm font-medium text-gray-300">Phone rate per minute</label>
+                                <input
+                                    type="number"
+                                    min={CREATOR_BOOKING_RATES.phone}
+                                    value={creatorSettingsState.phoneRatePerMinuteGd}
+                                    onChange={(event) => updateCreatorSettingsState("phoneRatePerMinuteGd", Math.max(CREATOR_BOOKING_RATES.phone, Number(event.target.value) || CREATOR_BOOKING_RATES.phone))}
+                                    className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white"
+                                />
+                            </div>
+                            <div>
+                                <label className="mb-1.5 block text-sm font-medium text-gray-300">Video rate per minute</label>
+                                <input
+                                    type="number"
+                                    min={CREATOR_BOOKING_RATES.video}
+                                    value={creatorSettingsState.videoRatePerMinuteGd}
+                                    onChange={(event) => updateCreatorSettingsState("videoRatePerMinuteGd", Math.max(CREATOR_BOOKING_RATES.video, Number(event.target.value) || CREATOR_BOOKING_RATES.video))}
+                                    className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid gap-3 sm:grid-cols-2">
+                            {creatorSettingsState.requestCategories.map((category: CreatorRequestCategoryConfig, index: number) => (
+                                <div key={category.id} className="rounded-[1.15rem] border border-white/10 bg-black/25 p-3">
+                                    <div className="flex items-center justify-between gap-3">
+                                        <div>
+                                            <p className="text-sm font-semibold text-white">{category.label}</p>
+                                            <p className="mt-1 text-xs text-gray-500">{category.description}</p>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setCreatorSettingsState((current: CreatorSettings) => ({
+                                                    ...current,
+                                                    requestCategories: current.requestCategories.map((entry: CreatorRequestCategoryConfig, entryIndex: number) => (
+                                                        entryIndex === index
+                                                            ? { ...entry, enabled: !entry.enabled }
+                                                            : entry
+                                                    )),
+                                                }));
+                                            }}
+                                            className={`rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${category.enabled ? "bg-brand-purple/15 text-white" : "bg-white/5 text-gray-400"}`}
+                                        >
+                                            {category.enabled ? "Visible" : "Hidden"}
+                                        </button>
+                                    </div>
+                                    <input
+                                        type="number"
+                                        min={0}
+                                        value={category.priceGd}
+                                        onChange={(event) => {
+                                            const nextPrice = Math.max(0, Number(event.target.value) || 0);
+                                            setCreatorSettingsState((current: CreatorSettings) => ({
+                                                ...current,
+                                                requestCategories: current.requestCategories.map((entry: CreatorRequestCategoryConfig, entryIndex: number) => (
+                                                    entryIndex === index
+                                                        ? { ...entry, priceGd: nextPrice }
+                                                        : entry
+                                                )),
+                                            }));
+                                        }}
+                                        className="mt-3 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white"
+                                    />
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="grid gap-3 sm:grid-cols-2">
+                            <button
+                                type="button"
+                                onClick={() => setCreatorDropModalOpen(true)}
+                                className="rounded-xl border border-brand-purple/20 bg-brand-purple/10 px-4 py-3 text-sm font-bold text-white"
+                            >
+                                Submit creator drop
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleSaveCreatorSettings}
+                                disabled={creatorSettingsLoading}
+                                className="rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-bold text-white"
+                            >
+                                {creatorSettingsLoading ? "Saving creator controls..." : "Save creator controls"}
+                            </button>
+                        </div>
+
+                        <div className="rounded-[1.15rem] border border-white/10 bg-black/25 p-4 space-y-3">
+                            <div className="flex items-center justify-between gap-3">
+                                <div>
+                                    <p className="text-sm font-semibold text-white">Creator broadcast</p>
+                                    <p className="mt-1 text-xs leading-5 text-gray-500">Send short updates to followers and notify fans who enabled creator alerts.</p>
+                                </div>
+                                <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-400">
+                                    Followers
+                                </span>
+                            </div>
+                            <textarea
+                                value={creatorBroadcastMessage}
+                                onChange={(event) => setCreatorBroadcastMessage(event.target.value.slice(0, 280))}
+                                rows={3}
+                                placeholder="Tell followers what just dropped or what is coming next."
+                                className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white"
+                            />
+                            <div className="flex items-center justify-between gap-3">
+                                <p className="text-[11px] text-gray-500">{creatorBroadcastMessage.length}/280</p>
+                                <button
+                                    type="button"
+                                    onClick={handleSendCreatorBroadcast}
+                                    disabled={sendingCreatorBroadcast || creatorBroadcastMessage.trim().length < 4}
+                                    className="rounded-xl border border-white/10 bg-white/10 px-4 py-2.5 text-sm font-bold text-white disabled:opacity-60"
+                                >
+                                    {sendingCreatorBroadcast ? "Sending..." : "Send broadcast"}
+                                </button>
+                            </div>
+                            {creatorBroadcasts.length > 0 ? (
+                                <div className="space-y-2">
+                                    {creatorBroadcasts.slice(0, 3).map((broadcast) => (
+                                        <div key={String(broadcast.id)} className="rounded-xl border border-white/10 bg-black/35 px-3 py-3">
+                                            <p className="text-sm font-semibold text-white">
+                                                {typeof broadcast.title === "string" && broadcast.title.trim().length > 0 ? broadcast.title : "Creator update"}
+                                            </p>
+                                            <p className="mt-1 text-xs leading-5 text-gray-400">
+                                                {typeof broadcast.message === "string" ? broadcast.message : ""}
+                                            </p>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : null}
+                        </div>
+
+                        <div className="rounded-[1.15rem] border border-white/10 bg-black/25 p-4">
+                            <p className="text-sm font-semibold text-white">Request payout</p>
+                            <p className="mt-1 text-xs leading-5 text-gray-500">Manual payout requests are honored within 5–7 business days. 100 GD = $1.</p>
+                            <div className="mt-3 flex gap-3">
+                                <input
+                                    type="number"
+                                    min={100}
+                                    step={100}
+                                    value={creatorPayoutAmount}
+                                    onChange={(event) => setCreatorPayoutAmount(Math.max(100, Number(event.target.value) || 100))}
+                                    className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={handleRequestCreatorPayout}
+                                    className="rounded-xl border border-white/10 bg-white/10 px-4 py-2.5 text-sm font-bold text-white"
+                                >
+                                    Request
+                                </button>
+                            </div>
+                        </div>
+                    </SectionCard>
+                ) : null}
 
                 <SectionCard title="Notifications">
                     <ToggleRow
@@ -861,6 +1246,18 @@ export default function ProfilePage() {
                     </div>
                 </div>
             </form>
+            {isCreatorAccount ? (
+                <CreateDropModal
+                    isOpen={creatorDropModalOpen}
+                    onClose={() => setCreatorDropModalOpen(false)}
+                    onSuccess={() => {
+                        setCreatorDropModalOpen(false);
+                        toast.success("Creator drop submitted for admin review.");
+                    }}
+                    mode="creator"
+                    creatorIdOverride={user?.uid || null}
+                />
+            ) : null}
         </div>
     );
 }

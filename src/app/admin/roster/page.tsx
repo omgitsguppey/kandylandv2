@@ -26,6 +26,37 @@ interface RosterEntry {
     createdAt: number;
 }
 
+interface RosterCreatorOps {
+    followerCount: number;
+    favoriteCount: number;
+    notificationsEnabledCount: number;
+    activeSubscribers: number;
+    openRequests: number;
+    bookedCalls: number;
+    pendingPayouts: number;
+    openThreads: number;
+    pendingDropSubmissions: number;
+    totalAccruedGd: number;
+    pendingCashoutGd: number;
+}
+
+interface RosterSummary {
+    creatorOps?: {
+        creatorsWithFollowers: number;
+        totalFollowers: number;
+        totalFavorites: number;
+        totalAlertOptIns: number;
+        activeSubscriptions: number;
+        openRequests: number;
+        bookedCalls: number;
+        pendingPayouts: number;
+        openThreads: number;
+        pendingDropSubmissions: number;
+        totalAccruedGd: number;
+        pendingCashoutGd: number;
+    };
+}
+
 const PAGE_SIZE = 25;
 
 function initialsFor(name: string): string {
@@ -42,6 +73,8 @@ export default function AdminRosterPage() {
     const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+    const [summary, setSummary] = useState<RosterSummary | null>(null);
+    const [creatorOpsByUser, setCreatorOpsByUser] = useState<Record<string, RosterCreatorOps>>({});
 
     const isAdmin = userProfile?.role === "admin";
 
@@ -55,7 +88,12 @@ export default function AdminRosterPage() {
         const fetchRoster = async () => {
             try {
                 const response = await authFetch("/api/admin/users");
-                const result = await response.json() as { success?: boolean; users?: Array<Record<string, unknown>> };
+                const result = await response.json() as {
+                    success?: boolean;
+                    users?: Array<Record<string, unknown>>;
+                    summary?: RosterSummary;
+                    creatorOpsByUser?: Record<string, RosterCreatorOps>;
+                };
                 if (!response.ok || !result.success) {
                     throw new Error("Unable to load roster right now. Please try again shortly.");
                 }
@@ -77,6 +115,8 @@ export default function AdminRosterPage() {
                 })) as RosterEntry[];
 
                 setUsers(normalized);
+                setSummary(result.summary || null);
+                setCreatorOpsByUser(result.creatorOpsByUser || {});
                 setError(null);
                 setLoading(false);
             } catch (snapshotError) {
@@ -119,6 +159,15 @@ export default function AdminRosterPage() {
         () => users.filter((entry) => entry.role === "creator" || entry.role === "admin"),
         [users],
     );
+    const topCreatorEntries = useMemo(() => (
+        creatorUsers
+            .map((entry) => ({
+                ...entry,
+                ops: creatorOpsByUser[entry.uid],
+            }))
+            .sort((left, right) => (right.ops?.followerCount || 0) - (left.ops?.followerCount || 0))
+            .slice(0, 3)
+    ), [creatorOpsByUser, creatorUsers]);
 
     const handleRoleUpdate = async (uid: string, role: RosterRole) => {
         try {
@@ -206,18 +255,18 @@ export default function AdminRosterPage() {
                 {[
                     {
                         icon: Sparkles,
-                        title: "Creator onboarding pipeline",
-                        copy: "Work in progress. This panel will map invite status, onboarding milestones, verification, and readiness for first-drop setup.",
+                        title: "Relationship graph",
+                        copy: `${summary?.creatorOps?.totalFollowers || 0} follower links, ${summary?.creatorOps?.totalFavorites || 0} favorites, and ${summary?.creatorOps?.totalAlertOptIns || 0} creator alert opt-ins are currently durable.`,
                     },
                     {
                         icon: HeartHandshake,
-                        title: "Social + follow graph",
-                        copy: "Work in progress. This panel will track fan follows, creator affinity, social prompts, and follow-driven retention loops.",
+                        title: "Revenue + services",
+                        copy: `${summary?.creatorOps?.activeSubscriptions || 0} active subscriptions, ${summary?.creatorOps?.bookedCalls || 0} booked calls, ${summary?.creatorOps?.openRequests || 0} open requests, and ${(summary?.creatorOps?.totalAccruedGd || 0).toLocaleString()} accrued GD are live.`,
                     },
                     {
                         icon: Wand2,
-                        title: "Creator experiences + drops",
-                        copy: "Work in progress. This panel will coordinate creator-specific experiences, drop calendars, and roster programming.",
+                        title: "Moderation queue",
+                        copy: `${summary?.creatorOps?.openThreads || 0} message threads, ${summary?.creatorOps?.pendingDropSubmissions || 0} pending creator submissions, and ${summary?.creatorOps?.pendingPayouts || 0} payout reviews are currently waiting in admin ops.`,
                     },
                 ].map((item) => {
                     const Icon = item.icon;
@@ -225,7 +274,7 @@ export default function AdminRosterPage() {
                         <div key={item.title} className="glass-panel rounded-[1.8rem] border border-white/10 p-5">
                             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
                                 <Users className="h-3.5 w-3.5" />
-                                Work in progress
+                                Creator ops live
                             </div>
                             <div className="flex items-start gap-3">
                                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-brand-purple/25 bg-brand-purple/15 text-white">
@@ -240,6 +289,45 @@ export default function AdminRosterPage() {
                     );
                 })}
             </div>
+
+            {topCreatorEntries.length > 0 ? (
+                <div className="glass-panel rounded-[1.8rem] border border-white/10 p-5">
+                    <div className="flex items-start justify-between gap-3">
+                        <div>
+                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Top creator momentum</p>
+                            <h3 className="mt-2 text-lg font-bold text-white">Roster leaders by live follows</h3>
+                            <p className="mt-1 text-sm text-gray-400">A quick view of who is pulling the most follower, subscriber, and queue activity right now.</p>
+                        </div>
+                    </div>
+                    <div className="mt-4 grid gap-3 lg:grid-cols-3">
+                        {topCreatorEntries.map((entry) => (
+                            <div key={entry.uid} className="rounded-[1.2rem] border border-white/10 bg-black/25 p-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="relative h-10 w-10 overflow-hidden rounded-2xl border border-white/10 bg-black/30">
+                                        {entry.photoURL ? (
+                                            <Image src={entry.photoURL} alt={entry.displayName} fill sizes="40px" className="object-cover" />
+                                        ) : (
+                                            <div className="flex h-full w-full items-center justify-center text-sm font-black text-white">
+                                                {initialsFor(entry.displayName)}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="truncate text-sm font-bold text-white">{entry.displayName}</p>
+                                        <p className="truncate text-[11px] text-gray-500">{entry.username ? `@${entry.username}` : entry.email}</p>
+                                    </div>
+                                </div>
+                                <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] text-gray-400">
+                                    <span className="rounded-full border border-white/10 bg-black/20 px-2.5 py-1">Followers: {entry.ops?.followerCount || 0}</span>
+                                    <span className="rounded-full border border-white/10 bg-black/20 px-2.5 py-1">Subs: {entry.ops?.activeSubscribers || 0}</span>
+                                    <span className="rounded-full border border-white/10 bg-black/20 px-2.5 py-1">Threads: {entry.ops?.openThreads || 0}</span>
+                                    <span className="rounded-full border border-white/10 bg-black/20 px-2.5 py-1">Queue: {entry.ops?.pendingDropSubmissions || 0}</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            ) : null}
 
             <div className="rounded-2xl overflow-hidden">
                 {loading ? (
@@ -258,6 +346,7 @@ export default function AdminRosterPage() {
                         {visibleUsers.map((entry) => {
                             const isAdminUser = entry.role === "admin";
                             const isCreator = entry.role === "creator";
+                            const creatorOps = creatorOpsByUser[entry.uid];
 
                             return (
                                 <div key={entry.uid} className={`glass-panel rounded-3xl p-5 border relative overflow-hidden group transition-all hover:-translate-y-1 ${isAdminUser ? "border-red-500/30 hover:shadow-[0_0_30px_-5px_rgba(239,68,68,0.3)] bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-red-500/10 via-black to-black" :
@@ -314,6 +403,27 @@ export default function AdminRosterPage() {
                                                 {entry.status}
                                             </span>
                                         </div>
+
+                                        {(isCreator || isAdminUser) && creatorOps ? (
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <div className="rounded-xl border border-white/10 bg-black/35 px-3 py-2">
+                                                    <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-gray-500">Followers</p>
+                                                    <p className="mt-1 text-sm font-black text-white">{creatorOps.followerCount}</p>
+                                                </div>
+                                                <div className="rounded-xl border border-white/10 bg-black/35 px-3 py-2">
+                                                    <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-gray-500">Subscribers</p>
+                                                    <p className="mt-1 text-sm font-black text-white">{creatorOps.activeSubscribers}</p>
+                                                </div>
+                                                <div className="rounded-xl border border-white/10 bg-black/35 px-3 py-2">
+                                                    <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-gray-500">Threads</p>
+                                                    <p className="mt-1 text-sm font-black text-white">{creatorOps.openThreads}</p>
+                                                </div>
+                                                <div className="rounded-xl border border-white/10 bg-black/35 px-3 py-2">
+                                                    <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-gray-500">Queue</p>
+                                                    <p className="mt-1 text-sm font-black text-white">{creatorOps.pendingDropSubmissions}</p>
+                                                </div>
+                                            </div>
+                                        ) : null}
                                     </div>
 
                                     {/* Card Footer Actions */}

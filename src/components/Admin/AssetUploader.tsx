@@ -18,6 +18,7 @@ export interface UploadedAsset {
   url: string;
   type: string;
   size: number;
+  fileName?: string;
 }
 
 interface AssetDraft {
@@ -28,6 +29,7 @@ interface AssetDraft {
   uploadUrl?: string;
   uploadType: string;
   uploadSize: number;
+  fileName?: string;
   uploading: boolean;
   cropPixels?: Area; // From react-easy-crop
 }
@@ -74,6 +76,7 @@ function createInitialAssets(initialAssets?: UploadedAsset[], initialUrl?: strin
       previewUrl: asset.url,
       uploadType: asset.type || "application/octet-stream",
       uploadSize: asset.size || 0,
+      fileName: asset.fileName,
       uploading: false,
     }));
   }
@@ -89,6 +92,7 @@ function createInitialAssets(initialAssets?: UploadedAsset[], initialUrl?: strin
     previewUrl: initialUrl,
     uploadType: initialType || "application/octet-stream",
     uploadSize: 0,
+    fileName: undefined,
     uploading: false,
   }];
 }
@@ -171,6 +175,7 @@ export function AssetUploader({
         url: asset.uploadUrl as string,
         type: asset.uploadType,
         size: asset.uploadSize,
+        fileName: asset.fileName,
       }));
 
     onChange(normalized);
@@ -237,11 +242,12 @@ export function AssetUploader({
       id: `${Date.now()}-${file.name}-${Math.random().toString(16).slice(2)}`,
       kind: classifyFile(file),
       file,
-      previewUrl: file.type.startsWith("image/") || file.type.startsWith("video/") ? URL.createObjectURL(file) : undefined,
-      uploadType: file.type || "application/octet-stream",
-      uploadSize: file.size,
-      uploading: false,
-    } satisfies AssetDraft));
+          previewUrl: file.type.startsWith("image/") || file.type.startsWith("video/") ? URL.createObjectURL(file) : undefined,
+          uploadType: file.type || "application/octet-stream",
+          uploadSize: file.size,
+          fileName: file.name,
+          uploading: false,
+        } satisfies AssetDraft));
 
     const newSet = multiple ? [...assets, ...incoming].slice(0, 50) : incoming.slice(0, 1);
     setAssets(newSet);
@@ -365,7 +371,7 @@ export function AssetUploader({
                   {renderThumbnail(asset)}
                   <button
                     type="button"
-                    className="absolute top-1 right-1 rounded-full bg-black/70 p-1 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute top-1 right-1 rounded-full bg-black/70 p-1 text-white opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
                     onClick={() => removeAsset(asset.id)}
                   >
                     <X className="w-3.5 h-3.5" />
@@ -387,6 +393,9 @@ export function AssetUploader({
                 ) : (
                   <p className="text-[10px] text-brand-purple font-bold text-center pt-1">Success</p>
                 )}
+                {asset.fileName ? (
+                  <p className="truncate text-center text-[10px] text-gray-500">{asset.fileName}</p>
+                ) : null}
               </div>
             ))}
           </div>

@@ -8,6 +8,8 @@ import { SENSITIVE_WRITE } from "@/lib/server/rate-limit";
 import { recordCanonicalTaskEvent } from "@/lib/server/daily-tasks";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
+import { CREATOR_COLLECTIONS } from "@/lib/creator-experiences";
+import { trackServerEvent } from "@/lib/server/analytics";
 
 const unlockRequestSchema = z.object({
   dropId: z
@@ -44,11 +46,13 @@ export async function POST(request: NextRequest) {
       }
 
       const dropData = dropSnap.data() ?? {};
+      const creatorId = typeof dropData.creatorId === "string" ? dropData.creatorId : "";
+      const requiresActiveSubscription = dropData.requiresActiveSubscription === true;
       const parsedUnlockCost = Number(dropData.unlockCost);
       if (!Number.isFinite(parsedUnlockCost) || parsedUnlockCost < 0) {
         throw new Error("Invalid drop configuration");
       }
-      const unlockCost = Math.floor(parsedUnlockCost);
+      let unlockCost = Math.floor(parsedUnlockCost);
 
       const userSnap = await transaction.get(userRef);
       if (!userSnap.exists) {
@@ -72,7 +76,22 @@ export async function POST(request: NextRequest) {
       if (unlockedContent.has(dropId)) {
         const existingUnwrappedRaw = Number((userData.unlockedContentTimestamps as Record<string, unknown> | undefined)?.[dropId]);
         const existingUnwrappedAt = Number.isFinite(existingUnwrappedRaw) ? Math.floor(existingUnwrappedRaw) : null;
-        return { newBalance: balance, alreadyUnlocked: true, unwrappedAt: existingUnwrappedAt, username };
+        return { newBalance: balance, alreadyUnlocked: true, unwrappedAt: existingUnwrappedAt, username, creatorId, usedSubscriptionAccess: false };
+      }
+
+      let usedSubscriptionAccess = false;
+      if (creatorId && creatorId !== userId) {
+        const subscriptionSnap = await transaction.get(
+          adminDb.collection(CREATOR_COLLECTIONS.subscriptions).doc(`${userId}__${creatorId}`),
+        );
+        const subscriptionActive = subscriptionSnap.exists && (subscriptionSnap.data() as Record<string, unknown>).status === "active";
+        if (requiresActiveSubscription && !subscriptionActive) {
+          throw new Error(`SUBSCRIPTION_REQUIRED:${creatorId}`);
+        }
+        if (subscriptionActive) {
+          unlockCost = 0;
+          usedSubscriptionAccess = true;
+        }
       }
 
       if (balance < unlockCost) {
@@ -95,10 +114,12 @@ export async function POST(request: NextRequest) {
         type: "unlock_content",
         amount: -unlockCost,
         relatedDropId: dropId,
+        creatorId: creatorId || undefined,
         description: `Unlocked: ${typeof dropData.title === "string" ? dropData.title : "Drop"}`,
         balanceBefore: balance,
         balanceAfter: balance - unlockCost,
         timestampMs: unwrappedAt,
+        extra: usedSubscriptionAccess ? { unlockSource: "creator_subscription" } : undefined,
       }));
 
       transaction.update(dropRef, {
@@ -115,6 +136,8 @@ export async function POST(request: NextRequest) {
         tags: Array.isArray(dropData.tags)
           ? dropData.tags.filter((value): value is string => typeof value === "string" && value.trim().length > 0)
           : [],
+        creatorId,
+        usedSubscriptionAccess,
       };
     });
 
@@ -127,8 +150,20 @@ export async function POST(request: NextRequest) {
         drop_title: result.title ?? "Drop",
         drop_tags: Array.isArray(result.tags) ? result.tags.join("|") : "",
         unlock_cost: result.cost ?? 0,
+        creator_id: result.creatorId ?? "",
+        unlock_source: result.usedSubscriptionAccess ? "creator_subscription" : "gumdrops",
         transaction_id: `${userId}:unlock:${dropId}:${result.unwrappedAt ?? "unknown"}`,
       });
+      if (result.creatorId) {
+        await trackServerEvent("creator_drop_unwrapped", {
+          creator_id: result.creatorId,
+          drop_id: dropId,
+          drop_title: result.title ?? "Drop",
+          unlock_cost: result.cost ?? 0,
+          unlock_source: result.usedSubscriptionAccess ? "creator_subscription" : "gumdrops",
+          transaction_id: `${userId}:creator-unlock:${dropId}:${result.unwrappedAt ?? "unknown"}`,
+        }, userId).catch(() => null);
+      }
     }
 
     return NextResponse.json({
@@ -138,6 +173,7 @@ export async function POST(request: NextRequest) {
       newBalance: result.newBalance,
       alreadyUnlocked: result.alreadyUnlocked,
       unwrappedAt: result.unwrappedAt ?? null,
+      usedSubscriptionAccess: result.usedSubscriptionAccess ?? false,
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "";
@@ -151,6 +187,10 @@ export async function POST(request: NextRequest) {
         },
         { status: 402 }
       );
+    }
+
+    if (message.startsWith("SUBSCRIPTION_REQUIRED:")) {
+      return NextResponse.json({ error: "This creator drop requires an active subscription." }, { status: 403 });
     }
 
     if (message === "User not found") {

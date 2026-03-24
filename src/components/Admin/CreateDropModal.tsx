@@ -17,6 +17,7 @@ import { getDefaultCSTDates, toCSTString, fromCSTInput } from "@/lib/timezone";
 import { toast } from "sonner";
 
 const dropSchema = z.object({
+    creatorId: z.string().min(1, "Creator assignment is required"),
     title: z.string().min(3, "Title is too short"),
     description: z.string().min(10, "Description is too short"),
     imageUrl: z.string().url("Cover image is required"),
@@ -36,6 +37,9 @@ const dropSchema = z.object({
         type: z.string(),
         dimensions: z.string().optional(),
     }).nullable().optional(),
+    coverFileName: z.string().optional(),
+    contentFileNames: z.array(z.string()).optional(),
+    requiresActiveSubscription: z.boolean().optional().default(false),
 });
 
 type DropFormData = z.infer<typeof dropSchema>;
@@ -47,6 +51,15 @@ interface UploadedAsset {
     url: string;
     type: string;
     size: number;
+    fileName?: string;
+}
+
+interface CreatorOption {
+    uid: string;
+    displayName: string;
+    username: string;
+    photoURL: string | null;
+    role: string;
 }
 
 function inferAssetTypeFromUrl(url: string, fallbackType?: string): string {
@@ -175,12 +188,17 @@ export interface CreateDropModalProps {
     dropId?: string | null;
     duplicateFromId?: string | null;
     onSuccess: () => void;
+    mode?: "admin" | "creator";
+    creatorIdOverride?: string | null;
 }
 
-export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSuccess }: CreateDropModalProps) {
+export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSuccess, mode = "admin", creatorIdOverride = null }: CreateDropModalProps) {
     const isEditMode = !!dropId;
     const [fetching, setFetching] = useState(isEditMode);
     const [contentAssets, setContentAssets] = useState<UploadedAsset[]>([]);
+    const [creatorOptions, setCreatorOptions] = useState<CreatorOption[]>([]);
+    const [duplicateWarnings, setDuplicateWarnings] = useState<Array<{ dropId: string; title: string; duplicateFileNames: string[]; approvalStatus: string }>>([]);
+    const [checkingDuplicateNames, setCheckingDuplicateNames] = useState(false);
 
     const [uploadsOpen, setUploadsOpen] = useState(true);
     const [coverAspectRatio, setCoverAspectRatio] = useState<UploadAspectRatio>("1:1");
@@ -196,6 +214,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
     } = useForm<DropFormData>({
         resolver: zodResolver(dropSchema) as any,
         defaultValues: {
+            creatorId: creatorIdOverride || "",
             title: "",
             description: "",
             imageUrl: "",
@@ -209,6 +228,9 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
             ctaText: "",
             actionUrl: "",
             fileMetadata: null,
+            coverFileName: "",
+            contentFileNames: [],
+            requiresActiveSubscription: false,
             ...getDefaultCSTDates()
         }
     });
@@ -216,14 +238,48 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
     const dropType = useWatch({ control, name: "type" });
     const watchedTags = useWatch({ control, name: "tags" });
     const currentTags = useMemo(() => watchedTags || [], [watchedTags]);
+    const creatorId = useWatch({ control, name: "creatorId" }) || "";
     const imageUrl = useWatch({ control, name: "imageUrl" }) || "";
     const contentUrl = useWatch({ control, name: "contentUrl" }) || "";
     const fileMetadata = useWatch({ control, name: "fileMetadata" });
+    const coverFileName = useWatch({ control, name: "coverFileName" }) || "";
+
+    useEffect(() => {
+        if (!isOpen || mode !== "admin") {
+            return;
+        }
+
+        let cancelled = false;
+        async function fetchCreatorOptions() {
+            try {
+                const response = await authFetch("/api/admin/creator-options");
+                const result = await response.json() as { creators?: CreatorOption[] };
+                if (!response.ok) {
+                    throw new Error("Failed to load creator options");
+                }
+
+                if (!cancelled) {
+                    setCreatorOptions(Array.isArray(result.creators) ? result.creators : []);
+                    if (!creatorId && Array.isArray(result.creators) && result.creators[0]?.uid) {
+                        setValue("creatorId", result.creators[0].uid);
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to load creator options", error);
+            }
+        }
+
+        void fetchCreatorOptions();
+        return () => {
+            cancelled = true;
+        };
+    }, [creatorId, isOpen, mode, setValue]);
 
     useEffect(() => {
         if (!isOpen) {
             setContentAssets([]);
             reset({
+                creatorId: creatorIdOverride || "",
                 title: "",
                 description: "",
                 imageUrl: "",
@@ -237,8 +293,12 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                 ctaText: "",
                 actionUrl: "",
                 fileMetadata: null,
+                coverFileName: "",
+                contentFileNames: [],
+                requiresActiveSubscription: false,
                 ...getDefaultCSTDates()
             });
+            setDuplicateWarnings([]);
             return;
         }
 
@@ -258,12 +318,16 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                         ? data.contentUrls
                         : (data.contentUrl ? [data.contentUrl] : []);
                     setValue("title", data.title + (duplicateFromId ? " (Copy)" : ""));
+                    setValue("creatorId", typeof data.creatorId === "string" ? data.creatorId : creatorIdOverride || "");
                     setValue("description", data.description);
                     setValue("imageUrl", data.imageUrl);
                     setValue("contentUrl", existingContentUrls[0] || "");
                     setValue("contentUrls", existingContentUrls);
+                    setValue("coverFileName", typeof data.coverFileName === "string" ? data.coverFileName : "");
+                    setValue("contentFileNames", Array.isArray(data.contentFileNames) ? data.contentFileNames : []);
                     setValue("unlockCost", data.unlockCost);
                     setValue("autoQueueOnExpire", data.autoQueueOnExpire === true);
+                    setValue("requiresActiveSubscription", data.requiresActiveSubscription === true);
 
                     if (dropId) {
                         setValue("validFrom", toCSTString(data.validFrom));
@@ -288,6 +352,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                         url,
                         type: inferAssetTypeFromUrl(url, data.fileMetadata?.type),
                         size: index === 0 ? data.fileMetadata?.size || 0 : 0,
+                        fileName: Array.isArray(data.contentFileNames) ? data.contentFileNames[index] : undefined,
                     })));
                 } else {
                     toast.error("Drop not found!");
@@ -301,18 +366,21 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
         }
 
         fetchDrop();
-    }, [isOpen, dropId, duplicateFromId, reset, setValue, onClose]);
+    }, [creatorIdOverride, duplicateFromId, dropId, isOpen, onClose, reset, setValue]);
 
     const handleCoverAssetsChange = useCallback((assets: UploadedAsset[]) => {
         const primary = assets[0];
         setValue("imageUrl", primary?.url || "", { shouldValidate: true });
+        setValue("coverFileName", primary?.fileName || "", { shouldValidate: false });
     }, [setValue]);
 
     const handleContentAssetsChange = useCallback((assets: UploadedAsset[]) => {
         setContentAssets(assets);
         const urls = assets.map(a => a.url);
+        const fileNames = assets.map((asset) => asset.fileName).filter((fileName): fileName is string => typeof fileName === "string" && fileName.length > 0);
         setValue("contentUrl", urls[0] || "", { shouldValidate: true });
         setValue("contentUrls", urls, { shouldValidate: true });
+        setValue("contentFileNames", fileNames, { shouldValidate: false });
 
         const primary = assets[0];
         if (primary) {
@@ -325,6 +393,62 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
             setValue("fileMetadata", null, { shouldValidate: false });
         }
     }, [contentAspectRatio, setValue]);
+
+    useEffect(() => {
+        if (!isOpen) {
+            return;
+        }
+
+        const pendingNames = [
+            ...contentAssets.map((asset) => asset.fileName).filter((fileName): fileName is string => typeof fileName === "string" && fileName.length > 0),
+            ...(coverFileName ? [coverFileName] : []),
+        ];
+
+        if (pendingNames.length === 0) {
+            setDuplicateWarnings([]);
+            return;
+        }
+
+        const localNormalized = pendingNames.map((name) => name.trim().toLowerCase());
+        const localDuplicates = localNormalized.filter((name, index) => localNormalized.indexOf(name) !== index);
+        if (localDuplicates.length > 0) {
+            setDuplicateWarnings([{
+                dropId: "local",
+                title: "Pending upload list",
+                duplicateFileNames: Array.from(new Set(localDuplicates)),
+                approvalStatus: "draft",
+            }]);
+            return;
+        }
+
+        const timeoutId = window.setTimeout(async () => {
+            try {
+                setCheckingDuplicateNames(true);
+                const response = await authFetch("/api/drops/duplicate-filenames", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        fileNames: pendingNames,
+                        excludeDropId: dropId || undefined,
+                    }),
+                });
+                const result = await response.json() as {
+                    duplicates?: Array<{ dropId: string; title: string; duplicateFileNames: string[]; approvalStatus: string }>;
+                };
+                if (!response.ok) {
+                    throw new Error("Failed to check duplicate file names");
+                }
+                setDuplicateWarnings(Array.isArray(result.duplicates) ? result.duplicates : []);
+            } catch (error) {
+                console.error("Duplicate filename check failed", error);
+            } finally {
+                setCheckingDuplicateNames(false);
+            }
+        }, 250);
+
+        return () => {
+            window.clearTimeout(timeoutId);
+        };
+    }, [contentAssets, coverFileName, dropId, isOpen]);
 
     const handleToggleUploads = useCallback(() => {
         setUploadsOpen((prev) => !prev);
@@ -339,6 +463,11 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
 
     const onSubmit: SubmitHandler<DropFormData> = async (data) => {
         try {
+            if (duplicateWarnings.length > 0) {
+                toast.error("Resolve duplicate file names before saving this drop.");
+                return;
+            }
+
             const validFrom = fromCSTInput(data.validFrom);
             let validUntil: number | null = null;
 
@@ -354,6 +483,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
             const status = now < validFrom ? "scheduled" : validUntil && now >= validUntil ? "expired" : "active";
 
             const dropData: Record<string, unknown> = {
+                creatorId: mode === "creator" ? (creatorIdOverride || data.creatorId) : data.creatorId,
                 title: data.title,
                 description: data.description,
                 imageUrl: data.imageUrl,
@@ -370,19 +500,22 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                 actionUrl: data.actionUrl,
                 accentColor: data.accentColor,
                 fileMetadata: data.fileMetadata,
+                coverFileName: data.coverFileName,
+                contentFileNames: data.contentFileNames,
+                requiresActiveSubscription: data.requiresActiveSubscription === true,
                 mediaCounts: summarizeMediaCounts(contentAssets, data.fileMetadata?.type),
             };
 
             if (isEditMode) {
-                const response = await authFetch("/api/admin/drops", {
+                const response = await authFetch(mode === "creator" ? "/api/creator/drops" : "/api/admin/drops", {
                     method: "PUT",
                     body: JSON.stringify({ dropId, dropData }),
                 });
                 const result = await response.json();
                 if (!response.ok) throw new Error(result.error);
-                toast.success("Drop updated successfully");
+                toast.success(mode === "creator" ? "Drop submission updated successfully" : "Drop updated successfully");
             } else {
-                const response = await authFetch("/api/admin/drops", {
+                const response = await authFetch(mode === "creator" ? "/api/creator/drops" : "/api/admin/drops", {
                     method: "POST",
                     body: JSON.stringify({
                         dropData: {
@@ -393,7 +526,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                 });
                 const result = await response.json();
                 if (!response.ok) throw new Error(result.error);
-                toast.success("Drop created successfully");
+                toast.success(mode === "creator" ? "Drop submitted for admin approval" : "Drop created successfully");
             }
 
             onSuccess();
@@ -424,12 +557,12 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                 <Dialog.Overlay className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm" />
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
                     <Dialog.Content
-                        className="w-full max-w-2xl bg-[#0a0a0a] border border-white/10 rounded-3xl overflow-hidden relative max-h-[90vh] flex flex-col shadow-2xl focus:outline-none focus:ring-2 focus:ring-brand-purple/50"
+                        className="w-full max-w-2xl bg-[#0a0a0a] border border-white/10 rounded-3xl overflow-hidden relative max-h-[92vh] flex flex-col shadow-2xl focus:outline-none focus:ring-2 focus:ring-brand-purple/50"
                         aria-describedby={undefined}
                     >
                         <header className="p-4 md:p-6 border-b border-white/10 flex items-center justify-between shrink-0 bg-black/50 sticky top-0 z-10 backdrop-blur-md">
                             <Dialog.Title className="text-xl font-bold text-white shrink-0">
-                                {isEditMode ? "Edit Drop" : "Create Drop"}
+                                {isEditMode ? (mode === "creator" ? "Edit Submission" : "Edit Drop") : (mode === "creator" ? "Submit Creator Drop" : "Create Drop")}
                             </Dialog.Title>
                             <Dialog.Close asChild>
                                 <button
@@ -441,20 +574,50 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                             </Dialog.Close>
                         </header>
 
-                        <div className="p-4 md:p-6 overflow-y-auto flex-1 custom-scrollbar">
+                        <div className="p-3 md:p-5 overflow-y-auto flex-1 custom-scrollbar">
                             {fetching ? (
                                 <div className="flex items-center justify-center min-h-[300px]">
                                     <Loader2 className="w-8 h-8 animate-spin text-white" />
                                 </div>
                             ) : (
-                                <form id="create-drop-form" onSubmit={handleSubmit(onSubmit, onError)} className="space-y-4">
-                                    <div className="glass-panel p-4 rounded-3xl space-y-4 shadow-lg border-white/5 bg-white/[0.02]">
+                                <form id="create-drop-form" onSubmit={handleSubmit(onSubmit, onError)} className="space-y-3">
+                                    <div className="glass-panel p-3.5 rounded-3xl space-y-3 shadow-lg border-white/5 bg-white/[0.02]">
+                                        <div className="grid gap-3 sm:grid-cols-2">
+                                            <div className="space-y-1">
+                                                <label className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Creator name</label>
+                                                <select
+                                                    {...register("creatorId")}
+                                                    disabled={mode === "creator"}
+                                                    className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white disabled:opacity-80"
+                                                >
+                                                    <option value="">{mode === "creator" ? "Your creator account" : "Assign creator"}</option>
+                                                    {creatorOptions.map((option) => (
+                                                        <option key={option.uid} value={option.uid}>
+                                                            {option.displayName}{option.username ? ` • @${option.username}` : ""}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                {errors.creatorId && <p className="text-red-400 text-xs">{errors.creatorId.message}</p>}
+                                            </div>
+                                            <div className="space-y-1">
+                                                <label className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Drop type</label>
+                                                <select
+                                                    {...register("type")}
+                                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-gray-300 focus:outline-none focus:border-brand-purple/50"
+                                                >
+                                                    <option value="content">Content Drop</option>
+                                                    <option value="promo">Promo / Ad</option>
+                                                    <option value="external">External Link</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
                                         <div>
                                             <input
                                                 {...register("title")}
                                                 type="text"
                                                 placeholder="Drop Title"
-                                                className="w-full bg-transparent border-none p-0 text-xl font-bold text-white placeholder:text-gray-600 focus:ring-0"
+                                                className="w-full bg-transparent border-none p-0 text-lg font-bold text-white placeholder:text-gray-600 focus:ring-0"
                                             />
                                             {errors.title && <p className="text-red-400 text-xs mt-1">{errors.title.message}</p>}
                                         </div>
@@ -469,16 +632,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                             {errors.description && <p className="text-red-400 text-xs mt-1">{errors.description.message}</p>}
                                         </div>
 
-                                        <div className="flex flex-col gap-3">
-                                            <select
-                                                {...register("type")}
-                                                className="w-full bg-black/40 border border-white/5 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-brand-purple/50"
-                                            >
-                                                <option value="content">Content Drop</option>
-                                                <option value="promo">Promo / Ad</option>
-                                                <option value="external">External Link</option>
-                                            </select>
-
+                                        <div className="flex flex-col gap-2">
                                             <div className="flex flex-wrap gap-2">
                                                 {AVAILABLE_TAGS.map(tag => (
                                                     <button
@@ -499,6 +653,30 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                         </div>
                                     </div>
 
+                                    {duplicateWarnings.length > 0 ? (
+                                        <div className="rounded-3xl border border-amber-400/20 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">
+                                            <div className="flex items-center justify-between gap-3">
+                                                <div>
+                                                    <p className="font-bold">Duplicate file names detected</p>
+                                                    <p className="mt-1 text-xs text-amber-100/80">
+                                                        Remove or rename duplicate files before saving this drop.
+                                                    </p>
+                                                </div>
+                                                {checkingDuplicateNames ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                                            </div>
+                                            <div className="mt-3 space-y-2">
+                                                {duplicateWarnings.map((warning) => (
+                                                    <div key={`${warning.dropId}-${warning.title}`} className="rounded-2xl border border-white/10 bg-black/20 px-3 py-2">
+                                                        <p className="text-xs font-bold text-white">{warning.title}</p>
+                                                        <p className="mt-1 text-[11px] text-amber-100/80">
+                                                            {warning.duplicateFileNames.join(", ")}
+                                                        </p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ) : null}
+
                                     <FilesAndAssetsSection
                                         uploadsOpen={uploadsOpen}
                                         onToggle={handleToggleUploads}
@@ -515,24 +693,38 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                         errors={errors}
                                     />
 
-                                    <div className="glass-panel p-4 rounded-3xl space-y-3 shadow-lg border-white/5 bg-white/[0.02]">
+                                    <div className="glass-panel p-3.5 rounded-3xl space-y-3 shadow-lg border-white/5 bg-white/[0.02]">
                                         <h3 className="text-sm font-bold text-white">Pricing & Schedule</h3>
 
-                                        <div className="space-y-1">
-                                            <label className="text-xs font-bold text-gray-500 flex items-center gap-1 uppercase">
-                                                <DollarSign className="w-3 h-3" /> Cost (Drops)
+                                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                            <div className="space-y-1">
+                                                <label className="text-xs font-bold text-gray-500 flex items-center gap-1 uppercase">
+                                                    <DollarSign className="w-3 h-3" /> Cost (Drops)
+                                                </label>
+                                                <input
+                                                    {...register("unlockCost")}
+                                                    type="number"
+                                                    min="0"
+                                                    inputMode="numeric"
+                                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-white font-mono text-base focus:outline-none focus:border-brand-purple/50 shadow-inner"
+                                                />
+                                            </div>
+                                            <label className="flex items-start gap-3 rounded-2xl border border-white/10 bg-black/30 px-3.5 py-3 text-sm text-gray-300">
+                                                <input
+                                                    {...register("requiresActiveSubscription")}
+                                                    type="checkbox"
+                                                    className="mt-0.5 h-4 w-4 rounded border-white/20 bg-black/40 text-brand-purple focus:ring-brand-purple/50"
+                                                />
+                                                <span className="space-y-1">
+                                                    <span className="block font-semibold text-white">Subscribers only</span>
+                                                    <span className="block text-xs text-gray-400">
+                                                        Active subscribers can access this creator drop without paying the normal unlock cost.
+                                                    </span>
+                                                </span>
                                             </label>
-                                            <input
-                                                {...register("unlockCost")}
-                                                type="number"
-                                                min="0"
-                                                inputMode="numeric"
-                                                className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-white font-mono text-base focus:outline-none focus:border-brand-purple/50 shadow-inner"
-                                            />
-                                            <p className="text-[11px] text-gray-500">Minimum 0 Drops</p>
                                         </div>
 
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-2">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-1">
                                             <div className="space-y-1">
                                                 <label className="text-xs font-bold text-gray-500 flex items-center gap-1 uppercase">
                                                     <Calendar className="w-3 h-3" /> Start (CST)
@@ -607,7 +799,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                 className="w-full py-3.5 rounded-xl bg-gradient-to-r from-brand-purple to-[#d946ef] font-bold text-white shadow-[0_0_20px_rgba(236,72,153,0.3)] hover:shadow-[0_0_25px_rgba(236,72,153,0.4)] active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                             >
                                 {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                                {isSubmitting ? "Saving..." : isEditMode ? "Update Drop" : "Create Drop"}
+                                {isSubmitting ? "Saving..." : isEditMode ? (mode === "creator" ? "Update Submission" : "Update Drop") : (mode === "creator" ? "Submit For Approval" : "Create Drop")}
                             </button>
                         </div>
                     </Dialog.Content>

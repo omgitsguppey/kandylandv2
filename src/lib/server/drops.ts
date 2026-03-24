@@ -38,7 +38,7 @@ export const getDrops = cache(async (): Promise<Drop[]> => {
             const resolved = resolveDropStatus(raw, now);
 
             return sanitizeDropForClient(resolved);
-        });
+        }).filter((drop) => drop.approvalStatus !== "pending_review" && drop.approvalStatus !== "rejected");
     } catch (error) {
         console.error("Error fetching drops:", error);
         return [];
@@ -57,6 +57,10 @@ export const getDrop = cache(async (id: string): Promise<Drop | null> => {
         const raw = normalizeDropRecord(docSnap.data(), docSnap.id);
         const now = Date.now();
         const resolved = resolveDropStatus(raw, now);
+
+        if (resolved.approvalStatus === "pending_review" || resolved.approvalStatus === "rejected") {
+            return null;
+        }
 
         return sanitizeDropForClient(resolved);
     } catch (error) {

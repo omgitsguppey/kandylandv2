@@ -11,6 +11,7 @@ import { getDropReferenceMap, resolveDropTitle } from "@/lib/server/drop-referen
 import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
 import { buildModuleCoverageReport, buildParityInsight } from "@/lib/server/analytics-parity";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { CREATOR_COLLECTIONS, isCreatorRole } from "@/lib/creator-experiences";
 
 function toTimestampNumber(value: unknown): number {
     if (typeof value === "number" && Number.isFinite(value)) {
@@ -464,6 +465,100 @@ export async function GET(
             reasons: mergedReasonCounts,
         };
 
+        let creatorOps: Record<string, unknown> | null = null;
+        if (isCreatorRole(user.role)) {
+            const [
+                relationshipSnap,
+                subscriptionSnap,
+                requestSnap,
+                bookingSnap,
+                payoutSnap,
+                accrualSnap,
+                threadSnap,
+                messageSnap,
+                broadcastSnap,
+                pendingSubmissionSnap,
+            ] = await Promise.all([
+                adminDb.collection(CREATOR_COLLECTIONS.relationships).where("creatorId", "==", userId).get(),
+                adminDb.collection(CREATOR_COLLECTIONS.subscriptions).where("creatorId", "==", userId).get(),
+                adminDb.collection(CREATOR_COLLECTIONS.requests).where("creatorId", "==", userId).orderBy("createdAt", "desc").limit(10).get(),
+                adminDb.collection(CREATOR_COLLECTIONS.bookings).where("creatorId", "==", userId).orderBy("startAt", "desc").limit(10).get(),
+                adminDb.collection(CREATOR_COLLECTIONS.payoutRequests).where("creatorId", "==", userId).orderBy("createdAt", "desc").limit(10).get(),
+                adminDb.collection(CREATOR_COLLECTIONS.ledgerAccruals).where("creatorId", "==", userId).orderBy("createdAt", "desc").limit(10).get(),
+                adminDb.collection(CREATOR_COLLECTIONS.messageThreads).where("creatorId", "==", userId).orderBy("lastMessageAt", "desc").limit(12).get(),
+                adminDb.collection(CREATOR_COLLECTIONS.messages).where("creatorId", "==", userId).orderBy("createdAt", "desc").limit(20).get(),
+                adminDb.collection(CREATOR_COLLECTIONS.broadcasts).where("creatorId", "==", userId).orderBy("createdAtMs", "desc").limit(6).get(),
+                adminDb.collection("drops").where("submittedByCreatorId", "==", userId).get(),
+            ]);
+
+            const relationshipSummary = relationshipSnap.docs.reduce((acc, doc) => {
+                const data = doc.data() as Record<string, unknown>;
+                if (data.following === true) {
+                    acc.followerCount += 1;
+                }
+                if (data.favorited === true) {
+                    acc.favoriteCount += 1;
+                }
+                if (data.notificationsEnabled === true) {
+                    acc.notificationsEnabledCount += 1;
+                }
+                return acc;
+            }, {
+                followerCount: 0,
+                favoriteCount: 0,
+                notificationsEnabledCount: 0,
+            });
+
+            const subscriptions: Array<Record<string, unknown> & { id: string }> = subscriptionSnap.docs
+                .map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) }) as Record<string, unknown> & { id: string })
+                .sort((left, right) => toTimestampNumber(right["renewAt"]) - toTimestampNumber(left["renewAt"]));
+            const requests: Array<Record<string, unknown> & { id: string }> = requestSnap.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) }) as Record<string, unknown> & { id: string });
+            const bookings: Array<Record<string, unknown> & { id: string }> = bookingSnap.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) }) as Record<string, unknown> & { id: string });
+            const payouts: Array<Record<string, unknown> & { id: string }> = payoutSnap.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) }) as Record<string, unknown> & { id: string });
+            const accruals: Array<Record<string, unknown> & { id: string }> = accrualSnap.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) }) as Record<string, unknown> & { id: string });
+            const threads: Array<Record<string, unknown> & { id: string }> = threadSnap.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) }) as Record<string, unknown> & { id: string });
+            const messages: Array<Record<string, unknown> & { id: string }> = messageSnap.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) }) as Record<string, unknown> & { id: string });
+            const broadcasts: Array<Record<string, unknown> & { id: string }> = broadcastSnap.docs
+                .map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) }) as Record<string, unknown> & { id: string })
+                .filter((entry) => entry["removedAt"] === undefined);
+            const pendingSubmissions = pendingSubmissionSnap.docs
+                .map((doc) => ({
+                    id: doc.id,
+                    title: readString((doc.data() as Record<string, unknown>).title, "Untitled drop"),
+                    approvalStatus: readString((doc.data() as Record<string, unknown>).approvalStatus, "approved"),
+                    validFrom: toTimestampNumber((doc.data() as Record<string, unknown>).validFrom),
+                }))
+                .sort((left, right) => right.validFrom - left.validFrom);
+
+            creatorOps = {
+                summary: {
+                    ...relationshipSummary,
+                    activeSubscribers: subscriptions.filter((entry) => entry.status === "active").length,
+                    lapsedSubscribers: subscriptions.filter((entry) => entry.status === "lapsed").length,
+                    openRequests: requests.filter((entry) => entry.status === "pending").length,
+                    bookedCalls: bookings.filter((entry) => entry.status === "booked").length,
+                    completedCalls: bookings.filter((entry) => entry.status === "completed").length,
+                    pendingPayouts: payouts.filter((entry) => entry.status === "pending").length,
+                    openThreads: threads.length,
+                    pendingDropSubmissions: pendingSubmissions.filter((entry) => entry.approvalStatus === "pending_review").length,
+                    totalAccruedGd: accruals.reduce((sum, entry) => sum + (typeof entry.creatorShareGd === "number" ? entry.creatorShareGd : 0), 0),
+                    pendingCashoutGd: payouts
+                        .filter((entry) => entry.status === "pending")
+                        .reduce((sum, entry) => sum + (typeof entry.requestedGd === "number" ? entry.requestedGd : 0), 0),
+                    broadcasts: broadcasts.length,
+                },
+                subscriptions: subscriptions.slice(0, 10),
+                requests,
+                bookings,
+                payouts,
+                accruals,
+                threads,
+                messages,
+                broadcasts,
+                pendingSubmissions,
+            };
+        }
+
         return NextResponse.json({
             success: true,
             user,
@@ -471,6 +566,7 @@ export async function GET(
             analytics,
             securitySummary,
             securityEvents,
+            creatorOps,
             dropReferences,
         });
     } catch (error) {

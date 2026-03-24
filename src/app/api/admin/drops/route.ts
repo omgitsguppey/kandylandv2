@@ -14,7 +14,9 @@ const ALLOWED_DROP_FIELDS = [
     "title", "description", "imageUrl", "contentUrl", "contentUrls", "unlockCost",
     "validFrom", "validUntil", "autoQueueOnExpire", "status", "type", "tags",
     "ctaText", "actionUrl", "accentColor", "fileMetadata", "mediaCounts",
-    "creatorId",
+    "creatorId", "coverFileName", "contentFileNames", "approvalStatus",
+    "approvalReviewedAt", "approvalReviewedBy", "approvalNote", "submittedByCreatorId",
+    "requiresActiveSubscription",
 ];
 
 import { revalidatePath } from "next/cache";
@@ -57,6 +59,9 @@ export async function POST(request: NextRequest) {
             validUntil: typeof dropData.validUntil === "number" ? dropData.validUntil : undefined,
         }, now);
         sanitized.status = resolvedInitialStatus;
+        if (sanitized.approvalStatus === undefined) {
+            sanitized.approvalStatus = "approved";
+        }
         const docRef = await adminDb.collection("drops").add({
             ...sanitized,
             totalUnlocks: 0,
@@ -135,6 +140,9 @@ export async function PUT(request: NextRequest) {
         }, now);
         const shouldNotifyActivation = currentLiveStatus !== "active" && nextLiveStatus === "active";
         sanitized.status = nextLiveStatus;
+        if (sanitized.approvalStatus === undefined && existingDrop.approvalStatus) {
+            sanitized.approvalStatus = existingDrop.approvalStatus;
+        }
 
         await dropRef.update(sanitized);
         await touchDropsRuntime(now);

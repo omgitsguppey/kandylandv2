@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { format, formatDistanceToNow } from "date-fns";
@@ -12,8 +12,12 @@ import {
     CalendarDays,
     Eye,
     History,
+    MessageSquare,
     Play,
     ShieldAlert,
+    Sparkles,
+    Users,
+    Wallet,
 } from "lucide-react";
 
 import { useAuth } from "@/context/AuthContext";
@@ -22,6 +26,7 @@ import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
 import { Transaction, UserProfile } from "@/types/db";
 import { authFetch } from "@/lib/authFetch";
+import { toast } from "sonner";
 
 type UserDetailAnalytics = {
     eventCount: number;
@@ -120,6 +125,48 @@ type SecuritySummary = {
     }>;
 };
 
+type CreatorOpsSummary = {
+    followerCount: number;
+    favoriteCount: number;
+    notificationsEnabledCount: number;
+    activeSubscribers: number;
+    lapsedSubscribers: number;
+    openRequests: number;
+    bookedCalls: number;
+    completedCalls: number;
+    pendingPayouts: number;
+    openThreads: number;
+    pendingDropSubmissions: number;
+    totalAccruedGd: number;
+    pendingCashoutGd: number;
+    broadcasts: number;
+};
+
+type CreatorOpsState = {
+    summary: CreatorOpsSummary;
+    subscriptions: Array<Record<string, unknown>>;
+    requests: Array<Record<string, unknown>>;
+    bookings: Array<Record<string, unknown>>;
+    payouts: Array<Record<string, unknown>>;
+    accruals: Array<Record<string, unknown>>;
+    threads: Array<Record<string, unknown>>;
+    messages: Array<Record<string, unknown>>;
+    broadcasts: Array<Record<string, unknown>>;
+    pendingSubmissions: Array<Record<string, unknown>>;
+};
+
+type CreatorRestrictionFlags = NonNullable<UserProfile["creatorRestrictions"]>;
+
+const CREATOR_RESTRICTION_FIELDS = [
+    { key: "messagingRestricted", label: "Restrict messaging", description: "Blocks paid chat and direct creator replies." },
+    { key: "broadcastsRestricted", label: "Restrict broadcasts", description: "Stops follower broadcasts and creator alerts." },
+    { key: "subscriptionsRestricted", label: "Restrict subscriptions", description: "Prevents new creator subscriptions and renewals." },
+    { key: "bookingsRestricted", label: "Restrict bookings", description: "Stops phone and video booking purchases." },
+    { key: "customRequestsRestricted", label: "Restrict requests", description: "Blocks new custom content requests." },
+    { key: "dropSubmissionsRestricted", label: "Restrict drop submissions", description: "Prevents creator drop drafts from being submitted." },
+    { key: "payoutsRestricted", label: "Restrict payouts", description: "Prevents payout requests from being submitted." },
+] as const satisfies Array<{ key: keyof CreatorRestrictionFlags; label: string; description: string }>;
+
 function getValidationClasses(status: "pass" | "warn" | "fail") {
     if (status === "pass") {
         return "border-emerald-400/20 bg-emerald-400/10 text-emerald-200";
@@ -144,6 +191,12 @@ function getCoverageClasses(status: "healthy" | "partial" | "empty") {
     return "border-amber-400/20 bg-amber-400/10 text-amber-200";
 }
 
+function formatRelativeTimestamp(value: unknown) {
+    return typeof value === "number" && value > 0
+        ? formatDistanceToNow(value, { addSuffix: true })
+        : "No timestamp";
+}
+
 export default function AdminUserAnalyticsPage() {
     const params = useParams();
     const router = useRouter();
@@ -156,6 +209,10 @@ export default function AdminUserAnalyticsPage() {
     const [analytics, setAnalytics] = useState<UserDetailAnalytics | null>(null);
     const [securityEvents, setSecurityEvents] = useState<SecurityEventItem[]>([]);
     const [securitySummary, setSecuritySummary] = useState<SecuritySummary | null>(null);
+    const [creatorOps, setCreatorOps] = useState<CreatorOpsState | null>(null);
+    const [creatorRestrictionsState, setCreatorRestrictionsState] = useState<CreatorRestrictionFlags | null>(null);
+    const [savingCreatorRestrictions, setSavingCreatorRestrictions] = useState(false);
+    const [creatorActionKey, setCreatorActionKey] = useState<string | null>(null);
     const [securityWindow, setSecurityWindow] = useState<"all" | "30d">("all");
     const [securitySeverityFilter, setSecuritySeverityFilter] = useState("all");
     const [securityReasonFilter, setSecurityReasonFilter] = useState("all");
@@ -164,42 +221,49 @@ export default function AdminUserAnalyticsPage() {
 
     const isAdmin = userProfile?.role === "admin";
 
-    useEffect(() => {
-        if (authLoading || !isAdmin || !userId) return;
-
-        async function fetchUserData() {
-            try {
-                const response = await authFetch(`/api/admin/user/${userId}`);
-                const result = await response.json() as {
-                    success?: boolean;
-                    user?: UserProfile;
-                    transactions?: Transaction[];
-                    analytics?: UserDetailAnalytics;
-                    securitySummary?: SecuritySummary;
-                    securityEvents?: SecurityEventItem[];
-                    error?: string;
-                };
-
-                if (!response.ok || !result.success || !result.user) {
-                    throw new Error(result.error || "Failed to load deeper analytics. Try again.");
-                }
-
-                setTargetUser(result.user);
-                setTransactions(result.transactions || []);
-                setAnalytics(result.analytics || null);
-                setSecuritySummary(result.securitySummary || null);
-                setSecurityEvents(result.securityEvents || []);
-            } catch (fetchError: unknown) {
-                console.error("Failed to load user analytics.", fetchError);
-                const message = fetchError instanceof Error ? fetchError.message : "Failed to load deeper analytics. Try again.";
-                setError(message === "User not found" ? "User not found." : message);
-            } finally {
-                setLoading(false);
-            }
+    const loadUserData = useCallback(async () => {
+        if (authLoading || !isAdmin || !userId) {
+            return;
         }
 
-        void fetchUserData();
+        setLoading(true);
+        try {
+            const response = await authFetch(`/api/admin/user/${userId}`);
+            const result = await response.json() as {
+                success?: boolean;
+                user?: UserProfile;
+                transactions?: Transaction[];
+                analytics?: UserDetailAnalytics;
+                securitySummary?: SecuritySummary;
+                securityEvents?: SecurityEventItem[];
+                creatorOps?: CreatorOpsState | null;
+                error?: string;
+            };
+
+            if (!response.ok || !result.success || !result.user) {
+                throw new Error(result.error || "Failed to load deeper analytics. Try again.");
+            }
+
+            setTargetUser(result.user);
+            setTransactions(result.transactions || []);
+            setAnalytics(result.analytics || null);
+            setSecuritySummary(result.securitySummary || null);
+            setSecurityEvents(result.securityEvents || []);
+            setCreatorOps(result.creatorOps || null);
+            setCreatorRestrictionsState(result.user.creatorRestrictions || null);
+            setError(null);
+        } catch (fetchError: unknown) {
+            console.error("Failed to load user analytics.", fetchError);
+            const message = fetchError instanceof Error ? fetchError.message : "Failed to load deeper analytics. Try again.";
+            setError(message === "User not found" ? "User not found." : message);
+        } finally {
+            setLoading(false);
+        }
     }, [authLoading, isAdmin, userId]);
+
+    useEffect(() => {
+        void loadUserData();
+    }, [loadUserData]);
 
     const purchaseTransactions = useMemo(() => (
         transactions
@@ -263,6 +327,115 @@ export default function AdminUserAnalyticsPage() {
             return true;
         })
     ), [securityEvents, securityReasonFilter, securitySeverityFilter, securityWindow, securityWindowCutoffMs]);
+    const isCreatorOpsUser = targetUser?.role === "creator" || targetUser?.role === "admin";
+
+    const updateCreatorRestriction = (key: keyof CreatorRestrictionFlags, value: boolean) => {
+        setCreatorRestrictionsState((current) => ({
+            messagingRestricted: current?.messagingRestricted === true,
+            broadcastsRestricted: current?.broadcastsRestricted === true,
+            subscriptionsRestricted: current?.subscriptionsRestricted === true,
+            bookingsRestricted: current?.bookingsRestricted === true,
+            customRequestsRestricted: current?.customRequestsRestricted === true,
+            dropSubmissionsRestricted: current?.dropSubmissionsRestricted === true,
+            payoutsRestricted: current?.payoutsRestricted === true,
+            moderationNote: current?.moderationNote,
+            [key]: value,
+        }));
+    };
+
+    const handleSaveCreatorRestrictions = async () => {
+        if (!targetUser || !creatorRestrictionsState) {
+            return;
+        }
+
+        try {
+            setSavingCreatorRestrictions(true);
+            const response = await authFetch("/api/admin/users", {
+                method: "PUT",
+                body: JSON.stringify({
+                    userId: targetUser.uid,
+                    updates: {
+                        creatorRestrictions: creatorRestrictionsState,
+                    },
+                }),
+            });
+            const result = await response.json().catch(() => ({})) as { error?: string };
+            if (!response.ok) {
+                throw new Error(typeof result.error === "string" ? result.error : "Failed to save creator restrictions.");
+            }
+            toast.success("Creator restrictions updated.");
+            await loadUserData();
+        } catch (actionError) {
+            console.error("Failed to save creator restrictions", actionError);
+            toast.error(actionError instanceof Error ? actionError.message : "Failed to save creator restrictions.");
+        } finally {
+            setSavingCreatorRestrictions(false);
+        }
+    };
+
+    const handleRemoveCreatorMessage = async (messageId: string) => {
+        try {
+            setCreatorActionKey(`message:${messageId}`);
+            const response = await authFetch(`/api/creator/messages?messageId=${encodeURIComponent(messageId)}`, {
+                method: "DELETE",
+            });
+            const result = await response.json().catch(() => ({})) as { error?: string };
+            if (!response.ok) {
+                throw new Error(typeof result.error === "string" ? result.error : "Failed to remove creator message.");
+            }
+            toast.success("Creator message removed.");
+            await loadUserData();
+        } catch (actionError) {
+            console.error("Failed to remove creator message", actionError);
+            toast.error(actionError instanceof Error ? actionError.message : "Failed to remove creator message.");
+        } finally {
+            setCreatorActionKey(null);
+        }
+    };
+
+    const handleRemoveCreatorBroadcast = async (broadcastId: string) => {
+        try {
+            setCreatorActionKey(`broadcast:${broadcastId}`);
+            const response = await authFetch(`/api/creator/broadcasts?broadcastId=${encodeURIComponent(broadcastId)}`, {
+                method: "DELETE",
+            });
+            const result = await response.json().catch(() => ({})) as { error?: string };
+            if (!response.ok) {
+                throw new Error(typeof result.error === "string" ? result.error : "Failed to remove creator broadcast.");
+            }
+            toast.success("Creator broadcast removed.");
+            await loadUserData();
+        } catch (actionError) {
+            console.error("Failed to remove creator broadcast", actionError);
+            toast.error(actionError instanceof Error ? actionError.message : "Failed to remove creator broadcast.");
+        } finally {
+            setCreatorActionKey(null);
+        }
+    };
+
+    const handleReviewPayout = async (payoutRequestId: string, action: "honor" | "reject") => {
+        try {
+            setCreatorActionKey(`payout:${payoutRequestId}:${action}`);
+            const response = await authFetch("/api/creator/payouts", {
+                method: "PUT",
+                body: JSON.stringify({
+                    payoutRequestId,
+                    action,
+                }),
+            });
+            const result = await response.json().catch(() => ({})) as { error?: string };
+            if (!response.ok) {
+                throw new Error(typeof result.error === "string" ? result.error : "Failed to review payout.");
+            }
+            toast.success(action === "honor" ? "Payout honored." : "Payout rejected.");
+            await loadUserData();
+        } catch (actionError) {
+            console.error("Failed to review payout", actionError);
+            toast.error(actionError instanceof Error ? actionError.message : "Failed to review payout.");
+        } finally {
+            setCreatorActionKey(null);
+        }
+    };
 
     if (authLoading || loading) {
         return (
@@ -497,6 +670,274 @@ export default function AdminUserAnalyticsPage() {
                     </div>
                 </div>
             </div>
+
+            {isCreatorOpsUser ? (
+                <div className="glass-panel rounded-3xl border border-white/5 p-6">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                            <h3 className="flex items-center gap-2 text-sm font-bold text-white">
+                                <Sparkles className="h-4 w-4 text-brand-purple" /> Creator Operations
+                            </h3>
+                            <p className="mt-1 text-xs leading-6 text-gray-400">
+                                Live creator relationship, monetization, moderation, and submission state inside the existing admin user view.
+                            </p>
+                        </div>
+                        <span className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
+                            {creatorOps ? "Creator engine live" : "No creator activity yet"}
+                        </span>
+                    </div>
+
+                    <div className="mt-5 grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
+                        <div className="space-y-4">
+                            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                                {[
+                                    { label: "Followers", value: creatorOps?.summary.followerCount ?? 0, helper: `${creatorOps?.summary.favoriteCount ?? 0} favorites` },
+                                    { label: "Alerts enabled", value: creatorOps?.summary.notificationsEnabledCount ?? 0, helper: `${creatorOps?.summary.broadcasts ?? 0} broadcasts` },
+                                    { label: "Subscribers", value: creatorOps?.summary.activeSubscribers ?? 0, helper: `${creatorOps?.summary.lapsedSubscribers ?? 0} lapsed` },
+                                    { label: "Open requests", value: creatorOps?.summary.openRequests ?? 0, helper: `${creatorOps?.summary.bookedCalls ?? 0} booked calls` },
+                                    { label: "Pending payouts", value: creatorOps?.summary.pendingPayouts ?? 0, helper: `${creatorOps?.summary.pendingCashoutGd ?? 0} GD pending` },
+                                    { label: "Drop submissions", value: creatorOps?.summary.pendingDropSubmissions ?? 0, helper: `${creatorOps?.summary.openThreads ?? 0} active chat threads` },
+                                ].map((item) => (
+                                    <div key={item.label} className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
+                                        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">{item.label}</p>
+                                        <p className="mt-2 text-2xl font-black text-white">{item.value}</p>
+                                        <p className="mt-1 text-xs text-gray-400">{item.helper}</p>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="rounded-[1.5rem] border border-white/10 bg-black/25 p-4">
+                                <div className="mb-3 flex items-start justify-between gap-3">
+                                    <div>
+                                        <p className="text-sm font-semibold text-white">Creator restrictions</p>
+                                        <p className="mt-1 text-xs leading-6 text-gray-400">Disable specific creator systems without changing the user’s role.</p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={handleSaveCreatorRestrictions}
+                                        disabled={!creatorRestrictionsState || savingCreatorRestrictions}
+                                        className="rounded-xl border border-white/10 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-white disabled:opacity-60"
+                                    >
+                                        {savingCreatorRestrictions ? "Saving..." : "Save"}
+                                    </button>
+                                </div>
+                                <div className="space-y-3">
+                                    {CREATOR_RESTRICTION_FIELDS.map((field) => (
+                                        <label key={field.key} className="flex items-start justify-between gap-4 rounded-[1.1rem] border border-white/10 bg-black/25 px-3 py-3">
+                                            <div>
+                                                <p className="text-sm font-semibold text-white">{field.label}</p>
+                                                <p className="mt-1 text-xs leading-5 text-gray-400">{field.description}</p>
+                                            </div>
+                                            <input
+                                                type="checkbox"
+                                                checked={creatorRestrictionsState?.[field.key] === true}
+                                                onChange={(event) => updateCreatorRestriction(field.key, event.target.checked)}
+                                                className="mt-1 h-4 w-4 rounded border-white/20 bg-black/40 text-brand-purple"
+                                            />
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="rounded-[1.5rem] border border-white/10 bg-black/25 p-4">
+                                <p className="text-sm font-semibold text-white">Creator pricing + availability snapshot</p>
+                                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                                    <div className="rounded-[1rem] border border-white/10 bg-black/20 px-3 py-3">
+                                        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Subscription</p>
+                                        <p className="mt-1 text-sm font-semibold text-white">
+                                            {targetUser.creatorSettings?.subscriptionsEnabled === false ? "Off" : `${targetUser.creatorSettings?.subscriptionPriceGd ?? 0} GD / month`}
+                                        </p>
+                                    </div>
+                                    <div className="rounded-[1rem] border border-white/10 bg-black/20 px-3 py-3">
+                                        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Bookings</p>
+                                        <p className="mt-1 text-sm font-semibold text-white">
+                                            {targetUser.creatorSettings?.bookingsEnabled === false
+                                                ? "Off"
+                                                : `${targetUser.creatorSettings?.phoneRatePerMinuteGd ?? 0} GD phone • ${targetUser.creatorSettings?.videoRatePerMinuteGd ?? 0} GD video`}
+                                        </p>
+                                    </div>
+                                    <div className="rounded-[1rem] border border-white/10 bg-black/20 px-3 py-3">
+                                        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Messaging</p>
+                                        <p className="mt-1 text-sm font-semibold text-white">
+                                            {targetUser.creatorSettings?.messagingEnabled === false ? "Off" : "Paid chat live"}
+                                        </p>
+                                    </div>
+                                    <div className="rounded-[1rem] border border-white/10 bg-black/20 px-3 py-3">
+                                        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Accrued creator GD</p>
+                                        <p className="mt-1 text-sm font-semibold text-white">{creatorOps?.summary.totalAccruedGd ?? 0} GD</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div className="grid gap-4 lg:grid-cols-2">
+                                <div className="rounded-[1.5rem] border border-white/10 bg-black/25 p-4">
+                                    <div className="mb-3 flex items-start justify-between gap-3">
+                                        <div>
+                                            <p className="flex items-center gap-2 text-sm font-semibold text-white"><MessageSquare className="h-4 w-4 text-brand-purple" /> Recent creator messages</p>
+                                            <p className="mt-1 text-xs text-gray-400">Admins can unsend any creator-side message or media.</p>
+                                        </div>
+                                    </div>
+                                    <div className="max-h-[320px] space-y-2 overflow-y-auto pr-1">
+                                        {(creatorOps?.messages.length || 0) === 0 ? (
+                                            <p className="text-xs text-gray-500">No creator messages recorded yet.</p>
+                                        ) : (
+                                            creatorOps!.messages.map((message) => (
+                                                <div key={String(message.id)} className="rounded-[1rem] border border-white/10 bg-black/20 px-3 py-3">
+                                                    <div className="flex items-start justify-between gap-3">
+                                                        <div className="min-w-0">
+                                                            <p className="text-xs font-bold uppercase tracking-[0.14em] text-gray-500">
+                                                                {String(message.senderRole || "user")} • {String(message.messageKind || "text")}
+                                                            </p>
+                                                            <p className="mt-1 text-sm text-white">
+                                                                {typeof message.text === "string" && message.text.trim().length > 0
+                                                                    ? message.text
+                                                                    : typeof message.assetUrl === "string"
+                                                                        ? message.assetUrl
+                                                                        : "Media message"}
+                                                            </p>
+                                                            <p className="mt-1 text-[11px] text-gray-500">{formatRelativeTimestamp(message.createdAt)}</p>
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            disabled={creatorActionKey === `message:${String(message.id)}` || typeof message.moderationRemovedAt === "number"}
+                                                            onClick={() => handleRemoveCreatorMessage(String(message.id))}
+                                                            className="rounded-lg border border-white/10 bg-white/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white disabled:opacity-50"
+                                                        >
+                                                            {typeof message.moderationRemovedAt === "number" ? "Removed" : creatorActionKey === `message:${String(message.id)}` ? "..." : "Unsend"}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="rounded-[1.5rem] border border-white/10 bg-black/25 p-4">
+                                    <p className="flex items-center gap-2 text-sm font-semibold text-white"><Wallet className="h-4 w-4 text-brand-purple" /> Payouts + accruals</p>
+                                    <div className="mt-3 max-h-[320px] space-y-2 overflow-y-auto pr-1">
+                                        {(creatorOps?.payouts.length || 0) === 0 && (creatorOps?.accruals.length || 0) === 0 ? (
+                                            <p className="text-xs text-gray-500">No creator payouts or accruals yet.</p>
+                                        ) : (
+                                            <>
+                                                {(creatorOps?.payouts || []).map((payout) => (
+                                                    <div key={`payout-${String(payout.id)}`} className="rounded-[1rem] border border-white/10 bg-black/20 px-3 py-3">
+                                                        <div className="flex items-start justify-between gap-3">
+                                                            <div>
+                                                                <p className="text-sm font-semibold text-white">{typeof payout.requestedGd === "number" ? payout.requestedGd : 0} GD payout</p>
+                                                                <p className="mt-1 text-[11px] text-gray-500">{String(payout.status || "pending")} • {formatRelativeTimestamp(payout.createdAt)}</p>
+                                                            </div>
+                                                            {payout.status === "pending" ? (
+                                                                <div className="flex gap-2">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleReviewPayout(String(payout.id), "honor")}
+                                                                        disabled={creatorActionKey === `payout:${String(payout.id)}:honor`}
+                                                                        className="rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-200 disabled:opacity-50"
+                                                                    >
+                                                                        Honor
+                                                                    </button>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleReviewPayout(String(payout.id), "reject")}
+                                                                        disabled={creatorActionKey === `payout:${String(payout.id)}:reject`}
+                                                                        className="rounded-lg border border-red-500/20 bg-red-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-red-200 disabled:opacity-50"
+                                                                    >
+                                                                        Reject
+                                                                    </button>
+                                                                </div>
+                                                            ) : null}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                                {(creatorOps?.accruals || []).slice(0, 6).map((accrual) => (
+                                                    <div key={`accrual-${String(accrual.id)}`} className="rounded-[1rem] border border-white/10 bg-black/20 px-3 py-3">
+                                                        <p className="text-sm font-semibold text-white">
+                                                            {typeof accrual.creatorShareGd === "number" ? accrual.creatorShareGd : 0} GD • {String(accrual.sourceType || "accrual")}
+                                                        </p>
+                                                        <p className="mt-1 text-[11px] text-gray-500">{formatRelativeTimestamp(accrual.createdAt)}</p>
+                                                    </div>
+                                                ))}
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="grid gap-4 lg:grid-cols-3">
+                                <div className="rounded-[1.5rem] border border-white/10 bg-black/25 p-4">
+                                    <p className="flex items-center gap-2 text-sm font-semibold text-white"><Users className="h-4 w-4 text-brand-purple" /> Requests</p>
+                                    <div className="mt-3 max-h-[260px] space-y-2 overflow-y-auto pr-1">
+                                        {(creatorOps?.requests.length || 0) === 0 ? (
+                                            <p className="text-xs text-gray-500">No creator requests yet.</p>
+                                        ) : (
+                                            creatorOps!.requests.map((request) => (
+                                                <div key={String(request.id)} className="rounded-[1rem] border border-white/10 bg-black/20 px-3 py-3">
+                                                    <p className="text-sm font-semibold text-white">{String(request.categoryLabel || "Request")}</p>
+                                                    <p className="mt-1 text-[11px] text-gray-400">{String(request.status || "pending")} • {typeof request.priceGd === "number" ? request.priceGd : 0} GD</p>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="rounded-[1.5rem] border border-white/10 bg-black/25 p-4">
+                                    <p className="flex items-center gap-2 text-sm font-semibold text-white"><Activity className="h-4 w-4 text-brand-purple" /> Bookings</p>
+                                    <div className="mt-3 max-h-[260px] space-y-2 overflow-y-auto pr-1">
+                                        {(creatorOps?.bookings.length || 0) === 0 ? (
+                                            <p className="text-xs text-gray-500">No creator bookings yet.</p>
+                                        ) : (
+                                            creatorOps!.bookings.map((booking) => (
+                                                <div key={String(booking.id)} className="rounded-[1rem] border border-white/10 bg-black/20 px-3 py-3">
+                                                    <p className="text-sm font-semibold text-white">{String(booking.serviceType || "call")} • {typeof booking.durationMinutes === "number" ? booking.durationMinutes : 0} min</p>
+                                                    <p className="mt-1 text-[11px] text-gray-400">{String(booking.status || "booked")} • {formatRelativeTimestamp(booking.startAt)}</p>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="rounded-[1.5rem] border border-white/10 bg-black/25 p-4">
+                                    <p className="flex items-center gap-2 text-sm font-semibold text-white"><Sparkles className="h-4 w-4 text-brand-purple" /> Broadcasts + submissions</p>
+                                    <div className="mt-3 max-h-[260px] space-y-2 overflow-y-auto pr-1">
+                                        {(creatorOps?.broadcasts.length || 0) === 0 && (creatorOps?.pendingSubmissions.length || 0) === 0 ? (
+                                            <p className="text-xs text-gray-500">No creator broadcasts or submissions yet.</p>
+                                        ) : (
+                                            <>
+                                                {(creatorOps?.broadcasts || []).map((broadcast) => (
+                                                    <div key={`broadcast-${String(broadcast.id)}`} className="rounded-[1rem] border border-white/10 bg-black/20 px-3 py-3">
+                                                        <div className="flex items-start justify-between gap-3">
+                                                            <div>
+                                                                <p className="text-sm font-semibold text-white">{String(broadcast.title || "Creator update")}</p>
+                                                                <p className="mt-1 text-[11px] text-gray-400">{formatRelativeTimestamp(broadcast.createdAtMs)}</p>
+                                                            </div>
+                                                            <button
+                                                                type="button"
+                                                                disabled={creatorActionKey === `broadcast:${String(broadcast.id)}`}
+                                                                onClick={() => handleRemoveCreatorBroadcast(String(broadcast.id))}
+                                                                className="rounded-lg border border-white/10 bg-white/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white disabled:opacity-50"
+                                                            >
+                                                                {creatorActionKey === `broadcast:${String(broadcast.id)}` ? "..." : "Remove"}
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                                {(creatorOps?.pendingSubmissions || []).map((submission) => (
+                                                    <div key={`submission-${String(submission.id)}`} className="rounded-[1rem] border border-white/10 bg-black/20 px-3 py-3">
+                                                        <p className="text-sm font-semibold text-white">{String(submission.title || "Creator drop")}</p>
+                                                        <p className="mt-1 text-[11px] text-gray-400">{String(submission.approvalStatus || "approved")} • {formatRelativeTimestamp(submission.validFrom)}</p>
+                                                    </div>
+                                                ))}
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ) : null}
 
             <div className="glass-panel rounded-3xl border border-white/5 p-6">
                 <h3 className="mb-4 flex items-center gap-2 text-sm font-bold text-white">

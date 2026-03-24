@@ -8,6 +8,7 @@ import { PRIVACY_POLICY_VERSION } from "@/lib/privacy-policy";
 import { normalizeUsername } from "@/lib/user-utils";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { parseAdultDateOfBirth } from "@/lib/user-profile-validation";
+import { isCreatorRole, normalizeCreatorSettings } from "@/lib/creator-experiences";
 
 const ALLOWED_TIMEZONES = new Set([
     "Auto",
@@ -195,6 +196,12 @@ export async function PUT(request: NextRequest) {
         }
 
         const existingUserData = userSnap.data() ?? {};
+        if (payload.creatorSettings !== undefined) {
+            if (!isCreatorRole(existingUserData.role)) {
+                return NextResponse.json({ error: "Creator settings are only available for creator accounts." }, { status: 403 });
+            }
+            updates.creatorSettings = normalizeCreatorSettings(payload.creatorSettings);
+        }
         const existingFcmTokens = Array.isArray(existingUserData.fcmTokens)
             ? existingUserData.fcmTokens.filter((entry): entry is string => typeof entry === "string")
             : [];

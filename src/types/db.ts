@@ -1,5 +1,187 @@
 import type { DailyTasksState } from "@/lib/tasks/task-catalog";
 
+export type CreatorRequestCategoryConfig = {
+    id: string;
+    label: string;
+    description?: string;
+    priceGd: number;
+    enabled: boolean;
+};
+
+export type CreatorAvailabilityWindow = {
+    id: string;
+    dayOfWeek: number; // 0-6
+    startHour: number; // 0-23
+    startMinute: number; // 0-59
+    endHour: number; // 0-23
+    endMinute: number; // 0-59
+    serviceTypes: Array<"phone" | "video">;
+};
+
+export type CreatorSettings = {
+    messagingEnabled: boolean;
+    broadcastsEnabled: boolean;
+    subscriptionsEnabled: boolean;
+    bookingsEnabled: boolean;
+    customRequestsEnabled: boolean;
+    subscriptionPriceGd: number;
+    phoneRatePerMinuteGd: number;
+    videoRatePerMinuteGd: number;
+    bookingMinimumMinutes: number;
+    videoSubscriberDiscountPercent: number;
+    chatFreeForSubscribers: boolean;
+    requestCategories: CreatorRequestCategoryConfig[];
+    availabilityTimezone: string;
+    availabilityWindows: CreatorAvailabilityWindow[];
+};
+
+export type CreatorRestrictions = {
+    messagingRestricted: boolean;
+    broadcastsRestricted: boolean;
+    subscriptionsRestricted: boolean;
+    bookingsRestricted: boolean;
+    customRequestsRestricted: boolean;
+    dropSubmissionsRestricted: boolean;
+    payoutsRestricted: boolean;
+    moderationNote?: string;
+};
+
+export type CreatorRelationship = {
+    id: string;
+    userId: string;
+    creatorId: string;
+    following: boolean;
+    favorited: boolean;
+    notificationsEnabled: boolean;
+    createdAt: number;
+    updatedAt: number;
+    creatorDisplayName?: string;
+    creatorUsername?: string;
+    creatorPhotoURL?: string | null;
+};
+
+export type CreatorRelationshipCounts = {
+    followerCount: number;
+    favoriteCount: number;
+    notificationsEnabledCount: number;
+};
+
+export type CreatorSubscription = {
+    id: string;
+    creatorId: string;
+    userId: string;
+    status: "active" | "lapsed" | "canceled";
+    priceGd: number;
+    startedAt: number;
+    renewAt: number;
+    renewedAt?: number;
+    canceledAt?: number;
+    warningSentAt?: number;
+    autoRenew: boolean;
+    purchasedOnly: boolean;
+};
+
+export type CreatorMessageThread = {
+    id: string;
+    creatorId: string;
+    userId: string;
+    lastMessageAt: number;
+    lastMessagePreview: string;
+    messageCount: number;
+    lastReadByUserAt?: number;
+    lastReadByCreatorAt?: number;
+    subscriberChatFree: boolean;
+};
+
+export type CreatorMessage = {
+    id: string;
+    threadId: string;
+    creatorId: string;
+    userId: string;
+    senderRole: "user" | "creator" | "admin";
+    messageKind: "text" | "image" | "video" | "broadcast";
+    text?: string;
+    assetUrl?: string;
+    assetName?: string;
+    assetMimeType?: string;
+    costGd: number;
+    creatorAccrualId?: string;
+    createdAt: number;
+    unsentAt?: number;
+    unsentBy?: string;
+    moderationRemovedAt?: number;
+    moderationRemovedBy?: string;
+};
+
+export type CreatorBroadcast = {
+    id: string;
+    creatorId: string;
+    title: string;
+    body: string;
+    mediaUrl?: string;
+    mediaMimeType?: string;
+    createdAt: number;
+    followerCount: number;
+};
+
+export type CreatorCustomRequest = {
+    id: string;
+    creatorId: string;
+    userId: string;
+    categoryId: string;
+    categoryLabel: string;
+    details: string;
+    priceGd: number;
+    status: "pending" | "accepted" | "declined" | "fulfilled";
+    creatorAccrualId?: string;
+    createdAt: number;
+    respondedAt?: number;
+    responseNote?: string;
+};
+
+export type CreatorCallBooking = {
+    id: string;
+    creatorId: string;
+    userId: string;
+    serviceType: "phone" | "video";
+    status: "booked" | "completed" | "canceled";
+    startAt: number;
+    endAt: number;
+    durationMinutes: number;
+    slotKey: string;
+    priceGd: number;
+    subscriberDiscountApplied: boolean;
+    creatorAccrualId?: string;
+    createdAt: number;
+    externalHandle?: string;
+};
+
+export type CreatorLedgerAccrual = {
+    id: string;
+    creatorId: string;
+    userId: string;
+    sourceType: "message" | "subscription" | "custom_request" | "booking_phone" | "booking_video";
+    sourceId: string;
+    grossSpendGd: number;
+    creatorShareGd: number;
+    cashoutValueUsd: number;
+    status: "accrued" | "requested" | "honored";
+    createdAt: number;
+    requestedAt?: number;
+    honoredAt?: number;
+};
+
+export type CreatorPayoutRequest = {
+    id: string;
+    creatorId: string;
+    requestedGd: number;
+    requestedUsd: number;
+    status: "pending" | "honored" | "rejected";
+    createdAt: number;
+    reviewedAt?: number;
+    reviewNote?: string;
+};
+
 export interface UserProfile {
     uid: string;
     email: string | null;
@@ -13,9 +195,13 @@ export interface UserProfile {
 
     isVerified?: boolean; // Verified Creator badge
     gumDropsBalance: number;
+    gumDropsPurchasedBalance?: number;
+    gumDropsRewardBalance?: number;
     unlockedContent: string[]; // Array of Drop IDs
     unlockedContentTimestamps?: Record<string, number>; // Drop ID -> unwrap timestamp (ms)
     following?: string[]; // Array of Creator UIDs
+    favoriteCreators?: string[];
+    creatorNotificationPreferences?: Record<string, boolean>;
     createdAt: number; // Timestamp
     lastCheckIn?: number; // Timestamp of last daily reward claim
     streakCount?: number; // Current daily streak
@@ -57,6 +243,8 @@ export interface UserProfile {
     };
 
     dailyTasksState?: DailyTasksState;
+    creatorSettings?: CreatorSettings;
+    creatorRestrictions?: CreatorRestrictions;
 }
 
 export interface Drop {
@@ -72,6 +260,12 @@ export interface Drop {
     validUntil?: number; // Timestamp (Optional - if missing, never expires)
     autoQueueOnExpire?: boolean;
     status: 'active' | 'expired' | 'scheduled';
+    approvalStatus?: 'approved' | 'pending_review' | 'rejected';
+    approvalReviewedAt?: number;
+    approvalReviewedBy?: string;
+    approvalNote?: string;
+    submittedByCreatorId?: string;
+    requiresActiveSubscription?: boolean;
     totalUnlocks: number;
     totalViews?: number; // Persistent viewport-based card views
     totalClicks?: number; // Promo/external link click counter
@@ -92,6 +286,8 @@ export interface Drop {
         type: string;
         dimensions?: string;
     };
+    coverFileName?: string;
+    contentFileNames?: string[];
     mediaCounts?: {
         images: number;
         videos: number;
@@ -102,9 +298,10 @@ export interface Transaction {
     id: string;
     userId: string;
     amount: number;
-    type: 'purchase_currency' | 'unlock_content' | 'admin_adjustment' | 'daily_reward' | 'referral_bonus' | 'onboarding_reward';
+    type: 'purchase_currency' | 'unlock_content' | 'admin_adjustment' | 'daily_reward' | 'referral_bonus' | 'onboarding_reward' | 'creator_message_text' | 'creator_message_image' | 'creator_message_video' | 'creator_subscription' | 'creator_subscription_renewal' | 'creator_custom_request' | 'creator_booking_phone' | 'creator_booking_video';
     rewardSource?: 'check_in' | 'task' | 'onboarding';
     relatedDropId?: string; // If unlocking content
+    creatorId?: string;
     description: string;
     timestamp: number | Record<string, unknown>; // Firestore Timestamp or number
     timestampMs?: number;
@@ -137,4 +334,10 @@ export interface Transaction {
     currency?: string;
     status?: 'completed' | 'failed' | 'pending';
     verifiedServerSide?: boolean;
+    purchasedAmountSpent?: number;
+    rewardAmountSpent?: number;
+    ledgerSource?: 'purchased' | 'reward' | 'mixed';
+    creatorRevenueShareGd?: number;
+    creatorRevenueShareUsd?: number;
+    creatorAccrualId?: string;
 }

@@ -4,6 +4,7 @@ import { handleApiError } from "@/lib/server/auth";
 import { adminDb, adminAuth } from "@/lib/server/firebase-admin";
 import { STRICT } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { creatorDocumentCleanupWrites } from "@/lib/server/creator-experiences";
 
 type DeletedDataSummary = {
     userDocumentTree: number;
@@ -19,6 +20,7 @@ type DeletedDataSummary = {
     analyticsUsersRollup: number;
     analyticsActiveUser: number;
     paymentLocks: number;
+    creatorDocuments: number;
 };
 
 function getFirebaseErrorCode(error: unknown) {
@@ -94,6 +96,7 @@ export async function DELETE(request: NextRequest) {
             }
         }
 
+        const creatorCleanupQueries = creatorDocumentCleanupWrites(uid);
         const deletedSummaryValues = await Promise.all([
             deleteDocumentTree(userRef, bulkWriter),
             deleteQueryMatches(adminDb.collection("transactions").where("userId", "==", uid), bulkWriter),
@@ -106,6 +109,10 @@ export async function DELETE(request: NextRequest) {
             deleteQueryMatches(adminDb.collection("analytics_watch_assets").where("userId", "==", uid), bulkWriter),
             deleteQueryMatches(adminDb.collection("analytics_user_daily").where("uid", "==", uid), bulkWriter),
             deleteQueryMatches(adminDb.collection("paymentLocks").where("userId", "==", uid), bulkWriter),
+            ...creatorCleanupQueries.map((entry) => deleteQueryMatches(
+                adminDb.collection(entry.collection).where(entry.field, "==", entry.value),
+                bulkWriter,
+            )),
         ]);
 
         bulkWriter.delete(adminDb.collection("analytics_users_rollup").doc(uid));
@@ -124,6 +131,7 @@ export async function DELETE(request: NextRequest) {
             analyticsWatchAssets: deletedSummaryValues[8],
             analyticsUserDaily: deletedSummaryValues[9],
             paymentLocks: deletedSummaryValues[10],
+            creatorDocuments: deletedSummaryValues.slice(11).reduce((sum, value) => sum + value, 0),
             analyticsUsersRollup: 1,
             analyticsActiveUser: 1,
         };

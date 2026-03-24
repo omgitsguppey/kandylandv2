@@ -8,6 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRolloutVariant } from "@/context/RolloutContext";
 import { DailyCheckIn } from "@/components/Dashboard/DailyCheckIn";
 import { CollectionList } from "@/components/Dashboard/CollectionList";
+import { CreatorDiscoveryRail } from "@/components/CreatorDiscoveryRail";
 import { useDrops } from "@/hooks/useDrops";
 import { applyDropStatus, isDropActiveNow } from "@/lib/drop-status";
 import { trackEvent } from "@/lib/telemetry";
@@ -102,6 +103,7 @@ export default function DashboardClient({ drops }: DashboardClientProps) {
             <div className="grid grid-cols-1 gap-5 sm:gap-8 lg:grid-cols-3">
                 <div className="space-y-6 md:space-y-8">
                     <DailyCheckIn />
+                    <CreatorDiscoveryRail surface="dashboard" compact />
 
                     <div className="glass-panel rounded-3xl p-4 md:p-6">
                         <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-white">

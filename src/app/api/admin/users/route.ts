@@ -10,6 +10,8 @@ import { trackServerEvent } from "@/lib/server/analytics";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { normalizeGumdropBalance } from "@/lib/gumdrop-ledger";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
+import { CREATOR_COLLECTIONS } from "@/lib/creator-experiences";
+import { sanitizeCreatorRestrictionsUpdate, sanitizeCreatorSettingsUpdate } from "@/lib/server/creator-experiences";
 
 function toTimestampNumber(value: unknown): number {
   if (typeof value === "number" && Number.isFinite(value)) {
@@ -51,6 +53,36 @@ type UserCommerceMetrics = {
   unlockSpendGdTotal: number;
   lastPurchaseAt: number;
 };
+
+type CreatorOpsAggregate = {
+  followerCount: number;
+  favoriteCount: number;
+  notificationsEnabledCount: number;
+  activeSubscribers: number;
+  openRequests: number;
+  bookedCalls: number;
+  pendingPayouts: number;
+  openThreads: number;
+  pendingDropSubmissions: number;
+  totalAccruedGd: number;
+  pendingCashoutGd: number;
+};
+
+function buildEmptyCreatorOpsAggregate(): CreatorOpsAggregate {
+  return {
+    followerCount: 0,
+    favoriteCount: 0,
+    notificationsEnabledCount: 0,
+    activeSubscribers: 0,
+    openRequests: 0,
+    bookedCalls: 0,
+    pendingPayouts: 0,
+    openThreads: 0,
+    pendingDropSubmissions: 0,
+    totalAccruedGd: 0,
+    pendingCashoutGd: 0,
+  };
+}
 
 function roundCurrency(value: number) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
@@ -236,14 +268,151 @@ export async function GET(request: NextRequest) {
       auth: "admin",
     });
 
-    const [usersSnapshot, analyticsSnapshot, userDailySnapshot, commerceSummarySnap] = await Promise.all([
+    const [
+      usersSnapshot,
+      analyticsSnapshot,
+      userDailySnapshot,
+      commerceSummarySnap,
+      creatorRelationshipsSnap,
+      creatorSubscriptionsSnap,
+      creatorRequestsSnap,
+      creatorBookingsSnap,
+      creatorPayoutsSnap,
+      creatorThreadsSnap,
+      creatorAccrualsSnap,
+      pendingCreatorDropsSnap,
+    ] = await Promise.all([
       adminDb.collection("users").orderBy("createdAt", "desc").get(),
       adminDb.collection("analytics_users_rollup").get(),
       adminDb.collection("analytics_user_daily").get(),
       adminDb.collection("analytics_commerce_rollup").doc("summary").get(),
+      adminDb.collection(CREATOR_COLLECTIONS.relationships).get(),
+      adminDb.collection(CREATOR_COLLECTIONS.subscriptions).get(),
+      adminDb.collection(CREATOR_COLLECTIONS.requests).get(),
+      adminDb.collection(CREATOR_COLLECTIONS.bookings).get(),
+      adminDb.collection(CREATOR_COLLECTIONS.payoutRequests).get(),
+      adminDb.collection(CREATOR_COLLECTIONS.messageThreads).get(),
+      adminDb.collection(CREATOR_COLLECTIONS.ledgerAccruals).get(),
+      adminDb.collection("drops").where("approvalStatus", "==", "pending_review").get(),
     ]);
 
     const users = usersSnapshot.docs.map((doc) => serializeUserDoc(doc.id, doc.data()));
+    const creatorOpsByUser = new Map<string, CreatorOpsAggregate>();
+
+    const readCreatorOps = (creatorId: string) => {
+      const current = creatorOpsByUser.get(creatorId) ?? buildEmptyCreatorOpsAggregate();
+      creatorOpsByUser.set(creatorId, current);
+      return current;
+    };
+
+    creatorRelationshipsSnap.docs.forEach((doc) => {
+      const raw = doc.data() as Record<string, unknown>;
+      const creatorId = typeof raw.creatorId === "string" ? raw.creatorId : "";
+      if (!creatorId) {
+        return;
+      }
+
+      const current = readCreatorOps(creatorId);
+      if (raw.following === true) {
+        current.followerCount += 1;
+      }
+      if (raw.favorited === true) {
+        current.favoriteCount += 1;
+      }
+      if (raw.notificationsEnabled === true) {
+        current.notificationsEnabledCount += 1;
+      }
+    });
+
+    creatorSubscriptionsSnap.docs.forEach((doc) => {
+      const raw = doc.data() as Record<string, unknown>;
+      const creatorId = typeof raw.creatorId === "string" ? raw.creatorId : "";
+      if (!creatorId) {
+        return;
+      }
+
+      const current = readCreatorOps(creatorId);
+      if (raw.status === "active") {
+        current.activeSubscribers += 1;
+      }
+    });
+
+    creatorRequestsSnap.docs.forEach((doc) => {
+      const raw = doc.data() as Record<string, unknown>;
+      const creatorId = typeof raw.creatorId === "string" ? raw.creatorId : "";
+      if (!creatorId) {
+        return;
+      }
+
+      const current = readCreatorOps(creatorId);
+      if (raw.status === "pending") {
+        current.openRequests += 1;
+      }
+    });
+
+    creatorBookingsSnap.docs.forEach((doc) => {
+      const raw = doc.data() as Record<string, unknown>;
+      const creatorId = typeof raw.creatorId === "string" ? raw.creatorId : "";
+      if (!creatorId) {
+        return;
+      }
+
+      const current = readCreatorOps(creatorId);
+      if (raw.status === "booked") {
+        current.bookedCalls += 1;
+      }
+    });
+
+    creatorPayoutsSnap.docs.forEach((doc) => {
+      const raw = doc.data() as Record<string, unknown>;
+      const creatorId = typeof raw.creatorId === "string" ? raw.creatorId : "";
+      if (!creatorId) {
+        return;
+      }
+
+      const current = readCreatorOps(creatorId);
+      if (raw.status === "pending") {
+        current.pendingPayouts += 1;
+        current.pendingCashoutGd += Math.round(readMetric(raw, "requestedGd"));
+      }
+    });
+
+    creatorThreadsSnap.docs.forEach((doc) => {
+      const raw = doc.data() as Record<string, unknown>;
+      const creatorId = typeof raw.creatorId === "string" ? raw.creatorId : "";
+      if (!creatorId) {
+        return;
+      }
+
+      const current = readCreatorOps(creatorId);
+      current.openThreads += 1;
+    });
+
+    creatorAccrualsSnap.docs.forEach((doc) => {
+      const raw = doc.data() as Record<string, unknown>;
+      const creatorId = typeof raw.creatorId === "string" ? raw.creatorId : "";
+      if (!creatorId) {
+        return;
+      }
+
+      const current = readCreatorOps(creatorId);
+      current.totalAccruedGd += Math.round(readMetric(raw, "creatorShareGd"));
+    });
+
+    pendingCreatorDropsSnap.docs.forEach((doc) => {
+      const raw = doc.data() as Record<string, unknown>;
+      const creatorId = typeof raw.submittedByCreatorId === "string"
+        ? raw.submittedByCreatorId
+        : typeof raw.creatorId === "string"
+          ? raw.creatorId
+          : "";
+      if (!creatorId) {
+        return;
+      }
+
+      const current = readCreatorOps(creatorId);
+      current.pendingDropSubmissions += 1;
+    });
 
     const dailyAnalyticsByUser = new Map<string, UserDailyAggregate>();
     userDailySnapshot.docs.forEach((doc) => {
@@ -650,12 +819,27 @@ export async function GET(request: NextRequest) {
           : 0;
       })(),
       payingUsers: Object.values(analyticsByUser).filter((entry) => (entry.purchaseCount || 0) > 0).length,
+      creatorOps: {
+        creatorsWithFollowers: Array.from(creatorOpsByUser.values()).filter((entry) => entry.followerCount > 0).length,
+        totalFollowers: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.followerCount, 0),
+        totalFavorites: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.favoriteCount, 0),
+        totalAlertOptIns: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.notificationsEnabledCount, 0),
+        activeSubscriptions: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.activeSubscribers, 0),
+        openRequests: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.openRequests, 0),
+        bookedCalls: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.bookedCalls, 0),
+        pendingPayouts: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.pendingPayouts, 0),
+        openThreads: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.openThreads, 0),
+        pendingDropSubmissions: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.pendingDropSubmissions, 0),
+        totalAccruedGd: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.totalAccruedGd, 0),
+        pendingCashoutGd: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.pendingCashoutGd, 0),
+      },
     };
 
     return NextResponse.json({
       success: true,
       users,
       analyticsByUser,
+      creatorOpsByUser: Object.fromEntries(creatorOpsByUser),
       dropReferences,
       summary,
     });
@@ -685,6 +869,12 @@ export async function PUT(request: NextRequest) {
       if (updates[key] !== undefined) {
         sanitized[key] = updates[key];
       }
+    }
+    if (updates.creatorRestrictions && typeof updates.creatorRestrictions === "object") {
+      sanitized.creatorRestrictions = sanitizeCreatorRestrictionsUpdate(updates.creatorRestrictions as Record<string, unknown>);
+    }
+    if (updates.creatorSettings && typeof updates.creatorSettings === "object") {
+      sanitized.creatorSettings = sanitizeCreatorSettingsUpdate(updates.creatorSettings as Record<string, unknown>);
     }
 
     if (Object.keys(sanitized).length === 0) {

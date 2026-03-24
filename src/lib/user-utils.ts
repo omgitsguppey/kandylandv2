@@ -1,6 +1,7 @@
 import { User } from "firebase/auth";
 import { UserProfile } from "@/types/db";
 import { BUILT_IN_DAILY_TASK_MAP, type DailyTaskAssignment } from "@/lib/tasks/task-catalog";
+import { normalizeCreatorRestrictions, normalizeCreatorSettings } from "@/lib/creator-experiences";
 
 /**
  * Normalizes a username by trimming, lowercasing, and allowing only alphanumerics, hyphens, and underscores.
@@ -87,6 +88,8 @@ export function normalizeUserProfile(raw: unknown, user: User): UserProfile | nu
         return Object.fromEntries(normalizedEntries);
     };
 
+    const normalizedRole = source.role === "admin" || source.role === "creator" || source.role === "user" ? source.role : "user";
+
     return {
         uid: typeof source.uid === "string" ? source.uid : user.uid,
         email: typeof source.email === "string" || source.email === null ? source.email : user.email,
@@ -99,14 +102,24 @@ export function normalizeUserProfile(raw: unknown, user: User): UserProfile | nu
         photoURL: typeof source.photoURL === "string" || source.photoURL === null ? source.photoURL : user.photoURL,
         bannerUrl: typeof source.bannerUrl === "string" ? source.bannerUrl : undefined,
         bio: typeof source.bio === "string" ? source.bio : undefined,
-        role: source.role === "admin" || source.role === "creator" || source.role === "user" ? source.role : "user",
+        role: normalizedRole,
 
 
         isVerified: source.isVerified === true,
         gumDropsBalance: Number.isFinite(source.gumDropsBalance) ? Number(source.gumDropsBalance) : 0,
+        gumDropsPurchasedBalance: Number.isFinite(source.gumDropsPurchasedBalance) ? Number(source.gumDropsPurchasedBalance) : undefined,
+        gumDropsRewardBalance: Number.isFinite(source.gumDropsRewardBalance) ? Number(source.gumDropsRewardBalance) : undefined,
         unlockedContent: toStringArray(source.unlockedContent),
         unlockedContentTimestamps: toStringNumberRecord(source.unlockedContentTimestamps),
         following: toStringArray(source.following),
+        favoriteCreators: toStringArray(source.favoriteCreators),
+        creatorNotificationPreferences: source.creatorNotificationPreferences && typeof source.creatorNotificationPreferences === "object"
+            ? Object.fromEntries(
+                Object.entries(source.creatorNotificationPreferences as Record<string, unknown>)
+                    .filter(([key, value]) => typeof key === "string" && typeof value === "boolean")
+                    .map(([key, value]) => [key, Boolean(value)]),
+            )
+            : {},
         createdAt: Number.isFinite(source.createdAt) ? Number(source.createdAt) : Date.now(),
         lastCheckIn: Number.isFinite(source.lastCheckIn) ? Number(source.lastCheckIn) : undefined,
         streakCount: Number.isFinite(source.streakCount) ? Number(source.streakCount) : undefined,
@@ -222,5 +235,11 @@ export function normalizeUserProfile(raw: unknown, user: User): UserProfile | nu
                 )
                 : undefined,
         } : undefined,
+        creatorSettings: normalizedRole === "creator" || normalizedRole === "admin" || source.creatorSettings
+            ? normalizeCreatorSettings(source.creatorSettings)
+            : undefined,
+        creatorRestrictions: normalizedRole === "creator" || normalizedRole === "admin" || source.creatorRestrictions
+            ? normalizeCreatorRestrictions(source.creatorRestrictions)
+            : undefined,
     };
 }

@@ -9,6 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { useDrops } from "@/hooks/useDrops";
 import { KandyDropsAccountOverview, AccountOverviewState } from "@/components/KandyDropsAccountOverview";
+import { CreatorDiscoveryRail } from "@/components/CreatorDiscoveryRail";
 import dynamic from "next/dynamic";
 import { trackEvent } from "@/lib/telemetry";
 
@@ -261,6 +262,8 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
                     }}
                 />
             </div>
+
+            <CreatorDiscoveryRail surface="drops" compact />
 
             <StickyFilterBar
                 categories={CATEGORIES}
