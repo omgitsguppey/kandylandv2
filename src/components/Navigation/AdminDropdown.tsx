@@ -29,7 +29,7 @@ export function AdminDropdown() {
     if (!isAdmin) return null;
 
     const navItems = [
-        { label: "Home", href: "/?publicHome=1", icon: House },
+        { label: "Home", href: "/", icon: House },
         { label: "Overview", href: "/admin", icon: LayoutDashboard },
         { label: "Analytics", href: "/admin/analytics", icon: TrendingUp },
         { label: "Drops", href: "/admin/drops", icon: Package },

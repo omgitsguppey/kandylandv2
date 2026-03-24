@@ -42,14 +42,14 @@ export default function MobileBottomBar() {
                 {NAV_ITEMS.map((item) => {
                     const isAdmin = userProfile?.role === "admin";
                     const isGuest = !user;
-                    const href = item.label === "Home" && isAdmin ? "/?publicHome=1" : item.href;
+                    const href = item.href;
 
                     // Role-based visibility
                     if (item.label === "Dashboard" && isGuest) return null;
                     if (item.label === "Home" && !isGuest && !isAdmin) return null;
 
                     const Icon = item.icon;
-                    const isActive = pathname === item.href;
+                    const isActive = pathname === href;
 
                     return (
                         <Link

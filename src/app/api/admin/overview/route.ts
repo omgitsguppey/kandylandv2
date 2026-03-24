@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
-import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 import { ADMIN, HEAVY_READ } from "@/lib/server/rate-limit";
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
 import { applyDropStatus } from "@/lib/drop-status";
@@ -68,28 +67,6 @@ function buildThirtyDayChart(nowMs: number) {
     return days;
 }
 
-async function readOptionalSnapshot(
-    label: string,
-    load: () => Promise<FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>>,
-) {
-    try {
-        return await load();
-    } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        await recordServerDiagnostic({
-            channel: "analytics",
-            severity: "warn",
-            message: "Admin overview query fell back",
-            detail: {
-                query: label,
-                message,
-            },
-        });
-
-        return null;
-    }
-}
-
 export async function GET(request: NextRequest) {
     try {
         await guardApiRequest(request, {
@@ -111,18 +88,9 @@ export async function GET(request: NextRequest) {
             adminDb.collection("transactions").orderBy("timestamp", "desc").limit(250).get(),
         ]);
         const [adminActivitySnapshot, purchaseTransactionsSnapshot, unlockTransactionsSnapshot] = await Promise.all([
-            readOptionalSnapshot(
-                "transactions_admin_adjustment_recent",
-                () => adminDb.collection("transactions").where("type", "==", "admin_adjustment").orderBy("timestamp", "desc").limit(10).get(),
-            ),
-            readOptionalSnapshot(
-                "transactions_purchase_revenue",
-                () => adminDb.collection("transactions").where("type", "in", ["purchase_currency", "purchase"]).get(),
-            ),
-            readOptionalSnapshot(
-                "transactions_unlock_content",
-                () => adminDb.collection("transactions").where("type", "==", "unlock_content").get(),
-            ),
+            adminDb.collection("transactions").where("type", "==", "admin_adjustment").limit(50).get(),
+            adminDb.collection("transactions").where("type", "in", ["purchase_currency", "purchase"]).get(),
+            adminDb.collection("transactions").where("type", "==", "unlock_content").get(),
         ]);
 
         const userNameMap = new Map<string, string>();
@@ -154,14 +122,14 @@ export async function GET(request: NextRequest) {
                 return [];
             }
         });
-        const purchaseTransactions = (purchaseTransactionsSnapshot?.docs ?? []).flatMap((doc) => {
+        const purchaseTransactions = purchaseTransactionsSnapshot.docs.flatMap((doc) => {
             try {
                 return [normalizeTransactionRecord(doc.data(), doc.id)];
             } catch {
                 return [];
             }
         }).filter((transaction) => transaction.type === "purchase_currency" && transaction.status === "completed");
-        const unlockTransactions = (unlockTransactionsSnapshot?.docs ?? []).flatMap((doc) => {
+        const unlockTransactions = unlockTransactionsSnapshot.docs.flatMap((doc) => {
             try {
                 return [normalizeTransactionRecord(doc.data(), doc.id)];
             } catch {
@@ -173,17 +141,20 @@ export async function GET(request: NextRequest) {
             .slice(0, 20)
             .map((transaction) => serializeRecentTransaction(transaction, userNameMap.get(transaction.userId)));
 
-        const adminActivitySource = adminActivitySnapshot
-            ? adminActivitySnapshot.docs.flatMap((doc) => {
+        const adminActivitySource = adminActivitySnapshot.docs
+            .flatMap((doc) => {
                 try {
                     return [normalizeTransactionRecord(doc.data(), doc.id)];
                 } catch {
                     return [];
                 }
             })
-            : recentTransactionsSource
-                .filter((transaction) => transaction.type === "admin_adjustment")
-                .slice(0, 10);
+            .sort((left, right) => {
+                const leftTimestamp = typeof left.timestamp === "number" ? left.timestamp : toTimestampNumber(left.timestamp);
+                const rightTimestamp = typeof right.timestamp === "number" ? right.timestamp : toTimestampNumber(right.timestamp);
+                return rightTimestamp - leftTimestamp;
+            })
+            .slice(0, 10);
         const adminActivity = adminActivitySource.map((transaction) => serializeRecentTransaction(transaction, userNameMap.get(transaction.userId)));
 
         const topDrops = [...drops]

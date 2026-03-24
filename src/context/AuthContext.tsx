@@ -116,6 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
+    const [authStateResolved, setAuthStateResolved] = useState(false);
     const initialAuthResolvedRef = useRef(false);
     const autoRegisterInFlightRef = useRef<Set<string>>(new Set());
     const navigationSessionSyncKeyRef = useRef<string | null>(null);
@@ -140,9 +141,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     if (!cancelled && redirectResult?.user) {
                         setGoogleRedirectPending(false);
                         toast.success("Welcome back!");
-                        if (pathname === "/") {
-                            router.push(getPostAuthDestination(userProfile?.role));
-                        }
                     } else if (!cancelled && hasGoogleRedirectPending()) {
                         setGoogleRedirectPending(false);
                     }
@@ -155,6 +153,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
                 unsubscribe = onAuthStateChanged(auth, (currentUser) => {
                     setUser(currentUser);
+                    setAuthStateResolved(true);
 
                     if (!initialAuthResolvedRef.current && currentUser) {
                         trackEvent("auth_session_restored", {
@@ -172,6 +171,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 });
             } catch {
                 if (!cancelled) {
+                    setAuthStateResolved(true);
                     setLoading(false);
                 }
             }
@@ -183,9 +183,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             cancelled = true;
             unsubscribe();
         };
-    }, [getPostAuthDestination, pathname, router, userProfile?.role]);
+    }, []);
 
     useEffect(() => {
+        if (!authStateResolved) {
+            return;
+        }
+
         if (!user) {
             navigationSessionSyncKeyRef.current = null;
             setNavigationAuthCookies(null);
@@ -267,7 +271,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             autoRegisterInFlight.delete(currentUserId);
             if (unsubscribe) unsubscribe();
         };
-    }, [pathname, router, user]);
+    }, [authStateResolved, pathname, router, user]);
 
     useEffect(() => {
         if (!user) {
@@ -314,9 +318,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             await signInWithPopup(auth, provider);
 
             toast.success("Welcome back!");
-            if (pathname === "/") {
-                router.push(getPostAuthDestination(userProfile?.role));
-            }
         } catch (error: unknown) {
             const firebaseError = error as { code?: string; message?: string };
 
@@ -357,7 +358,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             toast.error(message);
             throw new Error(message);
         }
-    }, [getPostAuthDestination, pathname, router, userProfile?.role]);
+    }, []);
 
     const signInWithEmail = useCallback(async (email: string, pass: string) => {
         try {
@@ -367,13 +368,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 
             toast.success("Welcome back!");
-            if (pathname === "/") {
-                router.push(getPostAuthDestination(userProfile?.role));
-            }
         } catch (error: unknown) {
             throw error;
         }
-    }, [getPostAuthDestination, pathname, router, userProfile?.role]);
+    }, []);
 
     const signUpWithEmail = useCallback(async (email: string, pass: string, username: string, dob: string) => {
         try {

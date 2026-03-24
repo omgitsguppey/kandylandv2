@@ -29,12 +29,9 @@ export async function middleware(request: NextRequest) {
   const lastVisitedPath = request.cookies.get(LAST_VISITED_PATH_COOKIE)?.value;
   const destination = resolvePreferredAuthenticatedPath(navigationSession.role, lastVisitedPath);
   const fallbackPath = navigationSession.role === "admin" ? "/admin" : "/dashboard";
-  const allowAdminPublicHome =
-    pathname === "/" &&
-    navigationSession.role === "admin" &&
-    request.nextUrl.searchParams.get("publicHome") === "1";
+  const isAdmin = navigationSession.role === "admin";
 
-  if (allowAdminPublicHome) {
+  if (pathname === "/" && isAdmin) {
     return NextResponse.next();
   }
 
