@@ -253,9 +253,16 @@ export async function GET(request: NextRequest) {
       const current = dailyAnalyticsByUser.get(uid) ?? buildEmptyDailyAggregate();
       current.eventCount += Math.round(readMetric(raw, "eventCount"));
       current.sessionCount += Math.round(readMetric(raw, "sessionCount"));
+      current.viewCount += Math.round(readMetric(raw, "viewCount"));
+      current.engagedViewCount += Math.round(readMetric(raw, "engagedViewCount"));
+      current.passiveViewCount += Math.round(readMetric(raw, "passiveViewCount"));
+      current.bounceCount += Math.round(readMetric(raw, "bounceCount"));
       current.unwrapCount += Math.round(readMetric(raw, "unwrapCount"));
       current.unlockCount += Math.round(readMetric(raw, "unlockCount"));
       current.purchaseCount += Math.round(readMetric(raw, "purchaseCount", "purchaseTransactionCount"));
+      current.authSuccessCount += Math.round(readMetric(raw, "authSuccessCount", "signInCount"));
+      current.onboardingStartCount += Math.round(readMetric(raw, "onboardingStartCount", "guidedOnboardingStartCount"));
+      current.onboardingCompletionCount += Math.round(readMetric(raw, "onboardingCompletionCount", "guidedOnboardingCompletionCount"));
       current.watchSecondsTotal += Math.round(readMetric(raw, "watchSecondsTotal"));
       current.loadMsTotal += Math.round(readMetric(raw, "loadMsTotal"));
       current.loadSampleCount += Math.round(readMetric(raw, "loadSampleCount"));
@@ -311,11 +318,31 @@ export async function GET(request: NextRequest) {
           username: typeof raw.username === "string" ? raw.username : doc.id,
           eventCount: Math.max(typeof raw.eventCount === "number" ? raw.eventCount : 0, dailyAggregate.eventCount),
           sessionCount: Math.max(typeof raw.sessionCount === "number" ? raw.sessionCount : 0, dailyAggregate.sessionCount),
+          viewCount: Math.max(
+            Math.round(readMetric(raw, "viewCount")),
+            dailyAggregate.viewCount,
+            typeof raw.sessionCount === "number" ? raw.sessionCount : 0,
+          ),
+          engagedViewCount: Math.max(Math.round(readMetric(raw, "engagedViewCount")), dailyAggregate.engagedViewCount),
+          passiveViewCount: Math.max(Math.round(readMetric(raw, "passiveViewCount")), dailyAggregate.passiveViewCount),
+          bounceCount: Math.max(Math.round(readMetric(raw, "bounceCount")), dailyAggregate.bounceCount),
           unwrapCount: Math.max(
             Math.round(readMetric(raw, "unwrapCount", "unlockCount")),
             Math.max(dailyAggregate.unwrapCount, dailyAggregate.unlockCount),
           ),
           purchaseCount,
+          authSuccessCount: Math.max(
+            Math.round(readMetric(raw, "authSuccessCount", "signInCount")),
+            dailyAggregate.authSuccessCount,
+          ),
+          onboardingStartCount: Math.max(
+            Math.round(readMetric(raw, "onboardingStartCount", "guidedOnboardingStartCount")),
+            dailyAggregate.onboardingStartCount,
+          ),
+          onboardingCompletionCount: Math.max(
+            Math.round(readMetric(raw, "onboardingCompletionCount", "guidedOnboardingCompletionCount")),
+            dailyAggregate.onboardingCompletionCount,
+          ),
           watchSecondsTotal: Math.max(watchSecondsTotal, dailyAggregate.watchSecondsTotal),
           watchHours: Number((Math.max(watchSecondsTotal, dailyAggregate.watchSecondsTotal) / 3600).toFixed(1)),
           avgLoadMs: Math.max(
@@ -345,6 +372,7 @@ export async function GET(request: NextRequest) {
       }),
     );
 
+    const onboardingCompletedByUser = new Map(users.map((user) => [user.uid, user.onboardingCompleted]));
     const fallbackUserIds = users
       .map((user) => user.uid)
       .filter((uid) => {
@@ -353,6 +381,9 @@ export async function GET(request: NextRequest) {
           (analytics.eventCount || 0) === 0
           && (analytics.unwrapCount || 0) === 0
           && (analytics.watchSecondsTotal || 0) === 0
+        ) || (
+          onboardingCompletedByUser.get(uid) === true
+          && (analytics?.onboardingCompletionCount || 0) === 0
         );
       });
 
@@ -366,7 +397,14 @@ export async function GET(request: NextRequest) {
       const fallbackStats = new Map<string, {
         eventCount: number;
         sessionCount: number;
+        viewCount: number;
+        engagedViewCount: number;
+        passiveViewCount: number;
+        bounceCount: number;
         unwrapCount: number;
+        authSuccessCount: number;
+        onboardingStartCount: number;
+        onboardingCompletionCount: number;
         watchSecondsTotal: number;
         loadMsTotal: number;
         loadSampleCount: number;
@@ -394,7 +432,14 @@ export async function GET(request: NextRequest) {
           const current = fallbackStats.get(uid) ?? {
             eventCount: 0,
             sessionCount: 0,
+            viewCount: 0,
+            engagedViewCount: 0,
+            passiveViewCount: 0,
+            bounceCount: 0,
             unwrapCount: 0,
+            authSuccessCount: 0,
+            onboardingStartCount: 0,
+            onboardingCompletionCount: 0,
             watchSecondsTotal: 0,
             loadMsTotal: 0,
             loadSampleCount: 0,
@@ -403,7 +448,27 @@ export async function GET(request: NextRequest) {
 
           current.eventCount += 1;
           current.sessionCount += eventName === "viewer_session_started" ? 1 : 0;
+          current.viewCount += (
+            eventName === "semantic_page_viewed"
+            || eventName === "home_page_viewed"
+            || eventName === "dashboard_viewed"
+            || eventName === "library_viewed"
+            || eventName === "experience_hub_viewed"
+            || eventName === "drops_page_viewed"
+            || eventName === "faq_page_viewed"
+            || eventName === "viewer_opened"
+          ) ? 1 : 0;
+          current.engagedViewCount += eventName === "semantic_page_engaged" ? 1 : 0;
+          current.passiveViewCount += eventName === "semantic_page_passive" ? 1 : 0;
+          current.bounceCount += eventName === "semantic_page_bounced" ? 1 : 0;
           current.unwrapCount += eventName === "unlock_drop_success" ? 1 : 0;
+          current.authSuccessCount += (
+            eventName === "auth_sign_in_success"
+            || eventName === "auth_google_sign_in_success"
+            || eventName === "auth_sign_up_success"
+          ) ? 1 : 0;
+          current.onboardingStartCount += eventName === "guided_onboarding_started" ? 1 : 0;
+          current.onboardingCompletionCount += eventName === "guided_onboarding_completed" ? 1 : 0;
           current.watchSecondsTotal += watchSeconds;
           current.loadMsTotal += loadMs;
           current.loadSampleCount += loadMs > 0 ? 1 : 0;
@@ -419,8 +484,15 @@ export async function GET(request: NextRequest) {
           username: users.find((user) => user.uid === uid)?.username || uid,
           eventCount: 0,
           sessionCount: 0,
+          viewCount: 0,
+          engagedViewCount: 0,
+          passiveViewCount: 0,
+          bounceCount: 0,
           unwrapCount: 0,
           purchaseCount: 0,
+          authSuccessCount: 0,
+          onboardingStartCount: 0,
+          onboardingCompletionCount: 0,
           watchSecondsTotal: 0,
           watchHours: 0,
           avgLoadMs: 0,
@@ -433,7 +505,18 @@ export async function GET(request: NextRequest) {
           ...existing,
           eventCount: Math.max(existing.eventCount || 0, stats.eventCount),
           sessionCount: Math.max(existing.sessionCount || 0, stats.sessionCount),
+          viewCount: Math.max(existing.viewCount || 0, stats.viewCount, stats.sessionCount),
+          engagedViewCount: Math.max(existing.engagedViewCount || 0, stats.engagedViewCount),
+          passiveViewCount: Math.max(existing.passiveViewCount || 0, stats.passiveViewCount),
+          bounceCount: Math.max(existing.bounceCount || 0, stats.bounceCount),
           unwrapCount: Math.max(existing.unwrapCount || 0, stats.unwrapCount),
+          authSuccessCount: Math.max(existing.authSuccessCount || 0, stats.authSuccessCount),
+          onboardingStartCount: Math.max(existing.onboardingStartCount || 0, stats.onboardingStartCount),
+          onboardingCompletionCount: Math.max(
+            existing.onboardingCompletionCount || 0,
+            stats.onboardingCompletionCount,
+            onboardingCompletedByUser.get(uid) ? 1 : 0,
+          ),
           watchSecondsTotal: Math.max(existing.watchSecondsTotal || 0, stats.watchSecondsTotal),
           watchHours: Number((Math.max(existing.watchSecondsTotal || 0, stats.watchSecondsTotal) / 3600).toFixed(1)),
           avgLoadMs: stats.loadSampleCount > 0
@@ -446,6 +529,13 @@ export async function GET(request: NextRequest) {
 
     users.forEach((user) => {
       if (analyticsByUser[user.uid]) {
+        analyticsByUser[user.uid] = {
+          ...analyticsByUser[user.uid],
+          onboardingCompletionCount: Math.max(
+            analyticsByUser[user.uid].onboardingCompletionCount || 0,
+            user.onboardingCompleted ? 1 : 0,
+          ),
+        };
         return;
       }
 
@@ -457,8 +547,15 @@ export async function GET(request: NextRequest) {
         username: user.username || user.displayName || user.uid,
         eventCount: dailyAggregate.eventCount,
         sessionCount: dailyAggregate.sessionCount,
+        viewCount: dailyAggregate.viewCount,
+        engagedViewCount: dailyAggregate.engagedViewCount,
+        passiveViewCount: dailyAggregate.passiveViewCount,
+        bounceCount: dailyAggregate.bounceCount,
         unwrapCount: Math.max(dailyAggregate.unwrapCount, dailyAggregate.unlockCount),
         purchaseCount: dailyAggregate.purchaseCount,
+        authSuccessCount: dailyAggregate.authSuccessCount,
+        onboardingStartCount: dailyAggregate.onboardingStartCount,
+        onboardingCompletionCount: Math.max(dailyAggregate.onboardingCompletionCount, user.onboardingCompleted ? 1 : 0),
         watchSecondsTotal: dailyAggregate.watchSecondsTotal,
         watchHours: Number((dailyAggregate.watchSecondsTotal / 3600).toFixed(1)),
         avgLoadMs: dailyAggregate.loadSampleCount > 0 ? Math.round(dailyAggregate.loadMsTotal / dailyAggregate.loadSampleCount) : 0,
@@ -700,9 +797,16 @@ export async function POST(request: NextRequest) {
 type UserDailyAggregate = {
   eventCount: number;
   sessionCount: number;
+  viewCount: number;
+  engagedViewCount: number;
+  passiveViewCount: number;
+  bounceCount: number;
   unwrapCount: number;
   unlockCount: number;
   purchaseCount: number;
+  authSuccessCount: number;
+  onboardingStartCount: number;
+  onboardingCompletionCount: number;
   watchSecondsTotal: number;
   loadMsTotal: number;
   loadSampleCount: number;
@@ -724,9 +828,16 @@ function buildEmptyDailyAggregate(): UserDailyAggregate {
   return {
     eventCount: 0,
     sessionCount: 0,
+    viewCount: 0,
+    engagedViewCount: 0,
+    passiveViewCount: 0,
+    bounceCount: 0,
     unwrapCount: 0,
     unlockCount: 0,
     purchaseCount: 0,
+    authSuccessCount: 0,
+    onboardingStartCount: 0,
+    onboardingCompletionCount: 0,
     watchSecondsTotal: 0,
     loadMsTotal: 0,
     loadSampleCount: 0,

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { UserProfile } from "@/types/db";
-import { Loader2, Search, Shield, Ban, CheckCircle, AlertTriangle, Edit2, Lock, Plus, ScrollText, MessageSquare, DollarSign, TrendingUp, Users, Bell, Clock3 } from "lucide-react";
+import { Loader2, Search, Shield, Ban, CheckCircle, AlertTriangle, Edit2, Lock, Plus, ScrollText, MessageSquare, DollarSign, TrendingUp, Users, Bell, Clock3, Activity } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import { format } from "date-fns";
@@ -22,8 +22,15 @@ type UserAnalytics = {
     username: string;
     eventCount: number;
     sessionCount: number;
+    viewCount: number;
+    engagedViewCount: number;
+    passiveViewCount: number;
+    bounceCount: number;
     unwrapCount: number;
     purchaseCount: number;
+    authSuccessCount: number;
+    onboardingStartCount: number;
+    onboardingCompletionCount: number;
     watchSecondsTotal: number;
     watchHours: number;
     avgLoadMs: number;
@@ -166,6 +173,24 @@ export default function UserManagementPage() {
 
     const getUserAnalytics = (uid: string) => userAnalytics[uid];
     const formatMoney = (value?: number) => `$${(value || 0).toFixed(2)}`;
+    const formatPercent = (value?: number) => `${Math.round((value || 0) * 100)}%`;
+    const getBounceRate = (analytics?: UserAnalytics) =>
+        analytics && analytics.viewCount > 0 ? analytics.bounceCount / Math.max(1, analytics.viewCount) : 0;
+    const getOnboardingBadge = (user: UserProfile, analytics?: UserAnalytics) =>
+        user.onboardingCompleted || (analytics?.onboardingCompletionCount || 0) > 0
+            ? {
+                label: "Onboarding Complete",
+                className: "text-emerald-300 bg-emerald-500/10 border-emerald-500/20",
+            }
+            : (analytics?.onboardingStartCount || 0) > 0
+                ? {
+                    label: "Onboarding Live",
+                    className: "text-amber-200 bg-amber-500/10 border-amber-500/20",
+                }
+                : {
+                    label: "Onboarding Pending",
+                    className: "text-gray-300 bg-white/5 border-white/10",
+                };
 
     const formatLastSeen = (timestamp?: number) =>
         timestamp && timestamp > 0 ? `Seen ${format(new Date(timestamp), 'MMM d, h:mm a')}` : "No tracked activity";
@@ -460,7 +485,10 @@ export default function UserManagementPage() {
                                             </td>
                                         </tr>
                                     ) : (
-                                        filteredUsers.map((user) => (
+                                        filteredUsers.map((user) => {
+                                            const analytics = getUserAnalytics(user.uid);
+                                            const onboardingBadge = getOnboardingBadge(user, analytics);
+                                            return (
                                             <tr key={user.uid} className="transition-colors">
                                                 <td className="p-4">
                                                     <div className="flex items-center gap-3">
@@ -489,9 +517,14 @@ export default function UserManagementPage() {
                                                     </span>
                                                 </td>
                                                 <td className="p-4">
-                                                    <span className={`px-2 py-1 rounded-full text-xs font-bold border ${getStatusColor(user.status)}`}>
-                                                        {(user.status || 'active').toUpperCase()}
-                                                    </span>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        <span className={`px-2 py-1 rounded-full text-xs font-bold border ${getStatusColor(user.status)}`}>
+                                                            {(user.status || 'active').toUpperCase()}
+                                                        </span>
+                                                        <span className={`px-2 py-1 rounded-full border text-[10px] font-bold uppercase tracking-wider ${onboardingBadge.className}`}>
+                                                            {onboardingBadge.label}
+                                                        </span>
+                                                    </div>
                                                 </td>
                                                 <td className="p-4 font-mono text-brand-purple">
                                                     <div className="flex items-center gap-2">
@@ -506,8 +539,18 @@ export default function UserManagementPage() {
                                                 </td>
                                                 <td className="p-4 text-sm">
                                                     <div className="space-y-2">
+                                                        <div className="grid grid-cols-2 gap-2">
+                                                            <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
+                                                                <div className="text-[10px] font-bold uppercase tracking-wider text-gray-500">Views</div>
+                                                                <div className="mt-1 text-xs font-semibold text-white">{analytics?.viewCount || 0} · {formatPercent(getBounceRate(analytics))} bounce</div>
+                                                            </div>
+                                                            <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
+                                                                <div className="text-[10px] font-bold uppercase tracking-wider text-gray-500">Onboarding</div>
+                                                                <div className="mt-1 text-xs font-semibold text-white">{analytics?.onboardingCompletionCount || 0} done · {analytics?.onboardingStartCount || 0} started</div>
+                                                            </div>
+                                                        </div>
                                                         <div className="rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-xs text-white">
-                                                            {getUserAnalytics(user.uid)?.eventCount || 0} events
+                                                            {analytics?.eventCount || 0} events · {analytics?.sessionCount || 0} sessions
                                                         </div>
                                                         <div className="rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-xs text-white">
                                                             {getUserAnalytics(user.uid)?.unwrapCount || 0} unwraps · {getUserAnalytics(user.uid)?.purchaseCount || 0} purchases
@@ -570,7 +613,7 @@ export default function UserManagementPage() {
                                                     </div>
                                                 </td>
                                             </tr>
-                                        ))
+                                        )})
                                     )}
                                 </tbody>
                             </table>
@@ -584,7 +627,10 @@ export default function UserManagementPage() {
                         ) : filteredUsers.length === 0 ? (
                             <div className="p-8 text-center text-gray-500 glass-panel rounded-2xl">No users found.</div>
                         ) : (
-                            filteredUsers.map((user) => (
+                            filteredUsers.map((user) => {
+                                const analytics = getUserAnalytics(user.uid);
+                                const onboardingBadge = getOnboardingBadge(user, analytics);
+                                return (
                                 <div key={user.uid} className="glass-panel p-4 rounded-2xl border border-white/10 flex flex-col gap-4 relative overflow-hidden group">
                                     {/* Background Accent based on Role/Status */}
                                     <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl -z-10 opacity-20 ${user.status === 'banned' ? 'bg-red-500' : user.role === 'admin' ? 'bg-red-500' : user.role === 'creator' ? 'bg-brand-purple' : 'bg-white'}`} />
@@ -618,6 +664,9 @@ export default function UserManagementPage() {
                                                 <span className={`px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider ${getStatusColor(user.status)}`}>
                                                     {user.status || 'active'}
                                                 </span>
+                                                <span className={`px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider ${onboardingBadge.className}`}>
+                                                    {onboardingBadge.label}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
@@ -642,19 +691,19 @@ export default function UserManagementPage() {
                                             <div className="flex justify-between items-center">
                                                 <span className="text-xs text-gray-500 font-bold uppercase"><Users className="w-3 h-3 inline mr-1" />Events</span>
                                                 <span className="text-sm font-mono text-gray-300">
-                                                    {getUserAnalytics(user.uid)?.eventCount || 0}
+                                                    {analytics?.eventCount || 0}
                                                 </span>
                                             </div>
                                             <div className="flex justify-between items-center">
                                                 <span className="text-xs text-gray-500 font-bold uppercase"><TrendingUp className="w-3 h-3 inline mr-1" />Unwraps</span>
                                                 <span className="text-sm font-mono text-gray-300">
-                                                    {getUserAnalytics(user.uid)?.unwrapCount || 0}
+                                                    {analytics?.unwrapCount || 0}
                                                 </span>
                                             </div>
                                             <div className="flex justify-between items-center">
                                                 <span className="text-xs text-gray-500 font-bold uppercase"><Clock3 className="w-3 h-3 inline mr-1" />Watch</span>
                                                 <span className="text-sm font-mono text-gray-300">
-                                                    {getUserAnalytics(user.uid)?.watchHours || 0}h
+                                                    {analytics?.watchHours || 0}h
                                                 </span>
                                             </div>
                                             <div className="flex justify-between items-center">
@@ -667,36 +716,63 @@ export default function UserManagementPage() {
 
                                         <div className="grid grid-cols-2 gap-3 p-3 bg-black/25 rounded-xl border border-white/5">
                                             <div className="flex justify-between items-center">
+                                                <span className="text-xs text-gray-500 font-bold uppercase"><Activity className="w-3 h-3 inline mr-1" />Views</span>
+                                                <span className="text-sm font-mono text-gray-300">
+                                                    {analytics?.viewCount || 0}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-xs text-gray-500 font-bold uppercase"><AlertTriangle className="w-3 h-3 inline mr-1" />Bounce</span>
+                                                <span className="text-sm font-mono text-gray-300">
+                                                    {formatPercent(getBounceRate(analytics))}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-xs text-gray-500 font-bold uppercase"><CheckCircle className="w-3 h-3 inline mr-1" />Onboarded</span>
+                                                <span className="text-sm font-mono text-gray-300">
+                                                    {analytics?.onboardingCompletionCount || 0}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-xs text-gray-500 font-bold uppercase"><Shield className="w-3 h-3 inline mr-1" />Auth</span>
+                                                <span className="text-sm font-mono text-gray-300">
+                                                    {analytics?.authSuccessCount || 0}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-3 p-3 bg-black/25 rounded-xl border border-white/5">
+                                            <div className="flex justify-between items-center">
                                                 <span className="text-xs text-gray-500 font-bold uppercase"><DollarSign className="w-3 h-3 inline mr-1" />Cash</span>
                                                 <span className="text-sm font-mono text-gray-300">
-                                                    {formatMoney(getUserAnalytics(user.uid)?.grossRevenueUsd)}
+                                                    {formatMoney(analytics?.grossRevenueUsd)}
                                                 </span>
                                             </div>
                                             <div className="flex justify-between items-center">
                                                 <span className="text-xs text-gray-500 font-bold uppercase"><TrendingUp className="w-3 h-3 inline mr-1" />Profit</span>
                                                 <span className="text-sm font-mono text-gray-300">
-                                                    {formatMoney(getUserAnalytics(user.uid)?.adjustedProfitUsd)}
+                                                    {formatMoney(analytics?.adjustedProfitUsd)}
                                                 </span>
                                             </div>
                                             <div className="flex justify-between items-center">
                                                 <span className="text-xs text-gray-500 font-bold uppercase"><Plus className="w-3 h-3 inline mr-1" />Bonus</span>
                                                 <span className="text-sm font-mono text-gray-300">
-                                                    {(getUserAnalytics(user.uid)?.bonusGumDrops || 0).toLocaleString()} GD
+                                                    {(analytics?.bonusGumDrops || 0).toLocaleString()} GD
                                                 </span>
                                             </div>
                                             <div className="flex justify-between items-center">
                                                 <span className="text-xs text-gray-500 font-bold uppercase"><Clock3 className="w-3 h-3 inline mr-1" />Yield</span>
                                                 <span className="text-sm font-mono text-gray-300">
-                                                    {formatMoney(getUserAnalytics(user.uid)?.effectiveUsdPer100Gd)}
+                                                    {formatMoney(analytics?.effectiveUsdPer100Gd)}
                                                 </span>
                                             </div>
                                         </div>
 
                                         <div className="text-[10px] text-gray-500 -mt-1">
-                                            {formatLastSeen(getUserAnalytics(user.uid)?.lastSeenAt)}
+                                            {formatLastSeen(analytics?.lastSeenAt)}
                                         </div>
                                         <div className="text-[10px] text-gray-500 -mt-2">
-                                            {formatLastPurchase(getUserAnalytics(user.uid)?.lastPurchaseAt)}
+                                            {formatLastPurchase(analytics?.lastPurchaseAt)}
                                         </div>
 
                                     {/* Security Flag (Full Width Button if flags exist) */}
@@ -759,7 +835,7 @@ export default function UserManagementPage() {
                                         </button>
                                     </div>
                                 </div>
-                            ))
+                            )})
                         )}
                     </div>
                 </>

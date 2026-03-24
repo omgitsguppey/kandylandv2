@@ -149,6 +149,36 @@ interface CountBucketItem {
   count: number;
 }
 
+interface OnboardingStepStatItem {
+  stepKey: string;
+  stepTitle: string;
+  stepIndex: number;
+  starts: number;
+  completions: number;
+  avgDurationMs: number;
+}
+
+interface SemanticCategorySummaryItem {
+  key: string;
+  label: string;
+  viewCount: number;
+  viewDurationMs: number;
+  engagedViewCount: number;
+  passiveViewCount: number;
+  bounceCount: number;
+  exitCount: number;
+  clickCount: number;
+  hoverCount: number;
+  pagesVisited: number;
+  signInCount: number;
+  returnCount: number;
+  logoutCount: number;
+  watchSecondsTotal: number;
+  watchSessionCount: number;
+  avgViewSeconds: number;
+  engagedRate: number;
+}
+
 interface DestinationMixItem {
   destination: string;
   count: number;
@@ -282,9 +312,13 @@ interface HistoricalAnalyticsResponse {
   };
   security?: SecurityItem[];
   onboardingStats?: {
+    starts?: number;
     completions: number;
     avgDuration: number;
+    completionRate?: number;
+    startSource?: "tracked" | "completion_fallback" | "none";
   };
+  onboardingStepStats?: OnboardingStepStatItem[];
   rawEvents?: RawEventItem[];
   authBreakdown?: AuthBreakdownItem[];
   onboardingDurationBuckets?: CountBucketItem[];
@@ -305,6 +339,7 @@ interface HistoricalAnalyticsResponse {
   viewerDropInsights?: ViewerDropInsightItem[];
   viewerUsers?: ViewerUserOptionItem[];
   viewerFilter?: string;
+  semanticCategories?: SemanticCategorySummaryItem[];
   validations?: ValidationItem[];
 }
 
@@ -609,7 +644,14 @@ export default function AdminAnalyticsPage() {
   };
   const security = historicalResponse?.security ?? [];
   const rawEvents = historicalResponse?.rawEvents ?? [];
-  const onboardingStats = historicalResponse?.onboardingStats ?? { completions: 0, avgDuration: 0 };
+  const onboardingStats = historicalResponse?.onboardingStats ?? {
+    starts: 0,
+    completions: 0,
+    avgDuration: 0,
+    completionRate: 0,
+    startSource: "none" as const,
+  };
+  const onboardingStepStats = historicalResponse?.onboardingStepStats ?? [];
   const authBreakdown = historicalResponse?.authBreakdown ?? [];
   const onboardingDurationBuckets = historicalResponse?.onboardingDurationBuckets ?? [];
   const repeatVisitSegments = historicalResponse?.repeatVisitSegments ?? [];
@@ -642,6 +684,7 @@ export default function AdminAnalyticsPage() {
   const viewerDropInsights = historicalResponse?.viewerDropInsights ?? [];
   const viewerUsers = historicalResponse?.viewerUsers ?? [];
   const activeViewerFilter = historicalResponse?.viewerFilter ?? viewerUserFilter;
+  const semanticCategories = historicalResponse?.semanticCategories ?? [];
   const validations = historicalResponse?.validations ?? [];
 
   const needsSetup =
@@ -656,6 +699,62 @@ export default function AdminAnalyticsPage() {
   const previewToUnlockRate = funnel.previewOpens > 0 ? funnel.unlocks / funnel.previewOpens : 0;
   const checkoutToPurchaseRate = funnel.checkoutStarts > 0 ? funnel.purchases / funnel.checkoutStarts : 0;
   const securityAlerts = security.filter((item) => isRecentViolation(item.lastViolation, nowMs)).length;
+  const onboardingStartCount = onboardingStats.starts ?? 0;
+  const onboardingCompletionRate = onboardingStats.completionRate ?? (
+    onboardingStartCount > 0 ? onboardingStats.completions / Math.max(1, onboardingStartCount) : 0
+  );
+  const onboardingDropOffCount = Math.max(0, onboardingStartCount - onboardingStats.completions);
+  const onboardingStepFlow = onboardingStepStats.map((step) => ({
+    ...step,
+    completionRate: step.starts > 0 ? step.completions / Math.max(1, step.starts) : 0,
+    dropOffCount: Math.max(0, step.starts - step.completions),
+    shortLabel: step.stepTitle.length > 18 ? `${step.stepTitle.slice(0, 18)}...` : step.stepTitle,
+  }));
+  const globalSemantics = semanticCategories.find((item) => item.key === "global");
+  const userSemantics = semanticCategories.find((item) => item.key === "user");
+  const adminSemantics = semanticCategories.find((item) => item.key === "admin");
+  const dropSemantics = semanticCategories.find((item) => item.key === "drop");
+  const guestBounceRate = globalSemantics && globalSemantics.viewCount > 0
+    ? globalSemantics.bounceCount / Math.max(1, globalSemantics.viewCount)
+    : 0;
+  const guestEngagedRate = globalSemantics?.engagedRate ?? 0;
+  const identifiedBounceRate = userSemantics && userSemantics.viewCount > 0
+    ? userSemantics.bounceCount / Math.max(1, userSemantics.viewCount)
+    : 0;
+  const semanticQualityCards = [
+    {
+      key: "global",
+      label: "Guest / Public",
+      views: globalSemantics?.viewCount ?? 0,
+      engaged: globalSemantics?.engagedViewCount ?? 0,
+      bounced: globalSemantics?.bounceCount ?? 0,
+      exits: globalSemantics?.exitCount ?? 0,
+    },
+    {
+      key: "user",
+      label: "Signed-in",
+      views: userSemantics?.viewCount ?? 0,
+      engaged: userSemantics?.engagedViewCount ?? 0,
+      bounced: userSemantics?.bounceCount ?? 0,
+      exits: userSemantics?.exitCount ?? 0,
+    },
+    {
+      key: "admin",
+      label: "Admin",
+      views: adminSemantics?.viewCount ?? 0,
+      engaged: adminSemantics?.engagedViewCount ?? 0,
+      bounced: adminSemantics?.bounceCount ?? 0,
+      exits: adminSemantics?.exitCount ?? 0,
+    },
+    {
+      key: "drop",
+      label: "Viewer",
+      views: dropSemantics?.viewCount ?? 0,
+      engaged: dropSemantics?.engagedViewCount ?? 0,
+      bounced: dropSemantics?.bounceCount ?? 0,
+      exits: dropSemantics?.exitCount ?? 0,
+    },
+  ];
 
   const topEvents = eventBreakdown.slice(0, 8).map((entry) => ({
     ...entry,
@@ -823,7 +922,7 @@ export default function AdminAnalyticsPage() {
               <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                 <MetricCard label="GA Active" value={formatCompactNumber(liveResponse?.totalActive ?? 0)} hint="Google Analytics realtime" icon={Users} />
                 <MetricCard label="Tracked Users" value={formatCompactNumber(liveResponse?.deepTrackerActive ?? 0)} hint="Authenticated users active in the last 30 minutes" icon={Sparkles} />
-                <MetricCard label="Onboarding" value={onboardingStats.completions.toLocaleString()} hint={`Avg ${formatDuration(onboardingStats.avgDuration)}`} icon={PlayCircle} />
+                <MetricCard label="Onboarding" value={onboardingStats.completions.toLocaleString()} hint={`${onboardingStartCount.toLocaleString()} starts · ${formatPercent(onboardingCompletionRate)}`} icon={PlayCircle} />
                 <MetricCard label="Purchases" value={funnel.purchases.toLocaleString()} hint={`${formatPercent(checkoutToPurchaseRate)} of checkout starts`} icon={ShoppingBag} />
               </div>
 
@@ -957,16 +1056,74 @@ export default function AdminAnalyticsPage() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 self-start">
-                    <MetricCard label="Started" value={formatCompactNumber(eventsData.guided_onboarding_started || 0)} hint="Guided onboarding opens" icon={PlayCircle} />
+                    <MetricCard label="Started" value={formatCompactNumber(onboardingStartCount)} hint={onboardingStats.startSource === "tracked" ? "Canonical starts" : onboardingStats.startSource === "completion_fallback" ? "Backfilled from completions" : "No start signals"} icon={PlayCircle} />
                     <MetricCard label="Completed" value={onboardingStats.completions.toLocaleString()} hint="Finished tours" icon={CheckCircle2} />
                     <MetricCard label="Avg Time" value={formatDuration(onboardingStats.avgDuration)} hint="Mean completion time" icon={Clock3} />
                     <MetricCard
                       label="Completion Rate"
-                      value={formatPercent((eventsData.guided_onboarding_started || 0) > 0 ? onboardingStats.completions / Math.max(1, eventsData.guided_onboarding_started || 0) : 0)}
-                      hint="Completed vs started"
+                      value={formatPercent(onboardingCompletionRate)}
+                      hint={`${onboardingDropOffCount.toLocaleString()} users dropped before finish`}
                       icon={Sparkles}
                     />
                   </div>
+                </div>
+              </SectionCard>
+            </div>
+
+            <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
+              <SectionCard title="Onboarding Step Flow" subtitle="A step-by-step view of where people continue, stall, or finish in the guided tour." icon={Route}>
+                <div className="space-y-3">
+                  {onboardingStepFlow.length > 0 ? (
+                    onboardingStepFlow.map((step) => (
+                      <div key={step.stepKey} className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
+                        <div className="mb-3 flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-white">{step.stepTitle}</p>
+                            <p className="mt-1 text-xs text-gray-500">
+                              {step.starts.toLocaleString()} starts · {step.completions.toLocaleString()} completions · {formatDuration(step.avgDurationMs / 1000)} avg
+                            </p>
+                          </div>
+                          <span className="shrink-0 rounded-full border border-brand-purple/25 bg-brand-purple/12 px-3 py-1 text-[11px] font-semibold text-brand-purple">
+                            {formatPercent(step.completionRate)}
+                          </span>
+                        </div>
+                        <div className="h-2 overflow-hidden rounded-full bg-white/10">
+                          <div className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400" style={{ width: `${Math.max(6, Math.min(100, step.completionRate * 100))}%` }} />
+                        </div>
+                        <div className="mt-2 flex items-center justify-between text-[11px] text-gray-500">
+                          <span>Step {step.stepIndex + 1}</span>
+                          <span>{step.dropOffCount.toLocaleString()} drop-offs</span>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
+                      Step-by-step onboarding data will appear once more guided onboarding progress events land in this range.
+                    </div>
+                  )}
+                </div>
+              </SectionCard>
+
+              <SectionCard title="Guest + Bounce Quality" subtitle="Public and signed-in traffic quality pulled from the semantic engine so bounce detection is visible instead of hidden in raw logs." icon={Monitor}>
+                <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                  <MetricCard label="Guest Views" value={formatCompactNumber(globalSemantics?.viewCount ?? 0)} hint={`${(globalSemantics?.clickCount ?? 0).toLocaleString()} tracked public clicks`} icon={Users} />
+                  <MetricCard label="Guest Bounce" value={formatPercent(guestBounceRate)} hint={`${(globalSemantics?.bounceCount ?? 0).toLocaleString()} bounced exits`} icon={AlertTriangle} />
+                  <MetricCard label="Guest Engaged" value={formatPercent(guestEngagedRate)} hint={`${(globalSemantics?.engagedViewCount ?? 0).toLocaleString()} engaged sessions`} icon={Sparkles} />
+                  <MetricCard label="Signed-in Bounce" value={formatPercent(identifiedBounceRate)} hint={`${(userSemantics?.bounceCount ?? 0).toLocaleString()} bounced signed-in visits`} icon={Activity} />
+                </div>
+
+                <div className="mt-5 h-72 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={semanticQualityCards} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
+                      <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                      <XAxis dataKey="label" stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                      <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                      <Tooltip content={<AnalyticsTooltip />} />
+                      <Bar dataKey="views" name="Views" fill="#b28cff" radius={[10, 10, 0, 0]} />
+                      <Bar dataKey="engaged" name="Engaged" fill="#22d3ee" radius={[10, 10, 0, 0]} />
+                      <Bar dataKey="bounced" name="Bounced" fill="#f59e0b" radius={[10, 10, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
               </SectionCard>
             </div>
