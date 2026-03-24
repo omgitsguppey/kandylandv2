@@ -36,42 +36,44 @@ type OnboardingStepMetric = {
     completionReason: string;
 };
 
+const DASHBOARD_ONBOARDING_PATH = "/dashboard";
+
 const STEP_DEFINITIONS: StepDefinition[] = [
     {
         id: "flavor_preference",
-        title: "Pick your flavor",
-        description: "Pick what feels right first. You can always change it later.",
-        path: "/dashboard",
+        title: "Start with your flavor",
+        description: "Pick the vibe you want to see first. You can change it any time in your profile.",
+        path: DASHBOARD_ONBOARDING_PATH,
     },
     {
         id: "daily_check_in",
-        title: "Claim your daily check-in",
-        description: "Check in daily to earn Gum Drops. Start your streak now so you can unwrap more sooner.",
-        path: "/dashboard",
+        title: "Claim today’s Gum Drops",
+        description: "Lock in your streak now so your dashboard starts working for you right away.",
+        path: DASHBOARD_ONBOARDING_PATH,
     },
     {
         id: "live_drops",
-        title: "Live KandyDrops",
-        description: "Live KandyDrops can disappear when the timer ends. Unwrap while they're active to keep them in your library.",
-        path: "/drops",
+        title: "Live drops move fast",
+        description: "When a live drop expires, it is gone. If you want it in your library, unwrap before the timer runs out.",
+        path: DASHBOARD_ONBOARDING_PATH,
     },
     {
         id: "experiences",
-        title: "Daily Experiences",
-        description: "Stay ready to unwrap. Check in, finish three missions, and come back when the timer resets.",
-        path: "/experiences",
+        title: "Daily experiences keep you stocked",
+        description: "Check in, clear your missions, and keep your Gum Drop balance ready for the next unwrap.",
+        path: DASHBOARD_ONBOARDING_PATH,
     },
     {
         id: "notifications",
-        title: "Turn on notifications",
-        description: "Enable notifications so you never miss a drop. Get the heads-up when fresh drops go live.",
-        path: "/experiences",
+        title: "Get the heads-up first",
+        description: "Turn on alerts and we’ll nudge you when drops go live or your daily loop resets.",
+        path: DASHBOARD_ONBOARDING_PATH,
     },
     {
         id: "complete",
-        title: "You're ready to unwrap",
-        description: "Taste your unwrapped KandyDrops and earn free Gum Drops. Jump straight into Drops when you're ready.",
-        path: "/drops",
+        title: "You’re ready",
+        description: "Your dashboard is set. Start from here, keep your streak alive, and unwrap when you’re ready.",
+        path: DASHBOARD_ONBOARDING_PATH,
     },
 ];
 
@@ -130,6 +132,21 @@ function hasClaimedToday(value: unknown): boolean {
 
     const { startOfDay, endOfDay } = getCSTDayBoundaries(Date.now());
     return lastCheckIn >= startOfDay && lastCheckIn < endOfDay;
+}
+
+function focusDashboardHome() {
+    if (typeof window === "undefined") {
+        return;
+    }
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.requestAnimationFrame(() => {
+        const dashboardHome = document.getElementById("dashboard-home");
+        dashboardHome?.scrollIntoView({ block: "start", behavior: "smooth" });
+        if (dashboardHome instanceof HTMLElement) {
+            dashboardHome.focus({ preventScroll: true });
+        }
+    });
 }
 
 export function GuidedOnboarding() {
@@ -250,6 +267,11 @@ export function GuidedOnboarding() {
             return;
         }
 
+        if (pathname !== DASHBOARD_ONBOARDING_PATH) {
+            router.replace(DASHBOARD_ONBOARDING_PATH);
+            return;
+        }
+
         let cancelled = false;
 
         const hydrateLegacyCompletion = async () => {
@@ -284,7 +306,7 @@ export function GuidedOnboarding() {
         return () => {
             cancelled = true;
         };
-    }, [completionStorageKey, profile, startOnboardingFlow, user]);
+    }, [completionStorageKey, pathname, profile, router, startOnboardingFlow, user]);
 
     useEffect(() => {
         if (!isVisible) {
@@ -324,11 +346,7 @@ export function GuidedOnboarding() {
                 },
             );
         }
-
-        if (pathname !== step.path) {
-            router.replace(step.path);
-        }
-    }, [buildViewportPayload, currentStep, isVisible, pathname, router, sendCanonicalProgressEvent, user]);
+    }, [buildViewportPayload, currentStep, isVisible, sendCanonicalProgressEvent, user]);
 
     useEffect(() => {
         if (!isVisible) {
@@ -520,6 +538,7 @@ export function GuidedOnboarding() {
                     durationSeconds,
                     stepMetrics,
                     selectedFlavor: flavorPreference || "Sweet",
+                    pagePath: DASHBOARD_ONBOARDING_PATH,
                     ...buildViewportPayload(),
                 }),
             });
@@ -550,8 +569,19 @@ export function GuidedOnboarding() {
                 // noop
             }
 
+            trackEvent("guided_onboarding_completed", {
+                overall_started_at_ms: flowStartedAtRef.current,
+                duration_ms: durationMs,
+                duration_seconds: durationSeconds,
+                completed_step_count: stepMetrics.length,
+                selected_flavor: flavorPreference || "Sweet",
+                completion_surface: "dashboard_overlay",
+                page_path: DASHBOARD_ONBOARDING_PATH,
+            });
+
             setIsVisible(false);
-            router.replace("/drops");
+            toast.success("You’re all set. Your dashboard is ready.");
+            focusDashboardHome();
         } catch (error) {
             console.error("Error completing onboarding:", error);
             const message = error instanceof Error ? error.message : "Failed to finish onboarding.";
@@ -598,7 +628,7 @@ export function GuidedOnboarding() {
                             <div className="mb-5 text-center">
                                 <h2 className="text-2xl font-bold text-white">Choose your flavor</h2>
                                 <p className="mt-2 text-sm leading-relaxed text-gray-400">
-                                    Pick what feels right first. You can always change it later.
+                                    Set the tone for what you want to see first. You can change it later anytime.
                                 </p>
                             </div>
 
@@ -638,7 +668,7 @@ export function GuidedOnboarding() {
                                 disabled={!flavorPreference}
                                 className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-5 py-3.5 text-sm font-bold text-white transition-all disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                                Continue <ChevronRight className="h-4 w-4" />
+                                Save flavor <ChevronRight className="h-4 w-4" />
                             </button>
                         </>
                     ) : null}
@@ -651,7 +681,7 @@ export function GuidedOnboarding() {
                                 </div>
                                 <h2 className="text-2xl font-bold text-white">Claim today&apos;s Gum Drops</h2>
                                 <p className="mt-2 text-sm leading-relaxed text-gray-400">
-                                    Start your streak now so you can unwrap more sooner.
+                                    Start your streak now so your first unwrap is closer right away.
                                 </p>
                             </div>
 
@@ -661,7 +691,7 @@ export function GuidedOnboarding() {
                                 disabled={isCheckingIn}
                                 className="flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-5 py-3.5 text-sm font-bold text-white transition-all disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                                {isCheckingIn ? "Checking in..." : hasCheckedInToday ? "Next" : "Check in"}
+                                {isCheckingIn ? "Checking in..." : hasCheckedInToday ? "Keep going" : "Claim today’s drops"}
                                 <ChevronRight className="h-4 w-4" />
                             </button>
                         </>
@@ -673,9 +703,9 @@ export function GuidedOnboarding() {
                                 <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-purple/15 text-brand-purple">
                                     <Gift className="h-7 w-7" />
                                 </div>
-                                <h2 className="text-2xl font-bold text-white">Live KandyDrops</h2>
+                                <h2 className="text-2xl font-bold text-white">Live drops move fast</h2>
                                 <p className="mt-2 text-sm leading-relaxed text-gray-400">
-                                    Live KandyDrops can disappear when the timer ends. Unwrap while they&apos;re active to keep them in your library.
+                                    If a live drop matters to you, unwrap it before the timer ends so it stays in your library.
                                 </p>
                             </div>
 
@@ -684,7 +714,7 @@ export function GuidedOnboarding() {
                                 onClick={() => completeStepAndAdvance("continued_from_drops")}
                                 className="flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-5 py-3.5 text-sm font-bold text-white transition-all"
                             >
-                                Next <ChevronRight className="h-4 w-4" />
+                                I&apos;ll watch the timer <ChevronRight className="h-4 w-4" />
                             </button>
                         </>
                     ) : null}
@@ -695,9 +725,9 @@ export function GuidedOnboarding() {
                                 <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-purple/15 text-brand-purple">
                                     <Compass className="h-7 w-7" />
                                 </div>
-                                <h2 className="text-2xl font-bold text-white">Daily Experiences</h2>
+                                <h2 className="text-2xl font-bold text-white">Daily experiences keep you stocked</h2>
                                 <p className="mt-2 text-sm leading-relaxed text-gray-400">
-                                    Stay ready to unwrap. Check in, finish three missions, and come back when the timer resets.
+                                    Use your daily loop to keep Gum Drops coming in without leaving the dashboard rhythm.
                                 </p>
                             </div>
 
@@ -706,7 +736,7 @@ export function GuidedOnboarding() {
                                 onClick={() => completeStepAndAdvance("continued_from_experiences")}
                                 className="flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-5 py-3.5 text-sm font-bold text-white transition-all"
                             >
-                                Next <ChevronRight className="h-4 w-4" />
+                                Show me the routine <ChevronRight className="h-4 w-4" />
                             </button>
                         </>
                     ) : null}
@@ -717,9 +747,9 @@ export function GuidedOnboarding() {
                                 <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-purple/15 text-brand-purple">
                                     <BellRing className="h-7 w-7" />
                                 </div>
-                                <h2 className="text-2xl font-bold text-white">Turn on notifications</h2>
+                                <h2 className="text-2xl font-bold text-white">Get the heads-up first</h2>
                                 <p className="mt-2 text-sm leading-relaxed text-gray-400">
-                                    Enable notifications so you never miss a drop. Get the heads-up when fresh drops go live.
+                                    Turn on alerts and we&apos;ll nudge you when drops go live or your daily loop resets.
                                 </p>
                             </div>
 
@@ -731,10 +761,10 @@ export function GuidedOnboarding() {
                                     className="flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-5 py-3.5 text-sm font-bold text-white transition-all disabled:cursor-not-allowed disabled:opacity-50"
                                 >
                                     {isNotificationStepCompleted
-                                        ? "Notifications already on"
+                                        ? "Alerts already on"
                                         : isEnablingNotifications
                                             ? "Turning on..."
-                                            : "Enable notifications"}
+                                            : "Turn on alerts"}
                                     <ChevronRight className="h-4 w-4" />
                                 </button>
                                 <button
@@ -742,7 +772,7 @@ export function GuidedOnboarding() {
                                     onClick={() => completeStepAndAdvance("skipped_notifications")}
                                     className="w-full rounded-full border border-white/12 bg-white/5 px-5 py-3.5 text-sm font-semibold text-white transition-all hover:bg-white/8"
                                 >
-                                    Skip for now
+                                    Maybe later
                                 </button>
                             </div>
                         </>
@@ -756,7 +786,7 @@ export function GuidedOnboarding() {
                                 </div>
                                 <h2 className="text-2xl font-bold text-white">You&apos;re ready</h2>
                                 <p className="mt-2 text-sm leading-relaxed text-gray-400">
-                                    Taste your unwrapped KandyDrops and earn free Gum Drops. You now have <span className="font-bold text-white">100 Gum Drops</span> waiting for your first unwrap.
+                                    Your dashboard is set. You now have <span className="font-bold text-white">100 Gum Drops</span> ready for your first unwrap, and we&apos;ll keep you right here to start.
                                 </p>
                             </div>
 
@@ -766,7 +796,7 @@ export function GuidedOnboarding() {
                                 disabled={isCompleting}
                                 className="flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-5 py-3.5 text-sm font-bold text-white transition-all disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                                {isCompleting ? "Finishing..." : "Finish onboarding"}
+                                {isCompleting ? "Finishing..." : "Enter dashboard"}
                                 <ChevronRight className="h-4 w-4" />
                             </button>
                         </>

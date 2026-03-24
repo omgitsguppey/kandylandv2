@@ -91,7 +91,7 @@ export default function DashboardClient({ drops }: DashboardClientProps) {
         : "text-[clamp(1.5rem,4.6vw,3rem)]";
 
     return (
-        <div id="dashboard-home" className="mx-auto w-full max-w-7xl px-3 sm:px-4" data-onboarding-page="dashboard">
+        <div id="dashboard-home" tabIndex={-1} className="mx-auto w-full max-w-7xl px-3 sm:px-4 outline-none" data-onboarding-page="dashboard">
             <header className="mb-4 md:mb-6">
                 <h1 className={`mb-2 max-w-full whitespace-nowrap text-left font-bold leading-tight tracking-tight text-white ${greetingSizeClass}`}>
                     {greeting}

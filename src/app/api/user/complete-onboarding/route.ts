@@ -43,6 +43,9 @@ export async function POST(req: NextRequest) {
         const selectedFlavor = typeof body?.selectedFlavor === "string" && body.selectedFlavor.trim().length > 0
             ? body.selectedFlavor.trim().slice(0, 20)
             : undefined;
+        const pagePath = typeof body?.pagePath === "string" && body.pagePath.trim().startsWith("/")
+            ? body.pagePath.trim().slice(0, 120)
+            : "/dashboard";
         const nowMs = Date.now();
 
         const userRef = adminDb.collection("users").doc(uid);
@@ -205,7 +208,7 @@ export async function POST(req: NextRequest) {
                     timestamp: nowMs,
                     userId: uid,
                     username,
-                    pagePath: "/drops",
+                    pagePath,
                     source: "complete_onboarding_route",
                     flowStartedAtMs: startedAtMs,
                     durationMs,
