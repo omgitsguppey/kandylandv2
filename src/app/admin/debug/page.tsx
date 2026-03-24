@@ -37,7 +37,9 @@ type TrackingSource = "canonical" | "telemetry" | "unsupported";
 
 interface DebugStats {
   builtInTasks: number;
+  validatedTasks: number;
   canonicalTasks: number;
+  telemetryValidatedTasks: number;
   telemetryOnlyTasks: number;
   unsupportedTasks: number;
   usersWithTaskIssues: number;
@@ -209,7 +211,8 @@ function MetricTile({ label, value, hint }: { label: string; value: string; hint
 }
 
 function TrackingBadge({ source }: { source: TrackingSource }) {
-  return <span className={cn("inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold", source === "canonical" ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-300" : source === "telemetry" ? "border-brand-purple/20 bg-brand-purple/10 text-brand-purple" : "border-red-400/20 bg-red-500/10 text-red-300")}>{source}</span>;
+  const label = source === "telemetry" ? "telemetry-backed" : source;
+  return <span className={cn("inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold", source === "canonical" ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-300" : source === "telemetry" ? "border-brand-purple/20 bg-brand-purple/10 text-brand-purple" : "border-red-400/20 bg-red-500/10 text-red-300")}>{label}</span>;
 }
 
 function FilterChips<T extends string>({
@@ -326,10 +329,11 @@ export default function DebugConsole() {
       <AdminPageHeader eyebrow="Admin Debug" title="Telemetry & Task Console" subtitle="Shared task, telemetry, diagnostics, and function-pipeline health from one mobile-friendly debug surface." actions={<div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-4 py-2 text-sm text-gray-300"><Terminal className="h-4 w-4 text-brand-purple" /> Shared debug engine</div>} />
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <MetricTile label="Ops Health" value={`${opsHealth.score}%`} hint={`${unhealthyMaterializers.length} materializer warnings`} />
-        <MetricTile label="Coverage" value={`${stats?.canonicalTasks ?? 0}/${stats?.builtInTasks ?? 0}`} hint="Built-in tasks with canonical validation" />
+        <MetricTile label="Coverage" value={`${stats?.validatedTasks ?? 0}/${stats?.builtInTasks ?? 0}`} hint="Built-in tasks with server-side validation" />
+        <MetricTile label="Canonical" value={(stats?.canonicalTasks ?? 0).toLocaleString()} hint="Validated by canonical backend events" />
+        <MetricTile label="Telemetry-backed" value={(stats?.telemetryValidatedTasks ?? 0).toLocaleString()} hint="Validated through /api/telemetry/track" />
         <MetricTile label="Task Issues" value={(stats?.usersWithTaskIssues ?? 0).toLocaleString()} hint="Users with invalid task state" />
         <MetricTile label="Receipt Delta" value={(stats?.rewardEventDeltaLast7d ?? 0).toLocaleString()} hint="Completed events minus reward TX" />
-        <MetricTile label="Bug Reports" value={(stats?.bugReportsLast7d ?? 0).toLocaleString()} hint="Bug reports received in the last 7 days" />
       </div>
       <label className="block md:hidden">
         <span className="sr-only">Debug view</span>
@@ -426,7 +430,10 @@ export default function DebugConsole() {
       ) : null}
       {activeTab === "tasks" ? (
         <div className="space-y-6">
-          <SectionCard title="Task Coverage Matrix" subtitle="Every built-in task and whether it is validated canonically, by telemetry, or unsupported." icon={Layers3} defaultExpanded={!isCompactViewport} preview={<PreviewGrid items={[{ label: "Canonical", value: (stats?.canonicalTasks ?? 0).toLocaleString(), tone: "accent" }, { label: "Telemetry", value: (stats?.telemetryOnlyTasks ?? 0).toLocaleString() }, { label: "Unsupported", value: (stats?.unsupportedTasks ?? 0).toLocaleString() }, { label: "Issues", value: (stats?.usersWithTaskIssues ?? 0).toLocaleString() }]} />}>
+          <SectionCard title="Task Coverage Matrix" subtitle="Every built-in task and whether it is validated canonically, through server-side telemetry, or unsupported." icon={Layers3} defaultExpanded={!isCompactViewport} preview={<PreviewGrid items={[{ label: "Validated", value: (stats?.validatedTasks ?? 0).toLocaleString(), tone: "accent" }, { label: "Canonical", value: (stats?.canonicalTasks ?? 0).toLocaleString() }, { label: "Telemetry-backed", value: (stats?.telemetryValidatedTasks ?? 0).toLocaleString() }, { label: "Unsupported", value: (stats?.unsupportedTasks ?? 0).toLocaleString() }]} />}>
+            <div className="mb-4 rounded-2xl border border-brand-purple/15 bg-brand-purple/8 p-4 text-sm leading-6 text-gray-200">
+              Telemetry-backed tasks are still validated server-side. They advance through <code>/api/telemetry/track</code> with receipt dedupe and task-progress writes, so they are not incomplete just because they are not in the canonical-only subset.
+            </div>
             <div className="mb-4">
               <FilterChips
                 value={coverageFilter}
@@ -434,8 +441,8 @@ export default function DebugConsole() {
                 options={[
                   { value: "all", label: "All" },
                   { value: "canonical", label: "Canonical" },
-                  { value: "telemetry", label: "Telemetry" },
-                  { value: "unsupported", label: "Unsupported" },
+                    { value: "telemetry", label: "Telemetry-backed" },
+                    { value: "unsupported", label: "Unsupported" },
                 ]}
               />
             </div>
@@ -465,7 +472,7 @@ export default function DebugConsole() {
           <SectionCard title="Canonical Receipts" subtitle="Recent idempotency receipts proving canonical task events only count once." icon={Receipt} defaultExpanded={!isCompactViewport} preview={<PreviewGrid items={(data?.receiptSummary ?? []).slice(0, 4).map((entry) => ({ label: entry.eventName, value: entry.count.toLocaleString(), tone: "accent" }))} />}>
               <div className="space-y-3">{(data?.recentReceipts ?? []).slice(0, 12).map((receipt) => <div key={receipt.id} className="rounded-2xl border border-white/8 bg-black/25 p-4 text-sm"><div className="flex items-center justify-between gap-3"><div className="font-black text-white">{receipt.eventName}</div><div className="text-xs text-gray-400">{formatTimestamp(receipt.timestamp)}</div></div><div className="mt-2 text-xs text-gray-400">{receipt.receiptKey}</div><div className="mt-1 text-xs text-brand-purple">{receipt.uid}</div></div>)}</div>
             </SectionCard>
-            <SectionCard title="Telemetry Event Stats" subtitle="Tracked events, how often they fire, and whether any task depends on them." icon={Radar} preview={<PreviewGrid items={(data?.eventStats ?? []).slice(0, 4).map((entry) => ({ label: entry.label, value: entry.totalCount.toLocaleString(), tone: "accent" }))} />}>
+          <SectionCard title="Telemetry Event Stats" subtitle="Tracked events, how often they fire, and whether any task depends on them." icon={Radar} preview={<PreviewGrid items={(data?.eventStats ?? []).slice(0, 4).map((entry) => ({ label: entry.label, value: entry.totalCount.toLocaleString(), tone: "accent" }))} />}>
               <div className="mb-4">
                 <FilterChips
                   value={telemetryFilter}
@@ -473,7 +480,7 @@ export default function DebugConsole() {
                   options={[
                     { value: "all", label: "All" },
                     { value: "canonical", label: "Canonical" },
-                    { value: "telemetry", label: "Telemetry" },
+                    { value: "telemetry", label: "Telemetry-backed" },
                     { value: "unsupported", label: "Unsupported" },
                   ]}
                 />

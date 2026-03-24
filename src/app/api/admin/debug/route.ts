@@ -415,7 +415,9 @@ export async function GET(request: NextRequest) {
             success: true,
             stats: {
                 builtInTasks: BUILT_IN_DAILY_TASKS.length,
+                validatedTasks: canonicalTasks.length + telemetryOnlyTasks.length,
                 canonicalTasks: canonicalTasks.length,
+                telemetryValidatedTasks: telemetryOnlyTasks.length,
                 telemetryOnlyTasks: telemetryOnlyTasks.length,
                 unsupportedTasks: unsupportedTasks.length,
                 usersWithTaskIssues: assignmentIssues.length,
