@@ -13,6 +13,11 @@ import { buildAnalyticsTimeKeys, resolveTrackedTelemetryEvent } from "@/lib/serv
 import { recordAnalyticsPipelineFailure } from "@/lib/server/analytics-pipeline-health";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
+import {
+    ANALYTICS_CANONICAL_COLLECTIONS,
+    ANALYTICS_OPERATIONAL_COLLECTIONS,
+    ANALYTICS_ROUTE_POLICIES,
+} from "@/lib/server/analytics-governance";
 
 const TASK_PROGRESS_EVENT_NAMES = new Set(BUILT_IN_DAILY_TASKS.map((task) => task.eventName));
 type SanitizedEventParams = Record<string, string | number | boolean>;
@@ -116,13 +121,9 @@ function normalizeIncomingTelemetryEvents(body: unknown): IncomingTelemetryEvent
 export async function POST(req: NextRequest) {
     try {
         const decodedToken = await guardApiRequest(req, {
-            routeName: "telemetry/track",
-            preAuthRouteName: "telemetry/track/preauth",
+            ...ANALYTICS_ROUTE_POLICIES.identifiedTrack,
             preAuthRateLimit: ANALYTICS_WRITE,
             rateLimit: ANALYTICS_WRITE,
-            requireTrustedOrigin: true,
-            auth: "user",
-            scopeToCaller: true,
         });
         const userId = decodedToken?.uid ?? "";
         const userEmail = decodedToken?.email;
@@ -302,7 +303,7 @@ export async function POST(req: NextRequest) {
         const acceptedEventIds = new Set<string>();
         await Promise.all(telemetryFacts.map(async (event) => {
             try {
-                await adminDb.collection("analytics_event_facts").doc(event.storageKey).create(event.analyticsEventFact);
+                await adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.identifiedEventFacts).doc(event.storageKey).create(event.analyticsEventFact);
                 acceptedEventIds.add(event.eventId);
             } catch (error) {
                 if (isAlreadyExistsError(error)) {
@@ -318,7 +319,7 @@ export async function POST(req: NextRequest) {
             realtimeDb.ref(`telemetry/users/${userId}/${event.storageKey}`).set(event.telemetryData),
         ]));
 
-        const activeUserRef = adminDb.collection("analytics_active_users").doc(userId);
+        const activeUserRef = adminDb.collection(ANALYTICS_OPERATIONAL_COLLECTIONS.activeUsers).doc(userId);
         const activeUserSnapshot = await activeUserRef.get();
         await activeUserRef.set({
             uid: userId,

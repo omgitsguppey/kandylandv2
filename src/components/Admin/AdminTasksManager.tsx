@@ -18,6 +18,11 @@ import { toast } from "sonner";
 import { UserProfile } from "@/types/db";
 import { useAuthSWR } from "@/hooks/useAuthSWR";
 import { authFetch } from "@/lib/authFetch";
+import {
+  DAILY_TASK_MAX_REWARD,
+  DAILY_TASK_MIN_REWARD,
+  normalizeDailyTaskReward,
+} from "@/lib/tasks/task-catalog";
 import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
 import { cn } from "@/lib/utils";
 
@@ -90,7 +95,7 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
 
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
-  const [reward, setReward] = useState(150);
+  const [reward, setReward] = useState(() => normalizeDailyTaskReward(150));
   const [maxProgress, setMaxProgress] = useState(1);
   const [scope, setScope] = useState<Scope>("global");
   const [targetUserId, setTargetUserId] = useState("");
@@ -229,7 +234,7 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
 
       setTitle("");
       setSubtitle("");
-      setReward(150);
+      setReward(normalizeDailyTaskReward(150));
       setMaxProgress(1);
       setCooldownDays(data?.defaultCooldownDays ?? 7);
       setOneTime(false);
@@ -347,8 +352,8 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
           </select>
           <input
             type="number"
-            min={50}
-            max={1000}
+            min={DAILY_TASK_MIN_REWARD}
+            max={DAILY_TASK_MAX_REWARD}
             value={reward}
             onChange={(event) => setReward(Number(event.target.value))}
             className="h-12 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none focus:border-brand-purple"

@@ -10,6 +10,11 @@ import { recordAnalyticsPipelineFailure } from "@/lib/server/analytics-pipeline-
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 import { ANALYTICS_BATCH_ID_PATTERN, createAnalyticsBatchId, createAnalyticsStorageKey } from "@/lib/analytics-identifiers";
+import {
+    ANALYTICS_CANONICAL_COLLECTIONS,
+    ANALYTICS_OPERATIONAL_COLLECTIONS,
+    ANALYTICS_ROUTE_POLICIES,
+} from "@/lib/server/analytics-governance";
 
 export const dynamic = "force-dynamic";
 const SESSION_COOKIE_NAME = "kandydrops_sid";
@@ -83,12 +88,9 @@ function sanitizeTargetLabel(value: string | undefined) {
 export async function POST(request: NextRequest) {
     try {
         await guardApiRequest(request, {
-            routeName: "analytics/ingest",
-            preAuthRouteName: "analytics/ingest/preauth",
+            ...ANALYTICS_ROUTE_POLICIES.guestIngest,
             preAuthRateLimit: ANALYTICS_WRITE,
             rateLimit: ANALYTICS_WRITE,
-            requireTrustedOrigin: true,
-            requireAppCheck: true,
         });
 
         const contentLength = Number(request.headers.get("content-length") || 0);
@@ -124,8 +126,8 @@ export async function POST(request: NextRequest) {
         // Group events by a unique minute-bucket to prevent writing thousands of tiny docs.
         const minuteBucket = timeKeys.minuteKey;
         const docId = `${sessionKey}_${minuteBucket}`;
-        const docRef = adminDb.collection("analytics_sessions").doc(docId);
-        const guestBatchRef = adminDb.collection("analytics_guest_batches").doc(
+        const docRef = adminDb.collection(ANALYTICS_OPERATIONAL_COLLECTIONS.guestSessions).doc(docId);
+        const guestBatchRef = adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.guestBatches).doc(
             createAnalyticsStorageKey("guest_batch", sessionKey, batchId),
         );
         const uniquePagePaths = Array.from(new Set(sanitizedEvents.map((event) => event.path)));

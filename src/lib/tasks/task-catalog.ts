@@ -1,7 +1,11 @@
 export const DAILY_TASK_LIMIT = 3;
 export const DAILY_TASK_COOLDOWN_DAYS = 7;
-export const DAILY_TASK_MIN_REWARD = 50;
-export const DAILY_TASK_MAX_REWARD = 1000;
+const DAILY_TASK_RAW_MIN_REWARD = 50;
+const DAILY_TASK_RAW_MAX_REWARD = 1000;
+export const DAILY_TASK_REWARD_MULTIPLIER = 0.75;
+export const DAILY_TASK_REWARD_VERSION = 2;
+export const DAILY_TASK_MIN_REWARD = Math.round(DAILY_TASK_RAW_MIN_REWARD * DAILY_TASK_REWARD_MULTIPLIER);
+export const DAILY_TASK_MAX_REWARD = Math.round(DAILY_TASK_RAW_MAX_REWARD * DAILY_TASK_REWARD_MULTIPLIER);
 
 export type DailyTaskScope = "built_in" | "global" | "user";
 export type DailyTaskGroup =
@@ -70,6 +74,7 @@ export interface DailyTaskDefinition {
   active?: boolean;
   createdAt?: number;
   updatedAt?: number;
+  rewardVersion?: number;
 }
 
 export interface DailyTaskAssignment extends DailyTaskDefinition {
@@ -120,7 +125,31 @@ function createTask(definition: Omit<DailyTaskDefinition, "source">): DailyTaskD
     source: "built_in",
     cooldownDays: DAILY_TASK_COOLDOWN_DAYS,
     ...definition,
+    reward: normalizeDailyTaskReward(definition.reward),
+    rewardVersion: DAILY_TASK_REWARD_VERSION,
   };
+}
+
+export function normalizeDailyTaskReward(rawReward: number) {
+  if (!Number.isFinite(rawReward)) {
+    return DAILY_TASK_MIN_REWARD;
+  }
+
+  const nextReward = Math.round(rawReward * DAILY_TASK_REWARD_MULTIPLIER);
+  return Math.min(DAILY_TASK_MAX_REWARD, Math.max(DAILY_TASK_MIN_REWARD, nextReward));
+}
+
+export function resolveDailyTaskReward(rawReward: unknown, rewardVersion?: unknown) {
+  const numericReward = Number(rawReward);
+  if (!Number.isFinite(numericReward)) {
+    return DAILY_TASK_MIN_REWARD;
+  }
+
+  if (rewardVersion === DAILY_TASK_REWARD_VERSION) {
+    return Math.min(DAILY_TASK_MAX_REWARD, Math.max(DAILY_TASK_MIN_REWARD, Math.round(numericReward)));
+  }
+
+  return normalizeDailyTaskReward(numericReward);
 }
 
 export const BUILT_IN_DAILY_TASKS: DailyTaskDefinition[] = [

@@ -7,6 +7,9 @@ import {
   DAILY_TASK_ICON_OPTIONS,
   DAILY_TASK_MAX_REWARD,
   DAILY_TASK_MIN_REWARD,
+  DAILY_TASK_REWARD_VERSION,
+  normalizeDailyTaskReward,
+  resolveDailyTaskReward,
 } from "@/lib/tasks/task-catalog";
 import { TELEMETRY_EVENT_OPTIONS } from "@/lib/telemetry-catalog";
 import { adminDb } from "@/lib/server/firebase-admin";
@@ -71,7 +74,15 @@ export async function GET(request: NextRequest) {
       adminDb.collection("analytics_task_rollup").orderBy("lastEventAt", "desc").limit(60).get(),
     ]);
 
-    const customTasks = taskSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const customTasks = taskSnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        reward: resolveDailyTaskReward(data.reward, data.rewardVersion),
+        rewardVersion: data.rewardVersion === DAILY_TASK_REWARD_VERSION ? DAILY_TASK_REWARD_VERSION : undefined,
+      };
+    });
     const recentTaskEvents = taskEventsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     const eventStats = eventStatsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     const taskRollups = taskRollupSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
@@ -113,6 +124,8 @@ export async function POST(request: NextRequest) {
     const payload = {
       ...parsed,
       source: parsed.scope,
+      reward: normalizeDailyTaskReward(parsed.reward),
+      rewardVersion: DAILY_TASK_REWARD_VERSION,
       active: true,
       cooldownDays: parsed.cooldownDays,
       oneTime: parsed.oneTime,

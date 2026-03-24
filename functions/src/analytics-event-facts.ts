@@ -52,6 +52,10 @@ export const onAnalyticsEventFactCreated = onDocumentCreated(
     const loadMs = readNumber(data.loadMs)
     const lastParams = typeof data.params === "object" && data.params !== null ? data.params : {}
     const dayRef = db.collection("analytics_rollups_daily").doc(timeKeys.dayKey)
+    const sessionFactRef = sessionId || eventName.startsWith("viewer_")
+      ? db.collection("analytics_session_facts").doc(buildSessionFactId(data))
+      : null
+    const existingSessionFactSnapshot = sessionFactRef ? await sessionFactRef.get() : null
     const batch = db.batch()
 
     batch.set(dayRef, {
@@ -163,8 +167,8 @@ export const onAnalyticsEventFactCreated = onDocumentCreated(
       }, {merge: true})
     }
 
-    if (sessionId || eventName.startsWith("viewer_")) {
-      batch.set(db.collection("analytics_session_facts").doc(buildSessionFactId(data)), {
+    if (sessionFactRef) {
+      batch.set(sessionFactRef, {
         sessionId: sessionId || buildSessionFactId(data),
         userId,
         username,
@@ -173,7 +177,7 @@ export const onAnalyticsEventFactCreated = onDocumentCreated(
         pagePath,
         dayKey: timeKeys.dayKey,
         hourKey: timeKeys.hourKey,
-        firstEventAt: timestamp,
+        ...(existingSessionFactSnapshot?.exists ? {} : {firstEventAt: timestamp}),
         lastEventAt: timestamp,
         eventCount: buildIncrementUpdate(1),
         startedCount: buildIncrementUpdate(eventName === "viewer_session_started" ? 1 : 0),

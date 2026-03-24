@@ -282,6 +282,26 @@ function sumNumbers(values: Iterable<number>): number {
     return total;
 }
 
+const WATCH_CHECKPOINT_SECONDS = [15, 45, 90, 180, 300] as const;
+
+function buildWatchTelemetryMetrics(watchSeconds: number, assetDurationSeconds?: number) {
+    const normalizedWatchSeconds = Math.max(1, Math.round(watchSeconds));
+    if (!Number.isFinite(assetDurationSeconds) || !assetDurationSeconds || assetDurationSeconds <= 0) {
+        return {
+            watch_seconds: normalizedWatchSeconds,
+        };
+    }
+
+    const normalizedDurationSeconds = Math.max(1, Math.round(assetDurationSeconds));
+    const completionRatio = Math.min(1, normalizedWatchSeconds / normalizedDurationSeconds);
+    return {
+        watch_seconds: normalizedWatchSeconds,
+        asset_duration_seconds: normalizedDurationSeconds,
+        watch_completion_ratio: Number(completionRatio.toFixed(3)),
+        watch_completion_percent: Math.min(100, Math.round(completionRatio * 100)),
+    };
+}
+
 async function buildThumbnailFromRecord(record: CachedAssetRecord, fallbackSrc: string): Promise<ThumbnailItem> {
     if (record.resolvedContent.kind === "image") {
         return { src: record.objectUrl, kind: record.resolvedContent.kind };
@@ -473,7 +493,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         });
     }, [activeIndex, assetCount, drop, resolvedContent.kind]);
 
-    const trackAssetCompleted = useCallback((watchSeconds: number) => {
+    const trackAssetCompleted = useCallback((watchSeconds: number, assetDurationSeconds?: number) => {
         if (!drop) {
             return;
         }
@@ -484,6 +504,18 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         }
 
         updateSessionWatchTime(watchSeconds);
+        if (!consumedAssetKeysRef.current.has(assetKey)) {
+            consumedAssetKeysRef.current.add(assetKey);
+            trackEvent("viewer_asset_consumed", {
+                drop_id: drop.id,
+                drop_title: drop.title,
+                drop_category: drop.type,
+                asset_index: activeIndex + 1,
+                asset_key: assetKey,
+                content_kind: resolvedContent.kind,
+                ...buildWatchTelemetryMetrics(watchSeconds, assetDurationSeconds),
+            });
+        }
         completedAssetKeysRef.current.add(assetKey);
         sessionCompletedAssetsRef.current.add(assetKey);
         trackEvent("viewer_asset_completed", {
@@ -493,8 +525,8 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
             asset_index: activeIndex + 1,
             asset_total: assetCount,
             asset_key: assetKey,
-            watch_seconds: Math.max(1, Math.round(watchSeconds)),
             content_kind: resolvedContent.kind,
+            ...buildWatchTelemetryMetrics(watchSeconds, assetDurationSeconds),
         });
     }, [activeIndex, assetCount, drop, resolvedContent.kind, updateSessionWatchTime]);
 
@@ -646,7 +678,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         lastTrackedAssetRef.current = assetKey;
     }, [activeIndex, assetCount, drop, isAuthorized]);
 
-    const trackAssetConsumed = useCallback((watchSeconds: number) => {
+    const trackAssetConsumed = useCallback((watchSeconds: number, assetDurationSeconds?: number) => {
         if (!drop) {
             return;
         }
@@ -663,12 +695,12 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
             drop_category: drop.type,
             asset_index: activeIndex + 1,
             asset_key: assetKey,
-            watch_seconds: watchSeconds,
             content_kind: resolvedContent.kind,
+            ...buildWatchTelemetryMetrics(watchSeconds, assetDurationSeconds),
         });
     }, [activeIndex, drop, resolvedContent.kind]);
 
-    const trackWatchCheckpoint = useCallback((watchSeconds: number) => {
+    const trackWatchCheckpoint = useCallback((watchSeconds: number, assetDurationSeconds?: number) => {
         if (!drop) {
             return;
         }
@@ -686,8 +718,9 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
             drop_category: drop.type,
             asset_index: activeIndex + 1,
             asset_key: assetKey,
-            watch_seconds: watchSeconds,
             content_kind: resolvedContent.kind,
+            checkpoint_seconds: watchSeconds,
+            ...buildWatchTelemetryMetrics(watchSeconds, assetDurationSeconds),
         });
     }, [activeIndex, drop, resolvedContent.kind]);
 
@@ -702,8 +735,8 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
 
         const timerId = window.setTimeout(() => {
             updateSessionWatchTime(6);
-            trackAssetConsumed(6);
-            trackAssetCompleted(6);
+            trackAssetConsumed(6, 6);
+            trackAssetCompleted(6, 6);
         }, 6000);
 
         return () => {
@@ -719,25 +752,21 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         trackAssetStarted();
     }, [contentBlobUrl, contentLoading, drop, isAuthorized, trackAssetStarted]);
 
-    const handleMediaTimeUpdate = useCallback((currentTime: number) => {
+    const handleMediaTimeUpdate = useCallback((currentTime: number, assetDurationSeconds?: number) => {
         if (!Number.isFinite(currentTime) || currentTime <= 0) {
             return;
         }
 
         updateSessionWatchTime(currentTime);
 
-        if (currentTime >= 15) {
-            trackAssetConsumed(15);
-            trackWatchCheckpoint(15);
-        }
-
-        if (currentTime >= 45) {
-            trackWatchCheckpoint(45);
-        }
-
-        if (currentTime >= 90) {
-            trackWatchCheckpoint(90);
-        }
+        WATCH_CHECKPOINT_SECONDS.forEach((checkpointSeconds) => {
+            if (currentTime >= checkpointSeconds) {
+                if (checkpointSeconds === 15) {
+                    trackAssetConsumed(checkpointSeconds, assetDurationSeconds);
+                }
+                trackWatchCheckpoint(checkpointSeconds, assetDurationSeconds);
+            }
+        });
     }, [trackAssetConsumed, trackWatchCheckpoint, updateSessionWatchTime]);
 
     // Redirect if not logged in (once auth is ready)
@@ -1148,10 +1177,16 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                                 });
                                             }}
                                             onTimeUpdate={(event) => {
-                                                handleMediaTimeUpdate(event.currentTarget.currentTime);
+                                                handleMediaTimeUpdate(
+                                                    event.currentTarget.currentTime,
+                                                    event.currentTarget.duration,
+                                                );
                                             }}
                                             onEnded={(event) => {
-                                                trackAssetCompleted(event.currentTarget.duration || event.currentTarget.currentTime || 15);
+                                                trackAssetCompleted(
+                                                    event.currentTarget.duration || event.currentTarget.currentTime || 15,
+                                                    event.currentTarget.duration,
+                                                );
                                             }}
                                         >
                                             <source src={contentBlobUrl} type={resolvedContent.mimeType} />
@@ -1179,10 +1214,16 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                                 className="relative z-10 w-full max-w-md"
                                                 onContextMenu={preventContextMenu}
                                                 onTimeUpdate={(event) => {
-                                                    handleMediaTimeUpdate(event.currentTarget.currentTime);
+                                                    handleMediaTimeUpdate(
+                                                        event.currentTarget.currentTime,
+                                                        event.currentTarget.duration,
+                                                    );
                                                 }}
                                                 onEnded={(event) => {
-                                                    trackAssetCompleted(event.currentTarget.duration || event.currentTarget.currentTime || 15);
+                                                    trackAssetCompleted(
+                                                        event.currentTarget.duration || event.currentTarget.currentTime || 15,
+                                                        event.currentTarget.duration,
+                                                    );
                                                 }}
                                             >
                                                 <source src={contentBlobUrl} type={resolvedContent.mimeType} />

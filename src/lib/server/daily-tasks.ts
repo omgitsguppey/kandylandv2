@@ -10,6 +10,7 @@ import {
   BUILT_IN_DAILY_TASKS,
   DAILY_TASK_COOLDOWN_DAYS,
   DAILY_TASK_LIMIT,
+  DAILY_TASK_REWARD_VERSION,
   type DailyTaskActionType,
   type DailyTaskAssignment,
   type DailyTaskCriteria,
@@ -17,6 +18,7 @@ import {
   type DailyTaskGroup,
   type DailyTaskIconName,
   type DailyTasksState,
+  resolveDailyTaskReward,
 } from "@/lib/tasks/task-catalog";
 import { isDropActiveNow } from "@/lib/drop-status";
 import { getCSTDayBoundaries, isSameCSTDay } from "@/lib/timezone";
@@ -151,6 +153,7 @@ function normalizeTaskAssignment(raw: unknown): Partial<DailyTaskAssignment> | n
     progressKeys: normalizeStringArray(source.progressKeys),
     uniqueByParamKey: typeof source.uniqueByParamKey === "string" ? source.uniqueByParamKey : undefined,
     cooldownDays: Number.isFinite(source.cooldownDays) ? Number(source.cooldownDays) : undefined,
+    rewardVersion: Number.isFinite(source.rewardVersion) ? Number(source.rewardVersion) : undefined,
     criteria: source.criteria as DailyTaskCriteria | undefined,
   };
 }
@@ -414,7 +417,7 @@ async function fetchCustomTaskDefinitions(uid: string): Promise<DailyTaskDefinit
       source: data.scope === "user" ? "user" : "global",
       title: data.title,
       subtitle: data.subtitle,
-      reward: Number.isFinite(data.reward) ? Number(data.reward) : 100,
+      reward: resolveDailyTaskReward(data.reward, data.rewardVersion),
       maxProgress: Number.isFinite(data.maxProgress) ? Number(data.maxProgress) : 1,
       eventName: data.eventName,
       actionType: data.actionType as DailyTaskActionType,
@@ -428,6 +431,7 @@ async function fetchCustomTaskDefinitions(uid: string): Promise<DailyTaskDefinit
       customTaskId: doc.id,
       createdAt: Number.isFinite(data.createdAt) ? Number(data.createdAt) : undefined,
       updatedAt: Number.isFinite(data.updatedAt) ? Number(data.updatedAt) : undefined,
+      rewardVersion: data.rewardVersion === DAILY_TASK_REWARD_VERSION ? DAILY_TASK_REWARD_VERSION : undefined,
     });
   });
 

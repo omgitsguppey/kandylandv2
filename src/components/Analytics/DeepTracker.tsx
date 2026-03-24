@@ -45,7 +45,7 @@ interface TelemetryEvent {
 }
 
 const GUEST_ANALYTICS_QUEUE_STORAGE_KEY = "kandydrops.analytics.guest-queue";
-const GUEST_ANALYTICS_FLUSH_INTERVAL_MS = 5_000;
+const GUEST_ANALYTICS_FLUSH_INTERVAL_MS = 2_500;
 
 function quantizeCoordinate(value: number) {
     return Math.floor(value / 24) * 24;

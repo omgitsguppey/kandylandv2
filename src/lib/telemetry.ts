@@ -27,7 +27,14 @@ const IMMEDIATE_IDENTIFIED_EVENT_NAMES = new Set([
     "gumdrops_purchase_completed",
     "gumdrops_purchase_failed",
     "unlock_drop_success",
+    "viewer_session_started",
     "viewer_session_completed",
+    "viewer_asset_started",
+    "viewer_asset_completed",
+    "viewer_asset_consumed",
+    "viewer_watch_checkpoint",
+    "viewer_source_downloaded",
+    "viewer_related_drop_clicked",
     "feedback_submitted",
 ]);
 const IDENTIFIED_TELEMETRY_BATCH_LIMIT = 12;
