@@ -4,6 +4,7 @@ import * as admin from "firebase-admin";
 
 import { adminDb } from "./firebase-admin";
 import { broadcastFCM } from "./fcm-utils";
+import { touchNotificationsRuntime } from "./notification-runtime";
 
 const DROP_COLLECTION_LINK = "/drops";
 
@@ -65,6 +66,8 @@ async function queueDropNotificationDoc(
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
         readBy: [],
     });
+
+    await touchNotificationsRuntime();
 }
 
 export async function sendGlobalDropNotification(

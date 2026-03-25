@@ -9,6 +9,7 @@ import { isCreatorRole } from "@/lib/creator-experiences";
 type CreatorOptionRecord = Record<string, unknown> & {
     uid: string;
     role?: unknown;
+    creator?: unknown;
     status?: unknown;
     displayName?: unknown;
     username?: unknown;
@@ -31,7 +32,7 @@ export async function GET(request: NextRequest) {
         const snap = await adminDb.collection("users").get();
         const creators = snap.docs
             .map((doc) => ({ uid: doc.id, ...(doc.data() as Record<string, unknown>) }) as CreatorOptionRecord)
-            .filter((entry) => isCreatorRole(entry.role) && entry.status !== "banned")
+            .filter((entry) => isCreatorRole(entry) && entry.status !== "banned")
             .sort((left, right) => {
                 const leftName = typeof left.displayName === "string" ? left.displayName : "";
                 const rightName = typeof right.displayName === "string" ? right.displayName : "";

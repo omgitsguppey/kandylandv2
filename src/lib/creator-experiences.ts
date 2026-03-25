@@ -102,12 +102,22 @@ export const CREATOR_COLLECTIONS = {
     categoryConfig: "creator_request_category_config",
 } as const;
 
-export function isCreatorRole(role: unknown) {
-    return role === "creator";
+export function isCreatorRole(value: unknown) {
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+        const source = value as Record<string, unknown>;
+        return source.role === "creator" || source.creator === true;
+    }
+
+    return value === "creator";
 }
 
-export function isCreatorOrAdminRole(role: unknown) {
-    return role === "creator" || role === "admin";
+export function isCreatorOrAdminRole(value: unknown) {
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+        const source = value as Record<string, unknown>;
+        return source.role === "admin" || source.role === "creator" || source.creator === true;
+    }
+
+    return value === "creator" || value === "admin";
 }
 
 export function buildCreatorRelationshipId(userId: string, creatorId: string) {

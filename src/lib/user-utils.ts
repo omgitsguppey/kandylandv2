@@ -88,7 +88,12 @@ export function normalizeUserProfile(raw: unknown, user: User): UserProfile | nu
         return Object.fromEntries(normalizedEntries);
     };
 
-    const normalizedRole = source.role === "admin" || source.role === "creator" || source.role === "user" ? source.role : "user";
+    const legacyCreatorFlag = (source as Record<string, unknown>).creator === true;
+    const normalizedRole = source.role === "admin" || source.role === "creator" || source.role === "user"
+        ? source.role
+        : legacyCreatorFlag
+            ? "creator"
+            : "user";
 
     return {
         uid: typeof source.uid === "string" ? source.uid : user.uid,

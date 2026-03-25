@@ -24,6 +24,7 @@ import { isDropActiveNow } from "@/lib/drop-status";
 import { getCSTDayBoundaries, isSameCSTDay } from "@/lib/timezone";
 import { computeNextGumdropBalance, normalizeGumdropBalance } from "@/lib/gumdrop-ledger";
 import type { UserProfile } from "@/types/db";
+import { markNotificationsRuntimeChanged } from "@/lib/server/notification-runtime";
 import { touchUserRuntime } from "@/lib/server/user-runtime";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 
@@ -60,6 +61,10 @@ interface RotationSideEffectContext {
   notificationSettings: UserProfile["notificationSettings"];
   result: TaskStateBuildResult;
   nowMs: number;
+}
+
+interface RotationSideEffectResult {
+  notificationQueued: boolean;
 }
 
 interface TaskEligibilityContext {
@@ -765,6 +770,7 @@ function buildDefaultReceiptKey(eventName: string, eventParams: EventParams) {
 function queueUserNotification(
   transaction: Transaction,
   uid: string,
+  nowMs: number,
   payload: {
     title: string;
     message: string;
@@ -787,6 +793,7 @@ function queueUserNotification(
     createdAt: FieldValue.serverTimestamp(),
     readBy: [],
   });
+  markNotificationsRuntimeChanged(transaction, nowMs);
 }
 
 function applyRotationSideEffects({
@@ -798,8 +805,10 @@ function applyRotationSideEffects({
   nowMs,
 }: RotationSideEffectContext) {
   if (!result.rotated) {
-    return;
+    return { notificationQueued: false } satisfies RotationSideEffectResult;
   }
+
+  let notificationQueued = false;
 
   result.assignedTasks.forEach((task) => {
     writeTaskLifecycleEvent(transaction, {
@@ -848,20 +857,25 @@ function applyRotationSideEffects({
     });
 
     if (notificationSettings?.inAppEnabled !== false) {
-      queueUserNotification(transaction, uid, {
+      queueUserNotification(transaction, uid, nowMs, {
         title: "Your daily tasks reset",
         message: "You ran out of time, so unfinished task progress reset. Jump back into Experiences and start stacking again.",
         type: "warning",
         link: "/experiences",
       });
+      notificationQueued = true;
     }
   }
+
+  return { notificationQueued } satisfies RotationSideEffectResult;
 }
 
 export async function rotateUserTasks(uid: string) {
   const userRef = adminDb.collection("users").doc(uid);
   const definitions = await resolveTaskDefinitionsForUser(uid);
   let responseResult: TaskStateBuildResult | undefined;
+  let runtimeNowMs = Date.now();
+  let notificationChanged = false;
 
   await adminDb.runTransaction(async (transaction) => {
     const snapshot = await transaction.get(userRef);
@@ -871,6 +885,7 @@ export async function rotateUserTasks(uid: string) {
 
     const userData = snapshot.data() as UserProfile;
     const nowMs = Date.now();
+    runtimeNowMs = nowMs;
     const result = await buildFreshTaskStateForUser(uid, userData, definitions, nowMs, transaction);
     responseResult = result;
 
@@ -878,7 +893,7 @@ export async function rotateUserTasks(uid: string) {
       dailyTasksState: stripUndefinedDeep(result.state),
     });
 
-    applyRotationSideEffects({
+    const sideEffects = applyRotationSideEffects({
       transaction,
       uid,
       username: getUserDisplayName(userData),
@@ -886,6 +901,7 @@ export async function rotateUserTasks(uid: string) {
       result,
       nowMs,
     });
+    notificationChanged = sideEffects.notificationQueued;
   });
 
   if (!responseResult) {
@@ -893,6 +909,13 @@ export async function rotateUserTasks(uid: string) {
   }
 
   const finalResult: TaskStateBuildResult = responseResult;
+
+  if (finalResult.rotated || notificationChanged) {
+    await touchUserRuntime(uid, {
+      ...(finalResult.rotated ? { tasks: true } : {}),
+      ...(notificationChanged ? { notifications: true } : {}),
+    }, runtimeNowMs);
+  }
 
   return {
     state: finalResult.state,
@@ -956,11 +979,23 @@ export async function recordDailyTaskProgressFromEvent(
     const snapshot = await transaction.get(userRef);
 
     if (existingReceipt?.exists) {
-      return { stateChanged: false, activityChanged: false, taskChanged: false, nowMs: Date.now() };
+      return {
+        stateChanged: false,
+        activityChanged: false,
+        taskChanged: false,
+        notificationChanged: false,
+        nowMs: Date.now(),
+      };
     }
 
     if (!snapshot.exists) {
-      return { stateChanged: false, activityChanged: false, taskChanged: false, nowMs: Date.now() };
+      return {
+        stateChanged: false,
+        activityChanged: false,
+        taskChanged: false,
+        notificationChanged: false,
+        nowMs: Date.now(),
+      };
     }
 
     const userData = snapshot.data() as UserProfile;
@@ -983,8 +1018,9 @@ export async function recordDailyTaskProgressFromEvent(
     const completedTasks: DailyTaskAssignment[] = [];
     let totalReward = 0;
     let stateChanged = result.rotated;
+    let notificationChanged = false;
 
-    applyRotationSideEffects({
+    const rotationSideEffects = applyRotationSideEffects({
       transaction,
       uid,
       username,
@@ -992,6 +1028,7 @@ export async function recordDailyTaskProgressFromEvent(
       result,
       nowMs,
     });
+    notificationChanged = rotationSideEffects.notificationQueued;
 
     updatedTasks.forEach((task, index) => {
       if (task.claimed) {
@@ -1100,6 +1137,7 @@ export async function recordDailyTaskProgressFromEvent(
         stateChanged: result.rotated,
         activityChanged: false,
         taskChanged: result.rotated,
+        notificationChanged,
         nowMs,
       };
     }
@@ -1137,17 +1175,19 @@ export async function recordDailyTaskProgressFromEvent(
         ? `You finished "${completedTasks[0].title}" and earned ${totalReward} Gum Drops.`
         : `You completed ${completedTasks.length} daily tasks and earned ${totalReward} Gum Drops.`;
 
-      queueUserNotification(transaction, uid, {
+      queueUserNotification(transaction, uid, nowMs, {
         title,
         message,
         type: "success",
         link: "/experiences",
       });
+      notificationChanged = true;
     }
     return {
       stateChanged: true,
       activityChanged: completedTasks.length > 0,
       taskChanged: true,
+      notificationChanged,
       nowMs,
     };
   });
@@ -1156,6 +1196,7 @@ export async function recordDailyTaskProgressFromEvent(
     await touchUserRuntime(uid, {
       ...(progressResult.taskChanged ? { tasks: true } : {}),
       ...(progressResult.activityChanged ? { activity: true } : {}),
+      ...(progressResult.notificationChanged ? { notifications: true } : {}),
     }, progressResult.nowMs);
   }
 }
@@ -1186,7 +1227,7 @@ export async function syncUserTaskReminder(uid: string) {
 
     nextRefreshMs = result.state.nextRefreshMs;
 
-    applyRotationSideEffects({
+    const rotationSideEffects = applyRotationSideEffects({
       transaction,
       uid,
       username: getUserDisplayName(userData),
@@ -1194,6 +1235,7 @@ export async function syncUserTaskReminder(uid: string) {
       result,
       nowMs,
     });
+    let notificationChanged = rotationSideEffects.notificationQueued;
 
     const nextState: DailyTasksState = shouldSendReminder
       ? {
@@ -1209,7 +1251,12 @@ export async function syncUserTaskReminder(uid: string) {
     }
 
     if (!shouldSendReminder) {
-      return;
+      return {
+        sent: false,
+        taskChanged: result.rotated,
+        notificationChanged,
+        nowMs,
+      };
     }
 
     sent = true;
@@ -1236,20 +1283,26 @@ export async function syncUserTaskReminder(uid: string) {
     });
 
     if (userData.notificationSettings?.inAppEnabled !== false) {
-      queueUserNotification(transaction, uid, {
+      queueUserNotification(transaction, uid, nowMs, {
         title: "You're almost out of time!",
         message: "Finish your tasks so you don't lose your Kandy!",
         type: "warning",
         link: "/experiences",
       });
+      notificationChanged = true;
     }
-    return { sent: true, nowMs };
+    return {
+      sent: true,
+      taskChanged: true,
+      notificationChanged,
+      nowMs,
+    };
   });
 
-  if (reminderResult?.sent) {
+  if (reminderResult?.taskChanged || reminderResult?.notificationChanged) {
     await touchUserRuntime(uid, {
-      notifications: true,
-      tasks: true,
+      ...(reminderResult.notificationChanged ? { notifications: true } : {}),
+      ...(reminderResult.taskChanged ? { tasks: true } : {}),
     }, reminderResult.nowMs);
   }
 
