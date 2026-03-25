@@ -36,7 +36,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!loading && user && userProfile && !isAdmin) {
-      router.replace(readPreferredAuthenticatedPath(userProfile.role));
+      router.replace(readPreferredAuthenticatedPath(userProfile.role, user.uid));
     }
   }, [loading, router, user, userProfile, isAdmin]);
 

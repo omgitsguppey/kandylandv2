@@ -151,6 +151,27 @@ function clearPersistedTelemetryQueue() {
     }
 }
 
+export function syncIdentifiedTelemetryOwnership(userId: string | null) {
+    ensureTelemetryQueueLoaded();
+
+    if (!userId) {
+        telemetryQueue = [];
+        telemetryQueueUserId = null;
+        clearTelemetryFlushTimeout();
+        clearPersistedTelemetryQueue();
+        return;
+    }
+
+    if (telemetryQueueUserId && telemetryQueueUserId !== userId) {
+        telemetryQueue = [];
+        clearTelemetryFlushTimeout();
+        clearPersistedTelemetryQueue();
+    }
+
+    telemetryQueueUserId = userId;
+    persistTelemetryQueue();
+}
+
 function getSessionId() {
     return getClientSessionId();
 }

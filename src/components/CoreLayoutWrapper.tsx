@@ -110,8 +110,8 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
 
         const query = window.location.search;
         const nextPath = query ? `${pathname}${query}` : pathname;
-        writeLastVisitedPath(nextPath);
-    }, [pathname]);
+        writeLastVisitedPath(nextPath, user?.uid ?? null);
+    }, [pathname, user?.uid]);
 
     return (
         <>

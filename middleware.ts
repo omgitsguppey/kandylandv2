@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import {
   LAST_VISITED_PATH_COOKIE,
+  LAST_VISITED_PATH_OWNER_COOKIE,
   resolvePreferredAuthenticatedPath,
 } from "@/lib/navigation-persistence";
 import { verifyNavigationSessionCookieValue, NAV_SESSION_COOKIE } from "@/lib/navigation-session";
@@ -27,7 +28,13 @@ export async function middleware(request: NextRequest) {
   }
 
   const lastVisitedPath = request.cookies.get(LAST_VISITED_PATH_COOKIE)?.value;
-  const destination = resolvePreferredAuthenticatedPath(navigationSession.role, lastVisitedPath);
+  const lastVisitedPathOwner = request.cookies.get(LAST_VISITED_PATH_OWNER_COOKIE)?.value;
+  const destination = resolvePreferredAuthenticatedPath(
+    navigationSession.role,
+    lastVisitedPath,
+    lastVisitedPathOwner,
+    navigationSession.uid,
+  );
   const fallbackPath = navigationSession.role === "admin" ? "/admin" : "/dashboard";
   const isAdmin = navigationSession.role === "admin";
 

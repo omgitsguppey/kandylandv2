@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { authFetch } from "@/lib/authFetch";
 import { getClientSessionId } from "@/lib/client-session";
 import { recordClientDiagnostic } from "@/lib/client-diagnostics";
+import { auth } from "@/lib/firebase";
 import { createAnalyticsWatchSessionId } from "@/lib/analytics-identifiers";
 import type {
     ViewerWatchAssetSnapshot,
@@ -51,10 +52,15 @@ interface SessionContext {
 interface StoredViewerWatchSessionEntry {
     payload: ViewerWatchSessionSnapshot;
     storedAt: number;
+    ownerUid: string;
 }
 
 function currentTimestamp() {
     return Date.now();
+}
+
+function getCurrentWatchOwnerUid() {
+    return auth?.currentUser?.uid ?? null;
 }
 
 function roundSeconds(value: number) {
@@ -90,9 +96,21 @@ function readPendingWatchSessionEntries() {
 
         const parsed = JSON.parse(raw) as Record<string, StoredViewerWatchSessionEntry>;
         const now = currentTimestamp();
+        const currentOwnerUid = getCurrentWatchOwnerUid();
         const entries = Object.entries(parsed)
             .filter(([, entry]) => {
-                if (!entry || typeof entry !== "object" || !entry.payload || typeof entry.storedAt !== "number") {
+                if (
+                    !entry
+                    || typeof entry !== "object"
+                    || !entry.payload
+                    || typeof entry.storedAt !== "number"
+                    || typeof entry.ownerUid !== "string"
+                    || entry.ownerUid.length === 0
+                ) {
+                    return false;
+                }
+
+                if (currentOwnerUid && entry.ownerUid !== currentOwnerUid) {
                     return false;
                 }
 
@@ -101,7 +119,11 @@ function readPendingWatchSessionEntries() {
             .sort((left, right) => left[1].storedAt - right[1].storedAt)
             .slice(-VIEWER_WATCH_PENDING_MAX_ENTRIES);
 
-        return new Map(entries);
+        const cleanedEntries = new Map(entries);
+        if (cleanedEntries.size !== Object.keys(parsed).length) {
+            writePendingWatchSessionEntries(cleanedEntries);
+        }
+        return cleanedEntries;
     } catch {
         return new Map<string, StoredViewerWatchSessionEntry>();
     }
@@ -130,10 +152,16 @@ function writePendingWatchSessionEntries(entries: Map<string, StoredViewerWatchS
 }
 
 function persistPendingWatchSession(payload: ViewerWatchSessionSnapshot) {
+    const ownerUid = getCurrentWatchOwnerUid();
+    if (!ownerUid) {
+        return;
+    }
+
     const entries = readPendingWatchSessionEntries();
     entries.set(payload.watchSessionId, {
         payload,
         storedAt: currentTimestamp(),
+        ownerUid,
     });
     writePendingWatchSessionEntries(entries);
 }

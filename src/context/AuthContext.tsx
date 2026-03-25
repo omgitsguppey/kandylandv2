@@ -22,8 +22,14 @@ import { normalizeUserProfile } from "@/lib/user-utils";
 import { useRouter, usePathname } from "next/navigation";
 import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
-import { clearLastVisitedPath, readPreferredAuthenticatedPath } from "@/lib/navigation-persistence";
-import { trackEvent } from "@/lib/telemetry";
+import {
+    clearLastVisitedPath,
+    readPreferredAuthenticatedPath,
+    syncLastVisitedPathOwner,
+} from "@/lib/navigation-persistence";
+import { syncClientSessionOwnership } from "@/lib/client-session";
+import { clearTaskGuidanceStorage } from "@/lib/task-guidance";
+import { syncIdentifiedTelemetryOwnership, trackEvent } from "@/lib/telemetry";
 
 interface AuthIdentityContextType {
     user: User | null;
@@ -121,11 +127,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const initialAuthResolvedRef = useRef(false);
     const autoRegisterInFlightRef = useRef<Set<string>>(new Set());
     const navigationSessionSyncKeyRef = useRef<string | null>(null);
+    const currentAuthUidRef = useRef<string | null>(null);
     const router = useRouter();
     const pathname = usePathname();
+    const pathnameRef = useRef(pathname);
 
-    const getPostAuthDestination = useCallback((role?: UserProfile["role"] | null) => {
-        return readPreferredAuthenticatedPath(role ?? "user");
+    useEffect(() => {
+        pathnameRef.current = pathname;
+    }, [pathname]);
+
+    const getPostAuthDestination = useCallback((role?: UserProfile["role"] | null, ownerId?: string | null) => {
+        return readPreferredAuthenticatedPath(role ?? "user", ownerId);
     }, []);
 
     useEffect(() => {
@@ -161,6 +173,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 }
 
                 unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+                    const nextUserId = currentUser?.uid ?? null;
+                    const previousUserId = currentAuthUidRef.current;
+                    const authIdentityChanged = previousUserId !== nextUserId;
+
+                    if (authIdentityChanged) {
+                        currentAuthUidRef.current = nextUserId;
+                        navigationSessionSyncKeyRef.current = null;
+                        autoRegisterInFlightRef.current.clear();
+                        setUserProfile(null);
+                        setLoading(Boolean(currentUser));
+                        syncClientSessionOwnership(nextUserId ? `user:${nextUserId}` : null);
+                        syncIdentifiedTelemetryOwnership(nextUserId);
+                        syncLastVisitedPathOwner(nextUserId);
+                        clearTaskGuidanceStorage();
+
+                        void fetch("/api/auth/navigation-session", {
+                            method: "DELETE",
+                            keepalive: true,
+                        }).catch(() => { });
+                    }
+
                     setUser(currentUser);
                     setAuthStateResolved(true);
 
@@ -173,8 +206,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     initialAuthResolvedRef.current = true;
 
                     if (currentUser === null) {
-                        autoRegisterInFlightRef.current.clear();
-                        setUserProfile(null);
                         setLoading(false);
                     }
                 });
@@ -201,10 +232,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (!user) {
             navigationSessionSyncKeyRef.current = null;
-            void fetch("/api/auth/navigation-session", {
-                method: "DELETE",
-                keepalive: true,
-            }).catch(() => { });
+            syncClientSessionOwnership(null);
+            syncIdentifiedTelemetryOwnership(null);
+            syncLastVisitedPathOwner(null);
+            clearTaskGuidanceStorage();
             setUserProfile(null);
             setLoading(false);
             return;
@@ -213,14 +244,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const currentUserId = user.uid;
         const autoRegisterInFlight = autoRegisterInFlightRef.current;
         let unsubscribe: (() => void) | undefined;
+        let cancelled = false;
+
+        setUserProfile(null);
+        setLoading(true);
 
         const setupProfileListener = async () => {
             const { db } = await import("@/lib/firebase-data");
             const { doc, onSnapshot } = await import("firebase/firestore");
+            if (cancelled) {
+                return;
+            }
 
             const profileDocRef = doc(db, "users", currentUserId);
 
             unsubscribe = onSnapshot(profileDocRef, async (snapshot) => {
+                if (cancelled || auth?.currentUser?.uid !== currentUserId) {
+                    return;
+                }
+
                 if (snapshot.exists()) {
                     const profile = normalizeUserProfile(snapshot.data(), user);
                     autoRegisterInFlight.delete(currentUserId);
@@ -228,7 +270,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     if (profile && (profile.status === "banned" || profile.status === "suspended")) {
                         setUserProfile(profile);
                         setLoading(false);
-                        if (pathname !== "/banned") {
+                        if (pathnameRef.current !== "/banned") {
                             router.replace("/banned");
                         }
                         return;
@@ -255,29 +297,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                                 referredBy: readSessionStorageValue(CLIENT_RUNTIME_STORAGE_KEYS.referralCode) ?? undefined,
                             }),
                         });
-                        if (!response.ok) {
+                        if (!response.ok && !cancelled) {
                             autoRegisterInFlight.delete(currentUserId);
                             setLoading(false);
                         }
                     } catch {
-                        autoRegisterInFlight.delete(currentUserId);
-                        setLoading(false);
+                        if (!cancelled) {
+                            autoRegisterInFlight.delete(currentUserId);
+                            setLoading(false);
+                        }
                     }
                 }
             }, () => {
-                setLoading(false);
+                if (!cancelled) {
+                    setLoading(false);
+                }
             });
         };
 
         void setupProfileListener();
 
         return () => {
+            cancelled = true;
             autoRegisterInFlight.delete(currentUserId);
             if (unsubscribe) {
                 unsubscribe();
             }
         };
-    }, [authStateResolved, pathname, router, user]);
+    }, [authStateResolved, router, user]);
 
     useEffect(() => {
         if (!user) {
@@ -405,7 +452,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             toast.success("Account created! +100 Gum Drops");
             if (pathname === "/") {
-                router.push(getPostAuthDestination("user"));
+                router.push(getPostAuthDestination("user", auth.currentUser?.uid ?? null));
             }
         } catch (error: unknown) {
             throw error;

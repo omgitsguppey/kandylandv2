@@ -14,7 +14,7 @@ export default function BannedPage() {
     useEffect(() => {
         if (!loading && (!userProfile || (userProfile.status !== 'banned' && userProfile.status !== 'suspended'))) {
             const nextPath = userProfile
-                ? readPreferredAuthenticatedPath(userProfile.role ?? "user")
+                ? readPreferredAuthenticatedPath(userProfile.role ?? "user", userProfile.uid)
                 : "/";
             router.replace(nextPath);
         }

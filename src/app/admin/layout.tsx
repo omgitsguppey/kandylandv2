@@ -35,7 +35,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
 
     if (userProfile?.role && userProfile.role !== "admin") {
-      router.replace(readPreferredAuthenticatedPath(userProfile.role));
+      router.replace(readPreferredAuthenticatedPath(userProfile.role, user.uid));
     }
   }, [authLoading, router, user, userProfile?.role]);
 

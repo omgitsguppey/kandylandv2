@@ -124,6 +124,11 @@ export function writeTaskGuidancePendingAction(action: TaskGuidancePendingAction
   writeLocalStorageValue(TASK_GUIDANCE_ACTION_STORAGE_KEY, action);
 }
 
+export function clearTaskGuidanceStorage() {
+  writeLocalStorageValue(TASK_GUIDANCE_STORAGE_KEY, null);
+  writeLocalStorageValue(TASK_GUIDANCE_ACTION_STORAGE_KEY, null);
+}
+
 function formatTaskCountLabel(task: Pick<DailyTaskAssignment, "maxProgress">, singular: string, plural: string) {
   return task.maxProgress > 1 ? plural : singular;
 }

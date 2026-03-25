@@ -3,9 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 
-import { CLIENT_RUNTIME_STORAGE_KEYS } from "@/hooks/client-runtime";
 import { createAnalyticsBatchId } from "@/lib/analytics-identifiers";
 import { getAppCheckToken } from "@/lib/app-check";
+import { getClientSessionId } from "@/lib/client-session";
 import { recordClientDiagnostic } from "@/lib/client-diagnostics";
 import { buildAnalyticsSemanticParams, resolveAnalyticsSemanticContext } from "@/lib/analytics-semantics";
 import { canUseAnonymousAnalytics, readPrivacySettingsSnapshot, subscribeToPrivacySettings } from "@/lib/privacy-consent";
@@ -70,19 +70,6 @@ function getSafeTargetLabel(target: HTMLElement) {
     }
 
     return target.tagName;
-}
-
-function getClientSessionId() {
-    let kSessionId = sessionStorage.getItem(CLIENT_RUNTIME_STORAGE_KEYS.analyticsSessionId);
-    if (kSessionId) {
-        return kSessionId;
-    }
-
-    kSessionId = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-        ? crypto.randomUUID()
-        : Math.random().toString(36).substring(2, 15);
-    sessionStorage.setItem(CLIENT_RUNTIME_STORAGE_KEYS.analyticsSessionId, kSessionId);
-    return kSessionId;
 }
 
 function sanitizeStoredTelemetryEvent(value: unknown): TelemetryEvent | null {

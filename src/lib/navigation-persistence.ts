@@ -1,5 +1,7 @@
 export const LAST_VISITED_PATH_KEY = "kandydrops:last-visited-path";
 export const LAST_VISITED_PATH_COOKIE = "kandydrops_last_path";
+export const LAST_VISITED_PATH_OWNER_KEY = "kandydrops:last-visited-path-owner";
+export const LAST_VISITED_PATH_OWNER_COOKIE = "kandydrops_last_path_owner";
 export type NavigationRole = "admin" | "creator" | "user";
 
 function isPersistableAppPath(path: string) {
@@ -21,9 +23,15 @@ function getDefaultAppPathForRole(role: NavigationRole | null | undefined) {
 export function resolvePreferredAuthenticatedPath(
   role: NavigationRole | null | undefined,
   candidatePath: string | null | undefined,
+  candidateOwnerId?: string | null,
+  ownerId?: string | null,
 ) {
   const fallbackPath = getDefaultAppPathForRole(role);
   if (!candidatePath || !isPersistableAppPath(candidatePath)) {
+    return fallbackPath;
+  }
+
+  if (ownerId && candidateOwnerId && candidateOwnerId !== ownerId) {
     return fallbackPath;
   }
 
@@ -63,11 +71,48 @@ function readLastVisitedPath() {
   }
 }
 
-export function readPreferredAuthenticatedPath(role: NavigationRole | null | undefined) {
-  return resolvePreferredAuthenticatedPath(role, readLastVisitedPath());
+function readLastVisitedPathOwner() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    const value = window.sessionStorage.getItem(LAST_VISITED_PATH_OWNER_KEY);
+    return value && value.length > 0 ? value : null;
+  } catch {
+    return null;
+  }
 }
 
-export function writeLastVisitedPath(path: string) {
+function writeLastVisitedPathOwner(ownerId: string | null | undefined) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    if (!ownerId) {
+      window.sessionStorage.removeItem(LAST_VISITED_PATH_OWNER_KEY);
+      clearCookie(LAST_VISITED_PATH_OWNER_COOKIE);
+      return;
+    }
+
+    window.sessionStorage.setItem(LAST_VISITED_PATH_OWNER_KEY, ownerId);
+    writeCookie(LAST_VISITED_PATH_OWNER_COOKIE, ownerId, 60 * 60 * 24 * 30);
+  } catch {
+    // Ignore storage failures in restricted contexts.
+  }
+}
+
+export function readPreferredAuthenticatedPath(role: NavigationRole | null | undefined, ownerId?: string | null) {
+  return resolvePreferredAuthenticatedPath(
+    role,
+    readLastVisitedPath(),
+    readLastVisitedPathOwner(),
+    ownerId,
+  );
+}
+
+export function writeLastVisitedPath(path: string, ownerId?: string | null) {
   if (typeof window === "undefined" || !isPersistableAppPath(path)) {
     return;
   }
@@ -79,6 +124,23 @@ export function writeLastVisitedPath(path: string) {
   }
 
   writeCookie(LAST_VISITED_PATH_COOKIE, path, 60 * 60 * 24 * 30);
+  writeLastVisitedPathOwner(ownerId);
+}
+
+export function syncLastVisitedPathOwner(ownerId: string | null) {
+  const existingOwner = readLastVisitedPathOwner();
+  if (existingOwner && ownerId && existingOwner !== ownerId) {
+    clearLastVisitedPath();
+    writeLastVisitedPathOwner(ownerId);
+    return;
+  }
+
+  if (!ownerId) {
+    clearLastVisitedPath();
+    return;
+  }
+
+  writeLastVisitedPathOwner(ownerId);
 }
 
 export function clearLastVisitedPath() {
@@ -93,4 +155,5 @@ export function clearLastVisitedPath() {
   }
 
   clearCookie(LAST_VISITED_PATH_COOKIE);
+  writeLastVisitedPathOwner(null);
 }

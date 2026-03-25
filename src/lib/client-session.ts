@@ -1,6 +1,8 @@
 "use client";
 
-const CLIENT_SESSION_STORAGE_KEY = "kandydrops.clientSession";
+const CLIENT_SESSION_STORAGE_KEY = "kandy_session_id";
+const LEGACY_CLIENT_SESSION_STORAGE_KEY = "kandydrops.clientSession";
+const CLIENT_SESSION_OWNER_STORAGE_KEY = "kandydrops.clientSessionOwner";
 const CLIENT_SUBJECT_STORAGE_KEY = "kandydrops.clientSubject";
 
 function generateId(prefix: string) {
@@ -37,19 +39,78 @@ function writeStorageValue(storageKey: string, value: string, persistent: boolea
   }
 }
 
+function clearStorageValue(storageKey: string, persistent: boolean) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    const storage = persistent ? window.localStorage : window.sessionStorage;
+    storage.removeItem(storageKey);
+  } catch {
+    // Ignore storage failures in restricted contexts.
+  }
+}
+
 export function getClientSessionId() {
   if (typeof window === "undefined") {
     return "server";
   }
 
-  const existing = readStorageValue(CLIENT_SESSION_STORAGE_KEY, false);
+  const existing = readStorageValue(CLIENT_SESSION_STORAGE_KEY, false)
+    ?? readStorageValue(LEGACY_CLIENT_SESSION_STORAGE_KEY, false);
   if (existing) {
+    if (!readStorageValue(CLIENT_SESSION_STORAGE_KEY, false)) {
+      writeStorageValue(CLIENT_SESSION_STORAGE_KEY, existing, false);
+    }
+    if (readStorageValue(LEGACY_CLIENT_SESSION_STORAGE_KEY, false)) {
+      clearStorageValue(LEGACY_CLIENT_SESSION_STORAGE_KEY, false);
+    }
     return existing;
   }
 
   const nextValue = generateId("sess");
   writeStorageValue(CLIENT_SESSION_STORAGE_KEY, nextValue, false);
   return nextValue;
+}
+
+function readClientSessionOwner() {
+  return readStorageValue(CLIENT_SESSION_OWNER_STORAGE_KEY, false);
+}
+
+function writeClientSessionOwner(ownerKey: string | null) {
+  if (!ownerKey) {
+    clearStorageValue(CLIENT_SESSION_OWNER_STORAGE_KEY, false);
+    return;
+  }
+
+  writeStorageValue(CLIENT_SESSION_OWNER_STORAGE_KEY, ownerKey, false);
+}
+
+function isAuthenticatedActor(actorKey: string | null) {
+  return Boolean(actorKey && actorKey.startsWith("user:"));
+}
+
+export function syncClientSessionOwnership(actorKey: string | null) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const previousOwner = readClientSessionOwner();
+  const previousSessionId = getClientSessionId();
+  const shouldRotateSession = Boolean(
+    previousOwner
+    && previousOwner !== actorKey
+    && isAuthenticatedActor(previousOwner),
+  );
+
+  if (shouldRotateSession) {
+    writeStorageValue(CLIENT_SESSION_STORAGE_KEY, generateId("sess"), false);
+  } else if (!readStorageValue(CLIENT_SESSION_STORAGE_KEY, false)) {
+    writeStorageValue(CLIENT_SESSION_STORAGE_KEY, previousSessionId, false);
+  }
+
+  writeClientSessionOwner(actorKey);
 }
 
 export function getClientSubjectId() {

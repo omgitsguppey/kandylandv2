@@ -93,6 +93,7 @@ function renderTaskEventLabel(taskEvent: TaskEventRecord) {
 
 export function RecentActivityFeed() {
     const { user } = useAuth();
+    const userId = user?.uid ?? null;
     const router = useRouter();
     const [expanded, setExpanded] = useState(false);
     const [summaryActivity, setSummaryActivity] = useState<ActivityItem | null>(null);
@@ -100,6 +101,7 @@ export function RecentActivityFeed() {
     const [loadingSummary, setLoadingSummary] = useState(true);
     const [loadingHistory, setLoadingHistory] = useState(false);
     const [historyLoaded, setHistoryLoaded] = useState(false);
+    const [loadedForUserId, setLoadedForUserId] = useState<string | null>(null);
     const [searchValue, setSearchValue] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const summaryEtagRef = useRef<string | null>(null);
@@ -109,31 +111,42 @@ export function RecentActivityFeed() {
     const trackedSummaryViewRef = useRef<string | null>(null);
 
     useEffect(() => {
-        if (!user) {
+        if (!userId) {
             trackedSummaryViewRef.current = null;
             return;
         }
 
-        if (trackedSummaryViewRef.current === user.uid) {
+        if (trackedSummaryViewRef.current === userId) {
             return;
         }
 
-        trackedSummaryViewRef.current = user.uid;
+        trackedSummaryViewRef.current = userId;
         trackEvent("recent_activity_viewed", {
             mode: "summary",
         });
-    }, [user]);
+    }, [userId]);
 
     useEffect(() => {
-        if (!user) {
+        summaryEtagRef.current = null;
+        historyEtagRef.current = null;
+        summaryInFlightRef.current = false;
+        historyInFlightRef.current = false;
+        setSummaryActivity(null);
+        setHistoryActivities([]);
+        setHistoryLoaded(false);
+        setLoadedForUserId(null);
+
+        if (!user || !userId) {
             setSummaryActivity(null);
             setHistoryActivities([]);
             setLoadingSummary(false);
             setLoadingHistory(false);
             setHistoryLoaded(false);
+            setLoadedForUserId(null);
             return;
         }
 
+        const currentUserId = userId;
         setLoadingSummary(true);
         let mounted = true;
         let unsubscribeUserRuntime: (() => void) | undefined;
@@ -156,8 +169,11 @@ export function RecentActivityFeed() {
 
                 const response = await authFetch(`/api/user/activity?view=${view}`, { headers });
                 if (response.status === 304) {
-                    if (view === "history" && mounted) {
-                        setHistoryLoaded(true);
+                    if (mounted) {
+                        setLoadedForUserId(currentUserId);
+                        if (view === "history") {
+                            setHistoryLoaded(true);
+                        }
                     }
                     return;
                 }
@@ -180,11 +196,13 @@ export function RecentActivityFeed() {
 
                 if (view === "summary") {
                     setSummaryActivity(nextActivities[0] ?? null);
+                    setLoadedForUserId(currentUserId);
                     return;
                 }
 
                 setHistoryActivities(nextActivities);
                 setHistoryLoaded(true);
+                setLoadedForUserId(currentUserId);
             } catch (error) {
                 console.error("Failed to fetch recent activity", error);
                 recordClientDiagnostic("cache", "Recent activity refresh failed", {
@@ -235,14 +253,14 @@ export function RecentActivityFeed() {
                     },
                     (error) => {
                         recordClientDiagnostic("realtime", "Recent activity runtime subscription failed", {
-                            userId: user.uid,
+                            userId: currentUserId,
                             message: error.message,
                         });
                     },
                 );
             } catch (error) {
                 recordClientDiagnostic("firebase", "Recent activity runtime setup failed", {
-                    userId: user.uid,
+                    userId: currentUserId,
                     message: error instanceof Error ? error.message : String(error),
                 });
             }
@@ -281,10 +299,10 @@ export function RecentActivityFeed() {
                 unsubscribeUserRuntime();
             }
         };
-    }, [expanded, historyLoaded, user]);
+    }, [expanded, historyLoaded, user, userId]);
 
     useEffect(() => {
-        if (!expanded || !user || historyLoaded || loadingHistory) {
+        if (!expanded || !user || !userId || historyLoaded || loadingHistory) {
             return;
         }
 
@@ -314,17 +332,18 @@ export function RecentActivityFeed() {
                 historyEtagRef.current = response.headers.get("etag");
                 setHistoryActivities(result.activities || []);
                 setHistoryLoaded(true);
+                setLoadedForUserId(userId);
             } catch (error) {
                 console.error("Failed to load full activity history", error);
                 recordClientDiagnostic("cache", "Recent activity history refresh failed", {
-                    userId: user.uid,
+                    userId,
                     message: error instanceof Error ? error.message : String(error),
                 });
             } finally {
                 setLoadingHistory(false);
             }
         })();
-    }, [expanded, historyLoaded, loadingHistory, user]);
+    }, [expanded, historyLoaded, loadingHistory, user, userId]);
 
     useEffect(() => {
         if (!expanded) {
@@ -367,6 +386,11 @@ export function RecentActivityFeed() {
         const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
         return filteredHistory.slice(startIndex, startIndex + ITEMS_PER_PAGE);
     }, [currentPage, filteredHistory]);
+
+    const scopedSummaryActivity = loadedForUserId === userId ? summaryActivity : null;
+    const scopedHistoryActivities = loadedForUserId === userId ? historyActivities : [];
+    const scopedFilteredHistory = loadedForUserId === userId ? filteredHistory : [];
+    const scopedPaginatedActivities = loadedForUserId === userId ? paginatedActivities : [];
 
     function renderActivityItem(item: ActivityItem) {
         if (item.kind === "transaction") {
@@ -419,7 +443,7 @@ export function RecentActivityFeed() {
         );
     }
 
-    if (!user) {
+    if (!user || !userId) {
         return null;
     }
 
@@ -456,7 +480,7 @@ export function RecentActivityFeed() {
                 <div className="flex items-center justify-center py-8">
                     <Loader2 className="h-6 w-6 animate-spin text-brand-purple/50" />
                 </div>
-            ) : !summaryActivity && !historyActivities.length ? (
+            ) : !scopedSummaryActivity && !scopedHistoryActivities.length ? (
                 <div className="py-6 text-center">
                     <p className="text-sm text-gray-500">
                         Your recent unwraps, Gum Drop changes, and task results will appear here.
@@ -509,7 +533,7 @@ export function RecentActivityFeed() {
                             </div>
 
                             <div className="flex items-center justify-between gap-3 px-1 text-[11px] font-medium uppercase tracking-[0.18em] text-gray-500">
-                                <span>{filteredHistory.length} result{filteredHistory.length === 1 ? "" : "s"}</span>
+                                <span>{scopedFilteredHistory.length} result{scopedFilteredHistory.length === 1 ? "" : "s"}</span>
                                 <span>5 per page</span>
                             </div>
 
@@ -517,7 +541,7 @@ export function RecentActivityFeed() {
                                 <div className="flex items-center justify-center py-8">
                                     <Loader2 className="h-6 w-6 animate-spin text-brand-purple/50" />
                                 </div>
-                            ) : paginatedActivities.length === 0 ? (
+                            ) : scopedPaginatedActivities.length === 0 ? (
                                 <div className="rounded-2xl border border-white/5 bg-white/5 px-4 py-8 text-center text-sm text-gray-400">
                                     {searchValue.trim()
                                         ? "No activity matches your search yet."
@@ -526,7 +550,7 @@ export function RecentActivityFeed() {
                             ) : (
                                 <>
                                     <div className="space-y-3">
-                                        {paginatedActivities.map(renderActivityItem)}
+                                        {scopedPaginatedActivities.map(renderActivityItem)}
                                     </div>
 
                                     <div className="flex items-center justify-between gap-3 pt-2">
@@ -555,13 +579,13 @@ export function RecentActivityFeed() {
                                 </>
                             )}
                         </>
-                    ) : summaryActivity ? (
+                    ) : scopedSummaryActivity ? (
                         <>
                             <div className="rounded-2xl border border-brand-purple/20 bg-gradient-to-r from-brand-purple/10 to-white/5 p-3">
                                 <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-purple/80">
                                     Latest event
                                 </p>
-                                {renderActivityItem(summaryActivity)}
+                                {renderActivityItem(scopedSummaryActivity)}
                             </div>
                         </>
                     ) : null}

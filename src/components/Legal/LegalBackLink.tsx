@@ -24,7 +24,7 @@ export function LegalBackLink({
     const { userProfile } = useUserProfile();
 
     const href = user
-        ? readPreferredAuthenticatedPath(userProfile?.role ?? "user")
+        ? readPreferredAuthenticatedPath(userProfile?.role ?? "user", user.uid)
         : "/";
     const label = user ? signedInLabel : signedOutLabel;
 
