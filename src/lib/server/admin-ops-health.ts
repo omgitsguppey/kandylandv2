@@ -163,6 +163,8 @@ export function buildAdminOpsHealth(input: {
   taskRollupDocs: Array<FirebaseFirestore.QueryDocumentSnapshot | FirebaseFirestore.DocumentSnapshot>;
   guestBatchDocs: Array<FirebaseFirestore.QueryDocumentSnapshot | FirebaseFirestore.DocumentSnapshot>;
   securityEventDocs: Array<FirebaseFirestore.QueryDocumentSnapshot | FirebaseFirestore.DocumentSnapshot>;
+  watchSessionDocs?: Array<FirebaseFirestore.QueryDocumentSnapshot | FirebaseFirestore.DocumentSnapshot>;
+  watchAssetDocs?: Array<FirebaseFirestore.QueryDocumentSnapshot | FirebaseFirestore.DocumentSnapshot>;
   commerceSummaryDoc?: FirebaseFirestore.DocumentSnapshot | null;
 }) : AdminOpsHealth {
   const nowMs = input.nowMs ?? Date.now();
@@ -250,6 +252,12 @@ export function buildAdminOpsHealth(input: {
   const commerceLastSeenAt = toNumber(commerceSummaryData.lastTransactionAt) || toTimestampNumber(commerceSummaryData.updatedAt);
   const guestBatchCount = input.guestBatchDocs.length;
   const guestBatchLastSeenAt = readLatestTimestamp(input.guestBatchDocs, ["receivedAtMs", "createdAt", "updatedAt"]);
+  const watchSessionDocs = input.watchSessionDocs ?? [];
+  const watchAssetDocs = input.watchAssetDocs ?? [];
+  const watchSessionCount = watchSessionDocs.length;
+  const watchSessionLastSeenAt = readLatestTimestamp(watchSessionDocs, ["lastSeenAtMs", "updatedAt", "createdAt"]);
+  const watchAssetCount = watchAssetDocs.length;
+  const watchAssetLastSeenAt = readLatestTimestamp(watchAssetDocs, ["lastSeenAtMs", "updatedAt", "createdAt"]);
   const guestBatchesStatus: AdminOpsHealthStatus = guestBatchCount > 0
     ? getMaterializerStatus(nowMs, guestBatchCount, guestBatchLastSeenAt)
     : guestIngestFailureCount > 0
@@ -288,6 +296,24 @@ export function buildAdminOpsHealth(input: {
       count: commerceCount,
       lastSeenAt: commerceLastSeenAt,
       detail: "Commerce rollups mirror completed transactions into revenue, unlock, and bundle summaries.",
+    }),
+    buildMaterializer({
+      nowMs,
+      key: "analytics_watch_sessions",
+      label: "Watch Sessions",
+      engine: "route",
+      count: watchSessionCount,
+      lastSeenAt: watchSessionLastSeenAt,
+      detail: "Canonical viewer watch sessions capture per-session watch accuracy for unwrapped drops.",
+    }),
+    buildMaterializer({
+      nowMs,
+      key: "analytics_watch_assets",
+      label: "Watch Assets",
+      engine: "route",
+      count: watchAssetCount,
+      lastSeenAt: watchAssetLastSeenAt,
+      detail: "Per-asset watch snapshots back session-level viewer analytics with asset completion and load details.",
     }),
     {
       key: "analytics_guest_batches",

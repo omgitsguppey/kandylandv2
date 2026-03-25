@@ -5,6 +5,7 @@ import {
   getTelemetryParamNumber,
   getTelemetryParamString,
   TelemetryLogRecord,
+  toNumber,
 } from "./admin-analytics-shared";
 
 export interface HistoricalContentAnalytics {
@@ -35,6 +36,7 @@ export interface HistoricalContentAnalytics {
 export function buildHistoricalContentAnalytics(input: {
   telemetryLogsByEvent: Record<string, TelemetryLogRecord[]>;
   eventsData: Record<string, number>;
+  watchAssetDocs: FirebaseFirestore.QueryDocumentSnapshot[];
   funnel: {
     previewOpens: number;
     unlocks: number;
@@ -107,10 +109,23 @@ export function buildHistoricalContentAnalytics(input: {
     }))
     .sort((left, right) => right.unlocks - left.unlocks);
 
-  const watchDepthValues = [
+  const telemetryWatchDepthValues = [
     ...(input.telemetryLogsByEvent.viewer_watch_checkpoint || []).map((record) => getTelemetryParamNumber(record, "watch_seconds")),
     ...(input.telemetryLogsByEvent.viewer_asset_consumed || []).map((record) => getTelemetryParamNumber(record, "watch_seconds")),
   ].filter((value) => value > 0);
+  const canonicalWatchDepthValues = input.watchAssetDocs.map((doc) => {
+      const data = doc.data() as Record<string, unknown>;
+      return Math.max(
+        toNumber(data.totalWatchSeconds),
+        toNumber(data.totalVisibleSeconds),
+        toNumber(data.maxProgressSeconds),
+        toNumber(data.checkpointMaxSeconds),
+      );
+    })
+    .filter((value) => value > 0);
+  const watchDepthValues = canonicalWatchDepthValues.length > 0
+    ? canonicalWatchDepthValues
+    : telemetryWatchDepthValues;
   const watchDepthBuckets = buildDurationBuckets(
     watchDepthValues.map((value) => value * 1000),
     [

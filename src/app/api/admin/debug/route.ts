@@ -115,6 +115,8 @@ export async function GET(request: NextRequest) {
             pipelineHealthSnapshot,
             guestBatchesSnapshot,
             securityEventsSnapshot,
+            watchSessionsSnapshot,
+            watchAssetsSnapshot,
             commerceSummarySnapshot,
             feedbackSnapshot,
             orchestrationEventsSnapshot,
@@ -148,6 +150,16 @@ export async function GET(request: NextRequest) {
                 .orderBy("timestamp", "desc")
                 .limit(80)
                 .get(),
+            adminDb.collection("analytics_watch_sessions")
+                .where("lastSeenAtMs", ">=", weekAgoMs)
+                .orderBy("lastSeenAtMs", "desc")
+                .limit(120)
+                .get(),
+            adminDb.collection("analytics_watch_assets")
+                .where("lastSeenAtMs", ">=", weekAgoMs)
+                .orderBy("lastSeenAtMs", "desc")
+                .limit(200)
+                .get(),
             adminDb.collection("analytics_commerce_rollup").doc("summary").get(),
             adminDb.collection("platform_feedback").orderBy("timestamp", "desc").limit(160).get(),
             adminDb.collection(ORCHESTRATION_COLLECTIONS.events).orderBy("observedAtMs", "desc").limit(120).get(),
@@ -165,6 +177,8 @@ export async function GET(request: NextRequest) {
             taskRollupDocs: taskRollupSnapshot.docs,
             guestBatchDocs: guestBatchesSnapshot.docs,
             securityEventDocs: securityEventsSnapshot.docs,
+            watchSessionDocs: watchSessionsSnapshot.docs,
+            watchAssetDocs: watchAssetsSnapshot.docs,
             commerceSummaryDoc: commerceSummarySnapshot,
         });
 

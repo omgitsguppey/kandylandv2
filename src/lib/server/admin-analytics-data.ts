@@ -41,11 +41,11 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
   const analyticsEventNames = TELEMETRY_EVENT_QUERY_NAMES;
   const trafficDimensionName = timelineBucket === "hour" ? "dateHour" : "date";
 
-  const [
-    response,
-    eventsResponse,
-    geoResponse,
-    pagesResponse,
+    const [
+        response,
+        eventsResponse,
+        geoResponse,
+        pagesResponse,
     devicesResponse,
     onboardingResponse,
     dailyRollupsSnapshot,
@@ -59,11 +59,13 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
     analyticsEventStatsSnapshot,
     securityEventsSnapshot,
     guestBatchesSnapshot,
-    commerceSummarySnapshot,
-    serverDiagnosticsSnapshot,
-    taskRollupSnapshot,
-    dropsSnapshot,
-  ] = await Promise.all([
+        commerceSummarySnapshot,
+        serverDiagnosticsSnapshot,
+        taskRollupSnapshot,
+        dropsSnapshot,
+        watchSessionsSnapshot,
+        watchAssetsSnapshot,
+    ] = await Promise.all([
     safeRunReport(analyticsClient, {
       property: `properties/${propertyId}`,
       dateRanges: [{ startDate, endDate }],
@@ -196,6 +198,22 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
         .get(),
     adminDb.collection("analytics_task_rollup").get(),
     period === "all" ? adminDb.collection("drops").get() : Promise.resolve(null),
+    period === "all"
+      ? adminDb.collection("analytics_watch_sessions")
+        .orderBy("lastSeenAtMs", "desc")
+        .get()
+      : adminDb.collection("analytics_watch_sessions")
+        .where("lastSeenAtMs", ">=", startMs)
+        .orderBy("lastSeenAtMs", "desc")
+        .get(),
+    period === "all"
+      ? adminDb.collection("analytics_watch_assets")
+        .orderBy("lastSeenAtMs", "desc")
+        .get()
+      : adminDb.collection("analytics_watch_assets")
+        .where("lastSeenAtMs", ">=", startMs)
+        .orderBy("lastSeenAtMs", "desc")
+        .get(),
   ]);
 
   const [
@@ -240,6 +258,8 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
     serverDiagnosticsSnapshot,
     taskRollupSnapshot,
     dropsSnapshot,
+    watchSessionsSnapshot,
+    watchAssetsSnapshot,
     telemetryLogsByEvent,
     taskEventsSnapshot,
     transactionsInRangeSnapshot,

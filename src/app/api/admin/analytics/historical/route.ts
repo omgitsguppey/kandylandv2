@@ -206,6 +206,8 @@ export async function GET(request: NextRequest) {
                 serverDiagnosticsSnapshot,
                 taskRollupSnapshot,
                 dropsSnapshot,
+                watchSessionsSnapshot,
+                watchAssetsSnapshot,
                 telemetryLogsByEvent,
                 taskEventsSnapshot,
                 transactionsInRangeSnapshot,
@@ -603,6 +605,7 @@ export async function GET(request: NextRequest) {
             } = buildHistoricalContentAnalytics({
                 telemetryLogsByEvent,
                 eventsData,
+                watchAssetDocs: watchAssetsSnapshot.docs,
                 funnel: {
                     previewOpens: funnel.previewOpens,
                     unlocks: funnel.unlocks,
@@ -619,6 +622,8 @@ export async function GET(request: NextRequest) {
             } = buildHistoricalViewerOverview({
                 telemetryLogsByEvent,
                 sessionFacts: sessionFactsSnapshot.docs,
+                watchSessionDocs: watchSessionsSnapshot.docs,
+                watchAssetDocs: watchAssetsSnapshot.docs,
                 viewerUser,
                 dropReferences,
             });
@@ -676,6 +681,8 @@ export async function GET(request: NextRequest) {
                 telemetryPurchaseCount,
                 telemetryUnlockCount,
                 viewerSessionCount: viewerOverviewCanonical.sessionCount,
+                watchSessionCount: watchSessionsSnapshot.size,
+                watchAssetCount: watchAssetsSnapshot.size,
                 filteredSessionFactsLength: filteredSessionFacts.length,
                 viewerSessionStartedLogsLength: viewerSessionStartedLogs.length,
                 pipelineFailureCount,
@@ -687,6 +694,8 @@ export async function GET(request: NextRequest) {
                 taskRollupDocs: taskRollupSnapshot.docs,
                 guestBatchDocs: guestBatchesSnapshot.docs,
                 securityEventDocs: securityEventsSnapshot.docs,
+                watchSessionDocs: watchSessionsSnapshot.docs,
+                watchAssetDocs: watchAssetsSnapshot.docs,
                 commerceSummaryDoc: commerceSummarySnapshot,
             });
 

@@ -52,6 +52,8 @@ export function buildHistoricalValidationSummary(input: {
   telemetryPurchaseCount: number;
   telemetryUnlockCount: number;
   viewerSessionCount: number;
+  watchSessionCount: number;
+  watchAssetCount: number;
   filteredSessionFactsLength: number;
   viewerSessionStartedLogsLength: number;
   pipelineFailureCount: number;
@@ -84,6 +86,8 @@ export function buildHistoricalValidationSummary(input: {
       sources.push({ key: "unlock_transactions", label: "Unlock transactions", count: input.unlockTransactionsCount });
     }
     if (moduleIndex.key === "viewer") {
+      sources.push({ key: "watch_sessions", label: "Watch sessions", count: input.watchSessionCount });
+      sources.push({ key: "watch_assets", label: "Watch assets", count: input.watchAssetCount });
       sources.push({ key: "session_facts", label: "Session facts", count: input.viewerSessionFactCount });
     }
     if (moduleIndex.key === "security") {
@@ -182,9 +186,9 @@ export function buildHistoricalValidationSummary(input: {
     },
     {
       label: "Viewer drilldown",
-      status: (input.viewerSessionCount > 0 || input.filteredSessionFactsLength > 0) ? "pass" : "warn",
-      detail: (input.viewerSessionCount > 0 || input.filteredSessionFactsLength > 0)
-        ? `${input.viewerSessionCount.toLocaleString()} viewer sessions from canonical session facts with ${input.viewerSessionStartedLogsLength.toLocaleString()} raw session-start events in range.`
+      status: (input.watchSessionCount > 0 || input.filteredSessionFactsLength > 0 || input.viewerSessionStartedLogsLength > 0) ? "pass" : "warn",
+      detail: (input.watchSessionCount > 0 || input.filteredSessionFactsLength > 0 || input.viewerSessionStartedLogsLength > 0)
+        ? `${input.watchSessionCount.toLocaleString()} canonical watch sessions, ${input.watchAssetCount.toLocaleString()} watch assets, ${input.filteredSessionFactsLength.toLocaleString()} session facts, and ${input.viewerSessionStartedLogsLength.toLocaleString()} raw session-start events matched the selected range.`
         : "No viewer sessions matched the selected range and filter.",
     },
   ];

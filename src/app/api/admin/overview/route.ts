@@ -33,6 +33,11 @@ function toTimestampNumber(value: unknown): number {
     return 0;
 }
 
+function toNumber(value: unknown): number {
+    const numeric = Number(value);
+    return Number.isFinite(numeric) ? numeric : 0;
+}
+
 function serializeRecentTransaction(raw: ReturnType<typeof normalizeTransactionRecord>, username?: string) {
     return {
         ...raw,
@@ -82,15 +87,22 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });
         }
 
-        const [usersSnapshot, dropsSnapshot, recentTransactionsSnapshot] = await Promise.all([
+        const now = Date.now();
+        const thirtyDayStartMs = fromCSTInput(`${shiftCSTDateKey(getCSTDateKey(now), -(THIRTY_DAY_WINDOW - 1))}T00:00`);
+        const [usersSnapshot, dropsSnapshot, recentTransactionsSnapshot, adminActivitySnapshot, commerceSummarySnapshot, recentChartTransactionsSnapshot] = await Promise.all([
             adminDb.collection("users").get(),
             adminDb.collection("drops").get(),
-            adminDb.collection("transactions").orderBy("timestamp", "desc").limit(250).get(),
-        ]);
-        const [adminActivitySnapshot, purchaseTransactionsSnapshot, unlockTransactionsSnapshot] = await Promise.all([
-            adminDb.collection("transactions").where("type", "==", "admin_adjustment").limit(50).get(),
-            adminDb.collection("transactions").where("type", "in", ["purchase_currency", "purchase"]).get(),
-            adminDb.collection("transactions").where("type", "==", "unlock_content").get(),
+            adminDb.collection("transactions").orderBy("timestamp", "desc").limit(20).get(),
+            adminDb.collection("transactions")
+                .where("type", "==", "admin_adjustment")
+                .orderBy("timestamp", "desc")
+                .limit(10)
+                .get(),
+            adminDb.collection("analytics_commerce_rollup").doc("summary").get(),
+            adminDb.collection("transactions")
+                .where("timestamp", ">=", thirtyDayStartMs)
+                .orderBy("timestamp", "desc")
+                .get(),
         ]);
 
         const userNameMap = new Map<string, string>();
@@ -106,7 +118,6 @@ export async function GET(request: NextRequest) {
             );
         });
 
-        const now = Date.now();
         const drops = dropsSnapshot.docs.flatMap((doc) => {
             try {
                 return [applyDropStatus(normalizeDropRecord(doc.data(), doc.id), now)];
@@ -122,23 +133,19 @@ export async function GET(request: NextRequest) {
                 return [];
             }
         });
-        const purchaseTransactions = purchaseTransactionsSnapshot.docs.flatMap((doc) => {
+        const recentChartTransactions = recentChartTransactionsSnapshot.docs.flatMap((doc) => {
             try {
                 return [normalizeTransactionRecord(doc.data(), doc.id)];
             } catch {
                 return [];
             }
-        }).filter((transaction) => transaction.type === "purchase_currency" && transaction.status === "completed");
-        const unlockTransactions = unlockTransactionsSnapshot.docs.flatMap((doc) => {
-            try {
-                return [normalizeTransactionRecord(doc.data(), doc.id)];
-            } catch {
-                return [];
-            }
-        }).filter((transaction) => transaction.type === "unlock_content");
+        });
+        const purchaseTransactions = recentChartTransactions
+            .filter((transaction) => transaction.type === "purchase_currency" && transaction.status === "completed");
+        const unlockTransactions = recentChartTransactions
+            .filter((transaction) => transaction.type === "unlock_content");
 
         const recentTransactions = recentTransactionsSource
-            .slice(0, 20)
             .map((transaction) => serializeRecentTransaction(transaction, userNameMap.get(transaction.userId)));
 
         const adminActivitySource = adminActivitySnapshot.docs
@@ -182,13 +189,24 @@ export async function GET(request: NextRequest) {
             }
         });
 
+        const commerceSummary = commerceSummarySnapshot.exists
+            ? (commerceSummarySnapshot.data() as Record<string, unknown>)
+            : null;
+        const grossRevenueCents = commerceSummary
+            ? Math.max(
+                Math.round(toNumber(commerceSummary.grossRevenueUsdTotal) * 100),
+                toNumber(commerceSummary.revenueCentsTotal),
+                toNumber(commerceSummary.grossRevenueCents),
+            )
+            : purchaseTransactions.reduce((sum, transaction) => sum + getTransactionRevenueCents(transaction), 0);
+
         return NextResponse.json({
             success: true,
             stats: {
                 totalUsers: usersSnapshot.size,
                 activeDrops: drops.filter((drop) => drop.status === "active").length,
                 totalDrops: drops.length,
-                grossRevenueCents: purchaseTransactions.reduce((sum, transaction) => sum + getTransactionRevenueCents(transaction), 0),
+                grossRevenueCents,
                 totalUnwraps: drops.reduce((sum, drop) => sum + (drop.totalUnlocks || 0), 0),
             },
             recentTransactions,
