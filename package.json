@@ -22,7 +22,7 @@
     "check:functions": "npm --prefix functions run check",
     "test:contracts": "vitest run --config vitest.config.ts",
     "test:contracts:watch": "vitest --config vitest.config.ts",
-    "test:rules:firestore": "firebase emulators:exec --only firestore \"vitest run --config vitest.rules.config.ts tests/firebase/firestore.rules.spec.ts\"",
+    "test:rules:firestore": "tsx scripts/run-firestore-rules-tests.ts",
     "prebuild": "tsc --noEmit --pretty",
     "build:debug": "tsc --noEmit --pretty && next build > build.log 2>&1",
     "check": "tsc --noEmit --pretty && eslint . --max-warnings=0 && npm run check:telemetry && npm run check:analytics-semantics && npm run check:firebase-runtime && npm run test:contracts",
