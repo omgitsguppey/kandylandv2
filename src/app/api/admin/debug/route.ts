@@ -9,7 +9,8 @@ import { TELEMETRY_EVENT_LABELS, TELEMETRY_EVENT_NAMES } from "@/lib/telemetry-c
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { buildAdminOpsHealth } from "@/lib/server/admin-ops-health";
 import { buildAdminOrchestrationSnapshot } from "@/lib/server/admin-orchestration";
-import { getConfiguredRollouts } from "@/lib/rollouts";
+import { getConfiguredRollouts, getRolloutEvaluationSamples } from "@/lib/rollouts";
+import { getChangelogEntries, getCurrentRelease } from "@/lib/release-tracking";
 import { getCSTDateKey } from "@/lib/timezone";
 import { ORCHESTRATION_COLLECTIONS } from "@/lib/orchestration/contract";
 
@@ -431,12 +432,31 @@ export async function GET(request: NextRequest) {
             label: rollout.label,
             description: rollout.description,
             kind: rollout.kind,
+            stage: rollout.stage,
+            owner: rollout.owner,
             audience: rollout.audience,
             enabled: rollout.enabled,
             rolloutPercent: rollout.rolloutPercent,
             defaultVariant: rollout.defaultVariant,
             variants: rollout.variants,
+            requiredSegments: rollout.requiredSegments ?? [],
+            excludedSegments: rollout.excludedSegments ?? [],
+            killSwitchable: rollout.killSwitchable !== false,
         }));
+        const rolloutSamples = getRolloutEvaluationSamples().map((sample) => ({
+            key: sample.key,
+            label: sample.label,
+            path: sample.path,
+            role: sample.role ?? "guest",
+            assignments: sample.assignments.map((assignment) => ({
+                id: assignment.id,
+                variant: assignment.variant,
+                reason: assignment.reason,
+                active: assignment.active,
+            })),
+        }));
+        const release = getCurrentRelease();
+        const changeLog = getChangelogEntries(8);
 
         const orchestration = buildAdminOrchestrationSnapshot({
             eventDocs: orchestrationEventsSnapshot.docs,
@@ -467,6 +487,8 @@ export async function GET(request: NextRequest) {
                 orchestrationOpenFindings: orchestration.summary.openFindings,
                 orchestrationActionableRepairs: orchestration.summary.actionableProposals,
                 orchestrationLowConfidence: orchestration.summary.lowConfidenceEvents,
+                rolloutSamples: rolloutSamples.length,
+                releaseEntries: changeLog.length,
             },
             coverage,
             unsupportedTasks,
@@ -482,6 +504,9 @@ export async function GET(request: NextRequest) {
             dailyTaskSeries,
             bugReports,
             rollouts,
+            rolloutSamples,
+            release,
+            changeLog,
             opsHealth,
             orchestration,
         });

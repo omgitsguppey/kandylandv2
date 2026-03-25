@@ -7,6 +7,7 @@ import { getClientSessionId } from "./client-session";
 import { recordClientDiagnostic } from "./client-diagnostics";
 import { canUseAnonymousAnalytics, canUseIdentifiedAnalytics, readPrivacySettingsSnapshot } from "./privacy-consent";
 import { BUILT_IN_DAILY_TASKS } from "./tasks/task-catalog";
+import type { RolloutTelemetryContext } from "./rollouts";
 
 /**
  * Fire-and-forget telemetry tracking.
@@ -54,6 +55,8 @@ let telemetryFlushInFlight: Promise<void> | null = null;
 let lifecycleFlushInstalled = false;
 let telemetryQueueUserId: string | null = null;
 let telemetryQueueLoaded = false;
+let telemetryRolloutContext: RolloutTelemetryContext | null = null;
+let telemetryReleaseContext: SanitizedEventParams | null = null;
 
 function sanitizeEventParams(eventParams?: Record<string, unknown>) {
     if (!eventParams) {
@@ -200,9 +203,19 @@ function getEnrichedEventParams(eventParams?: Record<string, unknown>) {
             dropId: typeof sanitizedParams.drop_id === "string" ? sanitizedParams.drop_id : undefined,
             dropCategory: typeof sanitizedParams.drop_category === "string" ? sanitizedParams.drop_category : undefined,
         }),
+        ...(telemetryRolloutContext ?? {}),
+        ...(telemetryReleaseContext ?? {}),
     };
 
     return enriched;
+}
+
+export function syncTelemetryRolloutContext(context: RolloutTelemetryContext | null) {
+    telemetryRolloutContext = context;
+}
+
+export function syncTelemetryReleaseContext(context: SanitizedEventParams | null) {
+    telemetryReleaseContext = context;
 }
 
 function readFlowMap() {

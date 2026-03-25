@@ -6,8 +6,9 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { getClientSessionId, getClientSubjectId } from "@/lib/client-session";
 import { recordClientDiagnostic } from "@/lib/client-diagnostics";
-import { resolveRolloutAssignments, type RolloutAssignment } from "@/lib/rollouts";
-import { trackEvent } from "@/lib/telemetry";
+import { buildRolloutTelemetryContext, resolveRolloutAssignments, type RolloutAssignment } from "@/lib/rollouts";
+import { getReleaseTelemetryContext } from "@/lib/release-tracking";
+import { syncTelemetryReleaseContext, syncTelemetryRolloutContext, trackEvent } from "@/lib/telemetry";
 
 interface RolloutContextValue {
   assignments: RolloutAssignment[];
@@ -71,8 +72,9 @@ export function RolloutProvider({ children }: { children: React.ReactNode }) {
       role: userProfile?.role ?? null,
       sessionId: clientIdentity?.sessionId ?? null,
       subjectId: clientIdentity?.subjectId ?? null,
+      path: pathname || "/",
     }),
-    [clientIdentity?.sessionId, clientIdentity?.subjectId, user?.uid, userProfile?.role],
+    [clientIdentity?.sessionId, clientIdentity?.subjectId, pathname, user?.uid, userProfile?.role],
   );
 
   useEffect(() => {
@@ -114,6 +116,15 @@ export function RolloutProvider({ children }: { children: React.ReactNode }) {
       writeExposureKeys(exposureKeys);
     }
   }, [assignments, clientIdentity, pathname]);
+
+  useEffect(() => {
+    syncTelemetryRolloutContext(buildRolloutTelemetryContext(assignments));
+    syncTelemetryReleaseContext(getReleaseTelemetryContext());
+    return () => {
+      syncTelemetryRolloutContext(null);
+      syncTelemetryReleaseContext(null);
+    };
+  }, [assignments]);
 
   const value = useMemo<RolloutContextValue>(() => ({
     assignments,
