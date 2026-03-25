@@ -22,6 +22,8 @@ import { CLIENT_RUNTIME_EVENTS } from "@/hooks/client-runtime";
 import { useAuthIdentity } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/telemetry";
+import { useDeferredClientReady } from "@/hooks/useDeferredClientReady";
+import { useNetworkConditions } from "@/hooks/useNetworkConditions";
 
 interface NotificationNote {
   id: string;
@@ -369,10 +371,18 @@ function NotificationItem({
 
 export function NotificationBell() {
   const { user } = useAuthIdentity();
-  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [isOpen, setIsOpen] = useState(false);
   const [isClearingAll, setIsClearingAll] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { isConstrained, isVerySlow } = useNetworkConditions();
+  const warmReady = useDeferredClientReady({
+    delayMs: isVerySlow ? 1_500 : isConstrained ? 900 : 450,
+    idle: true,
+  });
+  const notificationsEnabled = Boolean(user) && (isOpen || warmReady);
+  const { notifications, unreadCount, loading, markAsRead, markAllAsRead } = useNotifications({
+    enabled: notificationsEnabled,
+  });
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -476,7 +486,32 @@ export function NotificationBell() {
         </div>
 
         <div className="flex-1 space-y-2 overflow-y-auto p-2.5 custom-scrollbar">
-          {!user || notifications.length === 0 ? (
+          {!user ? (
+            <div className="flex flex-col items-center justify-center px-6 py-10 text-center">
+              <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-[1.4rem] border border-white/10 bg-white/5 text-brand-purple">
+                <Bell className="h-6 w-6" />
+              </div>
+              <p className="text-sm font-semibold text-white">No notifications yet</p>
+              <p className="mt-1 text-xs leading-6 text-gray-500">
+                We will drop updates here when something new is ready to unwrap.
+              </p>
+            </div>
+          ) : loading ? (
+            <div className="space-y-2 px-1 py-2">
+              {[0, 1, 2].map((index) => (
+                <div key={index} className="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-3">
+                  <div className="flex gap-3">
+                    <div className="h-12 w-12 shrink-0 rounded-[1.1rem] bg-white/10" />
+                    <div className="min-w-0 flex-1 space-y-2">
+                      <div className="h-3.5 w-24 rounded-full bg-white/10" />
+                      <div className="h-4 w-3/4 rounded-full bg-white/10" />
+                      <div className="h-3 w-1/2 rounded-full bg-white/5" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center px-6 py-10 text-center">
               <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-[1.4rem] border border-white/10 bg-white/5 text-brand-purple">
                 <Bell className="h-6 w-6" />

@@ -1,21 +1,38 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect } from "react";
 import { ArrowRight, Clock3, Gift, Sparkles, Wallet } from "lucide-react";
 
 import { GuestComponentBlur } from "@/components/Auth/GuestComponentBlur";
 import { DailyCheckIn } from "@/components/Dashboard/DailyCheckIn";
 import { DailyTasksModule } from "@/components/Dashboard/DailyTasksModule";
-import { LiveDropsForYouCarousel } from "@/components/Dashboard/LiveDropsForYouCarousel";
-import { CreatorDiscoveryRail } from "@/components/CreatorDiscoveryRail";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
+import { useDeferredClientReady } from "@/hooks/useDeferredClientReady";
+import { useNetworkConditions } from "@/hooks/useNetworkConditions";
 import { GUMDROPS_PRIMARY_CTA, GUMDROPS_SUPPORT_COPY, SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
 import { trackEvent } from "@/lib/telemetry";
+
+const CreatorDiscoveryRail = dynamic(
+    () => import("@/components/CreatorDiscoveryRail").then((mod) => mod.CreatorDiscoveryRail),
+);
+const LiveDropsForYouCarousel = dynamic(
+    () => import("@/components/Dashboard/LiveDropsForYouCarousel").then((mod) => mod.LiveDropsForYouCarousel),
+);
 
 export default function ExperiencesClient() {
     const { user } = useAuth();
     const { openPurchaseModal, openAuthModal } = useUI();
+    const { isConstrained, isVerySlow } = useNetworkConditions();
+    const creatorRailReady = useDeferredClientReady({
+        delayMs: isVerySlow ? 1_500 : isConstrained ? 950 : 250,
+        idle: true,
+    });
+    const liveDropsReady = useDeferredClientReady({
+        delayMs: isVerySlow ? 1_800 : isConstrained ? 1_100 : 400,
+        idle: true,
+    });
 
     useEffect(() => {
         trackEvent("experience_hub_viewed");
@@ -64,10 +81,10 @@ export default function ExperiencesClient() {
                         supportText="Create a free profile to start Day 1 and stack Gum Drops daily."
                     >
                         <div className="space-y-5">
-                            <CreatorDiscoveryRail surface="experiences" />
+                            {creatorRailReady ? <CreatorDiscoveryRail surface="experiences" /> : null}
                             <DailyCheckIn />
                             <DailyTasksModule />
-                            <LiveDropsForYouCarousel />
+                            {liveDropsReady ? <LiveDropsForYouCarousel /> : null}
                         </div>
                     </GuestComponentBlur>
                 </div>

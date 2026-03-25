@@ -8,10 +8,15 @@ import { Drop } from "@/types/db";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { useDrops } from "@/hooks/useDrops";
+import { useDeferredClientReady } from "@/hooks/useDeferredClientReady";
+import { useNetworkConditions } from "@/hooks/useNetworkConditions";
 import { KandyDropsAccountOverview, AccountOverviewState } from "@/components/KandyDropsAccountOverview";
-import { CreatorDiscoveryRail } from "@/components/CreatorDiscoveryRail";
 import dynamic from "next/dynamic";
 import { trackEvent } from "@/lib/telemetry";
+
+const CreatorDiscoveryRail = dynamic(
+    () => import("@/components/CreatorDiscoveryRail").then((mod) => mod.CreatorDiscoveryRail),
+);
 
 const FeaturedCarousel = dynamic(() => import("@/components/FeaturedCarousel").then(mod => mod.FeaturedCarousel), {
     ssr: false,
@@ -96,6 +101,15 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
     const { user, userProfile, loading: authLoading } = useAuth();
     const { openAuthModal, openPurchaseModal, openProfileSidebar } = useUI();
     const { drops: liveDrops, size, setSize, isLoadingMore, isReachingEnd } = useDrops(["active", "scheduled"], initialDrops);
+    const { isConstrained, isVerySlow } = useNetworkConditions();
+    const creatorRailReady = useDeferredClientReady({
+        delayMs: isVerySlow ? 1_500 : isConstrained ? 1_000 : 250,
+        idle: true,
+    });
+    const featuredReady = useDeferredClientReady({
+        delayMs: isVerySlow ? 1_900 : isConstrained ? 1_100 : 200,
+        idle: true,
+    });
     const [impressionTrackingSessionId] = useState(() => {
         const token = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
             ? crypto.randomUUID().slice(0, 8)
@@ -263,7 +277,7 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
                 />
             </div>
 
-            <CreatorDiscoveryRail surface="drops" compact />
+            {creatorRailReady ? <CreatorDiscoveryRail surface="drops" compact /> : null}
 
             <StickyFilterBar
                 categories={CATEGORIES}
@@ -273,7 +287,7 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
                 onSearchChange={setSearchQuery}
             />
 
-            {!searchQuery && selectedCategory === "All" && (
+            {!searchQuery && selectedCategory === "All" && featuredReady && (
                 <div className="mt-6">
                     <FeaturedCarousel drops={sourceDrops} onSelectDrop={handleSelectDrop} />
                 </div>
@@ -315,7 +329,7 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
                 </div>
             </div>
 
-            <DropPreviewModal drop={previewDrop} onClose={handleClosePreview} />
+            {previewDrop ? <DropPreviewModal drop={previewDrop} onClose={handleClosePreview} /> : null}
         </div>
     );
 }

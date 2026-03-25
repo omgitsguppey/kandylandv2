@@ -1,15 +1,18 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import useSWRInfinite from "swr/infinite";
 import { recordClientDiagnostic } from "@/lib/client-diagnostics";
 import { Drop } from "@/types/db";
 import { applyDropStatus } from "@/lib/drop-status";
 import { DROP_RUNTIME_COLLECTION, DROP_RUNTIME_DOC_ID } from "@/lib/drop-runtime";
+import { useNetworkConditions } from "@/hooks/useNetworkConditions";
 
 const INITIAL_SWEEP_NOW = Date.now();
 const DROPS_PAGE_SIZE = 12;
 const DROPS_REFRESH_MS = 30_000;
+const DROPS_CONSTRAINED_REFRESH_MS = 90_000;
+const DROPS_VERY_SLOW_REFRESH_MS = 120_000;
 const EXPIRY_REFRESH_BUFFER_MS = 1_000;
 
 interface DropFeedPage {
@@ -62,6 +65,13 @@ export function useDrops(
   initialData?: Drop[]
 ) {
   const [sweepNowMs, setSweepNowMs] = useState(INITIAL_SWEEP_NOW);
+  const { isConstrained, isVerySlow } = useNetworkConditions();
+  const lastRefreshAtRef = useRef(0);
+  const refreshIntervalMs = isVerySlow
+    ? DROPS_VERY_SLOW_REFRESH_MS
+    : isConstrained
+      ? DROPS_CONSTRAINED_REFRESH_MS
+      : DROPS_REFRESH_MS;
 
   const getKey = (pageIndex: number, previousPageData: DropFeedPage | null) => {
     if (previousPageData && !previousPageData.nextCursor) return null; // reached the end
@@ -81,9 +91,21 @@ export function useDrops(
     persistSize: true,
     revalidateFirstPage: true,
     revalidateOnFocus: false,
-    refreshInterval: DROPS_REFRESH_MS,
+    refreshInterval: refreshIntervalMs,
     refreshWhenHidden: false,
   });
+
+  const refreshDrops = useCallback((throttleMs: number) => {
+    const now = Date.now();
+    if (throttleMs > 0 && now - lastRefreshAtRef.current < throttleMs) {
+      setSweepNowMs(now);
+      return;
+    }
+
+    lastRefreshAtRef.current = now;
+    setSweepNowMs(now);
+    void mutate();
+  }, [mutate]);
 
   const swrDrops: Drop[] = useMemo(() => {
     return data ? data.flatMap(page => page?.drops || []) : [];
@@ -91,8 +113,7 @@ export function useDrops(
 
   useEffect(() => {
     const syncDrops = () => {
-      setSweepNowMs(Date.now());
-      void mutate();
+      refreshDrops(isConstrained ? 20_000 : 6_000);
     };
 
     const handleVisibilityChange = () => {
@@ -108,7 +129,7 @@ export function useDrops(
       window.removeEventListener("focus", syncDrops);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [mutate]);
+  }, [isConstrained, refreshDrops]);
 
   useEffect(() => {
     let cancelled = false;
@@ -133,8 +154,7 @@ export function useDrops(
               return;
             }
 
-            setSweepNowMs(Date.now());
-            void mutate();
+            refreshDrops(isConstrained ? 6_000 : 1_500);
           },
           (error) => {
             console.error("Failed to subscribe to drop runtime updates", error);
@@ -161,7 +181,7 @@ export function useDrops(
         unsubscribe();
       }
     };
-  }, [mutate]);
+  }, [isConstrained, refreshDrops]);
 
   useEffect(() => {
     const upcomingExpirations = swrDrops
@@ -176,14 +196,13 @@ export function useDrops(
     const nextExpiryMs = Math.min(...upcomingExpirations);
     const timeoutMs = Math.max(250, nextExpiryMs - Date.now() + EXPIRY_REFRESH_BUFFER_MS);
     const timeoutId = window.setTimeout(() => {
-      setSweepNowMs(Date.now());
-      void mutate();
+      refreshDrops(0);
     }, timeoutMs);
 
     return () => {
       window.clearTimeout(timeoutId);
     };
-  }, [mutate, sweepNowMs, swrDrops]);
+  }, [refreshDrops, sweepNowMs, swrDrops]);
 
   const clientDrops = useMemo(() => {
     return swrDrops

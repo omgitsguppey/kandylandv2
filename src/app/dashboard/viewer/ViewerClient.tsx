@@ -17,6 +17,7 @@ import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import useEmblaCarousel from "embla-carousel-react";
 import { trackEvent } from "@/lib/telemetry";
 import { useViewerWatchSession } from "@/hooks/useViewerWatchSession";
+import { useNetworkConditions } from "@/hooks/useNetworkConditions";
 
 
 
@@ -342,6 +343,7 @@ function sanitizeDropTags(tags: unknown): Array<"Sweet" | "Spicy" | "RAW"> {
 
 export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     const { user, userProfile, loading: authLoading } = useAuth();
+    const { isConstrained, isVerySlow } = useNetworkConditions();
     const router = useRouter();
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [contentBlobUrl, setContentBlobUrl] = useState<string | null>(null);
@@ -1053,7 +1055,10 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         }
 
         async function buildThumbnails() {
-            const fetchOrder = buildThumbnailFetchOrder(assetCount, activeIndex).filter((index) => index !== activeIndex);
+            const maxBackgroundFetches = isVerySlow ? 1 : isConstrained ? 2 : Math.max(0, assetCount - 1);
+            const fetchOrder = buildThumbnailFetchOrder(assetCount, activeIndex)
+                .filter((index) => index !== activeIndex)
+                .slice(0, maxBackgroundFetches);
 
             for (const index of fetchOrder) {
                 if (cancelled) {
@@ -1104,13 +1109,16 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
             }
         }
 
-        void buildThumbnails();
+        const timerId = window.setTimeout(() => {
+            void buildThumbnails();
+        }, isVerySlow ? 1_000 : isConstrained ? 500 : 120);
 
         return () => {
             cancelled = true;
+            window.clearTimeout(timerId);
             controllers.forEach((controller) => controller.abort());
         };
-    }, [activeIndex, assetCount, contentLoading, drop, isAuthorized]);
+    }, [activeIndex, assetCount, contentLoading, drop, isAuthorized, isConstrained, isVerySlow]);
 
 
     // Prevent right-click on media

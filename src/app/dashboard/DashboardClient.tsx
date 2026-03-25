@@ -8,11 +8,16 @@ import { useAuth } from "@/context/AuthContext";
 import { useRolloutVariant } from "@/context/RolloutContext";
 import { DailyCheckIn } from "@/components/Dashboard/DailyCheckIn";
 import { CollectionList } from "@/components/Dashboard/CollectionList";
-import { CreatorDiscoveryRail } from "@/components/CreatorDiscoveryRail";
 import { useDrops } from "@/hooks/useDrops";
+import { useDeferredClientReady } from "@/hooks/useDeferredClientReady";
+import { useNetworkConditions } from "@/hooks/useNetworkConditions";
 import { applyDropStatus, isDropActiveNow } from "@/lib/drop-status";
 import { trackEvent } from "@/lib/telemetry";
 import type { Drop } from "@/types/db";
+
+const CreatorDiscoveryRail = dynamic(
+    () => import("@/components/CreatorDiscoveryRail").then((mod) => mod.CreatorDiscoveryRail),
+);
 
 const RecentActivityFeed = dynamic(
     () => import("@/components/Dashboard/RecentActivityFeed").then((mod) => mod.RecentActivityFeed),
@@ -38,6 +43,15 @@ const DASHBOARD_GREETING_VARIANTS: Record<string, string> = {
 
 export default function DashboardClient({ drops }: DashboardClientProps) {
     const { userProfile, loading } = useAuth();
+    const { isConstrained, isVerySlow } = useNetworkConditions();
+    const creatorRailReady = useDeferredClientReady({
+        delayMs: isVerySlow ? 1_500 : isConstrained ? 900 : 250,
+        idle: true,
+    });
+    const recentActivityReady = useDeferredClientReady({
+        delayMs: isVerySlow ? 1_800 : isConstrained ? 1_100 : 450,
+        idle: true,
+    });
     const greetingVariant = useRolloutVariant("dashboard_greeting_experiment", "taste");
     const greetingTemplate = DASHBOARD_GREETING_VARIANTS[greetingVariant] || DASHBOARD_GREETING_VARIANTS.taste;
     const initialActiveDrops = useMemo(() => drops.filter((drop) => isDropActiveNow(drop)), [drops]);
@@ -103,7 +117,7 @@ export default function DashboardClient({ drops }: DashboardClientProps) {
             <div className="grid grid-cols-1 gap-5 sm:gap-8 lg:grid-cols-3">
                 <div className="space-y-6 md:space-y-8">
                     <DailyCheckIn />
-                    <CreatorDiscoveryRail surface="dashboard" compact />
+                    {creatorRailReady ? <CreatorDiscoveryRail surface="dashboard" compact /> : null}
 
                     <div className="glass-panel rounded-3xl p-4 md:p-6">
                         <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-white">
@@ -122,7 +136,7 @@ export default function DashboardClient({ drops }: DashboardClientProps) {
                         </div>
                     </div>
 
-                    <RecentActivityFeed />
+                    {recentActivityReady ? <RecentActivityFeed /> : null}
                 </div>
 
                 <div className="lg:col-span-2">

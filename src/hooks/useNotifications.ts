@@ -17,7 +17,11 @@ interface MarkNotificationAsReadOptions {
     preserveVisible?: boolean;
 }
 
-export function useNotifications() {
+interface UseNotificationsOptions {
+    enabled?: boolean;
+}
+
+export function useNotifications({ enabled = true }: UseNotificationsOptions = {}) {
     const { user } = useAuthIdentity();
     const userId = user?.uid ?? null;
     const [notificationsState, setNotificationsState] = useState<Notification[]>([]);
@@ -29,6 +33,9 @@ export function useNotifications() {
             setNotificationsState([]);
             setLoadedForUserId(null);
             etagRef.current = null;
+            return;
+        }
+        if (!enabled) {
             return;
         }
         const currentUserId = userId;
@@ -178,13 +185,13 @@ export function useNotifications() {
                 unsubscribeUserRuntime();
             }
         };
-    }, [userId]);
+    }, [enabled, userId]);
 
     const notifications = useMemo(
         () => (userId && loadedForUserId === userId ? notificationsState : []),
         [loadedForUserId, notificationsState, userId]
     );
-    const loading = Boolean(userId) && loadedForUserId !== userId;
+    const loading = Boolean(userId) && enabled && loadedForUserId !== userId;
 
     const unreadCount = useMemo(
         () => (userId ? notifications.filter((notification) => !notification.readBy.includes(userId)).length : 0),

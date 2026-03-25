@@ -51,14 +51,18 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
 
         async function loadCreators() {
             try {
-                const discoveryResponse = await fetch(`/api/creator/discovery?surface=${surface}`, { cache: "no-store" });
+                const discoveryPromise = fetch(`/api/creator/discovery?surface=${surface}`, { cache: "no-store" });
+                const relationshipPromise = user ? authFetch("/api/creator/relationships") : null;
+                const [discoveryResponse, relationshipResponse] = await Promise.all([
+                    discoveryPromise,
+                    relationshipPromise,
+                ]);
                 const discoveryResult = await discoveryResponse.json() as { creators?: CreatorCard[] };
 
                 let nextRecommended = discoveryResult.creators || [];
                 let nextFollowed: CreatorCard[] = [];
 
-                if (user) {
-                    const relationshipResponse = await authFetch("/api/creator/relationships");
+                if (user && relationshipResponse) {
                     const relationshipResult = await relationshipResponse.json() as {
                         relationships?: Array<Record<string, unknown>>;
                         recommendedCreators?: CreatorCard[];
