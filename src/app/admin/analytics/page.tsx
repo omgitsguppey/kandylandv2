@@ -224,11 +224,19 @@ interface ViewerOverviewItem {
   sessionCount: number;
   uniqueViewerCount: number;
   repeatSessionCount: number;
+  returnSessionCount: number;
   totalWatchSeconds: number;
   avgSessionSeconds: number;
   avgWatchSeconds: number;
   avgLoadMs: number;
   assetCompletionRate: number;
+  meaningfulSessionCount: number;
+  openedWithoutDepthCount: number;
+  bounceSessionCount: number;
+  abandonedSessionCount: number;
+  stalledSessionCount: number;
+  convertedSessionCount: number;
+  completedSessionCount: number;
   assetSwitches: number;
   downloads: number;
   relatedClicks: number;
@@ -241,11 +249,19 @@ interface ViewerDropInsightItem {
   sessionCount: number;
   uniqueViewerCount: number;
   repeatSessionCount: number;
+  returnSessionCount: number;
   totalWatchSeconds: number;
   avgSessionSeconds: number;
   avgWatchSeconds: number;
   assetStarts: number;
   assetCompletions: number;
+  meaningfulSessionCount: number;
+  openedWithoutDepthCount: number;
+  bounceSessionCount: number;
+  abandonedSessionCount: number;
+  stalledSessionCount: number;
+  convertedSessionCount: number;
+  completedSessionCount: number;
   assetSwitches: number;
   downloads: number;
   relatedClicks: number;
@@ -688,11 +704,19 @@ export default function AdminAnalyticsPage() {
     sessionCount: 0,
     uniqueViewerCount: 0,
     repeatSessionCount: 0,
+    returnSessionCount: 0,
     totalWatchSeconds: 0,
     avgSessionSeconds: 0,
     avgWatchSeconds: 0,
     avgLoadMs: 0,
     assetCompletionRate: 0,
+    meaningfulSessionCount: 0,
+    openedWithoutDepthCount: 0,
+    bounceSessionCount: 0,
+    abandonedSessionCount: 0,
+    stalledSessionCount: 0,
+    convertedSessionCount: 0,
+    completedSessionCount: 0,
     assetSwitches: 0,
     downloads: 0,
     relatedClicks: 0,
@@ -1639,13 +1663,15 @@ export default function AdminAnalyticsPage() {
                     ) : null}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3 xl:grid-cols-6">
+                  <div className="grid grid-cols-2 gap-3 xl:grid-cols-8">
                     <MetricCard label="Views" value={formatCompactNumber(viewerOverview.viewCount)} hint="Viewer opens" icon={Eye} />
-                    <MetricCard label="Sessions" value={formatCompactNumber(viewerOverview.sessionCount)} hint={`${viewerOverview.repeatSessionCount.toLocaleString()} repeat sessions`} icon={PlayCircle} />
+                    <MetricCard label="Sessions" value={formatCompactNumber(viewerOverview.sessionCount)} hint={`${viewerOverview.repeatSessionCount.toLocaleString()} repeat / ${viewerOverview.returnSessionCount.toLocaleString()} returns`} icon={PlayCircle} />
                     <MetricCard label="Unique Viewers" value={formatCompactNumber(viewerOverview.uniqueViewerCount)} hint="Distinct collectors in filter" icon={Users} />
                     <MetricCard label="Watch Time" value={formatDuration(viewerOverview.totalWatchSeconds)} hint={`${formatDuration(viewerOverview.avgWatchSeconds)} avg watch`} icon={Clock3} />
-                    <MetricCard label="Load Speed" value={viewerOverview.avgLoadMs > 0 ? `${viewerOverview.avgLoadMs}ms` : "n/a"} hint="Average secure asset load" icon={Activity} />
+                    <MetricCard label="Meaningful" value={formatCompactNumber(viewerOverview.meaningfulSessionCount)} hint={`${viewerOverview.convertedSessionCount.toLocaleString()} converted / ${viewerOverview.completedSessionCount.toLocaleString()} completed`} icon={CheckCircle2} />
                     <MetricCard label="Completion" value={formatPercent(viewerOverview.assetCompletionRate)} hint={`${viewerOverview.downloads.toLocaleString()} downloads · ${viewerOverview.relatedClicks.toLocaleString()} next clicks`} icon={CheckCircle2} />
+                    <MetricCard label="Opened, No Depth" value={formatCompactNumber(viewerOverview.openedWithoutDepthCount)} hint="Opened without meaningful consumption" icon={Funnel} />
+                    <MetricCard label="Early Exits" value={formatCompactNumber(viewerOverview.bounceSessionCount)} hint={`${viewerOverview.abandonedSessionCount.toLocaleString()} abandoned / ${viewerOverview.stalledSessionCount.toLocaleString()} stalled`} icon={AlertTriangle} />
                   </div>
 
                   <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
@@ -1697,9 +1723,9 @@ export default function AdminAnalyticsPage() {
                             </span>
                           </div>
                           <div className="grid grid-cols-2 gap-2 text-xs">
-                            <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-gray-300">Views<br />{item.viewCount}</div>
-                            <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-gray-300">Repeat<br />{item.repeatSessionCount}</div>
-                            <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-gray-300">Avg watch<br />{formatDuration(item.avgWatchSeconds)}</div>
+                            <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-gray-300">Meaningful<br />{item.meaningfulSessionCount}</div>
+                            <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-gray-300">Opened no depth<br />{item.openedWithoutDepthCount}</div>
+                            <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-gray-300">Returns<br />{item.returnSessionCount}</div>
                             <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-brand-purple">Avg load<br />{item.avgLoadMs > 0 ? `${item.avgLoadMs}ms` : "n/a"}</div>
                           </div>
                         </div>
@@ -1709,7 +1735,7 @@ export default function AdminAnalyticsPage() {
                 </div>
               </SectionCard>
 
-              <SectionCard title="Viewer Journey" subtitle="How far users move from preview to playback to actual content consumption." icon={PlayCircle}>
+              <SectionCard title="Viewer Journey" subtitle="How far users move from preview to opening, meaningful watch, completion, and return." icon={PlayCircle}>
                 <div className="h-64 w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={contentJourney} margin={{ top: 8, right: 4, left: -18, bottom: 0 }}>

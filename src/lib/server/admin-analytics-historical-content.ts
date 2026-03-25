@@ -1,6 +1,7 @@
 import "server-only";
 
 import {
+  ViewerOverview,
   buildDurationBuckets,
   getTelemetryParamNumber,
   getTelemetryParamString,
@@ -37,6 +38,7 @@ export function buildHistoricalContentAnalytics(input: {
   telemetryLogsByEvent: Record<string, TelemetryLogRecord[]>;
   eventsData: Record<string, number>;
   watchAssetDocs: FirebaseFirestore.QueryDocumentSnapshot[];
+  viewerOverview: ViewerOverview;
   funnel: {
     previewOpens: number;
     unlocks: number;
@@ -141,9 +143,12 @@ export function buildHistoricalContentAnalytics(input: {
     { label: "Previews", count: input.funnel.previewOpens },
     { label: "Unlock attempts", count: input.eventsData.drop_unlock_attempted || 0 },
     { label: "Unlocks", count: input.funnel.unlocks },
-    { label: "Viewer opens", count: input.funnel.viewerOpens },
-    { label: "Assets consumed", count: input.eventsData.viewer_asset_consumed || 0 },
-    { label: "Downloads", count: input.eventsData.viewer_source_downloaded || 0 },
+    { label: "Viewer opens", count: Math.max(input.funnel.viewerOpens, input.viewerOverview.viewCount) },
+    { label: "Meaningful watch", count: input.viewerOverview.meaningfulSessionCount },
+    { label: "Opened, no depth", count: input.viewerOverview.openedWithoutDepthCount },
+    { label: "Converted", count: input.viewerOverview.convertedSessionCount },
+    { label: "Completed", count: input.viewerOverview.completedSessionCount },
+    { label: "Returns", count: input.viewerOverview.returnSessionCount },
   ];
 
   const tagDemandMap = new Map<string, number>();

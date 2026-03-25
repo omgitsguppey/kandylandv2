@@ -15,7 +15,11 @@ import {
     ANALYTICS_CANONICAL_COLLECTIONS,
     ANALYTICS_ROUTE_POLICIES,
 } from "@/lib/server/analytics-governance";
-import { VIEWER_WATCH_CONTENT_KINDS } from "@/lib/viewer-watch-session";
+import {
+    VIEWER_WATCH_CONTENT_KINDS,
+    deriveViewerWatchAssetState,
+    deriveViewerWatchSessionState,
+} from "@/lib/viewer-watch-session";
 
 const MAX_WATCH_SESSION_BODY_BYTES = 96 * 1024;
 
@@ -164,7 +168,7 @@ export async function POST(request: NextRequest) {
                 return { accepted: false, stale: true };
             }
 
-            const sessionData = {
+            const mergedSessionData = {
                 watchSessionId: parsedBody.watchSessionId,
                 clientSessionId: parsedBody.clientSessionId,
                 userId: caller.uid,
@@ -215,6 +219,34 @@ export async function POST(request: NextRequest) {
                 }),
             };
 
+            const sessionDerivedState = deriveViewerWatchSessionState({
+                totalWatchSeconds: mergedSessionData.totalWatchSeconds,
+                totalVisibleSeconds: mergedSessionData.totalVisibleSeconds,
+                maxAssetWatchSeconds: mergedSessionData.maxAssetWatchSeconds,
+                viewedAssetCount: mergedSessionData.viewedAssetCount,
+                completedAssetCount: mergedSessionData.completedAssetCount,
+                consumedAssetCount: mergedSessionData.consumedAssetCount,
+                assetSwitchCount: mergedSessionData.assetSwitchCount,
+                downloadCount: mergedSessionData.downloadCount,
+                relatedClickCount: mergedSessionData.relatedClickCount,
+                loadSampleCount: mergedSessionData.loadSampleCount,
+            });
+
+            const sessionData = {
+                ...mergedSessionData,
+                meaningfulWatch: sessionDerivedState.meaningfulWatch,
+                deepWatch: sessionDerivedState.deepWatch,
+                bounced: sessionDerivedState.bounced,
+                abandoned: sessionDerivedState.abandoned,
+                stalled: sessionDerivedState.stalled,
+                converted: sessionDerivedState.converted,
+                completedSession: sessionDerivedState.completedSession,
+                openedWithoutDepth: sessionDerivedState.openedWithoutDepth,
+                idleVisibleSeconds: sessionDerivedState.idleVisibleSeconds,
+                sessionOutcome: sessionDerivedState.outcome,
+                dropOffStage: sessionDerivedState.dropOffStage,
+            };
+
             transaction.set(sessionRef, sessionData, { merge: true });
 
             assetRefs.forEach(({ asset, ref }, index) => {
@@ -225,7 +257,7 @@ export async function POST(request: NextRequest) {
                 const assetLastTimeKeys = buildAnalyticsTimeKeys(asset.lastSeenAtMs);
                 const assetStartedTimeKeys = buildAnalyticsTimeKeys(asset.startedAtMs);
 
-                transaction.set(ref, {
+                const mergedAssetData = {
                     watchSessionId: parsedBody.watchSessionId,
                     clientSessionId: parsedBody.clientSessionId,
                     userId: caller.uid,
@@ -266,6 +298,30 @@ export async function POST(request: NextRequest) {
                     ...(existingAssetSnapshot.exists ? {} : {
                         createdAt: admin.firestore.FieldValue.serverTimestamp(),
                     }),
+                };
+
+                const assetDerivedState = deriveViewerWatchAssetState({
+                    totalWatchSeconds: mergedAssetData.totalWatchSeconds,
+                    totalVisibleSeconds: mergedAssetData.totalVisibleSeconds,
+                    maxProgressSeconds: mergedAssetData.maxProgressSeconds,
+                    completedAssetCount: mergedAssetData.isCompleted ? 1 : 0,
+                    consumedAssetCount: mergedAssetData.isConsumed ? 1 : 0,
+                    loadSampleCount: mergedAssetData.loadSampleCount,
+                    viewedAssetCount: 1,
+                });
+
+                transaction.set(ref, {
+                    ...mergedAssetData,
+                    meaningfulWatch: assetDerivedState.meaningfulWatch,
+                    deepWatch: assetDerivedState.deepWatch,
+                    bounced: assetDerivedState.bounced,
+                    abandoned: assetDerivedState.abandoned,
+                    stalled: assetDerivedState.stalled,
+                    converted: assetDerivedState.converted,
+                    openedWithoutDepth: assetDerivedState.openedWithoutDepth,
+                    idleVisibleSeconds: assetDerivedState.idleVisibleSeconds,
+                    assetOutcome: assetDerivedState.outcome,
+                    dropOffStage: assetDerivedState.dropOffStage,
                 }, { merge: true });
             });
 
