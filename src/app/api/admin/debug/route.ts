@@ -3,7 +3,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
 import { ADMIN, HEAVY_READ } from "@/lib/server/rate-limit";
-import { BUILT_IN_DAILY_TASKS, DAILY_TASK_LIMIT, type DailyTaskAssignment } from "@/lib/tasks/task-catalog";
+import {
+    BUILT_IN_DAILY_TASKS,
+    DAILY_TASK_LIMIT,
+    DAILY_TASK_REWARD_MULTIPLIER,
+    DAILY_TASK_REWARD_VERSION,
+    type DailyTaskAssignment,
+} from "@/lib/tasks/task-catalog";
 import { CANONICAL_TASK_EVENT_NAMES } from "@/lib/server/daily-tasks";
 import { TELEMETRY_EVENT_LABELS, TELEMETRY_EVENT_NAMES } from "@/lib/telemetry-catalog";
 import { guardApiRequest } from "@/lib/server/request-guard";
@@ -13,6 +19,8 @@ import { getConfiguredRollouts, getRolloutEvaluationSamples } from "@/lib/rollou
 import { getChangelogEntries, getCurrentRelease } from "@/lib/release-tracking";
 import { getCSTDateKey } from "@/lib/timezone";
 import { ORCHESTRATION_COLLECTIONS } from "@/lib/orchestration/contract";
+import { CREATOR_SPEND_POLICIES } from "@/lib/server/creator-experiences";
+import { CREATOR_SPEND_TRANSACTION_TYPES, getTransactionBadgeLabel } from "@/lib/transaction-normalizers";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -112,6 +120,7 @@ export async function GET(request: NextRequest) {
             transactionsSnapshot,
             taskRollupSnapshot,
             taskDailySnapshot,
+            customTaskDefinitionsSnapshot,
             serverDiagnosticsSnapshot,
             pipelineHealthSnapshot,
             guestBatchesSnapshot,
@@ -133,6 +142,7 @@ export async function GET(request: NextRequest) {
             adminDb.collection("transactions").orderBy("timestamp", "desc").limit(600).get(),
             adminDb.collection("analytics_task_rollup").get(),
             adminDb.collection("analytics_task_daily").orderBy("lastEventAt", "desc").limit(30).get(),
+            adminDb.collection("daily_task_definitions").get(),
             adminDb.collection("server_diagnostics")
                 .where("createdAtMs", ">=", weekAgoMs)
                 .orderBy("createdAtMs", "desc")
@@ -400,6 +410,65 @@ export async function GET(request: NextRequest) {
             };
         }).sort((left, right) => left.dayKey.localeCompare(right.dayKey));
 
+        const customTaskDefinitions = customTaskDefinitionsSnapshot.docs.map((doc) => {
+            const data = doc.data() as Record<string, unknown>;
+            return {
+                id: doc.id,
+                rewardVersion: toNumber(data.rewardVersion),
+                reward: toNumber(data.reward),
+            };
+        });
+
+        const rewardValues = BUILT_IN_DAILY_TASKS.map((task) => task.reward);
+        const legacyRewardVersionCount = customTaskDefinitions.filter((task) => task.rewardVersion !== DAILY_TASK_REWARD_VERSION).length;
+        const customRewardAverage = customTaskDefinitions.length > 0
+            ? Math.round(customTaskDefinitions.reduce((sum, task) => sum + task.reward, 0) / customTaskDefinitions.length)
+            : 0;
+
+        const creatorSpendTransactions7d = transactionEntries.filter((entry) => {
+            const type = toStringValue(entry.type);
+            return CREATOR_SPEND_TRANSACTION_TYPES.includes(type as typeof CREATOR_SPEND_TRANSACTION_TYPES[number])
+                && toNumber(entry.timestamp) >= weekAgoMs;
+        });
+
+        const creatorSpendParity = {
+            trackedTransactions: creatorSpendTransactions7d.length,
+            totalPurchasedSpent: creatorSpendTransactions7d.reduce((sum, entry) => sum + toNumber(entry.purchasedAmountSpent), 0),
+            totalRewardSpent: creatorSpendTransactions7d.reduce((sum, entry) => sum + toNumber(entry.rewardAmountSpent), 0),
+            missingLedgerSourceCount: creatorSpendTransactions7d.filter((entry) => !toStringValue(entry.ledgerSource)).length,
+            restrictedSpendViolationCount: creatorSpendTransactions7d.filter((entry) => toNumber(entry.rewardAmountSpent) > 0 || toStringValue(entry.ledgerSource) === "reward" || toStringValue(entry.ledgerSource) === "mixed").length,
+            amountMismatchCount: creatorSpendTransactions7d.filter((entry) => {
+                const spendTotal = toNumber(entry.purchasedAmountSpent) + toNumber(entry.rewardAmountSpent);
+                return spendTotal > 0 && spendTotal !== Math.abs(toNumber(entry.amount));
+            }).length,
+            missingCreatorAccrualCount: creatorSpendTransactions7d.filter((entry) => !toStringValue(entry.creatorAccrualId)).length,
+            byType: Array.from(creatorSpendTransactions7d.reduce((map, entry) => {
+                const key = toStringValue(entry.type) || "unknown";
+                const current = map.get(key) || {
+                    type: key,
+                    label: getTransactionBadgeLabel({
+                        type: key as Parameters<typeof getTransactionBadgeLabel>[0]["type"],
+                        rewardSource: undefined,
+                    }),
+                    count: 0,
+                    purchasedSpent: 0,
+                    rewardSpent: 0,
+                };
+                current.count += 1;
+                current.purchasedSpent += toNumber(entry.purchasedAmountSpent);
+                current.rewardSpent += toNumber(entry.rewardAmountSpent);
+                map.set(key, current);
+                return map;
+            }, new Map<string, { type: string; label: string; count: number; purchasedSpent: number; rewardSpent: number }>()).values())
+                .sort((left, right) => right.count - left.count),
+            policies: Object.entries(CREATOR_SPEND_POLICIES).map(([key, policy]) => ({
+                key,
+                label: policy.label,
+                purchasedOnly: policy.purchasedOnly,
+                description: policy.description,
+            })),
+        };
+
         const bugReports = feedbackSnapshot.docs
             .map((doc) => {
                 const data = doc.data() as Record<string, unknown>;
@@ -480,6 +549,8 @@ export async function GET(request: NextRequest) {
                 completedEventsLast7d: completedEvents7d.length,
                 rewardTransactionsLast7d: rewardTransactions7d.length,
                 rewardEventDeltaLast7d: completedEvents7d.length - rewardTransactions7d.length,
+                legacyTaskRewardVersions: legacyRewardVersionCount,
+                creatorSpendViolationsLast7d: creatorSpendParity.restrictedSpendViolationCount,
                 trackedTelemetryEvents: eventStats.length,
                 orphanedTelemetryEvents: orphanedEventStats.length,
                 bugReportsLast7d: bugReports.filter((report) => report.timestamp >= weekAgoMs).length,
@@ -502,6 +573,19 @@ export async function GET(request: NextRequest) {
             orphanedEventStats,
             taskRollups: taskRollups.slice(0, 30),
             dailyTaskSeries,
+            taskRewardConfig: {
+                rewardVersion: DAILY_TASK_REWARD_VERSION,
+                multiplierPercent: Math.round(DAILY_TASK_REWARD_MULTIPLIER * 100),
+                builtInAverageReward: rewardValues.length > 0
+                    ? Math.round(rewardValues.reduce((sum, reward) => sum + reward, 0) / rewardValues.length)
+                    : 0,
+                builtInMinReward: rewardValues.length > 0 ? Math.min(...rewardValues) : 0,
+                builtInMaxReward: rewardValues.length > 0 ? Math.max(...rewardValues) : 0,
+                customTaskCount: customTaskDefinitions.length,
+                customAverageReward: customRewardAverage,
+                legacyRewardVersionCount,
+            },
+            creatorSpendParity,
             bugReports,
             rollouts,
             rolloutSamples,

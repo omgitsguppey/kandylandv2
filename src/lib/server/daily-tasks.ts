@@ -215,15 +215,93 @@ function getCooldownMs(task: DailyTaskDefinition): number {
   return days * ONE_DAY_MS;
 }
 
-function shuffle<T>(items: T[]): T[] {
-  const next = [...items];
-  for (let index = next.length - 1; index > 0; index -= 1) {
-    const swapIndex = Math.floor(Math.random() * (index + 1));
-    const temp = next[index];
-    next[index] = next[swapIndex];
-    next[swapIndex] = temp;
-  }
-  return next;
+const DAILY_TASK_GROUP_PRIORITY: Record<DailyTaskGroup, number> = {
+  unwrap: 150,
+  watch: 140,
+  visit: 125,
+  wallet: 105,
+  purchase: 95,
+  share: 70,
+  notifications: 55,
+  feedback: 45,
+};
+
+const DAILY_TASK_ACTION_PRIORITY: Record<DailyTaskActionType, number> = {
+  open_drops: 32,
+  open_library: 30,
+  open_experiences: 26,
+  open_dashboard: 22,
+  open_wallet: 18,
+  open_notifications: 8,
+  enable_notifications: 6,
+  give_feedback: 4,
+};
+
+const CORE_LOOP_TASK_EVENTS = new Set([
+  "daily_check_in_claim",
+  "drop_preview_opened",
+  "view_drop_details",
+  "unlock_drop_success",
+  "viewer_opened",
+  "viewer_session_completed",
+  "viewer_asset_completed",
+  "viewer_asset_consumed",
+  "viewer_watch_checkpoint",
+]);
+
+function computeTaskPriorityScore(
+  task: DailyTaskDefinition,
+  history: Record<string, number>,
+  nowMs: number,
+) {
+  const lastCompletedAt = history[task.id] ?? 0;
+  const daysSinceCompletion = lastCompletedAt > 0
+    ? Math.min(14, Math.floor((nowMs - lastCompletedAt) / ONE_DAY_MS))
+    : 10;
+  const sourceBonus = task.source === "user"
+    ? 26
+    : task.source === "global"
+      ? 18
+      : 0;
+  const coreLoopBonus = CORE_LOOP_TASK_EVENTS.has(task.eventName) ? 22 : 0;
+  const oneTimeBonus = task.oneTime ? 10 : 0;
+  const uniquenessBonus = task.uniqueByParamKey ? 6 : 0;
+  const progressPenalty = task.maxProgress > 3 ? (task.maxProgress - 3) * 6 : 0;
+  const noisyPenalty = task.group === "notifications"
+    ? 10
+    : task.group === "feedback"
+      ? 18
+      : task.group === "share"
+        ? 8
+        : 0;
+
+  return (
+    DAILY_TASK_GROUP_PRIORITY[task.group]
+    + DAILY_TASK_ACTION_PRIORITY[task.actionType]
+    + sourceBonus
+    + coreLoopBonus
+    + oneTimeBonus
+    + uniquenessBonus
+    + Math.min(task.reward, 220)
+    + daysSinceCompletion
+    - progressPenalty
+    - noisyPenalty
+  );
+}
+
+function rankTasksForCycle(
+  tasks: DailyTaskDefinition[],
+  history: Record<string, number>,
+  nowMs: number,
+) {
+  return tasks
+    .map((task) => ({
+      task,
+      score: computeTaskPriorityScore(task, history, nowMs),
+      tieBreaker: Math.random(),
+    }))
+    .sort((left, right) => right.score - left.score || right.tieBreaker - left.tieBreaker)
+    .map((entry) => entry.task);
 }
 
 function pickTasksForCycle(
@@ -304,8 +382,7 @@ function pickTasksForCycle(
   });
 
   const pool = eligible.length >= DAILY_TASK_LIMIT ? eligible : basePool;
-  const prioritized = shuffle(pool.filter((task) => task.source !== "built_in"));
-  const builtIns = shuffle(pool.filter((task) => task.source === "built_in"));
+  const rankedPool = rankTasksForCycle(pool, history, nowMs);
   const selected: DailyTaskDefinition[] = [];
   const usedGroups = new Set<string>();
 
@@ -324,11 +401,10 @@ function pickTasksForCycle(
     usedGroups.add(task.group);
   };
 
-  prioritized.forEach(pushIfPossible);
-  builtIns.forEach(pushIfPossible);
+  rankedPool.forEach(pushIfPossible);
 
   if (selected.length < DAILY_TASK_LIMIT) {
-    shuffle(pool).forEach((task) => {
+    rankedPool.forEach((task) => {
       if (selected.length < DAILY_TASK_LIMIT && !selected.some((entry) => entry.id === task.id)) {
         selected.push(task);
       }
@@ -336,7 +412,7 @@ function pickTasksForCycle(
   }
 
   if (selected.length < DAILY_TASK_LIMIT) {
-    shuffle(basePool).forEach((task) => {
+    rankTasksForCycle(basePool, history, nowMs).forEach((task) => {
       if (selected.length < DAILY_TASK_LIMIT && !selected.some((entry) => entry.id === task.id)) {
         selected.push(task);
       }

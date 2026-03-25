@@ -12,6 +12,13 @@ import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
 import { buildModuleCoverageReport, buildParityInsight } from "@/lib/server/analytics-parity";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { CREATOR_COLLECTIONS, isCreatorRole } from "@/lib/creator-experiences";
+import {
+    buildSupportThreadKey,
+    describeSupportState,
+    getSupportPrimaryHandle,
+    normalizeSupportThreadStatus,
+    SUPPORT_COLLECTIONS,
+} from "@/lib/support-readiness";
 
 function toTimestampNumber(value: unknown): number {
     if (typeof value === "number" && Number.isFinite(value)) {
@@ -62,7 +69,7 @@ export async function GET(
         const securityHistoryLimit = Math.max(historyLimit, 1000);
 
         const userRef = adminDb.collection("users").doc(userId);
-        const [userSnap, transactionsSnap, analyticsRollupSnap, analyticsFactsSnap, sessionFactsSnap, userDailySnapshot, securityEventsSnap] = await Promise.all([
+        const [userSnap, transactionsSnap, analyticsRollupSnap, analyticsFactsSnap, sessionFactsSnap, userDailySnapshot, securityEventsSnap, supportThreadSnap, feedbackSnap] = await Promise.all([
             userRef.get(),
             adminDb.collection("transactions")
                 .where("userId", "==", userId)
@@ -84,6 +91,14 @@ export async function GET(
                 .where("userId", "==", userId)
                 .orderBy("timestamp", "desc")
                 .limit(securityHistoryLimit)
+                .get(),
+            adminDb.collection(SUPPORT_COLLECTIONS.threads)
+                .where("userId", "==", userId)
+                .limit(20)
+                .get(),
+            adminDb.collection("platform_feedback")
+                .where("userId", "==", userId)
+                .limit(20)
                 .get(),
         ]);
 
@@ -465,6 +480,109 @@ export async function GET(
             reasons: mergedReasonCounts,
         };
 
+        const supportThreads = supportThreadSnap.docs
+            .map((doc) => {
+                const data = doc.data() as Record<string, unknown>;
+                return {
+                    id: doc.id,
+                    status: normalizeSupportThreadStatus(data.status),
+                    channel: (() => {
+                        const channel = readString(data.channel);
+                        if (channel === "email" || channel === "feedback" || channel === "system") {
+                            return channel;
+                        }
+                        return "in_app";
+                    })(),
+                    subject: readString(data.subject) || null,
+                    lastMessageAt: Math.max(
+                        toTimestampNumber(data.lastMessageAt),
+                        toTimestampNumber(data.updatedAt),
+                        toTimestampNumber(data.createdAt),
+                    ),
+                    createdAt: Math.max(
+                        toTimestampNumber(data.createdAt),
+                        toTimestampNumber(data.updatedAt),
+                    ),
+                };
+            })
+            .sort((left, right) => right.lastMessageAt - left.lastMessageAt);
+
+        const supportFeedback = feedbackSnap.docs
+            .map((doc) => {
+                const data = doc.data() as Record<string, unknown>;
+                return {
+                    id: doc.id,
+                    summary: readString(data.summary) || readString(data.message) || "Support signal",
+                    status: readString(data.status, "new"),
+                    timestamp: Math.max(toTimestampNumber(data.timestamp), toTimestampNumber(data.updatedAt)),
+                    path: readString(data.currentPath) || null,
+                };
+            })
+            .sort((left, right) => right.timestamp - left.timestamp);
+
+        const openSupportThreads = supportThreads.filter((thread) => thread.status === "open" || thread.status === "waiting_on_support" || thread.status === "waiting_on_user");
+        const derivedSupportState = openSupportThreads.some((thread) => thread.status === "waiting_on_support")
+            ? "waiting_on_support"
+            : openSupportThreads.some((thread) => thread.status === "waiting_on_user")
+                ? "waiting_on_user"
+                : openSupportThreads.length > 0
+                    ? "open"
+                    : supportThreads.length > 0
+                        ? "resolved"
+                        : "ready";
+        const supportState = describeSupportState(derivedSupportState);
+        const latestSupportThreadAt = supportThreads[0]?.lastMessageAt || 0;
+        const latestSupportFeedbackAt = supportFeedback[0]?.timestamp || 0;
+        const supportReadiness = {
+            summary: {
+                threadKey: buildSupportThreadKey(userId),
+                state: derivedSupportState,
+                stateLabel: supportState.label,
+                stateDescription: supportState.description,
+                totalThreads: supportThreads.length,
+                openThreads: openSupportThreads.length,
+                bugReportCount: supportFeedback.length,
+                lastSupportAt: Math.max(latestSupportThreadAt, latestSupportFeedbackAt),
+                lastSupportSource: latestSupportThreadAt >= latestSupportFeedbackAt && latestSupportThreadAt > 0
+                    ? "support_thread"
+                    : latestSupportFeedbackAt > 0
+                        ? "feedback"
+                        : "none",
+                primaryHandle: getSupportPrimaryHandle({
+                    username: user.username,
+                    displayName: user.displayName,
+                    email: user.email,
+                    uid: user.uid,
+                }),
+                channels: {
+                    email: Boolean(user.email),
+                    inApp: Boolean(user.uid),
+                    browserPush: user.notificationSettings?.browserPushEnabled === true,
+                },
+            },
+            threads: supportThreads.slice(0, 6),
+            signals: [
+                ...supportThreads.slice(0, 3).map((thread) => ({
+                    id: `thread:${thread.id}`,
+                    kind: "thread" as const,
+                    summary: thread.subject || "Support thread ready",
+                    status: thread.status,
+                    timestamp: thread.lastMessageAt,
+                    path: null,
+                })),
+                ...supportFeedback.slice(0, 4).map((feedback) => ({
+                    id: `feedback:${feedback.id}`,
+                    kind: "feedback" as const,
+                    summary: feedback.summary,
+                    status: feedback.status,
+                    timestamp: feedback.timestamp,
+                    path: feedback.path,
+                })),
+            ]
+                .sort((left, right) => right.timestamp - left.timestamp)
+                .slice(0, 6),
+        };
+
         let creatorOps: Record<string, unknown> | null = null;
         if (isCreatorRole(user.role)) {
             const [
@@ -566,6 +684,7 @@ export async function GET(
             analytics,
             securitySummary,
             securityEvents,
+            supportReadiness,
             creatorOps,
             dropReferences,
         });

@@ -597,23 +597,6 @@ export async function GET(request: NextRequest) {
             });
 
             const {
-                packagePerformance,
-                unlockCategoryMix,
-                watchDepthBuckets,
-                contentJourney,
-                contentTagDemand,
-            } = buildHistoricalContentAnalytics({
-                telemetryLogsByEvent,
-                eventsData,
-                watchAssetDocs: watchAssetsSnapshot.docs,
-                funnel: {
-                    previewOpens: funnel.previewOpens,
-                    unlocks: funnel.unlocks,
-                    viewerOpens: funnel.viewerOpens,
-                },
-            });
-
-            const {
                 filteredSessionFacts,
                 viewerSessionStartedLogs,
                 viewerOverviewCanonical,
@@ -626,6 +609,24 @@ export async function GET(request: NextRequest) {
                 watchAssetDocs: watchAssetsSnapshot.docs,
                 viewerUser,
                 dropReferences,
+            });
+
+            const {
+                packagePerformance,
+                unlockCategoryMix,
+                watchDepthBuckets,
+                contentJourney,
+                contentTagDemand,
+            } = buildHistoricalContentAnalytics({
+                telemetryLogsByEvent,
+                eventsData,
+                watchAssetDocs: watchAssetsSnapshot.docs,
+                viewerOverview: viewerOverviewCanonical,
+                funnel: {
+                    previewOpens: funnel.previewOpens,
+                    unlocks: funnel.unlocks,
+                    viewerOpens: funnel.viewerOpens,
+                },
             });
 
             const guestInteractionCount = guestBatchesSnapshot.docs.reduce((total, doc) => {

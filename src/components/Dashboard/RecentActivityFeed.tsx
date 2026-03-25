@@ -25,6 +25,7 @@ import type { Transaction } from "@/types/db";
 import { authFetch } from "@/lib/authFetch";
 import { ACTIVITY_SYNC_EVENT } from "@/lib/activity-sync";
 import { USER_RUNTIME_COLLECTION } from "@/lib/user-runtime";
+import { getTransactionDisplayLabel } from "@/lib/transaction-normalizers";
 
 interface TaskEventRecord {
     id: string;
@@ -55,28 +56,7 @@ type ActivityItem =
 const ITEMS_PER_PAGE = 5;
 
 function renderTransactionLabel(transaction: Transaction) {
-    switch (transaction.type) {
-        case "unlock_content":
-            return transaction.description || "Unwrapped KandyDrop";
-        case "purchase_currency":
-            return transaction.description || "Gum Drops added";
-        case "admin_adjustment":
-            return transaction.description || "Balance updated";
-        case "daily_reward":
-            if (transaction.rewardSource === "check_in") {
-                return transaction.description || "Daily check-in reward collected";
-            }
-            if (transaction.rewardSource === "task") {
-                return transaction.description || "Daily task reward collected";
-            }
-            return transaction.description || "Daily reward collected";
-        case "referral_bonus":
-            return transaction.description || "Referral bonus earned";
-        case "onboarding_reward":
-            return transaction.description || "Onboarding reward collected";
-        default:
-            return transaction.description || "Recent activity";
-    }
+    return getTransactionDisplayLabel(transaction);
 }
 
 function renderTaskEventLabel(taskEvent: TaskEventRecord) {

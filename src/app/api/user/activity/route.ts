@@ -5,7 +5,7 @@ import { handleApiError } from "@/lib/server/auth";
 import { buildNotModifiedResponse, buildWeakEtag, PRIVATE_REVALIDATE_CACHE_CONTROL, requestMatchesEtag } from "@/lib/http-cache";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
-import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
+import { getTransactionDisplayLabel, normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 import { guardApiRequest } from "@/lib/server/request-guard";
 
 type TaskEventType = "assigned" | "started" | "completed" | "failed" | "reminder_sent";
@@ -68,28 +68,7 @@ function toTaskEvent(raw: Record<string, unknown>, id: string) {
 }
 
 function renderTransactionLabel(transaction: ReturnType<typeof normalizeTransactionRecord>) {
-    switch (transaction.type) {
-        case "unlock_content":
-            return transaction.description || "Unwrapped KandyDrop";
-        case "purchase_currency":
-            return transaction.description || "Gum Drops added";
-        case "admin_adjustment":
-            return transaction.description || "Balance updated";
-        case "daily_reward":
-            if (transaction.rewardSource === "check_in") {
-                return transaction.description || "Daily check-in reward collected";
-            }
-            if (transaction.rewardSource === "task") {
-                return transaction.description || "Daily task reward collected";
-            }
-            return transaction.description || "Daily reward collected";
-        case "referral_bonus":
-            return transaction.description || "Referral bonus earned";
-        case "onboarding_reward":
-            return transaction.description || "Onboarding reward collected";
-        default:
-            return transaction.description || "Recent activity";
-    }
+    return getTransactionDisplayLabel(transaction);
 }
 
 function renderTaskEventLabel(taskEvent: NonNullable<ReturnType<typeof toTaskEvent>>) {

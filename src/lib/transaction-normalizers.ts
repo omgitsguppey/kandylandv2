@@ -10,7 +10,35 @@ type TimestampLike = {
   _nanoseconds?: number;
 };
 
-const transactionTypeSchema = z.enum(["purchase_currency", "unlock_content", "admin_adjustment", "daily_reward", "referral_bonus", "onboarding_reward"]);
+const transactionTypeSchema = z.enum([
+  "purchase_currency",
+  "unlock_content",
+  "admin_adjustment",
+  "daily_reward",
+  "referral_bonus",
+  "onboarding_reward",
+  "creator_message_text",
+  "creator_message_image",
+  "creator_message_video",
+  "creator_subscription",
+  "creator_subscription_renewal",
+  "creator_custom_request",
+  "creator_booking_phone",
+  "creator_booking_video",
+]);
+
+export const CREATOR_SPEND_TRANSACTION_TYPES = [
+  "creator_message_text",
+  "creator_message_image",
+  "creator_message_video",
+  "creator_subscription",
+  "creator_subscription_renewal",
+  "creator_custom_request",
+  "creator_booking_phone",
+  "creator_booking_video",
+] as const satisfies Transaction["type"][];
+
+const creatorSpendTransactionTypeSet = new Set<string>(CREATOR_SPEND_TRANSACTION_TYPES);
 
 const transactionRecordSchema = z.object({
   userId: z.string().min(1),
@@ -18,6 +46,7 @@ const transactionRecordSchema = z.object({
   type: z.string().min(1),
   rewardSource: z.enum(["check_in", "task", "onboarding"]).optional(),
   relatedDropId: z.string().optional(),
+  creatorId: z.string().optional(),
   description: z.string().default(""),
   timestamp: z.unknown().optional(),
   timestampMs: z.number().finite().nonnegative().optional(),
@@ -50,6 +79,12 @@ const transactionRecordSchema = z.object({
   currency: z.string().optional(),
   status: z.enum(["completed", "failed", "pending"]).optional(),
   verifiedServerSide: z.boolean().optional(),
+  purchasedAmountSpent: z.number().finite().nonnegative().optional(),
+  rewardAmountSpent: z.number().finite().nonnegative().optional(),
+  ledgerSource: z.enum(["purchased", "reward", "mixed"]).optional(),
+  creatorRevenueShareGd: z.number().finite().nonnegative().optional(),
+  creatorRevenueShareUsd: z.number().finite().nonnegative().optional(),
+  creatorAccrualId: z.string().optional(),
 });
 
 function normalizeTimestamp(value: unknown): number {
@@ -96,23 +131,126 @@ function normalizeType(rawType: string): z.infer<typeof transactionTypeSchema> {
     return "onboarding_reward";
   }
 
-  if (rawType === "purchase_currency" || rawType === "unlock_content" || rawType === "admin_adjustment") {
-    return rawType;
+  if (
+    rawType === "purchase_currency"
+    || rawType === "unlock_content"
+    || rawType === "admin_adjustment"
+    || creatorSpendTransactionTypeSet.has(rawType)
+  ) {
+    return rawType as z.infer<typeof transactionTypeSchema>;
   }
 
   return "admin_adjustment";
 }
 
+export function isCreatorSpendTransactionType(type: unknown): type is typeof CREATOR_SPEND_TRANSACTION_TYPES[number] {
+  return typeof type === "string" && creatorSpendTransactionTypeSet.has(type);
+}
+
+export function getTransactionDisplayLabel(
+  transaction: Pick<Transaction, "type" | "description" | "rewardSource">,
+) {
+  if (transaction.description && transaction.description.trim().length > 0) {
+    return transaction.description.trim();
+  }
+
+  switch (transaction.type) {
+    case "unlock_content":
+      return "Unwrapped KandyDrop";
+    case "purchase_currency":
+      return "Gum Drops added";
+    case "admin_adjustment":
+      return "Balance updated";
+    case "daily_reward":
+      if (transaction.rewardSource === "check_in") {
+        return "Daily check-in reward collected";
+      }
+      if (transaction.rewardSource === "task") {
+        return "Daily task reward collected";
+      }
+      return "Daily reward collected";
+    case "referral_bonus":
+      return "Referral bonus earned";
+    case "onboarding_reward":
+      return "Onboarding reward collected";
+    case "creator_message_text":
+      return "Paid creator text sent";
+    case "creator_message_image":
+      return "Paid creator image sent";
+    case "creator_message_video":
+      return "Paid creator video sent";
+    case "creator_subscription":
+      return "Creator subscription started";
+    case "creator_subscription_renewal":
+      return "Creator subscription renewed";
+    case "creator_custom_request":
+      return "Creator custom request placed";
+    case "creator_booking_phone":
+      return "Creator phone booking placed";
+    case "creator_booking_video":
+      return "Creator video booking placed";
+    default:
+      return "Recent activity";
+  }
+}
+
+export function getTransactionBadgeLabel(
+  transaction: Pick<Transaction, "type" | "rewardSource">,
+) {
+  switch (transaction.type) {
+    case "admin_adjustment":
+      return "Admin";
+    case "unlock_content":
+      return "Unlock";
+    case "purchase_currency":
+      return "Purchase";
+    case "daily_reward":
+      return transaction.rewardSource === "check_in"
+        ? "Check-in"
+        : transaction.rewardSource === "task"
+          ? "Task reward"
+          : "Reward";
+    case "referral_bonus":
+      return "Referral";
+    case "onboarding_reward":
+      return "Onboarding";
+    case "creator_message_text":
+      return "Chat";
+    case "creator_message_image":
+      return "Image chat";
+    case "creator_message_video":
+      return "Video chat";
+    case "creator_subscription":
+      return "Subscription";
+    case "creator_subscription_renewal":
+      return "Renewal";
+    case "creator_custom_request":
+      return "Request";
+    case "creator_booking_phone":
+      return "Phone booking";
+    case "creator_booking_video":
+      return "Video booking";
+    default:
+      return transaction.type;
+  }
+}
+
 export function normalizeTransactionRecord(raw: unknown, id: string): Transaction {
   const parsed = transactionRecordSchema.parse(raw);
+  const type = normalizeType(parsed.type);
   return {
     id,
     userId: parsed.userId,
     amount: parsed.amount,
-    type: normalizeType(parsed.type),
+    type,
     rewardSource: parsed.rewardSource,
     relatedDropId: parsed.relatedDropId,
-    description: parsed.description || parsed.type,
+    creatorId: parsed.creatorId,
+    description: getTransactionDisplayLabel({
+      type,
+      description: parsed.description,
+      rewardSource: parsed.rewardSource,
+    }),
     timestamp: normalizeTimestamp(parsed.timestamp),
     timestampMs: parsed.timestampMs,
     balanceBefore: parsed.balanceBefore,
@@ -144,6 +282,12 @@ export function normalizeTransactionRecord(raw: unknown, id: string): Transactio
     currency: parsed.currency,
     status: normalizeLedgerStatus(parsed.status),
     verifiedServerSide: parsed.verifiedServerSide,
+    purchasedAmountSpent: parsed.purchasedAmountSpent,
+    rewardAmountSpent: parsed.rewardAmountSpent,
+    ledgerSource: parsed.ledgerSource,
+    creatorRevenueShareGd: parsed.creatorRevenueShareGd,
+    creatorRevenueShareUsd: parsed.creatorRevenueShareUsd,
+    creatorAccrualId: parsed.creatorAccrualId,
   };
 }
 

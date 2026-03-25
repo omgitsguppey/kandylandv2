@@ -2,9 +2,12 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { LogOut, LayoutDashboard, Library, Settings, ChevronDown } from "lucide-react";
+import Image from "next/image";
+import { LogOut, LayoutDashboard, Library, Settings, ChevronDown, CircleHelp, LifeBuoy, FileText } from "lucide-react";
 
 import { useAuth, useUserProfile } from "@/context/AuthContext";
+import { trackEvent } from "@/lib/telemetry";
+import { PRIVACY_SUPPORT_EMAIL } from "@/lib/privacy-policy";
 import { cn } from "@/lib/utils";
 
 export function ProfileDropdown() {
@@ -28,6 +31,17 @@ export function ProfileDropdown() {
 
     if (!user) return null;
 
+    const displayName = typeof user.displayName === "string" && user.displayName.trim().length > 0 ? user.displayName : "User";
+    const username = typeof userProfile?.username === "string" && userProfile.username.trim().length > 0 ? userProfile.username.trim() : "";
+    const primaryIdentity = username ? `@${username}` : displayName;
+    const secondaryIdentity = username && displayName !== username
+        ? displayName
+        : typeof user.email === "string" && user.email.trim().length > 0
+            ? user.email
+            : "Manage account";
+    const avatarUrl = typeof user.photoURL === "string" && user.photoURL.trim().length > 0 ? user.photoURL : null;
+    const supportHref = `mailto:${PRIVACY_SUPPORT_EMAIL}?subject=${encodeURIComponent("KandyDrops Support")}`;
+
     return (
         <div className="relative" ref={dropdownRef}>
             <button
@@ -35,8 +49,12 @@ export function ProfileDropdown() {
                 className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full transition-colors border border-transparent"
             >
                 <div className="relative">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-brand-purple to-brand-purple flex items-center justify-center text-white font-bold text-sm shadow-md">
-                        {user.displayName?.charAt(0)?.toUpperCase() || "U"}
+                    <div className="relative w-8 h-8 overflow-hidden rounded-full bg-gradient-to-tr from-brand-purple to-brand-purple flex items-center justify-center text-white font-bold text-sm shadow-md">
+                        {avatarUrl ? (
+                            <Image src={avatarUrl} alt={displayName} fill sizes="32px" className="object-cover" />
+                        ) : (
+                            <span>{displayName.charAt(0)?.toUpperCase() || "U"}</span>
+                        )}
                     </div>
                     {isAdmin && (
                         <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-brand-purple rounded-full border-2 border-black" title="Admin User" />
@@ -44,14 +62,14 @@ export function ProfileDropdown() {
                 </div>
                 <div className="hidden md:flex flex-col items-start text-xs">
                     <div className="flex items-center gap-2">
-                        <span className="font-bold text-white leading-tight">{user.displayName}</span>
+                        <span className="font-bold text-white leading-tight">{primaryIdentity}</span>
                         {isAdmin && (
                             <span className="px-1.5 py-0.5 rounded-full bg-brand-purple/20 text-brand-purple text-[10px] font-bold border border-brand-purple/30">
                                 ADMIN
                             </span>
                         )}
                     </div>
-                    <span className="text-gray-400 font-medium">View Profile</span>
+                    <span className="text-gray-400 font-medium truncate max-w-[12rem]">{secondaryIdentity}</span>
                 </div>
                 <ChevronDown className={cn("w-4 h-4 text-gray-400 transition-transform duration-300", isOpen && "rotate-180")} />
             </button>
@@ -62,12 +80,12 @@ export function ProfileDropdown() {
                 >
 
                     <div className="px-4 py-3 border-b border-white/10 mb-2 flex items-start justify-between gap-2">
-                        <div>
-                            <p className="text-sm font-bold text-white flex items-center gap-2">
-                                My Account
+                        <div className="min-w-0">
+                            <p className="text-sm font-bold text-white flex items-center gap-2 truncate">
+                                {primaryIdentity}
                                 {isAdmin && <span className="text-xs text-brand-purple">(Admin)</span>}
                             </p>
-                            <p className="text-xs text-gray-400 truncate">{user.email}</p>
+                            <p className="text-xs text-gray-400 truncate">{secondaryIdentity}</p>
                         </div>
                         <Link href="/dashboard/profile" onClick={() => setIsOpen(false)} className="p-2 rounded-full bg-white/5 border border-white/10" title="Settings">
                             <Settings className="w-4 h-4 text-gray-300" />
@@ -79,6 +97,15 @@ export function ProfileDropdown() {
                         <DropdownItem href="/dashboard/library" icon={<Library className="w-4 h-4" />} label="My KandyDrops" onClick={() => setIsOpen(false)} />
                         <DropdownItem href="/dashboard/profile" icon={<Settings className="w-4 h-4" />} label="Settings" onClick={() => setIsOpen(false)} />
                     </nav>
+
+                    <div className="mt-2 pt-2 border-t border-white/10">
+                        <p className="px-4 pb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-500">Help & policies</p>
+                        <nav className="space-y-1">
+                            <DropdownItem href="/faq" icon={<CircleHelp className="w-4 h-4" />} label="FAQ" onClick={() => setIsOpen(false)} />
+                            <DropdownItem href={supportHref} icon={<LifeBuoy className="w-4 h-4" />} label="Support" onClick={() => setIsOpen(false)} />
+                            <DropdownItem href="/privacy" icon={<FileText className="w-4 h-4" />} label="Policies" onClick={() => setIsOpen(false)} />
+                        </nav>
+                    </div>
 
                     <div className="mt-2 pt-2 border-t border-white/10">
                         <button
@@ -99,11 +126,31 @@ export function ProfileDropdown() {
 }
 
 function DropdownItem({ href, icon, label, onClick }: { href: string; icon: React.ReactNode; label: string; onClick: () => void }) {
+    const handleClick = () => {
+        trackEvent("navigation_click", { destination: href, source: "profile_dropdown" });
+        onClick();
+    };
+
+    const className = "flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 rounded-xl transition-all group";
+
+    if (href.startsWith("mailto:")) {
+        return (
+            <a
+                href={href}
+                onClick={handleClick}
+                className={className}
+            >
+                <span className="transition-colors">{icon}</span>
+                {label}
+            </a>
+        );
+    }
+
     return (
         <Link
             href={href}
-            onClick={onClick}
-            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 rounded-xl transition-all group"
+            onClick={handleClick}
+            className={className}
         >
             <span className="transition-colors">{icon}</span>
             {label}

@@ -6,7 +6,7 @@ import { handleApiError } from "@/lib/server/auth";
 import { CRON } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { CREATOR_COLLECTIONS, CREATOR_SUBSCRIPTION_MIN_GD, isCreatorRole } from "@/lib/creator-experiences";
-import { buildCreatorAccrual, buildSourceAwareBalancePatch, readSourceAwareBalance, spendSourceAwareGumdrops } from "@/lib/server/creator-experiences";
+import { buildCreatorAccrual, buildSourceAwareBalancePatch, readSourceAwareBalance, spendCreatorExperienceGumdrops } from "@/lib/server/creator-experiences";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { markNotificationsRuntimeChanged } from "@/lib/server/notification-runtime";
@@ -134,7 +134,7 @@ export async function GET(request: NextRequest) {
                 }
 
                 const balance = readSourceAwareBalance(userData);
-                const spend = spendSourceAwareGumdrops(balance, priceGd, { purchasedOnly: true });
+                const spend = spendCreatorExperienceGumdrops(balance, priceGd, "subscription");
                 const creatorDisplayName = typeof creatorData.displayName === "string" && creatorData.displayName.trim().length > 0
                     ? creatorData.displayName.trim()
                     : "Creator";
@@ -197,7 +197,7 @@ export async function GET(request: NextRequest) {
                     extra: {
                         purchasedAmountSpent: spend.purchasedSpent,
                         rewardAmountSpent: spend.rewardSpent,
-                        ledgerSource: "purchased",
+                        ledgerSource: spend.ledgerSource,
                         creatorRevenueShareGd: accrual.creatorShareGd,
                         creatorRevenueShareUsd: accrual.cashoutValueUsd,
                         creatorAccrualId: accrualRef.id,

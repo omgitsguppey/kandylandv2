@@ -2,11 +2,13 @@
 
 import { useEffect, type ReactNode } from "react";
 import Link from "next/link";
-import { LogOut, LayoutDashboard, Library, Settings, X, Plus } from "lucide-react";
+import Image from "next/image";
+import { LogOut, LayoutDashboard, Library, Settings, X, Plus, CircleHelp, LifeBuoy, FileText } from "lucide-react";
 
 import { useAuthIdentity, useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { trackEvent } from "@/lib/telemetry";
+import { PRIVACY_SUPPORT_EMAIL } from "@/lib/privacy-policy";
 
 interface ProfileSidebarProps {
     isOpen: boolean;
@@ -38,10 +40,15 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
 
     const displayName = typeof user.displayName === "string" && user.displayName.trim().length > 0 ? user.displayName : "User";
     const email = typeof user.email === "string" && user.email.trim().length > 0 ? user.email : "No email";
+    const username = typeof userProfile?.username === "string" && userProfile.username.trim().length > 0 ? userProfile.username.trim() : "";
+    const primaryIdentity = username ? `@${username}` : displayName;
+    const secondaryIdentity = username && displayName !== username ? displayName : email;
     const profileInitial = displayName.charAt(0).toUpperCase();
+    const avatarUrl = typeof user.photoURL === "string" && user.photoURL.trim().length > 0 ? user.photoURL : null;
     const gumDropsBalance = typeof userProfile?.gumDropsBalance === "number" && Number.isFinite(userProfile.gumDropsBalance)
         ? userProfile.gumDropsBalance
         : 0;
+    const supportHref = `mailto:${PRIVACY_SUPPORT_EMAIL}?subject=${encodeURIComponent("KandyDrops Support")}`;
 
     return (
         <>
@@ -57,19 +64,23 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
                         <div className="flex items-start justify-between gap-3">
                             <div className="flex items-center gap-3 min-w-0">
                                 <div className="relative shrink-0">
-                                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-purple to-brand-purple flex items-center justify-center text-white font-bold shadow-lg">
-                                        {profileInitial}
+                                    <div className="relative w-10 h-10 overflow-hidden rounded-full bg-gradient-to-tr from-brand-purple to-brand-purple flex items-center justify-center text-white font-bold shadow-lg">
+                                        {avatarUrl ? (
+                                            <Image src={avatarUrl} alt={displayName} fill sizes="40px" className="object-cover" />
+                                        ) : (
+                                            <span>{profileInitial}</span>
+                                        )}
                                     </div>
                                     {isAdmin ? <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-brand-purple rounded-full border-2 border-black" /> : null}
                                 </div>
                                 <div className="min-w-0">
                                     <div className="flex items-center gap-2">
-                                        <h3 className="font-bold text-white truncate">{displayName}</h3>
+                                        <h3 className="font-bold text-white truncate">{primaryIdentity}</h3>
                                         {isAdmin ? (
                                             <span className="px-1.5 py-0.5 rounded-full bg-brand-purple/20 text-brand-purple text-[10px] font-bold border border-brand-purple/30">ADMIN</span>
                                         ) : null}
                                     </div>
-                                    <p className="text-xs text-gray-400 truncate">{email}</p>
+                                    <p className="text-xs text-gray-400 truncate">{secondaryIdentity}</p>
                                 </div>
                             </div>
 
@@ -118,6 +129,15 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
                             <SidebarItem href="/dashboard/library" icon={<Library className="w-5 h-5" />} label="My KandyDrops" onClick={onClose} />
                             <SidebarItem href="/dashboard/profile" icon={<Settings className="w-5 h-5" />} label="Settings" onClick={onClose} />
                         </nav>
+
+                        <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                            <p className="px-1 pb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-500">Help & policies</p>
+                            <div className="space-y-1">
+                                <SidebarItem href="/faq" icon={<CircleHelp className="w-5 h-5" />} label="FAQ" onClick={onClose} />
+                                <SidebarItem href={supportHref} icon={<LifeBuoy className="w-5 h-5" />} label="Support" onClick={onClose} />
+                                <SidebarItem href="/privacy" icon={<FileText className="w-5 h-5" />} label="Policies" onClick={onClose} />
+                            </div>
+                        </div>
                     </div>
 
                     <div className="h-[env(safe-area-inset-bottom)]" />
@@ -133,11 +153,26 @@ function SidebarItem({ href, icon, label, onClick }: SidebarItemProps) {
         onClick();
     };
 
+    const className = "flex items-center gap-3 px-4 py-3 text-gray-300 rounded-xl transition-all group hover:bg-white/5";
+
+    if (href.startsWith("mailto:")) {
+        return (
+            <a
+                href={href}
+                onClick={handleClick}
+                className={className}
+            >
+                <span className="transition-colors">{icon}</span>
+                <span className="font-medium">{label}</span>
+            </a>
+        );
+    }
+
     return (
         <Link
             href={href}
             onClick={handleClick}
-            className="flex items-center gap-3 px-4 py-3 text-gray-300 rounded-xl transition-all group hover:bg-white/5"
+            className={className}
         >
             <span className="transition-colors">{icon}</span>
             <span className="font-medium">{label}</span>

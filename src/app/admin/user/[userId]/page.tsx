@@ -12,6 +12,7 @@ import {
     CalendarDays,
     Eye,
     History,
+    LifeBuoy,
     MessageSquare,
     Play,
     ShieldAlert,
@@ -27,6 +28,7 @@ import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
 import { Transaction, UserProfile } from "@/types/db";
 import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";
+import type { SupportReadinessSnapshot } from "@/lib/support-readiness";
 
 type UserDetailAnalytics = {
     eventCount: number;
@@ -155,6 +157,8 @@ type CreatorOpsState = {
     pendingSubmissions: Array<Record<string, unknown>>;
 };
 
+type SupportReadinessState = SupportReadinessSnapshot["summary"]["state"];
+
 type CreatorRestrictionFlags = NonNullable<UserProfile["creatorRestrictions"]>;
 
 const CREATOR_RESTRICTION_FIELDS = [
@@ -197,6 +201,22 @@ function formatRelativeTimestamp(value: unknown) {
         : "No timestamp";
 }
 
+function getSupportStateClasses(state: SupportReadinessState) {
+    if (state === "waiting_on_support") {
+        return "border-amber-400/20 bg-amber-400/10 text-amber-200";
+    }
+
+    if (state === "waiting_on_user" || state === "open") {
+        return "border-brand-purple/20 bg-brand-purple/10 text-brand-purple";
+    }
+
+    if (state === "resolved") {
+        return "border-emerald-400/20 bg-emerald-400/10 text-emerald-200";
+    }
+
+    return "border-white/10 bg-white/5 text-gray-200";
+}
+
 export default function AdminUserAnalyticsPage() {
     const params = useParams();
     const router = useRouter();
@@ -209,6 +229,7 @@ export default function AdminUserAnalyticsPage() {
     const [analytics, setAnalytics] = useState<UserDetailAnalytics | null>(null);
     const [securityEvents, setSecurityEvents] = useState<SecurityEventItem[]>([]);
     const [securitySummary, setSecuritySummary] = useState<SecuritySummary | null>(null);
+    const [supportReadiness, setSupportReadiness] = useState<SupportReadinessSnapshot | null>(null);
     const [creatorOps, setCreatorOps] = useState<CreatorOpsState | null>(null);
     const [creatorRestrictionsState, setCreatorRestrictionsState] = useState<CreatorRestrictionFlags | null>(null);
     const [savingCreatorRestrictions, setSavingCreatorRestrictions] = useState(false);
@@ -236,6 +257,7 @@ export default function AdminUserAnalyticsPage() {
                 analytics?: UserDetailAnalytics;
                 securitySummary?: SecuritySummary;
                 securityEvents?: SecurityEventItem[];
+                supportReadiness?: SupportReadinessSnapshot | null;
                 creatorOps?: CreatorOpsState | null;
                 error?: string;
             };
@@ -249,12 +271,14 @@ export default function AdminUserAnalyticsPage() {
             setAnalytics(result.analytics || null);
             setSecuritySummary(result.securitySummary || null);
             setSecurityEvents(result.securityEvents || []);
+            setSupportReadiness(result.supportReadiness || null);
             setCreatorOps(result.creatorOps || null);
             setCreatorRestrictionsState(result.user.creatorRestrictions || null);
             setError(null);
         } catch (fetchError: unknown) {
             console.error("Failed to load user analytics.", fetchError);
             const message = fetchError instanceof Error ? fetchError.message : "Failed to load deeper analytics. Try again.";
+            setSupportReadiness(null);
             setError(message === "User not found" ? "User not found." : message);
         } finally {
             setLoading(false);
@@ -667,6 +691,106 @@ export default function AdminUserAnalyticsPage() {
                                 );
                             })
                         )}
+                    </div>
+                </div>
+            </div>
+
+            <div className="glass-panel rounded-3xl border border-white/5 p-6">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                        <h3 className="flex items-center gap-2 text-sm font-bold text-white">
+                            <LifeBuoy className="h-4 w-4 text-brand-purple" /> Support Readiness
+                        </h3>
+                        <p className="mt-1 text-xs leading-6 text-gray-400">
+                            Future in-site support hooks for this account, using today&apos;s bug reports and identity channels without requiring the live chat system yet.
+                        </p>
+                    </div>
+                    <span className={`inline-flex items-center rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${getSupportStateClasses(supportReadiness?.summary.state || "ready")}`}>
+                        {supportReadiness?.summary.stateLabel || "Ready for support"}
+                    </span>
+                </div>
+
+                <div className="mt-5 grid gap-4 xl:grid-cols-[0.92fr_1.08fr]">
+                    <div className="space-y-4">
+                        <div className="grid gap-3 sm:grid-cols-2">
+                            <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
+                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Support handle</p>
+                                <p className="mt-2 text-lg font-black text-white">{supportReadiness?.summary.primaryHandle || targetUser.username || targetUser.email || targetUser.uid}</p>
+                                <p className="mt-1 text-xs text-gray-400">Primary identity future live support will attach to.</p>
+                            </div>
+                            <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
+                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Future thread key</p>
+                                <p className="mt-2 break-all font-mono text-xs font-semibold text-white">{supportReadiness?.summary.threadKey || `support:${targetUser.uid}`}</p>
+                                <p className="mt-1 text-xs text-gray-400">Stable anchor for future support-thread ownership.</p>
+                            </div>
+                            <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
+                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Open support threads</p>
+                                <p className="mt-2 text-2xl font-black text-white">{supportReadiness?.summary.openThreads ?? 0}</p>
+                                <p className="mt-1 text-xs text-gray-400">{supportReadiness?.summary.totalThreads ?? 0} total historical threads.</p>
+                            </div>
+                            <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
+                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Support signals</p>
+                                <p className="mt-2 text-2xl font-black text-white">{supportReadiness?.summary.bugReportCount ?? 0}</p>
+                                <p className="mt-1 text-xs text-gray-400">Bug reports already usable as early support intake.</p>
+                            </div>
+                        </div>
+
+                        <div className="rounded-[1.5rem] border border-white/10 bg-black/25 p-4">
+                            <div className="flex flex-wrap gap-2">
+                                <span className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${supportReadiness?.summary.channels.email ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-200" : "border-white/10 bg-white/5 text-gray-400"}`}>
+                                    Email {supportReadiness?.summary.channels.email ? "ready" : "missing"}
+                                </span>
+                                <span className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${supportReadiness?.summary.channels.inApp ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-200" : "border-white/10 bg-white/5 text-gray-400"}`}>
+                                    In-app {supportReadiness?.summary.channels.inApp ? "ready" : "blocked"}
+                                </span>
+                                <span className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${supportReadiness?.summary.channels.browserPush ? "border-brand-purple/20 bg-brand-purple/10 text-brand-purple" : "border-white/10 bg-white/5 text-gray-400"}`}>
+                                    Push {supportReadiness?.summary.channels.browserPush ? "enabled" : "off"}
+                                </span>
+                            </div>
+                            <p className="mt-3 text-xs leading-6 text-gray-400">
+                                {supportReadiness?.summary.stateDescription || "No current support thread exists, but the account is ready for future in-site support handoff."}
+                            </p>
+                            <p className="mt-2 text-[11px] text-gray-500">
+                                Last signal: {formatRelativeTimestamp(supportReadiness?.summary.lastSupportAt || 0)} via {supportReadiness?.summary.lastSupportSource === "support_thread" ? "support thread" : supportReadiness?.summary.lastSupportSource === "feedback" ? "bug report" : "no support activity yet"}.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="rounded-[1.5rem] border border-white/10 bg-black/25 p-4">
+                        <div className="flex items-start justify-between gap-3">
+                            <div>
+                                <p className="text-sm font-semibold text-white">Recent support signals</p>
+                                <p className="mt-1 text-xs leading-6 text-gray-400">
+                                    Live support threads will plug in here later. For now, existing bug reports and any seeded thread records already surface in the same operational lane.
+                                </p>
+                            </div>
+                            <span className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
+                                {supportReadiness?.signals.length ?? 0} loaded
+                            </span>
+                        </div>
+
+                        <div className="custom-scrollbar mt-4 max-h-[320px] space-y-3 overflow-y-auto pr-1">
+                            {supportReadiness?.signals.length ? supportReadiness.signals.map((signal) => (
+                                <div key={signal.id} className="rounded-[1.1rem] border border-white/10 bg-black/20 p-3">
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div className="min-w-0">
+                                            <p className="line-clamp-2 text-sm font-semibold text-white">{signal.summary}</p>
+                                            <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-gray-500">
+                                                {signal.kind === "thread" ? "Support thread" : "Bug report"} • {signal.status.replaceAll("_", " ")}
+                                            </p>
+                                        </div>
+                                        <span className="shrink-0 text-[11px] text-gray-500">{formatRelativeTimestamp(signal.timestamp)}</span>
+                                    </div>
+                                    {signal.path ? (
+                                        <p className="mt-2 break-all font-mono text-[11px] text-gray-500">{signal.path}</p>
+                                    ) : null}
+                                </div>
+                            )) : (
+                                <div className="rounded-[1.1rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-400">
+                                    No current support conversations or bug reports are attached to this account yet. This lane is ready for future in-site support thread integration.
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

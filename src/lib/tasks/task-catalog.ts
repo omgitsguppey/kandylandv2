@@ -2,8 +2,12 @@ export const DAILY_TASK_LIMIT = 3;
 export const DAILY_TASK_COOLDOWN_DAYS = 7;
 const DAILY_TASK_RAW_MIN_REWARD = 50;
 const DAILY_TASK_RAW_MAX_REWARD = 1000;
-export const DAILY_TASK_REWARD_MULTIPLIER = 0.75;
-export const DAILY_TASK_REWARD_VERSION = 2;
+const DAILY_TASK_REWARD_MULTIPLIERS = {
+  2: 0.75,
+  3: 0.6,
+} as const;
+export const DAILY_TASK_REWARD_VERSION = 3;
+export const DAILY_TASK_REWARD_MULTIPLIER = DAILY_TASK_REWARD_MULTIPLIERS[DAILY_TASK_REWARD_VERSION];
 export const DAILY_TASK_MIN_REWARD = Math.round(DAILY_TASK_RAW_MIN_REWARD * DAILY_TASK_REWARD_MULTIPLIER);
 export const DAILY_TASK_MAX_REWARD = Math.round(DAILY_TASK_RAW_MAX_REWARD * DAILY_TASK_REWARD_MULTIPLIER);
 
@@ -136,7 +140,11 @@ export function normalizeDailyTaskReward(rawReward: number) {
   }
 
   const nextReward = Math.round(rawReward * DAILY_TASK_REWARD_MULTIPLIER);
-  return Math.min(DAILY_TASK_MAX_REWARD, Math.max(DAILY_TASK_MIN_REWARD, nextReward));
+  return clampDailyTaskReward(nextReward);
+}
+
+export function clampDailyTaskReward(reward: number) {
+  return Math.min(DAILY_TASK_MAX_REWARD, Math.max(DAILY_TASK_MIN_REWARD, Math.round(reward)));
 }
 
 export function resolveDailyTaskReward(rawReward: unknown, rewardVersion?: unknown) {
@@ -146,7 +154,15 @@ export function resolveDailyTaskReward(rawReward: unknown, rewardVersion?: unkno
   }
 
   if (rewardVersion === DAILY_TASK_REWARD_VERSION) {
-    return Math.min(DAILY_TASK_MAX_REWARD, Math.max(DAILY_TASK_MIN_REWARD, Math.round(numericReward)));
+    return clampDailyTaskReward(numericReward);
+  }
+
+  const storedMultiplier = typeof rewardVersion === "number"
+    ? DAILY_TASK_REWARD_MULTIPLIERS[rewardVersion as keyof typeof DAILY_TASK_REWARD_MULTIPLIERS]
+    : undefined;
+  if (typeof storedMultiplier === "number" && storedMultiplier > 0) {
+    const rawEquivalent = numericReward / storedMultiplier;
+    return clampDailyTaskReward(rawEquivalent * DAILY_TASK_REWARD_MULTIPLIER);
   }
 
   return normalizeDailyTaskReward(numericReward);
@@ -170,7 +186,7 @@ export const BUILT_IN_DAILY_TASKS: DailyTaskDefinition[] = [
     id: "open_notifications",
     title: "Check your notifications",
     subtitle: "Open your alerts and see what is waiting for you.",
-    reward: 60,
+    reward: 40,
     maxProgress: 1,
     eventName: "notifications_dropdown_opened",
     actionType: "open_notifications",
@@ -182,7 +198,7 @@ export const BUILT_IN_DAILY_TASKS: DailyTaskDefinition[] = [
     id: "read_notification",
     title: "Clear one alert",
     subtitle: "Mark one notification as read to keep your queue fresh.",
-    reward: 70,
+    reward: 50,
     maxProgress: 1,
     eventName: "notification_marked_read",
     actionType: "open_notifications",
@@ -305,7 +321,7 @@ export const BUILT_IN_DAILY_TASKS: DailyTaskDefinition[] = [
     id: "buy_small_pack",
     title: "Top up your Gum Drops",
     subtitle: "Buy any Gum Drop pack to stay ready for live drops.",
-    reward: 650,
+    reward: 450,
     maxProgress: 1,
     eventName: "gumdrops_purchase_completed",
     actionType: "open_wallet",
@@ -323,7 +339,7 @@ export const BUILT_IN_DAILY_TASKS: DailyTaskDefinition[] = [
     id: "buy_big_pack",
     title: "Load up for the next rush",
     subtitle: "Grab 2,500+ Gum Drops for your biggest unwrap sessions.",
-    reward: 1000,
+    reward: 700,
     maxProgress: 1,
     eventName: "gumdrops_purchase_completed",
     actionType: "open_wallet",
@@ -469,7 +485,7 @@ export const BUILT_IN_DAILY_TASKS: DailyTaskDefinition[] = [
     id: "submit_feedback",
     title: "Tell us what you want next",
     subtitle: "Drop a quick note so we can shape what ships next.",
-    reward: 300,
+    reward: 180,
     maxProgress: 1,
     eventName: "feedback_submitted",
     actionType: "give_feedback",
@@ -481,7 +497,7 @@ export const BUILT_IN_DAILY_TASKS: DailyTaskDefinition[] = [
     id: "feature_request_feedback",
     title: "Pitch a feature idea",
     subtitle: "Tell us the one thing you want added next.",
-    reward: 350,
+    reward: 220,
     maxProgress: 1,
     eventName: "feedback_submitted",
     actionType: "give_feedback",
@@ -499,7 +515,7 @@ export const BUILT_IN_DAILY_TASKS: DailyTaskDefinition[] = [
     id: "bug_report_feedback",
     title: "Report a bug",
     subtitle: "Help us tighten the experience with one bug report.",
-    reward: 350,
+    reward: 220,
     maxProgress: 1,
     eventName: "feedback_submitted",
     actionType: "give_feedback",
@@ -517,7 +533,7 @@ export const BUILT_IN_DAILY_TASKS: DailyTaskDefinition[] = [
     id: "high_rating_feedback",
     title: "Rate today's experience",
     subtitle: "Leave a 4 or 5 star rating with your feedback.",
-    reward: 260,
+    reward: 160,
     maxProgress: 1,
     eventName: "feedback_submitted",
     actionType: "give_feedback",
