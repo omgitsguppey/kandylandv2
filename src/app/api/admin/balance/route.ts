@@ -5,8 +5,9 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
-import { computeNextGumdropBalance, normalizeGumdropBalance } from "@/lib/gumdrop-ledger";
+import { buildSourceAwareBalancePatch, creditSourceAwareGumdrops, normalizeGumdropBalance, readSourceAwareBalance, spendSourceAwareGumdrops } from "@/lib/gumdrop-ledger";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
+import { touchUserRuntime } from "@/lib/server/user-runtime";
 
 const bodySchema = z.object({
     userId: z.string().trim().min(1).max(128),
@@ -42,27 +43,30 @@ export async function POST(request: NextRequest) {
                 return { status: "missing_user" as const };
             }
 
-            const currentBalanceRaw = userDoc.data()?.gumDropsBalance;
-            const currentBalance = normalizeGumdropBalance(currentBalanceRaw);
-            const nextBalance = computeNextGumdropBalance(currentBalance, amount);
+            const sourceAwareBalance = readSourceAwareBalance(userDoc.data() ?? {});
+            const currentBalance = normalizeGumdropBalance(sourceAwareBalance.total);
+            const nextBalanceResult = amount >= 0
+                ? {
+                    ok: true as const,
+                    next: creditSourceAwareGumdrops(sourceAwareBalance, amount, "purchased"),
+                  }
+                : spendSourceAwareGumdrops(sourceAwareBalance, Math.abs(amount));
 
-            if (nextBalance < 0) {
+            if (!nextBalanceResult.ok) {
                 return {
                     status: "insufficient_balance" as const,
                     currentBalance,
                 };
             }
 
-            transaction.update(userRef, {
-                gumDropsBalance: nextBalance,
-            });
+            transaction.update(userRef, buildSourceAwareBalancePatch(nextBalanceResult.next));
             transaction.set(transactionRef, buildCompletedGumdropTransaction({
                 userId,
                 type: "admin_adjustment",
                 amount,
                 description: `Admin Adjustment: ${reason}`,
                 balanceBefore: currentBalance,
-                balanceAfter: nextBalance,
+                balanceAfter: nextBalanceResult.next.total,
                 extra: {
                     adjustedBy: caller.email || "admin",
                 },
@@ -70,7 +74,7 @@ export async function POST(request: NextRequest) {
 
             return {
                 status: "ok" as const,
-                balanceAfter: nextBalance,
+                balanceAfter: nextBalanceResult.next.total,
             };
         });
 
@@ -84,6 +88,11 @@ export async function POST(request: NextRequest) {
                 currentBalance: result.currentBalance,
             }, { status: 400 });
         }
+
+        await touchUserRuntime(userId, {
+            activity: true,
+            profile: true,
+        });
 
         return NextResponse.json({
             success: true,

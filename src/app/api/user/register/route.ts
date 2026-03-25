@@ -8,8 +8,9 @@ import { PRIVACY_POLICY_VERSION } from "@/lib/privacy-policy";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { parseAdultDateOfBirth } from "@/lib/user-profile-validation";
-import { computeNextGumdropBalance, normalizeGumdropBalance } from "@/lib/gumdrop-ledger";
+import { buildSourceAwareBalancePatch, creditSourceAwareGumdrops, normalizeGumdropBalance, readSourceAwareBalance } from "@/lib/gumdrop-ledger";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
+import { touchUserRuntime } from "@/lib/server/user-runtime";
 
 function normalizeRegistrationMethod(value: unknown) {
     return value === "google" ? "google" : "email";
@@ -95,6 +96,8 @@ export async function POST(request: NextRequest) {
             username: normalizedUsername,
             onboardingCompleted: false,
             gumDropsBalance: 50,
+            gumDropsPurchasedBalance: 0,
+            gumDropsRewardBalance: 50,
             unlockedContent: [],
             unlockedContentTimestamps: {},
             notificationSettings: {
@@ -134,26 +137,29 @@ export async function POST(request: NextRequest) {
                             return;
                         }
 
-                        const currentBalance = normalizeGumdropBalance(latestReferrerSnap.data()?.gumDropsBalance);
-                        const nextBalance = computeNextGumdropBalance(currentBalance, 25);
+                        const sourceAwareBalance = readSourceAwareBalance(latestReferrerSnap.data() ?? {});
+                        const currentBalance = normalizeGumdropBalance(sourceAwareBalance.total);
+                        const nextBalance = creditSourceAwareGumdrops(sourceAwareBalance, 25, "reward");
                         const transactionRef = adminDb.collection("transactions").doc();
 
-                        transaction.update(referrerRef, {
-                            gumDropsBalance: FieldValue.increment(25),
-                        });
+                        transaction.update(referrerRef, buildSourceAwareBalancePatch(nextBalance));
                         transaction.set(transactionRef, buildCompletedGumdropTransaction({
                             userId: referredBy,
                             type: "referral_bonus",
                             amount: 25,
                             description: `Referral bonus for inviting ${displayName || "a new user"}`,
                             balanceBefore: currentBalance,
-                            balanceAfter: nextBalance,
+                            balanceAfter: nextBalance.total,
                             extra: {
                                 metadata: {
                                     referredUserId: caller.uid,
                                 },
                             },
                         }));
+                    });
+                    await touchUserRuntime(referredBy, {
+                        activity: true,
+                        profile: true,
                     });
                 }
             } catch (err) {

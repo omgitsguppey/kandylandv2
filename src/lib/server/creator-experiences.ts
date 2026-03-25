@@ -3,102 +3,14 @@ import "server-only";
 import { FieldValue } from "firebase-admin/firestore";
 
 import { CREATOR_REVENUE_SHARE, buildCreatorRelationshipId, calculateCreatorCashoutUsd, getCreatorBookingRate, getCreatorMessageCost, normalizeCreatorRestrictions, normalizeCreatorSettings, normalizePositiveWholeNumber } from "@/lib/creator-experiences";
-import { normalizeGumdropBalance } from "@/lib/gumdrop-ledger";
+export {
+    buildSourceAwareBalancePatch,
+    readSourceAwareBalance,
+    spendSourceAwareGumdrops,
+    type SourceAwareGumdropBalance,
+} from "@/lib/gumdrop-ledger";
 
 export { calculateCreatorCashoutUsd } from "@/lib/creator-experiences";
-
-export type SourceAwareBalanceBreakdown = {
-    total: number;
-    purchased: number;
-    reward: number;
-};
-
-export function readSourceAwareBalance(source: Record<string, unknown>): SourceAwareBalanceBreakdown {
-    const total = normalizeGumdropBalance(source.gumDropsBalance);
-    const purchased = normalizeGumdropBalance(source.gumDropsPurchasedBalance);
-    const reward = normalizeGumdropBalance(source.gumDropsRewardBalance);
-
-    if (purchased === 0 && reward === 0 && total > 0) {
-        return {
-            total,
-            purchased: total,
-            reward: 0,
-        };
-    }
-
-    const normalizedTotal = normalizeGumdropBalance(purchased + reward);
-    return {
-        total: normalizedTotal,
-        purchased,
-        reward,
-    };
-}
-
-export function buildSourceAwareBalancePatch(next: SourceAwareBalanceBreakdown) {
-    return {
-        gumDropsBalance: normalizeGumdropBalance(next.purchased + next.reward),
-        gumDropsPurchasedBalance: normalizeGumdropBalance(next.purchased),
-        gumDropsRewardBalance: normalizeGumdropBalance(next.reward),
-    };
-}
-
-export function spendSourceAwareGumdrops(
-    current: SourceAwareBalanceBreakdown,
-    amount: number,
-    options?: { purchasedOnly?: boolean },
-) {
-    const required = Math.max(0, normalizePositiveWholeNumber(amount));
-    const purchasedOnly = options?.purchasedOnly === true;
-
-    if (required === 0) {
-        return {
-            ok: true as const,
-            next: current,
-            purchasedSpent: 0,
-            rewardSpent: 0,
-        };
-    }
-
-    if (purchasedOnly) {
-        if (current.purchased < required) {
-            return {
-                ok: false as const,
-                error: "Insufficient purchased Gum Drops for this creator experience.",
-            };
-        }
-
-        return {
-            ok: true as const,
-            next: {
-                total: current.total - required,
-                purchased: current.purchased - required,
-                reward: current.reward,
-            },
-            purchasedSpent: required,
-            rewardSpent: 0,
-        };
-    }
-
-    const purchasedSpent = Math.min(current.purchased, required);
-    const rewardSpent = Math.max(0, required - purchasedSpent);
-    if (purchasedSpent + rewardSpent < required || rewardSpent > current.reward) {
-        return {
-            ok: false as const,
-            error: "Insufficient Gum Drops for this creator experience.",
-        };
-    }
-
-    return {
-        ok: true as const,
-        next: {
-            total: current.total - required,
-            purchased: current.purchased - purchasedSpent,
-            reward: current.reward - rewardSpent,
-        },
-        purchasedSpent,
-        rewardSpent,
-    };
-}
 
 export function buildCreatorAccrual(input: {
     creatorId: string;

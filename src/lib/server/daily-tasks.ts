@@ -22,7 +22,12 @@ import {
 } from "@/lib/tasks/task-catalog";
 import { isDropActiveNow } from "@/lib/drop-status";
 import { getCSTDayBoundaries, isSameCSTDay } from "@/lib/timezone";
-import { computeNextGumdropBalance, normalizeGumdropBalance } from "@/lib/gumdrop-ledger";
+import {
+  buildSourceAwareBalancePatch,
+  computeNextGumdropBalance,
+  creditSourceAwareGumdrops,
+  readSourceAwareBalance,
+} from "@/lib/gumdrop-ledger";
 import type { UserProfile } from "@/types/db";
 import { markNotificationsRuntimeChanged } from "@/lib/server/notification-runtime";
 import { touchUserRuntime } from "@/lib/server/user-runtime";
@@ -984,6 +989,7 @@ export async function recordDailyTaskProgressFromEvent(
         activityChanged: false,
         taskChanged: false,
         notificationChanged: false,
+        profileChanged: false,
         nowMs: Date.now(),
       };
     }
@@ -994,6 +1000,7 @@ export async function recordDailyTaskProgressFromEvent(
         activityChanged: false,
         taskChanged: false,
         notificationChanged: false,
+        profileChanged: false,
         nowMs: Date.now(),
       };
     }
@@ -1001,8 +1008,10 @@ export async function recordDailyTaskProgressFromEvent(
     const userData = snapshot.data() as UserProfile;
     const nowMs = Date.now();
     const result = await buildFreshTaskStateForUser(uid, userData, definitions, nowMs, transaction);
-    const currentBalance = normalizeGumdropBalance(userData.gumDropsBalance);
+    const sourceAwareBalance = readSourceAwareBalance(userData);
+    const currentBalance = sourceAwareBalance.total;
     let ledgerBalanceCursor = currentBalance;
+    let sourceAwareBalanceCursor = sourceAwareBalance;
     if (receiptRef) {
       transaction.set(receiptRef, {
         uid,
@@ -1116,6 +1125,7 @@ export async function recordDailyTaskProgressFromEvent(
         const balanceBefore = ledgerBalanceCursor;
         const balanceAfter = computeNextGumdropBalance(balanceBefore, task.reward);
         ledgerBalanceCursor = balanceAfter;
+        sourceAwareBalanceCursor = creditSourceAwareGumdrops(sourceAwareBalanceCursor, task.reward, "reward");
         transaction.set(txRef, buildCompletedGumdropTransaction({
           userId: uid,
           amount: task.reward,
@@ -1138,6 +1148,7 @@ export async function recordDailyTaskProgressFromEvent(
         activityChanged: false,
         taskChanged: result.rotated,
         notificationChanged,
+        profileChanged: false,
         nowMs,
       };
     }
@@ -1166,7 +1177,7 @@ export async function recordDailyTaskProgressFromEvent(
 
     transaction.update(userRef, {
       dailyTasksState: stripUndefinedDeep(nextState),
-      ...(totalReward > 0 ? { gumDropsBalance: ledgerBalanceCursor } : {}),
+      ...(totalReward > 0 ? buildSourceAwareBalancePatch(sourceAwareBalanceCursor) : {}),
     });
 
     if (completedTasks.length > 0 && userData.notificationSettings?.inAppEnabled !== false) {
@@ -1188,6 +1199,7 @@ export async function recordDailyTaskProgressFromEvent(
       activityChanged: completedTasks.length > 0,
       taskChanged: true,
       notificationChanged,
+      profileChanged: totalReward > 0,
       nowMs,
     };
   });
@@ -1197,6 +1209,7 @@ export async function recordDailyTaskProgressFromEvent(
       ...(progressResult.taskChanged ? { tasks: true } : {}),
       ...(progressResult.activityChanged ? { activity: true } : {}),
       ...(progressResult.notificationChanged ? { notifications: true } : {}),
+      ...(progressResult.profileChanged ? { profile: true } : {}),
     }, progressResult.nowMs);
   }
 }

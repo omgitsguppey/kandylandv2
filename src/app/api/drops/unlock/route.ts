@@ -10,6 +10,8 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { CREATOR_COLLECTIONS } from "@/lib/creator-experiences";
 import { trackServerEvent } from "@/lib/server/analytics";
+import { buildSourceAwareBalancePatch, readSourceAwareBalance, spendSourceAwareGumdrops } from "@/lib/gumdrop-ledger";
+import { touchUserRuntime } from "@/lib/server/user-runtime";
 
 const unlockRequestSchema = z.object({
   dropId: z
@@ -65,8 +67,8 @@ export async function POST(request: NextRequest) {
         : typeof userData.displayName === "string" && userData.displayName.trim().length > 0
           ? userData.displayName.trim()
           : caller?.email || userId;
-      const currentBalanceRaw = Number(userData.gumDropsBalance);
-      const balance = Number.isFinite(currentBalanceRaw) ? Math.floor(currentBalanceRaw) : 0;
+      const sourceAwareBalance = readSourceAwareBalance(userData);
+      const balance = sourceAwareBalance.total;
 
       const unlockedContentRaw = Array.isArray(userData.unlockedContent) ? userData.unlockedContent : [];
       const unlockedContent = new Set(
@@ -99,12 +101,16 @@ export async function POST(request: NextRequest) {
       }
 
       const unwrappedAt = Date.now();
+      const spend = spendSourceAwareGumdrops(sourceAwareBalance, unlockCost);
+      if (!spend.ok) {
+        throw new Error(`INSUFFICIENT_FUNDS:${unlockCost}:${balance}`);
+      }
       const transactionRef = adminDb.collection("transactions").doc();
 
       // --- WRITE PHASE: Mutations only occur after all conditions are met ---
 
       transaction.update(userRef, {
-        gumDropsBalance: FieldValue.increment(-unlockCost),
+        ...buildSourceAwareBalancePatch(spend.next),
         unlockedContent: FieldValue.arrayUnion(dropId),
         [`unlockedContentTimestamps.${dropId}`]: unwrappedAt,
       });
@@ -117,7 +123,7 @@ export async function POST(request: NextRequest) {
         creatorId: creatorId || undefined,
         description: `Unlocked: ${typeof dropData.title === "string" ? dropData.title : "Drop"}`,
         balanceBefore: balance,
-        balanceAfter: balance - unlockCost,
+        balanceAfter: spend.next.total,
         timestampMs: unwrappedAt,
         extra: usedSubscriptionAccess ? { unlockSource: "creator_subscription" } : undefined,
       }));
@@ -127,7 +133,7 @@ export async function POST(request: NextRequest) {
       });
 
       return {
-        newBalance: balance - unlockCost,
+        newBalance: spend.next.total,
         alreadyUnlocked: false,
         unwrappedAt,
         cost: unlockCost,
@@ -165,6 +171,11 @@ export async function POST(request: NextRequest) {
         }, userId).catch(() => null);
       }
     }
+
+    await touchUserRuntime(userId, {
+      activity: true,
+      profile: true,
+    }, result.unwrappedAt ?? Date.now());
 
     return NextResponse.json({
       success: true,

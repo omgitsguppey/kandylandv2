@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
-import { FieldValue } from "firebase-admin/firestore";
 import { getCSTDateKey, getCSTDayBoundaries } from "@/lib/timezone";
 import { SENSITIVE_WRITE } from "@/lib/server/rate-limit";
 import { getDailyCheckInProgress } from "@/lib/daily-checkin";
-import { normalizeGumdropBalance } from "@/lib/gumdrop-ledger";
+import { buildSourceAwareBalancePatch, creditSourceAwareGumdrops, readSourceAwareBalance } from "@/lib/gumdrop-ledger";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import type { DailyTasksState } from "@/lib/tasks/task-catalog";
 import { recordCanonicalTaskEvent } from "@/lib/server/daily-tasks";
@@ -50,7 +49,8 @@ export async function POST(request: NextRequest) {
             // 2. Check if already claimed today (CST day boundaries)
             const { endOfDay } = getCSTDayBoundaries(now);
             const progress = getDailyCheckInProgress(lastCheckIn, userData.streakCount || 0, now);
-            const currentBalance = normalizeGumdropBalance(userData.gumDropsBalance);
+            const sourceAwareBalance = readSourceAwareBalance(userData);
+            const currentBalance = sourceAwareBalance.total;
 
             if (progress.isClaimedToday && progress.lastCheckInMs > 0) {
                 return {
@@ -66,11 +66,12 @@ export async function POST(request: NextRequest) {
             // 3. Calculate streak using normalized continuity rather than trusting stale profile data.
             const nextStreak = progress.claimStreak;
             const reward = progress.claimRewardAmount;
-            const newBalance = currentBalance + reward;
+            const nextBalance = creditSourceAwareGumdrops(sourceAwareBalance, reward, "reward");
+            const newBalance = nextBalance.total;
 
             // 4. Atomic update: balance + streak + reward ledger entry
             transaction.update(userRef, {
-                gumDropsBalance: FieldValue.increment(reward),
+                ...buildSourceAwareBalancePatch(nextBalance),
                 lastCheckIn: now,
                 streakCount: nextStreak,
             });
@@ -124,6 +125,7 @@ export async function POST(request: NextRequest) {
         await touchUserRuntime(userId, {
             activity: true,
             tasks: true,
+            profile: true,
         }, result.lastCheckIn);
 
         return NextResponse.json({

@@ -6,13 +6,14 @@ import { FieldValue } from "firebase-admin/firestore";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { SENSITIVE_WRITE } from "@/lib/server/rate-limit";
 import { deriveGumdropEconomics, getBundlePresentation } from "@/lib/gumdrop-economics";
-import { computeNextGumdropBalance, normalizeGumdropBalance } from "@/lib/gumdrop-ledger";
+import { buildSourceAwareBalancePatch, computeNextGumdropBalance, creditSourceAwareGumdrops, normalizeGumdropBalance, readSourceAwareBalance } from "@/lib/gumdrop-ledger";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import type { DailyTasksState } from "@/lib/tasks/task-catalog";
 import { recordCanonicalTaskEvent } from "@/lib/server/daily-tasks";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { resolveExpectedGumdropPrice } from "@/lib/gumdrops-packages";
 import type { UserProfile } from "@/types/db";
+import { touchUserRuntime } from "@/lib/server/user-runtime";
 
 const bodySchema = z.object({
   orderId: z.string().min(1),
@@ -182,15 +183,17 @@ export async function POST(request: NextRequest) {
 
       const userSnapshot = await transaction.get(userRef);
       const userData = userSnapshot.data() ?? {};
-      const currentBalance = normalizeGumdropBalance(userData.gumDropsBalance);
+      const sourceAwareBalance = readSourceAwareBalance(userData);
+      const currentBalance = normalizeGumdropBalance(sourceAwareBalance.total);
       const nextBalance = computeNextGumdropBalance(currentBalance, dropsToCredit);
+      const nextSourceAwareBalance = creditSourceAwareGumdrops(sourceAwareBalance, dropsToCredit, "purchased");
       const username = typeof userData.username === "string" && userData.username.trim().length > 0
         ? userData.username.trim()
         : typeof userData.displayName === "string" && userData.displayName.trim().length > 0
           ? userData.displayName.trim()
           : caller?.email || userId;
 
-      transaction.update(userRef, { gumDropsBalance: FieldValue.increment(dropsToCredit) });
+      transaction.update(userRef, buildSourceAwareBalancePatch(nextSourceAwareBalance));
       transaction.set(adminDb.collection("transactions").doc(), buildCompletedGumdropTransaction({
         userId,
         type: "purchase_currency",
@@ -276,6 +279,10 @@ export async function POST(request: NextRequest) {
 
     const updatedUserSnapshot = await userRef.get();
     const updatedUserData = (updatedUserSnapshot.data() ?? {}) as Partial<UserProfile>;
+    await touchUserRuntime(userId, {
+      activity: true,
+      profile: true,
+    });
 
     return NextResponse.json({
       success: true,

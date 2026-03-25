@@ -4,13 +4,14 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
 import { STRICT } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { touchUserRuntime } from "@/lib/server/user-runtime";
 import {
     buildOnboardingAnalyticsEventFact,
     buildOnboardingAnalyticsStorageKey,
     sanitizeOnboardingStepMetrics,
     toOnboardingNumber,
 } from "@/lib/server/onboarding-analytics";
-import { normalizeGumdropBalance } from "@/lib/gumdrop-ledger";
+import { buildSourceAwareBalancePatch, creditSourceAwareGumdrops, normalizeGumdropBalance, readSourceAwareBalance } from "@/lib/gumdrop-ledger";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 
 type OnboardingFactWrite = {
@@ -54,10 +55,10 @@ export async function POST(req: NextRequest) {
         const legacyProfileRef = userRef.collection("profile").doc("default");
         const balanceRef = userRef.collection("economy").doc("balance");
 
-        return await adminDb.runTransaction(async (transaction) => {
+        const result = await adminDb.runTransaction(async (transaction) => {
             const userDoc = await transaction.get(userRef);
             if (!userDoc.exists) {
-                return NextResponse.json({ error: "User not found" }, { status: 404 });
+                return { status: "missing_user" as const };
             }
 
             const userData = userDoc.data() || {};
@@ -65,14 +66,21 @@ export async function POST(req: NextRequest) {
             const legacyProfileData = legacyProfileDoc.exists ? legacyProfileDoc.data() : null;
 
             if (userData?.onboardingCompleted || legacyProfileData?.onboardingCompleted) {
-                return NextResponse.json({ success: true, alreadyCompleted: true, message: "Onboarding already finished." });
+                return {
+                    status: "already_completed" as const,
+                };
             }
 
             const rewardAmount = 50;
             const balanceDoc = await transaction.get(balanceRef);
-            const currentBalance = normalizeGumdropBalance(Number(userData?.gumDropsBalance)
-                || (balanceDoc.exists ? Number(balanceDoc.data()?.gumDrops || 0) : 0));
-            const newBalance = currentBalance + rewardAmount;
+            const legacyBalance = balanceDoc.exists ? Number(balanceDoc.data()?.gumDrops || 0) : 0;
+            const sourceAwareBalance = readSourceAwareBalance({
+                ...userData,
+                gumDropsBalance: normalizeGumdropBalance(Number(userData?.gumDropsBalance) || legacyBalance),
+            });
+            const currentBalance = sourceAwareBalance.total;
+            const nextBalance = creditSourceAwareGumdrops(sourceAwareBalance, rewardAmount, "reward");
+            const newBalance = nextBalance.total;
             const username = typeof userData?.username === "string" && userData.username.trim().length > 0
                 ? userData.username.trim()
                 : typeof userData?.displayName === "string" && userData.displayName.trim().length > 0
@@ -81,7 +89,7 @@ export async function POST(req: NextRequest) {
 
             transaction.set(userRef, {
                 onboardingCompleted: true,
-                gumDropsBalance: newBalance,
+                ...buildSourceAwareBalancePatch(nextBalance),
                 ...(selectedFlavor ? {
                     preferences: {
                         flavor: selectedFlavor,
@@ -236,11 +244,31 @@ export async function POST(req: NextRequest) {
                 transaction.create(factRef, factWrite.data);
             }
 
-            return NextResponse.json({
-                success: true,
+            return {
+                status: "completed" as const,
                 rewardAmount,
                 newBalance,
-            });
+                nowMs,
+            };
+        });
+
+        if (result.status === "missing_user") {
+            return NextResponse.json({ error: "User not found" }, { status: 404 });
+        }
+
+        if (result.status === "already_completed") {
+            return NextResponse.json({ success: true, alreadyCompleted: true, message: "Onboarding already finished." });
+        }
+
+        await touchUserRuntime(uid, {
+            activity: true,
+            profile: true,
+        }, result.nowMs);
+
+        return NextResponse.json({
+            success: true,
+            rewardAmount: result.rewardAmount,
+            newBalance: result.newBalance,
         });
     } catch (error) {
         return handleApiError(error, "User.CompleteOnboarding");

@@ -1,4 +1,9 @@
 export type GumdropLedgerStatus = "completed" | "failed" | "pending";
+export type SourceAwareGumdropBalance = {
+    total: number;
+    purchased: number;
+    reward: number;
+};
 
 export function normalizeGumdropAmount(value: unknown) {
     if (typeof value !== "number" || !Number.isFinite(value)) {
@@ -18,6 +23,121 @@ export function normalizeGumdropBalance(value: unknown) {
 
 export function computeNextGumdropBalance(currentBalance: unknown, delta: unknown) {
     return normalizeGumdropBalance(currentBalance) + normalizeGumdropAmount(delta);
+}
+
+export function readSourceAwareBalance(source: {
+    gumDropsBalance?: unknown;
+    gumDropsPurchasedBalance?: unknown;
+    gumDropsRewardBalance?: unknown;
+}) {
+    const total = normalizeGumdropBalance(source.gumDropsBalance);
+    const purchased = normalizeGumdropBalance(source.gumDropsPurchasedBalance);
+    const reward = normalizeGumdropBalance(source.gumDropsRewardBalance);
+
+    if (purchased === 0 && reward === 0 && total > 0) {
+        return {
+            total,
+            purchased: total,
+            reward: 0,
+        };
+    }
+
+    return {
+        total: normalizeGumdropBalance(purchased + reward),
+        purchased,
+        reward,
+    };
+}
+
+export function buildSourceAwareBalancePatch(next: SourceAwareGumdropBalance) {
+    return {
+        gumDropsBalance: normalizeGumdropBalance(next.purchased + next.reward),
+        gumDropsPurchasedBalance: normalizeGumdropBalance(next.purchased),
+        gumDropsRewardBalance: normalizeGumdropBalance(next.reward),
+    };
+}
+
+export function creditSourceAwareGumdrops(
+    current: SourceAwareGumdropBalance,
+    amount: unknown,
+    source: "purchased" | "reward",
+) {
+    const credit = Math.max(0, normalizeGumdropAmount(amount));
+    if (credit === 0) {
+        return current;
+    }
+
+    if (source === "reward") {
+        return {
+            total: current.total + credit,
+            purchased: current.purchased,
+            reward: current.reward + credit,
+        };
+    }
+
+    return {
+        total: current.total + credit,
+        purchased: current.purchased + credit,
+        reward: current.reward,
+    };
+}
+
+export function spendSourceAwareGumdrops(
+    current: SourceAwareGumdropBalance,
+    amount: unknown,
+    options?: { purchasedOnly?: boolean },
+) {
+    const required = Math.max(0, normalizeGumdropAmount(amount));
+    const purchasedOnly = options?.purchasedOnly === true;
+
+    if (required === 0) {
+        return {
+            ok: true as const,
+            next: current,
+            purchasedSpent: 0,
+            rewardSpent: 0,
+        };
+    }
+
+    if (purchasedOnly) {
+        if (current.purchased < required) {
+            return {
+                ok: false as const,
+                error: "Insufficient purchased Gum Drops for this creator experience.",
+            };
+        }
+
+        return {
+            ok: true as const,
+            next: {
+                total: current.total - required,
+                purchased: current.purchased - required,
+                reward: current.reward,
+            },
+            purchasedSpent: required,
+            rewardSpent: 0,
+        };
+    }
+
+    const purchasedSpent = Math.min(current.purchased, required);
+    const rewardSpent = Math.max(0, required - purchasedSpent);
+    if (purchasedSpent + rewardSpent < required || rewardSpent > current.reward) {
+        return {
+            ok: false as const,
+            error: "Insufficient Gum Drops for this creator experience.",
+        };
+    }
+
+    return {
+        ok: true as const,
+        next: {
+            total: current.total - required,
+            purchased: current.purchased - purchasedSpent,
+            reward: current.reward - rewardSpent,
+        },
+        purchasedSpent,
+        rewardSpent,
+    };
 }
 
 export function normalizeLedgerStatus(value: unknown): GumdropLedgerStatus {
@@ -115,4 +235,3 @@ export function classifyGumdropTransaction(input: {
         adminAdjustmentCount: isAdminAdjustment ? 1 : 0,
     };
 }
-
