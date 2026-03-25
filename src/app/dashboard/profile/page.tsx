@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useAuth, useUserProfile } from "@/context/AuthContext";
 import { updateProfile } from "firebase/auth";
 import { Button } from "@/components/ui/Button";
-import { Loader2, Save, User, AtSign, Bell, Globe, ShieldAlert, Mail, Camera, LogOut, Download, Trash2, Lock, FileText, CalendarClock, MessageSquare, Sparkles, Wallet } from "lucide-react";
+import { Loader2, Save, User, AtSign, Bell, Globe, ShieldAlert, Mail, Camera, LogOut, Download, Trash2, Lock, FileText, CalendarClock, MessageSquare, Sparkles, Wallet, CircleHelp, LifeBuoy } from "lucide-react";
 
 import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";
@@ -18,7 +18,7 @@ import { getBrowserNotificationState } from "@/lib/firebase-messaging";
 import { enableBrowserNotifications } from "@/lib/browser-notification-enrollment";
 import { CREATOR_BOOKING_RATES, CREATOR_SUBSCRIPTION_MIN_GD, DEFAULT_CREATOR_SETTINGS, type CreatorRequestCategoryConfig, type CreatorSettings } from "@/lib/creator-experiences";
 import { getBrowserGlobalPrivacyControl, persistPrivacySettingsSnapshot } from "@/lib/privacy-consent";
-import { PRIVACY_POLICY_LAST_UPDATED } from "@/lib/privacy-policy";
+import { PRIVACY_POLICY_LAST_UPDATED, PRIVACY_SUPPORT_EMAIL } from "@/lib/privacy-policy";
 import { trackEvent } from "@/lib/telemetry";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { CreateDropModal } from "@/components/Admin/CreateDropModal";
@@ -234,6 +234,7 @@ export default function ProfilePage() {
     const [creatorPayoutAmount, setCreatorPayoutAmount] = useState(100);
     const browserGpcEnabled = useMemo(() => getBrowserGlobalPrivacyControl(), []);
     const isCreatorAccount = userProfile?.role === "creator" || userProfile?.role === "admin";
+    const supportHref = `mailto:${PRIVACY_SUPPORT_EMAIL}?subject=${encodeURIComponent("KandyDrops Support")}`;
 
     useEffect(() => {
         setFormState(normalizedInitialState);
@@ -301,6 +302,9 @@ export default function ProfilePage() {
 
     const profileName = formState.displayName || user?.displayName || "Collector";
     const profileEmail = user?.email || "Signed in";
+    const profileUsername = formState.username ? `@${formState.username}` : null;
+    const profileIdentityLabel = profileUsername || profileName;
+    const profileIdentityDetail = profileUsername && profileName !== profileUsername ? profileName : profileEmail;
     const avatarFallback = profileName.charAt(0).toUpperCase() || "C";
     const referralLink = `${runtimeOrigin}?ref=${user?.uid || ""}`;
 
@@ -739,8 +743,8 @@ export default function ProfilePage() {
                             )}
                         </div>
                         <div className="min-w-0">
-                            <p className="text-lg font-bold text-white truncate">{profileName}</p>
-                            <p className="text-sm text-gray-400 truncate">{profileEmail}</p>
+                            <p className="text-lg font-bold text-white truncate">{profileIdentityLabel}</p>
+                            <p className="text-sm text-gray-400 truncate">{profileIdentityDetail}</p>
                         </div>
                     </div>
 
@@ -1219,6 +1223,33 @@ export default function ProfilePage() {
                         <Button type="button" variant="glass" onClick={logout} className="justify-center border-white/20 hover:bg-white/10">
                             <LogOut className="w-4 h-4 mr-2 text-gray-400" /> Sign out
                         </Button>
+                    </div>
+                    <div className="rounded-[1.15rem] border border-white/10 bg-black/30 px-4 py-3">
+                        <p className="text-sm font-medium text-gray-100">Support & policies</p>
+                        <p className="mt-1 text-xs leading-5 text-gray-500">Quick access to help, support contact, and policy details from the same account surface where you manage sign-out and security.</p>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                            <Link
+                                href="/faq"
+                                className="inline-flex min-h-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+                            >
+                                <CircleHelp className="mr-2 h-4 w-4 text-brand-purple" />
+                                FAQ
+                            </Link>
+                            <a
+                                href={supportHref}
+                                className="inline-flex min-h-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+                            >
+                                <LifeBuoy className="mr-2 h-4 w-4 text-brand-purple" />
+                                Support
+                            </a>
+                            <Link
+                                href="/privacy"
+                                className="inline-flex min-h-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+                            >
+                                <FileText className="mr-2 h-4 w-4 text-brand-purple" />
+                                Policies
+                            </Link>
+                        </div>
                     </div>
                 </SectionCard>
 
