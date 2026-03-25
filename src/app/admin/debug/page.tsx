@@ -462,8 +462,32 @@ export default function DebugConsole() {
                         title="Integrity and parity"
                         subtitle="Combines user assignment issues with reward parity so the highest-signal task problems stay together."
                         defaultOpen={!isCompactViewport}
-                        summary={<><Pill label="Affected users" value={data?.stats?.usersWithTaskIssues ?? 0} tone={data?.stats?.usersWithTaskIssues ? "warn" : "good"} /><Pill label="Reward delta 7d" value={data?.stats?.rewardEventDeltaLast7d ?? 0} tone={(data?.stats?.rewardEventDeltaLast7d ?? 0) === 0 ? "good" : "warn"} /></>}
+                        summary={<><Pill label="Affected users" value={data?.stats?.usersWithTaskIssues ?? 0} tone={data?.stats?.usersWithTaskIssues ? "warn" : "good"} /><Pill label="Reward delta 7d" value={data?.stats?.rewardEventDeltaLast7d ?? 0} tone={(data?.stats?.rewardEventDeltaLast7d ?? 0) === 0 ? "good" : "warn"} /><Pill label="Creator spend violations" value={data?.stats?.creatorSpendViolationsLast7d ?? 0} tone={(data?.stats?.creatorSpendViolationsLast7d ?? 0) === 0 ? "good" : "warn"} /></>}
                     >
+                        <div className="mb-4 grid gap-3 md:grid-cols-2">
+                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                <div className="flex flex-wrap gap-2">
+                                    <Pill label="Reward version" value={data?.taskRewardConfig?.rewardVersion ?? "--"} />
+                                    <Pill label="Multiplier" value={`${data?.taskRewardConfig?.multiplierPercent ?? 0}%`} />
+                                    <Pill label="Built-in avg" value={data?.taskRewardConfig?.builtInAverageReward ?? 0} />
+                                    <Pill label="Legacy custom" value={data?.taskRewardConfig?.legacyRewardVersionCount ?? 0} tone={(data?.taskRewardConfig?.legacyRewardVersionCount ?? 0) === 0 ? "good" : "warn"} />
+                                </div>
+                                <p className="mt-3 text-xs leading-6 text-gray-400">
+                                    Current task rewards are normalized under one active version so built-ins, legacy custom tasks, receipts, and admin task tools can stay in sync after economy tuning.
+                                </p>
+                            </div>
+                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                <div className="flex flex-wrap gap-2">
+                                    <Pill label="Tracked creator spends" value={data?.creatorSpendParity?.trackedTransactions ?? 0} />
+                                    <Pill label="Purchased spent" value={data?.creatorSpendParity?.totalPurchasedSpent ?? 0} />
+                                    <Pill label="Reward spent" value={data?.creatorSpendParity?.totalRewardSpent ?? 0} tone={(data?.creatorSpendParity?.totalRewardSpent ?? 0) === 0 ? "good" : "warn"} />
+                                    <Pill label="Amount mismatches" value={data?.creatorSpendParity?.amountMismatchCount ?? 0} tone={(data?.creatorSpendParity?.amountMismatchCount ?? 0) === 0 ? "good" : "warn"} />
+                                </div>
+                                <p className="mt-3 text-xs leading-6 text-gray-400">
+                                    Creator chat, subscriptions, requests, and bookings are expected to consume purchased Gum Drops only. Any reward-spend or amount mismatch is surfaced here as a parity warning.
+                                </p>
+                            </div>
+                        </div>
                         <div className="grid gap-4 xl:grid-cols-[1fr_1fr]">
                             <ScrollWrap>
                                 <div className="divide-y divide-white/10">
@@ -503,6 +527,25 @@ export default function DebugConsole() {
                                 </div>
                             </ScrollWrap>
                         </div>
+                        {(data?.creatorSpendParity?.byType || []).length ? (
+                            <div className="mt-4 grid gap-3 md:grid-cols-2">
+                                {(data?.creatorSpendParity?.byType || []).map((entry: any) => (
+                                    <div key={entry.type} className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div>
+                                                <p className="font-semibold text-white">{entry.label}</p>
+                                                <p className="text-xs text-gray-400">{entry.type}</p>
+                                            </div>
+                                            <Pill label="Count" value={entry.count} />
+                                        </div>
+                                        <div className="mt-3 flex flex-wrap gap-2">
+                                            <Pill label="Purchased" value={entry.purchasedSpent} />
+                                            <Pill label="Reward" value={entry.rewardSpent} tone={entry.rewardSpent ? "warn" : "good"} />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : null}
                     </Section>
 
                     <Section

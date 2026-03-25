@@ -5,6 +5,17 @@ export type SourceAwareGumdropBalance = {
     reward: number;
 };
 
+const CREATOR_SPEND_TRANSACTION_TYPES = new Set([
+    "creator_message_text",
+    "creator_message_image",
+    "creator_message_video",
+    "creator_subscription",
+    "creator_subscription_renewal",
+    "creator_custom_request",
+    "creator_booking_phone",
+    "creator_booking_video",
+]);
+
 export function normalizeGumdropAmount(value: unknown) {
     if (typeof value !== "number" || !Number.isFinite(value)) {
         return 0;
@@ -182,6 +193,8 @@ export function classifyGumdropTransaction(input: {
     amount?: number;
     rewardSource?: string;
     status?: unknown;
+    purchasedAmountSpent?: number;
+    rewardAmountSpent?: number;
 }) {
     const amount = normalizeGumdropAmount(input.amount);
     const type = typeof input.type === "string" ? input.type : "";
@@ -206,6 +219,11 @@ export function classifyGumdropTransaction(input: {
             purchaseTransactionCount: 0,
             spendTransactionCount: 0,
             adminAdjustmentCount: 0,
+            creatorSpendTransactionCount: 0,
+            creatorPurchasedSpendTotal: 0,
+            creatorRewardSpendTotal: 0,
+            creatorSpendParityMismatchCount: 0,
+            creatorRestrictedSpendViolationCount: 0,
         };
     }
 
@@ -213,8 +231,20 @@ export function classifyGumdropTransaction(input: {
     const negativeAmount = Math.max(0, Math.abs(Math.min(0, amount)));
     const isRewardTransaction = type === "daily_reward" || type === "onboarding_reward" || type === "referral_bonus";
     const isPurchaseTransaction = type === "purchase_currency";
-    const isSpendTransaction = type === "unlock_content";
+    const isCreatorSpendTransaction = CREATOR_SPEND_TRANSACTION_TYPES.has(type);
+    const isSpendTransaction = type === "unlock_content" || isCreatorSpendTransaction;
     const isAdminAdjustment = type === "admin_adjustment";
+    const creatorPurchasedSpendTotal = isCreatorSpendTransaction
+        ? Math.max(0, normalizeGumdropAmount(input.purchasedAmountSpent))
+        : 0;
+    const creatorRewardSpendTotal = isCreatorSpendTransaction
+        ? Math.max(0, normalizeGumdropAmount(input.rewardAmountSpent))
+        : 0;
+    const creatorSpendParityMismatchCount = isCreatorSpendTransaction
+        && creatorPurchasedSpendTotal + creatorRewardSpendTotal !== negativeAmount
+        ? 1
+        : 0;
+    const creatorRestrictedSpendViolationCount = isCreatorSpendTransaction && creatorRewardSpendTotal > 0 ? 1 : 0;
 
     return {
         gumdropDelta: amount,
@@ -233,5 +263,10 @@ export function classifyGumdropTransaction(input: {
         purchaseTransactionCount: isPurchaseTransaction ? 1 : 0,
         spendTransactionCount: isSpendTransaction ? 1 : 0,
         adminAdjustmentCount: isAdminAdjustment ? 1 : 0,
+        creatorSpendTransactionCount: isCreatorSpendTransaction ? 1 : 0,
+        creatorPurchasedSpendTotal,
+        creatorRewardSpendTotal,
+        creatorSpendParityMismatchCount,
+        creatorRestrictedSpendViolationCount,
     };
 }

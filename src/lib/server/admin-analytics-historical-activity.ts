@@ -1,5 +1,6 @@
 import { DropReference, resolveDropTitle } from "@/lib/server/drop-references";
 import { summarizeSecurityReason } from "@/lib/server/analytics-semantics";
+import { getTransactionDisplayLabel } from "@/lib/transaction-normalizers";
 import {
   TaskLifecycleLog,
   TelemetryLogRecord,
@@ -153,9 +154,11 @@ export function buildHistoricalActivityFeeds({
 
   const transactionActivity: HistoricalActivityItem[] = rawTransactions.map((transaction) => ({
     type: transaction.type || "transaction",
-    detail:
-      toStringValue(transaction.description) ||
-      (transaction.type === "purchase_currency" ? "Gum Drops purchase" : "Drop unlock"),
+    detail: getTransactionDisplayLabel({
+      type: (toStringValue(transaction.type) || "admin_adjustment") as Parameters<typeof getTransactionDisplayLabel>[0]["type"],
+      description: toStringValue(transaction.description),
+      rewardSource: toStringValue(transaction.rewardSource) as Parameters<typeof getTransactionDisplayLabel>[0]["rewardSource"],
+    }),
     path: "/dashboard",
     uid: transaction.userId || "unknown",
     username: transaction.userId ? (userMap[transaction.userId]?.username || transaction.userId) : "Unknown User",

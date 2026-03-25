@@ -3,14 +3,88 @@ import "server-only";
 import { FieldValue } from "firebase-admin/firestore";
 
 import { CREATOR_REVENUE_SHARE, buildCreatorRelationshipId, calculateCreatorCashoutUsd, getCreatorBookingRate, getCreatorMessageCost, normalizeCreatorRestrictions, normalizeCreatorSettings, normalizePositiveWholeNumber } from "@/lib/creator-experiences";
-export {
+import {
     buildSourceAwareBalancePatch,
     readSourceAwareBalance,
     spendSourceAwareGumdrops,
     type SourceAwareGumdropBalance,
 } from "@/lib/gumdrop-ledger";
+export {
+    buildSourceAwareBalancePatch,
+    readSourceAwareBalance,
+    spendSourceAwareGumdrops,
+    type SourceAwareGumdropBalance,
+};
 
 export { calculateCreatorCashoutUsd } from "@/lib/creator-experiences";
+
+export type CreatorSpendPolicyKey =
+    | "message"
+    | "subscription"
+    | "custom_request"
+    | "booking_phone"
+    | "booking_video";
+
+export const CREATOR_SPEND_POLICIES: Record<CreatorSpendPolicyKey, {
+    label: string;
+    purchasedOnly: boolean;
+    description: string;
+}> = {
+    message: {
+        label: "Creator chat",
+        purchasedOnly: true,
+        description: "Paid creator messages must consume purchased Gum Drops only.",
+    },
+    subscription: {
+        label: "Creator subscriptions",
+        purchasedOnly: true,
+        description: "Creator subscriptions and renewals must consume purchased Gum Drops only.",
+    },
+    custom_request: {
+        label: "Custom requests",
+        purchasedOnly: true,
+        description: "Custom content requests must consume purchased Gum Drops only.",
+    },
+    booking_phone: {
+        label: "Phone bookings",
+        purchasedOnly: true,
+        description: "Phone bookings must consume purchased Gum Drops only.",
+    },
+    booking_video: {
+        label: "Video bookings",
+        purchasedOnly: true,
+        description: "Video bookings must consume purchased Gum Drops only.",
+    },
+};
+
+export function spendCreatorExperienceGumdrops(
+    current: SourceAwareGumdropBalance,
+    amount: unknown,
+    policyKey: CreatorSpendPolicyKey,
+) {
+    const policy = CREATOR_SPEND_POLICIES[policyKey];
+    const spend = spendSourceAwareGumdrops(current, amount, {
+        purchasedOnly: policy.purchasedOnly,
+    });
+    if (!spend.ok) {
+        return spend;
+    }
+
+    const ledgerSource = spend.rewardSpent > 0
+        ? spend.purchasedSpent > 0
+            ? "mixed"
+            : "reward"
+        : "purchased";
+
+    return {
+        ...spend,
+        policyKey,
+        purchasedOnly: policy.purchasedOnly,
+        policyLabel: policy.label,
+        policyDescription: policy.description,
+        ledgerSource,
+    };
+}
 
 export function buildCreatorAccrual(input: {
     creatorId: string;

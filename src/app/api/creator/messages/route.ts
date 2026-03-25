@@ -6,7 +6,7 @@ import { handleApiError } from "@/lib/server/auth";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { CREATOR_COLLECTIONS, buildCreatorThreadId, isCreatorRole, normalizeMessageKind } from "@/lib/creator-experiences";
-import { buildCreatorAccrual, buildSourceAwareBalancePatch, calculateMessagePriceGd, readSourceAwareBalance, spendSourceAwareGumdrops } from "@/lib/server/creator-experiences";
+import { buildCreatorAccrual, buildSourceAwareBalancePatch, calculateMessagePriceGd, readSourceAwareBalance, spendCreatorExperienceGumdrops } from "@/lib/server/creator-experiences";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { trackServerEvent } from "@/lib/server/analytics";
 
@@ -192,7 +192,7 @@ export async function POST(request: NextRequest) {
 
             if (!callerIsCreator && costGd > 0) {
                 const balance = readSourceAwareBalance(participantData);
-                const spend = spendSourceAwareGumdrops(balance, costGd, { purchasedOnly: true });
+                const spend = spendCreatorExperienceGumdrops(balance, costGd, "message");
                 if (!spend.ok) {
                     throw new Error(spend.error);
                 }
@@ -223,7 +223,7 @@ export async function POST(request: NextRequest) {
                     extra: {
                         purchasedAmountSpent,
                         rewardAmountSpent,
-                        ledgerSource: "purchased",
+                        ledgerSource: spend.ledgerSource,
                         creatorRevenueShareGd: accrual.creatorShareGd,
                         creatorRevenueShareUsd: accrual.cashoutValueUsd,
                         creatorAccrualId,
