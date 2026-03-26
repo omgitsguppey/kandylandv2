@@ -6,8 +6,8 @@ service firebase.storage {
     }
 
     match /avatars/{fileName} {
-      allow read: if true;
-      allow write: if isSignedIn();
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && fileName.matches(request.auth.uid + '\\..*');
     }
 
     match /creator/messages/{allPaths=**} {
