@@ -35,16 +35,18 @@ function getFirebaseErrorCode(error: unknown) {
 async function deleteDocumentTree(
     docRef: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>,
     bulkWriter: FirebaseFirestore.BulkWriter,
-) {
+): Promise<number> {
     const collections = await docRef.listCollections();
-    let deletedCount = 0;
 
-    for (const collection of collections) {
+    const collectionPromises = collections.map(async (collection) => {
         const snapshot = await collection.get();
-        for (const doc of snapshot.docs) {
-            deletedCount += await deleteDocumentTree(doc.ref, bulkWriter);
-        }
-    }
+        const docPromises = snapshot.docs.map((doc) => deleteDocumentTree(doc.ref, bulkWriter));
+        const counts = await Promise.all(docPromises);
+        return counts.reduce((acc, count) => acc + count, 0);
+    });
+
+    const counts = await Promise.all(collectionPromises);
+    const deletedCount = counts.reduce((acc, count) => acc + count, 0);
 
     bulkWriter.delete(docRef);
     return deletedCount + 1;
