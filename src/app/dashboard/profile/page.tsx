@@ -20,6 +20,7 @@ import { CREATOR_BOOKING_RATES, CREATOR_SUBSCRIPTION_MIN_GD, DEFAULT_CREATOR_SET
 import { getBrowserGlobalPrivacyControl, persistPrivacySettingsSnapshot } from "@/lib/privacy-consent";
 import { PRIVACY_POLICY_LAST_UPDATED, PRIVACY_SUPPORT_EMAIL } from "@/lib/privacy-policy";
 import { trackEvent } from "@/lib/telemetry";
+import { captureException } from "@/lib/monitoring";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { CreateDropModal } from "@/components/Admin/CreateDropModal";
 
@@ -277,7 +278,7 @@ export default function ProfilePage() {
                     setCreatorBroadcasts(Array.isArray(broadcastsResult.broadcasts) ? broadcastsResult.broadcasts : []);
                 }
             } catch (error) {
-                console.error("Failed to load creator settings", error);
+                captureException(error, { source: "profile_page", action: "load_creator_settings" });
                 if (!cancelled) {
                     setCreatorSettingsState(userProfile?.creatorSettings || DEFAULT_CREATOR_SETTINGS);
                 }
@@ -414,7 +415,7 @@ export default function ProfilePage() {
                 : "Browser reminders are on, but push delivery is limited in this browser.");
             toast.success("Browser notifications enabled.");
         } catch (error) {
-            console.error("Failed to enable browser notifications", error);
+            captureException(error, { source: "profile_page", action: "enable_browser_notifications" });
             toast.error("We could not enable browser notifications right now.");
         } finally {
             setNotificationSetupLoading(false);
