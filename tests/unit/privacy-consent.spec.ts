@@ -1,5 +1,5 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import { readPrivacySettingsSnapshot, PRIVACY_SETTINGS_STORAGE_KEY } from "@/lib/privacy-consent";
+import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
+import { readPrivacySettingsSnapshot, PRIVACY_SETTINGS_STORAGE_KEY, getBrowserGlobalPrivacyControl } from "@/lib/privacy-consent";
 
 const DEFAULT_PRIVACY_SETTINGS = {
     anonymousAnalyticsEnabled: false,
@@ -63,5 +63,37 @@ describe("readPrivacySettingsSnapshot", () => {
         vi.mocked(window.localStorage.getItem).mockReturnValue(null);
         readPrivacySettingsSnapshot();
         expect(window.localStorage.getItem).toHaveBeenCalledWith(PRIVACY_SETTINGS_STORAGE_KEY);
+    });
+});
+
+describe("getBrowserGlobalPrivacyControl", () => {
+    let originalNavigator: any;
+
+    beforeEach(() => {
+        originalNavigator = global.navigator;
+    });
+
+    afterEach(() => {
+        vi.unstubAllGlobals();
+    });
+
+    it("returns false when navigator is undefined", () => {
+        vi.stubGlobal("navigator", undefined);
+        expect(getBrowserGlobalPrivacyControl()).toBe(false);
+    });
+
+    it("returns false when globalPrivacyControl is not set on navigator", () => {
+        vi.stubGlobal("navigator", {});
+        expect(getBrowserGlobalPrivacyControl()).toBe(false);
+    });
+
+    it("returns true when globalPrivacyControl is true", () => {
+        vi.stubGlobal("navigator", { globalPrivacyControl: true });
+        expect(getBrowserGlobalPrivacyControl()).toBe(true);
+    });
+
+    it("returns false when globalPrivacyControl is false", () => {
+        vi.stubGlobal("navigator", { globalPrivacyControl: false });
+        expect(getBrowserGlobalPrivacyControl()).toBe(false);
     });
 });

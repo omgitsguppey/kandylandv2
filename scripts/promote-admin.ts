@@ -21,7 +21,19 @@ async function main() {
 
     const isEmail = input.includes("@");
 
-    console.log(`Promoting user: ${input} (${isEmail ? "Email" : "UID"}) to admin...`);
+    const maskValue = (val: string, isMail: boolean) => {
+        if (!val) return val;
+        if (isMail) {
+            const [local, domain] = val.split('@');
+            if (!domain) return "***";
+            return local.length <= 2 ? `***@${domain}` : `${local.substring(0, 2)}***@${domain}`;
+        }
+        return val.length <= 4 ? "***" : `${val.substring(0, 4)}***`;
+    };
+
+    const maskedInput = maskValue(input, isEmail);
+
+    console.log(`Promoting user: ${maskedInput} (${isEmail ? "Email" : "UID"}) to admin...`);
     console.log(`Using Project ID: ${projectId || "Not detected"}`);
 
     if (!admin.apps.length) {
@@ -67,7 +79,9 @@ async function main() {
             user = await auth.getUser(input);
         }
 
-        console.log(`Found user in Auth: ${user.uid} (${user.email || "No email"})`);
+        const maskedUid = maskValue(user.uid, false);
+        const maskedEmail = user.email ? maskValue(user.email, true) : "No email";
+        console.log(`Found user in Auth: ${maskedUid} (${maskedEmail})`);
 
         // 2. Set Custom Claims
         console.log("Setting custom claims: { admin: true }...");
@@ -78,7 +92,7 @@ async function main() {
         const doc = await userRef.get();
 
         if (!doc.exists) {
-            console.warn(`Warning: User profile not found in Firestore collection 'users' for UID ${user.uid}. Creating it...`);
+            console.warn(`Warning: User profile not found in Firestore collection 'users' for UID ${maskedUid}. Creating it...`);
             await userRef.set({
                 uid: user.uid,
                 email: user.email || null,
@@ -91,8 +105,8 @@ async function main() {
             });
         }
 
-        console.log(`Successfully promoted ${input} to admin.`);
-        console.log("Note: The user must sign out and sign back in (or refresh their token) for the new admin claim to take effect.");
+        console.log(`Successfully promoted ${maskedInput} to admin.`);
+        console.log("Note: The user must sign out and sign back in (or refresh their session) for the new admin claim to take effect.");
         process.exit(0);
     } catch (error: any) {
         console.error("Error promoting user:", error.message);
