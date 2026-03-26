@@ -122,7 +122,7 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
                 .join("")
                 .slice(0, 8);
         } else {
-            token = Math.random().toString(36).slice(2, 10);
+            throw new Error("Cryptographically secure random number generation is not available in this environment.");
         }
         return `drops_${Date.now().toString(36)}_${token}`;
     });

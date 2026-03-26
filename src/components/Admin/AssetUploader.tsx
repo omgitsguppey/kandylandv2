@@ -80,7 +80,7 @@ function generateSecureId(): string {
         .join("");
     }
   }
-  return `${Date.now().toString(16)}-${Math.random().toString(16).slice(2)}`;
+  throw new Error("Cryptographically secure random number generation is not available in this environment.");
 }
 
 function createInitialAssets(initialAssets?: UploadedAsset[], initialUrl?: string, initialType?: string): AssetDraft[] {

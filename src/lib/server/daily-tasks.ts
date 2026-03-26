@@ -301,7 +301,7 @@ function rankTasksForCycle(
       try {
         tieBreaker = randomBytes(4).readUInt32BE(0) / 0xffffffff;
       } catch {
-        tieBreaker = Math.random();
+        throw new Error("Cryptographically secure random number generation is not available in this environment.");
       }
 
       return {
