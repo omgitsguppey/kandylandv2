@@ -1,9 +1,8 @@
 import { defineConfig } from "vitest/config";
+import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
-  resolve: {
-    tsconfigPaths: true,
-  },
+  plugins: [tsconfigPaths()],
   test: {
     environment: "node",
     include: ["tests/contracts/**/*.spec.ts", "tests/unit/**/*.spec.ts"],
@@ -12,5 +11,8 @@ export default defineConfig({
       reporter: ["text", "html"],
       reportsDirectory: "coverage/contracts",
     },
+    alias: {
+      "server-only": "node_modules/server-only/empty.js"
+    }
   },
 });

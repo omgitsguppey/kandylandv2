@@ -40,6 +40,41 @@ export async function GET(request: NextRequest) {
 
         const outcomes: RenewalOutcome[] = [];
 
+        // Pre-fetch users for warnings to avoid N+1 queries
+        const userIdsToFetch = new Set<string>();
+        for (const subscriptionDoc of subscriptionsSnap.docs) {
+            const subscriptionData = subscriptionDoc.data() as Record<string, unknown>;
+            const creatorId = typeof subscriptionData.creatorId === "string" ? subscriptionData.creatorId : "";
+            const userId = typeof subscriptionData.userId === "string" ? subscriptionData.userId : "";
+            const autoRenew = subscriptionData.autoRenew !== false;
+            const renewAt = typeof subscriptionData.renewAt === "number" ? subscriptionData.renewAt : 0;
+
+            if (!creatorId || !userId || !autoRenew || renewAt <= 0) {
+                continue;
+            }
+
+            const cycleKey = String(renewAt);
+            const lastWarningCycleKey = typeof subscriptionData.warningCycleKey === "string" ? subscriptionData.warningCycleKey : "";
+
+            if (renewAt > now && renewAt - now <= WARNING_WINDOW_MS && lastWarningCycleKey !== cycleKey) {
+                userIdsToFetch.add(creatorId);
+                userIdsToFetch.add(userId);
+            }
+        }
+
+        const userSnapshots = new Map<string, FirebaseFirestore.DocumentSnapshot>();
+        const userIdsArray = Array.from(userIdsToFetch);
+
+        // Fetch in chunks of 100 to avoid Firestore limits
+        for (let i = 0; i < userIdsArray.length; i += 100) {
+            const chunk = userIdsArray.slice(i, i + 100);
+            const refs = chunk.map((id) => adminDb.collection("users").doc(id));
+            const snaps = await adminDb.getAll(...refs);
+            for (const snap of snaps) {
+                userSnapshots.set(snap.id, snap);
+            }
+        }
+
         for (const subscriptionDoc of subscriptionsSnap.docs) {
             const subscriptionData = subscriptionDoc.data() as Record<string, unknown>;
             const creatorId = typeof subscriptionData.creatorId === "string" ? subscriptionData.creatorId : "";
@@ -59,10 +94,12 @@ export async function GET(request: NextRequest) {
             const lastWarningCycleKey = typeof subscriptionData.warningCycleKey === "string" ? subscriptionData.warningCycleKey : "";
 
             if (renewAt > now && renewAt - now <= WARNING_WINDOW_MS && lastWarningCycleKey !== cycleKey) {
-                const [creatorSnap, userSnap] = await Promise.all([
-                    adminDb.collection("users").doc(creatorId).get(),
-                    adminDb.collection("users").doc(userId).get(),
-                ]);
+                const creatorSnap = userSnapshots.get(creatorId);
+                const userSnap = userSnapshots.get(userId);
+
+                if (!creatorSnap || !userSnap) {
+                    continue;
+                }
                 const creatorData = creatorSnap.data() as Record<string, unknown> | undefined;
                 const creatorDisplayName = typeof creatorData?.displayName === "string" && creatorData.displayName.trim().length > 0
                     ? creatorData.displayName.trim()
@@ -107,11 +144,11 @@ export async function GET(request: NextRequest) {
             }
 
             const result = await adminDb.runTransaction(async (transaction) => {
-                const [freshSubscriptionSnap, creatorSnap, userSnap] = await Promise.all([
-                    transaction.get(subscriptionDoc.ref),
-                    transaction.get(adminDb.collection("users").doc(creatorId)),
-                    transaction.get(adminDb.collection("users").doc(userId)),
-                ]);
+                const [freshSubscriptionSnap, creatorSnap, userSnap] = await transaction.getAll(
+                    subscriptionDoc.ref,
+                    adminDb.collection("users").doc(creatorId),
+                    adminDb.collection("users").doc(userId),
+                );
 
                 if (!freshSubscriptionSnap.exists || !creatorSnap.exists || !userSnap.exists) {
                     return null;
