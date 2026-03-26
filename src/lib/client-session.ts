@@ -20,7 +20,7 @@ function generateId(prefix: string) {
     return `${prefix}_${Date.now().toString(36)}_${token}`;
   }
 
-  return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+  throw new Error("Secure random number generation is not supported in this environment.");
 }
 
 function readStorageValue(storageKey: string, persistent: boolean) {
