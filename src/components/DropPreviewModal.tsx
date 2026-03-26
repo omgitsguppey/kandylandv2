@@ -47,6 +47,75 @@ function getTimerLabel(validFrom: number, validUntil?: number): string {
   return `${formatDistanceToNow(validUntil)} left`;
 }
 
+function FileCountBadge({ drop }: { drop: Drop }) {
+  const numFiles = Array.isArray(drop.contentUrls) && drop.contentUrls.length > 0
+    ? drop.contentUrls.length
+    : (drop.contentUrl ? 1 : 0);
+
+  if (numFiles <= 0) {
+    return null;
+  }
+
+  return (
+    <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-200 flex items-center gap-1.5">
+      <Images className="w-3.5 h-3.5" /> +{numFiles} {numFiles === 1 ? 'File' : 'Files'}
+    </span>
+  );
+}
+
+interface UnwrapButtonContentProps {
+  unlocking: boolean;
+  hasUser: boolean;
+  canAfford: boolean;
+  confirming: boolean;
+  unlockCost: number;
+}
+
+function UnwrapButtonContent({ unlocking, hasUser, canAfford, confirming, unlockCost }: UnwrapButtonContentProps) {
+  if (unlocking) {
+    return (
+      <>
+        <Loader2 className="h-5 w-5 animate-spin" />
+        Unwrapping...
+      </>
+    );
+  }
+
+  if (!hasUser) {
+    return (
+      <>
+        <Lock className="h-5 w-5" />
+        {SECONDARY_UNWRAP_CTA}
+      </>
+    );
+  }
+
+  if (!canAfford) {
+    return (
+      <>
+        <Wallet className="h-5 w-5 shrink-0" />
+        <span>{GUMDROPS_URGENCY_CTA}</span>
+      </>
+    );
+  }
+
+  if (confirming) {
+    return (
+      <>
+        <Lock className="h-5 w-5" />
+        Confirm {unlockCost} GD?
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Lock className="h-5 w-5" />
+      Unwrap for {unlockCost} GD
+    </>
+  );
+}
+
 export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
   const router = useRouter();
   const { user } = useAuth();
@@ -296,19 +365,7 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
                   <span className="px-3 py-1 rounded-full bg-brand-purple/15 border border-brand-purple/30 text-brand-purple flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5" /> {timerLabel}
                   </span>
-                  {(() => {
-                    const numFiles = Array.isArray(drop.contentUrls) && drop.contentUrls.length > 0
-                      ? drop.contentUrls.length
-                      : (drop.contentUrl ? 1 : 0);
-                    if (numFiles > 0) {
-                      return (
-                        <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-200 flex items-center gap-1.5">
-                          <Images className="w-3.5 h-3.5" /> +{numFiles} {numFiles === 1 ? 'File' : 'Files'}
-                        </span>
-                      );
-                    }
-                    return null;
-                  })()}
+                  <FileCountBadge drop={drop} />
                 </div>
 
                 <div className="mt-4 space-y-3 pb-3">
@@ -347,38 +404,18 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
                       disabled={unlocking}
                       className={cn(
                         "flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl border relative overflow-hidden px-4 py-3 text-center text-base font-bold leading-5 transition-all active:scale-95 shadow-lg",
-                        !canAfford ? "bg-gradient-to-r from-brand-purple to-purple-500 text-white border-brand-purple shadow-[0_0_20px_rgba(164,118,255,0.4)] hover:opacity-95"
-                          : confirming ? "bg-orange-500 text-white border-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.4)]"
-                            : "bg-gradient-to-r from-brand-purple to-purple-500 text-white border-brand-purple shadow-[0_0_20px_rgba(164,118,255,0.4)] hover:opacity-95",
+                        (!canAfford || !confirming) && "bg-gradient-to-r from-brand-purple to-purple-500 text-white border-brand-purple shadow-[0_0_20px_rgba(164,118,255,0.4)] hover:opacity-95",
+                        canAfford && confirming && "bg-orange-500 text-white border-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.4)]",
                         "disabled:opacity-50 disabled:cursor-not-allowed"
                       )}
                     >
-                      {unlocking ? (
-                        <>
-                          <Loader2 className="h-5 w-5 animate-spin" />
-                          Unwrapping...
-                        </>
-                      ) : !user ? (
-                        <>
-                          <Lock className="h-5 w-5" />
-                          {SECONDARY_UNWRAP_CTA}
-                        </>
-                      ) : !canAfford ? (
-                        <>
-                          <Wallet className="h-5 w-5 shrink-0" />
-                          <span>{GUMDROPS_URGENCY_CTA}</span>
-                        </>
-                      ) : confirming ? (
-                        <>
-                          <Lock className="h-5 w-5" />
-                          Confirm {drop.unlockCost} GD?
-                        </>
-                      ) : (
-                        <>
-                          <Lock className="h-5 w-5" />
-                          Unwrap for {drop.unlockCost} GD
-                        </>
-                        )}
+                      <UnwrapButtonContent
+                        unlocking={unlocking}
+                        hasUser={!!user}
+                        canAfford={canAfford}
+                        confirming={confirming}
+                        unlockCost={drop.unlockCost}
+                      />
                     </button>
                     <div className="flex justify-center">
                       <ReportBugButton context="drop-preview-locked" />
