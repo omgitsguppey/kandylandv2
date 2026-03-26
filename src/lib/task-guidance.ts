@@ -6,7 +6,7 @@ export const TASK_GUIDANCE_ACTION_EVENT = "kandydrops:task-guidance-action";
 
 export type TaskGuidanceActionType = Extract<
   DailyTaskAssignment["actionType"],
-  "open_notifications" | "open_wallet" | "enable_notifications" | "give_feedback"
+  "action:internal-link" | "action:external-link"
 >;
 
 export interface TaskGuidanceState {
@@ -59,10 +59,7 @@ function writeLocalStorageValue(storageKey: string, value: unknown) {
 }
 
 export function isTaskGuidanceActionType(actionType: DailyTaskAssignment["actionType"]): actionType is TaskGuidanceActionType {
-  return actionType === "open_notifications"
-    || actionType === "open_wallet"
-    || actionType === "enable_notifications"
-    || actionType === "give_feedback";
+  return actionType === "action:internal-link" || actionType === "action:external-link";
 }
 
 export function getTaskDestinationPath(destinationHref: string) {
