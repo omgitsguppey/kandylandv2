@@ -8,9 +8,11 @@ import { getBrowserNotificationState } from "@/lib/firebase-messaging";
 import { enableBrowserNotifications } from "@/lib/browser-notification-enrollment";
 import { trackEvent } from "@/lib/telemetry";
 import { toast } from "sonner";
+import { hashIdentifier } from "@/hooks/client-runtime";
 
-function getDismissKey(uid: string) {
-    return `kandydrops:notification-banner-dismissed:${uid}`;
+async function getDismissKey(uid: string) {
+    const hashedId = await hashIdentifier(uid);
+    return `kandydrops:notification-banner-dismissed:${hashedId}`;
 }
 
 export function NotificationPromptBanner() {
@@ -29,19 +31,49 @@ export function NotificationPromptBanner() {
             || (userProfile.fcmTokens?.length ?? 0) > 0;
     }, [userProfile]);
 
-    const dismissKey = userProfile?.uid ? getDismissKey(userProfile.uid) : null;
+    const [dismissKey, setDismissKey] = useState<string | null>(null);
+    const [isCheckingKey, setIsCheckingKey] = useState(true);
 
     useEffect(() => {
-        if (typeof window === "undefined" || !dismissKey) {
+        if (!userProfile?.uid) {
+            setDismissKey(null);
+            setIsCheckingKey(false);
+            return;
+        }
+
+        let cancelled = false;
+        setIsCheckingKey(true);
+        void getDismissKey(userProfile.uid)
+            .then((key) => {
+                if (!cancelled) {
+                    setDismissKey(key);
+                    setIsCheckingKey(false);
+                }
+            })
+            .catch((err) => {
+                console.warn("Failed to generate notification dismiss key:", err);
+                if (!cancelled) {
+                    setDismissKey(`kandydrops:notification-banner-fallback:${userProfile.uid}`);
+                    setIsCheckingKey(false);
+                }
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [userProfile?.uid]);
+
+    useEffect(() => {
+        if (typeof window === "undefined" || !dismissKey || isCheckingKey) {
             setDismissed(false);
             return;
         }
 
         setDismissed(window.localStorage.getItem(dismissKey) === "1");
-    }, [dismissKey]);
+    }, [dismissKey, isCheckingKey]);
 
     useEffect(() => {
-        if (!user || !userProfile || dismissed || hasNotificationsEnabled) {
+        if (!user || !userProfile || dismissed || hasNotificationsEnabled || isCheckingKey) {
             setIsVisible(false);
             return;
         }
@@ -80,7 +112,7 @@ export function NotificationPromptBanner() {
         return () => {
             cancelled = true;
         };
-    }, [dismissed, hasNotificationsEnabled, user, userProfile]);
+    }, [dismissed, hasNotificationsEnabled, isCheckingKey, user, userProfile]);
 
     const handleEnable = async () => {
         if (!user || !userProfile) {
