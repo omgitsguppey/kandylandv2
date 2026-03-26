@@ -19,6 +19,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import { trackEvent } from "@/lib/telemetry";
 import { useViewerWatchSession } from "@/hooks/useViewerWatchSession";
 import { useNetworkConditions } from "@/hooks/useNetworkConditions";
+import { getClientSessionId } from "@/lib/client-session";
 
 
 
@@ -911,11 +912,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         }
 
         const getSecuritySessionId = () => {
-            if (typeof window === "undefined") {
-                return "";
-            }
-
-            return window.sessionStorage.getItem("kandydrops.telemetry.session") || "";
+            return getClientSessionId();
         };
 
         const logViolation = (reason: string, metadata: Record<string, string | number | boolean> = {}) => {
