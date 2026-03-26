@@ -8,6 +8,7 @@
  * @returns Object containing success status and new balance.
  */
 import { authFetch } from "@/lib/authFetch";
+import { captureException } from "@/lib/monitoring";
 
 export async function adjustUserBalance(userId: string, amount: number, reason: string) {
     if (!userId || !amount || !reason) {
@@ -34,7 +35,7 @@ export async function adjustUserBalance(userId: string, amount: number, reason: 
             newBalance: typeof result.balanceAfter === "number" ? result.balanceAfter : undefined,
         };
     } catch (error: any) {
-        console.error("Balance Adjustment Error:", error);
+        captureException(error, { context: "Balance Adjustment Error" });
         return { success: false, error: error.message };
     }
 }
