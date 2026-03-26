@@ -259,7 +259,7 @@ export function GuidedOnboarding() {
         }
 
         const completedLocally = completionStorageKey
-            ? window.localStorage.getItem(completionStorageKey) === "true"
+            ? window.sessionStorage.getItem(completionStorageKey) === "true"
             : false;
 
         if (profile.onboardingCompleted === true || completedLocally) {
@@ -286,7 +286,7 @@ export function GuidedOnboarding() {
 
                 if (legacyCompleted) {
                     if (completionStorageKey) {
-                        window.localStorage.setItem(completionStorageKey, "true");
+                        window.sessionStorage.setItem(completionStorageKey, "true");
                     }
                     await setDoc(doc(db, "users", user.uid), { onboardingCompleted: true }, { merge: true }).catch(() => { });
                     setIsVisible(false);
@@ -558,7 +558,7 @@ export function GuidedOnboarding() {
                 },
             } : currentProfile);
             if (completionStorageKey) {
-                window.localStorage.setItem(completionStorageKey, "true");
+                window.sessionStorage.setItem(completionStorageKey, "true");
             }
 
             try {
