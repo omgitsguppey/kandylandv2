@@ -709,9 +709,12 @@ async function resolveTaskEligibilityContext(
       }
 
       const dropRefs = unlockedContentIds.map((dropId) => adminDb.collection("drops").doc(dropId));
-      const snapshots = await Promise.all(dropRefs.map((dropRef) => (
-        transaction ? transaction.get(dropRef) : dropRef.get()
-      )));
+
+      const snapshots = dropRefs.length > 0
+        ? (transaction
+            ? await transaction.getAll(...dropRefs)
+            : await adminDb.getAll(...dropRefs))
+        : [];
 
       return snapshots
         .filter((snapshot) => snapshot.exists)
