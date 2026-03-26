@@ -19,7 +19,7 @@ service firebase.storage {
     }
 
     match /landing/{allPaths=**} {
-      allow read: if true;
+      allow read: if false;
       allow write: if false;
     }
 
