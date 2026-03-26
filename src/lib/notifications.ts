@@ -1,5 +1,6 @@
 
 import { authFetch } from "@/lib/authFetch";
+import { captureException } from "@/lib/monitoring";
 import { DropNotificationContext, NotificationTarget, NotificationType } from "@/lib/notification-contracts";
 
 export interface NotificationPayload {
@@ -25,7 +26,7 @@ export async function sendNotification(payload: NotificationPayload) {
             duplicate: result.duplicate === true,
         };
     } catch (error) {
-        console.error("Error sending notification:", error);
+        captureException(error, { context: "sendNotification", payload });
         return { success: false, error };
     }
 }
@@ -39,7 +40,7 @@ export async function markNotificationAsRead(notificationId: string) {
 
         return response.ok;
     } catch (error) {
-        console.error("Error marking notification as read:", error);
+        captureException(error, { context: "markNotificationAsRead", notificationId });
         return false;
     }
 }
