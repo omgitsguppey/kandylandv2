@@ -233,6 +233,27 @@ function collectMatches(filePath: string) {
       }
     }
 
+    if (
+      ts.isPropertyAssignment(node)
+      && (
+        (ts.isIdentifier(node.name) && node.name.text === "telemetryEventName")
+        || (ts.isStringLiteral(node.name) && node.name.text === "telemetryEventName")
+      )
+    ) {
+      const eventNames = collectStringLiteralValues(node.initializer, constValueMap);
+      if (eventNames.length > 0) {
+        const line = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1;
+        eventNames.forEach((eventName) => {
+          matches.push({
+            file: filePath,
+            line,
+            eventName,
+            matcher: "telemetryEventName",
+          });
+        });
+      }
+    }
+
     ts.forEachChild(node, visit);
   }
 

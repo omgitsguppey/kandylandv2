@@ -43,6 +43,10 @@ type HistoricalActivityItem = {
   username: string;
   userPhoto: string;
   timestamp: number;
+  componentName?: string;
+  dropId?: string;
+  dropTitle?: string;
+  watchSeconds?: number;
   targetText?: string;
   targetTag?: string;
   targetId?: string;
@@ -138,9 +142,18 @@ export function buildHistoricalActivityFeeds({
     type: event.eventName,
     detail:
       getTelemetryParamString(event, "drop_title") ||
+      getTelemetryParamString(event, "component_name") ||
+      getTelemetryParamString(event, "semantic_scope_label") ||
       getTelemetryParamString(event, "destination") ||
       getTelemetryParamString(event, "page_path") ||
       event.eventName,
+    componentName: getTelemetryParamString(event, "component_name") || undefined,
+    dropId: getTelemetryParamString(event, "drop_id") || undefined,
+    dropTitle: getTelemetryParamString(event, "drop_title") || undefined,
+    watchSeconds: Math.max(
+      getTelemetryParamNumber(event, "watch_seconds"),
+      getTelemetryParamNumber(event, "session_watch_seconds"),
+    ) || undefined,
     targetText: getTelemetryParamString(event, "target_text") || undefined,
     targetTag: getTelemetryParamString(event, "target_tag") || undefined,
     targetId: getTelemetryParamString(event, "target_id") || undefined,

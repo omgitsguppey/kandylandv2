@@ -1059,6 +1059,46 @@ export default function DebugConsole() {
                             </ScrollWrap>
                         </div>
                     </Section>
+
+                    <Section
+                        title="Actionable panel logs"
+                        subtitle="Each major debug panel now resolves into a backend system log with a concrete next action, so parity warnings stop disappearing with the UI refresh cycle."
+                        defaultOpen={!isCompactViewport}
+                        summary={
+                            <>
+                                <Pill label="Panels" value={(data?.panelSystemLogs || []).length} />
+                                <Pill label="Warn" value={(data?.panelSystemLogs || []).filter((entry: any) => entry.status === "warn").length} tone={(data?.panelSystemLogs || []).some((entry: any) => entry.status === "warn") ? "warn" : "good"} />
+                                <Pill label="Fail" value={(data?.panelSystemLogs || []).filter((entry: any) => entry.status === "fail").length} tone={(data?.panelSystemLogs || []).some((entry: any) => entry.status === "fail") ? "bad" : "good"} />
+                            </>
+                        }
+                    >
+                        <ScrollWrap>
+                            <div className="divide-y divide-white/10">
+                                {(data?.panelSystemLogs || []).map((entry: any) => (
+                                    <div key={entry.id} className="space-y-2 px-4 py-3">
+                                        <div className="flex flex-wrap items-start justify-between gap-2">
+                                            <div>
+                                                <p className="font-semibold text-white">{entry.panelTitle}</p>
+                                                <p className="text-xs text-gray-400">{entry.tab} | {formatRelative(entry.updatedAtMs)}</p>
+                                            </div>
+                                            <Pill label="Status" value={entry.status} tone={entry.status === "healthy" ? "good" : entry.status === "warn" ? "warn" : "bad"} />
+                                        </div>
+                                        <p className="text-sm text-gray-200">{entry.summary}</p>
+                                        <p className="text-xs text-gray-400">{entry.action}</p>
+                                        <div className="flex flex-wrap gap-2">
+                                            <Pill label="Signals" value={entry.signalCount ?? 0} tone={(entry.signalCount ?? 0) > 0 ? (entry.status === "fail" ? "bad" : "warn") : "good"} />
+                                            {(entry.signalKeys || []).slice(0, 3).map((signalKey: string) => (
+                                                <Pill key={`${entry.id}:${signalKey}`} label="Signal" value={signalKey} />
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                                {(data?.panelSystemLogs || []).length === 0 ? (
+                                    <div className="px-4 py-4 text-sm text-gray-300">No persisted panel logs are loaded yet.</div>
+                                ) : null}
+                            </div>
+                        </ScrollWrap>
+                    </Section>
                 </div>
             ) : null}
         </div>

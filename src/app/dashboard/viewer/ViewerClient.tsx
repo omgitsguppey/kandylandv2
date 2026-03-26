@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { Drop } from "@/types/db";
 import NextImage from "next/image";
 import { authFetch } from "@/lib/authFetch";
+import { describeSecurityEvent, type SecurityEventDescriptor } from "@/lib/security-events";
 import { cn } from "@/lib/utils";
 import { sendGAEvent } from "@next/third-parties/google";
 import { getDropAssetCount } from "@/lib/drop-presentation";
@@ -341,6 +342,14 @@ function sanitizeDropTags(tags: unknown): Array<"Sweet" | "Spicy" | "RAW"> {
     );
 }
 
+function isEditableTarget(target: EventTarget | null) {
+    if (!(target instanceof HTMLElement)) {
+        return false;
+    }
+
+    return target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName);
+}
+
 export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     const { user, userProfile, loading: authLoading } = useAuth();
     const { isConstrained, isVerySlow } = useNetworkConditions();
@@ -368,8 +377,14 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     const sessionRelatedClickCountRef = useRef(0);
     const startedAssetKeysRef = useRef<Set<string>>(new Set());
     const completedAssetKeysRef = useRef<Set<string>>(new Set());
+    const securityLastSignalAtRef = useRef<Map<string, number>>(new Map());
+    const securitySignalCountsRef = useRef<Map<string, number>>(new Map());
+    const rapidVisibilityTimestampsRef = useRef<number[]>([]);
+    const securityResetTimeoutRef = useRef<number | null>(null);
+    const securityLogViolationRef = useRef<(reason: string, metadata?: Record<string, string | number | boolean>) => void>(() => undefined);
 
     const [isSecurityTriggered, setIsSecurityTriggered] = useState(false);
+    const [securityWarning, setSecurityWarning] = useState<SecurityEventDescriptor | null>(null);
 
     const videoFallbackTypes = ["video/mp4", "video/webm", "video/ogg"];
     const audioFallbackTypes = ["audio/mpeg", "audio/mp4", "audio/wav", "audio/ogg", "audio/webm"];
@@ -507,6 +522,14 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     useEffect(() => {
         finalizeViewerSessionRef.current = finalizeViewerSession;
     }, [finalizeViewerSession]);
+
+    useEffect(() => {
+        return () => {
+            if (securityResetTimeoutRef.current !== null) {
+                window.clearTimeout(securityResetTimeoutRef.current);
+            }
+        };
+    }, []);
 
     const trackAssetStarted = useCallback(() => {
         if (!drop) {
@@ -875,7 +898,10 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
 
     // Security Hooks for Anti-Ripping
     useEffect(() => {
-        if (!isAuthorized || !drop) return;
+        if (!isAuthorized || !drop) {
+            securityLogViolationRef.current = () => undefined;
+            return;
+        }
 
         const getSecuritySessionId = () => {
             if (typeof window === "undefined") {
@@ -885,10 +911,21 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
             return window.sessionStorage.getItem("kandydrops.telemetry.session") || "";
         };
 
-        const logViolation = async (reason: string) => {
+        const logViolation = (reason: string, metadata: Record<string, string | number | boolean> = {}) => {
+            const now = Date.now();
+            const lastLoggedAt = securityLastSignalAtRef.current.get(reason) || 0;
+            if (now - lastLoggedAt < 2_500) {
+                return;
+            }
+            securityLastSignalAtRef.current.set(reason, now);
+
+            const descriptor = describeSecurityEvent(reason);
+            const repeatCount = (securitySignalCountsRef.current.get(reason) || 0) + 1;
+            securitySignalCountsRef.current.set(reason, repeatCount);
+
             setIsSecurityTriggered(true);
+            setSecurityWarning(descriptor);
             try {
-                // Fire and forget telemetry
                 authFetch("/api/security/log-attempt", {
                     method: "POST",
                     body: JSON.stringify({
@@ -899,46 +936,176 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                         contentKind: resolvedContent.kind,
                         pagePath: typeof window !== "undefined" ? window.location.pathname : "/dashboard/viewer",
                         sessionId: getSecuritySessionId(),
+                        repeatCount,
+                        visibilityState: typeof document !== "undefined" ? document.visibilityState : "unknown",
+                        ...metadata,
                     }),
                 }).catch(console.error);
-            } catch (err) { }
+            } catch (error) {
+                console.error(error);
+            }
 
-            // Auto unblur after 5 seconds to reduce annoyance for false positives
-            setTimeout(() => {
+            if (securityResetTimeoutRef.current !== null) {
+                window.clearTimeout(securityResetTimeoutRef.current);
+            }
+            securityResetTimeoutRef.current = window.setTimeout(() => {
                 setIsSecurityTriggered(false);
+                setSecurityWarning(null);
             }, 5000);
         };
+        securityLogViolationRef.current = logViolation;
 
         const handleKeyDown = (e: KeyboardEvent) => {
-            // macOS: Cmd+Shift+3/4/5
-            const isMacScreenshot = e.metaKey && e.shiftKey && (e.key === '3' || e.key === '4' || e.key === '5');
-            // Windows: Win+Shift+S
-            const isWinScreenshot = e.metaKey && e.shiftKey && e.key.toLowerCase() === 's';
-            // Global: PrintScreen
-            const isPrintScreen = e.key === 'PrintScreen' || e.code === 'PrintScreen';
-            const isPrintShortcut = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "p";
+            const lowerKey = e.key.toLowerCase();
+            const modifierLabel = e.metaKey ? "Cmd" : e.ctrlKey ? "Ctrl" : "";
+            const isMacScreenshotFull = e.metaKey && e.shiftKey && e.key === "3";
+            const isMacScreenshotArea = e.metaKey && e.shiftKey && e.key === "4";
+            const isMacCaptureToolbar = e.metaKey && e.shiftKey && e.key === "5";
+            const isWindowsSnip = e.metaKey && e.shiftKey && lowerKey === "s";
+            const isPrintScreen = e.key === "PrintScreen" || e.code === "PrintScreen";
+            const isWindowsGameBarRecording = e.metaKey && e.altKey && lowerKey === "r";
             const isDevToolsShortcut = e.key === "F12"
-                || ((e.ctrlKey || e.metaKey) && e.shiftKey && ["i", "j", "c"].includes(e.key.toLowerCase()));
+                || ((e.ctrlKey || e.metaKey) && e.shiftKey && ["i", "j", "c"].includes(lowerKey));
+            const isPrintShortcut = (e.ctrlKey || e.metaKey) && lowerKey === "p";
+            const isSaveShortcut = (e.ctrlKey || e.metaKey) && lowerKey === "s";
+            const isSourceViewShortcut = (e.ctrlKey || e.metaKey) && lowerKey === "u";
+            const isCopyShortcut = (e.ctrlKey || e.metaKey) && lowerKey === "c" && !isEditableTarget(e.target);
 
-            if (isMacScreenshot || isWinScreenshot || isPrintScreen) {
-                logViolation("screenshot_hotkey");
+            if (isMacScreenshotFull) {
+                e.preventDefault();
+                logViolation("screenshot_shortcut_mac_capture", { triggerSource: "keyboard", keyChord: "Cmd+Shift+3" });
+                return;
+            }
+
+            if (isMacScreenshotArea) {
+                e.preventDefault();
+                logViolation("screenshot_shortcut_mac_area", { triggerSource: "keyboard", keyChord: "Cmd+Shift+4" });
+                return;
+            }
+
+            if (isMacCaptureToolbar) {
+                e.preventDefault();
+                logViolation("screen_record_shortcut_mac_toolbar", { triggerSource: "keyboard", keyChord: "Cmd+Shift+5" });
+                return;
+            }
+
+            if (isWindowsSnip) {
+                e.preventDefault();
+                logViolation("screenshot_shortcut_windows_snip", { triggerSource: "keyboard", keyChord: "Meta+Shift+S" });
+                return;
+            }
+
+            if (isPrintScreen) {
+                logViolation("screenshot_shortcut_printscreen", { triggerSource: "keyboard", keyChord: "PrintScreen" });
+                return;
+            }
+
+            if (isWindowsGameBarRecording) {
+                e.preventDefault();
+                logViolation("screen_record_shortcut_windows_gamebar", { triggerSource: "keyboard", keyChord: "Meta+Alt+R" });
                 return;
             }
 
             if (isPrintShortcut) {
-                logViolation("print_shortcut");
+                e.preventDefault();
+                logViolation("print_shortcut", { triggerSource: "keyboard", keyChord: `${modifierLabel}+P` });
+                return;
+            }
+
+            if (isSaveShortcut) {
+                e.preventDefault();
+                logViolation("save_shortcut", { triggerSource: "keyboard", keyChord: `${modifierLabel}+S` });
+                return;
+            }
+
+            if (isSourceViewShortcut) {
+                e.preventDefault();
+                logViolation("source_view_shortcut", { triggerSource: "keyboard", keyChord: `${modifierLabel}+U` });
+                return;
+            }
+
+            if (isCopyShortcut) {
+                logViolation("copy_shortcut", { triggerSource: "keyboard", keyChord: `${modifierLabel}+C` });
                 return;
             }
 
             if (isDevToolsShortcut) {
-                logViolation("devtools_shortcut");
+                e.preventDefault();
+                logViolation("devtools_shortcut", { triggerSource: "keyboard", keyChord: "DevTools" });
+            }
+        };
+
+        const handleBeforePrint = () => {
+            logViolation("print_shortcut", { triggerSource: "beforeprint", keyChord: "Print dialog" });
+        };
+
+        const handleCopy = (event: ClipboardEvent) => {
+            if (isEditableTarget(event.target)) {
+                return;
+            }
+
+            event.preventDefault();
+            logViolation("copy_shortcut", { triggerSource: "clipboard", keyChord: "Copy event" });
+        };
+
+        const handleCut = (event: ClipboardEvent) => {
+            if (isEditableTarget(event.target)) {
+                return;
+            }
+
+            event.preventDefault();
+            logViolation("copy_shortcut", { triggerSource: "clipboard", keyChord: "Cut event" });
+        };
+
+        const handleSelectStart = (event: Event) => {
+            if (isEditableTarget(event.target)) {
+                return;
+            }
+
+            event.preventDefault();
+            logViolation("selection_attempt", { triggerSource: "selection", keyChord: "Select start" });
+        };
+
+        const handleDragStart = (event: DragEvent) => {
+            event.preventDefault();
+            logViolation("drag_export_attempt", { triggerSource: "drag", keyChord: "Drag start" });
+        };
+
+        const handleVisibilitySignal = () => {
+            if (document.visibilityState !== "hidden") {
+                return;
+            }
+
+            const now = Date.now();
+            const recent = rapidVisibilityTimestampsRef.current.filter((timestamp) => now - timestamp <= 8_000);
+            recent.push(now);
+            rapidVisibilityTimestampsRef.current = recent;
+
+            if (recent.length >= 3) {
+                logViolation("rapid_visibility_capture_pattern", {
+                    triggerSource: "visibilitychange",
+                    detail: "Repeated hide/show transitions",
+                    repeatCount: recent.length,
+                });
             }
         };
 
         window.addEventListener("keydown", handleKeyDown);
+        window.addEventListener("beforeprint", handleBeforePrint);
+        document.addEventListener("copy", handleCopy);
+        document.addEventListener("cut", handleCut);
+        document.addEventListener("selectstart", handleSelectStart);
+        document.addEventListener("dragstart", handleDragStart);
+        document.addEventListener("visibilitychange", handleVisibilitySignal);
 
         return () => {
             window.removeEventListener("keydown", handleKeyDown);
+            window.removeEventListener("beforeprint", handleBeforePrint);
+            document.removeEventListener("copy", handleCopy);
+            document.removeEventListener("cut", handleCut);
+            document.removeEventListener("selectstart", handleSelectStart);
+            document.removeEventListener("dragstart", handleDragStart);
+            document.removeEventListener("visibilitychange", handleVisibilitySignal);
         };
     }, [activeIndex, drop, isAuthorized, resolvedContent.kind]);
 
@@ -1124,6 +1291,10 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     // Prevent right-click on media
     const preventContextMenu = (e: React.MouseEvent) => {
         e.preventDefault();
+        securityLogViolationRef.current("context_menu_attempt", {
+            triggerSource: "contextmenu",
+            keyChord: "Right click",
+        });
     };
 
     // Skeleton for AUTH loading only
@@ -1219,7 +1390,10 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                 <ShieldCheck className="w-10 h-10 text-brand-purple animate-pulse" />
                                 <div className="text-center">
                                     <p className="text-white font-bold text-lg mb-0.5">Content Protected</p>
-                                    <p className="text-xs text-gray-400 font-medium">Capture or recording detected.</p>
+                                    <p className="text-xs text-brand-purple font-semibold">{securityWarning?.label || "Protection signal detected"}</p>
+                                    <p className="mt-1 max-w-xs text-xs text-gray-400 font-medium">
+                                        {securityWarning?.message || "Capture, scrape, or recording behavior was detected while protected content was open."}
+                                    </p>
                                 </div>
                             </div>
                         </div>

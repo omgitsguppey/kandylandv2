@@ -30,6 +30,11 @@ export async function POST(req: NextRequest) {
             contentKind,
             pagePath,
             sessionId,
+            triggerSource,
+            keyChord,
+            detail,
+            visibilityState,
+            repeatCount,
         } = body as Record<string, unknown>;
         const descriptor = describeSecurityEvent(typeof reason === "string" ? reason : undefined);
 
@@ -84,12 +89,19 @@ export async function POST(req: NextRequest) {
                 message: descriptor.message,
                 locationLabel: descriptor.locationLabel,
                 severity: descriptor.severity,
+                telemetryEventName: descriptor.telemetryEventName,
+                detectionKind: descriptor.detectionKind,
                 dropId: typeof dropId === "string" ? dropId : null,
                 assetIndex: typeof assetIndex === "number" && Number.isFinite(assetIndex) ? assetIndex : null,
                 assetKey: typeof assetKey === "string" ? assetKey.slice(0, 120) : null,
                 contentKind: typeof contentKind === "string" ? contentKind.slice(0, 40) : null,
                 pagePath: typeof pagePath === "string" ? pagePath.slice(0, 200) : null,
                 sessionId: typeof sessionId === "string" ? sessionId.slice(0, 80) : null,
+                triggerSource: typeof triggerSource === "string" ? triggerSource.slice(0, 60) : null,
+                keyChord: typeof keyChord === "string" ? keyChord.slice(0, 60) : null,
+                detail: typeof detail === "string" ? detail.slice(0, 200) : null,
+                visibilityState: typeof visibilityState === "string" ? visibilityState.slice(0, 40) : null,
+                repeatCount: typeof repeatCount === "number" && Number.isFinite(repeatCount) ? repeatCount : 1,
                 source: "protected_viewer",
                 userAgent: req.headers.get("user-agent") || "unknown",
                 timestamp: nowMs,
@@ -100,12 +112,7 @@ export async function POST(req: NextRequest) {
             });
         });
 
-        const securityEventName = descriptor.reason === "screenshot_hotkey"
-            ? "security_screenshot_attempted"
-            : descriptor.reason === "print_shortcut"
-                ? "security_print_attempted"
-                : "security_devtools_attempted";
-        await trackServerEvent(securityEventName, {
+        await trackServerEvent(descriptor.telemetryEventName, {
             page_path: typeof pagePath === "string" ? pagePath : "/dashboard/viewer",
             drop_id: typeof dropId === "string" ? dropId : "",
             asset_index: typeof assetIndex === "number" && Number.isFinite(assetIndex) ? assetIndex : 0,
@@ -115,6 +122,10 @@ export async function POST(req: NextRequest) {
             security_reason: descriptor.reason,
             security_label: descriptor.label,
             security_severity: descriptor.severity,
+            security_detection_kind: descriptor.detectionKind,
+            security_trigger_source: typeof triggerSource === "string" ? triggerSource.slice(0, 60) : "",
+            security_key_chord: typeof keyChord === "string" ? keyChord.slice(0, 60) : "",
+            security_repeat_count: typeof repeatCount === "number" && Number.isFinite(repeatCount) ? repeatCount : 1,
         }, uid);
 
         return NextResponse.json({ success: true });

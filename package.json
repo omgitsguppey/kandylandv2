@@ -29,6 +29,7 @@
     "check:consistency": "npm run check && npm run check:deps && npm run check:versions && npm run check:cycles && npm run check:functions",
     "analyze": "cross-env ANALYZE=true next build --webpack",
     "promote-admin": "tsx scripts/promote-admin.ts",
+    "review:admin-panel-logs": "tsx scripts/review-admin-panel-logs.ts",
     "firebase:dataconnect:generate": "firebase dataconnect:sdk:generate"
   },
   "dependencies": {

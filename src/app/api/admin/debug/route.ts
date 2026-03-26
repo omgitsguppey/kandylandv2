@@ -21,6 +21,7 @@ import { getCSTDateKey } from "@/lib/timezone";
 import { ORCHESTRATION_COLLECTIONS } from "@/lib/orchestration/contract";
 import { CREATOR_SPEND_POLICIES } from "@/lib/server/creator-experiences";
 import { CREATOR_SPEND_TRANSACTION_TYPES, getTransactionBadgeLabel } from "@/lib/transaction-normalizers";
+import { buildAdminPanelSystemLogs, syncAdminPanelSystemLogs } from "@/lib/server/admin-panel-system-logs";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -534,6 +535,26 @@ export async function GET(request: NextRequest) {
             actorSummaryDocs: orchestrationActorSummariesSnapshot.docs,
             repairActionDocs: orchestrationRepairActionsSnapshot.docs,
         });
+        const panelSystemLogs = buildAdminPanelSystemLogs({
+            nowMs,
+            recentTransactionsCount: Math.min(20, transactionEntries.length),
+            unsupportedTasks: unsupportedTasks.length,
+            telemetryValidatedTasks: telemetryOnlyTasks.length + canonicalTasks.length,
+            usersWithTaskIssues: assignmentIssues.length,
+            completedEventsLast7d: completedEvents7d.length,
+            receiptsLast7d: receiptEvents7d.length,
+            rewardEventDeltaLast7d: completedEvents7d.length - rewardTransactions7d.length,
+            legacyRewardVersionCount: legacyRewardVersionCount,
+            trackedTelemetryEvents: eventStats.length,
+            orphanedTelemetryEvents: orphanedEventStats.length,
+            bugReportsLast7d: bugReports.filter((report) => report.timestamp >= weekAgoMs).length,
+            rolloutCount: rollouts.length,
+            releaseEntryCount: changeLog.length,
+            creatorSpendViolationsLast7d: creatorSpendParity.restrictedSpendViolationCount,
+            opsHealth,
+            orchestration: orchestration.summary,
+        });
+        await syncAdminPanelSystemLogs(panelSystemLogs);
 
         return NextResponse.json({
             success: true,
@@ -593,6 +614,7 @@ export async function GET(request: NextRequest) {
             changeLog,
             opsHealth,
             orchestration,
+            panelSystemLogs,
         });
     } catch (error) {
         return handleApiError(error, "Admin.Debug.GET");

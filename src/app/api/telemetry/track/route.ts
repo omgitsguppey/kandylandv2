@@ -319,13 +319,21 @@ export async function POST(req: NextRequest) {
             realtimeDb.ref(`telemetry/users/${userId}/${event.storageKey}`).set(event.telemetryData),
         ]));
 
+        const latestTelemetryFact = telemetryFacts[telemetryFacts.length - 1];
+        const latestParams = latestTelemetryFact?.eventParamsWithMetadata ?? {};
         const activeUserRef = adminDb.collection(ANALYTICS_OPERATIONAL_COLLECTIONS.activeUsers).doc(userId);
         const activeUserSnapshot = await activeUserRef.get();
         await activeUserRef.set({
             uid: userId,
             username,
-            lastSeenAt: telemetryFacts[telemetryFacts.length - 1]?.nowMs ?? Date.now(),
-            lastEventName: telemetryFacts[telemetryFacts.length - 1]?.canonicalEventName ?? "",
+            lastSeenAt: latestTelemetryFact?.nowMs ?? Date.now(),
+            lastEventName: latestTelemetryFact?.canonicalEventName ?? "",
+            lastPagePath: getStringParam(latestParams, "page_path") || "",
+            lastDropId: getStringParam(latestParams, "drop_id") || "",
+            lastDropTitle: getStringParam(latestParams, "drop_title") || "",
+            lastSemanticScopeLabel: getStringParam(latestParams, "semantic_scope_label") || "",
+            lastComponentName: getStringParam(latestParams, "component_name") || "",
+            lastEventModules: getStringParam(latestParams, "event_modules") || "",
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
             ...(activeUserSnapshot.exists
                 ? {}

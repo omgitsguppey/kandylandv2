@@ -24,6 +24,7 @@ import { buildHistoricalViewerOverview } from "@/lib/server/admin-analytics-hist
 import { buildAdminOpsHealth } from "@/lib/server/admin-ops-health";
 import { buildSemanticCategorySummaries } from "@/lib/server/analytics-semantics";
 import { buildAnalyticsMetricReport } from "@/lib/server/analytics-metrics";
+import { buildHistoricalAnalyticsContext } from "@/lib/server/admin-analytics-context";
 import { getDropViewCount } from "@/lib/drop-engagement";
 import {
     AUTHENTICATED_PAGE_VIEW_EVENT_NAMES,
@@ -610,6 +611,13 @@ export async function GET(request: NextRequest) {
                 viewerUser,
                 dropReferences,
             });
+            const contextInsights = buildHistoricalAnalyticsContext({
+                telemetryLogs,
+                guestBatchDocs: guestBatchesSnapshot.docs,
+                viewerDropInsights,
+                viewerUsers,
+                securityEventDocs: securityEventsSnapshot.docs,
+            });
 
             const {
                 packagePerformance,
@@ -701,6 +709,7 @@ export async function GET(request: NextRequest) {
             });
 
             const payload = {
+                generatedAtMs: Date.now(),
                 data: chartData,
                 totals,
                 events: eventsData,
@@ -721,6 +730,10 @@ export async function GET(request: NextRequest) {
                 },
                 onboardingStepStats,
                 rawEvents: mappedEvents,
+                componentContexts: contextInsights.componentContexts,
+                userJourneys: contextInsights.userJourneys,
+                experienceContexts: contextInsights.experienceContexts,
+                securityReasons: contextInsights.securityReasons,
                 authBreakdown,
                 onboardingDurationBuckets,
                 repeatVisitSegments,

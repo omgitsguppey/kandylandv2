@@ -377,17 +377,22 @@ export function summarizeSecurityReason(reason: string | null | undefined) {
     return "Protection warning";
   }
 
-  if (reason === "screenshot_hotkey") {
-    return "Screenshot shortcut";
-  }
-
-  if (reason === "print_shortcut") {
-    return "Print shortcut";
-  }
-
-  if (reason === "devtools_shortcut") {
-    return "Developer tools shortcut";
-  }
+  if (reason === "screenshot_hotkey") return "Screenshot shortcut";
+  if (reason === "screenshot_shortcut_mac_capture") return "macOS screenshot";
+  if (reason === "screenshot_shortcut_mac_area") return "macOS area screenshot";
+  if (reason === "screen_record_shortcut_mac_toolbar") return "macOS capture toolbar";
+  if (reason === "screenshot_shortcut_windows_snip") return "Windows snipping shortcut";
+  if (reason === "screenshot_shortcut_printscreen") return "Print Screen";
+  if (reason === "screen_record_shortcut_windows_gamebar") return "Windows screen recording";
+  if (reason === "print_shortcut") return "Print shortcut";
+  if (reason === "save_shortcut") return "Save shortcut";
+  if (reason === "copy_shortcut") return "Copy shortcut";
+  if (reason === "selection_attempt") return "Selection attempt";
+  if (reason === "drag_export_attempt") return "Drag export attempt";
+  if (reason === "context_menu_attempt") return "Context menu attempt";
+  if (reason === "devtools_shortcut") return "Developer tools shortcut";
+  if (reason === "source_view_shortcut") return "View source shortcut";
+  if (reason === "rapid_visibility_capture_pattern") return "Rapid capture pattern";
 
   return humanizeAnalyticsKey(reason);
 }

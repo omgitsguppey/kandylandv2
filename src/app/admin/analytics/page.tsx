@@ -42,7 +42,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { useAuthSWR } from "@/hooks/useAuthSWR";
+import { useCachedAuthSWR } from "@/hooks/useCachedAuthSWR";
+import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
@@ -124,6 +125,10 @@ interface SecurityItem {
 interface RawEventItem {
   type: string;
   detail?: string;
+  componentName?: string;
+  dropId?: string;
+  dropTitle?: string;
+  watchSeconds?: number;
   targetText?: string;
   targetTag?: string;
   targetId?: string;
@@ -147,6 +152,25 @@ interface AuthBreakdownItem {
 interface CountBucketItem {
   label: string;
   count: number;
+}
+
+interface SurfaceMixItem {
+  key: string;
+  label: string;
+  activeUsers: number;
+  lastSeenAt: number;
+}
+
+interface RealtimeActiveUserItem {
+  uid: string;
+  username: string;
+  lastSeenAt: number;
+  lastEventName: string;
+  lastPagePath: string;
+  lastDropTitle: string;
+  lastSemanticScopeLabel: string;
+  lastComponentName: string;
+  lastEventModules: string;
 }
 
 interface OnboardingStepStatItem {
@@ -282,8 +306,46 @@ interface ValidationItem {
   detail: string;
 }
 
+interface ComponentContextItem {
+  key: string;
+  label: string;
+  count: number;
+  uniqueUsers: number;
+  experienceCount: number;
+  lastSeenAt: number;
+  exampleEvent: string;
+}
+
+interface UserJourneyItem {
+  uid: string;
+  username: string;
+  eventCount: number;
+  watchSeconds: number;
+  lastSeenAt: number;
+  primaryPath: string;
+}
+
+interface ExperienceContextItem {
+  key: string;
+  label: string;
+  eventCount: number;
+  uniqueUsers: number;
+  watchSeconds: number;
+  conversionCount: number;
+}
+
+interface SecurityReasonItem {
+  reason: string;
+  label: string;
+  severity: string;
+  count: number;
+  uniqueUsers: number;
+  lastSeenAt: number;
+}
+
 interface HistoricalAnalyticsResponse {
   success: boolean;
+  generatedAtMs?: number;
   requiresSetup?: boolean;
   error?: string;
   data?: HistoricalPoint[];
@@ -327,6 +389,7 @@ interface HistoricalAnalyticsResponse {
     feed?: CommerceFeedItem[];
   };
   security?: SecurityItem[];
+  securityReasons?: SecurityReasonItem[];
   onboardingStats?: {
     starts?: number;
     completions: number;
@@ -336,6 +399,9 @@ interface HistoricalAnalyticsResponse {
   };
   onboardingStepStats?: OnboardingStepStatItem[];
   rawEvents?: RawEventItem[];
+  componentContexts?: ComponentContextItem[];
+  userJourneys?: UserJourneyItem[];
+  experienceContexts?: ExperienceContextItem[];
   authBreakdown?: AuthBreakdownItem[];
   onboardingDurationBuckets?: CountBucketItem[];
   repeatVisitSegments?: CountBucketItem[];
@@ -361,11 +427,14 @@ interface HistoricalAnalyticsResponse {
 
 interface RealtimeAnalyticsResponse {
   success: boolean;
+  generatedAtMs?: number;
   requiresSetup?: boolean;
   error?: string;
   totalActive?: number;
   deepTrackerActive?: number;
   data?: RealtimePoint[];
+  activeUsers?: RealtimeActiveUserItem[];
+  surfaceMix?: SurfaceMixItem[];
 }
 
 interface TooltipValue {
@@ -422,6 +491,7 @@ const ANALYTICS_DATE_TIME_FORMATTER = new Intl.DateTimeFormat("en-US", {
   timeStyle: "short",
   timeZone: "America/Chicago",
 });
+const ANALYTICS_FILTER_STORAGE_KEY = "kandydrops.admin.analytics.filters";
 
 function AnalyticsTooltip({ active, payload, label, valueFormatter }: AnalyticsTooltipProps) {
   if (!active || !payload?.length) return null;
@@ -589,26 +659,119 @@ function isRecentViolation(timestamp: string | null, nowMs: number): boolean {
   return diffMs < 24 * 60 * 60 * 1000;
 }
 
+function formatCacheAge(ageMs: number | null) {
+  if (ageMs === null) {
+    return "Live fetch";
+  }
+
+  const minutes = Math.max(0, Math.round(ageMs / 60_000));
+  if (minutes < 1) {
+    return "Warm cache";
+  }
+
+  if (minutes < 60) {
+    return `Cached ${minutes}m ago`;
+  }
+
+  return `Cached ${Math.round(minutes / 60)}h ago`;
+}
+
 export default function AdminAnalyticsPage() {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<ViewTab>("operations");
   const [range, setRange] = useState<RangeOption>("30d");
   const [nowMs, setNowMs] = useState(0);
   const [viewerUserDraft, setViewerUserDraft] = useState("");
   const [viewerUserFilter, setViewerUserFilter] = useState("");
+  const analyticsFilterStorageKey = user
+    ? `${ANALYTICS_FILTER_STORAGE_KEY}:${user.uid}`
+    : ANALYTICS_FILTER_STORAGE_KEY;
 
   useEffect(() => {
+    const initialTimeoutId = window.setTimeout(() => {
+      setNowMs(Date.now());
+    }, 0);
     const intervalId = window.setInterval(() => {
       setNowMs(Date.now());
-    }, 1000);
+    }, 60_000);
 
-    return () => window.clearInterval(intervalId);
+    return () => {
+      window.clearTimeout(initialTimeoutId);
+      window.clearInterval(intervalId);
+    };
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const timerId = window.setTimeout(() => {
+      try {
+        const raw = window.sessionStorage.getItem(analyticsFilterStorageKey);
+        if (!raw) {
+          return;
+        }
+
+        const parsed = JSON.parse(raw) as Partial<{
+          activeTab: ViewTab;
+          range: RangeOption;
+          viewerUserDraft: string;
+          viewerUserFilter: string;
+        }>;
+
+        if (parsed.activeTab && TAB_OPTIONS.some((item) => item.id === parsed.activeTab)) {
+          setActiveTab(parsed.activeTab);
+        }
+        if (parsed.range && RANGE_OPTIONS.some((item) => item.value === parsed.range)) {
+          setRange(parsed.range);
+        }
+        if (typeof parsed.viewerUserDraft === "string") {
+          setViewerUserDraft(parsed.viewerUserDraft);
+        }
+        if (typeof parsed.viewerUserFilter === "string") {
+          setViewerUserFilter(parsed.viewerUserFilter);
+        }
+      } catch {
+        // Ignore malformed session storage values.
+      }
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timerId);
+    };
+  }, [analyticsFilterStorageKey]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    try {
+      window.sessionStorage.setItem(
+        analyticsFilterStorageKey,
+        JSON.stringify({
+          activeTab,
+          range,
+          viewerUserDraft,
+          viewerUserFilter,
+        }),
+      );
+    } catch {
+      // Ignore storage failures in restricted browsing contexts.
+    }
+  }, [activeTab, analyticsFilterStorageKey, range, viewerUserDraft, viewerUserFilter]);
 
   const {
     data: liveResponse,
     error: liveError,
     isLoading: liveLoading,
-  } = useAuthSWR<RealtimeAnalyticsResponse>("/api/admin/analytics/realtime", {
+    cacheAgeMs: liveCacheAgeMs,
+    hydratedFromCache: liveHydratedFromCache,
+    cacheHydrated: liveCacheReady,
+  } = useCachedAuthSWR<RealtimeAnalyticsResponse>("/api/admin/analytics/realtime", {
+    cacheKey: "admin-analytics:realtime",
+    ttlMs: 2 * 60 * 1000,
     refreshInterval: 30_000,
     keepPreviousData: true,
   });
@@ -617,9 +780,14 @@ export default function AdminAnalyticsPage() {
     data: historicalResponse,
     error: historicalError,
     isLoading: historicalLoading,
-  } = useAuthSWR<HistoricalAnalyticsResponse>(
+    cacheAgeMs: historicalCacheAgeMs,
+    hydratedFromCache: historicalHydratedFromCache,
+    cacheHydrated: historicalCacheReady,
+  } = useCachedAuthSWR<HistoricalAnalyticsResponse>(
     `/api/admin/analytics/historical?period=${range}${viewerUserFilter ? `&viewerUser=${encodeURIComponent(viewerUserFilter)}` : ""}`,
     {
+      cacheKey: `admin-analytics:historical:${range}:${viewerUserFilter || "all"}`,
+      ttlMs: range === "24h" ? 5 * 60 * 1000 : 15 * 60 * 1000,
       refreshInterval: 60_000,
       keepPreviousData: true,
     },
@@ -726,6 +894,12 @@ export default function AdminAnalyticsPage() {
   const activeViewerFilter = historicalResponse?.viewerFilter ?? viewerUserFilter;
   const semanticCategories = historicalResponse?.semanticCategories ?? [];
   const validations = historicalResponse?.validations ?? [];
+  const componentContexts = historicalResponse?.componentContexts ?? [];
+  const userJourneys = historicalResponse?.userJourneys ?? [];
+  const experienceContexts = historicalResponse?.experienceContexts ?? [];
+  const securityReasons = historicalResponse?.securityReasons ?? [];
+  const liveActiveUsers = liveResponse?.activeUsers ?? [];
+  const liveSurfaceMix = liveResponse?.surfaceMix ?? [];
 
   const needsSetup =
     liveResponse?.requiresSetup ||
@@ -736,6 +910,18 @@ export default function AdminAnalyticsPage() {
     (!liveResponse && (liveError as Error | undefined)) ||
     (!historicalResponse && (historicalError as Error | undefined)) ||
     null;
+  const isPrimingAnalytics =
+    (!liveCacheReady || !historicalCacheReady)
+    || (!liveResponse && !historicalResponse && (liveLoading || historicalLoading));
+  const isBackgroundSyncing =
+    (liveLoading || historicalLoading)
+    && Boolean(liveResponse || historicalResponse);
+  const analyticsWarmState = liveHydratedFromCache || historicalHydratedFromCache
+    ? formatCacheAge(Math.min(
+      liveCacheAgeMs ?? Number.MAX_SAFE_INTEGER,
+      historicalCacheAgeMs ?? Number.MAX_SAFE_INTEGER,
+    ))
+    : "Live fetch";
 
   const totalDeviceUsers = devices.reduce((sum, item) => sum + item.users, 0);
   const mobileUsers = devices.find((item) => item.device.toLowerCase() === "mobile")?.users ?? 0;
@@ -804,6 +990,16 @@ export default function AdminAnalyticsPage() {
     ...entry,
     label: EVENT_LABELS[entry.eventName] || entry.eventName.replaceAll("_", " "),
   }));
+  const topComponentContexts = componentContexts.slice(0, 6);
+  const topUserJourneys = userJourneys.slice(0, 6);
+  const topExperienceContexts = experienceContexts.slice(0, 6);
+  const topSecurityReasons = securityReasons.slice(0, 8);
+  const liveSnapshotLabel = liveResponse?.generatedAtMs
+    ? formatRelativeTime(liveResponse.generatedAtMs, nowMs)
+    : analyticsWarmState;
+  const historicalSnapshotLabel = historicalResponse?.generatedAtMs
+    ? formatRelativeTime(historicalResponse.generatedAtMs, nowMs)
+    : formatCacheAge(historicalCacheAgeMs);
   const viewerDropChartData = viewerDropInsights.slice(0, 8).map((item) => ({
     ...item,
     shortLabel: item.dropTitle.length > 16 ? `${item.dropTitle.slice(0, 16)}...` : item.dropTitle,
@@ -862,6 +1058,23 @@ export default function AdminAnalyticsPage() {
       </div>
 
       <div className="sticky top-[8.6rem] z-20 space-y-2.5 rounded-[1.4rem] border border-white/10 bg-black/65 p-2.5 backdrop-blur-xl md:top-24">
+        <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2">
+          <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-gray-500">Hydration</span>
+          <span className="text-xs font-semibold text-white">{analyticsWarmState}</span>
+          <span className="rounded-full border border-white/10 bg-black/30 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
+            Live {liveSnapshotLabel}
+          </span>
+          <span className="rounded-full border border-white/10 bg-black/30 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
+            History {historicalSnapshotLabel}
+          </span>
+          {isBackgroundSyncing ? (
+            <span className="inline-flex items-center gap-1 rounded-full border border-brand-purple/20 bg-brand-purple/10 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-brand-purple">
+              <Loader2 className="h-3 w-3 animate-spin" />
+              Syncing
+            </span>
+          ) : null}
+        </div>
+
         <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
           {TAB_OPTIONS.map((tab) => {
             const Icon = tab.icon;
@@ -934,7 +1147,7 @@ export default function AdminAnalyticsPage() {
         </div>
       )}
 
-      {!liveResponse && !historicalResponse && (liveLoading || historicalLoading) ? (
+      {isPrimingAnalytics ? (
         <div className="flex min-h-[40vh] items-center justify-center">
           <div className="flex flex-col items-center gap-3">
             <Loader2 className="h-8 w-8 animate-spin text-brand-purple" />
@@ -981,6 +1194,79 @@ export default function AdminAnalyticsPage() {
                     <Area type="monotone" dataKey="views" name="Page views" stroke="#22d3ee" strokeWidth={2.5} fill="url(#liveViewsFill)" />
                   </AreaChart>
                 </ResponsiveContainer>
+              </div>
+
+              <div className="mt-5 grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
+                <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Realtime surfaces</p>
+                      <p className="mt-1 text-sm text-gray-400">Where active admins and users are actually concentrated right now.</p>
+                    </div>
+                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-300">
+                      {liveSurfaceMix.length} lanes
+                    </span>
+                  </div>
+                  <div className="space-y-3">
+                    {liveSurfaceMix.length > 0 ? liveSurfaceMix.map((item) => (
+                      <div key={item.key} className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+                        <div className="mb-2 flex items-center justify-between gap-3">
+                          <p className="text-sm font-semibold text-white">{item.label}</p>
+                          <span className="text-sm font-bold text-brand-purple">{item.activeUsers}</span>
+                        </div>
+                        <div className="h-2 overflow-hidden rounded-full bg-white/10">
+                          <div className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400" style={{ width: `${Math.max(8, (item.activeUsers / Math.max(1, liveSurfaceMix[0]?.activeUsers || 1)) * 100)}%` }} />
+                        </div>
+                        <p className="mt-2 text-[11px] text-gray-500">Seen {formatRelativeTime(item.lastSeenAt, nowMs)}</p>
+                      </div>
+                    )) : (
+                      <div className="rounded-[1.4rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-500">
+                        Realtime surface mix will populate as active-user snapshots land.
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Active identities</p>
+                      <p className="mt-1 text-sm text-gray-400">Latest actor, route, and experience context for the live pulse window.</p>
+                    </div>
+                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-300">
+                      {liveActiveUsers.length} tracked
+                    </span>
+                  </div>
+                  <div className="space-y-3">
+                    {liveActiveUsers.length > 0 ? liveActiveUsers.map((item) => (
+                      <div key={item.uid} className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-white">{item.username}</p>
+                            <p className="mt-1 text-[11px] text-gray-500">{item.lastComponentName || item.lastSemanticScopeLabel || item.lastPagePath || "Live session"}</p>
+                          </div>
+                          <span className="rounded-full border border-white/10 bg-black/30 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
+                            {formatRelativeTime(item.lastSeenAt, nowMs)}
+                          </span>
+                        </div>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-gray-300">
+                            {EVENT_LABELS[item.lastEventName] || item.lastEventName || "Unknown event"}
+                          </span>
+                          {item.lastDropTitle ? (
+                            <span className="rounded-full border border-brand-purple/20 bg-brand-purple/10 px-2 py-1 text-[10px] font-semibold text-brand-purple">
+                              {item.lastDropTitle}
+                            </span>
+                          ) : null}
+                        </div>
+                      </div>
+                    )) : (
+                      <div className="rounded-[1.4rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-500">
+                        No active identity details are available in the current realtime snapshot.
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </SectionCard>
 
@@ -1164,16 +1450,49 @@ export default function AdminAnalyticsPage() {
 
             <div className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
               <SectionCard title="Event Mix" subtitle="The strongest custom GA events for the selected window." icon={Sparkles}>
-                <div className="h-64 w-full md:h-72">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={topEvents} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
-                      <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-                      <XAxis dataKey="label" stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} interval={0} angle={-18} textAnchor="end" height={56} />
-                      <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
-                      <Tooltip content={<AnalyticsTooltip />} />
-                      <Bar dataKey="count" name="Events" fill="#b28cff" radius={[10, 10, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
+                <div className="grid gap-4 lg:grid-cols-[1fr_0.92fr]">
+                  <div className="h-64 w-full md:h-72">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={topEvents} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
+                        <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                        <XAxis dataKey="label" stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} interval={0} angle={-18} textAnchor="end" height={56} />
+                        <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                        <Tooltip content={<AnalyticsTooltip />} />
+                        <Bar dataKey="count" name="Events" fill="#b28cff" radius={[10, 10, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Component context</p>
+                        <p className="mt-1 text-sm text-gray-400">Which product surfaces are actually generating the event load.</p>
+                      </div>
+                      <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-300">
+                        {topComponentContexts.length} surfaces
+                      </span>
+                    </div>
+                    <div className="space-y-3">
+                      {topComponentContexts.length > 0 ? topComponentContexts.map((item) => (
+                        <div key={item.key} className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+                          <div className="mb-2 flex items-center justify-between gap-3">
+                            <p className="text-sm font-semibold text-white">{item.label}</p>
+                            <span className="text-sm font-bold text-brand-purple">{item.count.toLocaleString()}</span>
+                          </div>
+                          <div className="flex flex-wrap gap-2 text-[11px] text-gray-400">
+                            <span>{item.uniqueUsers.toLocaleString()} users</span>
+                            <span>{item.experienceCount.toLocaleString()} experiences</span>
+                            <span>{EVENT_LABELS[item.exampleEvent] || item.exampleEvent}</span>
+                          </div>
+                        </div>
+                      )) : (
+                        <div className="rounded-[1.4rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-500">
+                          Component context will populate once enough telemetry lanes resolve against the selected range.
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </SectionCard>
 
@@ -1192,6 +1511,23 @@ export default function AdminAnalyticsPage() {
                         <p className="mt-2 text-xs text-gray-500">
                           {(event.username || "Guest").trim()} on <span className="text-gray-400">{event.path}</span>
                         </p>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {event.componentName ? (
+                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-gray-300">
+                              {event.componentName}
+                            </span>
+                          ) : null}
+                          {event.dropTitle || event.dropId ? (
+                            <span className="rounded-full border border-brand-purple/20 bg-brand-purple/10 px-2 py-1 text-[10px] font-semibold text-brand-purple">
+                              {event.dropTitle || event.dropId}
+                            </span>
+                          ) : null}
+                          {event.watchSeconds ? (
+                            <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2 py-1 text-[10px] font-semibold text-cyan-200">
+                              {formatDuration(event.watchSeconds)}
+                            </span>
+                          ) : null}
+                        </div>
                       </div>
                     ))
                   ) : (
@@ -1674,6 +2010,72 @@ export default function AdminAnalyticsPage() {
                     <MetricCard label="Early Exits" value={formatCompactNumber(viewerOverview.bounceSessionCount)} hint={`${viewerOverview.abandonedSessionCount.toLocaleString()} abandoned / ${viewerOverview.stalledSessionCount.toLocaleString()} stalled`} icon={AlertTriangle} />
                   </div>
 
+                  <div className="grid gap-4 xl:grid-cols-[0.98fr_1.02fr]">
+                    <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
+                      <div className="mb-3 flex items-center justify-between gap-3">
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Top user journeys</p>
+                          <p className="mt-1 text-sm text-gray-400">Which identities are looping through the viewer, and whether they actually stay long enough to matter.</p>
+                        </div>
+                        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-300">
+                          {topUserJourneys.length} tracked
+                        </span>
+                      </div>
+                      <div className="space-y-3">
+                        {topUserJourneys.length > 0 ? topUserJourneys.map((item) => (
+                          <div key={item.uid} className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+                            <div className="mb-2 flex items-center justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="truncate text-sm font-semibold text-white">{item.username}</p>
+                                <p className="mt-1 text-[11px] text-gray-500">{item.primaryPath}</p>
+                              </div>
+                              <span className="text-sm font-bold text-brand-purple">{item.eventCount.toLocaleString()}</span>
+                            </div>
+                            <div className="flex flex-wrap gap-2 text-[11px] text-gray-400">
+                              <span>{formatDuration(item.watchSeconds)} watch</span>
+                              <span>{formatRelativeTime(item.lastSeenAt, nowMs)}</span>
+                            </div>
+                          </div>
+                        )) : (
+                          <div className="rounded-[1.4rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-500">
+                            User-level viewer journeys will appear as soon as canonical watch sessions and telemetry overlap in this range.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
+                      <div className="mb-3 flex items-center justify-between gap-3">
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Experience context</p>
+                          <p className="mt-1 text-sm text-gray-400">Drops and experience surfaces ranked by combined activity, watch depth, and conversion pressure.</p>
+                        </div>
+                        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-300">
+                          {topExperienceContexts.length} experiences
+                        </span>
+                      </div>
+                      <div className="space-y-3">
+                        {topExperienceContexts.length > 0 ? topExperienceContexts.map((item) => (
+                          <div key={item.key} className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+                            <div className="mb-2 flex items-center justify-between gap-3">
+                              <p className="truncate text-sm font-semibold text-white">{item.label}</p>
+                              <span className="text-sm font-bold text-cyan-300">{formatDuration(item.watchSeconds)}</span>
+                            </div>
+                            <div className="flex flex-wrap gap-2 text-[11px] text-gray-400">
+                              <span>{item.eventCount.toLocaleString()} signals</span>
+                              <span>{item.uniqueUsers.toLocaleString()} users</span>
+                              <span>{item.conversionCount.toLocaleString()} conversions</span>
+                            </div>
+                          </div>
+                        )) : (
+                          <div className="rounded-[1.4rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-500">
+                            Experience context will fill in once drop-level watch sessions or interaction traces land for the chosen period.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
                     <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
                       <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Top viewed drops by watch time</p>
@@ -1790,14 +2192,77 @@ export default function AdminAnalyticsPage() {
 
         {activeTab === "security" ? (
           <>
-            <SectionCard title="Security Posture" subtitle="Flagged accounts are grouped into mobile cards with the newest risk surfaced first." icon={ShieldAlert} defaultExpanded>
-              <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-                <MetricCard label="Flagged Users" value={security.length.toLocaleString()} hint="Users with recorded rip attempts" icon={ShieldAlert} />
-                <MetricCard label="Fresh Alerts" value={securityAlerts.toLocaleString()} hint="Last 24 hours" icon={AlertTriangle} valueClassName={securityAlerts > 0 ? "text-2xl font-black tracking-tight text-red-400" : undefined} />
-                <MetricCard label="Experience Views" value={funnel.experienceViews.toLocaleString()} hint="Signals around discovery" icon={Sparkles} />
-                <MetricCard label="Viewer Switches" value={funnel.assetSwitches.toLocaleString()} hint="Asset interactions in viewer" icon={PlayCircle} />
-              </div>
-            </SectionCard>
+              <SectionCard title="Security Posture" subtitle="Flagged accounts are grouped into mobile cards with the newest risk surfaced first." icon={ShieldAlert} defaultExpanded>
+                <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                  <MetricCard label="Flagged Users" value={security.length.toLocaleString()} hint="Users with recorded rip attempts" icon={ShieldAlert} />
+                  <MetricCard label="Fresh Alerts" value={securityAlerts.toLocaleString()} hint="Last 24 hours" icon={AlertTriangle} valueClassName={securityAlerts > 0 ? "text-2xl font-black tracking-tight text-red-400" : undefined} />
+                  <MetricCard label="Experience Views" value={funnel.experienceViews.toLocaleString()} hint="Signals around discovery" icon={Sparkles} />
+                  <MetricCard label="Viewer Switches" value={funnel.assetSwitches.toLocaleString()} hint="Asset interactions in viewer" icon={PlayCircle} />
+                </div>
+
+                <div className="mt-5 grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
+                  <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
+                    <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Violation mix</p>
+                    {topSecurityReasons.length > 0 ? (
+                      <div className="h-64 w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={topSecurityReasons} margin={{ top: 8, right: 0, left: -18, bottom: 14 }}>
+                            <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                            <XAxis dataKey="label" stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} interval={0} angle={-18} textAnchor="end" height={70} />
+                            <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                            <Tooltip content={<AnalyticsTooltip />} />
+                            <Bar dataKey="count" name="Signals" fill="#f59e0b" radius={[10, 10, 0, 0]} />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    ) : (
+                      <div className="rounded-[1.4rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-500">
+                        Specific protection detections will appear here once the viewer logs screenshot, record, save, copy, or scrape attempts.
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Detection reasons</p>
+                        <p className="mt-1 text-sm text-gray-400">Actionable labels instead of one generic window-switch warning.</p>
+                      </div>
+                      <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-300">
+                        {topSecurityReasons.length} reasons
+                      </span>
+                    </div>
+                    <div className="space-y-3">
+                      {topSecurityReasons.length > 0 ? topSecurityReasons.map((item) => (
+                        <div key={item.reason} className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+                          <div className="mb-2 flex items-center justify-between gap-3">
+                            <p className="text-sm font-semibold text-white">{item.label}</p>
+                            <span className={cn(
+                              "rounded-full border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]",
+                              item.severity === "high"
+                                ? "border-red-500/30 bg-red-500/10 text-red-200"
+                                : item.severity === "medium"
+                                  ? "border-amber-400/30 bg-amber-400/10 text-amber-200"
+                                  : "border-sky-400/30 bg-sky-400/10 text-sky-200",
+                            )}>
+                              {item.severity}
+                            </span>
+                          </div>
+                          <div className="flex flex-wrap gap-2 text-[11px] text-gray-400">
+                            <span>{item.count.toLocaleString()} detections</span>
+                            <span>{item.uniqueUsers.toLocaleString()} users</span>
+                            <span>{formatRelativeTime(item.lastSeenAt, nowMs)}</span>
+                          </div>
+                        </div>
+                      )) : (
+                        <div className="rounded-[1.4rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-500">
+                          Detection reasons will list the exact protection vectors once enough viewer security signals are captured.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </SectionCard>
 
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
               <SectionCard title="Daily Task Pipeline" subtitle="Assigned, started, completed, and failed tasks in one mobile-friendly progression view." icon={Funnel}>

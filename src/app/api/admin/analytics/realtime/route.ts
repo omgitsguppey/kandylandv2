@@ -7,6 +7,7 @@ import { handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { ADMIN_REALTIME } from "@/lib/server/rate-limit";
 import { AnalyticsReportRow, safeRunRealtimeReport } from "@/lib/server/admin-analytics-shared";
+import { buildRealtimeSurfaceMix } from "@/lib/server/admin-analytics-context";
 import { createAdminAnalyticsDataClient, getAdminAnalyticsPropertyId } from "@/lib/server/admin-analytics-data";
 import { buildHistoricalOnboardingOverview } from "@/lib/server/admin-analytics-historical-onboarding";
 import { guardApiRequest } from "@/lib/server/request-guard";
@@ -82,12 +83,33 @@ export async function GET(request: NextRequest) {
       startMs: onboardingWindowStartMs,
       eventsData: {},
     });
+    const activeUsers = sessionsQuery.docs
+      .map((doc) => {
+        const data = doc.data() as Record<string, unknown>;
+        return {
+          uid: doc.id,
+          username: typeof data.username === "string" ? data.username : doc.id,
+          lastSeenAt: typeof data.lastSeenAt === "number" ? data.lastSeenAt : 0,
+          lastEventName: typeof data.lastEventName === "string" ? data.lastEventName : "",
+          lastPagePath: typeof data.lastPagePath === "string" ? data.lastPagePath : "",
+          lastDropTitle: typeof data.lastDropTitle === "string" ? data.lastDropTitle : "",
+          lastSemanticScopeLabel: typeof data.lastSemanticScopeLabel === "string" ? data.lastSemanticScopeLabel : "",
+          lastComponentName: typeof data.lastComponentName === "string" ? data.lastComponentName : "",
+          lastEventModules: typeof data.lastEventModules === "string" ? data.lastEventModules : "",
+        };
+      })
+      .sort((left, right) => right.lastSeenAt - left.lastSeenAt)
+      .slice(0, 8);
+    const surfaceMix = buildRealtimeSurfaceMix({ activeUsers });
 
     return NextResponse.json({
       success: true,
+      generatedAtMs: nowMs,
       totalActive,
       deepTrackerActive: sessionsQuery.size,
       data: liveData,
+      activeUsers,
+      surfaceMix,
       onboardingStats: {
         starts: onboardingOverview.onboardingStartCount,
         completions: onboardingOverview.normalizedOnboardingCompletions,
