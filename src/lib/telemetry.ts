@@ -2,6 +2,7 @@ import { auth } from "./firebase";
 import { authFetch } from "./authFetch";
 import { prepareAnalyticsEvent } from "./analytics-client-engine";
 import { createAnalyticsEventId } from "./analytics-identifiers";
+import destr from "destr";
 import { buildAnalyticsSemanticParams } from "./analytics-semantics";
 import { getClientSessionId } from "./client-session";
 import { recordClientDiagnostic } from "./client-diagnostics";
@@ -88,7 +89,7 @@ function readJsonStorage<T>(storageKey: string): T | null {
 
     try {
         const raw = window.sessionStorage.getItem(storageKey);
-        return raw ? JSON.parse(raw) as T : null;
+        return raw ? destr<T>(raw) : null;
     } catch {
         return null;
     }
