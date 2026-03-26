@@ -10,9 +10,10 @@ import * as admin from "firebase-admin";
  * @param title The physical notification header title
  * @param body The physical notification message body 
  * @param url The router click-through target when clicked
+ * @returns boolean indicating whether the broadcast was fully successful
  */
-export async function broadcastFCM(title: string, body: string, url: string = "/drops") {
-    if (!adminDb) return;
+export async function broadcastFCM(title: string, body: string, url: string = "/drops"): Promise<boolean> {
+    if (!adminDb) return false;
 
     try {
         const usersSnap = await adminDb.collection("users").get();
@@ -38,9 +39,19 @@ export async function broadcastFCM(title: string, body: string, url: string = "/
             };
 
             const response = await admin.messaging().sendEachForMulticast(message);
+
+            if (response.failureCount > 0) {
+                console.error(`FCM Multicast Dispatch Partial Failure. Success: ${response.successCount}, Failed: ${response.failureCount}`);
+                return false;
+            }
+
             console.log(`FCM Multicast Dispatch Complete. Success: ${response.successCount}, Failed: ${response.failureCount}`);
+            return true;
         }
+
+        return true; // No tokens to send to, but no failure occurred
     } catch (err) {
         console.error("FCM broadcast multicasting failed:", err);
+        return false;
     }
 }
