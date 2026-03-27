@@ -264,7 +264,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
                 className="relative w-full max-w-md bg-black/45 backdrop-blur-xl rounded-3xl p-6 md:p-8 shadow-2xl border border-white/10 pointer-events-auto"
               >
-                <button onClick={closeModal} className="absolute top-4 right-4 p-2 rounded-full text-gray-400 transition-colors z-30">
+                <button aria-label="Close modal" onClick={closeModal} className="absolute top-4 right-4 p-2 rounded-full text-gray-400 transition-colors z-30">
                   <X className="w-5 h-5" />
                 </button>
 
@@ -351,6 +351,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
 
                         <div className="flex items-center gap-1.5 bg-black/40 rounded-xl p-1 border border-white/10 shrink-0">
                           <button
+                            aria-label="Decrease bundle size"
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
@@ -370,6 +371,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                           </div>
 
                           <button
+                            aria-label="Increase bundle size"
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
