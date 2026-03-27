@@ -13,10 +13,7 @@ export const FIXED_GUMDROP_PACKAGES: GumdropPackageDefinition[] = [
 ];
 
 export function isBundleGumdropAmount(drops: number) {
-    return Number.isInteger(drops)
-        && drops >= 5000
-        && drops <= 100000
-        && drops % 1000 === 0;
+  return FIXED_GUMDROP_PACKAGES.some((pkg) => pkg.drops === drops);
 }
 
 export function resolveExpectedGumdropPrice(drops: number): string | null {
