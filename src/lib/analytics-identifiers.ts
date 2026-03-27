@@ -24,7 +24,7 @@ function buildRandomFragment() {
       .slice(0, 32);
   }
 
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 18);
+  throw new Error("Cryptographically secure random number generation is not available in this environment.");
 }
 
 function buildIdentifier(prefix: "evt" | "batch" | "watch", sessionId: string) {
