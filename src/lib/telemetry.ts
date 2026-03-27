@@ -458,6 +458,16 @@ export function trackEvent(eventName: string, eventParams?: Record<string, unkno
         return;
     }
 
+    const trackingSources = typeof enrichedParams?.tracking_sources === "string"
+        ? enrichedParams.tracking_sources.split("|")
+        : ["client", "backend", "ga4"];
+
+    const shouldSendToBackend = trackingSources.includes("client") || trackingSources.includes("backend") || trackingSources.includes("canonical");
+
+    if (!shouldSendToBackend && !shouldSyncTaskProgress) {
+        return;
+    }
+
     enqueueIdentifiedTelemetryEvent({
         eventId: createAnalyticsEventId(sessionId),
         eventTimestampMs,

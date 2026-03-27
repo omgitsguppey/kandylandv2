@@ -12,7 +12,6 @@ import NextImage from "next/image";
 import { authFetch } from "@/lib/authFetch";
 import { describeSecurityEvent, type SecurityEventDescriptor } from "@/lib/security-events";
 import { cn } from "@/lib/utils";
-import { sendGAEvent } from "@next/third-parties/google";
 import { getDropAssetCount } from "@/lib/drop-presentation";
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import useEmblaCarousel from "embla-carousel-react";
@@ -1430,7 +1429,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                             draggable={false}
                                             onPlay={() => {
                                                 reportWatchMediaPlay();
-                                                sendGAEvent("event", "video_played", {
+                                                trackEvent("video_played", {
                                                     content_id: drop.id,
                                                     video_title: drop.title
                                                 });

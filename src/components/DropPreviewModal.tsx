@@ -13,7 +13,6 @@ import { useUI } from "@/context/UIContext";
 import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { sendGAEvent } from "@next/third-parties/google";
 import * as Dialog from "@radix-ui/react-dialog";
 import { clearTimedFlow, consumeTimedFlow, startTimedFlow, trackEvent } from "@/lib/telemetry";
 import {
@@ -157,7 +156,7 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
         throw new Error(result.error || "Unlock failed");
       }
 
-      sendGAEvent("event", "spend_virtual_currency", {
+      trackEvent("spend_virtual_currency", {
         value: drop.unlockCost,
         virtual_currency_name: "Gum Drops",
         item_name: drop.title,
