@@ -44,13 +44,13 @@ function normalizeFirebaseClientConfig(): {
     return {
         isConfigured: false,
         config: {
-            apiKey: "AIzaSyD-FALLBACK-CLIENT-CONFIG-000000000000000",
-            authDomain: "local-placeholder.firebaseapp.com",
-            projectId: "local-placeholder",
-            storageBucket: "local-placeholder.appspot.com",
-            databaseURL: "https://local-placeholder-default-rtdb.firebaseio.com",
-            messagingSenderId: "000000000000",
-            appId: "1:000000000000:web:0000000000000000000000",
+            apiKey: "",
+            authDomain: "",
+            projectId: "",
+            storageBucket: "",
+            databaseURL: "",
+            messagingSenderId: "",
+            appId: "",
         },
     };
 }

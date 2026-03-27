@@ -67,6 +67,22 @@ function isCanvasImageType(type: string): boolean {
   return /image\/(jpeg|jpg|png|webp|gif)/i.test(type);
 }
 
+function generateSecureId(): string {
+  if (typeof crypto !== "undefined") {
+    if (typeof crypto.randomUUID === "function") {
+      return crypto.randomUUID();
+    }
+    if (typeof crypto.getRandomValues === "function") {
+      const buffer = new Uint8Array(16);
+      crypto.getRandomValues(buffer);
+      return Array.from(buffer)
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+    }
+  }
+  return `${Date.now().toString(16)}-${Math.random().toString(16).slice(2)}`;
+}
+
 function createInitialAssets(initialAssets?: UploadedAsset[], initialUrl?: string, initialType?: string): AssetDraft[] {
   if (Array.isArray(initialAssets) && initialAssets.length > 0) {
     return initialAssets.map((asset, index) => ({
@@ -239,7 +255,7 @@ export function AssetUploader({
     if (!selectedFiles) return;
 
     const incoming = Array.from(selectedFiles).map((file) => ({
-      id: `${Date.now()}-${file.name}-${Math.random().toString(16).slice(2)}`,
+      id: `${Date.now()}-${file.name}-${generateSecureId()}`,
       kind: classifyFile(file),
       file,
           previewUrl: file.type.startsWith("image/") || file.type.startsWith("video/") ? URL.createObjectURL(file) : undefined,

@@ -39,6 +39,10 @@ function readStoredGuidance() {
     }
 
     const parsed = JSON.parse(raw) as Partial<TaskGuidanceState>;
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return null;
+    }
+
     if (
       typeof parsed.taskId !== "string"
       || typeof parsed.title !== "string"
@@ -46,6 +50,7 @@ function readStoredGuidance() {
       || typeof parsed.instruction !== "string"
       || typeof parsed.ctaLabel !== "string"
       || typeof parsed.destinationHref !== "string"
+      || (!parsed.destinationHref.startsWith("/") && !parsed.destinationHref.startsWith("#"))
       || typeof parsed.activatedAt !== "number"
     ) {
       return null;
