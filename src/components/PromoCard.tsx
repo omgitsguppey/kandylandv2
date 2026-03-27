@@ -9,6 +9,15 @@ interface PromoCardProps {
     drop: Drop;
 }
 
+function getSafeUrl(url: string | undefined): string | undefined {
+    if (!url) return undefined;
+    const lowerUrl = url.trim().toLowerCase();
+    if (lowerUrl.startsWith("javascript:") || lowerUrl.startsWith("data:") || lowerUrl.startsWith("vbscript:")) {
+        return undefined;
+    }
+    return url;
+}
+
 export function PromoCard({ drop }: PromoCardProps) {
     const handleClick = () => {
         const endpoint = `/api/drops/${encodeURIComponent(drop.id)}/click`;
@@ -30,7 +39,7 @@ export function PromoCard({ drop }: PromoCardProps) {
 
     return (
         <a
-            href={drop.actionUrl}
+            href={getSafeUrl(drop.actionUrl)}
             onClick={handleClick}
             target="_blank"
             rel="noopener noreferrer"
