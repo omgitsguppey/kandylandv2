@@ -48,9 +48,9 @@ afterAll(async () => {
 });
 
 describe("firestore.rules", () => {
-  it("allows public reads for drops", async () => {
+  it("blocks public reads for drops", async () => {
     const db = testEnv.unauthenticatedContext().firestore();
-    await assertSucceeds(getDoc(doc(db, "drops/test-drop")));
+    await assertFails(getDoc(doc(db, "drops/test-drop")));
   });
 
   it("blocks unauthenticated reads for users", async () => {
