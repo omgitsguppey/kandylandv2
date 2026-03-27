@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import { z } from "zod";
+import { captureException } from "@/lib/monitoring";
 import { ANALYTICS_WRITE } from "@/lib/server/rate-limit";
 import { requestAllowsAnonymousAnalytics, requestHasGlobalPrivacyControl } from "@/lib/server/privacy-consent";
 import { TELEMETRY_EVENT_INDEX_VERSION } from "@/lib/telemetry-catalog";
@@ -226,6 +227,7 @@ export async function POST(request: NextRequest) {
 
         return response;
     } catch (error) {
+        captureException(error, { message: "Telemetry ingestion failed" });
         await recordServerDiagnostic({
             channel: "analytics",
             severity: "error",
