@@ -9,7 +9,6 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
 import { motion, AnimatePresence } from "framer-motion";
-import { sendGAEvent } from "@next/third-parties/google";
 import { GuestComponentBlur } from "@/components/Auth/GuestComponentBlur";
 import { clearTimedFlow, consumeTimedFlow, startTimedFlow, trackEvent } from "@/lib/telemetry";
 import { GUMDROPS_SUPPORT_COPY, SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
@@ -211,7 +210,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
       dispatchActivitySync();
       toast.success(`${result.drops || selectedPackage.drops} Gum Drops added!`);
 
-      sendGAEvent("event", "purchase", {
+      trackEvent("purchase", {
         transaction_id: orderId,
         value: selectedPackage.price,
         currency: "USD",
