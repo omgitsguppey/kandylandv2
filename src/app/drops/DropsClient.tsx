@@ -111,9 +111,19 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
         idle: true,
     });
     const [impressionTrackingSessionId] = useState(() => {
-        const token = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-            ? crypto.randomUUID().slice(0, 8)
-            : Math.random().toString(36).slice(2, 10);
+        let token = "";
+        if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+            token = crypto.randomUUID().slice(0, 8);
+        } else if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+            const buffer = new Uint8Array(4);
+            crypto.getRandomValues(buffer);
+            token = Array.from(buffer)
+                .map((b) => b.toString(36))
+                .join("")
+                .slice(0, 8);
+        } else {
+            token = Math.random().toString(36).slice(2, 10);
+        }
         return `drops_${Date.now().toString(36)}_${token}`;
     });
 
