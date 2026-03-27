@@ -43,16 +43,20 @@ export async function GET(request: NextRequest) {
         }
 
         const dropsRef = adminDb.collection("drops");
-        const queuedDropSnapshots = await Promise.all(
-            chunkArray(config.queue, 10).map((chunk) => dropsRef.where("__name__", "in", chunk).get()),
-        );
 
         const dropsMap: Record<string, FirebaseFirestore.DocumentData> = {};
-        queuedDropSnapshots.forEach((snapshot) => {
-            snapshot.forEach((doc) => {
-                dropsMap[doc.id] = { id: doc.id, ...doc.data() };
-            });
-        });
+        const dropRefs = config.queue.map(id => dropsRef.doc(id));
+        const chunkedRefs = chunkArray(dropRefs, 100);
+
+        for (const refsChunk of chunkedRefs) {
+            if (refsChunk.length === 0) continue;
+            const docs = await adminDb.getAll(...refsChunk);
+            for (const doc of docs) {
+                if (doc.exists) {
+                    dropsMap[doc.id] = { id: doc.id, ...doc.data() };
+                }
+            }
+        }
 
         const now = Date.now();
         const ONE_DAY_MS = 24 * 60 * 60 * 1000;
