@@ -278,8 +278,15 @@ function buildThumbnailFetchOrder(assetCount: number, activeIndex: number): numb
 
 function sumNumbers(values: Iterable<number>): number {
     let total = 0;
-    for (const value of values) {
-        total += value;
+
+    if (Array.isArray(values)) {
+        for (let i = 0, len = values.length; i < len; i++) {
+            total += values[i];
+        }
+    } else {
+        for (const value of values) {
+            total += value;
+        }
     }
 
     return total;
