@@ -59,7 +59,7 @@ function writeLocalStorageValue(storageKey: string, value: unknown) {
 }
 
 export function isTaskGuidanceActionType(actionType: DailyTaskAssignment["actionType"]): actionType is TaskGuidanceActionType {
-  return actionType === "action:internal-link" || actionType === "action:external-link";
+  return actionType === "open_dashboard" || actionType === "open_drops" || actionType === "open_experiences" || actionType === "open_library" || actionType === "open_notifications" || actionType === "open_wallet" || actionType === "enable_notifications" || actionType === "give_feedback";
 }
 
 export function getTaskDestinationPath(destinationHref: string) {

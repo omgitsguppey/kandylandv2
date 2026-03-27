@@ -209,7 +209,30 @@ describe("client-diagnostics", () => {
       expect(snapshot.recentErrors).toHaveLength(1);
     });
 
-    it("extracts renderer from WebGL context", () => {
+
+    it("handles getExtension throwing an error gracefully", () => {
+      const mockGetExtension = vi.fn().mockImplementation(() => {
+        throw new Error("WebGL extension not supported");
+      });
+      const mockGetContext = vi.fn().mockReturnValue({
+        getExtension: mockGetExtension,
+      });
+
+      vi.stubGlobal("document", {
+        ...document,
+        createElement: (tagName: string) => {
+          if (tagName === "canvas") {
+            return { getContext: mockGetContext };
+          }
+          return document.createElement(tagName);
+        },
+      });
+
+      const snapshot = getClientDebugSnapshot();
+      expect(snapshot.userAgent).toContain("(Renderer: unknown)");
+    });
+
+it("extracts renderer from WebGL context", () => {
       const mockGetExtension = vi.fn().mockReturnValue({ UNMASKED_RENDERER_WEBGL: 37446 });
       const mockGetParameter = vi.fn().mockReturnValue("Test GPU Renderer");
       const mockGetContext = vi.fn().mockReturnValue({
