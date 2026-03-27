@@ -11,11 +11,20 @@ function normalizeSessionFragment(sessionId: string) {
 }
 
 function buildRandomFragment() {
-  const randomValue = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-    ? crypto.randomUUID().replace(/-/g, "")
-    : Math.random().toString(36).slice(2, 18);
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID().replace(/-/g, "").slice(0, 32);
+  }
 
-  return randomValue.slice(0, 32);
+  if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+    const buffer = new Uint8Array(16);
+    crypto.getRandomValues(buffer);
+    return Array.from(buffer)
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("")
+      .slice(0, 32);
+  }
+
+  throw new Error("Secure random number generation is not supported in this environment.");
 }
 
 function buildIdentifier(prefix: "evt" | "batch" | "watch", sessionId: string) {

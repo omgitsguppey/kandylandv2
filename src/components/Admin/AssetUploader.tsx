@@ -238,16 +238,28 @@ export function AssetUploader({
   const handleSelectFiles = useCallback((selectedFiles: FileList | null) => {
     if (!selectedFiles) return;
 
-    const incoming = Array.from(selectedFiles).map((file) => ({
-      id: `${Date.now()}-${file.name}-${Math.random().toString(16).slice(2)}`,
+    const incoming = Array.from(selectedFiles).map((file) => {
+      let token = "";
+      if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+        token = crypto.randomUUID().split("-")[0];
+      } else if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+        const buffer = new Uint8Array(4);
+        crypto.getRandomValues(buffer);
+        token = Array.from(buffer).map((b) => b.toString(16).padStart(2, "0")).join("");
+      } else {
+        throw new Error("Secure random number generation is not supported in this environment.");
+      }
+
+      return {
+      id: `${Date.now()}-${file.name}-${token}`,
       kind: classifyFile(file),
       file,
-          previewUrl: file.type.startsWith("image/") || file.type.startsWith("video/") ? URL.createObjectURL(file) : undefined,
-          uploadType: file.type || "application/octet-stream",
-          uploadSize: file.size,
-          fileName: file.name,
-          uploading: false,
-        } satisfies AssetDraft));
+      previewUrl: file.type.startsWith("image/") || file.type.startsWith("video/") ? URL.createObjectURL(file) : undefined,
+      uploadType: file.type || "application/octet-stream",
+      uploadSize: file.size,
+      fileName: file.name,
+      uploading: false,
+    } satisfies AssetDraft});
 
     const newSet = multiple ? [...assets, ...incoming].slice(0, 50) : incoming.slice(0, 1);
     setAssets(newSet);

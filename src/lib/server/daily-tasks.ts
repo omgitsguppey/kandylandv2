@@ -3,6 +3,7 @@ import "server-only";
 import { FieldValue, type Transaction } from "firebase-admin/firestore";
 
 import { normalizeNotificationDoc } from "@/lib/notification-contracts";
+import { randomBytes } from "node:crypto";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { hasUnreadNotificationsForUser, isUnreadNotificationForUser } from "@/lib/server/notification-inbox";
 import { getDropAssetCount } from "@/lib/drop-presentation";
@@ -295,11 +296,20 @@ function rankTasksForCycle(
   nowMs: number,
 ) {
   return tasks
-    .map((task) => ({
-      task,
-      score: computeTaskPriorityScore(task, history, nowMs),
-      tieBreaker: Math.random(),
-    }))
+    .map((task) => {
+      let tieBreaker = 0;
+      try {
+        tieBreaker = randomBytes(4).readUInt32BE(0) / 0xffffffff;
+      } catch {
+        throw new Error("Secure random number generation failed.");
+      }
+
+      return {
+        task,
+        score: computeTaskPriorityScore(task, history, nowMs),
+        tieBreaker,
+      };
+    })
     .sort((left, right) => right.score - left.score || right.tieBreaker - left.tieBreaker)
     .map((entry) => entry.task);
 }
