@@ -270,12 +270,26 @@ export function getClientDebugSnapshot(
     } satisfies ClientDebugSnapshot;
   }
 
+  let renderer = "unknown";
+  try {
+    const canvas = document.createElement("canvas");
+    const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+    if (gl) {
+      const debugInfo = (gl as WebGLRenderingContext).getExtension("WEBGL_debug_renderer_info");
+      if (debugInfo) {
+        renderer = (gl as WebGLRenderingContext).getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+      }
+    }
+  } catch {
+    // WebGL unsupported
+  }
+
   return {
     currentPath: window.location.pathname,
     currentSearch: window.location.search,
     viewportWidth: Math.round(window.innerWidth || 0),
     viewportHeight: Math.round(window.innerHeight || 0),
-    userAgent: window.navigator.userAgent.slice(0, 400),
+    userAgent: window.navigator.userAgent.slice(0, 400) + ` (Renderer: ${renderer})`,
     sessionId: getClientSessionId(),
     subjectId: getClientSubjectId(),
     diagnostics: readClientDiagnostics().slice(-24),
