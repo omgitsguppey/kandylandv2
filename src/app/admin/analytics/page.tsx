@@ -42,7 +42,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { useCachedAuthSWR } from "@/hooks/useCachedAuthSWR";
+import { useAuthSWR } from "@/hooks/useAuthSWR";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
@@ -766,13 +766,8 @@ export default function AdminAnalyticsPage() {
     data: liveResponse,
     error: liveError,
     isLoading: liveLoading,
-    cacheAgeMs: liveCacheAgeMs,
-    hydratedFromCache: liveHydratedFromCache,
-    cacheHydrated: liveCacheReady,
-  } = useCachedAuthSWR<RealtimeAnalyticsResponse>("/api/admin/analytics/realtime", {
-    cacheKey: "admin-analytics:realtime",
-    ttlMs: 2 * 60 * 1000,
-    refreshInterval: 30_000,
+  } = useAuthSWR<RealtimeAnalyticsResponse>("/api/admin/analytics/realtime", {
+    refreshInterval: 5000, // Refresh every 5s for real-time
     keepPreviousData: true,
   });
 
@@ -780,18 +775,20 @@ export default function AdminAnalyticsPage() {
     data: historicalResponse,
     error: historicalError,
     isLoading: historicalLoading,
-    cacheAgeMs: historicalCacheAgeMs,
-    hydratedFromCache: historicalHydratedFromCache,
-    cacheHydrated: historicalCacheReady,
-  } = useCachedAuthSWR<HistoricalAnalyticsResponse>(
+  } = useAuthSWR<HistoricalAnalyticsResponse>(
     `/api/admin/analytics/historical?period=${range}${viewerUserFilter ? `&viewerUser=${encodeURIComponent(viewerUserFilter)}` : ""}`,
     {
-      cacheKey: `admin-analytics:historical:${range}:${viewerUserFilter || "all"}`,
-      ttlMs: range === "24h" ? 5 * 60 * 1000 : 15 * 60 * 1000,
-      refreshInterval: 60_000,
+      refreshInterval: 15_000, // Refresh every 15s
       keepPreviousData: true,
     },
   );
+
+  const liveCacheReady = true;
+  const historicalCacheReady = true;
+  const liveHydratedFromCache = false;
+  const historicalHydratedFromCache = false;
+  const liveCacheAgeMs = 0;
+  const historicalCacheAgeMs = 0;
 
   const liveSeries = useMemo(
     () =>
