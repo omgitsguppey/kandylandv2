@@ -442,6 +442,7 @@ export function NotificationBell() {
       <button
         onClick={toggleDropdown}
         data-onboarding-target="notification-bell"
+        aria-label="Notifications"
         className="relative flex h-10 w-10 items-center justify-center rounded-full bg-black/20 text-gray-300 transition-colors hover:bg-black/40 hover:text-white"
       >
         <Bell className="h-5 w-5" />
