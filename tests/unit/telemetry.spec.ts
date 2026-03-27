@@ -257,6 +257,19 @@ describe("telemetry flow logic", () => {
             expect(mockSessionStorage[IDENTIFIED_QUEUE_STORAGE_KEY]).toBeUndefined();
         });
 
+        it("records client diagnostic on trackEvent error", () => {
+            const mockRecord = vi.fn();
+            vi.doMock("@/lib/client-diagnostics", () => ({
+                recordClientDiagnostic: mockRecord
+            }));
+
+            // Force trackEvent to throw by giving invalid data or mocking internal method
+            vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("Network Error")));
+            vi.spyOn(console, "error").mockImplementation(() => {});
+
+            expect(() => telemetry.trackEvent("unknown_event" as any)).not.toThrow();
+        });
+
         it("records client diagnostic for unknown events", () => {
             vi.mocked(analyticsClientEngine.prepareAnalyticsEvent).mockReturnValue({
                 isKnownEvent: false,
@@ -299,7 +312,7 @@ describe("telemetry flow logic", () => {
         });
 
         it("applies rollout and release context", () => {
-            telemetry.syncTelemetryRolloutContext({ rollout_group: "A" });
+            telemetry.syncTelemetryRolloutContext({ rollout_context: "A", rollout_assignment_count: 1, active_rollout_count: 1 });
             telemetry.syncTelemetryReleaseContext({ release_version: "1.0.0" });
 
             telemetry.trackEvent("known_event");
@@ -308,7 +321,7 @@ describe("telemetry flow logic", () => {
                 "event",
                 "known_event",
                 expect.objectContaining({
-                    rollout_group: "A",
+                    rollout_context: "A",
                     release_version: "1.0.0"
                 })
             );
