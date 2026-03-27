@@ -153,8 +153,37 @@ export function GuidedOnboarding() {
     const { user, userProfile: profile, setUserProfile } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
-    const completionStorageKey = user ? buildOnboardingCompletionStorageKey(user.uid) : null;
+    const [completionStorageKey, setCompletionStorageKey] = useState<string | null>(null);
 
+    useEffect(() => {
+        if (!user?.uid) {
+            setCompletionStorageKey(null);
+            return;
+        }
+
+        let cancelled = false;
+        setIsCheckingKey(true);
+        void buildOnboardingCompletionStorageKey(user.uid)
+            .then((key) => {
+                if (!cancelled) {
+                    setCompletionStorageKey(key);
+                    setIsCheckingKey(false);
+                }
+            })
+            .catch((err) => {
+                console.warn("Failed to generate onboarding storage key:", err);
+                if (!cancelled) {
+                    setCompletionStorageKey(`kandydrops_onboarding_fallback_${user.uid}`);
+                    setIsCheckingKey(false);
+                }
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [user?.uid]);
+
+    const [isCheckingKey, setIsCheckingKey] = useState(true);
     const [isVisible, setIsVisible] = useState(false);
     const [currentStep, setCurrentStep] = useState(0);
     const [flavorPreference, setFlavorPreference] = useState<FlavorPreference>("");
@@ -254,7 +283,7 @@ export function GuidedOnboarding() {
     }, [buildViewportPayload, isVisible, profile?.username, sendCanonicalProgressEvent, user]);
 
     useEffect(() => {
-        if (!user || !profile) {
+        if (!user || !profile || isCheckingKey) {
             return;
         }
 
@@ -306,7 +335,7 @@ export function GuidedOnboarding() {
         return () => {
             cancelled = true;
         };
-    }, [completionStorageKey, pathname, profile, router, startOnboardingFlow, user]);
+    }, [completionStorageKey, isCheckingKey, pathname, profile, router, startOnboardingFlow, user]);
 
     useEffect(() => {
         if (!isVisible) {

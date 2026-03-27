@@ -11,8 +11,17 @@ export const CLIENT_RUNTIME_EVENTS = {
     adminOverviewSync: "kandydrops:admin-overview-sync",
 } as const;
 
-export function buildOnboardingCompletionStorageKey(uid: string) {
-    return `kandydrops_onboarding_completed_${uid}`;
+export async function hashIdentifier(id: string): Promise<string> {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(id);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+export async function buildOnboardingCompletionStorageKey(uid: string) {
+    const hashedId = await hashIdentifier(uid);
+    return `kandydrops_onboarding_completed_${hashedId}`;
 }
 
 export function readSessionStorageValue(key: string) {
