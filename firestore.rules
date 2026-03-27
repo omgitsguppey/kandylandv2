@@ -2,9 +2,9 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Drops: Public read, NO client writes (all writes via Admin SDK)
+    // Drops: NO client reads, NO client writes (all access via Admin SDK)
     match /drops/{dropId} {
-      allow read: if true;
+      allow read: if false;
       allow write: if false;
     }
     
