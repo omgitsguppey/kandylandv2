@@ -235,13 +235,14 @@ export async function POST(req: NextRequest) {
                 }),
             });
 
-            for (const factWrite of onboardingFactWrites) {
-                const factRef = adminDb.collection("analytics_event_facts").doc(factWrite.key);
-                const existingFact = await transaction.get(factRef);
-                if (existingFact.exists) {
+            const factRefs = onboardingFactWrites.map((fw) => adminDb.collection("analytics_event_facts").doc(fw.key));
+            const existingFacts = onboardingFactWrites.length > 0 ? await transaction.getAll(...factRefs) : [];
+
+            for (let i = 0; i < onboardingFactWrites.length; i++) {
+                if (existingFacts[i].exists) {
                     continue;
                 }
-                transaction.create(factRef, factWrite.data);
+                transaction.create(factRefs[i], onboardingFactWrites[i].data);
             }
 
             return {

@@ -10,6 +10,16 @@ function generateId(prefix: string) {
     return `${prefix}_${crypto.randomUUID()}`;
   }
 
+  if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+    const buffer = new Uint8Array(12);
+    crypto.getRandomValues(buffer);
+    const token = Array.from(buffer)
+      .map((b) => b.toString(36))
+      .join("")
+      .slice(0, 16);
+    return `${prefix}_${Date.now().toString(36)}_${token}`;
+  }
+
   return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
