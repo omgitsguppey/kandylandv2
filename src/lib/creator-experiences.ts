@@ -272,7 +272,7 @@ export function cryptoSafeId(prefix: string) {
         const buffer = new Uint8Array(4);
         crypto.getRandomValues(buffer);
         token = Array.from(buffer)
-            .map((b) => b.toString(36))
+            .map((b) => b.toString(36).padStart(2, "0"))
             .join("")
             .slice(0, 8);
     } else {
