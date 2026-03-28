@@ -40,6 +40,8 @@ export function AdminDropdown() {
     return (
         <div className="relative" ref={dropdownRef}>
             <button
+                aria-label="Open admin menu"
+                aria-expanded={isOpen}
                 onClick={() => setIsOpen(!isOpen)}
                 className={cn(
                     "flex items-center gap-2 px-3 py-1.5 rounded-full transition-all border",
