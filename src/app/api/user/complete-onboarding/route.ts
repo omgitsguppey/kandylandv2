@@ -56,13 +56,17 @@ export async function POST(req: NextRequest) {
         const balanceRef = userRef.collection("economy").doc("balance");
 
         const result = await adminDb.runTransaction(async (transaction) => {
-            const userDoc = await transaction.get(userRef);
+            const [userDoc, legacyProfileDoc, balanceDoc] = await transaction.getAll(
+                userRef,
+                legacyProfileRef,
+                balanceRef
+            );
+
             if (!userDoc.exists) {
                 return { status: "missing_user" as const };
             }
 
             const userData = userDoc.data() || {};
-            const legacyProfileDoc = await transaction.get(legacyProfileRef);
             const legacyProfileData = legacyProfileDoc.exists ? legacyProfileDoc.data() : null;
 
             if (userData?.onboardingCompleted || legacyProfileData?.onboardingCompleted) {
@@ -72,7 +76,6 @@ export async function POST(req: NextRequest) {
             }
 
             const rewardAmount = 50;
-            const balanceDoc = await transaction.get(balanceRef);
             const legacyBalance = balanceDoc.exists ? Number(balanceDoc.data()?.gumDrops || 0) : 0;
             const sourceAwareBalance = readSourceAwareBalance({
                 ...userData,
