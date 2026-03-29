@@ -73,6 +73,7 @@ export default function MobileBottomBar() {
 
                 <button
                     type="button"
+                    aria-expanded={isPurchaseModalOpen}
                     onClick={() => {
                         triggerHaptic();
                         openPurchaseModal();
