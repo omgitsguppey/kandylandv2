@@ -20,10 +20,10 @@ function buildDayKey(timestamp: number) {
 }
 
 function buildAnonymousFingerprint(request: NextRequest, dropId: string, dayKey: string, pagePath: string, surface: string) {
-  const forwardedFor = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const clientIp = request.ip || "unknown";
   const userAgent = request.headers.get("user-agent")?.trim() || "unknown";
   return createHash("sha256")
-    .update(`${forwardedFor}:${userAgent}:${dropId}:${dayKey}:${pagePath}:${surface}`)
+    .update(`${clientIp}:${userAgent}:${dropId}:${dayKey}:${pagePath}:${surface}`)
     .digest("hex");
 }
 
