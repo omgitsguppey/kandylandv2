@@ -6,6 +6,7 @@ import {
     BarChart, Bar
 } from "recharts";
 import { useAdminOverview } from "@/hooks/useAdminOverview";
+import { trackEvent } from "@/lib/telemetry";
 
 interface ChartDataPoint {
     date: string;
@@ -42,14 +43,20 @@ export function AdminAnalyticsCharts() {
                 <div className="inline-flex items-center gap-1 rounded-xl bg-black/40 p-1">
                     <button
                         type="button"
-                        onClick={() => setChartView("revenue")}
+                        onClick={() => {
+                            setChartView("revenue");
+                            trackEvent("admin_chart_view_changed", { view: "revenue" });
+                        }}
                         className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${chartView === "revenue" ? "bg-brand-purple/25 text-white" : "text-gray-400"}`}
                     >
                         Revenue
                     </button>
                     <button
                         type="button"
-                        onClick={() => setChartView("unwraps")}
+                        onClick={() => {
+                            setChartView("unwraps");
+                            trackEvent("admin_chart_view_changed", { view: "unwraps" });
+                        }}
                         className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${chartView === "unwraps" ? "bg-pink-500/25 text-white" : "text-gray-400"}`}
                     >
                         Unwraps

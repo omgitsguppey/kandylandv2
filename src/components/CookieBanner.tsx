@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { readPrivacySettingsSnapshot, saveGuestAnalyticsConsent } from "@/lib/privacy-consent";
+import { trackEvent } from "@/lib/telemetry";
 
 interface BannerViewProps {
     savingChoice: boolean;
@@ -146,6 +147,7 @@ export default function CookieBanner() {
         setConsentError(null);
         try {
             await saveGuestAnalyticsConsent(allowAnalytics);
+            trackEvent("cookie_consent_updated", { consent_given: allowAnalytics });
             setDismissed(true);
         } catch (error) {
             const message = error instanceof Error ? error.message : "We could not save that choice right now.";
