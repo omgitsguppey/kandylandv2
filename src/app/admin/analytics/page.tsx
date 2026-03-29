@@ -778,7 +778,7 @@ export default function AdminAnalyticsPage() {
   } = useAuthSWR<HistoricalAnalyticsResponse>(
     `/api/admin/analytics/historical?period=${range}${viewerUserFilter ? `&viewerUser=${encodeURIComponent(viewerUserFilter)}` : ""}`,
     {
-      refreshInterval: 15_000, // Refresh every 15s
+      refreshInterval: 5000, // Refresh every 5s for real-time
       keepPreviousData: true,
     },
   );
