@@ -324,6 +324,7 @@ function NotificationItem({
               <span className="text-[10px] font-medium text-gray-500">{relativeTime}</span>
               <button
                 type="button"
+                aria-label={isRead ? "Already read" : "Mark as read"}
                 onClick={() => {
                   void handleMarkAsRead();
                 }}
@@ -341,6 +342,7 @@ function NotificationItem({
             {(note.dropContext || note.link) ? (
               <button
                 type="button"
+                aria-label="Open details"
                 onClick={() => {
                   void openNotification();
                 }}
@@ -355,6 +357,7 @@ function NotificationItem({
             {expandable ? (
               <button
                 type="button"
+                aria-expanded={isExpanded}
                 onClick={handleToggleExpanded}
                 className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-white/10"
               >
@@ -440,6 +443,7 @@ export function NotificationBell() {
   return (
     <div className="relative" ref={dropdownRef}>
       <button
+        aria-expanded={isOpen}
         onClick={toggleDropdown}
         data-onboarding-target="notification-bell"
         aria-label="Notifications"
@@ -473,6 +477,7 @@ export function NotificationBell() {
             {unreadCount > 0 ? (
               <button
                 type="button"
+                aria-label="Mark all as read"
                 onClick={() => {
                   void handleMarkAllAsRead();
                 }}
