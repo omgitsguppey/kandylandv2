@@ -61,9 +61,6 @@ export function buildParityInsight(
   const tolerance = options?.tolerance ?? 1;
   const relativeTolerance = options?.relativeTolerance ?? 0.18;
   const relativeSpread = referenceCount > 0 ? spread / referenceCount : spread > 0 ? 1 : 0;
-  const stabilityScore = 1 - clamp(relativeSpread, 0, 1);
-  const coverageScore = normalizedCounts.length > 0 ? populatedSources / normalizedCounts.length : 0;
-  const score = Math.round((stabilityScore * 0.6 + coverageScore * 0.4) * 100);
 
   let status: ParityStatus = "pass";
   if (spread > tolerance && relativeSpread > relativeTolerance) {
@@ -72,6 +69,11 @@ export function buildParityInsight(
   if (spread > tolerance * 2 && relativeSpread > relativeTolerance * 1.75) {
     status = "fail";
   }
+
+  const effectiveSpread = status === "pass" ? 0 : relativeSpread;
+  const stabilityScore = 1 - clamp(effectiveSpread, 0, 1);
+  const coverageScore = normalizedCounts.length > 0 ? populatedSources / normalizedCounts.length : 0;
+  const score = Math.round((stabilityScore * 0.6 + coverageScore * 0.4) * 100);
 
   return {
     status,

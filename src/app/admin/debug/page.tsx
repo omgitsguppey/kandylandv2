@@ -134,7 +134,7 @@ export default function DebugConsole() {
     const [activeTab, setActiveTab] = useState<DebugTabId>("overview");
 
     const { data, error, isLoading, mutate } = useAuthSWR<any>("/api/admin/debug", {
-        refreshInterval: 30_000,
+        refreshInterval: 5000,
         revalidateOnFocus: true,
     });
     const { data: overviewData, isLoading: overviewLoading, mutate: mutateOverview } = useAdminOverview();
