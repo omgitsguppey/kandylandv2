@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 import { motion, AnimatePresence } from "framer-motion";
 import { isBundleGumdropAmount, resolvePreferredGumdropAmount } from "@/lib/gumdrops-packages";
+import { trackEvent } from "@/lib/telemetry";
 
 export function InsufficientBalanceModal() {
     const {
@@ -28,6 +29,7 @@ export function InsufficientBalanceModal() {
     const recommendedDrops = resolvePreferredGumdropAmount(missingAmount);
 
     const handleGetMore = () => {
+        trackEvent("insufficient_balance_get_more_clicked");
         closeInsufficientBalanceModal();
         openPurchaseModal();
     };
@@ -40,7 +42,10 @@ export function InsufficientBalanceModal() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    onClick={closeInsufficientBalanceModal}
+                    onClick={() => {
+                        trackEvent("insufficient_balance_modal_closed");
+                        closeInsufficientBalanceModal();
+                    }}
                     className="absolute inset-0 bg-black/80 backdrop-blur-sm"
                 />
 
@@ -54,7 +59,10 @@ export function InsufficientBalanceModal() {
                 >
                     <div className="p-6 text-center">
                         <button
-                            onClick={closeInsufficientBalanceModal}
+                            onClick={() => {
+                                trackEvent("insufficient_balance_modal_closed");
+                                closeInsufficientBalanceModal();
+                            }}
                             className="absolute top-4 right-4 p-2 text-gray-500 transition-colors"
                         >
                             <X className="w-5 h-5" />
@@ -83,6 +91,7 @@ export function InsufficientBalanceModal() {
                         <div className="flex flex-col gap-3">
                             <Button
                                 onClick={() => {
+                                    trackEvent("insufficient_balance_get_more_clicked");
                                     closeInsufficientBalanceModal();
                                     openPurchaseModal(recommendedDrops);
                                     toast.info(
@@ -104,7 +113,10 @@ export function InsufficientBalanceModal() {
                                 See All Packages
                             </Button>
                             <button
-                                onClick={closeInsufficientBalanceModal}
+                                onClick={() => {
+                                    trackEvent("insufficient_balance_modal_closed");
+                                    closeInsufficientBalanceModal();
+                                }}
                                 className="w-full py-3 text-sm text-gray-500 transition-colors font-medium"
                             >
                                 Maybe later

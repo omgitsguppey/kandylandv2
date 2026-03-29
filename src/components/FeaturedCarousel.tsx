@@ -9,6 +9,7 @@ import { Clock, ChevronRight, Eye, Image as ImageIcon, Film } from "lucide-react
 import { getSupportedDropAspectRatio } from "@/lib/drop-presentation";
 
 import { useUserProfile } from "@/context/AuthContext";
+import { trackEvent } from "@/lib/telemetry";
 
 interface FeaturedCarouselProps {
     drops: Drop[];
@@ -116,7 +117,10 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
                                 className="relative flex-[0_0_100%] min-w-0 w-full h-full transition-opacity duration-300"
                             >
                                 <button
-                                    onClick={() => onSelectDrop(drop)}
+                                    onClick={() => {
+                                        trackEvent("featured_drop_clicked", { drop_id: drop.id, drop_category: drop.type });
+                                        onSelectDrop(drop);
+                                    }}
                                     type="button"
                                     className="absolute inset-0 block w-full h-full"
                                     tabIndex={isActive ? 0 : -1}

@@ -4,6 +4,7 @@ import { auth } from "@/lib/firebase";
 import { ArrowUpRight } from "lucide-react";
 
 import NextImage from "next/image";
+import { trackEvent } from "@/lib/telemetry";
 
 interface PromoCardProps {
     drop: Drop;
@@ -20,6 +21,12 @@ function getSafeUrl(url: string | undefined): string | undefined {
 
 export function PromoCard({ drop }: PromoCardProps) {
     const handleClick = () => {
+        trackEvent("promo_card_clicked", {
+            drop_id: drop.id,
+            action_url: drop.actionUrl,
+            drop_category: drop.type,
+        });
+
         const endpoint = `/api/drops/${encodeURIComponent(drop.id)}/click`;
 
         // Track click server-side (fire-and-forget)

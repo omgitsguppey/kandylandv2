@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { getAspectRatioCssValue, getDropMediaSummary, getSupportedDropAspectRatio } from "@/lib/drop-presentation";
 import { Lock, Unlock, Image as ImageIcon, Film } from "lucide-react";
 import { useMemo } from "react";
+import { trackEvent } from "@/lib/telemetry";
 
 interface OwnedDropGalleryCardProps {
     drop: Drop;
@@ -28,7 +29,10 @@ export function OwnedDropGalleryCard({ drop, isUnlocked, onOpen }: OwnedDropGall
     return (
         <button
             type="button"
-            onClick={onOpen}
+            onClick={() => {
+                trackEvent("owned_drop_clicked", { drop_id: drop.id, drop_category: drop.type });
+                if (onOpen) onOpen();
+            }}
             className="group relative text-left w-full"
             disabled={!onOpen}
         >

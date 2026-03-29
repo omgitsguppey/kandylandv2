@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import type { Drop, UserProfile } from "@/types/db";
 
 import { OwnedDropGalleryCard } from "./OwnedDropGalleryCard";
+import { trackEvent } from "@/lib/telemetry";
 
 type Ratio = "1:1" | "16:9" | "9:16";
 
@@ -80,7 +81,10 @@ export function CollectionList({ drops, userProfile, currentTimeMs }: Collection
                     {(["all", "owned", "locked"] as const).map((option) => (
                         <button
                             key={option}
-                            onClick={() => setFilter(option)}
+                            onClick={() => {
+                                setFilter(option);
+                                trackEvent("collection_filter_changed", { filter_value: option });
+                            }}
                             aria-pressed={filter === option}
                             className={cn(
                                 "flex-1 rounded-lg px-3 py-2 text-[11px] font-bold capitalize transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple/40 sm:flex-none sm:px-4 sm:py-1.5 sm:text-xs",
