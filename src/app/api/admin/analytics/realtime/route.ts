@@ -12,6 +12,7 @@ import { buildRealtimeSurfaceMix } from "@/lib/server/admin-analytics-context";
 import { createAdminAnalyticsDataClient, getAdminAnalyticsPropertyId } from "@/lib/server/admin-analytics-data";
 import { buildHistoricalOnboardingOverview } from "@/lib/server/admin-analytics-historical-onboarding";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { ANALYTICS_CANONICAL_COLLECTIONS, ANALYTICS_OPERATIONAL_COLLECTIONS } from "@/lib/server/analytics-governance";
 
 const propertyId = getAdminAnalyticsPropertyId();
 const analyticsClient = createAdminAnalyticsDataClient();
@@ -70,11 +71,12 @@ export async function GET(request: NextRequest) {
     liveData.sort((a, b) => b.minute - a.minute);
 
     const [sessionsQuery, onboardingFactsSnapshot] = await Promise.all([
-      adminDb.collection("analytics_active_users")
+      adminDb.collection(ANALYTICS_OPERATIONAL_COLLECTIONS.activeUsers)
         .where("lastSeenAt", ">=", thirtyMinsAgo)
         .get(),
-      adminDb.collection("analytics_event_facts")
+      adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.identifiedEventFacts)
         .where("timestamp", ">=", onboardingWindowStartMs)
+        .where("eventName", "in", ["guided_onboarding_started", "guided_onboarding_completed", "guided_onboarding_step_started", "guided_onboarding_step_completed"])
         .get(),
     ]);
 
