@@ -100,9 +100,7 @@ interface RateLimitOptions {
 }
 
 function resolveCallerIdentifier(request: NextRequest, options?: RateLimitOptions): string {
-    const forwarded = request.headers.get("x-forwarded-for");
-    const realIp = request.headers.get("x-real-ip");
-    const ip = (forwarded ? forwarded.split(",")[0].trim() : realIp?.trim()) || "unknown";
+    const ip = request.ip || "unknown";
     const userAgent = request.headers.get("user-agent")?.trim() || "unknown";
     const scopeId = options?.scopeId?.trim();
     return scopeId ? `${scopeId}:${ip}:${userAgent}` : `${ip}:${userAgent}`;
