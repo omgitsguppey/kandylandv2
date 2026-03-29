@@ -174,6 +174,24 @@ function clearPendingWatchSession(watchSessionId: string) {
     writePendingWatchSessionEntries(entries);
 }
 
+function clearPendingWatchSessions(watchSessionIds: string[]) {
+    if (watchSessionIds.length === 0) {
+        return;
+    }
+
+    const entries = readPendingWatchSessionEntries();
+    let changed = false;
+    for (const id of watchSessionIds) {
+        if (entries.delete(id)) {
+            changed = true;
+        }
+    }
+
+    if (changed) {
+        writePendingWatchSessionEntries(entries);
+    }
+}
+
 export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
     const [watchSessionId, setWatchSessionId] = useState<string | null>(null);
 
@@ -694,31 +712,53 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             const pendingEntries = Array.from(readPendingWatchSessionEntries().values())
                 .sort((left, right) => left.storedAt - right.storedAt);
 
-            for (const entry of pendingEntries) {
-                try {
-                    const response = await authFetch("/api/viewer/watch-session", {
-                        method: "POST",
-                        body: JSON.stringify(entry.payload),
-                    });
-                    if (response.ok) {
-                        clearPendingWatchSession(entry.payload.watchSessionId);
-                        continue;
-                    }
+            if (pendingEntries.length === 0) {
+                return;
+            }
 
-                    if (response.status === 400 || response.status === 401 || response.status === 403 || response.status === 404) {
-                        clearPendingWatchSession(entry.payload.watchSessionId);
-                        continue;
-                    }
+            const results = await Promise.allSettled(
+                pendingEntries.map(async (entry) => {
+                    try {
+                        const response = await authFetch("/api/viewer/watch-session", {
+                            method: "POST",
+                            body: JSON.stringify(entry.payload),
+                        });
 
-                    const detail = await response.json().catch(() => null) as { error?: string } | null;
-                    throw new Error(detail?.error || `Replay failed (${response.status})`);
-                } catch (error) {
-                    recordClientDiagnostic("telemetry", "Viewer watch session replay failed", {
-                        watchSessionId: entry.payload.watchSessionId,
-                        dropId: entry.payload.dropId,
-                        message: error instanceof Error ? error.message : String(error),
-                    }, "warn");
-                }
+                        if (
+                            response.ok
+                            || response.status === 400
+                            || response.status === 401
+                            || response.status === 403
+                            || response.status === 404
+                        ) {
+                            return { success: true, watchSessionId: entry.payload.watchSessionId };
+                        }
+
+                        const detail = (await response.json().catch(() => null)) as { error?: string } | null;
+                        throw new Error(detail?.error || `Replay failed (${response.status})`);
+                    } catch (error) {
+                        recordClientDiagnostic(
+                            "telemetry",
+                            "Viewer watch session replay failed",
+                            {
+                                watchSessionId: entry.payload.watchSessionId,
+                                dropId: entry.payload.dropId,
+                                message: error instanceof Error ? error.message : String(error),
+                            },
+                            "warn",
+                        );
+                        return { success: false };
+                    }
+                }),
+            );
+
+            const successfulIds = results
+                .filter((result): result is PromiseFulfilledResult<{ success: boolean; watchSessionId?: string }> => result.status === "fulfilled")
+                .filter((result) => result.value.success && result.value.watchSessionId)
+                .map((result) => result.value.watchSessionId as string);
+
+            if (successfulIds.length > 0) {
+                clearPendingWatchSessions(successfulIds);
             }
         })();
     }, [options.dropId, options.enabled]);
