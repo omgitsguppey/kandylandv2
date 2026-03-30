@@ -1373,7 +1373,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                         "relative min-h-0 flex-1 rounded-2xl border border-white/10 bg-zinc-900 overflow-hidden transition-all duration-300 select-none"
                     )}
                     onContextMenu={preventContextMenu}
-                    style={{ WebkitUserSelect: "none", userSelect: "none", WebkitUserDrag: "none" } as any}
+                    style={{ WebkitUserSelect: "none", userSelect: "none", WebkitUserDrag: "none" } as React.CSSProperties & { WebkitUserDrag?: string }}
                 >
                     {/* Back Button Overlay */}
                     <div className="absolute top-4 left-4 z-20">
