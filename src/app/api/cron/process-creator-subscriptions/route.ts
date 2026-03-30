@@ -26,7 +26,13 @@ export async function GET(request: NextRequest) {
             rateLimit: CRON,
         });
 
-        if (request.headers.get("authorization") !== `Bearer ${process.env.CRON_SECRET}`) {
+        const cronSecret = process.env.CRON_SECRET?.trim();
+        const authHeader = request.headers.get("authorization");
+
+        if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+            if (!cronSecret) {
+                console.error("CRON_SECRET is not configured for cron/process-creator-subscriptions");
+            }
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
         if (!adminDb) {

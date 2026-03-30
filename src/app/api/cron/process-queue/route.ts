@@ -24,13 +24,12 @@ export async function GET(request: NextRequest) {
             rateLimit: CRON,
         });
         const cronSecret = process.env.CRON_SECRET?.trim();
-        if (!cronSecret) {
-            console.error("CRON_SECRET is not configured for cron/process-queue");
-            return NextResponse.json({ error: "Cron secret not configured" }, { status: 500 });
-        }
-
         const authHeader = request.headers.get("authorization");
-        if (authHeader !== `Bearer ${cronSecret}`) {
+
+        if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+            if (!cronSecret) {
+                console.error("CRON_SECRET is not configured for cron/process-queue");
+            }
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
