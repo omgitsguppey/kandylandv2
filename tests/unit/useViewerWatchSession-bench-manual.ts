@@ -1,11 +1,42 @@
 const LATENCY_MS = 50;
 const NUM_ENTRIES = 12;
 
-async function delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+interface PendingWatchSessionPayload {
+    watchSessionId: string;
+    dropId: string;
 }
 
-async function mockAuthFetch(url, init) {
+interface PendingWatchSessionEntry {
+    payload: PendingWatchSessionPayload;
+    storedAt: number;
+}
+
+interface MockResponseDetail {
+    error?: string;
+}
+
+interface MockResponse {
+    ok: boolean;
+    status: number;
+    json: () => Promise<MockResponseDetail>;
+}
+
+interface ReplaySuccessResult {
+    success: true;
+    watchSessionId: string;
+}
+
+interface ReplayFailureResult {
+    success: false;
+}
+
+type ReplayResult = ReplaySuccessResult | ReplayFailureResult;
+
+async function delay(ms: number) {
+    return new Promise<void>((resolve) => setTimeout(resolve, ms));
+}
+
+async function mockAuthFetch(_url: string, _init: { method: string; body: string }): Promise<MockResponse> {
     await delay(LATENCY_MS);
     return {
         ok: true,
@@ -14,10 +45,15 @@ async function mockAuthFetch(url, init) {
     };
 }
 
-const mockClearPendingWatchSession = (id) => {};
-const mockRecordClientDiagnostic = (type, message, context, level) => {};
+const mockClearPendingWatchSession = (_id: string) => {};
+const mockRecordClientDiagnostic = (
+    _type: string,
+    _message: string,
+    _context: Record<string, string>,
+    _level: string,
+) => {};
 
-const pendingEntries = Array.from({ length: NUM_ENTRIES }, (_, i) => ({
+const pendingEntries: PendingWatchSessionEntry[] = Array.from({ length: NUM_ENTRIES }, (_, i) => ({
     payload: {
         watchSessionId: `session-${i}`,
         dropId: `drop-${i}`,
@@ -25,7 +61,7 @@ const pendingEntries = Array.from({ length: NUM_ENTRIES }, (_, i) => ({
     storedAt: Date.now() + i,
 }));
 
-async function sequentialReplay(entries) {
+async function sequentialReplay(entries: PendingWatchSessionEntry[]) {
     for (const entry of entries) {
         try {
             const response = await mockAuthFetch("/api/viewer/watch-session", {
@@ -40,7 +76,7 @@ async function sequentialReplay(entries) {
                 mockClearPendingWatchSession(entry.payload.watchSessionId);
                 continue;
             }
-            const detail = await response.json().catch(() => null);
+            const detail = await response.json().catch(() => null as MockResponseDetail | null);
             throw new Error(detail?.error || `Replay failed (${response.status})`);
         } catch (error) {
             mockRecordClientDiagnostic("telemetry", "Viewer watch session replay failed", {
@@ -52,8 +88,8 @@ async function sequentialReplay(entries) {
     }
 }
 
-async function parallelReplay(entries) {
-    const results = await Promise.allSettled(entries.map(async (entry) => {
+async function parallelReplay(entries: PendingWatchSessionEntry[]) {
+    const results = await Promise.allSettled(entries.map(async (entry): Promise<ReplayResult> => {
         try {
             const response = await mockAuthFetch("/api/viewer/watch-session", {
                 method: "POST",
@@ -62,7 +98,7 @@ async function parallelReplay(entries) {
             if (response.ok || response.status === 400 || response.status === 401 || response.status === 403 || response.status === 404) {
                 return { success: true, watchSessionId: entry.payload.watchSessionId };
             }
-            const detail = await response.json().catch(() => null);
+            const detail = await response.json().catch(() => null as MockResponseDetail | null);
             throw new Error(detail?.error || `Replay failed (${response.status})`);
         } catch (error) {
             mockRecordClientDiagnostic("telemetry", "Viewer watch session replay failed", {
@@ -75,12 +111,14 @@ async function parallelReplay(entries) {
     }));
 
     const successfulIds = results
-        .filter(r => r.status === 'fulfilled' && r.value.success)
-        .map(r => r.value.watchSessionId);
+        .filter((result): result is PromiseFulfilledResult<ReplaySuccessResult> => (
+            result.status === "fulfilled" && result.value.success
+        ))
+        .map((result) => result.value.watchSessionId);
 
     if (successfulIds.length > 0) {
         // Mocking the batch clear
-        successfulIds.forEach(id => mockClearPendingWatchSession(id));
+        successfulIds.forEach((id) => mockClearPendingWatchSession(id));
     }
 }
 
