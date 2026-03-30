@@ -63,7 +63,7 @@ export function generateCreatorQueuePosition() {
         return minimum + (buffer[0] % span);
     }
 
-    return minimum + Math.floor(Math.random() * span);
+    throw new Error("Cryptographically secure random number generation is not available in this environment.");
 }
 
 export function buildInitialCreatorApplication(input: {
