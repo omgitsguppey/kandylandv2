@@ -90,7 +90,6 @@
     "tailwindcss": "^4.2.2",
     "tsx": "^4.21.0",
     "typescript": "^5",
-    "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.1"
   },
   "overrides": {

@@ -6415,3 +6415,1588 @@ extend type AnalyticsUserSecurityRollup {
   """
   _id: ID! @fdc_generated(from: "AnalyticsUserSecurityRollup.id", purpose: GLOBAL_ID)
 }
+extend type AnalyticsWatchAsset {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "AnalyticsWatchAsset", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table.
+  """
+  _count: Int! @fdc_generated(from: "AnalyticsWatchAsset.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `assetIndex` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  assetIndex_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.assetIndex", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `assetKey` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  assetKey_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.assetKey", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `checkpointMaxSeconds` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  checkpointMaxSeconds_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.checkpointMaxSeconds", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `clientSessionId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  clientSessionId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.clientSessionId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `completedAtMs` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  completedAtMs_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.completedAtMs", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `consumedAtMs` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  consumedAtMs_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.consumedAtMs", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `contentKind` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  contentKind_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.contentKind", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `dropCategory` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  dropCategory_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.dropCategory", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `dropId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  dropId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.dropId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `dropTitle` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  dropTitle_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.dropTitle", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `durationSeconds` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  durationSeconds_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.durationSeconds", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `firstSeenAtMs` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  firstSeenAtMs_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.firstSeenAtMs", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `heartbeatCount` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  heartbeatCount_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.heartbeatCount", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `isCompleted` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  isCompleted_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.isCompleted", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `isConsumed` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  isConsumed_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.isConsumed", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `lastDayKey` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  lastDayKey_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.lastDayKey", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `lastHourKey` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  lastHourKey_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.lastHourKey", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `lastSeenAtMs` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  lastSeenAtMs_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.lastSeenAtMs", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `lastSequence` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  lastSequence_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.lastSequence", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `loadMsTotal` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  loadMsTotal_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.loadMsTotal", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `loadSampleCount` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  loadSampleCount_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.loadSampleCount", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `maxProgressSeconds` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  maxProgressSeconds_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.maxProgressSeconds", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `pagePath` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  pagePath_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.pagePath", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `sessionStartedAtMs` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  sessionStartedAtMs_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.sessionStartedAtMs", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `startedAtMs` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  startedAtMs_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.startedAtMs", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `startedDayKey` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  startedDayKey_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.startedDayKey", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `startedHourKey` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  startedHourKey_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.startedHourKey", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `totalVisibleSeconds` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  totalVisibleSeconds_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.totalVisibleSeconds", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `totalWatchSeconds` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  totalWatchSeconds_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.totalWatchSeconds", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `userId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  userId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.userId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `username` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  username_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.username", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchAsset` table where the `watchSessionId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  watchSessionId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset.watchSessionId", purpose: QUERY_COUNT)
+  """
+  ✨ Sum the `assetIndex` field in the `AnalyticsWatchAsset` table.
+  """
+  assetIndex_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchAsset.assetIndex", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `checkpointMaxSeconds` field in the `AnalyticsWatchAsset` table.
+  """
+  checkpointMaxSeconds_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchAsset.checkpointMaxSeconds", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `completedAtMs` field in the `AnalyticsWatchAsset` table.
+  """
+  completedAtMs_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchAsset.completedAtMs", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `consumedAtMs` field in the `AnalyticsWatchAsset` table.
+  """
+  consumedAtMs_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchAsset.consumedAtMs", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `durationSeconds` field in the `AnalyticsWatchAsset` table.
+  """
+  durationSeconds_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchAsset.durationSeconds", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `firstSeenAtMs` field in the `AnalyticsWatchAsset` table.
+  """
+  firstSeenAtMs_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchAsset.firstSeenAtMs", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `heartbeatCount` field in the `AnalyticsWatchAsset` table.
+  """
+  heartbeatCount_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchAsset.heartbeatCount", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `lastSeenAtMs` field in the `AnalyticsWatchAsset` table.
+  """
+  lastSeenAtMs_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchAsset.lastSeenAtMs", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `lastSequence` field in the `AnalyticsWatchAsset` table.
+  """
+  lastSequence_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchAsset.lastSequence", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `loadMsTotal` field in the `AnalyticsWatchAsset` table.
+  """
+  loadMsTotal_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchAsset.loadMsTotal", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `loadSampleCount` field in the `AnalyticsWatchAsset` table.
+  """
+  loadSampleCount_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchAsset.loadSampleCount", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `maxProgressSeconds` field in the `AnalyticsWatchAsset` table.
+  """
+  maxProgressSeconds_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchAsset.maxProgressSeconds", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `sessionStartedAtMs` field in the `AnalyticsWatchAsset` table.
+  """
+  sessionStartedAtMs_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchAsset.sessionStartedAtMs", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `startedAtMs` field in the `AnalyticsWatchAsset` table.
+  """
+  startedAtMs_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchAsset.startedAtMs", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `totalVisibleSeconds` field in the `AnalyticsWatchAsset` table.
+  """
+  totalVisibleSeconds_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchAsset.totalVisibleSeconds", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `totalWatchSeconds` field in the `AnalyticsWatchAsset` table.
+  """
+  totalWatchSeconds_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchAsset.totalWatchSeconds", purpose: QUERY_SUM)
+  """
+  ✨ Average the `assetIndex` field in the `AnalyticsWatchAsset` table.
+  """
+  assetIndex_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchAsset.assetIndex", purpose: QUERY_AVG)
+  """
+  ✨ Average the `checkpointMaxSeconds` field in the `AnalyticsWatchAsset` table.
+  """
+  checkpointMaxSeconds_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchAsset.checkpointMaxSeconds", purpose: QUERY_AVG)
+  """
+  ✨ Average the `completedAtMs` field in the `AnalyticsWatchAsset` table.
+  """
+  completedAtMs_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchAsset.completedAtMs", purpose: QUERY_AVG)
+  """
+  ✨ Average the `consumedAtMs` field in the `AnalyticsWatchAsset` table.
+  """
+  consumedAtMs_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchAsset.consumedAtMs", purpose: QUERY_AVG)
+  """
+  ✨ Average the `durationSeconds` field in the `AnalyticsWatchAsset` table.
+  """
+  durationSeconds_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchAsset.durationSeconds", purpose: QUERY_AVG)
+  """
+  ✨ Average the `firstSeenAtMs` field in the `AnalyticsWatchAsset` table.
+  """
+  firstSeenAtMs_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchAsset.firstSeenAtMs", purpose: QUERY_AVG)
+  """
+  ✨ Average the `heartbeatCount` field in the `AnalyticsWatchAsset` table.
+  """
+  heartbeatCount_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchAsset.heartbeatCount", purpose: QUERY_AVG)
+  """
+  ✨ Average the `lastSeenAtMs` field in the `AnalyticsWatchAsset` table.
+  """
+  lastSeenAtMs_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchAsset.lastSeenAtMs", purpose: QUERY_AVG)
+  """
+  ✨ Average the `lastSequence` field in the `AnalyticsWatchAsset` table.
+  """
+  lastSequence_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchAsset.lastSequence", purpose: QUERY_AVG)
+  """
+  ✨ Average the `loadMsTotal` field in the `AnalyticsWatchAsset` table.
+  """
+  loadMsTotal_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchAsset.loadMsTotal", purpose: QUERY_AVG)
+  """
+  ✨ Average the `loadSampleCount` field in the `AnalyticsWatchAsset` table.
+  """
+  loadSampleCount_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchAsset.loadSampleCount", purpose: QUERY_AVG)
+  """
+  ✨ Average the `maxProgressSeconds` field in the `AnalyticsWatchAsset` table.
+  """
+  maxProgressSeconds_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchAsset.maxProgressSeconds", purpose: QUERY_AVG)
+  """
+  ✨ Average the `sessionStartedAtMs` field in the `AnalyticsWatchAsset` table.
+  """
+  sessionStartedAtMs_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchAsset.sessionStartedAtMs", purpose: QUERY_AVG)
+  """
+  ✨ Average the `startedAtMs` field in the `AnalyticsWatchAsset` table.
+  """
+  startedAtMs_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchAsset.startedAtMs", purpose: QUERY_AVG)
+  """
+  ✨ Average the `totalVisibleSeconds` field in the `AnalyticsWatchAsset` table.
+  """
+  totalVisibleSeconds_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchAsset.totalVisibleSeconds", purpose: QUERY_AVG)
+  """
+  ✨ Average the `totalWatchSeconds` field in the `AnalyticsWatchAsset` table.
+  """
+  totalWatchSeconds_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchAsset.totalWatchSeconds", purpose: QUERY_AVG)
+  """
+  ✨ Minimum of the `assetIndex` field in the `AnalyticsWatchAsset` table.
+  """
+  assetIndex_min: Int @fdc_generated(from: "AnalyticsWatchAsset.assetIndex", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `checkpointMaxSeconds` field in the `AnalyticsWatchAsset` table.
+  """
+  checkpointMaxSeconds_min: Int @fdc_generated(from: "AnalyticsWatchAsset.checkpointMaxSeconds", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `completedAtMs` field in the `AnalyticsWatchAsset` table.
+  """
+  completedAtMs_min: Int @fdc_generated(from: "AnalyticsWatchAsset.completedAtMs", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `consumedAtMs` field in the `AnalyticsWatchAsset` table.
+  """
+  consumedAtMs_min: Int @fdc_generated(from: "AnalyticsWatchAsset.consumedAtMs", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `durationSeconds` field in the `AnalyticsWatchAsset` table.
+  """
+  durationSeconds_min: Int @fdc_generated(from: "AnalyticsWatchAsset.durationSeconds", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `firstSeenAtMs` field in the `AnalyticsWatchAsset` table.
+  """
+  firstSeenAtMs_min: Int @fdc_generated(from: "AnalyticsWatchAsset.firstSeenAtMs", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `heartbeatCount` field in the `AnalyticsWatchAsset` table.
+  """
+  heartbeatCount_min: Int @fdc_generated(from: "AnalyticsWatchAsset.heartbeatCount", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `lastSeenAtMs` field in the `AnalyticsWatchAsset` table.
+  """
+  lastSeenAtMs_min: Int @fdc_generated(from: "AnalyticsWatchAsset.lastSeenAtMs", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `lastSequence` field in the `AnalyticsWatchAsset` table.
+  """
+  lastSequence_min: Int @fdc_generated(from: "AnalyticsWatchAsset.lastSequence", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `loadMsTotal` field in the `AnalyticsWatchAsset` table.
+  """
+  loadMsTotal_min: Int @fdc_generated(from: "AnalyticsWatchAsset.loadMsTotal", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `loadSampleCount` field in the `AnalyticsWatchAsset` table.
+  """
+  loadSampleCount_min: Int @fdc_generated(from: "AnalyticsWatchAsset.loadSampleCount", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `maxProgressSeconds` field in the `AnalyticsWatchAsset` table.
+  """
+  maxProgressSeconds_min: Int @fdc_generated(from: "AnalyticsWatchAsset.maxProgressSeconds", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `sessionStartedAtMs` field in the `AnalyticsWatchAsset` table.
+  """
+  sessionStartedAtMs_min: Int @fdc_generated(from: "AnalyticsWatchAsset.sessionStartedAtMs", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `startedAtMs` field in the `AnalyticsWatchAsset` table.
+  """
+  startedAtMs_min: Int @fdc_generated(from: "AnalyticsWatchAsset.startedAtMs", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `totalVisibleSeconds` field in the `AnalyticsWatchAsset` table.
+  """
+  totalVisibleSeconds_min: Float @fdc_generated(from: "AnalyticsWatchAsset.totalVisibleSeconds", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `totalWatchSeconds` field in the `AnalyticsWatchAsset` table.
+  """
+  totalWatchSeconds_min: Float @fdc_generated(from: "AnalyticsWatchAsset.totalWatchSeconds", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `assetIndex` field in the `AnalyticsWatchAsset` table.
+  """
+  assetIndex_max: Int @fdc_generated(from: "AnalyticsWatchAsset.assetIndex", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `checkpointMaxSeconds` field in the `AnalyticsWatchAsset` table.
+  """
+  checkpointMaxSeconds_max: Int @fdc_generated(from: "AnalyticsWatchAsset.checkpointMaxSeconds", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `completedAtMs` field in the `AnalyticsWatchAsset` table.
+  """
+  completedAtMs_max: Int @fdc_generated(from: "AnalyticsWatchAsset.completedAtMs", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `consumedAtMs` field in the `AnalyticsWatchAsset` table.
+  """
+  consumedAtMs_max: Int @fdc_generated(from: "AnalyticsWatchAsset.consumedAtMs", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `durationSeconds` field in the `AnalyticsWatchAsset` table.
+  """
+  durationSeconds_max: Int @fdc_generated(from: "AnalyticsWatchAsset.durationSeconds", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `firstSeenAtMs` field in the `AnalyticsWatchAsset` table.
+  """
+  firstSeenAtMs_max: Int @fdc_generated(from: "AnalyticsWatchAsset.firstSeenAtMs", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `heartbeatCount` field in the `AnalyticsWatchAsset` table.
+  """
+  heartbeatCount_max: Int @fdc_generated(from: "AnalyticsWatchAsset.heartbeatCount", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `lastSeenAtMs` field in the `AnalyticsWatchAsset` table.
+  """
+  lastSeenAtMs_max: Int @fdc_generated(from: "AnalyticsWatchAsset.lastSeenAtMs", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `lastSequence` field in the `AnalyticsWatchAsset` table.
+  """
+  lastSequence_max: Int @fdc_generated(from: "AnalyticsWatchAsset.lastSequence", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `loadMsTotal` field in the `AnalyticsWatchAsset` table.
+  """
+  loadMsTotal_max: Int @fdc_generated(from: "AnalyticsWatchAsset.loadMsTotal", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `loadSampleCount` field in the `AnalyticsWatchAsset` table.
+  """
+  loadSampleCount_max: Int @fdc_generated(from: "AnalyticsWatchAsset.loadSampleCount", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `maxProgressSeconds` field in the `AnalyticsWatchAsset` table.
+  """
+  maxProgressSeconds_max: Int @fdc_generated(from: "AnalyticsWatchAsset.maxProgressSeconds", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `sessionStartedAtMs` field in the `AnalyticsWatchAsset` table.
+  """
+  sessionStartedAtMs_max: Int @fdc_generated(from: "AnalyticsWatchAsset.sessionStartedAtMs", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `startedAtMs` field in the `AnalyticsWatchAsset` table.
+  """
+  startedAtMs_max: Int @fdc_generated(from: "AnalyticsWatchAsset.startedAtMs", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `totalVisibleSeconds` field in the `AnalyticsWatchAsset` table.
+  """
+  totalVisibleSeconds_max: Float @fdc_generated(from: "AnalyticsWatchAsset.totalVisibleSeconds", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `totalWatchSeconds` field in the `AnalyticsWatchAsset` table.
+  """
+  totalWatchSeconds_max: Float @fdc_generated(from: "AnalyticsWatchAsset.totalWatchSeconds", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "AnalyticsWatchAsset.id", purpose: GLOBAL_ID)
+}
+extend type AnalyticsWatchSession {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "AnalyticsWatchSession", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table.
+  """
+  _count: Int! @fdc_generated(from: "AnalyticsWatchSession.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `activeAssetIndex` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  activeAssetIndex_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.activeAssetIndex", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `activeAssetKey` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  activeAssetKey_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.activeAssetKey", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `assetSwitchCount` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  assetSwitchCount_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.assetSwitchCount", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `averageLoadMs` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  averageLoadMs_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.averageLoadMs", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `clientSessionId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  clientSessionId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.clientSessionId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `closeReason` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  closeReason_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.closeReason", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `closedAtMs` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  closedAtMs_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.closedAtMs", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `completedAssetCount` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  completedAssetCount_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.completedAssetCount", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `consumedAssetCount` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  consumedAssetCount_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.consumedAssetCount", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `contentCount` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  contentCount_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.contentCount", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `downloadCount` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  downloadCount_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.downloadCount", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `dropCategory` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  dropCategory_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.dropCategory", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `dropId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  dropId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.dropId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `dropTitle` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  dropTitle_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.dropTitle", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `firstSeenAtMs` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  firstSeenAtMs_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.firstSeenAtMs", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `isClosed` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  isClosed_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.isClosed", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `lastDayKey` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  lastDayKey_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.lastDayKey", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `lastHourKey` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  lastHourKey_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.lastHourKey", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `lastSeenAtMs` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  lastSeenAtMs_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.lastSeenAtMs", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `lastSequence` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  lastSequence_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.lastSequence", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `loadMsTotal` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  loadMsTotal_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.loadMsTotal", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `loadSampleCount` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  loadSampleCount_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.loadSampleCount", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `maxAssetWatchSeconds` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  maxAssetWatchSeconds_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.maxAssetWatchSeconds", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `pagePath` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  pagePath_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.pagePath", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `relatedClickCount` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  relatedClickCount_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.relatedClickCount", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `sessionStartedAtMs` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  sessionStartedAtMs_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.sessionStartedAtMs", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `startedDayKey` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  startedDayKey_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.startedDayKey", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `startedHourKey` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  startedHourKey_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.startedHourKey", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `totalVisibleSeconds` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  totalVisibleSeconds_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.totalVisibleSeconds", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `totalWatchSeconds` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  totalWatchSeconds_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.totalWatchSeconds", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `unwrappedAtMs` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  unwrappedAtMs_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.unwrappedAtMs", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `userId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  userId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.userId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `username` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  username_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.username", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `viewedAssetCount` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  viewedAssetCount_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.viewedAssetCount", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AnalyticsWatchSession` table where the `watchSessionId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  watchSessionId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession.watchSessionId", purpose: QUERY_COUNT)
+  """
+  ✨ Sum the `activeAssetIndex` field in the `AnalyticsWatchSession` table.
+  """
+  activeAssetIndex_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchSession.activeAssetIndex", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `assetSwitchCount` field in the `AnalyticsWatchSession` table.
+  """
+  assetSwitchCount_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchSession.assetSwitchCount", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `averageLoadMs` field in the `AnalyticsWatchSession` table.
+  """
+  averageLoadMs_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchSession.averageLoadMs", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `closedAtMs` field in the `AnalyticsWatchSession` table.
+  """
+  closedAtMs_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchSession.closedAtMs", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `completedAssetCount` field in the `AnalyticsWatchSession` table.
+  """
+  completedAssetCount_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchSession.completedAssetCount", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `consumedAssetCount` field in the `AnalyticsWatchSession` table.
+  """
+  consumedAssetCount_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchSession.consumedAssetCount", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `contentCount` field in the `AnalyticsWatchSession` table.
+  """
+  contentCount_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchSession.contentCount", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `downloadCount` field in the `AnalyticsWatchSession` table.
+  """
+  downloadCount_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchSession.downloadCount", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `firstSeenAtMs` field in the `AnalyticsWatchSession` table.
+  """
+  firstSeenAtMs_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchSession.firstSeenAtMs", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `lastSeenAtMs` field in the `AnalyticsWatchSession` table.
+  """
+  lastSeenAtMs_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchSession.lastSeenAtMs", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `lastSequence` field in the `AnalyticsWatchSession` table.
+  """
+  lastSequence_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchSession.lastSequence", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `loadMsTotal` field in the `AnalyticsWatchSession` table.
+  """
+  loadMsTotal_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchSession.loadMsTotal", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `loadSampleCount` field in the `AnalyticsWatchSession` table.
+  """
+  loadSampleCount_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchSession.loadSampleCount", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `maxAssetWatchSeconds` field in the `AnalyticsWatchSession` table.
+  """
+  maxAssetWatchSeconds_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchSession.maxAssetWatchSeconds", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `relatedClickCount` field in the `AnalyticsWatchSession` table.
+  """
+  relatedClickCount_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchSession.relatedClickCount", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `sessionStartedAtMs` field in the `AnalyticsWatchSession` table.
+  """
+  sessionStartedAtMs_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchSession.sessionStartedAtMs", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `totalVisibleSeconds` field in the `AnalyticsWatchSession` table.
+  """
+  totalVisibleSeconds_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchSession.totalVisibleSeconds", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `totalWatchSeconds` field in the `AnalyticsWatchSession` table.
+  """
+  totalWatchSeconds_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchSession.totalWatchSeconds", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `unwrappedAtMs` field in the `AnalyticsWatchSession` table.
+  """
+  unwrappedAtMs_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchSession.unwrappedAtMs", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `viewedAssetCount` field in the `AnalyticsWatchSession` table.
+  """
+  viewedAssetCount_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AnalyticsWatchSession.viewedAssetCount", purpose: QUERY_SUM)
+  """
+  ✨ Average the `activeAssetIndex` field in the `AnalyticsWatchSession` table.
+  """
+  activeAssetIndex_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchSession.activeAssetIndex", purpose: QUERY_AVG)
+  """
+  ✨ Average the `assetSwitchCount` field in the `AnalyticsWatchSession` table.
+  """
+  assetSwitchCount_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchSession.assetSwitchCount", purpose: QUERY_AVG)
+  """
+  ✨ Average the `averageLoadMs` field in the `AnalyticsWatchSession` table.
+  """
+  averageLoadMs_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchSession.averageLoadMs", purpose: QUERY_AVG)
+  """
+  ✨ Average the `closedAtMs` field in the `AnalyticsWatchSession` table.
+  """
+  closedAtMs_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchSession.closedAtMs", purpose: QUERY_AVG)
+  """
+  ✨ Average the `completedAssetCount` field in the `AnalyticsWatchSession` table.
+  """
+  completedAssetCount_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchSession.completedAssetCount", purpose: QUERY_AVG)
+  """
+  ✨ Average the `consumedAssetCount` field in the `AnalyticsWatchSession` table.
+  """
+  consumedAssetCount_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchSession.consumedAssetCount", purpose: QUERY_AVG)
+  """
+  ✨ Average the `contentCount` field in the `AnalyticsWatchSession` table.
+  """
+  contentCount_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchSession.contentCount", purpose: QUERY_AVG)
+  """
+  ✨ Average the `downloadCount` field in the `AnalyticsWatchSession` table.
+  """
+  downloadCount_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchSession.downloadCount", purpose: QUERY_AVG)
+  """
+  ✨ Average the `firstSeenAtMs` field in the `AnalyticsWatchSession` table.
+  """
+  firstSeenAtMs_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchSession.firstSeenAtMs", purpose: QUERY_AVG)
+  """
+  ✨ Average the `lastSeenAtMs` field in the `AnalyticsWatchSession` table.
+  """
+  lastSeenAtMs_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchSession.lastSeenAtMs", purpose: QUERY_AVG)
+  """
+  ✨ Average the `lastSequence` field in the `AnalyticsWatchSession` table.
+  """
+  lastSequence_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchSession.lastSequence", purpose: QUERY_AVG)
+  """
+  ✨ Average the `loadMsTotal` field in the `AnalyticsWatchSession` table.
+  """
+  loadMsTotal_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchSession.loadMsTotal", purpose: QUERY_AVG)
+  """
+  ✨ Average the `loadSampleCount` field in the `AnalyticsWatchSession` table.
+  """
+  loadSampleCount_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchSession.loadSampleCount", purpose: QUERY_AVG)
+  """
+  ✨ Average the `maxAssetWatchSeconds` field in the `AnalyticsWatchSession` table.
+  """
+  maxAssetWatchSeconds_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchSession.maxAssetWatchSeconds", purpose: QUERY_AVG)
+  """
+  ✨ Average the `relatedClickCount` field in the `AnalyticsWatchSession` table.
+  """
+  relatedClickCount_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchSession.relatedClickCount", purpose: QUERY_AVG)
+  """
+  ✨ Average the `sessionStartedAtMs` field in the `AnalyticsWatchSession` table.
+  """
+  sessionStartedAtMs_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchSession.sessionStartedAtMs", purpose: QUERY_AVG)
+  """
+  ✨ Average the `totalVisibleSeconds` field in the `AnalyticsWatchSession` table.
+  """
+  totalVisibleSeconds_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchSession.totalVisibleSeconds", purpose: QUERY_AVG)
+  """
+  ✨ Average the `totalWatchSeconds` field in the `AnalyticsWatchSession` table.
+  """
+  totalWatchSeconds_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchSession.totalWatchSeconds", purpose: QUERY_AVG)
+  """
+  ✨ Average the `unwrappedAtMs` field in the `AnalyticsWatchSession` table.
+  """
+  unwrappedAtMs_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchSession.unwrappedAtMs", purpose: QUERY_AVG)
+  """
+  ✨ Average the `viewedAssetCount` field in the `AnalyticsWatchSession` table.
+  """
+  viewedAssetCount_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AnalyticsWatchSession.viewedAssetCount", purpose: QUERY_AVG)
+  """
+  ✨ Minimum of the `activeAssetIndex` field in the `AnalyticsWatchSession` table.
+  """
+  activeAssetIndex_min: Int @fdc_generated(from: "AnalyticsWatchSession.activeAssetIndex", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `assetSwitchCount` field in the `AnalyticsWatchSession` table.
+  """
+  assetSwitchCount_min: Int @fdc_generated(from: "AnalyticsWatchSession.assetSwitchCount", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `averageLoadMs` field in the `AnalyticsWatchSession` table.
+  """
+  averageLoadMs_min: Int @fdc_generated(from: "AnalyticsWatchSession.averageLoadMs", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `closedAtMs` field in the `AnalyticsWatchSession` table.
+  """
+  closedAtMs_min: Int @fdc_generated(from: "AnalyticsWatchSession.closedAtMs", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `completedAssetCount` field in the `AnalyticsWatchSession` table.
+  """
+  completedAssetCount_min: Int @fdc_generated(from: "AnalyticsWatchSession.completedAssetCount", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `consumedAssetCount` field in the `AnalyticsWatchSession` table.
+  """
+  consumedAssetCount_min: Int @fdc_generated(from: "AnalyticsWatchSession.consumedAssetCount", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `contentCount` field in the `AnalyticsWatchSession` table.
+  """
+  contentCount_min: Int @fdc_generated(from: "AnalyticsWatchSession.contentCount", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `downloadCount` field in the `AnalyticsWatchSession` table.
+  """
+  downloadCount_min: Int @fdc_generated(from: "AnalyticsWatchSession.downloadCount", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `firstSeenAtMs` field in the `AnalyticsWatchSession` table.
+  """
+  firstSeenAtMs_min: Int @fdc_generated(from: "AnalyticsWatchSession.firstSeenAtMs", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `lastSeenAtMs` field in the `AnalyticsWatchSession` table.
+  """
+  lastSeenAtMs_min: Int @fdc_generated(from: "AnalyticsWatchSession.lastSeenAtMs", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `lastSequence` field in the `AnalyticsWatchSession` table.
+  """
+  lastSequence_min: Int @fdc_generated(from: "AnalyticsWatchSession.lastSequence", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `loadMsTotal` field in the `AnalyticsWatchSession` table.
+  """
+  loadMsTotal_min: Int @fdc_generated(from: "AnalyticsWatchSession.loadMsTotal", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `loadSampleCount` field in the `AnalyticsWatchSession` table.
+  """
+  loadSampleCount_min: Int @fdc_generated(from: "AnalyticsWatchSession.loadSampleCount", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `maxAssetWatchSeconds` field in the `AnalyticsWatchSession` table.
+  """
+  maxAssetWatchSeconds_min: Float @fdc_generated(from: "AnalyticsWatchSession.maxAssetWatchSeconds", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `relatedClickCount` field in the `AnalyticsWatchSession` table.
+  """
+  relatedClickCount_min: Int @fdc_generated(from: "AnalyticsWatchSession.relatedClickCount", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `sessionStartedAtMs` field in the `AnalyticsWatchSession` table.
+  """
+  sessionStartedAtMs_min: Int @fdc_generated(from: "AnalyticsWatchSession.sessionStartedAtMs", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `totalVisibleSeconds` field in the `AnalyticsWatchSession` table.
+  """
+  totalVisibleSeconds_min: Float @fdc_generated(from: "AnalyticsWatchSession.totalVisibleSeconds", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `totalWatchSeconds` field in the `AnalyticsWatchSession` table.
+  """
+  totalWatchSeconds_min: Float @fdc_generated(from: "AnalyticsWatchSession.totalWatchSeconds", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `unwrappedAtMs` field in the `AnalyticsWatchSession` table.
+  """
+  unwrappedAtMs_min: Int @fdc_generated(from: "AnalyticsWatchSession.unwrappedAtMs", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `viewedAssetCount` field in the `AnalyticsWatchSession` table.
+  """
+  viewedAssetCount_min: Int @fdc_generated(from: "AnalyticsWatchSession.viewedAssetCount", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `activeAssetIndex` field in the `AnalyticsWatchSession` table.
+  """
+  activeAssetIndex_max: Int @fdc_generated(from: "AnalyticsWatchSession.activeAssetIndex", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `assetSwitchCount` field in the `AnalyticsWatchSession` table.
+  """
+  assetSwitchCount_max: Int @fdc_generated(from: "AnalyticsWatchSession.assetSwitchCount", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `averageLoadMs` field in the `AnalyticsWatchSession` table.
+  """
+  averageLoadMs_max: Int @fdc_generated(from: "AnalyticsWatchSession.averageLoadMs", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `closedAtMs` field in the `AnalyticsWatchSession` table.
+  """
+  closedAtMs_max: Int @fdc_generated(from: "AnalyticsWatchSession.closedAtMs", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `completedAssetCount` field in the `AnalyticsWatchSession` table.
+  """
+  completedAssetCount_max: Int @fdc_generated(from: "AnalyticsWatchSession.completedAssetCount", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `consumedAssetCount` field in the `AnalyticsWatchSession` table.
+  """
+  consumedAssetCount_max: Int @fdc_generated(from: "AnalyticsWatchSession.consumedAssetCount", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `contentCount` field in the `AnalyticsWatchSession` table.
+  """
+  contentCount_max: Int @fdc_generated(from: "AnalyticsWatchSession.contentCount", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `downloadCount` field in the `AnalyticsWatchSession` table.
+  """
+  downloadCount_max: Int @fdc_generated(from: "AnalyticsWatchSession.downloadCount", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `firstSeenAtMs` field in the `AnalyticsWatchSession` table.
+  """
+  firstSeenAtMs_max: Int @fdc_generated(from: "AnalyticsWatchSession.firstSeenAtMs", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `lastSeenAtMs` field in the `AnalyticsWatchSession` table.
+  """
+  lastSeenAtMs_max: Int @fdc_generated(from: "AnalyticsWatchSession.lastSeenAtMs", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `lastSequence` field in the `AnalyticsWatchSession` table.
+  """
+  lastSequence_max: Int @fdc_generated(from: "AnalyticsWatchSession.lastSequence", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `loadMsTotal` field in the `AnalyticsWatchSession` table.
+  """
+  loadMsTotal_max: Int @fdc_generated(from: "AnalyticsWatchSession.loadMsTotal", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `loadSampleCount` field in the `AnalyticsWatchSession` table.
+  """
+  loadSampleCount_max: Int @fdc_generated(from: "AnalyticsWatchSession.loadSampleCount", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `maxAssetWatchSeconds` field in the `AnalyticsWatchSession` table.
+  """
+  maxAssetWatchSeconds_max: Float @fdc_generated(from: "AnalyticsWatchSession.maxAssetWatchSeconds", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `relatedClickCount` field in the `AnalyticsWatchSession` table.
+  """
+  relatedClickCount_max: Int @fdc_generated(from: "AnalyticsWatchSession.relatedClickCount", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `sessionStartedAtMs` field in the `AnalyticsWatchSession` table.
+  """
+  sessionStartedAtMs_max: Int @fdc_generated(from: "AnalyticsWatchSession.sessionStartedAtMs", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `totalVisibleSeconds` field in the `AnalyticsWatchSession` table.
+  """
+  totalVisibleSeconds_max: Float @fdc_generated(from: "AnalyticsWatchSession.totalVisibleSeconds", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `totalWatchSeconds` field in the `AnalyticsWatchSession` table.
+  """
+  totalWatchSeconds_max: Float @fdc_generated(from: "AnalyticsWatchSession.totalWatchSeconds", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `unwrappedAtMs` field in the `AnalyticsWatchSession` table.
+  """
+  unwrappedAtMs_max: Int @fdc_generated(from: "AnalyticsWatchSession.unwrappedAtMs", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `viewedAssetCount` field in the `AnalyticsWatchSession` table.
+  """
+  viewedAssetCount_max: Int @fdc_generated(from: "AnalyticsWatchSession.viewedAssetCount", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "AnalyticsWatchSession.id", purpose: GLOBAL_ID)
+}

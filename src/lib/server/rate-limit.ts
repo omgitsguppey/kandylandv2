@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "./firebase-admin";
+import { getTrustedClientIp } from "./request-client-ip";
 
 export interface RateLimitConfig {
     maxRequests: number;
@@ -100,7 +101,7 @@ interface RateLimitOptions {
 }
 
 function resolveCallerIdentifier(request: NextRequest, options?: RateLimitOptions): string {
-    const ip = request.ip || "unknown";
+    const ip = getTrustedClientIp(request);
     const userAgent = request.headers.get("user-agent")?.trim() || "unknown";
     const scopeId = options?.scopeId?.trim();
     return scopeId ? `${scopeId}:${ip}:${userAgent}` : `${ip}:${userAgent}`;

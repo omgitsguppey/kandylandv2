@@ -162,6 +162,24 @@ extend type Mutation {
     data: AnalyticsUserSecurityRollup_Data!
   ): AnalyticsUserSecurityRollup_KeyOutput! @fdc_generated(from: "AnalyticsUserSecurityRollup", purpose: INSERT_SINGLE)
   """
+  ✨ Insert a single `AnalyticsWatchAsset` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  analyticsWatchAsset_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: AnalyticsWatchAsset_Data!
+  ): AnalyticsWatchAsset_KeyOutput! @fdc_generated(from: "AnalyticsWatchAsset", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `AnalyticsWatchSession` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  analyticsWatchSession_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: AnalyticsWatchSession_Data!
+  ): AnalyticsWatchSession_KeyOutput! @fdc_generated(from: "AnalyticsWatchSession", purpose: INSERT_SINGLE)
+  """
   ✨ Insert `AiInteraction` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
   """
   aiInteraction_insertMany(
@@ -323,6 +341,24 @@ extend type Mutation {
     """
     data: [AnalyticsUserSecurityRollup_Data!]!
   ): [AnalyticsUserSecurityRollup_KeyOutput!]! @fdc_generated(from: "AnalyticsUserSecurityRollup", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `AnalyticsWatchAsset` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  analyticsWatchAsset_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [AnalyticsWatchAsset_Data!]!
+  ): [AnalyticsWatchAsset_KeyOutput!]! @fdc_generated(from: "AnalyticsWatchAsset", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `AnalyticsWatchSession` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  analyticsWatchSession_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [AnalyticsWatchSession_Data!]!
+  ): [AnalyticsWatchSession_KeyOutput!]! @fdc_generated(from: "AnalyticsWatchSession", purpose: INSERT_MULTIPLE)
   """
   ✨ Insert or update a single `AiInteraction` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AiInteraction`.
   """
@@ -486,6 +522,24 @@ extend type Mutation {
     data: AnalyticsUserSecurityRollup_Data!
   ): AnalyticsUserSecurityRollup_KeyOutput! @fdc_generated(from: "AnalyticsUserSecurityRollup", purpose: UPSERT_SINGLE)
   """
+  ✨ Insert or update a single `AnalyticsWatchAsset` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AnalyticsWatchAsset`.
+  """
+  analyticsWatchAsset_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: AnalyticsWatchAsset_Data!
+  ): AnalyticsWatchAsset_KeyOutput! @fdc_generated(from: "AnalyticsWatchAsset", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `AnalyticsWatchSession` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AnalyticsWatchSession`.
+  """
+  analyticsWatchSession_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: AnalyticsWatchSession_Data!
+  ): AnalyticsWatchSession_KeyOutput! @fdc_generated(from: "AnalyticsWatchSession", purpose: UPSERT_SINGLE)
+  """
   ✨ Insert or update `AiInteraction` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AiInteraction`.
   """
   aiInteraction_upsertMany(
@@ -647,6 +701,24 @@ extend type Mutation {
     """
     data: [AnalyticsUserSecurityRollup_Data!]!
   ): [AnalyticsUserSecurityRollup_KeyOutput!]! @fdc_generated(from: "AnalyticsUserSecurityRollup", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `AnalyticsWatchAsset` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AnalyticsWatchAsset`.
+  """
+  analyticsWatchAsset_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [AnalyticsWatchAsset_Data!]!
+  ): [AnalyticsWatchAsset_KeyOutput!]! @fdc_generated(from: "AnalyticsWatchAsset", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `AnalyticsWatchSession` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AnalyticsWatchSession`.
+  """
+  analyticsWatchSession_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [AnalyticsWatchSession_Data!]!
+  ): [AnalyticsWatchSession_KeyOutput!]! @fdc_generated(from: "AnalyticsWatchSession", purpose: UPSERT_MULTIPLE)
   """
   ✨ Update a single `AiInteraction` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `AiInteraction` or `null` if not found.
   """
@@ -1080,6 +1152,54 @@ extend type Mutation {
     data: AnalyticsUserSecurityRollup_Data!
   ): AnalyticsUserSecurityRollup_KeyOutput @fdc_generated(from: "AnalyticsUserSecurityRollup", purpose: UPDATE_SINGLE)
   """
+  ✨ Update a single `AnalyticsWatchAsset` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `AnalyticsWatchAsset` or `null` if not found.
+  """
+  analyticsWatchAsset_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AnalyticsWatchAsset_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AnalyticsWatchAsset_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: AnalyticsWatchAsset_Data!
+  ): AnalyticsWatchAsset_KeyOutput @fdc_generated(from: "AnalyticsWatchAsset", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `AnalyticsWatchSession` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `AnalyticsWatchSession` or `null` if not found.
+  """
+  analyticsWatchSession_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AnalyticsWatchSession_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AnalyticsWatchSession_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: AnalyticsWatchSession_Data!
+  ): AnalyticsWatchSession_KeyOutput @fdc_generated(from: "AnalyticsWatchSession", purpose: UPDATE_SINGLE)
+  """
   ✨ Update `AiInteraction` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
   """
   aiInteraction_updateMany(
@@ -1421,6 +1541,44 @@ extend type Mutation {
     """
     data: AnalyticsUserSecurityRollup_Data!
   ): Int! @fdc_generated(from: "AnalyticsUserSecurityRollup", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `AnalyticsWatchAsset` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  analyticsWatchAsset_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: AnalyticsWatchAsset_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: AnalyticsWatchAsset_Data!
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `AnalyticsWatchSession` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  analyticsWatchSession_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: AnalyticsWatchSession_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: AnalyticsWatchSession_Data!
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession", purpose: UPDATE_MULTIPLE)
   """
   ✨ Delete a single `AiInteraction` based on `id`, `key` or `first` and return its key (or `null` if not found).
   """
@@ -1764,6 +1922,44 @@ extend type Mutation {
     first: AnalyticsUserSecurityRollup_FirstRow
   ): AnalyticsUserSecurityRollup_KeyOutput @fdc_generated(from: "AnalyticsUserSecurityRollup", purpose: DELETE_SINGLE)
   """
+  ✨ Delete a single `AnalyticsWatchAsset` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  analyticsWatchAsset_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AnalyticsWatchAsset_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AnalyticsWatchAsset_FirstRow
+  ): AnalyticsWatchAsset_KeyOutput @fdc_generated(from: "AnalyticsWatchAsset", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `AnalyticsWatchSession` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  analyticsWatchSession_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AnalyticsWatchSession_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AnalyticsWatchSession_FirstRow
+  ): AnalyticsWatchSession_KeyOutput @fdc_generated(from: "AnalyticsWatchSession", purpose: DELETE_SINGLE)
+  """
   ✨ Delete `AiInteraction` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
   """
   aiInteraction_deleteMany(
@@ -2015,4 +2211,32 @@ extend type Mutation {
     """
     all: Boolean = false
   ): Int! @fdc_generated(from: "AnalyticsUserSecurityRollup", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `AnalyticsWatchAsset` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  analyticsWatchAsset_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: AnalyticsWatchAsset_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchAsset", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `AnalyticsWatchSession` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  analyticsWatchSession_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: AnalyticsWatchSession_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "AnalyticsWatchSession", purpose: DELETE_MULTIPLE)
 }

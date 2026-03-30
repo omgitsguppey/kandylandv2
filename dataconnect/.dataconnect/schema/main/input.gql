@@ -107,6 +107,18 @@ It has the same format as `AnalyticsUserSecurityRollup_Key`, but is only used as
 """
 scalar AnalyticsUserSecurityRollup_KeyOutput
 """
+✨ `AnalyticsWatchAsset_KeyOutput` returns the primary key fields of table type `AnalyticsWatchAsset`.
+
+It has the same format as `AnalyticsWatchAsset_Key`, but is only used as mutation return value.
+"""
+scalar AnalyticsWatchAsset_KeyOutput
+"""
+✨ `AnalyticsWatchSession_KeyOutput` returns the primary key fields of table type `AnalyticsWatchSession`.
+
+It has the same format as `AnalyticsWatchSession_Key`, but is only used as mutation return value.
+"""
+scalar AnalyticsWatchSession_KeyOutput
+"""
 ✨ Generated data input type for table 'AiInteraction'. It includes all necessary fields for creating or upserting rows into table.
 """
 input AiInteraction_Data {
@@ -13191,4 +13203,3146 @@ input AnalyticsUserSecurityRollup_Order {
   ✨ Generated from Field `AnalyticsUserSecurityRollup`.`lastEventAtMs_max` of type `Int`
   """
   lastEventAtMs_max: OrderDirection
+}
+"""
+✨ Generated data input type for table 'AnalyticsWatchAsset'. It includes all necessary fields for creating or upserting rows into table.
+"""
+input AnalyticsWatchAsset_Data {
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsWatchAsset`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`assetIndex` of type `Int!`
+  """
+  assetIndex: Int
+  """
+  ✨ `_expr` server value variant of `assetIndex` (✨ Generated from Field `AnalyticsWatchAsset`.`assetIndex` of type `Int!`)
+  """
+  assetIndex_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `assetIndex` (✨ Generated from Field `AnalyticsWatchAsset`.`assetIndex` of type `Int!`)
+  """
+  assetIndex_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`assetKey` of type `String!`
+  """
+  assetKey: String
+  """
+  ✨ `_expr` server value variant of `assetKey` (✨ Generated from Field `AnalyticsWatchAsset`.`assetKey` of type `String!`)
+  """
+  assetKey_expr: String_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`checkpointMaxSeconds` of type `Int!`
+  """
+  checkpointMaxSeconds: Int
+  """
+  ✨ `_expr` server value variant of `checkpointMaxSeconds` (✨ Generated from Field `AnalyticsWatchAsset`.`checkpointMaxSeconds` of type `Int!`)
+  """
+  checkpointMaxSeconds_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `checkpointMaxSeconds` (✨ Generated from Field `AnalyticsWatchAsset`.`checkpointMaxSeconds` of type `Int!`)
+  """
+  checkpointMaxSeconds_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`clientSessionId` of type `String`
+  """
+  clientSessionId: String
+  """
+  ✨ `_expr` server value variant of `clientSessionId` (✨ Generated from Field `AnalyticsWatchAsset`.`clientSessionId` of type `String`)
+  """
+  clientSessionId_expr: String_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`completedAtMs` of type `Int`
+  """
+  completedAtMs: Int
+  """
+  ✨ `_expr` server value variant of `completedAtMs` (✨ Generated from Field `AnalyticsWatchAsset`.`completedAtMs` of type `Int`)
+  """
+  completedAtMs_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `completedAtMs` (✨ Generated from Field `AnalyticsWatchAsset`.`completedAtMs` of type `Int`)
+  """
+  completedAtMs_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`consumedAtMs` of type `Int`
+  """
+  consumedAtMs: Int
+  """
+  ✨ `_expr` server value variant of `consumedAtMs` (✨ Generated from Field `AnalyticsWatchAsset`.`consumedAtMs` of type `Int`)
+  """
+  consumedAtMs_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `consumedAtMs` (✨ Generated from Field `AnalyticsWatchAsset`.`consumedAtMs` of type `Int`)
+  """
+  consumedAtMs_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`contentKind` of type `String`
+  """
+  contentKind: String
+  """
+  ✨ `_expr` server value variant of `contentKind` (✨ Generated from Field `AnalyticsWatchAsset`.`contentKind` of type `String`)
+  """
+  contentKind_expr: String_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`dropCategory` of type `String`
+  """
+  dropCategory: String
+  """
+  ✨ `_expr` server value variant of `dropCategory` (✨ Generated from Field `AnalyticsWatchAsset`.`dropCategory` of type `String`)
+  """
+  dropCategory_expr: String_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`dropId` of type `String!`
+  """
+  dropId: String
+  """
+  ✨ `_expr` server value variant of `dropId` (✨ Generated from Field `AnalyticsWatchAsset`.`dropId` of type `String!`)
+  """
+  dropId_expr: String_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`dropTitle` of type `String`
+  """
+  dropTitle: String
+  """
+  ✨ `_expr` server value variant of `dropTitle` (✨ Generated from Field `AnalyticsWatchAsset`.`dropTitle` of type `String`)
+  """
+  dropTitle_expr: String_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`durationSeconds` of type `Int`
+  """
+  durationSeconds: Int
+  """
+  ✨ `_expr` server value variant of `durationSeconds` (✨ Generated from Field `AnalyticsWatchAsset`.`durationSeconds` of type `Int`)
+  """
+  durationSeconds_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `durationSeconds` (✨ Generated from Field `AnalyticsWatchAsset`.`durationSeconds` of type `Int`)
+  """
+  durationSeconds_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`firstSeenAtMs` of type `Int!`
+  """
+  firstSeenAtMs: Int
+  """
+  ✨ `_expr` server value variant of `firstSeenAtMs` (✨ Generated from Field `AnalyticsWatchAsset`.`firstSeenAtMs` of type `Int!`)
+  """
+  firstSeenAtMs_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `firstSeenAtMs` (✨ Generated from Field `AnalyticsWatchAsset`.`firstSeenAtMs` of type `Int!`)
+  """
+  firstSeenAtMs_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`heartbeatCount` of type `Int!`
+  """
+  heartbeatCount: Int
+  """
+  ✨ `_expr` server value variant of `heartbeatCount` (✨ Generated from Field `AnalyticsWatchAsset`.`heartbeatCount` of type `Int!`)
+  """
+  heartbeatCount_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `heartbeatCount` (✨ Generated from Field `AnalyticsWatchAsset`.`heartbeatCount` of type `Int!`)
+  """
+  heartbeatCount_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`isCompleted` of type `Boolean!`
+  """
+  isCompleted: Boolean
+  """
+  ✨ `_expr` server value variant of `isCompleted` (✨ Generated from Field `AnalyticsWatchAsset`.`isCompleted` of type `Boolean!`)
+  """
+  isCompleted_expr: Boolean_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`isConsumed` of type `Boolean!`
+  """
+  isConsumed: Boolean
+  """
+  ✨ `_expr` server value variant of `isConsumed` (✨ Generated from Field `AnalyticsWatchAsset`.`isConsumed` of type `Boolean!`)
+  """
+  isConsumed_expr: Boolean_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastDayKey` of type `String!`
+  """
+  lastDayKey: String
+  """
+  ✨ `_expr` server value variant of `lastDayKey` (✨ Generated from Field `AnalyticsWatchAsset`.`lastDayKey` of type `String!`)
+  """
+  lastDayKey_expr: String_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastHourKey` of type `String!`
+  """
+  lastHourKey: String
+  """
+  ✨ `_expr` server value variant of `lastHourKey` (✨ Generated from Field `AnalyticsWatchAsset`.`lastHourKey` of type `String!`)
+  """
+  lastHourKey_expr: String_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastSeenAtMs` of type `Int!`
+  """
+  lastSeenAtMs: Int
+  """
+  ✨ `_expr` server value variant of `lastSeenAtMs` (✨ Generated from Field `AnalyticsWatchAsset`.`lastSeenAtMs` of type `Int!`)
+  """
+  lastSeenAtMs_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `lastSeenAtMs` (✨ Generated from Field `AnalyticsWatchAsset`.`lastSeenAtMs` of type `Int!`)
+  """
+  lastSeenAtMs_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastSequence` of type `Int!`
+  """
+  lastSequence: Int
+  """
+  ✨ `_expr` server value variant of `lastSequence` (✨ Generated from Field `AnalyticsWatchAsset`.`lastSequence` of type `Int!`)
+  """
+  lastSequence_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `lastSequence` (✨ Generated from Field `AnalyticsWatchAsset`.`lastSequence` of type `Int!`)
+  """
+  lastSequence_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`loadMsTotal` of type `Int!`
+  """
+  loadMsTotal: Int
+  """
+  ✨ `_expr` server value variant of `loadMsTotal` (✨ Generated from Field `AnalyticsWatchAsset`.`loadMsTotal` of type `Int!`)
+  """
+  loadMsTotal_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `loadMsTotal` (✨ Generated from Field `AnalyticsWatchAsset`.`loadMsTotal` of type `Int!`)
+  """
+  loadMsTotal_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`loadSampleCount` of type `Int!`
+  """
+  loadSampleCount: Int
+  """
+  ✨ `_expr` server value variant of `loadSampleCount` (✨ Generated from Field `AnalyticsWatchAsset`.`loadSampleCount` of type `Int!`)
+  """
+  loadSampleCount_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `loadSampleCount` (✨ Generated from Field `AnalyticsWatchAsset`.`loadSampleCount` of type `Int!`)
+  """
+  loadSampleCount_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`maxProgressSeconds` of type `Int!`
+  """
+  maxProgressSeconds: Int
+  """
+  ✨ `_expr` server value variant of `maxProgressSeconds` (✨ Generated from Field `AnalyticsWatchAsset`.`maxProgressSeconds` of type `Int!`)
+  """
+  maxProgressSeconds_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `maxProgressSeconds` (✨ Generated from Field `AnalyticsWatchAsset`.`maxProgressSeconds` of type `Int!`)
+  """
+  maxProgressSeconds_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`pagePath` of type `String`
+  """
+  pagePath: String
+  """
+  ✨ `_expr` server value variant of `pagePath` (✨ Generated from Field `AnalyticsWatchAsset`.`pagePath` of type `String`)
+  """
+  pagePath_expr: String_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`sessionStartedAtMs` of type `Int!`
+  """
+  sessionStartedAtMs: Int
+  """
+  ✨ `_expr` server value variant of `sessionStartedAtMs` (✨ Generated from Field `AnalyticsWatchAsset`.`sessionStartedAtMs` of type `Int!`)
+  """
+  sessionStartedAtMs_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `sessionStartedAtMs` (✨ Generated from Field `AnalyticsWatchAsset`.`sessionStartedAtMs` of type `Int!`)
+  """
+  sessionStartedAtMs_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`startedAtMs` of type `Int!`
+  """
+  startedAtMs: Int
+  """
+  ✨ `_expr` server value variant of `startedAtMs` (✨ Generated from Field `AnalyticsWatchAsset`.`startedAtMs` of type `Int!`)
+  """
+  startedAtMs_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `startedAtMs` (✨ Generated from Field `AnalyticsWatchAsset`.`startedAtMs` of type `Int!`)
+  """
+  startedAtMs_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`startedDayKey` of type `String!`
+  """
+  startedDayKey: String
+  """
+  ✨ `_expr` server value variant of `startedDayKey` (✨ Generated from Field `AnalyticsWatchAsset`.`startedDayKey` of type `String!`)
+  """
+  startedDayKey_expr: String_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`startedHourKey` of type `String!`
+  """
+  startedHourKey: String
+  """
+  ✨ `_expr` server value variant of `startedHourKey` (✨ Generated from Field `AnalyticsWatchAsset`.`startedHourKey` of type `String!`)
+  """
+  startedHourKey_expr: String_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`totalVisibleSeconds` of type `Float!`
+  """
+  totalVisibleSeconds: Float
+  """
+  ✨ `_expr` server value variant of `totalVisibleSeconds` (✨ Generated from Field `AnalyticsWatchAsset`.`totalVisibleSeconds` of type `Float!`)
+  """
+  totalVisibleSeconds_expr: Float_Expr
+  """
+  ✨ `_update` server value variant of `totalVisibleSeconds` (✨ Generated from Field `AnalyticsWatchAsset`.`totalVisibleSeconds` of type `Float!`)
+  """
+  totalVisibleSeconds_update: [Float_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`totalWatchSeconds` of type `Float!`
+  """
+  totalWatchSeconds: Float
+  """
+  ✨ `_expr` server value variant of `totalWatchSeconds` (✨ Generated from Field `AnalyticsWatchAsset`.`totalWatchSeconds` of type `Float!`)
+  """
+  totalWatchSeconds_expr: Float_Expr
+  """
+  ✨ `_update` server value variant of `totalWatchSeconds` (✨ Generated from Field `AnalyticsWatchAsset`.`totalWatchSeconds` of type `Float!`)
+  """
+  totalWatchSeconds_update: [Float_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`userId` of type `String`
+  """
+  userId: String
+  """
+  ✨ `_expr` server value variant of `userId` (✨ Generated from Field `AnalyticsWatchAsset`.`userId` of type `String`)
+  """
+  userId_expr: String_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`username` of type `String`
+  """
+  username: String
+  """
+  ✨ `_expr` server value variant of `username` (✨ Generated from Field `AnalyticsWatchAsset`.`username` of type `String`)
+  """
+  username_expr: String_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`watchSessionId` of type `String!`
+  """
+  watchSessionId: String
+  """
+  ✨ `_expr` server value variant of `watchSessionId` (✨ Generated from Field `AnalyticsWatchAsset`.`watchSessionId` of type `String!`)
+  """
+  watchSessionId_expr: String_Expr
+}
+"""
+✨ Generated filter input type for table 'AnalyticsWatchAsset'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input AnalyticsWatchAsset_Filter {
+  """
+  Apply multiple filter conditions using `AND` logic.
+  """
+  _and: [AnalyticsWatchAsset_Filter!]
+  """
+  Negate the result of the provided filter condition.
+  """
+  _not: AnalyticsWatchAsset_Filter
+  """
+  Apply multiple filter conditions using `OR` logic.
+  """
+  _or: [AnalyticsWatchAsset_Filter!]
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`id` of type `UUID!`
+  """
+  id: UUID_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`assetIndex` of type `Int!`
+  """
+  assetIndex: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`assetKey` of type `String!`
+  """
+  assetKey: String_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`checkpointMaxSeconds` of type `Int!`
+  """
+  checkpointMaxSeconds: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`clientSessionId` of type `String`
+  """
+  clientSessionId: String_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`completedAtMs` of type `Int`
+  """
+  completedAtMs: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`consumedAtMs` of type `Int`
+  """
+  consumedAtMs: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`contentKind` of type `String`
+  """
+  contentKind: String_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`dropCategory` of type `String`
+  """
+  dropCategory: String_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`dropId` of type `String!`
+  """
+  dropId: String_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`dropTitle` of type `String`
+  """
+  dropTitle: String_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`durationSeconds` of type `Int`
+  """
+  durationSeconds: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`firstSeenAtMs` of type `Int!`
+  """
+  firstSeenAtMs: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`heartbeatCount` of type `Int!`
+  """
+  heartbeatCount: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`isCompleted` of type `Boolean!`
+  """
+  isCompleted: Boolean_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`isConsumed` of type `Boolean!`
+  """
+  isConsumed: Boolean_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastDayKey` of type `String!`
+  """
+  lastDayKey: String_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastHourKey` of type `String!`
+  """
+  lastHourKey: String_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastSeenAtMs` of type `Int!`
+  """
+  lastSeenAtMs: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastSequence` of type `Int!`
+  """
+  lastSequence: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`loadMsTotal` of type `Int!`
+  """
+  loadMsTotal: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`loadSampleCount` of type `Int!`
+  """
+  loadSampleCount: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`maxProgressSeconds` of type `Int!`
+  """
+  maxProgressSeconds: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`pagePath` of type `String`
+  """
+  pagePath: String_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`sessionStartedAtMs` of type `Int!`
+  """
+  sessionStartedAtMs: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`startedAtMs` of type `Int!`
+  """
+  startedAtMs: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`startedDayKey` of type `String!`
+  """
+  startedDayKey: String_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`startedHourKey` of type `String!`
+  """
+  startedHourKey: String_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`totalVisibleSeconds` of type `Float!`
+  """
+  totalVisibleSeconds: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`totalWatchSeconds` of type `Float!`
+  """
+  totalWatchSeconds: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`userId` of type `String`
+  """
+  userId: String_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`username` of type `String`
+  """
+  username: String_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`watchSessionId` of type `String!`
+  """
+  watchSessionId: String_Filter
+}
+"""
+✨ Generated first-row input type for table 'AnalyticsWatchAsset'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
+"""
+input AnalyticsWatchAsset_FirstRow {
+  """
+  Order the result by the specified fields.
+  """
+  orderBy: [AnalyticsWatchAsset_Order!]
+  """
+  Filters rows based on the specified conditions.
+  """
+  where: AnalyticsWatchAsset_Filter
+}
+"""
+✨ Generated having input type for table 'AnalyticsWatchAsset'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input AnalyticsWatchAsset_Having {
+  """
+  Apply multiple Having conditions using `AND` logic.
+  """
+  _and: [AnalyticsWatchAsset_Having!]
+  """
+  Whether to apply DISTINCT to the aggregate function.
+  """
+  _distinct: Boolean
+  """
+  Negate the result of the provided Having condition.
+  """
+  _not: AnalyticsWatchAsset_Having
+  """
+  Apply multiple Having conditions using `OR` logic.
+  """
+  _or: [AnalyticsWatchAsset_Having!]
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`_count` of type `Int!`
+  """
+  _count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`assetIndex_count` of type `Int!`
+  """
+  assetIndex_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`assetKey_count` of type `Int!`
+  """
+  assetKey_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`checkpointMaxSeconds_count` of type `Int!`
+  """
+  checkpointMaxSeconds_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`clientSessionId_count` of type `Int!`
+  """
+  clientSessionId_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`completedAtMs_count` of type `Int!`
+  """
+  completedAtMs_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`consumedAtMs_count` of type `Int!`
+  """
+  consumedAtMs_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`contentKind_count` of type `Int!`
+  """
+  contentKind_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`dropCategory_count` of type `Int!`
+  """
+  dropCategory_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`dropId_count` of type `Int!`
+  """
+  dropId_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`dropTitle_count` of type `Int!`
+  """
+  dropTitle_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`durationSeconds_count` of type `Int!`
+  """
+  durationSeconds_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`firstSeenAtMs_count` of type `Int!`
+  """
+  firstSeenAtMs_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`heartbeatCount_count` of type `Int!`
+  """
+  heartbeatCount_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`id_count` of type `Int!`
+  """
+  id_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`isCompleted_count` of type `Int!`
+  """
+  isCompleted_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`isConsumed_count` of type `Int!`
+  """
+  isConsumed_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastDayKey_count` of type `Int!`
+  """
+  lastDayKey_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastHourKey_count` of type `Int!`
+  """
+  lastHourKey_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastSeenAtMs_count` of type `Int!`
+  """
+  lastSeenAtMs_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastSequence_count` of type `Int!`
+  """
+  lastSequence_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`loadMsTotal_count` of type `Int!`
+  """
+  loadMsTotal_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`loadSampleCount_count` of type `Int!`
+  """
+  loadSampleCount_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`maxProgressSeconds_count` of type `Int!`
+  """
+  maxProgressSeconds_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`pagePath_count` of type `Int!`
+  """
+  pagePath_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`sessionStartedAtMs_count` of type `Int!`
+  """
+  sessionStartedAtMs_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`startedAtMs_count` of type `Int!`
+  """
+  startedAtMs_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`startedDayKey_count` of type `Int!`
+  """
+  startedDayKey_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`startedHourKey_count` of type `Int!`
+  """
+  startedHourKey_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`totalVisibleSeconds_count` of type `Int!`
+  """
+  totalVisibleSeconds_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`totalWatchSeconds_count` of type `Int!`
+  """
+  totalWatchSeconds_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`userId_count` of type `Int!`
+  """
+  userId_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`username_count` of type `Int!`
+  """
+  username_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`watchSessionId_count` of type `Int!`
+  """
+  watchSessionId_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`assetIndex_sum` of type `Int`
+  """
+  assetIndex_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`checkpointMaxSeconds_sum` of type `Int`
+  """
+  checkpointMaxSeconds_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`completedAtMs_sum` of type `Int`
+  """
+  completedAtMs_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`consumedAtMs_sum` of type `Int`
+  """
+  consumedAtMs_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`durationSeconds_sum` of type `Int`
+  """
+  durationSeconds_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`firstSeenAtMs_sum` of type `Int`
+  """
+  firstSeenAtMs_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`heartbeatCount_sum` of type `Int`
+  """
+  heartbeatCount_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastSeenAtMs_sum` of type `Int`
+  """
+  lastSeenAtMs_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastSequence_sum` of type `Int`
+  """
+  lastSequence_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`loadMsTotal_sum` of type `Int`
+  """
+  loadMsTotal_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`loadSampleCount_sum` of type `Int`
+  """
+  loadSampleCount_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`maxProgressSeconds_sum` of type `Int`
+  """
+  maxProgressSeconds_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`sessionStartedAtMs_sum` of type `Int`
+  """
+  sessionStartedAtMs_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`startedAtMs_sum` of type `Int`
+  """
+  startedAtMs_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`totalVisibleSeconds_sum` of type `Float`
+  """
+  totalVisibleSeconds_sum: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`totalWatchSeconds_sum` of type `Float`
+  """
+  totalWatchSeconds_sum: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`assetIndex_avg` of type `Float`
+  """
+  assetIndex_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`checkpointMaxSeconds_avg` of type `Float`
+  """
+  checkpointMaxSeconds_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`completedAtMs_avg` of type `Float`
+  """
+  completedAtMs_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`consumedAtMs_avg` of type `Float`
+  """
+  consumedAtMs_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`durationSeconds_avg` of type `Float`
+  """
+  durationSeconds_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`firstSeenAtMs_avg` of type `Float`
+  """
+  firstSeenAtMs_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`heartbeatCount_avg` of type `Float`
+  """
+  heartbeatCount_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastSeenAtMs_avg` of type `Float`
+  """
+  lastSeenAtMs_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastSequence_avg` of type `Float`
+  """
+  lastSequence_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`loadMsTotal_avg` of type `Float`
+  """
+  loadMsTotal_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`loadSampleCount_avg` of type `Float`
+  """
+  loadSampleCount_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`maxProgressSeconds_avg` of type `Float`
+  """
+  maxProgressSeconds_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`sessionStartedAtMs_avg` of type `Float`
+  """
+  sessionStartedAtMs_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`startedAtMs_avg` of type `Float`
+  """
+  startedAtMs_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`totalVisibleSeconds_avg` of type `Float`
+  """
+  totalVisibleSeconds_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`totalWatchSeconds_avg` of type `Float`
+  """
+  totalWatchSeconds_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`assetIndex_min` of type `Int`
+  """
+  assetIndex_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`checkpointMaxSeconds_min` of type `Int`
+  """
+  checkpointMaxSeconds_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`completedAtMs_min` of type `Int`
+  """
+  completedAtMs_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`consumedAtMs_min` of type `Int`
+  """
+  consumedAtMs_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`durationSeconds_min` of type `Int`
+  """
+  durationSeconds_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`firstSeenAtMs_min` of type `Int`
+  """
+  firstSeenAtMs_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`heartbeatCount_min` of type `Int`
+  """
+  heartbeatCount_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastSeenAtMs_min` of type `Int`
+  """
+  lastSeenAtMs_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastSequence_min` of type `Int`
+  """
+  lastSequence_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`loadMsTotal_min` of type `Int`
+  """
+  loadMsTotal_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`loadSampleCount_min` of type `Int`
+  """
+  loadSampleCount_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`maxProgressSeconds_min` of type `Int`
+  """
+  maxProgressSeconds_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`sessionStartedAtMs_min` of type `Int`
+  """
+  sessionStartedAtMs_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`startedAtMs_min` of type `Int`
+  """
+  startedAtMs_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`totalVisibleSeconds_min` of type `Float`
+  """
+  totalVisibleSeconds_min: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`totalWatchSeconds_min` of type `Float`
+  """
+  totalWatchSeconds_min: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`assetIndex_max` of type `Int`
+  """
+  assetIndex_max: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`checkpointMaxSeconds_max` of type `Int`
+  """
+  checkpointMaxSeconds_max: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`completedAtMs_max` of type `Int`
+  """
+  completedAtMs_max: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`consumedAtMs_max` of type `Int`
+  """
+  consumedAtMs_max: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`durationSeconds_max` of type `Int`
+  """
+  durationSeconds_max: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`firstSeenAtMs_max` of type `Int`
+  """
+  firstSeenAtMs_max: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`heartbeatCount_max` of type `Int`
+  """
+  heartbeatCount_max: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastSeenAtMs_max` of type `Int`
+  """
+  lastSeenAtMs_max: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastSequence_max` of type `Int`
+  """
+  lastSequence_max: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`loadMsTotal_max` of type `Int`
+  """
+  loadMsTotal_max: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`loadSampleCount_max` of type `Int`
+  """
+  loadSampleCount_max: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`maxProgressSeconds_max` of type `Int`
+  """
+  maxProgressSeconds_max: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`sessionStartedAtMs_max` of type `Int`
+  """
+  sessionStartedAtMs_max: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`startedAtMs_max` of type `Int`
+  """
+  startedAtMs_max: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`totalVisibleSeconds_max` of type `Float`
+  """
+  totalVisibleSeconds_max: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`totalWatchSeconds_max` of type `Float`
+  """
+  totalWatchSeconds_max: Float_Filter
+}
+"""
+✨ Generated key input type for table 'AnalyticsWatchAsset'. It represents the primary key fields used to uniquely identify a row in the table.
+"""
+input AnalyticsWatchAsset_Key {
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsWatchAsset`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+}
+"""
+✨ Generated list filter input type for table 'AnalyticsWatchAsset'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
+"""
+input AnalyticsWatchAsset_ListFilter {
+  """
+  The desired number of objects that match the condition (defaults to at least one).
+  """
+  count: Int_Filter = {gt:0}
+  """
+  Condition of the related objects to filter for.
+  """
+  exist: AnalyticsWatchAsset_Filter
+}
+"""
+✨ Generated order input type for table 'AnalyticsWatchAsset'. This input defines the sorting order of rows in query results based on one or more fields.
+"""
+input AnalyticsWatchAsset_Order {
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`id` of type `UUID!`
+  """
+  id: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`assetIndex` of type `Int!`
+  """
+  assetIndex: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`assetKey` of type `String!`
+  """
+  assetKey: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`checkpointMaxSeconds` of type `Int!`
+  """
+  checkpointMaxSeconds: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`clientSessionId` of type `String`
+  """
+  clientSessionId: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`completedAtMs` of type `Int`
+  """
+  completedAtMs: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`consumedAtMs` of type `Int`
+  """
+  consumedAtMs: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`contentKind` of type `String`
+  """
+  contentKind: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`dropCategory` of type `String`
+  """
+  dropCategory: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`dropId` of type `String!`
+  """
+  dropId: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`dropTitle` of type `String`
+  """
+  dropTitle: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`durationSeconds` of type `Int`
+  """
+  durationSeconds: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`firstSeenAtMs` of type `Int!`
+  """
+  firstSeenAtMs: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`heartbeatCount` of type `Int!`
+  """
+  heartbeatCount: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`isCompleted` of type `Boolean!`
+  """
+  isCompleted: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`isConsumed` of type `Boolean!`
+  """
+  isConsumed: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastDayKey` of type `String!`
+  """
+  lastDayKey: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastHourKey` of type `String!`
+  """
+  lastHourKey: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastSeenAtMs` of type `Int!`
+  """
+  lastSeenAtMs: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastSequence` of type `Int!`
+  """
+  lastSequence: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`loadMsTotal` of type `Int!`
+  """
+  loadMsTotal: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`loadSampleCount` of type `Int!`
+  """
+  loadSampleCount: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`maxProgressSeconds` of type `Int!`
+  """
+  maxProgressSeconds: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`pagePath` of type `String`
+  """
+  pagePath: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`sessionStartedAtMs` of type `Int!`
+  """
+  sessionStartedAtMs: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`startedAtMs` of type `Int!`
+  """
+  startedAtMs: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`startedDayKey` of type `String!`
+  """
+  startedDayKey: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`startedHourKey` of type `String!`
+  """
+  startedHourKey: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`totalVisibleSeconds` of type `Float!`
+  """
+  totalVisibleSeconds: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`totalWatchSeconds` of type `Float!`
+  """
+  totalWatchSeconds: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`userId` of type `String`
+  """
+  userId: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`username` of type `String`
+  """
+  username: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`watchSessionId` of type `String!`
+  """
+  watchSessionId: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`_count` of type `Int!`
+  """
+  _count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`assetIndex_count` of type `Int!`
+  """
+  assetIndex_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`assetKey_count` of type `Int!`
+  """
+  assetKey_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`checkpointMaxSeconds_count` of type `Int!`
+  """
+  checkpointMaxSeconds_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`clientSessionId_count` of type `Int!`
+  """
+  clientSessionId_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`completedAtMs_count` of type `Int!`
+  """
+  completedAtMs_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`consumedAtMs_count` of type `Int!`
+  """
+  consumedAtMs_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`contentKind_count` of type `Int!`
+  """
+  contentKind_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`dropCategory_count` of type `Int!`
+  """
+  dropCategory_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`dropId_count` of type `Int!`
+  """
+  dropId_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`dropTitle_count` of type `Int!`
+  """
+  dropTitle_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`durationSeconds_count` of type `Int!`
+  """
+  durationSeconds_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`firstSeenAtMs_count` of type `Int!`
+  """
+  firstSeenAtMs_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`heartbeatCount_count` of type `Int!`
+  """
+  heartbeatCount_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`id_count` of type `Int!`
+  """
+  id_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`isCompleted_count` of type `Int!`
+  """
+  isCompleted_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`isConsumed_count` of type `Int!`
+  """
+  isConsumed_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastDayKey_count` of type `Int!`
+  """
+  lastDayKey_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastHourKey_count` of type `Int!`
+  """
+  lastHourKey_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastSeenAtMs_count` of type `Int!`
+  """
+  lastSeenAtMs_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastSequence_count` of type `Int!`
+  """
+  lastSequence_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`loadMsTotal_count` of type `Int!`
+  """
+  loadMsTotal_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`loadSampleCount_count` of type `Int!`
+  """
+  loadSampleCount_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`maxProgressSeconds_count` of type `Int!`
+  """
+  maxProgressSeconds_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`pagePath_count` of type `Int!`
+  """
+  pagePath_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`sessionStartedAtMs_count` of type `Int!`
+  """
+  sessionStartedAtMs_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`startedAtMs_count` of type `Int!`
+  """
+  startedAtMs_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`startedDayKey_count` of type `Int!`
+  """
+  startedDayKey_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`startedHourKey_count` of type `Int!`
+  """
+  startedHourKey_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`totalVisibleSeconds_count` of type `Int!`
+  """
+  totalVisibleSeconds_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`totalWatchSeconds_count` of type `Int!`
+  """
+  totalWatchSeconds_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`userId_count` of type `Int!`
+  """
+  userId_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`username_count` of type `Int!`
+  """
+  username_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`watchSessionId_count` of type `Int!`
+  """
+  watchSessionId_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`assetIndex_sum` of type `Int`
+  """
+  assetIndex_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`checkpointMaxSeconds_sum` of type `Int`
+  """
+  checkpointMaxSeconds_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`completedAtMs_sum` of type `Int`
+  """
+  completedAtMs_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`consumedAtMs_sum` of type `Int`
+  """
+  consumedAtMs_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`durationSeconds_sum` of type `Int`
+  """
+  durationSeconds_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`firstSeenAtMs_sum` of type `Int`
+  """
+  firstSeenAtMs_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`heartbeatCount_sum` of type `Int`
+  """
+  heartbeatCount_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastSeenAtMs_sum` of type `Int`
+  """
+  lastSeenAtMs_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastSequence_sum` of type `Int`
+  """
+  lastSequence_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`loadMsTotal_sum` of type `Int`
+  """
+  loadMsTotal_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`loadSampleCount_sum` of type `Int`
+  """
+  loadSampleCount_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`maxProgressSeconds_sum` of type `Int`
+  """
+  maxProgressSeconds_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`sessionStartedAtMs_sum` of type `Int`
+  """
+  sessionStartedAtMs_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`startedAtMs_sum` of type `Int`
+  """
+  startedAtMs_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`totalVisibleSeconds_sum` of type `Float`
+  """
+  totalVisibleSeconds_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`totalWatchSeconds_sum` of type `Float`
+  """
+  totalWatchSeconds_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`assetIndex_avg` of type `Float`
+  """
+  assetIndex_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`checkpointMaxSeconds_avg` of type `Float`
+  """
+  checkpointMaxSeconds_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`completedAtMs_avg` of type `Float`
+  """
+  completedAtMs_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`consumedAtMs_avg` of type `Float`
+  """
+  consumedAtMs_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`durationSeconds_avg` of type `Float`
+  """
+  durationSeconds_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`firstSeenAtMs_avg` of type `Float`
+  """
+  firstSeenAtMs_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`heartbeatCount_avg` of type `Float`
+  """
+  heartbeatCount_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastSeenAtMs_avg` of type `Float`
+  """
+  lastSeenAtMs_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastSequence_avg` of type `Float`
+  """
+  lastSequence_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`loadMsTotal_avg` of type `Float`
+  """
+  loadMsTotal_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`loadSampleCount_avg` of type `Float`
+  """
+  loadSampleCount_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`maxProgressSeconds_avg` of type `Float`
+  """
+  maxProgressSeconds_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`sessionStartedAtMs_avg` of type `Float`
+  """
+  sessionStartedAtMs_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`startedAtMs_avg` of type `Float`
+  """
+  startedAtMs_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`totalVisibleSeconds_avg` of type `Float`
+  """
+  totalVisibleSeconds_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`totalWatchSeconds_avg` of type `Float`
+  """
+  totalWatchSeconds_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`assetIndex_min` of type `Int`
+  """
+  assetIndex_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`checkpointMaxSeconds_min` of type `Int`
+  """
+  checkpointMaxSeconds_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`completedAtMs_min` of type `Int`
+  """
+  completedAtMs_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`consumedAtMs_min` of type `Int`
+  """
+  consumedAtMs_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`durationSeconds_min` of type `Int`
+  """
+  durationSeconds_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`firstSeenAtMs_min` of type `Int`
+  """
+  firstSeenAtMs_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`heartbeatCount_min` of type `Int`
+  """
+  heartbeatCount_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastSeenAtMs_min` of type `Int`
+  """
+  lastSeenAtMs_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastSequence_min` of type `Int`
+  """
+  lastSequence_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`loadMsTotal_min` of type `Int`
+  """
+  loadMsTotal_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`loadSampleCount_min` of type `Int`
+  """
+  loadSampleCount_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`maxProgressSeconds_min` of type `Int`
+  """
+  maxProgressSeconds_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`sessionStartedAtMs_min` of type `Int`
+  """
+  sessionStartedAtMs_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`startedAtMs_min` of type `Int`
+  """
+  startedAtMs_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`totalVisibleSeconds_min` of type `Float`
+  """
+  totalVisibleSeconds_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`totalWatchSeconds_min` of type `Float`
+  """
+  totalWatchSeconds_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`assetIndex_max` of type `Int`
+  """
+  assetIndex_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`checkpointMaxSeconds_max` of type `Int`
+  """
+  checkpointMaxSeconds_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`completedAtMs_max` of type `Int`
+  """
+  completedAtMs_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`consumedAtMs_max` of type `Int`
+  """
+  consumedAtMs_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`durationSeconds_max` of type `Int`
+  """
+  durationSeconds_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`firstSeenAtMs_max` of type `Int`
+  """
+  firstSeenAtMs_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`heartbeatCount_max` of type `Int`
+  """
+  heartbeatCount_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastSeenAtMs_max` of type `Int`
+  """
+  lastSeenAtMs_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`lastSequence_max` of type `Int`
+  """
+  lastSequence_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`loadMsTotal_max` of type `Int`
+  """
+  loadMsTotal_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`loadSampleCount_max` of type `Int`
+  """
+  loadSampleCount_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`maxProgressSeconds_max` of type `Int`
+  """
+  maxProgressSeconds_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`sessionStartedAtMs_max` of type `Int`
+  """
+  sessionStartedAtMs_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`startedAtMs_max` of type `Int`
+  """
+  startedAtMs_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`totalVisibleSeconds_max` of type `Float`
+  """
+  totalVisibleSeconds_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchAsset`.`totalWatchSeconds_max` of type `Float`
+  """
+  totalWatchSeconds_max: OrderDirection
+}
+"""
+✨ Generated data input type for table 'AnalyticsWatchSession'. It includes all necessary fields for creating or upserting rows into table.
+"""
+input AnalyticsWatchSession_Data {
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsWatchSession`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`activeAssetIndex` of type `Int`
+  """
+  activeAssetIndex: Int
+  """
+  ✨ `_expr` server value variant of `activeAssetIndex` (✨ Generated from Field `AnalyticsWatchSession`.`activeAssetIndex` of type `Int`)
+  """
+  activeAssetIndex_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `activeAssetIndex` (✨ Generated from Field `AnalyticsWatchSession`.`activeAssetIndex` of type `Int`)
+  """
+  activeAssetIndex_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`activeAssetKey` of type `String`
+  """
+  activeAssetKey: String
+  """
+  ✨ `_expr` server value variant of `activeAssetKey` (✨ Generated from Field `AnalyticsWatchSession`.`activeAssetKey` of type `String`)
+  """
+  activeAssetKey_expr: String_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`assetSwitchCount` of type `Int!`
+  """
+  assetSwitchCount: Int
+  """
+  ✨ `_expr` server value variant of `assetSwitchCount` (✨ Generated from Field `AnalyticsWatchSession`.`assetSwitchCount` of type `Int!`)
+  """
+  assetSwitchCount_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `assetSwitchCount` (✨ Generated from Field `AnalyticsWatchSession`.`assetSwitchCount` of type `Int!`)
+  """
+  assetSwitchCount_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`averageLoadMs` of type `Int!`
+  """
+  averageLoadMs: Int
+  """
+  ✨ `_expr` server value variant of `averageLoadMs` (✨ Generated from Field `AnalyticsWatchSession`.`averageLoadMs` of type `Int!`)
+  """
+  averageLoadMs_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `averageLoadMs` (✨ Generated from Field `AnalyticsWatchSession`.`averageLoadMs` of type `Int!`)
+  """
+  averageLoadMs_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`clientSessionId` of type `String`
+  """
+  clientSessionId: String
+  """
+  ✨ `_expr` server value variant of `clientSessionId` (✨ Generated from Field `AnalyticsWatchSession`.`clientSessionId` of type `String`)
+  """
+  clientSessionId_expr: String_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`closeReason` of type `String`
+  """
+  closeReason: String
+  """
+  ✨ `_expr` server value variant of `closeReason` (✨ Generated from Field `AnalyticsWatchSession`.`closeReason` of type `String`)
+  """
+  closeReason_expr: String_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`closedAtMs` of type `Int`
+  """
+  closedAtMs: Int
+  """
+  ✨ `_expr` server value variant of `closedAtMs` (✨ Generated from Field `AnalyticsWatchSession`.`closedAtMs` of type `Int`)
+  """
+  closedAtMs_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `closedAtMs` (✨ Generated from Field `AnalyticsWatchSession`.`closedAtMs` of type `Int`)
+  """
+  closedAtMs_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`completedAssetCount` of type `Int!`
+  """
+  completedAssetCount: Int
+  """
+  ✨ `_expr` server value variant of `completedAssetCount` (✨ Generated from Field `AnalyticsWatchSession`.`completedAssetCount` of type `Int!`)
+  """
+  completedAssetCount_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `completedAssetCount` (✨ Generated from Field `AnalyticsWatchSession`.`completedAssetCount` of type `Int!`)
+  """
+  completedAssetCount_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`consumedAssetCount` of type `Int!`
+  """
+  consumedAssetCount: Int
+  """
+  ✨ `_expr` server value variant of `consumedAssetCount` (✨ Generated from Field `AnalyticsWatchSession`.`consumedAssetCount` of type `Int!`)
+  """
+  consumedAssetCount_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `consumedAssetCount` (✨ Generated from Field `AnalyticsWatchSession`.`consumedAssetCount` of type `Int!`)
+  """
+  consumedAssetCount_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`contentCount` of type `Int!`
+  """
+  contentCount: Int
+  """
+  ✨ `_expr` server value variant of `contentCount` (✨ Generated from Field `AnalyticsWatchSession`.`contentCount` of type `Int!`)
+  """
+  contentCount_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `contentCount` (✨ Generated from Field `AnalyticsWatchSession`.`contentCount` of type `Int!`)
+  """
+  contentCount_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`downloadCount` of type `Int!`
+  """
+  downloadCount: Int
+  """
+  ✨ `_expr` server value variant of `downloadCount` (✨ Generated from Field `AnalyticsWatchSession`.`downloadCount` of type `Int!`)
+  """
+  downloadCount_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `downloadCount` (✨ Generated from Field `AnalyticsWatchSession`.`downloadCount` of type `Int!`)
+  """
+  downloadCount_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`dropCategory` of type `String`
+  """
+  dropCategory: String
+  """
+  ✨ `_expr` server value variant of `dropCategory` (✨ Generated from Field `AnalyticsWatchSession`.`dropCategory` of type `String`)
+  """
+  dropCategory_expr: String_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`dropId` of type `String!`
+  """
+  dropId: String
+  """
+  ✨ `_expr` server value variant of `dropId` (✨ Generated from Field `AnalyticsWatchSession`.`dropId` of type `String!`)
+  """
+  dropId_expr: String_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`dropTitle` of type `String`
+  """
+  dropTitle: String
+  """
+  ✨ `_expr` server value variant of `dropTitle` (✨ Generated from Field `AnalyticsWatchSession`.`dropTitle` of type `String`)
+  """
+  dropTitle_expr: String_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`firstSeenAtMs` of type `Int!`
+  """
+  firstSeenAtMs: Int
+  """
+  ✨ `_expr` server value variant of `firstSeenAtMs` (✨ Generated from Field `AnalyticsWatchSession`.`firstSeenAtMs` of type `Int!`)
+  """
+  firstSeenAtMs_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `firstSeenAtMs` (✨ Generated from Field `AnalyticsWatchSession`.`firstSeenAtMs` of type `Int!`)
+  """
+  firstSeenAtMs_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`isClosed` of type `Boolean!`
+  """
+  isClosed: Boolean
+  """
+  ✨ `_expr` server value variant of `isClosed` (✨ Generated from Field `AnalyticsWatchSession`.`isClosed` of type `Boolean!`)
+  """
+  isClosed_expr: Boolean_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastDayKey` of type `String!`
+  """
+  lastDayKey: String
+  """
+  ✨ `_expr` server value variant of `lastDayKey` (✨ Generated from Field `AnalyticsWatchSession`.`lastDayKey` of type `String!`)
+  """
+  lastDayKey_expr: String_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastHourKey` of type `String!`
+  """
+  lastHourKey: String
+  """
+  ✨ `_expr` server value variant of `lastHourKey` (✨ Generated from Field `AnalyticsWatchSession`.`lastHourKey` of type `String!`)
+  """
+  lastHourKey_expr: String_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastSeenAtMs` of type `Int!`
+  """
+  lastSeenAtMs: Int
+  """
+  ✨ `_expr` server value variant of `lastSeenAtMs` (✨ Generated from Field `AnalyticsWatchSession`.`lastSeenAtMs` of type `Int!`)
+  """
+  lastSeenAtMs_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `lastSeenAtMs` (✨ Generated from Field `AnalyticsWatchSession`.`lastSeenAtMs` of type `Int!`)
+  """
+  lastSeenAtMs_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastSequence` of type `Int!`
+  """
+  lastSequence: Int
+  """
+  ✨ `_expr` server value variant of `lastSequence` (✨ Generated from Field `AnalyticsWatchSession`.`lastSequence` of type `Int!`)
+  """
+  lastSequence_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `lastSequence` (✨ Generated from Field `AnalyticsWatchSession`.`lastSequence` of type `Int!`)
+  """
+  lastSequence_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`loadMsTotal` of type `Int!`
+  """
+  loadMsTotal: Int
+  """
+  ✨ `_expr` server value variant of `loadMsTotal` (✨ Generated from Field `AnalyticsWatchSession`.`loadMsTotal` of type `Int!`)
+  """
+  loadMsTotal_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `loadMsTotal` (✨ Generated from Field `AnalyticsWatchSession`.`loadMsTotal` of type `Int!`)
+  """
+  loadMsTotal_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`loadSampleCount` of type `Int!`
+  """
+  loadSampleCount: Int
+  """
+  ✨ `_expr` server value variant of `loadSampleCount` (✨ Generated from Field `AnalyticsWatchSession`.`loadSampleCount` of type `Int!`)
+  """
+  loadSampleCount_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `loadSampleCount` (✨ Generated from Field `AnalyticsWatchSession`.`loadSampleCount` of type `Int!`)
+  """
+  loadSampleCount_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`maxAssetWatchSeconds` of type `Float!`
+  """
+  maxAssetWatchSeconds: Float
+  """
+  ✨ `_expr` server value variant of `maxAssetWatchSeconds` (✨ Generated from Field `AnalyticsWatchSession`.`maxAssetWatchSeconds` of type `Float!`)
+  """
+  maxAssetWatchSeconds_expr: Float_Expr
+  """
+  ✨ `_update` server value variant of `maxAssetWatchSeconds` (✨ Generated from Field `AnalyticsWatchSession`.`maxAssetWatchSeconds` of type `Float!`)
+  """
+  maxAssetWatchSeconds_update: [Float_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`pagePath` of type `String`
+  """
+  pagePath: String
+  """
+  ✨ `_expr` server value variant of `pagePath` (✨ Generated from Field `AnalyticsWatchSession`.`pagePath` of type `String`)
+  """
+  pagePath_expr: String_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`relatedClickCount` of type `Int!`
+  """
+  relatedClickCount: Int
+  """
+  ✨ `_expr` server value variant of `relatedClickCount` (✨ Generated from Field `AnalyticsWatchSession`.`relatedClickCount` of type `Int!`)
+  """
+  relatedClickCount_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `relatedClickCount` (✨ Generated from Field `AnalyticsWatchSession`.`relatedClickCount` of type `Int!`)
+  """
+  relatedClickCount_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`sessionStartedAtMs` of type `Int!`
+  """
+  sessionStartedAtMs: Int
+  """
+  ✨ `_expr` server value variant of `sessionStartedAtMs` (✨ Generated from Field `AnalyticsWatchSession`.`sessionStartedAtMs` of type `Int!`)
+  """
+  sessionStartedAtMs_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `sessionStartedAtMs` (✨ Generated from Field `AnalyticsWatchSession`.`sessionStartedAtMs` of type `Int!`)
+  """
+  sessionStartedAtMs_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`startedDayKey` of type `String!`
+  """
+  startedDayKey: String
+  """
+  ✨ `_expr` server value variant of `startedDayKey` (✨ Generated from Field `AnalyticsWatchSession`.`startedDayKey` of type `String!`)
+  """
+  startedDayKey_expr: String_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`startedHourKey` of type `String!`
+  """
+  startedHourKey: String
+  """
+  ✨ `_expr` server value variant of `startedHourKey` (✨ Generated from Field `AnalyticsWatchSession`.`startedHourKey` of type `String!`)
+  """
+  startedHourKey_expr: String_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`totalVisibleSeconds` of type `Float!`
+  """
+  totalVisibleSeconds: Float
+  """
+  ✨ `_expr` server value variant of `totalVisibleSeconds` (✨ Generated from Field `AnalyticsWatchSession`.`totalVisibleSeconds` of type `Float!`)
+  """
+  totalVisibleSeconds_expr: Float_Expr
+  """
+  ✨ `_update` server value variant of `totalVisibleSeconds` (✨ Generated from Field `AnalyticsWatchSession`.`totalVisibleSeconds` of type `Float!`)
+  """
+  totalVisibleSeconds_update: [Float_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`totalWatchSeconds` of type `Float!`
+  """
+  totalWatchSeconds: Float
+  """
+  ✨ `_expr` server value variant of `totalWatchSeconds` (✨ Generated from Field `AnalyticsWatchSession`.`totalWatchSeconds` of type `Float!`)
+  """
+  totalWatchSeconds_expr: Float_Expr
+  """
+  ✨ `_update` server value variant of `totalWatchSeconds` (✨ Generated from Field `AnalyticsWatchSession`.`totalWatchSeconds` of type `Float!`)
+  """
+  totalWatchSeconds_update: [Float_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`unwrappedAtMs` of type `Int`
+  """
+  unwrappedAtMs: Int
+  """
+  ✨ `_expr` server value variant of `unwrappedAtMs` (✨ Generated from Field `AnalyticsWatchSession`.`unwrappedAtMs` of type `Int`)
+  """
+  unwrappedAtMs_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `unwrappedAtMs` (✨ Generated from Field `AnalyticsWatchSession`.`unwrappedAtMs` of type `Int`)
+  """
+  unwrappedAtMs_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`userId` of type `String`
+  """
+  userId: String
+  """
+  ✨ `_expr` server value variant of `userId` (✨ Generated from Field `AnalyticsWatchSession`.`userId` of type `String`)
+  """
+  userId_expr: String_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`username` of type `String`
+  """
+  username: String
+  """
+  ✨ `_expr` server value variant of `username` (✨ Generated from Field `AnalyticsWatchSession`.`username` of type `String`)
+  """
+  username_expr: String_Expr
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`viewedAssetCount` of type `Int!`
+  """
+  viewedAssetCount: Int
+  """
+  ✨ `_expr` server value variant of `viewedAssetCount` (✨ Generated from Field `AnalyticsWatchSession`.`viewedAssetCount` of type `Int!`)
+  """
+  viewedAssetCount_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `viewedAssetCount` (✨ Generated from Field `AnalyticsWatchSession`.`viewedAssetCount` of type `Int!`)
+  """
+  viewedAssetCount_update: [Int_Update!]
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`watchSessionId` of type `String!`
+  """
+  watchSessionId: String
+  """
+  ✨ `_expr` server value variant of `watchSessionId` (✨ Generated from Field `AnalyticsWatchSession`.`watchSessionId` of type `String!`)
+  """
+  watchSessionId_expr: String_Expr
+}
+"""
+✨ Generated filter input type for table 'AnalyticsWatchSession'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input AnalyticsWatchSession_Filter {
+  """
+  Apply multiple filter conditions using `AND` logic.
+  """
+  _and: [AnalyticsWatchSession_Filter!]
+  """
+  Negate the result of the provided filter condition.
+  """
+  _not: AnalyticsWatchSession_Filter
+  """
+  Apply multiple filter conditions using `OR` logic.
+  """
+  _or: [AnalyticsWatchSession_Filter!]
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`id` of type `UUID!`
+  """
+  id: UUID_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`activeAssetIndex` of type `Int`
+  """
+  activeAssetIndex: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`activeAssetKey` of type `String`
+  """
+  activeAssetKey: String_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`assetSwitchCount` of type `Int!`
+  """
+  assetSwitchCount: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`averageLoadMs` of type `Int!`
+  """
+  averageLoadMs: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`clientSessionId` of type `String`
+  """
+  clientSessionId: String_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`closeReason` of type `String`
+  """
+  closeReason: String_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`closedAtMs` of type `Int`
+  """
+  closedAtMs: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`completedAssetCount` of type `Int!`
+  """
+  completedAssetCount: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`consumedAssetCount` of type `Int!`
+  """
+  consumedAssetCount: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`contentCount` of type `Int!`
+  """
+  contentCount: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`downloadCount` of type `Int!`
+  """
+  downloadCount: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`dropCategory` of type `String`
+  """
+  dropCategory: String_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`dropId` of type `String!`
+  """
+  dropId: String_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`dropTitle` of type `String`
+  """
+  dropTitle: String_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`firstSeenAtMs` of type `Int!`
+  """
+  firstSeenAtMs: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`isClosed` of type `Boolean!`
+  """
+  isClosed: Boolean_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastDayKey` of type `String!`
+  """
+  lastDayKey: String_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastHourKey` of type `String!`
+  """
+  lastHourKey: String_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastSeenAtMs` of type `Int!`
+  """
+  lastSeenAtMs: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastSequence` of type `Int!`
+  """
+  lastSequence: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`loadMsTotal` of type `Int!`
+  """
+  loadMsTotal: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`loadSampleCount` of type `Int!`
+  """
+  loadSampleCount: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`maxAssetWatchSeconds` of type `Float!`
+  """
+  maxAssetWatchSeconds: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`pagePath` of type `String`
+  """
+  pagePath: String_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`relatedClickCount` of type `Int!`
+  """
+  relatedClickCount: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`sessionStartedAtMs` of type `Int!`
+  """
+  sessionStartedAtMs: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`startedDayKey` of type `String!`
+  """
+  startedDayKey: String_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`startedHourKey` of type `String!`
+  """
+  startedHourKey: String_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`totalVisibleSeconds` of type `Float!`
+  """
+  totalVisibleSeconds: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`totalWatchSeconds` of type `Float!`
+  """
+  totalWatchSeconds: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`unwrappedAtMs` of type `Int`
+  """
+  unwrappedAtMs: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`userId` of type `String`
+  """
+  userId: String_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`username` of type `String`
+  """
+  username: String_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`viewedAssetCount` of type `Int!`
+  """
+  viewedAssetCount: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`watchSessionId` of type `String!`
+  """
+  watchSessionId: String_Filter
+}
+"""
+✨ Generated first-row input type for table 'AnalyticsWatchSession'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
+"""
+input AnalyticsWatchSession_FirstRow {
+  """
+  Order the result by the specified fields.
+  """
+  orderBy: [AnalyticsWatchSession_Order!]
+  """
+  Filters rows based on the specified conditions.
+  """
+  where: AnalyticsWatchSession_Filter
+}
+"""
+✨ Generated having input type for table 'AnalyticsWatchSession'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input AnalyticsWatchSession_Having {
+  """
+  Apply multiple Having conditions using `AND` logic.
+  """
+  _and: [AnalyticsWatchSession_Having!]
+  """
+  Whether to apply DISTINCT to the aggregate function.
+  """
+  _distinct: Boolean
+  """
+  Negate the result of the provided Having condition.
+  """
+  _not: AnalyticsWatchSession_Having
+  """
+  Apply multiple Having conditions using `OR` logic.
+  """
+  _or: [AnalyticsWatchSession_Having!]
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`_count` of type `Int!`
+  """
+  _count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`activeAssetIndex_count` of type `Int!`
+  """
+  activeAssetIndex_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`activeAssetKey_count` of type `Int!`
+  """
+  activeAssetKey_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`assetSwitchCount_count` of type `Int!`
+  """
+  assetSwitchCount_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`averageLoadMs_count` of type `Int!`
+  """
+  averageLoadMs_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`clientSessionId_count` of type `Int!`
+  """
+  clientSessionId_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`closeReason_count` of type `Int!`
+  """
+  closeReason_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`closedAtMs_count` of type `Int!`
+  """
+  closedAtMs_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`completedAssetCount_count` of type `Int!`
+  """
+  completedAssetCount_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`consumedAssetCount_count` of type `Int!`
+  """
+  consumedAssetCount_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`contentCount_count` of type `Int!`
+  """
+  contentCount_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`downloadCount_count` of type `Int!`
+  """
+  downloadCount_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`dropCategory_count` of type `Int!`
+  """
+  dropCategory_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`dropId_count` of type `Int!`
+  """
+  dropId_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`dropTitle_count` of type `Int!`
+  """
+  dropTitle_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`firstSeenAtMs_count` of type `Int!`
+  """
+  firstSeenAtMs_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`id_count` of type `Int!`
+  """
+  id_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`isClosed_count` of type `Int!`
+  """
+  isClosed_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastDayKey_count` of type `Int!`
+  """
+  lastDayKey_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastHourKey_count` of type `Int!`
+  """
+  lastHourKey_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastSeenAtMs_count` of type `Int!`
+  """
+  lastSeenAtMs_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastSequence_count` of type `Int!`
+  """
+  lastSequence_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`loadMsTotal_count` of type `Int!`
+  """
+  loadMsTotal_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`loadSampleCount_count` of type `Int!`
+  """
+  loadSampleCount_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`maxAssetWatchSeconds_count` of type `Int!`
+  """
+  maxAssetWatchSeconds_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`pagePath_count` of type `Int!`
+  """
+  pagePath_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`relatedClickCount_count` of type `Int!`
+  """
+  relatedClickCount_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`sessionStartedAtMs_count` of type `Int!`
+  """
+  sessionStartedAtMs_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`startedDayKey_count` of type `Int!`
+  """
+  startedDayKey_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`startedHourKey_count` of type `Int!`
+  """
+  startedHourKey_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`totalVisibleSeconds_count` of type `Int!`
+  """
+  totalVisibleSeconds_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`totalWatchSeconds_count` of type `Int!`
+  """
+  totalWatchSeconds_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`unwrappedAtMs_count` of type `Int!`
+  """
+  unwrappedAtMs_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`userId_count` of type `Int!`
+  """
+  userId_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`username_count` of type `Int!`
+  """
+  username_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`viewedAssetCount_count` of type `Int!`
+  """
+  viewedAssetCount_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`watchSessionId_count` of type `Int!`
+  """
+  watchSessionId_count: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`activeAssetIndex_sum` of type `Int`
+  """
+  activeAssetIndex_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`assetSwitchCount_sum` of type `Int`
+  """
+  assetSwitchCount_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`averageLoadMs_sum` of type `Int`
+  """
+  averageLoadMs_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`closedAtMs_sum` of type `Int`
+  """
+  closedAtMs_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`completedAssetCount_sum` of type `Int`
+  """
+  completedAssetCount_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`consumedAssetCount_sum` of type `Int`
+  """
+  consumedAssetCount_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`contentCount_sum` of type `Int`
+  """
+  contentCount_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`downloadCount_sum` of type `Int`
+  """
+  downloadCount_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`firstSeenAtMs_sum` of type `Int`
+  """
+  firstSeenAtMs_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastSeenAtMs_sum` of type `Int`
+  """
+  lastSeenAtMs_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastSequence_sum` of type `Int`
+  """
+  lastSequence_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`loadMsTotal_sum` of type `Int`
+  """
+  loadMsTotal_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`loadSampleCount_sum` of type `Int`
+  """
+  loadSampleCount_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`maxAssetWatchSeconds_sum` of type `Float`
+  """
+  maxAssetWatchSeconds_sum: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`relatedClickCount_sum` of type `Int`
+  """
+  relatedClickCount_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`sessionStartedAtMs_sum` of type `Int`
+  """
+  sessionStartedAtMs_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`totalVisibleSeconds_sum` of type `Float`
+  """
+  totalVisibleSeconds_sum: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`totalWatchSeconds_sum` of type `Float`
+  """
+  totalWatchSeconds_sum: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`unwrappedAtMs_sum` of type `Int`
+  """
+  unwrappedAtMs_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`viewedAssetCount_sum` of type `Int`
+  """
+  viewedAssetCount_sum: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`activeAssetIndex_avg` of type `Float`
+  """
+  activeAssetIndex_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`assetSwitchCount_avg` of type `Float`
+  """
+  assetSwitchCount_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`averageLoadMs_avg` of type `Float`
+  """
+  averageLoadMs_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`closedAtMs_avg` of type `Float`
+  """
+  closedAtMs_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`completedAssetCount_avg` of type `Float`
+  """
+  completedAssetCount_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`consumedAssetCount_avg` of type `Float`
+  """
+  consumedAssetCount_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`contentCount_avg` of type `Float`
+  """
+  contentCount_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`downloadCount_avg` of type `Float`
+  """
+  downloadCount_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`firstSeenAtMs_avg` of type `Float`
+  """
+  firstSeenAtMs_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastSeenAtMs_avg` of type `Float`
+  """
+  lastSeenAtMs_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastSequence_avg` of type `Float`
+  """
+  lastSequence_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`loadMsTotal_avg` of type `Float`
+  """
+  loadMsTotal_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`loadSampleCount_avg` of type `Float`
+  """
+  loadSampleCount_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`maxAssetWatchSeconds_avg` of type `Float`
+  """
+  maxAssetWatchSeconds_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`relatedClickCount_avg` of type `Float`
+  """
+  relatedClickCount_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`sessionStartedAtMs_avg` of type `Float`
+  """
+  sessionStartedAtMs_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`totalVisibleSeconds_avg` of type `Float`
+  """
+  totalVisibleSeconds_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`totalWatchSeconds_avg` of type `Float`
+  """
+  totalWatchSeconds_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`unwrappedAtMs_avg` of type `Float`
+  """
+  unwrappedAtMs_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`viewedAssetCount_avg` of type `Float`
+  """
+  viewedAssetCount_avg: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`activeAssetIndex_min` of type `Int`
+  """
+  activeAssetIndex_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`assetSwitchCount_min` of type `Int`
+  """
+  assetSwitchCount_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`averageLoadMs_min` of type `Int`
+  """
+  averageLoadMs_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`closedAtMs_min` of type `Int`
+  """
+  closedAtMs_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`completedAssetCount_min` of type `Int`
+  """
+  completedAssetCount_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`consumedAssetCount_min` of type `Int`
+  """
+  consumedAssetCount_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`contentCount_min` of type `Int`
+  """
+  contentCount_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`downloadCount_min` of type `Int`
+  """
+  downloadCount_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`firstSeenAtMs_min` of type `Int`
+  """
+  firstSeenAtMs_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastSeenAtMs_min` of type `Int`
+  """
+  lastSeenAtMs_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastSequence_min` of type `Int`
+  """
+  lastSequence_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`loadMsTotal_min` of type `Int`
+  """
+  loadMsTotal_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`loadSampleCount_min` of type `Int`
+  """
+  loadSampleCount_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`maxAssetWatchSeconds_min` of type `Float`
+  """
+  maxAssetWatchSeconds_min: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`relatedClickCount_min` of type `Int`
+  """
+  relatedClickCount_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`sessionStartedAtMs_min` of type `Int`
+  """
+  sessionStartedAtMs_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`totalVisibleSeconds_min` of type `Float`
+  """
+  totalVisibleSeconds_min: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`totalWatchSeconds_min` of type `Float`
+  """
+  totalWatchSeconds_min: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`unwrappedAtMs_min` of type `Int`
+  """
+  unwrappedAtMs_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`viewedAssetCount_min` of type `Int`
+  """
+  viewedAssetCount_min: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`activeAssetIndex_max` of type `Int`
+  """
+  activeAssetIndex_max: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`assetSwitchCount_max` of type `Int`
+  """
+  assetSwitchCount_max: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`averageLoadMs_max` of type `Int`
+  """
+  averageLoadMs_max: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`closedAtMs_max` of type `Int`
+  """
+  closedAtMs_max: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`completedAssetCount_max` of type `Int`
+  """
+  completedAssetCount_max: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`consumedAssetCount_max` of type `Int`
+  """
+  consumedAssetCount_max: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`contentCount_max` of type `Int`
+  """
+  contentCount_max: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`downloadCount_max` of type `Int`
+  """
+  downloadCount_max: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`firstSeenAtMs_max` of type `Int`
+  """
+  firstSeenAtMs_max: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastSeenAtMs_max` of type `Int`
+  """
+  lastSeenAtMs_max: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastSequence_max` of type `Int`
+  """
+  lastSequence_max: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`loadMsTotal_max` of type `Int`
+  """
+  loadMsTotal_max: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`loadSampleCount_max` of type `Int`
+  """
+  loadSampleCount_max: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`maxAssetWatchSeconds_max` of type `Float`
+  """
+  maxAssetWatchSeconds_max: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`relatedClickCount_max` of type `Int`
+  """
+  relatedClickCount_max: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`sessionStartedAtMs_max` of type `Int`
+  """
+  sessionStartedAtMs_max: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`totalVisibleSeconds_max` of type `Float`
+  """
+  totalVisibleSeconds_max: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`totalWatchSeconds_max` of type `Float`
+  """
+  totalWatchSeconds_max: Float_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`unwrappedAtMs_max` of type `Int`
+  """
+  unwrappedAtMs_max: Int_Filter
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`viewedAssetCount_max` of type `Int`
+  """
+  viewedAssetCount_max: Int_Filter
+}
+"""
+✨ Generated key input type for table 'AnalyticsWatchSession'. It represents the primary key fields used to uniquely identify a row in the table.
+"""
+input AnalyticsWatchSession_Key {
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsWatchSession`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+}
+"""
+✨ Generated list filter input type for table 'AnalyticsWatchSession'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
+"""
+input AnalyticsWatchSession_ListFilter {
+  """
+  The desired number of objects that match the condition (defaults to at least one).
+  """
+  count: Int_Filter = {gt:0}
+  """
+  Condition of the related objects to filter for.
+  """
+  exist: AnalyticsWatchSession_Filter
+}
+"""
+✨ Generated order input type for table 'AnalyticsWatchSession'. This input defines the sorting order of rows in query results based on one or more fields.
+"""
+input AnalyticsWatchSession_Order {
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`id` of type `UUID!`
+  """
+  id: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`activeAssetIndex` of type `Int`
+  """
+  activeAssetIndex: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`activeAssetKey` of type `String`
+  """
+  activeAssetKey: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`assetSwitchCount` of type `Int!`
+  """
+  assetSwitchCount: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`averageLoadMs` of type `Int!`
+  """
+  averageLoadMs: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`clientSessionId` of type `String`
+  """
+  clientSessionId: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`closeReason` of type `String`
+  """
+  closeReason: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`closedAtMs` of type `Int`
+  """
+  closedAtMs: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`completedAssetCount` of type `Int!`
+  """
+  completedAssetCount: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`consumedAssetCount` of type `Int!`
+  """
+  consumedAssetCount: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`contentCount` of type `Int!`
+  """
+  contentCount: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`downloadCount` of type `Int!`
+  """
+  downloadCount: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`dropCategory` of type `String`
+  """
+  dropCategory: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`dropId` of type `String!`
+  """
+  dropId: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`dropTitle` of type `String`
+  """
+  dropTitle: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`firstSeenAtMs` of type `Int!`
+  """
+  firstSeenAtMs: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`isClosed` of type `Boolean!`
+  """
+  isClosed: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastDayKey` of type `String!`
+  """
+  lastDayKey: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastHourKey` of type `String!`
+  """
+  lastHourKey: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastSeenAtMs` of type `Int!`
+  """
+  lastSeenAtMs: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastSequence` of type `Int!`
+  """
+  lastSequence: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`loadMsTotal` of type `Int!`
+  """
+  loadMsTotal: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`loadSampleCount` of type `Int!`
+  """
+  loadSampleCount: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`maxAssetWatchSeconds` of type `Float!`
+  """
+  maxAssetWatchSeconds: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`pagePath` of type `String`
+  """
+  pagePath: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`relatedClickCount` of type `Int!`
+  """
+  relatedClickCount: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`sessionStartedAtMs` of type `Int!`
+  """
+  sessionStartedAtMs: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`startedDayKey` of type `String!`
+  """
+  startedDayKey: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`startedHourKey` of type `String!`
+  """
+  startedHourKey: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`totalVisibleSeconds` of type `Float!`
+  """
+  totalVisibleSeconds: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`totalWatchSeconds` of type `Float!`
+  """
+  totalWatchSeconds: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`unwrappedAtMs` of type `Int`
+  """
+  unwrappedAtMs: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`userId` of type `String`
+  """
+  userId: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`username` of type `String`
+  """
+  username: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`viewedAssetCount` of type `Int!`
+  """
+  viewedAssetCount: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`watchSessionId` of type `String!`
+  """
+  watchSessionId: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`_count` of type `Int!`
+  """
+  _count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`activeAssetIndex_count` of type `Int!`
+  """
+  activeAssetIndex_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`activeAssetKey_count` of type `Int!`
+  """
+  activeAssetKey_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`assetSwitchCount_count` of type `Int!`
+  """
+  assetSwitchCount_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`averageLoadMs_count` of type `Int!`
+  """
+  averageLoadMs_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`clientSessionId_count` of type `Int!`
+  """
+  clientSessionId_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`closeReason_count` of type `Int!`
+  """
+  closeReason_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`closedAtMs_count` of type `Int!`
+  """
+  closedAtMs_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`completedAssetCount_count` of type `Int!`
+  """
+  completedAssetCount_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`consumedAssetCount_count` of type `Int!`
+  """
+  consumedAssetCount_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`contentCount_count` of type `Int!`
+  """
+  contentCount_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`downloadCount_count` of type `Int!`
+  """
+  downloadCount_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`dropCategory_count` of type `Int!`
+  """
+  dropCategory_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`dropId_count` of type `Int!`
+  """
+  dropId_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`dropTitle_count` of type `Int!`
+  """
+  dropTitle_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`firstSeenAtMs_count` of type `Int!`
+  """
+  firstSeenAtMs_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`id_count` of type `Int!`
+  """
+  id_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`isClosed_count` of type `Int!`
+  """
+  isClosed_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastDayKey_count` of type `Int!`
+  """
+  lastDayKey_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastHourKey_count` of type `Int!`
+  """
+  lastHourKey_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastSeenAtMs_count` of type `Int!`
+  """
+  lastSeenAtMs_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastSequence_count` of type `Int!`
+  """
+  lastSequence_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`loadMsTotal_count` of type `Int!`
+  """
+  loadMsTotal_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`loadSampleCount_count` of type `Int!`
+  """
+  loadSampleCount_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`maxAssetWatchSeconds_count` of type `Int!`
+  """
+  maxAssetWatchSeconds_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`pagePath_count` of type `Int!`
+  """
+  pagePath_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`relatedClickCount_count` of type `Int!`
+  """
+  relatedClickCount_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`sessionStartedAtMs_count` of type `Int!`
+  """
+  sessionStartedAtMs_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`startedDayKey_count` of type `Int!`
+  """
+  startedDayKey_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`startedHourKey_count` of type `Int!`
+  """
+  startedHourKey_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`totalVisibleSeconds_count` of type `Int!`
+  """
+  totalVisibleSeconds_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`totalWatchSeconds_count` of type `Int!`
+  """
+  totalWatchSeconds_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`unwrappedAtMs_count` of type `Int!`
+  """
+  unwrappedAtMs_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`userId_count` of type `Int!`
+  """
+  userId_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`username_count` of type `Int!`
+  """
+  username_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`viewedAssetCount_count` of type `Int!`
+  """
+  viewedAssetCount_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`watchSessionId_count` of type `Int!`
+  """
+  watchSessionId_count: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`activeAssetIndex_sum` of type `Int`
+  """
+  activeAssetIndex_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`assetSwitchCount_sum` of type `Int`
+  """
+  assetSwitchCount_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`averageLoadMs_sum` of type `Int`
+  """
+  averageLoadMs_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`closedAtMs_sum` of type `Int`
+  """
+  closedAtMs_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`completedAssetCount_sum` of type `Int`
+  """
+  completedAssetCount_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`consumedAssetCount_sum` of type `Int`
+  """
+  consumedAssetCount_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`contentCount_sum` of type `Int`
+  """
+  contentCount_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`downloadCount_sum` of type `Int`
+  """
+  downloadCount_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`firstSeenAtMs_sum` of type `Int`
+  """
+  firstSeenAtMs_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastSeenAtMs_sum` of type `Int`
+  """
+  lastSeenAtMs_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastSequence_sum` of type `Int`
+  """
+  lastSequence_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`loadMsTotal_sum` of type `Int`
+  """
+  loadMsTotal_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`loadSampleCount_sum` of type `Int`
+  """
+  loadSampleCount_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`maxAssetWatchSeconds_sum` of type `Float`
+  """
+  maxAssetWatchSeconds_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`relatedClickCount_sum` of type `Int`
+  """
+  relatedClickCount_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`sessionStartedAtMs_sum` of type `Int`
+  """
+  sessionStartedAtMs_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`totalVisibleSeconds_sum` of type `Float`
+  """
+  totalVisibleSeconds_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`totalWatchSeconds_sum` of type `Float`
+  """
+  totalWatchSeconds_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`unwrappedAtMs_sum` of type `Int`
+  """
+  unwrappedAtMs_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`viewedAssetCount_sum` of type `Int`
+  """
+  viewedAssetCount_sum: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`activeAssetIndex_avg` of type `Float`
+  """
+  activeAssetIndex_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`assetSwitchCount_avg` of type `Float`
+  """
+  assetSwitchCount_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`averageLoadMs_avg` of type `Float`
+  """
+  averageLoadMs_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`closedAtMs_avg` of type `Float`
+  """
+  closedAtMs_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`completedAssetCount_avg` of type `Float`
+  """
+  completedAssetCount_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`consumedAssetCount_avg` of type `Float`
+  """
+  consumedAssetCount_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`contentCount_avg` of type `Float`
+  """
+  contentCount_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`downloadCount_avg` of type `Float`
+  """
+  downloadCount_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`firstSeenAtMs_avg` of type `Float`
+  """
+  firstSeenAtMs_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastSeenAtMs_avg` of type `Float`
+  """
+  lastSeenAtMs_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastSequence_avg` of type `Float`
+  """
+  lastSequence_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`loadMsTotal_avg` of type `Float`
+  """
+  loadMsTotal_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`loadSampleCount_avg` of type `Float`
+  """
+  loadSampleCount_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`maxAssetWatchSeconds_avg` of type `Float`
+  """
+  maxAssetWatchSeconds_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`relatedClickCount_avg` of type `Float`
+  """
+  relatedClickCount_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`sessionStartedAtMs_avg` of type `Float`
+  """
+  sessionStartedAtMs_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`totalVisibleSeconds_avg` of type `Float`
+  """
+  totalVisibleSeconds_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`totalWatchSeconds_avg` of type `Float`
+  """
+  totalWatchSeconds_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`unwrappedAtMs_avg` of type `Float`
+  """
+  unwrappedAtMs_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`viewedAssetCount_avg` of type `Float`
+  """
+  viewedAssetCount_avg: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`activeAssetIndex_min` of type `Int`
+  """
+  activeAssetIndex_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`assetSwitchCount_min` of type `Int`
+  """
+  assetSwitchCount_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`averageLoadMs_min` of type `Int`
+  """
+  averageLoadMs_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`closedAtMs_min` of type `Int`
+  """
+  closedAtMs_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`completedAssetCount_min` of type `Int`
+  """
+  completedAssetCount_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`consumedAssetCount_min` of type `Int`
+  """
+  consumedAssetCount_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`contentCount_min` of type `Int`
+  """
+  contentCount_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`downloadCount_min` of type `Int`
+  """
+  downloadCount_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`firstSeenAtMs_min` of type `Int`
+  """
+  firstSeenAtMs_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastSeenAtMs_min` of type `Int`
+  """
+  lastSeenAtMs_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastSequence_min` of type `Int`
+  """
+  lastSequence_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`loadMsTotal_min` of type `Int`
+  """
+  loadMsTotal_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`loadSampleCount_min` of type `Int`
+  """
+  loadSampleCount_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`maxAssetWatchSeconds_min` of type `Float`
+  """
+  maxAssetWatchSeconds_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`relatedClickCount_min` of type `Int`
+  """
+  relatedClickCount_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`sessionStartedAtMs_min` of type `Int`
+  """
+  sessionStartedAtMs_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`totalVisibleSeconds_min` of type `Float`
+  """
+  totalVisibleSeconds_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`totalWatchSeconds_min` of type `Float`
+  """
+  totalWatchSeconds_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`unwrappedAtMs_min` of type `Int`
+  """
+  unwrappedAtMs_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`viewedAssetCount_min` of type `Int`
+  """
+  viewedAssetCount_min: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`activeAssetIndex_max` of type `Int`
+  """
+  activeAssetIndex_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`assetSwitchCount_max` of type `Int`
+  """
+  assetSwitchCount_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`averageLoadMs_max` of type `Int`
+  """
+  averageLoadMs_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`closedAtMs_max` of type `Int`
+  """
+  closedAtMs_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`completedAssetCount_max` of type `Int`
+  """
+  completedAssetCount_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`consumedAssetCount_max` of type `Int`
+  """
+  consumedAssetCount_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`contentCount_max` of type `Int`
+  """
+  contentCount_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`downloadCount_max` of type `Int`
+  """
+  downloadCount_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`firstSeenAtMs_max` of type `Int`
+  """
+  firstSeenAtMs_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastSeenAtMs_max` of type `Int`
+  """
+  lastSeenAtMs_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`lastSequence_max` of type `Int`
+  """
+  lastSequence_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`loadMsTotal_max` of type `Int`
+  """
+  loadMsTotal_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`loadSampleCount_max` of type `Int`
+  """
+  loadSampleCount_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`maxAssetWatchSeconds_max` of type `Float`
+  """
+  maxAssetWatchSeconds_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`relatedClickCount_max` of type `Int`
+  """
+  relatedClickCount_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`sessionStartedAtMs_max` of type `Int`
+  """
+  sessionStartedAtMs_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`totalVisibleSeconds_max` of type `Float`
+  """
+  totalVisibleSeconds_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`totalWatchSeconds_max` of type `Float`
+  """
+  totalWatchSeconds_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`unwrappedAtMs_max` of type `Int`
+  """
+  unwrappedAtMs_max: OrderDirection
+  """
+  ✨ Generated from Field `AnalyticsWatchSession`.`viewedAssetCount_max` of type `Int`
+  """
+  viewedAssetCount_max: OrderDirection
 }

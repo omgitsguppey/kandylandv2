@@ -342,6 +342,44 @@ extend type Query {
     first: AnalyticsUserSecurityRollup_FirstRow
   ): AnalyticsUserSecurityRollup @fdc_generated(from: "AnalyticsUserSecurityRollup", purpose: QUERY_SINGLE)
   """
+  ✨ Look up a single `AnalyticsWatchAsset` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  analyticsWatchAsset(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AnalyticsWatchAsset_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AnalyticsWatchAsset_FirstRow
+  ): AnalyticsWatchAsset @fdc_generated(from: "AnalyticsWatchAsset", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `AnalyticsWatchSession` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  analyticsWatchSession(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AnalyticsWatchSession_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AnalyticsWatchSession_FirstRow
+  ): AnalyticsWatchSession @fdc_generated(from: "AnalyticsWatchSession", purpose: QUERY_SINGLE)
+  """
   ✨ List `AiInteraction` objects in the table and return selected fields, optionally filtered by `where` conditions
   """
   aiInteractions(
@@ -953,4 +991,72 @@ extend type Query {
     """
     having: AnalyticsUserSecurityRollup_Having
   ): [AnalyticsUserSecurityRollup!]! @fdc_generated(from: "AnalyticsUserSecurityRollup", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `AnalyticsWatchAsset` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  analyticsWatchAssets(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: AnalyticsWatchAsset_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [AnalyticsWatchAsset_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: AnalyticsWatchAsset_Having
+  ): [AnalyticsWatchAsset!]! @fdc_generated(from: "AnalyticsWatchAsset", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `AnalyticsWatchSession` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  analyticsWatchSessions(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: AnalyticsWatchSession_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [AnalyticsWatchSession_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: AnalyticsWatchSession_Having
+  ): [AnalyticsWatchSession!]! @fdc_generated(from: "AnalyticsWatchSession", purpose: QUERY_MULTIPLE)
 }

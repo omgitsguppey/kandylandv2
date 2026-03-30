@@ -1,6 +1,7 @@
 import { expect, it, describe, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { createHash } from "node:crypto";
+import { getTrustedClientIp } from "@/lib/server/request-client-ip";
 
 // Mocking dependencies
 vi.mock("@/lib/server/firebase-admin", () => ({
@@ -9,7 +10,7 @@ vi.mock("@/lib/server/firebase-admin", () => ({
 
 // Function to test buildAnonymousFingerprint logic (it's not exported from the route file)
 function buildAnonymousFingerprintLogic(request: NextRequest, dropId: string, dayKey: string, pagePath: string, surface: string) {
-    const clientIp = request.ip || "unknown";
+    const clientIp = getTrustedClientIp(request);
     const userAgent = request.headers.get("user-agent")?.trim() || "unknown";
     return createHash("sha256")
         .update(`${clientIp}:${userAgent}:${dropId}:${dayKey}:${pagePath}:${surface}`)
@@ -60,7 +61,7 @@ describe("IP Spoofing Protection", () => {
 
         // Current secure implementation from src/lib/server/rate-limit.ts
         const resolveCallerIdentifierLogic = (request: NextRequest) => {
-            const ip = request.ip || "unknown";
+            const ip = getTrustedClientIp(request);
             const userAgent = request.headers.get("user-agent")?.trim() || "unknown";
             return `${ip}:${userAgent}`;
         };

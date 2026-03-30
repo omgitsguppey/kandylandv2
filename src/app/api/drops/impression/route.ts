@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { adminDb } from "@/lib/server/firebase-admin";
 import { RELAXED } from "@/lib/server/rate-limit";
+import { getTrustedClientIp } from "@/lib/server/request-client-ip";
 import { getCSTDateKey } from "@/lib/timezone";
 import { guardApiRequest } from "@/lib/server/request-guard";
 
@@ -20,7 +21,7 @@ function buildDayKey(timestamp: number) {
 }
 
 function buildAnonymousFingerprint(request: NextRequest, dropId: string, dayKey: string, pagePath: string, surface: string) {
-  const clientIp = request.ip || "unknown";
+  const clientIp = getTrustedClientIp(request);
   const userAgent = request.headers.get("user-agent")?.trim() || "unknown";
   return createHash("sha256")
     .update(`${clientIp}:${userAgent}:${dropId}:${dayKey}:${pagePath}:${surface}`)
