@@ -16,36 +16,51 @@ export async function broadcastFCM(title: string, body: string, url: string = "/
     if (!adminDb) return false;
 
     try {
-        const usersSnap = await adminDb.collection("users").get();
         const tokens: string[] = [];
 
-        for (const doc of usersSnap.docs) {
-            const data = doc.data();
-            if (data.fcmTokens && Array.isArray(data.fcmTokens)) {
-                tokens.push(...data.fcmTokens);
-            }
-        }
+        await new Promise<void>((resolve, reject) => {
+            adminDb.collection("users")
+                .select("fcmTokens")
+                .stream()
+                .on("data", (doc) => {
+                    const data = doc.data();
+                    if (data.fcmTokens && Array.isArray(data.fcmTokens)) {
+                        tokens.push(...data.fcmTokens);
+                    }
+                })
+                .on("end", resolve)
+                .on("error", reject);
+        });
 
         if (tokens.length > 0) {
-            const message = {
-                notification: {
-                    title,
-                    body,
-                },
-                data: {
-                    url,
-                },
-                tokens: tokens
-            };
+            const BATCH_SIZE = 500;
+            let successCount = 0;
+            let failureCount = 0;
 
-            const response = await admin.messaging().sendEachForMulticast(message);
+            for (let i = 0; i < tokens.length; i += BATCH_SIZE) {
+                const chunk = tokens.slice(i, i + BATCH_SIZE);
+                const message = {
+                    notification: {
+                        title,
+                        body,
+                    },
+                    data: {
+                        url,
+                    },
+                    tokens: chunk
+                };
 
-            if (response.failureCount > 0) {
-                console.error(`FCM Multicast Dispatch Partial Failure. Success: ${response.successCount}, Failed: ${response.failureCount}`);
+                const response = await admin.messaging().sendEachForMulticast(message);
+                successCount += response.successCount;
+                failureCount += response.failureCount;
+            }
+
+            if (failureCount > 0) {
+                console.error(`FCM Multicast Dispatch Partial Failure. Success: ${successCount}, Failed: ${failureCount}`);
                 return false;
             }
 
-            console.log(`FCM Multicast Dispatch Complete. Success: ${response.successCount}, Failed: ${response.failureCount}`);
+            console.log(`FCM Multicast Dispatch Complete. Success: ${successCount}, Failed: ${failureCount}`);
             return true;
         }
 
