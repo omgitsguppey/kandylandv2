@@ -40,11 +40,12 @@ export function AdminDropdown() {
     return (
         <div className="relative" ref={dropdownRef}>
             <button
-                aria-label="Open admin menu"
+                aria-label="Admin menu"
                 aria-expanded={isOpen}
+                aria-haspopup="menu"
                 onClick={() => setIsOpen(!isOpen)}
                 className={cn(
-                    "flex items-center gap-2 px-3 py-1.5 rounded-full transition-all border",
+                    "flex items-center gap-2 px-3 py-1.5 rounded-full transition-all border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple focus-visible:ring-offset-2 focus-visible:ring-offset-black",
                     isOpen
                         ? "bg-brand-purple/20 text-brand-purple border-brand-purple/30 shadow-[0_0_15px_rgba(6,182,212,0.3)]"
                         : "bg-white/5 text-gray-400 border-white/5  "
