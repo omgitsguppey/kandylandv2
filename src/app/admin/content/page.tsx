@@ -8,6 +8,7 @@ import { Loader2, Upload, Trash2, Copy, FileIcon, ImageIcon, Video, RefreshCw } 
 import { Button } from "@/components/ui/Button";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
+import { toast } from "sonner";
 
 import Image from "next/image";
 
@@ -25,6 +26,7 @@ export default function ContentManagerPage() {
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         fetchFiles();
@@ -32,6 +34,7 @@ export default function ContentManagerPage() {
 
     const fetchFiles = async () => {
         setLoading(true);
+        setError(null);
         try {
             // List all files in 'drops' folder (primary folder)
             const listRef = ref(storage, 'drops');
@@ -50,6 +53,7 @@ export default function ContentManagerPage() {
             setFiles(fetchedFiles);
         } catch (error) {
             console.error("Error fetching files:", error);
+            setError(error instanceof Error ? error.message : "Failed to load content files.");
         } finally {
             setLoading(false);
         }
@@ -58,35 +62,51 @@ export default function ContentManagerPage() {
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files || e.target.files.length === 0) return;
         setUploading(true);
+        setError(null);
 
         try {
             const file = e.target.files[0];
             const storageRef = ref(storage, `drops/${Date.now()}_${file.name}`);
             await uploadBytes(storageRef, file);
             setRefreshTrigger(prev => prev + 1);
+            toast.success("File uploaded.");
         } catch (error) {
             console.error("Error uploading file:", error);
-            alert("Upload failed.");
+            const message = error instanceof Error ? error.message : "Upload failed.";
+            setError(message);
+            toast.error(message);
         } finally {
             setUploading(false);
+            e.target.value = "";
         }
     };
 
     const handleDelete = async (fullPath: string) => {
         if (!confirm("Are you sure you want to permanently delete this file?")) return;
+        setError(null);
         try {
             const fileRef = ref(storage, fullPath);
             await deleteObject(fileRef);
-            setFiles(files.filter(f => f.fullPath !== fullPath));
+            setFiles((current) => current.filter((file) => file.fullPath !== fullPath));
+            toast.success("File deleted.");
         } catch (error) {
             console.error("Error deleting file:", error);
-            alert("Delete failed.");
+            const message = error instanceof Error ? error.message : "Delete failed.";
+            setError(message);
+            toast.error(message);
         }
     };
 
-    const copyToClipboard = (text: string) => {
-        navigator.clipboard.writeText(text);
-        alert("URL copied to clipboard!");
+    const copyToClipboard = async (text: string) => {
+        try {
+            await navigator.clipboard.writeText(text);
+            toast.success("URL copied to clipboard.");
+        } catch (error) {
+            console.error("Error copying asset URL:", error);
+            const message = error instanceof Error ? error.message : "Failed to copy URL.";
+            setError(message);
+            toast.error(message);
+        }
     };
 
     const getFileIcon = (filename: string) => {
@@ -123,6 +143,12 @@ export default function ContentManagerPage() {
                     </>
                 }
             />
+
+            {error ? (
+                <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
+                    {error}
+                </div>
+            ) : null}
 
             <div className="glass-panel rounded-2xl overflow-hidden border border-white/5">
                 <div className="overflow-x-auto">

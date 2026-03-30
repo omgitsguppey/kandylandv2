@@ -284,8 +284,18 @@ if (unknownMatches.length > 0) {
 }
 
 const catalogedButUnemitted = TELEMETRY_EVENT_OPTIONS
-  .map((event) => event.eventName)
-  .filter((eventName) => !emittedEventNames.has(eventName));
+  .filter((event) => {
+    if (emittedEventNames.has(event.eventName)) {
+      return false;
+    }
+
+    if (event.auditCoveredBy?.some((coveredEventName) => emittedEventNames.has(normalizeTelemetryEventName(coveredEventName)))) {
+      return false;
+    }
+
+    return true;
+  })
+  .map((event) => event.eventName);
 
 console.log(`Telemetry audit passed. ${matches.length} literal or resolvable emitters checked across ${files.length} files.`);
 console.log(`Cataloged events with no detected emitters: ${catalogedButUnemitted.length}`);

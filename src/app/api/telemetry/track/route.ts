@@ -18,9 +18,10 @@ import {
     ANALYTICS_OPERATIONAL_COLLECTIONS,
     ANALYTICS_ROUTE_POLICIES,
 } from "@/lib/server/analytics-governance";
+import { sanitizeTelemetryParamsForBackend, type SanitizedTelemetryParams } from "@/lib/telemetry-safety";
 
 const TASK_PROGRESS_EVENT_NAMES = new Set(BUILT_IN_DAILY_TASKS.map((task) => task.eventName));
-type SanitizedEventParams = Record<string, string | number | boolean>;
+type SanitizedEventParams = SanitizedTelemetryParams;
 const MAX_TELEMETRY_BODY_BYTES = 48 * 1024;
 const MAX_TELEMETRY_EVENTS_PER_REQUEST = 25;
 
@@ -55,33 +56,12 @@ function getBooleanParam(params: SanitizedEventParams, key: string) {
     return typeof value === "boolean" ? value : undefined;
 }
 
-function sanitizeTelemetryValue(value: unknown): string | number | boolean | undefined {
-    if (typeof value === "string") {
-        return value.slice(0, 250);
-    }
-
-    if (typeof value === "number") {
-        return Number.isFinite(value) ? value : undefined;
-    }
-
-    if (typeof value === "boolean") {
-        return value;
-    }
-
-    return undefined;
-}
-
 function sanitizeEventParams(value: unknown) {
     if (!value || typeof value !== "object" || Array.isArray(value)) {
         return {};
     }
 
-    const entries = Object.entries(value as Record<string, unknown>).slice(0, 20);
-    const sanitizedEntries = entries
-        .map(([key, entryValue]) => [key.slice(0, 60), sanitizeTelemetryValue(entryValue)] as const)
-        .filter(([, entryValue]) => entryValue !== undefined) as Array<[string, string | number | boolean]>;
-
-    return Object.fromEntries(sanitizedEntries) as SanitizedEventParams;
+    return sanitizeTelemetryParamsForBackend(value as Record<string, unknown>) ?? {};
 }
 
 function isAlreadyExistsError(error: unknown) {

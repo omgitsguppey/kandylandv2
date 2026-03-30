@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 import { useAuthIdentity, useUserProfile } from "@/context/AuthContext";
-import { readPreferredAuthenticatedPath } from "@/lib/navigation-persistence";
+import { getPreferredAuthenticatedPathForProfile } from "@/lib/creator-application";
 import { cn } from "@/lib/utils";
 
 interface LegalBackLinkProps {
@@ -24,7 +24,7 @@ export function LegalBackLink({
     const { userProfile } = useUserProfile();
 
     const href = user
-        ? readPreferredAuthenticatedPath(userProfile?.role ?? "user", user.uid)
+        ? getPreferredAuthenticatedPathForProfile(userProfile, user.uid)
         : "/";
     const label = user ? signedInLabel : signedOutLabel;
 

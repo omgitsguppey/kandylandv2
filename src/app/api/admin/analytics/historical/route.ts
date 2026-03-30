@@ -45,114 +45,120 @@ const propertyId = getAdminAnalyticsPropertyId();
 const analyticsClient = createAdminAnalyticsDataClient();
 
 function scopeHistoricalResponse(section: string | null, payload: Record<string, unknown>) {
+    const withSharedFields = (value: Record<string, unknown>) => ({
+        generatedAtMs: payload.generatedAtMs,
+        viewerFilter: payload.viewerFilter,
+        ...value,
+    });
+
     switch (section) {
         case "stationSnapshot":
-            return {
+            return withSharedFields({
                 totals: payload.totals,
                 devices: payload.devices,
                 commerce: payload.commerce,
                 security: payload.security,
-            };
+            });
         case "livePulse":
-            return {
+            return withSharedFields({
                 funnel: payload.funnel,
                 onboardingStats: payload.onboardingStats,
-            };
+            });
         case "journeyFunnel":
-            return { funnel: payload.funnel };
+            return withSharedFields({ funnel: payload.funnel });
         case "authOutcomeSplit":
-            return { authBreakdown: payload.authBreakdown };
+            return withSharedFields({ authBreakdown: payload.authBreakdown });
         case "onboardingVelocity":
-            return {
+            return withSharedFields({
                 onboardingStats: payload.onboardingStats,
                 onboardingStepStats: payload.onboardingStepStats,
                 onboardingDurationBuckets: payload.onboardingDurationBuckets,
-            };
+            });
         case "eventMix":
-            return { eventBreakdown: payload.eventBreakdown };
+            return withSharedFields({ eventBreakdown: payload.eventBreakdown });
         case "liveInteractionStream":
-            return { rawEvents: payload.rawEvents };
+            return withSharedFields({ rawEvents: payload.rawEvents });
         case "serverTelemetryHealth":
-            return { opsHealth: payload.opsHealth };
+            return withSharedFields({ opsHealth: payload.opsHealth });
         case "coverageEngine":
-            return {
+            return withSharedFields({
                 moduleCoverage: payload.moduleCoverage,
                 unhealthyModules: payload.unhealthyModules,
                 parityScore: payload.parityScore,
-            };
+            });
         case "categorySemantics":
-            return { semanticCategories: payload.semanticCategories };
+            return withSharedFields({ semanticCategories: payload.semanticCategories });
         case "creatorMetrics":
-            return { socialMetrics: payload.socialMetrics };
+            return withSharedFields({ socialMetrics: payload.socialMetrics });
         case "semanticsEngine":
-            return { semanticEngine: payload.semanticEngine };
+            return withSharedFields({ semanticEngine: payload.semanticEngine });
         case "dataValidation":
-            return { validations: payload.validations };
+            return withSharedFields({ validations: payload.validations });
         case "audienceSnapshot":
-            return {
+            return withSharedFields({
                 data: payload.data,
                 totals: payload.totals,
                 devices: payload.devices,
-            };
+            });
         case "returnCadence":
-            return { repeatVisitSegments: payload.repeatVisitSegments };
+            return withSharedFields({ repeatVisitSegments: payload.repeatVisitSegments });
         case "navigationDestinations":
-            return { destinationMix: payload.destinationMix };
+            return withSharedFields({ destinationMix: payload.destinationMix });
         case "deviceMix":
-            return { devices: payload.devices };
+            return withSharedFields({ devices: payload.devices });
         case "topPaths":
-            return { pages: payload.pages };
+            return withSharedFields({ pages: payload.pages });
         case "regions":
-            return { geo: payload.geo };
+            return withSharedFields({ geo: payload.geo });
         case "commerceSnapshot":
-            return {
+            return withSharedFields({
                 commerce: payload.commerce,
                 funnel: payload.funnel,
-            };
+            });
         case "packagePerformance":
-            return { packagePerformance: payload.packagePerformance };
+            return withSharedFields({ packagePerformance: payload.packagePerformance });
         case "contentConversion":
-            return { unlockCategoryMix: payload.unlockCategoryMix };
+            return withSharedFields({ unlockCategoryMix: payload.unlockCategoryMix });
         case "topDropConversion":
-            return { topDrops: payload.topDrops };
+            return withSharedFields({ topDrops: payload.topDrops });
         case "recentCommerceFeed":
-            return { commerce: payload.commerce };
+            return withSharedFields({ commerce: payload.commerce });
         case "viewerDrilldown":
-            return {
+            return withSharedFields({
                 viewerOverview: payload.viewerOverview,
                 viewerDropInsights: payload.viewerDropInsights,
                 viewerUsers: payload.viewerUsers,
                 viewerFilter: payload.viewerFilter,
-            };
+            });
         case "viewerJourney":
-            return { contentJourney: payload.contentJourney };
+            return withSharedFields({ contentJourney: payload.contentJourney });
         case "watchDepthTags":
-            return {
+            return withSharedFields({
                 watchDepthBuckets: payload.watchDepthBuckets,
                 contentTagDemand: payload.contentTagDemand,
-            };
+            });
         case "securityPosture":
-            return {
+            return withSharedFields({
                 security: payload.security,
                 funnel: payload.funnel,
-            };
+            });
         case "dailyTaskPipeline":
-            return {
+            return withSharedFields({
                 taskGuidance: payload.taskGuidance,
                 taskPipeline: payload.taskPipeline,
-            };
+            });
         case "taskCompletionSpeed":
-            return { taskDurationBuckets: payload.taskDurationBuckets };
+            return withSharedFields({ taskDurationBuckets: payload.taskDurationBuckets });
         case "taskLeaderboard":
-            return { taskLeaderboard: payload.taskLeaderboard };
+            return withSharedFields({ taskLeaderboard: payload.taskLeaderboard });
         case "notificationFunnel":
-            return {
+            return withSharedFields({
                 notificationFunnel: payload.notificationFunnel,
                 notificationActions: payload.notificationActions,
                 reminderReasons: payload.reminderReasons,
-            };
+            });
         case "flaggedAccounts":
-            return { security: payload.security };
+            return withSharedFields({ security: payload.security });
         default:
             return payload;
     }

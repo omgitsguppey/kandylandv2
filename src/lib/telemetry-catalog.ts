@@ -40,6 +40,7 @@ export interface TelemetryEventOption {
   sources?: TelemetryEventSource[];
   modules?: TelemetryModuleKey[];
   aliases?: string[];
+  auditCoveredBy?: string[];
 }
 
 export interface TelemetryModuleIndex {
@@ -60,7 +61,7 @@ const DEFAULT_SERVER_SOURCES: TelemetryEventSource[] = ["ga4", "backend"];
 const DEFAULT_CANONICAL_SERVER_SOURCES: TelemetryEventSource[] = ["ga4", "backend", "canonical"];
 const DEFAULT_GA_ONLY_SOURCES: TelemetryEventSource[] = ["ga4"];
 
-export const TELEMETRY_EVENT_INDEX_VERSION = "2026.03.16.1";
+export const TELEMETRY_EVENT_INDEX_VERSION = "2026.03.30.1";
 
 export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "auth_modal_opened", label: "Auth modal opened", category: "auth", sources: DEFAULT_CLIENT_SOURCES, modules: ["auth"] },
@@ -113,6 +114,8 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "onboarding_step_viewed", label: "Onboarding step viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["onboarding"] },
   { eventName: "avatar_uploaded", label: "Avatar uploaded", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["onboarding"] },
   { eventName: "home_page_viewed", label: "Home page viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
+  { eventName: "creator_apply_viewed", label: "Creator apply page viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement", "navigation"] },
+  { eventName: "creator_waitlist_viewed", label: "Creator waitlist page viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement", "navigation"] },
   { eventName: "privacy_page_viewed", label: "Privacy page viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
   { eventName: "terms_page_viewed", label: "Terms page viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
   { eventName: "drops_page_viewed", label: "Drops page viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "content"] },
@@ -233,7 +236,15 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "admin_queue_viewed", label: "Admin queue viewed", category: "admin", sources: DEFAULT_CLIENT_SOURCES, modules: ["admin", "navigation"] },
   { eventName: "admin_roster_viewed", label: "Admin roster viewed", category: "admin", sources: DEFAULT_CLIENT_SOURCES, modules: ["admin", "navigation"] },
   { eventName: "admin_user_detail_viewed", label: "Admin user detail viewed", category: "admin", sources: DEFAULT_CLIENT_SOURCES, modules: ["admin", "navigation"] },
-  { eventName: "security_screenshot_attempted", label: "Screenshot attempt detected", category: "security", sources: DEFAULT_SERVER_SOURCES, modules: ["security", "viewer"] },
+  { eventName: "creator_application_review_saved", label: "Creator application review saved", category: "admin", sources: DEFAULT_CLIENT_SOURCES, modules: ["admin", "creator"] },
+  {
+    eventName: "security_screenshot_attempted",
+    label: "Screenshot attempt detected",
+    category: "security",
+    sources: DEFAULT_SERVER_SOURCES,
+    modules: ["security", "viewer"],
+    auditCoveredBy: ["security_screenshot_mac_attempted", "security_screenshot_windows_attempted"],
+  },
   { eventName: "security_screenshot_mac_attempted", label: "macOS screenshot attempt detected", category: "security", sources: DEFAULT_SERVER_SOURCES, modules: ["security", "viewer"] },
   { eventName: "security_screenshot_windows_attempted", label: "Windows screenshot attempt detected", category: "security", sources: DEFAULT_SERVER_SOURCES, modules: ["security", "viewer"] },
   { eventName: "security_screen_record_attempted", label: "Screen recording attempt detected", category: "security", sources: DEFAULT_SERVER_SOURCES, modules: ["security", "viewer"] },
@@ -296,6 +307,8 @@ export const TELEMETRY_MODULE_INDEXES: TelemetryModuleIndex[] = [
       "library_viewed",
       "profile_settings_viewed",
       "experience_hub_viewed",
+      "creator_apply_viewed",
+      "creator_waitlist_viewed",
       "privacy_page_viewed",
       "terms_page_viewed",
       "drops_page_viewed",
@@ -416,6 +429,8 @@ export const TELEMETRY_MODULE_INDEXES: TelemetryModuleIndex[] = [
       "creator_notifications_disabled",
       "creator_favorited",
       "creator_unfavorited",
+      "creator_apply_viewed",
+      "creator_waitlist_viewed",
       "creator_profile_viewed",
       "creator_broadcast_opened",
       "creator_message_sent",
@@ -483,6 +498,7 @@ export const TELEMETRY_MODULE_INDEXES: TelemetryModuleIndex[] = [
       "admin_queue_viewed",
       "admin_roster_viewed",
       "admin_user_detail_viewed",
+      "creator_application_review_saved",
     ],
     fallbackSources: ["analytics_event_facts", "ga4"],
   },
@@ -559,6 +575,7 @@ export const ADMIN_TELEMETRY_LOG_EVENT_NAMES = [
   "admin_queue_viewed",
   "admin_roster_viewed",
   "admin_user_detail_viewed",
+  "creator_application_review_saved",
   "navigation_click",
   "viewer_opened",
   "viewer_content_loaded",

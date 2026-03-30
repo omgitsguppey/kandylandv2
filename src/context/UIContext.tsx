@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, ReactNode, useMemo } from "react";
 
-export type AuthModalEntryMode = "signin" | "signup";
+export type AuthModalEntryMode = "signin" | "signup" | "creator_signup";
 
 interface UIContextType {
     isPurchaseModalOpen: boolean;

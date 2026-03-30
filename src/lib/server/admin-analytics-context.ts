@@ -25,10 +25,12 @@ export interface AnalyticsSurfaceContextItem {
 export interface AnalyticsUserJourneyItem {
     uid: string;
     username: string;
+    actorType: "guest" | "identified";
     eventCount: number;
     watchSeconds: number;
     lastSeenAt: number;
     primaryPath: string;
+    journeyState: "engaged" | "bounced" | "mixed" | "unknown";
 }
 
 export interface AnalyticsExperienceContextItem {
@@ -156,10 +158,13 @@ export function buildHistoricalAnalyticsContext(input: {
     const userMap = new Map<string, {
         uid: string;
         username: string;
+        actorType: "guest" | "identified";
         eventCount: number;
         watchSeconds: number;
         lastSeenAt: number;
         pathCounts: Map<string, number>;
+        engagementSignals: number;
+        bounceSignals: number;
     }>();
     const experienceMap = new Map<string, {
         key: string;
@@ -242,15 +247,26 @@ export function buildHistoricalAnalyticsContext(input: {
             const currentUser = userMap.get(uid) || {
                 uid,
                 username: record.username || record.userId || "Unknown user",
+                actorType: "identified" as const,
                 eventCount: 0,
                 watchSeconds: 0,
                 lastSeenAt: 0,
                 pathCounts: new Map<string, number>(),
+                engagementSignals: 0,
+                bounceSignals: 0,
             };
             currentUser.eventCount += 1;
             currentUser.watchSeconds += watchSeconds;
             currentUser.lastSeenAt = Math.max(currentUser.lastSeenAt, record.timestamp);
             currentUser.pathCounts.set(pagePath, (currentUser.pathCounts.get(pagePath) || 0) + 1);
+            const interactionState = getTelemetryParamString(record, "interaction_state");
+            const exitIntent = getTelemetryParamString(record, "exit_intent");
+            if (interactionState === "engaged" || watchSeconds >= 30) {
+                currentUser.engagementSignals += 1;
+            }
+            if (exitIntent === "bounce") {
+                currentUser.bounceSignals += 1;
+            }
             userMap.set(uid, currentUser);
         }
     });
@@ -258,6 +274,20 @@ export function buildHistoricalAnalyticsContext(input: {
     input.guestBatchDocs.forEach((doc) => {
         const data = doc.data() as Record<string, unknown>;
         const events = Array.isArray(data.events) ? data.events as Array<Record<string, unknown>> : [];
+        const guestSessionId = toStringValue(data.clientSessionId)
+            || toStringValue(data.sessionKey)
+            || `guest-${Math.floor((toNumber(data.receivedAtMs) || 0) / (30 * 60 * 1000))}`;
+        const guestUser = userMap.get(guestSessionId) || {
+            uid: guestSessionId,
+            username: "Guest session",
+            actorType: "guest" as const,
+            eventCount: 0,
+            watchSeconds: 0,
+            lastSeenAt: 0,
+            pathCounts: new Map<string, number>(),
+            engagementSignals: 0,
+            bounceSignals: 0,
+        };
         events.forEach((event) => {
             const pagePath = toStringValue(event.path) || "/";
             const surfaceLabel = resolveSurfaceLabel({
@@ -279,7 +309,22 @@ export function buildHistoricalAnalyticsContext(input: {
             surface.uniqueUsers.add("guest");
             surface.lastSeenAt = Math.max(surface.lastSeenAt, toNumber(event.timestamp) || toNumber(data.receivedAtMs));
             surfaceMap.set(surfaceKey, surface);
+
+            guestUser.eventCount += 1;
+            guestUser.lastSeenAt = Math.max(guestUser.lastSeenAt, toNumber(event.timestamp) || toNumber(data.receivedAtMs));
+            guestUser.pathCounts.set(pagePath, (guestUser.pathCounts.get(pagePath) || 0) + 1);
+            if (
+                toStringValue(event.interactionState) === "engaged"
+                || toNumber(event.durationMs) >= 15_000
+                || toNumber(event.scrollDepthPercent) >= 25
+            ) {
+                guestUser.engagementSignals += 1;
+            }
+            if (toStringValue(event.exitIntent) === "bounce") {
+                guestUser.bounceSignals += 1;
+            }
         });
+        userMap.set(guestSessionId, guestUser);
     });
 
     input.viewerDropInsights.forEach((item) => {
@@ -305,13 +350,19 @@ export function buildHistoricalAnalyticsContext(input: {
         const currentUser = userMap.get(item.uid) || {
             uid: item.uid,
             username: item.username || item.uid,
+            actorType: "identified" as const,
             eventCount: 0,
             watchSeconds: 0,
             lastSeenAt: 0,
             pathCounts: new Map<string, number>(),
+            engagementSignals: 0,
+            bounceSignals: 0,
         };
         currentUser.watchSeconds = Math.max(currentUser.watchSeconds, item.totalWatchSeconds);
         currentUser.eventCount = Math.max(currentUser.eventCount, item.sessionCount + item.viewCount);
+        if (item.totalWatchSeconds >= 30 || item.sessionCount > 1 || item.viewCount > 1) {
+            currentUser.engagementSignals = Math.max(currentUser.engagementSignals, 1);
+        }
         userMap.set(item.uid, currentUser);
     });
 
@@ -348,14 +399,26 @@ export function buildHistoricalAnalyticsContext(input: {
         .slice(0, 10);
 
     const userJourneys: AnalyticsUserJourneyItem[] = Array.from(userMap.values())
-        .map((entry) => ({
-            uid: entry.uid,
-            username: entry.username,
-            eventCount: entry.eventCount,
-            watchSeconds: entry.watchSeconds,
-            lastSeenAt: entry.lastSeenAt,
-            primaryPath: Array.from(entry.pathCounts.entries()).sort((left, right) => right[1] - left[1])[0]?.[0] || "/dashboard",
-        }))
+        .map((entry) => {
+            const journeyState: AnalyticsUserJourneyItem["journeyState"] = entry.engagementSignals > 0 && entry.bounceSignals > 0
+                ? "mixed"
+                : entry.bounceSignals > 0 && entry.engagementSignals === 0
+                    ? "bounced"
+                    : entry.engagementSignals > 0 || entry.watchSeconds >= 30 || entry.eventCount >= 3
+                        ? "engaged"
+                        : "unknown";
+
+            return {
+                uid: entry.uid,
+                username: entry.username,
+                actorType: entry.actorType,
+                eventCount: entry.eventCount,
+                watchSeconds: entry.watchSeconds,
+                lastSeenAt: entry.lastSeenAt,
+                primaryPath: Array.from(entry.pathCounts.entries()).sort((left, right) => right[1] - left[1])[0]?.[0] || "/dashboard",
+                journeyState,
+            };
+        })
         .sort((left, right) =>
             right.eventCount - left.eventCount
             || right.watchSeconds - left.watchSeconds

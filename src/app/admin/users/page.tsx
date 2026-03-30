@@ -229,7 +229,7 @@ export default function UserManagementPage() {
             if (!response.ok) throw new Error(result.error);
 
             // Update local state
-            setUsers(users.map(u => u.uid === actionUser.uid ? { ...u, ...updates } : u));
+            setUsers((current) => current.map((u) => (u.uid === actionUser.uid ? { ...u, ...updates } : u)));
             setActionType(null);
             setActionUser(null);
             setReason("");
@@ -270,7 +270,7 @@ export default function UserManagementPage() {
                 ? [...(contentUser.unlockedContent || []), canonicalDropId]
                 : (contentUser.unlockedContent || []).filter(id => id !== canonicalDropId);
 
-            setUsers(users.map(u => u.uid === contentUser.uid ? { ...u, unlockedContent: updatedContent } : u));
+            setUsers((current) => current.map((u) => (u.uid === contentUser.uid ? { ...u, unlockedContent: updatedContent } : u)));
             setContentUser({ ...contentUser, unlockedContent: updatedContent });
             if (result.dropReference?.id) {
                 setDropReferences((current) => ({
@@ -297,7 +297,7 @@ export default function UserManagementPage() {
             const result = await response.json();
             if (!response.ok) throw new Error(result.error);
             // Update local state
-            setUsers(users.map(u => u.uid === uid ? { ...u, role: newRole } : u));
+            setUsers((current) => current.map((u) => (u.uid === uid ? { ...u, role: newRole } : u)));
             toast.success(`Role updated to ${newRole}`);
         } catch (error: any) {
             console.error(error);
@@ -314,7 +314,7 @@ export default function UserManagementPage() {
             const result = await response.json();
             if (!response.ok) throw new Error(result.error);
             // Update local state
-            setUsers(users.map(u => u.uid === uid ? { ...u, isVerified } : u));
+            setUsers((current) => current.map((u) => (u.uid === uid ? { ...u, isVerified } : u)));
         } catch (error: any) {
             console.error(error);
             toast.error(error.message || "Failed to update verification");
@@ -954,7 +954,7 @@ export default function UserManagementPage() {
                             user={editBalanceUser}
                             onClose={() => setEditBalanceUser(null)}
                             onSuccess={(newBalance) => {
-                                setUsers(users.map(u => u.uid === editBalanceUser.uid ? { ...u, gumDropsBalance: newBalance } : u));
+                                setUsers((current) => current.map((u) => (u.uid === editBalanceUser.uid ? { ...u, gumDropsBalance: newBalance } : u)));
                             }}
                         />
                     )}

@@ -24,18 +24,36 @@ import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
 import {
     clearLastVisitedPath,
-    readPreferredAuthenticatedPath,
     syncLastVisitedPathOwner,
 } from "@/lib/navigation-persistence";
+import { CREATOR_WAITLIST_PATH, getPreferredAuthenticatedPathForProfile } from "@/lib/creator-application";
 import { syncClientSessionOwnership } from "@/lib/client-session";
 import { clearTaskGuidanceStorage } from "@/lib/task-guidance";
 import { syncIdentifiedTelemetryOwnership, trackEvent } from "@/lib/telemetry";
+
+type SignupIntent = "fan" | "creator";
+
+type SignUpInput = {
+    email: string;
+    password: string;
+    username: string;
+    dob: string;
+    signupIntent?: SignupIntent;
+    creatorDisplayName?: string;
+    creatorPrimaryPlatform?: string;
+    creatorContentFocus?: string;
+};
+
+type SignUpResult = {
+    welcomeBonus: number;
+    signupIntent: SignupIntent;
+};
 
 interface AuthIdentityContextType {
     user: User | null;
     signInWithGoogle: () => Promise<void>;
     signInWithEmail: (email: string, pass: string) => Promise<void>;
-    signUpWithEmail: (email: string, pass: string, username: string, dob: string) => Promise<void>;
+    signUpWithEmail: (input: SignUpInput) => Promise<SignUpResult>;
     logout: () => Promise<void>;
 }
 
@@ -136,8 +154,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         pathnameRef.current = pathname;
     }, [pathname]);
 
-    const getPostAuthDestination = useCallback((role?: UserProfile["role"] | null, ownerId?: string | null) => {
-        return readPreferredAuthenticatedPath(role ?? "user", ownerId);
+    const getPostAuthDestination = useCallback((profile?: Pick<UserProfile, "role" | "creatorApplication"> | null, ownerId?: string | null) => {
+        return getPreferredAuthenticatedPathForProfile(profile ?? null, ownerId);
     }, []);
 
     useEffect(() => {
@@ -423,37 +441,54 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
-    const signUpWithEmail = useCallback(async (email: string, pass: string, username: string, dob: string) => {
+    const signUpWithEmail = useCallback(async (input: SignUpInput) => {
         if (!auth || !firebaseClientConfigured) {
             throw new Error("Authentication is unavailable in this environment.");
         }
 
         try {
+            const signupIntent: SignupIntent = input.signupIntent === "creator" ? "creator" : "fan";
             await ensureAuthPersistence();
             await prepareAuthAppCheck();
-            await createUserWithEmailAndPassword(auth, email, pass);
+            await createUserWithEmailAndPassword(auth, input.email, input.password);
 
             const response = await authFetch("/api/user/register", {
                 method: "POST",
                 body: JSON.stringify({
-                    displayName: username,
-                    username,
-                    dateOfBirth: dob,
+                    displayName: signupIntent === "creator"
+                        ? input.creatorDisplayName || input.username
+                        : input.username,
+                    username: input.username,
+                    dateOfBirth: input.dob,
                     registrationMethod: "email",
-                    welcomeBonus: true,
+                    signupIntent,
+                    creatorDisplayName: input.creatorDisplayName,
+                    creatorPrimaryPlatform: input.creatorPrimaryPlatform,
+                    creatorContentFocus: input.creatorContentFocus,
                     referredBy: readSessionStorageValue(CLIENT_RUNTIME_STORAGE_KEYS.referralCode) ?? undefined,
                 }),
             });
 
+            const result = (await response.json()) as { error?: string; welcomeBonus?: number };
+
             if (!response.ok) {
-                const result = (await response.json()) as { error?: string };
                 throw new Error(result.error || "Registration failed");
             }
 
-            toast.success("Account created! +100 Gum Drops");
-            if (pathname === "/") {
-                router.push(getPostAuthDestination("user", auth.currentUser?.uid ?? null));
+            const welcomeBonus = typeof result.welcomeBonus === "number" ? Math.max(0, result.welcomeBonus) : 0;
+            if (signupIntent === "creator") {
+                toast.success("Creator signup received. We’ll be in contact soon.");
+                router.push(CREATOR_WAITLIST_PATH);
+            } else {
+                toast.success(welcomeBonus > 0 ? `Account created! +${welcomeBonus} Gum Drops` : "Account created!");
+                if (pathname === "/") {
+                    router.push(getPostAuthDestination({ role: "user" }, auth.currentUser?.uid ?? null));
+                }
             }
+            return {
+                welcomeBonus,
+                signupIntent,
+            };
         } catch (error: unknown) {
             throw error;
         }

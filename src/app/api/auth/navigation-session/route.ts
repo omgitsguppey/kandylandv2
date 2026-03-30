@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { NavigationRole } from "@/lib/navigation-persistence";
 import { createNavigationSessionCookieValue, NAV_SESSION_COOKIE, NAV_SESSION_MAX_AGE_SECONDS } from "@/lib/navigation-session";
+import { getCreatorNavigationState, normalizeCreatorApplication } from "@/lib/creator-application";
 import { handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { RELAXED } from "@/lib/server/rate-limit";
@@ -24,8 +25,14 @@ export async function POST(request: NextRequest) {
     }
 
     const profileSnapshot = await adminDb.collection("users").doc(userId).get();
-    const role = (profileSnapshot.data()?.role || "user") as NavigationRole;
-    const cookieValue = await createNavigationSessionCookieValue(userId, role);
+    const profileData = profileSnapshot.data() ?? {};
+    const role = (profileData.role || "user") as NavigationRole;
+    const creatorNavigationState = getCreatorNavigationState(normalizeCreatorApplication(profileData.creatorApplication));
+    const cookieValue = await createNavigationSessionCookieValue(
+      userId,
+      role,
+      creatorNavigationState ?? "default",
+    );
     if (!cookieValue) {
       await recordServerDiagnostic({
         channel: "auth",
@@ -35,12 +42,13 @@ export async function POST(request: NextRequest) {
           route: "auth/navigation-session",
           userId,
           role,
+          state: creatorNavigationState ?? "default",
         },
       });
       return NextResponse.json({ error: "Navigation session unavailable" }, { status: 503 });
     }
 
-    const response = NextResponse.json({ success: true, role });
+    const response = NextResponse.json({ success: true, role, state: creatorNavigationState ?? "default" });
     response.cookies.set({
       name: NAV_SESSION_COOKIE,
       value: cookieValue,

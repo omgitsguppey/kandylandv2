@@ -29,6 +29,7 @@ export default function AdminDropsPage() {
     const [drops, setDrops] = useState<Drop[]>([]);
     const [selectedDropIds, setSelectedDropIds] = useState<Set<string>>(new Set());
     const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState<string | null>(null);
     const [notificationDraft, setNotificationDraft] = useState<DropNotificationDraft | null>(null);
     const [sendingNotification, setSendingNotification] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -59,11 +60,21 @@ export default function AdminDropsPage() {
             });
             setDrops(dropsData);
             setLegacyQueueIds(nextLegacyQueueIds);
+            setLoadError(null);
+            setLoading(false);
+        }, (error) => {
+            console.error("Failed to subscribe to drops", error);
+            setLoadError(error instanceof Error ? error.message : "Failed to load drops.");
             setLoading(false);
         });
 
         return () => unsubscribe();
     }, []);
+
+    useEffect(() => {
+        const validDropIds = new Set(drops.map((drop) => drop.id));
+        setSelectedDropIds((current) => new Set(Array.from(current).filter((id) => validDropIds.has(id))));
+    }, [drops]);
 
     useEffect(() => {
         let cancelled = false;
@@ -297,6 +308,12 @@ export default function AdminDropsPage() {
                 }
             />
 
+            {loadError ? (
+                <div className="mb-4 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
+                    {loadError}
+                </div>
+            ) : null}
+
             <div className="glass-panel rounded-3xl overflow-hidden">
                 {selectedDropIds.size > 0 && (
                     <div className="bg-brand-purple/10 px-6 py-4 flex items-center justify-between border-b border-brand-purple/20">
@@ -438,14 +455,20 @@ export default function AdminDropsPage() {
                                                     </>
                                                 ) : null}
                                                 <button
-                                                    onClick={() => toggleAutoQueue(drop.id)}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        void toggleAutoQueue(drop.id);
+                                                    }}
                                                     className={cn("p-2.5 rounded-full text-white hover:bg-white/10 transition-colors border border-white/10", isQueueManaged ? "bg-brand-purple/20 border-brand-purple/30 text-brand-purple" : "bg-black")}
                                                     title={isQueueManaged ? "Remove from Queue" : "Add to Queue"}
                                                 >
                                                     <Repeat className="w-4 h-4" />
                                                 </button>
                                                 <button
-                                                    onClick={() => openNotificationDraft(drop)}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        openNotificationDraft(drop);
+                                                    }}
                                                     className="p-2.5 rounded-full bg-black text-gray-200 hover:bg-white/10 transition-colors border border-white/10"
                                                     title="Send drop notification"
                                                 >
@@ -476,7 +499,10 @@ export default function AdminDropsPage() {
                                                     <Edit className="w-4 h-4" />
                                                 </button>
                                                 <button
-                                                    onClick={() => handleDelete(drop.id)}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        void handleDelete(drop.id);
+                                                    }}
                                                     className="p-2.5 rounded-full bg-black text-red-500 hover:bg-red-500/10 transition-colors border border-white/10"
                                                     title="Delete"
                                                 >

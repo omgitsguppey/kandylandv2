@@ -12,6 +12,7 @@ import { normalizeGumdropBalance } from "@/lib/gumdrop-ledger";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { CREATOR_COLLECTIONS } from "@/lib/creator-experiences";
 import { sanitizeCreatorRestrictionsUpdate, sanitizeCreatorSettingsUpdate } from "@/lib/server/creator-experiences";
+import { normalizeCreatorApplication, sanitizeCreatorApplicationUpdate } from "@/lib/creator-application";
 
 function toTimestampNumber(value: unknown): number {
   if (typeof value === "number" && Number.isFinite(value)) {
@@ -256,6 +257,7 @@ function serializeUserDoc(id: string, raw: Record<string, unknown>) {
           : {},
       retiredTaskIds: toStringArray(dailyTasksState.retiredTaskIds),
     },
+    creatorApplication: normalizeCreatorApplication(raw.creatorApplication),
   };
 }
 
@@ -850,7 +852,7 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    await guardApiRequest(request, {
+    const authResult = await guardApiRequest(request, {
       routeName: "admin/users",
       rateLimit: ADMIN,
       requireTrustedOrigin: true,
@@ -875,6 +877,14 @@ export async function PUT(request: NextRequest) {
     }
     if (updates.creatorSettings && typeof updates.creatorSettings === "object") {
       sanitized.creatorSettings = sanitizeCreatorSettingsUpdate(updates.creatorSettings as Record<string, unknown>);
+    }
+    if (updates.creatorApplication && typeof updates.creatorApplication === "object") {
+      const creatorApplication = sanitizeCreatorApplicationUpdate(updates.creatorApplication as Record<string, unknown>, {
+        reviewedBy: authResult?.email ?? authResult?.uid ?? null,
+      });
+      if (creatorApplication) {
+        sanitized.creatorApplication = creatorApplication;
+      }
     }
 
     if (Object.keys(sanitized).length === 0) {

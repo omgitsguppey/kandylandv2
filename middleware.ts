@@ -5,6 +5,7 @@ import {
   LAST_VISITED_PATH_OWNER_COOKIE,
   resolvePreferredAuthenticatedPath,
 } from "@/lib/navigation-persistence";
+import { CREATOR_WAITLIST_PATH } from "@/lib/creator-application";
 import { verifyNavigationSessionCookieValue, NAV_SESSION_COOKIE } from "@/lib/navigation-session";
 import { getCanonicalSiteHost } from "@/lib/site-origin";
 
@@ -35,6 +36,9 @@ export async function middleware(request: NextRequest) {
     lastVisitedPathOwner,
     navigationSession.uid,
   );
+  const preferredDestination = navigationSession.state === "creator_waitlist"
+    ? CREATOR_WAITLIST_PATH
+    : destination;
   const fallbackPath = navigationSession.role === "admin" ? "/admin" : "/dashboard";
   const isAdmin = navigationSession.role === "admin";
 
@@ -42,21 +46,28 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  if (navigationSession.state === "creator_waitlist" && pathname === "/dashboard") {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = CREATOR_WAITLIST_PATH;
+    redirectUrl.search = "";
+    return NextResponse.redirect(redirectUrl);
+  }
+
   if (pathname === "/") {
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = destination.split("?")[0] || fallbackPath;
+    redirectUrl.pathname = preferredDestination.split("?")[0] || fallbackPath;
 
-    const queryIndex = destination.indexOf("?");
-    redirectUrl.search = queryIndex >= 0 ? destination.slice(queryIndex) : "";
+    const queryIndex = preferredDestination.indexOf("?");
+    redirectUrl.search = queryIndex >= 0 ? preferredDestination.slice(queryIndex) : "";
 
     return NextResponse.redirect(redirectUrl);
   }
 
   if (navigationSession.role !== "admin" && pathname.startsWith("/admin")) {
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = destination.split("?")[0] || fallbackPath;
-    const queryIndex = destination.indexOf("?");
-    redirectUrl.search = queryIndex >= 0 ? destination.slice(queryIndex) : "";
+    redirectUrl.pathname = preferredDestination.split("?")[0] || fallbackPath;
+    const queryIndex = preferredDestination.indexOf("?");
+    redirectUrl.search = queryIndex >= 0 ? preferredDestination.slice(queryIndex) : "";
     return NextResponse.redirect(redirectUrl);
   }
 

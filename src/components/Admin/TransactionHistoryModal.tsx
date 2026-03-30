@@ -22,12 +22,14 @@ interface Props {
 export function TransactionHistoryModal({ user, onClose }: Props) {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (!user) return;
 
         const fetchHistory = async () => {
             setLoading(true);
+            setError(null);
             try {
                 const response = await authFetch(`/api/admin/user/${user.uid}?limit=30`);
                 const result = await response.json() as { success?: boolean; transactions?: Transaction[] };
@@ -38,6 +40,7 @@ export function TransactionHistoryModal({ user, onClose }: Props) {
             } catch (error) {
                 console.error("Error fetching transactions:", error);
                 setTransactions([]);
+                setError(error instanceof Error ? error.message : "Failed to load transactions");
             } finally {
                 setLoading(false);
             }
@@ -74,6 +77,11 @@ export function TransactionHistoryModal({ user, onClose }: Props) {
                     {loading ? (
                         <div className="flex justify-center py-12">
                             <Loader2 className="h-6 w-6 animate-spin text-brand-purple" />
+                        </div>
+                    ) : error ? (
+                        <div className="rounded-xl border border-red-500/20 bg-red-500/10 py-8 text-center text-sm text-red-200">
+                            <ScrollText className="mx-auto mb-3 h-8 w-8 opacity-60" />
+                            {error}
                         </div>
                     ) : transactions.length === 0 ? (
                         <div className="rounded-xl border border-white/5 bg-white/5 py-12 text-center text-sm text-gray-500">

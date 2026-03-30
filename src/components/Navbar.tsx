@@ -111,14 +111,25 @@ export function Navbar() {
                                 </button>
                             </>
                         ) : (
-                            <button
-                                onClick={() => openAuthModal("signup")}
-                                className="flex max-w-[8.5rem] shrink items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-3 py-2 text-[11px] font-bold tracking-wide text-white shadow-[0_0_20px_rgba(178,140,255,0.35)] transition-all duration-300 sm:max-w-none sm:gap-2 sm:px-6 sm:py-2.5 sm:text-sm"
-                            >
-                                <Sparkles className="h-4 w-4" />
-                                <span className="truncate sm:hidden">Unwrap</span>
-                                <span className="hidden sm:inline">{SECONDARY_UNWRAP_CTA}</span>
-                            </button>
+                            <>
+                                <Link
+                                    href="/creators/apply"
+                                    onClick={() => {
+                                        trackEvent("navigation_click", { destination: "/creators/apply", source: "navbar_creator_apply" });
+                                    }}
+                                    className="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-2 text-[11px] font-semibold text-gray-200 transition-colors hover:border-brand-purple/30 hover:text-white sm:px-4 sm:text-xs"
+                                >
+                                    For creators
+                                </Link>
+                                <button
+                                    onClick={() => openAuthModal("signup")}
+                                    className="flex max-w-[8.5rem] shrink items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-3 py-2 text-[11px] font-bold tracking-wide text-white shadow-[0_0_20px_rgba(178,140,255,0.35)] transition-all duration-300 sm:max-w-none sm:gap-2 sm:px-6 sm:py-2.5 sm:text-sm"
+                                >
+                                    <Sparkles className="h-4 w-4" />
+                                    <span className="truncate sm:hidden">Unwrap</span>
+                                    <span className="hidden sm:inline">{SECONDARY_UNWRAP_CTA}</span>
+                                </button>
+                            </>
                         )}
                     </div>
                 </div>

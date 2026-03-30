@@ -182,6 +182,39 @@ export type CreatorPayoutRequest = {
     reviewNote?: string;
 };
 
+export type CreatorApplicationStatus = "waitlist" | "review" | "approved" | "declined";
+
+export type CreatorLegalDocumentStatus = "not_sent" | "sent" | "opened" | "signed";
+
+export type CreatorIdVerificationStatus = "not_requested" | "requested" | "submitted" | "verified" | "rejected";
+
+export type CreatorSegmentationStatus = "pending" | "in_review" | "segmented";
+
+export type CreatorApplication = {
+    signupType: "creator";
+    status: CreatorApplicationStatus;
+    queuePosition: number;
+    submittedAt: number;
+    updatedAt: number;
+    creatorDisplayName: string;
+    creatorPrimaryPlatform?: string;
+    creatorContentFocus?: string;
+    bypassFanOnboarding: boolean;
+    legalDocumentStatus: CreatorLegalDocumentStatus;
+    legalDocumentUrl?: string;
+    legalDocumentSentAt?: number;
+    legalDocumentSignedAt?: number;
+    idVerificationStatus: CreatorIdVerificationStatus;
+    idVerificationRequestedAt?: number;
+    idVerificationSubmittedAt?: number;
+    idVerificationReviewedAt?: number;
+    segmentationStatus: CreatorSegmentationStatus;
+    segmentLabel?: string;
+    segmentedAt?: number;
+    reviewedBy?: string;
+    adminNotes?: string;
+};
+
 export interface UserProfile {
     uid: string;
     email: string | null;
@@ -208,6 +241,7 @@ export interface UserProfile {
     status?: 'active' | 'suspended' | 'banned'; // User account status
     statusReason?: string; // Reason for suspension/ban
     onboardingCompleted?: boolean; // Tracking if new user completed the flow
+    creatorApplication?: CreatorApplication;
     preferences?: {
         flavor: string; // 'Sweet', 'Spicy', 'RAW'
     };

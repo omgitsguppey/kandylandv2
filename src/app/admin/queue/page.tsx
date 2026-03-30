@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";
 import { Loader2, ArrowLeft, ArrowUp, ArrowDown, Save, Clock, Calendar, RefreshCw, Trash2, GripVertical } from "lucide-react";
@@ -44,51 +44,59 @@ export default function ManageQueuePage() {
     const [drops, setDrops] = useState<Record<string, Drop>>({});
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const fetchQueueData = useCallback(async () => {
+        try {
+            setError(null);
+            const [queueRes, dropsSnap] = await Promise.all([
+                authFetch("/api/admin/queue"),
+                getDocs(collection(db, "drops"))
+            ]);
+
+            if (!queueRes.ok) throw new Error("Failed to fetch queue config");
+            const queueData = await queueRes.json() as QueueConfig;
+
+            const dropsMap: Record<string, Drop> = {};
+            dropsSnap.forEach((doc) => {
+                dropsMap[doc.id] = { id: doc.id, ...doc.data() } as Drop;
+            });
+
+            let times = queueData.timesPerDay || ["12:00", "18:00"];
+            if (times.length < queueData.dropsPerDay) {
+                times = [...times, ...Array(queueData.dropsPerDay - times.length).fill("12:00")];
+            } else if (times.length > queueData.dropsPerDay) {
+                times = times.slice(0, queueData.dropsPerDay);
+            }
+
+            setConfig({
+                ...queueData,
+                timesPerDay: times
+            });
+            setDrops(dropsMap);
+            return true;
+        } catch (err: any) {
+            console.error(err);
+            setConfig(null);
+            setDrops({});
+            const message = err instanceof Error ? err.message : "Failed to load queue data";
+            setError(message);
+            toast.error(message);
+            return false;
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
     useEffect(() => {
-        async function fetchQueueData() {
-            try {
-                const [queueRes, dropsSnap] = await Promise.all([
-                    authFetch("/api/admin/queue"),
-                    getDocs(collection(db, "drops"))
-                ]);
-
-                if (!queueRes.ok) throw new Error("Failed to fetch queue config");
-                const queueData = await queueRes.json();
-
-                const dropsMap: Record<string, Drop> = {};
-                dropsSnap.forEach(doc => {
-                    dropsMap[doc.id] = { id: doc.id, ...doc.data() } as Drop;
-                });
-
-                // Ensure timesPerDay array matches dropsPerDay
-                let times = queueData.timesPerDay || ["12:00", "18:00"];
-                if (times.length < queueData.dropsPerDay) {
-                    times = [...times, ...Array(queueData.dropsPerDay - times.length).fill("12:00")];
-                } else if (times.length > queueData.dropsPerDay) {
-                    times = times.slice(0, queueData.dropsPerDay);
-                }
-
-                setConfig({
-                    ...queueData,
-                    timesPerDay: times
-                });
-                setDrops(dropsMap);
-            } catch (err: any) {
-                console.error(err);
-                toast.error("Failed to load queue data");
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        fetchQueueData();
-    }, []);
+        void fetchQueueData();
+    }, [fetchQueueData]);
 
     const handleSave = async () => {
         if (!config) return;
         setSaving(true);
         try {
+            setError(null);
             const response = await authFetch("/api/admin/queue", {
                 method: "PUT",
                 body: JSON.stringify(config),
@@ -97,27 +105,33 @@ export default function ManageQueuePage() {
             toast.success("Queue configuration saved!");
         } catch (err: any) {
             console.error(err);
-            toast.error("Failed to save configuration.");
+            const message = err instanceof Error ? err.message : "Failed to save configuration.";
+            setError(message);
+            toast.error(message);
         } finally {
             setSaving(false);
         }
     };
 
     const moveDrop = (index: number, direction: 'up' | 'down') => {
-        if (!config) return;
-        const newQueue = [...config.queue];
-        if (direction === 'up' && index > 0) {
-            [newQueue[index - 1], newQueue[index]] = [newQueue[index], newQueue[index - 1]];
-        } else if (direction === 'down' && index < newQueue.length - 1) {
-            [newQueue[index + 1], newQueue[index]] = [newQueue[index], newQueue[index + 1]];
-        }
-        setConfig({ ...config, queue: newQueue });
+        setConfig((current) => {
+            if (!current) return current;
+            const newQueue = [...current.queue];
+            if (direction === 'up' && index > 0) {
+                [newQueue[index - 1], newQueue[index]] = [newQueue[index], newQueue[index - 1]];
+            } else if (direction === 'down' && index < newQueue.length - 1) {
+                [newQueue[index + 1], newQueue[index]] = [newQueue[index], newQueue[index + 1]];
+            }
+            return { ...current, queue: newQueue };
+        });
     };
 
     const removeDrop = (index: number) => {
-        if (!config) return;
-        const newQueue = config.queue.filter((_, i) => i !== index);
-        setConfig({ ...config, queue: newQueue });
+        setConfig((current) => {
+            if (!current) return current;
+            const newQueue = current.queue.filter((_, i) => i !== index);
+            return { ...current, queue: newQueue };
+        });
     };
 
     // Project upcoming drop times from the current queue configuration
@@ -135,7 +149,32 @@ export default function ManageQueuePage() {
         );
     }
 
-    if (!config) return null;
+    if (!config) {
+        return (
+            <div className="max-w-4xl mx-auto pb-32">
+                <PageViewEvent eventName="admin_queue_viewed" />
+                <AdminPageHeader
+                    eyebrow="Admin Queue"
+                    title="Manage Queue"
+                    subtitle="Configure your automated drop rotation and schedule."
+                />
+                <div className="glass-panel rounded-3xl border border-red-500/20 bg-red-500/10 p-6 text-center">
+                    <p className="text-base font-semibold text-red-200">Queue data could not be loaded.</p>
+                    <p className="mt-2 text-sm text-red-100/90">{error || "The queue configuration is unavailable right now."}</p>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setLoading(true);
+                            void fetchQueueData();
+                        }}
+                        className="mt-4 inline-flex min-h-11 items-center justify-center rounded-full border border-white/15 bg-black/40 px-5 py-2 text-sm font-bold text-white transition-colors hover:border-brand-purple/40 hover:bg-white/5"
+                    >
+                        Retry Queue Load
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-4xl mx-auto pb-32">

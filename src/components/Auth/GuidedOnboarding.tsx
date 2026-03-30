@@ -15,6 +15,7 @@ import { authFetch } from "@/lib/authFetch";
 import { getCSTDayBoundaries } from "@/lib/timezone";
 import { enableBrowserNotifications } from "@/lib/browser-notification-enrollment";
 import { recordClientDiagnostic } from "@/lib/client-diagnostics";
+import { shouldBypassFanOnboarding } from "@/lib/creator-application";
 
 type FlavorPreference = "Sweet" | "Spicy" | "RAW" | "";
 
@@ -291,7 +292,7 @@ export function GuidedOnboarding() {
             ? window.sessionStorage.getItem(completionStorageKey) === "true"
             : false;
 
-        if (profile.onboardingCompleted === true || completedLocally) {
+        if (profile.onboardingCompleted === true || completedLocally || shouldBypassFanOnboarding(profile)) {
             setIsVisible(false);
             return;
         }

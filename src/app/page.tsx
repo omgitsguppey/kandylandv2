@@ -7,7 +7,7 @@ import Hero from "@/components/Hero";
 import { HowItWorks } from "@/components/Landing/HowItWorks";
 import { useAuth } from "@/context/AuthContext";
 import { useDrops } from "@/hooks/useDrops";
-import { readPreferredAuthenticatedPath } from "@/lib/navigation-persistence";
+import { getPreferredAuthenticatedPathForProfile } from "@/lib/creator-application";
 import { trackEvent } from "@/lib/telemetry";
 
 export default function Home() {
@@ -36,7 +36,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!loading && user && userProfile && !isAdmin) {
-      router.replace(readPreferredAuthenticatedPath(userProfile.role, user.uid));
+      router.replace(getPreferredAuthenticatedPathForProfile(userProfile, user.uid));
     }
   }, [loading, router, user, userProfile, isAdmin]);
 
@@ -49,7 +49,7 @@ export default function Home() {
         <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-black/55 backdrop-blur-sm">
           <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-black/70 px-4 py-3 text-sm font-medium text-white shadow-xl shadow-black/30">
             <div className="h-5 w-5 animate-spin rounded-full border-2 border-brand-purple border-t-transparent" />
-            Returning you to your dashboard
+            {userProfile?.creatorApplication ? "Returning you to your creator queue" : "Returning you to your dashboard"}
           </div>
         </div>
       ) : null}

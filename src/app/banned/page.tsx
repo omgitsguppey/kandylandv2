@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
-import { readPreferredAuthenticatedPath } from "@/lib/navigation-persistence";
+import { getPreferredAuthenticatedPathForProfile } from "@/lib/creator-application";
 import { Ban, LogOut } from "lucide-react";
 
 import { useRouter } from "next/navigation";
@@ -14,7 +14,7 @@ export default function BannedPage() {
     useEffect(() => {
         if (!loading && (!userProfile || (userProfile.status !== 'banned' && userProfile.status !== 'suspended'))) {
             const nextPath = userProfile
-                ? readPreferredAuthenticatedPath(userProfile.role ?? "user", userProfile.uid)
+                ? getPreferredAuthenticatedPathForProfile(userProfile, userProfile.uid)
                 : "/";
             router.replace(nextPath);
         }

@@ -2,6 +2,7 @@ import { User } from "firebase/auth";
 import { UserProfile } from "@/types/db";
 import { BUILT_IN_DAILY_TASK_MAP, type DailyTaskAssignment } from "@/lib/tasks/task-catalog";
 import { normalizeCreatorRestrictions, normalizeCreatorSettings } from "@/lib/creator-experiences";
+import { normalizeCreatorApplication } from "@/lib/creator-application";
 
 /**
  * Normalizes a username by trimming, lowercasing, and allowing only alphanumerics, hyphens, and underscores.
@@ -131,6 +132,7 @@ export function normalizeUserProfile(raw: unknown, user: User): UserProfile | nu
         status: source.status === "active" || source.status === "suspended" || source.status === "banned" ? source.status : "active",
         statusReason: typeof source.statusReason === "string" ? source.statusReason : undefined,
         onboardingCompleted: source.onboardingCompleted === true,
+        creatorApplication: normalizeCreatorApplication(source.creatorApplication),
         preferences: source.preferences && typeof source.preferences.flavor === "string"
             ? { flavor: source.preferences.flavor }
             : undefined,

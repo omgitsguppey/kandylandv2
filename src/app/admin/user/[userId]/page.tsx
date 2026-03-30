@@ -29,6 +29,7 @@ import { Transaction, UserProfile } from "@/types/db";
 import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";
 import type { SupportReadinessSnapshot } from "@/lib/support-readiness";
+import { trackEvent } from "@/lib/telemetry";
 
 type UserDetailAnalytics = {
     eventCount: number;
@@ -159,6 +160,7 @@ type CreatorOpsState = {
 
 type SupportReadinessState = SupportReadinessSnapshot["summary"]["state"];
 
+type CreatorApplicationState = NonNullable<UserProfile["creatorApplication"]>;
 type CreatorRestrictionFlags = NonNullable<UserProfile["creatorRestrictions"]>;
 
 const CREATOR_RESTRICTION_FIELDS = [
@@ -170,6 +172,34 @@ const CREATOR_RESTRICTION_FIELDS = [
     { key: "dropSubmissionsRestricted", label: "Restrict drop submissions", description: "Prevents creator drop drafts from being submitted." },
     { key: "payoutsRestricted", label: "Restrict payouts", description: "Prevents payout requests from being submitted." },
 ] as const satisfies Array<{ key: keyof CreatorRestrictionFlags; label: string; description: string }>;
+
+const CREATOR_APPLICATION_STATUS_OPTIONS = [
+    { value: "waitlist", label: "Waitlist" },
+    { value: "review", label: "In review" },
+    { value: "approved", label: "Approved" },
+    { value: "declined", label: "Declined" },
+] as const satisfies Array<{ value: CreatorApplicationState["status"]; label: string }>;
+
+const CREATOR_LEGAL_STATUS_OPTIONS = [
+    { value: "not_sent", label: "Not sent" },
+    { value: "sent", label: "Sent" },
+    { value: "opened", label: "Opened" },
+    { value: "signed", label: "Signed" },
+] as const satisfies Array<{ value: CreatorApplicationState["legalDocumentStatus"]; label: string }>;
+
+const CREATOR_ID_STATUS_OPTIONS = [
+    { value: "not_requested", label: "Not requested" },
+    { value: "requested", label: "Requested" },
+    { value: "submitted", label: "Submitted" },
+    { value: "verified", label: "Verified" },
+    { value: "rejected", label: "Rejected" },
+] as const satisfies Array<{ value: CreatorApplicationState["idVerificationStatus"]; label: string }>;
+
+const CREATOR_SEGMENTATION_STATUS_OPTIONS = [
+    { value: "pending", label: "Pending" },
+    { value: "in_review", label: "In review" },
+    { value: "segmented", label: "Segmented" },
+] as const satisfies Array<{ value: CreatorApplicationState["segmentationStatus"]; label: string }>;
 
 function getValidationClasses(status: "pass" | "warn" | "fail") {
     if (status === "pass") {
@@ -199,6 +229,10 @@ function formatRelativeTimestamp(value: unknown) {
     return typeof value === "number" && value > 0
         ? formatDistanceToNow(value, { addSuffix: true })
         : "No timestamp";
+}
+
+function formatCreatorStatusLabel(value: string | undefined) {
+    return value ? value.replaceAll("_", " ") : "pending";
 }
 
 function getSupportStateClasses(state: SupportReadinessState) {
@@ -231,6 +265,8 @@ export default function AdminUserAnalyticsPage() {
     const [securitySummary, setSecuritySummary] = useState<SecuritySummary | null>(null);
     const [supportReadiness, setSupportReadiness] = useState<SupportReadinessSnapshot | null>(null);
     const [creatorOps, setCreatorOps] = useState<CreatorOpsState | null>(null);
+    const [creatorApplicationState, setCreatorApplicationState] = useState<CreatorApplicationState | null>(null);
+    const [savingCreatorApplication, setSavingCreatorApplication] = useState(false);
     const [creatorRestrictionsState, setCreatorRestrictionsState] = useState<CreatorRestrictionFlags | null>(null);
     const [savingCreatorRestrictions, setSavingCreatorRestrictions] = useState(false);
     const [creatorActionKey, setCreatorActionKey] = useState<string | null>(null);
@@ -273,12 +309,21 @@ export default function AdminUserAnalyticsPage() {
             setSecurityEvents(result.securityEvents || []);
             setSupportReadiness(result.supportReadiness || null);
             setCreatorOps(result.creatorOps || null);
+            setCreatorApplicationState(result.user.creatorApplication || null);
             setCreatorRestrictionsState(result.user.creatorRestrictions || null);
             setError(null);
         } catch (fetchError: unknown) {
             console.error("Failed to load user analytics.", fetchError);
             const message = fetchError instanceof Error ? fetchError.message : "Failed to load deeper analytics. Try again.";
+            setTargetUser(null);
+            setTransactions([]);
+            setAnalytics(null);
+            setSecuritySummary(null);
+            setSecurityEvents([]);
             setSupportReadiness(null);
+            setCreatorOps(null);
+            setCreatorApplicationState(null);
+            setCreatorRestrictionsState(null);
             setError(message === "User not found" ? "User not found." : message);
         } finally {
             setLoading(false);
@@ -351,7 +396,58 @@ export default function AdminUserAnalyticsPage() {
             return true;
         })
     ), [securityEvents, securityReasonFilter, securitySeverityFilter, securityWindow, securityWindowCutoffMs]);
+    const creatorApplication = creatorApplicationState ?? targetUser?.creatorApplication ?? null;
     const isCreatorOpsUser = targetUser?.role === "creator" || targetUser?.role === "admin";
+
+    const updateCreatorApplicationField = <K extends keyof CreatorApplicationState>(key: K, value: CreatorApplicationState[K]) => {
+        setCreatorApplicationState((current) => {
+            if (!current) {
+                return current;
+            }
+
+            return {
+                ...current,
+                [key]: value,
+            };
+        });
+    };
+
+    const handleSaveCreatorApplication = async () => {
+        if (!targetUser || !creatorApplicationState) {
+            return;
+        }
+
+        try {
+            setSavingCreatorApplication(true);
+            const response = await authFetch("/api/admin/users", {
+                method: "PUT",
+                body: JSON.stringify({
+                    userId: targetUser.uid,
+                    updates: {
+                        creatorApplication: creatorApplicationState,
+                    },
+                }),
+            });
+            const result = await response.json().catch(() => ({})) as { error?: string };
+            if (!response.ok) {
+                throw new Error(typeof result.error === "string" ? result.error : "Failed to save creator application.");
+            }
+            trackEvent("creator_application_review_saved", {
+                component_name: "admin_creator_application_panel",
+                application_status: creatorApplicationState.status,
+                legal_document_status: creatorApplicationState.legalDocumentStatus,
+                id_verification_status: creatorApplicationState.idVerificationStatus,
+                segmentation_status: creatorApplicationState.segmentationStatus,
+            });
+            toast.success("Creator intake updated.");
+            await loadUserData();
+        } catch (actionError) {
+            console.error("Failed to save creator application", actionError);
+            toast.error(actionError instanceof Error ? actionError.message : "Failed to save creator application.");
+        } finally {
+            setSavingCreatorApplication(false);
+        }
+    };
 
     const updateCreatorRestriction = (key: keyof CreatorRestrictionFlags, value: boolean) => {
         setCreatorRestrictionsState((current) => ({
@@ -794,6 +890,173 @@ export default function AdminUserAnalyticsPage() {
                     </div>
                 </div>
             </div>
+
+            {creatorApplication ? (
+                <div className="glass-panel rounded-3xl border border-white/5 p-6">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                            <h3 className="flex items-center gap-2 text-sm font-bold text-white">
+                                <Sparkles className="h-4 w-4 text-brand-purple" /> Creator Intake Review
+                            </h3>
+                            <p className="mt-1 text-xs leading-6 text-gray-400">
+                                Manage the pre-creator lane: legal documents, ID verification, manual segmenting, and review state before this account ever sees creator tools.
+                            </p>
+                        </div>
+                        <span className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
+                            Queue #{creatorApplication.queuePosition.toLocaleString()}
+                        </span>
+                    </div>
+
+                    <div className="mt-5 grid gap-4 xl:grid-cols-[0.92fr_1.08fr]">
+                        <div className="space-y-4">
+                            <div className="grid gap-3 sm:grid-cols-2">
+                                <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
+                                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Creator name</p>
+                                    <p className="mt-2 text-lg font-black text-white">{creatorApplication.creatorDisplayName}</p>
+                                    <p className="mt-1 text-xs text-gray-400">Submitted {formatRelativeTimestamp(creatorApplication.submittedAt)}</p>
+                                </div>
+                                <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
+                                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Primary platform</p>
+                                    <p className="mt-2 text-lg font-black text-white">{creatorApplication.creatorPrimaryPlatform || "Pending"}</p>
+                                    <p className="mt-1 text-xs text-gray-400">Current status: {formatCreatorStatusLabel(creatorApplication.status)}</p>
+                                </div>
+                                <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
+                                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Bypass fan onboarding</p>
+                                    <p className="mt-2 text-2xl font-black text-white">{creatorApplication.bypassFanOnboarding ? "Enabled" : "Disabled"}</p>
+                                    <p className="mt-1 text-xs text-gray-400">Keeps creator applicants out of the regular fan onboarding lane.</p>
+                                </div>
+                                <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
+                                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Last review touch</p>
+                                    <p className="mt-2 text-lg font-black text-white">{formatRelativeTimestamp(creatorApplication.updatedAt)}</p>
+                                    <p className="mt-1 text-xs text-gray-400">{creatorApplication.reviewedBy ? `Reviewed by ${creatorApplication.reviewedBy}` : "No reviewer stamped yet"}</p>
+                                </div>
+                            </div>
+
+                            <div className="rounded-[1.5rem] border border-white/10 bg-black/25 p-4">
+                                <p className="text-sm font-semibold text-white">Creator context</p>
+                                <p className="mt-3 text-sm leading-7 text-gray-400">
+                                    {creatorApplication.creatorContentFocus || "No creator content note supplied yet."}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="rounded-[1.5rem] border border-white/10 bg-black/25 p-4">
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                <label className="space-y-2">
+                                    <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Application status</span>
+                                    <select
+                                        value={creatorApplication.status}
+                                        onChange={(event) => updateCreatorApplicationField("status", event.target.value as CreatorApplicationState["status"])}
+                                        className="w-full rounded-2xl border border-white/10 bg-black/45 px-4 py-3 text-sm text-white outline-none"
+                                    >
+                                        {CREATOR_APPLICATION_STATUS_OPTIONS.map((option) => (
+                                            <option key={option.value} value={option.value}>{option.label}</option>
+                                        ))}
+                                    </select>
+                                </label>
+
+                                <label className="space-y-2">
+                                    <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Manual segment</span>
+                                    <select
+                                        value={creatorApplication.segmentationStatus}
+                                        onChange={(event) => updateCreatorApplicationField("segmentationStatus", event.target.value as CreatorApplicationState["segmentationStatus"])}
+                                        className="w-full rounded-2xl border border-white/10 bg-black/45 px-4 py-3 text-sm text-white outline-none"
+                                    >
+                                        {CREATOR_SEGMENTATION_STATUS_OPTIONS.map((option) => (
+                                            <option key={option.value} value={option.value}>{option.label}</option>
+                                        ))}
+                                    </select>
+                                </label>
+
+                                <label className="space-y-2">
+                                    <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Legal doc state</span>
+                                    <select
+                                        value={creatorApplication.legalDocumentStatus}
+                                        onChange={(event) => updateCreatorApplicationField("legalDocumentStatus", event.target.value as CreatorApplicationState["legalDocumentStatus"])}
+                                        className="w-full rounded-2xl border border-white/10 bg-black/45 px-4 py-3 text-sm text-white outline-none"
+                                    >
+                                        {CREATOR_LEGAL_STATUS_OPTIONS.map((option) => (
+                                            <option key={option.value} value={option.value}>{option.label}</option>
+                                        ))}
+                                    </select>
+                                </label>
+
+                                <label className="space-y-2">
+                                    <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">ID verification</span>
+                                    <select
+                                        value={creatorApplication.idVerificationStatus}
+                                        onChange={(event) => updateCreatorApplicationField("idVerificationStatus", event.target.value as CreatorApplicationState["idVerificationStatus"])}
+                                        className="w-full rounded-2xl border border-white/10 bg-black/45 px-4 py-3 text-sm text-white outline-none"
+                                    >
+                                        {CREATOR_ID_STATUS_OPTIONS.map((option) => (
+                                            <option key={option.value} value={option.value}>{option.label}</option>
+                                        ))}
+                                    </select>
+                                </label>
+
+                                <label className="space-y-2 sm:col-span-2">
+                                    <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Legal document link</span>
+                                    <input
+                                        value={creatorApplication.legalDocumentUrl || ""}
+                                        onChange={(event) => updateCreatorApplicationField("legalDocumentUrl", event.target.value)}
+                                        className="w-full rounded-2xl border border-white/10 bg-black/45 px-4 py-3 text-sm text-white outline-none"
+                                        placeholder="Paste the creator document link here"
+                                    />
+                                </label>
+
+                                <label className="space-y-2">
+                                    <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Segment label</span>
+                                    <input
+                                        value={creatorApplication.segmentLabel || ""}
+                                        onChange={(event) => updateCreatorApplicationField("segmentLabel", event.target.value)}
+                                        className="w-full rounded-2xl border border-white/10 bg-black/45 px-4 py-3 text-sm text-white outline-none"
+                                        placeholder="Ex: priority creator, launch partner"
+                                    />
+                                </label>
+
+                                <label className="space-y-2">
+                                    <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Queue position</span>
+                                    <input
+                                        value={creatorApplication.queuePosition}
+                                        onChange={(event) => updateCreatorApplicationField("queuePosition", Math.max(1, Number(event.target.value) || 1))}
+                                        type="number"
+                                        min={1}
+                                        className="w-full rounded-2xl border border-white/10 bg-black/45 px-4 py-3 text-sm text-white outline-none"
+                                    />
+                                </label>
+
+                                <label className="space-y-2 sm:col-span-2">
+                                    <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Admin notes</span>
+                                    <textarea
+                                        value={creatorApplication.adminNotes || ""}
+                                        onChange={(event) => updateCreatorApplicationField("adminNotes", event.target.value)}
+                                        rows={4}
+                                        className="w-full rounded-2xl border border-white/10 bg-black/45 px-4 py-3 text-sm text-white outline-none"
+                                        placeholder="Internal notes for contracts, docs, ID review, or segment decisions"
+                                    />
+                                </label>
+                            </div>
+
+                            <div className="mt-4 flex flex-wrap gap-2 text-[11px] text-gray-500">
+                                <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1">Legal: {formatCreatorStatusLabel(creatorApplication.legalDocumentStatus)}</span>
+                                <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1">ID: {formatCreatorStatusLabel(creatorApplication.idVerificationStatus)}</span>
+                                <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1">Segment: {formatCreatorStatusLabel(creatorApplication.segmentationStatus)}</span>
+                            </div>
+
+                            <div className="mt-5 flex justify-end">
+                                <button
+                                    type="button"
+                                    onClick={() => void handleSaveCreatorApplication()}
+                                    disabled={savingCreatorApplication}
+                                    className="rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 transition-transform active:scale-[0.98] disabled:opacity-50"
+                                >
+                                    {savingCreatorApplication ? "Saving..." : "Save creator intake"}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ) : null}
 
             {isCreatorOpsUser ? (
                 <div className="glass-panel rounded-3xl border border-white/5 p-6">

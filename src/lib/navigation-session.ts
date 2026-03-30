@@ -1,8 +1,10 @@
 export const NAV_SESSION_COOKIE = "kandydrops_nav_session";
 export const NAV_SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
 export type NavigationSessionRole = "admin" | "creator" | "user";
+export type NavigationSessionState = "default" | "creator_waitlist";
 
 const VALID_NAV_ROLES = new Set<NavigationSessionRole>(["admin", "creator", "user"]);
+const VALID_NAV_STATES = new Set<NavigationSessionState>(["default", "creator_waitlist"]);
 const UID_COOKIE_PATTERN = /^[A-Za-z0-9:_-]{8,128}$/u;
 
 function getNavigationSessionSecret() {
@@ -73,13 +75,17 @@ async function signNavigationSessionPayload(payload: string) {
   return bytesToBase64Url(new Uint8Array(signature));
 }
 
-export async function createNavigationSessionCookieValue(uid: string, role: NavigationSessionRole) {
-  if (!UID_COOKIE_PATTERN.test(uid) || !VALID_NAV_ROLES.has(role)) {
+export async function createNavigationSessionCookieValue(
+  uid: string,
+  role: NavigationSessionRole,
+  state: NavigationSessionState = "default",
+) {
+  if (!UID_COOKIE_PATTERN.test(uid) || !VALID_NAV_ROLES.has(role) || !VALID_NAV_STATES.has(state)) {
     return null;
   }
 
   const expiresAtMs = Date.now() + (NAV_SESSION_MAX_AGE_SECONDS * 1000);
-  const payload = `${uid}.${role}.${expiresAtMs}`;
+  const payload = `${uid}.${role}.${state}.${expiresAtMs}`;
   const signature = await signNavigationSessionPayload(payload);
   if (!signature) {
     return null;
@@ -103,12 +109,16 @@ export async function verifyNavigationSessionCookieValue(value: string | null | 
     return null;
   }
 
-  const [uid, role, expiresAtRaw] = payload.split(".");
-  if (!uid || !role || !expiresAtRaw) {
+  const [uid, role, state, expiresAtRaw] = payload.split(".");
+  if (!uid || !role || !state || !expiresAtRaw) {
     return null;
   }
 
-  if (!UID_COOKIE_PATTERN.test(uid) || !VALID_NAV_ROLES.has(role as NavigationSessionRole)) {
+  if (
+    !UID_COOKIE_PATTERN.test(uid)
+    || !VALID_NAV_ROLES.has(role as NavigationSessionRole)
+    || !VALID_NAV_STATES.has(state as NavigationSessionState)
+  ) {
     return null;
   }
 
@@ -136,6 +146,7 @@ export async function verifyNavigationSessionCookieValue(value: string | null | 
   return {
     uid,
     role: role as NavigationSessionRole,
+    state: state as NavigationSessionState,
     expiresAtMs,
   };
 }

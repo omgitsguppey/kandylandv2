@@ -117,6 +117,9 @@ export default function AdminRosterPage() {
             } catch (loadError) {
                 console.error("Failed to load creator roster", loadError);
                 if (!cancelled) {
+                    setRosterUsers([]);
+                    setSummary(null);
+                    setCreatorOpsByUser({});
                     setError("Unable to load creator roster right now.");
                     setLoading(false);
                 }
@@ -152,6 +155,7 @@ export default function AdminRosterPage() {
                 console.error("Failed to search roster users", searchError);
                 if (!cancelled) {
                     setSearchResults([]);
+                    setSelectedCandidate(null);
                 }
             } finally {
                 if (!cancelled) {
@@ -176,6 +180,7 @@ export default function AdminRosterPage() {
     );
 
     const refreshRoster = async () => {
+        setError(null);
         const [baseResult, searchResult] = await Promise.all([
             fetchRoster(),
             searchTerm.trim().length >= SEARCH_MIN_LENGTH ? fetchRoster(searchTerm) : Promise.resolve<RosterResponse>({ searchResults: [] }),

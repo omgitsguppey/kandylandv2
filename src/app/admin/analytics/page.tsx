@@ -42,7 +42,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { useAuthSWR } from "@/hooks/useAuthSWR";
+import { useCachedAuthSWR } from "@/hooks/useCachedAuthSWR";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
@@ -319,10 +319,12 @@ interface ComponentContextItem {
 interface UserJourneyItem {
   uid: string;
   username: string;
+  actorType?: "guest" | "identified";
   eventCount: number;
   watchSeconds: number;
   lastSeenAt: number;
   primaryPath: string;
+  journeyState?: "engaged" | "bounced" | "mixed" | "unknown";
 }
 
 interface ExperienceContextItem {
@@ -676,6 +678,32 @@ function formatCacheAge(ageMs: number | null) {
   return `Cached ${Math.round(minutes / 60)}h ago`;
 }
 
+function getJourneyStateLabel(state: UserJourneyItem["journeyState"]) {
+  switch (state) {
+    case "engaged":
+      return "Engaged";
+    case "bounced":
+      return "Bounced";
+    case "mixed":
+      return "Mixed";
+    default:
+      return "In progress";
+  }
+}
+
+function getJourneyStateClasses(state: UserJourneyItem["journeyState"]) {
+  switch (state) {
+    case "engaged":
+      return "border-emerald-400/20 bg-emerald-400/10 text-emerald-200";
+    case "bounced":
+      return "border-amber-400/20 bg-amber-400/10 text-amber-200";
+    case "mixed":
+      return "border-cyan-400/20 bg-cyan-400/10 text-cyan-100";
+    default:
+      return "border-white/10 bg-white/5 text-gray-300";
+  }
+}
+
 export default function AdminAnalyticsPage() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<ViewTab>("operations");
@@ -762,33 +790,39 @@ export default function AdminAnalyticsPage() {
     }
   }, [activeTab, analyticsFilterStorageKey, range, viewerUserDraft, viewerUserFilter]);
 
+  const historicalUrl = `/api/admin/analytics/historical?period=${range}${viewerUserFilter ? `&viewerUser=${encodeURIComponent(viewerUserFilter)}` : ""}`;
   const {
     data: liveResponse,
     error: liveError,
     isLoading: liveLoading,
-  } = useAuthSWR<RealtimeAnalyticsResponse>("/api/admin/analytics/realtime", {
-    refreshInterval: 5000, // Refresh every 5s for real-time
+    cacheHydrated: liveCacheReady,
+    hydratedFromCache: liveHydratedFromCache,
+    cacheAgeMs: liveCacheAgeMs,
+  } = useCachedAuthSWR<RealtimeAnalyticsResponse>("/api/admin/analytics/realtime", {
+    cacheKey: "admin.analytics.realtime",
+    ttlMs: 15_000,
+    refreshInterval: 5_000,
     keepPreviousData: true,
+    revalidateOnFocus: true,
   });
 
   const {
     data: historicalResponse,
     error: historicalError,
     isLoading: historicalLoading,
-  } = useAuthSWR<HistoricalAnalyticsResponse>(
-    `/api/admin/analytics/historical?period=${range}${viewerUserFilter ? `&viewerUser=${encodeURIComponent(viewerUserFilter)}` : ""}`,
+    cacheHydrated: historicalCacheReady,
+    hydratedFromCache: historicalHydratedFromCache,
+    cacheAgeMs: historicalCacheAgeMs,
+  } = useCachedAuthSWR<HistoricalAnalyticsResponse>(
+    historicalUrl,
     {
-      refreshInterval: 5000, // Refresh every 5s for real-time
+      cacheKey: `admin.analytics.historical:${range}:${viewerUserFilter || "all-viewers"}`,
+      ttlMs: 60_000,
+      refreshInterval: 5_000,
       keepPreviousData: true,
+      revalidateOnFocus: true,
     },
   );
-
-  const liveCacheReady = true;
-  const historicalCacheReady = true;
-  const liveHydratedFromCache = false;
-  const historicalHydratedFromCache = false;
-  const liveCacheAgeMs = 0;
-  const historicalCacheAgeMs = 0;
 
   const liveSeries = useMemo(
     () =>
@@ -903,12 +937,16 @@ export default function AdminAnalyticsPage() {
     historicalResponse?.requiresSetup ||
     (liveError as { info?: { requiresSetup?: boolean } } | undefined)?.info?.requiresSetup ||
     (historicalError as { info?: { requiresSetup?: boolean } } | undefined)?.info?.requiresSetup;
+  const backgroundAnalyticsIssues = [
+    liveResponse && liveError ? `Realtime analytics: ${liveError.message || "Background refresh failed."}` : null,
+    historicalResponse && historicalError ? `Historical analytics: ${historicalError.message || "Background refresh failed."}` : null,
+  ].filter((issue): issue is string => Boolean(issue));
   const blockingAnalyticsError =
     (!liveResponse && (liveError as Error | undefined)) ||
     (!historicalResponse && (historicalError as Error | undefined)) ||
     null;
   const isPrimingAnalytics =
-    (!liveCacheReady || !historicalCacheReady)
+    ((!liveCacheReady && !liveResponse) || (!historicalCacheReady && !historicalResponse))
     || (!liveResponse && !historicalResponse && (liveLoading || historicalLoading));
   const isBackgroundSyncing =
     (liveLoading || historicalLoading)
@@ -1143,6 +1181,19 @@ export default function AdminAnalyticsPage() {
           </p>
         </div>
       )}
+
+      {backgroundAnalyticsIssues.length > 0 && !blockingAnalyticsError ? (
+        <div className="rounded-[1.8rem] border border-amber-500/20 bg-amber-500/10 p-4">
+          <p className="text-sm font-medium text-amber-200">
+            Analytics is showing the last good snapshot while a background refresh recovers.
+          </p>
+          <div className="mt-2 space-y-1 text-xs text-amber-100/90">
+            {backgroundAnalyticsIssues.map((issue) => (
+              <p key={issue}>{issue}</p>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       {isPrimingAnalytics ? (
         <div className="flex min-h-[40vh] items-center justify-center">
@@ -2029,6 +2080,12 @@ export default function AdminAnalyticsPage() {
                               <span className="text-sm font-bold text-brand-purple">{item.eventCount.toLocaleString()}</span>
                             </div>
                             <div className="flex flex-wrap gap-2 text-[11px] text-gray-400">
+                              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-300">
+                                {item.actorType === "guest" ? "Guest" : "Member"}
+                              </span>
+                              <span className={cn("rounded-full border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]", getJourneyStateClasses(item.journeyState))}>
+                                {getJourneyStateLabel(item.journeyState)}
+                              </span>
                               <span>{formatDuration(item.watchSeconds)} watch</span>
                               <span>{formatRelativeTime(item.lastSeenAt, nowMs)}</span>
                             </div>

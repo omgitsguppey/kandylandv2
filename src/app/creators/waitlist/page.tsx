@@ -1,0 +1,187 @@
+"use client";
+
+import Link from "next/link";
+import { BadgeCheck, FileText, ShieldCheck, UserRoundSearch } from "lucide-react";
+
+import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
+import { useAuth } from "@/context/AuthContext";
+import { useUI } from "@/context/UIContext";
+
+function formatStatusLabel(value: string | undefined) {
+    if (!value) {
+        return "Waiting";
+    }
+
+    return value.replaceAll("_", " ");
+}
+
+export default function CreatorWaitlistPage() {
+    const { user, userProfile, loading } = useAuth();
+    const { openAuthModal } = useUI();
+    const creatorApplication = userProfile?.creatorApplication;
+
+    return (
+        <main className="min-h-screen bg-black px-4 pb-20 pt-28 text-white sm:px-6">
+            <PageViewEvent
+                eventName="creator_waitlist_viewed"
+                eventParams={{ component_name: "creator_waitlist_page", creator_lane: "waitlist" }}
+            />
+            <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
+                <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-zinc-950/80 p-6 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-8">
+                    <span className="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
+                        Creator line
+                    </span>
+
+                    {loading ? (
+                        <div className="mt-6 space-y-3">
+                            <div className="h-6 w-40 animate-pulse rounded-full bg-white/10" />
+                            <div className="h-4 w-full animate-pulse rounded-full bg-white/10" />
+                            <div className="h-4 w-4/5 animate-pulse rounded-full bg-white/10" />
+                        </div>
+                    ) : !user ? (
+                        <div className="mt-6">
+                            <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl">Start your creator signup</h1>
+                            <p className="mt-4 max-w-2xl text-sm leading-7 text-gray-300 sm:text-base">
+                                You need a creator application before we can place you in line. Start the 3-step creator signup and we&apos;ll hold your spot for review.
+                            </p>
+                            <div className="mt-6 flex flex-wrap gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => openAuthModal("creator_signup")}
+                                    className="rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-purple/20"
+                                >
+                                    Start creator signup
+                                </button>
+                                <Link
+                                    href="/faq"
+                                    className="rounded-full border border-white/10 bg-black/30 px-5 py-3 text-sm font-semibold text-gray-200"
+                                >
+                                    What is a kandy drop?
+                                </Link>
+                            </div>
+                        </div>
+                    ) : !creatorApplication ? (
+                        <div className="mt-6">
+                            <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl">No creator application found</h1>
+                            <p className="mt-4 max-w-2xl text-sm leading-7 text-gray-300 sm:text-base">
+                                This account is signed in, but it is not currently in the creator intake line. If you need creator review from this account, use the support options from your profile or contact the team directly.
+                            </p>
+                            <div className="mt-6 flex flex-wrap gap-3">
+                                <Link
+                                    href="/dashboard/profile"
+                                    className="rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-purple/20"
+                                >
+                                    Open profile
+                                </Link>
+                                <Link
+                                    href="/faq"
+                                    className="rounded-full border border-white/10 bg-black/30 px-5 py-3 text-sm font-semibold text-gray-200"
+                                >
+                                    What is a kandy drop?
+                                </Link>
+                            </div>
+                        </div>
+                    ) : (
+                        <>
+                            <h1 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                                You&apos;re in line for creator review
+                            </h1>
+                            <p className="mt-4 max-w-2xl text-sm leading-7 text-gray-300 sm:text-base">
+                                We will be in contact soon. Your creator signup is held in a separate review lane so legal documents, ID verification, and manual segmenting can happen before any fan onboarding or creator tools are turned on.
+                            </p>
+
+                            <div className="mt-6 grid gap-4 md:grid-cols-[1.1fr_0.9fr]">
+                                <div className="rounded-[1.75rem] border border-brand-purple/20 bg-brand-purple/10 p-6">
+                                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">Place in line</p>
+                                    <p className="mt-3 text-5xl font-black text-white">
+                                        #{(creatorApplication.queuePosition || 0).toLocaleString()}
+                                    </p>
+                                    <p className="mt-3 text-sm leading-7 text-gray-200">
+                                        Status: <span className="font-semibold capitalize text-white">{formatStatusLabel(creatorApplication.status)}</span>
+                                    </p>
+                                </div>
+
+                                <div className="rounded-[1.75rem] border border-white/10 bg-black/25 p-6">
+                                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Application details</p>
+                                    <div className="mt-4 space-y-3 text-sm text-gray-300">
+                                        <p><span className="text-gray-500">Creator name:</span> {creatorApplication.creatorDisplayName}</p>
+                                        <p><span className="text-gray-500">Primary platform:</span> {creatorApplication.creatorPrimaryPlatform || "Pending"}</p>
+                                        <p><span className="text-gray-500">Manual segment:</span> {creatorApplication.segmentLabel || "Not assigned yet"}</p>
+                                    </div>
+                                    <div className="mt-5 flex flex-wrap gap-3">
+                                        <Link
+                                            href="/faq"
+                                            className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition-colors hover:border-brand-purple/30"
+                                        >
+                                            What is a kandy drop?
+                                        </Link>
+                                        {creatorApplication.legalDocumentUrl ? (
+                                            <a
+                                                href={creatorApplication.legalDocumentUrl}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition-colors hover:border-brand-purple/30"
+                                            >
+                                                Open legal document
+                                            </a>
+                                        ) : null}
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </section>
+
+                {creatorApplication ? (
+                    <section className="grid gap-4 md:grid-cols-3">
+                        <article className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-5 backdrop-blur-sm">
+                            <div className="flex items-center gap-2 text-base font-bold text-white">
+                                <FileText className="h-5 w-5 text-brand-purple" />
+                                Legal documents
+                            </div>
+                            <p className="mt-3 text-sm leading-7 text-gray-400">
+                                {creatorApplication.legalDocumentStatus === "not_sent"
+                                    ? "No documents have been sent yet."
+                                    : `Current status: ${formatStatusLabel(creatorApplication.legalDocumentStatus)}.`}
+                            </p>
+                        </article>
+
+                        <article className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-5 backdrop-blur-sm">
+                            <div className="flex items-center gap-2 text-base font-bold text-white">
+                                <ShieldCheck className="h-5 w-5 text-brand-purple" />
+                                ID verification
+                            </div>
+                            <p className="mt-3 text-sm leading-7 text-gray-400">
+                                {creatorApplication.idVerificationStatus === "not_requested"
+                                    ? "ID verification has not been requested yet."
+                                    : `Current status: ${formatStatusLabel(creatorApplication.idVerificationStatus)}.`}
+                            </p>
+                        </article>
+
+                        <article className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-5 backdrop-blur-sm">
+                            <div className="flex items-center gap-2 text-base font-bold text-white">
+                                <UserRoundSearch className="h-5 w-5 text-brand-purple" />
+                                Manual segmenting
+                            </div>
+                            <p className="mt-3 text-sm leading-7 text-gray-400">
+                                {creatorApplication.segmentationStatus === "pending"
+                                    ? "Your creator segment has not been assigned yet."
+                                    : `Current status: ${formatStatusLabel(creatorApplication.segmentationStatus)}.`}
+                            </p>
+                        </article>
+                    </section>
+                ) : null}
+
+                <section className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-5 backdrop-blur-sm">
+                    <h2 className="flex items-center gap-2 text-base font-bold text-white">
+                        <BadgeCheck className="h-5 w-5 text-brand-purple" />
+                        Why this is separate from fan onboarding
+                    </h2>
+                    <p className="mt-3 text-sm leading-7 text-gray-400">
+                        Creator applications stay in a protected intake lane so admins can verify identity, manage legal requirements, and manually segment each account before any regular user onboarding steps or creator tools are shown.
+                    </p>
+                </section>
+            </div>
+        </main>
+    );
+}

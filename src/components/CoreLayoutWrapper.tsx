@@ -10,6 +10,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { CLIENT_RUNTIME_STORAGE_KEYS, writeSessionStorageValue } from "@/hooks/client-runtime";
 import { useDeferredClientReady } from "@/hooks/useDeferredClientReady";
+import { shouldBypassFanOnboarding } from "@/lib/creator-application";
 import { applyAnalyticsConsentToGtag, persistPrivacySettingsSnapshot, readPrivacySettingsSnapshot } from "@/lib/privacy-consent";
 import { writeLastVisitedPath } from "@/lib/navigation-persistence";
 
@@ -60,7 +61,7 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     const shouldShowDebugBreakpoints = process.env.NODE_ENV !== "production";
     const shouldTrackDeepAnalytics = true;
     const shouldEnablePwaRuntime = !isAdminRoute;
-    const shouldLoadOnboarding = isUserShell && userProfile?.onboardingCompleted !== true;
+    const shouldLoadOnboarding = isUserShell && userProfile?.onboardingCompleted !== true && !shouldBypassFanOnboarding(userProfile);
     const runtimeReady = useDeferredClientReady();
     const afterPaintReady = useDeferredClientReady({ delayMs: 180 });
     const idleReady = useDeferredClientReady({ delayMs: 500, idle: true });

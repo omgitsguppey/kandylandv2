@@ -71,16 +71,21 @@ export function useCachedAuthSWR<T = unknown>(
 ): CachedAuthSWRResponse<T> {
     const { user } = useAuth();
     const { cacheKey, ttlMs, ...swrConfig } = config;
+    const ownerKey = user?.uid ?? "anonymous";
     const scopedCacheKey = user ? `${user.uid}:${cacheKey}` : cacheKey;
     const [cacheState, setCacheState] = useState<{
         key: string;
+        ownerKey: string;
         cacheHydrated: boolean;
         fallbackData: T | undefined;
+        displayData: T | undefined;
         cacheAgeMs: number | null;
     }>({
         key: url ? "" : scopedCacheKey,
+        ownerKey,
         cacheHydrated: !url,
         fallbackData: undefined,
+        displayData: undefined,
         cacheAgeMs: null,
     });
 
@@ -88,30 +93,43 @@ export function useCachedAuthSWR<T = unknown>(
     const cacheHydrated = url ? cacheMatchesKey && cacheState.cacheHydrated : true;
     const fallbackData = cacheMatchesKey ? cacheState.fallbackData : undefined;
     const cacheAgeMs = cacheMatchesKey ? cacheState.cacheAgeMs : null;
+    const displayData = cacheState.ownerKey === ownerKey ? cacheState.displayData : undefined;
 
     useEffect(() => {
+        if (typeof window === "undefined") {
+            return;
+        }
+
         const timerId = window.setTimeout(() => {
             if (!url) {
                 setCacheState({
                     key: scopedCacheKey,
+                    ownerKey,
                     cacheHydrated: true,
                     fallbackData: undefined,
+                    displayData: undefined,
                     cacheAgeMs: null,
                 });
                 return;
             }
 
             const cached = readCachedEnvelope<T>(scopedCacheKey, ttlMs);
-            setCacheState({
-                key: scopedCacheKey,
-                cacheHydrated: true,
-                fallbackData: cached.value,
-                cacheAgeMs: cached.ageMs,
+            setCacheState((current) => {
+                const preservedDisplayData = current.ownerKey === ownerKey ? current.displayData : undefined;
+
+                return {
+                    key: scopedCacheKey,
+                    ownerKey,
+                    cacheHydrated: true,
+                    fallbackData: cached.value,
+                    displayData: cached.value ?? preservedDisplayData,
+                    cacheAgeMs: cached.ageMs,
+                };
             });
         }, 0);
 
         return () => window.clearTimeout(timerId);
-    }, [scopedCacheKey, ttlMs, url]);
+    }, [ownerKey, scopedCacheKey, ttlMs, url]);
 
     const response = useAuthSWR<T>(
         cacheHydrated ? url : null,
@@ -124,8 +142,10 @@ export function useCachedAuthSWR<T = unknown>(
                     current.key === scopedCacheKey
                         ? {
                             key: scopedCacheKey,
+                            ownerKey,
                             cacheHydrated: true,
                             fallbackData: data,
+                            displayData: data,
                             cacheAgeMs: 0,
                         }
                         : current
@@ -135,7 +155,7 @@ export function useCachedAuthSWR<T = unknown>(
         },
     );
 
-    const stableData = response.data ?? fallbackData;
+    const stableData = response.data ?? fallbackData ?? displayData;
 
     return {
         ...response,

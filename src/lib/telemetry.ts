@@ -9,6 +9,11 @@ import { recordClientDiagnostic } from "./client-diagnostics";
 import { canUseAnonymousAnalytics, canUseIdentifiedAnalytics, readPrivacySettingsSnapshot } from "./privacy-consent";
 import { BUILT_IN_DAILY_TASKS } from "./tasks/task-catalog";
 import type { RolloutTelemetryContext } from "./rollouts";
+import {
+    type SanitizedTelemetryParams,
+    sanitizeTelemetryParamsForBackend,
+    sanitizeTelemetryParamsForGa4,
+} from "./telemetry-safety";
 
 /**
  * Fire-and-forget telemetry tracking.
@@ -17,7 +22,7 @@ import type { RolloutTelemetryContext } from "./rollouts";
 const FLOW_STORAGE_KEY = "kandydrops.telemetry.flows";
 const IDENTIFIED_QUEUE_STORAGE_KEY = "kandydrops.telemetry.identified-queue";
 
-type SanitizedEventParams = Record<string, string | number | boolean>;
+type SanitizedEventParams = SanitizedTelemetryParams;
 const TASK_PROGRESS_EVENT_NAMES = new Set(BUILT_IN_DAILY_TASKS.map((task) => task.eventName));
 const IMMEDIATE_IDENTIFIED_EVENT_NAMES = new Set([
     "semantic_page_viewed",
@@ -31,13 +36,6 @@ const IMMEDIATE_IDENTIFIED_EVENT_NAMES = new Set([
     "unlock_drop_success",
     "viewer_session_started",
     "viewer_session_completed",
-    "viewer_asset_started",
-    "viewer_asset_completed",
-    "viewer_asset_consumed",
-    "viewer_watch_checkpoint",
-    "viewer_source_downloaded",
-    "viewer_related_drop_clicked",
-    "viewer_backgrounded",
     "feedback_submitted",
 ]);
 const IDENTIFIED_TELEMETRY_BATCH_LIMIT = 12;
@@ -60,26 +58,7 @@ let telemetryRolloutContext: RolloutTelemetryContext | null = null;
 let telemetryReleaseContext: SanitizedEventParams | null = null;
 
 function sanitizeEventParams(eventParams?: Record<string, unknown>) {
-    if (!eventParams) {
-        return undefined;
-    }
-
-    const sanitized: SanitizedEventParams = {};
-
-    Object.entries(eventParams).forEach(([key, value]) => {
-        if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
-            sanitized[key] = value;
-            return;
-        }
-
-        if (value === null || typeof value === "undefined") {
-            return;
-        }
-
-        sanitized[key] = JSON.stringify(value);
-    });
-
-    return Object.keys(sanitized).length > 0 ? sanitized : undefined;
+    return sanitizeTelemetryParamsForBackend(eventParams);
 }
 
 function readJsonStorage<T>(storageKey: string): T | null {
@@ -190,7 +169,7 @@ function getEnrichedEventParams(eventParams?: Record<string, unknown>) {
     const isAuthenticated = Boolean(auth?.currentUser);
     const viewportWidth = Math.round(window.innerWidth || 0);
     const viewportHeight = Math.round(window.innerHeight || 0);
-    const enriched: SanitizedEventParams = {
+    const enriched: Record<string, string | number | boolean> = {
         ...sanitizedParams,
         page_path: window.location.pathname,
         session_id: getSessionId(),
@@ -208,7 +187,30 @@ function getEnrichedEventParams(eventParams?: Record<string, unknown>) {
         ...(telemetryReleaseContext ?? {}),
     };
 
-    return enriched;
+    return sanitizeTelemetryParamsForBackend(enriched);
+}
+
+function getGaDispatchParams(eventParams?: SanitizedEventParams) {
+    return sanitizeTelemetryParamsForGa4(eventParams);
+}
+
+function dispatchGaCompanionEvent(eventName: string, eventParams?: SanitizedEventParams) {
+    if (typeof window === "undefined" || typeof window.gtag !== "function") {
+        return;
+    }
+
+    if (eventName === "auth_sign_in_success" || eventName === "auth_google_sign_in_success") {
+        window.gtag("event", "login", sanitizeTelemetryParamsForGa4({
+            method: eventName === "auth_google_sign_in_success" ? "Google" : "Email",
+        }));
+        return;
+    }
+
+    if (eventName === "auth_sign_up_success") {
+        window.gtag("event", "sign_up", sanitizeTelemetryParamsForGa4({
+            method: eventParams?.signup_intent === "creator" ? "CreatorEmail" : "Email",
+        }));
+    }
 }
 
 export function syncTelemetryRolloutContext(context: RolloutTelemetryContext | null) {
@@ -446,13 +448,15 @@ export function trackEvent(eventName: string, eventParams?: Record<string, unkno
     }
 
     const enrichedParams = getEnrichedEventParams(preparedEvent.enrichedParams);
+    const gaDispatchParams = getGaDispatchParams(enrichedParams);
     const sessionId = typeof enrichedParams?.session_id === "string" ? enrichedParams.session_id : getSessionId();
     const eventTimestampMs = typeof enrichedParams?.event_timestamp_ms === "number"
         ? enrichedParams.event_timestamp_ms
         : Date.now();
 
     if (allowAnonymousAnalytics && typeof window !== "undefined" && typeof window.gtag === "function") {
-        window.gtag("event", eventNameForDispatch, enrichedParams);
+        window.gtag("event", eventNameForDispatch, gaDispatchParams);
+        dispatchGaCompanionEvent(eventNameForDispatch, enrichedParams);
     }
 
     if (!preparedEvent.isKnownEvent || !auth?.currentUser || (!allowIdentifiedAnalytics && !shouldSyncTaskProgress)) {

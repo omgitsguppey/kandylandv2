@@ -1,23 +1,50 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { X, Mail, Lock, User, Calendar, AlertCircle, Loader2 } from "lucide-react";
+import {
+    AlertCircle,
+    Calendar,
+    ChevronLeft,
+    Loader2,
+    Lock,
+    Mail,
+    ShieldCheck,
+    User,
+    X,
+} from "lucide-react";
+import { differenceInYears, parseISO } from "date-fns";
 
 import { useAuth } from "@/context/AuthContext";
-import { differenceInYears, parseISO } from "date-fns";
-import { clearTimedFlow, consumeTimedFlow, startTimedFlow, trackEvent } from "@/lib/telemetry";
 import type { AuthModalEntryMode } from "@/context/UIContext";
+import { clearTimedFlow, consumeTimedFlow, startTimedFlow, trackEvent } from "@/lib/telemetry";
 import { SECONDARY_UNWRAP_CTA, SIGNUP_SUPPORT_COPY } from "@/lib/marketing-copy";
 
-// Validation Schema - unified shape with conditional validation for sign-up fields
+const CREATOR_SIGNUP_STEPS = 3;
+const AUTH_SIGN_IN_FLOW = "auth_sign_in";
+const AUTH_SIGN_UP_FLOW = "auth_sign_up";
+const AUTH_GOOGLE_FLOW = "auth_google_sign_in";
+
+const CREATOR_PLATFORM_OPTIONS = [
+    "Instagram",
+    "TikTok",
+    "YouTube",
+    "X",
+    "OnlyFans",
+    "Twitch",
+    "Independent / Other",
+] as const;
+
 const authFormSchema = z.object({
     email: z.string().email("Invalid email address"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     username: z.string().optional(),
     dob: z.string().optional(),
+    creatorDisplayName: z.string().optional(),
+    creatorPrimaryPlatform: z.string().optional(),
+    creatorContentFocus: z.string().optional(),
 });
 
 type AuthFormData = z.infer<typeof authFormSchema>;
@@ -28,10 +55,80 @@ interface AuthModalProps {
     onClose: () => void;
 }
 
-type AuthMode = "signin" | "signup" | "forgot_password";
-const AUTH_SIGN_IN_FLOW = "auth_sign_in";
-const AUTH_SIGN_UP_FLOW = "auth_sign_up";
-const AUTH_GOOGLE_FLOW = "auth_google_sign_in";
+type AuthMode = "signin" | "signup" | "creator_signup" | "forgot_password";
+
+function isSignupMode(mode: AuthMode) {
+    return mode === "signup" || mode === "creator_signup";
+}
+
+function creatorStepFields(step: number): Array<keyof AuthFormData> {
+    if (step === 0) {
+        return ["creatorDisplayName", "creatorPrimaryPlatform", "creatorContentFocus"];
+    }
+
+    if (step === 1) {
+        return ["username", "dob"];
+    }
+
+    return ["email", "password"];
+}
+
+function getHeading(mode: AuthMode) {
+    if (mode === "signin") {
+        return "Welcome Back";
+    }
+
+    if (mode === "signup") {
+        return "Unwrap your Kandy";
+    }
+
+    if (mode === "creator_signup") {
+        return "Creator Signup";
+    }
+
+    return "Reset Password";
+}
+
+function getSupportCopy(mode: AuthMode) {
+    if (mode === "signin") {
+        return "Jump back into your stash and keep unwrapping.";
+    }
+
+    if (mode === "signup") {
+        return SIGNUP_SUPPORT_COPY;
+    }
+
+    if (mode === "creator_signup") {
+        return "Three quick steps, then we place you in line for creator review, documents, ID verification, and manual segmenting.";
+    }
+
+    return "We&apos;ll send a secure reset link to your inbox.";
+}
+
+function buildSchema(mode: AuthMode) {
+    if (mode === "creator_signup") {
+        return authFormSchema.extend({
+            creatorDisplayName: z.string().min(2, "Tell us what you want to be called."),
+            creatorPrimaryPlatform: z.string().min(2, "Choose the platform you use most."),
+            creatorContentFocus: z.string().min(8, "Give admins a little context about your content."),
+            username: z.string()
+                .min(3, "Username must be at least 3 characters")
+                .regex(/^[a-z0-9_-]+$/, "Use lowercase letters, numbers, dashes, or underscores"),
+            dob: z.string().refine((value) => differenceInYears(new Date(), parseISO(value)) >= 18, "You must be 18+ to join KandyDrops"),
+        });
+    }
+
+    if (mode === "signup") {
+        return authFormSchema.extend({
+            username: z.string()
+                .min(3, "Username must be at least 3 characters")
+                .regex(/^[a-z0-9_-]+$/, "Use lowercase letters, numbers, dashes, or underscores"),
+            dob: z.string().refine((value) => differenceInYears(new Date(), parseISO(value)) >= 18, "You must be 18+ to join KandyDrops"),
+        });
+    }
+
+    return authFormSchema;
+}
 
 export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps) {
     const { signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth();
@@ -42,9 +139,37 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
     const [checkingUsername, setCheckingUsername] = useState(false);
     const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
     const [usernameTouched, setUsernameTouched] = useState(false);
+    const [creatorStep, setCreatorStep] = useState(0);
     const wasOpenRef = useRef(false);
     const suggestionRequestRef = useRef(0);
     const availabilityRequestRef = useRef(0);
+
+    const activeSchema = useMemo(() => buildSchema(mode), [mode]);
+    const isCreatorSignupMode = mode === "creator_signup";
+    const isCreatorFinalStep = isCreatorSignupMode && creatorStep === CREATOR_SIGNUP_STEPS - 1;
+
+    const {
+        register,
+        handleSubmit,
+        watch,
+        setValue,
+        trigger,
+        clearErrors,
+        reset,
+        formState: { errors },
+    } = useForm<AuthFormData>({
+        resolver: zodResolver(activeSchema),
+        mode: "onBlur",
+        defaultValues: {
+            email: "",
+            password: "",
+            username: "",
+            dob: "",
+            creatorDisplayName: "",
+            creatorPrimaryPlatform: "",
+            creatorContentFocus: "",
+        },
+    });
 
     useEffect(() => {
         if (!isOpen) {
@@ -53,7 +178,6 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
 
         const previousHtmlOverflow = document.documentElement.style.overflow;
         const previousBodyOverflow = document.body.style.overflow;
-
         document.documentElement.style.overflow = "hidden";
         document.body.style.overflow = "hidden";
 
@@ -64,37 +188,27 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
     }, [isOpen]);
 
     useEffect(() => {
+        if (!isOpen) {
+            return;
+        }
+
+        const handleKeyDown = (event: globalThis.KeyboardEvent) => {
+            if (event.key === "Escape") {
+                onClose();
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [isOpen, onClose]);
+
+    useEffect(() => {
         if (isOpen && !wasOpenRef.current) {
             trackEvent("auth_modal_opened", { mode });
         }
 
         wasOpenRef.current = isOpen;
     }, [isOpen, mode]);
-
-    const activeSchema = mode === "signup"
-        ? authFormSchema.extend({
-            username: z.string()
-                .min(3, "Username must be at least 3 characters")
-                .regex(/^[a-z0-9_-]+$/, "Use lowercase letters, numbers, dashes, or underscores"),
-            dob: z.string().refine((val) => {
-                const age = differenceInYears(new Date(), parseISO(val));
-                return age >= 18;
-            }, "You must be 18+ to join KandyDrops"),
-        })
-        : authFormSchema;
-
-    const {
-        register,
-        handleSubmit,
-        watch,
-        setValue,
-        formState: { errors },
-        clearErrors,
-        reset,
-    } = useForm<AuthFormData>({
-        resolver: zodResolver(activeSchema),
-        mode: "onBlur",
-    });
 
     useEffect(() => {
         if (!isOpen) {
@@ -104,6 +218,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
         setMode(initialMode);
         setAuthError(null);
         setResetSent(false);
+        setCreatorStep(0);
         clearErrors();
         reset();
         clearTimedFlow(AUTH_SIGN_IN_FLOW);
@@ -120,7 +235,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
     const watchedUsername = watch("username");
 
     useEffect(() => {
-        if (!isOpen || mode !== "signup" || usernameTouched || !watchedEmail) {
+        if (!isOpen || !isSignupMode(mode) || usernameTouched || !watchedEmail) {
             suggestionRequestRef.current += 1;
             return;
         }
@@ -154,7 +269,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
     }, [isOpen, mode, setValue, usernameTouched, watchedEmail]);
 
     useEffect(() => {
-        if (mode !== "signup") {
+        if (!isSignupMode(mode)) {
             availabilityRequestRef.current += 1;
             setCheckingUsername(false);
             return;
@@ -202,6 +317,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
         setMode(newMode);
         setAuthError(null);
         setResetSent(false);
+        setCreatorStep(0);
         clearErrors();
         reset();
         trackEvent("auth_mode_switched", { from_mode: mode, to_mode: newMode });
@@ -217,31 +333,78 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
             const { mergedParams } = consumeTimedFlow(AUTH_GOOGLE_FLOW, { source_mode: mode });
             trackEvent("auth_google_sign_in_success", mergedParams);
             onClose();
-        } catch (err: unknown) {
+        } catch (error: unknown) {
             const { mergedParams } = consumeTimedFlow(AUTH_GOOGLE_FLOW, { source_mode: mode });
             trackEvent("auth_google_sign_in_failed", mergedParams);
-            setAuthError(err instanceof Error ? err.message : "Failed to sign in with Google.");
+            setAuthError(error instanceof Error ? error.message : "Failed to sign in with Google.");
         } finally {
             setIsLoading(false);
         }
     };
 
+    const handleAdvanceCreatorStep = async () => {
+        const valid = await trigger(creatorStepFields(creatorStep));
+        if (!valid) {
+            return;
+        }
+
+        if (creatorStep === 1 && usernameAvailable === false) {
+            setAuthError("Username is already taken.");
+            return;
+        }
+
+        setAuthError(null);
+        setCreatorStep((previous) => Math.min(previous + 1, CREATOR_SIGNUP_STEPS - 1));
+    };
+
+    const handleCreatorKeyDown = (event: KeyboardEvent<HTMLFormElement>) => {
+        if (!isCreatorSignupMode || creatorStep >= CREATOR_SIGNUP_STEPS - 1 || event.key !== "Enter") {
+            return;
+        }
+
+        const target = event.target as HTMLElement | null;
+        if (target?.tagName === "TEXTAREA") {
+            return;
+        }
+
+        event.preventDefault();
+        void handleAdvanceCreatorStep();
+    };
+
     const onSubmit = async (data: AuthFormData) => {
+        const signupIntent = mode === "creator_signup" ? "creator" : "fan";
         setIsLoading(true);
         setAuthError(null);
 
         try {
-            if (mode === "signup") {
+            if (isSignupMode(mode)) {
                 if (usernameAvailable === false) {
                     throw new Error("Username is already taken.");
                 }
 
-                startTimedFlow(AUTH_SIGN_UP_FLOW, { entry_mode: initialMode });
-                trackEvent("auth_sign_up_attempted", { entry_mode: initialMode });
-                await signUpWithEmail(data.email, data.password, data.username!, data.dob!);
+                startTimedFlow(AUTH_SIGN_UP_FLOW, { entry_mode: initialMode, signup_intent: signupIntent });
+                trackEvent("auth_sign_up_attempted", {
+                    entry_mode: initialMode,
+                    signup_intent: signupIntent,
+                    creator_primary_platform: data.creatorPrimaryPlatform || "",
+                });
+                const result = await signUpWithEmail({
+                    email: data.email,
+                    password: data.password,
+                    username: data.username || "",
+                    dob: data.dob || "",
+                    signupIntent,
+                    creatorDisplayName: data.creatorDisplayName,
+                    creatorPrimaryPlatform: data.creatorPrimaryPlatform,
+                    creatorContentFocus: data.creatorContentFocus,
+                });
                 const { mergedParams } = consumeTimedFlow(AUTH_SIGN_UP_FLOW, {
                     entry_mode: initialMode,
                     username_length: data.username?.length ?? 0,
+                    signup_intent: signupIntent,
+                    welcome_bonus_gd: result.welcomeBonus,
+                    creator_primary_platform: data.creatorPrimaryPlatform || "",
+                    creator_has_content_focus: Boolean(data.creatorContentFocus?.trim()),
                 });
                 trackEvent("auth_sign_up_success", mergedParams);
             } else {
@@ -251,38 +414,41 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                 const { mergedParams } = consumeTimedFlow(AUTH_SIGN_IN_FLOW, { entry_mode: initialMode });
                 trackEvent("auth_sign_in_success", mergedParams);
             }
+
             onClose();
             reset();
-        } catch (err: unknown) {
-            console.error(err);
-            const firebaseErr = err as { code?: string; message?: string };
-            const flowKey = mode === "signup" ? AUTH_SIGN_UP_FLOW : AUTH_SIGN_IN_FLOW;
+        } catch (error: unknown) {
+            console.error(error);
+            const firebaseError = error as { code?: string; message?: string };
+            const flowKey = isSignupMode(mode) ? AUTH_SIGN_UP_FLOW : AUTH_SIGN_IN_FLOW;
             const { mergedParams } = consumeTimedFlow(flowKey, {
-                error_code: firebaseErr.code || "unknown",
+                error_code: firebaseError.code || "unknown",
                 entry_mode: initialMode,
+                signup_intent: signupIntent,
             });
-            if (mode === "signup") {
+            if (isSignupMode(mode)) {
                 trackEvent("auth_sign_up_failed", mergedParams);
             } else {
                 trackEvent("auth_sign_in_failed", mergedParams);
             }
-            if (firebaseErr.code === "auth/email-already-in-use") {
+
+            if (firebaseError.code === "auth/email-already-in-use") {
                 setAuthError("Email is already registered.");
-            } else if (firebaseErr.message === "Username is already taken.") {
+            } else if (firebaseError.message === "Username is already taken.") {
                 setAuthError("Username is already taken.");
-            } else if (firebaseErr.code === "auth/invalid-credential") {
+            } else if (firebaseError.code === "auth/invalid-credential") {
                 setAuthError("Invalid email or password.");
             } else {
-                setAuthError(firebaseErr.message || "Authentication failed. Please try again.");
+                setAuthError(firebaseError.message || "Authentication failed. Please try again.");
             }
         } finally {
             setIsLoading(false);
         }
     };
 
-    const handlePasswordReset = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        const email = (e.currentTarget.elements.namedItem("resetEmail") as HTMLInputElement).value;
+    const handlePasswordReset = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const email = (event.currentTarget.elements.namedItem("resetEmail") as HTMLInputElement).value;
         if (!email) {
             setAuthError("Please enter your email address.");
             return;
@@ -297,102 +463,105 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
             await sendPasswordResetEmail(auth || getAuth(), email);
             trackEvent("password_reset_sent");
             setResetSent(true);
-        } catch (err: unknown) {
-            console.error("Password reset error:", err);
-            const firebaseErr = err as { code?: string; message?: string };
-            if (firebaseErr.code === "auth/user-not-found") {
+        } catch (error: unknown) {
+            console.error("Password reset error:", error);
+            const firebaseError = error as { code?: string; message?: string };
+            if (firebaseError.code === "auth/user-not-found") {
                 trackEvent("password_reset_sent");
                 setResetSent(true);
             } else {
-                trackEvent("password_reset_failed", {
-                    error_code: firebaseErr.code || "unknown",
-                });
-                setAuthError(firebaseErr.message || "Failed to send reset email.");
+                trackEvent("password_reset_failed", { error_code: firebaseError.code || "unknown" });
+                setAuthError(firebaseError.message || "Failed to send reset email.");
             }
         } finally {
             setIsLoading(false);
         }
     };
 
-    if (!isOpen) return null;
+    if (!isOpen) {
+        return null;
+    }
+
+    const showGoogleButton = mode !== "forgot_password" && mode !== "creator_signup";
 
     return (
         <>
             <div
                 onClick={onClose}
-                className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 transition-opacity"
+                className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm transition-opacity"
             />
 
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 pointer-events-none">
-                <div className="flex w-full max-w-md min-w-0 max-h-[min(92dvh,44rem)] flex-col overflow-hidden rounded-[1.75rem] border border-white/10 bg-zinc-900 shadow-2xl pointer-events-auto sm:rounded-3xl">
-                    <div className="relative shrink-0 px-5 py-4 sm:p-6 border-b border-white/5 bg-zinc-900/95 backdrop-blur-sm">
-                        <h2 className="text-xl sm:text-2xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-purple-400">
-                            {mode === "signin" ? "Welcome Back" : mode === "signup" ? "Unwrap your Kandy" : "Reset Password"}
+            <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
+                <div className="pointer-events-auto flex max-h-[min(92dvh,48rem)] w-full max-w-md min-w-0 flex-col overflow-hidden rounded-[1.75rem] border border-white/10 bg-zinc-900 shadow-2xl sm:rounded-3xl">
+                    <div className="relative shrink-0 border-b border-white/5 bg-zinc-900/95 px-5 py-4 backdrop-blur-sm sm:p-6">
+                        {isCreatorSignupMode ? (
+                            <div className="mb-3 flex items-center justify-between gap-3">
+                                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-brand-purple">
+                                    Creator intake
+                                </span>
+                                <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500">
+                                    Step {creatorStep + 1} of {CREATOR_SIGNUP_STEPS}
+                                </span>
+                            </div>
+                        ) : null}
+
+                        <h2 className="bg-gradient-to-r from-brand-purple to-purple-400 bg-clip-text text-center text-xl font-bold text-transparent sm:text-2xl">
+                            {getHeading(mode)}
                         </h2>
-                        <p className="mx-auto mt-2 max-w-sm px-4 text-center text-xs sm:text-sm text-gray-500">
-                            {mode === "signin"
-                                ? "Jump back into your stash and keep unwrapping."
-                                : mode === "signup"
-                                  ? SIGNUP_SUPPORT_COPY
-                                  : "We&apos;ll send a secure reset link to your inbox."}
+                        <p className="mx-auto mt-2 max-w-sm px-4 text-center text-xs text-gray-500 sm:text-sm">
+                            {getSupportCopy(mode)}
                         </p>
+
                         <button
                             onClick={onClose}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-gray-400 rounded-full transition-colors sm:right-4"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-2 text-gray-400 transition-colors hover:bg-white/5 hover:text-white sm:right-4"
+                            aria-label="Close authentication modal"
                         >
-                            <X className="w-5 h-5" />
+                            <X className="h-5 w-5" />
                         </button>
                     </div>
 
-                    <div className="flex-1 min-w-0 overflow-x-hidden overflow-y-auto px-4 py-4 space-y-4 sm:p-6 sm:space-y-6">
-                        <button
-                            onClick={handleGoogleSignIn}
-                            disabled={isLoading}
-                            className="w-full flex items-center justify-center gap-3 rounded-xl border border-brand-purple/40 bg-gradient-to-r from-brand-purple to-purple-500 py-2.5 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 transition-colors disabled:opacity-50 sm:py-3 sm:text-base"
-                        >
-                            {isLoading ? (
-                                <Loader2 className="w-5 h-5 animate-spin" />
-                            ) : (
-                                <svg className="w-5 h-5" viewBox="0 0 24 24">
-                                    <path
-                                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                                        fill="#4285F4"
-                                    />
-                                    <path
-                                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                                        fill="#34A853"
-                                    />
-                                    <path
-                                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                                        fill="#FBBC05"
-                                    />
-                                    <path
-                                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                                        fill="#EA4335"
-                                    />
-                                </svg>
-                            )}
-                            Continue with Google
-                        </button>
+                    <div className="flex-1 min-w-0 overflow-x-hidden overflow-y-auto px-4 py-4 sm:p-6">
+                        {showGoogleButton ? (
+                            <div className="space-y-4 sm:space-y-6">
+                                <button
+                                    onClick={handleGoogleSignIn}
+                                    disabled={isLoading}
+                                    className="flex w-full items-center justify-center gap-3 rounded-xl border border-brand-purple/40 bg-gradient-to-r from-brand-purple to-purple-500 py-2.5 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 transition-colors disabled:opacity-50 sm:py-3 sm:text-base"
+                                >
+                                    {isLoading ? (
+                                        <Loader2 className="h-5 w-5 animate-spin" />
+                                    ) : (
+                                        <svg className="h-5 w-5" viewBox="0 0 24 24">
+                                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                                        </svg>
+                                    )}
+                                    Continue with Google
+                                </button>
 
-                        <div className="relative">
-                            <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-white/10" />
+                                <div className="relative">
+                                    <div className="absolute inset-0 flex items-center">
+                                        <div className="w-full border-t border-white/10" />
+                                    </div>
+                                    <div className="relative flex justify-center text-xs sm:text-sm">
+                                        <span className="bg-zinc-900 px-2 text-gray-500">Or continue with email</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="relative flex justify-center text-xs sm:text-sm">
-                                <span className="px-2 bg-zinc-900 text-gray-500">Or continue with email</span>
-                            </div>
-                        </div>
+                        ) : null}
 
                         {mode === "forgot_password" ? (
                             resetSent ? (
-                                <div className="space-y-5 sm:space-y-6 text-center">
-                                    <div className="mx-auto w-12 h-12 bg-brand-purple/20 text-brand-purple flex items-center justify-center rounded-full">
-                                        <Mail className="w-6 h-6" />
+                                <div className="space-y-5 pt-4 text-center sm:space-y-6">
+                                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand-purple/20 text-brand-purple">
+                                        <Mail className="h-6 w-6" />
                                     </div>
                                     <div>
-                                        <h3 className="text-lg font-bold text-white mb-2">Check your inbox</h3>
-                                        <p className="text-gray-400 text-sm">We&apos;ve sent a password reset link to your email address.</p>
+                                        <h3 className="mb-2 text-lg font-bold text-white">Check your inbox</h3>
+                                        <p className="text-sm text-gray-400">We&apos;ve sent a password reset link to your email address.</p>
                                     </div>
                                     <button
                                         onClick={() => switchMode("signin")}
@@ -402,184 +571,448 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                     </button>
                                 </div>
                             ) : (
-                                <form onSubmit={handlePasswordReset} className="min-w-0 space-y-3 sm:space-y-4">
-                                    <p className="text-sm text-gray-400 text-center mb-5 sm:mb-6">
+                                <form onSubmit={handlePasswordReset} className="space-y-3 pt-4 sm:space-y-4">
+                                    <p className="mb-5 text-center text-sm text-gray-400 sm:mb-6">
                                         Enter your email address and we&apos;ll send you a link to reset your password.
                                     </p>
                                     <div className="space-y-2">
-                                        <label className="text-xs sm:text-sm font-medium text-gray-400">Email</label>
-                                        <div className="relative min-w-0 overflow-hidden">
-                                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                        <label className="text-xs font-medium text-gray-400 sm:text-sm">Email</label>
+                                        <div className="relative overflow-hidden">
+                                            <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
                                             <input
                                                 name="resetEmail"
                                                 type="email"
                                                 required
-                                                className="block w-full min-w-0 max-w-full bg-black/50 border border-white/10 rounded-xl px-10 py-2.5 sm:py-3 text-white text-sm sm:text-base focus:outline-none focus:border-brand-purple transition-colors"
+                                                className="block w-full rounded-xl border border-white/10 bg-black/50 px-10 py-2.5 text-sm text-white transition-colors focus:border-brand-purple focus:outline-none sm:py-3 sm:text-base"
                                                 placeholder="Enter your email"
                                             />
                                         </div>
                                     </div>
-                                    {authError && (
-                                        <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-start gap-2 text-red-200 text-sm">
-                                            <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                                    {authError ? (
+                                        <div className="flex items-start gap-2 rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-200">
+                                            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                                             <span>{authError}</span>
                                         </div>
-                                    )}
+                                    ) : null}
                                     <button
                                         type="submit"
                                         disabled={isLoading}
                                         className="w-full rounded-xl bg-gradient-to-r from-brand-purple to-purple-500 py-3 font-bold text-white shadow-lg shadow-brand-purple/20 transition-all active:scale-[0.98] disabled:opacity-50 hover:opacity-95"
                                     >
-                                        {isLoading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : "Send Reset Link"}
+                                        {isLoading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" /> : "Send Reset Link"}
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => switchMode("signin")}
-                                        className="w-full py-3 bg-transparent text-gray-400 hover:text-white font-bold transition-colors"
+                                        className="w-full bg-transparent py-3 font-bold text-gray-400 transition-colors hover:text-white"
                                     >
                                         Back to Sign In
                                     </button>
                                 </form>
                             )
                         ) : (
-                            <form onSubmit={handleSubmit(onSubmit)} className="min-w-0 space-y-3 sm:space-y-4">
-                                {mode === "signup" && (
+                            <form
+                                onSubmit={handleSubmit(onSubmit)}
+                                onKeyDown={handleCreatorKeyDown}
+                                className="space-y-3 pt-4 sm:space-y-4"
+                            >
+                                {isCreatorSignupMode ? (
+                                    <div className="mb-2 flex gap-2">
+                                        {Array.from({ length: CREATOR_SIGNUP_STEPS }).map((_, index) => (
+                                            <div
+                                                key={`creator-step-${index}`}
+                                                className={`h-2 flex-1 rounded-full transition-colors ${index <= creatorStep ? "bg-brand-purple" : "bg-white/10"}`}
+                                            />
+                                        ))}
+                                    </div>
+                                ) : null}
+
+                                {mode === "signin" ? (
                                     <>
                                         <div className="space-y-2">
-                                            <label className="text-xs sm:text-sm font-medium text-gray-400">Username</label>
-                                            <div className="relative min-w-0 overflow-hidden">
-                                                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                            <label className="text-xs font-medium text-gray-400 sm:text-sm">Email</label>
+                                            <div className="relative overflow-hidden">
+                                                <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
+                                                <input
+                                                    {...register("email")}
+                                                    type="email"
+                                                    autoComplete="email"
+                                                    className="block w-full rounded-xl border border-white/10 bg-black/50 px-10 py-2.5 text-sm text-white transition-colors focus:border-brand-purple focus:outline-none sm:py-3 sm:text-base"
+                                                    placeholder="Email address"
+                                                />
+                                            </div>
+                                            {errors.email ? <p className="pl-1 text-xs text-red-400">{errors.email.message}</p> : null}
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <div className="flex items-center justify-between gap-3">
+                                                <label className="text-xs font-medium text-gray-400 sm:text-sm">Password</label>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => switchMode("forgot_password")}
+                                                    className="text-[11px] font-semibold text-brand-purple transition-colors hover:text-purple-300"
+                                                >
+                                                    Forgot password?
+                                                </button>
+                                            </div>
+                                            <div className="relative overflow-hidden">
+                                                <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
+                                                <input
+                                                    {...register("password")}
+                                                    type="password"
+                                                    autoComplete="current-password"
+                                                    className="block w-full rounded-xl border border-white/10 bg-black/50 px-10 py-2.5 text-sm text-white transition-colors focus:border-brand-purple focus:outline-none sm:py-3 sm:text-base"
+                                                    placeholder="Password"
+                                                />
+                                            </div>
+                                            {errors.password ? <p className="pl-1 text-xs text-red-400">{errors.password.message}</p> : null}
+                                        </div>
+                                    </>
+                                ) : null}
+
+                                {mode === "signup" ? (
+                                    <>
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-medium text-gray-400 sm:text-sm">Email</label>
+                                            <div className="relative overflow-hidden">
+                                                <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
+                                                <input
+                                                    {...register("email")}
+                                                    type="email"
+                                                    autoComplete="email"
+                                                    className="block w-full rounded-xl border border-white/10 bg-black/50 px-10 py-2.5 text-sm text-white transition-colors focus:border-brand-purple focus:outline-none sm:py-3 sm:text-base"
+                                                    placeholder="Email address"
+                                                />
+                                            </div>
+                                            {errors.email ? <p className="pl-1 text-xs text-red-400">{errors.email.message}</p> : null}
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-medium text-gray-400 sm:text-sm">Username</label>
+                                            <div className="relative overflow-hidden">
+                                                <User className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
                                                 <input
                                                     {...register("username", {
                                                         onChange: () => setUsernameTouched(true),
                                                     })}
                                                     type="text"
-                                                    className="block w-full min-w-0 max-w-full bg-black/50 border border-white/10 rounded-xl px-10 py-2.5 sm:py-3 text-white text-sm sm:text-base focus:outline-none focus:border-brand-purple transition-colors"
-                                                    placeholder="Create a username"
+                                                    autoComplete="username"
+                                                    className="block w-full rounded-xl border border-white/10 bg-black/50 px-10 py-2.5 text-sm text-white transition-colors focus:border-brand-purple focus:outline-none sm:py-3 sm:text-base"
+                                                    placeholder="Choose a username"
                                                 />
                                             </div>
-                                            {errors.username && (
-                                                <p className="text-red-400 text-xs pl-1">{errors.username.message}</p>
-                                            )}
-                                            {!errors.username && checkingUsername && (
-                                                <p className="text-gray-400 text-xs pl-1">Checking username...</p>
-                                            )}
-                                            {!errors.username && !checkingUsername && usernameAvailable === true && (
-                                                <p className="text-brand-purple text-xs pl-1">Username available.</p>
-                                            )}
-                                            {!errors.username && !checkingUsername && usernameAvailable === false && (
-                                                <p className="text-red-400 text-xs pl-1">Username already taken.</p>
-                                            )}
+                                            {errors.username ? <p className="pl-1 text-xs text-red-400">{errors.username.message}</p> : null}
+                                            {!errors.username && checkingUsername ? <p className="pl-1 text-xs text-gray-400">Checking username...</p> : null}
+                                            {!errors.username && !checkingUsername && usernameAvailable === true ? <p className="pl-1 text-xs text-brand-purple">Username available.</p> : null}
+                                            {!errors.username && !checkingUsername && usernameAvailable === false ? <p className="pl-1 text-xs text-red-400">Username already taken.</p> : null}
                                         </div>
 
                                         <div className="space-y-2">
-                                            <label className="text-xs sm:text-sm font-medium text-gray-400">Date of Birth</label>
-                                            <div className="relative min-w-0 overflow-hidden">
-                                                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                            <label className="text-xs font-medium text-gray-400 sm:text-sm">Date of birth</label>
+                                            <div className="relative overflow-hidden">
+                                                <Calendar className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
                                                 <input
                                                     {...register("dob")}
                                                     type="date"
-                                                    className="block w-full min-w-0 max-w-full appearance-none bg-black/50 border border-white/10 rounded-xl px-10 py-2.5 pr-4 sm:py-3 text-white text-sm sm:text-base focus:outline-none focus:border-brand-purple transition-colors [color-scheme:dark]"
+                                                    className="block w-full appearance-none rounded-xl border border-white/10 bg-black/50 px-10 py-2.5 pr-4 text-sm text-white transition-colors focus:border-brand-purple focus:outline-none [color-scheme:dark] sm:py-3 sm:text-base"
                                                 />
                                             </div>
-                                            {errors.dob && (
-                                                <p className="text-red-400 text-xs pl-1">{errors.dob.message}</p>
-                                            )}
-                                            <p className="text-xs text-gray-500 pl-1">Must be 18 or older to join.</p>
+                                            {errors.dob ? <p className="pl-1 text-xs text-red-400">{errors.dob.message}</p> : null}
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-medium text-gray-400 sm:text-sm">Password</label>
+                                            <div className="relative overflow-hidden">
+                                                <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
+                                                <input
+                                                    {...register("password")}
+                                                    type="password"
+                                                    autoComplete="new-password"
+                                                    className="block w-full rounded-xl border border-white/10 bg-black/50 px-10 py-2.5 text-sm text-white transition-colors focus:border-brand-purple focus:outline-none sm:py-3 sm:text-base"
+                                                    placeholder="Create a password"
+                                                />
+                                            </div>
+                                            {errors.password ? <p className="pl-1 text-xs text-red-400">{errors.password.message}</p> : null}
                                         </div>
                                     </>
-                                )}
+                                ) : null}
 
-                                <div className="space-y-2">
-                                    <label className="text-xs sm:text-sm font-medium text-gray-400">Email</label>
-                                    <div className="relative min-w-0 overflow-hidden">
-                                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                                        <input
-                                            {...register("email")}
-                                            type="email"
-                                            className="block w-full min-w-0 max-w-full bg-black/50 border border-white/10 rounded-xl px-10 py-2.5 sm:py-3 text-white text-sm sm:text-base focus:outline-none focus:border-brand-purple transition-colors"
-                                            placeholder="Enter your email"
-                                        />
-                                    </div>
-                                    {errors.email && (
-                                        <p className="text-red-400 text-xs pl-1">{errors.email.message}</p>
-                                    )}
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-xs sm:text-sm font-medium text-gray-400">Password</label>
-                                    <div className="relative min-w-0 overflow-hidden">
-                                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                                        <input
-                                            {...register("password")}
-                                            type="password"
-                                            className="block w-full min-w-0 max-w-full bg-black/50 border border-white/10 rounded-xl px-10 py-2.5 sm:py-3 text-white text-sm sm:text-base focus:outline-none focus:border-brand-purple transition-colors"
-                                            placeholder="Password"
-                                        />
-                                    </div>
-                                    {errors.password && (
-                                        <p className="text-red-400 text-xs pl-1">{errors.password.message}</p>
-                                    )}
-                                    {mode === "signin" && (
-                                        <div className="flex justify-end mt-2">
-                                            <button
-                                                type="button"
-                                                onClick={() => switchMode("forgot_password")}
-                                                className="text-xs text-gray-400 hover:text-brand-purple transition-colors"
-                                            >
-                                                Forgot password?
-                                            </button>
+                                {isCreatorSignupMode && creatorStep === 0 ? (
+                                    <div className="space-y-4">
+                                        <div className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
+                                            <p className="text-sm font-semibold text-white">Tell us who you are</p>
+                                            <p className="mt-1 text-xs leading-6 text-gray-400">
+                                                This gives admins enough context to line up contracts, ID verification, and the right manual segment after review.
+                                            </p>
                                         </div>
-                                    )}
-                                </div>
 
-                                {authError && (
-                                    <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-start gap-2 text-red-200 text-sm">
-                                        <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-medium text-gray-400 sm:text-sm">Creator name</label>
+                                            <div className="relative overflow-hidden">
+                                                <User className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
+                                                <input
+                                                    {...register("creatorDisplayName")}
+                                                    type="text"
+                                                    className="block w-full rounded-xl border border-white/10 bg-black/50 px-10 py-2.5 text-sm text-white transition-colors focus:border-brand-purple focus:outline-none sm:py-3 sm:text-base"
+                                                    placeholder="How should we refer to you?"
+                                                />
+                                            </div>
+                                            {errors.creatorDisplayName ? <p className="pl-1 text-xs text-red-400">{errors.creatorDisplayName.message}</p> : null}
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-medium text-gray-400 sm:text-sm">Primary platform</label>
+                                            <select
+                                                {...register("creatorPrimaryPlatform")}
+                                                className="block w-full rounded-xl border border-white/10 bg-black/50 px-4 py-2.5 text-sm text-white transition-colors focus:border-brand-purple focus:outline-none sm:py-3 sm:text-base"
+                                            >
+                                                <option value="" className="bg-black">Choose one</option>
+                                                {CREATOR_PLATFORM_OPTIONS.map((option) => (
+                                                    <option key={option} value={option} className="bg-black">{option}</option>
+                                                ))}
+                                            </select>
+                                            {errors.creatorPrimaryPlatform ? <p className="pl-1 text-xs text-red-400">{errors.creatorPrimaryPlatform.message}</p> : null}
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-medium text-gray-400 sm:text-sm">What do you create?</label>
+                                            <textarea
+                                                {...register("creatorContentFocus")}
+                                                rows={4}
+                                                className="block w-full resize-none rounded-xl border border-white/10 bg-black/50 px-4 py-3 text-sm text-white transition-colors focus:border-brand-purple focus:outline-none sm:text-base"
+                                                placeholder="A short note for manual review and segmenting."
+                                            />
+                                            {errors.creatorContentFocus ? <p className="pl-1 text-xs text-red-400">{errors.creatorContentFocus.message}</p> : null}
+                                        </div>
+                                    </div>
+                                ) : null}
+
+                                {isCreatorSignupMode && creatorStep === 1 ? (
+                                    <div className="space-y-4">
+                                        <div className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
+                                            <p className="text-sm font-semibold text-white">Lock your creator handle</p>
+                                            <p className="mt-1 text-xs leading-6 text-gray-400">
+                                                This sets the identity admins will review before any creator experiences go live.
+                                            </p>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-medium text-gray-400 sm:text-sm">Username</label>
+                                            <div className="relative overflow-hidden">
+                                                <User className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
+                                                <input
+                                                    {...register("username", {
+                                                        onChange: () => setUsernameTouched(true),
+                                                    })}
+                                                    type="text"
+                                                    className="block w-full rounded-xl border border-white/10 bg-black/50 px-10 py-2.5 text-sm text-white transition-colors focus:border-brand-purple focus:outline-none sm:py-3 sm:text-base"
+                                                    placeholder="Create your creator username"
+                                                />
+                                            </div>
+                                            {errors.username ? <p className="pl-1 text-xs text-red-400">{errors.username.message}</p> : null}
+                                            {!errors.username && checkingUsername ? <p className="pl-1 text-xs text-gray-400">Checking username...</p> : null}
+                                            {!errors.username && !checkingUsername && usernameAvailable === true ? <p className="pl-1 text-xs text-brand-purple">Username available.</p> : null}
+                                            {!errors.username && !checkingUsername && usernameAvailable === false ? <p className="pl-1 text-xs text-red-400">Username already taken.</p> : null}
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-medium text-gray-400 sm:text-sm">Date of birth</label>
+                                            <div className="relative overflow-hidden">
+                                                <Calendar className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
+                                                <input
+                                                    {...register("dob")}
+                                                    type="date"
+                                                    className="block w-full appearance-none rounded-xl border border-white/10 bg-black/50 px-10 py-2.5 pr-4 text-sm text-white transition-colors focus:border-brand-purple focus:outline-none [color-scheme:dark] sm:py-3 sm:text-base"
+                                                />
+                                            </div>
+                                            {errors.dob ? <p className="pl-1 text-xs text-red-400">{errors.dob.message}</p> : null}
+                                            <p className="pl-1 text-xs text-gray-500">Must be 18 or older to join the creator line.</p>
+                                        </div>
+                                    </div>
+                                ) : null}
+
+                                {isCreatorSignupMode && creatorStep === 2 ? (
+                                    <div className="space-y-4">
+                                        <div className="rounded-[1.4rem] border border-brand-purple/20 bg-brand-purple/10 p-4">
+                                            <div className="flex items-start gap-3">
+                                                <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-brand-purple" />
+                                                <div>
+                                                    <p className="text-sm font-semibold text-white">Final step: secure your spot</p>
+                                                    <p className="mt-1 text-xs leading-6 text-gray-300">
+                                                        After signup, you&apos;ll land in the creator line while admins prepare documents, ID verification, and manual segmenting.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-medium text-gray-400 sm:text-sm">Email</label>
+                                            <div className="relative overflow-hidden">
+                                                <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
+                                                <input
+                                                    {...register("email")}
+                                                    type="email"
+                                                    autoComplete="email"
+                                                    className="block w-full rounded-xl border border-white/10 bg-black/50 px-10 py-2.5 text-sm text-white transition-colors focus:border-brand-purple focus:outline-none sm:py-3 sm:text-base"
+                                                    placeholder="Where should we contact you?"
+                                                />
+                                            </div>
+                                            {errors.email ? <p className="pl-1 text-xs text-red-400">{errors.email.message}</p> : null}
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-medium text-gray-400 sm:text-sm">Password</label>
+                                            <div className="relative overflow-hidden">
+                                                <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
+                                                <input
+                                                    {...register("password")}
+                                                    type="password"
+                                                    autoComplete="new-password"
+                                                    className="block w-full rounded-xl border border-white/10 bg-black/50 px-10 py-2.5 text-sm text-white transition-colors focus:border-brand-purple focus:outline-none sm:py-3 sm:text-base"
+                                                    placeholder="Create a password"
+                                                />
+                                            </div>
+                                            {errors.password ? <p className="pl-1 text-xs text-red-400">{errors.password.message}</p> : null}
+                                        </div>
+
+                                        <div className="rounded-[1.25rem] border border-white/10 bg-black/30 p-4 text-xs leading-6 text-gray-400">
+                                            <p>By joining the creator line, you understand that KandyDrops may request legal documents, ID verification, and manual review before creator tools are enabled.</p>
+                                        </div>
+                                    </div>
+                                ) : null}
+
+                                {authError ? (
+                                    <div className="flex items-start gap-2 rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-200">
+                                        <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                                         <span>{authError}</span>
                                     </div>
-                                )}
+                                ) : null}
 
-                                <button
-                                    type="submit"
-                                    disabled={isLoading}
-                                    className="w-full rounded-xl bg-gradient-to-r from-brand-purple to-purple-500 py-3 text-base font-extrabold tracking-tight text-white shadow-lg shadow-brand-purple/20 transition-all active:scale-[0.98] disabled:opacity-50 hover:opacity-95 sm:py-3.5 sm:text-lg"
-                                >
-                                    {isLoading ? (
-                                        <Loader2 className="w-5 h-5 animate-spin mx-auto" />
-                                    ) : mode === "signin" ? (
-                                        "Sign In"
-                                    ) : (
-                                        SECONDARY_UNWRAP_CTA
-                                    )}
-                                </button>
-                            </form>
-                        )}
-
-                        {mode !== "forgot_password" && (
-                            <div className="text-center text-xs sm:text-sm text-gray-400">
                                 {mode === "signin" ? (
-                                    <p>
-                                        Don&apos;t have an account?{" "}
-                                        <button
-                                            onClick={() => switchMode("signup")}
-                                            className="text-brand-purple font-medium"
-                                        >
-                                            Sign up
-                                        </button>
-                                    </p>
-                                ) : (
-                                    <p>
-                                        Already have an account?{" "}
-                                        <button
-                                            onClick={() => switchMode("signin")}
-                                            className="text-brand-purple font-medium"
-                                        >
-                                            Sign in
-                                        </button>
-                                    </p>
-                                )}
-                            </div>
+                                    <button
+                                        type="submit"
+                                        disabled={isLoading}
+                                        className="w-full rounded-xl bg-gradient-to-r from-brand-purple to-purple-500 py-3 font-bold text-white shadow-lg shadow-brand-purple/20 transition-all active:scale-[0.98] disabled:opacity-50 hover:opacity-95"
+                                    >
+                                        {isLoading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" /> : "Sign In"}
+                                    </button>
+                                ) : null}
+
+                                {mode === "signup" ? (
+                                    <button
+                                        type="submit"
+                                        disabled={isLoading}
+                                        className="w-full rounded-xl bg-gradient-to-r from-brand-purple to-purple-500 py-3 font-bold text-white shadow-lg shadow-brand-purple/20 transition-all active:scale-[0.98] disabled:opacity-50 hover:opacity-95"
+                                    >
+                                        {isLoading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" /> : SECONDARY_UNWRAP_CTA}
+                                    </button>
+                                ) : null}
+
+                                {isCreatorSignupMode ? (
+                                    <div className="flex gap-3">
+                                        {creatorStep > 0 ? (
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setAuthError(null);
+                                                    setCreatorStep((previous) => Math.max(previous - 1, 0));
+                                                }}
+                                                className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 py-3 font-bold text-white transition-colors hover:bg-white/10"
+                                            >
+                                                <ChevronLeft className="h-4 w-4" />
+                                                Back
+                                            </button>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                onClick={() => switchMode("signin")}
+                                                className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 py-3 font-bold text-white transition-colors hover:bg-white/10"
+                                            >
+                                                <ChevronLeft className="h-4 w-4" />
+                                                Sign In
+                                            </button>
+                                        )}
+
+                                        {isCreatorFinalStep ? (
+                                            <button
+                                                type="submit"
+                                                disabled={isLoading}
+                                                className="flex-[1.25] rounded-xl bg-gradient-to-r from-brand-purple to-purple-500 py-3 font-bold text-white shadow-lg shadow-brand-purple/20 transition-all active:scale-[0.98] disabled:opacity-50 hover:opacity-95"
+                                            >
+                                                {isLoading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" /> : "Join the creator line"}
+                                            </button>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                onClick={() => void handleAdvanceCreatorStep()}
+                                                disabled={isLoading}
+                                                className="flex-[1.25] rounded-xl bg-gradient-to-r from-brand-purple to-purple-500 py-3 font-bold text-white shadow-lg shadow-brand-purple/20 transition-all active:scale-[0.98] disabled:opacity-50 hover:opacity-95"
+                                            >
+                                                Continue
+                                            </button>
+                                        )}
+                                    </div>
+                                ) : null}
+
+                                <div className="space-y-2 pt-2 text-center text-sm text-gray-400">
+                                    {mode === "signin" ? (
+                                        <>
+                                            <p>
+                                                Don&apos;t have an account?{" "}
+                                                <button type="button" onClick={() => switchMode("signup")} className="font-semibold text-brand-purple transition-colors hover:text-purple-300">
+                                                    Sign up
+                                                </button>
+                                            </p>
+                                            <p>
+                                                Joining as a creator?{" "}
+                                                <button type="button" onClick={() => switchMode("creator_signup")} className="font-semibold text-brand-purple transition-colors hover:text-purple-300">
+                                                    Start here
+                                                </button>
+                                            </p>
+                                        </>
+                                    ) : null}
+
+                                    {mode === "signup" ? (
+                                        <>
+                                            <p>
+                                                Already have an account?{" "}
+                                                <button type="button" onClick={() => switchMode("signin")} className="font-semibold text-brand-purple transition-colors hover:text-purple-300">
+                                                    Sign in
+                                                </button>
+                                            </p>
+                                            <p>
+                                                Signing up as a creator?{" "}
+                                                <button type="button" onClick={() => switchMode("creator_signup")} className="font-semibold text-brand-purple transition-colors hover:text-purple-300">
+                                                    Start here
+                                                </button>
+                                            </p>
+                                        </>
+                                    ) : null}
+
+                                    {isCreatorSignupMode ? (
+                                        <>
+                                            <div className="rounded-[1.25rem] border border-white/10 bg-black/25 px-4 py-3 text-left text-xs leading-6 text-gray-400">
+                                                <p className="font-semibold uppercase tracking-[0.16em] text-gray-500">Creator path</p>
+                                                <p className="mt-1">
+                                                    Creator accounts stay out of the fan onboarding flow. After signup, admins can review legal docs, request ID verification, and manually segment the account before creator tools are enabled.
+                                                </p>
+                                            </div>
+                                            <p>
+                                                Want the regular fan signup instead?{" "}
+                                                <button type="button" onClick={() => switchMode("signup")} className="font-semibold text-brand-purple transition-colors hover:text-purple-300">
+                                                    Use the regular signup
+                                                </button>
+                                            </p>
+                                            <p>
+                                                Already have an account?{" "}
+                                                <button type="button" onClick={() => switchMode("signin")} className="font-semibold text-brand-purple transition-colors hover:text-purple-300">
+                                                    Sign in
+                                                </button>
+                                            </p>
+                                        </>
+                                    ) : null}
+                                </div>
+                            </form>
                         )}
                     </div>
                 </div>
