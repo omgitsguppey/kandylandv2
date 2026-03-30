@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, memo } from "react";
 import Image from "next/image";
 import type { Drop } from "@/types/db";
 
@@ -8,7 +8,7 @@ interface HomeDropTickerProps {
   drops: Drop[];
 }
 
-export function HomeDropTicker({ drops }: HomeDropTickerProps) {
+export const HomeDropTicker = memo(function HomeDropTicker({ drops }: HomeDropTickerProps) {
   const tickerDrops = useMemo(() => drops.slice(0, 8), [drops]);
   if (tickerDrops.length === 0) return null;
 
@@ -41,4 +41,4 @@ export function HomeDropTicker({ drops }: HomeDropTickerProps) {
       `}</style>
     </div>
   );
-}
+});

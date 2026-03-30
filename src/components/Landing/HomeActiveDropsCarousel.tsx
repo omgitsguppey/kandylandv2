@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, memo } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import NextImage from "next/image";
 import { useRouter } from "next/navigation";
@@ -17,7 +17,7 @@ interface HomeActiveDropsCarouselProps {
     drops: Drop[];
 }
 
-export function HomeActiveDropsCarousel({ drops }: HomeActiveDropsCarouselProps) {
+export const HomeActiveDropsCarousel = memo(function HomeActiveDropsCarousel({ drops }: HomeActiveDropsCarouselProps) {
     const router = useRouter();
     const { user } = useAuthIdentity();
     const { openAuthModal } = useUI();
@@ -151,4 +151,4 @@ export function HomeActiveDropsCarousel({ drops }: HomeActiveDropsCarouselProps)
             ) : null}
         </div>
     );
-}
+});
