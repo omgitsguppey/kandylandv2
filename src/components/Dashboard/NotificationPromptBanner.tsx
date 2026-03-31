@@ -69,7 +69,7 @@ export function NotificationPromptBanner() {
             return;
         }
 
-        setDismissed(window.localStorage.getItem(dismissKey) === "1");
+        setDismissed(window.sessionStorage.getItem(dismissKey) === "1");
     }, [dismissKey, isCheckingKey]);
 
     useEffect(() => {
@@ -139,7 +139,7 @@ export function NotificationPromptBanner() {
             setIsVisible(false);
             setDismissed(true);
             if (dismissKey) {
-                window.localStorage.setItem(dismissKey, "1");
+                window.sessionStorage.setItem(dismissKey, "1");
             }
             trackEvent("task_notifications_enabled", {
                 source: "prompt_banner",
@@ -158,7 +158,7 @@ export function NotificationPromptBanner() {
         setIsVisible(false);
         setDismissed(true);
         if (typeof window !== "undefined" && dismissKey) {
-            window.localStorage.setItem(dismissKey, "1");
+            window.sessionStorage.setItem(dismissKey, "1");
         }
         trackEvent("notification_prompt_banner_dismissed", {
             requires_pwa_install: needsStandaloneInstall,
