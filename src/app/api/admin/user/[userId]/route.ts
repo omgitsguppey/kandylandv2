@@ -576,10 +576,9 @@ export async function GET(
                         ? "feedback"
                         : "none",
                 primaryHandle: getSupportPrimaryHandle({
-                    username: user.username,
-                    displayName: user.displayName,
                     email: user.email,
-                    uid: user.uid,
+                    handle: user.username,
+                    displayName: user.displayName,
                 }),
                 channels: {
                     email: Boolean(user.email),

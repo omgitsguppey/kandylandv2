@@ -57,32 +57,13 @@ export function buildSupportThreadKey(userId: string) {
 }
 
 export function getSupportPrimaryHandle({
-    username,
-    displayName,
     email,
-    uid,
-}: {
-    username?: string | null;
-    displayName?: string | null;
-    email?: string | null;
-    uid: string;
-}) {
-    const normalizedUsername = typeof username === "string" ? username.trim() : "";
-    if (normalizedUsername) {
-        return `@${normalizedUsername}`;
-    }
-
-    const normalizedDisplayName = typeof displayName === "string" ? displayName.trim() : "";
-    if (normalizedDisplayName) {
-        return normalizedDisplayName;
-    }
-
-    const normalizedEmail = typeof email === "string" ? email.trim() : "";
-    if (normalizedEmail) {
-        return normalizedEmail;
-    }
-
-    return uid;
+    handle,
+    displayName,
+}: { email?: string | null; handle?: string | null; displayName?: string | null }) {
+    if (handle) return `@${handle}`;
+    if (email) return email;
+    return displayName || "Anonymous User";
 }
 
 export function normalizeSupportThreadStatus(value: unknown): SupportThreadStatus {
