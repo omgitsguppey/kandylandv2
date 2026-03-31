@@ -67,11 +67,15 @@ describe("gumdrops-packages", () => {
     });
 
     describe("resolvePreferredGumdropAmount", () => {
-        it("returns 100 for non-finite values or values <= 100", () => {
+        it("returns minimum package amount (100) for non-finite values or values <= 0", () => {
             expect(resolvePreferredGumdropAmount(NaN)).toBe(100);
             expect(resolvePreferredGumdropAmount(Infinity)).toBe(100);
             expect(resolvePreferredGumdropAmount(-Infinity)).toBe(100);
             expect(resolvePreferredGumdropAmount(0)).toBe(100);
+            expect(resolvePreferredGumdropAmount(-50)).toBe(100);
+        });
+
+        it("returns 100 for values between 1 and 100", () => {
             expect(resolvePreferredGumdropAmount(50)).toBe(100);
             expect(resolvePreferredGumdropAmount(100)).toBe(100);
         });
@@ -106,6 +110,64 @@ describe("gumdrops-packages", () => {
             expect(resolvePreferredGumdropAmount(100000)).toBe(100000);
             expect(resolvePreferredGumdropAmount(100001)).toBe(100000);
             expect(resolvePreferredGumdropAmount(200000)).toBe(100000);
+        });
+
+        describe("with custom packages (dynamic pricing scenarios)", () => {
+            const CUSTOM_PACKAGES = [
+                { drops: 300, priceUsd: 3, label: "Basic" },
+                { drops: 1200, priceUsd: 10, label: "Advanced" },
+                { drops: 4000, priceUsd: 30, label: "Pro" }
+            ];
+
+            it("returns lowest custom package amount for values <= 0 or non-finite", () => {
+                expect(resolvePreferredGumdropAmount(0, CUSTOM_PACKAGES)).toBe(300);
+                expect(resolvePreferredGumdropAmount(-50, CUSTOM_PACKAGES)).toBe(300);
+                expect(resolvePreferredGumdropAmount(NaN, CUSTOM_PACKAGES)).toBe(300);
+            });
+
+            it("finds the exact or next highest package amount from custom array", () => {
+                expect(resolvePreferredGumdropAmount(100, CUSTOM_PACKAGES)).toBe(300);
+                expect(resolvePreferredGumdropAmount(300, CUSTOM_PACKAGES)).toBe(300);
+                expect(resolvePreferredGumdropAmount(301, CUSTOM_PACKAGES)).toBe(1200);
+                expect(resolvePreferredGumdropAmount(1200, CUSTOM_PACKAGES)).toBe(1200);
+                expect(resolvePreferredGumdropAmount(2500, CUSTOM_PACKAGES)).toBe(4000);
+                expect(resolvePreferredGumdropAmount(4000, CUSTOM_PACKAGES)).toBe(4000);
+            });
+
+            it("handles unsorted custom packages correctly", () => {
+                const unsortedPackages = [
+                    { drops: 2000, priceUsd: 15, label: "Mid" },
+                    { drops: 500, priceUsd: 5, label: "Small" },
+                    { drops: 3500, priceUsd: 25, label: "Large" }
+                ];
+                expect(resolvePreferredGumdropAmount(0, unsortedPackages)).toBe(500);
+                expect(resolvePreferredGumdropAmount(250, unsortedPackages)).toBe(500);
+                expect(resolvePreferredGumdropAmount(1000, unsortedPackages)).toBe(2000);
+                expect(resolvePreferredGumdropAmount(3000, unsortedPackages)).toBe(3500);
+            });
+
+            it("falls back to calculated bundle amounts if missingAmount exceeds all custom packages", () => {
+                expect(resolvePreferredGumdropAmount(4500, CUSTOM_PACKAGES)).toBe(5000);
+                expect(resolvePreferredGumdropAmount(5500, CUSTOM_PACKAGES)).toBe(6000);
+            });
+
+            it("handles empty package array gracefully, defaulting to 100 for non-finite and falling back to bundles", () => {
+                expect(resolvePreferredGumdropAmount(NaN, [])).toBe(100);
+                expect(resolvePreferredGumdropAmount(0, [])).toBe(100);
+                expect(resolvePreferredGumdropAmount(100, [])).toBe(5000);
+                expect(resolvePreferredGumdropAmount(5500, [])).toBe(6000);
+            });
+
+            it("filters out invalid packages", () => {
+                const mixedPackages = [
+                    { drops: NaN, priceUsd: 1, label: "Invalid" },
+                    { drops: 0, priceUsd: 1, label: "Invalid 0" },
+                    { drops: -100, priceUsd: 1, label: "Invalid negative" },
+                    { drops: 500, priceUsd: 5, label: "Valid Small" },
+                ];
+                expect(resolvePreferredGumdropAmount(100, mixedPackages)).toBe(500);
+                expect(resolvePreferredGumdropAmount(0, mixedPackages)).toBe(500);
+            });
         });
     });
 });

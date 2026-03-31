@@ -32,21 +32,22 @@ export function resolveExpectedGumdropPrice(drops: number): string | null {
     return matchingPackage ? matchingPackage.priceUsd.toFixed(2) : null;
 }
 
-export function resolvePreferredGumdropAmount(missingAmount: number) {
-    if (!Number.isFinite(missingAmount) || missingAmount <= 100) {
-        return 100;
+export function resolvePreferredGumdropAmount(
+    missingAmount: number,
+    packages: GumdropPackageDefinition[] = FIXED_GUMDROP_PACKAGES
+) {
+    const validPackages = packages.filter(pkg => Number.isFinite(pkg.drops) && pkg.drops > 0);
+    const sortedPackages = [...validPackages].sort((a, b) => a.drops - b.drops);
+    const minPackage = sortedPackages.length > 0 ? sortedPackages[0].drops : 100;
+
+    if (!Number.isFinite(missingAmount) || missingAmount <= 0) {
+        return minPackage;
     }
 
-    if (missingAmount <= 550) {
-        return 550;
-    }
-
-    if (missingAmount <= 1100) {
-        return 1100;
-    }
-
-    if (missingAmount <= 2500) {
-        return 2500;
+    for (const pkg of sortedPackages) {
+        if (pkg.drops >= missingAmount) {
+            return pkg.drops;
+        }
     }
 
     return Math.min(100000, Math.max(5000, Math.ceil(missingAmount / 1000) * 1000));
