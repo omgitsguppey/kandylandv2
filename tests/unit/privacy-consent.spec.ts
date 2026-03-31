@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { readPrivacySettingsSnapshot, PRIVACY_SETTINGS_STORAGE_KEY, getBrowserGlobalPrivacyControl } from "@/lib/privacy-consent";
+import { readPrivacySettingsSnapshot, PRIVACY_SETTINGS_STORAGE_KEY, getBrowserGlobalPrivacyControl, canUseAnonymousAnalytics } from "@/lib/privacy-consent";
 
 const DEFAULT_PRIVACY_SETTINGS = {
     anonymousAnalyticsEnabled: false,
@@ -95,5 +95,46 @@ describe("getBrowserGlobalPrivacyControl", () => {
     it("returns false when globalPrivacyControl is false", () => {
         vi.stubGlobal("navigator", { globalPrivacyControl: false });
         expect(getBrowserGlobalPrivacyControl()).toBe(false);
+    });
+});
+
+describe("canUseAnonymousAnalytics", () => {
+    afterEach(() => {
+        vi.unstubAllGlobals();
+    });
+
+    it("returns false when anonymousAnalyticsEnabled is false", () => {
+        const settings = { ...DEFAULT_PRIVACY_SETTINGS, anonymousAnalyticsEnabled: false };
+        expect(canUseAnonymousAnalytics(settings)).toBe(false);
+    });
+
+    it("returns false when anonymousAnalyticsEnabled is true, honorGlobalPrivacyControl is true, and browser GPC is true", () => {
+        vi.stubGlobal("navigator", { globalPrivacyControl: true });
+        const settings = {
+            ...DEFAULT_PRIVACY_SETTINGS,
+            anonymousAnalyticsEnabled: true,
+            honorGlobalPrivacyControl: true
+        };
+        expect(canUseAnonymousAnalytics(settings)).toBe(false);
+    });
+
+    it("returns true when anonymousAnalyticsEnabled is true and honorGlobalPrivacyControl is false (ignoring browser GPC)", () => {
+        vi.stubGlobal("navigator", { globalPrivacyControl: true });
+        const settings = {
+            ...DEFAULT_PRIVACY_SETTINGS,
+            anonymousAnalyticsEnabled: true,
+            honorGlobalPrivacyControl: false
+        };
+        expect(canUseAnonymousAnalytics(settings)).toBe(true);
+    });
+
+    it("returns true when anonymousAnalyticsEnabled is true, honorGlobalPrivacyControl is true, and browser GPC is false", () => {
+        vi.stubGlobal("navigator", { globalPrivacyControl: false });
+        const settings = {
+            ...DEFAULT_PRIVACY_SETTINGS,
+            anonymousAnalyticsEnabled: true,
+            honorGlobalPrivacyControl: true
+        };
+        expect(canUseAnonymousAnalytics(settings)).toBe(true);
     });
 });
