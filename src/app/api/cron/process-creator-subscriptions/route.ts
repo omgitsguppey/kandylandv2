@@ -81,187 +81,194 @@ export async function GET(request: NextRequest) {
             }
         }
 
-        for (const subscriptionDoc of subscriptionsSnap.docs) {
-            const subscriptionData = subscriptionDoc.data() as Record<string, unknown>;
-            const creatorId = typeof subscriptionData.creatorId === "string" ? subscriptionData.creatorId : "";
-            const userId = typeof subscriptionData.userId === "string" ? subscriptionData.userId : "";
-            const autoRenew = subscriptionData.autoRenew !== false;
-            const renewAt = typeof subscriptionData.renewAt === "number" ? subscriptionData.renewAt : 0;
-            const priceGd = Math.max(
-                CREATOR_SUBSCRIPTION_MIN_GD,
-                typeof subscriptionData.priceGd === "number" ? Math.round(subscriptionData.priceGd) : CREATOR_SUBSCRIPTION_MIN_GD,
-            );
+        const docsArray = subscriptionsSnap.docs;
+        const chunkSize = 20;
 
-            if (!creatorId || !userId || !autoRenew || renewAt <= 0) {
-                continue;
-            }
+        for (let i = 0; i < docsArray.length; i += chunkSize) {
+            const chunk = docsArray.slice(i, i + chunkSize);
 
-            const cycleKey = String(renewAt);
-            const lastWarningCycleKey = typeof subscriptionData.warningCycleKey === "string" ? subscriptionData.warningCycleKey : "";
-
-            if (renewAt > now && renewAt - now <= WARNING_WINDOW_MS && lastWarningCycleKey !== cycleKey) {
-                const creatorSnap = userSnapshots.get(creatorId);
-                const userSnap = userSnapshots.get(userId);
-
-                if (!creatorSnap || !userSnap) {
-                    continue;
-                }
-                const creatorData = creatorSnap.data() as Record<string, unknown> | undefined;
-                const creatorDisplayName = typeof creatorData?.displayName === "string" && creatorData.displayName.trim().length > 0
-                    ? creatorData.displayName.trim()
-                    : "your creator";
-                const creatorUsername = typeof creatorData?.username === "string" ? creatorData.username : "";
-
-                await adminDb.runTransaction(async (transaction) => {
-                    const freshSubscriptionSnap = await transaction.get(subscriptionDoc.ref);
-                    const freshData = freshSubscriptionSnap.data() as Record<string, unknown> | undefined;
-                    if (!freshData || freshData.status !== "active") {
-                        return;
-                    }
-                    if (typeof freshData.warningCycleKey === "string" && freshData.warningCycleKey === cycleKey) {
-                        return;
-                    }
-
-                    const notificationRef = adminDb.collection("notifications").doc();
-                    transaction.set(notificationRef, {
-                        title: `${creatorDisplayName} renews in 7 days`,
-                        message: "Your creator subscription will auto-renew soon using purchased Gum Drops only. Continue holding enough Gum Drops or cancel before renewal day.",
-                        type: "warning",
-                        target: {
-                            global: false,
-                            userIds: [userId],
-                        },
-                        link: creatorUsername ? `/creators/${creatorUsername}` : "/dashboard/profile",
-                        createdAt: FieldValue.serverTimestamp(),
-                        readBy: [],
-                    });
-                    transaction.set(subscriptionDoc.ref, {
-                        lastRenewalWarningAt: now,
-                        warningCycleKey: cycleKey,
-                    }, { merge: true });
-                    markNotificationsRuntimeChanged(transaction, now);
-                });
-
-                outcomes.push({ status: "warned", creatorId, userId });
-            }
-
-            if (renewAt > now) {
-                continue;
-            }
-
-            const result = await adminDb.runTransaction(async (transaction) => {
-                const [freshSubscriptionSnap, creatorSnap, userSnap] = await transaction.getAll(
-                    subscriptionDoc.ref,
-                    adminDb.collection("users").doc(creatorId),
-                    adminDb.collection("users").doc(userId),
+            await Promise.all(chunk.map(async (subscriptionDoc) => {
+                const subscriptionData = subscriptionDoc.data() as Record<string, unknown>;
+                const creatorId = typeof subscriptionData.creatorId === "string" ? subscriptionData.creatorId : "";
+                const userId = typeof subscriptionData.userId === "string" ? subscriptionData.userId : "";
+                const autoRenew = subscriptionData.autoRenew !== false;
+                const renewAt = typeof subscriptionData.renewAt === "number" ? subscriptionData.renewAt : 0;
+                const priceGd = Math.max(
+                    CREATOR_SUBSCRIPTION_MIN_GD,
+                    typeof subscriptionData.priceGd === "number" ? Math.round(subscriptionData.priceGd) : CREATOR_SUBSCRIPTION_MIN_GD,
                 );
 
-                if (!freshSubscriptionSnap.exists || !creatorSnap.exists || !userSnap.exists) {
-                    return null;
+                if (!creatorId || !userId || !autoRenew || renewAt <= 0) {
+                    return;
                 }
 
-                const freshSubscription = freshSubscriptionSnap.data() as Record<string, unknown>;
-                const creatorData = creatorSnap.data() as Record<string, unknown>;
-                const userData = userSnap.data() as Record<string, unknown>;
-                if (freshSubscription.status !== "active" || freshSubscription.autoRenew === false) {
-                    return null;
-                }
-                if (!isCreatorRole(creatorData.role) || creatorData.status === "suspended" || creatorData.status === "banned") {
-                    transaction.set(subscriptionDoc.ref, {
-                        status: "lapsed",
-                        lapsedAt: now,
-                        autoRenew: false,
-                        renewalFailureReason: "creator_unavailable",
-                    }, { merge: true });
-                    return { status: "failed" as const, amount: priceGd };
-                }
+                const cycleKey = String(renewAt);
+                const lastWarningCycleKey = typeof subscriptionData.warningCycleKey === "string" ? subscriptionData.warningCycleKey : "";
 
-                const balance = readSourceAwareBalance(userData);
-                const spend = spendCreatorExperienceGumdrops(balance, priceGd, "subscription");
-                const creatorDisplayName = typeof creatorData.displayName === "string" && creatorData.displayName.trim().length > 0
-                    ? creatorData.displayName.trim()
-                    : "Creator";
-                const creatorUsername = typeof creatorData.username === "string" ? creatorData.username : "";
+                if (renewAt > now && renewAt - now <= WARNING_WINDOW_MS && lastWarningCycleKey !== cycleKey) {
+                    const creatorSnap = userSnapshots.get(creatorId);
+                    const userSnap = userSnapshots.get(userId);
 
-                if (!spend.ok) {
-                    const failedNotificationRef = adminDb.collection("notifications").doc();
-                    transaction.set(subscriptionDoc.ref, {
-                        status: "lapsed",
-                        lapsedAt: now,
-                        autoRenew: false,
-                        renewalFailureReason: "insufficient_purchased_balance",
-                    }, { merge: true });
-                    transaction.set(failedNotificationRef, {
-                        title: `${creatorDisplayName} subscription lapsed`,
-                        message: "Renewal failed because your purchased Gum Drops balance was too low. Top up and resubscribe anytime.",
-                        type: "error",
-                        target: {
-                            global: false,
-                            userIds: [userId],
-                        },
-                        link: creatorUsername ? `/creators/${creatorUsername}` : "/dashboard/profile",
-                        createdAt: FieldValue.serverTimestamp(),
-                        readBy: [],
+                    if (!creatorSnap || !userSnap) {
+                        return;
+                    }
+                    const creatorData = creatorSnap.data() as Record<string, unknown> | undefined;
+                    const creatorDisplayName = typeof creatorData?.displayName === "string" && creatorData.displayName.trim().length > 0
+                        ? creatorData.displayName.trim()
+                        : "your creator";
+                    const creatorUsername = typeof creatorData?.username === "string" ? creatorData.username : "";
+
+                    await adminDb.runTransaction(async (transaction) => {
+                        const freshSubscriptionSnap = await transaction.get(subscriptionDoc.ref);
+                        const freshData = freshSubscriptionSnap.data() as Record<string, unknown> | undefined;
+                        if (!freshData || freshData.status !== "active") {
+                            return;
+                        }
+                        if (typeof freshData.warningCycleKey === "string" && freshData.warningCycleKey === cycleKey) {
+                            return;
+                        }
+
+                        const notificationRef = adminDb.collection("notifications").doc();
+                        transaction.set(notificationRef, {
+                            title: `${creatorDisplayName} renews in 7 days`,
+                            message: "Your creator subscription will auto-renew soon using purchased Gum Drops only. Continue holding enough Gum Drops or cancel before renewal day.",
+                            type: "warning",
+                            target: {
+                                global: false,
+                                userIds: [userId],
+                            },
+                            link: creatorUsername ? `/creators/${creatorUsername}` : "/dashboard/profile",
+                            createdAt: FieldValue.serverTimestamp(),
+                            readBy: [],
+                        });
+                        transaction.set(subscriptionDoc.ref, {
+                            lastRenewalWarningAt: now,
+                            warningCycleKey: cycleKey,
+                        }, { merge: true });
+                        markNotificationsRuntimeChanged(transaction, now);
                     });
-                    markNotificationsRuntimeChanged(transaction, now);
-                    return { status: "failed" as const, amount: priceGd };
+
+                    outcomes.push({ status: "warned", creatorId, userId });
                 }
 
-                const accrualRef = adminDb.collection(CREATOR_COLLECTIONS.ledgerAccruals).doc();
-                const transactionRef = adminDb.collection("transactions").doc();
-                const accrual = buildCreatorAccrual({
-                    creatorId,
-                    userId,
-                    sourceType: "subscription",
-                    sourceId: subscriptionDoc.id,
-                    grossSpendGd: priceGd,
-                    createdAt: now,
-                });
+                if (renewAt > now) {
+                    return;
+                }
 
-                transaction.update(userSnap.ref, buildSourceAwareBalancePatch(spend.next));
-                transaction.set(subscriptionDoc.ref, {
-                    status: "active",
-                    renewedAt: now,
-                    renewAt: now + SUBSCRIPTION_TERM_MS,
-                    lastRenewalWarningAt: FieldValue.delete(),
-                    warningCycleKey: FieldValue.delete(),
-                    renewalFailureReason: FieldValue.delete(),
-                }, { merge: true });
-                transaction.set(accrualRef, accrual);
-                transaction.set(transactionRef, buildCompletedGumdropTransaction({
-                    userId,
-                    type: "creator_subscription_renewal",
-                    amount: -priceGd,
-                    creatorId,
-                    description: `Creator subscription renewal: ${creatorDisplayName}`,
-                    balanceBefore: balance.total,
-                    balanceAfter: spend.next.total,
-                    timestampMs: now,
-                    extra: {
-                        purchasedAmountSpent: spend.purchasedSpent,
-                        rewardAmountSpent: spend.rewardSpent,
-                        ledgerSource: spend.ledgerSource,
-                        creatorRevenueShareGd: accrual.creatorShareGd,
-                        creatorRevenueShareUsd: accrual.cashoutValueUsd,
-                        creatorAccrualId: accrualRef.id,
-                    },
-                }));
-                return { status: "renewed" as const, amount: priceGd, creatorAccrualId: accrualRef.id };
-            });
+                const result = await adminDb.runTransaction(async (transaction) => {
+                    const [freshSubscriptionSnap, creatorSnap, userSnap] = await transaction.getAll(
+                        subscriptionDoc.ref,
+                        adminDb.collection("users").doc(creatorId),
+                        adminDb.collection("users").doc(userId),
+                    );
 
-            if (result) {
-                if (result.status === "renewed") {
-                    outcomes.push({
-                        status: "renewed",
+                    if (!freshSubscriptionSnap.exists || !creatorSnap.exists || !userSnap.exists) {
+                        return null;
+                    }
+
+                    const freshSubscription = freshSubscriptionSnap.data() as Record<string, unknown>;
+                    const creatorData = creatorSnap.data() as Record<string, unknown>;
+                    const userData = userSnap.data() as Record<string, unknown>;
+                    if (freshSubscription.status !== "active" || freshSubscription.autoRenew === false) {
+                        return null;
+                    }
+                    if (!isCreatorRole(creatorData.role) || creatorData.status === "suspended" || creatorData.status === "banned") {
+                        transaction.set(subscriptionDoc.ref, {
+                            status: "lapsed",
+                            lapsedAt: now,
+                            autoRenew: false,
+                            renewalFailureReason: "creator_unavailable",
+                        }, { merge: true });
+                        return { status: "failed" as const, amount: priceGd };
+                    }
+
+                    const balance = readSourceAwareBalance(userData);
+                    const spend = spendCreatorExperienceGumdrops(balance, priceGd, "subscription");
+                    const creatorDisplayName = typeof creatorData.displayName === "string" && creatorData.displayName.trim().length > 0
+                        ? creatorData.displayName.trim()
+                        : "Creator";
+                    const creatorUsername = typeof creatorData.username === "string" ? creatorData.username : "";
+
+                    if (!spend.ok) {
+                        const failedNotificationRef = adminDb.collection("notifications").doc();
+                        transaction.set(subscriptionDoc.ref, {
+                            status: "lapsed",
+                            lapsedAt: now,
+                            autoRenew: false,
+                            renewalFailureReason: "insufficient_purchased_balance",
+                        }, { merge: true });
+                        transaction.set(failedNotificationRef, {
+                            title: `${creatorDisplayName} subscription lapsed`,
+                            message: "Renewal failed because your purchased Gum Drops balance was too low. Top up and resubscribe anytime.",
+                            type: "error",
+                            target: {
+                                global: false,
+                                userIds: [userId],
+                            },
+                            link: creatorUsername ? `/creators/${creatorUsername}` : "/dashboard/profile",
+                            createdAt: FieldValue.serverTimestamp(),
+                            readBy: [],
+                        });
+                        markNotificationsRuntimeChanged(transaction, now);
+                        return { status: "failed" as const, amount: priceGd };
+                    }
+
+                    const accrualRef = adminDb.collection(CREATOR_COLLECTIONS.ledgerAccruals).doc();
+                    const transactionRef = adminDb.collection("transactions").doc();
+                    const accrual = buildCreatorAccrual({
                         creatorId,
                         userId,
-                        amount: result.amount,
-                        creatorAccrualId: result.creatorAccrualId,
+                        sourceType: "subscription",
+                        sourceId: subscriptionDoc.id,
+                        grossSpendGd: priceGd,
+                        createdAt: now,
                     });
-                } else {
-                    outcomes.push({ status: "failed", creatorId, userId, amount: result.amount });
+
+                    transaction.update(userSnap.ref, buildSourceAwareBalancePatch(spend.next));
+                    transaction.set(subscriptionDoc.ref, {
+                        status: "active",
+                        renewedAt: now,
+                        renewAt: now + SUBSCRIPTION_TERM_MS,
+                        lastRenewalWarningAt: FieldValue.delete(),
+                        warningCycleKey: FieldValue.delete(),
+                        renewalFailureReason: FieldValue.delete(),
+                    }, { merge: true });
+                    transaction.set(accrualRef, accrual);
+                    transaction.set(transactionRef, buildCompletedGumdropTransaction({
+                        userId,
+                        type: "creator_subscription_renewal",
+                        amount: -priceGd,
+                        creatorId,
+                        description: `Creator subscription renewal: ${creatorDisplayName}`,
+                        balanceBefore: balance.total,
+                        balanceAfter: spend.next.total,
+                        timestampMs: now,
+                        extra: {
+                            purchasedAmountSpent: spend.purchasedSpent,
+                            rewardAmountSpent: spend.rewardSpent,
+                            ledgerSource: spend.ledgerSource,
+                            creatorRevenueShareGd: accrual.creatorShareGd,
+                            creatorRevenueShareUsd: accrual.cashoutValueUsd,
+                            creatorAccrualId: accrualRef.id,
+                        },
+                    }));
+                    return { status: "renewed" as const, amount: priceGd, creatorAccrualId: accrualRef.id };
+                });
+
+                if (result) {
+                    if (result.status === "renewed") {
+                        outcomes.push({
+                            status: "renewed",
+                            creatorId,
+                            userId,
+                            amount: result.amount,
+                            creatorAccrualId: result.creatorAccrualId,
+                        });
+                    } else {
+                        outcomes.push({ status: "failed", creatorId, userId, amount: result.amount });
+                    }
                 }
-            }
+            }));
         }
 
         await Promise.allSettled(outcomes.map((outcome) => {
