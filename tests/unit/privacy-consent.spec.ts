@@ -1,9 +1,16 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+    ANALYTICS_CONSENT_COOKIE,
+    applyAnalyticsConsentToGtag,
+    canUseAnonymousAnalytics,
+    canUseIdentifiedAnalytics,
+    emitPrivacySettingsChanged,
     getBrowserGlobalPrivacyControl,
     normalizePrivacySettingsSnapshot,
+    persistPrivacySettingsSnapshot,
     PRIVACY_SETTINGS_STORAGE_KEY,
     readPrivacySettingsSnapshot,
+    saveGuestAnalyticsConsent,
     subscribeToPrivacySettings,
 } from "@/lib/privacy-consent";
 
@@ -69,10 +76,10 @@ describe("normalizePrivacySettingsSnapshot", () => {
 
     it("falls back to Date.now() for invalid consentUpdatedAt", () => {
         const currentTime = Date.now();
-        expect(normalizePrivacySettingsSnapshot({ consentUpdatedAt: NaN as any }).consentUpdatedAt).toBe(currentTime);
-        expect(normalizePrivacySettingsSnapshot({ consentUpdatedAt: Infinity as any }).consentUpdatedAt).toBe(currentTime);
-        expect(normalizePrivacySettingsSnapshot({ consentUpdatedAt: -Infinity as any }).consentUpdatedAt).toBe(currentTime);
-        expect(normalizePrivacySettingsSnapshot({ consentUpdatedAt: "123" as any }).consentUpdatedAt).toBe(currentTime);
+        expect(normalizePrivacySettingsSnapshot({ consentUpdatedAt: NaN as never }).consentUpdatedAt).toBe(currentTime);
+        expect(normalizePrivacySettingsSnapshot({ consentUpdatedAt: Infinity as never }).consentUpdatedAt).toBe(currentTime);
+        expect(normalizePrivacySettingsSnapshot({ consentUpdatedAt: -Infinity as never }).consentUpdatedAt).toBe(currentTime);
+        expect(normalizePrivacySettingsSnapshot({ consentUpdatedAt: "123" as never }).consentUpdatedAt).toBe(currentTime);
     });
 });
 
@@ -106,7 +113,6 @@ describe("readPrivacySettingsSnapshot", () => {
         const snapshot = readPrivacySettingsSnapshot();
         expect(snapshot.anonymousAnalyticsEnabled).toBe(true);
         expect(snapshot.consentUpdatedAt).toBe(123456789);
-        // Defaults for other fields
         expect(snapshot.identifiedAnalyticsEnabled).toBe(false);
         expect(snapshot.honorGlobalPrivacyControl).toBe(true);
     });
@@ -129,6 +135,44 @@ describe("readPrivacySettingsSnapshot", () => {
         vi.mocked(window.localStorage.getItem).mockReturnValue(null);
         readPrivacySettingsSnapshot();
         expect(window.localStorage.getItem).toHaveBeenCalledWith(PRIVACY_SETTINGS_STORAGE_KEY);
+    });
+
+    it("returns DEFAULT_PRIVACY_SETTINGS when window is undefined", () => {
+        vi.stubGlobal("window", undefined);
+        const snapshot = readPrivacySettingsSnapshot();
+        expect(snapshot).toEqual(DEFAULT_PRIVACY_SETTINGS);
+    });
+
+    it("returns DEFAULT_PRIVACY_SETTINGS when document is undefined", () => {
+        vi.stubGlobal("document", undefined);
+        const snapshot = readPrivacySettingsSnapshot();
+        expect(snapshot).toEqual(DEFAULT_PRIVACY_SETTINGS);
+    });
+});
+
+describe("emitPrivacySettingsChanged", () => {
+    beforeEach(() => {
+        vi.stubGlobal("window", {
+            dispatchEvent: vi.fn(),
+        });
+        vi.stubGlobal("document", {});
+    });
+
+    afterEach(() => {
+        vi.unstubAllGlobals();
+    });
+
+    it("does nothing when DOM is unavailable", () => {
+        vi.stubGlobal("window", undefined);
+        emitPrivacySettingsChanged();
+    });
+
+    it("dispatches a CustomEvent when DOM is available", () => {
+        emitPrivacySettingsChanged();
+        expect(window.dispatchEvent).toHaveBeenCalled();
+        const callArgs = vi.mocked(window.dispatchEvent).mock.calls[0];
+        expect(callArgs[0]).toBeInstanceOf(CustomEvent);
+        expect((callArgs[0] as CustomEvent).type).toBe("kandydrops-privacy-updated");
     });
 });
 
@@ -210,99 +254,370 @@ describe("subscribeToPrivacySettings", () => {
     });
 });
 
-describe("subscribeToPrivacySettings", () => {
-    let originalWindow: any;
-    let originalDocument: any;
-
+describe("applyAnalyticsConsentToGtag", () => {
     beforeEach(() => {
-        originalWindow = global.window;
-        originalDocument = global.document;
-
         vi.stubGlobal("window", {
-            addEventListener: vi.fn(),
-            removeEventListener: vi.fn(),
-            dispatchEvent: vi.fn(),
-            localStorage: {
-                getItem: vi.fn(),
-                setItem: vi.fn(),
-            },
+            gtag: vi.fn(),
         });
         vi.stubGlobal("document", {});
+        vi.stubGlobal("navigator", {});
     });
 
     afterEach(() => {
         vi.unstubAllGlobals();
     });
 
-    it("returns a no-op function when window is not available", () => {
+    it("does nothing when window is undefined", () => {
+        vi.stubGlobal("window", undefined);
+        applyAnalyticsConsentToGtag();
+    });
+
+    it("does nothing when window.gtag is not a function", () => {
+        vi.stubGlobal("window", { gtag: undefined });
+        applyAnalyticsConsentToGtag();
+    });
+
+    it("grants analytics_storage when anonymous analytics is enabled and GPC is not blocking", () => {
+        applyAnalyticsConsentToGtag({
+            ...DEFAULT_PRIVACY_SETTINGS,
+            anonymousAnalyticsEnabled: true,
+            honorGlobalPrivacyControl: false,
+        });
+
+        expect(window.gtag).toHaveBeenCalledWith("consent", "update", expect.objectContaining({
+            analytics_storage: "granted",
+            ad_storage: "denied",
+            functionality_storage: "granted",
+            security_storage: "granted",
+        }));
+    });
+
+    it("denies analytics_storage when anonymous analytics is disabled", () => {
+        applyAnalyticsConsentToGtag({
+            ...DEFAULT_PRIVACY_SETTINGS,
+            anonymousAnalyticsEnabled: false,
+        });
+
+        expect(window.gtag).toHaveBeenCalledWith("consent", "update", expect.objectContaining({
+            analytics_storage: "denied",
+        }));
+    });
+
+    it("denies analytics_storage when global privacy control is honored and active", () => {
+        vi.stubGlobal("navigator", { globalPrivacyControl: true });
+
+        applyAnalyticsConsentToGtag({
+            ...DEFAULT_PRIVACY_SETTINGS,
+            anonymousAnalyticsEnabled: true,
+            honorGlobalPrivacyControl: true,
+        });
+
+        expect(window.gtag).toHaveBeenCalledWith("consent", "update", expect.objectContaining({
+            analytics_storage: "denied",
+        }));
+    });
+
+    it("grants analytics_storage when GPC is active but not honored", () => {
+        vi.stubGlobal("navigator", { globalPrivacyControl: true });
+
+        applyAnalyticsConsentToGtag({
+            ...DEFAULT_PRIVACY_SETTINGS,
+            anonymousAnalyticsEnabled: true,
+            honorGlobalPrivacyControl: false,
+        });
+
+        expect(window.gtag).toHaveBeenCalledWith("consent", "update", expect.objectContaining({
+            analytics_storage: "granted",
+        }));
+    });
+});
+
+describe("persistPrivacySettingsSnapshot", () => {
+    beforeEach(() => {
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date(1600000000000));
+
+        vi.stubGlobal("window", {
+            localStorage: {
+                getItem: vi.fn(),
+                setItem: vi.fn(),
+            },
+            location: {
+                protocol: "https:",
+            },
+            gtag: vi.fn(),
+            dispatchEvent: vi.fn(),
+        });
+
+        let cookieValue = "";
+        vi.stubGlobal("document", {});
+        Object.defineProperty(document, "cookie", {
+            get: () => cookieValue,
+            set: (val) => {
+                cookieValue = val;
+            },
+            configurable: true,
+        });
+    });
+
+    afterEach(() => {
+        vi.useRealTimers();
+        vi.unstubAllGlobals();
+    });
+
+    it("returns DEFAULT_PRIVACY_SETTINGS when DOM is not available", () => {
         vi.stubGlobal("window", undefined);
         vi.stubGlobal("document", undefined);
-
-        const callback = vi.fn();
-        const unsubscribe = subscribeToPrivacySettings(callback);
-
-        expect(typeof unsubscribe).toBe("function");
-        expect(unsubscribe()).toBeUndefined();
+        const snapshot = persistPrivacySettingsSnapshot({ anonymousAnalyticsEnabled: true });
+        expect(snapshot).toEqual(DEFAULT_PRIVACY_SETTINGS);
     });
 
-    it("attaches event listeners to window", () => {
-        const callback = vi.fn();
-        subscribeToPrivacySettings(callback);
+    it("merges next settings with current settings and sets consentUpdatedAt by default", () => {
+        const storedValue = JSON.stringify({
+            anonymousAnalyticsEnabled: false,
+            allowRecommendations: true,
+            consentUpdatedAt: 1000000000000,
+        });
+        vi.mocked(window.localStorage.getItem).mockReturnValue(storedValue);
 
-        expect(window.addEventListener).toHaveBeenCalledWith("kandydrops-privacy-updated", expect.any(Function));
-        expect(window.addEventListener).toHaveBeenCalledWith("storage", expect.any(Function));
+        const snapshot = persistPrivacySettingsSnapshot({ anonymousAnalyticsEnabled: true });
+
+        expect(snapshot.anonymousAnalyticsEnabled).toBe(true);
+        expect(snapshot.allowRecommendations).toBe(true);
+        expect(snapshot.consentUpdatedAt).toBe(1600000000000);
     });
 
-    it("removes event listeners when unsubscribed", () => {
-        const callback = vi.fn();
-        const unsubscribe = subscribeToPrivacySettings(callback);
+    it("preserves consentUpdatedAt when preserveTimestamp is true", () => {
+        const storedValue = JSON.stringify({
+            anonymousAnalyticsEnabled: false,
+            allowRecommendations: true,
+            consentUpdatedAt: 1000000000000,
+        });
+        vi.mocked(window.localStorage.getItem).mockReturnValue(storedValue);
 
-        unsubscribe();
+        const snapshot = persistPrivacySettingsSnapshot(
+            { anonymousAnalyticsEnabled: true, consentUpdatedAt: 1500000000000 },
+            { preserveTimestamp: true },
+        );
 
-        expect(window.removeEventListener).toHaveBeenCalledWith("kandydrops-privacy-updated", expect.any(Function));
-        expect(window.removeEventListener).toHaveBeenCalledWith("storage", expect.any(Function));
+        expect(snapshot.consentUpdatedAt).toBe(1500000000000);
     });
 
-    it("calls the provided callback when kandydrops-privacy-updated is fired", () => {
-        let handler: any;
-        vi.mocked(window.addEventListener).mockImplementation((event, cb) => {
-            if (event === "kandydrops-privacy-updated") {
-                handler = cb;
-            }
+    it("updates localStorage with the merged settings", () => {
+        persistPrivacySettingsSnapshot({ anonymousAnalyticsEnabled: true });
+
+        expect(window.localStorage.setItem).toHaveBeenCalledWith(
+            PRIVACY_SETTINGS_STORAGE_KEY,
+            expect.any(String),
+        );
+
+        const setItemCall = vi.mocked(window.localStorage.setItem).mock.calls[0];
+        const mergedSettings = JSON.parse(setItemCall[1]);
+        expect(mergedSettings.anonymousAnalyticsEnabled).toBe(true);
+        expect(mergedSettings.consentUpdatedAt).toBe(1600000000000);
+    });
+
+    it("sets the analytics consent cookie to granted on https", () => {
+        persistPrivacySettingsSnapshot({ anonymousAnalyticsEnabled: true });
+
+        expect(document.cookie).toBe(`${ANALYTICS_CONSENT_COOKIE}=granted; path=/; max-age=31536000; SameSite=Lax; Secure`);
+    });
+
+    it("sets the analytics consent cookie to denied on https", () => {
+        persistPrivacySettingsSnapshot({ anonymousAnalyticsEnabled: false });
+
+        expect(document.cookie).toBe(`${ANALYTICS_CONSENT_COOKIE}=denied; path=/; max-age=31536000; SameSite=Lax; Secure`);
+    });
+
+    it("omits Secure from the analytics consent cookie on http", () => {
+        window.location.protocol = "http:";
+        persistPrivacySettingsSnapshot({ anonymousAnalyticsEnabled: true });
+
+        expect(document.cookie).toBe(`${ANALYTICS_CONSENT_COOKIE}=granted; path=/; max-age=31536000; SameSite=Lax`);
+    });
+
+    it("calls window.gtag with updated consent", () => {
+        persistPrivacySettingsSnapshot({ anonymousAnalyticsEnabled: true });
+
+        expect(window.gtag).toHaveBeenCalledWith("consent", "update", expect.objectContaining({
+            analytics_storage: "granted",
+        }));
+    });
+
+    it("dispatches a kandydrops-privacy-updated event", () => {
+        persistPrivacySettingsSnapshot({ anonymousAnalyticsEnabled: true });
+
+        expect(window.dispatchEvent).toHaveBeenCalledWith(expect.any(CustomEvent));
+        const event = vi.mocked(window.dispatchEvent).mock.calls[0][0] as CustomEvent;
+        expect(event.type).toBe("kandydrops-privacy-updated");
+    });
+
+    it("ignores localStorage.setItem failures gracefully", () => {
+        vi.mocked(window.localStorage.setItem).mockImplementation(() => {
+            throw new Error("QuotaExceededError");
         });
 
-        const callback = vi.fn();
-        subscribeToPrivacySettings(callback);
+        expect(() => {
+            persistPrivacySettingsSnapshot({ anonymousAnalyticsEnabled: true });
+        }).not.toThrow();
 
-        // Simulate the event firing
-        handler(new Event("kandydrops-privacy-updated"));
+        expect(document.cookie).toContain(ANALYTICS_CONSENT_COOKIE);
+    });
+});
 
-        expect(callback).toHaveBeenCalledTimes(1);
+describe("saveGuestAnalyticsConsent", () => {
+    beforeEach(() => {
+        vi.stubGlobal("window", {
+            localStorage: {
+                getItem: vi.fn(),
+                setItem: vi.fn(),
+            },
+            gtag: vi.fn(),
+            dispatchEvent: vi.fn(),
+            location: { protocol: "http:" },
+        });
+        vi.stubGlobal("document", { cookie: "" });
+        vi.stubGlobal("fetch", vi.fn());
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date("2023-01-01T00:00:00.000Z"));
     });
 
-    it("calls the provided callback when storage event is fired", () => {
-        let handler: any;
-        vi.mocked(window.addEventListener).mockImplementation((event, cb) => {
-            if (event === "storage") {
-                handler = cb;
-            }
+    afterEach(() => {
+        vi.useRealTimers();
+        vi.unstubAllGlobals();
+    });
+
+    it("makes a POST request and returns a snapshot on success", async () => {
+        vi.mocked(window.localStorage.getItem).mockReturnValue(null);
+        vi.mocked(fetch).mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({}),
+        } as Response);
+
+        const snapshot = await saveGuestAnalyticsConsent(true);
+
+        expect(fetch).toHaveBeenCalledWith("/api/privacy/consent", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ anonymousAnalyticsEnabled: true }),
         });
+        expect(snapshot.anonymousAnalyticsEnabled).toBe(true);
+        expect(snapshot.identifiedAnalyticsEnabled).toBe(false);
+    });
 
-        const callback = vi.fn();
-        subscribeToPrivacySettings(callback);
+    it("restores the previous snapshot on fetch failure", async () => {
+        const previousSnapshot = {
+            ...DEFAULT_PRIVACY_SETTINGS,
+            anonymousAnalyticsEnabled: false,
+            consentUpdatedAt: 1000,
+        };
+        vi.mocked(window.localStorage.getItem).mockReturnValueOnce(JSON.stringify(previousSnapshot));
 
-        // Simulate the event firing
-        handler(new Event("storage"));
+        vi.mocked(fetch).mockResolvedValueOnce({
+            ok: false,
+            json: async () => ({ error: "Server error" }),
+        } as Response);
 
-        expect(callback).toHaveBeenCalledTimes(1);
+        await expect(saveGuestAnalyticsConsent(true)).rejects.toThrow("Server error");
+        expect(window.localStorage.setItem).toHaveBeenLastCalledWith(
+            PRIVACY_SETTINGS_STORAGE_KEY,
+            JSON.stringify(previousSnapshot),
+        );
+    });
+
+    it("throws a generic error when the response has no error string", async () => {
+        vi.mocked(window.localStorage.getItem).mockReturnValue(null);
+        vi.mocked(fetch).mockResolvedValueOnce({
+            ok: false,
+            json: async () => ({}),
+        } as Response);
+
+        await expect(saveGuestAnalyticsConsent(true)).rejects.toThrow("Failed to save privacy preference.");
+    });
+});
+
+describe("canUseAnonymousAnalytics", () => {
+    beforeEach(() => {
+        vi.stubGlobal("navigator", {});
+    });
+
+    afterEach(() => {
+        vi.unstubAllGlobals();
+    });
+
+    it("returns false when anonymousAnalyticsEnabled is false", () => {
+        expect(canUseAnonymousAnalytics({
+            ...DEFAULT_PRIVACY_SETTINGS,
+            anonymousAnalyticsEnabled: false,
+        })).toBe(false);
+    });
+
+    it("returns true when anonymous analytics is enabled and GPC is not honored", () => {
+        vi.stubGlobal("navigator", { globalPrivacyControl: true });
+        expect(canUseAnonymousAnalytics({
+            ...DEFAULT_PRIVACY_SETTINGS,
+            anonymousAnalyticsEnabled: true,
+            honorGlobalPrivacyControl: false,
+        })).toBe(true);
+    });
+
+    it("returns false when global privacy control is honored and active", () => {
+        vi.stubGlobal("navigator", { globalPrivacyControl: true });
+        expect(canUseAnonymousAnalytics({
+            ...DEFAULT_PRIVACY_SETTINGS,
+            anonymousAnalyticsEnabled: true,
+            honorGlobalPrivacyControl: true,
+        })).toBe(false);
+    });
+
+    it("returns true when anonymous analytics is enabled and GPC is inactive", () => {
+        vi.stubGlobal("navigator", { globalPrivacyControl: false });
+        expect(canUseAnonymousAnalytics({
+            ...DEFAULT_PRIVACY_SETTINGS,
+            anonymousAnalyticsEnabled: true,
+            honorGlobalPrivacyControl: true,
+        })).toBe(true);
+    });
+});
+
+describe("canUseIdentifiedAnalytics", () => {
+    beforeEach(() => {
+        vi.stubGlobal("navigator", {});
+    });
+
+    afterEach(() => {
+        vi.unstubAllGlobals();
+    });
+
+    it("returns false when identifiedAnalyticsEnabled is false", () => {
+        expect(canUseIdentifiedAnalytics({
+            ...DEFAULT_PRIVACY_SETTINGS,
+            identifiedAnalyticsEnabled: false,
+        })).toBe(false);
+    });
+
+    it("returns true when identified analytics is enabled and GPC is not honored", () => {
+        vi.stubGlobal("navigator", { globalPrivacyControl: true });
+        expect(canUseIdentifiedAnalytics({
+            ...DEFAULT_PRIVACY_SETTINGS,
+            identifiedAnalyticsEnabled: true,
+            honorGlobalPrivacyControl: false,
+        })).toBe(true);
+    });
+
+    it("returns false when global privacy control is honored and active", () => {
+        vi.stubGlobal("navigator", { globalPrivacyControl: true });
+        expect(canUseIdentifiedAnalytics({
+            ...DEFAULT_PRIVACY_SETTINGS,
+            identifiedAnalyticsEnabled: true,
+            honorGlobalPrivacyControl: true,
+        })).toBe(false);
     });
 });
 
 describe("getBrowserGlobalPrivacyControl", () => {
-    let originalNavigator: any;
-
     beforeEach(() => {
-        originalNavigator = global.navigator;
+        vi.stubGlobal("navigator", {});
     });
 
     afterEach(() => {
@@ -329,12 +644,12 @@ describe("getBrowserGlobalPrivacyControl", () => {
         expect(getBrowserGlobalPrivacyControl()).toBe(false);
     });
 
-    it("returns false when globalPrivacyControl is a string 'true'", () => {
+    it("returns false when globalPrivacyControl is a string", () => {
         vi.stubGlobal("navigator", { globalPrivacyControl: "true" });
         expect(getBrowserGlobalPrivacyControl()).toBe(false);
     });
 
-    it("returns false when globalPrivacyControl is a number 1", () => {
+    it("returns false when globalPrivacyControl is a number", () => {
         vi.stubGlobal("navigator", { globalPrivacyControl: 1 });
         expect(getBrowserGlobalPrivacyControl()).toBe(false);
     });
