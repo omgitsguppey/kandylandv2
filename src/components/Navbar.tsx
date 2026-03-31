@@ -93,6 +93,7 @@ export function Navbar() {
 
                                 <button
                                     onClick={openProfileSidebar}
+                                    aria-label="Open profile menu"
                                     className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-white/10 bg-white/5 text-white md:hidden"
                                 >
                                     {user.photoURL ? (
