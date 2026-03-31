@@ -156,4 +156,24 @@ describe("getBrowserGlobalPrivacyControl", () => {
         vi.stubGlobal("navigator", { globalPrivacyControl: false });
         expect(getBrowserGlobalPrivacyControl()).toBe(false);
     });
+
+    it("returns false when globalPrivacyControl is a string 'true'", () => {
+        vi.stubGlobal("navigator", { globalPrivacyControl: "true" });
+        expect(getBrowserGlobalPrivacyControl()).toBe(false);
+    });
+
+    it("returns false when globalPrivacyControl is a number 1", () => {
+        vi.stubGlobal("navigator", { globalPrivacyControl: 1 });
+        expect(getBrowserGlobalPrivacyControl()).toBe(false);
+    });
+
+    it("returns false when globalPrivacyControl is null", () => {
+        vi.stubGlobal("navigator", { globalPrivacyControl: null });
+        expect(getBrowserGlobalPrivacyControl()).toBe(false);
+    });
+
+    it("returns false when globalPrivacyControl is undefined", () => {
+        vi.stubGlobal("navigator", { globalPrivacyControl: undefined });
+        expect(getBrowserGlobalPrivacyControl()).toBe(false);
+    });
 });
