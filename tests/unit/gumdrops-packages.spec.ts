@@ -19,11 +19,13 @@ describe("gumdrops-packages", () => {
             expect(isBundleGumdropAmount(100)).toBe(false);
             expect(isBundleGumdropAmount(0)).toBe(false);
             expect(isBundleGumdropAmount(-5000)).toBe(false);
+            expect(isBundleGumdropAmount(Number.MIN_SAFE_INTEGER)).toBe(false);
         });
 
         it("returns false for values > 100000", () => {
             expect(isBundleGumdropAmount(100001)).toBe(false);
             expect(isBundleGumdropAmount(200000)).toBe(false);
+            expect(isBundleGumdropAmount(Number.MAX_SAFE_INTEGER)).toBe(false);
         });
 
         it("returns false for values not divisible by 1000", () => {
@@ -31,10 +33,15 @@ describe("gumdrops-packages", () => {
             expect(isBundleGumdropAmount(5001)).toBe(false);
         });
 
-        it("returns false for non-integers", () => {
+        it("returns false for non-integers and invalid types at runtime", () => {
             expect(isBundleGumdropAmount(5000.5)).toBe(false);
             expect(isBundleGumdropAmount(NaN)).toBe(false);
             expect(isBundleGumdropAmount(Infinity)).toBe(false);
+            expect(isBundleGumdropAmount(null as any)).toBe(false);
+            expect(isBundleGumdropAmount(undefined as any)).toBe(false);
+            expect(isBundleGumdropAmount("5000" as any)).toBe(false);
+            expect(isBundleGumdropAmount({} as any)).toBe(false);
+            expect(isBundleGumdropAmount([] as any)).toBe(false);
         });
     });
 
