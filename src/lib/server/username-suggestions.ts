@@ -45,16 +45,34 @@ export async function generateUniqueUsernameSuggestion(input: {
             return candidate;
         }
 
-        for (let suffix = 2; suffix < 100; suffix += 1) {
-            const suffixValue = `-${suffix}`;
-            const truncatedBase = candidate.slice(0, Math.max(3, 20 - suffixValue.length));
-            const alternative = normalizeUsername(`${truncatedBase}${suffixValue}`);
-            if (!alternative) {
+        const BATCH_SIZE = 5;
+        for (let batchStart = 2; batchStart < 100; batchStart += BATCH_SIZE) {
+            const batchEnd = Math.min(100, batchStart + BATCH_SIZE);
+            const batchAlternatives: string[] = [];
+            const batchPromises: Promise<boolean>[] = [];
+
+            for (let suffix = batchStart; suffix < batchEnd; suffix += 1) {
+                const suffixValue = `-${suffix}`;
+                const truncatedBase = candidate.slice(0, Math.max(3, 20 - suffixValue.length));
+                const alternative = normalizeUsername(`${truncatedBase}${suffixValue}`);
+
+                if (!alternative) {
+                    continue;
+                }
+
+                batchAlternatives.push(alternative);
+                batchPromises.push(isUsernameAvailable(alternative, input.excludeUid));
+            }
+
+            if (batchPromises.length === 0) {
                 continue;
             }
 
-            if (await isUsernameAvailable(alternative, input.excludeUid)) {
-                return alternative;
+            const results = await Promise.all(batchPromises);
+            for (let i = 0; i < results.length; i++) {
+                if (results[i]) {
+                    return batchAlternatives[i];
+                }
             }
         }
     }
