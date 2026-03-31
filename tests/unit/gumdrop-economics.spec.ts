@@ -14,6 +14,9 @@ describe("getBundlePresentation", () => {
       bundleLabel: "Starter Pack",
       bundleKey: "starter_pack",
       bundleTier: "entry",
+      baseAmount: 100,
+      bonus: 0,
+      hasBonus: false,
     });
   });
 
@@ -22,6 +25,9 @@ describe("getBundlePresentation", () => {
       bundleLabel: "Fan Pack",
       bundleKey: "fan_pack",
       bundleTier: "bonus",
+      baseAmount: 500,
+      bonus: 50,
+      hasBonus: true,
     });
   });
 
@@ -30,6 +36,9 @@ describe("getBundlePresentation", () => {
       bundleLabel: "Premium Stash",
       bundleKey: "premium_stash",
       bundleTier: "bonus",
+      baseAmount: 1100,
+      bonus: 0,
+      hasBonus: false,
     });
   });
 
@@ -38,22 +47,31 @@ describe("getBundlePresentation", () => {
       bundleLabel: "Ultimate Kandy",
       bundleKey: "ultimate_kandy",
       bundleTier: "bonus",
+      baseAmount: 2500,
+      bonus: 0,
+      hasBonus: false,
     });
   });
 
-  it("returns custom bundle for small custom amounts", () => {
+  it("returns custom bundle for small custom amounts with no bonus", () => {
     expect(getBundlePresentation(600)).toEqual({
       bundleLabel: "600 GD Bundle",
       bundleKey: "bundle_600",
       bundleTier: "custom",
+      baseAmount: 600,
+      bonus: 0,
+      hasBonus: false,
     });
   });
 
-  it("returns generic bundle for large custom amounts", () => {
-    expect(getBundlePresentation(5000)).toEqual({
-      bundleLabel: "5,000 GD Bundle",
-      bundleKey: "bundle_5000",
+  it("returns generic bundle for large custom amounts with a bonus", () => {
+    expect(getBundlePresentation(5050)).toEqual({
+      bundleLabel: "5,050 GD Bundle",
+      bundleKey: "bundle_5050",
       bundleTier: "bundle",
+      baseAmount: 5000,
+      bonus: 50,
+      hasBonus: true,
     });
   });
 });
