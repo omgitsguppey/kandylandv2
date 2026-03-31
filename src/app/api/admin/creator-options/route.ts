@@ -29,7 +29,11 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });
         }
 
-        const snap = await adminDb.collection("users").get();
+        const snap = await adminDb.collection("users")
+            .where("role", "in", ["creator", "admin"])
+            .select("role", "creator", "status", "displayName", "username", "photoURL")
+            .get();
+
         const creators = snap.docs
             .map((doc) => ({ uid: doc.id, ...(doc.data() as Record<string, unknown>) }) as CreatorOptionRecord)
             .filter((entry) => isCreatorRole(entry) && entry.status !== "banned")
