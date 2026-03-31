@@ -92,18 +92,27 @@ export async function GET(request: NextRequest) {
             ...(doc.data() as Record<string, unknown>),
         }) as CreatorRelationshipRecord);
 
-        const recommendedCreatorDocs = await adminDb.collection("users").get();
-        const validCreators = recommendedCreatorDocs.docs
-            .map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) }) as RecommendedCreatorRecord)
-            .filter((entry) => isCreatorRole(entry.role) && entry.status !== "suspended" && entry.status !== "banned")
-            .map((entry) => ({
-                uid: entry.id,
-                displayName: typeof entry.displayName === "string" && entry.displayName.trim().length > 0 ? entry.displayName.trim() : "Creator",
-                username: typeof entry.username === "string" ? entry.username : "",
-                photoURL: typeof entry.photoURL === "string" ? entry.photoURL : null,
-                bio: typeof entry.bio === "string" ? entry.bio : "",
-                isVerified: entry.isVerified === true,
-            }));
+        const recommendedCreatorDocs = adminDb.collection("users")
+            .where("role", "==", "creator")
+            .where("status", "not-in", ["suspended", "banned"])
+            .select("role", "status", "displayName", "username", "photoURL", "bio", "isVerified")
+            .stream();
+
+        const validCreators = [];
+        for await (const chunk of recommendedCreatorDocs) {
+            const doc = chunk as unknown as FirebaseFirestore.DocumentSnapshot;
+            const entry = { id: doc.id, ...(doc.data() as Record<string, unknown>) } as RecommendedCreatorRecord;
+            if (isCreatorRole(entry.role) && entry.status !== "suspended" && entry.status !== "banned") {
+                validCreators.push({
+                    uid: entry.id,
+                    displayName: typeof entry.displayName === "string" && entry.displayName.trim().length > 0 ? entry.displayName.trim() : "Creator",
+                    username: typeof entry.username === "string" ? entry.username : "",
+                    photoURL: typeof entry.photoURL === "string" ? entry.photoURL : null,
+                    bio: typeof entry.bio === "string" ? entry.bio : "",
+                    isVerified: entry.isVerified === true,
+                });
+            }
+        }
         const validCreatorIds = new Set(validCreators.map((entry) => entry.uid));
         const relationships = rawRelationships.filter((entry) => typeof entry.creatorId === "string" && validCreatorIds.has(entry.creatorId));
 
