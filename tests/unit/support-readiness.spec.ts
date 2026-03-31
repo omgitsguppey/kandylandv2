@@ -1,5 +1,25 @@
 import { describe, expect, it } from "vitest";
-import { buildSupportThreadKey } from "@/lib/support-readiness";
+import { buildSupportThreadKey, describeSupportState } from "@/lib/support-readiness";
+
+describe("describeSupportState", () => {
+    it("returns 'Needs Attention' for 'open'", () => {
+        expect(describeSupportState("open")).toBe("Needs Attention");
+    });
+
+    it("returns 'Waiting on User' for 'waiting_on_user' or 'waiting_on_support'", () => {
+        expect(describeSupportState("waiting_on_user")).toBe("Waiting on User");
+        expect(describeSupportState("waiting_on_support")).toBe("Waiting on User");
+    });
+
+    it("returns 'Resolved' for 'resolved'", () => {
+        expect(describeSupportState("resolved")).toBe("Resolved");
+    });
+
+    it("returns 'Ready' for 'ready' (default)", () => {
+        expect(describeSupportState("ready")).toBe("Ready");
+        expect(describeSupportState("anything" as any)).toBe("Ready");
+    });
+});
 
 describe("buildSupportThreadKey", () => {
 

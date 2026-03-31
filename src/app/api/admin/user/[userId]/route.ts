@@ -564,8 +564,8 @@ export async function GET(
             summary: {
                 threadKey: buildSupportThreadKey(userId),
                 state: derivedSupportState,
-                stateLabel: supportState.label,
-                stateDescription: supportState.description,
+                stateLabel: supportState,
+                stateDescription: supportState,
                 totalThreads: supportThreads.length,
                 openThreads: openSupportThreads.length,
                 bugReportCount: supportFeedback.length,
