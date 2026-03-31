@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { readPrivacySettingsSnapshot, PRIVACY_SETTINGS_STORAGE_KEY, getBrowserGlobalPrivacyControl } from "@/lib/privacy-consent";
+import { readPrivacySettingsSnapshot, PRIVACY_SETTINGS_STORAGE_KEY, getBrowserGlobalPrivacyControl, normalizePrivacySettingsSnapshot } from "@/lib/privacy-consent";
 
 const DEFAULT_PRIVACY_SETTINGS = {
     anonymousAnalyticsEnabled: false,
@@ -9,6 +9,66 @@ const DEFAULT_PRIVACY_SETTINGS = {
     honorGlobalPrivacyControl: true,
     consentUpdatedAt: 0,
 };
+
+describe("normalizePrivacySettingsSnapshot", () => {
+    beforeEach(() => {
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date("2024-01-01T00:00:00Z").getTime());
+    });
+
+    afterEach(() => {
+        vi.useRealTimers();
+    });
+
+    it("returns safe defaults for null or undefined input", () => {
+        const expected = {
+            anonymousAnalyticsEnabled: false,
+            identifiedAnalyticsEnabled: false,
+            allowRecommendations: false,
+            showInAnonymousStats: false,
+            honorGlobalPrivacyControl: true,
+            consentUpdatedAt: Date.now(),
+        };
+
+        expect(normalizePrivacySettingsSnapshot(null)).toEqual(expected);
+        expect(normalizePrivacySettingsSnapshot(undefined)).toEqual(expected);
+    });
+
+    it("preserves valid truthy boolean fields", () => {
+        const input = {
+            anonymousAnalyticsEnabled: true,
+            identifiedAnalyticsEnabled: true,
+            allowRecommendations: true,
+            showInAnonymousStats: true,
+        };
+
+        const result = normalizePrivacySettingsSnapshot(input);
+        expect(result.anonymousAnalyticsEnabled).toBe(true);
+        expect(result.identifiedAnalyticsEnabled).toBe(true);
+        expect(result.allowRecommendations).toBe(true);
+        expect(result.showInAnonymousStats).toBe(true);
+    });
+
+    it("preserves falsey values over defaults", () => {
+        const input = { honorGlobalPrivacyControl: false };
+        const result = normalizePrivacySettingsSnapshot(input);
+        expect(result.honorGlobalPrivacyControl).toBe(false);
+    });
+
+    it("preserves valid numeric consentUpdatedAt", () => {
+        const timestamp = 123456789;
+        const result = normalizePrivacySettingsSnapshot({ consentUpdatedAt: timestamp });
+        expect(result.consentUpdatedAt).toBe(timestamp);
+    });
+
+    it("falls back to Date.now() for invalid consentUpdatedAt", () => {
+        const currentTime = Date.now();
+        expect(normalizePrivacySettingsSnapshot({ consentUpdatedAt: NaN as any }).consentUpdatedAt).toBe(currentTime);
+        expect(normalizePrivacySettingsSnapshot({ consentUpdatedAt: Infinity as any }).consentUpdatedAt).toBe(currentTime);
+        expect(normalizePrivacySettingsSnapshot({ consentUpdatedAt: -Infinity as any }).consentUpdatedAt).toBe(currentTime);
+        expect(normalizePrivacySettingsSnapshot({ consentUpdatedAt: "123" as any }).consentUpdatedAt).toBe(currentTime);
+    });
+});
 
 describe("readPrivacySettingsSnapshot", () => {
     beforeEach(() => {
