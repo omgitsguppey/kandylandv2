@@ -37,18 +37,27 @@ type GumdropEconomicsOptions = {
 };
 
 export function getBundlePresentation(deliveredGumDrops: number) {
+  const baseAmount = Math.floor(deliveredGumDrops / GUMDROPS_PER_USD) * GUMDROPS_PER_USD;
+  const bonus = deliveredGumDrops - baseAmount;
+  const presentationInfo = {
+    baseAmount,
+    bonus,
+    hasBonus: bonus > 0,
+  };
+
   switch (deliveredGumDrops) {
     case 100:
-      return { bundleLabel: "Starter Pack", bundleKey: "starter_pack", bundleTier: "entry" as const };
+      return { ...presentationInfo, bundleLabel: "Starter Pack", bundleKey: "starter_pack", bundleTier: "entry" as const };
     case 550:
-      return { bundleLabel: "Fan Pack", bundleKey: "fan_pack", bundleTier: "bonus" as const };
+      return { ...presentationInfo, bundleLabel: "Fan Pack", bundleKey: "fan_pack", bundleTier: "bonus" as const };
     case 1100:
-      return { bundleLabel: "Premium Stash", bundleKey: "premium_stash", bundleTier: "bonus" as const };
+      return { ...presentationInfo, bundleLabel: "Premium Stash", bundleKey: "premium_stash", bundleTier: "bonus" as const };
     case 2500:
-      return { bundleLabel: "Ultimate Kandy", bundleKey: "ultimate_kandy", bundleTier: "bonus" as const };
+      return { ...presentationInfo, bundleLabel: "Ultimate Kandy", bundleKey: "ultimate_kandy", bundleTier: "bonus" as const };
     default: {
       const bundleLabel = `${deliveredGumDrops.toLocaleString()} GD Bundle`;
       return {
+        ...presentationInfo,
         bundleLabel,
         bundleKey: `bundle_${deliveredGumDrops}`,
         bundleTier: deliveredGumDrops >= 5000 ? "bundle" as const : "custom" as const,
