@@ -1,5 +1,39 @@
 import { describe, expect, it } from "vitest";
-import { buildSupportThreadKey } from "@/lib/support-readiness";
+import { buildSupportThreadKey, normalizeSupportThreadStatus } from "@/lib/support-readiness";
+
+describe("normalizeSupportThreadStatus", () => {
+    it("returns 'open' for 'open' or mixed case variants", () => {
+        expect(normalizeSupportThreadStatus("open")).toBe("open");
+        expect(normalizeSupportThreadStatus("OPEN")).toBe("open");
+        expect(normalizeSupportThreadStatus("OpEn")).toBe("open");
+    });
+
+    it("returns 'pending' for 'pending' or mixed case variants", () => {
+        expect(normalizeSupportThreadStatus("pending")).toBe("pending");
+        expect(normalizeSupportThreadStatus("PENDING")).toBe("pending");
+        expect(normalizeSupportThreadStatus("pEnDiNg")).toBe("pending");
+    });
+
+    it("returns 'closed' for 'closed' or mixed case variants", () => {
+        expect(normalizeSupportThreadStatus("closed")).toBe("closed");
+        expect(normalizeSupportThreadStatus("CLOSED")).toBe("closed");
+        expect(normalizeSupportThreadStatus("cLoSeD")).toBe("closed");
+    });
+
+    it("returns 'open' for invalid strings", () => {
+        expect(normalizeSupportThreadStatus("ready")).toBe("open");
+        expect(normalizeSupportThreadStatus("")).toBe("open");
+        expect(normalizeSupportThreadStatus("unknown")).toBe("open");
+    });
+
+    it("returns 'open' for non-string inputs", () => {
+        expect(normalizeSupportThreadStatus(null)).toBe("open");
+        expect(normalizeSupportThreadStatus(undefined)).toBe("open");
+        expect(normalizeSupportThreadStatus(123)).toBe("open");
+        expect(normalizeSupportThreadStatus({})).toBe("open");
+        expect(normalizeSupportThreadStatus([])).toBe("open");
+    });
+});
 
 describe("buildSupportThreadKey", () => {
 
