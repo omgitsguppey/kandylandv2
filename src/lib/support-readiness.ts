@@ -6,6 +6,8 @@ export const SUPPORT_COLLECTIONS = {
 export type SupportThreadStatus =
     | "ready"
     | "open"
+    | "pending"
+    | "closed"
     | "waiting_on_support"
     | "waiting_on_user"
     | "resolved";
@@ -67,14 +69,12 @@ export function getSupportPrimaryHandle({
 }
 
 export function normalizeSupportThreadStatus(value: unknown): SupportThreadStatus {
-    switch (value) {
-        case "open":
-        case "waiting_on_support":
-        case "waiting_on_user":
-        case "resolved":
-            return value;
-        default:
-            return "ready";
+    if (typeof value !== "string") return "open";
+    switch (value.toLowerCase()) {
+        case "open": return "open";
+        case "pending": return "pending";
+        case "closed": return "closed";
+        default: return "open";
     }
 }
 
