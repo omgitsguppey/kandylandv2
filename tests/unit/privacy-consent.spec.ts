@@ -1,5 +1,11 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { readPrivacySettingsSnapshot, PRIVACY_SETTINGS_STORAGE_KEY, getBrowserGlobalPrivacyControl, normalizePrivacySettingsSnapshot } from "@/lib/privacy-consent";
+import {
+    getBrowserGlobalPrivacyControl,
+    normalizePrivacySettingsSnapshot,
+    PRIVACY_SETTINGS_STORAGE_KEY,
+    readPrivacySettingsSnapshot,
+    subscribeToPrivacySettings,
+} from "@/lib/privacy-consent";
 
 const DEFAULT_PRIVACY_SETTINGS = {
     anonymousAnalyticsEnabled: false,
@@ -123,6 +129,172 @@ describe("readPrivacySettingsSnapshot", () => {
         vi.mocked(window.localStorage.getItem).mockReturnValue(null);
         readPrivacySettingsSnapshot();
         expect(window.localStorage.getItem).toHaveBeenCalledWith(PRIVACY_SETTINGS_STORAGE_KEY);
+    });
+});
+
+describe("subscribeToPrivacySettings", () => {
+    beforeEach(() => {
+        vi.stubGlobal("window", {
+            addEventListener: vi.fn(),
+            removeEventListener: vi.fn(),
+            dispatchEvent: vi.fn(),
+            localStorage: {
+                getItem: vi.fn(),
+                setItem: vi.fn(),
+            },
+        });
+        vi.stubGlobal("document", {});
+    });
+
+    afterEach(() => {
+        vi.unstubAllGlobals();
+    });
+
+    it("returns a no-op function when window is not available", () => {
+        vi.stubGlobal("window", undefined);
+        vi.stubGlobal("document", undefined);
+
+        const callback = vi.fn();
+        const unsubscribe = subscribeToPrivacySettings(callback);
+
+        expect(typeof unsubscribe).toBe("function");
+        expect(unsubscribe()).toBeUndefined();
+    });
+
+    it("attaches event listeners to window", () => {
+        const callback = vi.fn();
+        subscribeToPrivacySettings(callback);
+
+        expect(window.addEventListener).toHaveBeenCalledWith("kandydrops-privacy-updated", expect.any(Function));
+        expect(window.addEventListener).toHaveBeenCalledWith("storage", expect.any(Function));
+    });
+
+    it("removes event listeners when unsubscribed", () => {
+        const callback = vi.fn();
+        const unsubscribe = subscribeToPrivacySettings(callback);
+
+        unsubscribe();
+
+        expect(window.removeEventListener).toHaveBeenCalledWith("kandydrops-privacy-updated", expect.any(Function));
+        expect(window.removeEventListener).toHaveBeenCalledWith("storage", expect.any(Function));
+    });
+
+    it("calls the provided callback when kandydrops-privacy-updated is fired", () => {
+        let handler: EventListener | undefined;
+        vi.mocked(window.addEventListener).mockImplementation((event, cb) => {
+            if (event === "kandydrops-privacy-updated") {
+                handler = cb as EventListener;
+            }
+        });
+
+        const callback = vi.fn();
+        subscribeToPrivacySettings(callback);
+        handler?.(new Event("kandydrops-privacy-updated"));
+
+        expect(callback).toHaveBeenCalledTimes(1);
+    });
+
+    it("calls the provided callback when storage event is fired", () => {
+        let handler: EventListener | undefined;
+        vi.mocked(window.addEventListener).mockImplementation((event, cb) => {
+            if (event === "storage") {
+                handler = cb as EventListener;
+            }
+        });
+
+        const callback = vi.fn();
+        subscribeToPrivacySettings(callback);
+        handler?.(new Event("storage"));
+
+        expect(callback).toHaveBeenCalledTimes(1);
+    });
+});
+
+describe("subscribeToPrivacySettings", () => {
+    let originalWindow: any;
+    let originalDocument: any;
+
+    beforeEach(() => {
+        originalWindow = global.window;
+        originalDocument = global.document;
+
+        vi.stubGlobal("window", {
+            addEventListener: vi.fn(),
+            removeEventListener: vi.fn(),
+            dispatchEvent: vi.fn(),
+            localStorage: {
+                getItem: vi.fn(),
+                setItem: vi.fn(),
+            },
+        });
+        vi.stubGlobal("document", {});
+    });
+
+    afterEach(() => {
+        vi.unstubAllGlobals();
+    });
+
+    it("returns a no-op function when window is not available", () => {
+        vi.stubGlobal("window", undefined);
+        vi.stubGlobal("document", undefined);
+
+        const callback = vi.fn();
+        const unsubscribe = subscribeToPrivacySettings(callback);
+
+        expect(typeof unsubscribe).toBe("function");
+        expect(unsubscribe()).toBeUndefined();
+    });
+
+    it("attaches event listeners to window", () => {
+        const callback = vi.fn();
+        subscribeToPrivacySettings(callback);
+
+        expect(window.addEventListener).toHaveBeenCalledWith("kandydrops-privacy-updated", expect.any(Function));
+        expect(window.addEventListener).toHaveBeenCalledWith("storage", expect.any(Function));
+    });
+
+    it("removes event listeners when unsubscribed", () => {
+        const callback = vi.fn();
+        const unsubscribe = subscribeToPrivacySettings(callback);
+
+        unsubscribe();
+
+        expect(window.removeEventListener).toHaveBeenCalledWith("kandydrops-privacy-updated", expect.any(Function));
+        expect(window.removeEventListener).toHaveBeenCalledWith("storage", expect.any(Function));
+    });
+
+    it("calls the provided callback when kandydrops-privacy-updated is fired", () => {
+        let handler: any;
+        vi.mocked(window.addEventListener).mockImplementation((event, cb) => {
+            if (event === "kandydrops-privacy-updated") {
+                handler = cb;
+            }
+        });
+
+        const callback = vi.fn();
+        subscribeToPrivacySettings(callback);
+
+        // Simulate the event firing
+        handler(new Event("kandydrops-privacy-updated"));
+
+        expect(callback).toHaveBeenCalledTimes(1);
+    });
+
+    it("calls the provided callback when storage event is fired", () => {
+        let handler: any;
+        vi.mocked(window.addEventListener).mockImplementation((event, cb) => {
+            if (event === "storage") {
+                handler = cb;
+            }
+        });
+
+        const callback = vi.fn();
+        subscribeToPrivacySettings(callback);
+
+        // Simulate the event firing
+        handler(new Event("storage"));
+
+        expect(callback).toHaveBeenCalledTimes(1);
     });
 });
 
