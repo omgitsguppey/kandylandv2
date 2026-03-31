@@ -80,30 +80,10 @@ export function normalizeSupportThreadStatus(value: unknown): SupportThreadStatu
 
 export function describeSupportState(state: SupportThreadStatus) {
     switch (state) {
-        case "waiting_on_support":
-            return {
-                label: "Waiting on support",
-                description: "The user has an active support issue waiting on the support team.",
-            };
+        case "open": return "Needs Attention";
         case "waiting_on_user":
-            return {
-                label: "Waiting on user",
-                description: "Support is waiting on more details from the user before continuing.",
-            };
-        case "open":
-            return {
-                label: "Thread open",
-                description: "A support conversation is active and ready for future live chat handoff.",
-            };
-        case "resolved":
-            return {
-                label: "Recently resolved",
-                description: "Past support activity exists, but there is no open thread right now.",
-            };
-        default:
-            return {
-                label: "Ready for support",
-                description: "No live support thread exists yet, but identity and channels are ready for future in-site support.",
-            };
+        case "waiting_on_support": return "Waiting on User";
+        case "resolved": return "Resolved";
+        default: return "Ready";
     }
 }

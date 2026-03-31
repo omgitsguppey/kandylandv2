@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildSupportThreadKey, getSupportPrimaryHandle } from "@/lib/support-readiness";
+import { buildSupportThreadKey, describeSupportState, getSupportPrimaryHandle } from "@/lib/support-readiness";
 
 describe("getSupportPrimaryHandle", () => {
     it("returns @handle if handle is present", () => {
@@ -21,6 +21,26 @@ describe("getSupportPrimaryHandle", () => {
     it("returns 'Anonymous User' if handle, email, and displayName are all missing or null", () => {
         expect(getSupportPrimaryHandle({})).toBe("Anonymous User");
         expect(getSupportPrimaryHandle({ handle: null, email: null, displayName: null })).toBe("Anonymous User");
+    });
+});
+
+describe("describeSupportState", () => {
+    it("returns 'Needs Attention' for 'open'", () => {
+        expect(describeSupportState("open")).toBe("Needs Attention");
+    });
+
+    it("returns 'Waiting on User' for 'waiting_on_user' or 'waiting_on_support'", () => {
+        expect(describeSupportState("waiting_on_user")).toBe("Waiting on User");
+        expect(describeSupportState("waiting_on_support")).toBe("Waiting on User");
+    });
+
+    it("returns 'Resolved' for 'resolved'", () => {
+        expect(describeSupportState("resolved")).toBe("Resolved");
+    });
+
+    it("returns 'Ready' for 'ready' (default)", () => {
+        expect(describeSupportState("ready")).toBe("Ready");
+        expect(describeSupportState("anything" as any)).toBe("Ready");
     });
 });
 
