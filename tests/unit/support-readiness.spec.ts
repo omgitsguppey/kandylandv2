@@ -1,5 +1,28 @@
 import { describe, expect, it } from "vitest";
-import { buildSupportThreadKey } from "@/lib/support-readiness";
+import { buildSupportThreadKey, getSupportPrimaryHandle } from "@/lib/support-readiness";
+
+describe("getSupportPrimaryHandle", () => {
+    it("returns @handle if handle is present", () => {
+        expect(getSupportPrimaryHandle({ handle: "johndoe", email: "john@example.com", displayName: "John Doe" })).toBe("@johndoe");
+        expect(getSupportPrimaryHandle({ handle: "johndoe" })).toBe("@johndoe");
+    });
+
+    it("returns email if handle is missing but email is present", () => {
+        expect(getSupportPrimaryHandle({ email: "john@example.com", displayName: "John Doe" })).toBe("john@example.com");
+        expect(getSupportPrimaryHandle({ email: "john@example.com" })).toBe("john@example.com");
+        expect(getSupportPrimaryHandle({ handle: null, email: "john@example.com" })).toBe("john@example.com");
+    });
+
+    it("returns displayName if handle and email are missing but displayName is present", () => {
+        expect(getSupportPrimaryHandle({ displayName: "John Doe" })).toBe("John Doe");
+        expect(getSupportPrimaryHandle({ handle: null, email: null, displayName: "John Doe" })).toBe("John Doe");
+    });
+
+    it("returns 'Anonymous User' if handle, email, and displayName are all missing or null", () => {
+        expect(getSupportPrimaryHandle({})).toBe("Anonymous User");
+        expect(getSupportPrimaryHandle({ handle: null, email: null, displayName: null })).toBe("Anonymous User");
+    });
+});
 
 describe("buildSupportThreadKey", () => {
 
