@@ -447,6 +447,7 @@ export function NotificationBell() {
         onClick={toggleDropdown}
         data-onboarding-target="notification-bell"
         aria-label="Notifications"
+        title="View notifications"
         className="relative flex h-10 w-10 items-center justify-center rounded-full bg-black/20 text-gray-300 transition-colors hover:bg-black/40 hover:text-white"
       >
         <Bell className="h-5 w-5" />
@@ -478,6 +479,7 @@ export function NotificationBell() {
               <button
                 type="button"
                 aria-label="Mark all as read"
+                title="Mark all as read"
                 onClick={() => {
                   void handleMarkAllAsRead();
                 }}
@@ -485,7 +487,7 @@ export function NotificationBell() {
                 className="inline-flex h-8 items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 text-[10px] font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-white/10"
               >
                 <Sparkles className="h-3 w-3" />
-                Clear
+                Mark all read
               </button>
             ) : null}
           </div>
