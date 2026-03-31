@@ -16,45 +16,48 @@ export async function broadcastFCM(title: string, body: string, url: string = "/
     if (!adminDb) return false;
 
     try {
-        const tokens: string[] = [];
+        const BATCH_SIZE = 500;
+        let tokensChunk: string[] = [];
+        let successCount = 0;
+        let failureCount = 0;
+        let tokensSent = false;
 
-        await new Promise<void>((resolve, reject) => {
-            adminDb.collection("users")
-                .select("fcmTokens")
-                .stream()
-                .on("data", (doc) => {
-                    const data = doc.data();
-                    if (data.fcmTokens && Array.isArray(data.fcmTokens)) {
-                        tokens.push(...data.fcmTokens);
-                    }
-                })
-                .on("end", resolve)
-                .on("error", reject);
-        });
+        const stream = adminDb.collection("users")
+            .select("fcmTokens")
+            .stream();
 
-        if (tokens.length > 0) {
-            const BATCH_SIZE = 500;
-            let successCount = 0;
-            let failureCount = 0;
+        const dispatchBatch = async (tokens: string[]) => {
+            if (tokens.length === 0) return;
+            tokensSent = true;
+            const message = {
+                notification: { title, body },
+                data: { url },
+                tokens
+            };
+            const response = await admin.messaging().sendEachForMulticast(message);
+            successCount += response.successCount;
+            failureCount += response.failureCount;
+        };
 
-            for (let i = 0; i < tokens.length; i += BATCH_SIZE) {
-                const chunk = tokens.slice(i, i + BATCH_SIZE);
-                const message = {
-                    notification: {
-                        title,
-                        body,
-                    },
-                    data: {
-                        url,
-                    },
-                    tokens: chunk
-                };
+        for await (const doc of stream) {
+            const documentSnapshot = doc as unknown as FirebaseFirestore.DocumentSnapshot;
+            const data = documentSnapshot.data();
+            if (data && data.fcmTokens && Array.isArray(data.fcmTokens)) {
+                tokensChunk.push(...data.fcmTokens);
 
-                const response = await admin.messaging().sendEachForMulticast(message);
-                successCount += response.successCount;
-                failureCount += response.failureCount;
+                while (tokensChunk.length >= BATCH_SIZE) {
+                    const batchToDispatch = tokensChunk.slice(0, BATCH_SIZE);
+                    tokensChunk = tokensChunk.slice(BATCH_SIZE);
+                    await dispatchBatch(batchToDispatch);
+                }
             }
+        }
 
+        if (tokensChunk.length > 0) {
+            await dispatchBatch(tokensChunk);
+        }
+
+        if (tokensSent) {
             if (failureCount > 0) {
                 console.error(`FCM Multicast Dispatch Partial Failure. Success: ${successCount}, Failed: ${failureCount}`);
                 return false;

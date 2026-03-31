@@ -40,6 +40,7 @@ describe("GlobalAuthModal handleGuestDismiss behavior", () => {
             closeAuthModal: vi.fn(),
         });
 
+        // eslint-disable-next-line @next/next/no-assign-module-variable
         const module = await import("@/components/GlobalAuthModal");
         GlobalAuthModal = module.GlobalAuthModal;
     });
