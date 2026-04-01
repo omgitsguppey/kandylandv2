@@ -1075,6 +1075,24 @@ export default function AdminUserAnalyticsPage() {
                                 <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1">Segment: {formatCreatorStatusLabel(creatorApplication.segmentationStatus)}</span>
                             </div>
 
+                            {targetUser && creatorApplication.idDocument ? (
+                                <div className="mt-4 rounded-[1.35rem] border border-white/10 bg-black/20 p-4">
+                                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Latest submitted ID</p>
+                                    <p className="mt-2 text-sm font-semibold text-white">{creatorApplication.idDocument.fileName}</p>
+                                    <p className="mt-1 text-xs text-gray-400">
+                                        Submitted {formatRelativeTimestamp(creatorApplication.idDocument.uploadedAt)} · {(creatorApplication.idDocument.sizeBytes / 1024).toFixed(1)} KB
+                                    </p>
+                                    <a
+                                        href={`/api/admin/user/${targetUser.uid}/creator-onboarding/id-document`}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="mt-3 inline-flex items-center justify-center rounded-2xl border border-brand-purple/25 bg-brand-purple/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-brand-purple transition-colors hover:bg-brand-purple/20"
+                                    >
+                                        Open submitted ID
+                                    </a>
+                                </div>
+                            ) : null}
+
                             <div className="mt-5 flex justify-end">
                                 <button
                                     type="button"

@@ -1,11 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { BadgeCheck, FileText, ShieldCheck, UserRoundSearch } from "lucide-react";
+import { toast } from "sonner";
 
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
+import { authFetch } from "@/lib/authFetch";
 
 function formatStatusLabel(value: string | undefined) {
     if (!value) {
@@ -31,6 +34,38 @@ export default function CreatorWaitlistPage() {
     const { user, userProfile, loading } = useAuth();
     const { openAuthModal } = useUI();
     const creatorApplication = userProfile?.creatorApplication;
+    const [selectedIdFile, setSelectedIdFile] = useState<File | null>(null);
+    const [uploadingId, setUploadingId] = useState(false);
+    const canSubmitId = creatorApplication?.idVerificationStatus === "id_requested"
+        || creatorApplication?.idVerificationStatus === "id_rejected";
+
+    const handleIdUpload = async () => {
+        if (!selectedIdFile) {
+            toast.error("Choose an ID file before uploading.");
+            return;
+        }
+
+        try {
+            setUploadingId(true);
+            const formData = new FormData();
+            formData.set("file", selectedIdFile);
+            const response = await authFetch("/api/creator/onboarding/id-submission", {
+                method: "POST",
+                body: formData,
+            });
+            const result = await response.json().catch(() => ({})) as { error?: string };
+            if (!response.ok) {
+                throw new Error(result.error || "Failed to submit your ID.");
+            }
+            setSelectedIdFile(null);
+            toast.success("ID submitted. Admin review will update this status once it is checked.");
+        } catch (error) {
+            console.error("Failed to submit creator ID", error);
+            toast.error(error instanceof Error ? error.message : "Failed to submit your ID.");
+        } finally {
+            setUploadingId(false);
+        }
+    };
 
     return (
         <main className="min-h-screen bg-black px-4 pb-20 pt-28 text-white sm:px-6">
@@ -168,6 +203,11 @@ export default function CreatorWaitlistPage() {
                                     ? "ID verification has not been requested yet."
                                     : `Current status: ${formatStatusLabel(creatorApplication.idVerificationStatus)}.`}
                             </p>
+                            {creatorApplication.idDocument ? (
+                                <p className="mt-3 text-xs leading-6 text-emerald-200">
+                                    Latest file: {creatorApplication.idDocument.fileName}
+                                </p>
+                            ) : null}
                         </article>
 
                         <article className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-5 backdrop-blur-sm">
@@ -181,6 +221,42 @@ export default function CreatorWaitlistPage() {
                                     : `Current status: ${formatStatusLabel(creatorApplication.segmentationStatus)}.`}
                             </p>
                         </article>
+                    </section>
+                ) : null}
+
+                {creatorApplication && canSubmitId ? (
+                    <section className="rounded-[1.75rem] border border-brand-purple/20 bg-brand-purple/10 p-5 backdrop-blur-sm">
+                        <h2 className="flex items-center gap-2 text-base font-bold text-white">
+                            <ShieldCheck className="h-5 w-5 text-brand-purple" />
+                            Submit your ID
+                        </h2>
+                        <p className="mt-3 text-sm leading-7 text-gray-300">
+                            Upload a clear JPG, PNG, WebP, or PDF so admin can verify your creator identity. This only appears once ID review is actually requested for your account.
+                        </p>
+                        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+                            <label className="flex-1">
+                                <span className="sr-only">Choose an ID file</span>
+                                <input
+                                    type="file"
+                                    accept=".jpg,.jpeg,.png,.webp,.pdf"
+                                    onChange={(event) => setSelectedIdFile(event.target.files?.[0] ?? null)}
+                                    className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none file:mr-3 file:rounded-full file:border-0 file:bg-brand-purple file:px-3 file:py-2 file:text-xs file:font-bold file:text-white"
+                                />
+                            </label>
+                            <button
+                                type="button"
+                                onClick={() => void handleIdUpload()}
+                                disabled={uploadingId}
+                                className="rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 disabled:opacity-50"
+                            >
+                                {uploadingId ? "Submitting..." : "Submit ID"}
+                            </button>
+                        </div>
+                        {selectedIdFile ? (
+                            <p className="mt-3 text-xs text-gray-400">
+                                Selected file: {selectedIdFile.name}
+                            </p>
+                        ) : null}
                     </section>
                 ) : null}
 

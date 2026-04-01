@@ -35,6 +35,11 @@ service firebase.storage {
       allow write: if false;
     }
 
+    match /creator-onboarding/{userId}/{allPaths=**} {
+      allow read: if false;
+      allow write: if false;
+    }
+
     match /{allPaths=**} {
       allow read, write: if false;
     }

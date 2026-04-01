@@ -13,6 +13,7 @@ let testEnv: RulesTestEnvironment;
 
 const AVATAR_PATH = "avatars/alice.png";
 const DELETE_PATH = "avatars/alice.webp";
+const CREATOR_ID_PATH = "creator-onboarding/alice/id/government-id.png";
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
 
 type StorageLike = {
@@ -107,6 +108,19 @@ describe("storage.rules", () => {
 
     await assertFails(
       uploadStringWithRules(storage, "avatars/alice-large.png", oversizedPayload, "image/png"),
+    );
+  });
+
+  it("blocks direct reads of creator onboarding ID documents", async () => {
+    await seedAvatar(CREATOR_ID_PATH, "private-id", "image/png");
+    const storage = testEnv.authenticatedContext("alice").storage();
+    await assertFails(storage.ref(CREATOR_ID_PATH).getDownloadURL());
+  });
+
+  it("blocks direct writes to creator onboarding ID document paths", async () => {
+    const storage = testEnv.authenticatedContext("alice").storage();
+    await assertFails(
+      uploadStringWithRules(storage, CREATOR_ID_PATH, "private-id", "image/png"),
     );
   });
 });
