@@ -46,6 +46,7 @@ export function ProfileDropdown() {
         <div className="relative" ref={dropdownRef}>
             <button
                 aria-label="Open profile menu"
+                title="Profile menu"
                 aria-expanded={isOpen}
                 onClick={() => setIsOpen(!isOpen)}
                 className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full transition-colors border border-transparent"

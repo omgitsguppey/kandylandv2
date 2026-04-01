@@ -41,6 +41,7 @@ export function AdminDropdown() {
         <div className="relative" ref={dropdownRef}>
             <button
                 aria-label="Admin menu"
+                title="Admin Console"
                 aria-expanded={isOpen}
                 aria-haspopup="menu"
                 onClick={() => setIsOpen(!isOpen)}
