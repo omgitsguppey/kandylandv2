@@ -90,41 +90,6 @@ export async function POST(req: NextRequest) {
                     ? userData.displayName.trim()
                     : caller.email || uid;
 
-            transaction.set(userRef, {
-                onboardingCompleted: true,
-                ...buildSourceAwareBalancePatch(nextBalance),
-                ...(selectedFlavor ? {
-                    preferences: {
-                        flavor: selectedFlavor,
-                    },
-                } : {}),
-                updatedAt: nowMs,
-            }, { merge: true });
-
-            transaction.set(legacyProfileRef, {
-                onboardingCompleted: true,
-            }, { merge: true });
-
-            transaction.set(balanceRef, {
-                gumDrops: newBalance,
-                updatedAt: nowMs,
-            }, { merge: true });
-
-            const txRef = adminDb.collection("transactions").doc();
-            transaction.set(txRef, buildCompletedGumdropTransaction({
-                userId: uid,
-                type: "onboarding_reward",
-                rewardSource: "onboarding",
-                amount: rewardAmount,
-                description: "Completed Guided Onboarding Flow",
-                balanceBefore: currentBalance,
-                balanceAfter: newBalance,
-                timestampMs: nowMs,
-                extra: {
-                    currency: "USD",
-                },
-            }));
-
             const onboardingFactWrites: OnboardingFactWrite[] = [];
             if (startedAtMs > 0) {
                 onboardingFactWrites.push({
@@ -240,6 +205,41 @@ export async function POST(req: NextRequest) {
 
             const factRefs = onboardingFactWrites.map((fw) => adminDb.collection("analytics_event_facts").doc(fw.key));
             const existingFacts = onboardingFactWrites.length > 0 ? await transaction.getAll(...factRefs) : [];
+
+            transaction.set(userRef, {
+                onboardingCompleted: true,
+                ...buildSourceAwareBalancePatch(nextBalance),
+                ...(selectedFlavor ? {
+                    preferences: {
+                        flavor: selectedFlavor,
+                    },
+                } : {}),
+                updatedAt: nowMs,
+            }, { merge: true });
+
+            transaction.set(legacyProfileRef, {
+                onboardingCompleted: true,
+            }, { merge: true });
+
+            transaction.set(balanceRef, {
+                gumDrops: newBalance,
+                updatedAt: nowMs,
+            }, { merge: true });
+
+            const txRef = adminDb.collection("transactions").doc();
+            transaction.set(txRef, buildCompletedGumdropTransaction({
+                userId: uid,
+                type: "onboarding_reward",
+                rewardSource: "onboarding",
+                amount: rewardAmount,
+                description: "Completed Guided Onboarding Flow",
+                balanceBefore: currentBalance,
+                balanceAfter: newBalance,
+                timestampMs: nowMs,
+                extra: {
+                    currency: "USD",
+                },
+            }));
 
             for (let i = 0; i < onboardingFactWrites.length; i++) {
                 if (existingFacts[i].exists) {

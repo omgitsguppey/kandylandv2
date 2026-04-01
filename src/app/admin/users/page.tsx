@@ -95,6 +95,26 @@ type AdminUsersResponse = {
     error?: string;
 };
 
+type AdminFeedbackItem = {
+    id: string;
+    userId: string;
+    email: string | null;
+    summary: string | null;
+    message: string;
+    rating: number | null;
+    category: string | null;
+    contextId: string | null;
+    issueType: string | null;
+    severity: string | null;
+    currentPath: string | null;
+    componentName: string | null;
+    diagnosticsCount: number;
+    breadcrumbsCount: number;
+    rolloutCount: number;
+    status: string | null;
+    timestamp: number;
+};
+
 export default function UserManagementPage() {
     const [users, setUsers] = useState<UserProfile[]>([]);
     const [userAnalytics, setUserAnalytics] = useState<Record<string, UserAnalytics>>({});
@@ -108,7 +128,7 @@ export default function UserManagementPage() {
     const [processing, setProcessing] = useState(false);
 
     const [viewMode, setViewMode] = useState<'users' | 'feedback' | 'tasks'>('users');
-    const [feedback, setFeedback] = useState<any[]>([]);
+    const [feedback, setFeedback] = useState<AdminFeedbackItem[]>([]);
     const [loadingFeedback, setLoadingFeedback] = useState(false);
 
     const [securityDetailsUser, setSecurityDetailsUser] = useState<UserProfile | null>(null);
@@ -146,7 +166,7 @@ export default function UserManagementPage() {
         setLoadingFeedback(true);
         try {
             const response = await authFetch("/api/admin/feedback");
-            const result = await response.json() as { success?: boolean; feedback?: any[] };
+            const result = await response.json() as { success?: boolean; feedback?: AdminFeedbackItem[] };
             if (!response.ok || !result.success) {
                 throw new Error("Failed to load feedback");
             }
@@ -845,52 +865,54 @@ export default function UserManagementPage() {
 
             {/* Platform Feedback View */}
             {viewMode === 'feedback' && (
-                <div className="space-y-4">
+                <div className="space-y-4 pb-[calc(1rem+env(safe-area-inset-bottom))] md:pb-0">
                     {loadingFeedback ? (
-                        <div className="p-12 text-center">
+                        <div className="rounded-[1.75rem] border border-white/5 bg-black/20 p-8 text-center sm:p-12">
                             <Loader2 className="w-8 h-8 text-brand-purple animate-spin mx-auto mb-4" />
                             <p className="text-gray-500">Loading feedback submissions...</p>
                         </div>
                     ) : feedback.length === 0 ? (
-                        <div className="glass-panel p-12 text-center rounded-3xl border border-white/5">
+                        <div className="glass-panel rounded-[1.75rem] border border-white/5 p-8 text-center sm:rounded-3xl sm:p-12">
                             <MessageSquare className="w-12 h-12 text-gray-600 mx-auto mb-4" />
                             <p className="text-gray-500 text-lg">No feedback submissions found yet.</p>
                         </div>
                     ) : (
-                        <div className="grid gap-4">
+                        <div className="grid gap-3 sm:gap-4">
                             {feedback.map((item) => (
-                                <div key={item.id} className="glass-panel p-6 rounded-3xl border border-white/5 space-y-4 hover:border-white/10 transition-colors">
-                                    <div className="flex items-start justify-between gap-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-sm font-bold text-gray-500">
+                                <div key={item.id} className="glass-panel space-y-4 overflow-hidden rounded-[1.75rem] border border-white/5 p-4 transition-colors hover:border-white/10 sm:rounded-3xl sm:p-6">
+                                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                        <div className="flex min-w-0 items-center gap-3">
+                                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-800 text-sm font-bold text-gray-500">
                                                 {(item.email?.[0] || "?").toUpperCase()}
                                             </div>
-                                                <div>
-                                                    <div className="font-bold text-white">{item.email || 'Anonymous'}</div>
-                                                    <div className="text-xs text-gray-500">
+                                            <div className="min-w-0">
+                                                <div className="break-all text-sm font-bold text-white sm:text-base">{item.email || 'Anonymous'}</div>
+                                                <div className="text-xs text-gray-500">
                                                     {typeof item.timestamp === "number" && item.timestamp > 0 ? format(item.timestamp, 'MMM d, h:mm a') : 'Just now'}
                                                 </div>
                                             </div>
                                         </div>
-                                        {item.rating && (
-                                            <div className="px-3 py-1 rounded-full bg-brand-purple/10 border border-brand-purple/20 text-brand-purple text-xs font-bold">
-                                                {item.rating} / 5 Rating
-                                            </div>
-                                        )}
-                                        {item.category && (
-                                            <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-300 text-xs font-bold uppercase tracking-wider">
-                                                {item.category}
-                                            </div>
-                                        )}
+                                        <div className="flex flex-wrap items-center gap-2 sm:max-w-[45%] sm:justify-end">
+                                            {item.rating ? (
+                                                <div className="rounded-full border border-brand-purple/20 bg-brand-purple/10 px-3 py-1 text-xs font-bold text-brand-purple">
+                                                    {item.rating} / 5 Rating
+                                                </div>
+                                            ) : null}
+                                            {item.category ? (
+                                                <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold uppercase tracking-wider text-gray-300">
+                                                    {item.category}
+                                                </div>
+                                            ) : null}
+                                        </div>
                                     </div>
-                                    <div className="bg-white/5 p-4 rounded-2xl border border-white/5 relative">
+                                    <div className="relative rounded-2xl border border-white/5 bg-white/5 p-3 sm:p-4">
                                         <div className="absolute top-4 right-4 opacity-5 pointer-events-none">
                                             <MessageSquare className="w-12 h-12" />
                                         </div>
-                                        <p className="text-gray-300 whitespace-pre-wrap relative z-10">{item.message}</p>
+                                        <p className="relative z-10 whitespace-pre-wrap break-words text-sm text-gray-300 sm:text-base">{item.message}</p>
                                     </div>
-                                    <div className="flex items-center justify-between pt-2">
-                                        <div className="text-[10px] text-gray-600 font-mono uppercase tracking-widest">
+                                    <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:items-center sm:justify-between">
+                                        <div className="max-w-full break-all text-[10px] font-mono uppercase tracking-widest text-gray-600">
                                             User ID: {item.userId}
                                         </div>
                                         <button
@@ -898,7 +920,7 @@ export default function UserManagementPage() {
                                                 setSearchQuery(item.userId);
                                                 setViewMode('users');
                                             }}
-                                            className="text-xs font-bold text-brand-purple hover:underline"
+                                            className="self-start text-xs font-bold text-brand-purple hover:underline sm:self-auto"
                                         >
                                             View User Profile
                                         </button>
