@@ -22,6 +22,8 @@ import { ORCHESTRATION_COLLECTIONS } from "@/lib/orchestration/contract";
 import { CREATOR_SPEND_POLICIES } from "@/lib/server/creator-experiences";
 import { CREATOR_SPEND_TRANSACTION_TYPES, getTransactionBadgeLabel } from "@/lib/transaction-normalizers";
 import { buildAdminPanelSystemLogs, syncAdminPanelSystemLogs } from "@/lib/server/admin-panel-system-logs";
+import { buildCreatorOnboardingDiagnostics } from "@/lib/server/creator-onboarding-diagnostics";
+import { CREATOR_ONBOARDING_COLLECTION, CREATOR_REVIEW_QUEUE_COLLECTION } from "@/lib/server/creator-onboarding";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -135,6 +137,8 @@ export async function GET(request: NextRequest) {
             orchestrationRepairProposalsSnapshot,
             orchestrationActorSummariesSnapshot,
             orchestrationRepairActionsSnapshot,
+            creatorOnboardingSnapshot,
+            creatorReviewQueueSnapshot,
         ] = await Promise.all([
             adminDb.collection("users").get(),
             adminDb.collection("daily_task_events").orderBy("timestamp", "desc").limit(300).get(),
@@ -179,6 +183,8 @@ export async function GET(request: NextRequest) {
             adminDb.collection(ORCHESTRATION_COLLECTIONS.repairProposals).orderBy("updatedAtMs", "desc").limit(80).get(),
             adminDb.collection(ORCHESTRATION_COLLECTIONS.actorSummaries).orderBy("lastSeenAtMs", "desc").limit(60).get(),
             adminDb.collection(ORCHESTRATION_COLLECTIONS.repairActions).orderBy("createdAtMs", "desc").limit(60).get(),
+            adminDb.collection(CREATOR_ONBOARDING_COLLECTION).get(),
+            adminDb.collection(CREATOR_REVIEW_QUEUE_COLLECTION).get(),
         ]);
 
         const opsHealth = buildAdminOpsHealth({
@@ -192,6 +198,14 @@ export async function GET(request: NextRequest) {
             watchSessionDocs: watchSessionsSnapshot.docs,
             watchAssetDocs: watchAssetsSnapshot.docs,
             commerceSummaryDoc: commerceSummarySnapshot,
+        });
+        const creatorOnboardingDiagnostics = buildCreatorOnboardingDiagnostics({
+            users: usersSnapshot.docs.map((doc) => ({
+                uid: doc.id,
+                raw: doc.data() as Record<string, unknown>,
+            })),
+            onboardingRecords: creatorOnboardingSnapshot.docs.map((doc) => doc.data() as Record<string, unknown>),
+            queueRecords: creatorReviewQueueSnapshot.docs.map((doc) => doc.data() as Record<string, unknown>),
         });
 
         const coverage = BUILT_IN_DAILY_TASKS.map((task) => ({
@@ -575,6 +589,7 @@ export async function GET(request: NextRequest) {
                 trackedTelemetryEvents: eventStats.length,
                 orphanedTelemetryEvents: orphanedEventStats.length,
                 bugReportsLast7d: bugReports.filter((report) => report.timestamp >= weekAgoMs).length,
+                creatorOnboardingIssues: creatorOnboardingDiagnostics.summary.totalIssues,
                 orchestrationEvents: orchestration.summary.eventCount,
                 orchestrationOpenFindings: orchestration.summary.openFindings,
                 orchestrationActionableRepairs: orchestration.summary.actionableProposals,
@@ -608,6 +623,7 @@ export async function GET(request: NextRequest) {
             },
             creatorSpendParity,
             bugReports,
+            creatorOnboardingDiagnostics,
             rollouts,
             rolloutSamples,
             release,

@@ -7,6 +7,7 @@ import { adminDb } from "./firebase-admin";
 type ServerDiagnosticChannel =
   | "analytics"
   | "auth"
+  | "creator_onboarding"
   | "firebase"
   | "middleware"
   | "runtime";

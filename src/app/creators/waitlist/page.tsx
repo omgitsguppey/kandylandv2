@@ -1,11 +1,18 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { BadgeCheck, FileText, ShieldCheck, UserRoundSearch } from "lucide-react";
+import { toast } from "sonner";
 
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
+import { authFetch } from "@/lib/authFetch";
+import {
+    describeCreatorOnboardingBlockingReason,
+    getCreatorOnboardingStatusSummary,
+} from "@/lib/creator-onboarding";
 
 function formatStatusLabel(value: string | undefined) {
     if (!value) {
@@ -15,10 +22,49 @@ function formatStatusLabel(value: string | undefined) {
     return value.replaceAll("_", " ");
 }
 
+function getPrimaryStatusLabel(value: NonNullable<ReturnType<typeof useAuth>["userProfile"]>["creatorApplication"] | undefined) {
+    return getCreatorOnboardingStatusSummary(value).label;
+}
+
 export default function CreatorWaitlistPage() {
     const { user, userProfile, loading } = useAuth();
     const { openAuthModal } = useUI();
     const creatorApplication = userProfile?.creatorApplication;
+    const [selectedIdFile, setSelectedIdFile] = useState<File | null>(null);
+    const [uploadingId, setUploadingId] = useState(false);
+    const canSubmitId = creatorApplication?.idVerificationStatus === "id_requested"
+        || creatorApplication?.idVerificationStatus === "id_rejected";
+    const blockingReasonDetails = (creatorApplication?.blockingReasons ?? [])
+        .map((reason) => describeCreatorOnboardingBlockingReason(reason));
+    const statusSummary = getCreatorOnboardingStatusSummary(creatorApplication);
+
+    const handleIdUpload = async () => {
+        if (!selectedIdFile) {
+            toast.error("Choose an ID file before uploading.");
+            return;
+        }
+
+        try {
+            setUploadingId(true);
+            const formData = new FormData();
+            formData.set("file", selectedIdFile);
+            const response = await authFetch("/api/creator/onboarding/id-submission", {
+                method: "POST",
+                body: formData,
+            });
+            const result = await response.json().catch(() => ({})) as { error?: string };
+            if (!response.ok) {
+                throw new Error(result.error || "Failed to submit your ID.");
+            }
+            setSelectedIdFile(null);
+            toast.success("ID submitted. Admin review will update this status once it is checked.");
+        } catch (error) {
+            console.error("Failed to submit creator ID", error);
+            toast.error(error instanceof Error ? error.message : "Failed to submit your ID.");
+        } finally {
+            setUploadingId(false);
+        }
+    };
 
     return (
         <main className="min-h-screen bg-black px-4 pb-20 pt-28 text-white sm:px-6">
@@ -87,7 +133,7 @@ export default function CreatorWaitlistPage() {
                                 You&apos;re in line for creator review
                             </h1>
                             <p className="mt-4 max-w-2xl text-sm leading-7 text-gray-300 sm:text-base">
-                                We will be in contact soon. Your creator signup is held in a separate review lane so legal documents, ID verification, and manual segmenting can happen before any fan onboarding or creator tools are turned on.
+                                {statusSummary.summary}
                             </p>
 
                             <div className="mt-6 grid gap-4 md:grid-cols-[1.1fr_0.9fr]">
@@ -97,7 +143,7 @@ export default function CreatorWaitlistPage() {
                                         #{(creatorApplication.queuePosition || 0).toLocaleString()}
                                     </p>
                                     <p className="mt-3 text-sm leading-7 text-gray-200">
-                                        Status: <span className="font-semibold capitalize text-white">{formatStatusLabel(creatorApplication.status)}</span>
+                                        Status: <span className="font-semibold capitalize text-white">{getPrimaryStatusLabel(creatorApplication)}</span>
                                     </p>
                                 </div>
 
@@ -140,9 +186,9 @@ export default function CreatorWaitlistPage() {
                                 Legal documents
                             </div>
                             <p className="mt-3 text-sm leading-7 text-gray-400">
-                                {creatorApplication.legalDocumentStatus === "not_sent"
+                                {creatorApplication.legalStatus === "legal_pending"
                                     ? "No documents have been sent yet."
-                                    : `Current status: ${formatStatusLabel(creatorApplication.legalDocumentStatus)}.`}
+                                    : `Current status: ${formatStatusLabel(creatorApplication.legalStatus)}.`}
                             </p>
                         </article>
 
@@ -152,10 +198,15 @@ export default function CreatorWaitlistPage() {
                                 ID verification
                             </div>
                             <p className="mt-3 text-sm leading-7 text-gray-400">
-                                {creatorApplication.idVerificationStatus === "not_requested"
+                                {creatorApplication.idVerificationStatus === "id_not_requested"
                                     ? "ID verification has not been requested yet."
                                     : `Current status: ${formatStatusLabel(creatorApplication.idVerificationStatus)}.`}
                             </p>
+                            {creatorApplication.idDocument ? (
+                                <p className="mt-3 text-xs leading-6 text-emerald-200">
+                                    Latest file: {creatorApplication.idDocument.fileName}
+                                </p>
+                            ) : null}
                         </article>
 
                         <article className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-5 backdrop-blur-sm">
@@ -164,11 +215,78 @@ export default function CreatorWaitlistPage() {
                                 Manual segmenting
                             </div>
                             <p className="mt-3 text-sm leading-7 text-gray-400">
-                                {creatorApplication.segmentationStatus === "pending"
+                                {creatorApplication.segmentationStatus === "segment_unassigned"
                                     ? "Your creator segment has not been assigned yet."
                                     : `Current status: ${formatStatusLabel(creatorApplication.segmentationStatus)}.`}
                             </p>
                         </article>
+                    </section>
+                ) : null}
+
+                {creatorApplication ? (
+                    <section className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-5 backdrop-blur-sm">
+                        <div className="flex items-start justify-between gap-3">
+                            <div>
+                                <h2 className="text-base font-bold text-white">What still needs attention</h2>
+                                <p className="mt-2 text-sm leading-7 text-gray-400">
+                                    This screen now reflects the real backend blockers for your creator approval instead of a generic waiting state.
+                                </p>
+                            </div>
+                            <span className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
+                                {blockingReasonDetails.length} blockers
+                            </span>
+                        </div>
+
+                        <div className="mt-4 space-y-3">
+                            {blockingReasonDetails.length === 0 ? (
+                                <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-200">
+                                    No blockers are currently recorded on your application. The next admin review can approve it when the queue reaches your spot.
+                                </div>
+                            ) : (
+                                blockingReasonDetails.map((blockingReason) => (
+                                    <div key={blockingReason.reason} className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3">
+                                        <p className="text-sm font-semibold text-white">{blockingReason.label}</p>
+                                        <p className="mt-1 text-sm leading-6 text-gray-400">{blockingReason.description}</p>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </section>
+                ) : null}
+
+                {creatorApplication && canSubmitId ? (
+                    <section className="rounded-[1.75rem] border border-brand-purple/20 bg-brand-purple/10 p-5 backdrop-blur-sm">
+                        <h2 className="flex items-center gap-2 text-base font-bold text-white">
+                            <ShieldCheck className="h-5 w-5 text-brand-purple" />
+                            Submit your ID
+                        </h2>
+                        <p className="mt-3 text-sm leading-7 text-gray-300">
+                            Upload a clear JPG, PNG, WebP, or PDF so admin can verify your creator identity. This only appears once ID review is actually requested for your account.
+                        </p>
+                        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+                            <label className="flex-1">
+                                <span className="sr-only">Choose an ID file</span>
+                                <input
+                                    type="file"
+                                    accept=".jpg,.jpeg,.png,.webp,.pdf"
+                                    onChange={(event) => setSelectedIdFile(event.target.files?.[0] ?? null)}
+                                    className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none file:mr-3 file:rounded-full file:border-0 file:bg-brand-purple file:px-3 file:py-2 file:text-xs file:font-bold file:text-white"
+                                />
+                            </label>
+                            <button
+                                type="button"
+                                onClick={() => void handleIdUpload()}
+                                disabled={uploadingId}
+                                className="rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 disabled:opacity-50"
+                            >
+                                {uploadingId ? "Submitting..." : "Submit ID"}
+                            </button>
+                        </div>
+                        {selectedIdFile ? (
+                            <p className="mt-3 text-xs text-gray-400">
+                                Selected file: {selectedIdFile.name}
+                            </p>
+                        ) : null}
                     </section>
                 ) : null}
 

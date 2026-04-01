@@ -13,6 +13,15 @@ import { buildModuleCoverageReport, buildParityInsight } from "@/lib/server/anal
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { CREATOR_COLLECTIONS, isCreatorRole } from "@/lib/creator-experiences";
 import {
+    buildCreatorOnboardingCanonicalRecord,
+    normalizeCreatorOnboardingCanonicalRecord,
+    normalizeCreatorOnboardingHistoryEntry,
+} from "@/lib/creator-onboarding";
+import {
+    CREATOR_ONBOARDING_COLLECTION,
+    CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION,
+} from "@/lib/server/creator-onboarding";
+import {
     buildSupportThreadKey,
     describeSupportState,
     getSupportPrimaryHandle,
@@ -69,7 +78,8 @@ export async function GET(
         const securityHistoryLimit = Math.max(historyLimit, 1000);
 
         const userRef = adminDb.collection("users").doc(userId);
-        const [userSnap, transactionsSnap, analyticsRollupSnap, analyticsFactsSnap, sessionFactsSnap, userDailySnapshot, securityEventsSnap, supportThreadSnap, feedbackSnap] = await Promise.all([
+        const creatorOnboardingRef = adminDb.collection(CREATOR_ONBOARDING_COLLECTION).doc(userId);
+        const [userSnap, transactionsSnap, analyticsRollupSnap, analyticsFactsSnap, sessionFactsSnap, userDailySnapshot, securityEventsSnap, supportThreadSnap, feedbackSnap, creatorOnboardingSnap, creatorOnboardingHistorySnap] = await Promise.all([
             userRef.get(),
             adminDb.collection("transactions")
                 .where("userId", "==", userId)
@@ -100,6 +110,12 @@ export async function GET(
                 .where("userId", "==", userId)
                 .limit(20)
                 .get(),
+            creatorOnboardingRef.get(),
+            creatorOnboardingRef
+                .collection(CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION)
+                .orderBy("timestamp", "desc")
+                .limit(historyLimit)
+                .get(),
         ]);
 
         if (!userSnap.exists) {
@@ -118,6 +134,29 @@ export async function GET(
         if (!user) {
             return NextResponse.json({ error: "User profile is malformed" }, { status: 500 });
         }
+
+        const creatorOnboardingCanonical = normalizeCreatorOnboardingCanonicalRecord(creatorOnboardingSnap.data())
+            ?? (user.creatorApplication
+                ? buildCreatorOnboardingCanonicalRecord({
+                    userId,
+                    email: user.email,
+                    username: user.username,
+                    displayName: user.displayName ?? undefined,
+                    photoURL: user.photoURL,
+                    role: user.role,
+                    createdAt: user.createdAt,
+                    queuePosition: user.creatorApplication.queuePosition,
+                    creatorDisplayName: user.creatorApplication.creatorDisplayName,
+                    creatorPrimaryPlatform: user.creatorApplication.creatorPrimaryPlatform,
+                    creatorContentFocus: user.creatorApplication.creatorContentFocus,
+                    nowMs: user.creatorApplication.updatedAt || Date.now(),
+                    source: user.creatorApplication,
+                })
+                : null);
+        const creatorOnboardingHistory = creatorOnboardingHistorySnap.docs
+            .map((doc) => normalizeCreatorOnboardingHistoryEntry(doc.data()))
+            .filter((entry): entry is Exclude<ReturnType<typeof normalizeCreatorOnboardingHistoryEntry>, undefined> => Boolean(entry))
+            .sort((left, right) => right.timestamp - left.timestamp);
 
         const transactions = transactionsSnap.docs.flatMap((doc) => {
             try {
@@ -706,6 +745,8 @@ export async function GET(
         return NextResponse.json({
             success: true,
             user,
+            creatorOnboardingCanonical,
+            creatorOnboardingHistory,
             transactions,
             analytics,
             securitySummary,

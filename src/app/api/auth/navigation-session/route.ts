@@ -27,7 +27,10 @@ export async function POST(request: NextRequest) {
     const profileSnapshot = await adminDb.collection("users").doc(userId).get();
     const profileData = profileSnapshot.data() ?? {};
     const role = (profileData.role || "user") as NavigationRole;
-    const creatorNavigationState = getCreatorNavigationState(normalizeCreatorApplication(profileData.creatorApplication));
+    const creatorNavigationState = getCreatorNavigationState(
+      normalizeCreatorApplication(profileData.creatorApplication),
+      role,
+    );
     const cookieValue = await createNavigationSessionCookieValue(
       userId,
       role,

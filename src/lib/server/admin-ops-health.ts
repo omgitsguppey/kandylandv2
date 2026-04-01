@@ -125,6 +125,7 @@ function readRouteFailureLastSeenAt(
 function buildChannelLabel(channel: string) {
   if (channel === "analytics") return "Analytics";
   if (channel === "auth") return "Auth";
+  if (channel === "creator_onboarding") return "Creator Onboarding";
   if (channel === "firebase") return "Firebase";
   if (channel === "middleware") return "Middleware";
   if (channel === "runtime") return "Runtime";

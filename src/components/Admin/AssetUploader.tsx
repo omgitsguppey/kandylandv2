@@ -50,6 +50,8 @@ interface AssetUploaderProps {
 }
 
 const RATIO_OPTIONS: UploadAspectRatio[] = ["1:1", "16:9", "9:16"];
+const DEFAULT_CROP = { x: 0, y: 0 };
+const DEFAULT_ZOOM = 1;
 
 function ratioToNumber(ratio: UploadAspectRatio): number {
   if (ratio === "16:9") return 16 / 9;
@@ -170,8 +172,8 @@ export function AssetUploader({
   const [assets, setAssets] = useState<AssetDraft[]>(() => createInitialAssets(initialAssets, initialUrl, initialType));
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
+  const [crop, setCrop] = useState(DEFAULT_CROP);
+  const [zoom, setZoom] = useState(DEFAULT_ZOOM);
 
   useEffect(() => {
     if ((!initialUrl || initialUrl.length === 0) && (!initialAssets || initialAssets.length === 0)) return;
@@ -199,6 +201,10 @@ export function AssetUploader({
 
   const primaryAsset = useMemo(() => assets[0] || null, [assets]);
   const showCropper = !disableCrop && primaryAsset?.kind === "image" && !primaryAsset.uploadUrl && primaryAsset.previewUrl;
+  const hasOriginalSelection = useMemo(
+    () => Boolean((initialAssets && initialAssets.length > 0) || initialUrl),
+    [initialAssets, initialUrl],
+  );
 
   const handleUploadAsset = useCallback(async (target: AssetDraft, pixelsToCrop?: Area) => {
     if (!target?.file) return;
@@ -267,6 +273,8 @@ export function AssetUploader({
 
     const newSet = multiple ? [...assets, ...incoming].slice(0, 50) : incoming.slice(0, 1);
     setAssets(newSet);
+    setCrop(DEFAULT_CROP);
+    setZoom(DEFAULT_ZOOM);
 
     // If disableCrop is active, auto-upload immediately
     if (disableCrop) {
@@ -281,11 +289,25 @@ export function AssetUploader({
     setAssets((current) => current.filter((item) => item.id !== assetId));
   };
 
-  const persistCropAndUpload = () => {
-    if (primaryAsset && primaryAsset.cropPixels) {
-      handleUploadAsset(primaryAsset, primaryAsset.cropPixels);
+  const resetCropState = useCallback(() => {
+    setCrop(DEFAULT_CROP);
+    setZoom(DEFAULT_ZOOM);
+    setAssets((current) => current.map((item, index) => index === 0 ? { ...item, cropPixels: undefined } : item));
+  }, []);
+
+  const restoreOriginalSelection = useCallback(() => {
+    setAssets(createInitialAssets(initialAssets, initialUrl, initialType));
+    setCrop(DEFAULT_CROP);
+    setZoom(DEFAULT_ZOOM);
+  }, [initialAssets, initialType, initialUrl]);
+
+  const confirmCrop = useCallback(() => {
+    if (!primaryAsset) {
+      return;
     }
-  };
+
+    void handleUploadAsset(primaryAsset, primaryAsset.cropPixels);
+  }, [handleUploadAsset, primaryAsset]);
 
   const renderThumbnail = (asset: AssetDraft) => {
     if (asset.kind === "image" && asset.previewUrl) {
@@ -305,30 +327,11 @@ export function AssetUploader({
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-2">
         <label className="text-sm font-semibold text-gray-200">{label}</label>
-        <div className="flex items-center gap-2">
-          {assets.length > 0 ? (
-            <span className="rounded-full border border-white/10 bg-black/40 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-400">
-              {assets.length} {assets.length === 1 ? "file" : "files"}
-            </span>
-          ) : null}
-          {!disableCrop && (
-            <div className="flex items-center gap-1 rounded-full border border-white/10 bg-black/40 p-1">
-              {RATIO_OPTIONS.map((ratio) => (
-                <button
-                  key={ratio}
-                  type="button"
-                  onClick={() => onAspectRatioChange(ratio)}
-                  className={cn(
-                    "rounded-full px-2 py-1 text-[10px] font-semibold transition-colors",
-                    aspectRatio === ratio ? "bg-brand-purple text-white" : "text-gray-400 hover:text-white"
-                  )}
-                >
-                  {ratio}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        {assets.length > 0 ? (
+          <span className="rounded-full border border-white/10 bg-black/40 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-400">
+            {assets.length} {assets.length === 1 ? "file" : "files"}
+          </span>
+        ) : null}
       </div>
 
       <div className="rounded-2xl border border-white/10 bg-black/30 p-3 space-y-3">
@@ -351,8 +354,11 @@ export function AssetUploader({
         />
 
         {showCropper && primaryAsset?.previewUrl && (
-          <div className="space-y-3">
-            <div className="relative w-full max-w-md mx-auto aspect-square bg-[#11131a] rounded-xl overflow-hidden border border-white/10">
+          <div className="space-y-3 rounded-[1.35rem] border border-white/10 bg-white/[0.02] p-3">
+            <div
+              className="relative mx-auto w-full max-w-sm overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#11131a]"
+              style={{ aspectRatio: String(ratioToNumber(aspectRatio)) }}
+            >
               <Cropper
                 image={primaryAsset.previewUrl}
                 crop={crop}
@@ -365,17 +371,90 @@ export function AssetUploader({
                 onZoomChange={setZoom}
                 objectFit="contain"
                 showGrid={true}
+                restrictPosition={true}
               />
+              <div className="pointer-events-none absolute inset-0">
+                <div className="absolute left-3 top-3 rounded-full border border-white/10 bg-black/70 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/85">
+                  Safe Zone
+                </div>
+                <div className="absolute inset-[10%] rounded-[1.1rem] border border-dashed border-white/25 shadow-[0_0_0_999px_rgba(0,0,0,0.14)]" />
+              </div>
             </div>
 
-            <button
-              type="button"
-              onClick={persistCropAndUpload}
-              disabled={primaryAsset.uploading}
-              className="w-full rounded-xl border border-brand-purple bg-brand-purple/20 py-2.5 text-sm font-bold text-white transition-colors hover:bg-brand-purple/30"
-            >
-              {primaryAsset.uploading ? <span className="inline-flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Saving Crop...</span> : "Apply Crop & Upload"}
-            </button>
+            <div className="space-y-3 rounded-[1.15rem] border border-white/8 bg-black/25 p-3">
+              <div className="flex flex-wrap items-center gap-1.5">
+                {RATIO_OPTIONS.map((ratio) => (
+                  <button
+                    key={ratio}
+                    type="button"
+                    onClick={() => onAspectRatioChange(ratio)}
+                    className={cn(
+                      "min-h-10 rounded-full border px-3.5 text-[11px] font-semibold uppercase tracking-[0.14em] transition-colors",
+                      aspectRatio === ratio
+                        ? "border-brand-purple bg-brand-purple text-white"
+                        : "border-white/10 bg-black/35 text-gray-400 hover:bg-white/8 hover:text-white",
+                    )}
+                  >
+                    {ratio}
+                  </button>
+                ))}
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-400">
+                  <span>Zoom</span>
+                  <span>{zoom.toFixed(2)}x</span>
+                </div>
+                <input
+                  type="range"
+                  min="1"
+                  max="3"
+                  step="0.01"
+                  value={zoom}
+                  onChange={(event) => setZoom(Number(event.target.value))}
+                  className="h-2 w-full cursor-pointer accent-brand-purple"
+                  aria-label="Adjust cover zoom"
+                />
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={resetCropState}
+                  className="min-h-10 rounded-full border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white transition-colors hover:bg-white/8"
+                >
+                  Reset Crop
+                </button>
+                {hasOriginalSelection ? (
+                  <button
+                    type="button"
+                    onClick={restoreOriginalSelection}
+                    className="min-h-10 rounded-full border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white transition-colors hover:bg-white/8"
+                  >
+                    Restore Original
+                  </button>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={confirmCrop}
+                  disabled={primaryAsset.uploading}
+                  className="ml-auto min-h-10 rounded-full border border-brand-purple bg-brand-purple/20 px-4 text-sm font-bold text-white transition-colors hover:bg-brand-purple/30 disabled:opacity-50"
+                >
+                  {primaryAsset.uploading ? (
+                    <span className="inline-flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Saving...
+                    </span>
+                  ) : (
+                    "Use Cover"
+                  )}
+                </button>
+              </div>
+
+              <p className="text-[11px] text-gray-500">
+                Adjust the framing once, then use the cover. The crop uploads immediately and returns you to the rest of the form.
+              </p>
+            </div>
           </div>
         )}
 

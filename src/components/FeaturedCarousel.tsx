@@ -39,7 +39,26 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
         onSelect();
         emblaApi.on("select", onSelect);
         emblaApi.on("reInit", onSelect);
+        return () => {
+            emblaApi.off("select", onSelect);
+            emblaApi.off("reInit", onSelect);
+        };
     }, [emblaApi, onSelect]);
+
+    useEffect(() => {
+        if (featuredDrops.length === 0) {
+            setActiveIndex(0);
+            return;
+        }
+
+        setActiveIndex((prev) => {
+            const next = Math.min(prev, featuredDrops.length - 1);
+            if (emblaApi && next !== prev) {
+                emblaApi.scrollTo(next, true);
+            }
+            return next;
+        });
+    }, [emblaApi, featuredDrops.length]);
 
     useEffect(() => {
         if (!emblaApi || featuredDrops.length <= 1) return;
@@ -70,7 +89,8 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
 
     if (featuredDrops.length === 0) return null;
 
-    const activeDrop = featuredDrops[activeIndex] || featuredDrops[0];
+    const safeActiveIndex = Math.min(activeIndex, featuredDrops.length - 1);
+    const activeDrop = featuredDrops[safeActiveIndex] || featuredDrops[0];
     const activeAspectRatio = getSupportedDropAspectRatio(activeDrop);
 
     return (
@@ -199,9 +219,9 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
                             if (emblaApi) emblaApi.scrollTo(index);
                             resetAutoAdvance();
                         }}
-                        className={cn("h-2.5 rounded-full transition-all", index === activeIndex ? "w-7 bg-brand-purple" : "w-2.5 bg-white/25")}
+                        className={cn("h-2.5 rounded-full transition-all", index === safeActiveIndex ? "w-7 bg-brand-purple" : "w-2.5 bg-white/25")}
                         aria-label={`Go to featured drop ${index + 1}`}
-                        aria-current={index === activeIndex}
+                        aria-current={index === safeActiveIndex}
                     />
                 ))}
             </div>
