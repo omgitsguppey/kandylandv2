@@ -546,20 +546,66 @@ export function GuidedOnboarding() {
         }
     };
 
+    const applyCompletedOnboardingState = (
+        finalStepMetric: OnboardingStepMetric | null,
+        stepMetrics: OnboardingStepMetric[],
+        durationMs: number,
+        durationSeconds: number,
+        newBalance?: number,
+        recoveredFromServerError = false,
+    ) => {
+        setUserProfile((currentProfile) => currentProfile ? {
+            ...currentProfile,
+            onboardingCompleted: true,
+            gumDropsBalance: typeof newBalance === "number" ? newBalance : currentProfile.gumDropsBalance,
+            preferences: {
+                ...(currentProfile.preferences || {}),
+                flavor: flavorPreference || "Sweet",
+            },
+        } : currentProfile);
+        if (completionStorageKey) {
+            window.sessionStorage.setItem(completionStorageKey, "true");
+        }
+
+        try {
+            commitStepMetric(finalStepMetric, {
+                completed_step_count: stepMetrics.length,
+            });
+        } catch {
+            // noop
+        }
+
+        trackEvent("guided_onboarding_completed", {
+            overall_started_at_ms: flowStartedAtRef.current,
+            duration_ms: durationMs,
+            duration_seconds: durationSeconds,
+            completed_step_count: stepMetrics.length,
+            selected_flavor: flavorPreference || "Sweet",
+            completion_surface: "dashboard_overlay",
+            page_path: DASHBOARD_ONBOARDING_PATH,
+        });
+
+        setIsVisible(false);
+        toast.success(recoveredFromServerError ? "You're all set. We synced your dashboard." : "You're all set. Your dashboard is ready.");
+        router.replace(DASHBOARD_ONBOARDING_PATH);
+        router.refresh();
+        focusDashboardHome();
+    };
+
     const completeOnboarding = async () => {
         if (!user || isCompleting) {
             return;
         }
 
         setIsCompleting(true);
+        const finalStepMetric = buildStepMetric(currentStep, "finished");
+        const durationMs = flowStartedAtRef.current ? Math.max(0, Date.now() - flowStartedAtRef.current) : 0;
+        const durationSeconds = durationMs ? Math.round(durationMs / 1000) : 0;
+        const stepMetrics = [
+            ...Object.values(stepMetricsRef.current),
+            ...(finalStepMetric && !completedStepIdsRef.current.has(finalStepMetric.stepId) ? [finalStepMetric] : []),
+        ];
         try {
-            const finalStepMetric = buildStepMetric(currentStep, "finished");
-            const durationMs = flowStartedAtRef.current ? Math.max(0, Date.now() - flowStartedAtRef.current) : 0;
-            const durationSeconds = durationMs ? Math.round(durationMs / 1000) : 0;
-            const stepMetrics = [
-                ...Object.values(stepMetricsRef.current),
-                ...(finalStepMetric && !completedStepIdsRef.current.has(finalStepMetric.stepId) ? [finalStepMetric] : []),
-            ];
             const response = await authFetch("/api/user/complete-onboarding", {
                 method: "POST",
                 body: JSON.stringify({
@@ -614,6 +660,35 @@ export function GuidedOnboarding() {
             focusDashboardHome();
         } catch (error) {
             console.error("Error completing onboarding:", error);
+            try {
+                const userProfileRef = doc(db, "users", user.uid);
+                const legacyProfileRef = doc(db, "users", user.uid, "profile", "default");
+                const [userProfileSnap, legacyProfileSnap] = await Promise.all([
+                    getDoc(userProfileRef),
+                    getDoc(legacyProfileRef),
+                ]);
+                const userProfileData = userProfileSnap.exists() ? userProfileSnap.data() : null;
+                const legacyProfileData = legacyProfileSnap.exists() ? legacyProfileSnap.data() : null;
+                const recoveredCompletion = userProfileData?.onboardingCompleted === true || legacyProfileData?.onboardingCompleted === true;
+
+                if (recoveredCompletion) {
+                    if (legacyProfileData?.onboardingCompleted === true && userProfileData?.onboardingCompleted !== true) {
+                        await setDoc(userProfileRef, { onboardingCompleted: true }, { merge: true }).catch(() => { });
+                    }
+
+                    applyCompletedOnboardingState(
+                        finalStepMetric,
+                        stepMetrics,
+                        durationMs,
+                        durationSeconds,
+                        typeof userProfileData?.gumDropsBalance === "number" ? userProfileData.gumDropsBalance : undefined,
+                        true,
+                    );
+                    return;
+                }
+            } catch (recoveryError) {
+                console.error("Failed to verify onboarding recovery state:", recoveryError);
+            }
             const message = error instanceof Error ? error.message : "Failed to finish onboarding.";
             toast.error(message);
         } finally {

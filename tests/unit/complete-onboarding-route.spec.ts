@@ -208,4 +208,45 @@ describe("POST /api/user/complete-onboarding", () => {
             mockState.operations.some((operation) => operation.type === "create" && operation.path.startsWith("analytics_event_facts/")),
         ).toBe(true);
     });
+
+    it("still returns success when user runtime syncing fails after onboarding is committed", async () => {
+        mockState.touchUserRuntime.mockRejectedValueOnce(new Error("runtime sync failed"));
+
+        const request = new NextRequest("http://localhost/api/user/complete-onboarding", {
+            method: "POST",
+            body: JSON.stringify({
+                startedAtMs: 1_000,
+                durationMs: 4_000,
+                selectedFlavor: "Sweet",
+                pagePath: "/dashboard",
+                stepMetrics: [
+                    {
+                        stepId: "complete",
+                        stepIndex: 6,
+                        stepTitle: "You're ready",
+                        stepPath: "/dashboard",
+                        startedAtMs: 4_500,
+                        completedAtMs: 5_000,
+                        durationMs: 500,
+                        completionReason: "finished",
+                    },
+                ],
+            }),
+            headers: {
+                "content-type": "application/json",
+            },
+        });
+
+        const response = await POST(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(payload).toMatchObject({
+            success: true,
+            rewardAmount: 50,
+            newBalance: 100,
+        });
+        expect(mockState.handleApiError).not.toHaveBeenCalled();
+        expect(mockState.touchUserRuntime).toHaveBeenCalledTimes(1);
+    });
 });

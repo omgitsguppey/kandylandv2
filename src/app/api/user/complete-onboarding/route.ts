@@ -264,10 +264,17 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ success: true, alreadyCompleted: true, message: "Onboarding already finished." });
         }
 
-        await touchUserRuntime(uid, {
-            activity: true,
-            profile: true,
-        }, result.nowMs);
+        try {
+            await touchUserRuntime(uid, {
+                activity: true,
+                profile: true,
+            }, result.nowMs);
+        } catch (error) {
+            console.error("Failed to sync user runtime after onboarding completion", {
+                uid,
+                message: error instanceof Error ? error.message : String(error),
+            });
+        }
 
         return NextResponse.json({
             success: true,
