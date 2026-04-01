@@ -47,9 +47,15 @@ export async function GET(request: NextRequest) {
         const dropRefs = config.queue.map(id => dropsRef.doc(id));
         const chunkedRefs = chunkArray(dropRefs, 100);
 
-        for (const refsChunk of chunkedRefs) {
-            if (refsChunk.length === 0) continue;
-            const docs = await adminDb.getAll(...refsChunk);
+        // Fetch all chunks concurrently to prevent sequential N+1 query performance bottleneck
+        const chunkPromises = chunkedRefs.map(async (refsChunk) => {
+            if (refsChunk.length === 0) return [];
+            return adminDb.getAll(...refsChunk);
+        });
+
+        const allDocs = await Promise.all(chunkPromises);
+
+        for (const docs of allDocs) {
             for (const doc of docs) {
                 if (doc.exists) {
                     dropsMap[doc.id] = { id: doc.id, ...doc.data() };
