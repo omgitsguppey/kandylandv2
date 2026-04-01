@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
+    describeCreatorOnboardingBlockingReason,
     deriveCanonicalCreatorOnboardingStatuses,
     normalizeCreatorOnboardingApprovalStatus,
+    normalizeCreatorOnboardingHistoryEntry,
     normalizeCreatorOnboardingIdStatus,
     normalizeCreatorOnboardingLegalStatus,
     normalizeCreatorOnboardingSegmentStatus,
@@ -53,5 +55,43 @@ describe("creator onboarding contract", () => {
             segmentationStatus: "segment_unassigned",
             approvalStatus: "creator_pending",
         });
+    });
+
+    it("describes canonical blocking reasons for creator and admin status surfaces", () => {
+        expect(describeCreatorOnboardingBlockingReason("awaiting_id_submission")).toMatchObject({
+            label: "Waiting on ID upload",
+            severity: "warn",
+        });
+        expect(describeCreatorOnboardingBlockingReason("role_activation_blocked")).toMatchObject({
+            label: "Role activation blocked",
+            severity: "error",
+        });
+    });
+
+    it("normalizes creator onboarding history entries", () => {
+        expect(normalizeCreatorOnboardingHistoryEntry({
+            eventType: "creator_approved",
+            actorId: "admin_1",
+            actorRole: "admin",
+            actorLabel: "Admin",
+            timestamp: 1_710_000_000_000,
+            summary: "Creator approved",
+            detail: "All review gates are complete.",
+            metadata: {
+                source: "admin",
+            },
+        })).toMatchObject({
+            eventType: "creator_approved",
+            actorRole: "admin",
+            detail: "All review gates are complete.",
+        });
+        expect(normalizeCreatorOnboardingHistoryEntry({
+            eventType: "mystery",
+            actorId: "admin_1",
+            actorRole: "admin",
+            actorLabel: "Admin",
+            timestamp: 1_710_000_000_000,
+            summary: "Invalid",
+        })).toBeUndefined();
     });
 });

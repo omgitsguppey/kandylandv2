@@ -8,6 +8,7 @@ import {
     buildCreatorOnboardingCanonicalRecord,
     buildCreatorOnboardingUserProjection,
     buildCreatorReviewQueueEntry,
+    hasCreatorApprovalPrerequisites,
     type CreatorOnboardingCanonicalRecord,
     type CreatorOnboardingHistoryEntry,
     type CreatorOnboardingHistoryEventType,
@@ -107,6 +108,107 @@ export function buildCreatorOnboardingInitialHistoryEntries(input: {
             }),
         },
     ] as const;
+}
+
+export function recordCreatorOnboardingHistoryEntries(
+    transaction: Transaction,
+    userId: string,
+    entries: Array<{ id: string; entry: CreatorOnboardingHistoryEntry }>,
+) {
+    const historyCollection = adminDb.collection(CREATOR_ONBOARDING_COLLECTION).doc(userId).collection(CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION);
+    entries.forEach(({ id, entry }) => {
+        transaction.set(historyCollection.doc(id), entry, { merge: true });
+    });
+}
+
+export function buildCreatorOnboardingStatusChangeHistoryEntries(input: {
+    before: CreatorOnboardingCanonicalRecord;
+    after: CreatorOnboardingCanonicalRecord;
+    actor: CreatorOnboardingActor;
+    timestamp: number;
+}) {
+    const entries: Array<{ id: string; entry: CreatorOnboardingHistoryEntry }> = [];
+    const addEntry = (
+        eventType: CreatorOnboardingHistoryEventType,
+        summary: string,
+        detail?: string,
+        metadata?: Record<string, unknown>,
+    ) => {
+        entries.push({
+            id: `${eventType}_${input.timestamp}`,
+            entry: buildHistoryEntry({
+                eventType,
+                actor: input.actor,
+                timestamp: input.timestamp,
+                summary,
+                detail,
+                metadata,
+            }),
+        });
+    };
+
+    if (input.before.submissionStatus !== input.after.submissionStatus) {
+        addEntry(
+            input.after.submissionStatus,
+            `Submission status changed to ${input.after.submissionStatus.replaceAll("_", " ")}`,
+        );
+    }
+
+    if (input.before.legalStatus !== input.after.legalStatus) {
+        if (input.after.legalStatus === "legal_sent") {
+            addEntry("legal_sent", "Legal documents sent to creator");
+        } else if (input.after.legalStatus === "legal_signed") {
+            addEntry("legal_signed", "Legal documents signed by creator");
+        }
+    }
+
+    if (input.before.idVerificationStatus !== input.after.idVerificationStatus) {
+        if (input.after.idVerificationStatus === "id_requested") {
+            addEntry("id_requested", "Creator ID requested");
+        } else if (input.after.idVerificationStatus === "id_verified") {
+            addEntry("id_verified", "Creator ID verified");
+        } else if (input.after.idVerificationStatus === "id_rejected") {
+            addEntry("id_rejected", "Creator ID rejected");
+        }
+    }
+
+    if (
+        input.before.segmentationStatus !== input.after.segmentationStatus
+        || input.before.segmentLabel !== input.after.segmentLabel
+    ) {
+        if (input.after.segmentationStatus === "segment_assigned") {
+            addEntry("segment_assigned", "Creator segment assigned", input.after.segmentLabel || undefined);
+        }
+    }
+
+    if (input.before.approvalStatus !== input.after.approvalStatus) {
+        if (input.after.approvalStatus === "creator_approved") {
+            addEntry("creator_approved", "Creator approved");
+        } else if (input.after.approvalStatus === "creator_rejected") {
+            addEntry("creator_rejected", "Creator rejected");
+        } else if (input.after.approvalStatus === "creator_needs_changes") {
+            addEntry("creator_needs_changes", "Creator changes requested");
+        }
+    }
+
+    if (input.before.adminNotes !== input.after.adminNotes && readString(input.after.adminNotes)) {
+        addEntry("admin_notes_updated", "Creator admin notes updated");
+    }
+
+    if (input.before.role !== "creator" && input.after.role === "creator") {
+        addEntry("creator_role_activated", "Creator role activated");
+    }
+
+    if (input.after.approvalStatus === "creator_approved" && input.after.role !== "creator") {
+        addEntry("creator_role_activation_blocked", "Creator approval is blocked from activating the public creator role");
+    }
+
+    return entries;
+}
+
+export function shouldActivateCreatorRole(canonical: CreatorOnboardingCanonicalRecord) {
+    return canonical.approvalStatus === "creator_approved"
+        && hasCreatorApprovalPrerequisites(canonical);
 }
 
 export function syncCreatorOnboardingDocuments(

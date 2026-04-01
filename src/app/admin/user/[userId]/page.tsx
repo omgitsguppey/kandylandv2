@@ -30,6 +30,11 @@ import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";
 import type { SupportReadinessSnapshot } from "@/lib/support-readiness";
 import { trackEvent } from "@/lib/telemetry";
+import {
+    describeCreatorOnboardingBlockingReason,
+    type CreatorOnboardingCanonicalRecord,
+    type CreatorOnboardingHistoryEntry,
+} from "@/lib/creator-onboarding";
 
 type UserDetailAnalytics = {
     eventCount: number;
@@ -282,6 +287,8 @@ export default function AdminUserAnalyticsPage() {
     const [supportReadiness, setSupportReadiness] = useState<SupportReadinessSnapshot | null>(null);
     const [creatorOps, setCreatorOps] = useState<CreatorOpsState | null>(null);
     const [creatorApplicationState, setCreatorApplicationState] = useState<CreatorApplicationState | null>(null);
+    const [creatorOnboardingCanonical, setCreatorOnboardingCanonical] = useState<CreatorOnboardingCanonicalRecord | null>(null);
+    const [creatorOnboardingHistory, setCreatorOnboardingHistory] = useState<CreatorOnboardingHistoryEntry[]>([]);
     const [savingCreatorApplication, setSavingCreatorApplication] = useState(false);
     const [creatorRestrictionsState, setCreatorRestrictionsState] = useState<CreatorRestrictionFlags | null>(null);
     const [savingCreatorRestrictions, setSavingCreatorRestrictions] = useState(false);
@@ -305,6 +312,8 @@ export default function AdminUserAnalyticsPage() {
             const result = await response.json() as {
                 success?: boolean;
                 user?: UserProfile;
+                creatorOnboardingCanonical?: CreatorOnboardingCanonicalRecord | null;
+                creatorOnboardingHistory?: CreatorOnboardingHistoryEntry[];
                 transactions?: Transaction[];
                 analytics?: UserDetailAnalytics;
                 securitySummary?: SecuritySummary;
@@ -326,6 +335,8 @@ export default function AdminUserAnalyticsPage() {
             setSupportReadiness(result.supportReadiness || null);
             setCreatorOps(result.creatorOps || null);
             setCreatorApplicationState(result.user.creatorApplication || null);
+            setCreatorOnboardingCanonical(result.creatorOnboardingCanonical || null);
+            setCreatorOnboardingHistory(result.creatorOnboardingHistory || []);
             setCreatorRestrictionsState(result.user.creatorRestrictions || null);
             setError(null);
         } catch (fetchError: unknown) {
@@ -339,6 +350,8 @@ export default function AdminUserAnalyticsPage() {
             setSupportReadiness(null);
             setCreatorOps(null);
             setCreatorApplicationState(null);
+            setCreatorOnboardingCanonical(null);
+            setCreatorOnboardingHistory([]);
             setCreatorRestrictionsState(null);
             setError(message === "User not found" ? "User not found." : message);
         } finally {
@@ -414,6 +427,10 @@ export default function AdminUserAnalyticsPage() {
     ), [securityEvents, securityReasonFilter, securitySeverityFilter, securityWindow, securityWindowCutoffMs]);
     const creatorApplication = creatorApplicationState ?? targetUser?.creatorApplication ?? null;
     const isCreatorOpsUser = targetUser?.role === "creator" || targetUser?.role === "admin";
+    const creatorBlockingReasons = (creatorOnboardingCanonical?.blockingReasons ?? creatorApplication?.blockingReasons ?? [])
+        .map((reason) => describeCreatorOnboardingBlockingReason(reason));
+    const creatorReadyForApproval = creatorOnboardingCanonical?.readyForApproval ?? creatorApplication?.readyForApproval ?? false;
+    const creatorRoleState = creatorOnboardingCanonical?.role ?? targetUser?.role ?? "user";
 
     const updateCreatorApplicationField = <K extends keyof CreatorApplicationState>(key: K, value: CreatorApplicationState[K]) => {
         setCreatorApplicationState((current) => {
@@ -1075,6 +1092,67 @@ export default function AdminUserAnalyticsPage() {
                                 <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1">Segment: {formatCreatorStatusLabel(creatorApplication.segmentationStatus)}</span>
                             </div>
 
+                            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                                <div className="rounded-[1.35rem] border border-white/10 bg-black/20 p-4">
+                                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Approval readiness</p>
+                                    <p className="mt-2 text-lg font-black text-white">{creatorReadyForApproval ? "Ready now" : "Blocked"}</p>
+                                    <p className="mt-1 text-xs text-gray-400">
+                                        {creatorReadyForApproval
+                                            ? "Legal, ID, and segment prerequisites are satisfied for approval."
+                                            : "The canonical onboarding record still has unresolved blockers."}
+                                    </p>
+                                </div>
+                                <div className="rounded-[1.35rem] border border-white/10 bg-black/20 p-4">
+                                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Public role state</p>
+                                    <p className="mt-2 text-lg font-black text-white">{formatCreatorStatusLabel(creatorRoleState)}</p>
+                                    <p className="mt-1 text-xs text-gray-400">
+                                        {creatorRoleState === "creator"
+                                            ? "Creator tools are currently active for this account."
+                                            : "This account is still isolated from public creator tooling."}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="mt-4 rounded-[1.35rem] border border-white/10 bg-black/20 p-4">
+                                <div className="flex items-start justify-between gap-3">
+                                    <div>
+                                        <p className="text-sm font-semibold text-white">Current blockers</p>
+                                        <p className="mt-1 text-xs leading-6 text-gray-400">
+                                            Canonical onboarding blockers are derived from legal, ID, segment, approval, and role activation state.
+                                        </p>
+                                    </div>
+                                    <span className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
+                                        {creatorBlockingReasons.length} open
+                                    </span>
+                                </div>
+
+                                <div className="mt-4 space-y-3">
+                                    {creatorBlockingReasons.length === 0 ? (
+                                        <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-200">
+                                            No canonical blockers remain on this creator onboarding record.
+                                        </div>
+                                    ) : (
+                                        creatorBlockingReasons.map((blockingReason) => (
+                                            <div key={blockingReason.reason} className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3">
+                                                <div className="flex items-start gap-3">
+                                                    <AlertCircle className={`mt-0.5 h-4 w-4 shrink-0 ${
+                                                        blockingReason.severity === "error"
+                                                            ? "text-red-300"
+                                                            : blockingReason.severity === "warn"
+                                                                ? "text-amber-300"
+                                                                : "text-brand-purple"
+                                                    }`} />
+                                                    <div>
+                                                        <p className="text-sm font-semibold text-white">{blockingReason.label}</p>
+                                                        <p className="mt-1 text-xs leading-6 text-gray-400">{blockingReason.description}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+
                             {targetUser && creatorApplication.idDocument ? (
                                 <div className="mt-4 rounded-[1.35rem] border border-white/10 bg-black/20 p-4">
                                     <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Latest submitted ID</p>
@@ -1092,6 +1170,47 @@ export default function AdminUserAnalyticsPage() {
                                     </a>
                                 </div>
                             ) : null}
+
+                            <div className="mt-4 rounded-[1.35rem] border border-white/10 bg-black/20 p-4">
+                                <div className="flex items-start justify-between gap-3">
+                                    <div>
+                                        <p className="text-sm font-semibold text-white">Audit trail</p>
+                                        <p className="mt-1 text-xs leading-6 text-gray-400">
+                                            Every creator onboarding state transition writes back to the canonical history log.
+                                        </p>
+                                    </div>
+                                    <span className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
+                                        {creatorOnboardingHistory.length} events
+                                    </span>
+                                </div>
+
+                                <div className="mt-4 space-y-3">
+                                    {creatorOnboardingHistory.length === 0 ? (
+                                        <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 px-4 py-3 text-sm text-gray-400">
+                                            No canonical history events have been loaded for this creator yet.
+                                        </div>
+                                    ) : (
+                                        creatorOnboardingHistory.slice(0, 8).map((entry) => (
+                                            <div key={`${entry.eventType}-${entry.timestamp}-${entry.actorId}`} className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3">
+                                                <div className="flex items-start justify-between gap-3">
+                                                    <div className="min-w-0">
+                                                        <p className="text-sm font-semibold text-white">{entry.summary}</p>
+                                                        <p className="mt-1 text-xs text-gray-400">
+                                                            {entry.actorLabel} · {format(entry.timestamp, "MMM d, yyyy h:mm a")}
+                                                        </p>
+                                                        {entry.detail ? (
+                                                            <p className="mt-2 text-xs leading-6 text-gray-400">{entry.detail}</p>
+                                                        ) : null}
+                                                    </div>
+                                                    <span className="rounded-full border border-white/10 bg-black/30 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
+                                                        {entry.eventType.replaceAll("_", " ")}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
 
                             <div className="mt-5 flex justify-end">
                                 <button

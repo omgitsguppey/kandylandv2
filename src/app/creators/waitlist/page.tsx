@@ -9,6 +9,7 @@ import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { authFetch } from "@/lib/authFetch";
+import { describeCreatorOnboardingBlockingReason } from "@/lib/creator-onboarding";
 
 function formatStatusLabel(value: string | undefined) {
     if (!value) {
@@ -38,6 +39,8 @@ export default function CreatorWaitlistPage() {
     const [uploadingId, setUploadingId] = useState(false);
     const canSubmitId = creatorApplication?.idVerificationStatus === "id_requested"
         || creatorApplication?.idVerificationStatus === "id_rejected";
+    const blockingReasonDetails = (creatorApplication?.blockingReasons ?? [])
+        .map((reason) => describeCreatorOnboardingBlockingReason(reason));
 
     const handleIdUpload = async () => {
         if (!selectedIdFile) {
@@ -221,6 +224,37 @@ export default function CreatorWaitlistPage() {
                                     : `Current status: ${formatStatusLabel(creatorApplication.segmentationStatus)}.`}
                             </p>
                         </article>
+                    </section>
+                ) : null}
+
+                {creatorApplication ? (
+                    <section className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-5 backdrop-blur-sm">
+                        <div className="flex items-start justify-between gap-3">
+                            <div>
+                                <h2 className="text-base font-bold text-white">What still needs attention</h2>
+                                <p className="mt-2 text-sm leading-7 text-gray-400">
+                                    This screen now reflects the real backend blockers for your creator approval instead of a generic waiting state.
+                                </p>
+                            </div>
+                            <span className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
+                                {blockingReasonDetails.length} blockers
+                            </span>
+                        </div>
+
+                        <div className="mt-4 space-y-3">
+                            {blockingReasonDetails.length === 0 ? (
+                                <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-200">
+                                    No blockers are currently recorded on your application. The next admin review can approve it when the queue reaches your spot.
+                                </div>
+                            ) : (
+                                blockingReasonDetails.map((blockingReason) => (
+                                    <div key={blockingReason.reason} className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3">
+                                        <p className="text-sm font-semibold text-white">{blockingReason.label}</p>
+                                        <p className="mt-1 text-sm leading-6 text-gray-400">{blockingReason.description}</p>
+                                    </div>
+                                ))
+                            )}
+                        </div>
                     </section>
                 ) : null}
 

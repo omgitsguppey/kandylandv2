@@ -13,6 +13,19 @@ import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { CREATOR_COLLECTIONS } from "@/lib/creator-experiences";
 import { sanitizeCreatorRestrictionsUpdate, sanitizeCreatorSettingsUpdate } from "@/lib/server/creator-experiences";
 import { normalizeCreatorApplication, sanitizeCreatorApplicationUpdate } from "@/lib/creator-application";
+import {
+  buildCreatorOnboardingCanonicalRecord,
+  normalizeCreatorOnboardingCanonicalRecord,
+} from "@/lib/creator-onboarding";
+import {
+  buildCreatorOnboardingStatusChangeHistoryEntries,
+  CREATOR_ONBOARDING_COLLECTION,
+  CreatorOnboardingActor,
+  recordCreatorOnboardingHistoryEntries,
+  shouldActivateCreatorRole,
+  syncCreatorOnboardingDocuments,
+} from "@/lib/server/creator-onboarding";
+import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 
 function toTimestampNumber(value: unknown): number {
   if (typeof value === "number" && Number.isFinite(value)) {
@@ -33,6 +46,122 @@ function toTimestampNumber(value: unknown): number {
 
 function toStringArray(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string") : [];
+}
+
+function readStringValue(value: unknown) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function readUserRole(value: unknown): "user" | "creator" | "admin" {
+  return value === "creator" || value === "admin" || value === "user" ? value : "user";
+}
+
+function buildCreatorApplicationAdminSource(
+  current: NonNullable<ReturnType<typeof normalizeCreatorOnboardingCanonicalRecord>>,
+  incoming: ReturnType<typeof sanitizeCreatorApplicationUpdate>,
+  nowMs: number,
+  actorLabel: string,
+) {
+  if (!incoming) {
+    return current;
+  }
+
+  const nextSource: Record<string, unknown> = {
+    ...current,
+    ...incoming,
+    updatedAt: nowMs,
+    reviewedBy: actorLabel,
+    lastAdminActionAt: nowMs,
+    lastAdminActionBy: actorLabel,
+    blockingReasons: undefined,
+    readyForApproval: undefined,
+    creatorReviewQueueVisible: undefined,
+  };
+
+  if (current.submissionStatus !== incoming.submissionStatus) {
+    if (incoming.submissionStatus === "onboarding_submitted" && !current.onboardingSubmittedAt) {
+      nextSource.onboardingSubmittedAt = nowMs;
+    }
+    if (incoming.submissionStatus === "awaiting_manual_review" && !current.awaitingManualReviewAt) {
+      nextSource.awaitingManualReviewAt = nowMs;
+    }
+  }
+
+  if (current.legalStatus !== incoming.legalStatus) {
+    if (incoming.legalStatus === "legal_sent") {
+      nextSource.legalDocumentSentAt = nowMs;
+    }
+    if (incoming.legalStatus === "legal_signed") {
+      nextSource.legalDocumentSignedAt = nowMs;
+    }
+  }
+
+  if (current.idVerificationStatus !== incoming.idVerificationStatus) {
+    if (incoming.idVerificationStatus === "id_requested") {
+      nextSource.idVerificationRequestedAt = nowMs;
+    }
+    if (incoming.idVerificationStatus === "id_verified" || incoming.idVerificationStatus === "id_rejected") {
+      nextSource.idVerificationReviewedAt = nowMs;
+    }
+    if (incoming.idVerificationStatus === "id_requested" || incoming.idVerificationStatus === "id_not_requested") {
+      nextSource.idVerificationSubmittedAt = undefined;
+    }
+  }
+
+  if (
+    current.segmentationStatus !== incoming.segmentationStatus
+    && incoming.segmentationStatus === "segment_assigned"
+  ) {
+    nextSource.segmentAssignedAt = nowMs;
+  }
+
+  return nextSource;
+}
+
+function buildCreatorLifecycleEvents(input: {
+  before: NonNullable<ReturnType<typeof normalizeCreatorOnboardingCanonicalRecord>>;
+  after: NonNullable<ReturnType<typeof normalizeCreatorOnboardingCanonicalRecord>>;
+}) {
+  const events: string[] = [];
+
+  if (input.before.legalStatus !== input.after.legalStatus) {
+    if (input.after.legalStatus === "legal_sent") {
+      events.push("creator_legal_sent");
+    } else if (input.after.legalStatus === "legal_signed") {
+      events.push("creator_legal_signed");
+    }
+  }
+
+  if (input.before.idVerificationStatus !== input.after.idVerificationStatus) {
+    if (input.after.idVerificationStatus === "id_requested") {
+      events.push("creator_id_requested");
+    } else if (input.after.idVerificationStatus === "id_verified") {
+      events.push("creator_id_verified");
+    } else if (input.after.idVerificationStatus === "id_rejected") {
+      events.push("creator_id_rejected");
+    }
+  }
+
+  if (
+    input.before.segmentationStatus !== input.after.segmentationStatus
+    || input.before.segmentLabel !== input.after.segmentLabel
+  ) {
+    if (input.after.segmentationStatus === "segment_assigned") {
+      events.push("creator_segment_assigned");
+    }
+  }
+
+  if (input.before.approvalStatus !== input.after.approvalStatus) {
+    if (input.after.approvalStatus === "creator_approved") {
+      events.push("creator_approved");
+    } else if (input.after.approvalStatus === "creator_rejected") {
+      events.push("creator_rejected");
+    } else if (input.after.approvalStatus === "creator_needs_changes") {
+      events.push("creator_needs_changes");
+    }
+  }
+
+  return events;
 }
 
 type UserCommerceMetrics = {
@@ -67,6 +196,12 @@ type CreatorOpsAggregate = {
   pendingDropSubmissions: number;
   totalAccruedGd: number;
   pendingCashoutGd: number;
+};
+
+type CreatorOnboardingDiagnosticEntry = {
+  severity: "warn";
+  message: string;
+  detail: Record<string, unknown>;
 };
 
 function buildEmptyCreatorOpsAggregate(): CreatorOpsAggregate {
@@ -867,6 +1002,7 @@ export async function PUT(request: NextRequest) {
 
     const allowedFields = ["role", "isVerified", "status", "statusReason"];
     const sanitized: Record<string, unknown> = {};
+    let creatorApplicationUpdate: ReturnType<typeof sanitizeCreatorApplicationUpdate> | undefined;
     for (const key of allowedFields) {
       if (updates[key] !== undefined) {
         sanitized[key] = updates[key];
@@ -879,19 +1015,308 @@ export async function PUT(request: NextRequest) {
       sanitized.creatorSettings = sanitizeCreatorSettingsUpdate(updates.creatorSettings as Record<string, unknown>);
     }
     if (updates.creatorApplication && typeof updates.creatorApplication === "object") {
-      const creatorApplication = sanitizeCreatorApplicationUpdate(updates.creatorApplication as Record<string, unknown>, {
+      creatorApplicationUpdate = sanitizeCreatorApplicationUpdate(updates.creatorApplication as Record<string, unknown>, {
         reviewedBy: authResult?.email ?? authResult?.uid ?? null,
       });
-      if (creatorApplication) {
-        sanitized.creatorApplication = creatorApplication;
-      }
     }
 
-    if (Object.keys(sanitized).length === 0) {
+    if (Object.keys(sanitized).length === 0 && !creatorApplicationUpdate) {
       return NextResponse.json({ error: "No valid fields to update" }, { status: 400 });
     }
 
-    await adminDb.collection("users").doc(userId).update(sanitized);
+    const actor: CreatorOnboardingActor = {
+      id: authResult?.uid ?? "admin",
+      role: "admin",
+      label: authResult?.email ?? authResult?.uid ?? "Admin",
+    };
+    const nowMs = Date.now();
+    let creatorLifecycleEvents: string[] = [];
+    let creatorOnboardingDiagnostic: CreatorOnboardingDiagnosticEntry | null = null;
+
+    if (creatorApplicationUpdate) {
+      const userRef = adminDb.collection("users").doc(userId);
+      const onboardingRef = adminDb.collection(CREATOR_ONBOARDING_COLLECTION).doc(userId);
+
+      await adminDb.runTransaction(async (transaction) => {
+        const [userSnap, onboardingSnap] = await transaction.getAll(userRef, onboardingRef);
+        if (!userSnap.exists) {
+          throw new Error("User not found");
+        }
+
+        const userData = (userSnap.data() as Record<string, unknown> | undefined) ?? {};
+        const existingProjection = normalizeCreatorApplication(userData.creatorApplication);
+        const existingCanonical = normalizeCreatorOnboardingCanonicalRecord(onboardingSnap.data());
+        const currentCanonical = existingCanonical ?? (existingProjection
+          ? buildCreatorOnboardingCanonicalRecord({
+            userId,
+            email: typeof userData.email === "string" ? userData.email : null,
+            username: typeof userData.username === "string" ? userData.username : undefined,
+            displayName: typeof userData.displayName === "string" ? userData.displayName : undefined,
+            photoURL: typeof userData.photoURL === "string" ? userData.photoURL : null,
+            role: readUserRole(userData.role),
+            createdAt: toTimestampNumber(userData.createdAt) || existingProjection.submittedAt,
+            queuePosition: existingProjection.queuePosition,
+            creatorDisplayName: existingProjection.creatorDisplayName,
+            creatorPrimaryPlatform: existingProjection.creatorPrimaryPlatform,
+            creatorContentFocus: existingProjection.creatorContentFocus,
+            nowMs,
+            source: existingProjection,
+          })
+          : buildCreatorOnboardingCanonicalRecord({
+            userId,
+            email: typeof userData.email === "string" ? userData.email : null,
+            username: typeof userData.username === "string" ? userData.username : undefined,
+            displayName: typeof userData.displayName === "string" ? userData.displayName : undefined,
+            photoURL: typeof userData.photoURL === "string" ? userData.photoURL : null,
+            role: readUserRole(userData.role),
+            createdAt: toTimestampNumber(userData.createdAt) || nowMs,
+            queuePosition: creatorApplicationUpdate.queuePosition,
+            creatorDisplayName: creatorApplicationUpdate.creatorDisplayName,
+            creatorPrimaryPlatform: creatorApplicationUpdate.creatorPrimaryPlatform,
+            creatorContentFocus: creatorApplicationUpdate.creatorContentFocus,
+            nowMs,
+            source: creatorApplicationUpdate,
+          }));
+
+        const nextSource = buildCreatorApplicationAdminSource(
+          currentCanonical,
+          creatorApplicationUpdate,
+          nowMs,
+          actor.label,
+        );
+        let nextCanonical = buildCreatorOnboardingCanonicalRecord({
+          userId,
+          email: typeof userData.email === "string" ? userData.email : null,
+          username: typeof userData.username === "string" ? userData.username : currentCanonical.username,
+          displayName: typeof userData.displayName === "string" ? userData.displayName : currentCanonical.creatorDisplayName,
+          photoURL: typeof userData.photoURL === "string" ? userData.photoURL : currentCanonical.photoURL,
+          role: readUserRole(userData.role),
+          createdAt: currentCanonical.createdAt,
+          queuePosition: currentCanonical.queuePosition,
+          creatorDisplayName: creatorApplicationUpdate.creatorDisplayName,
+          creatorPrimaryPlatform: creatorApplicationUpdate.creatorPrimaryPlatform,
+          creatorContentFocus: creatorApplicationUpdate.creatorContentFocus,
+          nowMs,
+          source: nextSource,
+        });
+
+        const shouldPromoteCreatorRole = shouldActivateCreatorRole(nextCanonical);
+        const currentRole = readUserRole(userData.role);
+        const requestedRole = sanitized.role !== undefined ? readUserRole(sanitized.role) : undefined;
+        let nextRole = currentRole;
+
+        if (requestedRole === "admin" || requestedRole === "user") {
+          nextRole = requestedRole;
+        } else if (requestedRole === "creator") {
+          nextRole = shouldPromoteCreatorRole || currentRole === "creator" ? "creator" : currentRole;
+        } else if (shouldPromoteCreatorRole && currentRole === "user") {
+          nextRole = "creator";
+        }
+
+        if (nextRole !== nextCanonical.role) {
+          nextCanonical = buildCreatorOnboardingCanonicalRecord({
+            userId,
+            email: typeof userData.email === "string" ? userData.email : null,
+            username: typeof userData.username === "string" ? userData.username : currentCanonical.username,
+            displayName: typeof userData.displayName === "string" ? userData.displayName : currentCanonical.creatorDisplayName,
+            photoURL: typeof userData.photoURL === "string" ? userData.photoURL : currentCanonical.photoURL,
+            role: nextRole,
+            createdAt: currentCanonical.createdAt,
+            queuePosition: currentCanonical.queuePosition,
+            creatorDisplayName: creatorApplicationUpdate.creatorDisplayName,
+            creatorPrimaryPlatform: creatorApplicationUpdate.creatorPrimaryPlatform,
+            creatorContentFocus: creatorApplicationUpdate.creatorContentFocus,
+            nowMs,
+            source: {
+              ...nextSource,
+              role: nextRole,
+            },
+          });
+        }
+
+        syncCreatorOnboardingDocuments(transaction, {
+          userId,
+          displayName: typeof userData.displayName === "string" ? userData.displayName : currentCanonical.creatorDisplayName,
+          canonical: nextCanonical,
+        });
+
+        const userPatch: Record<string, unknown> = {
+          ...sanitized,
+        };
+        delete userPatch.role;
+        if (requestedRole || nextRole !== currentRole) {
+          userPatch.role = nextRole;
+        }
+        if (Object.keys(userPatch).length > 0) {
+          transaction.set(userRef, userPatch, { merge: true });
+        }
+
+        recordCreatorOnboardingHistoryEntries(
+          transaction,
+          userId,
+          buildCreatorOnboardingStatusChangeHistoryEntries({
+            before: currentCanonical,
+            after: nextCanonical,
+            actor,
+            timestamp: nowMs,
+          }),
+        );
+
+        creatorLifecycleEvents = buildCreatorLifecycleEvents({
+          before: currentCanonical,
+          after: nextCanonical,
+        });
+
+        if (
+          (requestedRole === "creator" && nextRole !== "creator")
+          || (nextCanonical.approvalStatus === "creator_approved" && !shouldPromoteCreatorRole)
+        ) {
+          creatorOnboardingDiagnostic = {
+            severity: "warn",
+            message: requestedRole === "creator" && nextRole !== "creator"
+              ? "Creator role activation blocked by onboarding prerequisites"
+              : "Creator approved but role activation prerequisites are incomplete",
+            detail: {
+              userId,
+              requestedRole: requestedRole ?? null,
+              currentRole,
+              nextRole,
+              approvalStatus: nextCanonical.approvalStatus,
+              legalStatus: nextCanonical.legalStatus,
+              idVerificationStatus: nextCanonical.idVerificationStatus,
+              segmentationStatus: nextCanonical.segmentationStatus,
+            },
+          };
+        }
+      });
+    } else if (Object.keys(sanitized).length > 0) {
+      const requestedRole = sanitized.role !== undefined ? readUserRole(sanitized.role) : undefined;
+
+      if (requestedRole === "creator") {
+        const userRef = adminDb.collection("users").doc(userId);
+        const onboardingRef = adminDb.collection(CREATOR_ONBOARDING_COLLECTION).doc(userId);
+        const [userSnap, onboardingSnap] = await Promise.all([
+          userRef.get(),
+          onboardingRef.get(),
+        ]);
+
+        if (!userSnap.exists) {
+          return NextResponse.json({ error: "User not found" }, { status: 404 });
+        }
+
+        const userData = (userSnap.data() as Record<string, unknown> | undefined) ?? {};
+        const existingProjection = normalizeCreatorApplication(userData.creatorApplication);
+        const currentCanonical = normalizeCreatorOnboardingCanonicalRecord(onboardingSnap.data())
+          ?? (existingProjection
+            ? buildCreatorOnboardingCanonicalRecord({
+              userId,
+              email: typeof userData.email === "string" ? userData.email : null,
+              username: typeof userData.username === "string" ? userData.username : undefined,
+              displayName: typeof userData.displayName === "string" ? userData.displayName : undefined,
+              photoURL: typeof userData.photoURL === "string" ? userData.photoURL : null,
+              role: readUserRole(userData.role),
+              createdAt: toTimestampNumber(userData.createdAt) || existingProjection.submittedAt,
+              queuePosition: existingProjection.queuePosition,
+              creatorDisplayName: existingProjection.creatorDisplayName,
+              creatorPrimaryPlatform: existingProjection.creatorPrimaryPlatform,
+              creatorContentFocus: existingProjection.creatorContentFocus,
+              nowMs,
+              source: existingProjection,
+            })
+            : undefined);
+
+        if (currentCanonical) {
+          if (!shouldActivateCreatorRole(currentCanonical)) {
+            await recordServerDiagnostic({
+              channel: "creator_onboarding",
+              severity: "warn",
+              message: "Creator role activation blocked by onboarding prerequisites",
+              detail: {
+                userId,
+                requestedRole,
+                currentRole: readUserRole(userData.role),
+                approvalStatus: currentCanonical.approvalStatus,
+                legalStatus: currentCanonical.legalStatus,
+                idVerificationStatus: currentCanonical.idVerificationStatus,
+                segmentationStatus: currentCanonical.segmentationStatus,
+              },
+            });
+
+            return NextResponse.json({
+              error: "Creator role cannot be activated until legal, ID, segment, and approval requirements are complete.",
+            }, { status: 400 });
+          }
+
+          if (readUserRole(userData.role) !== "creator") {
+            await adminDb.runTransaction(async (transaction) => {
+              const nextCanonical = buildCreatorOnboardingCanonicalRecord({
+                userId,
+                email: typeof userData.email === "string" ? userData.email : null,
+                username: typeof userData.username === "string" ? userData.username : currentCanonical.username,
+                displayName: typeof userData.displayName === "string" ? userData.displayName : currentCanonical.creatorDisplayName,
+                photoURL: typeof userData.photoURL === "string" ? userData.photoURL : currentCanonical.photoURL,
+                role: "creator",
+                createdAt: currentCanonical.createdAt,
+                queuePosition: currentCanonical.queuePosition,
+                creatorDisplayName: currentCanonical.creatorDisplayName,
+                creatorPrimaryPlatform: currentCanonical.creatorPrimaryPlatform,
+                creatorContentFocus: currentCanonical.creatorContentFocus,
+                nowMs,
+                source: {
+                  ...currentCanonical,
+                  role: "creator",
+                  creatorReviewQueueVisible: undefined,
+                },
+              });
+
+              syncCreatorOnboardingDocuments(transaction, {
+                userId,
+                displayName: typeof userData.displayName === "string" ? userData.displayName : currentCanonical.creatorDisplayName,
+                canonical: nextCanonical,
+              });
+
+              const userPatch: Record<string, unknown> = {
+                ...sanitized,
+                role: "creator",
+              };
+              transaction.set(userRef, userPatch, { merge: true });
+              recordCreatorOnboardingHistoryEntries(
+                transaction,
+                userId,
+                buildCreatorOnboardingStatusChangeHistoryEntries({
+                  before: currentCanonical,
+                  after: nextCanonical,
+                  actor,
+                  timestamp: nowMs,
+                }),
+              );
+            });
+          } else {
+            await userRef.update(sanitized);
+          }
+        } else {
+          await userRef.update(sanitized);
+        }
+      } else {
+        await adminDb.collection("users").doc(userId).update(sanitized);
+      }
+    }
+
+    const creatorOnboardingDiagnosticEntry = creatorOnboardingDiagnostic as CreatorOnboardingDiagnosticEntry | null;
+    if (creatorOnboardingDiagnosticEntry) {
+      await recordServerDiagnostic({
+        channel: "creator_onboarding",
+        severity: creatorOnboardingDiagnosticEntry.severity,
+        message: creatorOnboardingDiagnosticEntry.message,
+        detail: creatorOnboardingDiagnosticEntry.detail,
+      });
+    }
+
+    await Promise.allSettled(
+      creatorLifecycleEvents.map((eventName) => trackServerEvent(eventName, {
+        page_path: `/admin/user/${userId}`,
+      }, userId)),
+    );
 
     return NextResponse.json({ success: true });
   } catch (error) {

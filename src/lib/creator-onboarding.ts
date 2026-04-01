@@ -92,6 +92,25 @@ const ID_STATUS_SET = new Set<CreatorOnboardingIdStatus>(CREATOR_ONBOARDING_ID_S
 const SEGMENT_STATUS_SET = new Set<CreatorOnboardingSegmentStatus>(CREATOR_ONBOARDING_SEGMENT_STATUSES);
 const APPROVAL_STATUS_SET = new Set<CreatorOnboardingApprovalStatus>(CREATOR_ONBOARDING_APPROVAL_STATUSES);
 const BLOCKING_REASON_SET = new Set<CreatorOnboardingBlockingReason>(CREATOR_ONBOARDING_BLOCKING_REASONS);
+const HISTORY_EVENT_TYPE_SET = new Set<CreatorOnboardingHistoryEventType>([
+    "onboarding_started",
+    "onboarding_submitted",
+    "awaiting_manual_review",
+    "admin_queue_materialized",
+    "legal_sent",
+    "legal_signed",
+    "id_requested",
+    "id_submitted",
+    "id_verified",
+    "id_rejected",
+    "segment_assigned",
+    "creator_approved",
+    "creator_rejected",
+    "creator_needs_changes",
+    "creator_role_activated",
+    "creator_role_activation_blocked",
+    "admin_notes_updated",
+]);
 
 export type LegacyCreatorApplicationSnapshot = {
     submissionStatus?: unknown;
@@ -227,6 +246,13 @@ export type CreatorOnboardingHistoryEntry = {
     metadata?: Record<string, unknown>;
 };
 
+export type CreatorOnboardingBlockingReasonDetail = {
+    reason: CreatorOnboardingBlockingReason;
+    label: string;
+    description: string;
+    severity: "info" | "warn" | "error";
+};
+
 function readString(value: unknown) {
     return typeof value === "string" ? value.trim() : "";
 }
@@ -273,6 +299,43 @@ function normalizeIdDocument(value: unknown): CreatorOnboardingIdDocument | unde
         uploadedByUid,
         reviewNote: readString(source.reviewNote) || undefined,
         reviewedAt: readOptionalTimestamp(source.reviewedAt),
+    };
+}
+
+export function normalizeCreatorOnboardingHistoryEntry(
+    value: unknown,
+): CreatorOnboardingHistoryEntry | undefined {
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
+        return undefined;
+    }
+
+    const source = value as Record<string, unknown>;
+    const eventType = readString(source.eventType) as CreatorOnboardingHistoryEventType;
+    const actorId = readString(source.actorId);
+    const actorRole = source.actorRole === "creator" || source.actorRole === "admin" || source.actorRole === "system"
+        ? source.actorRole
+        : undefined;
+    const actorLabel = readString(source.actorLabel);
+    const timestamp = readOptionalTimestamp(source.timestamp);
+    const summary = readString(source.summary);
+
+    if (!HISTORY_EVENT_TYPE_SET.has(eventType) || !actorId || !actorRole || !actorLabel || !timestamp || !summary) {
+        return undefined;
+    }
+
+    const metadata = source.metadata && typeof source.metadata === "object" && !Array.isArray(source.metadata)
+        ? source.metadata as Record<string, unknown>
+        : undefined;
+
+    return {
+        eventType,
+        actorId,
+        actorRole,
+        actorLabel,
+        timestamp,
+        summary,
+        detail: readString(source.detail) || undefined,
+        metadata,
     };
 }
 
@@ -409,11 +472,23 @@ export function computeCreatorOnboardingBlockingReasons(input: {
         blockingReasons.push("awaiting_segment_assignment");
     }
 
-    if (input.approvalStatus !== "creator_approved" && input.role === "creator") {
+    if (input.approvalStatus === "creator_approved" && input.role !== "creator" && input.role !== "admin") {
+        blockingReasons.push("role_activation_blocked");
+    } else if (input.approvalStatus !== "creator_approved" && input.role === "creator") {
         blockingReasons.push("role_activation_blocked");
     }
 
     return Array.from(new Set(blockingReasons));
+}
+
+export function hasCreatorApprovalPrerequisites(input: {
+    legalStatus: CreatorOnboardingLegalStatus;
+    idVerificationStatus: CreatorOnboardingIdStatus;
+    segmentationStatus: CreatorOnboardingSegmentStatus;
+}) {
+    return input.legalStatus === "legal_signed"
+        && input.idVerificationStatus === "id_verified"
+        && input.segmentationStatus === "segment_assigned";
 }
 
 export function isCreatorReadyForApproval(input: {
@@ -422,10 +497,78 @@ export function isCreatorReadyForApproval(input: {
     segmentationStatus: CreatorOnboardingSegmentStatus;
     approvalStatus: CreatorOnboardingApprovalStatus;
 }) {
-    return input.legalStatus === "legal_signed"
-        && input.idVerificationStatus === "id_verified"
-        && input.segmentationStatus === "segment_assigned"
+    return hasCreatorApprovalPrerequisites(input)
         && input.approvalStatus === "creator_pending";
+}
+
+export function describeCreatorOnboardingBlockingReason(
+    reason: CreatorOnboardingBlockingReason,
+): CreatorOnboardingBlockingReasonDetail {
+    switch (reason) {
+        case "approval_rejected":
+            return {
+                reason,
+                label: "Application rejected",
+                description: "This creator application was rejected and will stay out of the creator tools lane until admin reopens it.",
+                severity: "error",
+            };
+        case "approval_needs_changes":
+            return {
+                reason,
+                label: "Changes requested",
+                description: "Admin requested updates before this application can be approved.",
+                severity: "warn",
+            };
+        case "awaiting_legal":
+            return {
+                reason,
+                label: "Legal still pending",
+                description: "Creator approval is blocked until legal documents have been sent and signed.",
+                severity: "warn",
+            };
+        case "awaiting_id_request":
+            return {
+                reason,
+                label: "Waiting on ID request",
+                description: "Admin has not requested identity verification for this creator yet.",
+                severity: "info",
+            };
+        case "awaiting_id_submission":
+            return {
+                reason,
+                label: "Waiting on ID upload",
+                description: "An ID upload is required before admin can verify this creator.",
+                severity: "warn",
+            };
+        case "awaiting_id_review":
+            return {
+                reason,
+                label: "Waiting on ID review",
+                description: "An ID was submitted and is waiting for admin review.",
+                severity: "info",
+            };
+        case "awaiting_segment_assignment":
+            return {
+                reason,
+                label: "Segment still unassigned",
+                description: "Admin still needs to assign a manual creator segment before approval is fully ready.",
+                severity: "warn",
+            };
+        case "role_activation_blocked":
+            return {
+                reason,
+                label: "Role activation blocked",
+                description: "The creator role is out of sync with onboarding approval requirements and needs admin attention.",
+                severity: "error",
+            };
+        default:
+            return {
+                reason,
+                label: "Blocked",
+                description: "This creator application still has unresolved approval blockers.",
+                severity: "warn",
+            };
+    }
 }
 
 export function deriveCreatorReviewQueueBucket(input: {
