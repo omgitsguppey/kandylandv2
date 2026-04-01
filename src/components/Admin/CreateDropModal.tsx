@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, memo, useCallback, useMemo } from "react";
+import { ReactNode, useState, useEffect, memo, useCallback, useMemo } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
 import { Loader2, Save, Calendar, DollarSign, X, ImageIcon, FileAudio, ChevronDown, ChevronUp } from "lucide-react";
@@ -115,6 +115,42 @@ interface FilesAndAssetsSectionProps {
     errors: FieldErrors<DropFormData>;
 }
 
+function FormSectionCard({
+    title,
+    summary,
+    open,
+    onToggle,
+    icon,
+    children,
+}: {
+    title: string;
+    summary?: string;
+    open: boolean;
+    onToggle: () => void;
+    icon?: ReactNode;
+    children: ReactNode;
+}) {
+    return (
+        <div className="glass-panel overflow-hidden rounded-[1.8rem] border border-white/6 bg-white/[0.02] shadow-lg">
+            <button
+                type="button"
+                onClick={onToggle}
+                className="flex w-full items-center justify-between gap-3 px-4 py-3.5 text-left"
+            >
+                <div className="min-w-0">
+                    <div className="flex items-center gap-2 text-sm font-bold text-white">
+                        {icon}
+                        <span>{title}</span>
+                    </div>
+                    {summary ? <p className="mt-1 text-xs text-gray-400">{summary}</p> : null}
+                </div>
+                {open ? <ChevronUp className="h-4 w-4 shrink-0 text-gray-500" /> : <ChevronDown className="h-4 w-4 shrink-0 text-gray-500" />}
+            </button>
+            {open ? <div className="border-t border-white/6 px-4 pb-4 pt-3">{children}</div> : null}
+        </div>
+    );
+}
+
 const FilesAndAssetsSection = memo(function FilesAndAssetsSection({
     uploadsOpen,
     onToggle,
@@ -130,23 +166,32 @@ const FilesAndAssetsSection = memo(function FilesAndAssetsSection({
     onContentAssetsChange,
     errors,
 }: FilesAndAssetsSectionProps) {
+    const contentAssetCount = initialContentAssets.length > 0 ? initialContentAssets.length : (contentUrl ? 1 : 0);
+    const summary = [
+        imageUrl ? "Cover ready" : "Add cover",
+        `${contentAssetCount} ${contentAssetCount === 1 ? "asset" : "assets"}`,
+    ].join(" · ");
+
     return (
-        <div className="glass-panel rounded-3xl overflow-hidden">
+        <div className="glass-panel overflow-hidden rounded-[1.8rem] border border-white/6 bg-white/[0.02] shadow-lg">
             <button
                 type="button"
                 onClick={onToggle}
-                className="w-full flex items-center justify-between p-4"
+                className="flex w-full items-center justify-between gap-3 px-4 py-3.5 text-left"
             >
-                <div className="flex items-center gap-2 font-bold text-white text-sm">
-                    <ImageIcon className="w-4 h-4 text-brand-purple" />
-                    <FileAudio className="w-4 h-4 text-brand-purple" />
-                    Files & Assets
+                <div className="min-w-0">
+                    <div className="flex items-center gap-2 text-sm font-bold text-white">
+                        <ImageIcon className="h-4 w-4 text-brand-purple" />
+                        <FileAudio className="h-4 w-4 text-brand-purple" />
+                        Files & Assets
+                    </div>
+                    <p className="mt-1 text-xs text-gray-400">{summary.replace(/[^\x20-\x7E]+/gu, " | ").replace(/\s+\|\s+\|/gu, " | ").trim()}</p>
                 </div>
-                {uploadsOpen ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
+                {uploadsOpen ? <ChevronUp className="h-4 w-4 shrink-0 text-gray-500" /> : <ChevronDown className="h-4 w-4 shrink-0 text-gray-500" />}
             </button>
 
             {uploadsOpen ? (
-                <div className="p-4 pt-0 border-t border-white/5 space-y-3">
+                <div className="space-y-3 border-t border-white/6 px-4 pb-4 pt-3">
                     <AssetUploader
                         label="Cover"
                         folder="drops/images"
@@ -201,6 +246,9 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
     const [checkingDuplicateNames, setCheckingDuplicateNames] = useState(false);
 
     const [uploadsOpen, setUploadsOpen] = useState(true);
+    const [basicsOpen, setBasicsOpen] = useState(true);
+    const [pricingOpen, setPricingOpen] = useState(true);
+    const [actionSettingsOpen, setActionSettingsOpen] = useState(true);
     const [coverAspectRatio, setCoverAspectRatio] = useState<UploadAspectRatio>("1:1");
     const [contentAspectRatio, setContentAspectRatio] = useState<UploadAspectRatio>("1:1");
 
@@ -241,8 +289,54 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
     const creatorId = useWatch({ control, name: "creatorId" }) || "";
     const imageUrl = useWatch({ control, name: "imageUrl" }) || "";
     const contentUrl = useWatch({ control, name: "contentUrl" }) || "";
+    const contentUrls = useWatch({ control, name: "contentUrls" }) || [];
     const fileMetadata = useWatch({ control, name: "fileMetadata" });
     const coverFileName = useWatch({ control, name: "coverFileName" }) || "";
+    const titleValue = useWatch({ control, name: "title" }) || "";
+    const unlockCostValue = useWatch({ control, name: "unlockCost" }) || 0;
+    const validFromValue = useWatch({ control, name: "validFrom" }) || "";
+    const validUntilValue = useWatch({ control, name: "validUntil" }) || "";
+
+    const basicsSummary = useMemo(() => {
+        const typeLabel = dropType === "promo" ? "Promo drop" : dropType === "external" ? "External drop" : "Content drop";
+        const tagLabel = currentTags.length > 0 ? `${currentTags.length} tag${currentTags.length === 1 ? "" : "s"}` : "No tags";
+        return `${typeLabel} · ${tagLabel}`;
+    }, [currentTags.length, dropType]);
+
+    const pricingSummary = useMemo(() => {
+        const startLabel = validFromValue ? validFromValue.replace("T", " · ") : "No start time";
+        const endLabel = validUntilValue ? validUntilValue.replace("T", " · ") : "No end time";
+        return `${unlockCostValue} GD · ${startLabel} · ${endLabel}`;
+    }, [unlockCostValue, validFromValue, validUntilValue]);
+
+    const actionSummary = useMemo(() => {
+        if (dropType === "content") {
+            return "";
+        }
+
+        return dropType === "promo" ? "Configure ad CTA and destination." : "Configure off-platform destination.";
+    }, [dropType]);
+
+    const cleanBasicsSummary = useMemo(() => {
+        const typeLabel = dropType === "promo" ? "Promo drop" : dropType === "external" ? "External drop" : "Content drop";
+        const titleLabel = titleValue.trim().length > 0 ? titleValue.trim() : typeLabel;
+        const tagLabel = currentTags.length > 0 ? `${currentTags.length} tag${currentTags.length === 1 ? "" : "s"}` : "No tags";
+        return `${titleLabel} | ${tagLabel}`;
+    }, [currentTags.length, dropType, titleValue]);
+
+    const cleanPricingSummary = useMemo(() => {
+        const startLabel = validFromValue ? validFromValue.replace("T", " | ") : "No start time";
+        const endLabel = validUntilValue ? validUntilValue.replace("T", " | ") : "No end time";
+        return `${unlockCostValue} GD | ${startLabel} | ${endLabel}`;
+    }, [unlockCostValue, validFromValue, validUntilValue]);
+
+    const cleanActionSummary = useMemo(() => {
+        if (dropType === "content") {
+            return "No CTA needed for content drops.";
+        }
+
+        return dropType === "promo" ? "Configure the ad button and destination." : "Configure the external destination and CTA.";
+    }, [dropType]);
 
     useEffect(() => {
         if (!isOpen || mode !== "admin") {
@@ -278,6 +372,10 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
     useEffect(() => {
         if (!isOpen) {
             setContentAssets([]);
+            setBasicsOpen(true);
+            setPricingOpen(true);
+            setActionSettingsOpen(true);
+            setUploadsOpen(true);
             reset({
                 creatorId: creatorIdOverride || "",
                 title: "",
@@ -555,13 +653,13 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
         <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <Dialog.Portal>
                 <Dialog.Overlay className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm" />
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+                <div className="fixed inset-0 z-50 flex items-end justify-center p-2 md:items-center md:p-4">
                     <Dialog.Content
-                        className="w-full max-w-2xl bg-[#0a0a0a] border border-white/10 rounded-3xl overflow-hidden relative max-h-[92vh] flex flex-col shadow-2xl focus:outline-none focus:ring-2 focus:ring-brand-purple/50"
+                        className="relative flex max-h-[calc(100svh-0.5rem)] w-full max-w-3xl flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-[#0a0a0a] shadow-2xl focus:outline-none focus:ring-2 focus:ring-brand-purple/50 md:max-h-[92vh] md:rounded-3xl"
                         aria-describedby={undefined}
                     >
-                        <header className="p-4 md:p-6 border-b border-white/10 flex items-center justify-between shrink-0 bg-black/50 sticky top-0 z-10 backdrop-blur-md">
-                            <Dialog.Title className="text-xl font-bold text-white shrink-0">
+                        <header className="sticky top-0 z-10 flex shrink-0 items-center justify-between border-b border-white/10 bg-black/65 px-4 pb-4 pt-[max(env(safe-area-inset-top),1rem)] backdrop-blur-md md:px-6 md:pb-5 md:pt-5">
+                            <Dialog.Title className="shrink-0 text-xl font-bold text-white">
                                 {isEditMode ? (mode === "creator" ? "Edit Submission" : "Edit Drop") : (mode === "creator" ? "Submit Creator Drop" : "Create Drop")}
                             </Dialog.Title>
                             <Dialog.Close asChild>
@@ -574,14 +672,20 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                             </Dialog.Close>
                         </header>
 
-                        <div className="p-3 md:p-5 overflow-y-auto flex-1 custom-scrollbar">
+                        <div className="custom-scrollbar flex-1 overflow-y-auto px-3 pb-24 pt-3 md:px-5 md:pb-6 md:pt-5">
                             {fetching ? (
                                 <div className="flex items-center justify-center min-h-[300px]">
                                     <Loader2 className="w-8 h-8 animate-spin text-white" />
                                 </div>
                             ) : (
                                 <form id="create-drop-form" onSubmit={handleSubmit(onSubmit, onError)} className="space-y-3">
-                                    <div className="glass-panel p-3.5 rounded-3xl space-y-3 shadow-lg border-white/5 bg-white/[0.02]">
+                                    <FormSectionCard
+                                        title="Basics"
+                                        summary={cleanBasicsSummary}
+                                        open={basicsOpen}
+                                        onToggle={() => setBasicsOpen((current) => !current)}
+                                    >
+                                        <div className="space-y-3">
                                         <div className="grid gap-3 sm:grid-cols-2">
                                             <div className="space-y-1">
                                                 <label className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Creator name</label>
@@ -651,7 +755,8 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                                 ))}
                                             </div>
                                         </div>
-                                    </div>
+                                        </div>
+                                    </FormSectionCard>
 
                                     {duplicateWarnings.length > 0 ? (
                                         <div className="rounded-3xl border border-amber-400/20 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">
@@ -693,10 +798,15 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                         errors={errors}
                                     />
 
-                                    <div className="glass-panel p-3.5 rounded-3xl space-y-3 shadow-lg border-white/5 bg-white/[0.02]">
-                                        <h3 className="text-sm font-bold text-white">Pricing & Schedule</h3>
-
-                                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                    <FormSectionCard
+                                        title="Pricing & Schedule"
+                                        summary={cleanPricingSummary}
+                                        open={pricingOpen}
+                                        onToggle={() => setPricingOpen((current) => !current)}
+                                        icon={<DollarSign className="h-4 w-4 text-brand-purple" />}
+                                    >
+                                        <div className="space-y-3">
+                                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                             <div className="space-y-1">
                                                 <label className="text-xs font-bold text-gray-500 flex items-center gap-1 uppercase">
                                                     <DollarSign className="w-3 h-3" /> Cost (Drops)
@@ -747,7 +857,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                             </div>
                                         </div>
 
-                                        <label className="flex items-start gap-3 rounded-2xl border border-white/10 bg-black/30 px-3.5 py-3 text-sm text-gray-300">
+                                            <label className="flex items-start gap-3 rounded-2xl border border-white/10 bg-black/30 px-3.5 py-3 text-sm text-gray-300">
                                             <input
                                                 {...register("autoQueueOnExpire")}
                                                 type="checkbox"
@@ -759,12 +869,18 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                                     Automatically add this drop back into the admin queue once its live window ends.
                                                 </span>
                                             </span>
-                                        </label>
-                                    </div>
+                                            </label>
+                                        </div>
+                                    </FormSectionCard>
 
                                     {dropType !== "content" && (
-                                        <div className="glass-panel p-4 rounded-3xl space-y-3 animate-in fade-in zoom-in-95 shadow-lg border-white/5 bg-white/[0.02]">
-                                            <h3 className="text-xs font-bold text-gray-500 uppercase">Action Settings</h3>
+                                        <FormSectionCard
+                                            title="Action Settings"
+                                            summary={cleanActionSummary}
+                                            open={actionSettingsOpen}
+                                            onToggle={() => setActionSettingsOpen((current) => !current)}
+                                            icon={<Calendar className="h-4 w-4 text-brand-purple" />}
+                                        >
                                             <div className="space-y-3">
                                                 <div>
                                                     <label className="text-xs text-gray-400 mb-1 block">Button Text</label>
@@ -785,13 +901,13 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                                     />
                                                 </div>
                                             </div>
-                                        </div>
+                                        </FormSectionCard>
                                     )}
                                 </form>
                             )}
                         </div>
 
-                        <div className="p-4 md:p-6 border-t border-white/10 shrink-0 bg-black/50 backdrop-blur-md">
+                        <div className="shrink-0 border-t border-white/10 bg-black/65 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-4 backdrop-blur-md md:px-6 md:pb-6">
                             <button
                                 type="submit"
                                 form="create-drop-form"
