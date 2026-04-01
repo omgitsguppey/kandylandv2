@@ -122,7 +122,17 @@ function buildCreatorLifecycleEvents(input: {
   before: NonNullable<ReturnType<typeof normalizeCreatorOnboardingCanonicalRecord>>;
   after: NonNullable<ReturnType<typeof normalizeCreatorOnboardingCanonicalRecord>>;
 }) {
-  const events: string[] = [];
+  const events: Array<
+    | "creator_legal_sent"
+    | "creator_legal_signed"
+    | "creator_id_requested"
+    | "creator_id_verified"
+    | "creator_id_rejected"
+    | "creator_segment_assigned"
+    | "creator_approved"
+    | "creator_rejected"
+    | "creator_needs_changes"
+  > = [];
 
   if (input.before.legalStatus !== input.after.legalStatus) {
     if (input.after.legalStatus === "legal_sent") {
@@ -162,6 +172,40 @@ function buildCreatorLifecycleEvents(input: {
   }
 
   return events;
+}
+
+async function emitCreatorLifecycleTelemetry(
+  events: ReturnType<typeof buildCreatorLifecycleEvents>,
+  userId: string,
+) {
+  await Promise.allSettled(events.map((eventName) => {
+    const payload = {
+      page_path: `/admin/user/${userId}`,
+    };
+
+    switch (eventName) {
+      case "creator_legal_sent":
+        return trackServerEvent("creator_legal_sent", payload, userId);
+      case "creator_legal_signed":
+        return trackServerEvent("creator_legal_signed", payload, userId);
+      case "creator_id_requested":
+        return trackServerEvent("creator_id_requested", payload, userId);
+      case "creator_id_verified":
+        return trackServerEvent("creator_id_verified", payload, userId);
+      case "creator_id_rejected":
+        return trackServerEvent("creator_id_rejected", payload, userId);
+      case "creator_segment_assigned":
+        return trackServerEvent("creator_segment_assigned", payload, userId);
+      case "creator_approved":
+        return trackServerEvent("creator_approved", payload, userId);
+      case "creator_rejected":
+        return trackServerEvent("creator_rejected", payload, userId);
+      case "creator_needs_changes":
+        return trackServerEvent("creator_needs_changes", payload, userId);
+      default:
+        return Promise.resolve();
+    }
+  }));
 }
 
 type UserCommerceMetrics = {
@@ -1030,7 +1074,7 @@ export async function PUT(request: NextRequest) {
       label: authResult?.email ?? authResult?.uid ?? "Admin",
     };
     const nowMs = Date.now();
-    let creatorLifecycleEvents: string[] = [];
+    let creatorLifecycleEvents: ReturnType<typeof buildCreatorLifecycleEvents> = [];
     let creatorOnboardingDiagnostic: CreatorOnboardingDiagnosticEntry | null = null;
 
     if (creatorApplicationUpdate) {
@@ -1312,11 +1356,7 @@ export async function PUT(request: NextRequest) {
       });
     }
 
-    await Promise.allSettled(
-      creatorLifecycleEvents.map((eventName) => trackServerEvent(eventName, {
-        page_path: `/admin/user/${userId}`,
-      }, userId)),
-    );
+    await emitCreatorLifecycleTelemetry(creatorLifecycleEvents, userId);
 
     return NextResponse.json({ success: true });
   } catch (error) {
