@@ -52,6 +52,8 @@ export default async function Image({ params }: { params: { id: string } }) {
                 fontFamily: "sans-serif"
             }}>
                 {drop.imageUrl && (
+                    // next/og renders server-side image markup here; next/image is not supported in ImageResponse.
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img
                         alt=""
                         src={drop.imageUrl}

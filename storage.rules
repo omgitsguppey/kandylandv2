@@ -5,9 +5,21 @@ service firebase.storage {
       return request.auth != null;
     }
 
+    function isOwnAvatar(fileName) {
+      return isSignedIn()
+        && fileName.matches('^' + request.auth.uid + '\\.[A-Za-z0-9]+$');
+    }
+
+    function isValidAvatarUpload() {
+      return request.resource != null
+        && request.resource.size <= 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
     match /avatars/{fileName} {
-      allow read: if isSignedIn();
-      allow write: if isSignedIn() && fileName.matches(request.auth.uid + '\\..*');
+      allow read: if isOwnAvatar(fileName);
+      allow write: if isOwnAvatar(fileName)
+        && (request.resource == null || isValidAvatarUpload());
     }
 
     match /creator/messages/{allPaths=**} {
