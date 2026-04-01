@@ -1,0 +1,7 @@
+## 2026-03-24 - Identifying Frontend Performance Bottlenecks
+**Learning:** React component memoization with `useMemo` is used heavily in lists like `DropGrid.tsx` and `DashboardClient.tsx`, and `DropCard.tsx`. However, the calculation of `aspectRatio` is repeated across components, and computing metrics inside render functions (e.g. `getDropMediaSummary` inside `DropCard.tsx` and `OwnedDropGalleryCard.tsx`) could be optimized if it is frequently called.
+**Action:** Investigate the frontend performance bottlenecks, especially in lists rendering Drop cards, to find opportunities to reduce redundant calculations.
+
+## 2026-03-24 - Drop Metadata Cache Opportunities
+**Learning:** Functions like `getDropMediaSummary` and `getSupportedDropAspectRatio` heavily use Regex or array iterations on the same strings and fallback logic (like parsing dimensions with `match(/^(\d+)\s*[xX:]\s*(\d+)$/)` and classifying URL types). These are repeatedly evaluated inside React component `useMemo` hooks, meaning the work scales linearly with Drop component counts on every initial render or data refresh. We can memoize or cache these results at the module level.
+**Action:** Implement a small, simple LRU-style cache or a plain Map inside `drop-presentation.ts` so `getSupportedDropAspectRatio` and `getDropMediaSummary` do not redundantly process identical strings or objects. Alternatively, we can memoize the results of `getSupportedDropAspectRatio` by the `drop.fileMetadata?.dimensions` string, and `getDropMediaSummary` by `drop.id`.

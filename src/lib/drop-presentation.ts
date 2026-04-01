@@ -8,9 +8,17 @@ const SUPPORTED_RATIOS: Record<SupportedAspectRatio, number> = {
   "9:16": 9 / 16,
 };
 
+// Simple LRU cache to avoid repetitive RegExp and string processing in render loops
+const dimensionsCache = new Map<string, { width: number; height: number } | null>();
 function parseDimensions(dimensions: string): { width: number; height: number } | null {
+  if (dimensionsCache.has(dimensions)) {
+    return dimensionsCache.get(dimensions) || null;
+  }
+
   const match = dimensions.trim().match(/^(\d+)\s*[xX:]\s*(\d+)$/);
   if (!match) {
+    if (dimensionsCache.size > 1000) dimensionsCache.clear();
+    dimensionsCache.set(dimensions, null);
     return null;
   }
 
@@ -18,10 +26,15 @@ function parseDimensions(dimensions: string): { width: number; height: number } 
   const height = Number(match[2]);
 
   if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
+    if (dimensionsCache.size > 1000) dimensionsCache.clear();
+    dimensionsCache.set(dimensions, null);
     return null;
   }
 
-  return { width, height };
+  const result = { width, height };
+  if (dimensionsCache.size > 1000) dimensionsCache.clear();
+  dimensionsCache.set(dimensions, result);
+  return result;
 }
 
 export function getSupportedDropAspectRatio(drop: Drop): SupportedAspectRatio {
@@ -55,20 +68,33 @@ export function getAspectRatioCssValue(aspectRatio: SupportedAspectRatio): strin
   return aspectRatio.replace(":", " / ");
 }
 
+const urlKindCache = new Map<string, "image" | "video">();
 function classifyUrlKind(url: string, fallbackMimeType?: string): "image" | "video" {
-  const normalizedFallback = fallbackMimeType?.toLowerCase() || "";
-
-  try {
-    const pathname = new URL(url).pathname.toLowerCase();
-    if (pathname.match(/\.(mp4|m4v|mov|webm|ogg|ogv)$/)) return "video";
-    if (pathname.match(/\.(jpg|jpeg|png|gif|webp|heic|bmp|avif)$/)) return "image";
-  } catch {
-    const lowerUrl = url.split("?")[0].toLowerCase();
-    if (lowerUrl.match(/\.(mp4|m4v|mov|webm|ogg|ogv)$/)) return "video";
-    if (lowerUrl.match(/\.(jpg|jpeg|png|gif|webp|heic|bmp|avif)$/)) return "image";
+  const cacheKey = `${url}|${fallbackMimeType || ""}`;
+  if (urlKindCache.has(cacheKey)) {
+    return urlKindCache.get(cacheKey)!;
   }
 
-  return normalizedFallback.startsWith("video/") ? "video" : "image";
+  const processUrl = (): "image" | "video" => {
+    const normalizedFallback = fallbackMimeType?.toLowerCase() || "";
+
+    try {
+      const pathname = new URL(url).pathname.toLowerCase();
+      if (pathname.match(/\.(mp4|m4v|mov|webm|ogg|ogv)$/)) return "video";
+      if (pathname.match(/\.(jpg|jpeg|png|gif|webp|heic|bmp|avif)$/)) return "image";
+    } catch {
+      const lowerUrl = url.split("?")[0].toLowerCase();
+      if (lowerUrl.match(/\.(mp4|m4v|mov|webm|ogg|ogv)$/)) return "video";
+      if (lowerUrl.match(/\.(jpg|jpeg|png|gif|webp|heic|bmp|avif)$/)) return "image";
+    }
+
+    return normalizedFallback.startsWith("video/") ? "video" : "image";
+  };
+
+  const result = processUrl();
+  if (urlKindCache.size > 1000) urlKindCache.clear();
+  urlKindCache.set(cacheKey, result);
+  return result;
 }
 
 export function getDropAssetCount(drop: Pick<Drop, "contentUrl" | "contentUrls" | "mediaCounts">): number {
