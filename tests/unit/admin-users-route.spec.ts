@@ -390,4 +390,90 @@ describe("PUT /api/admin/users", () => {
         const historyPaths = Array.from(mockState.documents.keys()).filter((path) => path.startsWith("creator_onboarding/creator_direct_ready/history/"));
         expect(historyPaths.some((path) => path.includes("creator_role_activated_"))).toBe(true);
     });
+
+    it("tracks legal, id, and needs-changes transitions canonically for admin review actions", async () => {
+        seedCreatorApplicant({
+            userId: "creator_review_updates",
+            legalStatus: "legal_pending",
+            idVerificationStatus: "id_not_requested",
+            segmentationStatus: "segment_unassigned",
+        });
+
+        const existingProjection = mockState.documents.get("users/creator_review_updates")?.creatorApplication as Record<string, unknown>;
+        const request = new NextRequest("http://localhost/api/admin/users", {
+            method: "PUT",
+            body: JSON.stringify({
+                userId: "creator_review_updates",
+                updates: {
+                    creatorApplication: {
+                        ...existingProjection,
+                        legalStatus: "legal_sent",
+                        idVerificationStatus: "id_requested",
+                        approvalStatus: "creator_needs_changes",
+                    },
+                },
+            }),
+        });
+
+        const response = await PUT(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(payload).toMatchObject({ success: true });
+        expect(mockState.documents.get("users/creator_review_updates")).toMatchObject({
+            creatorApplication: expect.objectContaining({
+                legalStatus: "legal_sent",
+                idVerificationStatus: "id_requested",
+                approvalStatus: "creator_needs_changes",
+                legalDocumentSentAt: expect.any(Number),
+                idVerificationRequestedAt: expect.any(Number),
+            }),
+        });
+        const historyPaths = Array.from(mockState.documents.keys()).filter((path) => path.startsWith("creator_onboarding/creator_review_updates/history/"));
+        expect(historyPaths.some((path) => path.includes("legal_sent_"))).toBe(true);
+        expect(historyPaths.some((path) => path.includes("id_requested_"))).toBe(true);
+        expect(historyPaths.some((path) => path.includes("creator_needs_changes_"))).toBe(true);
+        expect(mockState.trackServerEvent).toHaveBeenCalledWith("creator_legal_sent", expect.any(Object), "creator_review_updates");
+        expect(mockState.trackServerEvent).toHaveBeenCalledWith("creator_id_requested", expect.any(Object), "creator_review_updates");
+        expect(mockState.trackServerEvent).toHaveBeenCalledWith("creator_needs_changes", expect.any(Object), "creator_review_updates");
+    });
+
+    it("tracks creator rejection canonically without activating creator tools", async () => {
+        seedCreatorApplicant({
+            userId: "creator_rejected_case",
+            legalStatus: "legal_signed",
+            idVerificationStatus: "id_verified",
+            segmentationStatus: "segment_assigned",
+        });
+
+        const existingProjection = mockState.documents.get("users/creator_rejected_case")?.creatorApplication as Record<string, unknown>;
+        const request = new NextRequest("http://localhost/api/admin/users", {
+            method: "PUT",
+            body: JSON.stringify({
+                userId: "creator_rejected_case",
+                updates: {
+                    creatorApplication: {
+                        ...existingProjection,
+                        approvalStatus: "creator_rejected",
+                    },
+                },
+            }),
+        });
+
+        const response = await PUT(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(payload).toMatchObject({ success: true });
+        expect(mockState.documents.get("users/creator_rejected_case")).toMatchObject({
+            role: "user",
+            creatorApplication: expect.objectContaining({
+                approvalStatus: "creator_rejected",
+                blockingReasons: expect.arrayContaining(["approval_rejected"]),
+            }),
+        });
+        const historyPaths = Array.from(mockState.documents.keys()).filter((path) => path.startsWith("creator_onboarding/creator_rejected_case/history/"));
+        expect(historyPaths.some((path) => path.includes("creator_rejected_"))).toBe(true);
+        expect(mockState.trackServerEvent).toHaveBeenCalledWith("creator_rejected", expect.any(Object), "creator_rejected_case");
+    });
 });

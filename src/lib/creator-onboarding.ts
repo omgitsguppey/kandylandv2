@@ -253,6 +253,23 @@ export type CreatorOnboardingBlockingReasonDetail = {
     severity: "info" | "warn" | "error";
 };
 
+export type CreatorOnboardingStatusSummary = {
+    label: string;
+    summary: string;
+};
+
+type CreatorOnboardingStatusSummaryInput = Pick<
+    CreatorOnboardingProjectionState,
+    | "submissionStatus"
+    | "approvalStatus"
+    | "idVerificationStatus"
+    | "legalStatus"
+    | "segmentationStatus"
+> & {
+    blockingReasons?: CreatorOnboardingBlockingReason[];
+    readyForApproval?: boolean;
+};
+
 function readString(value: unknown) {
     return typeof value === "string" ? value.trim() : "";
 }
@@ -569,6 +586,85 @@ export function describeCreatorOnboardingBlockingReason(
                 severity: "warn",
             };
     }
+}
+
+function formatStatusLabel(value: string | undefined) {
+    return value ? value.replaceAll("_", " ") : "waiting";
+}
+
+export function getCreatorOnboardingStatusSummary(
+    value: CreatorOnboardingStatusSummaryInput | null | undefined,
+): CreatorOnboardingStatusSummary {
+    if (!value) {
+        return {
+            label: "waiting",
+            summary: "Your creator application is still being prepared.",
+        };
+    }
+
+    if (value.approvalStatus === "creator_needs_changes") {
+        return {
+            label: formatStatusLabel(value.approvalStatus),
+            summary: "Admin requested changes before this creator application can move forward.",
+        };
+    }
+
+    if (value.approvalStatus === "creator_rejected") {
+        return {
+            label: formatStatusLabel(value.approvalStatus),
+            summary: "This creator application was rejected and will stay out of creator tools until admin reopens it.",
+        };
+    }
+
+    if (value.approvalStatus === "creator_approved") {
+            const roleBlocked = (value.blockingReasons ?? []).includes("role_activation_blocked");
+        return {
+            label: formatStatusLabel(value.approvalStatus),
+            summary: roleBlocked
+                ? "Approval is recorded, but the creator role cannot activate until the remaining review requirements are resolved."
+                : "Approval is recorded and your creator access is being finalized.",
+        };
+    }
+
+    if (value.readyForApproval) {
+        return {
+            label: "ready for approval",
+            summary: "Legal, ID, and segment requirements are complete. Your application is waiting for final admin approval.",
+        };
+    }
+
+    if (value.idVerificationStatus === "id_requested" || value.idVerificationStatus === "id_rejected") {
+        return {
+            label: formatStatusLabel(value.idVerificationStatus),
+            summary: "Your next step is to upload your ID from this page so admin can continue the review.",
+        };
+    }
+
+    if (value.idVerificationStatus === "id_submitted") {
+        return {
+            label: formatStatusLabel(value.idVerificationStatus),
+            summary: "Your ID is uploaded and waiting for manual review.",
+        };
+    }
+
+    if (value.legalStatus !== "legal_signed") {
+        return {
+            label: formatStatusLabel(value.legalStatus),
+            summary: "Legal documents still need to be sent and signed before creator approval can finish.",
+        };
+    }
+
+    if (value.segmentationStatus !== "segment_assigned") {
+        return {
+            label: formatStatusLabel(value.segmentationStatus),
+            summary: "Admin still needs to assign your creator segment before final approval.",
+        };
+    }
+
+    return {
+        label: formatStatusLabel(value.submissionStatus),
+        summary: "Your creator application is waiting in the manual review queue.",
+    };
 }
 
 export function deriveCreatorReviewQueueBucket(input: {

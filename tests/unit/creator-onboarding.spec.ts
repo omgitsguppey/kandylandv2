@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
     describeCreatorOnboardingBlockingReason,
     deriveCanonicalCreatorOnboardingStatuses,
+    getCreatorOnboardingStatusSummary,
     normalizeCreatorOnboardingApprovalStatus,
     normalizeCreatorOnboardingHistoryEntry,
     normalizeCreatorOnboardingIdStatus,
@@ -65,6 +66,34 @@ describe("creator onboarding contract", () => {
         expect(describeCreatorOnboardingBlockingReason("role_activation_blocked")).toMatchObject({
             label: "Role activation blocked",
             severity: "error",
+        });
+    });
+
+    it("builds creator waitlist status messaging from canonical backend state", () => {
+        expect(getCreatorOnboardingStatusSummary({
+            submissionStatus: "awaiting_manual_review",
+            approvalStatus: "creator_pending",
+            idVerificationStatus: "id_requested",
+            legalStatus: "legal_pending",
+            segmentationStatus: "segment_unassigned",
+            blockingReasons: ["awaiting_legal", "awaiting_id_submission", "awaiting_segment_assignment"],
+            readyForApproval: false,
+        })).toMatchObject({
+            label: "id requested",
+            summary: "Your next step is to upload your ID from this page so admin can continue the review.",
+        });
+
+        expect(getCreatorOnboardingStatusSummary({
+            submissionStatus: "awaiting_manual_review",
+            approvalStatus: "creator_approved",
+            idVerificationStatus: "id_verified",
+            legalStatus: "legal_signed",
+            segmentationStatus: "segment_assigned",
+            blockingReasons: ["role_activation_blocked"],
+            readyForApproval: false,
+        })).toMatchObject({
+            label: "creator approved",
+            summary: "Approval is recorded, but the creator role cannot activate until the remaining review requirements are resolved.",
         });
     });
 

@@ -9,7 +9,10 @@ import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { authFetch } from "@/lib/authFetch";
-import { describeCreatorOnboardingBlockingReason } from "@/lib/creator-onboarding";
+import {
+    describeCreatorOnboardingBlockingReason,
+    getCreatorOnboardingStatusSummary,
+} from "@/lib/creator-onboarding";
 
 function formatStatusLabel(value: string | undefined) {
     if (!value) {
@@ -20,15 +23,7 @@ function formatStatusLabel(value: string | undefined) {
 }
 
 function getPrimaryStatusLabel(value: NonNullable<ReturnType<typeof useAuth>["userProfile"]>["creatorApplication"] | undefined) {
-    if (!value) {
-        return "Waiting";
-    }
-
-    if (value.approvalStatus !== "creator_pending") {
-        return formatStatusLabel(value.approvalStatus);
-    }
-
-    return formatStatusLabel(value.submissionStatus);
+    return getCreatorOnboardingStatusSummary(value).label;
 }
 
 export default function CreatorWaitlistPage() {
@@ -41,6 +36,7 @@ export default function CreatorWaitlistPage() {
         || creatorApplication?.idVerificationStatus === "id_rejected";
     const blockingReasonDetails = (creatorApplication?.blockingReasons ?? [])
         .map((reason) => describeCreatorOnboardingBlockingReason(reason));
+    const statusSummary = getCreatorOnboardingStatusSummary(creatorApplication);
 
     const handleIdUpload = async () => {
         if (!selectedIdFile) {
@@ -137,7 +133,7 @@ export default function CreatorWaitlistPage() {
                                 You&apos;re in line for creator review
                             </h1>
                             <p className="mt-4 max-w-2xl text-sm leading-7 text-gray-300 sm:text-base">
-                                We will be in contact soon. Your creator signup is held in a separate review lane so legal documents, ID verification, and manual segmenting can happen before any fan onboarding or creator tools are turned on.
+                                {statusSummary.summary}
                             </p>
 
                             <div className="mt-6 grid gap-4 md:grid-cols-[1.1fr_0.9fr]">
