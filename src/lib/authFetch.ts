@@ -54,7 +54,8 @@ export async function authFetch(url: string, options: RequestInit = {}): Promise
     if (appCheckToken) {
         headers.set("X-Firebase-AppCheck", appCheckToken);
     }
-    if (!headers.has("Content-Type") && options.body) {
+    const hasFormDataBody = typeof FormData !== "undefined" && options.body instanceof FormData;
+    if (!headers.has("Content-Type") && options.body && !hasFormDataBody) {
         headers.set("Content-Type", "application/json");
     }
 

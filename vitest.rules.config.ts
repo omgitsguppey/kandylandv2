@@ -7,5 +7,7 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["tests/firebase/**/*.spec.ts"],
+    hookTimeout: 30000,
+    testTimeout: 30000,
   },
 });

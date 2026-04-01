@@ -1,36 +1,19 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
-import { authFetch } from "@/lib/authFetch";
-import { toast } from "sonner";
-import { Loader2, ArrowLeft, ArrowUp, ArrowDown, Save, Clock, Calendar, RefreshCw, Trash2, GripVertical } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { ArrowDown, ArrowLeft, ArrowUp, Calendar, Clock3, Edit, Loader2, RefreshCw, Save, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { collection, getDocs } from "firebase/firestore";
+import NextImage from "next/image";
+
+import { authFetch } from "@/lib/authFetch";
+import { toast } from "sonner";
 import { db } from "@/lib/firebase-data";
 import { Drop } from "@/types/db";
-import NextImage from "next/image";
-import { APP_TIMEZONE } from "@/lib/timezone";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { buildProjectedQueueSchedule } from "@/lib/drop-queue-schedule";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
-
-const PROJECTED_DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
-    timeZone: APP_TIMEZONE,
-    month: "short",
-    day: "numeric",
-});
-const PROJECTED_TIME_FORMATTER = new Intl.DateTimeFormat("en-US", {
-    timeZone: APP_TIMEZONE,
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-});
-
-function formatProjectedSlot(timestamp: number) {
-    const dateLabel = PROJECTED_DATE_FORMATTER.format(new Date(timestamp));
-    const timeLabel = PROJECTED_TIME_FORMATTER.format(new Date(timestamp));
-    return `${dateLabel} @ ${timeLabel}`;
-}
+import { formatAdminCompactDateTime, formatAdminTimeLabel } from "@/lib/admin-drop-formatting";
 
 interface QueueConfig {
     queue: string[];
@@ -39,39 +22,87 @@ interface QueueConfig {
     timesPerDay: string[];
 }
 
+function IconControl({
+    label,
+    onClick,
+    icon: Icon,
+    disabled = false,
+    tone = "neutral",
+}: {
+    label: string;
+    onClick: () => void;
+    icon: typeof ArrowUp;
+    disabled?: boolean;
+    tone?: "neutral" | "danger";
+}) {
+    return (
+        <button
+            type="button"
+            aria-label={label}
+            title={label}
+            onClick={onClick}
+            disabled={disabled}
+            className={[
+                "inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-black/45 transition-colors disabled:opacity-35",
+                tone === "danger"
+                    ? "text-red-300 hover:border-red-400/20 hover:bg-red-500/10"
+                    : "text-gray-200 hover:border-white/15 hover:bg-white/8",
+            ].join(" ")}
+        >
+            <Icon className="h-4 w-4" />
+        </button>
+    );
+}
+
+function buildScheduleSummary(config: QueueConfig) {
+    const dropLabel = config.dropsPerDay === 1 ? "drop/day" : "drops/day";
+    const times = config.timesPerDay.slice(0, config.dropsPerDay).map(formatAdminTimeLabel).join(" · ");
+    return `${config.dropsPerDay} ${dropLabel} · ${times} · ${config.cooldownDays}-day cooldown`;
+}
+
+function buildReadableScheduleSummary(config: QueueConfig) {
+    const dropLabel = config.dropsPerDay === 1 ? "drop/day" : "drops/day";
+    const times = config.timesPerDay.slice(0, config.dropsPerDay).map(formatAdminTimeLabel).join(" | ");
+    return `${config.dropsPerDay} ${dropLabel} | ${times} | ${config.cooldownDays}-day cooldown`;
+}
+
 export default function ManageQueuePage() {
     const [config, setConfig] = useState<QueueConfig | null>(null);
     const [drops, setDrops] = useState<Record<string, Drop>>({});
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [scheduleExpanded, setScheduleExpanded] = useState(false);
+    const [queueEditMode, setQueueEditMode] = useState(false);
 
     const fetchQueueData = useCallback(async () => {
         try {
             setError(null);
             const [queueRes, dropsSnap] = await Promise.all([
                 authFetch("/api/admin/queue"),
-                getDocs(collection(db, "drops"))
+                getDocs(collection(db, "drops")),
             ]);
 
-            if (!queueRes.ok) throw new Error("Failed to fetch queue config");
-            const queueData = await queueRes.json() as QueueConfig;
+            if (!queueRes.ok) {
+                throw new Error("Failed to fetch queue config");
+            }
 
+            const queueData = await queueRes.json() as QueueConfig;
             const dropsMap: Record<string, Drop> = {};
-            dropsSnap.forEach((doc) => {
-                dropsMap[doc.id] = { id: doc.id, ...doc.data() } as Drop;
+            dropsSnap.forEach((docSnapshot) => {
+                dropsMap[docSnapshot.id] = { id: docSnapshot.id, ...docSnapshot.data() } as Drop;
             });
 
-            let times = queueData.timesPerDay || ["12:00", "18:00"];
+            let times = queueData.timesPerDay || ["12:00"];
             if (times.length < queueData.dropsPerDay) {
-                times = [...times, ...Array(queueData.dropsPerDay - times.length).fill("12:00")];
+                times = [...times, ...Array(queueData.dropsPerDay - times.length).fill(times[times.length - 1] || "12:00")];
             } else if (times.length > queueData.dropsPerDay) {
                 times = times.slice(0, queueData.dropsPerDay);
             }
 
             setConfig({
                 ...queueData,
-                timesPerDay: times
+                timesPerDay: times,
             });
             setDrops(dropsMap);
             return true;
@@ -92,8 +123,11 @@ export default function ManageQueuePage() {
         void fetchQueueData();
     }, [fetchQueueData]);
 
-    const handleSave = async () => {
-        if (!config) return;
+    const handleSave = useCallback(async () => {
+        if (!config) {
+            return;
+        }
+
         setSaving(true);
         try {
             setError(null);
@@ -101,7 +135,9 @@ export default function ManageQueuePage() {
                 method: "PUT",
                 body: JSON.stringify(config),
             });
-            if (!response.ok) throw new Error("Save failed");
+            if (!response.ok) {
+                throw new Error("Save failed");
+            }
             toast.success("Queue configuration saved!");
         } catch (err: any) {
             console.error(err);
@@ -111,47 +147,60 @@ export default function ManageQueuePage() {
         } finally {
             setSaving(false);
         }
-    };
+    }, [config]);
 
-    const moveDrop = (index: number, direction: 'up' | 'down') => {
+    const moveDrop = useCallback((index: number, direction: "up" | "down") => {
         setConfig((current) => {
-            if (!current) return current;
-            const newQueue = [...current.queue];
-            if (direction === 'up' && index > 0) {
-                [newQueue[index - 1], newQueue[index]] = [newQueue[index], newQueue[index - 1]];
-            } else if (direction === 'down' && index < newQueue.length - 1) {
-                [newQueue[index + 1], newQueue[index]] = [newQueue[index], newQueue[index + 1]];
+            if (!current) {
+                return current;
             }
-            return { ...current, queue: newQueue };
-        });
-    };
 
-    const removeDrop = (index: number) => {
+            const nextQueue = [...current.queue];
+            if (direction === "up" && index > 0) {
+                [nextQueue[index - 1], nextQueue[index]] = [nextQueue[index], nextQueue[index - 1]];
+            } else if (direction === "down" && index < nextQueue.length - 1) {
+                [nextQueue[index + 1], nextQueue[index]] = [nextQueue[index], nextQueue[index + 1]];
+            }
+
+            return { ...current, queue: nextQueue };
+        });
+    }, []);
+
+    const removeDrop = useCallback((index: number) => {
         setConfig((current) => {
-            if (!current) return current;
-            const newQueue = current.queue.filter((_, i) => i !== index);
-            return { ...current, queue: newQueue };
-        });
-    };
+            if (!current) {
+                return current;
+            }
 
-    // Project upcoming drop times from the current queue configuration
+            return {
+                ...current,
+                queue: current.queue.filter((_, position) => position !== index),
+            };
+        });
+    }, []);
+
     const projectedSchedule = useMemo(() => {
-        if (!config || config.queue.length === 0 || config.dropsPerDay <= 0) return [];
+        if (!config || config.queue.length === 0 || config.dropsPerDay <= 0) {
+            return [];
+        }
 
         return buildProjectedQueueSchedule(config.queue.length, config.timesPerDay, Date.now());
     }, [config]);
 
+    const scheduleSummary = useMemo(() => (config ? buildReadableScheduleSummary(config) : ""), [config]);
+    const nextSlotLabel = projectedSchedule[0] ? formatAdminCompactDateTime(projectedSchedule[0]) : null;
+
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-8 h-8 animate-spin text-brand-purple" />
+            <div className="flex min-h-[400px] items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-brand-purple" />
             </div>
         );
     }
 
     if (!config) {
         return (
-            <div className="max-w-4xl mx-auto pb-32">
+            <div className="mx-auto max-w-4xl pb-32">
                 <PageViewEvent eventName="admin_queue_viewed" />
                 <AdminPageHeader
                     eyebrow="Admin Queue"
@@ -177,195 +226,252 @@ export default function ManageQueuePage() {
     }
 
     return (
-        <div className="max-w-4xl mx-auto pb-32">
+        <div className="mx-auto max-w-4xl pb-[calc(env(safe-area-inset-bottom)+6.5rem)] md:pb-28">
             <PageViewEvent eventName="admin_queue_viewed" />
             <AdminPageHeader
                 eyebrow="Admin Queue"
-                topSlot={
+                topSlot={(
                     <Link href="/admin/drops" className="inline-flex items-center gap-2 text-sm font-medium text-gray-400 transition-colors hover:text-white">
-                        <ArrowLeft className="w-4 h-4" /> Back to Drops
+                        <ArrowLeft className="h-4 w-4" /> Back to Drops
                     </Link>
-                }
+                )}
                 title="Manage Queue"
-                subtitle="Configure your automated drop rotation and schedule."
-                actions={
+                subtitle="Keep the automated rotation readable by default, then switch into edit mode only when you need to reorder or remove drops."
+                actions={(
                     <button
+                        type="button"
                         onClick={handleSave}
                         disabled={saving}
-                        className="inline-flex min-h-11 items-center gap-2 rounded-full bg-brand-purple px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 transition-all hover:bg-[#d946ef] disabled:opacity-50"
+                        className="hidden min-h-11 items-center gap-2 rounded-full bg-brand-purple px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 transition-all hover:bg-[#d946ef] disabled:opacity-50 md:inline-flex"
                     >
-                        {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                        {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                         Save Settings
                     </button>
-                }
+                )}
             />
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-1 space-y-4">
-                    <div className="glass-panel p-5 rounded-3xl space-y-4 shadow-lg border-white/5 bg-white/[0.02] sticky top-6">
-                        <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                            <Clock className="w-5 h-5 text-brand-purple" />
-                            Schedule Settings
-                        </h2>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.05fr_1.95fr] lg:gap-6">
+                <section className="glass-panel rounded-[1.9rem] border border-white/10 bg-white/[0.02] p-4 shadow-xl shadow-black/20">
+                    <div className="flex items-start justify-between gap-3">
+                        <div>
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-purple">Schedule Summary</p>
+                            <h2 className="mt-2 text-xl font-black text-white">Auto Queue</h2>
+                            <p className="mt-2 text-sm leading-6 text-gray-400">{scheduleSummary}</p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setScheduleExpanded((current) => !current)}
+                            className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 bg-black/35 px-4 text-xs font-semibold uppercase tracking-[0.14em] text-white transition-colors hover:bg-white/8"
+                        >
+                            <Edit className="h-3.5 w-3.5" />
+                            {scheduleExpanded ? "Done" : "Edit"}
+                        </button>
+                    </div>
 
-                        <div className="space-y-4">
-                            <div className="space-y-1.5">
-                                <label className="text-sm font-bold text-gray-400 block">Drops Per Day</label>
+                    <div className="mt-4 space-y-3 rounded-[1.35rem] border border-white/8 bg-black/30 p-3.5">
+                        <div className="flex items-start gap-2 text-sm text-gray-300">
+                            <Calendar className="mt-0.5 h-4 w-4 shrink-0 text-brand-purple/80" />
+                            <div>
+                                <p className="font-semibold text-white">Next live slot</p>
+                                <p className="mt-1 text-sm text-gray-400">{nextSlotLabel || "Queue is empty right now."}</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start gap-2 text-sm text-gray-300">
+                            <RefreshCw className="mt-0.5 h-4 w-4 shrink-0 text-brand-purple/80" />
+                            <div>
+                                <p className="font-semibold text-white">Cooldown window</p>
+                                <p className="mt-1 text-sm text-gray-400">{config.cooldownDays}-day return cooldown for recycled drops.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {scheduleExpanded ? (
+                        <div className="mt-4 space-y-4 border-t border-white/8 pt-4">
+                            <label className="flex flex-col gap-1.5">
+                                <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Drops per day</span>
                                 <input
                                     type="number"
                                     min="1"
                                     max="10"
                                     value={config.dropsPerDay}
-                                    onChange={(e) => {
-                                        const count = parseInt(e.target.value) || 1;
+                                    onChange={(event) => {
+                                        const count = Math.max(1, parseInt(event.target.value, 10) || 1);
                                         let times = [...config.timesPerDay];
                                         if (times.length < count) {
-                                            times = [...times, ...Array(count - times.length).fill("12:00")];
+                                            times = [...times, ...Array(count - times.length).fill(times[times.length - 1] || "12:00")];
                                         } else if (times.length > count) {
                                             times = times.slice(0, count);
                                         }
                                         setConfig({ ...config, dropsPerDay: count, timesPerDay: times });
                                     }}
-                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-brand-purple/50 shadow-inner"
+                                    className="min-h-11 rounded-2xl border border-white/10 bg-black/40 px-4 text-white outline-none transition-colors focus:border-brand-purple/40"
                                 />
-                            </div>
+                            </label>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-bold text-gray-400 block">Time Slots (CST)</label>
-                                {config.timesPerDay.map((time, idx) => (
-                                    <div key={idx} className="flex items-center gap-2">
-                                        <div className="text-xs text-brand-purple font-mono font-bold w-6">#{idx + 1}</div>
-                                        <input
-                                            type="time"
-                                            value={time}
-                                            onChange={(e) => {
-                                                const newTimes = [...config.timesPerDay];
-                                                newTimes[idx] = e.target.value;
-                                                setConfig({ ...config, timesPerDay: newTimes });
-                                            }}
-                                            className="flex-1 bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-brand-purple/50 shadow-inner [color-scheme:dark]"
-                                        />
-                                    </div>
-                                ))}
+                                <span className="block text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Daily release times</span>
+                                <div className="space-y-2">
+                                    {config.timesPerDay.map((time, index) => (
+                                        <label key={`${time}-${index}`} className="flex items-center gap-3 rounded-2xl border border-white/8 bg-black/35 px-3 py-2.5">
+                                            <span className="w-12 text-xs font-bold uppercase tracking-[0.16em] text-brand-purple">#{index + 1}</span>
+                                            <input
+                                                type="time"
+                                                value={time}
+                                                onChange={(event) => {
+                                                    const nextTimes = [...config.timesPerDay];
+                                                    nextTimes[index] = event.target.value;
+                                                    setConfig({ ...config, timesPerDay: nextTimes });
+                                                }}
+                                                className="w-full bg-transparent text-sm text-white outline-none [color-scheme:dark]"
+                                            />
+                                            <span className="text-xs text-gray-500">{formatAdminTimeLabel(time)}</span>
+                                        </label>
+                                    ))}
+                                </div>
                             </div>
 
-                            <div className="space-y-1.5 pt-2 border-t border-white/10">
-                                <label className="text-sm font-bold text-gray-400 flex items-center gap-1.5">
-                                    <RefreshCw className="w-4 h-4" />
-                                    Return Cooldown (Days)
-                                </label>
-                                <p className="text-xs text-gray-500 mb-2">Wait time before a drop can be re-queued and activated again.</p>
+                            <label className="flex flex-col gap-1.5">
+                                <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Return cooldown (days)</span>
                                 <input
                                     type="number"
                                     min="1"
                                     value={config.cooldownDays}
-                                    onChange={(e) => setConfig({ ...config, cooldownDays: parseInt(e.target.value) || 1 })}
-                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-brand-purple/50 shadow-inner"
+                                    onChange={(event) => setConfig({ ...config, cooldownDays: Math.max(1, parseInt(event.target.value, 10) || 1) })}
+                                    className="min-h-11 rounded-2xl border border-white/10 bg-black/40 px-4 text-white outline-none transition-colors focus:border-brand-purple/40"
                                 />
-                            </div>
+                                <p className="text-xs text-gray-500">How long the system waits before a completed drop can cycle back into the queue.</p>
+                            </label>
                         </div>
+                    ) : null}
+                </section>
+
+                <section className="glass-panel rounded-[1.9rem] border border-white/10 bg-white/[0.02] shadow-xl shadow-black/20">
+                    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/8 px-4 py-4">
+                        <div>
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-purple">Queue Lineup</p>
+                            <h2 className="mt-1 text-xl font-black text-white">{config.queue.length} queued drops</h2>
+                            <p className="mt-1 text-sm text-gray-400">
+                                {queueEditMode ? "Reorder and clean up the queue with the controls below." : "Compact view first, edit mode only when you need to move or remove items."}
+                            </p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setQueueEditMode((current) => !current)}
+                            className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 bg-black/35 px-4 text-xs font-semibold uppercase tracking-[0.14em] text-white transition-colors hover:bg-white/8"
+                        >
+                            <Edit className="h-3.5 w-3.5" />
+                            {queueEditMode ? "Done" : "Edit queue"}
+                        </button>
                     </div>
-                </div>
 
-                <div className="lg:col-span-2">
-                    <div className="glass-panel rounded-3xl overflow-hidden shadow-lg border-white/5 bg-white/[0.02]">
-                        <div className="px-6 py-4 border-b border-white/10 bg-black/20 flex items-center justify-between">
-                            <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                                <Calendar className="w-5 h-5 text-brand-purple" />
-                                Active Queue
-                            </h2>
-                            <span className="text-xs font-bold text-gray-500 bg-black/50 px-3 py-1 rounded-full border border-white/10">
-                                {config.queue.length} items
-                            </span>
-                        </div>
-
-                        <div className="p-4 flex flex-col gap-2">
-                            {config.queue.length === 0 ? (
-                                <div className="text-center py-12 border-2 border-dashed border-white/10 rounded-2xl bg-black/20">
-                                    <RefreshCw className="w-10 h-10 text-gray-600 mx-auto mb-3" />
-                                    <p className="text-gray-400 font-medium">Queue is empty</p>
-                                    <p className="text-sm text-gray-500 mt-1">Add drops to the queue from the Manage Drops page.</p>
-                                </div>
-                            ) : (
-                                config.queue.map((dropId, index) => {
+                    <div className="p-3 md:p-4">
+                        {config.queue.length === 0 ? (
+                            <div className="rounded-[1.5rem] border-2 border-dashed border-white/10 bg-black/20 px-6 py-12 text-center">
+                                <RefreshCw className="mx-auto mb-3 h-10 w-10 text-gray-600" />
+                                <p className="font-medium text-gray-300">Queue is empty</p>
+                                <p className="mt-1 text-sm text-gray-500">Add drops from the Manage Drops page to start building the lineup.</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-2.5">
+                                {config.queue.map((dropId, index) => {
                                     const drop = drops[dropId];
-                                    const sim = projectedSchedule[index];
+                                    const projectedSlot = projectedSchedule[index];
 
                                     if (!drop) {
                                         return (
-                                            <div key={`${dropId}-${index}`} className="flex items-center p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
-                                                Unknown Drop ID: {dropId}
-                                                <button onClick={() => removeDrop(index)} className="ml-auto p-2 hover:bg-red-500/20 rounded-lg">
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
+                                            <div key={`${dropId}-${index}`} className="flex items-center rounded-2xl border border-red-500/20 bg-red-500/10 px-3 py-3 text-sm text-red-300">
+                                                <span className="truncate">Unknown drop ID: {dropId}</span>
+                                                <div className="ml-auto">
+                                                    <IconControl label="Remove missing queue entry" onClick={() => removeDrop(index)} icon={Trash2} tone="danger" />
+                                                </div>
                                             </div>
                                         );
                                     }
 
                                     return (
-                                        <div key={`${dropId}-${index}`} className="group grid grid-cols-[auto_1fr] gap-3 rounded-xl border border-white/5 bg-black/40 p-3 transition-colors hover:bg-white/5 md:grid-cols-[auto_1fr_auto] md:items-center">
-                                            <div className="flex items-center gap-2">
-                                                <div className="hidden rounded-lg p-1.5 text-gray-500 opacity-50 transition-all group-hover:opacity-100 hover:bg-white/5 hover:text-white md:block">
-                                                    <GripVertical className="h-5 w-5" />
-                                                </div>
-                                                <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-zinc-800 shadow-inner md:h-14 md:w-14">
+                                        <div
+                                            key={`${dropId}-${index}`}
+                                            className={[
+                                                "rounded-[1.45rem] border border-white/8 bg-black/35 p-3 transition-colors",
+                                                queueEditMode ? "shadow-[0_14px_28px_rgba(0,0,0,0.16)]" : "hover:bg-white/[0.06]",
+                                            ].join(" ")}
+                                        >
+                                            <div className="flex gap-3">
+                                                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-[1rem] border border-white/10 bg-black/55">
                                                     {drop.imageUrl ? (
                                                         <NextImage src={drop.imageUrl} alt={drop.title} fill sizes="56px" className="object-cover" />
-                                                    ) : null}
+                                                    ) : (
+                                                        <div className="flex h-full w-full items-center justify-center text-xs font-bold text-white">KD</div>
+                                                    )}
                                                 </div>
-                                            </div>
 
-                                            <div className="min-w-0">
-                                                <div className="flex flex-wrap items-center gap-2">
-                                                    <h3 className="truncate text-sm font-bold text-white md:text-base">{drop.title}</h3>
-                                                    <span className="rounded border border-brand-purple/20 bg-brand-purple/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-brand-purple">
-                                                        Slot {index + 1}
-                                                    </span>
-                                                </div>
-                                                <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-400">
-                                                    {sim ? (
-                                                        <span className="flex items-center gap-1 font-medium">
-                                                            <Calendar className="h-3.5 w-3.5 text-brand-purple/70" />
-                                                            {formatProjectedSlot(sim)}
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="flex items-start justify-between gap-2">
+                                                        <div className="min-w-0">
+                                                            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-500">Slot {index + 1}</p>
+                                                            <p className="truncate text-sm font-semibold text-white">{drop.title}</p>
+                                                        </div>
+                                                        <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold text-gray-300">
+                                                            {drop.unlockCost} GD
                                                         </span>
-                                                    ) : null}
-                                                    <span className="truncate">{drop.type || "content"} drop</span>
+                                                    </div>
+
+                                                    <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-400">
+                                                        {projectedSlot ? (
+                                                            <span className="inline-flex items-center gap-1 font-medium text-white">
+                                                                <Calendar className="h-3.5 w-3.5 text-brand-purple/80" />
+                                                                {formatAdminCompactDateTime(projectedSlot)}
+                                                            </span>
+                                                        ) : null}
+                                                        <span className="inline-flex items-center gap-1">
+                                                            <Clock3 className="h-3.5 w-3.5 text-gray-500" />
+                                                            {drop.type || "content"} drop
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
 
-                                            <div className="col-span-full flex items-center justify-between gap-2 border-t border-white/5 pt-2 md:col-span-1 md:justify-end md:border-0 md:pt-0">
-                                                <div className="flex gap-1.5">
-                                                    <button
-                                                        onClick={() => moveDrop(index, 'up')}
+                                            {queueEditMode ? (
+                                                <div className="mt-3 flex items-center justify-end gap-2 border-t border-white/8 pt-3">
+                                                    <IconControl
+                                                        label="Move up"
+                                                        onClick={() => moveDrop(index, "up")}
+                                                        icon={ArrowUp}
                                                         disabled={index === 0}
-                                                        className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/5 text-gray-400 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-30"
-                                                    >
-                                                        <ArrowUp className="h-4 w-4" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => moveDrop(index, 'down')}
+                                                    />
+                                                    <IconControl
+                                                        label="Move down"
+                                                        onClick={() => moveDrop(index, "down")}
+                                                        icon={ArrowDown}
                                                         disabled={index === config.queue.length - 1}
-                                                        className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/5 text-gray-400 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-30"
-                                                    >
-                                                        <ArrowDown className="h-4 w-4" />
-                                                    </button>
+                                                    />
+                                                    <IconControl
+                                                        label="Remove from queue"
+                                                        onClick={() => removeDrop(index)}
+                                                        icon={Trash2}
+                                                        tone="danger"
+                                                    />
                                                 </div>
-                                                <button
-                                                    onClick={() => removeDrop(index)}
-                                                    className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-red-500/10 px-3 text-xs font-bold uppercase tracking-wider text-red-500 transition-colors hover:bg-red-500/20 hover:text-red-300"
-                                                    title="Remove from queue"
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                    <span>Remove</span>
-                                                </button>
-                                            </div>
+                                            ) : null}
                                         </div>
                                     );
-                                })
-                            )}
-                        </div>
+                                })}
+                            </div>
+                        )}
                     </div>
-                </div>
+                </section>
+            </div>
+
+            <div className="fixed inset-x-4 bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] z-20 md:hidden">
+                <button
+                    type="button"
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-5 text-sm font-bold text-white shadow-[0_18px_40px_rgba(236,72,153,0.28)] transition-colors hover:bg-[#d946ef] disabled:opacity-50"
+                >
+                    {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                    Save Queue Settings
+                </button>
             </div>
         </div>
     );
