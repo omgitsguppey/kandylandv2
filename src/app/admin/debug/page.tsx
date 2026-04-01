@@ -270,6 +270,7 @@ export default function DebugConsole() {
                 <StatCard label="Receipts 7d" value={data?.stats?.receiptsLast7d ?? "--"} meta={`${data?.stats?.completedEventsLast7d ?? 0} completions`} />
                 <StatCard label="Bug reports 7d" value={data?.stats?.bugReportsLast7d ?? "--"} meta={`${data?.bugReports?.length ?? 0} loaded`} />
                 <StatCard label="Users with issues" value={data?.stats?.usersWithTaskIssues ?? "--"} meta="Task assignment integrity" />
+                <StatCard label="Creator issues" value={data?.stats?.creatorOnboardingIssues ?? "--"} meta={`${data?.creatorOnboardingDiagnostics?.summary?.missingQueueCount ?? 0} missing queue`} />
                 <StatCard label="Orchestration" value={data?.orchestration ? `${data.orchestration.summary.score}%` : "--"} meta={`${data?.stats?.orchestrationOpenFindings ?? 0} open findings`} />
             </div>
 
@@ -985,6 +986,68 @@ export default function DebugConsole() {
                             <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4"><p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Pipeline</p><p className="mt-2 text-xl font-black text-white">{data?.opsHealth?.pipeline?.failureCount ?? 0}</p><p className="mt-1 text-sm text-gray-400">Last failure {formatRelative(data?.opsHealth?.pipeline?.lastFailureAt)}</p></div>
                             <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4"><p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Diagnostics</p><p className="mt-2 text-xl font-black text-white">{data?.opsHealth?.diagnostics?.errorCount ?? 0}</p><p className="mt-1 text-sm text-gray-400">Errors in recent sample</p></div>
                             <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4"><p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Materializers</p><p className="mt-2 text-xl font-black text-white">{(data?.opsHealth?.materializers || []).length}</p><p className="mt-1 text-sm text-gray-400">Tracked downstream writers</p></div>
+                        </div>
+                    </Section>
+
+                    <Section
+                        title="Creator onboarding diagnostics"
+                        subtitle="Live cross-checks between user projections, canonical onboarding sources, and the admin review queue so creator applicants cannot disappear into silent limbo."
+                        defaultOpen
+                        summary={
+                            <>
+                                <Pill label="Issues" value={data?.creatorOnboardingDiagnostics?.summary?.totalIssues ?? 0} tone={(data?.creatorOnboardingDiagnostics?.summary?.totalIssues ?? 0) > 0 ? "warn" : "good"} />
+                                <Pill label="Missing queue" value={data?.creatorOnboardingDiagnostics?.summary?.missingQueueCount ?? 0} tone={(data?.creatorOnboardingDiagnostics?.summary?.missingQueueCount ?? 0) > 0 ? "bad" : "good"} />
+                                <Pill label="Role mismatch" value={data?.creatorOnboardingDiagnostics?.summary?.roleMismatchCount ?? 0} tone={(data?.creatorOnboardingDiagnostics?.summary?.roleMismatchCount ?? 0) > 0 ? "warn" : "good"} />
+                            </>
+                        }
+                    >
+                        <div className="grid gap-4 lg:grid-cols-3">
+                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Missing queue</p>
+                                <p className="mt-2 text-xl font-black text-white">{data?.creatorOnboardingDiagnostics?.summary?.missingQueueCount ?? 0}</p>
+                                <p className="mt-1 text-sm text-gray-400">Canonical onboarding exists but roster review queue materialization is missing.</p>
+                            </div>
+                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Missing source</p>
+                                <p className="mt-2 text-xl font-black text-white">{(data?.creatorOnboardingDiagnostics?.summary?.missingSourceCount ?? 0) + (data?.creatorOnboardingDiagnostics?.summary?.projectionWithoutSourceCount ?? 0)}</p>
+                                <p className="mt-1 text-sm text-gray-400">Queue or user projection exists without a canonical onboarding source-of-truth record.</p>
+                            </div>
+                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Blocked limbo</p>
+                                <p className="mt-2 text-xl font-black text-white">{(data?.creatorOnboardingDiagnostics?.summary?.stuckAwaitingReviewCount ?? 0) + (data?.creatorOnboardingDiagnostics?.summary?.roleMismatchCount ?? 0)}</p>
+                                <p className="mt-1 text-sm text-gray-400">Creators waiting with no blockers or with role/approval mismatch that needs manual attention.</p>
+                            </div>
+                        </div>
+
+                        <div className="mt-4 rounded-[1rem] border border-white/10 bg-white/[0.03]">
+                            <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
+                                <div>
+                                    <p className="font-semibold text-white">Current creator onboarding issues</p>
+                                    <p className="text-xs text-gray-400">These checks run against live backend state on every debug load.</p>
+                                </div>
+                                <Pill label="Rows" value={(data?.creatorOnboardingDiagnostics?.issues || []).length} />
+                            </div>
+                            <div className="divide-y divide-white/10">
+                                {(data?.creatorOnboardingDiagnostics?.issues || []).length === 0 ? (
+                                    <div className="px-4 py-6 text-sm text-gray-300">No creator onboarding anomalies are currently detected.</div>
+                                ) : (
+                                    (data?.creatorOnboardingDiagnostics?.issues || []).slice(0, 12).map((issue: any) => (
+                                        <div key={`${issue.key}-${issue.userId}`} className="space-y-2 px-4 py-3">
+                                            <div className="flex flex-wrap items-start justify-between gap-2">
+                                                <div>
+                                                    <p className="font-semibold text-white">{issue.message}</p>
+                                                    <p className="text-xs text-gray-400">{issue.creatorDisplayName} · {issue.userId}</p>
+                                                </div>
+                                                <Pill label="Severity" value={issue.severity} tone={issue.severity === "error" ? "bad" : "warn"} />
+                                            </div>
+                                            <p className="text-sm text-gray-300">{issue.detail}</p>
+                                            <a href={issue.link} className="text-xs font-semibold text-brand-purple hover:text-white">
+                                                Open creator record
+                                            </a>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
                         </div>
                     </Section>
 

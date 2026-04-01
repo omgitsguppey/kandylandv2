@@ -14,8 +14,10 @@ import {
 import { handleApiError } from "@/lib/server/auth";
 import { ensureCreatorOnboardingSubmission, CREATOR_REVIEW_QUEUE_COLLECTION } from "@/lib/server/creator-onboarding";
 import { adminDb } from "@/lib/server/firebase-admin";
+import { trackServerEvent } from "@/lib/server/analytics";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 
 type RosterRole = "user" | "creator" | "admin";
 type RosterStatus = "active" | "suspended" | "banned";
@@ -256,7 +258,7 @@ export async function GET(request: NextRequest) {
             .filter((entry) => !queueIds.has(entry.id));
 
         if (repairCandidates.length > 0) {
-            await Promise.allSettled(repairCandidates.map((entry) => ensureCreatorOnboardingSubmission({
+            const repairResults = await Promise.allSettled(repairCandidates.map((entry) => ensureCreatorOnboardingSubmission({
                 userId: entry.id,
                 email: typeof entry.raw.email === "string" ? entry.raw.email : null,
                 displayName: typeof entry.raw.displayName === "string" ? entry.raw.displayName : entry.creatorApplication?.creatorDisplayName,
@@ -268,6 +270,45 @@ export async function GET(request: NextRequest) {
                 creatorPrimaryPlatform: entry.creatorApplication?.creatorPrimaryPlatform,
                 creatorContentFocus: entry.creatorApplication?.creatorContentFocus,
             })));
+
+            await Promise.allSettled(repairResults.map((result, index) => {
+                const entry = repairCandidates[index];
+                if (!entry) {
+                    return Promise.resolve();
+                }
+
+                if (result.status === "rejected") {
+                    return recordServerDiagnostic({
+                        channel: "creator_onboarding",
+                        severity: "error",
+                        message: "Creator review queue backfill failed",
+                        detail: {
+                            userId: entry.id,
+                            error: result.reason instanceof Error ? result.reason.message : String(result.reason),
+                        },
+                    });
+                }
+
+                if (!result.value.created) {
+                    return Promise.resolve();
+                }
+
+                return Promise.allSettled([
+                    trackServerEvent("creator_admin_queue_materialized", {
+                        page_path: "/admin/roster",
+                        repair_source: "legacy_creator_application_projection",
+                    }, entry.id),
+                    recordServerDiagnostic({
+                        channel: "creator_onboarding",
+                        severity: "warn",
+                        message: "Creator review queue was backfilled from a legacy creator projection",
+                        detail: {
+                            userId: entry.id,
+                            creatorDisplayName: entry.creatorApplication?.creatorDisplayName || "Creator",
+                        },
+                    }),
+                ]);
+            }));
         }
 
         const queueSnapshot = repairCandidates.length > 0

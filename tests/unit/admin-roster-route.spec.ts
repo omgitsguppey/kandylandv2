@@ -53,6 +53,8 @@ const mockState = vi.hoisted(() => {
         },
         guardApiRequest: vi.fn(),
         handleApiError: vi.fn(),
+        trackServerEvent: vi.fn(async () => undefined),
+        recordServerDiagnostic: vi.fn(async () => undefined),
         ensureCreatorOnboardingSubmission: vi.fn(async (input: {
             userId: string;
             creatorDisplayName: string;
@@ -88,6 +90,8 @@ const mockState = vi.hoisted(() => {
             queueDocs.length = 0;
             this.guardApiRequest.mockReset();
             this.handleApiError.mockReset();
+            this.trackServerEvent.mockReset();
+            this.recordServerDiagnostic.mockReset();
             this.ensureCreatorOnboardingSubmission.mockClear();
         },
     };
@@ -103,6 +107,14 @@ vi.mock("@/lib/server/request-guard", () => ({
 
 vi.mock("@/lib/server/auth", () => ({
     handleApiError: mockState.handleApiError,
+}));
+
+vi.mock("@/lib/server/analytics", () => ({
+    trackServerEvent: mockState.trackServerEvent,
+}));
+
+vi.mock("@/lib/server/server-diagnostics", () => ({
+    recordServerDiagnostic: mockState.recordServerDiagnostic,
 }));
 
 vi.mock("@/lib/server/rate-limit", () => ({
@@ -196,6 +208,11 @@ describe("GET /api/admin/roster", () => {
         expect(mockState.ensureCreatorOnboardingSubmission).toHaveBeenCalledWith(expect.objectContaining({
             userId: "legacy_creator",
             creatorDisplayName: "Legacy Creator",
+        }));
+        expect(mockState.trackServerEvent).toHaveBeenCalledWith("creator_admin_queue_materialized", expect.any(Object), "legacy_creator");
+        expect(mockState.recordServerDiagnostic).toHaveBeenCalledWith(expect.objectContaining({
+            channel: "creator_onboarding",
+            message: "Creator review queue was backfilled from a legacy creator projection",
         }));
         expect(payload.creatorReviewQueue).toHaveLength(1);
         expect(payload.creatorReviewQueue[0]).toMatchObject({

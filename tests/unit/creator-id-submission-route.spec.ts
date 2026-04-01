@@ -101,6 +101,11 @@ const mockState = vi.hoisted(() => {
         handleApiError: vi.fn(),
         trackServerEvent: vi.fn(async () => undefined),
         recordServerDiagnostic: vi.fn(async () => undefined),
+        sendCreatorOnboardingAdminNotification: vi.fn(async () => ({
+            delivered: true,
+            duplicate: false,
+            adminCount: 1,
+        })),
         reset() {
             documents.clear();
             savedFiles.clear();
@@ -116,6 +121,7 @@ const mockState = vi.hoisted(() => {
             this.handleApiError.mockReset();
             this.trackServerEvent.mockReset();
             this.recordServerDiagnostic.mockReset();
+            this.sendCreatorOnboardingAdminNotification.mockReset();
         },
     };
 });
@@ -143,6 +149,10 @@ vi.mock("@/lib/server/analytics", () => ({
 
 vi.mock("@/lib/server/server-diagnostics", () => ({
     recordServerDiagnostic: mockState.recordServerDiagnostic,
+}));
+
+vi.mock("@/lib/server/creator-onboarding-alerts", () => ({
+    sendCreatorOnboardingAdminNotification: mockState.sendCreatorOnboardingAdminNotification,
 }));
 
 import { POST } from "@/app/api/creator/onboarding/id-submission/route";
@@ -229,6 +239,10 @@ describe("POST /api/creator/onboarding/id-submission", () => {
         });
         expect(mockState.fileApi.save).toHaveBeenCalledTimes(1);
         expect(mockState.trackServerEvent).toHaveBeenCalledWith("creator_id_submitted", expect.any(Object), "creator_1");
+        expect(mockState.sendCreatorOnboardingAdminNotification).toHaveBeenCalledWith(expect.objectContaining({
+            eventKey: "creator_id_submitted:creator_1",
+            link: "/admin/user/creator_1",
+        }));
         expect(mockState.documents.get("creator_onboarding/creator_1")).toMatchObject({
             idVerificationStatus: "id_submitted",
         });

@@ -11,6 +11,7 @@ import {
 import { STRICT } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
+import { sendCreatorOnboardingAdminNotification } from "@/lib/server/creator-onboarding-alerts";
 import {
     buildCreatorOnboardingCanonicalRecord,
     normalizeCreatorOnboardingCanonicalRecord,
@@ -191,12 +192,21 @@ export async function POST(request: NextRequest) {
             });
         }
 
-        await trackServerEvent("creator_id_submitted", {
-            page_path: "/creators/waitlist",
-            file_name: file.name,
-            file_type: file.type,
-            file_size_bytes: file.size,
-        }, caller.uid);
+        await Promise.allSettled([
+            trackServerEvent("creator_id_submitted", {
+                page_path: "/creators/waitlist",
+                file_name: file.name,
+                file_type: file.type,
+                file_size_bytes: file.size,
+            }, caller.uid),
+            sendCreatorOnboardingAdminNotification({
+                eventKey: `creator_id_submitted:${caller.uid}`,
+                title: "Creator ID ready for review",
+                message: `${canonical.creatorDisplayName} submitted an ID for manual review.`,
+                link: `/admin/user/${caller.uid}`,
+                type: "warning",
+            }),
+        ]);
 
         return NextResponse.json({
             success: true,

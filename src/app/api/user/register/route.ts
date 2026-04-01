@@ -12,6 +12,7 @@ import { buildSourceAwareBalancePatch, creditSourceAwareGumdrops, normalizeGumdr
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { touchUserRuntime } from "@/lib/server/user-runtime";
 import { ensureCreatorOnboardingSubmission } from "@/lib/server/creator-onboarding";
+import { sendCreatorOnboardingAdminNotification } from "@/lib/server/creator-onboarding-alerts";
 
 function normalizeRegistrationMethod(value: unknown) {
     return value === "google" ? "google" : "email";
@@ -19,6 +20,31 @@ function normalizeRegistrationMethod(value: unknown) {
 
 function normalizeSignupIntent(value: unknown) {
     return value === "creator" ? "creator" : "fan";
+}
+
+async function emitCreatorSubmissionSignals(input: {
+    userId: string;
+    creatorDisplayName: string;
+    queuePosition?: number;
+}) {
+    await Promise.allSettled([
+        trackServerEvent("creator_onboarding_submitted", {
+            page_path: "/api/user/register",
+            creator_display_name: input.creatorDisplayName,
+            queue_position: input.queuePosition ?? 0,
+        }, input.userId),
+        trackServerEvent("creator_admin_queue_materialized", {
+            page_path: "/admin/roster",
+            creator_display_name: input.creatorDisplayName,
+            queue_position: input.queuePosition ?? 0,
+        }, input.userId),
+        sendCreatorOnboardingAdminNotification({
+            eventKey: `creator_onboarding_submitted:${input.userId}`,
+            title: "New creator onboarding submission",
+            message: `${input.creatorDisplayName} is waiting for creator review.`,
+            link: `/admin/user/${input.userId}`,
+        }),
+    ]);
 }
 
 export async function POST(request: NextRequest) {
@@ -131,6 +157,14 @@ export async function POST(request: NextRequest) {
                 })
                 : null;
 
+            if (creatorSubmission?.created) {
+                await emitCreatorSubmissionSignals({
+                    userId: caller.uid,
+                    creatorDisplayName: creatorSubmission.creatorApplication.creatorDisplayName,
+                    queuePosition: creatorSubmission.creatorApplication.queuePosition,
+                });
+            }
+
             return NextResponse.json({
                 success: true,
                 existing: true,
@@ -202,6 +236,14 @@ export async function POST(request: NextRequest) {
                 creatorContentFocus: typeof creatorContentFocus === "string" ? creatorContentFocus : undefined,
             })
             : null;
+
+        if (creatorSubmission?.created) {
+            await emitCreatorSubmissionSignals({
+                userId: caller.uid,
+                creatorDisplayName: creatorSubmission.creatorApplication.creatorDisplayName,
+                queuePosition: creatorSubmission.creatorApplication.queuePosition,
+            });
+        }
 
         // Handle referral logic
         if (!isCreatorSignup && referredBy && typeof referredBy === "string" && referredBy !== caller.uid) {
