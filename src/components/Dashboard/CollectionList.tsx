@@ -42,12 +42,22 @@ export function CollectionList({ drops, userProfile, currentTimeMs }: Collection
         const rawUnlocked = userProfile?.unlockedContent;
         const unlockedList = Array.isArray(rawUnlocked) ? rawUnlocked : [];
         const ids = new Set(unlockedList);
-        const resolvedDrops = drops.map((drop) => applyDropStatus(drop, currentTimeMs));
+
+        const visible: Drop[] = [];
+        let owned = 0;
 
         // Match the public Drops page: locked items only surface while active.
         // Already-unwrapped drops stay visible in the dashboard regardless of lifecycle.
-        const visible = resolvedDrops.filter((drop) => isDropActiveNow(drop, currentTimeMs) || ids.has(drop.id));
-        const owned = visible.filter((drop) => ids.has(drop.id)).length;
+        for (const drop of drops) {
+            const isOwned = ids.has(drop.id);
+            if (isOwned || isDropActiveNow(drop, currentTimeMs)) {
+                visible.push(applyDropStatus(drop, currentTimeMs));
+                if (isOwned) {
+                    owned++;
+                }
+            }
+        }
+
         const locked = visible.length - owned;
 
         return { ownedIds: ids, visibleDrops: visible, ownedCount: owned, lockedCount: locked };
