@@ -1,10 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { adminDb } from "@/lib/server/firebase-admin";
+import { normalizeCreatorApplication } from "@/lib/creator-application";
+import { CREATOR_COLLECTIONS, isCreatorRole } from "@/lib/creator-experiences";
+import {
+    type CreatorOnboardingBlockingReason,
+    type CreatorOnboardingApprovalStatus,
+    type CreatorOnboardingIdStatus,
+    type CreatorOnboardingLegalStatus,
+    type CreatorOnboardingSegmentStatus,
+    type CreatorOnboardingSubmissionStatus,
+    type CreatorReviewQueueBucket,
+} from "@/lib/creator-onboarding";
 import { handleApiError } from "@/lib/server/auth";
+import { ensureCreatorOnboardingSubmission, CREATOR_REVIEW_QUEUE_COLLECTION } from "@/lib/server/creator-onboarding";
+import { adminDb } from "@/lib/server/firebase-admin";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
-import { CREATOR_COLLECTIONS, isCreatorRole } from "@/lib/creator-experiences";
 
 type RosterRole = "user" | "creator" | "admin";
 type RosterStatus = "active" | "suspended" | "banned";
@@ -19,6 +30,24 @@ type RosterEntry = {
     status: RosterStatus;
     isVerified: boolean;
     createdAt: number;
+};
+
+type CreatorReviewQueueRosterEntry = RosterEntry & {
+    creatorDisplayName: string;
+    queueBucket: CreatorReviewQueueBucket;
+    submissionStatus: CreatorOnboardingSubmissionStatus;
+    approvalStatus: CreatorOnboardingApprovalStatus;
+    legalStatus: CreatorOnboardingLegalStatus;
+    idVerificationStatus: CreatorOnboardingIdStatus;
+    segmentationStatus: CreatorOnboardingSegmentStatus;
+    blockingReasons: CreatorOnboardingBlockingReason[];
+    readyForApproval: boolean;
+    creatorReviewQueueVisible: boolean;
+    submittedAt: number;
+    updatedAt: number;
+    legalDocumentUrl?: string;
+    segmentLabel?: string;
+    reviewedBy?: string;
 };
 
 type CreatorOpsAggregate = {
@@ -54,6 +83,20 @@ function toTimestampNumber(value: unknown): number {
     return 0;
 }
 
+function readString(value: unknown) {
+    return typeof value === "string" ? value.trim() : "";
+}
+
+function readBoolean(value: unknown) {
+    return value === true;
+}
+
+function readStringArray(value: unknown) {
+    return Array.isArray(value)
+        ? value.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0)
+        : [];
+}
+
 function buildEmptyCreatorOpsAggregate(): CreatorOpsAggregate {
     return {
         followerCount: 0,
@@ -73,14 +116,76 @@ function buildEmptyCreatorOpsAggregate(): CreatorOpsAggregate {
 function serializeRosterEntry(id: string, raw: Record<string, unknown>): RosterEntry {
     return {
         uid: id,
-        displayName: typeof raw.displayName === "string" && raw.displayName.trim().length > 0 ? raw.displayName.trim() : "Unknown user",
-        email: typeof raw.email === "string" && raw.email.trim().length > 0 ? raw.email.trim() : "",
-        username: typeof raw.username === "string" ? raw.username.trim() : "",
+        displayName: readString(raw.displayName) || "Unknown user",
+        email: readString(raw.email),
+        username: readString(raw.username),
         photoURL: typeof raw.photoURL === "string" ? raw.photoURL : null,
         role: raw.role === "creator" || raw.role === "admin" || raw.role === "user" ? raw.role : "user",
         status: raw.status === "suspended" || raw.status === "banned" || raw.status === "active" ? raw.status : "active",
         isVerified: raw.isVerified === true,
         createdAt: toTimestampNumber(raw.createdAt),
+    };
+}
+
+function serializeQueueEntry(
+    raw: Record<string, unknown>,
+    user: RosterEntry | undefined,
+): CreatorReviewQueueRosterEntry | null {
+    const uid = readString(raw.userId) || user?.uid || "";
+    const creatorDisplayName = readString(raw.creatorDisplayName);
+    if (!uid || !creatorDisplayName) {
+        return null;
+    }
+
+    return {
+        uid,
+        displayName: user?.displayName || readString(raw.displayName) || creatorDisplayName,
+        email: readString(raw.email) || user?.email || "",
+        username: readString(raw.username) || user?.username || "",
+        photoURL: typeof raw.photoURL === "string" ? raw.photoURL : user?.photoURL ?? null,
+        role: user?.role ?? (raw.role === "creator" || raw.role === "admin" || raw.role === "user" ? raw.role : "user"),
+        status: user?.status ?? "active",
+        isVerified: user?.isVerified ?? false,
+        createdAt: user?.createdAt ?? 0,
+        creatorDisplayName,
+        queueBucket: raw.queueBucket === "waiting_on_legal"
+            || raw.queueBucket === "waiting_on_id"
+            || raw.queueBucket === "ready_for_approval"
+            || raw.queueBucket === "needs_changes"
+            || raw.queueBucket === "rejected"
+            || raw.queueBucket === "approved"
+            ? raw.queueBucket
+            : "newest_submissions",
+        submissionStatus: raw.submissionStatus === "onboarding_started"
+            || raw.submissionStatus === "onboarding_submitted"
+            || raw.submissionStatus === "awaiting_manual_review"
+            ? raw.submissionStatus
+            : "awaiting_manual_review",
+        approvalStatus: raw.approvalStatus === "creator_approved"
+            || raw.approvalStatus === "creator_rejected"
+            || raw.approvalStatus === "creator_needs_changes"
+            ? raw.approvalStatus
+            : "creator_pending",
+        legalStatus: raw.legalStatus === "legal_sent" || raw.legalStatus === "legal_signed"
+            ? raw.legalStatus
+            : "legal_pending",
+        idVerificationStatus: raw.idVerificationStatus === "id_requested"
+            || raw.idVerificationStatus === "id_submitted"
+            || raw.idVerificationStatus === "id_verified"
+            || raw.idVerificationStatus === "id_rejected"
+            ? raw.idVerificationStatus
+            : "id_not_requested",
+        segmentationStatus: raw.segmentationStatus === "segment_assigned"
+            ? "segment_assigned"
+            : "segment_unassigned",
+        blockingReasons: readStringArray(raw.blockingReasons) as CreatorOnboardingBlockingReason[],
+        readyForApproval: readBoolean(raw.readyForApproval),
+        creatorReviewQueueVisible: raw.creatorReviewQueueVisible !== false,
+        submittedAt: toTimestampNumber(raw.submittedAt),
+        updatedAt: toTimestampNumber(raw.updatedAt),
+        legalDocumentUrl: readString(raw.legalDocumentUrl) || undefined,
+        segmentLabel: readString(raw.segmentLabel) || undefined,
+        reviewedBy: readString(raw.reviewedBy) || undefined,
     };
 }
 
@@ -120,6 +225,7 @@ export async function GET(request: NextRequest) {
             creatorThreadsSnap,
             creatorAccrualsSnap,
             pendingCreatorDropsSnap,
+            initialQueueSnapshot,
         ] = await Promise.all([
             adminDb.collection("users").orderBy("createdAt", "desc").get(),
             adminDb.collection(CREATOR_COLLECTIONS.relationships).get(),
@@ -130,9 +236,44 @@ export async function GET(request: NextRequest) {
             adminDb.collection(CREATOR_COLLECTIONS.messageThreads).get(),
             adminDb.collection(CREATOR_COLLECTIONS.ledgerAccruals).get(),
             adminDb.collection("drops").where("approvalStatus", "==", "pending_review").get(),
+            adminDb.collection(CREATOR_REVIEW_QUEUE_COLLECTION).orderBy("submittedAt", "desc").get(),
         ]);
 
-        const allUsers = usersSnapshot.docs.map((doc) => serializeRosterEntry(doc.id, doc.data() as Record<string, unknown>));
+        const userDocs = usersSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            raw: doc.data() as Record<string, unknown>,
+        }));
+        const allUsers = userDocs.map((doc) => serializeRosterEntry(doc.id, doc.raw));
+        const userMap = new Map(allUsers.map((entry) => [entry.uid, entry]));
+        const queueIds = new Set(initialQueueSnapshot.docs.map((doc) => doc.id));
+        const repairCandidates = userDocs
+            .map((doc) => ({
+                id: doc.id,
+                raw: doc.raw,
+                creatorApplication: normalizeCreatorApplication(doc.raw.creatorApplication),
+            }))
+            .filter((entry) => entry.creatorApplication)
+            .filter((entry) => !queueIds.has(entry.id));
+
+        if (repairCandidates.length > 0) {
+            await Promise.allSettled(repairCandidates.map((entry) => ensureCreatorOnboardingSubmission({
+                userId: entry.id,
+                email: typeof entry.raw.email === "string" ? entry.raw.email : null,
+                displayName: typeof entry.raw.displayName === "string" ? entry.raw.displayName : entry.creatorApplication?.creatorDisplayName,
+                username: typeof entry.raw.username === "string" ? entry.raw.username : null,
+                photoURL: typeof entry.raw.photoURL === "string" ? entry.raw.photoURL : null,
+                role: entry.raw.role === "creator" || entry.raw.role === "admin" || entry.raw.role === "user" ? entry.raw.role : "user",
+                createdAt: toTimestampNumber(entry.raw.createdAt),
+                creatorDisplayName: entry.creatorApplication?.creatorDisplayName || readString(entry.raw.displayName) || "Creator",
+                creatorPrimaryPlatform: entry.creatorApplication?.creatorPrimaryPlatform,
+                creatorContentFocus: entry.creatorApplication?.creatorContentFocus,
+            })));
+        }
+
+        const queueSnapshot = repairCandidates.length > 0
+            ? await adminDb.collection(CREATOR_REVIEW_QUEUE_COLLECTION).orderBy("submittedAt", "desc").get()
+            : initialQueueSnapshot;
+
         const creatorOpsByUser = new Map<string, CreatorOpsAggregate>();
         const readCreatorOps = (creatorId: string) => {
             const current = creatorOpsByUser.get(creatorId) ?? buildEmptyCreatorOpsAggregate();
@@ -142,7 +283,7 @@ export async function GET(request: NextRequest) {
 
         creatorRelationshipsSnap.docs.forEach((doc) => {
             const raw = doc.data() as Record<string, unknown>;
-            const creatorId = typeof raw.creatorId === "string" ? raw.creatorId : "";
+            const creatorId = readString(raw.creatorId);
             if (!creatorId) {
                 return;
             }
@@ -161,7 +302,7 @@ export async function GET(request: NextRequest) {
 
         creatorSubscriptionsSnap.docs.forEach((doc) => {
             const raw = doc.data() as Record<string, unknown>;
-            const creatorId = typeof raw.creatorId === "string" ? raw.creatorId : "";
+            const creatorId = readString(raw.creatorId);
             if (!creatorId) {
                 return;
             }
@@ -172,7 +313,7 @@ export async function GET(request: NextRequest) {
 
         creatorRequestsSnap.docs.forEach((doc) => {
             const raw = doc.data() as Record<string, unknown>;
-            const creatorId = typeof raw.creatorId === "string" ? raw.creatorId : "";
+            const creatorId = readString(raw.creatorId);
             if (!creatorId) {
                 return;
             }
@@ -183,7 +324,7 @@ export async function GET(request: NextRequest) {
 
         creatorBookingsSnap.docs.forEach((doc) => {
             const raw = doc.data() as Record<string, unknown>;
-            const creatorId = typeof raw.creatorId === "string" ? raw.creatorId : "";
+            const creatorId = readString(raw.creatorId);
             if (!creatorId) {
                 return;
             }
@@ -194,7 +335,7 @@ export async function GET(request: NextRequest) {
 
         creatorPayoutsSnap.docs.forEach((doc) => {
             const raw = doc.data() as Record<string, unknown>;
-            const creatorId = typeof raw.creatorId === "string" ? raw.creatorId : "";
+            const creatorId = readString(raw.creatorId);
             if (!creatorId) {
                 return;
             }
@@ -207,7 +348,7 @@ export async function GET(request: NextRequest) {
 
         creatorThreadsSnap.docs.forEach((doc) => {
             const raw = doc.data() as Record<string, unknown>;
-            const creatorId = typeof raw.creatorId === "string" ? raw.creatorId : "";
+            const creatorId = readString(raw.creatorId);
             if (!creatorId) {
                 return;
             }
@@ -216,7 +357,7 @@ export async function GET(request: NextRequest) {
 
         creatorAccrualsSnap.docs.forEach((doc) => {
             const raw = doc.data() as Record<string, unknown>;
-            const creatorId = typeof raw.creatorId === "string" ? raw.creatorId : "";
+            const creatorId = readString(raw.creatorId);
             if (!creatorId) {
                 return;
             }
@@ -225,11 +366,7 @@ export async function GET(request: NextRequest) {
 
         pendingCreatorDropsSnap.docs.forEach((doc) => {
             const raw = doc.data() as Record<string, unknown>;
-            const creatorId = typeof raw.submittedByCreatorId === "string"
-                ? raw.submittedByCreatorId
-                : typeof raw.creatorId === "string"
-                    ? raw.creatorId
-                    : "";
+            const creatorId = readString(raw.submittedByCreatorId) || readString(raw.creatorId);
             if (!creatorId) {
                 return;
             }
@@ -245,12 +382,20 @@ export async function GET(request: NextRequest) {
                 return left.displayName.localeCompare(right.displayName);
             });
 
+        const creatorReviewQueue = queueSnapshot.docs
+            .map((doc) => serializeQueueEntry(doc.data() as Record<string, unknown>, userMap.get(doc.id)))
+            .filter((entry): entry is CreatorReviewQueueRosterEntry => Boolean(entry))
+            .filter((entry) => entry.creatorReviewQueueVisible)
+            .sort((left, right) => right.submittedAt - left.submittedAt || right.updatedAt - left.updatedAt);
+
+        const hiddenQueueUserIds = new Set(creatorReviewQueue.map((entry) => entry.uid));
         const rosterUserIds = new Set(rosterUsers.map((entry) => entry.uid));
         const creatorUsers = rosterUsers.filter((entry) => entry.role === "creator");
         const searchResults = query.length >= 2
             ? allUsers
                 .filter((entry) => entry.role === "user")
                 .filter((entry) => !rosterUserIds.has(entry.uid))
+                .filter((entry) => !hiddenQueueUserIds.has(entry.uid))
                 .filter((entry) => entry.status !== "banned")
                 .filter((entry) => matchesQuery(entry, query))
                 .slice(0, 8)
@@ -272,11 +417,18 @@ export async function GET(request: NextRequest) {
             pendingDropSubmissions: creatorOpsValues.reduce((sum, entry) => sum + entry.pendingDropSubmissions, 0),
             totalAccruedGd: creatorOpsValues.reduce((sum, entry) => sum + entry.totalAccruedGd, 0),
             pendingCashoutGd: creatorOpsValues.reduce((sum, entry) => sum + entry.pendingCashoutGd, 0),
+            reviewQueueCount: creatorReviewQueue.length,
+            readyForApprovalCount: creatorReviewQueue.filter((entry) => entry.queueBucket === "ready_for_approval").length,
+            waitingOnIdCount: creatorReviewQueue.filter((entry) => entry.queueBucket === "waiting_on_id").length,
+            waitingOnLegalCount: creatorReviewQueue.filter((entry) => entry.queueBucket === "waiting_on_legal").length,
+            needsChangesCount: creatorReviewQueue.filter((entry) => entry.queueBucket === "needs_changes").length,
+            rejectedCount: creatorReviewQueue.filter((entry) => entry.queueBucket === "rejected").length,
         };
 
         return NextResponse.json({
             success: true,
             rosterUsers,
+            creatorReviewQueue,
             searchResults,
             creatorOpsByUser: Object.fromEntries(creatorOpsByUser),
             summary,
