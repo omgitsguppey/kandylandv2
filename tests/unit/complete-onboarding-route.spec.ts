@@ -1,6 +1,16 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+type MockDocRef = {
+    path: string;
+    collection: (name: string) => MockCollectionRef;
+};
+
+type MockCollectionRef = {
+    path: string;
+    doc: (id?: string) => MockDocRef;
+};
+
 const mockState = vi.hoisted(() => {
     let autoId = 0;
     const documents = new Map<string, { exists?: boolean; data?: Record<string, unknown> }>();
@@ -14,7 +24,7 @@ const mockState = vi.hoisted(() => {
         };
     };
 
-    const buildCollectionRef = (path: string): { path: string; doc: (id?: string) => ReturnType<typeof buildDocRef> } => ({
+    const buildCollectionRef = (path: string): MockCollectionRef => ({
         path,
         doc(id?: string) {
             const resolvedId = id ?? `auto_${++autoId}`;
@@ -22,7 +32,7 @@ const mockState = vi.hoisted(() => {
         },
     });
 
-    const buildDocRef = (path: string): { path: string; collection: (name: string) => ReturnType<typeof buildCollectionRef> } => ({
+    const buildDocRef = (path: string): MockDocRef => ({
         path,
         collection(name: string) {
             return buildCollectionRef(`${path}/${name}`);
