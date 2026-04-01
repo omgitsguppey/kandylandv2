@@ -8,10 +8,10 @@ import { PRIVACY_POLICY_VERSION } from "@/lib/privacy-policy";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { parseAdultDateOfBirth } from "@/lib/user-profile-validation";
-import { buildInitialCreatorApplication } from "@/lib/creator-application";
 import { buildSourceAwareBalancePatch, creditSourceAwareGumdrops, normalizeGumdropBalance, readSourceAwareBalance } from "@/lib/gumdrop-ledger";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { touchUserRuntime } from "@/lib/server/user-runtime";
+import { ensureCreatorOnboardingSubmission } from "@/lib/server/creator-onboarding";
 
 function normalizeRegistrationMethod(value: unknown) {
     return value === "google" ? "google" : "email";
@@ -92,29 +92,50 @@ export async function POST(request: NextRequest) {
                 }
             }
 
-            if (isCreatorSignup && (!existingData.creatorApplication || typeof existingData.creatorApplication !== "object")) {
-                profilePatch.creatorApplication = buildInitialCreatorApplication({
+            if (Object.keys(profilePatch).length > 0) {
+                await userRef.set(profilePatch, { merge: true });
+            }
+
+            const creatorSubmission = isCreatorSignup
+                ? await ensureCreatorOnboardingSubmission({
+                    userId: caller.uid,
+                    email: caller.email ?? null,
+                    displayName: typeof displayName === "string" && displayName.trim().length > 0
+                        ? displayName.trim()
+                        : typeof existingData.displayName === "string"
+                            ? existingData.displayName
+                            : "",
+                    username: typeof profilePatch.username === "string"
+                        ? profilePatch.username
+                        : typeof existingData.username === "string"
+                            ? existingData.username
+                            : "",
+                    photoURL: typeof existingData.photoURL === "string" ? existingData.photoURL : null,
+                    role: existingData.role === "creator" || existingData.role === "admin" || existingData.role === "user"
+                        ? existingData.role
+                        : "user",
+                    createdAt: typeof existingData.createdAt === "number" ? existingData.createdAt : Date.now(),
                     creatorDisplayName: typeof creatorDisplayName === "string" && creatorDisplayName.trim().length > 0
                         ? creatorDisplayName.trim()
                         : typeof displayName === "string" && displayName.trim().length > 0
                             ? displayName.trim()
-                            : typeof username === "string" && username.trim().length > 0
-                                ? username.trim()
-                                : "Creator",
+                            : typeof existingData.displayName === "string" && existingData.displayName.trim().length > 0
+                                ? existingData.displayName.trim()
+                                : typeof profilePatch.username === "string" && profilePatch.username.trim().length > 0
+                                    ? profilePatch.username.trim()
+                                    : typeof existingData.username === "string" && existingData.username.trim().length > 0
+                                        ? existingData.username.trim()
+                                        : "Creator",
                     creatorPrimaryPlatform: typeof creatorPrimaryPlatform === "string" ? creatorPrimaryPlatform : undefined,
                     creatorContentFocus: typeof creatorContentFocus === "string" ? creatorContentFocus : undefined,
-                });
-            }
-
-            if (Object.keys(profilePatch).length > 0) {
-                await userRef.set(profilePatch, { merge: true });
-            }
+                })
+                : null;
 
             return NextResponse.json({
                 success: true,
                 existing: true,
                 welcomeBonus: 0,
-                creatorApplication: profilePatch.creatorApplication ?? existingData.creatorApplication ?? null,
+                creatorApplication: creatorSubmission?.creatorApplication ?? existingData.creatorApplication ?? null,
             });
         }
 
@@ -159,8 +180,19 @@ export async function POST(request: NextRequest) {
         };
 
         if (parsedDob?.ok) newProfile.dateOfBirth = parsedDob.value;
-        if (isCreatorSignup) {
-            newProfile.creatorApplication = buildInitialCreatorApplication({
+        await userRef.set(newProfile, { merge: true });
+
+        const creatorSubmission = isCreatorSignup
+            ? await ensureCreatorOnboardingSubmission({
+                userId: caller.uid,
+                email: caller.email ?? null,
+                displayName: typeof displayName === "string" && displayName.trim().length > 0
+                    ? displayName.trim()
+                    : normalizedUsername,
+                username: normalizedUsername,
+                photoURL: null,
+                role: "user",
+                createdAt: Date.now(),
                 creatorDisplayName: typeof creatorDisplayName === "string" && creatorDisplayName.trim().length > 0
                     ? creatorDisplayName.trim()
                     : typeof displayName === "string" && displayName.trim().length > 0
@@ -168,10 +200,8 @@ export async function POST(request: NextRequest) {
                         : normalizedUsername,
                 creatorPrimaryPlatform: typeof creatorPrimaryPlatform === "string" ? creatorPrimaryPlatform : undefined,
                 creatorContentFocus: typeof creatorContentFocus === "string" ? creatorContentFocus : undefined,
-            });
-        }
-
-        await userRef.set(newProfile, { merge: true });
+            })
+            : null;
 
         // Handle referral logic
         if (!isCreatorSignup && referredBy && typeof referredBy === "string" && referredBy !== caller.uid) {
@@ -223,16 +253,14 @@ export async function POST(request: NextRequest) {
                 welcome_bonus_gumdrops: welcomeBonus,
                 has_referral_code: !isCreatorSignup && typeof referredBy === "string" && referredBy.trim().length > 0,
                 page_path: isCreatorSignup ? "/creators/waitlist" : "/dashboard",
-                creator_queue_position: isCreatorSignup && newProfile.creatorApplication && typeof newProfile.creatorApplication === "object"
-                    ? (newProfile.creatorApplication as { queuePosition?: unknown }).queuePosition
-                    : undefined,
+                creator_queue_position: creatorSubmission?.creatorApplication.queuePosition,
             }, caller.uid),
         ]);
 
         return NextResponse.json({
             success: true,
             welcomeBonus,
-            creatorApplication: isCreatorSignup ? newProfile.creatorApplication ?? null : null,
+            creatorApplication: creatorSubmission?.creatorApplication ?? null,
         });
     } catch (error) {
         return handleApiError(error, "User.Register");

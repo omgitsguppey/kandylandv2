@@ -1,4 +1,11 @@
 import type { DailyTasksState } from "@/lib/tasks/task-catalog";
+import type {
+    CreatorOnboardingApprovalStatus,
+    CreatorOnboardingIdStatus,
+    CreatorOnboardingLegalStatus,
+    CreatorOnboardingSegmentStatus,
+    CreatorOnboardingSubmissionStatus,
+} from "@/lib/creator-onboarding";
 
 export type CreatorRequestCategoryConfig = {
     id: string;
@@ -182,25 +189,52 @@ export type CreatorPayoutRequest = {
     reviewNote?: string;
 };
 
-export type CreatorApplicationStatus = "waitlist" | "review" | "approved" | "declined";
+export type CreatorOnboardingBlockingReason =
+    | "awaiting_legal"
+    | "awaiting_id_request"
+    | "awaiting_id_submission"
+    | "awaiting_id_review"
+    | "awaiting_segment_assignment"
+    | "approval_needs_changes"
+    | "approval_rejected"
+    | "role_activation_blocked";
 
-export type CreatorLegalDocumentStatus = "not_sent" | "sent" | "opened" | "signed";
+export type CreatorApplicationStatus = CreatorOnboardingSubmissionStatus;
 
-export type CreatorIdVerificationStatus = "not_requested" | "requested" | "submitted" | "verified" | "rejected";
+export type CreatorLegalDocumentStatus = CreatorOnboardingLegalStatus;
 
-export type CreatorSegmentationStatus = "pending" | "in_review" | "segmented";
+export type CreatorIdVerificationStatus = CreatorOnboardingIdStatus;
+
+export type CreatorSegmentationStatus = CreatorOnboardingSegmentStatus;
+
+export type CreatorApprovalStatus = CreatorOnboardingApprovalStatus;
+
+export type CreatorIdDocumentRecord = {
+    fileName: string;
+    storagePath: string;
+    contentType: string;
+    sizeBytes: number;
+    uploadedAt: number;
+    uploadedByUid: string;
+    reviewNote?: string;
+    reviewedAt?: number;
+};
 
 export type CreatorApplication = {
     signupType: "creator";
-    status: CreatorApplicationStatus;
+    submissionStatus: CreatorApplicationStatus;
+    approvalStatus: CreatorApprovalStatus;
     queuePosition: number;
+    onboardingStartedAt: number;
     submittedAt: number;
+    onboardingSubmittedAt: number;
+    awaitingManualReviewAt: number;
     updatedAt: number;
     creatorDisplayName: string;
     creatorPrimaryPlatform?: string;
     creatorContentFocus?: string;
     bypassFanOnboarding: boolean;
-    legalDocumentStatus: CreatorLegalDocumentStatus;
+    legalStatus: CreatorLegalDocumentStatus;
     legalDocumentUrl?: string;
     legalDocumentSentAt?: number;
     legalDocumentSignedAt?: number;
@@ -208,11 +242,15 @@ export type CreatorApplication = {
     idVerificationRequestedAt?: number;
     idVerificationSubmittedAt?: number;
     idVerificationReviewedAt?: number;
+    idDocument?: CreatorIdDocumentRecord;
     segmentationStatus: CreatorSegmentationStatus;
     segmentLabel?: string;
-    segmentedAt?: number;
+    segmentAssignedAt?: number;
     reviewedBy?: string;
     adminNotes?: string;
+    blockingReasons?: CreatorOnboardingBlockingReason[];
+    readyForApproval?: boolean;
+    creatorReviewQueueVisible?: boolean;
 };
 
 export interface UserProfile {

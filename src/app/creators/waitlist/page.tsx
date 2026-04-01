@@ -15,6 +15,18 @@ function formatStatusLabel(value: string | undefined) {
     return value.replaceAll("_", " ");
 }
 
+function getPrimaryStatusLabel(value: NonNullable<ReturnType<typeof useAuth>["userProfile"]>["creatorApplication"] | undefined) {
+    if (!value) {
+        return "Waiting";
+    }
+
+    if (value.approvalStatus !== "creator_pending") {
+        return formatStatusLabel(value.approvalStatus);
+    }
+
+    return formatStatusLabel(value.submissionStatus);
+}
+
 export default function CreatorWaitlistPage() {
     const { user, userProfile, loading } = useAuth();
     const { openAuthModal } = useUI();
@@ -97,7 +109,7 @@ export default function CreatorWaitlistPage() {
                                         #{(creatorApplication.queuePosition || 0).toLocaleString()}
                                     </p>
                                     <p className="mt-3 text-sm leading-7 text-gray-200">
-                                        Status: <span className="font-semibold capitalize text-white">{formatStatusLabel(creatorApplication.status)}</span>
+                                        Status: <span className="font-semibold capitalize text-white">{getPrimaryStatusLabel(creatorApplication)}</span>
                                     </p>
                                 </div>
 
@@ -140,9 +152,9 @@ export default function CreatorWaitlistPage() {
                                 Legal documents
                             </div>
                             <p className="mt-3 text-sm leading-7 text-gray-400">
-                                {creatorApplication.legalDocumentStatus === "not_sent"
+                                {creatorApplication.legalStatus === "legal_pending"
                                     ? "No documents have been sent yet."
-                                    : `Current status: ${formatStatusLabel(creatorApplication.legalDocumentStatus)}.`}
+                                    : `Current status: ${formatStatusLabel(creatorApplication.legalStatus)}.`}
                             </p>
                         </article>
 
@@ -152,7 +164,7 @@ export default function CreatorWaitlistPage() {
                                 ID verification
                             </div>
                             <p className="mt-3 text-sm leading-7 text-gray-400">
-                                {creatorApplication.idVerificationStatus === "not_requested"
+                                {creatorApplication.idVerificationStatus === "id_not_requested"
                                     ? "ID verification has not been requested yet."
                                     : `Current status: ${formatStatusLabel(creatorApplication.idVerificationStatus)}.`}
                             </p>
@@ -164,7 +176,7 @@ export default function CreatorWaitlistPage() {
                                 Manual segmenting
                             </div>
                             <p className="mt-3 text-sm leading-7 text-gray-400">
-                                {creatorApplication.segmentationStatus === "pending"
+                                {creatorApplication.segmentationStatus === "segment_unassigned"
                                     ? "Your creator segment has not been assigned yet."
                                     : `Current status: ${formatStatusLabel(creatorApplication.segmentationStatus)}.`}
                             </p>

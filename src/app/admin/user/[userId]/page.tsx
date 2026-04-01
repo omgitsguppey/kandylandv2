@@ -173,32 +173,36 @@ const CREATOR_RESTRICTION_FIELDS = [
     { key: "payoutsRestricted", label: "Restrict payouts", description: "Prevents payout requests from being submitted." },
 ] as const satisfies Array<{ key: keyof CreatorRestrictionFlags; label: string; description: string }>;
 
-const CREATOR_APPLICATION_STATUS_OPTIONS = [
-    { value: "waitlist", label: "Waitlist" },
-    { value: "review", label: "In review" },
-    { value: "approved", label: "Approved" },
-    { value: "declined", label: "Declined" },
-] as const satisfies Array<{ value: CreatorApplicationState["status"]; label: string }>;
+const CREATOR_SUBMISSION_STATUS_OPTIONS = [
+    { value: "onboarding_started", label: "Onboarding started" },
+    { value: "onboarding_submitted", label: "Onboarding submitted" },
+    { value: "awaiting_manual_review", label: "Awaiting manual review" },
+] as const satisfies Array<{ value: CreatorApplicationState["submissionStatus"]; label: string }>;
+
+const CREATOR_APPROVAL_STATUS_OPTIONS = [
+    { value: "creator_pending", label: "Pending review" },
+    { value: "creator_approved", label: "Approved" },
+    { value: "creator_rejected", label: "Rejected" },
+    { value: "creator_needs_changes", label: "Needs changes" },
+] as const satisfies Array<{ value: CreatorApplicationState["approvalStatus"]; label: string }>;
 
 const CREATOR_LEGAL_STATUS_OPTIONS = [
-    { value: "not_sent", label: "Not sent" },
-    { value: "sent", label: "Sent" },
-    { value: "opened", label: "Opened" },
-    { value: "signed", label: "Signed" },
-] as const satisfies Array<{ value: CreatorApplicationState["legalDocumentStatus"]; label: string }>;
+    { value: "legal_pending", label: "Pending" },
+    { value: "legal_sent", label: "Sent" },
+    { value: "legal_signed", label: "Signed" },
+] as const satisfies Array<{ value: CreatorApplicationState["legalStatus"]; label: string }>;
 
 const CREATOR_ID_STATUS_OPTIONS = [
-    { value: "not_requested", label: "Not requested" },
-    { value: "requested", label: "Requested" },
-    { value: "submitted", label: "Submitted" },
-    { value: "verified", label: "Verified" },
-    { value: "rejected", label: "Rejected" },
+    { value: "id_not_requested", label: "Not requested" },
+    { value: "id_requested", label: "Requested" },
+    { value: "id_submitted", label: "Submitted" },
+    { value: "id_verified", label: "Verified" },
+    { value: "id_rejected", label: "Rejected" },
 ] as const satisfies Array<{ value: CreatorApplicationState["idVerificationStatus"]; label: string }>;
 
 const CREATOR_SEGMENTATION_STATUS_OPTIONS = [
-    { value: "pending", label: "Pending" },
-    { value: "in_review", label: "In review" },
-    { value: "segmented", label: "Segmented" },
+    { value: "segment_unassigned", label: "Unassigned" },
+    { value: "segment_assigned", label: "Assigned" },
 ] as const satisfies Array<{ value: CreatorApplicationState["segmentationStatus"]; label: string }>;
 
 function getValidationClasses(status: "pass" | "warn" | "fail") {
@@ -233,6 +237,18 @@ function formatRelativeTimestamp(value: unknown) {
 
 function formatCreatorStatusLabel(value: string | undefined) {
     return value ? value.replaceAll("_", " ") : "pending";
+}
+
+function getPrimaryCreatorReviewStatus(value: CreatorApplicationState | null) {
+    if (!value) {
+        return "pending";
+    }
+
+    if (value.approvalStatus !== "creator_pending") {
+        return formatCreatorStatusLabel(value.approvalStatus);
+    }
+
+    return formatCreatorStatusLabel(value.submissionStatus);
 }
 
 function getSupportStateClasses(state: SupportReadinessState) {
@@ -434,8 +450,9 @@ export default function AdminUserAnalyticsPage() {
             }
             trackEvent("creator_application_review_saved", {
                 component_name: "admin_creator_application_panel",
-                application_status: creatorApplicationState.status,
-                legal_document_status: creatorApplicationState.legalDocumentStatus,
+                submission_status: creatorApplicationState.submissionStatus,
+                approval_status: creatorApplicationState.approvalStatus,
+                legal_document_status: creatorApplicationState.legalStatus,
                 id_verification_status: creatorApplicationState.idVerificationStatus,
                 segmentation_status: creatorApplicationState.segmentationStatus,
             });
@@ -918,7 +935,7 @@ export default function AdminUserAnalyticsPage() {
                                 <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
                                     <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Primary platform</p>
                                     <p className="mt-2 text-lg font-black text-white">{creatorApplication.creatorPrimaryPlatform || "Pending"}</p>
-                                    <p className="mt-1 text-xs text-gray-400">Current status: {formatCreatorStatusLabel(creatorApplication.status)}</p>
+                                    <p className="mt-1 text-xs text-gray-400">Current status: {getPrimaryCreatorReviewStatus(creatorApplication)}</p>
                                 </div>
                                 <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
                                     <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Bypass fan onboarding</p>
@@ -943,13 +960,26 @@ export default function AdminUserAnalyticsPage() {
                         <div className="rounded-[1.5rem] border border-white/10 bg-black/25 p-4">
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <label className="space-y-2">
-                                    <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Application status</span>
+                                    <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Submission status</span>
                                     <select
-                                        value={creatorApplication.status}
-                                        onChange={(event) => updateCreatorApplicationField("status", event.target.value as CreatorApplicationState["status"])}
+                                        value={creatorApplication.submissionStatus}
+                                        onChange={(event) => updateCreatorApplicationField("submissionStatus", event.target.value as CreatorApplicationState["submissionStatus"])}
                                         className="w-full rounded-2xl border border-white/10 bg-black/45 px-4 py-3 text-sm text-white outline-none"
                                     >
-                                        {CREATOR_APPLICATION_STATUS_OPTIONS.map((option) => (
+                                        {CREATOR_SUBMISSION_STATUS_OPTIONS.map((option) => (
+                                            <option key={option.value} value={option.value}>{option.label}</option>
+                                        ))}
+                                    </select>
+                                </label>
+
+                                <label className="space-y-2">
+                                    <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Approval state</span>
+                                    <select
+                                        value={creatorApplication.approvalStatus}
+                                        onChange={(event) => updateCreatorApplicationField("approvalStatus", event.target.value as CreatorApplicationState["approvalStatus"])}
+                                        className="w-full rounded-2xl border border-white/10 bg-black/45 px-4 py-3 text-sm text-white outline-none"
+                                    >
+                                        {CREATOR_APPROVAL_STATUS_OPTIONS.map((option) => (
                                             <option key={option.value} value={option.value}>{option.label}</option>
                                         ))}
                                     </select>
@@ -971,8 +1001,8 @@ export default function AdminUserAnalyticsPage() {
                                 <label className="space-y-2">
                                     <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Legal doc state</span>
                                     <select
-                                        value={creatorApplication.legalDocumentStatus}
-                                        onChange={(event) => updateCreatorApplicationField("legalDocumentStatus", event.target.value as CreatorApplicationState["legalDocumentStatus"])}
+                                        value={creatorApplication.legalStatus}
+                                        onChange={(event) => updateCreatorApplicationField("legalStatus", event.target.value as CreatorApplicationState["legalStatus"])}
                                         className="w-full rounded-2xl border border-white/10 bg-black/45 px-4 py-3 text-sm text-white outline-none"
                                     >
                                         {CREATOR_LEGAL_STATUS_OPTIONS.map((option) => (
@@ -1038,7 +1068,9 @@ export default function AdminUserAnalyticsPage() {
                             </div>
 
                             <div className="mt-4 flex flex-wrap gap-2 text-[11px] text-gray-500">
-                                <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1">Legal: {formatCreatorStatusLabel(creatorApplication.legalDocumentStatus)}</span>
+                                <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1">Submission: {formatCreatorStatusLabel(creatorApplication.submissionStatus)}</span>
+                                <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1">Approval: {formatCreatorStatusLabel(creatorApplication.approvalStatus)}</span>
+                                <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1">Legal: {formatCreatorStatusLabel(creatorApplication.legalStatus)}</span>
                                 <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1">ID: {formatCreatorStatusLabel(creatorApplication.idVerificationStatus)}</span>
                                 <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1">Segment: {formatCreatorStatusLabel(creatorApplication.segmentationStatus)}</span>
                             </div>
