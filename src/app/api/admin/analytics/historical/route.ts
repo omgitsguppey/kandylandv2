@@ -22,6 +22,7 @@ import { buildHistoricalTaskAnalytics } from "@/lib/server/admin-analytics-histo
 import { buildHistoricalTrafficOverview } from "@/lib/server/admin-analytics-historical-traffic";
 import { buildHistoricalValidationSummary } from "@/lib/server/admin-analytics-historical-validation";
 import { buildHistoricalViewerOverview } from "@/lib/server/admin-analytics-historical-viewer";
+import { buildHistoricalAnalyticsUserMap } from "@/lib/server/admin-analytics-historical-users";
 import { buildAdminOpsHealth } from "@/lib/server/admin-ops-health";
 import { buildSemanticCategorySummaries } from "@/lib/server/analytics-semantics";
 import { buildAnalyticsMetricReport } from "@/lib/server/analytics-metrics";
@@ -333,21 +334,10 @@ export async function GET(request: NextRequest) {
                 }
             });
 
-            const userMap: Record<string, { username: string, photoURL: string }> = {};
-            const uidArray = Array.from(userUids);
-            if (uidArray.length > 0) {
-                for (let i = 0; i < uidArray.length; i += 30) {
-                    const chunk = uidArray.slice(i, i + 30);
-                    const usersSnapshot = await adminDb.collection("users").where("__name__", "in", chunk).get();
-                    usersSnapshot.docs.forEach((doc: any) => {
-                        const data = doc.data();
-                        userMap[doc.id] = {
-                            username: data.username || data.displayName || "Unknown User",
-                            photoURL: data.photoURL || ""
-                        };
-                    });
-                }
-            }
+            const userMap = await buildHistoricalAnalyticsUserMap({
+                usersCollection: adminDb.collection("users"),
+                userIds: userUids,
+            });
 
             const telemetryLogs = Object.values(telemetryLogsByEvent).flat().sort((left, right) => right.timestamp - left.timestamp);
             const telemetryEventCounts = Object.fromEntries(
