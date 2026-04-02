@@ -1,7 +1,7 @@
 "use client";
 
 import { Drop } from "@/types/db";
-import { useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { DropCard } from "./DropCard";
 import { PromoCard } from "./PromoCard";
@@ -20,7 +20,7 @@ interface DropGridProps {
     impressionTrackingSessionId?: string;
 }
 
-export function DropGrid({
+export const DropGrid = memo(function DropGrid({
     drops: propDrops,
     loading: propLoading,
     isSearching,
@@ -151,4 +151,4 @@ export function DropGrid({
             })}
         </div>
     );
-}
+});
