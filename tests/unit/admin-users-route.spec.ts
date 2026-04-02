@@ -18,6 +18,27 @@ type MockCollectionRef = {
     doc: (id: string) => MockDocRef;
 };
 
+function assertNoUndefinedDeep(value: unknown, path = "root") {
+    if (value === undefined) {
+        throw new Error(`Firestore write contains undefined at ${path}`);
+    }
+
+    if (Array.isArray(value)) {
+        value.forEach((entry, index) => {
+            assertNoUndefinedDeep(entry, `${path}[${index}]`);
+        });
+        return;
+    }
+
+    if (!value || typeof value !== "object") {
+        return;
+    }
+
+    Object.entries(value as Record<string, unknown>).forEach(([key, entry]) => {
+        assertNoUndefinedDeep(entry, `${path}.${key}`);
+    });
+}
+
 const mockState = vi.hoisted(() => {
     const documents = new Map<string, Record<string, unknown>>();
 
@@ -63,6 +84,7 @@ const mockState = vi.hoisted(() => {
                     }));
                 },
                 set(ref: MockDocRef, data: unknown, options?: { merge?: boolean }) {
+                    assertNoUndefinedDeep(data, ref.path);
                     const current = options?.merge ? (documents.get(ref.path) ?? {}) : {};
                     documents.set(ref.path, {
                         ...current,
@@ -469,5 +491,45 @@ describe("PUT /api/admin/users", () => {
         const historyPaths = Array.from(mockState.documents.keys()).filter((path) => path.startsWith("creator_onboarding/creator_rejected_case/history/"));
         expect(historyPaths.some((path) => path.includes("creator_rejected_"))).toBe(true);
         expect(mockState.trackServerEvent).toHaveBeenCalledWith("creator_rejected", expect.any(Object), "creator_rejected_case");
+    });
+
+    it("saves the full creator intake payload without leaking undefined fields into Firestore writes", async () => {
+        seedCreatorApplicant({
+            userId: "creator_full_save",
+            legalStatus: "legal_sent",
+            idVerificationStatus: "id_submitted",
+            segmentationStatus: "segment_unassigned",
+        });
+
+        const existingProjection = mockState.documents.get("users/creator_full_save")?.creatorApplication as Record<string, unknown>;
+        const request = new NextRequest("http://localhost/api/admin/users", {
+            method: "PUT",
+            body: JSON.stringify({
+                userId: "creator_full_save",
+                updates: {
+                    creatorApplication: {
+                        ...existingProjection,
+                        approvalStatus: "creator_needs_changes",
+                        adminNotes: "Need a clearer legal packet acknowledgment before approval.",
+                    },
+                },
+            }),
+        });
+
+        const response = await PUT(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(payload).toMatchObject({ success: true });
+        expect(mockState.documents.get("users/creator_full_save")).toMatchObject({
+            creatorApplication: expect.objectContaining({
+                approvalStatus: "creator_needs_changes",
+                adminNotes: "Need a clearer legal packet acknowledgment before approval.",
+            }),
+        });
+        expect(mockState.documents.get("creator_onboarding/creator_full_save")).toMatchObject({
+            approvalStatus: "creator_needs_changes",
+            adminNotes: "Need a clearer legal packet acknowledgment before approval.",
+        });
     });
 });

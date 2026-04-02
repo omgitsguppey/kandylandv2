@@ -26,6 +26,38 @@ export type CreatorOnboardingActor = {
     label: string;
 };
 
+function stripUndefinedDeep<T>(value: T): T {
+    if (value === undefined) {
+        return value;
+    }
+
+    if (Array.isArray(value)) {
+        return value
+            .map((entry) => stripUndefinedDeep(entry))
+            .filter((entry) => entry !== undefined) as T;
+    }
+
+    if (!value || typeof value !== "object") {
+        return value;
+    }
+
+    const prototype = Object.getPrototypeOf(value);
+    if (prototype !== Object.prototype && prototype !== null) {
+        return value;
+    }
+
+    const sanitizedEntries = Object.entries(value as Record<string, unknown>)
+        .flatMap(([key, entry]) => {
+            if (entry === undefined) {
+                return [];
+            }
+
+            return [[key, stripUndefinedDeep(entry)]];
+        });
+
+    return Object.fromEntries(sanitizedEntries) as T;
+}
+
 function readString(value: unknown) {
     return typeof value === "string" ? value.trim() : "";
 }
@@ -117,7 +149,7 @@ export function recordCreatorOnboardingHistoryEntries(
 ) {
     const historyCollection = adminDb.collection(CREATOR_ONBOARDING_COLLECTION).doc(userId).collection(CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION);
     entries.forEach(({ id, entry }) => {
-        transaction.set(historyCollection.doc(id), entry, { merge: true });
+        transaction.set(historyCollection.doc(id), stripUndefinedDeep(entry), { merge: true });
     });
 }
 
@@ -228,11 +260,11 @@ export function syncCreatorOnboardingDocuments(
         displayName: input.displayName,
     });
 
-    transaction.set(onboardingRef, input.canonical, { merge: true });
-    transaction.set(queueRef, queueEntry, { merge: true });
-    transaction.set(userRef, {
+    transaction.set(onboardingRef, stripUndefinedDeep(input.canonical), { merge: true });
+    transaction.set(queueRef, stripUndefinedDeep(queueEntry), { merge: true });
+    transaction.set(userRef, stripUndefinedDeep({
         creatorApplication,
-    }, { merge: true });
+    }), { merge: true });
 
     return {
         creatorApplication,
@@ -324,7 +356,7 @@ export async function ensureCreatorOnboardingSubmission(input: {
             }).forEach(({ id, entry }) => {
                 transaction.set(
                     onboardingRef.collection(CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION).doc(id),
-                    entry,
+                    stripUndefinedDeep(entry),
                     { merge: true },
                 );
             });
