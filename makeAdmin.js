@@ -29,7 +29,7 @@ async function makeAdmin() {
         console.log("Found user:", user.uid);
         await db.collection("users").doc(user.uid).update({ role: "admin" });
         console.log("Success! Granted admin to " + email);
-    } catch (err) {
+    } catch {
         // If not by email, let's just query the db
         console.log("Trying to find by email in DB...");
         const snapshot = await db.collection("users").where("email", "==", email).get();
