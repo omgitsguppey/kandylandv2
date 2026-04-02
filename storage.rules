@@ -16,14 +16,19 @@ service firebase.storage {
         && request.resource.contentType.matches('image/.*');
     }
 
+    function isOwnCreatorMessagePath(userId) {
+      return isSignedIn()
+        && request.auth.uid == userId;
+    }
+
     match /avatars/{fileName} {
       allow read: if isOwnAvatar(fileName);
       allow write: if isOwnAvatar(fileName)
         && (request.resource == null || isValidAvatarUpload());
     }
 
-    match /creator/messages/{allPaths=**} {
-      allow read, write: if isSignedIn();
+    match /creator/messages/{userId}/{allPaths=**} {
+      allow read, write: if isOwnCreatorMessagePath(userId);
     }
 
     match /drops/{allPaths=**} {

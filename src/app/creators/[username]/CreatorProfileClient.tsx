@@ -309,11 +309,11 @@ export default function CreatorProfileClient() {
     };
 
     const uploadMessageAttachment = async () => {
-        if (!messageFile) {
+        if (!messageFile || !currentUser) {
             return null;
         }
 
-        const storageRef = ref(storage, `creator/messages/${Date.now()}_${messageFile.name}`);
+        const storageRef = ref(storage, `creator/messages/${currentUser.uid}/${Date.now()}_${messageFile.name}`);
         await uploadBytes(storageRef, messageFile, {
             contentType: messageFile.type || "application/octet-stream",
         });

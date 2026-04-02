@@ -14,6 +14,8 @@ let testEnv: RulesTestEnvironment;
 const AVATAR_PATH = "avatars/alice.png";
 const DELETE_PATH = "avatars/alice.webp";
 const CREATOR_ID_PATH = "creator-onboarding/alice/id/government-id.png";
+const CREATOR_MESSAGE_PATH = "creator/messages/alice/thread-1/upload.png";
+const LEGACY_CREATOR_MESSAGE_PATH = "creator/messages/upload.png";
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
 
 type StorageLike = {
@@ -121,6 +123,34 @@ describe("storage.rules", () => {
     const storage = testEnv.authenticatedContext("alice").storage();
     await assertFails(
       uploadStringWithRules(storage, CREATOR_ID_PATH, "private-id", "image/png"),
+    );
+  });
+
+  it("allows the uploader to read and write their own creator message attachment path", async () => {
+    const storage = testEnv.authenticatedContext("alice").storage();
+    await assertSucceeds(
+      uploadStringWithRules(storage, CREATOR_MESSAGE_PATH, "message-asset", "image/png"),
+    );
+    await assertSucceeds(storage.ref(CREATOR_MESSAGE_PATH).getDownloadURL());
+  });
+
+  it("blocks other authenticated users from reading another user's creator message attachment path", async () => {
+    await seedAvatar(CREATOR_MESSAGE_PATH, "message-asset", "image/png");
+    const storage = testEnv.authenticatedContext("bob").storage();
+    await assertFails(storage.ref(CREATOR_MESSAGE_PATH).getDownloadURL());
+  });
+
+  it("blocks other authenticated users from writing another user's creator message attachment path", async () => {
+    const storage = testEnv.authenticatedContext("bob").storage();
+    await assertFails(
+      uploadStringWithRules(storage, CREATOR_MESSAGE_PATH, "message-asset", "image/png"),
+    );
+  });
+
+  it("blocks legacy unscoped creator message attachment paths", async () => {
+    const storage = testEnv.authenticatedContext("alice").storage();
+    await assertFails(
+      uploadStringWithRules(storage, LEGACY_CREATOR_MESSAGE_PATH, "message-asset", "image/png"),
     );
   });
 });
