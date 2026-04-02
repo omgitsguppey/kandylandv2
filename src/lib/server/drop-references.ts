@@ -7,6 +7,17 @@ export type DropReference = {
   imageUrl?: string;
 };
 
+type DropReferenceDocSnapshot = {
+  id: string;
+  data: () => Record<string, unknown>;
+};
+
+type DropReferenceCollection = {
+  where: (fieldPath: string, opStr: string, value: string[]) => {
+    get: () => Promise<{ docs: DropReferenceDocSnapshot[] }>;
+  };
+};
+
 function normalizeDropReference(id: string, raw: Record<string, unknown>): DropReference {
   return {
     id,
@@ -16,28 +27,49 @@ function normalizeDropReference(id: string, raw: Record<string, unknown>): DropR
   };
 }
 
-export async function getDropReferenceMap(dropIds: string[]): Promise<Record<string, DropReference>> {
+function chunkIds(ids: string[], chunkSize: number) {
+  const chunks: string[][] = [];
+
+  for (let index = 0; index < ids.length; index += chunkSize) {
+    chunks.push(ids.slice(index, index + chunkSize));
+  }
+
+  return chunks;
+}
+
+export async function buildDropReferenceMapForIds({
+  dropsCollection,
+  dropIds,
+  chunkSize = 30,
+}: {
+  dropsCollection: DropReferenceCollection;
+  dropIds: string[];
+  chunkSize?: number;
+}): Promise<Record<string, DropReference>> {
   const uniqueIds = Array.from(new Set(dropIds.map((id) => id.trim()).filter(Boolean)));
   if (uniqueIds.length === 0) {
     return {};
   }
 
+  // Chunked "in" queries reduce Firestore round-trips versus one doc.get per drop ID.
   const snapshots = await Promise.all(
-    uniqueIds.map(async (dropId) => {
-      const snapshot = await adminDb.collection("drops").doc(dropId).get();
-      if (!snapshot.exists) {
-        return null;
-      }
-
-      return normalizeDropReference(snapshot.id, snapshot.data() as Record<string, unknown>);
-    }),
+    chunkIds(uniqueIds, chunkSize).map((chunk) =>
+      dropsCollection.where("__name__", "in", chunk).get(),
+    ),
   );
 
   return Object.fromEntries(
-    snapshots
-      .filter((entry): entry is DropReference => !!entry)
-      .map((entry) => [entry.id, entry]),
+    snapshots.flatMap((snapshot) =>
+      snapshot.docs.map((doc) => [doc.id, normalizeDropReference(doc.id, doc.data())] as const),
+    ),
   );
+}
+
+export async function getDropReferenceMap(dropIds: string[]): Promise<Record<string, DropReference>> {
+  return buildDropReferenceMapForIds({
+    dropsCollection: adminDb.collection("drops"),
+    dropIds,
+  });
 }
 
 export async function getAllDropReferenceMap(): Promise<Record<string, DropReference>> {
