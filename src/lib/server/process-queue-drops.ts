@@ -34,6 +34,7 @@ export async function buildQueuedDropsMap<
             refsChunk.push(input.createRef(input.dropIds[index]!));
         }
 
+        // Resolve independent queue chunks together so cron work is not serialized on Firestore I/O.
         fetchTasks.push((async () => {
             const docs = refsChunk.length > 0 ? await input.getAll(...refsChunk) : [];
 

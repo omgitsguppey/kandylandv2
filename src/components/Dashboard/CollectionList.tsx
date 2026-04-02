@@ -38,36 +38,54 @@ export function CollectionList({ drops, userProfile, currentTimeMs }: Collection
     const [filter, setFilter] = useState<"all" | "owned" | "locked">("all");
     const router = useRouter();
 
-    const { ownedIds, visibleDrops, ownedCount, lockedCount } = useMemo(() => {
+    const { ownedIds, visibleDrops, ownedDrops, lockedDrops, ownedCount, lockedCount } = useMemo(() => {
         const rawUnlocked = userProfile?.unlockedContent;
         const unlockedList = Array.isArray(rawUnlocked) ? rawUnlocked : [];
         const ids = new Set(unlockedList);
 
         const visible: Drop[] = [];
+        const ownedVisible: Drop[] = [];
+        const lockedVisible: Drop[] = [];
         let owned = 0;
 
         // Match the public Drops page: locked items only surface while active.
         // Already-unwrapped drops stay visible in the dashboard regardless of lifecycle.
         for (const drop of drops) {
             const isOwned = ids.has(drop.id);
-            if (isOwned || isDropActiveNow(drop, currentTimeMs)) {
-                visible.push(applyDropStatus(drop, currentTimeMs));
-                if (isOwned) {
-                    owned++;
-                }
+            if (!isOwned && !isDropActiveNow(drop, currentTimeMs)) {
+                continue;
+            }
+
+            // Resolve status only after the drop survives visibility checks so we avoid
+            // cloning objects that would be filtered out immediately afterward.
+            const resolvedDrop = applyDropStatus(drop, currentTimeMs);
+            visible.push(resolvedDrop);
+
+            if (isOwned) {
+                ownedVisible.push(resolvedDrop);
+                owned++;
+            } else {
+                lockedVisible.push(resolvedDrop);
             }
         }
 
         const locked = visible.length - owned;
 
-        return { ownedIds: ids, visibleDrops: visible, ownedCount: owned, lockedCount: locked };
+        return {
+            ownedIds: ids,
+            visibleDrops: visible,
+            ownedDrops: ownedVisible,
+            lockedDrops: lockedVisible,
+            ownedCount: owned,
+            lockedCount: locked,
+        };
     }, [currentTimeMs, drops, userProfile?.unlockedContent]);
 
-    const filteredDrops = useMemo(() => {
-        if (filter === "owned") return visibleDrops.filter((drop) => ownedIds.has(drop.id));
-        if (filter === "locked") return visibleDrops.filter((drop) => !ownedIds.has(drop.id));
-        return visibleDrops;
-    }, [visibleDrops, filter, ownedIds]);
+    const filteredDrops = filter === "owned"
+        ? ownedDrops
+        : filter === "locked"
+            ? lockedDrops
+            : visibleDrops;
 
     return (
         <div className="space-y-4">

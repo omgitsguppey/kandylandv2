@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 const LATENCY_MS = 10;
+const LATENCY_PER_USERNAME_MS = 0.25;
 const AVAILABILITY_BATCH_SIZE = 10;
 const SUFFIX_MIN = 2;
 const SUFFIX_MAX = 100;
@@ -113,7 +114,9 @@ describe("username suggestion benchmark", () => {
         const optimizedStart = performance.now();
         const optimizedSuggestion = await optimizedGenerateSuggestion(candidates, async (usernames) => {
             optimizedQueries += 1;
-            await delay(LATENCY_MS);
+            // Batched availability checks still pay a small per-username cost,
+            // but avoid the full round-trip overhead for every single candidate.
+            await delay(LATENCY_MS + (usernames.length * LATENCY_PER_USERNAME_MS));
             return new Map(usernames.map((username) => [username, username === targetUsername]));
         });
         const optimizedDuration = performance.now() - optimizedStart;

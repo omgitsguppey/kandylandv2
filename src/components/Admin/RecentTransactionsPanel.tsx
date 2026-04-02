@@ -1,15 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistance } from "date-fns";
 import { collection, limit, onSnapshot, orderBy, query } from "firebase/firestore";
 
 import { useAdminOverview } from "@/hooks/useAdminOverview";
+import { useNow } from "@/hooks/useNow";
 import { db } from "@/lib/firebase-data";
 import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 import type { Transaction } from "@/types/db";
-
-const INITIAL_TRANSACTIONS_NOW = Date.now();
 
 type DisplayTransaction = Transaction & { username?: string };
 
@@ -53,7 +52,7 @@ function toDisplayTransaction(
  */
 export function RecentTransactionsPanel() {
     const { data } = useAdminOverview();
-    const [nowMs, setNowMs] = useState(INITIAL_TRANSACTIONS_NOW);
+    const nowMs = useNow({ intervalMs: 60_000 });
     const [liveTransactions, setLiveTransactions] = useState<DisplayTransaction[] | null>(null);
     const fallbackTransactions = useMemo(
         () => (data?.recentTransactions || []) as DisplayTransaction[],
@@ -64,14 +63,6 @@ export function RecentTransactionsPanel() {
         [fallbackTransactions],
     );
     const transactions = liveTransactions ?? fallbackTransactions;
-
-    useEffect(() => {
-        const interval = window.setInterval(() => {
-            setNowMs(Date.now());
-        }, 60_000);
-
-        return () => window.clearInterval(interval);
-    }, []);
 
     useEffect(() => {
         const recentTransactionsQuery = query(
@@ -114,7 +105,10 @@ export function RecentTransactionsPanel() {
                 ) : transactions.map((tx) => {
                     const timestamp = typeof tx.timestamp === "number" && tx.timestamp > 0
                         ? tx.timestamp
-                        : toTimestampNumber(tx.timestamp) || nowMs;
+                        : toTimestampNumber(tx.timestamp);
+                    const relativeLabel = timestamp > 0 && nowMs > 0
+                        ? formatDistance(timestamp, nowMs, { addSuffix: true })
+                        : "Just now";
                     return (
                         <details key={tx.id} className="rounded-2xl border border-white/5 bg-black/30 p-3">
                             <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
@@ -124,7 +118,7 @@ export function RecentTransactionsPanel() {
                                 </div>
                                 <div className="text-right">
                                     <div className="text-sm font-mono text-brand-purple">{tx.amount > 0 ? "+" : ""}{tx.amount}</div>
-                                    <div className="text-[10px] text-gray-500">{formatDistanceToNow(timestamp, { addSuffix: true })}</div>
+                                    <div className="text-[10px] text-gray-500">{relativeLabel}</div>
                                 </div>
                             </summary>
                             <div className="mt-2 rounded-xl border border-white/10 bg-black/40 px-2.5 py-2 text-[11px] text-gray-400">

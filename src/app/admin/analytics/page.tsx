@@ -42,7 +42,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { useCachedAuthSWR } from "@/hooks/useCachedAuthSWR";
+import { useAuthSWR } from "@/hooks/useAuthSWR";
+import { useNow } from "@/hooks/useNow";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
@@ -663,23 +664,6 @@ function isRecentViolation(timestamp: string | null, nowMs: number): boolean {
   return diffMs < 24 * 60 * 60 * 1000;
 }
 
-function formatCacheAge(ageMs: number | null) {
-  if (ageMs === null) {
-    return "Live fetch";
-  }
-
-  const minutes = Math.max(0, Math.round(ageMs / 60_000));
-  if (minutes < 1) {
-    return "Warm cache";
-  }
-
-  if (minutes < 60) {
-    return `Cached ${minutes}m ago`;
-  }
-
-  return `Cached ${Math.round(minutes / 60)}h ago`;
-}
-
 function getJourneyStateLabel(state: UserJourneyItem["journeyState"]) {
   switch (state) {
     case "engaged":
@@ -710,26 +694,12 @@ export default function AdminAnalyticsPage() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<ViewTab>("operations");
   const [range, setRange] = useState<RangeOption>("30d");
-  const [nowMs, setNowMs] = useState(0);
+  const nowMs = useNow({ intervalMs: 60_000, initialNowMs: 0 });
   const [viewerUserDraft, setViewerUserDraft] = useState("");
   const [viewerUserFilter, setViewerUserFilter] = useState("");
   const analyticsFilterStorageKey = user
     ? `${ANALYTICS_FILTER_STORAGE_KEY}:${user.uid}`
     : ANALYTICS_FILTER_STORAGE_KEY;
-
-  useEffect(() => {
-    const initialTimeoutId = window.setTimeout(() => {
-      setNowMs(Date.now());
-    }, 0);
-    const intervalId = window.setInterval(() => {
-      setNowMs(Date.now());
-    }, 60_000);
-
-    return () => {
-      window.clearTimeout(initialTimeoutId);
-      window.clearInterval(intervalId);
-    };
-  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -797,12 +767,7 @@ export default function AdminAnalyticsPage() {
     data: liveResponse,
     error: liveError,
     isLoading: liveLoading,
-    cacheHydrated: liveCacheReady,
-    hydratedFromCache: liveHydratedFromCache,
-    cacheAgeMs: liveCacheAgeMs,
-  } = useCachedAuthSWR<RealtimeAnalyticsResponse>("/api/admin/analytics/realtime", {
-    cacheKey: "admin.analytics.realtime",
-    ttlMs: 15_000,
+  } = useAuthSWR<RealtimeAnalyticsResponse>("/api/admin/analytics/realtime", {
     refreshInterval: 5_000,
     keepPreviousData: true,
     revalidateOnFocus: true,
@@ -812,15 +777,10 @@ export default function AdminAnalyticsPage() {
     data: historicalResponse,
     error: historicalError,
     isLoading: historicalLoading,
-    cacheHydrated: historicalCacheReady,
-    hydratedFromCache: historicalHydratedFromCache,
-    cacheAgeMs: historicalCacheAgeMs,
-  } = useCachedAuthSWR<HistoricalAnalyticsResponse>(
+  } = useAuthSWR<HistoricalAnalyticsResponse>(
     historicalUrl,
     {
-      cacheKey: `admin.analytics.historical:${range}:${viewerUserFilter || "all-viewers"}`,
-      ttlMs: 60_000,
-      refreshInterval: 5_000,
+      refreshInterval: 15_000,
       keepPreviousData: true,
       revalidateOnFocus: true,
     },
@@ -950,17 +910,15 @@ export default function AdminAnalyticsPage() {
     (!historicalResponse && (historicalError as Error | undefined)) ||
     null;
   const isPrimingAnalytics =
-    ((!liveCacheReady && !liveResponse) || (!historicalCacheReady && !historicalResponse))
-    || (!liveResponse && !historicalResponse && (liveLoading || historicalLoading));
+    !liveResponse && !historicalResponse && (liveLoading || historicalLoading);
   const isBackgroundSyncing =
     (liveLoading || historicalLoading)
     && Boolean(liveResponse || historicalResponse);
-  const analyticsWarmState = liveHydratedFromCache || historicalHydratedFromCache
-    ? formatCacheAge(Math.min(
-      liveCacheAgeMs ?? Number.MAX_SAFE_INTEGER,
-      historicalCacheAgeMs ?? Number.MAX_SAFE_INTEGER,
-    ))
-    : "Live fetch";
+  const analyticsWarmState = isPrimingAnalytics
+    ? "Fetching live data"
+    : isBackgroundSyncing
+      ? "Refreshing"
+      : "Polling enabled";
 
   const totalDeviceUsers = devices.reduce((sum, item) => sum + item.users, 0);
   const mobileUsers = devices.find((item) => item.device.toLowerCase() === "mobile")?.users ?? 0;
@@ -1035,14 +993,47 @@ export default function AdminAnalyticsPage() {
   const topSecurityReasons = securityReasons.slice(0, 8);
   const liveSnapshotLabel = liveResponse?.generatedAtMs
     ? formatRelativeTime(liveResponse.generatedAtMs, nowMs)
-    : analyticsWarmState;
+    : liveLoading
+      ? "Fetching..."
+      : "Awaiting snapshot";
   const historicalSnapshotLabel = historicalResponse?.generatedAtMs
     ? formatRelativeTime(historicalResponse.generatedAtMs, nowMs)
-    : formatCacheAge(historicalCacheAgeMs);
+    : historicalLoading
+      ? "Fetching..."
+      : "Awaiting snapshot";
   const viewerDropChartData = viewerDropInsights.slice(0, 8).map((item) => ({
     ...item,
     shortLabel: item.dropTitle.length > 16 ? `${item.dropTitle.slice(0, 16)}...` : item.dropTitle,
   }));
+  const historicalHasSignals =
+    historySeries.some((point) => point.users > 0 || point.views > 0 || point.sessions > 0 || point.newUsers > 0)
+    || eventBreakdown.length > 0
+    || semanticCategories.some((item) =>
+      item.viewCount > 0
+      || item.clickCount > 0
+      || item.hoverCount > 0
+      || item.watchSessionCount > 0
+      || item.signInCount > 0
+      || item.returnCount > 0
+      || item.logoutCount > 0,
+    )
+    || devices.length > 0
+    || pages.length > 0
+    || geo.length > 0
+    || topDrops.length > 0
+    || (commerce.feed?.length ?? 0) > 0
+    || security.length > 0
+    || onboardingStartCount > 0
+    || onboardingStats.completions > 0
+    || viewerDropInsights.length > 0
+    || viewerUsers.length > 0
+    || taskLeaderboard.length > 0
+    || packagePerformance.length > 0;
+  const showHistoricalEmptyState =
+    Boolean(historicalResponse)
+    && !historicalLoading
+    && !blockingAnalyticsError
+    && !historicalHasSignals;
 
   const applyViewerFilter = () => {
     setViewerUserFilter(viewerUserDraft.trim());
@@ -1098,7 +1089,7 @@ export default function AdminAnalyticsPage() {
 
       <div className="sticky top-[8.6rem] z-20 space-y-2.5 rounded-[1.4rem] border border-white/10 bg-black/65 p-2.5 backdrop-blur-xl md:top-24">
         <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2">
-          <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-gray-500">Hydration</span>
+          <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-gray-500">Sync</span>
           <span className="text-xs font-semibold text-white">{analyticsWarmState}</span>
           <span className="rounded-full border border-white/10 bg-black/30 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
             Live {liveSnapshotLabel}
@@ -1195,6 +1186,42 @@ export default function AdminAnalyticsPage() {
             {backgroundAnalyticsIssues.map((issue) => (
               <p key={issue}>{issue}</p>
             ))}
+          </div>
+        </div>
+      ) : null}
+
+      {showHistoricalEmptyState ? (
+        <div className="rounded-[1.8rem] border border-white/10 bg-white/[0.03] p-4">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-sm font-medium text-white">No analytics landed for this window yet.</p>
+              <p className="mt-1 text-sm text-gray-400">
+                {activeViewerFilter
+                  ? `No tracked events matched ${activeViewerFilter.startsWith("@") ? activeViewerFilter : `@${activeViewerFilter}`} in ${range.toUpperCase()}.`
+                  : `No tracked events were found in ${range.toUpperCase()}.`}
+                {" "}This usually means the selected window is too narrow for the current dataset, or this environment only has older seeded analytics.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {range !== "all" ? (
+                <button
+                  type="button"
+                  onClick={() => setRange("all")}
+                  className="rounded-full border border-brand-purple/30 bg-brand-purple/10 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-brand-purple transition-colors hover:border-brand-purple/50 hover:bg-brand-purple/15"
+                >
+                  Show all time
+                </button>
+              ) : null}
+              {viewerUserFilter ? (
+                <button
+                  type="button"
+                  onClick={clearViewerFilter}
+                  className="rounded-full border border-white/15 bg-black/40 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300 transition-colors hover:border-white/30 hover:text-white"
+                >
+                  Clear viewer filter
+                </button>
+              ) : null}
+            </div>
           </div>
         </div>
       ) : null}

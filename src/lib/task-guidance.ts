@@ -52,7 +52,11 @@ function clearLegacyTaskGuidanceLocalStorage(storageKey: string) {
   }
 }
 
-function readSessionStorageValue<T>(storageKey: string) {
+function isTaskGuidanceStorageRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function readSessionStorageValue(storageKey: string): unknown {
   const storage = getTaskGuidanceSessionStorage();
   if (!storage) {
     return null;
@@ -62,7 +66,7 @@ function readSessionStorageValue<T>(storageKey: string) {
 
   try {
     const raw = storage.getItem(storageKey);
-    return raw ? JSON.parse(raw) as T : null;
+    return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
   }
@@ -84,7 +88,9 @@ function writeSessionStorageValue(storageKey: string, value: unknown) {
   storage.setItem(storageKey, JSON.stringify(value));
 }
 
-export function isTaskGuidanceActionType(actionType: DailyTaskAssignment["actionType"]): actionType is TaskGuidanceActionType {
+export function isTaskGuidanceActionType(
+  actionType: DailyTaskAssignment["actionType"] | string,
+): actionType is TaskGuidanceActionType {
   return actionType === "open_dashboard" || actionType === "open_drops" || actionType === "open_experiences" || actionType === "open_library" || actionType === "open_notifications" || actionType === "open_wallet" || actionType === "enable_notifications" || actionType === "give_feedback";
 }
 
@@ -121,11 +127,14 @@ export function isSamePageTaskViewEvent(eventName: string) {
 }
 
 export function readTaskGuidancePendingAction() {
-  const rawValue = readSessionStorageValue<Partial<TaskGuidancePendingAction>>(TASK_GUIDANCE_ACTION_STORAGE_KEY);
-  const actionType = typeof rawValue?.actionType === "string" ? rawValue.actionType : null;
+  const rawValue = readSessionStorageValue(TASK_GUIDANCE_ACTION_STORAGE_KEY);
+  if (!isTaskGuidanceStorageRecord(rawValue)) {
+    return null;
+  }
+
+  const actionType = typeof rawValue.actionType === "string" ? rawValue.actionType : null;
   if (
-    !rawValue
-    || typeof rawValue.taskId !== "string"
+    typeof rawValue.taskId !== "string"
     || !actionType
     || !isTaskGuidanceActionType(actionType)
     || typeof rawValue.destinationHref !== "string"

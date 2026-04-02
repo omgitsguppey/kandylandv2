@@ -15,6 +15,18 @@ async function getDismissKey(uid: string) {
     return `kandydrops:notification-banner-dismissed:${hashedId}`;
 }
 
+function clearLegacyNotificationPromptDismissal(storageKey: string) {
+    if (typeof window === "undefined") {
+        return;
+    }
+
+    try {
+        window.localStorage.removeItem(storageKey);
+    } catch {
+        // Ignore storage cleanup failures and continue with session-scoped dismissal.
+    }
+}
+
 export function NotificationPromptBanner() {
     const { user, userProfile } = useAuth();
     const [isVisible, setIsVisible] = useState(false);
@@ -69,6 +81,7 @@ export function NotificationPromptBanner() {
             return;
         }
 
+        clearLegacyNotificationPromptDismissal(dismissKey);
         setDismissed(window.sessionStorage.getItem(dismissKey) === "1");
     }, [dismissKey, isCheckingKey]);
 

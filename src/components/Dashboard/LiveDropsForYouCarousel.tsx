@@ -1,28 +1,19 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import NextImage from "next/image";
 import { ArrowRight, Images, Sparkles } from "lucide-react";
 
 import { useDrops } from "@/hooks/useDrops";
+import { useNow } from "@/hooks/useNow";
 import { getSupportedDropAspectRatio } from "@/lib/drop-presentation";
 import { trackEvent } from "@/lib/telemetry";
-
-const INITIAL_NOW_MS = Date.now();
 
 export function LiveDropsForYouCarousel() {
   const router = useRouter();
   const { drops, loading } = useDrops(["active"]);
-  const [nowMs, setNowMs] = useState(INITIAL_NOW_MS);
-
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      setNowMs(Date.now());
-    }, 60_000);
-
-    return () => window.clearInterval(timer);
-  }, []);
+  const nowMs = useNow({ intervalMs: 60_000 });
 
   const activeDrops = useMemo(
     () =>
@@ -30,6 +21,10 @@ export function LiveDropsForYouCarousel() {
         .filter((drop) => {
           if (drop.status !== "active") {
             return false;
+          }
+
+          if (nowMs <= 0) {
+            return true;
           }
 
           if (Number.isFinite(drop.validFrom) && drop.validFrom > nowMs) {

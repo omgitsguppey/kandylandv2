@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockState = vi.hoisted(() => ({
     guardApiRequest: vi.fn(),
-    captureException: vi.fn(),
     recordServerDiagnostic: vi.fn(async () => undefined),
     recordAnalyticsPipelineFailure: vi.fn(async () => undefined),
 }));
@@ -14,10 +13,6 @@ vi.mock("@/lib/server/firebase-admin", () => ({
             throw new Error("adminDb should not be used when guardApiRequest rejects early");
         },
     },
-}));
-
-vi.mock("@/lib/monitoring", () => ({
-    captureException: mockState.captureException,
 }));
 
 vi.mock("@/lib/server/rate-limit", () => ({
@@ -76,7 +71,6 @@ import { POST } from "@/app/api/analytics/ingest/route";
 describe("POST /api/analytics/ingest", () => {
     beforeEach(() => {
         mockState.guardApiRequest.mockReset();
-        mockState.captureException.mockReset();
         mockState.recordServerDiagnostic.mockReset();
         mockState.recordAnalyticsPipelineFailure.mockReset();
         mockState.recordServerDiagnostic.mockResolvedValue(undefined);
@@ -101,12 +95,6 @@ describe("POST /api/analytics/ingest", () => {
             success: false,
             retryable: true,
         });
-        expect(mockState.captureException).toHaveBeenCalledWith(
-            expect.any(Error),
-            expect.objectContaining({
-                message: "Telemetry ingestion failed",
-            }),
-        );
         expect(mockState.recordServerDiagnostic).toHaveBeenCalledWith(expect.objectContaining({
             channel: "analytics",
             severity: "error",

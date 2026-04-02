@@ -184,10 +184,13 @@ export function useDrops(
   }, [isConstrained, refreshDrops]);
 
   useEffect(() => {
-    const upcomingExpirations = swrDrops
-      .map((drop) => applyDropStatus(drop, sweepNowMs))
-      .map((drop) => (drop.status === "active" && drop.validUntil && drop.validUntil > sweepNowMs ? drop.validUntil : null))
-      .filter((validUntil): validUntil is number => typeof validUntil === "number");
+    const upcomingExpirations: number[] = [];
+    for (const drop of swrDrops) {
+      const resolvedDrop = applyDropStatus(drop, sweepNowMs);
+      if (resolvedDrop.status === "active" && resolvedDrop.validUntil && resolvedDrop.validUntil > sweepNowMs) {
+        upcomingExpirations.push(resolvedDrop.validUntil);
+      }
+    }
 
     if (upcomingExpirations.length === 0) {
       return;
@@ -205,9 +208,17 @@ export function useDrops(
   }, [refreshDrops, sweepNowMs, swrDrops]);
 
   const clientDrops = useMemo(() => {
-    return swrDrops
-      .map((drop) => applyDropStatus(drop, sweepNowMs))
-      .filter((drop) => (statusFilter ? statusFilter.includes(drop.status) : true));
+    // Single-pass filtering avoids cloning drops that will be discarded immediately.
+    const nextDrops: Drop[] = [];
+
+    for (const drop of swrDrops) {
+      const resolvedDrop = applyDropStatus(drop, sweepNowMs);
+      if (!statusFilter || statusFilter.includes(resolvedDrop.status)) {
+        nextDrops.push(resolvedDrop);
+      }
+    }
+
+    return nextDrops;
   }, [statusFilter, sweepNowMs, swrDrops]);
 
 

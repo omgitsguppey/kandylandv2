@@ -22,6 +22,7 @@ import { toast } from "sonner";
 
 import { useAuth } from "@/context/AuthContext";
 import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
+import { useNow } from "@/hooks/useNow";
 import { useTaskGuidanceActions } from "@/hooks/useTaskGuidanceActions";
 import { authFetch } from "@/lib/authFetch";
 import { cn } from "@/lib/utils";
@@ -93,7 +94,7 @@ export function DailyTasksModule() {
   const [feedbackRating, setFeedbackRating] = useState<number>(5);
   const [feedbackLoading, setFeedbackLoading] = useState(false);
   const [notificationLoading, setNotificationLoading] = useState(false);
-  const [nowMs, setNowMs] = useState(Date.now());
+  const nowMs = useNow({ intervalMs: 1_000 });
   const [localTaskState, setLocalTaskState] = useState<DailyTasksState | null>(null);
   const [expandedTaskIds, setExpandedTaskIds] = useState<string[]>([]);
   const lastSuccessfulRefreshRef = useRef<number>(0);
@@ -111,14 +112,6 @@ export function DailyTasksModule() {
   }, [userProfile?.uid]);
 
   useEffect(() => {
-    const timerId = window.setInterval(() => {
-      setNowMs(Date.now());
-    }, 1000);
-
-    return () => window.clearInterval(timerId);
-  }, []);
-
-  useEffect(() => {
     setLocalTaskState(userProfile?.dailyTasksState ?? null);
   }, [userProfile?.dailyTasksState]);
 
@@ -128,9 +121,12 @@ export function DailyTasksModule() {
     () => activeTasks.filter((task) => task.claimed).length,
     [activeTasks],
   );
-  const fallbackNextRefreshMs = useMemo(() => getCSTDayBoundaries(nowMs).endOfDay, [nowMs]);
+  const fallbackNextRefreshMs = useMemo(
+    () => (nowMs > 0 ? getCSTDayBoundaries(nowMs).endOfDay : 0),
+    [nowMs],
+  );
   const nextRefreshMs = dailyTaskState?.nextRefreshMs || fallbackNextRefreshMs;
-  const waitLabel = formatCountdown(nextRefreshMs, nowMs);
+  const waitLabel = nowMs > 0 && nextRefreshMs > 0 ? formatCountdown(nextRefreshMs, nowMs) : "--:--:--";
   const isCompleteForToday = completedCount >= DAILY_TASK_LIMIT;
   const headerCountdownLabel = isCompleteForToday ? "Next batch in" : "Deadline in";
 
@@ -143,9 +139,10 @@ export function DailyTasksModule() {
   const applyAuthoritativeTaskState = useCallback((
     nextState: Pick<DailyTasksState, "tasks" | "nextRefreshMs"> & Partial<Pick<DailyTasksState, "lastResetMs" | "lastProgressAt" | "lastDeadlineReminderAt" | "completedTaskHistory" | "retiredTaskIds">>,
   ) => {
+    const resolvedNowMs = nowMs > 0 ? nowMs : Date.now();
     const mergedState: DailyTasksState = {
-      lastResetMs: nextState.lastResetMs ?? userProfile?.dailyTasksState?.lastResetMs ?? localTaskState?.lastResetMs ?? nowMs,
-      lastProgressAt: nextState.lastProgressAt ?? userProfile?.dailyTasksState?.lastProgressAt ?? localTaskState?.lastProgressAt ?? nowMs,
+      lastResetMs: nextState.lastResetMs ?? userProfile?.dailyTasksState?.lastResetMs ?? localTaskState?.lastResetMs ?? resolvedNowMs,
+      lastProgressAt: nextState.lastProgressAt ?? userProfile?.dailyTasksState?.lastProgressAt ?? localTaskState?.lastProgressAt ?? resolvedNowMs,
       lastDeadlineReminderAt: nextState.lastDeadlineReminderAt ?? userProfile?.dailyTasksState?.lastDeadlineReminderAt ?? localTaskState?.lastDeadlineReminderAt ?? 0,
       completedTaskHistory: nextState.completedTaskHistory ?? userProfile?.dailyTasksState?.completedTaskHistory ?? localTaskState?.completedTaskHistory ?? {},
       retiredTaskIds: nextState.retiredTaskIds ?? userProfile?.dailyTasksState?.retiredTaskIds ?? localTaskState?.retiredTaskIds ?? [],
@@ -193,7 +190,7 @@ export function DailyTasksModule() {
     const shouldRotateImmediately = !dailyTaskState
       || dailyTaskState.tasks.length !== DAILY_TASK_LIMIT
       || !Number.isFinite(dailyTaskState.nextRefreshMs)
-      || dailyTaskState.nextRefreshMs <= Date.now();
+      || dailyTaskState.nextRefreshMs <= (nowMs > 0 ? nowMs : Date.now());
 
     if (!shouldRotateImmediately) {
       return;
@@ -216,10 +213,10 @@ export function DailyTasksModule() {
     return () => {
       cancelled = true;
     };
-  }, [dailyTaskState, rotateTasks, userProfile?.uid]);
+  }, [dailyTaskState, nowMs, rotateTasks, userProfile?.uid]);
 
   useEffect(() => {
-    if (!userProfile?.uid || nowMs < nextRefreshMs || rotating || lastSuccessfulRefreshRef.current === nextRefreshMs) {
+    if (!userProfile?.uid || nowMs <= 0 || nowMs < nextRefreshMs || rotating || lastSuccessfulRefreshRef.current === nextRefreshMs) {
       return;
     }
     let cancelled = false;

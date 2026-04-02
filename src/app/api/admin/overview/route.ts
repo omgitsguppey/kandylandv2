@@ -12,6 +12,7 @@ import { applyDropStatus } from "@/lib/drop-status";
 import { APP_TIMEZONE, fromCSTInput, getCSTDateKey, shiftCSTDateKey } from "@/lib/timezone";
 import { getTransactionRevenueCents, normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { buildAdminOverviewUserNameMap } from "@/lib/server/admin-overview-users";
 
 const THIRTY_DAY_WINDOW = 30;
 const CHART_LABEL_FORMATTER = new Intl.DateTimeFormat("en-US", {
@@ -29,6 +30,10 @@ type QuerySnapshotLike = {
 type DocumentSnapshotLike = {
     exists: boolean;
     data: () => Record<string, unknown> | undefined;
+};
+
+type CountSnapshotLike = {
+    data: () => { count: unknown } | undefined;
 };
 
 function toTimestampNumber(value: unknown): number {
@@ -102,6 +107,12 @@ function emptyDocumentSnapshot(): DocumentSnapshotLike {
     };
 }
 
+function emptyCountSnapshot(): CountSnapshotLike {
+    return {
+        data: () => ({ count: 0 }),
+    };
+}
+
 async function safeQuerySnapshot(reader: () => Promise<QuerySnapshotLike>) {
     try {
         return await reader();
@@ -115,6 +126,14 @@ async function safeDocumentSnapshot(reader: () => Promise<DocumentSnapshotLike>)
         return await reader();
     } catch {
         return emptyDocumentSnapshot();
+    }
+}
+
+async function safeCountSnapshot(reader: () => Promise<CountSnapshotLike>) {
+    try {
+        return await reader();
+    } catch {
+        return emptyCountSnapshot();
     }
 }
 
@@ -135,8 +154,8 @@ export async function GET(request: NextRequest) {
 
         const now = Date.now();
         const thirtyDayStartMs = fromCSTInput(`${shiftCSTDateKey(getCSTDateKey(now), -(THIRTY_DAY_WINDOW - 1))}T00:00`);
-        const [usersSnapshot, dropsSnapshot, recentTransactionsSnapshot, adminActivitySnapshot, commerceSummarySnapshot, recentChartTransactionsSnapshot] = await Promise.all([
-            safeQuerySnapshot(() => adminDb.collection("users").get() as Promise<QuerySnapshotLike>),
+        const [usersCountSnapshot, dropsSnapshot, recentTransactionsSnapshot, adminActivitySnapshot, commerceSummarySnapshot, recentChartTransactionsSnapshot] = await Promise.all([
+            safeCountSnapshot(() => adminDb.collection("users").count().get() as Promise<CountSnapshotLike>),
             safeQuerySnapshot(() => adminDb.collection("drops").get() as Promise<QuerySnapshotLike>),
             safeQuerySnapshot(() => adminDb.collection("transactions").orderBy("timestamp", "desc").limit(20).get() as Promise<QuerySnapshotLike>),
             safeQuerySnapshot(() => adminDb.collection("transactions")
@@ -150,19 +169,6 @@ export async function GET(request: NextRequest) {
                 .orderBy("timestamp", "desc")
                 .get() as Promise<QuerySnapshotLike>),
         ]);
-
-        const userNameMap = new Map<string, string>();
-        usersSnapshot.docs.forEach((doc) => {
-            const raw = doc.data() as Record<string, unknown>;
-            userNameMap.set(
-                doc.id,
-                (typeof raw.username === "string" && raw.username.trim().length > 0
-                    ? raw.username
-                    : typeof raw.displayName === "string" && raw.displayName.trim().length > 0
-                        ? raw.displayName
-                        : "Unknown"),
-            );
-        });
 
         const drops = dropsSnapshot.docs.flatMap((doc) => {
             try {
@@ -191,9 +197,6 @@ export async function GET(request: NextRequest) {
         const unlockTransactions = recentChartTransactions
             .filter((transaction) => transaction.type === "unlock_content");
 
-        const recentTransactions = recentTransactionsSource
-            .map((transaction) => serializeRecentTransaction(transaction, userNameMap.get(transaction.userId)));
-
         const adminActivitySource = adminActivitySnapshot.docs
             .flatMap((doc) => {
                 try {
@@ -208,6 +211,23 @@ export async function GET(request: NextRequest) {
                 return rightTimestamp - leftTimestamp;
             })
             .slice(0, 10);
+        const overviewUserIds = new Set<string>();
+        recentTransactionsSource.forEach((transaction) => {
+            if (transaction.userId) {
+                overviewUserIds.add(transaction.userId);
+            }
+        });
+        adminActivitySource.forEach((transaction) => {
+            if (transaction.userId) {
+                overviewUserIds.add(transaction.userId);
+            }
+        });
+        const userNameMap = await buildAdminOverviewUserNameMap({
+            usersCollection: adminDb.collection("users"),
+            userIds: overviewUserIds,
+        });
+        const recentTransactions = recentTransactionsSource
+            .map((transaction) => serializeRecentTransaction(transaction, userNameMap.get(transaction.userId)));
         const adminActivity = adminActivitySource.map((transaction) => serializeRecentTransaction(transaction, userNameMap.get(transaction.userId)));
 
         const topDrops = [...drops]
@@ -249,7 +269,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({
             success: true,
             stats: {
-                totalUsers: usersSnapshot.size,
+                totalUsers: toNumber(usersCountSnapshot.data()?.count),
                 activeDrops: drops.filter((drop) => drop.status === "active").length,
                 totalDrops: drops.length,
                 grossRevenueCents,

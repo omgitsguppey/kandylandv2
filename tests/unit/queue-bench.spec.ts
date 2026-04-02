@@ -1,68 +1,74 @@
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-function chunkArray<T>(items: T[], size: number) {
-    const chunks: T[][] = [];
+import { PROCESS_QUEUE_FETCH_CHUNK_SIZE, buildQueuedDropsMap } from "@/lib/server/process-queue-drops";
+
+type MockQueueRef = { id: string };
+
+function chunkRefs(items: MockQueueRef[], size: number) {
+    const chunks: MockQueueRef[][] = [];
+
     for (let index = 0; index < items.length; index += size) {
         chunks.push(items.slice(index, index + size));
     }
+
     return chunks;
 }
 
-// Emulate more closely real DB semantics
-const MOCK_LATENCY_MS = 10;
-const LATENCY_PER_DOC = 0.5;
+async function runSequentialGetAllBaseline(queue: string[], getAll: (...refs: MockQueueRef[]) => Promise<MockQueueRef[]>) {
+    const refs = queue.map((id) => ({ id }));
 
-const mockDropsRef = {
-    where: (field: string, op: string, val: any) => ({
-        get: async () => {
-            const numDocs = val.length;
-            await new Promise(resolve => setTimeout(resolve, MOCK_LATENCY_MS + (numDocs * LATENCY_PER_DOC))); // DB Latency per doc overhead
-            return val.map((id: string) => ({ id, data: () => ({ validFrom: Date.now() }) }));
-        }
-    }),
-    getAll: async (...refs: any[]) => {
-        const numDocs = refs.length;
-        await new Promise(resolve => setTimeout(resolve, MOCK_LATENCY_MS + (numDocs * LATENCY_PER_DOC))); // DB Latency per doc overhead
-        return refs.map((ref: any) => ({ id: ref.id, data: () => ({ validFrom: Date.now() }) }));
-    },
-    doc: (id: string) => ({ id })
-};
+    for (const refsChunk of chunkRefs(refs, PROCESS_QUEUE_FETCH_CHUNK_SIZE)) {
+        await getAll(...refsChunk);
+    }
+}
 
-describe("Performance Benchmark: queue processing 'in' vs 'getAll'", () => {
+describe("Performance Benchmark: queue chunk fetching", () => {
     const MOCK_QUEUE_SIZE = 1000;
-    const queue = Array.from({ length: MOCK_QUEUE_SIZE }, (_, i) => `drop-${i}`);
+    const MOCK_LATENCY_MS = 25;
+    const queue = Array.from({ length: MOCK_QUEUE_SIZE }, (_, index) => `drop-${index}`);
+    const getAll = async (...refs: MockQueueRef[]) => {
+        await new Promise((resolve) => setTimeout(resolve, MOCK_LATENCY_MS));
+        return refs;
+    };
 
-    it("measures batched 'in' queries (Baseline)", async () => {
+    it("measures sequential chunked getAll as the legacy baseline", async () => {
         const start = performance.now();
-        const chunks = chunkArray(queue, 10);
-        let promises = [];
-        for (const chunk of chunks) {
-             promises.push(mockDropsRef.where("__name__", "in", chunk).get());
-             if(promises.length >= 10) { // Limit concurrent request to 10
-                 await Promise.all(promises);
-                 promises = [];
-             }
-        }
-        await Promise.all(promises);
-
+        await runSequentialGetAllBaseline(queue, getAll);
         const end = performance.now();
-        console.log(`Baseline (chunked 'in' queries size 10): ${(end - start).toFixed(2)}ms`);
+
+        console.log(`Queue baseline (sequential getAll chunks of ${PROCESS_QUEUE_FETCH_CHUNK_SIZE}): ${(end - start).toFixed(2)}ms`);
     });
 
-    it("measures batched 'getAll' queries (Optimized)", async () => {
-        const start = performance.now();
-        const refs = queue.map(id => mockDropsRef.doc(id));
-        const chunks = chunkArray(refs, 100);
-        let promises = [];
-        for (const chunk of chunks) {
-            promises.push(mockDropsRef.getAll(...chunk));
-            if(promises.length >= 10) { // Limit concurrent request to 10
-                 await Promise.all(promises);
-                 promises = [];
-             }
-        }
-        await Promise.all(promises);
-        const end = performance.now();
-        console.log(`Optimized (getAll chunked by 100): ${(end - start).toFixed(2)}ms`);
+    it("measures concurrent chunked getAll as the optimized path", async () => {
+        const baselineStart = performance.now();
+        await runSequentialGetAllBaseline(queue, getAll);
+        const baselineMs = performance.now() - baselineStart;
+
+        const optimizedStart = performance.now();
+        await buildQueuedDropsMap({
+            dropIds: queue,
+            createRef: (dropId) => ({ id: dropId }),
+            getAll: async (...refs) => {
+                await getAll(...refs);
+                return refs.map((ref) => ({
+                    id: ref.id,
+                    exists: true,
+                    data: () => ({ validFrom: Date.now() }),
+                }));
+            },
+            materialize: (doc) => ({
+                id: doc.id,
+                validFrom: doc.data().validFrom,
+            }),
+        });
+        const optimizedMs = performance.now() - optimizedStart;
+        const improvement = ((baselineMs - optimizedMs) / baselineMs) * 100;
+
+        console.log(
+            `Queue optimized (concurrent getAll chunks of ${PROCESS_QUEUE_FETCH_CHUNK_SIZE}): ${optimizedMs.toFixed(2)}ms`,
+        );
+        console.log(`Queue benchmark improvement: ${improvement.toFixed(1)}%`);
+
+        expect(optimizedMs).toBeLessThan(baselineMs * 0.4);
     });
 });

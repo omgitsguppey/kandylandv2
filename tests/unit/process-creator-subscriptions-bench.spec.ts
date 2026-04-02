@@ -1,31 +1,52 @@
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const RENEWAL_LATENCY_MS = 10;
+const SUBSCRIPTION_COUNT = 50;
+const RENEWAL_CHUNK_SIZE = 20;
 
-const mockTransaction = async () => {
-    await delay(10);
-};
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-describe("Performance Benchmark: Sequential vs Chunked Promises", () => {
-    it("measures sequential execution", async () => {
+async function mockRenewalTransaction() {
+    await delay(RENEWAL_LATENCY_MS);
+}
+
+async function runSequentialRenewals(totalSubscriptions: number) {
+    for (let index = 0; index < totalSubscriptions; index += 1) {
+        await mockRenewalTransaction();
+    }
+}
+
+async function runChunkedConcurrentRenewals(totalSubscriptions: number, chunkSize: number) {
+    const items = Array.from({ length: totalSubscriptions }, (_, index) => index);
+
+    for (let start = 0; start < items.length; start += chunkSize) {
+        const chunk = items.slice(start, start + chunkSize);
+        await Promise.all(chunk.map(() => mockRenewalTransaction()));
+    }
+}
+
+describe("Performance Benchmark: process-creator-subscriptions renewal loop", () => {
+    it("measures the legacy sequential renewal loop baseline", async () => {
         const start = performance.now();
-        const items = Array.from({ length: 50 }, (_, i) => i);
-        for (const item of items) {
-            await mockTransaction();
-        }
-        const end = performance.now();
-        console.log(`Sequential execution (Baseline): ${(end - start).toFixed(2)}ms`);
+        await runSequentialRenewals(SUBSCRIPTION_COUNT);
+        const duration = performance.now() - start;
+
+        console.log(`Creator subscription renewal baseline (sequential): ${duration.toFixed(2)}ms`);
     });
 
-    it("measures chunked execution", async () => {
-        const start = performance.now();
-        const items = Array.from({ length: 50 }, (_, i) => i);
-        const chunkSize = 10;
-        for (let i = 0; i < items.length; i += chunkSize) {
-            const chunk = items.slice(i, i + chunkSize);
-            await Promise.all(chunk.map(() => mockTransaction()));
-        }
-        const end = performance.now();
-        console.log(`Chunked execution (Optimized): ${(end - start).toFixed(2)}ms`);
+    it("measures the chunked concurrent renewal loop used by the cron route", async () => {
+        const baselineStart = performance.now();
+        await runSequentialRenewals(SUBSCRIPTION_COUNT);
+        const baselineDuration = performance.now() - baselineStart;
+
+        const optimizedStart = performance.now();
+        await runChunkedConcurrentRenewals(SUBSCRIPTION_COUNT, RENEWAL_CHUNK_SIZE);
+        const optimizedDuration = performance.now() - optimizedStart;
+        const improvement = ((baselineDuration - optimizedDuration) / baselineDuration) * 100;
+
+        console.log(`Creator subscription renewal optimized (chunked Promise.all): ${optimizedDuration.toFixed(2)}ms`);
+        console.log(`Creator subscription renewal improvement: ${improvement.toFixed(1)}%`);
+
+        expect(optimizedDuration).toBeLessThan(baselineDuration * 0.4);
     });
 });

@@ -56,4 +56,33 @@ describe("buildQueuedDropsMap", () => {
             activationCount: 3,
         });
     });
+
+    it("fetches queue chunks concurrently instead of waiting for each chunk in sequence", async () => {
+        let inFlight = 0;
+        let maxInFlight = 0;
+        const dropIds = Array.from({ length: PROCESS_QUEUE_FETCH_CHUNK_SIZE * 2 + 5 }, (_, index) => `drop_${index}`);
+
+        await buildQueuedDropsMap({
+            dropIds,
+            createRef: (dropId) => ({ id: dropId }),
+            getAll: async (...refs) => {
+                inFlight += 1;
+                maxInFlight = Math.max(maxInFlight, inFlight);
+                await new Promise((resolve) => setTimeout(resolve, 10));
+                inFlight -= 1;
+
+                return refs.map((ref) => ({
+                    id: ref.id,
+                    exists: true,
+                    data: () => ({ activationCount: 0 }),
+                }));
+            },
+            materialize: (doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }),
+        });
+
+        expect(maxInFlight).toBeGreaterThan(1);
+    });
 });

@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import { z } from "zod";
-import { captureException } from "@/lib/monitoring";
 import { ANALYTICS_WRITE } from "@/lib/server/rate-limit";
 import { requestAllowsAnonymousAnalytics, requestHasGlobalPrivacyControl } from "@/lib/server/privacy-consent";
 import { TELEMETRY_EVENT_INDEX_VERSION } from "@/lib/telemetry-catalog";
@@ -93,7 +92,6 @@ function getAnalyticsIngestErrorMessage(error: unknown) {
 async function reportAnalyticsIngestFailure(error: unknown) {
     const errorMessage = getAnalyticsIngestErrorMessage(error);
 
-    captureException(error, { message: "Telemetry ingestion failed" });
     await Promise.all([
         recordServerDiagnostic({
             channel: "analytics",

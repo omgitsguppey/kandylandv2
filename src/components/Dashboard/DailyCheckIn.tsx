@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/Button";
+import { useNow } from "@/hooks/useNow";
 import { authFetch } from "@/lib/authFetch";
 import { DAILY_CHECK_IN_REWARD_LADDER, getDailyCheckInProgress } from "@/lib/daily-checkin";
 import { trackEvent } from "@/lib/telemetry";
@@ -38,26 +39,18 @@ export function DailyCheckIn() {
     const [loading, setLoading] = useState(false);
     const [optimisticCheckInMs, setOptimisticCheckInMs] = useState<number | null>(null);
     const [optimisticStreak, setOptimisticStreak] = useState<number | null>(null);
-    const [nowMs, setNowMs] = useState(Date.now());
-    const [isMounted, setIsMounted] = useState(false);
-
-    useEffect(() => {
-        setIsMounted(true);
-        const timerId = window.setInterval(() => {
-            setNowMs(Date.now());
-        }, 1000);
-
-        return () => {
-            window.clearInterval(timerId);
-        };
-    }, []);
+    const nowMs = useNow({ intervalMs: 1_000 });
+    const isMounted = nowMs > 0;
 
     const lastCheckInMs = userProfile?.lastCheckIn;
     const currentStreak = userProfile?.streakCount;
     const effectiveLastCheckInMs = optimisticCheckInMs ?? lastCheckInMs;
     const effectiveCurrentStreak = optimisticStreak ?? currentStreak;
 
-    const { endOfDay } = useMemo(() => getCSTDayBoundaries(nowMs), [nowMs]);
+    const { endOfDay } = useMemo(
+        () => (nowMs > 0 ? getCSTDayBoundaries(nowMs) : { endOfDay: 0 }),
+        [nowMs],
+    );
     const checkInProgress = useMemo(
         () => getDailyCheckInProgress(effectiveLastCheckInMs, effectiveCurrentStreak, nowMs),
         [effectiveCurrentStreak, effectiveLastCheckInMs, nowMs],

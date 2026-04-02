@@ -94,7 +94,6 @@ export async function GET(request: NextRequest) {
         .get()),
       safeQuery("onboarding event facts", () => adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.identifiedEventFacts)
         .where("timestamp", ">=", onboardingWindowStartMs)
-        .where("eventName", "in", ["guided_onboarding_started", "guided_onboarding_completed", "guided_onboarding_step_started", "guided_onboarding_step_completed"])
         .get()),
     ]);
 

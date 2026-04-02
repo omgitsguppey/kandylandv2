@@ -89,7 +89,7 @@ export default function PrivacyPage() {
         <Section title="1. Who this notice covers">
           <p>
             This notice applies to KandyDrops websites, authenticated dashboard experiences, creator drop browsing, purchases, support interactions, and related services available at{" "}
-            <a href={SITE_ORIGIN} className="text-brand-purple hover:underline" target="_blank" rel="noreferrer">
+            <a href={SITE_ORIGIN} className="text-brand-purple hover:underline" target="_blank" rel="noopener noreferrer">
               {SITE_ORIGIN}
             </a>.
           </p>
@@ -214,7 +214,7 @@ export default function PrivacyPage() {
               Contact Support
             </a>
             {" | "}
-            <a href={SITE_ORIGIN} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-brand-purple hover:underline">
+            <a href={SITE_ORIGIN} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-brand-purple hover:underline">
               Visit site
               <ExternalLink className="h-3.5 w-3.5" />
             </a>

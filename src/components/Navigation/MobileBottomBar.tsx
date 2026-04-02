@@ -71,12 +71,13 @@ export default function MobileBottomBar() {
                     );
                 })}
 
-                <button
-                    type="button"
-                    aria-expanded={isPurchaseModalOpen}
-                    onClick={() => {
-                        triggerHaptic();
-                        openPurchaseModal();
+                 <button
+                     type="button"
+                     aria-label="Open wallet"
+                     aria-expanded={isPurchaseModalOpen}
+                     onClick={() => {
+                         triggerHaptic();
+                         openPurchaseModal();
                     }}
                     className={cn(
                         "flex h-10 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-full px-2 py-1 text-center transition-colors active:scale-95",

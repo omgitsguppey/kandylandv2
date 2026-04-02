@@ -12,6 +12,25 @@ export interface AuthResult {
     isAdmin?: boolean;
 }
 
+function sanitizeApiErrorLogValue(value: unknown) {
+    return String(value ?? "")
+        .replace(/[\r\n\t]+/g, " ")
+        .replace(/[\u0000-\u001f\u007f]+/g, "")
+        .trim()
+        .slice(0, 500);
+}
+
+function buildApiErrorLogEntry(error: unknown, context: string, status: number) {
+    return {
+        level: "error",
+        tag: "API_ERROR",
+        context: sanitizeApiErrorLogValue(context) || "unknown",
+        status,
+        errorName: error instanceof Error ? error.name : "UnknownError",
+        message: sanitizeApiErrorLogValue(error instanceof Error ? error.message : error) || "Unknown error",
+    };
+}
+
 export async function verifyAppCheck(request: NextRequest, required = shouldRequireAppCheck()) {
     const appCheckToken = request.headers.get("X-Firebase-AppCheck")?.trim();
 
@@ -94,16 +113,8 @@ export function handleApiError(error: any, context: string) {
     }
     const status = error instanceof AuthError ? error.status : 500;
 
-    // Structured JSON logging for telemetry/LogRocket/Sentry interception
-    console.error(JSON.stringify({
-        level: "error",
-        tag: "API_ERROR",
-        context,
-        status,
-        message: error instanceof Error ? error.message : "Unknown error",
-        stack: error instanceof Error ? error.stack : undefined,
-        raw: String(error)
-    }));
+    // Keep structured logs useful for observability without forwarding raw stacks or payloads.
+    console.error(JSON.stringify(buildApiErrorLogEntry(error, context, status)));
 
     const clientMessage = status >= 500
         ? "Internal server error"
