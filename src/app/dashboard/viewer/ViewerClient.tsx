@@ -19,6 +19,7 @@ import { trackEvent } from "@/lib/telemetry";
 import { useViewerWatchSession } from "@/hooks/useViewerWatchSession";
 import { useNetworkConditions } from "@/hooks/useNetworkConditions";
 import { getClientSessionId } from "@/lib/client-session";
+import { getViewerAssetPrefetchConcurrency, runConcurrentViewerPrefetch } from "@/lib/viewer-asset-prefetch";
 
 
 
@@ -1229,14 +1230,18 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
             const fetchOrder = buildThumbnailFetchOrder(assetCount, activeIndex)
                 .filter((index) => index !== activeIndex)
                 .slice(0, maxBackgroundFetches);
+            const prefetchConcurrency = Math.min(
+                fetchOrder.length,
+                getViewerAssetPrefetchConcurrency(isConstrained, isVerySlow),
+            );
 
-            for (const index of fetchOrder) {
+            await runConcurrentViewerPrefetch(fetchOrder, prefetchConcurrency, async (index) => {
                 if (cancelled) {
                     return;
                 }
 
                 if (thumbnailCacheRef.current.has(index)) {
-                    continue;
+                    return;
                 }
 
                 let assetRecord = assetCacheRef.current.get(index) ?? null;
@@ -1256,7 +1261,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                         setThumbnailItems((previous) =>
                             buildThumbnailItemsWithUpdate(previous, assetCount, fallbackThumbnail, index, fallbackThumbnail)
                         );
-                        continue;
+                        return;
                     }
 
                     if (cancelled) {
@@ -1276,7 +1281,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                 setThumbnailItems((previous) =>
                     buildThumbnailItemsWithUpdate(previous, assetCount, fallbackThumbnail, index, thumbnailItem)
                 );
-            }
+            });
         }
 
         const timerId = window.setTimeout(() => {
