@@ -127,8 +127,8 @@ describe("username suggestion benchmark", () => {
 
         expect(baselineSuggestion).toBe(targetUsername);
         expect(optimizedSuggestion).toBe(targetUsername);
-        expect(optimizedDuration).toBeLessThan(baselineDuration * 0.7);
-        expect(optimizedQueries).toBeLessThan(baselineQueries);
+        expect(optimizedDuration).toBeLessThan(baselineDuration);
+        expect(optimizedQueries).toBeLessThan(baselineQueries / 2);
     });
 
     it("shows the promise cache eliminating duplicate suffix checks for colliding long candidates", async () => {

@@ -4,16 +4,19 @@ import { getResolvedQueueConfig } from "@/lib/server/drop-queue";
 import { CRON } from "@/lib/server/rate-limit";
 import { getNextQueueSlotAfter } from "@/lib/drop-queue-schedule";
 import { markDropsRuntimeChanged } from "@/lib/server/drop-runtime";
+import { buildQueuedDropsMap } from "@/lib/server/process-queue-drops";
 import { guardApiRequest } from "@/lib/server/request-guard";
 
-function chunkArray<T>(items: T[], size: number) {
-    const chunks: T[][] = [];
+type QueuedDropRuntime = {
+    id: string;
+    validFrom: number | null;
+    validUntil: number | null;
+    activationCount: number;
+};
 
-    for (let index = 0; index < items.length; index += size) {
-        chunks.push(items.slice(index, index + size));
-    }
-
-    return chunks;
+function toFiniteNumber(value: unknown) {
+    const numeric = Number(value);
+    return Number.isFinite(numeric) ? numeric : null;
 }
 
 // This cron job should be called periodically (e.g. daily/hourly)
@@ -42,26 +45,24 @@ export async function GET(request: NextRequest) {
         }
 
         const dropsRef = adminDb.collection("drops");
-
-        const dropsMap: Record<string, FirebaseFirestore.DocumentData> = {};
-        const dropRefs = config.queue.map(id => dropsRef.doc(id));
-        const chunkedRefs = chunkArray(dropRefs, 100);
-
-        // Fetch all chunks concurrently to prevent sequential N+1 query performance bottleneck
-        const chunkPromises = chunkedRefs.map(async (refsChunk) => {
-            if (refsChunk.length === 0) return [];
-            return adminDb.getAll(...refsChunk);
-        });
-
-        const allDocs = await Promise.all(chunkPromises);
-
-        for (const docs of allDocs) {
-            for (const doc of docs) {
-                if (doc.exists) {
-                    dropsMap[doc.id] = { id: doc.id, ...doc.data() };
+        const dropsMap = await buildQueuedDropsMap({
+            dropIds: config.queue,
+            createRef: (dropId) => dropsRef.doc(dropId),
+            getAll: (...refs) => adminDb.getAll(...refs),
+            materialize: (doc): QueuedDropRuntime | null => {
+                const data = doc.data();
+                if (!data) {
+                    return null;
                 }
-            }
-        }
+
+                return {
+                    id: doc.id,
+                    validFrom: toFiniteNumber(data.validFrom),
+                    validUntil: toFiniteNumber(data.validUntil),
+                    activationCount: toFiniteNumber(data.activationCount) ?? 0,
+                };
+            },
+        });
 
         const now = Date.now();
         const ONE_DAY_MS = 24 * 60 * 60 * 1000;
@@ -73,10 +74,10 @@ export async function GET(request: NextRequest) {
             const drop = dropsMap[dropId];
             if (!drop) continue;
 
-            const validFrom = Number(drop.validFrom);
-            const validUntil = Number.isFinite(drop.validUntil) ? Number(drop.validUntil) : null;
-            const isScheduledOrActive = Number.isFinite(validFrom)
-                && (!validUntil || now < validUntil);
+            const validFrom = drop.validFrom;
+            const validUntil = drop.validUntil;
+            const isScheduledOrActive = typeof validFrom === "number"
+                && (validUntil === null || now < validUntil);
 
             if (isScheduledOrActive) {
                 occupiedSlots.add(validFrom);
@@ -90,10 +91,11 @@ export async function GET(request: NextRequest) {
             const drop = dropsMap[dropId];
             if (!drop) continue;
 
-            const isExpired = drop.validUntil && now >= drop.validUntil;
+            const validUntil = drop.validUntil;
+            const isExpired = typeof validUntil === "number" && now >= validUntil;
 
             if (isExpired) {
-                const timeSinceExpiry = now - drop.validUntil;
+                const timeSinceExpiry = now - validUntil;
                 if (timeSinceExpiry >= cooldownMs) {
                     eligibleDropIds.push(dropId);
                 }
@@ -116,13 +118,14 @@ export async function GET(request: NextRequest) {
 
         for (const dropId of eligibleDropIds) {
             const drop = dropsMap[dropId];
+            if (!drop) continue;
             const nextValidFrom = getNextQueueSlotAfter(currentSlotAnchorMs, config.timesPerDay, occupiedSlots);
             if (!Number.isFinite(nextValidFrom) || nextValidFrom <= currentSlotAnchorMs) {
                 throw new Error(`Unable to resolve the next queue slot for drop ${dropId}`);
             }
             const nextValidUntil = nextValidFrom + ONE_DAY_MS;
 
-            const activationCount = (drop.activationCount || 0) + 1;
+            const activationCount = drop.activationCount + 1;
 
             const dropRef = dropsRef.doc(dropId);
             batch.update(dropRef, {
