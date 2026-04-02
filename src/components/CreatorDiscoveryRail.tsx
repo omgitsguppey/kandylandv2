@@ -3,10 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, Sparkles, Users } from "lucide-react";
+import { CheckCircle2, Heart, Sparkles, Users } from "lucide-react";
 
 import { useAuth } from "@/context/AuthContext";
 import { authFetch } from "@/lib/authFetch";
+import { buildCreatorDiscoveryNavigationParams } from "@/lib/creator-public-pages";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/telemetry";
 
@@ -112,18 +113,18 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
 
     const header = title || (followedCreators.length > 0 ? "Creators you follow" : "Recommended creators");
     const support = followedCreators.length > 0
-        ? "Jump back into the creator experiences already in your loop."
-        : "Start following creators to unlock their adjacent experience layer.";
+        ? "Jump back into the approved creator profiles already in your fan loop."
+        : "Start following creators to unlock drops, private requests, and live creator experiences.";
     const emptyTitle = surface === "dashboard"
-        ? "Creator experiences are warming up"
+        ? "Creator spotlight opens as creators go live"
         : surface === "drops"
-            ? "No creators are live here yet"
-            : "Creator discovery will land here soon";
+            ? "No creator spotlights are active here yet"
+            : "No creator experiences are ready here yet";
     const emptySupport = surface === "dashboard"
-        ? "Once creators are live, the dashboard will surface the ones you follow first and recommend the rest."
+        ? "As approved creator profiles come online, the dashboard will pin the ones you follow first and then recommend the rest."
         : surface === "drops"
-            ? "As creator drops come online, this rail will surface them here without mixing admins into discovery."
-            : "This space will start routing fans into real creator pages as creator experiences roll out.";
+            ? "As creator drops go live, this rail will surface the creators behind them without mixing admin tooling into fan discovery."
+            : "Creator experiences only appear here once the underlying profile and fan actions are ready.";
 
     if (primaryCreators.length === 0) {
         return (
@@ -133,7 +134,7 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
             )}>
                 <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
                     <Sparkles className="h-3.5 w-3.5" />
-                    Kreator Experiences
+                    Creator spotlight
                 </div>
                 <div className="rounded-[1.7rem] border border-dashed border-white/10 bg-black/25 px-4 py-6 text-center">
                     <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-400">
@@ -155,7 +156,7 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
                 <div>
                     <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
                         <Sparkles className="h-3.5 w-3.5" />
-                        Kreator Experiences
+                        Creator spotlight
                     </div>
                     <h3 className="mt-3 text-lg font-black text-white sm:text-xl">{header}</h3>
                     <p className="mt-1 max-w-2xl text-sm leading-6 text-gray-400">{support}</p>
@@ -173,39 +174,69 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
                             key={creator.uid}
                             href={creator.username ? `/creators/${creator.username}` : "#"}
                             onClick={() => {
-                                trackEvent("creator_profile_viewed", {
-                                    creator_id: creator.uid,
-                                    creator_username: creator.username,
-                                    discovery_surface: surface,
-                                });
+                                trackEvent("navigation_click", buildCreatorDiscoveryNavigationParams({
+                                    creatorId: creator.uid,
+                                    creatorUsername: creator.username,
+                                    surface,
+                                }));
                             }}
-                            className="group w-[6.5rem] shrink-0 text-center sm:w-[7.5rem]"
+                            className="group w-[10rem] shrink-0"
                         >
-                            <div className="mx-auto flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border border-brand-purple/25 bg-black/40 shadow-[0_0_0_6px_rgba(255,255,255,0.02)] transition-transform group-hover:scale-[1.03]">
-                                {creator.photoURL ? (
-                                    <Image src={creator.photoURL} alt={creator.displayName} width={80} height={80} className="h-full w-full object-cover" />
-                                ) : (
-                                    <span className="text-lg font-black text-white">{initialsFor(creator.displayName)}</span>
-                                )}
-                            </div>
-                            <p className="mt-3 truncate text-sm font-bold text-white">{creator.displayName}</p>
-                            <p className="truncate text-xs text-gray-500">{creator.username ? `@${creator.username}` : "creator"}</p>
-                            <div className="mt-2 flex items-center justify-center gap-2 text-[10px] text-gray-400">
-                                {creator.following ? (
-                                    <span className="inline-flex items-center gap-1 rounded-full border border-brand-purple/25 bg-brand-purple/10 px-2 py-0.5 font-bold text-brand-purple">
-                                        <Users className="h-3 w-3" />
-                                        Following
-                                    </span>
-                                ) : creator.favoriteCount ? (
-                                    <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-0.5 font-bold text-gray-300">
-                                        <Heart className="h-3 w-3" />
-                                        {creator.favoriteCount}
-                                    </span>
-                                ) : creator.activeDropCount ? (
-                                    <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-0.5 font-bold text-gray-300">
-                                        {creator.activeDropCount} live
-                                    </span>
-                                ) : null}
+                            <div className="rounded-[1.75rem] border border-white/10 bg-black/25 p-3 transition-all group-hover:border-brand-purple/30 group-hover:bg-white/[0.07]">
+                                <div className="flex items-start gap-3">
+                                    <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full border border-brand-purple/25 bg-black/40 shadow-[0_0_0_4px_rgba(255,255,255,0.02)] transition-transform group-hover:scale-[1.03]">
+                                        {creator.photoURL ? (
+                                            <Image src={creator.photoURL} alt={creator.displayName} width={56} height={56} className="h-full w-full object-cover" />
+                                        ) : (
+                                            <span className="text-sm font-black text-white">{initialsFor(creator.displayName)}</span>
+                                        )}
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex items-center gap-1.5">
+                                            <p className="truncate text-sm font-bold text-white">{creator.displayName}</p>
+                                            {creator.isVerified ? <CheckCircle2 className="h-4 w-4 shrink-0 text-brand-purple" /> : null}
+                                        </div>
+                                        <p className="truncate text-xs text-gray-500">{creator.username ? `@${creator.username}` : "creator"}</p>
+                                        {creator.bio ? (
+                                            <p className="mt-2 line-clamp-2 text-xs leading-5 text-gray-400">{creator.bio}</p>
+                                        ) : (
+                                            <p className="mt-2 text-xs leading-5 text-gray-500">
+                                                Approved creator profile with live fan experiences.
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="mt-3 flex flex-wrap gap-1.5 text-[10px] text-gray-300">
+                                    {creator.following ? (
+                                        <span className="inline-flex items-center gap-1 rounded-full border border-brand-purple/25 bg-brand-purple/10 px-2 py-1 font-bold text-brand-purple">
+                                            <Users className="h-3 w-3" />
+                                            Following
+                                        </span>
+                                    ) : null}
+                                    {creator.followerCount ? (
+                                        <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-1 font-bold">
+                                            <Users className="h-3 w-3" />
+                                            {creator.followerCount} fans
+                                        </span>
+                                    ) : null}
+                                    {creator.activeDropCount ? (
+                                        <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-1 font-bold">
+                                            <Sparkles className="h-3 w-3" />
+                                            {creator.activeDropCount} live
+                                        </span>
+                                    ) : null}
+                                    {!creator.following && !creator.followerCount && creator.favoriteCount ? (
+                                        <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-1 font-bold">
+                                            <Heart className="h-3 w-3" />
+                                            {creator.favoriteCount} saved
+                                        </span>
+                                    ) : null}
+                                    {!creator.following && !creator.followerCount && !creator.activeDropCount && !creator.favoriteCount ? (
+                                        <span className="inline-flex rounded-full border border-white/10 bg-white/5 px-2 py-1 font-bold text-gray-400">
+                                            Profile ready
+                                        </span>
+                                    ) : null}
+                                </div>
                             </div>
                         </Link>
                     ))}

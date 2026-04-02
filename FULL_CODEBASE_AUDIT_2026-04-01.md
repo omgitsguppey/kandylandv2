@@ -1,0 +1,619 @@
+# Full Codebase Audit
+
+Date: 2026-04-01
+Repo: C:\Users\uylus\OneDrive\Documents\KandyDrops_Final
+Tracked files inventoried: 537 / 537
+
+## Scope
+This document is a literal no-skip inventory of every tracked file currently returned by git ls-files, plus a targeted behavioral review of the creator public surface completed in this pass.
+
+Deep-review focus for this pass:
+- src/app/creators/[username]/CreatorProfileClient.tsx
+- src/components/CreatorDiscoveryRail.tsx
+- src/lib/creator-public-pages.ts
+- creator public telemetry parity and fan-facing module gating
+
+Important honesty note: this inventory is exhaustive, but not every file received the same depth of line-by-line behavioral review in this single pass. Deep behavioral review was concentrated on runtime-critical hotspots and previously identified risk areas.
+
+## Jules-Inspired Bug-Fix Loop
+Research first, using current official Jules material as the operating model:
+- Jules works in a fresh VM, installs dependencies, writes tests, makes changes, runs tests, and opens a PR: https://jules.google/docs/changelog/2025-05-19/
+- Jules emphasizes a reviewable plan before execution and a critic/diff loop around edits: https://jules.google/docs/repo/ and https://jules.google/docs/changelog/2025-05-19/
+- The repo-facing workflow to mirror here is: scope the task, identify canonical files, make narrowly-scoped changes, validate with tests/lint/typecheck, then review the diff and residual risks before shipping.
+
+## Current Findings
+- Creator public profiles were double-counting creator_profile_viewed through two separate client paths. This pass consolidates that to one source of truth.
+- Creator discovery cards were tracking a profile view at click time instead of a navigation action. This pass reclassifies that interaction as navigation_click.
+- Fan-facing creator modules were rendering even when a creator had disabled them in creatorSettings. This pass gates subscriptions, chat, custom requests, bookings, and broadcasts off the canonical creator settings state.
+- The public creator profile also carried placeholder/legacy presentation quality issues, including mojibake fallback glyphs and weaker empty-state language. This pass replaces those with production-ready visual states.
+
+## Ongoing Repo Hotspots
+- middleware.ts: still a trust-boundary hotspot from prior audits.
+- functions/src/index.ts: still a large concentration point for functions behavior.
+- admin analytics and telemetry ingest: hardening improved recently, but these paths remain higher-complexity areas worth continued regression coverage.
+- documentation sprawl: there are many prior audit docs; keep one current source-of-truth audit and archive stale ones deliberately.
+
+## Inventory By Top-Level Section
+
+- (root): 36 file(s)
+- .agent: 1 file(s)
+- .Jules: 3 file(s)
+- .vscode: 2 file(s)
+- dataconnect: 14 file(s)
+- functions: 36 file(s)
+- public: 11 file(s)
+- qa-screenshots: 37 file(s)
+- scripts: 12 file(s)
+- src: 331 file(s)
+- tests: 54 file(s)
+
+## Section: (root)
+
+- .gitignore — tracked repository artifact. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- .ncurc.json — config artifact. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- .npmrc — tracked repository artifact. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- AGENTS.md — documentation artifact. Documentation/audit artifact retained in the inventory for no-skip coverage.
+- ANALYTICS_SYSTEM_AUDIT_2026-03-18.md — documentation artifact. Documentation/audit artifact retained in the inventory for no-skip coverage.
+- apphosting.yaml — deployment/config artifact. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- backends.json — config artifact. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- CHANGELOG.md — documentation artifact. Documentation/audit artifact retained in the inventory for no-skip coverage.
+- database.rules.json — config artifact. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- DEPENDENCY_CONSISTENCY_AUDIT_2026-03-24.md — documentation artifact. Documentation/audit artifact retained in the inventory for no-skip coverage.
+- eslint.config.mjs — tooling module. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- EVERY_FILE_FUNCTION_CHECKLIST.md — documentation artifact. Documentation/audit artifact retained in the inventory for no-skip coverage.
+- firebase.json — config artifact. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- firestore.indexes.json — Firestore index config. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- firestore.rules — security ruleset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- FULL_CODEBASE_POST_AUDIT_2026-03-18.md — documentation artifact. Documentation/audit artifact retained in the inventory for no-skip coverage.
+- knip.json — config artifact. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- makeAdmin.js — tooling/runtime script. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- middleware.ts — supporting TypeScript module. Known hotspot from prior audits; keep auth and redirect trust boundaries under active review.
+- next.config.ts — supporting TypeScript module. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- package.json — workspace manifest. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- package-lock.json — lockfile artifact. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- plan_review.md — documentation artifact. Documentation/audit artifact retained in the inventory for no-skip coverage.
+- playwright.config.ts — supporting TypeScript module. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- pnpm-lock.yaml — deployment/config artifact. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- postcss.config.mjs — tooling module. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- REPO_STATE_SCORECARD_2026-03-18.md — documentation artifact. Documentation/audit artifact retained in the inventory for no-skip coverage.
+- REPO_STATE_SCORECARD_2026-03-19.md — documentation artifact. Documentation/audit artifact retained in the inventory for no-skip coverage.
+- STANDARDIZATION_AUDIT_CHECKLIST.md — documentation artifact. Documentation/audit artifact retained in the inventory for no-skip coverage.
+- status.txt — tracked repository artifact. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- storage.rules — security ruleset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- TELEMETRY_MIDDLEWARE_AUDIT_2026-03-23.md — documentation artifact. Documentation/audit artifact retained in the inventory for no-skip coverage.
+- tsconfig.json — config artifact. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- V1_STABILITY_AUDIT_2026-03-24.md — documentation artifact. Documentation/audit artifact retained in the inventory for no-skip coverage.
+- vitest.config.ts — supporting TypeScript module. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- vitest.rules.config.ts — supporting TypeScript module. Included in the exhaustive tracked-file inventory for this audit snapshot.
+
+## Section: .agent
+
+- .agent/workflows/pre-commit.md — documentation artifact. Documentation/audit artifact retained in the inventory for no-skip coverage.
+
+## Section: .Jules
+
+- .jules/bolt.md — documentation artifact. Documentation/audit artifact retained in the inventory for no-skip coverage.
+- .Jules/palette.md — documentation artifact. Documentation/audit artifact retained in the inventory for no-skip coverage.
+- .jules/sentinel.md — documentation artifact. Documentation/audit artifact retained in the inventory for no-skip coverage.
+
+## Section: .vscode
+
+- .vscode/settings.json — config artifact. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- .vscode/tailwind.json — config artifact. Included in the exhaustive tracked-file inventory for this audit snapshot.
+
+## Section: dataconnect
+
+- dataconnect/.dataconnect/schema/main/input.gql — Data Connect schema/config. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- dataconnect/.dataconnect/schema/main/mutation.gql — Data Connect schema/config. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- dataconnect/.dataconnect/schema/main/query.gql — Data Connect schema/config. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- dataconnect/.dataconnect/schema/main/relation.gql — Data Connect schema/config. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- dataconnect/.dataconnect/schema/prelude.gql — Data Connect schema/config. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- dataconnect/analytics_export/connector.yaml — Data Connect schema/config. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- dataconnect/analytics_export/mutations.gql — Data Connect schema/config. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- dataconnect/analytics_export/queries.gql — Data Connect schema/config. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- dataconnect/dataconnect.yaml — Data Connect schema/config. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- dataconnect/example/connector.yaml — Data Connect schema/config. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- dataconnect/example/mutations.gql — Data Connect schema/config. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- dataconnect/example/queries.gql — Data Connect schema/config. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- dataconnect/schema/machine_learning.gql — Data Connect schema/config. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- dataconnect/schema/schema.gql — Data Connect schema/config. Included in the exhaustive tracked-file inventory for this audit snapshot.
+
+## Section: functions
+
+- functions/.gitignore — functions workspace config. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- functions/eslint.config.js — functions workspace config. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- functions/package.json — functions workspace config. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- functions/package-lock.json — functions workspace config. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- functions/src/analytics-core.ts — cloud function/runtime. Functions runtime hotspot; keep under stronger modularity and deployment checks.
+- functions/src/analytics-event-facts.ts — cloud function/runtime. Functions runtime hotspot; keep under stronger modularity and deployment checks.
+- functions/src/analytics-export-dataconnect.ts — cloud function/runtime. Functions runtime hotspot; keep under stronger modularity and deployment checks.
+- functions/src/analytics-export-sync.ts — cloud function/runtime. Functions runtime hotspot; keep under stronger modularity and deployment checks.
+- functions/src/analytics-guest-batches.ts — cloud function/runtime. Functions runtime hotspot; keep under stronger modularity and deployment checks.
+- functions/src/analytics-realtime.ts — cloud function/runtime. Functions runtime hotspot; keep under stronger modularity and deployment checks.
+- functions/src/analytics-runtime.ts — cloud function/runtime. Functions runtime hotspot; keep under stronger modularity and deployment checks.
+- functions/src/analytics-schedules.ts — cloud function/runtime. Functions runtime hotspot; keep under stronger modularity and deployment checks.
+- functions/src/analytics-security-events.ts — cloud function/runtime. Functions runtime hotspot; keep under stronger modularity and deployment checks.
+- functions/src/analytics-semantics.ts — cloud function/runtime. Functions runtime hotspot; keep under stronger modularity and deployment checks.
+- functions/src/analytics-task-events.ts — cloud function/runtime. Functions runtime hotspot; keep under stronger modularity and deployment checks.
+- functions/src/analytics-transactions.ts — cloud function/runtime. Functions runtime hotspot; keep under stronger modularity and deployment checks.
+- functions/src/dataconnect-admin-generated/esm/index.esm.js — cloud function/runtime. Generated output; validate via source schema or generator, not hand edits.
+- functions/src/dataconnect-admin-generated/esm/package.json — cloud function/runtime. Generated output; validate via source schema or generator, not hand edits.
+- functions/src/dataconnect-admin-generated/index.cjs.js — cloud function/runtime. Generated output; validate via source schema or generator, not hand edits.
+- functions/src/dataconnect-admin-generated/index.d.ts — cloud function/runtime. Generated output; validate via source schema or generator, not hand edits.
+- functions/src/dataconnect-admin-generated/package.json — cloud function/runtime. Generated output; validate via source schema or generator, not hand edits.
+- functions/src/firebase-admin.ts — cloud function/runtime. Functions runtime hotspot; keep under stronger modularity and deployment checks.
+- functions/src/firebase-runtime.ts — cloud function/runtime. Functions runtime hotspot; keep under stronger modularity and deployment checks.
+- functions/src/gumdrop-economics.ts — cloud function/runtime. Functions runtime hotspot; keep under stronger modularity and deployment checks.
+- functions/src/index.ts — cloud function/runtime. Functions runtime hotspot; keep under stronger modularity and deployment checks.
+- functions/src/orchestration-contract.ts — cloud function/runtime. Functions runtime hotspot; keep under stronger modularity and deployment checks.
+- functions/src/orchestration-diagnostics.ts — cloud function/runtime. Functions runtime hotspot; keep under stronger modularity and deployment checks.
+- functions/src/orchestration-engine.ts — cloud function/runtime. Functions runtime hotspot; keep under stronger modularity and deployment checks.
+- functions/src/orchestration-identity.ts — cloud function/runtime. Functions runtime hotspot; keep under stronger modularity and deployment checks.
+- functions/src/orchestration-parity.ts — cloud function/runtime. Functions runtime hotspot; keep under stronger modularity and deployment checks.
+- functions/src/orchestration-readiness.ts — cloud function/runtime. Functions runtime hotspot; keep under stronger modularity and deployment checks.
+- functions/src/orchestration-routing.ts — cloud function/runtime. Functions runtime hotspot; keep under stronger modularity and deployment checks.
+- functions/src/orchestration-runtime.ts — cloud function/runtime. Functions runtime hotspot; keep under stronger modularity and deployment checks.
+- functions/src/orchestration-utils.ts — cloud function/runtime. Functions runtime hotspot; keep under stronger modularity and deployment checks.
+- functions/tsconfig.dev.json — functions workspace config. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- functions/tsconfig.json — functions workspace config. Included in the exhaustive tracked-file inventory for this audit snapshot.
+
+## Section: public
+
+- public/candy-3d-glass.png — static asset/runtime asset. Static runtime asset; review for branding, cache, and delivery correctness.
+- public/candy-main.svg — static asset/runtime asset. Static runtime asset; review for branding, cache, and delivery correctness.
+- public/file.svg — static asset/runtime asset. Static runtime asset; review for branding, cache, and delivery correctness.
+- public/firebase-messaging-sw.js — static asset/runtime asset. Static runtime asset; review for branding, cache, and delivery correctness.
+- public/globe.svg — static asset/runtime asset. Static runtime asset; review for branding, cache, and delivery correctness.
+- public/icon-192x192.png — static asset/runtime asset. Static runtime asset; review for branding, cache, and delivery correctness.
+- public/icon-512x512.png — static asset/runtime asset. Static runtime asset; review for branding, cache, and delivery correctness.
+- public/manifest.json — static asset/runtime asset. Static runtime asset; review for branding, cache, and delivery correctness.
+- public/next.svg — static asset/runtime asset. Static runtime asset; review for branding, cache, and delivery correctness.
+- public/vercel.svg — static asset/runtime asset. Static runtime asset; review for branding, cache, and delivery correctness.
+- public/window.svg — static asset/runtime asset. Static runtime asset; review for branding, cache, and delivery correctness.
+
+## Section: qa-screenshots
+
+- qa-screenshots/desktop-admin-create-full.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/desktop-admin-create-viewport.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/desktop-admin-drops-full.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/desktop-admin-drops-viewport.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/desktop-admin-full.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/desktop-admin-viewport.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/desktop-dashboard-full.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/desktop-dashboard-viewport.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/desktop-drops-full.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/desktop-drops-viewport.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/desktop-experiences.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/desktop-experiences-full.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/desktop-experiences-viewport.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/desktop-home.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/desktop-home-full.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/desktop-home-viewport.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/mobile-admin-create-full.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/mobile-admin-create-viewport.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/mobile-admin-drops-full.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/mobile-admin-drops-viewport.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/mobile-admin-full.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/mobile-admin-viewport.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/mobile-dashboard-full.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/mobile-dashboard-viewport.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/mobile-drops-full.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/mobile-drops-viewport.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/mobile-experiences.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/mobile-experiences-full.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/mobile-experiences-viewport.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/mobile-home.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/mobile-home-full.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/mobile-home-viewport.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/tablet-dashboard-full.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/tablet-drops-full.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/tablet-experiences.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/tablet-home.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- qa-screenshots/tablet-home-full.png — image asset. Included in the exhaustive tracked-file inventory for this audit snapshot.
+
+## Section: scripts
+
+- scripts/audit-telemetry.ts — maintenance or audit script. Operational helper; safe output and least-privilege behavior should stay enforced.
+- scripts/backfill-analytics-parity.ts — maintenance or audit script. Operational helper; safe output and least-privilege behavior should stay enforced.
+- scripts/check-analytics-semantics.ts — maintenance or audit script. Operational helper; safe output and least-privilege behavior should stay enforced.
+- scripts/check-cycles.ts — maintenance or audit script. Operational helper; safe output and least-privilege behavior should stay enforced.
+- scripts/check-firebase-runtime.ts — maintenance or audit script. Operational helper; safe output and least-privilege behavior should stay enforced.
+- scripts/promote-admin.ts — maintenance or audit script. Operational helper; safe output and least-privilege behavior should stay enforced.
+- scripts/remove-hovers.mjs — maintenance or audit script. Operational helper; safe output and least-privilege behavior should stay enforced.
+- scripts/replace-colors.js — maintenance or audit script. Operational helper; safe output and least-privilege behavior should stay enforced.
+- scripts/replace-icons.mjs — maintenance or audit script. Operational helper; safe output and least-privilege behavior should stay enforced.
+- scripts/review-admin-panel-logs.ts — maintenance or audit script. Operational helper; safe output and least-privilege behavior should stay enforced.
+- scripts/run-firestore-rules-tests.ts — maintenance or audit script. Operational helper; safe output and least-privilege behavior should stay enforced.
+- scripts/run-storage-rules-tests.ts — maintenance or audit script. Operational helper; safe output and least-privilege behavior should stay enforced.
+
+## Section: src
+
+- src/app/%5F%5F/auth/[...path]/route.ts — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/%5F%5F/firebase/[...path]/route.ts — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/(legal)/privacy/page.tsx — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/(legal)/terms/page.tsx — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/admin/analytics/page.tsx — app route or page. Admin surface; recent hardening pass exists, keep monitoring parity and stale-state drift.
+- src/app/admin/content/page.tsx — app route or page. Admin surface; recent hardening pass exists, keep monitoring parity and stale-state drift.
+- src/app/admin/debug/page.tsx — app route or page. Admin surface; recent hardening pass exists, keep monitoring parity and stale-state drift.
+- src/app/admin/drops/page.tsx — app route or page. Admin surface; recent hardening pass exists, keep monitoring parity and stale-state drift.
+- src/app/admin/error.tsx — app route or page. Admin surface; recent hardening pass exists, keep monitoring parity and stale-state drift.
+- src/app/admin/layout.tsx — app route or page. Admin surface; recent hardening pass exists, keep monitoring parity and stale-state drift.
+- src/app/admin/loading.tsx — app route or page. Admin surface; recent hardening pass exists, keep monitoring parity and stale-state drift.
+- src/app/admin/page.tsx — app route or page. Admin surface; recent hardening pass exists, keep monitoring parity and stale-state drift.
+- src/app/admin/queue/page.tsx — app route or page. Admin surface; recent hardening pass exists, keep monitoring parity and stale-state drift.
+- src/app/admin/roster/page.tsx — app route or page. Admin surface; recent hardening pass exists, keep monitoring parity and stale-state drift.
+- src/app/admin/user/[userId]/page.tsx — app route or page. Admin surface; recent hardening pass exists, keep monitoring parity and stale-state drift.
+- src/app/admin/users/page.tsx — app route or page. Admin surface; recent hardening pass exists, keep monitoring parity and stale-state drift.
+- src/app/api/admin/analytics/historical/route.ts — critical API route. Admin surface; recent hardening pass exists, keep monitoring parity and stale-state drift.
+- src/app/api/admin/analytics/realtime/route.ts — critical API route. Admin surface; recent hardening pass exists, keep monitoring parity and stale-state drift.
+- src/app/api/admin/analytics/route.ts — critical API route. Admin surface; recent hardening pass exists, keep monitoring parity and stale-state drift.
+- src/app/api/admin/balance/route.ts — critical API route. Admin surface; recent hardening pass exists, keep monitoring parity and stale-state drift.
+- src/app/api/admin/creator-options/route.ts — critical API route. Admin surface; recent hardening pass exists, keep monitoring parity and stale-state drift.
+- src/app/api/admin/debug/route.ts — critical API route. Admin surface; recent hardening pass exists, keep monitoring parity and stale-state drift.
+- src/app/api/admin/drops/route.ts — critical API route. Admin surface; recent hardening pass exists, keep monitoring parity and stale-state drift.
+- src/app/api/admin/feedback/route.ts — critical API route. Admin surface; recent hardening pass exists, keep monitoring parity and stale-state drift.
+- src/app/api/admin/orchestration/repairs/route.ts — critical API route. Admin surface; recent hardening pass exists, keep monitoring parity and stale-state drift.
+- src/app/api/admin/overview/route.ts — critical API route. Admin surface; recent hardening pass exists, keep monitoring parity and stale-state drift.
+- src/app/api/admin/queue/route.ts — critical API route. Admin surface; recent hardening pass exists, keep monitoring parity and stale-state drift.
+- src/app/api/admin/queue/toggle/route.ts — critical API route. Admin surface; recent hardening pass exists, keep monitoring parity and stale-state drift.
+- src/app/api/admin/roster/route.ts — critical API route. Admin surface; recent hardening pass exists, keep monitoring parity and stale-state drift.
+- src/app/api/admin/tasks/route.ts — critical API route. Admin surface; recent hardening pass exists, keep monitoring parity and stale-state drift.
+- src/app/api/admin/user/[userId]/creator-onboarding/id-document/route.ts — critical API route. Admin surface; recent hardening pass exists, keep monitoring parity and stale-state drift.
+- src/app/api/admin/user/[userId]/route.ts — critical API route. Admin surface; recent hardening pass exists, keep monitoring parity and stale-state drift.
+- src/app/api/admin/users/route.ts — critical API route. Admin surface; recent hardening pass exists, keep monitoring parity and stale-state drift.
+- src/app/api/analytics/ingest/route.ts — critical API route. Analytics hotspot; error isolation and telemetry integrity remain important follow-up areas.
+- src/app/api/auth/navigation-session/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/checkin/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/creator/bookings/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/creator/broadcasts/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/creator/discovery/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/creator/drops/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/creator/messages/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/creator/onboarding/id-submission/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/creator/payouts/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/creator/relationships/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/creator/requests/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/creator/settings/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/creator/subscriptions/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/creators/[username]/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/cron/notify-active-drops/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/cron/process-creator-subscriptions/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/cron/process-queue/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/drops/[dropId]/click/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/drops/content/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/drops/duplicate-filenames/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/drops/impression/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/drops/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/drops/track/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/drops/unlock/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/notifications/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/paypal/capture/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/paypal/create/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/privacy/consent/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/security/log-attempt/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/security/recaptcha/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/settings/landing/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/settings/landing/upload/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/tasks/feedback/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/tasks/reminders/sync/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/tasks/rotate/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/telemetry/track/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/user/activity/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/user/check-username/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/user/complete-onboarding/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/user/data/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/user/delete/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/user/follow/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/user/onboarding-progress/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/user/profile/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/user/register/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/user/revoke-sessions/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/api/viewer/watch-session/route.ts — critical API route. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/banned/page.tsx — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/creators/[username]/CreatorProfileClient.tsx — app route or page. Reviewed in this pass for creator public parity, fan readiness, and telemetry consistency.
+- src/app/creators/[username]/page.tsx — app route or page. Reviewed in this pass for creator public parity, fan readiness, and telemetry consistency.
+- src/app/creators/apply/page.tsx — app route or page. Reviewed in this pass for creator public parity, fan readiness, and telemetry consistency.
+- src/app/creators/waitlist/page.tsx — app route or page. Reviewed in this pass for creator public parity, fan readiness, and telemetry consistency.
+- src/app/dashboard/DashboardClient.tsx — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/dashboard/layout.tsx — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/dashboard/library/LibraryClient.tsx — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/dashboard/library/page.tsx — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/dashboard/page.tsx — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/dashboard/profile/page.tsx — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/dashboard/viewer/page.tsx — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/dashboard/viewer/ViewerClient.tsx — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/drops/[id]/opengraph-image.tsx — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/drops/DropsClient.tsx — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/drops/loading.tsx — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/drops/page.tsx — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/error.tsx — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/experiences/ExperiencesClient.tsx — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/experiences/page.tsx — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/faq/FAQClient.tsx — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/faq/faq-data.ts — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/faq/HowItWorksStory.tsx — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/faq/page.tsx — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/favicon.ico — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/globals.css — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/layout.tsx — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/loading.tsx — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/not-found.tsx — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/offline/page.tsx — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/page.tsx — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/robots.ts — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/app/sitemap.ts — app route or page. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Admin/AdminActivityLogPanel.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Admin/AdminAnalyticsCharts.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Admin/AdminPageHeader.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Admin/AdminStatsBar.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Admin/AdminTasksManager.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Admin/AssetUploader.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Admin/BalanceAdjustmentModal.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Admin/CreateDropModal.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Admin/RecentTransactionsPanel.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Admin/TopDropsPanel.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Admin/TransactionHistoryModal.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Analytics/DeepTracker.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Analytics/PageViewEvent.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Auth/AuthModal.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Auth/GuestComponentBlur.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Auth/GuidedOnboarding.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/ClientDiagnosticsBridge.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/CookieBanner.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/CoreLayoutWrapper.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/CreatorDiscoveryRail.tsx — UI component. Reviewed in this pass for creator public parity, fan readiness, and telemetry consistency.
+- src/components/Dashboard/CollectionList.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Dashboard/DailyCheckIn.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Dashboard/DailyTasksModule.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Dashboard/LiveDropsForYouCarousel.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Dashboard/NotificationPromptBanner.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Dashboard/OwnedDropGalleryCard.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Dashboard/RecentActivityFeed.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Dashboard/TaskGuidanceBanner.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Debug/DebugBreakpoints.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/DropCard.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/DropGrid.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/DropPreviewModal.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/ErrorBoundary.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/FeaturedCarousel.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Feedback/GlobalBugReportTrigger.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Feedback/ReportBugButton.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/GlobalAuthModal.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/GlobalPurchaseModal.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Hero.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/HomeDropTicker.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/InsufficientBalanceModal.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/KandyDropsAccountOverview.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Landing/HomeActiveDropsCarousel.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Landing/HowItWorks.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Legal/LegalBackLink.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Navbar.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Navigation/AdminDropdown.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Navigation/AnimateBalance.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Navigation/AutoScrollToTop.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Navigation/MobileBottomBar.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Navigation/NotificationBell.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Navigation/ProfileDropdown.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Navigation/ProfileSidebar.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Navigation/ScrollToTop.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Notifications/NotificationRuntimeBridge.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/PayPalProvider.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/PromoCard.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/PurchaseModal.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/PwaRuntimeBridge.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/StickyFilterBar.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/Toasts/UnwrapSuccessToast.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/ui/Button.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/components/ui/Icon.tsx — UI component. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/context/AuthContext.tsx — client state/provider. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/context/RolloutContext.tsx — client state/provider. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/context/SWRProvider.tsx — client state/provider. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/context/UIContext.tsx — client state/provider. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/dataconnect-admin-generated/esm/index.esm.js — tooling/runtime script. Generated output; validate via source schema or generator, not hand edits.
+- src/dataconnect-admin-generated/esm/package.json — config artifact. Generated output; validate via source schema or generator, not hand edits.
+- src/dataconnect-admin-generated/index.cjs.js — tooling/runtime script. Generated output; validate via source schema or generator, not hand edits.
+- src/dataconnect-admin-generated/index.d.ts — supporting TypeScript module. Generated output; validate via source schema or generator, not hand edits.
+- src/dataconnect-admin-generated/package.json — config artifact. Generated output; validate via source schema or generator, not hand edits.
+- src/dataconnect-generated/.guides/config.json — config artifact. Generated output; validate via source schema or generator, not hand edits.
+- src/dataconnect-generated/.guides/setup.md — documentation artifact. Generated output; validate via source schema or generator, not hand edits.
+- src/dataconnect-generated/.guides/usage.md — documentation artifact. Generated output; validate via source schema or generator, not hand edits.
+- src/dataconnect-generated/esm/index.esm.js — tooling/runtime script. Generated output; validate via source schema or generator, not hand edits.
+- src/dataconnect-generated/esm/package.json — config artifact. Generated output; validate via source schema or generator, not hand edits.
+- src/dataconnect-generated/index.cjs.js — tooling/runtime script. Generated output; validate via source schema or generator, not hand edits.
+- src/dataconnect-generated/index.d.ts — supporting TypeScript module. Generated output; validate via source schema or generator, not hand edits.
+- src/dataconnect-generated/package.json — config artifact. Generated output; validate via source schema or generator, not hand edits.
+- src/dataconnect-generated/react/esm/index.esm.js — tooling/runtime script. Generated output; validate via source schema or generator, not hand edits.
+- src/dataconnect-generated/react/esm/package.json — config artifact. Generated output; validate via source schema or generator, not hand edits.
+- src/dataconnect-generated/react/index.cjs.js — tooling/runtime script. Generated output; validate via source schema or generator, not hand edits.
+- src/dataconnect-generated/react/index.d.ts — supporting TypeScript module. Generated output; validate via source schema or generator, not hand edits.
+- src/dataconnect-generated/react/package.json — config artifact. Generated output; validate via source schema or generator, not hand edits.
+- src/dataconnect-generated/react/README.md — documentation artifact. Generated output; validate via source schema or generator, not hand edits.
+- src/dataconnect-generated/README.md — documentation artifact. Generated output; validate via source schema or generator, not hand edits.
+- src/hooks/client-runtime.ts — client hook. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/hooks/useAdminOverview.ts — client hook. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/hooks/useAuthSWR.ts — client hook. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/hooks/useCachedAuthSWR.ts — client hook. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/hooks/useCompactViewport.ts — client hook. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/hooks/useDeferredClientReady.ts — client hook. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/hooks/useDrops.ts — client hook. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/hooks/useNetworkConditions.ts — client hook. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/hooks/useNotifications.ts — client hook. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/hooks/useTaskGuidanceActions.ts — client hook. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/hooks/useViewerWatchSession.ts — client hook. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/activity-sync.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/admin-drop-formatting.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/admin-ops-health.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/admin-panel-system-logs.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/analytics-client-engine.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/analytics-identifiers.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/analytics-metric-catalog.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/analytics-runtime.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/analytics-semantics.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/analytics-time.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/app-check.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/authFetch.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/browser-notification-enrollment.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/browser-utils.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/bug-reporting.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/client-diagnostics.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/client-random.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/client-session.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/creator-application.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/creator-experiences.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/creator-onboarding.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/daily-checkin.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/drop-engagement.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/drop-normalizers.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/drop-presentation.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/drop-queue-schedule.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/drop-runtime.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/drop-status.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/firebase.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/firebase/admin-actions.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/firebase-data.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/firebase-messaging.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/firebase-runtime.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/gumdrop-economics.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/gumdrop-ledger.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/gumdrops-packages.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/http-cache.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/landing-assets.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/legal-documents.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/manual-recaptcha.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/marketing-copy.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/media-hosts.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/monitoring.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/navigation-persistence.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/navigation-session.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/notification-contracts.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/notification-runtime.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/notifications.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/orchestration/contract.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/privacy-consent.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/privacy-policy.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/release-tracking.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/rollouts.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/security-events.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/server/admin-analytics-context.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/admin-analytics-data.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/admin-analytics-historical-activity.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/admin-analytics-historical-content.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/admin-analytics-historical-engagement.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/admin-analytics-historical-onboarding.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/admin-analytics-historical-tasks.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/admin-analytics-historical-traffic.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/admin-analytics-historical-validation.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/admin-analytics-historical-viewer.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/admin-analytics-shared.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/admin-cli-logging.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/admin-ops-health.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/admin-orchestration.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/admin-panel-system-logs.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/analytics.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/analytics-event-utils.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/analytics-governance.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/analytics-metrics.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/analytics-parity.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/analytics-pipeline-health.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/analytics-runtime.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/analytics-semantics.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/auth.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/creator-experiences.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/creator-onboarding.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/creator-onboarding-alerts.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/creator-onboarding-diagnostics.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/daily-tasks.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/drop-queue.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/drop-references.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/drop-runtime.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/drops.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/fcm-utils.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/firebase-admin.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/gumdrop-ledger.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/notification-inbox.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/notification-runtime.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/onboarding-analytics.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/privacy-consent.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/push-notifications.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/rate-limit.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/request-client-ip.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/request-guard.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/request-origin.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/server-diagnostics.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/username-suggestions.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/server/user-runtime.ts — server domain logic. Server-side domain logic; treat as authoritative path for state transitions and sanitization.
+- src/lib/site-origin.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/support-readiness.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/task-guidance.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/tasks/task-catalog.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/telemetry.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/telemetry-catalog.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/telemetry-safety.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/timezone.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/transaction-normalizers.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/user-profile-validation.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/user-runtime.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/user-utils.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/utils.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/lib/viewer-watch-session.ts — shared domain logic. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/types/analytics.ts — type contract. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/types/db.ts — type contract. Included in the exhaustive tracked-file inventory for this audit snapshot.
+- src/types/gtag.d.ts — type contract. Included in the exhaustive tracked-file inventory for this audit snapshot.
+
+## Section: tests
+
+- tests/auth.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/contracts/analytics-export-contract.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/contracts/task-economy-contract.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/contracts/telemetry-contracts.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/drops.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/firebase/firestore.rules.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/firebase/storage.rules.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/guest-dismissal.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/launch-qa.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/performance-bench.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/qa-audit.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/security-ip-spoofing.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/admin-cli-logging.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/admin-roster-route.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/admin-users-route.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/analytics-identifiers.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/analytics-ingest-route.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/analytics-metric-catalog.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/client-diagnostics.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/client-random.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/client-session.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/complete-onboarding-route.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/creator-experiences.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/creator-id-submission-route.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/creator-onboarding.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/creator-onboarding-alerts.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/creator-onboarding-diagnostics.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/creator-onboarding-server.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/firebase-client-config.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/guest-dismissal.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/gumdrop-economics.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/gumdrops-packages.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/lib/drop-normalizers.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/lib/gumdrop-economics.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/lib/telemetry.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/media-hosts.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/performance-bench.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/playwright-config.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/privacy-consent.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/process-creator-subscriptions-bench.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/queue-bench.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/support-readiness.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/task-guidance.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/telemetry.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/telemetry-flows.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/username-suggestions-bench.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/user-register-route.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/useViewerWatchSession-bench.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/unit/useViewerWatchSession-bench-manual.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/visual.spec.ts — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/visual.spec.ts-snapshots/admin-login-chromium-win32.png — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/visual.spec.ts-snapshots/drops-grid-chromium-win32.png — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/visual.spec.ts-snapshots/home-hero-chromium-win32.png — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+- tests/visual.spec.ts-snapshots/home-hero-Mobile-Chrome-win32.png — test coverage artifact. Validation artifact; keep aligned with current runtime behavior and regressions.
+
