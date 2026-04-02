@@ -7,7 +7,7 @@ import {
   initializeTestEnvironment,
   type RulesTestEnvironment,
 } from "@firebase/rules-unit-testing";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, setDoc } from "firebase/firestore";
 import { afterAll, beforeAll, describe, it } from "vitest";
 
 let testEnv: RulesTestEnvironment;
@@ -51,6 +51,12 @@ describe("firestore.rules", () => {
   it("blocks public reads for drops", async () => {
     const db = testEnv.unauthenticatedContext().firestore();
     await assertFails(getDoc(doc(db, "drops/test-drop")));
+  });
+
+  it("blocks authenticated reads and queries for drops", async () => {
+    const db = testEnv.authenticatedContext("alice").firestore();
+    await assertFails(getDoc(doc(db, "drops/test-drop")));
+    await assertFails(getDocs(query(collection(db, "drops"))));
   });
 
   it("blocks unauthenticated reads for users", async () => {

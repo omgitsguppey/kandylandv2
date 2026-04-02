@@ -2,7 +2,8 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Drops: NO client reads, NO client writes (all access via Admin SDK)
+    // Drops: NO direct client reads or writes.
+    // Public browsing goes through server-side readers/API routes that sanitize content.
     match /drops/{dropId} {
       allow read: if false;
       allow write: if false;
