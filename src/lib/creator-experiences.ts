@@ -1,4 +1,5 @@
 import type { CreatorRestrictions, CreatorSettings, CreatorAvailabilityWindow, CreatorRequestCategoryConfig } from "@/types/db";
+import { generateSecureClientToken } from "@/lib/client-random";
 
 export type { CreatorRestrictions, CreatorSettings, CreatorAvailabilityWindow, CreatorRequestCategoryConfig } from "@/types/db";
 
@@ -265,18 +266,5 @@ export function calculateCreatorCashoutUsd(gumDrops: number) {
 }
 
 export function cryptoSafeId(prefix: string) {
-    let token = "";
-    if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-        token = crypto.randomUUID().slice(0, 8);
-    } else if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
-        const buffer = new Uint8Array(4);
-        crypto.getRandomValues(buffer);
-        token = Array.from(buffer)
-            .map((b) => b.toString(36).padStart(2, "0"))
-            .join("")
-            .slice(0, 8);
-    } else {
-        throw new Error("Cryptographically secure random number generation is not available in this environment.");
-    }
-    return `${prefix}_${token}`;
+    return `${prefix}_${generateSecureClientToken(8)}`;
 }
