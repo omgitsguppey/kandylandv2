@@ -184,10 +184,15 @@ export function useDrops(
   }, [isConstrained, refreshDrops]);
 
   useEffect(() => {
-    const upcomingExpirations = swrDrops
-      .map((drop) => applyDropStatus(drop, sweepNowMs))
-      .map((drop) => (drop.status === "active" && drop.validUntil && drop.validUntil > sweepNowMs ? drop.validUntil : null))
-      .filter((validUntil): validUntil is number => typeof validUntil === "number");
+    // Optimization: Single-pass for...of loop avoids O(3N) mapping/filtering and
+    // unnecessary intermediate array allocations, reducing garbage collection load.
+    const upcomingExpirations: number[] = [];
+    for (const drop of swrDrops) {
+      const dropWithStatus = applyDropStatus(drop, sweepNowMs);
+      if (dropWithStatus.status === "active" && dropWithStatus.validUntil && dropWithStatus.validUntil > sweepNowMs) {
+        upcomingExpirations.push(dropWithStatus.validUntil);
+      }
+    }
 
     if (upcomingExpirations.length === 0) {
       return;
@@ -205,9 +210,16 @@ export function useDrops(
   }, [refreshDrops, sweepNowMs, swrDrops]);
 
   const clientDrops = useMemo(() => {
-    return swrDrops
-      .map((drop) => applyDropStatus(drop, sweepNowMs))
-      .filter((drop) => (statusFilter ? statusFilter.includes(drop.status) : true));
+    // Optimization: Single-pass for...of loop prevents O(2N) mapping/filtering and
+    // intermediate array allocations, improving render performance for large drop lists.
+    const result: Drop[] = [];
+    for (const drop of swrDrops) {
+      const dropWithStatus = applyDropStatus(drop, sweepNowMs);
+      if (!statusFilter || statusFilter.includes(dropWithStatus.status)) {
+        result.push(dropWithStatus);
+      }
+    }
+    return result;
   }, [statusFilter, sweepNowMs, swrDrops]);
 
 
