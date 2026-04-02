@@ -100,6 +100,7 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
                                     onClick={onClose}
                                     className="w-11 h-11 rounded-xl border border-white/10 text-gray-200 hover:bg-white/5 transition-colors flex items-center justify-center"
                                     title="Close"
+                                    aria-label="Close profile menu"
                                 >
                                     <X className="w-5 h-5" />
                                 </button>
@@ -119,6 +120,8 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
                                     openPurchaseModal();
                                 }}
                                 className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-purple to-purple-600 flex items-center justify-center text-white shadow-lg shadow-brand-purple/20 active:scale-95 transition-transform"
+                                aria-label="Get Gum Drops"
+                                title="Get Gum Drops"
                             >
                                 <Plus className="w-5 h-5" />
                             </button>
