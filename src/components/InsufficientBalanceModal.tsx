@@ -64,6 +64,8 @@ export function InsufficientBalanceModal() {
                                 closeInsufficientBalanceModal();
                             }}
                             className="absolute top-4 right-4 p-2 text-gray-500 transition-colors"
+                            aria-label="Close modal"
+                            title="Close modal"
                         >
                             <X className="w-5 h-5" />
                         </button>
