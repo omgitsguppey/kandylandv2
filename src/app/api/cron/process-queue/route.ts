@@ -2,16 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { getResolvedQueueConfig } from "@/lib/server/drop-queue";
 import { CRON } from "@/lib/server/rate-limit";
-import { getNextQueueSlotAfter } from "@/lib/drop-queue-schedule";
 import { markDropsRuntimeChanged } from "@/lib/server/drop-runtime";
 import { buildQueuedDropsMap } from "@/lib/server/process-queue-drops";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { buildDropQueueLifecycleProjection } from "@/lib/drop-queue-lifecycle";
+import { resolveDropStatusFromTiming } from "@/lib/drop-status";
 
 type QueuedDropRuntime = {
     id: string;
     validFrom: number | null;
     validUntil: number | null;
     activationCount: number;
+    status: "active" | "expired" | "scheduled" | null;
 };
 
 function toFiniteNumber(value: unknown) {
@@ -60,85 +62,64 @@ export async function GET(request: NextRequest) {
                     validFrom: toFiniteNumber(data.validFrom),
                     validUntil: toFiniteNumber(data.validUntil),
                     activationCount: toFiniteNumber(data.activationCount) ?? 0,
+                    status: data.status === "active" || data.status === "expired" || data.status === "scheduled"
+                        ? data.status
+                        : null,
                 };
             },
         });
 
         const now = Date.now();
         const ONE_DAY_MS = 24 * 60 * 60 * 1000;
-        const cooldownMs = (config.cooldownDays || 7) * ONE_DAY_MS;
-
-        const occupiedSlots = new Set<number>();
-
-        for (const dropId of config.queue) {
-            const drop = dropsMap[dropId];
-            if (!drop) continue;
-
-            const validFrom = drop.validFrom;
-            const validUntil = drop.validUntil;
-            const isScheduledOrActive = typeof validFrom === "number"
-                && (validUntil === null || now < validUntil);
-
-            if (isScheduledOrActive) {
-                occupiedSlots.add(validFrom);
-            }
-        }
-
-        // 2. Identify eligible drops (expired AND cooled down)
-        const eligibleDropIds: string[] = [];
-
-        for (const dropId of config.queue) {
-            const drop = dropsMap[dropId];
-            if (!drop) continue;
-
-            const validUntil = drop.validUntil;
-            const isExpired = typeof validUntil === "number" && now >= validUntil;
-
-            if (isExpired) {
-                const timeSinceExpiry = now - validUntil;
-                if (timeSinceExpiry >= cooldownMs) {
-                    eligibleDropIds.push(dropId);
-                }
-            } else if (!drop.validFrom && !drop.validUntil) {
-                // Draft drops cleanly entering the queue
-                eligibleDropIds.push(dropId);
-            }
-        }
-
-        // 3. Assign slots to eligible drops
-        if (eligibleDropIds.length === 0) {
-            return NextResponse.json({ message: "No drops eligible for scheduling at this time." });
-        }
-
-        const updates: any[] = [];
-        let currentSlotAnchorMs = now;
-
+        const queueEntries = config.queue
+            .map((dropId) => dropsMap[dropId])
+            .filter((drop): drop is QueuedDropRuntime => Boolean(drop));
+        const queueProjection = buildDropQueueLifecycleProjection(queueEntries, {
+            cooldownDays: config.cooldownDays,
+            timesPerDay: config.timesPerDay,
+            now,
+        });
+        const pendingUpdates = new Map<string, Record<string, unknown>>();
+        const lifecycleReconciled: Array<{ dropId: string; status: "active" | "expired" | "scheduled" }> = [];
+        const scheduledUpdates: Array<{ dropId: string; validFrom: number; activationCount: number }> = [];
         let batch = adminDb.batch();
         let opsCount = 0;
 
-        for (const dropId of eligibleDropIds) {
+        for (const dropId of config.queue) {
             const drop = dropsMap[dropId];
-            if (!drop) continue;
-            const nextValidFrom = getNextQueueSlotAfter(currentSlotAnchorMs, config.timesPerDay, occupiedSlots);
-            if (!Number.isFinite(nextValidFrom) || nextValidFrom <= currentSlotAnchorMs) {
-                throw new Error(`Unable to resolve the next queue slot for drop ${dropId}`);
+            if (!drop) {
+                continue;
             }
-            const nextValidUntil = nextValidFrom + ONE_DAY_MS;
 
-            const activationCount = drop.activationCount + 1;
+            const resolvedStatus = resolveDropStatusFromTiming(drop, now);
+            const projection = queueProjection.get(dropId);
+            const pending = pendingUpdates.get(dropId) ?? {};
 
-            const dropRef = dropsRef.doc(dropId);
-            batch.update(dropRef, {
-                validFrom: nextValidFrom,
-                validUntil: nextValidUntil,
-                status: "scheduled",
-                activationCount: activationCount
-            });
+            if (drop.status !== resolvedStatus) {
+                pending.status = resolvedStatus;
+                lifecycleReconciled.push({ dropId, status: resolvedStatus });
+            }
 
-            opsCount++;
-            updates.push({ dropId, validFrom: nextValidFrom, activationCount });
-            occupiedSlots.add(nextValidFrom);
-            currentSlotAnchorMs = nextValidFrom;
+            if (projection?.queueStatus === "queued" && typeof projection.queueSlotMs === "number") {
+                pending.validFrom = projection.queueSlotMs;
+                pending.validUntil = projection.queueSlotMs + ONE_DAY_MS;
+                pending.status = "scheduled";
+                pending.activationCount = drop.activationCount + 1;
+                scheduledUpdates.push({
+                    dropId,
+                    validFrom: projection.queueSlotMs,
+                    activationCount: drop.activationCount + 1,
+                });
+            }
+
+            if (Object.keys(pending).length > 0) {
+                pendingUpdates.set(dropId, pending);
+            }
+        }
+
+        for (const [dropId, update] of pendingUpdates) {
+            batch.update(dropsRef.doc(dropId), update);
+            opsCount += 1;
         }
 
         if (opsCount > 0) {
@@ -147,8 +128,13 @@ export async function GET(request: NextRequest) {
         }
 
         return NextResponse.json({
-            message: `Scheduled ${updates.length} drops`,
-            updates
+            message: scheduledUpdates.length > 0
+                ? `Scheduled ${scheduledUpdates.length} drops`
+                : lifecycleReconciled.length > 0
+                    ? `Reconciled ${lifecycleReconciled.length} queued drop statuses`
+                    : "No drops eligible for scheduling at this time.",
+            updates: scheduledUpdates,
+            lifecycleReconciled,
         });
 
     } catch (error: any) {

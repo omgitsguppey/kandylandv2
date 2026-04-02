@@ -11,9 +11,10 @@ import { toast } from "sonner";
 import { db } from "@/lib/firebase-data";
 import { Drop } from "@/types/db";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
-import { buildProjectedQueueSchedule } from "@/lib/drop-queue-schedule";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { formatAdminCompactDateTime, formatAdminTimeLabel } from "@/lib/admin-drop-formatting";
+import { buildDropQueueLifecycleProjection } from "@/lib/drop-queue-lifecycle";
+import { normalizeDropRecord } from "@/lib/drop-normalizers";
 
 interface QueueConfig {
     queue: string[];
@@ -90,7 +91,12 @@ export default function ManageQueuePage() {
             const queueData = await queueRes.json() as QueueConfig;
             const dropsMap: Record<string, Drop> = {};
             dropsSnap.forEach((docSnapshot) => {
-                dropsMap[docSnapshot.id] = { id: docSnapshot.id, ...docSnapshot.data() } as Drop;
+                const raw = docSnapshot.data() as Record<string, unknown>;
+                try {
+                    dropsMap[docSnapshot.id] = normalizeDropRecord(raw, docSnapshot.id);
+                } catch {
+                    dropsMap[docSnapshot.id] = { id: docSnapshot.id, ...raw } as Drop;
+                }
             });
 
             let times = queueData.timesPerDay || ["12:00"];
@@ -179,16 +185,38 @@ export default function ManageQueuePage() {
         });
     }, []);
 
-    const projectedSchedule = useMemo(() => {
+    const queueLifecycleMap = useMemo(() => {
         if (!config || config.queue.length === 0 || config.dropsPerDay <= 0) {
-            return [];
+            return new Map();
         }
 
-        return buildProjectedQueueSchedule(config.queue.length, config.timesPerDay, Date.now());
-    }, [config]);
+        const queueEntries = config.queue
+            .map((dropId) => drops[dropId])
+            .filter((drop): drop is Drop => Boolean(drop));
+
+        return buildDropQueueLifecycleProjection(queueEntries, {
+            cooldownDays: config.cooldownDays,
+            timesPerDay: config.timesPerDay,
+            now: Date.now(),
+        });
+    }, [config, drops]);
+
+    const queueItems = useMemo(() => (
+        config?.queue.map((dropId, index) => ({
+            dropId,
+            index,
+            drop: drops[dropId],
+            lifecycle: queueLifecycleMap.get(dropId),
+        })) ?? []
+    ), [config?.queue, drops, queueLifecycleMap]);
 
     const scheduleSummary = useMemo(() => (config ? buildReadableScheduleSummary(config) : ""), [config]);
-    const nextSlotLabel = projectedSchedule[0] ? formatAdminCompactDateTime(projectedSchedule[0]) : null;
+    const nextSlotLabel = useMemo(() => {
+        const nextQueueSlot = queueItems
+            .map((item) => item.lifecycle?.queueSlotMs)
+            .find((slot): slot is number => typeof slot === "number");
+        return nextQueueSlot ? formatAdminCompactDateTime(nextQueueSlot) : null;
+    }, [queueItems]);
 
     if (loading) {
         return (
@@ -373,9 +401,15 @@ export default function ManageQueuePage() {
                             </div>
                         ) : (
                             <div className="space-y-2.5">
-                                {config.queue.map((dropId, index) => {
-                                    const drop = drops[dropId];
-                                    const projectedSlot = projectedSchedule[index];
+                                {queueItems.map(({ dropId, index, drop, lifecycle }) => {
+                                    const projectedSlot = lifecycle?.queueSlotMs ?? null;
+                                    const lifecycleLabel = lifecycle?.queueStatus === "live"
+                                        ? (drop?.validUntil ? `Live until ${formatAdminCompactDateTime(drop.validUntil)}` : "Live now")
+                                        : lifecycle?.queueStatus === "cooldown"
+                                            ? (lifecycle.cooldownEndsAt ? `Eligible again ${formatAdminCompactDateTime(lifecycle.cooldownEndsAt)}` : "Cooling down")
+                                            : projectedSlot
+                                                ? formatAdminCompactDateTime(projectedSlot)
+                                                : "Waiting for a slot";
 
                                     if (!drop) {
                                         return (
@@ -417,10 +451,10 @@ export default function ManageQueuePage() {
                                                     </div>
 
                                                     <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-400">
-                                                        {projectedSlot ? (
+                                                        {lifecycleLabel ? (
                                                             <span className="inline-flex items-center gap-1 font-medium text-white">
                                                                 <Calendar className="h-3.5 w-3.5 text-brand-purple/80" />
-                                                                {formatAdminCompactDateTime(projectedSlot)}
+                                                                {lifecycleLabel}
                                                             </span>
                                                         ) : null}
                                                         <span className="inline-flex items-center gap-1">

@@ -17,7 +17,7 @@ import { getDefaultCSTDates, toCSTString, fromCSTInput } from "@/lib/timezone";
 import { toast } from "sonner";
 
 const dropSchema = z.object({
-    creatorId: z.string().min(1, "Creator assignment is required"),
+    creatorId: z.string().optional(),
     title: z.string().min(3, "Title is too short"),
     description: z.string().min(10, "Description is too short"),
     imageUrl: z.string().url("Cover image is required"),
@@ -286,7 +286,6 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
     const dropType = useWatch({ control, name: "type" });
     const watchedTags = useWatch({ control, name: "tags" });
     const currentTags = useMemo(() => watchedTags || [], [watchedTags]);
-    const creatorId = useWatch({ control, name: "creatorId" }) || "";
     const imageUrl = useWatch({ control, name: "imageUrl" }) || "";
     const contentUrl = useWatch({ control, name: "contentUrl" }) || "";
     const contentUrls = useWatch({ control, name: "contentUrls" }) || [];
@@ -354,9 +353,6 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
 
                 if (!cancelled) {
                     setCreatorOptions(Array.isArray(result.creators) ? result.creators : []);
-                    if (!creatorId && Array.isArray(result.creators) && result.creators[0]?.uid) {
-                        setValue("creatorId", result.creators[0].uid);
-                    }
                 }
             } catch (error) {
                 console.error("Failed to load creator options", error);
@@ -367,7 +363,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
         return () => {
             cancelled = true;
         };
-    }, [creatorId, isOpen, mode, setValue]);
+    }, [isOpen, mode, setValue]);
 
     useEffect(() => {
         if (!isOpen) {
@@ -579,9 +575,15 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
 
             const now = Date.now();
             const status = now < validFrom ? "scheduled" : validUntil && now >= validUntil ? "expired" : "active";
+            const resolvedCreatorId = (mode === "creator" ? (creatorIdOverride || data.creatorId) : data.creatorId)?.trim() || "";
+            const creatorIdField = resolvedCreatorId
+                ? { creatorId: resolvedCreatorId }
+                : isEditMode
+                    ? { creatorId: null }
+                    : {};
 
             const dropData: Record<string, unknown> = {
-                creatorId: mode === "creator" ? (creatorIdOverride || data.creatorId) : data.creatorId,
+                ...creatorIdField,
                 title: data.title,
                 description: data.description,
                 imageUrl: data.imageUrl,
@@ -688,20 +690,19 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                         <div className="space-y-3">
                                         <div className="grid gap-3 sm:grid-cols-2">
                                             <div className="space-y-1">
-                                                <label className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Creator name</label>
+                                                <label className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Creator name {mode === "admin" ? "(optional)" : ""}</label>
                                                 <select
                                                     {...register("creatorId")}
                                                     disabled={mode === "creator"}
                                                     className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white disabled:opacity-80"
                                                 >
-                                                    <option value="">{mode === "creator" ? "Your creator account" : "Assign creator"}</option>
+                                                    <option value="">{mode === "creator" ? "Your creator account" : "Leave unassigned"}</option>
                                                     {creatorOptions.map((option) => (
                                                         <option key={option.uid} value={option.uid}>
                                                             {option.displayName}{option.username ? ` • @${option.username}` : ""}
                                                         </option>
                                                     ))}
                                                 </select>
-                                                {errors.creatorId && <p className="text-red-400 text-xs">{errors.creatorId.message}</p>}
                                             </div>
                                             <div className="space-y-1">
                                                 <label className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Drop type</label>

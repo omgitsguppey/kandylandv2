@@ -16,8 +16,9 @@ import { CreateDropModal } from "@/components/Admin/CreateDropModal";
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
-import { buildProjectedQueueSchedule } from "@/lib/drop-queue-schedule";
 import { formatAdminCompactDateTime, formatAdminDetailDateTime } from "@/lib/admin-drop-formatting";
+import { buildDropQueueLifecycleProjection } from "@/lib/drop-queue-lifecycle";
+import { resolveDropStatusFromTiming } from "@/lib/drop-status";
 
 interface DropNotificationDraft {
     dropId: string;
@@ -354,22 +355,6 @@ export default function AdminDropsPage() {
         return map;
     }, [queueOrder]);
 
-    const projectedQueueSlotMap = useMemo(() => {
-        const map = new Map<string, number>();
-        if (!queueConfig || queueOrder.length === 0) {
-            return map;
-        }
-
-        const projectedSlots = buildProjectedQueueSchedule(queueOrder.length, queueConfig.timesPerDay, Date.now());
-        queueOrder.forEach((dropId, index) => {
-            const slot = projectedSlots[index];
-            if (Number.isFinite(slot)) {
-                map.set(dropId, slot);
-            }
-        });
-        return map;
-    }, [queueConfig, queueOrder]);
-
     const creatorMap = useMemo(() => {
         const map = new Map<string, CreatorOption>();
         creatorOptions.forEach((creator) => {
@@ -378,10 +363,42 @@ export default function AdminDropsPage() {
         return map;
     }, [creatorOptions]);
 
+    const dropMap = useMemo(() => {
+        const map = new Map<string, Drop>();
+        drops.forEach((drop) => {
+            map.set(drop.id, drop);
+        });
+        return map;
+    }, [drops]);
+
     const visibleQueueIds = useMemo(
         () => new Set<string>([...Array.from(legacyQueueIds), ...queueOrder]),
         [legacyQueueIds, queueOrder],
     );
+
+    const queueProjectionOrder = useMemo(() => {
+        const queuedIds = new Set(queueOrder);
+        return [
+            ...queueOrder,
+            ...Array.from(legacyQueueIds).filter((dropId) => !queuedIds.has(dropId)),
+        ];
+    }, [legacyQueueIds, queueOrder]);
+
+    const queueLifecycleMap = useMemo(() => {
+        if (!queueConfig || queueProjectionOrder.length === 0) {
+            return new Map();
+        }
+
+        const queueEntries = queueProjectionOrder
+            .map((dropId) => dropMap.get(dropId))
+            .filter((drop): drop is Drop => Boolean(drop));
+
+        return buildDropQueueLifecycleProjection(queueEntries, {
+            cooldownDays: queueConfig.cooldownDays,
+            timesPerDay: queueConfig.timesPerDay,
+            now: Date.now(),
+        });
+    }, [dropMap, queueConfig, queueProjectionOrder]);
 
     const dropViewModels = useMemo(() => {
         const now = Date.now();
@@ -393,7 +410,9 @@ export default function AdminDropsPage() {
             const creatorSecondary = creator?.username ? `@${creator.username}` : drop.creatorId || drop.submittedByCreatorId || null;
             const isQueueManaged = visibleQueueIds.has(drop.id);
             const queuePosition = queuePositionMap.has(drop.id) ? queuePositionMap.get(drop.id)! : null;
-            const queueSlotMs = projectedQueueSlotMap.get(drop.id) ?? null;
+            const queueLifecycle = queueLifecycleMap.get(drop.id);
+            const liveStatus = resolveDropStatusFromTiming(drop, now);
+            const queueSlotMs = queueLifecycle?.queueSlotMs ?? null;
             const queueSlotLabel = queueSlotMs ? formatAdminCompactDateTime(queueSlotMs) : null;
 
             let statusFilterValue: DropCardViewModel["statusFilter"] = "ended";
@@ -408,18 +427,22 @@ export default function AdminDropsPage() {
                 statusFilterValue = "rejected";
                 statusLabel = "Rejected";
                 statusClassName = "border-red-400/20 bg-red-500/10 text-red-200";
-            } else if (isQueueManaged && queueSlotLabel) {
+            } else if (isQueueManaged && (queueLifecycle?.queueStatus === "scheduled" || queueLifecycle?.queueStatus === "queued") && queueSlotLabel) {
                 statusFilterValue = "queued";
                 statusLabel = "Queued";
                 statusClassName = "border-cyan-400/20 bg-cyan-500/10 text-cyan-100";
-            } else if (now < drop.validFrom) {
+            } else if (liveStatus === "scheduled") {
                 statusFilterValue = "scheduled";
                 statusLabel = "Scheduled";
                 statusClassName = "border-white/15 bg-white/8 text-white";
-            } else if (!drop.validUntil || now < drop.validUntil) {
+            } else if (liveStatus === "active") {
                 statusFilterValue = "live";
                 statusLabel = "Live";
                 statusClassName = "border-brand-purple/25 bg-brand-purple/14 text-brand-purple";
+            } else if (isQueueManaged && queueLifecycle?.queueStatus === "cooldown") {
+                statusFilterValue = "ended";
+                statusLabel = "Cooling Down";
+                statusClassName = "border-white/15 bg-white/8 text-white";
             }
 
             let schedulePrimaryLabel = `Starts ${formatAdminCompactDateTime(drop.validFrom)}`;
@@ -429,10 +452,19 @@ export default function AdminDropsPage() {
 
             if (statusFilterValue === "queued" && queueSlotLabel) {
                 schedulePrimaryLabel = `Queued for ${queueSlotLabel}`;
-                scheduleSecondaryLabel = `Original start ${formatAdminCompactDateTime(drop.validFrom)}`;
+                scheduleSecondaryLabel = liveStatus === "scheduled"
+                    ? `Original start ${formatAdminCompactDateTime(drop.validFrom)}`
+                    : drop.validUntil
+                        ? `Last window ended ${formatAdminCompactDateTime(drop.validUntil)}`
+                        : "Ready for the next release slot";
             } else if (statusFilterValue === "live") {
                 schedulePrimaryLabel = `Live since ${formatAdminCompactDateTime(drop.validFrom)}`;
                 scheduleSecondaryLabel = drop.validUntil ? `Ends ${formatAdminCompactDateTime(drop.validUntil)}` : "No end time";
+            } else if (statusLabel === "Cooling Down") {
+                schedulePrimaryLabel = queueLifecycle?.cooldownEndsAt
+                    ? `Eligible again ${formatAdminCompactDateTime(queueLifecycle.cooldownEndsAt)}`
+                    : (drop.validUntil ? `Ended ${formatAdminCompactDateTime(drop.validUntil)}` : "Waiting on queue cooldown");
+                scheduleSecondaryLabel = drop.validUntil ? `Ended ${formatAdminCompactDateTime(drop.validUntil)}` : null;
             } else if (statusFilterValue === "ended") {
                 schedulePrimaryLabel = drop.validUntil
                     ? `Ended ${formatAdminCompactDateTime(drop.validUntil)}`
@@ -466,7 +498,7 @@ export default function AdminDropsPage() {
                 ].join(" ").toLowerCase(),
             } satisfies DropCardViewModel;
         });
-    }, [creatorMap, drops, projectedQueueSlotMap, queuePositionMap, visibleQueueIds]);
+    }, [creatorMap, drops, queueLifecycleMap, queuePositionMap, visibleQueueIds]);
 
     const creatorFilterOptions = useMemo(() => {
         const seen = new Set<string>();

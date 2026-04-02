@@ -1,17 +1,41 @@
 import type { Drop } from "@/types/db";
 
-type DropTiming = Pick<Drop, "validFrom" | "validUntil">;
+export type DropTiming = {
+    validFrom?: number | null;
+    validUntil?: number | null;
+    status?: Drop["status"] | null;
+};
+
+export function getFiniteDropTimestamp(value: unknown): number | null {
+    const numeric = Number(value);
+    return Number.isFinite(numeric) && numeric > 0 ? numeric : null;
+}
 
 export function resolveDropStatusFromTiming(drop: DropTiming, now = Date.now()): Drop["status"] {
-    if (now < drop.validFrom) {
-        return "scheduled";
+    const validFrom = getFiniteDropTimestamp(drop.validFrom);
+    const validUntil = getFiniteDropTimestamp(drop.validUntil);
+
+    if (validFrom !== null) {
+        if (now < validFrom) {
+            return "scheduled";
+        }
+
+        if (validUntil !== null && now >= validUntil) {
+            return "expired";
+        }
+
+        return "active";
     }
 
-    if (drop.validUntil && now >= drop.validUntil) {
+    if (validUntil !== null && now >= validUntil) {
         return "expired";
     }
 
-    return "active";
+    if (drop.status === "active" || drop.status === "expired" || drop.status === "scheduled") {
+        return drop.status;
+    }
+
+    return "scheduled";
 }
 
 export function applyDropStatus<T extends Drop>(drop: T, now = Date.now()): T {
