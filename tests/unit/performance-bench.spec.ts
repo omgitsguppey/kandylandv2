@@ -52,4 +52,26 @@ describe("Performance Benchmark: transaction.get vs transaction.getAll", () => {
         const end = performance.now();
         console.log(`Batched transaction.getAll (Optimized): ${(end - start).toFixed(2)}ms`);
     });
+
+    it("measures drop-grid unlocked membership lookups with includes vs Set", () => {
+        const drops = Array.from({ length: 400 }, (_, index) => `drop-${index}`);
+        const unlocked = Array.from({ length: 200 }, (_, index) => `drop-${index * 2}`);
+        const iterations = 5_000;
+
+        const baselineStart = performance.now();
+        for (let iteration = 0; iteration < iterations; iteration += 1) {
+            drops.forEach((dropId) => unlocked.includes(dropId));
+        }
+        const baselineDuration = performance.now() - baselineStart;
+
+        const optimizedStart = performance.now();
+        const unlockedLookup = new Set(unlocked);
+        for (let iteration = 0; iteration < iterations; iteration += 1) {
+            drops.forEach((dropId) => unlockedLookup.has(dropId));
+        }
+        const optimizedDuration = performance.now() - optimizedStart;
+
+        console.log(`Drop grid unlocked lookup baseline (Array.includes): ${baselineDuration.toFixed(2)}ms`);
+        console.log(`Drop grid unlocked lookup optimized (Set.has): ${optimizedDuration.toFixed(2)}ms`);
+    });
 });

@@ -33,6 +33,8 @@ export function DropGrid({
 
     const loading = propLoading ?? false;
     const drops = useMemo(() => propDrops ?? EMPTY_DROPS, [propDrops]);
+    // O(1) unlocked lookups avoid repeated linear scans while rendering large drop grids.
+    const unlockedDropIds = useMemo(() => new Set(userProfile?.unlockedContent ?? []), [userProfile?.unlockedContent]);
 
     useEffect(() => {
         if (notified) {
@@ -124,7 +126,7 @@ export function DropGrid({
     return (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5 pb-20 md:pb-0 items-start">
             {dropEntries.map(({ drop, aspectRatio }, index) => {
-                const isUnlocked = userProfile?.unlockedContent?.includes(drop.id);
+                const isUnlocked = unlockedDropIds.has(drop.id);
                 const canAfford = (userProfile?.gumDropsBalance || 0) >= drop.unlockCost;
 
                 return (
