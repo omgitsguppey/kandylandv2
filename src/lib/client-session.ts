@@ -5,22 +5,29 @@ const LEGACY_CLIENT_SESSION_STORAGE_KEY = "kandydrops.clientSession";
 const CLIENT_SESSION_OWNER_STORAGE_KEY = "kandydrops.clientSessionOwner";
 const CLIENT_SUBJECT_STORAGE_KEY = "kandydrops.clientSubject";
 
-function generateId(prefix: string) {
+function buildSecureRandomFragment() {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-    return `${prefix}_${crypto.randomUUID()}`;
+    return crypto.randomUUID();
   }
 
   if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
-    const buffer = new Uint8Array(12);
+    const buffer = new Uint8Array(16);
     crypto.getRandomValues(buffer);
-    const token = Array.from(buffer)
-      .map((b) => b.toString(36).padStart(2, "0"))
-      .join("")
-      .slice(0, 16);
-    return `${prefix}_${Date.now().toString(36)}_${token}`;
+    return Array.from(buffer)
+      .map((byte) => byte.toString(16).padStart(2, "0"))
+      .join("");
   }
 
   throw new Error("Cryptographically secure random number generation is not available in this environment.");
+}
+
+function generateId(prefix: string) {
+  const randomFragment = buildSecureRandomFragment();
+  if (randomFragment.includes("-")) {
+    return `${prefix}_${randomFragment}`;
+  }
+
+  return `${prefix}_${Date.now().toString(36)}_${randomFragment}`;
 }
 
 function readStorageValue(storageKey: string, persistent: boolean) {
