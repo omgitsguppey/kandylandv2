@@ -111,6 +111,22 @@ describe("drop-normalizers", () => {
       });
     });
 
+    it("classifies invalid legacy URL strings through the catch-path parser", () => {
+      const raw = {
+        validFrom: 1000,
+        contentUrls: [
+          "not-a-url.jpg",
+          "still-not-a-url.mp4?token=123",
+        ],
+      };
+
+      const drop = normalizeDropRecord(raw, "d-counts-invalid-legacy");
+      expect(drop.mediaCounts).toEqual({
+        images: 1,
+        videos: 1,
+      });
+    });
+
     it("uses fileMetadata.type as fallback for mediaCounts calculation", () => {
       const raw = {
         validFrom: 1000,
@@ -122,6 +138,23 @@ describe("drop-normalizers", () => {
       };
 
       const drop = normalizeDropRecord(raw, "d-counts-meta");
+      expect(drop.mediaCounts).toEqual({
+        images: 0,
+        videos: 1,
+      });
+    });
+
+    it("uses fileMetadata.type after invalid legacy URLs fail extension parsing", () => {
+      const raw = {
+        validFrom: 1000,
+        contentUrls: ["not-a-url-without-extension"],
+        fileMetadata: {
+          size: 100,
+          type: "video/mp4",
+        },
+      };
+
+      const drop = normalizeDropRecord(raw, "d-counts-invalid-legacy-meta");
       expect(drop.mediaCounts).toEqual({
         images: 0,
         videos: 1,
