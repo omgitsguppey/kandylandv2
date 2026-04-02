@@ -32,30 +32,56 @@ export interface TaskGuidancePendingAction {
   createdAt: number;
 }
 
-function readLocalStorageValue<T>(storageKey: string) {
+function getTaskGuidanceSessionStorage() {
   if (typeof window === "undefined") {
     return null;
   }
 
+  return window.sessionStorage;
+}
+
+function clearLegacyTaskGuidanceLocalStorage(storageKey: string) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
   try {
-    const raw = window.localStorage.getItem(storageKey);
+    window.localStorage.removeItem(storageKey);
+  } catch {
+    // Best-effort cleanup for older persistent task-guidance state.
+  }
+}
+
+function readSessionStorageValue<T>(storageKey: string) {
+  const storage = getTaskGuidanceSessionStorage();
+  if (!storage) {
+    return null;
+  }
+
+  clearLegacyTaskGuidanceLocalStorage(storageKey);
+
+  try {
+    const raw = storage.getItem(storageKey);
     return raw ? JSON.parse(raw) as T : null;
   } catch {
     return null;
   }
 }
 
-function writeLocalStorageValue(storageKey: string, value: unknown) {
-  if (typeof window === "undefined") {
+function writeSessionStorageValue(storageKey: string, value: unknown) {
+  const storage = getTaskGuidanceSessionStorage();
+  if (!storage) {
     return;
   }
+
+  clearLegacyTaskGuidanceLocalStorage(storageKey);
 
   if (value === null) {
-    window.localStorage.removeItem(storageKey);
+    storage.removeItem(storageKey);
     return;
   }
 
-  window.localStorage.setItem(storageKey, JSON.stringify(value));
+  storage.setItem(storageKey, JSON.stringify(value));
 }
 
 export function isTaskGuidanceActionType(actionType: DailyTaskAssignment["actionType"]): actionType is TaskGuidanceActionType {
@@ -95,7 +121,7 @@ export function isSamePageTaskViewEvent(eventName: string) {
 }
 
 export function readTaskGuidancePendingAction() {
-  const rawValue = readLocalStorageValue<Partial<TaskGuidancePendingAction>>(TASK_GUIDANCE_ACTION_STORAGE_KEY);
+  const rawValue = readSessionStorageValue<Partial<TaskGuidancePendingAction>>(TASK_GUIDANCE_ACTION_STORAGE_KEY);
   const actionType = typeof rawValue?.actionType === "string" ? rawValue.actionType : null;
   if (
     !rawValue
@@ -118,12 +144,12 @@ export function readTaskGuidancePendingAction() {
 }
 
 export function writeTaskGuidancePendingAction(action: TaskGuidancePendingAction | null) {
-  writeLocalStorageValue(TASK_GUIDANCE_ACTION_STORAGE_KEY, action);
+  writeSessionStorageValue(TASK_GUIDANCE_ACTION_STORAGE_KEY, action);
 }
 
 export function clearTaskGuidanceStorage() {
-  writeLocalStorageValue(TASK_GUIDANCE_STORAGE_KEY, null);
-  writeLocalStorageValue(TASK_GUIDANCE_ACTION_STORAGE_KEY, null);
+  writeSessionStorageValue(TASK_GUIDANCE_STORAGE_KEY, null);
+  writeSessionStorageValue(TASK_GUIDANCE_ACTION_STORAGE_KEY, null);
 }
 
 function formatTaskCountLabel(task: Pick<DailyTaskAssignment, "maxProgress">, singular: string, plural: string) {

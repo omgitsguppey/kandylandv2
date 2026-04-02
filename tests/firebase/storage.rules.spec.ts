@@ -13,6 +13,7 @@ let testEnv: RulesTestEnvironment;
 
 const AVATAR_PATH = "avatars/alice.png";
 const DELETE_PATH = "avatars/alice.webp";
+const DROP_FILE_PATH = "drops/sample.png";
 const CREATOR_ID_PATH = "creator-onboarding/alice/id/government-id.png";
 const CREATOR_MESSAGE_PATH = "creator/messages/alice/thread-1/upload.png";
 const LEGACY_CREATOR_MESSAGE_PATH = "creator/messages/upload.png";
@@ -56,6 +57,7 @@ beforeEach(async () => {
   await testEnv.clearStorage();
   await seedAvatar(AVATAR_PATH);
   await seedAvatar(DELETE_PATH);
+  await seedAvatar(DROP_FILE_PATH);
 });
 
 afterAll(async () => {
@@ -152,5 +154,15 @@ describe("storage.rules", () => {
     await assertFails(
       uploadStringWithRules(storage, LEGACY_CREATOR_MESSAGE_PATH, "message-asset", "image/png"),
     );
+  });
+
+  it("allows authenticated users to fetch an individual drop asset", async () => {
+    const storage = testEnv.authenticatedContext("alice").storage();
+    await assertSucceeds(storage.ref(DROP_FILE_PATH).getDownloadURL());
+  });
+
+  it("blocks client-side listing of the drops folder", async () => {
+    const storage = testEnv.authenticatedContext("alice").storage();
+    await assertFails(storage.ref("drops").listAll());
   });
 });

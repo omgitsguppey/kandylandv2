@@ -32,7 +32,9 @@ service firebase.storage {
     }
 
     match /drops/{allPaths=**} {
-      allow read, write: if isSignedIn();
+      allow get: if isSignedIn();
+      allow list: if false;
+      allow write: if isSignedIn();
     }
 
     match /landing/{allPaths=**} {

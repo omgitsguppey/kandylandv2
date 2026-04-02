@@ -39,7 +39,9 @@ function readStoredGuidance() {
   }
 
   try {
-    const raw = window.localStorage.getItem(TASK_GUIDANCE_STORAGE_KEY);
+    // Keep guidance tab-scoped so stale prompts do not persist across future sessions.
+    window.localStorage.removeItem(TASK_GUIDANCE_STORAGE_KEY);
+    const raw = window.sessionStorage.getItem(TASK_GUIDANCE_STORAGE_KEY);
     if (!raw) {
       return null;
     }
@@ -78,12 +80,14 @@ function writeStoredGuidance(value: TaskGuidanceState | null) {
     return;
   }
 
+  window.localStorage.removeItem(TASK_GUIDANCE_STORAGE_KEY);
+
   if (!value) {
-    window.localStorage.removeItem(TASK_GUIDANCE_STORAGE_KEY);
+    window.sessionStorage.removeItem(TASK_GUIDANCE_STORAGE_KEY);
     return;
   }
 
-  window.localStorage.setItem(TASK_GUIDANCE_STORAGE_KEY, JSON.stringify(value));
+  window.sessionStorage.setItem(TASK_GUIDANCE_STORAGE_KEY, JSON.stringify(value));
 }
 
 function commitStoredGuidance(setGuidance: GuidanceSetter, value: TaskGuidanceState | null) {

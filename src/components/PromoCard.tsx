@@ -10,13 +10,30 @@ interface PromoCardProps {
     drop: Drop;
 }
 
-function getSafeUrl(url: string | undefined): string | undefined {
-    if (!url) return undefined;
-    const lowerUrl = url.trim().toLowerCase();
-    if (lowerUrl.startsWith("javascript:") || lowerUrl.startsWith("data:") || lowerUrl.startsWith("vbscript:")) {
+const PROMO_CARD_URL_BASE = "https://kandydrops.invalid";
+const ALLOWED_PROMO_CARD_PROTOCOLS = new Set(["http:", "https:"]);
+
+export function getSafeUrl(url: string | undefined): string | undefined {
+    const trimmedUrl = url?.trim();
+    if (!trimmedUrl) return undefined;
+
+    const normalizedSchemeCheck = trimmedUrl.replace(/[\u0000-\u001F\u007F\s]+/g, "");
+    if (/^(javascript|data|vbscript):/i.test(normalizedSchemeCheck)) {
         return undefined;
     }
-    return url;
+
+    try {
+        const parsed = new URL(trimmedUrl, PROMO_CARD_URL_BASE);
+        if (!ALLOWED_PROMO_CARD_PROTOCOLS.has(parsed.protocol)) {
+            return undefined;
+        }
+
+        return parsed.origin === PROMO_CARD_URL_BASE
+            ? `${parsed.pathname}${parsed.search}${parsed.hash}`
+            : parsed.toString();
+    } catch {
+        return undefined;
+    }
 }
 
 export function PromoCard({ drop }: PromoCardProps) {

@@ -1,13 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ref, listAll, getDownloadURL, deleteObject, uploadBytes } from "firebase/storage";
-import { storage } from "@/lib/firebase-data";
 import { Loader2, Upload, Trash2, Copy, FileIcon, ImageIcon, Video, RefreshCw } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
+import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";
 
 import Image from "next/image";
@@ -36,21 +35,13 @@ export default function ContentManagerPage() {
         setLoading(true);
         setError(null);
         try {
-            // List all files in 'drops' folder (primary folder)
-            const listRef = ref(storage, 'drops');
-            const res = await listAll(listRef);
+            const response = await authFetch("/api/admin/content", { cache: "no-store" });
+            const payload = await response.json() as { error?: string; files?: StorageFile[] };
+            if (!response.ok) {
+                throw new Error(payload.error || "Failed to load content files.");
+            }
 
-            const filePromises = res.items.map(async (itemRef) => {
-                const url = await getDownloadURL(itemRef);
-                return {
-                    name: itemRef.name,
-                    fullPath: itemRef.fullPath,
-                    url: url
-                };
-            });
-
-            const fetchedFiles = await Promise.all(filePromises);
-            setFiles(fetchedFiles);
+            setFiles(Array.isArray(payload.files) ? payload.files : []);
         } catch (error) {
             console.error("Error fetching files:", error);
             setError(error instanceof Error ? error.message : "Failed to load content files.");
@@ -66,9 +57,20 @@ export default function ContentManagerPage() {
 
         try {
             const file = e.target.files[0];
-            const storageRef = ref(storage, `drops/${Date.now()}_${file.name}`);
-            await uploadBytes(storageRef, file);
-            setRefreshTrigger(prev => prev + 1);
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const response = await authFetch("/api/admin/content", {
+                method: "POST",
+                body: formData,
+            });
+            const payload = await response.json() as { error?: string; file?: StorageFile };
+            const uploadedFile = payload.file;
+            if (!response.ok || !uploadedFile) {
+                throw new Error(payload.error || "Upload failed.");
+            }
+
+            setFiles((current) => [uploadedFile, ...current.filter((entry) => entry.fullPath !== uploadedFile.fullPath)]);
             toast.success("File uploaded.");
         } catch (error) {
             console.error("Error uploading file:", error);
@@ -85,8 +87,15 @@ export default function ContentManagerPage() {
         if (!confirm("Are you sure you want to permanently delete this file?")) return;
         setError(null);
         try {
-            const fileRef = ref(storage, fullPath);
-            await deleteObject(fileRef);
+            const response = await authFetch("/api/admin/content", {
+                method: "DELETE",
+                body: JSON.stringify({ fullPath }),
+            });
+            const payload = await response.json() as { error?: string };
+            if (!response.ok) {
+                throw new Error(payload.error || "Delete failed.");
+            }
+
             setFiles((current) => current.filter((file) => file.fullPath !== fullPath));
             toast.success("File deleted.");
         } catch (error) {
