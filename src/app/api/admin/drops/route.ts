@@ -1,15 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminDb } from "@/lib/server/firebase-admin";
-import { handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
-import { sendGlobalDropNotification } from "@/lib/server/push-notifications";
-import { ADMIN } from "@/lib/server/rate-limit";
+
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
 import { resolveDropStatusFromTiming } from "@/lib/drop-status";
-import { touchDropsRuntime } from "@/lib/server/drop-runtime";
+import { handleApiError } from "@/lib/server/auth";
+import { adminDb } from "@/lib/server/firebase-admin";
+import {
+    ADMIN_DROP_REVALIDATION_PATHS,
+    invalidateDropSurfaces,
+    resolveCreatedDropTiming,
+    resolveUpdatedDropTiming,
+    sanitizeDropData,
+} from "@/lib/server/drop-mutations";
+import { sendGlobalDropNotification } from "@/lib/server/push-notifications";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { ADMIN } from "@/lib/server/rate-limit";
 
-// Whitelist of allowed drop fields to prevent arbitrary writes
 const ALLOWED_DROP_FIELDS = [
     "title", "description", "imageUrl", "contentUrl", "contentUrls", "unlockCost",
     "validFrom", "validUntil", "autoQueueOnExpire", "status", "type", "tags",
@@ -17,21 +23,8 @@ const ALLOWED_DROP_FIELDS = [
     "creatorId", "coverFileName", "contentFileNames", "approvalStatus",
     "approvalReviewedAt", "approvalReviewedBy", "approvalNote", "submittedByCreatorId",
     "requiresActiveSubscription",
-];
+] as const;
 
-import { revalidatePath } from "next/cache";
-
-function sanitizeDropData(raw: Record<string, unknown>): Record<string, unknown> {
-    const sanitized: Record<string, unknown> = {};
-    for (const key of ALLOWED_DROP_FIELDS) {
-        if (raw[key] !== undefined) {
-            sanitized[key] = raw[key] === null ? FieldValue.delete() : raw[key];
-        }
-    }
-    return sanitized;
-}
-
-// POST — Create a new drop (admin-only)
 export async function POST(request: NextRequest) {
     try {
         await guardApiRequest(request, {
@@ -51,17 +44,14 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });
         }
 
-        const sanitized = sanitizeDropData(dropData);
+        const sanitized = sanitizeDropData(dropData, ALLOWED_DROP_FIELDS);
         const now = Date.now();
-        const resolvedInitialValidFrom = typeof dropData.validFrom === "number" ? dropData.validFrom : now;
-        const resolvedInitialStatus = resolveDropStatusFromTiming({
-            validFrom: resolvedInitialValidFrom,
-            validUntil: typeof dropData.validUntil === "number" ? dropData.validUntil : undefined,
-        }, now);
-        sanitized.status = resolvedInitialStatus;
+        const resolvedInitial = resolveCreatedDropTiming(dropData, now);
+        sanitized.status = resolvedInitial.status;
         if (sanitized.approvalStatus === undefined) {
             sanitized.approvalStatus = "approved";
         }
+
         const docRef = await adminDb.collection("drops").add({
             ...sanitized,
             totalUnlocks: 0,
@@ -69,25 +59,20 @@ export async function POST(request: NextRequest) {
             totalClicks: 0,
             createdAt: FieldValue.serverTimestamp(),
         });
-        await touchDropsRuntime(now);
+        await invalidateDropSurfaces(ADMIN_DROP_REVALIDATION_PATHS, now);
 
-        // Automatically issue a global notification and Web Push ONLY if immediately active
-        if (resolvedInitialStatus === "active") {
+        if (resolvedInitial.status === "active") {
             try {
                 await sendGlobalDropNotification(
                     sanitized.title as string,
                     docRef.id,
                     sanitized.imageUrl as string,
-                    `drop-activation:${docRef.id}:${resolvedInitialValidFrom}`,
+                    `drop-activation:${docRef.id}:${resolvedInitial.validFrom}`,
                 );
             } catch (notifError) {
                 console.error("Non-fatal: Failed to generate global notification for new drop", notifError);
             }
         }
-
-        revalidatePath("/drops");
-        revalidatePath("/");
-        revalidatePath("/dashboard");
 
         return NextResponse.json({ success: true, id: docRef.id });
     } catch (error) {
@@ -95,7 +80,6 @@ export async function POST(request: NextRequest) {
     }
 }
 
-// PUT — Update an existing drop (admin-only)
 export async function PUT(request: NextRequest) {
     try {
         await guardApiRequest(request, {
@@ -114,7 +98,7 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });
         }
 
-        const sanitized = sanitizeDropData(dropData);
+        const sanitized = sanitizeDropData(dropData, ALLOWED_DROP_FIELDS);
         if (Object.keys(sanitized).length === 0) {
             return NextResponse.json({ error: "No valid fields to update" }, { status: 400 });
         }
@@ -127,17 +111,9 @@ export async function PUT(request: NextRequest) {
 
         const existingDrop = normalizeDropRecord(existingDropSnap.data(), dropId);
         const now = Date.now();
-        const nextValidFrom = typeof dropData.validFrom === "number" ? dropData.validFrom : existingDrop.validFrom;
-        const nextValidUntil = dropData.validUntil === null
-            ? undefined
-            : typeof dropData.validUntil === "number"
-                ? dropData.validUntil
-                : existingDrop.validUntil;
+        const nextTiming = resolveUpdatedDropTiming(dropData, existingDrop, now);
         const currentLiveStatus = resolveDropStatusFromTiming(existingDrop, now);
-        const nextLiveStatus = resolveDropStatusFromTiming({
-            validFrom: nextValidFrom,
-            validUntil: nextValidUntil,
-        }, now);
+        const nextLiveStatus = nextTiming.status;
         const shouldNotifyActivation = currentLiveStatus !== "active" && nextLiveStatus === "active";
         sanitized.status = nextLiveStatus;
         if (sanitized.approvalStatus === undefined && existingDrop.approvalStatus) {
@@ -145,7 +121,7 @@ export async function PUT(request: NextRequest) {
         }
 
         await dropRef.update(sanitized);
-        await touchDropsRuntime(now);
+        await invalidateDropSurfaces(ADMIN_DROP_REVALIDATION_PATHS, now);
 
         if (shouldNotifyActivation) {
             try {
@@ -153,16 +129,12 @@ export async function PUT(request: NextRequest) {
                     typeof sanitized.title === "string" ? sanitized.title : existingDrop.title,
                     dropId,
                     typeof sanitized.imageUrl === "string" ? sanitized.imageUrl : existingDrop.imageUrl,
-                    `drop-activation:${dropId}:${nextValidFrom}`,
+                    `drop-activation:${dropId}:${nextTiming.validFrom}`,
                 );
             } catch (notifError) {
                 console.error("Non-fatal: Failed to generate activation notification for updated drop", notifError);
             }
         }
-
-        revalidatePath("/drops");
-        revalidatePath("/");
-        revalidatePath("/dashboard");
 
         return NextResponse.json({ success: true });
     } catch (error) {
@@ -170,7 +142,6 @@ export async function PUT(request: NextRequest) {
     }
 }
 
-// DELETE — Delete a drop (admin-only)
 export async function DELETE(request: NextRequest) {
     try {
         await guardApiRequest(request, {
@@ -196,11 +167,7 @@ export async function DELETE(request: NextRequest) {
         }
 
         await dropRef.delete();
-        await touchDropsRuntime();
-
-        revalidatePath("/drops");
-        revalidatePath("/");
-        revalidatePath("/dashboard");
+        await invalidateDropSurfaces(ADMIN_DROP_REVALIDATION_PATHS);
 
         return NextResponse.json({ success: true });
     } catch (error) {

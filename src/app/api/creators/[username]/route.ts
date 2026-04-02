@@ -3,8 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
 import { RELAXED } from "@/lib/server/rate-limit";
-import { normalizeDropRecord } from "@/lib/drop-normalizers";
-import { applyDropStatus } from "@/lib/drop-status";
+import { isDropHiddenFromPublic, normalizeAndApplyDropStatusOrNull } from "@/lib/drop-read-models";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { isCreatorRole, normalizeCreatorSettings } from "@/lib/creator-experiences";
 
@@ -63,16 +62,10 @@ export async function GET(
             .get();
 
         const drops = dropsSnapshot.docs.flatMap((doc) => {
-            try {
-                const normalized = applyDropStatus(normalizeDropRecord(doc.data(), doc.id), nowMs);
-                return normalized.status === "active"
-                    && normalized.approvalStatus !== "pending_review"
-                    && normalized.approvalStatus !== "rejected"
-                    ? [normalized]
-                    : [];
-            } catch {
-                return [];
-            }
+            const normalized = normalizeAndApplyDropStatusOrNull(doc.data(), doc.id, nowMs);
+            return normalized && normalized.status === "active" && !isDropHiddenFromPublic(normalized)
+                ? [normalized]
+                : [];
         }).sort((left, right) => right.validFrom - left.validFrom);
 
         return NextResponse.json({ success: true, creator, drops });

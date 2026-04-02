@@ -18,7 +18,7 @@ import {
     dropFormSchema,
     type DropFormData,
 } from "@/lib/admin-drop-form";
-import { CLIENT_RUNTIME_EVENTS, dispatchClientRuntimeEvent } from "@/hooks/client-runtime";
+import { dispatchAdminOverviewSync } from "@/hooks/client-runtime";
 import { toast } from "sonner";
 
 const AVAILABLE_TAGS = ["Sweet", "Spicy", "RAW"];
@@ -507,7 +507,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
             }
 
             if (mode === "admin") {
-                dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.adminOverviewSync);
+                dispatchAdminOverviewSync();
             }
             onSuccess();
         } catch (error: unknown) {

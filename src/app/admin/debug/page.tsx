@@ -22,7 +22,7 @@ import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
 import { useAdminOverview } from "@/hooks/useAdminOverview";
-import { useAuthSWR } from "@/hooks/useAuthSWR";
+import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import { useCompactViewport } from "@/hooks/useCompactViewport";
 import { authFetch } from "@/lib/authFetch";
 import { cn } from "@/lib/utils";
@@ -133,9 +133,8 @@ export default function DebugConsole() {
     const [simAmount, setSimAmount] = useState("500");
     const [activeTab, setActiveTab] = useState<DebugTabId>("overview");
 
-    const { data, error, isLoading, mutate } = useAuthSWR<any>("/api/admin/debug", {
-        refreshInterval: 5000,
-        revalidateOnFocus: true,
+    const { data, error, isLoading, mutate } = useAdminPollingSWR<any>("/api/admin/debug", 5000, {
+        keepPreviousData: false,
     });
     const { data: overviewData, isLoading: overviewLoading, mutate: mutateOverview } = useAdminOverview();
 

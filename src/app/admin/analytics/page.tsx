@@ -42,7 +42,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { useAuthSWR } from "@/hooks/useAuthSWR";
+import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import { useNow } from "@/hooks/useNow";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
@@ -767,23 +767,15 @@ export default function AdminAnalyticsPage() {
     data: liveResponse,
     error: liveError,
     isLoading: liveLoading,
-  } = useAuthSWR<RealtimeAnalyticsResponse>("/api/admin/analytics/realtime", {
-    refreshInterval: 5_000,
-    keepPreviousData: true,
-    revalidateOnFocus: true,
-  });
+  } = useAdminPollingSWR<RealtimeAnalyticsResponse>("/api/admin/analytics/realtime", 5_000);
 
   const {
     data: historicalResponse,
     error: historicalError,
     isLoading: historicalLoading,
-  } = useAuthSWR<HistoricalAnalyticsResponse>(
+  } = useAdminPollingSWR<HistoricalAnalyticsResponse>(
     historicalUrl,
-    {
-      refreshInterval: 15_000,
-      keepPreviousData: true,
-      revalidateOnFocus: true,
-    },
+    15_000,
   );
 
   const liveSeries = useMemo(

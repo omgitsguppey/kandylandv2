@@ -6,7 +6,7 @@ import { adjustUserBalance } from "@/lib/firebase/admin-actions";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/Button";
 import { Loader2, AlertCircle } from "lucide-react";
-import { CLIENT_RUNTIME_EVENTS, dispatchClientRuntimeEvent } from "@/hooks/client-runtime";
+import { dispatchAdminOverviewSync } from "@/hooks/client-runtime";
 
 import { toast } from "sonner";
 
@@ -44,7 +44,7 @@ export function BalanceAdjustmentModal({ user, onClose, onSuccess }: Props) {
             if (result.success) {
                 const newBalance = result.newBalance ?? ((user.gumDropsBalance || 0) + val);
                 toast.success(`Balance updated. New Balance: ${newBalance}`);
-                dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.adminOverviewSync);
+                dispatchAdminOverviewSync();
                 onSuccess(newBalance);
                 onClose();
             } else {

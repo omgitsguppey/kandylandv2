@@ -1,30 +1,21 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
-import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { Edit, Loader2, Package, PlusCircle, Repeat, Settings2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { CreateDropModal } from "@/components/Admin/CreateDropModal";
-import { useAuthSWR } from "@/hooks/useAuthSWR";
-import { CLIENT_RUNTIME_EVENTS, dispatchClientRuntimeEvent } from "@/hooks/client-runtime";
+import { dispatchAdminOverviewSync } from "@/hooks/client-runtime";
+import { useAdminDropsFeed } from "@/hooks/useAdminDropsFeed";
+import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import { useNow } from "@/hooks/useNow";
 import { formatAdminCompactDateTime } from "@/lib/admin-drop-formatting";
+import { resolveAdminDropLifecycleFacts } from "@/lib/admin-drop-lifecycle";
+import { buildAdminQueueProjection, type AdminDropQueueConfig } from "@/lib/admin-drop-queue";
 import { authFetch } from "@/lib/authFetch";
-import { buildDropQueueLifecycleProjection } from "@/lib/drop-queue-lifecycle";
-import { normalizeDropRecord } from "@/lib/drop-normalizers";
-import { resolveDropStatusFromTiming } from "@/lib/drop-status";
-import { db } from "@/lib/firebase-data";
 import { cn } from "@/lib/utils";
 import type { Drop } from "@/types/db";
-
-interface QueueConfig {
-    queue: string[];
-    dropsPerDay: number;
-    cooldownDays: number;
-    timesPerDay: string[];
-}
 
 type DropRow = {
     drop: Drop;
@@ -37,9 +28,12 @@ type DropRow = {
 };
 
 function buildStatusPresentation(drop: Drop, isQueued: boolean, queueLabel: string | null, now: number) {
-    const liveStatus = resolveDropStatusFromTiming(drop, now);
+    const lifecycle = resolveAdminDropLifecycleFacts(drop, {
+        now,
+        isQueueManaged: isQueued,
+    });
 
-    if (drop.approvalStatus === "pending_review") {
+    if (lifecycle.kind === "pending_review") {
         return {
             statusLabel: "Pending review",
             statusClassName: "border-amber-400/25 bg-amber-500/10 text-amber-200",
@@ -48,7 +42,7 @@ function buildStatusPresentation(drop: Drop, isQueued: boolean, queueLabel: stri
         };
     }
 
-    if (drop.approvalStatus === "rejected") {
+    if (lifecycle.kind === "rejected") {
         return {
             statusLabel: "Rejected",
             statusClassName: "border-red-400/20 bg-red-500/10 text-red-200",
@@ -57,7 +51,7 @@ function buildStatusPresentation(drop: Drop, isQueued: boolean, queueLabel: stri
         };
     }
 
-    if (liveStatus === "active") {
+    if (lifecycle.kind === "live") {
         return {
             statusLabel: "Live",
             statusClassName: "border-emerald-400/20 bg-emerald-500/10 text-emerald-200",
@@ -75,7 +69,7 @@ function buildStatusPresentation(drop: Drop, isQueued: boolean, queueLabel: stri
         };
     }
 
-    if (liveStatus === "scheduled") {
+    if (lifecycle.kind === "scheduled") {
         return {
             statusLabel: "Scheduled",
             statusClassName: "border-sky-400/20 bg-sky-500/10 text-sky-200",
@@ -93,56 +87,16 @@ function buildStatusPresentation(drop: Drop, isQueued: boolean, queueLabel: stri
 }
 
 export function AdminDropsAtGlancePanel() {
-    const [drops, setDrops] = useState<Drop[]>([]);
-    const [legacyQueueIds, setLegacyQueueIds] = useState<Set<string>>(new Set());
-    const [loading, setLoading] = useState(true);
-    const [loadError, setLoadError] = useState<string | null>(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [editingDropId, setEditingDropId] = useState<string | null>(null);
     const [queueingDropId, setQueueingDropId] = useState<string | null>(null);
+    const { drops, legacyQueueIds, loading, loadError } = useAdminDropsFeed();
 
     const {
         data: queueConfig,
         mutate: mutateQueueConfig,
-    } = useAuthSWR<QueueConfig>("/api/admin/queue", {
-        refreshInterval: 30_000,
-        revalidateOnFocus: true,
-        keepPreviousData: true,
-    });
+    } = useAdminPollingSWR<AdminDropQueueConfig>("/api/admin/queue", 30_000);
     const nowMs = useNow({ intervalMs: 60_000, initialNowMs: 0, enabled: drops.length > 0 });
-
-    useEffect(() => {
-        const dropsQuery = query(collection(db, "drops"), orderBy("validFrom", "desc"));
-        const unsubscribe = onSnapshot(dropsQuery, (snapshot) => {
-            const nextDrops: Drop[] = [];
-            const nextLegacyQueueIds = new Set<string>();
-
-            snapshot.forEach((docSnapshot) => {
-                const raw = docSnapshot.data() as Record<string, unknown>;
-                try {
-                    nextDrops.push(normalizeDropRecord(raw, docSnapshot.id));
-                } catch {
-                    nextDrops.push({ id: docSnapshot.id, ...raw } as Drop);
-                }
-
-                const rotationConfig = raw.rotationConfig as Record<string, unknown> | undefined;
-                if (rotationConfig?.enabled === true) {
-                    nextLegacyQueueIds.add(docSnapshot.id);
-                }
-            });
-
-            setDrops(nextDrops);
-            setLegacyQueueIds(nextLegacyQueueIds);
-            setLoadError(null);
-            setLoading(false);
-        }, (error) => {
-            console.error("Failed to subscribe to drops for the admin dashboard", error);
-            setLoadError(error instanceof Error ? error.message : "Failed to load drops.");
-            setLoading(false);
-        });
-
-        return () => unsubscribe();
-    }, []);
 
     const dropMap = useMemo(() => {
         const map = new Map<string, Drop>();
@@ -153,42 +107,27 @@ export function AdminDropsAtGlancePanel() {
     }, [drops]);
 
     const queueOrder = useMemo(() => queueConfig?.queue ?? [], [queueConfig]);
-    const visibleQueueIds = useMemo(
-        () => new Set<string>([...Array.from(legacyQueueIds), ...queueOrder]),
-        [legacyQueueIds, queueOrder],
-    );
+    const queueProjection = useMemo(() => buildAdminQueueProjection({
+        getDropById: (dropId) => dropMap.get(dropId),
+        queueOrder,
+        legacyQueueIds,
+        cooldownDays: queueConfig?.cooldownDays ?? 1,
+        timesPerDay: queueConfig?.timesPerDay ?? [],
+        now: nowMs,
+    }), [dropMap, legacyQueueIds, nowMs, queueConfig?.cooldownDays, queueConfig?.timesPerDay, queueOrder]);
 
-    const queueProjectionOrder = useMemo(() => {
-        const queuedIds = new Set(queueOrder);
-        return [
-            ...queueOrder,
-            ...Array.from(legacyQueueIds).filter((dropId) => !queuedIds.has(dropId)),
-        ];
-    }, [legacyQueueIds, queueOrder]);
-
-    const queueLifecycleMap = useMemo(() => {
-        if (!queueConfig || queueProjectionOrder.length === 0) {
-            return new Map();
-        }
-
-        const queueEntries = queueProjectionOrder
-            .map((dropId) => dropMap.get(dropId))
-            .filter((drop): drop is Drop => Boolean(drop));
-
-        return buildDropQueueLifecycleProjection(queueEntries, {
-            cooldownDays: queueConfig.cooldownDays,
-            timesPerDay: queueConfig.timesPerDay,
-            now: nowMs,
-        });
-    }, [dropMap, nowMs, queueConfig, queueProjectionOrder]);
+    const visibleQueueIds = queueProjection.visibleQueueIds;
+    const queueLifecycleMap = queueProjection.lifecycleMap;
 
     const rows = useMemo(() => {
         const nextRows = drops.map((drop) => {
             const isQueued = visibleQueueIds.has(drop.id);
-            const queueSlotMs = queueLifecycleMap.get(drop.id)?.queueSlotMs;
-            const queueSlotLabel = queueSlotMs
-                ? formatAdminCompactDateTime(queueSlotMs)
-                : null;
+            const lifecycle = resolveAdminDropLifecycleFacts(drop, {
+                now: nowMs,
+                isQueueManaged: isQueued,
+                queueLifecycle: queueLifecycleMap.get(drop.id),
+            });
+            const queueSlotLabel = lifecycle.queueSlotLabel;
             const status = buildStatusPresentation(drop, isQueued, queueSlotLabel, nowMs);
 
             return {
@@ -236,7 +175,7 @@ export function AdminDropsAtGlancePanel() {
 
     const handleModalSuccess = useCallback(() => {
         closeModal();
-        dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.adminOverviewSync);
+        dispatchAdminOverviewSync();
     }, [closeModal]);
 
     const handleQueueToggle = useCallback(async (dropId: string) => {
@@ -261,7 +200,7 @@ export function AdminDropsAtGlancePanel() {
                 revalidate: false,
             });
 
-            dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.adminOverviewSync);
+            dispatchAdminOverviewSync();
             toast.success(added ? "Drop added to queue" : "Drop removed from queue");
         } catch (error) {
             console.error("Failed to toggle queue from admin home", error);

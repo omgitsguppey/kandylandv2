@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LayoutGrid } from "lucide-react";
 
-import { applyDropStatus, isDropActiveNow } from "@/lib/drop-status";
+import { buildDashboardCollectionState } from "@/lib/drop-dashboard";
 import { cn } from "@/lib/utils";
 import type { Drop, UserProfile } from "@/types/db";
 
@@ -43,33 +43,13 @@ export function CollectionList({ drops, userProfile, currentTimeMs }: Collection
         const unlockedList = Array.isArray(rawUnlocked) ? rawUnlocked : [];
         const ids = new Set(unlockedList);
 
-        const visible: Drop[] = [];
-        const ownedVisible: Drop[] = [];
-        const lockedVisible: Drop[] = [];
-        let owned = 0;
-
-        // Match the public Drops page: locked items only surface while active.
-        // Already-unwrapped drops stay visible in the dashboard regardless of lifecycle.
-        for (const drop of drops) {
-            const isOwned = ids.has(drop.id);
-            if (!isOwned && !isDropActiveNow(drop, currentTimeMs)) {
-                continue;
-            }
-
-            // Resolve status only after the drop survives visibility checks so we avoid
-            // cloning objects that would be filtered out immediately afterward.
-            const resolvedDrop = applyDropStatus(drop, currentTimeMs);
-            visible.push(resolvedDrop);
-
-            if (isOwned) {
-                ownedVisible.push(resolvedDrop);
-                owned++;
-            } else {
-                lockedVisible.push(resolvedDrop);
-            }
-        }
-
-        const locked = visible.length - owned;
+        const {
+            visibleDrops: visible,
+            ownedDrops: ownedVisible,
+            lockedDrops: lockedVisible,
+            ownedCount: owned,
+            lockedCount: locked,
+        } = buildDashboardCollectionState(drops, ids, currentTimeMs);
 
         return {
             ownedIds: ids,

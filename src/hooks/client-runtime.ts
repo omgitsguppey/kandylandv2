@@ -11,6 +11,8 @@ export const CLIENT_RUNTIME_EVENTS = {
     adminOverviewSync: "kandydrops:admin-overview-sync",
 } as const;
 
+export const ADMIN_OVERVIEW_SYNC_EVENT = CLIENT_RUNTIME_EVENTS.adminOverviewSync;
+
 export async function hashIdentifier(id: string): Promise<string> {
     const encoder = new TextEncoder();
     const data = encoder.encode(id);
@@ -46,4 +48,21 @@ export function dispatchClientRuntimeEvent(eventName: string) {
     }
 
     window.dispatchEvent(new Event(eventName));
+}
+
+export function dispatchAdminOverviewSync() {
+    dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.adminOverviewSync);
+}
+
+export function listenForClientRuntimeEvent(eventName: string, listener: EventListener) {
+    if (typeof window === "undefined") {
+        return () => undefined;
+    }
+
+    window.addEventListener(eventName, listener);
+    return () => window.removeEventListener(eventName, listener);
+}
+
+export function listenForAdminOverviewSync(listener: EventListener) {
+    return listenForClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.adminOverviewSync, listener);
 }

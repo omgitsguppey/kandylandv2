@@ -13,15 +13,14 @@ import { Drop } from "@/types/db";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { formatAdminCompactDateTime, formatAdminTimeLabel } from "@/lib/admin-drop-formatting";
-import { buildDropQueueLifecycleProjection } from "@/lib/drop-queue-lifecycle";
-import { normalizeDropRecord } from "@/lib/drop-normalizers";
+import {
+    buildAdminQueueProjection,
+    buildReadableQueueScheduleSummary,
+    type AdminDropQueueConfig,
+} from "@/lib/admin-drop-queue";
+import { normalizeDropRecordOrFallback } from "@/lib/drop-read-models";
 
-interface QueueConfig {
-    queue: string[];
-    dropsPerDay: number;
-    cooldownDays: number;
-    timesPerDay: string[];
-}
+type QueueConfig = AdminDropQueueConfig;
 
 function IconControl({
     label,
@@ -55,18 +54,6 @@ function IconControl({
     );
 }
 
-function buildScheduleSummary(config: QueueConfig) {
-    const dropLabel = config.dropsPerDay === 1 ? "drop/day" : "drops/day";
-    const times = config.timesPerDay.slice(0, config.dropsPerDay).map(formatAdminTimeLabel).join(" · ");
-    return `${config.dropsPerDay} ${dropLabel} · ${times} · ${config.cooldownDays}-day cooldown`;
-}
-
-function buildReadableScheduleSummary(config: QueueConfig) {
-    const dropLabel = config.dropsPerDay === 1 ? "drop/day" : "drops/day";
-    const times = config.timesPerDay.slice(0, config.dropsPerDay).map(formatAdminTimeLabel).join(" | ");
-    return `${config.dropsPerDay} ${dropLabel} | ${times} | ${config.cooldownDays}-day cooldown`;
-}
-
 export default function ManageQueuePage() {
     const [config, setConfig] = useState<QueueConfig | null>(null);
     const [drops, setDrops] = useState<Record<string, Drop>>({});
@@ -92,11 +79,7 @@ export default function ManageQueuePage() {
             const dropsMap: Record<string, Drop> = {};
             dropsSnap.forEach((docSnapshot) => {
                 const raw = docSnapshot.data() as Record<string, unknown>;
-                try {
-                    dropsMap[docSnapshot.id] = normalizeDropRecord(raw, docSnapshot.id);
-                } catch {
-                    dropsMap[docSnapshot.id] = { id: docSnapshot.id, ...raw } as Drop;
-                }
+                dropsMap[docSnapshot.id] = normalizeDropRecordOrFallback(raw, docSnapshot.id);
             });
 
             let times = queueData.timesPerDay || ["12:00"];
@@ -185,22 +168,15 @@ export default function ManageQueuePage() {
         });
     }, []);
 
-    const queueLifecycleMap = useMemo(() => {
-        if (!config || config.queue.length === 0 || config.dropsPerDay <= 0) {
-            return new Map();
-        }
+    const queueProjection = useMemo(() => buildAdminQueueProjection({
+        getDropById: (dropId) => drops[dropId],
+        queueOrder: config?.queue ?? [],
+        cooldownDays: config?.cooldownDays ?? 1,
+        timesPerDay: config?.timesPerDay ?? [],
+        now: Date.now(),
+    }), [config?.cooldownDays, config?.queue, config?.timesPerDay, drops]);
 
-        const queueEntries = config.queue
-            .map((dropId) => drops[dropId])
-            .filter((drop): drop is Drop => Boolean(drop));
-
-        return buildDropQueueLifecycleProjection(queueEntries, {
-            cooldownDays: config.cooldownDays,
-            timesPerDay: config.timesPerDay,
-            now: Date.now(),
-        });
-    }, [config, drops]);
-
+    const queueLifecycleMap = queueProjection.lifecycleMap;
     const queueItems = useMemo(() => (
         config?.queue.map((dropId, index) => ({
             dropId,
@@ -210,7 +186,10 @@ export default function ManageQueuePage() {
         })) ?? []
     ), [config?.queue, drops, queueLifecycleMap]);
 
-    const scheduleSummary = useMemo(() => (config ? buildReadableScheduleSummary(config) : ""), [config]);
+    const scheduleSummary = useMemo(
+        () => (config ? buildReadableQueueScheduleSummary(config) : ""),
+        [config],
+    );
     const nextSlotLabel = useMemo(() => {
         const nextQueueSlot = queueItems
             .map((item) => item.lifecycle?.queueSlotMs)

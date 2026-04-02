@@ -16,7 +16,7 @@ import {
 import { toast } from "sonner";
 
 import { UserProfile } from "@/types/db";
-import { useAuthSWR } from "@/hooks/useAuthSWR";
+import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import { authFetch } from "@/lib/authFetch";
 import {
   DAILY_TASK_MAX_REWARD,
@@ -88,10 +88,7 @@ function TaskCard({
 }
 
 export function AdminTasksManager({ users }: { users: UserProfile[] }) {
-  const { data, isLoading, mutate } = useAuthSWR<AdminTasksResponse>("/api/admin/tasks", {
-    refreshInterval: 30_000,
-    keepPreviousData: true,
-  });
+  const { data, isLoading, mutate } = useAdminPollingSWR<AdminTasksResponse>("/api/admin/tasks", 30_000);
 
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");

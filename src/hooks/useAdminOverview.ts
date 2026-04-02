@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { useAuthSWR } from "@/hooks/useAuthSWR";
-import { CLIENT_RUNTIME_EVENTS } from "@/hooks/client-runtime";
+import { listenForAdminOverviewSync } from "@/hooks/client-runtime";
+import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import type { Drop, Transaction } from "@/types/db";
 
 export interface AdminOverviewResponse {
@@ -26,11 +26,7 @@ export interface AdminOverviewResponse {
 }
 
 export function useAdminOverview() {
-    const swr = useAuthSWR<AdminOverviewResponse>("/api/admin/overview", {
-        refreshInterval: 5_000,
-        revalidateOnFocus: true,
-        keepPreviousData: true,
-    });
+    const swr = useAdminPollingSWR<AdminOverviewResponse>("/api/admin/overview", 5_000);
     const { mutate } = swr;
 
     useEffect(() => {
@@ -42,8 +38,7 @@ export function useAdminOverview() {
             void mutate();
         };
 
-        window.addEventListener(CLIENT_RUNTIME_EVENTS.adminOverviewSync, handleSync);
-        return () => window.removeEventListener(CLIENT_RUNTIME_EVENTS.adminOverviewSync, handleSync);
+        return listenForAdminOverviewSync(handleSync);
     }, [mutate]);
 
     return swr;

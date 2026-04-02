@@ -7,8 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
 import { ADMIN, HEAVY_READ } from "@/lib/server/rate-limit";
-import { normalizeDropRecord } from "@/lib/drop-normalizers";
-import { applyDropStatus } from "@/lib/drop-status";
+import { isDropHiddenFromPublic, normalizeAndApplyDropStatusOrNull } from "@/lib/drop-read-models";
 import { APP_TIMEZONE, fromCSTInput, getCSTDateKey, shiftCSTDateKey } from "@/lib/timezone";
 import { getTransactionRevenueCents, normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 import { guardApiRequest } from "@/lib/server/request-guard";
@@ -171,11 +170,8 @@ export async function GET(request: NextRequest) {
         ]);
 
         const drops = dropsSnapshot.docs.flatMap((doc) => {
-            try {
-                return [applyDropStatus(normalizeDropRecord(doc.data(), doc.id), now)];
-            } catch {
-                return [];
-            }
+            const normalized = normalizeAndApplyDropStatusOrNull(doc.data(), doc.id, now);
+            return normalized && !isDropHiddenFromPublic(normalized) ? [normalized] : [];
         });
 
         const recentTransactionsSource = recentTransactionsSnapshot.docs.flatMap((doc) => {

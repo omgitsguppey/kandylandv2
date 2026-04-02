@@ -11,7 +11,8 @@ import { CollectionList } from "@/components/Dashboard/CollectionList";
 import { useDrops } from "@/hooks/useDrops";
 import { useDeferredClientReady } from "@/hooks/useDeferredClientReady";
 import { useNetworkConditions } from "@/hooks/useNetworkConditions";
-import { applyDropStatus, isDropActiveNow } from "@/lib/drop-status";
+import { mergeResolvedDropsById } from "@/lib/drop-dashboard";
+import { isDropActiveNow } from "@/lib/drop-status";
 import { trackEvent } from "@/lib/telemetry";
 import type { Drop } from "@/types/db";
 
@@ -56,19 +57,10 @@ export default function DashboardClient({ drops }: DashboardClientProps) {
     const greetingTemplate = DASHBOARD_GREETING_VARIANTS[greetingVariant] || DASHBOARD_GREETING_VARIANTS.taste;
     const initialActiveDrops = useMemo(() => drops.filter((drop) => isDropActiveNow(drop)), [drops]);
     const { drops: liveActiveDrops, nowMs } = useDrops(["active"], initialActiveDrops);
-    const visibleDrops = useMemo(() => {
-        const mergedDrops = new Map<string, Drop>();
-
-        drops.forEach((drop) => {
-            mergedDrops.set(drop.id, applyDropStatus(drop, nowMs));
-        });
-
-        liveActiveDrops.forEach((drop) => {
-            mergedDrops.set(drop.id, applyDropStatus(drop, nowMs));
-        });
-
-        return Array.from(mergedDrops.values()).sort((a, b) => b.validFrom - a.validFrom);
-    }, [drops, liveActiveDrops, nowMs]);
+    const visibleDrops = useMemo(
+        () => mergeResolvedDropsById(drops, liveActiveDrops, nowMs),
+        [drops, liveActiveDrops, nowMs],
+    );
 
     useEffect(() => {
         if (!userProfile) {

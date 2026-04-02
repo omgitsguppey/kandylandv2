@@ -5,8 +5,7 @@ import { RELAXED } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { isCreatorRole } from "@/lib/creator-experiences";
-import { normalizeDropRecord } from "@/lib/drop-normalizers";
-import { applyDropStatus } from "@/lib/drop-status";
+import { isDropHiddenFromPublic, normalizeAndApplyDropStatusOrNull } from "@/lib/drop-read-models";
 
 type DiscoverySurface = "dashboard" | "drops" | "experiences";
 type DiscoveryCreatorRecord = Record<string, unknown> & {
@@ -62,18 +61,12 @@ export async function GET(request: NextRequest) {
 
         const activeDropCounts = new Map<string, number>();
         dropsSnap.docs.forEach((doc) => {
-            try {
-                const normalized = applyDropStatus(normalizeDropRecord(doc.data(), doc.id), now);
-                if (normalized.approvalStatus === "pending_review" || normalized.approvalStatus === "rejected") {
-                    return;
-                }
-                if (!normalized.creatorId || normalized.status !== "active") {
-                    return;
-                }
-                activeDropCounts.set(normalized.creatorId, (activeDropCounts.get(normalized.creatorId) ?? 0) + 1);
-            } catch {
+            const normalized = normalizeAndApplyDropStatusOrNull(doc.data(), doc.id, now);
+            if (!normalized || isDropHiddenFromPublic(normalized) || !normalized.creatorId || normalized.status !== "active") {
                 return;
             }
+
+            activeDropCounts.set(normalized.creatorId, (activeDropCounts.get(normalized.creatorId) ?? 0) + 1);
         });
 
         const creators = usersSnap.docs

@@ -1,25 +1,24 @@
 "use client";
 
 import { type CSSProperties, startTransition, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
-import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { BellRing, Calendar, Check, ChevronDown, ChevronUp, Clock3, Copy, Edit, Package, PlusCircle, Repeat, Search, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
-import { db } from "@/lib/firebase-data";
 import { Drop } from "@/types/db";
 import { cn } from "@/lib/utils";
 import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";
 import { sendNotification } from "@/lib/notifications";
 import { CreateDropModal } from "@/components/Admin/CreateDropModal";
-import { normalizeDropRecord } from "@/lib/drop-normalizers";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { formatAdminCompactDateTime, formatAdminDetailDateTime } from "@/lib/admin-drop-formatting";
-import { buildDropQueueLifecycleProjection } from "@/lib/drop-queue-lifecycle";
-import { resolveDropStatusFromTiming } from "@/lib/drop-status";
-import { CLIENT_RUNTIME_EVENTS, dispatchClientRuntimeEvent } from "@/hooks/client-runtime";
+import { buildAdminQueueProjection, type AdminDropQueueConfig } from "@/lib/admin-drop-queue";
+import { resolveAdminDropLifecycleFacts } from "@/lib/admin-drop-lifecycle";
+import { dispatchAdminOverviewSync } from "@/hooks/client-runtime";
+import { useAdminDropsFeed } from "@/hooks/useAdminDropsFeed";
+import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import { useNow } from "@/hooks/useNow";
 
 interface DropNotificationDraft {
@@ -35,13 +34,6 @@ interface CreatorOption {
     username: string;
     photoURL: string | null;
     role: string;
-}
-
-interface QueueConfig {
-    queue: string[];
-    dropsPerDay: number;
-    cooldownDays: number;
-    timesPerDay: string[];
 }
 
 type DropStatusFilter = "all" | "queued" | "live" | "scheduled" | "pending_review" | "rejected" | "ended";
@@ -233,10 +225,7 @@ function SelectField({
 }
 
 export default function AdminDropsPage() {
-    const [drops, setDrops] = useState<Drop[]>([]);
     const [selectedDropIds, setSelectedDropIds] = useState<Set<string>>(new Set());
-    const [loading, setLoading] = useState(true);
-    const [loadError, setLoadError] = useState<string | null>(null);
     const [notificationDraft, setNotificationDraft] = useState<DropNotificationDraft | null>(null);
     const [sendingNotification, setSendingNotification] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -244,84 +233,24 @@ export default function AdminDropsPage() {
     const [duplicatingDropId, setDuplicatingDropId] = useState<string | null>(null);
     const [reviewingDropId, setReviewingDropId] = useState<string | null>(null);
     const [expandedDropId, setExpandedDropId] = useState<string | null>(null);
-    const [legacyQueueIds, setLegacyQueueIds] = useState<Set<string>>(new Set());
-    const [queueConfig, setQueueConfig] = useState<QueueConfig | null>(null);
     const [creatorOptions, setCreatorOptions] = useState<CreatorOption[]>([]);
     const [searchDraft, setSearchDraft] = useState("");
     const [statusFilter, setStatusFilter] = useState<DropStatusFilter>("all");
     const [creatorFilter, setCreatorFilter] = useState("all");
     const [sortMode, setSortMode] = useState<DropSortMode>("last-active");
+    const { drops, legacyQueueIds, loading, loadError } = useAdminDropsFeed();
+    const {
+        data: queueConfig,
+        mutate: mutateQueueConfig,
+    } = useAdminPollingSWR<AdminDropQueueConfig>("/api/admin/queue", 30_000);
     const nowMs = useNow({ intervalMs: 60_000, initialNowMs: 0, enabled: drops.length > 0 });
 
     const deferredSearch = useDeferredValue(searchDraft.trim().toLowerCase());
 
     useEffect(() => {
-        const q = query(collection(db, "drops"), orderBy("validFrom", "desc"));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const nextDrops: Drop[] = [];
-            const nextLegacyQueueIds = new Set<string>();
-
-            snapshot.forEach((docSnapshot) => {
-                const raw = docSnapshot.data() as Record<string, unknown>;
-                try {
-                    nextDrops.push(normalizeDropRecord(raw, docSnapshot.id));
-                } catch {
-                    nextDrops.push({ id: docSnapshot.id, ...raw } as Drop);
-                }
-
-                const rotationConfig = raw.rotationConfig as Record<string, unknown> | undefined;
-                if (rotationConfig?.enabled === true) {
-                    nextLegacyQueueIds.add(docSnapshot.id);
-                }
-            });
-
-            setDrops(nextDrops);
-            setLegacyQueueIds(nextLegacyQueueIds);
-            setLoadError(null);
-            setLoading(false);
-        }, (error) => {
-            console.error("Failed to subscribe to drops", error);
-            setLoadError(error instanceof Error ? error.message : "Failed to load drops.");
-            setLoading(false);
-        });
-
-        return () => unsubscribe();
-    }, []);
-
-    useEffect(() => {
         const validDropIds = new Set(drops.map((drop) => drop.id));
         setSelectedDropIds((current) => new Set(Array.from(current).filter((id) => validDropIds.has(id))));
     }, [drops]);
-
-    useEffect(() => {
-        let cancelled = false;
-
-        const fetchQueueConfig = async () => {
-            try {
-                const response = await authFetch("/api/admin/queue");
-                const result = await response.json() as QueueConfig;
-                if (!response.ok) {
-                    throw new Error("Failed to load queue");
-                }
-
-                if (!cancelled) {
-                    setQueueConfig(result);
-                }
-            } catch (error) {
-                console.error("Failed to fetch queue config", error);
-            }
-        };
-
-        void fetchQueueConfig();
-        const interval = window.setInterval(() => {
-            void fetchQueueConfig();
-        }, 30_000);
-
-        return () => {
-            cancelled = true;
-            window.clearInterval(interval);
-        };
-    }, []);
 
     useEffect(() => {
         let cancelled = false;
@@ -374,34 +303,17 @@ export default function AdminDropsPage() {
         return map;
     }, [drops]);
 
-    const visibleQueueIds = useMemo(
-        () => new Set<string>([...Array.from(legacyQueueIds), ...queueOrder]),
-        [legacyQueueIds, queueOrder],
-    );
+    const queueProjection = useMemo(() => buildAdminQueueProjection({
+        getDropById: (dropId) => dropMap.get(dropId),
+        queueOrder,
+        legacyQueueIds,
+        cooldownDays: queueConfig?.cooldownDays ?? 1,
+        timesPerDay: queueConfig?.timesPerDay ?? [],
+        now: nowMs,
+    }), [dropMap, legacyQueueIds, nowMs, queueConfig?.cooldownDays, queueConfig?.timesPerDay, queueOrder]);
 
-    const queueProjectionOrder = useMemo(() => {
-        const queuedIds = new Set(queueOrder);
-        return [
-            ...queueOrder,
-            ...Array.from(legacyQueueIds).filter((dropId) => !queuedIds.has(dropId)),
-        ];
-    }, [legacyQueueIds, queueOrder]);
-
-    const queueLifecycleMap = useMemo(() => {
-        if (!queueConfig || queueProjectionOrder.length === 0) {
-            return new Map();
-        }
-
-        const queueEntries = queueProjectionOrder
-            .map((dropId) => dropMap.get(dropId))
-            .filter((drop): drop is Drop => Boolean(drop));
-
-        return buildDropQueueLifecycleProjection(queueEntries, {
-            cooldownDays: queueConfig.cooldownDays,
-            timesPerDay: queueConfig.timesPerDay,
-            now: nowMs,
-        });
-    }, [dropMap, nowMs, queueConfig, queueProjectionOrder]);
+    const visibleQueueIds = queueProjection.visibleQueueIds;
+    const queueLifecycleMap = queueProjection.lifecycleMap;
 
     const dropViewModels = useMemo(() => {
         return drops.map((drop) => {
@@ -412,35 +324,39 @@ export default function AdminDropsPage() {
             const isQueueManaged = visibleQueueIds.has(drop.id);
             const queuePosition = queuePositionMap.has(drop.id) ? queuePositionMap.get(drop.id)! : null;
             const queueLifecycle = queueLifecycleMap.get(drop.id);
-            const liveStatus = resolveDropStatusFromTiming(drop, nowMs);
-            const queueSlotMs = queueLifecycle?.queueSlotMs ?? null;
-            const queueSlotLabel = queueSlotMs ? formatAdminCompactDateTime(queueSlotMs) : null;
+            const lifecycle = resolveAdminDropLifecycleFacts(drop, {
+                now: nowMs,
+                isQueueManaged,
+                queueLifecycle,
+            });
+            const queueSlotMs = lifecycle.queueSlotMs;
+            const queueSlotLabel = lifecycle.queueSlotLabel;
 
             let statusFilterValue: DropCardViewModel["statusFilter"] = "ended";
             let statusLabel = "Ended";
             let statusClassName = "border-white/10 bg-white/6 text-gray-300";
 
-            if ((drop.approvalStatus || "approved") === "pending_review") {
+            if (lifecycle.kind === "pending_review") {
                 statusFilterValue = "pending_review";
                 statusLabel = "Pending Review";
                 statusClassName = "border-amber-400/20 bg-amber-500/10 text-amber-100";
-            } else if (drop.approvalStatus === "rejected") {
+            } else if (lifecycle.kind === "rejected") {
                 statusFilterValue = "rejected";
                 statusLabel = "Rejected";
                 statusClassName = "border-red-400/20 bg-red-500/10 text-red-200";
-            } else if (isQueueManaged && (queueLifecycle?.queueStatus === "scheduled" || queueLifecycle?.queueStatus === "queued") && queueSlotLabel) {
+            } else if (lifecycle.kind === "queued" && queueSlotLabel) {
                 statusFilterValue = "queued";
                 statusLabel = "Queued";
                 statusClassName = "border-cyan-400/20 bg-cyan-500/10 text-cyan-100";
-            } else if (liveStatus === "scheduled") {
+            } else if (lifecycle.kind === "scheduled") {
                 statusFilterValue = "scheduled";
                 statusLabel = "Scheduled";
                 statusClassName = "border-white/15 bg-white/8 text-white";
-            } else if (liveStatus === "active") {
+            } else if (lifecycle.kind === "live") {
                 statusFilterValue = "live";
                 statusLabel = "Live";
                 statusClassName = "border-brand-purple/25 bg-brand-purple/14 text-brand-purple";
-            } else if (isQueueManaged && queueLifecycle?.queueStatus === "cooldown") {
+            } else if (lifecycle.kind === "cooldown") {
                 statusFilterValue = "ended";
                 statusLabel = "Cooling Down";
                 statusClassName = "border-white/15 bg-white/8 text-white";
@@ -453,7 +369,7 @@ export default function AdminDropsPage() {
 
             if (statusFilterValue === "queued" && queueSlotLabel) {
                 schedulePrimaryLabel = `Queued for ${queueSlotLabel}`;
-                scheduleSecondaryLabel = liveStatus === "scheduled"
+                scheduleSecondaryLabel = lifecycle.liveStatus === "scheduled"
                     ? `Original start ${formatAdminCompactDateTime(drop.validFrom)}`
                     : drop.validUntil
                         ? `Last window ended ${formatAdminCompactDateTime(drop.validUntil)}`
@@ -462,8 +378,8 @@ export default function AdminDropsPage() {
                 schedulePrimaryLabel = `Live since ${formatAdminCompactDateTime(drop.validFrom)}`;
                 scheduleSecondaryLabel = drop.validUntil ? `Ends ${formatAdminCompactDateTime(drop.validUntil)}` : "No end time";
             } else if (statusLabel === "Cooling Down") {
-                schedulePrimaryLabel = queueLifecycle?.cooldownEndsAt
-                    ? `Eligible again ${formatAdminCompactDateTime(queueLifecycle.cooldownEndsAt)}`
+                schedulePrimaryLabel = lifecycle.cooldownEndsAt
+                    ? `Eligible again ${formatAdminCompactDateTime(lifecycle.cooldownEndsAt)}`
                     : (drop.validUntil ? `Ended ${formatAdminCompactDateTime(drop.validUntil)}` : "Waiting on queue cooldown");
                 scheduleSecondaryLabel = drop.validUntil ? `Ended ${formatAdminCompactDateTime(drop.validUntil)}` : null;
             } else if (statusFilterValue === "ended") {
@@ -587,7 +503,7 @@ export default function AdminDropsPage() {
             if (!response.ok) {
                 throw new Error(result.error);
             }
-            dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.adminOverviewSync);
+            dispatchAdminOverviewSync();
             toast.success("Drop deleted successfully");
         } catch (error: any) {
             console.error("Error deleting drop:", error);
@@ -613,7 +529,7 @@ export default function AdminDropsPage() {
                 throw new Error(typeof result.error === "string" ? result.error : "Review failed");
             }
 
-            dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.adminOverviewSync);
+            dispatchAdminOverviewSync();
             toast.success(approvalStatus === "approved" ? "Creator drop approved" : "Creator drop rejected");
         } catch (error: any) {
             console.error("Failed to review creator drop", error);
@@ -673,7 +589,7 @@ export default function AdminDropsPage() {
                 throw new Error(typeof result.error === "string" ? result.error : "One or more drops failed to delete.");
             }
 
-            dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.adminOverviewSync);
+            dispatchAdminOverviewSync();
             toast.success(`Successfully deleted ${selectedDropIds.size} drop(s).`);
             setSelectedDropIds(new Set());
         } catch (error) {
@@ -694,20 +610,22 @@ export default function AdminDropsPage() {
             }
 
             const added = result.added === true;
-            setQueueConfig((current) => current ? {
+            await mutateQueueConfig((current) => current ? {
                 ...current,
                 queue: added
                     ? [...current.queue.filter((id) => id !== dropId), dropId]
                     : current.queue.filter((id) => id !== dropId),
-            } : current);
+            } : current, {
+                revalidate: false,
+            });
 
-            dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.adminOverviewSync);
+            dispatchAdminOverviewSync();
             toast.success(added ? "Added to Queue" : "Removed from Queue");
         } catch (error: any) {
             console.error("Error toggling queue:", error);
             toast.error(error.message || "Failed to toggle queue state.");
         }
-    }, []);
+    }, [mutateQueueConfig]);
 
     const openNotificationDraft = useCallback((drop: Drop) => {
         if (!drop.imageUrl) {

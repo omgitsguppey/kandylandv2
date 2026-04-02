@@ -1,33 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 
-import { adminDb } from "@/lib/server/firebase-admin";
-import { handleApiError } from "@/lib/server/auth";
-import { STANDARD } from "@/lib/server/rate-limit";
-import { guardApiRequest } from "@/lib/server/request-guard";
 import { isCreatorRole } from "@/lib/creator-experiences";
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
-import { resolveDropStatusFromTiming } from "@/lib/drop-status";
-import { touchDropsRuntime } from "@/lib/server/drop-runtime";
-import { revalidatePath } from "next/cache";
+import { handleApiError } from "@/lib/server/auth";
+import { adminDb } from "@/lib/server/firebase-admin";
+import {
+    CREATOR_DROP_REVALIDATION_PATHS,
+    invalidateDropSurfaces,
+    resolveCreatedDropTiming,
+    resolveUpdatedDropTiming,
+    sanitizeDropData,
+} from "@/lib/server/drop-mutations";
+import { guardApiRequest } from "@/lib/server/request-guard";
+import { STANDARD } from "@/lib/server/rate-limit";
 
 const ALLOWED_DROP_FIELDS = [
     "title", "description", "imageUrl", "contentUrl", "contentUrls", "unlockCost",
     "validFrom", "validUntil", "autoQueueOnExpire", "status", "type", "tags",
     "ctaText", "actionUrl", "accentColor", "fileMetadata", "mediaCounts",
     "coverFileName", "contentFileNames", "requiresActiveSubscription",
-];
-
-function sanitizeDropData(raw: Record<string, unknown>) {
-    const sanitized: Record<string, unknown> = {};
-    for (const key of ALLOWED_DROP_FIELDS) {
-        if (raw[key] !== undefined) {
-            sanitized[key] = raw[key] === null ? FieldValue.delete() : raw[key];
-        }
-    }
-
-    return sanitized;
-}
+] as const;
 
 async function requireCreator(uid: string) {
     if (!adminDb) {
@@ -74,13 +67,9 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Missing drop data" }, { status: 400 });
         }
 
-        const sanitized = sanitizeDropData(dropData);
+        const sanitized = sanitizeDropData(dropData, ALLOWED_DROP_FIELDS);
         const now = Date.now();
-        const validFrom = typeof dropData.validFrom === "number" ? dropData.validFrom : now;
-        const status = resolveDropStatusFromTiming({
-            validFrom,
-            validUntil: typeof dropData.validUntil === "number" ? dropData.validUntil : undefined,
-        }, now);
+        const { status } = resolveCreatedDropTiming(dropData, now);
 
         const docRef = await adminDb.collection("drops").add({
             ...sanitized,
@@ -98,10 +87,7 @@ export async function POST(request: NextRequest) {
             creatorDisplayName: typeof creatorData.displayName === "string" ? creatorData.displayName : "Creator",
         });
 
-        await touchDropsRuntime(now);
-        revalidatePath("/drops");
-        revalidatePath("/dashboard");
-        revalidatePath("/creators");
+        await invalidateDropSurfaces(CREATOR_DROP_REVALIDATION_PATHS, now);
 
         return NextResponse.json({ success: true, id: docRef.id, approvalStatus: "pending_review" });
     } catch (error) {
@@ -139,18 +125,9 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ error: "You can only edit your own submitted drops." }, { status: 403 });
         }
 
-        const sanitized = sanitizeDropData(dropData);
+        const sanitized = sanitizeDropData(dropData, ALLOWED_DROP_FIELDS);
         const now = Date.now();
-        const nextValidFrom = typeof dropData.validFrom === "number" ? dropData.validFrom : existingDrop.validFrom;
-        const nextValidUntil = dropData.validUntil === null
-            ? undefined
-            : typeof dropData.validUntil === "number"
-                ? dropData.validUntil
-                : existingDrop.validUntil;
-        const status = resolveDropStatusFromTiming({
-            validFrom: nextValidFrom,
-            validUntil: nextValidUntil,
-        }, now);
+        const { status } = resolveUpdatedDropTiming(dropData, existingDrop, now);
 
         await dropRef.update({
             ...sanitized,
@@ -160,10 +137,7 @@ export async function PUT(request: NextRequest) {
             approvalReviewedBy: null,
         });
 
-        await touchDropsRuntime(now);
-        revalidatePath("/drops");
-        revalidatePath("/dashboard");
-        revalidatePath("/creators");
+        await invalidateDropSurfaces(CREATOR_DROP_REVALIDATION_PATHS, now);
 
         return NextResponse.json({ success: true, approvalStatus: "pending_review" });
     } catch (error) {
