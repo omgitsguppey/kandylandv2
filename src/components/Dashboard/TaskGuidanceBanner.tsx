@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState, type Dispatch, type SetStateAction, type TouchEvent } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, CheckCircle2, Sparkles, X } from "lucide-react";
@@ -15,17 +15,23 @@ import {
   focusTaskDestinationAnchor,
   getTaskDestinationPath,
   isSamePageTaskViewEvent,
-  type TaskGuidancePendingAction,
-  type TaskGuidanceState,
   isTaskGuidanceActionType,
   TASK_GUIDANCE_ACTION_EVENT,
   TASK_GUIDANCE_STORAGE_KEY,
+  type TaskGuidancePendingAction,
+  type TaskGuidanceState,
   writeTaskGuidancePendingAction,
 } from "@/lib/task-guidance";
 
 type BannerEventDetail =
   | { type: "activate"; guidance: TaskGuidanceState }
   | { type: "clear" };
+
+type GuidanceSetter = Dispatch<SetStateAction<TaskGuidanceState | null>>;
+
+const TASK_GUIDANCE_EVENT = "kandydrops:task-guidance";
+const COMPLETED_GUIDANCE_DESTINATION = "/experiences#daily-tasks";
+const SWIPE_DISMISS_DISTANCE = -44;
 
 function readStoredGuidance() {
   if (typeof window === "undefined") {
@@ -80,18 +86,164 @@ function writeStoredGuidance(value: TaskGuidanceState | null) {
   window.localStorage.setItem(TASK_GUIDANCE_STORAGE_KEY, JSON.stringify(value));
 }
 
-export function TaskGuidanceBanner() {
+function commitStoredGuidance(setGuidance: GuidanceSetter, value: TaskGuidanceState | null) {
+  writeStoredGuidance(value);
+  setGuidance(value);
+}
+
+function launchRewardConfetti() {
+  import("canvas-confetti").then((confettiModule) => {
+    const launchConfetti = confettiModule.default;
+    const end = Date.now() + 900;
+    const colors = ["#ec4899", "#facc15", "#ffffff"];
+
+    (function frame() {
+      launchConfetti({
+        particleCount: 2,
+        angle: 70,
+        spread: 45,
+        origin: { x: 0.25, y: 0.15 },
+        colors,
+      });
+      launchConfetti({
+        particleCount: 2,
+        angle: 110,
+        spread: 45,
+        origin: { x: 0.75, y: 0.15 },
+        colors,
+      });
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    }());
+  }).catch(() => undefined);
+}
+
+interface TaskGuidanceCardProps {
+  guidance: TaskGuidanceState;
+  onAction: () => void;
+  onDismiss: () => void;
+  onTouchEnd: (event: TouchEvent<HTMLDivElement>) => void;
+  onTouchStart: (event: TouchEvent<HTMLDivElement>) => void;
+  rewardFlashVisible: boolean;
+}
+
+function TaskGuidanceCard({
+  guidance,
+  onAction,
+  onDismiss,
+  onTouchEnd,
+  onTouchStart,
+  rewardFlashVisible,
+}: TaskGuidanceCardProps) {
+  const completed = Boolean(guidance.completedAt);
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        key={guidance.taskId + String(guidance.completedAt ?? "")}
+        initial={{ opacity: 0, y: -18 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -18 }}
+        transition={{ duration: 0.22, ease: "easeOut" }}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+        className="pointer-events-none fixed inset-x-0 top-[calc(var(--kandy-cookie-offset,0px)+4.25rem)] z-[70] px-3 sm:px-4"
+      >
+        <div className="pointer-events-auto mx-auto max-w-2xl overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#16161b]/92 shadow-[0_18px_44px_rgba(0,0,0,0.3)] backdrop-blur-xl">
+          <div className="flex items-start gap-3 px-3.5 py-3.5 sm:px-4">
+            <div className={cn(
+              "mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[1rem] border",
+              completed
+                ? "border-emerald-300/30 bg-emerald-400/15 text-emerald-200"
+                : "border-brand-purple/25 bg-brand-purple/12 text-brand-purple",
+            )}>
+              {completed ? <CheckCircle2 className="h-4 w-4" /> : <Sparkles className="h-4 w-4" />}
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-[10px] font-black uppercase tracking-[0.16em] text-gray-400">
+                      {completed ? "Task complete" : "Task reminder"}
+                    </p>
+                    <span className={cn(
+                      "inline-flex items-center rounded-full border px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.14em]",
+                      completed
+                        ? "border-emerald-300/25 bg-emerald-400/12 text-emerald-200"
+                        : "border-white/10 bg-white/5 text-gray-300",
+                    )}>
+                      +{guidance.reward} Gum Drops
+                    </span>
+                  </div>
+                  <h3 className="mt-1 truncate text-sm font-bold text-white">
+                    {completed ? "Ready for your next reward?" : guidance.title}
+                  </h3>
+                  <p className="mt-1 text-[12px] leading-5 text-gray-300 sm:pr-2">
+                    {completed
+                      ? "Jump back into daily tasks and keep the streak moving."
+                      : guidance.instruction}
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={onDismiss}
+                  className="rounded-full border border-white/10 bg-white/5 p-1.5 text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
+                  aria-label="Dismiss task guidance"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={onAction}
+                  className="inline-flex min-h-9 items-center gap-2 rounded-full border border-white/15 bg-white px-3.5 py-2 text-xs font-bold text-black transition-transform hover:-translate-y-0.5"
+                >
+                  {completed ? "Open daily tasks" : guidance.ctaLabel}
+                  <ArrowUpRight className="h-4 w-4" />
+                </button>
+
+                <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-300">
+                  {completed ? "Reward ready" : "Dismiss anytime"}
+                </span>
+
+                <AnimatePresence>
+                  {rewardFlashVisible ? (
+                    <motion.span
+                      initial={{ opacity: 0, y: 8, scale: 0.94 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.94 }}
+                      transition={{ duration: 0.22, ease: "easeOut" }}
+                      className="rounded-full border border-emerald-300/25 bg-emerald-400/15 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.1em] text-emerald-200"
+                    >
+                      +{guidance.reward} Gum Drops
+                    </motion.span>
+                  ) : null}
+                </AnimatePresence>
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
+function useTaskGuidanceBannerController() {
   const router = useRouter();
   const pathname = usePathname();
   const { userProfile } = useAuth();
   const { executeTaskGuidanceAction } = useTaskGuidanceActions();
-  const [guidance, setGuidance] = useState<TaskGuidanceState | null>(null);
+  const [guidance, setGuidance] = useState<TaskGuidanceState | null>(() => readStoredGuidance());
   const [rewardFlashVisible, setRewardFlashVisible] = useState(false);
   const touchStartYRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    setGuidance(readStoredGuidance());
-  }, []);
+  const lastResetMs = userProfile?.dailyTasksState?.lastResetMs ?? 0;
+  const dailyTasks = userProfile?.dailyTasksState?.tasks;
+  const activeGuidance = guidance && !guidance.dismissedAt ? guidance : null;
 
   useEffect(() => {
     function handleGuidanceEvent(event: Event) {
@@ -101,20 +253,18 @@ export function TaskGuidanceBanner() {
       }
 
       if (detail.type === "clear") {
-        writeStoredGuidance(null);
-        setGuidance(null);
+        commitStoredGuidance(setGuidance, null);
         return;
       }
 
       if (detail.type === "activate") {
-        writeStoredGuidance(detail.guidance);
         setRewardFlashVisible(false);
-        setGuidance(detail.guidance);
+        commitStoredGuidance(setGuidance, detail.guidance);
       }
     }
 
-    window.addEventListener("kandydrops:task-guidance", handleGuidanceEvent as EventListener);
-    return () => window.removeEventListener("kandydrops:task-guidance", handleGuidanceEvent as EventListener);
+    window.addEventListener(TASK_GUIDANCE_EVENT, handleGuidanceEvent as EventListener);
+    return () => window.removeEventListener(TASK_GUIDANCE_EVENT, handleGuidanceEvent as EventListener);
   }, []);
 
   useEffect(() => {
@@ -122,10 +272,8 @@ export function TaskGuidanceBanner() {
       return;
     }
 
-    const lastResetMs = userProfile?.dailyTasksState?.lastResetMs ?? 0;
     if (lastResetMs > guidance.activatedAt && (guidance.completedAt || guidance.dismissedAt)) {
-      writeStoredGuidance(null);
-      setGuidance(null);
+      commitStoredGuidance(setGuidance, null);
       return;
     }
 
@@ -133,13 +281,12 @@ export function TaskGuidanceBanner() {
       return;
     }
 
-    const exactTaskMatch = findCurrentTaskGuidanceTask(userProfile?.dailyTasksState?.tasks, guidance);
-    const matchingTask = userProfile?.dailyTasksState?.tasks?.find((task) => task.id === guidance.taskId);
+    const exactTaskMatch = findCurrentTaskGuidanceTask(dailyTasks, guidance);
+    const matchingTask = dailyTasks?.find((task) => task.id === guidance.taskId);
     const taskWasReassigned = Boolean(matchingTask && !exactTaskMatch);
 
     if (taskWasReassigned || (!matchingTask && lastResetMs > guidance.activatedAt)) {
-      writeStoredGuidance(null);
-      setGuidance(null);
+      commitStoredGuidance(setGuidance, null);
       return;
     }
 
@@ -151,9 +298,7 @@ export function TaskGuidanceBanner() {
       ...guidance,
       completedAt: Date.now(),
     };
-    writeStoredGuidance(nextGuidance);
-    setGuidance(nextGuidance);
-    setRewardFlashVisible(true);
+    commitStoredGuidance(setGuidance, nextGuidance);
     trackEvent("task_guidance_completed", {
       task_id: guidance.taskId,
       task_title: guidance.title,
@@ -161,38 +306,20 @@ export function TaskGuidanceBanner() {
       destination: guidance.destinationHref,
     });
 
-    import("canvas-confetti").then((confettiModule) => {
-      const launchConfetti = confettiModule.default;
-      const end = Date.now() + 900;
-      const colors = ["#ec4899", "#facc15", "#ffffff"];
+    launchRewardConfetti();
 
-      (function frame() {
-        launchConfetti({
-          particleCount: 2,
-          angle: 70,
-          spread: 45,
-          origin: { x: 0.25, y: 0.15 },
-          colors,
-        });
-        launchConfetti({
-          particleCount: 2,
-          angle: 110,
-          spread: 45,
-          origin: { x: 0.75, y: 0.15 },
-          colors,
-        });
-        if (Date.now() < end) {
-          requestAnimationFrame(frame);
-        }
-      }());
-    }).catch(() => undefined);
-
+    const rewardFlashFrame = window.requestAnimationFrame(() => {
+      setRewardFlashVisible(true);
+    });
     const timer = window.setTimeout(() => {
       setRewardFlashVisible(false);
     }, 3000);
 
-    return () => window.clearTimeout(timer);
-  }, [guidance, userProfile?.dailyTasksState?.lastResetMs, userProfile?.dailyTasksState?.tasks]);
+    return () => {
+      window.cancelAnimationFrame(rewardFlashFrame);
+      window.clearTimeout(timer);
+    };
+  }, [dailyTasks, guidance, lastResetMs]);
 
   useEffect(() => {
     if (!guidance || guidance.completedAt || guidance.dismissedAt) {
@@ -207,14 +334,6 @@ export function TaskGuidanceBanner() {
     });
   }, [guidance]);
 
-  const activeGuidance = useMemo(() => {
-    if (!guidance || guidance.dismissedAt) {
-      return null;
-    }
-
-    return guidance;
-  }, [guidance]);
-
   const dismissBanner = () => {
     if (!activeGuidance) {
       return;
@@ -226,27 +345,46 @@ export function TaskGuidanceBanner() {
       completed: Boolean(activeGuidance.completedAt),
     });
 
-    const nextGuidance = {
+    commitStoredGuidance(setGuidance, {
       ...activeGuidance,
       dismissedAt: Date.now(),
-    };
-    writeStoredGuidance(nextGuidance);
-    setGuidance(nextGuidance);
+    });
   };
 
-  const handleAction = async () => {
+  const clearActiveGuidance = () => {
+    writeTaskGuidancePendingAction(null);
+    commitStoredGuidance(setGuidance, null);
+  };
+
+  const handleCompletedGuidanceAction = () => {
+    clearActiveGuidance();
+    if (pathname === "/experiences") {
+      void focusTaskDestinationAnchor(COMPLETED_GUIDANCE_DESTINATION);
+      return;
+    }
+
+    router.push(COMPLETED_GUIDANCE_DESTINATION);
+  };
+
+  const handleInlineTaskAction = (pendingAction: TaskGuidancePendingAction, destinationHref: string) => {
+    writeTaskGuidancePendingAction(null);
+    window.dispatchEvent(new CustomEvent(TASK_GUIDANCE_ACTION_EVENT, {
+      detail: pendingAction,
+    }));
+    void focusTaskDestinationAnchor(destinationHref);
+  };
+
+  const handleGuidanceAction = async () => {
     if (!activeGuidance) {
       return;
     }
 
     const currentTask = activeGuidance.completedAt
       ? null
-      : findCurrentTaskGuidanceTask(userProfile?.dailyTasksState?.tasks, activeGuidance);
+      : findCurrentTaskGuidanceTask(dailyTasks, activeGuidance);
 
     if (!activeGuidance.completedAt && (!currentTask || currentTask.claimed)) {
-      writeStoredGuidance(null);
-      writeTaskGuidancePendingAction(null);
-      setGuidance(null);
+      clearActiveGuidance();
       return;
     }
 
@@ -254,18 +392,11 @@ export function TaskGuidanceBanner() {
       task_id: activeGuidance.taskId,
       task_title: activeGuidance.title,
       completed: Boolean(activeGuidance.completedAt),
-      destination: activeGuidance.completedAt ? "/experiences#daily-tasks" : activeGuidance.destinationHref,
+      destination: activeGuidance.completedAt ? COMPLETED_GUIDANCE_DESTINATION : activeGuidance.destinationHref,
     });
 
     if (activeGuidance.completedAt) {
-      writeStoredGuidance(null);
-      writeTaskGuidancePendingAction(null);
-      setGuidance(null);
-      if (pathname === "/experiences") {
-        void focusTaskDestinationAnchor("/experiences#daily-tasks");
-      } else {
-        router.push("/experiences#daily-tasks");
-      }
+      handleCompletedGuidanceAction();
       return;
     }
 
@@ -280,14 +411,9 @@ export function TaskGuidanceBanner() {
         return;
       }
 
-      const pendingAction: TaskGuidancePendingAction = createTaskGuidancePendingAction(activeGuidance);
-
+      const pendingAction = createTaskGuidancePendingAction(activeGuidance);
       if (pathname === getTaskDestinationPath(activeGuidance.destinationHref)) {
-        writeTaskGuidancePendingAction(null);
-        window.dispatchEvent(new CustomEvent(TASK_GUIDANCE_ACTION_EVENT, {
-          detail: pendingAction,
-        }));
-        void focusTaskDestinationAnchor(activeGuidance.destinationHref);
+        handleInlineTaskAction(pendingAction, activeGuidance.destinationHref);
         return;
       }
 
@@ -314,111 +440,52 @@ export function TaskGuidanceBanner() {
     }
   };
 
+  const handleTouchStart = (event: TouchEvent<HTMLDivElement>) => {
+    touchStartYRef.current = event.touches[0]?.clientY ?? null;
+  };
+
+  const handleTouchEnd = (event: TouchEvent<HTMLDivElement>) => {
+    const startY = touchStartYRef.current;
+    const endY = event.changedTouches[0]?.clientY ?? null;
+    touchStartYRef.current = null;
+
+    if (startY !== null && endY !== null && endY - startY < SWIPE_DISMISS_DISTANCE) {
+      dismissBanner();
+    }
+  };
+
+  return {
+    activeGuidance,
+    dismissBanner,
+    handleGuidanceAction,
+    handleTouchEnd,
+    handleTouchStart,
+    rewardFlashVisible,
+  };
+}
+
+export function TaskGuidanceBanner() {
+  const {
+    activeGuidance,
+    dismissBanner,
+    handleGuidanceAction,
+    handleTouchEnd,
+    handleTouchStart,
+    rewardFlashVisible,
+  } = useTaskGuidanceBannerController();
+
   if (!activeGuidance) {
     return null;
   }
 
   return (
-    <AnimatePresence>
-      <motion.div
-        key={activeGuidance.taskId + String(activeGuidance.completedAt ?? "")}
-        initial={{ opacity: 0, y: -18 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -18 }}
-        transition={{ duration: 0.22, ease: "easeOut" }}
-        onTouchStart={(event) => {
-          touchStartYRef.current = event.touches[0]?.clientY ?? null;
-        }}
-        onTouchEnd={(event) => {
-          const startY = touchStartYRef.current;
-          const endY = event.changedTouches[0]?.clientY ?? null;
-          touchStartYRef.current = null;
-
-          if (startY !== null && endY !== null && endY - startY < -44) {
-            dismissBanner();
-          }
-        }}
-        className="pointer-events-none fixed inset-x-0 top-[calc(var(--kandy-cookie-offset,0px)+4.25rem)] z-[70] px-3 sm:px-4"
-      >
-        <div className="pointer-events-auto mx-auto max-w-2xl overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#16161b]/92 shadow-[0_18px_44px_rgba(0,0,0,0.3)] backdrop-blur-xl">
-          <div className="flex items-start gap-3 px-3.5 py-3.5 sm:px-4">
-            <div className={cn(
-              "mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[1rem] border",
-              activeGuidance.completedAt
-                ? "border-emerald-300/30 bg-emerald-400/15 text-emerald-200"
-                : "border-brand-purple/25 bg-brand-purple/12 text-brand-purple",
-            )}>
-              {activeGuidance.completedAt ? <CheckCircle2 className="h-4 w-4" /> : <Sparkles className="h-4 w-4" />}
-            </div>
-
-            <div className="min-w-0 flex-1">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-[10px] font-black uppercase tracking-[0.16em] text-gray-400">
-                      {activeGuidance.completedAt ? "Task complete" : "Task reminder"}
-                    </p>
-                    <span className={cn(
-                      "inline-flex items-center rounded-full border px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.14em]",
-                      activeGuidance.completedAt
-                        ? "border-emerald-300/25 bg-emerald-400/12 text-emerald-200"
-                        : "border-white/10 bg-white/5 text-gray-300",
-                    )}>
-                      +{activeGuidance.reward} Gum Drops
-                    </span>
-                  </div>
-                  <h3 className="mt-1 truncate text-sm font-bold text-white">
-                    {activeGuidance.completedAt ? "Ready for your next reward?" : activeGuidance.title}
-                  </h3>
-                  <p className="mt-1 text-[12px] leading-5 text-gray-300 sm:pr-2">
-                    {activeGuidance.completedAt
-                      ? "Jump back into daily tasks and keep the streak moving."
-                      : activeGuidance.instruction}
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={dismissBanner}
-                  className="rounded-full border border-white/10 bg-white/5 p-1.5 text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
-                  aria-label="Dismiss task guidance"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  onClick={handleAction}
-                  className="inline-flex min-h-9 items-center gap-2 rounded-full border border-white/15 bg-white px-3.5 py-2 text-xs font-bold text-black transition-transform hover:-translate-y-0.5"
-                >
-                  {activeGuidance.completedAt ? "Open daily tasks" : activeGuidance.ctaLabel}
-                  <ArrowUpRight className="h-4 w-4" />
-                </button>
-
-                <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-300">
-                  {activeGuidance.completedAt ? "Reward ready" : "Dismiss anytime"}
-                </span>
-
-                <AnimatePresence>
-                  {rewardFlashVisible ? (
-                    <motion.span
-                      initial={{ opacity: 0, y: 8, scale: 0.94 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -10, scale: 0.94 }}
-                      transition={{ duration: 0.22, ease: "easeOut" }}
-                      className="rounded-full border border-emerald-300/25 bg-emerald-400/15 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.1em] text-emerald-200"
-                    >
-                      +{activeGuidance.reward} Gum Drops
-                    </motion.span>
-                  ) : null}
-                </AnimatePresence>
-              </div>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-    </AnimatePresence>
+    <TaskGuidanceCard
+      guidance={activeGuidance}
+      onAction={handleGuidanceAction}
+      onDismiss={dismissBanner}
+      onTouchEnd={handleTouchEnd}
+      onTouchStart={handleTouchStart}
+      rewardFlashVisible={rewardFlashVisible}
+    />
   );
 }
