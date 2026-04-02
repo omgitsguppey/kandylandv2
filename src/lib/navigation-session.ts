@@ -8,8 +8,7 @@ const VALID_NAV_STATES = new Set<NavigationSessionState>(["default", "creator_wa
 const UID_COOKIE_PATTERN = /^[A-Za-z0-9:_-]{8,128}$/u;
 
 function getNavigationSessionSecret() {
-  const secret = process.env.NAVIGATION_COOKIE_SECRET
-    || process.env.FIREBASE_PRIVATE_KEY;
+  const secret = process.env.NAVIGATION_COOKIE_SECRET;
 
   return secret?.trim() || "";
 }
