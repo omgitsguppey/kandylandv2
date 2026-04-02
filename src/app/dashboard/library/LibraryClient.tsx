@@ -1,17 +1,32 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Lock } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Drop } from "@/types/db";
 import { OwnedDropGalleryCard } from "@/components/Dashboard/OwnedDropGalleryCard";
-import { ContentViewer, ViewerMediaItem } from "@/components/ContentViewer";
-import { getGalleryAspectRatio, getGallerySpanClass } from "@/components/Dashboard/gallery-layout";
-import { authFetch } from "@/lib/authFetch";
 import { trackEvent } from "@/lib/telemetry";
+
+type Ratio = "1:1" | "16:9" | "9:16";
+
+function getRatio(drop: Drop): Ratio {
+    const raw = drop.fileMetadata?.dimensions;
+    if (raw === "16:9" || raw === "9:16" || raw === "1:1") {
+        return raw;
+    }
+    return "1:1";
+}
+
+function getItemSpanClass(drop: Drop): string {
+    const ratio = getRatio(drop);
+    if (ratio === "16:9") return "col-span-4";
+    if (ratio === "9:16") return "col-span-2";
+    return "col-span-3";
+}
 
 interface LibraryClientProps {
     drops: Drop[];
@@ -19,16 +34,13 @@ interface LibraryClientProps {
 
 export function LibraryClient({ drops }: LibraryClientProps) {
     const { userProfile, loading: authLoading } = useAuth();
-    const [viewerIndex, setViewerIndex] = useState(0);
-    const [viewerOpen, setViewerOpen] = useState(false);
-    const [contentUrlsById, setContentUrlsById] = useState<Record<string, string>>({});
-
     const unlockedIds = useMemo(() => {
         const source = userProfile?.unlockedContent;
         return Array.isArray(source) ? new Set(source) : new Set<string>();
     }, [userProfile?.unlockedContent]);
 
     const unlockedDrops = useMemo(() => drops.filter((drop) => unlockedIds.has(drop.id)), [drops, unlockedIds]);
+    const router = useRouter();
 
     useEffect(() => {
         if (!userProfile) {
@@ -37,86 +49,6 @@ export function LibraryClient({ drops }: LibraryClientProps) {
 
         trackEvent("library_viewed");
     }, [userProfile]);
-
-    useEffect(() => {
-        const dropIds = new Set(unlockedDrops.map((drop) => drop.id));
-        setContentUrlsById((prev) => {
-            const entries = Object.entries(prev).filter(([dropId]) => dropIds.has(dropId));
-            return Object.fromEntries(entries);
-        });
-    }, [unlockedDrops]);
-
-    useEffect(() => {
-        let cancelled = false;
-        const unresolvedDrops = unlockedDrops.filter((drop) => !contentUrlsById[drop.id]);
-
-        if (unresolvedDrops.length === 0) {
-            return;
-        }
-
-        const fetchUrls = async () => {
-            const resolvedEntries = await Promise.all(
-                unresolvedDrops.map(async (drop): Promise<[string, string] | null> => {
-                    try {
-                        const response = await authFetch(`/api/drops/content?id=${drop.id}`, {
-                            headers: {
-                                Accept: "application/json",
-                            },
-                        });
-
-                        if (!response.ok) {
-                            return null;
-                        }
-
-                        const data = await response.json();
-                        if (typeof data?.url !== "string" || data.url.length === 0) {
-                            return null;
-                        }
-
-                        return [drop.id, data.url];
-                    } catch {
-                        return null;
-                    }
-                }),
-            );
-
-            if (cancelled) {
-                return;
-            }
-
-            const nextEntries = resolvedEntries.filter((entry): entry is [string, string] => Array.isArray(entry));
-            if (nextEntries.length === 0) {
-                return;
-            }
-
-            setContentUrlsById((prev) => ({
-                ...prev,
-                ...Object.fromEntries(nextEntries),
-            }));
-        };
-
-        void fetchUrls();
-
-        return () => {
-            cancelled = true;
-        };
-    }, [contentUrlsById, unlockedDrops]);
-
-    const mediaItems = useMemo<ViewerMediaItem[]>(() => {
-        return unlockedDrops.map((drop) => {
-            const type = drop.fileMetadata?.type?.startsWith("video/") ? "video" : "image";
-            const resolvedUrl = contentUrlsById[drop.id];
-            const url = typeof resolvedUrl === "string" && resolvedUrl.length > 0 ? resolvedUrl : drop.imageUrl;
-
-            return {
-                id: drop.id,
-                url,
-                type,
-                alt: drop.title,
-                posterUrl: typeof drop.imageUrl === "string" && drop.imageUrl.length > 0 ? drop.imageUrl : undefined,
-            };
-        });
-    }, [contentUrlsById, unlockedDrops]);
 
     if (authLoading) {
         return (
@@ -160,30 +92,19 @@ export function LibraryClient({ drops }: LibraryClientProps) {
                 </div>
             ) : (
                 <div id="library-grid" className="grid grid-cols-6 gap-3 md:gap-4">
-                    {unlockedDrops.map((drop, idx) => {
-                        const ratio = getGalleryAspectRatio(drop);
-                        return (
-                            <div key={drop.id} className={getGallerySpanClass(ratio)}>
-                                <OwnedDropGalleryCard
-                                    drop={drop}
-                                    isUnlocked
-                                    onOpen={() => {
-                                        setViewerIndex(idx);
-                                        setViewerOpen(true);
-                                    }}
-                                />
-                            </div>
-                        );
-                    })}
+                    {unlockedDrops.map((drop) => (
+                        <div key={drop.id} className={getItemSpanClass(drop)}>
+                            <OwnedDropGalleryCard
+                                drop={drop}
+                                isUnlocked
+                                onOpen={() => {
+                                    router.push(`/dashboard/viewer?id=${drop.id}`);
+                                }}
+                            />
+                        </div>
+                    ))}
                 </div>
             )}
-
-            <ContentViewer
-                items={mediaItems}
-                initialIndex={viewerIndex}
-                isOpen={viewerOpen}
-                onClose={() => setViewerOpen(false)}
-            />
         </div>
     );
 }
