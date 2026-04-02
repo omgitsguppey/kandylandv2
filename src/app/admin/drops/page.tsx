@@ -19,6 +19,8 @@ import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { formatAdminCompactDateTime, formatAdminDetailDateTime } from "@/lib/admin-drop-formatting";
 import { buildDropQueueLifecycleProjection } from "@/lib/drop-queue-lifecycle";
 import { resolveDropStatusFromTiming } from "@/lib/drop-status";
+import { CLIENT_RUNTIME_EVENTS, dispatchClientRuntimeEvent } from "@/hooks/client-runtime";
+import { useNow } from "@/hooks/useNow";
 
 interface DropNotificationDraft {
     dropId: string;
@@ -249,6 +251,7 @@ export default function AdminDropsPage() {
     const [statusFilter, setStatusFilter] = useState<DropStatusFilter>("all");
     const [creatorFilter, setCreatorFilter] = useState("all");
     const [sortMode, setSortMode] = useState<DropSortMode>("last-active");
+    const nowMs = useNow({ intervalMs: 60_000, initialNowMs: 0, enabled: drops.length > 0 });
 
     const deferredSearch = useDeferredValue(searchDraft.trim().toLowerCase());
 
@@ -396,13 +399,11 @@ export default function AdminDropsPage() {
         return buildDropQueueLifecycleProjection(queueEntries, {
             cooldownDays: queueConfig.cooldownDays,
             timesPerDay: queueConfig.timesPerDay,
-            now: Date.now(),
+            now: nowMs,
         });
-    }, [dropMap, queueConfig, queueProjectionOrder]);
+    }, [dropMap, nowMs, queueConfig, queueProjectionOrder]);
 
     const dropViewModels = useMemo(() => {
-        const now = Date.now();
-
         return drops.map((drop) => {
             const creator = (drop.creatorId ? creatorMap.get(drop.creatorId) : undefined)
                 ?? (drop.submittedByCreatorId ? creatorMap.get(drop.submittedByCreatorId) : undefined);
@@ -411,7 +412,7 @@ export default function AdminDropsPage() {
             const isQueueManaged = visibleQueueIds.has(drop.id);
             const queuePosition = queuePositionMap.has(drop.id) ? queuePositionMap.get(drop.id)! : null;
             const queueLifecycle = queueLifecycleMap.get(drop.id);
-            const liveStatus = resolveDropStatusFromTiming(drop, now);
+            const liveStatus = resolveDropStatusFromTiming(drop, nowMs);
             const queueSlotMs = queueLifecycle?.queueSlotMs ?? null;
             const queueSlotLabel = queueSlotMs ? formatAdminCompactDateTime(queueSlotMs) : null;
 
@@ -498,7 +499,7 @@ export default function AdminDropsPage() {
                 ].join(" ").toLowerCase(),
             } satisfies DropCardViewModel;
         });
-    }, [creatorMap, drops, queueLifecycleMap, queuePositionMap, visibleQueueIds]);
+    }, [creatorMap, drops, nowMs, queueLifecycleMap, queuePositionMap, visibleQueueIds]);
 
     const creatorFilterOptions = useMemo(() => {
         const seen = new Set<string>();
@@ -586,6 +587,7 @@ export default function AdminDropsPage() {
             if (!response.ok) {
                 throw new Error(result.error);
             }
+            dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.adminOverviewSync);
             toast.success("Drop deleted successfully");
         } catch (error: any) {
             console.error("Error deleting drop:", error);
@@ -611,6 +613,7 @@ export default function AdminDropsPage() {
                 throw new Error(typeof result.error === "string" ? result.error : "Review failed");
             }
 
+            dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.adminOverviewSync);
             toast.success(approvalStatus === "approved" ? "Creator drop approved" : "Creator drop rejected");
         } catch (error: any) {
             console.error("Failed to review creator drop", error);
@@ -660,15 +663,22 @@ export default function AdminDropsPage() {
         }
 
         try {
-            await Promise.all(Array.from(selectedDropIds).map((dropId) => authFetch("/api/admin/drops", {
+            const responses = await Promise.all(Array.from(selectedDropIds).map((dropId) => authFetch("/api/admin/drops", {
                 method: "DELETE",
                 body: JSON.stringify({ dropId }),
             })));
+            const firstFailure = responses.find((response) => !response.ok);
+            if (firstFailure) {
+                const result = await firstFailure.json().catch(() => ({}));
+                throw new Error(typeof result.error === "string" ? result.error : "One or more drops failed to delete.");
+            }
+
+            dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.adminOverviewSync);
             toast.success(`Successfully deleted ${selectedDropIds.size} drop(s).`);
             setSelectedDropIds(new Set());
         } catch (error) {
             console.error("Error bulk deleting drops:", error);
-            toast.error("One or more drops failed to delete.");
+            toast.error(error instanceof Error ? error.message : "One or more drops failed to delete.");
         }
     }, [selectedDropIds]);
 
@@ -691,6 +701,7 @@ export default function AdminDropsPage() {
                     : current.queue.filter((id) => id !== dropId),
             } : current);
 
+            dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.adminOverviewSync);
             toast.success(added ? "Added to Queue" : "Removed from Queue");
         } catch (error: any) {
             console.error("Error toggling queue:", error);

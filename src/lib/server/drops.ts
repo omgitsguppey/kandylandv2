@@ -33,12 +33,24 @@ export const getDrops = cache(async (): Promise<Drop[]> => {
         if (snapshot.empty) return [];
 
         const now = Date.now();
-        return snapshot.docs.map(doc => {
-            const raw = normalizeDropRecord(doc.data(), doc.id);
-            const resolved = resolveDropStatus(raw, now);
+        const drops: Drop[] = [];
 
-            return sanitizeDropForClient(resolved);
-        }).filter((drop) => drop.approvalStatus !== "pending_review" && drop.approvalStatus !== "rejected");
+        for (const doc of snapshot.docs) {
+            try {
+                const raw = normalizeDropRecord(doc.data(), doc.id);
+                const resolved = resolveDropStatus(raw, now);
+
+                if (resolved.approvalStatus === "pending_review" || resolved.approvalStatus === "rejected") {
+                    continue;
+                }
+
+                drops.push(sanitizeDropForClient(resolved));
+            } catch (error) {
+                console.error(`Skipping invalid drop document ${doc.id}`, error);
+            }
+        }
+
+        return drops;
     } catch (error) {
         console.error("Error fetching drops:", error);
         return [];

@@ -1,14 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight, TrendingUp } from "lucide-react";
-import { AdminStatsBar } from "@/components/Admin/AdminStatsBar";
-import { TopDropsPanel } from "@/components/Admin/TopDropsPanel";
-import { RecentTransactionsPanel } from "@/components/Admin/RecentTransactionsPanel";
-import { AdminActivityLogPanel } from "@/components/Admin/AdminActivityLogPanel";
-import { AdminAnalyticsCharts } from "@/components/Admin/AdminAnalyticsCharts";
-import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { Activity, Package, TrendingUp, Users } from "lucide-react";
+
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
+import { AdminAnalyticsCharts } from "@/components/Admin/AdminAnalyticsCharts";
+import { AdminActivityLogPanel } from "@/components/Admin/AdminActivityLogPanel";
+import { AdminDashboardModule } from "@/components/Admin/AdminDashboardModule";
+import { AdminDropsAtGlancePanel } from "@/components/Admin/AdminDropsAtGlancePanel";
+import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { AdminStatsBar } from "@/components/Admin/AdminStatsBar";
+import { RecentTransactionsPanel } from "@/components/Admin/RecentTransactionsPanel";
+import { TopDropsPanel } from "@/components/Admin/TopDropsPanel";
 
 export default function AdminDashboardPage() {
     return (
@@ -17,40 +20,115 @@ export default function AdminDashboardPage() {
             <AdminPageHeader
                 eyebrow="Control Room"
                 title="Admin Dashboard"
-                subtitle="Quick platform health, revenue, and creator activity with a tighter mobile layout for on-the-go checks."
+                subtitle="Expandable modules for live platform health, drop operations, revenue trends, and moderation without hopping between tabs."
             />
 
-            <Link href="/admin/analytics" className="group block w-full overflow-hidden rounded-[1.6rem] border border-white/10 glass-panel transition-colors hover:border-brand-purple/50">
-                <div className="flex flex-col items-start justify-between gap-3 bg-gradient-to-r from-brand-purple/10 to-transparent p-4 md:flex-row md:items-center md:p-6">
-                    <div className="flex items-center gap-4">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-purple/20 text-brand-purple md:h-12 md:w-12 md:rounded-2xl">
-                            <TrendingUp className="h-5 w-5 md:h-6 md:w-6" />
+            <div className="space-y-3 md:space-y-4">
+                <AdminDashboardModule
+                    title="Platform pulse"
+                    description="Fresh overview stats and a straight path into the deeper analytics workspace."
+                    defaultOpen={true}
+                    actions={(
+                        <Link
+                            href="/admin/analytics"
+                            className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white transition-colors hover:border-brand-purple/40 hover:text-brand-pink"
+                        >
+                            <TrendingUp className="h-4 w-4" />
+                            Analytics
+                        </Link>
+                    )}
+                >
+                    <div className="space-y-4">
+                        <div className="overflow-hidden rounded-[1.6rem] border border-white/10 bg-gradient-to-r from-brand-purple/10 to-transparent p-4 md:p-5">
+                            <div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between">
+                                <div className="flex items-center gap-4">
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-purple/20 text-brand-purple md:h-12 md:w-12 md:rounded-2xl">
+                                        <TrendingUp className="h-5 w-5 md:h-6 md:w-6" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-lg font-bold text-white md:text-xl">Core Metrics Hub</h2>
+                                        <p className="text-xs text-gray-400 md:text-sm">Real-time analytics, funnels, device mix, and parity tracking without stale cached payloads.</p>
+                                    </div>
+                                </div>
+                                <Link
+                                    href="/admin/analytics"
+                                    className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white transition-colors hover:border-brand-purple/40 hover:text-brand-pink"
+                                >
+                                    Open analytics
+                                </Link>
+                            </div>
                         </div>
-                        <div>
-                            <h2 className="text-lg font-bold text-white transition-colors group-hover:text-brand-purple md:text-xl">Core Metrics Hub</h2>
-                            <p className="text-xs text-gray-400 md:text-sm">Mobile-first analytics, funnels, device mix, and real-time telemetry.</p>
-                        </div>
+
+                        <AdminStatsBar />
                     </div>
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/5 transition-colors group-hover:bg-brand-purple group-hover:text-white md:h-10 md:w-10">
-                        <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-white md:h-5 md:w-5" />
-                    </div>
-                </div>
+                </AdminDashboardModule>
 
-                <AdminStatsBar />
-            </Link>
+                <AdminDashboardModule
+                    title="Drops at a glance"
+                    description="Quickly create, edit, queue, and sanity-check every drop from the home dashboard."
+                    defaultOpen={true}
+                    actions={(
+                        <>
+                            <Link
+                                href="/admin/drops"
+                                className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white transition-colors hover:border-brand-purple/40 hover:text-brand-pink"
+                            >
+                                <Package className="h-4 w-4" />
+                                Drops
+                            </Link>
+                            <Link
+                                href="/admin/queue"
+                                className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white transition-colors hover:border-brand-purple/40 hover:text-brand-pink"
+                            >
+                                <Activity className="h-4 w-4" />
+                                Queue
+                            </Link>
+                        </>
+                    )}
+                >
+                    <AdminDropsAtGlancePanel />
+                </AdminDashboardModule>
 
-            <AdminAnalyticsCharts />
+                <AdminDashboardModule
+                    title="Revenue trends"
+                    description="Thirty-day revenue and unwrap movement from the same overview feed that powers the rest of the dashboard."
+                    defaultOpen={true}
+                >
+                    <AdminAnalyticsCharts />
+                </AdminDashboardModule>
 
-            <div className="grid grid-cols-1 gap-3.5 md:gap-6 lg:grid-cols-2">
-                <div className="order-1">
+                <AdminDashboardModule
+                    title="Top performing drops"
+                    description="A quick leaderboard for the drops drawing the most unlock demand."
+                    defaultOpen={false}
+                >
                     <TopDropsPanel />
-                </div>
-                <div className="order-3 lg:order-2">
+                </AdminDashboardModule>
+
+                <AdminDashboardModule
+                    title="Recent transactions"
+                    description="Live commerce activity for the most recent purchases and balance changes."
+                    defaultOpen={false}
+                >
                     <RecentTransactionsPanel />
-                </div>
-                <div className="lg:col-span-2">
+                </AdminDashboardModule>
+
+                <AdminDashboardModule
+                    title="Admin activity"
+                    description="Moderation and operational activity from the broader admin workspace."
+                    defaultOpen={false}
+                    actions={(
+                        <Link
+                            href="/admin/users"
+                            className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white transition-colors hover:border-brand-purple/40 hover:text-brand-pink"
+                        >
+                            <Users className="h-4 w-4" />
+                            Users
+                        </Link>
+                    )}
+                >
                     <AdminActivityLogPanel />
-                </div>
+                </AdminDashboardModule>
             </div>
         </div>
     );

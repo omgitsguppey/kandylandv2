@@ -7,42 +7,19 @@ import { Loader2, Save, Calendar, DollarSign, X, ImageIcon, FileAudio, ChevronDo
 import * as Dialog from "@radix-ui/react-dialog";
 
 import { AssetUploader, UploadAspectRatio } from "@/components/Admin/AssetUploader";
-import { Drop } from "@/types/db";
 import { useForm, SubmitHandler, useWatch, FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { cn } from "@/lib/utils";
 import { authFetch } from "@/lib/authFetch";
-import { getDefaultCSTDates, toCSTString, fromCSTInput } from "@/lib/timezone";
+import {
+    buildDropFormValuesFromDrop,
+    buildDropRequestPayload,
+    createDefaultDropFormValues,
+    dropFormSchema,
+    type DropFormData,
+} from "@/lib/admin-drop-form";
+import { CLIENT_RUNTIME_EVENTS, dispatchClientRuntimeEvent } from "@/hooks/client-runtime";
 import { toast } from "sonner";
-
-const dropSchema = z.object({
-    creatorId: z.string().optional(),
-    title: z.string().min(3, "Title is too short"),
-    description: z.string().min(10, "Description is too short"),
-    imageUrl: z.string().url("Cover image is required"),
-    contentUrl: z.string().url().optional().or(z.literal("")),
-    contentUrls: z.array(z.string().url()).min(1, "At least one content file is required"),
-    unlockCost: z.coerce.number().min(0, "Cost cannot be negative"),
-    validFrom: z.string(),
-    validUntil: z.string().optional().or(z.literal("")),
-    autoQueueOnExpire: z.boolean().optional().default(false),
-    type: z.enum(["content", "promo", "external"]),
-    tags: z.array(z.string()).optional(),
-    ctaText: z.string().optional(),
-    actionUrl: z.string().optional(),
-    accentColor: z.string().optional(),
-    fileMetadata: z.object({
-        size: z.number(),
-        type: z.string(),
-        dimensions: z.string().optional(),
-    }).nullable().optional(),
-    coverFileName: z.string().optional(),
-    contentFileNames: z.array(z.string()).optional(),
-    requiresActiveSubscription: z.boolean().optional().default(false),
-});
-
-type DropFormData = z.infer<typeof dropSchema>;
 
 const AVAILABLE_TAGS = ["Sweet", "Spicy", "RAW"];
 
@@ -260,27 +237,8 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
         reset,
         formState: { errors, isSubmitting }
     } = useForm<DropFormData>({
-        resolver: zodResolver(dropSchema) as any,
-        defaultValues: {
-            creatorId: creatorIdOverride || "",
-            title: "",
-            description: "",
-            imageUrl: "",
-            contentUrl: "",
-            contentUrls: [],
-            unlockCost: 100,
-            type: "content",
-            autoQueueOnExpire: false,
-            tags: [],
-            accentColor: "#ec4899",
-            ctaText: "",
-            actionUrl: "",
-            fileMetadata: null,
-            coverFileName: "",
-            contentFileNames: [],
-            requiresActiveSubscription: false,
-            ...getDefaultCSTDates()
-        }
+        resolver: zodResolver(dropFormSchema) as any,
+        defaultValues: createDefaultDropFormValues(creatorIdOverride),
     });
 
     const dropType = useWatch({ control, name: "type" });
@@ -372,26 +330,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
             setPricingOpen(true);
             setActionSettingsOpen(true);
             setUploadsOpen(true);
-            reset({
-                creatorId: creatorIdOverride || "",
-                title: "",
-                description: "",
-                imageUrl: "",
-                contentUrl: "",
-                contentUrls: [],
-                unlockCost: 100,
-                type: "content",
-                autoQueueOnExpire: false,
-                tags: [],
-                accentColor: "#ec4899",
-                ctaText: "",
-                actionUrl: "",
-                fileMetadata: null,
-                coverFileName: "",
-                contentFileNames: [],
-                requiresActiveSubscription: false,
-                ...getDefaultCSTDates()
-            });
+            reset(createDefaultDropFormValues(creatorIdOverride));
             setDuplicateWarnings([]);
             return;
         }
@@ -407,47 +346,12 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                 const docRef = doc(db, "drops", (dropId || duplicateFromId) as string);
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) {
-                    const data = docSnap.data() as Drop;
-                    const existingContentUrls = Array.isArray(data.contentUrls) && data.contentUrls.length > 0
-                        ? data.contentUrls
-                        : (data.contentUrl ? [data.contentUrl] : []);
-                    setValue("title", data.title + (duplicateFromId ? " (Copy)" : ""));
-                    setValue("creatorId", typeof data.creatorId === "string" ? data.creatorId : creatorIdOverride || "");
-                    setValue("description", data.description);
-                    setValue("imageUrl", data.imageUrl);
-                    setValue("contentUrl", existingContentUrls[0] || "");
-                    setValue("contentUrls", existingContentUrls);
-                    setValue("coverFileName", typeof data.coverFileName === "string" ? data.coverFileName : "");
-                    setValue("contentFileNames", Array.isArray(data.contentFileNames) ? data.contentFileNames : []);
-                    setValue("unlockCost", data.unlockCost);
-                    setValue("autoQueueOnExpire", data.autoQueueOnExpire === true);
-                    setValue("requiresActiveSubscription", data.requiresActiveSubscription === true);
-
-                    if (dropId) {
-                        setValue("validFrom", toCSTString(data.validFrom));
-                        if (data.validUntil) {
-                            setValue("validUntil", toCSTString(data.validUntil));
-                        }
-                    } else {
-                        // Inherit current time for duplication
-                        const defaults = getDefaultCSTDates();
-                        setValue("validFrom", defaults.validFrom);
-                        setValue("validUntil", defaults.validUntil);
-                    }
-
-                    setValue("type", data.type || "content");
-                    setValue("tags", data.tags || []);
-                    setValue("ctaText", data.ctaText || "");
-                    setValue("actionUrl", data.actionUrl || "");
-                    setValue("accentColor", data.accentColor || "#ec4899");
-                    setValue("fileMetadata", data.fileMetadata || null);
-                    setContentAssets(existingContentUrls.map((url, index) => ({
-                        id: `existing-${index}-${url}`,
-                        url,
-                        type: inferAssetTypeFromUrl(url, data.fileMetadata?.type),
-                        size: index === 0 ? data.fileMetadata?.size || 0 : 0,
-                        fileName: Array.isArray(data.contentFileNames) ? data.contentFileNames[index] : undefined,
-                    })));
+                    const prepared = buildDropFormValuesFromDrop(docSnap.data(), docSnap.id, {
+                        creatorIdOverride,
+                        duplicate: Boolean(duplicateFromId),
+                    });
+                    reset(prepared.values);
+                    setContentAssets(prepared.contentAssets);
                 } else {
                     toast.error("Drop not found!");
                     onClose();
@@ -460,7 +364,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
         }
 
         fetchDrop();
-    }, [creatorIdOverride, duplicateFromId, dropId, isOpen, onClose, reset, setValue]);
+    }, [creatorIdOverride, duplicateFromId, dropId, isOpen, onClose, reset]);
 
     const handleCoverAssetsChange = useCallback((assets: UploadedAsset[]) => {
         const primary = assets[0];
@@ -562,49 +466,22 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                 return;
             }
 
-            const validFrom = fromCSTInput(data.validFrom);
-            let validUntil: number | null = null;
+            const { dropData } = buildDropRequestPayload(data, {
+                mode,
+                creatorIdOverride,
+                isEditMode,
+            });
+            const validFrom = Number(dropData.validFrom);
+            const validUntil = typeof dropData.validUntil === "number" ? dropData.validUntil : null;
 
-            if (data.validUntil) {
-                validUntil = fromCSTInput(data.validUntil);
+            if (validUntil !== null) {
                 if (validFrom >= validUntil) {
                     toast.error("End date must be after start date");
                     return;
                 }
             }
 
-            const now = Date.now();
-            const status = now < validFrom ? "scheduled" : validUntil && now >= validUntil ? "expired" : "active";
-            const resolvedCreatorId = (mode === "creator" ? (creatorIdOverride || data.creatorId) : data.creatorId)?.trim() || "";
-            const creatorIdField = resolvedCreatorId
-                ? { creatorId: resolvedCreatorId }
-                : isEditMode
-                    ? { creatorId: null }
-                    : {};
-
-            const dropData: Record<string, unknown> = {
-                ...creatorIdField,
-                title: data.title,
-                description: data.description,
-                imageUrl: data.imageUrl,
-                contentUrl: data.contentUrl,
-                contentUrls: data.contentUrls,
-                unlockCost: data.unlockCost,
-                validFrom,
-                validUntil,
-                autoQueueOnExpire: data.autoQueueOnExpire === true,
-                status,
-                type: data.type,
-                tags: data.tags,
-                ctaText: data.ctaText,
-                actionUrl: data.actionUrl,
-                accentColor: data.accentColor,
-                fileMetadata: data.fileMetadata,
-                coverFileName: data.coverFileName,
-                contentFileNames: data.contentFileNames,
-                requiresActiveSubscription: data.requiresActiveSubscription === true,
-                mediaCounts: summarizeMediaCounts(contentAssets, data.fileMetadata?.type),
-            };
+            dropData.mediaCounts = summarizeMediaCounts(contentAssets, data.fileMetadata?.type);
 
             if (isEditMode) {
                 const response = await authFetch(mode === "creator" ? "/api/creator/drops" : "/api/admin/drops", {
@@ -629,6 +506,9 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                 toast.success(mode === "creator" ? "Drop submitted for admin approval" : "Drop created successfully");
             }
 
+            if (mode === "admin") {
+                dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.adminOverviewSync);
+            }
             onSuccess();
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : "Failed to save drop.";
@@ -893,13 +773,15 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="text-xs text-gray-400 mb-1 block">URL</label>
+                                                    <label className="text-xs text-gray-400 mb-1 block">URL or app path</label>
                                                     <input
                                                         {...register("actionUrl")}
-                                                        type="url"
-                                                        placeholder="https://..."
+                                                        type="text"
+                                                        inputMode="url"
+                                                        placeholder="/drops/spring-promo or https://..."
                                                         className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-brand-purple/50 shadow-inner"
                                                     />
+                                                    <p className="mt-1 text-[11px] text-gray-500">Supports on-site relative paths and full http/https destinations.</p>
                                                 </div>
                                             </div>
                                         </FormSectionCard>

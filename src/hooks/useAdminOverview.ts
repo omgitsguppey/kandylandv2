@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useCachedAuthSWR } from "@/hooks/useCachedAuthSWR";
+import { useAuthSWR } from "@/hooks/useAuthSWR";
 import { CLIENT_RUNTIME_EVENTS } from "@/hooks/client-runtime";
 import type { Drop, Transaction } from "@/types/db";
 
@@ -26,9 +26,7 @@ export interface AdminOverviewResponse {
 }
 
 export function useAdminOverview() {
-    const swr = useCachedAuthSWR<AdminOverviewResponse>("/api/admin/overview", {
-        cacheKey: "admin-overview",
-        ttlMs: 20_000,
+    const swr = useAuthSWR<AdminOverviewResponse>("/api/admin/overview", {
         refreshInterval: 5_000,
         revalidateOnFocus: true,
         keepPreviousData: true,

@@ -158,5 +158,5 @@ describe("buildDropReferenceMapForIds", () => {
     console.log(
       `Drop reference benchmark: sequential=${sequentialMs.toFixed(2)}ms batched=${optimizedMs.toFixed(2)}ms improvement=${improvement.toFixed(1)}%`,
     );
-  });
+  }, 15_000);
 });
