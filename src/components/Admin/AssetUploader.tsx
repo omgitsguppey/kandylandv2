@@ -8,6 +8,7 @@ import { storage } from "@/lib/firebase-data";
 import { cn } from "@/lib/utils";
 import Cropper, { Area } from "react-easy-crop";
 import { trackEvent } from "@/lib/telemetry";
+import { generateSecureClientId } from "@/lib/client-random";
 
 export type UploadAspectRatio = "1:1" | "16:9" | "9:16";
 
@@ -67,22 +68,6 @@ function classifyFile(file: File): UploadKind {
 
 function isCanvasImageType(type: string): boolean {
   return /image\/(jpeg|jpg|png|webp|gif)/i.test(type);
-}
-
-function generateSecureId(): string {
-  if (typeof crypto !== "undefined") {
-    if (typeof crypto.randomUUID === "function") {
-      return crypto.randomUUID();
-    }
-    if (typeof crypto.getRandomValues === "function") {
-      const buffer = new Uint8Array(16);
-      crypto.getRandomValues(buffer);
-      return Array.from(buffer)
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("");
-    }
-  }
-  throw new Error("Cryptographically secure random number generation is not available in this environment.");
 }
 
 function createInitialAssets(initialAssets?: UploadedAsset[], initialUrl?: string, initialType?: string): AssetDraft[] {
@@ -261,7 +246,7 @@ export function AssetUploader({
     if (!selectedFiles) return;
 
     const incoming = Array.from(selectedFiles).map((file) => ({
-      id: `${Date.now()}-${file.name}-${generateSecureId()}`,
+      id: `${Date.now()}-${file.name}-${generateSecureClientId()}`,
       kind: classifyFile(file),
       file,
           previewUrl: file.type.startsWith("image/") || file.type.startsWith("video/") ? URL.createObjectURL(file) : undefined,
