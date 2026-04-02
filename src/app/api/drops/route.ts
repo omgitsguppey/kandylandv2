@@ -9,6 +9,10 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 
 export const dynamic = "force-dynamic";
 
+const DEFAULT_DROPS_LIMIT = 12;
+const DROPS_FEED_ROUTE_NAME = "drops/feed";
+const DROPS_LIST_ERROR_CONTEXT = "Drops.List";
+
 function compareDropFeedOrder(left: Drop, right: Drop) {
     if (left.validFrom !== right.validFrom) {
         return right.validFrom - left.validFrom;
@@ -40,15 +44,20 @@ function parseCursor(cursor: string | null) {
     return { validFrom, id };
 }
 
+function parseFeedLimit(request: NextRequest) {
+    const { searchParams } = new URL(request.url);
+    return parseInt(searchParams.get("limit") || String(DEFAULT_DROPS_LIMIT), 10);
+}
+
 export async function GET(request: NextRequest) {
     try {
         await guardApiRequest(request, {
-            routeName: "drops/feed",
+            routeName: DROPS_FEED_ROUTE_NAME,
             rateLimit: STANDARD,
         });
 
         const { searchParams } = new URL(request.url);
-        const limitParam = parseInt(searchParams.get("limit") || "12", 10);
+        const limitParam = parseFeedLimit(request);
         const cursorParam = searchParams.get("cursor");
         const now = Date.now();
         const parsedCursor = parseCursor(cursorParam);
@@ -97,6 +106,6 @@ export async function GET(request: NextRequest) {
             },
         });
     } catch (error) {
-        return handleApiError(error, "Drops.List");
+        return handleApiError(error, DROPS_LIST_ERROR_CONTEXT);
     }
 }
