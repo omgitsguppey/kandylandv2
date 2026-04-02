@@ -84,7 +84,7 @@ async function handleNavigationRequest(request) {
     try {
         const response = await fetch(request);
         return cacheRuntimeResponse(request, response);
-    } catch (error) {
+    } catch {
         const cachedResponse = await caches.match(request, { ignoreSearch: false });
         if (cachedResponse) {
             return cachedResponse;
