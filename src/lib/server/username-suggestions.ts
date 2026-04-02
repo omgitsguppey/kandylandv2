@@ -1,30 +1,111 @@
 import { adminDb } from "@/lib/server/firebase-admin";
 import { buildUsernameBaseCandidates, normalizeUsername } from "@/lib/user-utils";
 
+const USERNAME_AVAILABILITY_BATCH_SIZE = 10;
+const USERNAME_SUFFIX_MIN = 2;
+const USERNAME_SUFFIX_MAX = 100;
+
 function buildFallbackUsername(uid: string) {
     return `user-${uid.slice(0, 8).toLowerCase()}`;
 }
 
-async function isUsernameAvailable(username: string, excludeUid?: string) {
+function chunkValues<T>(values: readonly T[], chunkSize: number) {
+    const chunks: T[][] = [];
+
+    for (let index = 0; index < values.length; index += chunkSize) {
+        chunks.push(values.slice(index, index + chunkSize));
+    }
+
+    return chunks;
+}
+
+async function loadUsernameAvailability(usernames: readonly string[], excludeUid?: string) {
+    const availabilityMap = new Map<string, boolean>();
+    const uniqueUsernames = usernames.filter((username, index, source) => source.indexOf(username) === index);
+
+    if (uniqueUsernames.length === 0) {
+        return availabilityMap;
+    }
+
     if (!adminDb) {
-        return false;
+        uniqueUsernames.forEach((username) => {
+            availabilityMap.set(username, false);
+        });
+        return availabilityMap;
     }
 
-    const snap = await adminDb
-        .collection("users")
-        .where("username", "==", username)
-        .limit(1)
-        .get();
+    for (const batch of chunkValues(uniqueUsernames, USERNAME_AVAILABILITY_BATCH_SIZE)) {
+        const snap = await adminDb
+            .collection("users")
+            .where("username", "in", batch)
+            .get();
 
-    if (snap.empty) {
-        return true;
+        const unavailableUsernames = new Set<string>();
+        snap.docs.forEach((doc) => {
+            if (excludeUid && doc.id === excludeUid) {
+                return;
+            }
+
+            const username = normalizeUsername((doc.data() as { username?: unknown }).username);
+            if (username) {
+                unavailableUsernames.add(username);
+            }
+        });
+
+        batch.forEach((username) => {
+            availabilityMap.set(username, !unavailableUsernames.has(username));
+        });
     }
 
-    if (excludeUid && snap.docs[0]?.id === excludeUid) {
-        return true;
+    return availabilityMap;
+}
+
+function createUsernameAvailabilityResolver(excludeUid?: string) {
+    const availabilityCache = new Map<string, boolean>();
+
+    async function hydrateAvailability(usernames: readonly string[]) {
+        const missingUsernames = usernames.filter((username) => !availabilityCache.has(username));
+        if (missingUsernames.length === 0) {
+            return;
+        }
+
+        const resolvedAvailability = await loadUsernameAvailability(missingUsernames, excludeUid);
+        resolvedAvailability.forEach((available, username) => {
+            availabilityCache.set(username, available);
+        });
     }
 
-    return false;
+    return {
+        async findFirstAvailable(usernames: readonly string[]) {
+            const orderedUsernames = usernames.filter(Boolean);
+            await hydrateAvailability(orderedUsernames);
+
+            return orderedUsernames.find((username) => availabilityCache.get(username) === true) ?? null;
+        },
+        async isAvailable(username: string) {
+            await hydrateAvailability([username]);
+            return availabilityCache.get(username) === true;
+        },
+    };
+}
+
+function buildUsernameSuffixBatch(candidate: string, batchStart: number, batchSize: number) {
+    const batchEnd = Math.min(USERNAME_SUFFIX_MAX, batchStart + batchSize);
+    const batchAlternatives: string[] = [];
+
+    for (let suffix = batchStart; suffix < batchEnd; suffix += 1) {
+        const suffixValue = `-${suffix}`;
+        const truncatedBase = candidate.slice(0, Math.max(3, 20 - suffixValue.length));
+        const alternative = normalizeUsername(`${truncatedBase}${suffixValue}`);
+
+        if (!alternative || batchAlternatives.includes(alternative)) {
+            continue;
+        }
+
+        batchAlternatives.push(alternative);
+    }
+
+    return batchAlternatives;
 }
 
 export async function generateUniqueUsernameSuggestion(input: {
@@ -39,40 +120,28 @@ export async function generateUniqueUsernameSuggestion(input: {
         ...buildUsernameBaseCandidates({ displayName: input.displayName, email: input.email }),
         normalizeUsername(buildFallbackUsername(input.uid)),
     ].filter((value, index, source): value is string => Boolean(value) && source.indexOf(value) === index);
+    const availabilityResolver = createUsernameAvailabilityResolver(input.excludeUid);
 
     for (const candidate of candidates) {
-        if (await isUsernameAvailable(candidate, input.excludeUid)) {
-            return candidate;
+        const initialAvailabilityBatch = [
+            candidate,
+            ...buildUsernameSuffixBatch(candidate, USERNAME_SUFFIX_MIN, USERNAME_AVAILABILITY_BATCH_SIZE - 1),
+        ];
+        const initialAvailableUsername = await availabilityResolver.findFirstAvailable(initialAvailabilityBatch);
+        if (initialAvailableUsername) {
+            return initialAvailableUsername;
         }
 
-        const BATCH_SIZE = 5;
-        for (let batchStart = 2; batchStart < 100; batchStart += BATCH_SIZE) {
-            const batchEnd = Math.min(100, batchStart + BATCH_SIZE);
-            const batchAlternatives: string[] = [];
-            const batchPromises: Promise<boolean>[] = [];
-
-            for (let suffix = batchStart; suffix < batchEnd; suffix += 1) {
-                const suffixValue = `-${suffix}`;
-                const truncatedBase = candidate.slice(0, Math.max(3, 20 - suffixValue.length));
-                const alternative = normalizeUsername(`${truncatedBase}${suffixValue}`);
-
-                if (!alternative) {
-                    continue;
-                }
-
-                batchAlternatives.push(alternative);
-                batchPromises.push(isUsernameAvailable(alternative, input.excludeUid));
-            }
-
-            if (batchPromises.length === 0) {
-                continue;
-            }
-
-            const results = await Promise.all(batchPromises);
-            for (let i = 0; i < results.length; i++) {
-                if (results[i]) {
-                    return batchAlternatives[i];
-                }
+        for (
+            let batchStart = USERNAME_SUFFIX_MIN + (USERNAME_AVAILABILITY_BATCH_SIZE - 1);
+            batchStart < USERNAME_SUFFIX_MAX;
+            batchStart += USERNAME_AVAILABILITY_BATCH_SIZE
+        ) {
+            const availableAlternative = await availabilityResolver.findFirstAvailable(
+                buildUsernameSuffixBatch(candidate, batchStart, USERNAME_AVAILABILITY_BATCH_SIZE),
+            );
+            if (availableAlternative) {
+                return availableAlternative;
             }
         }
     }
@@ -86,8 +155,10 @@ export async function checkUsernameAvailability(username: string, excludeUid?: s
         return { normalized: null, available: false };
     }
 
+    const availabilityResolver = createUsernameAvailabilityResolver(excludeUid);
+
     return {
         normalized,
-        available: await isUsernameAvailable(normalized, excludeUid),
+        available: await availabilityResolver.isAvailable(normalized),
     };
 }
