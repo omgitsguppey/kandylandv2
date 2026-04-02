@@ -1,6 +1,13 @@
 import * as admin from "firebase-admin";
 import * as dotenv from "dotenv";
 import * as path from "path";
+import {
+    describeAdminCredentialSource,
+    describeAdminPromotionError,
+    describeAdminPromotionTarget,
+    describeResolvedAdminPromotionUser,
+    maskAdminPromotionIdentifier,
+} from "../src/lib/server/admin-cli-logging";
 
 // Load environment variables from .env.local
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
@@ -19,22 +26,11 @@ async function main() {
         process.exit(1);
     }
 
-    const isEmail = input.includes("@");
+    const requestedTarget = describeAdminPromotionTarget(input);
+    const isEmail = requestedTarget.kind === "email";
 
-    const maskValue = (val: string, isMail: boolean) => {
-        if (!val) return val;
-        if (isMail) {
-            const [local, domain] = val.split('@');
-            if (!domain) return "***";
-            return local.length <= 2 ? `***@${domain}` : `${local.substring(0, 2)}***@${domain}`;
-        }
-        return val.length <= 4 ? "***" : `${val.substring(0, 4)}***`;
-    };
-
-    const maskedInput = maskValue(input, isEmail);
-
-    console.log(`Promoting user: ${maskedInput} (${isEmail ? "Email" : "UID"}) to admin...`);
-    console.log(`Using Project ID: ${projectId || "Not detected"}`);
+    console.log(`Promoting requested principal (${requestedTarget.kind}: ${requestedTarget.maskedInput}) to admin...`);
+    console.log(projectId ? "Using configured Firebase project." : "Project ID not detected; relying on credential defaults.");
 
     if (!admin.apps.length) {
         try {
@@ -42,13 +38,13 @@ async function main() {
             const saPath = path.resolve(process.cwd(), "service-account.json");
 
             if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-                console.log("Using GOOGLE_APPLICATION_CREDENTIALS from environment.");
+                console.log(describeAdminCredentialSource("environment"));
                 credential = admin.credential.applicationDefault();
             } else if (require("fs").existsSync(saPath)) {
-                console.log(`Using service account key from: ${saPath}`);
+                console.log(describeAdminCredentialSource("local_file"));
                 credential = admin.credential.cert(saPath);
             } else {
-                console.log("No service account key found. Falling back to application default.");
+                console.log("No local service account key found. Falling back to application default credentials.");
                 credential = admin.credential.applicationDefault();
             }
 
@@ -74,14 +70,14 @@ async function main() {
         // 1. Find user in Auth
         let user: admin.auth.UserRecord;
         if (isEmail) {
-            user = await auth.getUserByEmail(input);
+            user = await auth.getUserByEmail(requestedTarget.sanitizedInput);
         } else {
-            user = await auth.getUser(input);
+            user = await auth.getUser(requestedTarget.sanitizedInput);
         }
 
-        const maskedUid = maskValue(user.uid, false);
-        const maskedEmail = user.email ? maskValue(user.email, true) : "No email";
-        console.log(`Found user in Auth: ${maskedUid} (${maskedEmail})`);
+        const resolvedUserSummary = describeResolvedAdminPromotionUser(user);
+        const maskedUid = maskAdminPromotionIdentifier(user.uid, "uid");
+        console.log(`Resolved user in Auth: ${resolvedUserSummary}`);
 
         // 2. Set Custom Claims
         console.log("Setting custom claims: { admin: true }...");
@@ -105,11 +101,11 @@ async function main() {
             });
         }
 
-        console.log(`Successfully promoted ${maskedInput} to admin.`);
-        console.log("Note: The user must sign out and sign back in (or refresh their session) for the new admin claim to take effect.");
+        console.log(`Successfully promoted ${resolvedUserSummary} to admin.`);
+        console.log("Note: The user must reauthenticate before the updated admin claim takes effect.");
         process.exit(0);
-    } catch (error: any) {
-        console.error("Error promoting user:", error.message);
+    } catch (error: unknown) {
+        console.error("Error promoting user:", describeAdminPromotionError(error));
         process.exit(1);
     }
 }
