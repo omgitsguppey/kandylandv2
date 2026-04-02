@@ -86,6 +86,31 @@ function sanitizeTargetLabel(value: string | undefined) {
         .slice(0, 80);
 }
 
+function getAnalyticsIngestErrorMessage(error: unknown) {
+    return error instanceof Error ? error.message : String(error);
+}
+
+async function reportAnalyticsIngestFailure(error: unknown) {
+    const errorMessage = getAnalyticsIngestErrorMessage(error);
+
+    captureException(error, { message: "Telemetry ingestion failed" });
+    await Promise.all([
+        recordServerDiagnostic({
+            channel: "analytics",
+            severity: "error",
+            message: "Anonymous analytics ingestion failed",
+            detail: {
+                route: "analytics/ingest",
+                error: errorMessage,
+            },
+        }),
+        recordAnalyticsPipelineFailure({
+            routeName: "analytics/ingest",
+            errorMessage,
+        }),
+    ]);
+}
+
 export async function POST(request: NextRequest) {
     try {
         await guardApiRequest(request, {
@@ -227,20 +252,7 @@ export async function POST(request: NextRequest) {
 
         return response;
     } catch (error) {
-        captureException(error, { message: "Telemetry ingestion failed" });
-        await recordServerDiagnostic({
-            channel: "analytics",
-            severity: "error",
-            message: "Anonymous analytics ingestion failed",
-            detail: {
-                route: "analytics/ingest",
-                error: error instanceof Error ? error.message : String(error),
-            },
-        });
-        await recordAnalyticsPipelineFailure({
-            routeName: "analytics/ingest",
-            errorMessage: error instanceof Error ? error.message : String(error),
-        });
+        await reportAnalyticsIngestFailure(error);
         return NextResponse.json({ success: false, retryable: true }, { status: 503 });
     }
 }
