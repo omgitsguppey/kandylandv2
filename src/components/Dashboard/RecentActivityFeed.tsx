@@ -53,7 +53,41 @@ type ActivityItem =
         taskEvent: TaskEventRecord;
       };
 
+type ActivityView = "summary" | "history";
+type AuthenticatedUser = ReturnType<typeof useAuth>["user"];
+
+interface RecentActivityResponse {
+    success?: boolean;
+    activities?: ActivityItem[];
+}
+
+interface RecentActivityFetchResult {
+    activities: ActivityItem[];
+    etag: string | null;
+    notModified: boolean;
+}
+
+interface RecentActivityState {
+    currentPage: number;
+    historyActivities: ActivityItem[];
+    loadingHistory: boolean;
+    loadingSummary: boolean;
+    paginatedActivities: ActivityItem[];
+    searchValue: string;
+    setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
+    setSearchValue: React.Dispatch<React.SetStateAction<string>>;
+    summaryActivity: ActivityItem | null;
+    totalPages: number;
+}
+
 const ITEMS_PER_PAGE = 5;
+const POSITIVE_TRANSACTION_TYPES = new Set<Transaction["type"]>([
+    "purchase_currency",
+    "daily_reward",
+    "admin_adjustment",
+    "referral_bonus",
+    "onboarding_reward",
+]);
 
 function renderTransactionLabel(transaction: Transaction) {
     return getTransactionDisplayLabel(transaction);
@@ -71,11 +105,252 @@ function renderTaskEventLabel(taskEvent: TaskEventRecord) {
     return taskEvent.title;
 }
 
-export function RecentActivityFeed() {
-    const { user } = useAuth();
-    const userId = user?.uid ?? null;
-    const router = useRouter();
-    const [expanded, setExpanded] = useState(false);
+function getActivitySearchText(activity: ActivityItem) {
+    return [
+        activity.label,
+        activity.kind === "transaction"
+            ? activity.transaction.description
+            : activity.taskEvent.title,
+    ].join(" ").toLowerCase();
+}
+
+function getActivityRelativeTime(timestamp: number) {
+    return formatDistanceToNow(new Date(timestamp), { addSuffix: true });
+}
+
+async function fetchRecentActivity(view: ActivityView, etag: string | null) {
+    const headers = new Headers();
+    if (etag) {
+        headers.set("If-None-Match", etag);
+    }
+
+    const response = await authFetch(`/api/user/activity?view=${view}`, { headers });
+    if (response.status === 304) {
+        return {
+            activities: [],
+            etag,
+            notModified: true,
+        } satisfies RecentActivityFetchResult;
+    }
+
+    const result = await response.json() as RecentActivityResponse;
+    if (!response.ok || !result.success) {
+        throw new Error(`Failed to load ${view === "summary" ? "recent activity" : "full activity history"}`);
+    }
+
+    return {
+        activities: result.activities || [],
+        etag: response.headers.get("etag"),
+        notModified: false,
+    } satisfies RecentActivityFetchResult;
+}
+
+function reportRecentActivityFailure(
+    category: "cache" | "firebase" | "realtime",
+    message: string,
+    userId: string,
+    error: unknown,
+    extra: Record<string, string> = {},
+) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+
+    if (category === "cache") {
+        console.error(message, error);
+    }
+
+    recordClientDiagnostic(category, message, {
+        userId,
+        message: errorMessage,
+        ...extra,
+    });
+}
+
+function ActivityFeedItem({ item }: { item: ActivityItem }) {
+    if (item.kind === "transaction") {
+        const isPositive = POSITIVE_TRANSACTION_TYPES.has(item.transaction.type);
+
+        return (
+            <div className="flex items-center justify-between rounded-2xl border border-white/5 bg-white/5 p-3">
+                <div className="flex min-w-0 items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-purple/20 text-brand-purple">
+                        {isPositive ? <ArrowDownLeft className="h-5 w-5" /> : <ArrowUpRight className="h-5 w-5" />}
+                    </div>
+                    <div className="min-w-0">
+                        <p className="line-clamp-1 text-sm font-bold text-white">
+                            {item.label || renderTransactionLabel(item.transaction)}
+                        </p>
+                        <p className="text-[10px] text-gray-400">
+                            {getActivityRelativeTime(item.timestamp)}
+                        </p>
+                    </div>
+                </div>
+                <div className={isPositive ? "shrink-0 text-sm font-bold text-brand-purple" : "shrink-0 text-sm font-bold text-white"}>
+                    {isPositive ? "+" : "-"}{item.transaction.amount} GD
+                </div>
+            </div>
+        );
+    }
+
+    const completed = item.taskEvent.type === "completed";
+
+    return (
+        <div className="flex items-center justify-between rounded-2xl border border-white/5 bg-white/5 p-3">
+            <div className="flex min-w-0 items-center gap-3">
+                <div className={completed
+                    ? "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-purple/20 text-brand-purple"
+                    : "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-gray-300"}>
+                    {completed
+                        ? <CheckCircle2 className="h-5 w-5" />
+                        : <TriangleAlert className="h-5 w-5" />}
+                </div>
+                <div className="min-w-0">
+                    <p className="line-clamp-1 text-sm font-bold text-white">
+                        {item.label || renderTaskEventLabel(item.taskEvent)}
+                    </p>
+                    <p className="text-[10px] text-gray-400">
+                        {getActivityRelativeTime(item.timestamp)}
+                    </p>
+                </div>
+            </div>
+            <div className={completed ? "shrink-0 text-sm font-bold text-brand-purple" : "shrink-0 text-sm font-bold text-gray-400"}>
+                {completed ? `+${item.taskEvent.reward} GD` : `${item.taskEvent.progress}/${item.taskEvent.maxProgress}`}
+            </div>
+        </div>
+    );
+}
+
+interface EmptyStateProps {
+    onOpenExperiences: () => void;
+    onUnwrapNow: () => void;
+}
+
+function RecentActivityEmptyState({ onOpenExperiences, onUnwrapNow }: EmptyStateProps) {
+    return (
+        <div className="py-6 text-center">
+            <p className="text-sm text-gray-500">
+                Your recent unwraps, Gum Drop changes, and task results will appear here.
+            </p>
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                <button
+                    type="button"
+                    onClick={onUnwrapNow}
+                    className="rounded-2xl border border-brand-purple bg-brand-purple px-4 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
+                >
+                    Unwrap now
+                </button>
+                <button
+                    type="button"
+                    onClick={onOpenExperiences}
+                    className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10"
+                >
+                    Open Experiences
+                </button>
+            </div>
+            <div className="mt-4 flex justify-center">
+                <ReportBugButton context="recent-activity-empty" />
+            </div>
+        </div>
+    );
+}
+
+function RecentActivitySummary({ item }: { item: ActivityItem }) {
+    return (
+        <div className="rounded-2xl border border-brand-purple/20 bg-gradient-to-r from-brand-purple/10 to-white/5 p-3">
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-purple/80">
+                Latest event
+            </p>
+            <ActivityFeedItem item={item} />
+        </div>
+    );
+}
+
+interface ExpandedActivityViewProps {
+    activities: ActivityItem[];
+    currentPage: number;
+    loadingHistory: boolean;
+    onNextPage: () => void;
+    onPreviousPage: () => void;
+    onSearchChange: (value: string) => void;
+    searchValue: string;
+    totalPages: number;
+}
+
+function ExpandedActivityView({
+    activities,
+    currentPage,
+    loadingHistory,
+    onNextPage,
+    onPreviousPage,
+    onSearchChange,
+    searchValue,
+    totalPages,
+}: ExpandedActivityViewProps) {
+    return (
+        <>
+            <div className="relative">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+                <input
+                    type="search"
+                    value={searchValue}
+                    onChange={(event) => onSearchChange(event.target.value)}
+                    placeholder="Search activity"
+                    className="w-full rounded-2xl border border-white/10 bg-white/5 py-3 pl-10 pr-4 text-sm text-white outline-none transition-colors placeholder:text-gray-500 focus:border-brand-purple/60"
+                />
+            </div>
+
+            <div className="flex items-center justify-between gap-3 px-1 text-[11px] font-medium uppercase tracking-[0.18em] text-gray-500">
+                <span>{activities.length} result{activities.length === 1 ? "" : "s"}</span>
+                <span>5 per page</span>
+            </div>
+
+            {loadingHistory ? (
+                <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin text-brand-purple/50" />
+                </div>
+            ) : activities.length === 0 ? (
+                <div className="rounded-2xl border border-white/5 bg-white/5 px-4 py-8 text-center text-sm text-gray-400">
+                    {searchValue.trim()
+                        ? "No activity matches your search yet."
+                        : "No activity has been recorded yet."}
+                </div>
+            ) : (
+                <>
+                    <div className="space-y-3">
+                        {activities.map((activity) => (
+                            <ActivityFeedItem key={activity.id} item={activity} />
+                        ))}
+                    </div>
+
+                    <div className="flex items-center justify-between gap-3 pt-2">
+                        <button
+                            type="button"
+                            onClick={onPreviousPage}
+                            disabled={currentPage === 1}
+                            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                            <ChevronLeft className="h-4 w-4" />
+                            Previous
+                        </button>
+                        <span className="text-xs font-medium text-gray-400">
+                            Page {currentPage} of {totalPages}
+                        </span>
+                        <button
+                            type="button"
+                            onClick={onNextPage}
+                            disabled={currentPage >= totalPages}
+                            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                            Next
+                            <ChevronRight className="h-4 w-4" />
+                        </button>
+                    </div>
+                </>
+            )}
+        </>
+    );
+}
+
+function useRecentActivityState(user: AuthenticatedUser, userId: string | null, expanded: boolean): RecentActivityState {
     const [summaryActivity, setSummaryActivity] = useState<ActivityItem | null>(null);
     const [historyActivities, setHistoryActivities] = useState<ActivityItem[]>([]);
     const [loadingSummary, setLoadingSummary] = useState(true);
@@ -117,12 +392,8 @@ export function RecentActivityFeed() {
         setLoadedForUserId(null);
 
         if (!user || !userId) {
-            setSummaryActivity(null);
-            setHistoryActivities([]);
             setLoadingSummary(false);
             setLoadingHistory(false);
-            setHistoryLoaded(false);
-            setLoadedForUserId(null);
             return;
         }
 
@@ -132,7 +403,7 @@ export function RecentActivityFeed() {
         let unsubscribeUserRuntime: (() => void) | undefined;
         let sawUserRuntimeSnapshot = false;
 
-        async function fetchActivity(view: "summary" | "history") {
+        async function refreshActivity(view: ActivityView) {
             const inFlightRef = view === "summary" ? summaryInFlightRef : historyInFlightRef;
             const etagRef = view === "summary" ? summaryEtagRef : historyEtagRef;
 
@@ -142,53 +413,32 @@ export function RecentActivityFeed() {
 
             inFlightRef.current = true;
             try {
-                const headers = new Headers();
-                if (etagRef.current) {
-                    headers.set("If-None-Match", etagRef.current);
-                }
-
-                const response = await authFetch(`/api/user/activity?view=${view}`, { headers });
-                if (response.status === 304) {
-                    if (mounted) {
-                        setLoadedForUserId(currentUserId);
-                        if (view === "history") {
-                            setHistoryLoaded(true);
-                        }
-                    }
-                    return;
-                }
-
-                const result = await response.json() as {
-                    success?: boolean;
-                    activities?: ActivityItem[];
-                };
-
-                if (!response.ok || !result.success) {
-                    throw new Error("Failed to load recent activity");
-                }
-
+                const result = await fetchRecentActivity(view, etagRef.current);
                 if (!mounted) {
                     return;
                 }
 
-                etagRef.current = response.headers.get("etag");
-                const nextActivities = result.activities || [];
+                if (result.notModified) {
+                    setLoadedForUserId(currentUserId);
+                    if (view === "history") {
+                        setHistoryLoaded(true);
+                    }
+                    return;
+                }
 
+                etagRef.current = result.etag;
                 if (view === "summary") {
-                    setSummaryActivity(nextActivities[0] ?? null);
+                    setSummaryActivity(result.activities[0] ?? null);
                     setLoadedForUserId(currentUserId);
                     return;
                 }
 
-                setHistoryActivities(nextActivities);
+                setHistoryActivities(result.activities);
                 setHistoryLoaded(true);
                 setLoadedForUserId(currentUserId);
             } catch (error) {
-                console.error("Failed to fetch recent activity", error);
-                recordClientDiagnostic("cache", "Recent activity refresh failed", {
-                    userId: user?.uid ?? "",
+                reportRecentActivityFailure("cache", "Recent activity refresh failed", currentUserId, error, {
                     view,
-                    message: error instanceof Error ? error.message : String(error),
                 });
             } finally {
                 inFlightRef.current = false;
@@ -225,31 +475,35 @@ export function RecentActivityFeed() {
 
                         const data = snapshot.data() as { activityVersion?: number; tasksVersion?: number } | undefined;
                         if (typeof data?.activityVersion === "number" || typeof data?.tasksVersion === "number") {
-                            void fetchActivity("summary");
+                            void refreshActivity("summary");
                             if (expanded || historyLoaded) {
-                                void fetchActivity("history");
+                                void refreshActivity("history");
                             }
                         }
                     },
                     (error) => {
-                        recordClientDiagnostic("realtime", "Recent activity runtime subscription failed", {
-                            userId: currentUserId,
-                            message: error.message,
-                        });
+                        reportRecentActivityFailure(
+                            "realtime",
+                            "Recent activity runtime subscription failed",
+                            currentUserId,
+                            error,
+                        );
                     },
                 );
             } catch (error) {
-                recordClientDiagnostic("firebase", "Recent activity runtime setup failed", {
-                    userId: currentUserId,
-                    message: error instanceof Error ? error.message : String(error),
-                });
+                reportRecentActivityFailure(
+                    "firebase",
+                    "Recent activity runtime setup failed",
+                    currentUserId,
+                    error,
+                );
             }
         };
 
         const refreshRecentActivity = () => {
-            void fetchActivity("summary");
+            void refreshActivity("summary");
             if (expanded || historyLoaded) {
-                void fetchActivity("history");
+                void refreshActivity("history");
             }
         };
         const handleVisibilityChange = () => {
@@ -258,7 +512,7 @@ export function RecentActivityFeed() {
             }
         };
 
-        void fetchActivity("summary");
+        void refreshActivity("summary");
         void subscribeToUserRuntime();
         const intervalId = window.setInterval(() => {
             if (document.visibilityState === "visible") {
@@ -275,9 +529,7 @@ export function RecentActivityFeed() {
             window.removeEventListener("focus", refreshRecentActivity);
             window.removeEventListener(ACTIVITY_SYNC_EVENT, refreshRecentActivity);
             document.removeEventListener("visibilitychange", handleVisibilityChange);
-            if (unsubscribeUserRuntime) {
-                unsubscribeUserRuntime();
-            }
+            unsubscribeUserRuntime?.();
         };
     }, [expanded, historyLoaded, user, userId]);
 
@@ -286,43 +538,37 @@ export function RecentActivityFeed() {
             return;
         }
 
+        let cancelled = false;
         setLoadingHistory(true);
+
         void (async () => {
             try {
-                const headers = new Headers();
-                if (historyEtagRef.current) {
-                    headers.set("If-None-Match", historyEtagRef.current);
+                const result = await fetchRecentActivity("history", historyEtagRef.current);
+                if (cancelled) {
+                    return;
                 }
 
-                const response = await authFetch("/api/user/activity?view=history", { headers });
-                if (response.status === 304) {
+                if (result.notModified) {
                     setHistoryLoaded(true);
                     return;
                 }
 
-                const result = await response.json() as {
-                    success?: boolean;
-                    activities?: ActivityItem[];
-                };
-
-                if (!response.ok || !result.success) {
-                    throw new Error("Failed to load full activity history");
-                }
-
-                historyEtagRef.current = response.headers.get("etag");
-                setHistoryActivities(result.activities || []);
+                historyEtagRef.current = result.etag;
+                setHistoryActivities(result.activities);
                 setHistoryLoaded(true);
                 setLoadedForUserId(userId);
             } catch (error) {
-                console.error("Failed to load full activity history", error);
-                recordClientDiagnostic("cache", "Recent activity history refresh failed", {
-                    userId,
-                    message: error instanceof Error ? error.message : String(error),
-                });
+                reportRecentActivityFailure("cache", "Recent activity history refresh failed", userId, error);
             } finally {
-                setLoadingHistory(false);
+                if (!cancelled) {
+                    setLoadingHistory(false);
+                }
             }
         })();
+
+        return () => {
+            cancelled = true;
+        };
     }, [expanded, historyLoaded, loadingHistory, user, userId]);
 
     useEffect(() => {
@@ -336,23 +582,23 @@ export function RecentActivityFeed() {
         setCurrentPage(1);
     }, [searchValue]);
 
+    const scopedHistoryActivities = useMemo(
+        () => (loadedForUserId === userId ? historyActivities : []),
+        [historyActivities, loadedForUserId, userId],
+    );
+    const summary = useMemo(
+        () => (loadedForUserId === userId ? summaryActivity : null),
+        [loadedForUserId, summaryActivity, userId],
+    );
+
     const filteredHistory = useMemo(() => {
         const normalizedQuery = searchValue.trim().toLowerCase();
         if (!normalizedQuery) {
-            return historyActivities;
+            return scopedHistoryActivities;
         }
 
-        return historyActivities.filter((activity) => {
-            const searchableText = [
-                activity.label,
-                activity.kind === "transaction"
-                    ? activity.transaction.description
-                    : activity.taskEvent.title,
-            ].join(" ").toLowerCase();
-
-            return searchableText.includes(normalizedQuery);
-        });
-    }, [historyActivities, searchValue]);
+        return scopedHistoryActivities.filter((activity) => getActivitySearchText(activity).includes(normalizedQuery));
+    }, [scopedHistoryActivities, searchValue]);
 
     const totalPages = Math.max(1, Math.ceil(filteredHistory.length / ITEMS_PER_PAGE));
 
@@ -367,65 +613,57 @@ export function RecentActivityFeed() {
         return filteredHistory.slice(startIndex, startIndex + ITEMS_PER_PAGE);
     }, [currentPage, filteredHistory]);
 
-    const scopedSummaryActivity = loadedForUserId === userId ? summaryActivity : null;
-    const scopedHistoryActivities = loadedForUserId === userId ? historyActivities : [];
-    const scopedFilteredHistory = loadedForUserId === userId ? filteredHistory : [];
-    const scopedPaginatedActivities = loadedForUserId === userId ? paginatedActivities : [];
+    return {
+        currentPage,
+        historyActivities: scopedHistoryActivities,
+        loadingHistory,
+        loadingSummary,
+        paginatedActivities,
+        searchValue,
+        setCurrentPage,
+        setSearchValue,
+        summaryActivity: summary,
+        totalPages,
+    };
+}
 
-    function renderActivityItem(item: ActivityItem) {
-        if (item.kind === "transaction") {
-            const isPositive = ["purchase_currency", "daily_reward", "admin_adjustment", "referral_bonus", "onboarding_reward"].includes(item.transaction.type);
-            return (
-                <div key={item.id} className="flex items-center justify-between rounded-2xl border border-white/5 bg-white/5 p-3">
-                    <div className="flex min-w-0 items-center gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-purple/20 text-brand-purple">
-                            {isPositive ? <ArrowDownLeft className="h-5 w-5" /> : <ArrowUpRight className="h-5 w-5" />}
-                        </div>
-                        <div className="min-w-0">
-                            <p className="line-clamp-1 text-sm font-bold text-white">
-                                {item.label || renderTransactionLabel(item.transaction)}
-                            </p>
-                            <p className="text-[10px] text-gray-400">
-                                {formatDistanceToNow(new Date(item.timestamp), { addSuffix: true })}
-                            </p>
-                        </div>
-                    </div>
-                    <div className={isPositive ? "shrink-0 text-sm font-bold text-brand-purple" : "shrink-0 text-sm font-bold text-white"}>
-                        {isPositive ? "+" : "-"}{item.transaction.amount} GD
-                    </div>
-                </div>
-            );
-        }
-
-        return (
-            <div key={item.id} className="flex items-center justify-between rounded-2xl border border-white/5 bg-white/5 p-3">
-                <div className="flex min-w-0 items-center gap-3">
-                    <div className={item.taskEvent.type === "completed"
-                        ? "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-purple/20 text-brand-purple"
-                        : "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-gray-300"}>
-                        {item.taskEvent.type === "completed"
-                            ? <CheckCircle2 className="h-5 w-5" />
-                            : <TriangleAlert className="h-5 w-5" />}
-                    </div>
-                    <div className="min-w-0">
-                        <p className="line-clamp-1 text-sm font-bold text-white">
-                            {item.label || renderTaskEventLabel(item.taskEvent)}
-                        </p>
-                        <p className="text-[10px] text-gray-400">
-                            {formatDistanceToNow(new Date(item.timestamp), { addSuffix: true })}
-                        </p>
-                    </div>
-                </div>
-                <div className={item.taskEvent.type === "completed" ? "shrink-0 text-sm font-bold text-brand-purple" : "shrink-0 text-sm font-bold text-gray-400"}>
-                    {item.taskEvent.type === "completed" ? `+${item.taskEvent.reward} GD` : `${item.taskEvent.progress}/${item.taskEvent.maxProgress}`}
-                </div>
-            </div>
-        );
-    }
+export function RecentActivityFeed() {
+    const { user } = useAuth();
+    const userId = user?.uid ?? null;
+    const router = useRouter();
+    const [expanded, setExpanded] = useState(false);
+    const {
+        currentPage,
+        historyActivities,
+        loadingHistory,
+        loadingSummary,
+        paginatedActivities,
+        searchValue,
+        setCurrentPage,
+        setSearchValue,
+        summaryActivity,
+        totalPages,
+    } = useRecentActivityState(user, userId, expanded);
 
     if (!user || !userId) {
         return null;
     }
+
+    const handleToggleExpanded = () => {
+        const nextExpanded = !expanded;
+        setExpanded(nextExpanded);
+        trackEvent("recent_activity_toggled", {
+            mode: nextExpanded ? "expanded" : "collapsed",
+        });
+    };
+
+    const handleNavigate = (destination: "/drops" | "/experiences", source: "recent_activity_empty") => {
+        trackEvent("navigation_click", {
+            destination,
+            source,
+        });
+        router.push(destination);
+    };
 
     return (
         <div className="glass-panel mt-6 rounded-3xl p-6 lg:mt-8">
@@ -440,13 +678,7 @@ export function RecentActivityFeed() {
                 </div>
                 <button
                     type="button"
-                    onClick={() => {
-                        const nextExpanded = !expanded;
-                        setExpanded(nextExpanded);
-                        trackEvent("recent_activity_toggled", {
-                            mode: nextExpanded ? "expanded" : "collapsed",
-                        });
-                    }}
+                    onClick={handleToggleExpanded}
                     className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-white/10"
                     aria-expanded={expanded}
                     aria-label={expanded ? "Collapse recent activity" : "Expand recent activity"}
@@ -460,114 +692,26 @@ export function RecentActivityFeed() {
                 <div className="flex items-center justify-center py-8">
                     <Loader2 className="h-6 w-6 animate-spin text-brand-purple/50" />
                 </div>
-            ) : !scopedSummaryActivity && !scopedHistoryActivities.length ? (
-                <div className="py-6 text-center">
-                    <p className="text-sm text-gray-500">
-                        Your recent unwraps, Gum Drop changes, and task results will appear here.
-                    </p>
-                    <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                        <button
-                            type="button"
-                            onClick={() => {
-                                trackEvent("navigation_click", {
-                                    destination: "/drops",
-                                    source: "recent_activity_empty",
-                                });
-                                router.push("/drops");
-                            }}
-                            className="rounded-2xl border border-brand-purple bg-brand-purple px-4 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
-                        >
-                            Unwrap now
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => {
-                                trackEvent("navigation_click", {
-                                    destination: "/experiences",
-                                    source: "recent_activity_empty",
-                                });
-                                router.push("/experiences");
-                            }}
-                            className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10"
-                        >
-                            Open Experiences
-                        </button>
-                    </div>
-                    <div className="mt-4 flex justify-center">
-                        <ReportBugButton context="recent-activity-empty" />
-                    </div>
-                </div>
+            ) : !summaryActivity && !historyActivities.length ? (
+                <RecentActivityEmptyState
+                    onUnwrapNow={() => handleNavigate("/drops", "recent_activity_empty")}
+                    onOpenExperiences={() => handleNavigate("/experiences", "recent_activity_empty")}
+                />
             ) : (
                 <div className="space-y-3">
                     {expanded ? (
-                        <>
-                            <div className="relative">
-                                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
-                                <input
-                                    type="search"
-                                    value={searchValue}
-                                    onChange={(event) => setSearchValue(event.target.value)}
-                                    placeholder="Search activity"
-                                    className="w-full rounded-2xl border border-white/10 bg-white/5 py-3 pl-10 pr-4 text-sm text-white outline-none transition-colors placeholder:text-gray-500 focus:border-brand-purple/60"
-                                />
-                            </div>
-
-                            <div className="flex items-center justify-between gap-3 px-1 text-[11px] font-medium uppercase tracking-[0.18em] text-gray-500">
-                                <span>{scopedFilteredHistory.length} result{scopedFilteredHistory.length === 1 ? "" : "s"}</span>
-                                <span>5 per page</span>
-                            </div>
-
-                            {loadingHistory && !historyLoaded ? (
-                                <div className="flex items-center justify-center py-8">
-                                    <Loader2 className="h-6 w-6 animate-spin text-brand-purple/50" />
-                                </div>
-                            ) : scopedPaginatedActivities.length === 0 ? (
-                                <div className="rounded-2xl border border-white/5 bg-white/5 px-4 py-8 text-center text-sm text-gray-400">
-                                    {searchValue.trim()
-                                        ? "No activity matches your search yet."
-                                        : "No activity has been recorded yet."}
-                                </div>
-                            ) : (
-                                <>
-                                    <div className="space-y-3">
-                                        {scopedPaginatedActivities.map(renderActivityItem)}
-                                    </div>
-
-                                    <div className="flex items-center justify-between gap-3 pt-2">
-                                        <button
-                                            type="button"
-                                            onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-                                            disabled={currentPage === 1}
-                                            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
-                                        >
-                                            <ChevronLeft className="h-4 w-4" />
-                                            Previous
-                                        </button>
-                                        <span className="text-xs font-medium text-gray-400">
-                                            Page {currentPage} of {totalPages}
-                                        </span>
-                                        <button
-                                            type="button"
-                                            onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
-                                            disabled={currentPage >= totalPages}
-                                            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
-                                        >
-                                            Next
-                                            <ChevronRight className="h-4 w-4" />
-                                        </button>
-                                    </div>
-                                </>
-                            )}
-                        </>
-                    ) : scopedSummaryActivity ? (
-                        <>
-                            <div className="rounded-2xl border border-brand-purple/20 bg-gradient-to-r from-brand-purple/10 to-white/5 p-3">
-                                <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-purple/80">
-                                    Latest event
-                                </p>
-                                {renderActivityItem(scopedSummaryActivity)}
-                            </div>
-                        </>
+                        <ExpandedActivityView
+                            activities={paginatedActivities}
+                            currentPage={currentPage}
+                            loadingHistory={loadingHistory && !historyActivities.length}
+                            onNextPage={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                            onPreviousPage={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                            onSearchChange={setSearchValue}
+                            searchValue={searchValue}
+                            totalPages={totalPages}
+                        />
+                    ) : summaryActivity ? (
+                        <RecentActivitySummary item={summaryActivity} />
                     ) : null}
                 </div>
             )}
