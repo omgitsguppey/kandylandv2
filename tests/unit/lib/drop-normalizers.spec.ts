@@ -63,6 +63,30 @@ describe("drop-normalizers", () => {
       }).toThrow();
     });
 
+    it("rejects timestamp objects when the validator's first toMillis call throws", () => {
+      let callCount = 0;
+      expect(() => {
+        normalizeDropRecord(
+          {
+            validFrom: {
+              toMillis: () => {
+                callCount += 1;
+                if (callCount === 1) {
+                  throw new Error("Simulated failure");
+                }
+
+                return 1600000000000;
+              },
+              _seconds: 1600000000,
+              _nanoseconds: 0,
+            },
+          },
+          "d-err-validator-catch",
+        );
+      }).toThrow();
+      expect(callCount).toBe(1);
+    });
+
     it("deduplicates contentUrls and handles contentUrl fallback", () => {
       const raw = {
         validFrom: 1000,
