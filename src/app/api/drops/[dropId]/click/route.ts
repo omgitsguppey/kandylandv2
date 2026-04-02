@@ -25,7 +25,7 @@ export async function POST(
             // Attempt to resolve the caller for stitched GA4 sessions
             const caller = await verifyAuth(request);
             if (caller) userId = caller.uid;
-        } catch (authErr) {
+        } catch {
             // Fails gracefully for anonymous clicks
         }
 
