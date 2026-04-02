@@ -232,14 +232,12 @@ describe("PUT /api/admin/users", () => {
             segmentationStatus: "segment_assigned",
         });
 
-        const existingProjection = mockState.documents.get("users/creator_ready")?.creatorApplication as Record<string, unknown>;
         const request = new NextRequest("http://localhost/api/admin/users", {
             method: "PUT",
             body: JSON.stringify({
                 userId: "creator_ready",
                 updates: {
                     creatorApplication: {
-                        ...existingProjection,
                         approvalStatus: "creator_approved",
                     },
                 },
@@ -277,7 +275,6 @@ describe("PUT /api/admin/users", () => {
             segmentationStatus: "segment_unassigned",
         });
 
-        const existingProjection = mockState.documents.get("users/creator_blocked")?.creatorApplication as Record<string, unknown>;
         const request = new NextRequest("http://localhost/api/admin/users", {
             method: "PUT",
             body: JSON.stringify({
@@ -285,7 +282,6 @@ describe("PUT /api/admin/users", () => {
                 updates: {
                     role: "creator",
                     creatorApplication: {
-                        ...existingProjection,
                         approvalStatus: "creator_approved",
                     },
                 },
@@ -399,14 +395,12 @@ describe("PUT /api/admin/users", () => {
             segmentationStatus: "segment_unassigned",
         });
 
-        const existingProjection = mockState.documents.get("users/creator_review_updates")?.creatorApplication as Record<string, unknown>;
         const request = new NextRequest("http://localhost/api/admin/users", {
             method: "PUT",
             body: JSON.stringify({
                 userId: "creator_review_updates",
                 updates: {
                     creatorApplication: {
-                        ...existingProjection,
                         legalStatus: "legal_sent",
                         idVerificationStatus: "id_requested",
                         approvalStatus: "creator_needs_changes",

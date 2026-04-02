@@ -37,11 +37,14 @@ type RosterEntry = {
 type CreatorReviewQueueRosterEntry = RosterEntry & {
     creatorDisplayName: string;
     queueBucket: CreatorReviewQueueBucket;
+    queuePosition: number;
     submissionStatus: CreatorOnboardingSubmissionStatus;
     approvalStatus: CreatorOnboardingApprovalStatus;
     legalStatus: CreatorOnboardingLegalStatus;
     idVerificationStatus: CreatorOnboardingIdStatus;
     segmentationStatus: CreatorOnboardingSegmentStatus;
+    creatorPrimaryPlatform?: string;
+    creatorContentFocus?: string;
     blockingReasons: CreatorOnboardingBlockingReason[];
     readyForApproval: boolean;
     creatorReviewQueueVisible: boolean;
@@ -49,6 +52,8 @@ type CreatorReviewQueueRosterEntry = RosterEntry & {
     updatedAt: number;
     legalDocumentUrl?: string;
     segmentLabel?: string;
+    idDocumentFileName?: string;
+    adminNotes?: string;
     reviewedBy?: string;
 };
 
@@ -158,6 +163,9 @@ function serializeQueueEntry(
             || raw.queueBucket === "approved"
             ? raw.queueBucket
             : "newest_submissions",
+        queuePosition: typeof raw.queuePosition === "number" && Number.isFinite(raw.queuePosition)
+            ? Math.trunc(raw.queuePosition)
+            : 0,
         submissionStatus: raw.submissionStatus === "onboarding_started"
             || raw.submissionStatus === "onboarding_submitted"
             || raw.submissionStatus === "awaiting_manual_review"
@@ -180,6 +188,8 @@ function serializeQueueEntry(
         segmentationStatus: raw.segmentationStatus === "segment_assigned"
             ? "segment_assigned"
             : "segment_unassigned",
+        creatorPrimaryPlatform: readString(raw.creatorPrimaryPlatform) || undefined,
+        creatorContentFocus: readString(raw.creatorContentFocus) || undefined,
         blockingReasons: readStringArray(raw.blockingReasons) as CreatorOnboardingBlockingReason[],
         readyForApproval: readBoolean(raw.readyForApproval),
         creatorReviewQueueVisible: raw.creatorReviewQueueVisible !== false,
@@ -187,6 +197,8 @@ function serializeQueueEntry(
         updatedAt: toTimestampNumber(raw.updatedAt),
         legalDocumentUrl: readString(raw.legalDocumentUrl) || undefined,
         segmentLabel: readString(raw.segmentLabel) || undefined,
+        idDocumentFileName: readString(raw.idDocumentFileName) || undefined,
+        adminNotes: readString(raw.adminNotes) || undefined,
         reviewedBy: readString(raw.reviewedBy) || undefined,
     };
 }

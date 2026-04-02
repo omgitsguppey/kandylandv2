@@ -193,6 +193,7 @@ export async function GET(request: NextRequest) {
             const dropReferences = await getAllDropReferenceMap();
 
             const {
+                issues,
                 response,
                 eventsResponse,
                 geoResponse,
@@ -777,6 +778,7 @@ export async function GET(request: NextRequest) {
 
             return NextResponse.json({
                 success: true,
+                issues,
                 ...scopeHistoricalResponse(section, payload),
             });
 

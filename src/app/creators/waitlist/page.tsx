@@ -72,7 +72,7 @@ export default function CreatorWaitlistPage() {
                 eventName="creator_waitlist_viewed"
                 eventParams={{ component_name: "creator_waitlist_page", creator_lane: "waitlist" }}
             />
-            <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
+            <div className="mx-auto flex w-full max-w-4xl flex-col gap-5">
                 <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-zinc-950/80 p-6 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-8">
                     <span className="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
                         Creator line
@@ -136,18 +136,33 @@ export default function CreatorWaitlistPage() {
                                 {statusSummary.summary}
                             </p>
 
+                            <div className="mt-5 flex flex-wrap gap-2">
+                                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-gray-200">
+                                    Status: {getPrimaryStatusLabel(creatorApplication)}
+                                </span>
+                                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-gray-200">
+                                    Legal {formatStatusLabel(creatorApplication.legalStatus)}
+                                </span>
+                                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-gray-200">
+                                    ID {formatStatusLabel(creatorApplication.idVerificationStatus)}
+                                </span>
+                                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-gray-200">
+                                    Segment {creatorApplication.segmentLabel || formatStatusLabel(creatorApplication.segmentationStatus)}
+                                </span>
+                            </div>
+
                             <div className="mt-6 grid gap-4 md:grid-cols-[1.1fr_0.9fr]">
-                                <div className="rounded-[1.75rem] border border-brand-purple/20 bg-brand-purple/10 p-6">
+                                <div className="rounded-[1.75rem] border border-brand-purple/20 bg-brand-purple/10 p-5">
                                     <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">Place in line</p>
-                                    <p className="mt-3 text-5xl font-black text-white">
+                                    <p className="mt-3 text-4xl font-black text-white sm:text-5xl">
                                         #{(creatorApplication.queuePosition || 0).toLocaleString()}
                                     </p>
-                                    <p className="mt-3 text-sm leading-7 text-gray-200">
-                                        Status: <span className="font-semibold capitalize text-white">{getPrimaryStatusLabel(creatorApplication)}</span>
+                                    <p className="mt-3 text-sm leading-6 text-gray-200">
+                                        This page only reflects real backend review state. Nothing here advances unless admin actually updates your application.
                                     </p>
                                 </div>
 
-                                <div className="rounded-[1.75rem] border border-white/10 bg-black/25 p-6">
+                                <div className="rounded-[1.75rem] border border-white/10 bg-black/25 p-5">
                                     <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Application details</p>
                                     <div className="mt-4 space-y-3 text-sm text-gray-300">
                                         <p><span className="text-gray-500">Creator name:</span> {creatorApplication.creatorDisplayName}</p>
@@ -180,7 +195,7 @@ export default function CreatorWaitlistPage() {
 
                 {creatorApplication ? (
                     <section className="grid gap-4 md:grid-cols-3">
-                        <article className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-5 backdrop-blur-sm">
+                        <article className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-4 backdrop-blur-sm">
                             <div className="flex items-center gap-2 text-base font-bold text-white">
                                 <FileText className="h-5 w-5 text-brand-purple" />
                                 Legal documents
@@ -192,7 +207,7 @@ export default function CreatorWaitlistPage() {
                             </p>
                         </article>
 
-                        <article className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-5 backdrop-blur-sm">
+                        <article className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-4 backdrop-blur-sm">
                             <div className="flex items-center gap-2 text-base font-bold text-white">
                                 <ShieldCheck className="h-5 w-5 text-brand-purple" />
                                 ID verification
@@ -209,7 +224,7 @@ export default function CreatorWaitlistPage() {
                             ) : null}
                         </article>
 
-                        <article className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-5 backdrop-blur-sm">
+                        <article className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-4 backdrop-blur-sm">
                             <div className="flex items-center gap-2 text-base font-bold text-white">
                                 <UserRoundSearch className="h-5 w-5 text-brand-purple" />
                                 Manual segmenting
@@ -224,7 +239,7 @@ export default function CreatorWaitlistPage() {
                 ) : null}
 
                 {creatorApplication ? (
-                    <section className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-5 backdrop-blur-sm">
+                    <section className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-4 backdrop-blur-sm">
                         <div className="flex items-start justify-between gap-3">
                             <div>
                                 <h2 className="text-base font-bold text-white">What still needs attention</h2>
@@ -255,7 +270,7 @@ export default function CreatorWaitlistPage() {
                 ) : null}
 
                 {creatorApplication && canSubmitId ? (
-                    <section className="rounded-[1.75rem] border border-brand-purple/20 bg-brand-purple/10 p-5 backdrop-blur-sm">
+                    <section className="rounded-[1.75rem] border border-brand-purple/20 bg-brand-purple/10 p-4 backdrop-blur-sm">
                         <h2 className="flex items-center gap-2 text-base font-bold text-white">
                             <ShieldCheck className="h-5 w-5 text-brand-purple" />
                             Submit your ID
@@ -290,7 +305,7 @@ export default function CreatorWaitlistPage() {
                     </section>
                 ) : null}
 
-                <section className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-5 backdrop-blur-sm">
+                <section className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-4 backdrop-blur-sm">
                     <h2 className="flex items-center gap-2 text-base font-bold text-white">
                         <BadgeCheck className="h-5 w-5 text-brand-purple" />
                         Why this is separate from fan onboarding

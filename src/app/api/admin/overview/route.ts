@@ -1,3 +1,7 @@
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+export const revalidate = 0;
+
 import { NextRequest, NextResponse } from "next/server";
 
 import { adminDb } from "@/lib/server/firebase-admin";
@@ -15,6 +19,17 @@ const CHART_LABEL_FORMATTER = new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "2-digit",
 });
+
+type QuerySnapshotLike = {
+    docs: Array<{ id: string; data: () => Record<string, unknown> }>;
+    size: number;
+    empty: boolean;
+};
+
+type DocumentSnapshotLike = {
+    exists: boolean;
+    data: () => Record<string, unknown> | undefined;
+};
 
 function toTimestampNumber(value: unknown): number {
     if (typeof value === "number" && Number.isFinite(value)) {
@@ -72,6 +87,37 @@ function buildThirtyDayChart(nowMs: number) {
     return days;
 }
 
+function emptyQuerySnapshot(): QuerySnapshotLike {
+    return {
+        docs: [],
+        size: 0,
+        empty: true,
+    };
+}
+
+function emptyDocumentSnapshot(): DocumentSnapshotLike {
+    return {
+        exists: false,
+        data: () => undefined,
+    };
+}
+
+async function safeQuerySnapshot(reader: () => Promise<QuerySnapshotLike>) {
+    try {
+        return await reader();
+    } catch {
+        return emptyQuerySnapshot();
+    }
+}
+
+async function safeDocumentSnapshot(reader: () => Promise<DocumentSnapshotLike>) {
+    try {
+        return await reader();
+    } catch {
+        return emptyDocumentSnapshot();
+    }
+}
+
 export async function GET(request: NextRequest) {
     try {
         await guardApiRequest(request, {
@@ -90,19 +136,19 @@ export async function GET(request: NextRequest) {
         const now = Date.now();
         const thirtyDayStartMs = fromCSTInput(`${shiftCSTDateKey(getCSTDateKey(now), -(THIRTY_DAY_WINDOW - 1))}T00:00`);
         const [usersSnapshot, dropsSnapshot, recentTransactionsSnapshot, adminActivitySnapshot, commerceSummarySnapshot, recentChartTransactionsSnapshot] = await Promise.all([
-            adminDb.collection("users").get(),
-            adminDb.collection("drops").get(),
-            adminDb.collection("transactions").orderBy("timestamp", "desc").limit(20).get(),
-            adminDb.collection("transactions")
+            safeQuerySnapshot(() => adminDb.collection("users").get() as Promise<QuerySnapshotLike>),
+            safeQuerySnapshot(() => adminDb.collection("drops").get() as Promise<QuerySnapshotLike>),
+            safeQuerySnapshot(() => adminDb.collection("transactions").orderBy("timestamp", "desc").limit(20).get() as Promise<QuerySnapshotLike>),
+            safeQuerySnapshot(() => adminDb.collection("transactions")
                 .where("type", "==", "admin_adjustment")
                 .orderBy("timestamp", "desc")
                 .limit(10)
-                .get(),
-            adminDb.collection("analytics_commerce_rollup").doc("summary").get(),
-            adminDb.collection("transactions")
+                .get() as Promise<QuerySnapshotLike>),
+            safeDocumentSnapshot(() => adminDb.collection("analytics_commerce_rollup").doc("summary").get() as Promise<DocumentSnapshotLike>),
+            safeQuerySnapshot(() => adminDb.collection("transactions")
                 .where("timestamp", ">=", thirtyDayStartMs)
                 .orderBy("timestamp", "desc")
-                .get(),
+                .get() as Promise<QuerySnapshotLike>),
         ]);
 
         const userNameMap = new Map<string, string>();

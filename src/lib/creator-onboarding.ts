@@ -195,8 +195,11 @@ export type CreatorReviewQueueEntry = {
     onboardingRefPath: string;
     queueBucket: CreatorReviewQueueBucket;
     queueSortAt: number;
+    queuePosition: number;
     displayName: string;
     creatorDisplayName: string;
+    creatorPrimaryPlatform?: string;
+    creatorContentFocus?: string;
     email: string;
     username: string;
     photoURL: string | null;
@@ -213,6 +216,8 @@ export type CreatorReviewQueueEntry = {
     updatedAt: number;
     legalDocumentUrl?: string;
     segmentLabel?: string;
+    idDocumentFileName?: string;
+    adminNotes?: string;
     reviewedBy?: string;
 };
 
@@ -958,8 +963,11 @@ export function buildCreatorReviewQueueEntry(input: {
         onboardingRefPath: `creator_onboarding/${canonical.userId}`,
         queueBucket,
         queueSortAt: canonical.lastAdminActionAt ?? canonical.awaitingManualReviewAt ?? canonical.submittedAt,
+        queuePosition: canonical.queuePosition,
         displayName: readString(input.displayName) || canonical.creatorDisplayName,
         creatorDisplayName: canonical.creatorDisplayName,
+        creatorPrimaryPlatform: canonical.creatorPrimaryPlatform,
+        creatorContentFocus: canonical.creatorContentFocus,
         email: canonical.email || "",
         username: canonical.username || "",
         photoURL: canonical.photoURL,
@@ -976,6 +984,8 @@ export function buildCreatorReviewQueueEntry(input: {
         updatedAt: canonical.updatedAt,
         legalDocumentUrl: canonical.legalDocumentUrl,
         segmentLabel: canonical.segmentLabel,
+        idDocumentFileName: canonical.idDocument?.fileName,
+        adminNotes: canonical.adminNotes,
         reviewedBy: canonical.reviewedBy,
     } satisfies CreatorReviewQueueEntry;
 }

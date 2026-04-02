@@ -15,6 +15,7 @@ import { sanitizeCreatorRestrictionsUpdate, sanitizeCreatorSettingsUpdate } from
 import { normalizeCreatorApplication, sanitizeCreatorApplicationUpdate } from "@/lib/creator-application";
 import {
   buildCreatorOnboardingCanonicalRecord,
+  buildCreatorOnboardingUserProjection,
   normalizeCreatorOnboardingCanonicalRecord,
 } from "@/lib/creator-onboarding";
 import {
@@ -54,6 +55,37 @@ function readStringValue(value: unknown) {
 
 function readUserRole(value: unknown): "user" | "creator" | "admin" {
   return value === "creator" || value === "admin" || value === "user" ? value : "user";
+}
+
+class InvalidCreatorApplicationUpdateError extends Error {}
+
+function resolveCreatorApplicationUpdate(input: {
+  patch: Record<string, unknown>;
+  currentProjection: ReturnType<typeof normalizeCreatorApplication> | undefined;
+  currentCanonical: NonNullable<ReturnType<typeof normalizeCreatorOnboardingCanonicalRecord>>;
+  nowMs: number;
+  reviewedBy: string | null;
+}) {
+  const baseProjection = input.currentProjection ?? buildCreatorOnboardingUserProjection(input.currentCanonical);
+  const mergedSource: Record<string, unknown> = {
+    ...baseProjection,
+    ...input.patch,
+    queuePosition: input.patch.queuePosition ?? baseProjection.queuePosition ?? input.currentCanonical.queuePosition,
+    creatorDisplayName: input.patch.creatorDisplayName ?? baseProjection.creatorDisplayName ?? input.currentCanonical.creatorDisplayName,
+    creatorPrimaryPlatform: input.patch.creatorPrimaryPlatform ?? baseProjection.creatorPrimaryPlatform ?? input.currentCanonical.creatorPrimaryPlatform,
+    creatorContentFocus: input.patch.creatorContentFocus ?? baseProjection.creatorContentFocus ?? input.currentCanonical.creatorContentFocus,
+  };
+
+  const normalized = sanitizeCreatorApplicationUpdate(mergedSource, {
+    nowMs: input.nowMs,
+    reviewedBy: input.reviewedBy,
+  });
+
+  if (!normalized) {
+    throw new InvalidCreatorApplicationUpdateError("Invalid creator application update.");
+  }
+
+  return normalized;
 }
 
 function buildCreatorApplicationAdminSource(
@@ -1046,7 +1078,7 @@ export async function PUT(request: NextRequest) {
 
     const allowedFields = ["role", "isVerified", "status", "statusReason"];
     const sanitized: Record<string, unknown> = {};
-    let creatorApplicationUpdate: ReturnType<typeof sanitizeCreatorApplicationUpdate> | undefined;
+    let creatorApplicationPatch: Record<string, unknown> | undefined;
     for (const key of allowedFields) {
       if (updates[key] !== undefined) {
         sanitized[key] = updates[key];
@@ -1059,12 +1091,10 @@ export async function PUT(request: NextRequest) {
       sanitized.creatorSettings = sanitizeCreatorSettingsUpdate(updates.creatorSettings as Record<string, unknown>);
     }
     if (updates.creatorApplication && typeof updates.creatorApplication === "object") {
-      creatorApplicationUpdate = sanitizeCreatorApplicationUpdate(updates.creatorApplication as Record<string, unknown>, {
-        reviewedBy: authResult?.email ?? authResult?.uid ?? null,
-      });
+      creatorApplicationPatch = updates.creatorApplication as Record<string, unknown>;
     }
 
-    if (Object.keys(sanitized).length === 0 && !creatorApplicationUpdate) {
+    if (Object.keys(sanitized).length === 0 && !creatorApplicationPatch) {
       return NextResponse.json({ error: "No valid fields to update" }, { status: 400 });
     }
 
@@ -1077,7 +1107,7 @@ export async function PUT(request: NextRequest) {
     let creatorLifecycleEvents: ReturnType<typeof buildCreatorLifecycleEvents> = [];
     let creatorOnboardingDiagnostic: CreatorOnboardingDiagnosticEntry | null = null;
 
-    if (creatorApplicationUpdate) {
+    if (creatorApplicationPatch) {
       const userRef = adminDb.collection("users").doc(userId);
       const onboardingRef = adminDb.collection(CREATOR_ONBOARDING_COLLECTION).doc(userId);
 
@@ -1114,13 +1144,25 @@ export async function PUT(request: NextRequest) {
             photoURL: typeof userData.photoURL === "string" ? userData.photoURL : null,
             role: readUserRole(userData.role),
             createdAt: toTimestampNumber(userData.createdAt) || nowMs,
-            queuePosition: creatorApplicationUpdate.queuePosition,
-            creatorDisplayName: creatorApplicationUpdate.creatorDisplayName,
-            creatorPrimaryPlatform: creatorApplicationUpdate.creatorPrimaryPlatform,
-            creatorContentFocus: creatorApplicationUpdate.creatorContentFocus,
+            queuePosition: typeof creatorApplicationPatch.queuePosition === "number" && Number.isFinite(creatorApplicationPatch.queuePosition)
+              ? Math.trunc(creatorApplicationPatch.queuePosition)
+              : 1,
+            creatorDisplayName: readStringValue(creatorApplicationPatch.creatorDisplayName)
+              || readStringValue(userData.displayName)
+              || "Creator",
+            creatorPrimaryPlatform: readStringValue(creatorApplicationPatch.creatorPrimaryPlatform) || undefined,
+            creatorContentFocus: readStringValue(creatorApplicationPatch.creatorContentFocus) || undefined,
             nowMs,
-            source: creatorApplicationUpdate,
+            source: creatorApplicationPatch,
           }));
+
+        const creatorApplicationUpdate = resolveCreatorApplicationUpdate({
+          patch: creatorApplicationPatch,
+          currentProjection: existingProjection,
+          currentCanonical,
+          nowMs,
+          reviewedBy: authResult?.email ?? authResult?.uid ?? null,
+        });
 
         const nextSource = buildCreatorApplicationAdminSource(
           currentCanonical,
@@ -1360,6 +1402,10 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    if (error instanceof InvalidCreatorApplicationUpdateError) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+
     return handleApiError(error, "Admin.Users.PUT");
   }
 }

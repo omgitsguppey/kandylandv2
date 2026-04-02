@@ -350,6 +350,7 @@ interface HistoricalAnalyticsResponse {
   generatedAtMs?: number;
   requiresSetup?: boolean;
   error?: string;
+  issues?: string[];
   data?: HistoricalPoint[];
   totals?: {
     users: number;
@@ -432,6 +433,7 @@ interface RealtimeAnalyticsResponse {
   generatedAtMs?: number;
   requiresSetup?: boolean;
   error?: string;
+  issues?: string[];
   totalActive?: number;
   deepTrackerActive?: number;
   data?: RealtimePoint[];
@@ -940,7 +942,9 @@ export default function AdminAnalyticsPage() {
   const backgroundAnalyticsIssues = [
     liveResponse && liveError ? `Realtime analytics: ${liveError.message || "Background refresh failed."}` : null,
     historicalResponse && historicalError ? `Historical analytics: ${historicalError.message || "Background refresh failed."}` : null,
-  ].filter((issue): issue is string => Boolean(issue));
+    ...(liveResponse?.issues || []).map((issue) => `Realtime analytics: ${issue}`),
+    ...(historicalResponse?.issues || []).map((issue) => `Historical analytics: ${issue}`),
+  ].filter((issue, index, array): issue is string => Boolean(issue) && array.indexOf(issue) === index);
   const blockingAnalyticsError =
     (!liveResponse && (liveError as Error | undefined)) ||
     (!historicalResponse && (historicalError as Error | undefined)) ||

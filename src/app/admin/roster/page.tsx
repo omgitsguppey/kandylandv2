@@ -1,10 +1,20 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import Image from "next/image";
 import Link from "next/link";
-import { CheckCircle2, Clock3, Search, ShieldUser, Sparkles, UserPlus2, UserRoundSearch } from "lucide-react";
+import {
+    CheckCircle2,
+    Clock3,
+    FileText,
+    RefreshCw,
+    Search,
+    ShieldUser,
+    Sparkles,
+    UserPlus2,
+    UserRoundSearch,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
@@ -37,7 +47,10 @@ type RosterEntry = {
 
 type CreatorReviewQueueEntry = RosterEntry & {
     creatorDisplayName: string;
+    creatorPrimaryPlatform?: string;
+    creatorContentFocus?: string;
     queueBucket: QueueBucket;
+    queuePosition: number;
     submissionStatus: string;
     approvalStatus: string;
     legalStatus: string;
@@ -50,6 +63,8 @@ type CreatorReviewQueueEntry = RosterEntry & {
     updatedAt: number;
     legalDocumentUrl?: string;
     segmentLabel?: string;
+    idDocumentFileName?: string;
+    adminNotes?: string;
     reviewedBy?: string;
 };
 
@@ -87,6 +102,7 @@ type RosterResponse = {
 
 type QueueFilter = "all" | QueueBucket;
 type QueueSort = "newest" | "oldest";
+type QueuePatch = Partial<Pick<CreatorReviewQueueEntry, "approvalStatus" | "legalStatus" | "idVerificationStatus" | "segmentationStatus" | "segmentLabel" | "adminNotes">>;
 
 const SEARCH_MIN_LENGTH = 2;
 const QUEUE_FILTER_OPTIONS: Array<{ key: QueueFilter; label: string }> = [
@@ -128,6 +144,53 @@ function formatQueueBucketLabel(value: QueueBucket) {
     return formatStatusLabel(value);
 }
 
+function getStatusChipClasses(tone: "accent" | "success" | "warn" | "danger" | "muted") {
+    switch (tone) {
+        case "accent":
+            return "border-brand-purple/30 bg-brand-purple/12 text-white";
+        case "success":
+            return "border-emerald-400/25 bg-emerald-400/10 text-emerald-200";
+        case "warn":
+            return "border-amber-400/25 bg-amber-400/10 text-amber-200";
+        case "danger":
+            return "border-red-500/25 bg-red-500/10 text-red-200";
+        default:
+            return "border-white/10 bg-white/5 text-gray-300";
+    }
+}
+
+function getQueueTone(entry: CreatorReviewQueueEntry): "accent" | "success" | "warn" | "danger" {
+    if (entry.approvalStatus === "creator_rejected") {
+        return "danger";
+    }
+
+    if (entry.readyForApproval || entry.approvalStatus === "creator_approved") {
+        return "success";
+    }
+
+    if (entry.approvalStatus === "creator_needs_changes") {
+        return "warn";
+    }
+
+    return "accent";
+}
+
+function getStatusTone(value: string) {
+    if (value.includes("approved") || value.includes("signed") || value.includes("verified") || value.includes("assigned")) {
+        return "success" as const;
+    }
+
+    if (value.includes("rejected")) {
+        return "danger" as const;
+    }
+
+    if (value.includes("needs_changes") || value.includes("pending") || value.includes("requested")) {
+        return "warn" as const;
+    }
+
+    return "muted" as const;
+}
+
 async function fetchRoster(query = ""): Promise<RosterResponse> {
     const suffix = query.trim() ? `?q=${encodeURIComponent(query.trim())}` : "";
     const response = await authFetch(`/api/admin/roster${suffix}`);
@@ -138,20 +201,106 @@ async function fetchRoster(query = ""): Promise<RosterResponse> {
     return result;
 }
 
-function Avatar({ entry }: { entry: Pick<RosterEntry, "displayName" | "photoURL"> }) {
+function Avatar({ entry, compact = false }: { entry: Pick<RosterEntry, "displayName" | "photoURL">; compact?: boolean }) {
+    const sizeClasses = compact ? "h-10 w-10 rounded-2xl" : "h-12 w-12 rounded-2xl";
+
     if (entry.photoURL) {
         return (
-            <div className="relative h-12 w-12 overflow-hidden rounded-2xl border border-white/10 bg-black/30">
-                <Image src={entry.photoURL} alt={entry.displayName} fill sizes="48px" className="object-cover" />
+            <div className={cn("relative overflow-hidden border border-white/10 bg-black/30", sizeClasses)}>
+                <Image src={entry.photoURL} alt={entry.displayName} fill sizes={compact ? "40px" : "48px"} className="object-cover" />
             </div>
         );
     }
 
     return (
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-black/30 text-sm font-black text-white">
+        <div className={cn("flex items-center justify-center border border-white/10 bg-black/30 font-black text-white", sizeClasses, compact ? "text-xs" : "text-sm")}>
             {initialsFor(entry.displayName)}
         </div>
     );
+}
+
+function buildQueueQuickActions(entry: CreatorReviewQueueEntry) {
+    const actions: Array<{
+        key: string;
+        label: string;
+        patch: QueuePatch;
+        tone: "accent" | "success" | "warn";
+    }> = [];
+
+    if (entry.legalStatus === "legal_pending") {
+        actions.push({
+            key: "legal_sent",
+            label: "Send legal",
+            patch: { legalStatus: "legal_sent" },
+            tone: "accent",
+        });
+    } else if (entry.legalStatus === "legal_sent") {
+        actions.push({
+            key: "legal_signed",
+            label: "Mark signed",
+            patch: { legalStatus: "legal_signed" },
+            tone: "success",
+        });
+    }
+
+    if (entry.idVerificationStatus === "id_not_requested") {
+        actions.push({
+            key: "id_requested",
+            label: "Request ID",
+            patch: { idVerificationStatus: "id_requested" },
+            tone: "accent",
+        });
+    } else if (entry.idVerificationStatus === "id_submitted") {
+        actions.push({
+            key: "id_verified",
+            label: "Verify ID",
+            patch: { idVerificationStatus: "id_verified" },
+            tone: "success",
+        });
+    } else if (entry.idVerificationStatus === "id_rejected") {
+        actions.push({
+            key: "id_requested_retry",
+            label: "Request re-upload",
+            patch: { idVerificationStatus: "id_requested" },
+            tone: "warn",
+        });
+    }
+
+    if (entry.readyForApproval) {
+        actions.push({
+            key: "creator_approved",
+            label: "Approve",
+            patch: { approvalStatus: "creator_approved" },
+            tone: "success",
+        });
+    } else if (entry.approvalStatus === "creator_pending") {
+        actions.push({
+            key: "creator_needs_changes",
+            label: "Needs changes",
+            patch: { approvalStatus: "creator_needs_changes" },
+            tone: "warn",
+        });
+    } else if (entry.approvalStatus === "creator_needs_changes" || entry.approvalStatus === "creator_rejected") {
+        actions.push({
+            key: "creator_pending",
+            label: "Resume review",
+            patch: { approvalStatus: "creator_pending" },
+            tone: "accent",
+        });
+    }
+
+    return actions.slice(0, 3);
+}
+
+function buildSummaryCards(summary: RosterSummary | null) {
+    return [
+        { key: "reviewQueueCount", label: "Review lane", value: summary?.reviewQueueCount ?? 0, detail: "Awaiting admin action" },
+        { key: "readyForApprovalCount", label: "Ready now", value: summary?.readyForApprovalCount ?? 0, detail: "Clear to approve" },
+        { key: "waitingOnIdCount", label: "Waiting on ID", value: summary?.waitingOnIdCount ?? 0, detail: "Request, upload, or review" },
+        { key: "waitingOnLegalCount", label: "Waiting on legal", value: summary?.waitingOnLegalCount ?? 0, detail: "Still blocked on signatures" },
+        { key: "needsChangesCount", label: "Needs changes", value: summary?.needsChangesCount ?? 0, detail: "Returned for fixes" },
+        { key: "creatorCount", label: "Live creators", value: summary?.creatorCount ?? 0, detail: "Currently active in roster" },
+    ];
 }
 
 export default function AdminRosterPage() {
@@ -165,11 +314,53 @@ export default function AdminRosterPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [queueFilter, setQueueFilter] = useState<QueueFilter>("all");
     const [queueSort, setQueueSort] = useState<QueueSort>("newest");
+    const [expandedQueueId, setExpandedQueueId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
     const [searchLoading, setSearchLoading] = useState(false);
+    const [queueActionKey, setQueueActionKey] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     const isAdmin = userProfile?.role === "admin";
+    const trimmedSearchTerm = searchTerm.trim();
+
+    const refreshRoster = useCallback(async (options?: {
+        keepLoading?: boolean;
+        includeSearch?: boolean;
+        searchOverride?: string;
+    }) => {
+        const includeSearch = options?.includeSearch !== false;
+        const searchValue = options?.searchOverride ?? trimmedSearchTerm;
+        const shouldQuerySearch = includeSearch && searchValue.length >= SEARCH_MIN_LENGTH;
+
+        if (!options?.keepLoading) {
+            setRefreshing(true);
+        }
+
+        try {
+            setError(null);
+            const [baseResult, searchResult] = await Promise.all([
+                fetchRoster(),
+                shouldQuerySearch ? fetchRoster(searchValue) : Promise.resolve<RosterResponse>({ searchResults: [] }),
+            ]);
+            setRosterUsers(baseResult.rosterUsers || []);
+            setCreatorReviewQueue(baseResult.creatorReviewQueue || []);
+            setSummary(baseResult.summary || null);
+            setCreatorOpsByUser(baseResult.creatorOpsByUser || {});
+            setSearchResults(searchResult.searchResults || []);
+        } catch (refreshError) {
+            setError(refreshError instanceof Error ? refreshError.message : "Unable to load creator roster right now.");
+            setRosterUsers([]);
+            setCreatorReviewQueue([]);
+            setSummary(null);
+            setCreatorOpsByUser({});
+            setSearchResults([]);
+        } finally {
+            if (!options?.keepLoading) {
+                setRefreshing(false);
+            }
+        }
+    }, [trimmedSearchTerm]);
 
     useEffect(() => {
         if (authLoading || !isAdmin) {
@@ -189,13 +380,12 @@ export default function AdminRosterPage() {
                 setError(null);
                 setLoading(false);
             } catch (loadError) {
-                console.error("Failed to load creator roster", loadError);
                 if (!cancelled) {
                     setRosterUsers([]);
                     setCreatorReviewQueue([]);
                     setSummary(null);
                     setCreatorOpsByUser({});
-                    setError("Unable to load creator roster right now.");
+                    setError(loadError instanceof Error ? loadError.message : "Unable to load creator roster right now.");
                     setLoading(false);
                 }
             }
@@ -208,11 +398,39 @@ export default function AdminRosterPage() {
     }, [authLoading, isAdmin]);
 
     useEffect(() => {
+        if (authLoading || !isAdmin || loading) {
+            return;
+        }
+
+        const intervalId = window.setInterval(() => {
+            void refreshRoster({ includeSearch: false });
+        }, 15_000);
+
+        const handleFocus = () => {
+            void refreshRoster({ includeSearch: false });
+        };
+        const handleVisibility = () => {
+            if (document.visibilityState === "visible") {
+                void refreshRoster({ includeSearch: false });
+            }
+        };
+
+        window.addEventListener("focus", handleFocus);
+        document.addEventListener("visibilitychange", handleVisibility);
+
+        return () => {
+            window.clearInterval(intervalId);
+            window.removeEventListener("focus", handleFocus);
+            document.removeEventListener("visibilitychange", handleVisibility);
+        };
+    }, [authLoading, isAdmin, loading, refreshRoster]);
+
+    useEffect(() => {
         if (authLoading || !isAdmin) {
             return;
         }
 
-        if (searchTerm.trim().length < SEARCH_MIN_LENGTH) {
+        if (trimmedSearchTerm.length < SEARCH_MIN_LENGTH) {
             setSearchResults([]);
             setSearchLoading(false);
             return;
@@ -222,12 +440,11 @@ export default function AdminRosterPage() {
         const timeoutId = window.setTimeout(async () => {
             try {
                 setSearchLoading(true);
-                const result = await fetchRoster(searchTerm);
+                const result = await fetchRoster(trimmedSearchTerm);
                 if (!cancelled) {
                     setSearchResults(result.searchResults || []);
                 }
-            } catch (searchError) {
-                console.error("Failed to search roster users", searchError);
+            } catch {
                 if (!cancelled) {
                     setSearchResults([]);
                     setSelectedCandidate(null);
@@ -243,7 +460,7 @@ export default function AdminRosterPage() {
             cancelled = true;
             window.clearTimeout(timeoutId);
         };
-    }, [authLoading, isAdmin, searchTerm]);
+    }, [authLoading, isAdmin, trimmedSearchTerm]);
 
     const primaryAdmin = useMemo(
         () => rosterUsers.find((entry) => entry.role === "admin") ?? null,
@@ -264,19 +481,7 @@ export default function AdminRosterPage() {
                 : right.submittedAt - left.submittedAt || right.updatedAt - left.updatedAt
         ));
     }, [creatorReviewQueue, queueFilter, queueSort]);
-
-    const refreshRoster = async () => {
-        setError(null);
-        const [baseResult, searchResult] = await Promise.all([
-            fetchRoster(),
-            searchTerm.trim().length >= SEARCH_MIN_LENGTH ? fetchRoster(searchTerm) : Promise.resolve<RosterResponse>({ searchResults: [] }),
-        ]);
-        setRosterUsers(baseResult.rosterUsers || []);
-        setCreatorReviewQueue(baseResult.creatorReviewQueue || []);
-        setSummary(baseResult.summary || null);
-        setCreatorOpsByUser(baseResult.creatorOpsByUser || {});
-        setSearchResults(searchResult.searchResults || []);
-    };
+    const summaryCards = useMemo(() => buildSummaryCards(summary), [summary]);
 
     const handleRoleUpdate = async (entry: RosterEntry, role: RosterRole) => {
         try {
@@ -289,7 +494,7 @@ export default function AdminRosterPage() {
                 throw new Error(result.error || "Failed to update role");
             }
 
-            await refreshRoster();
+            await refreshRoster({ includeSearch: true });
             if (selectedCandidate?.uid === entry.uid) {
                 setSelectedCandidate(null);
                 setSearchTerm("");
@@ -297,8 +502,33 @@ export default function AdminRosterPage() {
             }
             toast.success(`Role updated to ${role}`);
         } catch (updateError) {
-            console.error("Failed to update roster role", updateError);
             toast.error(updateError instanceof Error ? updateError.message : "Could not update role.");
+        }
+    };
+
+    const handleQueuePatch = async (entry: CreatorReviewQueueEntry, patch: QueuePatch, successMessage: string, actionKey: string) => {
+        try {
+            setQueueActionKey(actionKey);
+            const response = await authFetch("/api/admin/users", {
+                method: "PUT",
+                body: JSON.stringify({
+                    userId: entry.uid,
+                    updates: {
+                        creatorApplication: patch,
+                    },
+                }),
+            });
+            const result = await response.json().catch(() => ({})) as { error?: string };
+            if (!response.ok) {
+                throw new Error(typeof result.error === "string" ? result.error : "Failed to update creator intake.");
+            }
+
+            await refreshRoster({ includeSearch: true });
+            toast.success(successMessage);
+        } catch (actionError) {
+            toast.error(actionError instanceof Error ? actionError.message : "Failed to update creator intake.");
+        } finally {
+            setQueueActionKey(null);
         }
     };
 
@@ -315,113 +545,109 @@ export default function AdminRosterPage() {
     }
 
     return (
-        <div className="space-y-5">
+        <div className="space-y-5 pb-12">
             <PageViewEvent eventName="admin_roster_viewed" />
             <AdminPageHeader
                 eyebrow="Admin Roster"
-                title="Creator Review + Live Roster"
-                subtitle="New creator submissions land in the review queue first, while approved creator accounts stay in the live roster below."
+                title="Creator Intake + Live Roster"
+                subtitle="Review new creator submissions, clear blockers, and keep live creator accounts manageable without leaving the roster lane."
                 actions={
-                    <div className="relative w-full sm:w-[24rem]">
-                        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
-                        <input
-                            type="text"
-                            value={searchTerm}
-                            onChange={(event) => setSearchTerm(event.target.value)}
-                            placeholder="Search signed-up users to add to creator management"
-                            className="w-full rounded-2xl border border-white/10 bg-black/40 py-2.5 pl-10 pr-4 text-sm text-white focus:border-brand-purple focus:outline-none"
-                        />
+                    <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+                        <div className="relative w-full sm:max-w-[24rem]">
+                            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+                            <input
+                                type="text"
+                                value={searchTerm}
+                                onChange={(event) => setSearchTerm(event.target.value)}
+                                placeholder="Search signed-up users"
+                                className="w-full rounded-2xl border border-white/10 bg-black/40 py-2.5 pl-10 pr-4 text-sm text-white focus:border-brand-purple focus:outline-none"
+                            />
 
-                        {searchTerm.trim().length >= SEARCH_MIN_LENGTH ? (
-                            <div className="absolute left-0 right-0 top-[calc(100%+0.6rem)] z-20 overflow-hidden rounded-[1.4rem] border border-white/10 bg-black/95 shadow-2xl shadow-black/40">
-                                {searchLoading ? (
-                                    <div className="px-4 py-3 text-sm text-gray-400">Searching signed-up users...</div>
-                                ) : searchResults.length > 0 ? (
-                                    searchResults.map((entry) => (
-                                        <button
-                                            key={entry.uid}
-                                            type="button"
-                                            onClick={() => {
-                                                setSelectedCandidate(entry);
-                                                setSearchTerm("");
-                                                setSearchResults([]);
-                                            }}
-                                            className="flex w-full items-center gap-3 border-b border-white/5 px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-white/[0.04]"
-                                        >
-                                            <Avatar entry={entry} />
-                                            <div className="min-w-0 flex-1">
-                                                <p className="truncate text-sm font-semibold text-white">{entry.displayName}</p>
-                                                <p className="truncate text-xs text-gray-500">{entry.username ? `@${entry.username}` : entry.email || entry.uid}</p>
-                                            </div>
-                                            <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
-                                                {entry.status}
-                                            </span>
-                                        </button>
-                                    ))
-                                ) : (
-                                    <div className="px-4 py-3 text-sm text-gray-400">No signed-up users matched that search.</div>
-                                )}
-                            </div>
-                        ) : null}
+                            {trimmedSearchTerm.length >= SEARCH_MIN_LENGTH ? (
+                                <div className="absolute left-0 right-0 top-[calc(100%+0.6rem)] z-20 overflow-hidden rounded-[1.4rem] border border-white/10 bg-black/95 shadow-2xl shadow-black/40">
+                                    {searchLoading ? (
+                                        <div className="px-4 py-3 text-sm text-gray-400">Searching signed-up users...</div>
+                                    ) : searchResults.length > 0 ? (
+                                        searchResults.map((entry) => (
+                                            <button
+                                                key={entry.uid}
+                                                type="button"
+                                                onClick={() => {
+                                                    setSelectedCandidate(entry);
+                                                    setSearchTerm("");
+                                                    setSearchResults([]);
+                                                }}
+                                                className="flex w-full items-center gap-3 border-b border-white/5 px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-white/[0.04]"
+                                            >
+                                                <Avatar entry={entry} compact />
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="truncate text-sm font-semibold text-white">{entry.displayName}</p>
+                                                    <p className="truncate text-xs text-gray-500">{entry.username ? `@${entry.username}` : entry.email || entry.uid}</p>
+                                                </div>
+                                                <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
+                                                    {entry.status}
+                                                </span>
+                                            </button>
+                                        ))
+                                    ) : (
+                                        <div className="px-4 py-3 text-sm text-gray-400">No signed-up users matched that search.</div>
+                                    )}
+                                </div>
+                            ) : null}
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={() => void refreshRoster({ includeSearch: true })}
+                            disabled={refreshing}
+                            className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-gray-200 transition-colors hover:border-white/20 hover:text-white disabled:opacity-60"
+                        >
+                            <RefreshCw className={cn("h-4 w-4", refreshing ? "animate-spin" : "")} />
+                            Refresh
+                        </button>
                     </div>
                 }
             />
 
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Review queue</p>
-                    <p className="mt-2 text-3xl font-black text-white">{summary?.reviewQueueCount ?? 0}</p>
-                    <p className="mt-1 text-xs text-gray-400">Creator submissions still waiting on manual admin action.</p>
-                </div>
-                <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Ready to approve</p>
-                    <p className="mt-2 text-3xl font-black text-white">{summary?.readyForApprovalCount ?? 0}</p>
-                    <p className="mt-1 text-xs text-gray-400">All legal, ID, and segmentation blockers are cleared.</p>
-                </div>
-                <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Waiting on ID</p>
-                    <p className="mt-2 text-3xl font-black text-white">{summary?.waitingOnIdCount ?? 0}</p>
-                    <p className="mt-1 text-xs text-gray-400">Applicants still waiting on an ID request, upload, or review.</p>
-                </div>
-                <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Waiting on legal</p>
-                    <p className="mt-2 text-3xl font-black text-white">{summary?.waitingOnLegalCount ?? 0}</p>
-                    <p className="mt-1 text-xs text-gray-400">Applicants blocked on legal delivery or signature.</p>
-                </div>
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
+                {summaryCards.map((card) => (
+                    <div key={card.key} className="glass-panel rounded-[1.55rem] border border-white/10 px-4 py-3">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">{card.label}</p>
+                        <p className="mt-2 text-2xl font-black text-white">{card.value}</p>
+                        <p className="mt-1 text-xs text-gray-400">{card.detail}</p>
+                    </div>
+                ))}
             </div>
 
             {selectedCandidate ? (
-                <div className="glass-panel rounded-[1.9rem] border border-brand-purple/20 p-5">
-                    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                        <div className="flex items-start gap-3">
-                            <Avatar entry={selectedCandidate} />
-                            <div>
-                                <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
-                                    <UserPlus2 className="h-3.5 w-3.5" />
-                                    Search result
-                                </div>
-                                <h3 className="mt-3 text-lg font-bold text-white">{selectedCandidate.displayName}</h3>
-                                <p className="mt-1 text-sm text-gray-400">{selectedCandidate.username ? `@${selectedCandidate.username}` : selectedCandidate.email || selectedCandidate.uid}</p>
-                                <p className="mt-2 text-sm leading-6 text-gray-400">
-                                    Promote this signed-up user into creator management when you are ready. Once they become a creator, they will move into the curated roster automatically.
-                                </p>
+                <div className="glass-panel rounded-[1.8rem] border border-brand-purple/20 p-4">
+                    <div className="flex items-start gap-3">
+                        <Avatar entry={selectedCandidate} compact />
+                        <div className="min-w-0 flex-1">
+                            <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
+                                <UserPlus2 className="h-3.5 w-3.5" />
+                                Search result
                             </div>
-                        </div>
-
-                        <div className="flex flex-col gap-2 sm:flex-row">
-                            <button
-                                type="button"
-                                onClick={() => void handleRoleUpdate(selectedCandidate, "creator")}
-                                className="rounded-2xl border border-brand-purple/30 bg-brand-purple/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-purple/20"
-                            >
-                                Promote to creator
-                            </button>
-                            <Link
-                                href={`/admin/user/${selectedCandidate.uid}`}
-                                className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-gray-200 transition-colors hover:border-white/20 hover:text-white"
-                            >
-                                Open user detail
-                            </Link>
+                            <h3 className="mt-3 truncate text-base font-bold text-white">{selectedCandidate.displayName}</h3>
+                            <p className="truncate text-sm text-gray-400">{selectedCandidate.username ? `@${selectedCandidate.username}` : selectedCandidate.email || selectedCandidate.uid}</p>
+                            <p className="mt-2 text-sm leading-6 text-gray-300">
+                                Use direct creator promotion only for manual exceptions. Canonical creator applications should stay in the intake lane below.
+                            </p>
+                            <div className="mt-3 flex flex-wrap gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => void handleRoleUpdate(selectedCandidate, "creator")}
+                                    className="rounded-2xl border border-brand-purple/30 bg-brand-purple/15 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-white transition-colors hover:bg-brand-purple/20"
+                                >
+                                    Promote directly
+                                </button>
+                                <Link
+                                    href={`/admin/user/${selectedCandidate.uid}`}
+                                    className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-gray-200 transition-colors hover:border-white/20 hover:text-white"
+                                >
+                                    Open user detail
+                                </Link>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -431,8 +657,8 @@ export default function AdminRosterPage() {
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                         <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Creator review queue</p>
-                        <h3 className="mt-2 text-lg font-bold text-white">Manual creator intake inside roster</h3>
-                        <p className="mt-1 text-sm text-gray-400">Every creator submission now lands here first with legal, ID, segmentation, and approval state visible in one place.</p>
+                        <h3 className="mt-2 text-lg font-bold text-white">Intake actions stay in one lane</h3>
+                        <p className="mt-1 text-sm text-gray-400">Clear legal, ID, and approval blockers here, then open the detail view only for files, notes, or deeper creator ops.</p>
                     </div>
 
                     <div className="flex flex-wrap gap-2">
@@ -444,20 +670,20 @@ export default function AdminRosterPage() {
                             <option value="newest">Newest first</option>
                             <option value="oldest">Oldest first</option>
                         </select>
-                        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
+                        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
                             {creatorReviewQueue.length} queued
                         </span>
                     </div>
                 </div>
 
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-4 flex snap-x snap-mandatory gap-2 overflow-x-auto pb-1">
                     {QUEUE_FILTER_OPTIONS.map((option) => (
                         <button
                             key={option.key}
                             type="button"
                             onClick={() => setQueueFilter(option.key)}
                             className={cn(
-                                "rounded-full border px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] transition-colors",
+                                "snap-start whitespace-nowrap rounded-full border px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] transition-colors",
                                 queueFilter === option.key
                                     ? "border-brand-purple/35 bg-brand-purple/15 text-white"
                                     : "border-white/10 bg-black/30 text-gray-400 hover:text-white",
@@ -485,105 +711,168 @@ export default function AdminRosterPage() {
                         </p>
                     </div>
                 ) : (
-                    <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                        {filteredQueue.map((entry) => (
-                            <div key={entry.uid} className="glass-panel rounded-[1.8rem] border border-brand-purple/15 p-5">
-                                <div className="flex items-start justify-between gap-3">
-                                    <div className="flex items-center gap-3">
-                                        <Avatar entry={entry} />
-                                        <div className="min-w-0">
-                                            <Link href={`/admin/user/${entry.uid}`} className="inline-flex max-w-[14rem] items-center gap-1 truncate text-sm font-black text-white transition-colors hover:text-brand-purple">
-                                                {entry.displayName}
-                                                {entry.isVerified ? <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-brand-purple" /> : null}
-                                            </Link>
-                                            <p className="truncate text-[11px] text-gray-500">{entry.username ? `@${entry.username}` : entry.email || entry.uid}</p>
+                    <div className="mt-4 space-y-3">
+                        {filteredQueue.map((entry) => {
+                            const isExpanded = expandedQueueId === entry.uid;
+                            const quickActions = buildQueueQuickActions(entry);
+                            const queueTone = getQueueTone(entry);
+
+                            return (
+                                <article
+                                    key={entry.uid}
+                                    className={cn(
+                                        "glass-panel rounded-[1.6rem] border p-4 transition-colors",
+                                        queueTone === "danger"
+                                            ? "border-red-500/20"
+                                            : queueTone === "success"
+                                                ? "border-emerald-400/20"
+                                                : queueTone === "warn"
+                                                    ? "border-amber-400/20"
+                                                    : "border-brand-purple/20",
+                                    )}
+                                >
+                                    <div className="flex items-start gap-3">
+                                        <Avatar entry={entry} compact />
+                                        <div className="min-w-0 flex-1">
+                                            <div className="flex flex-wrap items-start justify-between gap-2">
+                                                <div className="min-w-0">
+                                                    <Link href={`/admin/user/${entry.uid}`} className="inline-flex max-w-full items-center gap-1 truncate text-sm font-black text-white transition-colors hover:text-brand-purple">
+                                                        <span className="truncate">{entry.creatorDisplayName}</span>
+                                                        {entry.isVerified ? <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-brand-purple" /> : null}
+                                                    </Link>
+                                                    <p className="truncate text-[11px] text-gray-500">
+                                                        {entry.displayName !== entry.creatorDisplayName ? `${entry.displayName} · ` : ""}
+                                                        {entry.username ? `@${entry.username}` : entry.email || entry.uid}
+                                                    </p>
+                                                </div>
+                                                <span className={cn("rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em]", getStatusChipClasses(queueTone))}>
+                                                    {formatQueueBucketLabel(entry.queueBucket)}
+                                                </span>
+                                            </div>
+
+                                            <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-gray-400">
+                                                <span className="inline-flex items-center gap-1">
+                                                    <Clock3 className="h-3.5 w-3.5 text-gray-500" />
+                                                    #{entry.queuePosition > 0 ? entry.queuePosition.toLocaleString() : "—"} in line
+                                                </span>
+                                                <span>Submitted {formatRelativeTime(entry.submittedAt)}</span>
+                                                <span>Updated {formatRelativeTime(entry.updatedAt)}</span>
+                                            </div>
+
+                                            {entry.creatorPrimaryPlatform || entry.creatorContentFocus ? (
+                                                <p className="mt-2 line-clamp-1 text-xs text-gray-400">
+                                                    {[entry.creatorPrimaryPlatform, entry.creatorContentFocus].filter(Boolean).join(" · ")}
+                                                </p>
+                                            ) : null}
                                         </div>
                                     </div>
 
-                                    <span className="rounded-full border border-brand-purple/20 bg-brand-purple/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white">
-                                        {formatQueueBucketLabel(entry.queueBucket)}
-                                    </span>
-                                </div>
+                                    <div className="mt-3 flex flex-wrap gap-2">
+                                        <span className={cn("rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em]", getStatusChipClasses(getStatusTone(entry.approvalStatus)))}>
+                                            Approval {formatStatusLabel(entry.approvalStatus)}
+                                        </span>
+                                        <span className={cn("rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em]", getStatusChipClasses(getStatusTone(entry.legalStatus)))}>
+                                            Legal {formatStatusLabel(entry.legalStatus)}
+                                        </span>
+                                        <span className={cn("rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em]", getStatusChipClasses(getStatusTone(entry.idVerificationStatus)))}>
+                                            ID {formatStatusLabel(entry.idVerificationStatus)}
+                                        </span>
+                                        <span className={cn("rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em]", getStatusChipClasses(getStatusTone(entry.segmentationStatus)))}>
+                                            Segment {entry.segmentLabel || formatStatusLabel(entry.segmentationStatus)}
+                                        </span>
+                                    </div>
 
-                                <div className="mt-4 rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
-                                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Creator identity</p>
-                                    <p className="mt-2 text-lg font-black text-white">{entry.creatorDisplayName}</p>
-                                    <p className="mt-1 flex items-center gap-1 text-xs text-gray-400">
-                                        <Clock3 className="h-3.5 w-3.5 text-brand-purple" />
-                                        Submitted {formatRelativeTime(entry.submittedAt)}
-                                    </p>
-                                </div>
+                                    <div className="mt-3 flex flex-wrap gap-2">
+                                        <Link
+                                            href={`/admin/user/${entry.uid}`}
+                                            className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-gray-200 transition-colors hover:border-white/20 hover:text-white"
+                                        >
+                                            Review detail
+                                        </Link>
+                                        {entry.legalDocumentUrl ? (
+                                            <a
+                                                href={entry.legalDocumentUrl}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-black/30 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-gray-200 transition-colors hover:border-white/20 hover:text-white"
+                                            >
+                                                <FileText className="h-3.5 w-3.5" />
+                                                Open legal
+                                            </a>
+                                        ) : null}
+                                        {quickActions.map((action) => {
+                                            const buttonKey = `${entry.uid}:${action.key}`;
+                                            return (
+                                                <button
+                                                    key={buttonKey}
+                                                    type="button"
+                                                    onClick={() => void handleQueuePatch(entry, action.patch, `${action.label} saved.`, buttonKey)}
+                                                    disabled={queueActionKey === buttonKey}
+                                                    className={cn(
+                                                        "rounded-2xl border px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] transition-colors disabled:opacity-60",
+                                                        getStatusChipClasses(action.tone),
+                                                    )}
+                                                >
+                                                    {queueActionKey === buttonKey ? "Saving..." : action.label}
+                                                </button>
+                                            );
+                                        })}
+                                        <button
+                                            type="button"
+                                            onClick={() => setExpandedQueueId(isExpanded ? null : entry.uid)}
+                                            className="rounded-2xl border border-white/10 bg-black/30 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-gray-300 transition-colors hover:border-white/20 hover:text-white"
+                                        >
+                                            {isExpanded ? "Hide context" : "More context"}
+                                        </button>
+                                    </div>
 
-                                <div className="mt-4 flex flex-wrap gap-2">
-                                    <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
-                                        Submission: {formatStatusLabel(entry.submissionStatus)}
-                                    </span>
-                                    <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
-                                        Approval: {formatStatusLabel(entry.approvalStatus)}
-                                    </span>
-                                    <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
-                                        Legal: {formatStatusLabel(entry.legalStatus)}
-                                    </span>
-                                    <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
-                                        ID: {formatStatusLabel(entry.idVerificationStatus)}
-                                    </span>
-                                    <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
-                                        Segment: {formatStatusLabel(entry.segmentationStatus)}
-                                    </span>
-                                </div>
-
-                                <div className="mt-4 rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
-                                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Blocking reasons</p>
-                                    {entry.blockingReasons.length > 0 ? (
-                                        <div className="mt-3 flex flex-wrap gap-2">
-                                            {entry.blockingReasons.map((reason) => (
-                                                <span key={`${entry.uid}-${reason}`} className="rounded-full border border-amber-400/20 bg-amber-400/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-amber-200">
-                                                    {formatStatusLabel(reason)}
-                                                </span>
-                                            ))}
+                                    {isExpanded ? (
+                                        <div className="mt-3 grid gap-3 rounded-[1.3rem] border border-white/10 bg-black/25 p-3 text-sm text-gray-300 md:grid-cols-2">
+                                            <div>
+                                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Active blockers</p>
+                                                {entry.blockingReasons.length > 0 ? (
+                                                    <div className="mt-2 flex flex-wrap gap-2">
+                                                        {entry.blockingReasons.map((reason) => (
+                                                            <span key={`${entry.uid}-${reason}`} className="rounded-full border border-amber-400/20 bg-amber-400/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-amber-200">
+                                                                {formatStatusLabel(reason)}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <p className="mt-2 text-sm text-emerald-200">No blockers are currently recorded.</p>
+                                                )}
+                                            </div>
+                                            <div className="space-y-2">
+                                                <div>
+                                                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Review context</p>
+                                                    <p className="mt-2 text-sm text-gray-300">{entry.adminNotes || "No admin notes are currently stored."}</p>
+                                                </div>
+                                                <div className="text-xs text-gray-500">
+                                                    {entry.idDocumentFileName ? <p>Latest ID file: {entry.idDocumentFileName}</p> : null}
+                                                    <p>{entry.readyForApproval ? "All approval prerequisites are satisfied." : "Use the quick actions above to clear the next blocker."}</p>
+                                                    {entry.reviewedBy ? <p>Last reviewed by {entry.reviewedBy}.</p> : null}
+                                                </div>
+                                            </div>
                                         </div>
-                                    ) : (
-                                        <p className="mt-3 text-sm text-emerald-200">No blockers detected.</p>
-                                    )}
-                                    <p className="mt-3 text-xs text-gray-500">
-                                        {entry.readyForApproval
-                                            ? "This submission is clear for creator approval."
-                                            : `Last updated ${formatRelativeTime(entry.updatedAt)}${entry.reviewedBy ? ` by ${entry.reviewedBy}` : ""}.`}
-                                    </p>
-                                </div>
-
-                                <div className="mt-4 grid grid-cols-2 gap-2">
-                                    <Link
-                                        href={`/admin/user/${entry.uid}`}
-                                        className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-gray-200 transition-colors hover:border-white/20 hover:text-white"
-                                    >
-                                        Review creator
-                                    </Link>
-                                    <button
-                                        type="button"
-                                        onClick={() => void handleRoleUpdate(entry, "creator")}
-                                        className="rounded-2xl border border-brand-purple/25 bg-brand-purple/10 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-brand-purple transition-colors hover:bg-brand-purple/20"
-                                    >
-                                        Activate role
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
+                                    ) : null}
+                                </article>
+                            );
+                        })}
                     </div>
                 )}
             </div>
 
             {primaryAdmin ? (
-                <div className="glass-panel rounded-[1.9rem] border border-red-500/20 p-5">
+                <div className="glass-panel rounded-[1.8rem] border border-red-500/20 p-4">
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                         <div className="flex items-start gap-3">
-                            <Avatar entry={primaryAdmin} />
+                            <Avatar entry={primaryAdmin} compact />
                             <div>
                                 <div className="inline-flex items-center gap-2 rounded-full border border-red-500/25 bg-red-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-red-200">
                                     <ShieldUser className="h-3.5 w-3.5" />
                                     Primary admin record
                                 </div>
-                                <h3 className="mt-3 text-lg font-bold text-white">{primaryAdmin.displayName}</h3>
+                                <h3 className="mt-3 text-base font-bold text-white">{primaryAdmin.displayName}</h3>
                                 <p className="mt-1 text-sm text-gray-400">{primaryAdmin.email || primaryAdmin.uid}</p>
                             </div>
                         </div>
@@ -602,10 +891,10 @@ export default function AdminRosterPage() {
                 <div className="mb-4 flex items-start justify-between gap-3">
                     <div>
                         <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Creator roster</p>
-                        <h3 className="mt-2 text-lg font-bold text-white">Live creator management</h3>
-                        <p className="mt-1 text-sm text-gray-400">The roster stays creator-first, while user discovery happens through the search box instead of an all-user wall.</p>
+                        <h3 className="mt-2 text-lg font-bold text-white">Live creator management stays compact</h3>
+                        <p className="mt-1 text-sm text-gray-400">Keep high-signal creator controls visible here, then open the full user detail page for file review, payout ops, or deeper moderation.</p>
                     </div>
-                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
+                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
                         {creators.length} creators
                     </span>
                 </div>
@@ -627,15 +916,15 @@ export default function AdminRosterPage() {
                         </p>
                     </div>
                 ) : (
-                    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                         {creators.map((entry) => {
                             const ops = creatorOpsByUser[entry.uid];
 
                             return (
-                                <div key={entry.uid} className="glass-panel rounded-[1.8rem] border border-brand-purple/15 p-5">
+                                <div key={entry.uid} className="glass-panel rounded-[1.6rem] border border-brand-purple/15 p-4">
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="flex items-center gap-3">
-                                            <Avatar entry={entry} />
+                                            <Avatar entry={entry} compact />
                                             <div className="min-w-0">
                                                 <Link href={`/admin/user/${entry.uid}`} className="inline-flex max-w-[14rem] items-center gap-1 truncate text-sm font-black text-white transition-colors hover:text-brand-purple">
                                                     {entry.displayName}
@@ -656,7 +945,7 @@ export default function AdminRosterPage() {
                                         </select>
                                     </div>
 
-                                    <div className="mt-4 flex flex-wrap gap-2">
+                                    <div className="mt-3 flex flex-wrap gap-2">
                                         <span className={cn(
                                             "rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em]",
                                             entry.status === "active"
@@ -673,7 +962,7 @@ export default function AdminRosterPage() {
                                         </span>
                                     </div>
 
-                                    <div className="mt-4 grid grid-cols-2 gap-2">
+                                    <div className="mt-3 grid grid-cols-2 gap-2">
                                         <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2.5">
                                             <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-gray-500">Threads</p>
                                             <p className="mt-1 text-sm font-black text-white">{ops?.openThreads || 0}</p>
@@ -692,7 +981,7 @@ export default function AdminRosterPage() {
                                         </div>
                                     </div>
 
-                                    <div className="mt-4 grid grid-cols-2 gap-2">
+                                    <div className="mt-3 grid grid-cols-2 gap-2">
                                         <Link
                                             href={`/admin/user/${entry.uid}`}
                                             className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-gray-200 transition-colors hover:border-white/20 hover:text-white"

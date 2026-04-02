@@ -17,6 +17,14 @@ import { ANALYTICS_CANONICAL_COLLECTIONS, ANALYTICS_OPERATIONAL_COLLECTIONS } fr
 const propertyId = getAdminAnalyticsPropertyId();
 const analyticsClient = createAdminAnalyticsDataClient();
 
+function emptyQuerySnapshot() {
+  return {
+    docs: [],
+    size: 0,
+    empty: true,
+  } as unknown as FirebaseFirestore.QuerySnapshot;
+}
+
 export async function GET(request: NextRequest) {
   try {
     await guardApiRequest(request, {
@@ -38,6 +46,16 @@ export async function GET(request: NextRequest) {
     const nowMs = Date.now();
     const thirtyMinsAgo = nowMs - 30 * 60 * 1000;
     const onboardingWindowStartMs = nowMs - 24 * 60 * 60 * 1000;
+    const issues: string[] = [];
+
+    const safeQuery = async (label: string, reader: () => Promise<FirebaseFirestore.QuerySnapshot>) => {
+      try {
+        return await reader();
+      } catch {
+        issues.push(`${label} unavailable`);
+        return emptyQuerySnapshot();
+      }
+    };
 
     const totalActiveResponse = await safeRunRealtimeReport(analyticsClient, {
       property: `properties/${propertyId}`,
@@ -71,13 +89,13 @@ export async function GET(request: NextRequest) {
     liveData.sort((a, b) => b.minute - a.minute);
 
     const [sessionsQuery, onboardingFactsSnapshot] = await Promise.all([
-      adminDb.collection(ANALYTICS_OPERATIONAL_COLLECTIONS.activeUsers)
+      safeQuery("active user sessions", () => adminDb.collection(ANALYTICS_OPERATIONAL_COLLECTIONS.activeUsers)
         .where("lastSeenAt", ">=", thirtyMinsAgo)
-        .get(),
-      adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.identifiedEventFacts)
+        .get()),
+      safeQuery("onboarding event facts", () => adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.identifiedEventFacts)
         .where("timestamp", ">=", onboardingWindowStartMs)
         .where("eventName", "in", ["guided_onboarding_started", "guided_onboarding_completed", "guided_onboarding_step_started", "guided_onboarding_step_completed"])
-        .get(),
+        .get()),
     ]);
 
     const onboardingOverview = buildHistoricalOnboardingOverview({
@@ -108,6 +126,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       generatedAtMs: nowMs,
+      issues,
       totalActive,
       deepTrackerActive: sessionsQuery.size,
       data: liveData,
