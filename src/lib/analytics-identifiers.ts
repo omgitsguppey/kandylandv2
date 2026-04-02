@@ -10,7 +10,7 @@ function normalizeSessionFragment(sessionId: string) {
   return sessionId.replace(/[^A-Za-z0-9:_-]+/gu, "").slice(-32) || "session";
 }
 
-function buildRandomFragment() {
+function buildSecureRandomFragment() {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
     return crypto.randomUUID().replace(/-/g, "").slice(0, 32);
   }
@@ -30,7 +30,7 @@ function buildRandomFragment() {
 function buildIdentifier(prefix: "evt" | "batch" | "watch", sessionId: string) {
   const sessionFragment = normalizeSessionFragment(sessionId);
   const timeFragment = Date.now().toString(36);
-  const randomFragment = buildRandomFragment();
+  const randomFragment = buildSecureRandomFragment();
   return `${prefix}_${sessionFragment}_${timeFragment}_${randomFragment}`;
 }
 
