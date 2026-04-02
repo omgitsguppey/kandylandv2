@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { fromCSTInput } from "@/lib/timezone";
@@ -35,6 +35,7 @@ const mockState = vi.hoisted(() => {
         getResolvedQueueConfig: vi.fn(),
         buildQueuedDropsMap: vi.fn(),
         markDropsRuntimeChanged: vi.fn(),
+        handleApiError: vi.fn(),
         reset() {
             updates.clear();
             batch.update.mockClear();
@@ -46,6 +47,7 @@ const mockState = vi.hoisted(() => {
             this.getResolvedQueueConfig.mockReset();
             this.buildQueuedDropsMap.mockReset();
             this.markDropsRuntimeChanged.mockReset();
+            this.handleApiError.mockReset();
         },
     };
 });
@@ -70,6 +72,10 @@ vi.mock("@/lib/server/drop-runtime", () => ({
     markDropsRuntimeChanged: mockState.markDropsRuntimeChanged,
 }));
 
+vi.mock("@/lib/server/auth", () => ({
+    handleApiError: mockState.handleApiError,
+}));
+
 vi.mock("@/lib/server/rate-limit", () => ({
     CRON: {},
 }));
@@ -83,6 +89,7 @@ describe("GET /api/cron/process-queue", () => {
         mockState.guardApiRequest.mockResolvedValue({
             uid: "cron_runner",
         });
+        mockState.handleApiError.mockImplementation(() => NextResponse.json({ error: "Internal server error" }, { status: 500 }));
         process.env.CRON_SECRET = "test-secret";
     });
 
@@ -184,5 +191,21 @@ describe("GET /api/cron/process-queue", () => {
             status: "active",
         });
         expect(mockState.batch.commit).toHaveBeenCalled();
+    });
+
+    it("does not leak internal errors when queue processing fails", async () => {
+        mockState.getResolvedQueueConfig.mockRejectedValue(new Error("firestore batch pipeline exploded"));
+
+        const request = new NextRequest("http://localhost/api/cron/process-queue", {
+            headers: {
+                authorization: "Bearer test-secret",
+            },
+        });
+        const response = await GET(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(500);
+        expect(payload).toEqual({ error: "Internal server error" });
+        expect(mockState.handleApiError).toHaveBeenCalledWith(expect.any(Error), "Cron.ProcessQueue.GET");
     });
 });

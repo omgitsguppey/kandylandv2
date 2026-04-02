@@ -5,6 +5,7 @@ import { CRON } from "@/lib/server/rate-limit";
 import { markDropsRuntimeChanged } from "@/lib/server/drop-runtime";
 import { buildQueuedDropsMap } from "@/lib/server/process-queue-drops";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { handleApiError } from "@/lib/server/auth";
 import { buildDropQueueLifecycleProjection } from "@/lib/drop-queue-lifecycle";
 import { resolveDropStatusFromTiming } from "@/lib/drop-status";
 
@@ -137,8 +138,9 @@ export async function GET(request: NextRequest) {
             lifecycleReconciled,
         });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Queue process error:", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        // Keep detailed diagnostics in server logs, but return a generic 500 to callers.
+        return handleApiError(error, "Cron.ProcessQueue.GET");
     }
 }
