@@ -173,6 +173,24 @@ describe("GET /api/admin/roster", () => {
                     awaitingManualReviewAt: 1_710_000_000_000,
                     updatedAt: 1_710_000_000_000,
                     bypassFanOnboarding: true,
+                    idDocuments: {
+                        front: {
+                            fileName: "front.png",
+                            storagePath: "creator-onboarding/legacy_creator/id/front/front.png",
+                            contentType: "image/png",
+                            sizeBytes: 1234,
+                            uploadedAt: 1_710_000_000_200,
+                            uploadedByUid: "legacy_creator",
+                        },
+                        back: {
+                            fileName: "back.png",
+                            storagePath: "creator-onboarding/legacy_creator/id/back/back.png",
+                            contentType: "image/png",
+                            sizeBytes: 1234,
+                            uploadedAt: 1_710_000_000_300,
+                            uploadedByUid: "legacy_creator",
+                        },
+                    },
                 },
             }),
             mockState.makeDoc("creator_live", {
@@ -219,6 +237,9 @@ describe("GET /api/admin/roster", () => {
             uid: "legacy_creator",
             creatorDisplayName: "Legacy Creator",
             queueBucket: "waiting_on_id",
+            idDocumentFrontFileName: "front.png",
+            idDocumentBackFileName: "back.png",
+            idDocumentCount: 2,
         });
         expect(payload.summary).toMatchObject({
             reviewQueueCount: 1,

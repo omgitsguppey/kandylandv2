@@ -1153,21 +1153,38 @@ export default function AdminUserAnalyticsPage() {
                                 </div>
                             </div>
 
-                            {targetUser && creatorApplication.idDocument ? (
+                            {targetUser && (creatorApplication.idDocuments?.front || creatorApplication.idDocuments?.back || creatorApplication.idDocument) ? (
                                 <div className="mt-4 rounded-[1.35rem] border border-white/10 bg-black/20 p-4">
-                                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Latest submitted ID</p>
-                                    <p className="mt-2 text-sm font-semibold text-white">{creatorApplication.idDocument.fileName}</p>
-                                    <p className="mt-1 text-xs text-gray-400">
-                                        Submitted {formatRelativeTimestamp(creatorApplication.idDocument.uploadedAt)} · {(creatorApplication.idDocument.sizeBytes / 1024).toFixed(1)} KB
-                                    </p>
-                                    <a
-                                        href={`/api/admin/user/${targetUser.uid}/creator-onboarding/id-document`}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="mt-3 inline-flex items-center justify-center rounded-2xl border border-brand-purple/25 bg-brand-purple/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-brand-purple transition-colors hover:bg-brand-purple/20"
-                                    >
-                                        Open submitted ID
-                                    </a>
+                                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Submitted ID files</p>
+                                    <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                                        {(["front", "back"] as const).map((side) => {
+                                            const document = creatorApplication.idDocuments?.[side]
+                                                ?? (side === "front" && (!creatorApplication.idDocuments || Object.keys(creatorApplication.idDocuments).length === 0)
+                                                    ? creatorApplication.idDocument
+                                                    : undefined);
+                                            return (
+                                                <div key={side} className="rounded-[1.1rem] border border-white/10 bg-black/25 p-3">
+                                                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">{side === "front" ? "Front of ID" : "Back of ID"}</p>
+                                                    <p className="mt-2 text-sm font-semibold text-white">{document?.fileName || "Not uploaded"}</p>
+                                                    {document ? (
+                                                        <>
+                                                            <p className="mt-1 text-xs text-gray-400">
+                                                                Submitted {formatRelativeTimestamp(document.uploadedAt)} · {(document.sizeBytes / 1024).toFixed(1)} KB
+                                                            </p>
+                                                            <a
+                                                                href={`/api/admin/user/${targetUser.uid}/creator-onboarding/id-document?side=${side}`}
+                                                                target="_blank"
+                                                                rel="noreferrer"
+                                                                className="mt-3 inline-flex items-center justify-center rounded-2xl border border-brand-purple/25 bg-brand-purple/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-brand-purple transition-colors hover:bg-brand-purple/20"
+                                                            >
+                                                                Open {side === "front" ? "front" : "back"}
+                                                            </a>
+                                                        </>
+                                                    ) : null}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
                             ) : null}
 

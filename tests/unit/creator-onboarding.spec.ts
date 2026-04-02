@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import {
     describeCreatorOnboardingBlockingReason,
+    getCreatorOnboardingIdDocumentSummary,
     deriveCanonicalCreatorOnboardingStatuses,
     getCreatorOnboardingStatusSummary,
     normalizeCreatorOnboardingApprovalStatus,
+    normalizeCreatorOnboardingCanonicalRecord,
     normalizeCreatorOnboardingHistoryEntry,
     normalizeCreatorOnboardingIdStatus,
     normalizeCreatorOnboardingLegalStatus,
@@ -80,7 +82,7 @@ describe("creator onboarding contract", () => {
             readyForApproval: false,
         })).toMatchObject({
             label: "id requested",
-            summary: "Your next step is to upload your ID from this page so admin can continue the review.",
+            summary: "Your next step is to upload the front and back of your ID from this page so review can continue.",
         });
 
         expect(getCreatorOnboardingStatusSummary({
@@ -94,6 +96,54 @@ describe("creator onboarding contract", () => {
         })).toMatchObject({
             label: "creator approved",
             summary: "Approval is recorded, but the creator role cannot activate until the remaining review requirements are resolved.",
+        });
+    });
+
+    it("tracks front and back ID uploads while preserving legacy single-file records", () => {
+        const canonical = normalizeCreatorOnboardingCanonicalRecord({
+            userId: "creator_1",
+            email: "creator@example.com",
+            role: "user",
+            sourceVersion: 1,
+            signupType: "creator",
+            submissionStatus: "awaiting_manual_review",
+            approvalStatus: "creator_pending",
+            queuePosition: 101,
+            onboardingStartedAt: 1_710_000_000_000,
+            submittedAt: 1_710_000_000_000,
+            onboardingSubmittedAt: 1_710_000_000_000,
+            awaitingManualReviewAt: 1_710_000_000_000,
+            updatedAt: 1_710_000_000_000,
+            creatorDisplayName: "Creator One",
+            bypassFanOnboarding: true,
+            legalStatus: "legal_pending",
+            idVerificationStatus: "id_requested",
+            segmentationStatus: "segment_unassigned",
+            idDocument: {
+                fileName: "legacy-front.png",
+                storagePath: "creator-onboarding/creator_1/id/front/legacy-front.png",
+                contentType: "image/png",
+                sizeBytes: 1024,
+                uploadedAt: 1_710_000_000_500,
+                uploadedByUid: "creator_1",
+            },
+            idDocuments: {
+                back: {
+                    fileName: "modern-back.png",
+                    storagePath: "creator-onboarding/creator_1/id/back/modern-back.png",
+                    contentType: "image/png",
+                    sizeBytes: 2048,
+                    uploadedAt: 1_710_000_000_900,
+                    uploadedByUid: "creator_1",
+                },
+            },
+        });
+
+        expect(canonical?.idDocuments?.front?.fileName).toBe("legacy-front.png");
+        expect(canonical?.idDocuments?.back?.fileName).toBe("modern-back.png");
+        expect(getCreatorOnboardingIdDocumentSummary(canonical)).toMatchObject({
+            count: 2,
+            complete: true,
         });
     });
 

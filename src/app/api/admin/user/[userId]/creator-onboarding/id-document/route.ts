@@ -6,7 +6,10 @@ import { HEAVY_READ, ADMIN } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 import { CREATOR_ONBOARDING_COLLECTION } from "@/lib/server/creator-onboarding";
-import { normalizeCreatorOnboardingCanonicalRecord } from "@/lib/creator-onboarding";
+import {
+    getCreatorOnboardingIdDocumentBySide,
+    normalizeCreatorOnboardingCanonicalRecord,
+} from "@/lib/creator-onboarding";
 
 function sanitizeFileName(fileName: string) {
     return fileName.replace(/[^A-Za-z0-9._-]+/g, "_").slice(0, 80) || "creator-id";
@@ -34,9 +37,13 @@ export async function GET(
         const { userId } = await context.params;
         const onboardingSnap = await adminDb.collection(CREATOR_ONBOARDING_COLLECTION).doc(userId).get();
         const canonical = normalizeCreatorOnboardingCanonicalRecord(onboardingSnap.data());
-        const idDocument = canonical?.idDocument;
+        const requestedSide = request.nextUrl.searchParams.get("side") === "back" ? "back" : "front";
+        const idDocument = getCreatorOnboardingIdDocumentBySide(canonical, requestedSide)
+            ?? (requestedSide === "front" && (!canonical?.idDocuments || Object.keys(canonical.idDocuments).length === 0)
+                ? canonical?.idDocument
+                : undefined);
         if (!idDocument) {
-            return NextResponse.json({ error: "No submitted ID document found" }, { status: 404 });
+            return NextResponse.json({ error: `No submitted ${requestedSide} ID document found` }, { status: 404 });
         }
 
         const fileRef = adminStorage.bucket().file(idDocument.storagePath);
@@ -49,6 +56,7 @@ export async function GET(
                 detail: {
                     route: "admin/user/creator-onboarding/id-document",
                     userId,
+                    requestedSide,
                     storagePath: idDocument.storagePath,
                 },
             });

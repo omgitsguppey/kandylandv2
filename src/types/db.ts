@@ -220,6 +220,10 @@ export type CreatorIdDocumentRecord = {
     reviewedAt?: number;
 };
 
+export type CreatorIdDocumentSide = "front" | "back";
+
+export type CreatorIdDocuments = Partial<Record<CreatorIdDocumentSide, CreatorIdDocumentRecord>>;
+
 export type CreatorApplication = {
     signupType: "creator";
     submissionStatus: CreatorApplicationStatus;
@@ -243,6 +247,7 @@ export type CreatorApplication = {
     idVerificationSubmittedAt?: number;
     idVerificationReviewedAt?: number;
     idDocument?: CreatorIdDocumentRecord;
+    idDocuments?: CreatorIdDocuments;
     segmentationStatus: CreatorSegmentationStatus;
     segmentLabel?: string;
     segmentAssignedAt?: number;

@@ -12,6 +12,7 @@ import {
     Search,
     ShieldUser,
     Sparkles,
+    X,
     UserPlus2,
     UserRoundSearch,
 } from "lucide-react";
@@ -64,8 +65,20 @@ type CreatorReviewQueueEntry = RosterEntry & {
     legalDocumentUrl?: string;
     segmentLabel?: string;
     idDocumentFileName?: string;
+    idDocumentFrontFileName?: string;
+    idDocumentBackFileName?: string;
+    idDocumentFrontContentType?: string;
+    idDocumentBackContentType?: string;
+    idDocumentCount: number;
     adminNotes?: string;
     reviewedBy?: string;
+};
+
+type DocumentPreviewState = {
+    title: string;
+    href: string;
+    contentType?: string;
+    fileName?: string;
 };
 
 type RosterCreatorOps = {
@@ -191,6 +204,23 @@ function getStatusTone(value: string) {
     return "muted" as const;
 }
 
+function buildAdminIdDocumentHref(userId: string, side: "front" | "back") {
+    return `/api/admin/user/${userId}/creator-onboarding/id-document?side=${side}`;
+}
+
+function canInlinePreviewDocument(contentType?: string, fileName?: string) {
+    if (contentType?.startsWith("image/") || contentType === "application/pdf") {
+        return true;
+    }
+
+    const normalizedFileName = fileName?.toLowerCase() || "";
+    return normalizedFileName.endsWith(".pdf")
+        || normalizedFileName.endsWith(".png")
+        || normalizedFileName.endsWith(".jpg")
+        || normalizedFileName.endsWith(".jpeg")
+        || normalizedFileName.endsWith(".webp");
+}
+
 async function fetchRoster(query = ""): Promise<RosterResponse> {
     const suffix = query.trim() ? `?q=${encodeURIComponent(query.trim())}` : "";
     const response = await authFetch(`/api/admin/roster${suffix}`);
@@ -219,6 +249,67 @@ function Avatar({ entry, compact = false }: { entry: Pick<RosterEntry, "displayN
     );
 }
 
+function DocumentPreviewModal({
+    preview,
+    onClose,
+}: {
+    preview: DocumentPreviewState | null;
+    onClose: () => void;
+}) {
+    if (!preview) {
+        return null;
+    }
+
+    const inlinePreview = canInlinePreviewDocument(preview.contentType, preview.fileName);
+    return (
+        <div className="fixed inset-0 z-50 flex items-end bg-black/80 p-3 backdrop-blur-sm sm:items-center sm:justify-center sm:p-6">
+            <div className="flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-[1.8rem] border border-white/10 bg-zinc-950 shadow-2xl shadow-black/60">
+                <div className="flex items-start justify-between gap-3 border-b border-white/10 px-4 py-4 sm:px-5">
+                    <div className="min-w-0">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Secure document review</p>
+                        <h3 className="mt-2 truncate text-base font-bold text-white">{preview.title}</h3>
+                        {preview.fileName ? (
+                            <p className="mt-1 truncate text-xs text-gray-400">{preview.fileName}</p>
+                        ) : null}
+                    </div>
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-gray-300 transition-colors hover:border-white/20 hover:text-white"
+                        aria-label="Close document preview"
+                    >
+                        <X className="h-4 w-4" />
+                    </button>
+                </div>
+
+                <div className="min-h-[50vh] flex-1 bg-black/40">
+                    {inlinePreview ? (
+                        <iframe
+                            src={preview.href}
+                            title={preview.title}
+                            className="h-[68vh] w-full border-0"
+                        />
+                    ) : (
+                        <div className="flex h-[50vh] flex-col items-center justify-center gap-4 px-6 text-center">
+                            <p className="max-w-md text-sm leading-6 text-gray-300">
+                                This file type opens more reliably in a new tab. Use the button below to review it without leaving the secure admin route.
+                            </p>
+                            <a
+                                href={preview.href}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="rounded-full border border-brand-purple/30 bg-brand-purple/15 px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-purple/20"
+                            >
+                                Open in new tab
+                            </a>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
+
 function buildQueueQuickActions(entry: CreatorReviewQueueEntry) {
     const actions: Array<{
         key: string;
@@ -230,14 +321,14 @@ function buildQueueQuickActions(entry: CreatorReviewQueueEntry) {
     if (entry.legalStatus === "legal_pending") {
         actions.push({
             key: "legal_sent",
-            label: "Send legal",
+            label: "Send legal packet",
             patch: { legalStatus: "legal_sent" },
             tone: "accent",
         });
     } else if (entry.legalStatus === "legal_sent") {
         actions.push({
             key: "legal_signed",
-            label: "Mark signed",
+            label: "Mark legal signed",
             patch: { legalStatus: "legal_signed" },
             tone: "success",
         });
@@ -246,7 +337,7 @@ function buildQueueQuickActions(entry: CreatorReviewQueueEntry) {
     if (entry.idVerificationStatus === "id_not_requested") {
         actions.push({
             key: "id_requested",
-            label: "Request ID",
+            label: "Ask for ID",
             patch: { idVerificationStatus: "id_requested" },
             tone: "accent",
         });
@@ -260,7 +351,7 @@ function buildQueueQuickActions(entry: CreatorReviewQueueEntry) {
     } else if (entry.idVerificationStatus === "id_rejected") {
         actions.push({
             key: "id_requested_retry",
-            label: "Request re-upload",
+            label: "Request new upload",
             patch: { idVerificationStatus: "id_requested" },
             tone: "warn",
         });
@@ -276,7 +367,7 @@ function buildQueueQuickActions(entry: CreatorReviewQueueEntry) {
     } else if (entry.approvalStatus === "creator_pending") {
         actions.push({
             key: "creator_needs_changes",
-            label: "Needs changes",
+            label: "Request changes",
             patch: { approvalStatus: "creator_needs_changes" },
             tone: "warn",
         });
@@ -315,6 +406,7 @@ export default function AdminRosterPage() {
     const [queueFilter, setQueueFilter] = useState<QueueFilter>("all");
     const [queueSort, setQueueSort] = useState<QueueSort>("newest");
     const [expandedQueueId, setExpandedQueueId] = useState<string | null>(null);
+    const [documentPreview, setDocumentPreview] = useState<DocumentPreviewState | null>(null);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [searchLoading, setSearchLoading] = useState(false);
@@ -532,6 +624,22 @@ export default function AdminRosterPage() {
         }
     };
 
+    const openIdPreview = (entry: CreatorReviewQueueEntry, side: "front" | "back") => {
+        const fileName = side === "front" ? entry.idDocumentFrontFileName : entry.idDocumentBackFileName;
+        const contentType = side === "front" ? entry.idDocumentFrontContentType : entry.idDocumentBackContentType;
+        if (!fileName) {
+            toast.error(`No ${side} ID file has been uploaded yet.`);
+            return;
+        }
+
+        setDocumentPreview({
+            title: `${entry.creatorDisplayName} · ${side === "front" ? "Front of ID" : "Back of ID"}`,
+            href: buildAdminIdDocumentHref(entry.uid, side),
+            contentType,
+            fileName,
+        });
+    };
+
     if (authLoading) {
         return (
             <div className="flex min-h-[300px] items-center justify-center">
@@ -546,11 +654,12 @@ export default function AdminRosterPage() {
 
     return (
         <div className="space-y-5 pb-12">
+            <DocumentPreviewModal preview={documentPreview} onClose={() => setDocumentPreview(null)} />
             <PageViewEvent eventName="admin_roster_viewed" />
             <AdminPageHeader
                 eyebrow="Admin Roster"
                 title="Creator Intake + Live Roster"
-                subtitle="Review new creator submissions, clear blockers, and keep live creator accounts manageable without leaving the roster lane."
+                subtitle="Review new creator submissions, inspect documents, clear blockers, and keep live creator accounts manageable without leaving the roster."
                 actions={
                     <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
                         <div className="relative w-full sm:max-w-[24rem]">
@@ -631,7 +740,7 @@ export default function AdminRosterPage() {
                             <h3 className="mt-3 truncate text-base font-bold text-white">{selectedCandidate.displayName}</h3>
                             <p className="truncate text-sm text-gray-400">{selectedCandidate.username ? `@${selectedCandidate.username}` : selectedCandidate.email || selectedCandidate.uid}</p>
                             <p className="mt-2 text-sm leading-6 text-gray-300">
-                                Use direct creator promotion only for manual exceptions. Canonical creator applications should stay in the intake lane below.
+                                Use direct creator promotion only for one-off exceptions. Most creator accounts should stay in the review queue below so legal, ID, and approval steps remain visible.
                             </p>
                             <div className="mt-3 flex flex-wrap gap-2">
                                 <button
@@ -657,8 +766,8 @@ export default function AdminRosterPage() {
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                         <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Creator review queue</p>
-                        <h3 className="mt-2 text-lg font-bold text-white">Intake actions stay in one lane</h3>
-                        <p className="mt-1 text-sm text-gray-400">Clear legal, ID, and approval blockers here, then open the detail view only for files, notes, or deeper creator ops.</p>
+                        <h3 className="mt-2 text-lg font-bold text-white">Review, documents, and approval in one lane</h3>
+                        <p className="mt-1 text-sm text-gray-400">Handle legal, ID, and approval steps here first, then open the full detail page only when you need deeper account context.</p>
                     </div>
 
                     <div className="flex flex-wrap gap-2">
@@ -787,7 +896,7 @@ export default function AdminRosterPage() {
                                             href={`/admin/user/${entry.uid}`}
                                             className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-gray-200 transition-colors hover:border-white/20 hover:text-white"
                                         >
-                                            Review detail
+                                            Full review
                                         </Link>
                                         {entry.legalDocumentUrl ? (
                                             <a
@@ -797,7 +906,7 @@ export default function AdminRosterPage() {
                                                 className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-black/30 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-gray-200 transition-colors hover:border-white/20 hover:text-white"
                                             >
                                                 <FileText className="h-3.5 w-3.5" />
-                                                Open legal
+                                                Legal link
                                             </a>
                                         ) : null}
                                         {quickActions.map((action) => {
@@ -822,13 +931,13 @@ export default function AdminRosterPage() {
                                             onClick={() => setExpandedQueueId(isExpanded ? null : entry.uid)}
                                             className="rounded-2xl border border-white/10 bg-black/30 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-gray-300 transition-colors hover:border-white/20 hover:text-white"
                                         >
-                                            {isExpanded ? "Hide context" : "More context"}
+                                            {isExpanded ? "Hide review panel" : "Open review panel"}
                                         </button>
                                     </div>
 
                                     {isExpanded ? (
-                                        <div className="mt-3 grid gap-3 rounded-[1.3rem] border border-white/10 bg-black/25 p-3 text-sm text-gray-300 md:grid-cols-2">
-                                            <div>
+                                        <div className="mt-3 grid gap-3 rounded-[1.3rem] border border-white/10 bg-black/25 p-3 text-sm text-gray-300 md:grid-cols-[0.95fr_1.05fr]">
+                                            <div className="space-y-3">
                                                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Active blockers</p>
                                                 {entry.blockingReasons.length > 0 ? (
                                                     <div className="mt-2 flex flex-wrap gap-2">
@@ -841,16 +950,70 @@ export default function AdminRosterPage() {
                                                 ) : (
                                                     <p className="mt-2 text-sm text-emerald-200">No blockers are currently recorded.</p>
                                                 )}
-                                            </div>
-                                            <div className="space-y-2">
-                                                <div>
-                                                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Review context</p>
-                                                    <p className="mt-2 text-sm text-gray-300">{entry.adminNotes || "No admin notes are currently stored."}</p>
+
+                                                <div className="rounded-[1.1rem] border border-white/10 bg-black/20 p-3">
+                                                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Review notes</p>
+                                                    <p className="mt-2 text-sm text-gray-300">{entry.adminNotes || "No review notes are stored yet."}</p>
+                                                    <div className="mt-3 text-xs text-gray-500">
+                                                        <p>{entry.readyForApproval ? "All review requirements are complete and this application can be approved." : "Keep clearing the missing steps above until the creator is ready for approval."}</p>
+                                                        {entry.reviewedBy ? <p className="mt-1">Last reviewed by {entry.reviewedBy}.</p> : null}
+                                                    </div>
                                                 </div>
-                                                <div className="text-xs text-gray-500">
-                                                    {entry.idDocumentFileName ? <p>Latest ID file: {entry.idDocumentFileName}</p> : null}
-                                                    <p>{entry.readyForApproval ? "All approval prerequisites are satisfied." : "Use the quick actions above to clear the next blocker."}</p>
-                                                    {entry.reviewedBy ? <p>Last reviewed by {entry.reviewedBy}.</p> : null}
+                                            </div>
+
+                                            <div className="space-y-3">
+                                                <div className="rounded-[1.1rem] border border-white/10 bg-black/20 p-3">
+                                                    <div className="flex items-start justify-between gap-3">
+                                                        <div>
+                                                            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Documents</p>
+                                                            <p className="mt-2 text-sm text-gray-300">
+                                                                {entry.idDocumentCount > 0
+                                                                    ? `${entry.idDocumentCount}/2 ID files received`
+                                                                    : "No ID files uploaded yet"}
+                                                            </p>
+                                                        </div>
+                                                        <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
+                                                            Safe review
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => openIdPreview(entry, "front")}
+                                                            disabled={!entry.idDocumentFrontFileName}
+                                                            className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-left text-[11px] font-bold uppercase tracking-[0.14em] text-gray-200 transition-colors hover:border-white/20 hover:text-white disabled:opacity-45"
+                                                        >
+                                                            <span className="block">Front of ID</span>
+                                                            <span className="mt-1 block normal-case tracking-normal text-gray-400">
+                                                                {entry.idDocumentFrontFileName || "Not uploaded"}
+                                                            </span>
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => openIdPreview(entry, "back")}
+                                                            disabled={!entry.idDocumentBackFileName}
+                                                            className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-left text-[11px] font-bold uppercase tracking-[0.14em] text-gray-200 transition-colors hover:border-white/20 hover:text-white disabled:opacity-45"
+                                                        >
+                                                            <span className="block">Back of ID</span>
+                                                            <span className="mt-1 block normal-case tracking-normal text-gray-400">
+                                                                {entry.idDocumentBackFileName || "Not uploaded"}
+                                                            </span>
+                                                        </button>
+                                                    </div>
+
+                                                    {entry.legalDocumentUrl ? (
+                                                        <a
+                                                            href={entry.legalDocumentUrl}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            className="mt-3 inline-flex items-center justify-center rounded-2xl border border-white/10 bg-black/30 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-gray-200 transition-colors hover:border-white/20 hover:text-white"
+                                                        >
+                                                            Open legal document
+                                                        </a>
+                                                    ) : (
+                                                        <p className="mt-3 text-xs text-gray-500">No legal document link is attached yet.</p>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
@@ -891,8 +1054,8 @@ export default function AdminRosterPage() {
                 <div className="mb-4 flex items-start justify-between gap-3">
                     <div>
                         <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Creator roster</p>
-                        <h3 className="mt-2 text-lg font-bold text-white">Live creator management stays compact</h3>
-                        <p className="mt-1 text-sm text-gray-400">Keep high-signal creator controls visible here, then open the full user detail page for file review, payout ops, or deeper moderation.</p>
+                        <h3 className="mt-2 text-lg font-bold text-white">Live creator accounts</h3>
+                        <p className="mt-1 text-sm text-gray-400">Use this section for active creator accounts, then jump into the full user detail page for payouts, moderation, or deeper creator operations.</p>
                     </div>
                     <span className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
                         {creators.length} creators

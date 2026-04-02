@@ -136,6 +136,15 @@ export type CreatorOnboardingIdDocument = {
     reviewedAt?: number;
 };
 
+export const CREATOR_ID_DOCUMENT_SIDES = [
+    "front",
+    "back",
+] as const;
+
+export type CreatorOnboardingIdDocumentSide = (typeof CREATOR_ID_DOCUMENT_SIDES)[number];
+
+export type CreatorOnboardingIdDocuments = Partial<Record<CreatorOnboardingIdDocumentSide, CreatorOnboardingIdDocument>>;
+
 export type CreatorOnboardingProjectionState = {
     signupType: "creator";
     submissionStatus: CreatorOnboardingSubmissionStatus;
@@ -159,6 +168,7 @@ export type CreatorOnboardingProjectionState = {
     idVerificationSubmittedAt?: number;
     idVerificationReviewedAt?: number;
     idDocument?: CreatorOnboardingIdDocument;
+    idDocuments?: CreatorOnboardingIdDocuments;
     segmentationStatus: CreatorOnboardingSegmentStatus;
     segmentLabel?: string;
     segmentAssignedAt?: number;
@@ -217,6 +227,11 @@ export type CreatorReviewQueueEntry = {
     legalDocumentUrl?: string;
     segmentLabel?: string;
     idDocumentFileName?: string;
+    idDocumentFrontFileName?: string;
+    idDocumentBackFileName?: string;
+    idDocumentFrontContentType?: string;
+    idDocumentBackContentType?: string;
+    idDocumentCount: number;
     adminNotes?: string;
     reviewedBy?: string;
 };
@@ -270,6 +285,8 @@ type CreatorOnboardingStatusSummaryInput = Pick<
     | "idVerificationStatus"
     | "legalStatus"
     | "segmentationStatus"
+    | "idDocument"
+    | "idDocuments"
 > & {
     blockingReasons?: CreatorOnboardingBlockingReason[];
     readyForApproval?: boolean;
@@ -321,6 +338,77 @@ function normalizeIdDocument(value: unknown): CreatorOnboardingIdDocument | unde
         uploadedByUid,
         reviewNote: readString(source.reviewNote) || undefined,
         reviewedAt: readOptionalTimestamp(source.reviewedAt),
+    };
+}
+
+function normalizeIdDocuments(value: unknown): CreatorOnboardingIdDocuments | undefined {
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
+        return undefined;
+    }
+
+    const source = value as Record<string, unknown>;
+    const normalized: CreatorOnboardingIdDocuments = {};
+
+    CREATOR_ID_DOCUMENT_SIDES.forEach((side) => {
+        const document = normalizeIdDocument(source[side]);
+        if (document) {
+            normalized[side] = document;
+        }
+    });
+
+    return Object.keys(normalized).length > 0 ? normalized : undefined;
+}
+
+function buildIdDocumentsFromSource(source: Record<string, unknown> | null) {
+    const normalizedDocuments = normalizeIdDocuments(source?.["idDocuments"]);
+    const legacyDocument = normalizeIdDocument(source?.["idDocument"]);
+    const idDocuments = normalizedDocuments
+        ? {
+            ...normalizedDocuments,
+            ...(normalizedDocuments.front ? {} : legacyDocument ? { front: legacyDocument } : {}),
+        }
+        : legacyDocument
+            ? { front: legacyDocument } satisfies CreatorOnboardingIdDocuments
+            : undefined;
+    const idDocument = idDocuments?.front ?? idDocuments?.back ?? legacyDocument;
+
+    return {
+        idDocument,
+        idDocuments,
+    };
+}
+
+export function getCreatorOnboardingIdDocumentBySide(
+    value: Pick<CreatorOnboardingProjectionState, "idDocument" | "idDocuments"> | null | undefined,
+    side: CreatorOnboardingIdDocumentSide,
+) {
+    if (!value) {
+        return undefined;
+    }
+
+    if (value.idDocuments && Object.keys(value.idDocuments).length > 0) {
+        return value.idDocuments[side];
+    }
+
+    if (side === "front") {
+        return value.idDocument;
+    }
+
+    return undefined;
+}
+
+export function getCreatorOnboardingIdDocumentSummary(
+    value: Pick<CreatorOnboardingProjectionState, "idDocument" | "idDocuments"> | null | undefined,
+) {
+    const front = getCreatorOnboardingIdDocumentBySide(value, "front");
+    const back = getCreatorOnboardingIdDocumentBySide(value, "back");
+    const count = [front, back].filter(Boolean).length;
+
+    return {
+        front,
+        back,
+        count,
+        complete: Boolean(front && back),
     };
 }
 
@@ -559,7 +647,7 @@ export function describeCreatorOnboardingBlockingReason(
             return {
                 reason,
                 label: "Waiting on ID upload",
-                description: "An ID upload is required before admin can verify this creator.",
+                description: "The creator still needs to upload the front and back of a government-issued ID before review can continue.",
                 severity: "warn",
             };
         case "awaiting_id_review":
@@ -639,9 +727,12 @@ export function getCreatorOnboardingStatusSummary(
     }
 
     if (value.idVerificationStatus === "id_requested" || value.idVerificationStatus === "id_rejected") {
+        const idSummary = getCreatorOnboardingIdDocumentSummary(value);
         return {
             label: formatStatusLabel(value.idVerificationStatus),
-            summary: "Your next step is to upload your ID from this page so admin can continue the review.",
+            summary: idSummary.count === 1
+                ? "One ID image is already in. Upload the remaining side from this page so review can continue."
+                : "Your next step is to upload the front and back of your ID from this page so review can continue.",
         };
     }
 
@@ -715,12 +806,14 @@ export function buildCreatorOnboardingProjectionState(input: {
     source?: CreatorOnboardingStateSource | null;
 }) {
     const source = input.source ?? null;
+    const sourceRecord = source as Record<string, unknown> | null;
     const canonicalStatuses = deriveCanonicalCreatorOnboardingStatuses(source);
-    const onboardingStartedAt = readOptionalTimestamp((source as Record<string, unknown> | null)?.["onboardingStartedAt"]) ?? input.nowMs;
-    const submittedAt = readOptionalTimestamp((source as Record<string, unknown> | null)?.["submittedAt"]) ?? input.nowMs;
-    const onboardingSubmittedAt = readOptionalTimestamp((source as Record<string, unknown> | null)?.["onboardingSubmittedAt"]) ?? submittedAt;
-    const awaitingManualReviewAt = readOptionalTimestamp((source as Record<string, unknown> | null)?.["awaitingManualReviewAt"]) ?? onboardingSubmittedAt;
-    const updatedAt = readOptionalTimestamp((source as Record<string, unknown> | null)?.["updatedAt"]) ?? input.nowMs;
+    const { idDocument, idDocuments } = buildIdDocumentsFromSource(sourceRecord);
+    const onboardingStartedAt = readOptionalTimestamp(sourceRecord?.["onboardingStartedAt"]) ?? input.nowMs;
+    const submittedAt = readOptionalTimestamp(sourceRecord?.["submittedAt"]) ?? input.nowMs;
+    const onboardingSubmittedAt = readOptionalTimestamp(sourceRecord?.["onboardingSubmittedAt"]) ?? submittedAt;
+    const awaitingManualReviewAt = readOptionalTimestamp(sourceRecord?.["awaitingManualReviewAt"]) ?? onboardingSubmittedAt;
+    const updatedAt = readOptionalTimestamp(sourceRecord?.["updatedAt"]) ?? input.nowMs;
     const legalStatus = canonicalStatuses.legalStatus;
     const idVerificationStatus = canonicalStatuses.idVerificationStatus;
     const segmentationStatus = canonicalStatuses.segmentationStatus;
@@ -752,25 +845,26 @@ export function buildCreatorOnboardingProjectionState(input: {
         creatorDisplayName: input.creatorDisplayName,
         creatorPrimaryPlatform: readString(input.creatorPrimaryPlatform) || undefined,
         creatorContentFocus: readString(input.creatorContentFocus) || undefined,
-        bypassFanOnboarding: (source as Record<string, unknown> | null)?.["bypassFanOnboarding"] !== false,
+        bypassFanOnboarding: sourceRecord?.["bypassFanOnboarding"] !== false,
         legalStatus,
-        legalDocumentUrl: readString((source as Record<string, unknown> | null)?.["legalDocumentUrl"]) || undefined,
-        legalDocumentSentAt: readOptionalTimestamp((source as Record<string, unknown> | null)?.["legalDocumentSentAt"]),
-        legalDocumentSignedAt: readOptionalTimestamp((source as Record<string, unknown> | null)?.["legalDocumentSignedAt"]),
+        legalDocumentUrl: readString(sourceRecord?.["legalDocumentUrl"]) || undefined,
+        legalDocumentSentAt: readOptionalTimestamp(sourceRecord?.["legalDocumentSentAt"]),
+        legalDocumentSignedAt: readOptionalTimestamp(sourceRecord?.["legalDocumentSignedAt"]),
         idVerificationStatus,
-        idVerificationRequestedAt: readOptionalTimestamp((source as Record<string, unknown> | null)?.["idVerificationRequestedAt"]),
-        idVerificationSubmittedAt: readOptionalTimestamp((source as Record<string, unknown> | null)?.["idVerificationSubmittedAt"]),
-        idVerificationReviewedAt: readOptionalTimestamp((source as Record<string, unknown> | null)?.["idVerificationReviewedAt"]),
-        idDocument: normalizeIdDocument((source as Record<string, unknown> | null)?.["idDocument"]),
+        idVerificationRequestedAt: readOptionalTimestamp(sourceRecord?.["idVerificationRequestedAt"]),
+        idVerificationSubmittedAt: readOptionalTimestamp(sourceRecord?.["idVerificationSubmittedAt"]),
+        idVerificationReviewedAt: readOptionalTimestamp(sourceRecord?.["idVerificationReviewedAt"]),
+        idDocument,
+        idDocuments,
         segmentationStatus,
-        segmentLabel: readString((source as Record<string, unknown> | null)?.["segmentLabel"]) || undefined,
-        segmentAssignedAt: readOptionalTimestamp((source as Record<string, unknown> | null)?.["segmentAssignedAt"])
-            ?? readOptionalTimestamp((source as Record<string, unknown> | null)?.["segmentedAt"]),
-        reviewedBy: readString((source as Record<string, unknown> | null)?.["reviewedBy"]) || undefined,
-        adminNotes: readString((source as Record<string, unknown> | null)?.["adminNotes"]) || undefined,
+        segmentLabel: readString(sourceRecord?.["segmentLabel"]) || undefined,
+        segmentAssignedAt: readOptionalTimestamp(sourceRecord?.["segmentAssignedAt"])
+            ?? readOptionalTimestamp(sourceRecord?.["segmentedAt"]),
+        reviewedBy: readString(sourceRecord?.["reviewedBy"]) || undefined,
+        adminNotes: readString(sourceRecord?.["adminNotes"]) || undefined,
         blockingReasons,
         readyForApproval,
-        creatorReviewQueueVisible: (source as Record<string, unknown> | null)?.["creatorReviewQueueVisible"] !== false,
+        creatorReviewQueueVisible: sourceRecord?.["creatorReviewQueueVisible"] !== false,
     } satisfies CreatorOnboardingProjectionState;
 }
 
@@ -826,6 +920,7 @@ export function buildCreatorOnboardingUserProjection(
         idVerificationSubmittedAt: canonical.idVerificationSubmittedAt,
         idVerificationReviewedAt: canonical.idVerificationReviewedAt,
         idDocument: canonical.idDocument,
+        idDocuments: canonical.idDocuments,
         segmentationStatus: canonical.segmentationStatus,
         segmentLabel: canonical.segmentLabel,
         segmentAssignedAt: canonical.segmentAssignedAt,
@@ -951,6 +1046,7 @@ export function buildCreatorReviewQueueEntry(input: {
     displayName?: string;
 }) {
     const canonical = input.canonical;
+    const idDocumentSummary = getCreatorOnboardingIdDocumentSummary(canonical);
     const queueBucket = deriveCreatorReviewQueueBucket({
         legalStatus: canonical.legalStatus,
         idVerificationStatus: canonical.idVerificationStatus,
@@ -985,6 +1081,11 @@ export function buildCreatorReviewQueueEntry(input: {
         legalDocumentUrl: canonical.legalDocumentUrl,
         segmentLabel: canonical.segmentLabel,
         idDocumentFileName: canonical.idDocument?.fileName,
+        idDocumentFrontFileName: idDocumentSummary.front?.fileName,
+        idDocumentBackFileName: idDocumentSummary.back?.fileName,
+        idDocumentFrontContentType: idDocumentSummary.front?.contentType,
+        idDocumentBackContentType: idDocumentSummary.back?.contentType,
+        idDocumentCount: idDocumentSummary.count,
         adminNotes: canonical.adminNotes,
         reviewedBy: canonical.reviewedBy,
     } satisfies CreatorReviewQueueEntry;

@@ -53,6 +53,11 @@ type CreatorReviewQueueRosterEntry = RosterEntry & {
     legalDocumentUrl?: string;
     segmentLabel?: string;
     idDocumentFileName?: string;
+    idDocumentFrontFileName?: string;
+    idDocumentBackFileName?: string;
+    idDocumentFrontContentType?: string;
+    idDocumentBackContentType?: string;
+    idDocumentCount: number;
     adminNotes?: string;
     reviewedBy?: string;
 };
@@ -137,6 +142,7 @@ function serializeRosterEntry(id: string, raw: Record<string, unknown>): RosterE
 function serializeQueueEntry(
     raw: Record<string, unknown>,
     user: RosterEntry | undefined,
+    creatorApplication: ReturnType<typeof normalizeCreatorApplication> | undefined,
 ): CreatorReviewQueueRosterEntry | null {
     const uid = readString(raw.userId) || user?.uid || "";
     const creatorDisplayName = readString(raw.creatorDisplayName);
@@ -197,7 +203,32 @@ function serializeQueueEntry(
         updatedAt: toTimestampNumber(raw.updatedAt),
         legalDocumentUrl: readString(raw.legalDocumentUrl) || undefined,
         segmentLabel: readString(raw.segmentLabel) || undefined,
-        idDocumentFileName: readString(raw.idDocumentFileName) || undefined,
+        idDocumentFileName: readString(raw.idDocumentFileName)
+            || creatorApplication?.idDocument?.fileName
+            || undefined,
+        idDocumentFrontFileName: readString(raw.idDocumentFrontFileName)
+            || creatorApplication?.idDocuments?.front?.fileName
+            || ((!creatorApplication?.idDocuments || Object.keys(creatorApplication.idDocuments).length === 0)
+                ? creatorApplication?.idDocument?.fileName
+                : undefined)
+            || undefined,
+        idDocumentBackFileName: readString(raw.idDocumentBackFileName)
+            || creatorApplication?.idDocuments?.back?.fileName
+            || undefined,
+        idDocumentFrontContentType: readString(raw.idDocumentFrontContentType)
+            || creatorApplication?.idDocuments?.front?.contentType
+            || ((!creatorApplication?.idDocuments || Object.keys(creatorApplication.idDocuments).length === 0)
+                ? creatorApplication?.idDocument?.contentType
+                : undefined)
+            || undefined,
+        idDocumentBackContentType: readString(raw.idDocumentBackContentType)
+            || creatorApplication?.idDocuments?.back?.contentType
+            || undefined,
+        idDocumentCount: typeof raw.idDocumentCount === "number" && Number.isFinite(raw.idDocumentCount)
+            ? Math.max(0, Math.trunc(raw.idDocumentCount))
+            : [creatorApplication?.idDocuments?.front ?? ((!creatorApplication?.idDocuments || Object.keys(creatorApplication.idDocuments).length === 0) ? creatorApplication?.idDocument : undefined), creatorApplication?.idDocuments?.back]
+                .filter(Boolean)
+                .length,
         adminNotes: readString(raw.adminNotes) || undefined,
         reviewedBy: readString(raw.reviewedBy) || undefined,
     };
@@ -259,6 +290,9 @@ export async function GET(request: NextRequest) {
         }));
         const allUsers = userDocs.map((doc) => serializeRosterEntry(doc.id, doc.raw));
         const userMap = new Map(allUsers.map((entry) => [entry.uid, entry]));
+        const creatorApplicationMap = new Map(
+            userDocs.map((doc) => [doc.id, normalizeCreatorApplication(doc.raw.creatorApplication)] as const),
+        );
         const queueIds = new Set(initialQueueSnapshot.docs.map((doc) => doc.id));
         const repairCandidates = userDocs
             .map((doc) => ({
@@ -436,7 +470,11 @@ export async function GET(request: NextRequest) {
             });
 
         const creatorReviewQueue = queueSnapshot.docs
-            .map((doc) => serializeQueueEntry(doc.data() as Record<string, unknown>, userMap.get(doc.id)))
+            .map((doc) => serializeQueueEntry(
+                doc.data() as Record<string, unknown>,
+                userMap.get(doc.id),
+                creatorApplicationMap.get(doc.id),
+            ))
             .filter((entry): entry is CreatorReviewQueueRosterEntry => Boolean(entry))
             .filter((entry) => entry.creatorReviewQueueVisible)
             .sort((left, right) => right.submittedAt - left.submittedAt || right.updatedAt - left.updatedAt);

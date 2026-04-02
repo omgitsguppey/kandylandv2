@@ -14,6 +14,7 @@ import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 import { sendCreatorOnboardingAdminNotification } from "@/lib/server/creator-onboarding-alerts";
 import {
     buildCreatorOnboardingCanonicalRecord,
+    getCreatorOnboardingIdDocumentSummary,
     normalizeCreatorOnboardingCanonicalRecord,
 } from "@/lib/creator-onboarding";
 
@@ -29,8 +30,12 @@ function sanitizeFileName(fileName: string) {
     return fileName.replace(/[^A-Za-z0-9._-]+/g, "_").slice(0, 80) || "id-document";
 }
 
-function buildStoragePath(userId: string, fileName: string) {
-    return `creator-onboarding/${userId}/id/${Date.now()}_${sanitizeFileName(fileName)}`;
+function normalizeIdSlot(value: FormDataEntryValue | null) {
+    return value === "back" ? "back" : "front";
+}
+
+function buildStoragePath(userId: string, slot: "front" | "back", fileName: string) {
+    return `creator-onboarding/${userId}/id/${slot}/${Date.now()}_${sanitizeFileName(fileName)}`;
 }
 
 function buildErrorResponse(status: number, message: string) {
@@ -39,6 +44,7 @@ function buildErrorResponse(status: number, message: string) {
 
 export async function POST(request: NextRequest) {
     let uploadedStoragePath: string | null = null;
+    let uploadedSlot: "front" | "back" = "front";
 
     try {
         const caller = await guardApiRequest(request, {
@@ -58,6 +64,7 @@ export async function POST(request: NextRequest) {
         }
 
         const formData = await request.formData();
+        uploadedSlot = normalizeIdSlot(formData.get("slot"));
         const file = formData.get("file");
         if (!(file instanceof File)) {
             return buildErrorResponse(400, "Missing ID file upload");
@@ -98,13 +105,14 @@ export async function POST(request: NextRequest) {
         }
 
         const uploadBuffer = Buffer.from(await file.arrayBuffer());
-        uploadedStoragePath = buildStoragePath(caller.uid, file.name);
+        uploadedStoragePath = buildStoragePath(caller.uid, uploadedSlot, file.name);
         await adminStorage.bucket().file(uploadedStoragePath).save(uploadBuffer, {
             metadata: {
                 contentType: file.type,
                 cacheControl: "private, max-age=0, no-store",
                 metadata: {
-                    documentType: "creator_id",
+                    documentType: `creator_id_${uploadedSlot}`,
+                    idSide: uploadedSlot,
                     uploadedByUid: caller.uid,
                     originalFileName: file.name,
                     uploadedAtMs: String(Date.now()),
@@ -112,7 +120,8 @@ export async function POST(request: NextRequest) {
             },
         });
 
-        const previousIdDocumentPath = canonical.idDocument?.storagePath;
+        const existingIdDocuments = canonical.idDocuments ?? (canonical.idDocument ? { front: canonical.idDocument } : {});
+        const previousIdDocumentPath = existingIdDocuments[uploadedSlot]?.storagePath;
         const nowMs = Date.now();
         const idDocument = {
             fileName: file.name,
@@ -135,6 +144,17 @@ export async function POST(request: NextRequest) {
                 throw new Error("ID submission is not currently requested for this account.");
             }
 
+            const latestIdDocuments = latestCanonical.idDocuments ?? (latestCanonical.idDocument ? { front: latestCanonical.idDocument } : {});
+            const nextIdDocuments = {
+                ...latestIdDocuments,
+                [uploadedSlot]: idDocument,
+            };
+            const idSummary = getCreatorOnboardingIdDocumentSummary({
+                idDocument: nextIdDocuments.front ?? nextIdDocuments.back,
+                idDocuments: nextIdDocuments,
+            });
+            const documentsComplete = idSummary.complete;
+
             const nextCanonical = buildCreatorOnboardingCanonicalRecord({
                 userId: caller.uid,
                 email: typeof latestUserData.email === "string" ? latestUserData.email : caller.email ?? null,
@@ -150,11 +170,12 @@ export async function POST(request: NextRequest) {
                 nowMs,
                 source: {
                     ...latestCanonical,
-                    idVerificationStatus: "id_submitted",
-                    idVerificationSubmittedAt: nowMs,
+                    idVerificationStatus: documentsComplete ? "id_submitted" : "id_requested",
+                    idVerificationSubmittedAt: documentsComplete ? nowMs : undefined,
                     idVerificationReviewedAt: undefined,
                     updatedAt: nowMs,
-                    idDocument,
+                    idDocument: nextIdDocuments.front ?? nextIdDocuments.back,
+                    idDocuments: nextIdDocuments,
                 },
             });
 
@@ -172,8 +193,12 @@ export async function POST(request: NextRequest) {
                     actorRole: "creator",
                     actorLabel: typeof latestUserData.displayName === "string" ? latestUserData.displayName : canonical.creatorDisplayName,
                     timestamp: nowMs,
-                    summary: "Creator ID submitted",
+                    summary: documentsComplete
+                        ? "Creator ID submitted for review"
+                        : `Creator ID ${uploadedSlot} uploaded`,
                     metadata: {
+                        slot: uploadedSlot,
+                        documentsComplete,
                         fileName: file.name,
                         contentType: file.type,
                         sizeBytes: file.size,
@@ -183,6 +208,7 @@ export async function POST(request: NextRequest) {
 
             return {
                 creatorApplication: synced.creatorApplication,
+                documentsComplete,
             };
         });
 
@@ -193,24 +219,36 @@ export async function POST(request: NextRequest) {
         }
 
         await Promise.allSettled([
-            trackServerEvent("creator_id_submitted", {
+            trackServerEvent("creator_id_document_uploaded", {
                 page_path: "/creators/waitlist",
+                id_slot: uploadedSlot,
                 file_name: file.name,
                 file_type: file.type,
                 file_size_bytes: file.size,
+                documents_complete: result.documentsComplete,
             }, caller.uid),
-            sendCreatorOnboardingAdminNotification({
-                eventKey: `creator_id_submitted:${caller.uid}`,
-                title: "Creator ID ready for review",
-                message: `${canonical.creatorDisplayName} submitted an ID for manual review.`,
-                link: `/admin/user/${caller.uid}`,
-                type: "warning",
-            }),
+            ...(result.documentsComplete ? [
+                trackServerEvent("creator_id_submitted", {
+                    page_path: "/creators/waitlist",
+                    file_name: file.name,
+                    file_type: file.type,
+                    file_size_bytes: file.size,
+                }, caller.uid),
+                sendCreatorOnboardingAdminNotification({
+                    eventKey: `creator_id_submitted:${caller.uid}`,
+                    title: "Creator ID ready for review",
+                    message: `${canonical.creatorDisplayName} submitted both ID images for manual review.`,
+                    link: `/admin/user/${caller.uid}`,
+                    type: "warning",
+                }),
+            ] : []),
         ]);
 
         return NextResponse.json({
             success: true,
             creatorApplication: result.creatorApplication,
+            uploadedSlot,
+            documentsComplete: result.documentsComplete,
         });
     } catch (error) {
         const routeError = error instanceof Error ? error : new Error(String(error));

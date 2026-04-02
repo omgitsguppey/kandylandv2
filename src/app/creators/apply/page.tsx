@@ -11,18 +11,18 @@ import { trackEvent } from "@/lib/telemetry";
 
 const CREATOR_STEPS = [
     {
-        title: "Tell us about your creator lane",
-        description: "Share your creator name, main platform, and the kind of content you make so admins can route your application correctly.",
+        title: "Tell us who you create as",
+        description: "Add your creator name, main platform, and content focus so the review team knows how to route your application.",
         icon: Sparkles,
     },
     {
-        title: "Lock your creator identity",
-        description: "Choose your creator handle and confirm you meet the creator age requirement before review starts.",
+        title: "Confirm your account details",
+        description: "Pick your handle and confirm the account details needed before your review can begin.",
         icon: Users,
     },
     {
-        title: "Join the creator line",
-        description: "Finish signup and we'll hold your place while admins handle legal docs, ID verification, and manual segmenting.",
+        title: "Join the review line",
+        description: "Finish signup and we’ll save your place while legal, ID review, and creator setup are completed.",
         icon: ShieldCheck,
     },
 ] as const;
@@ -51,13 +51,13 @@ export default function CreatorApplyPage() {
                 <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-zinc-950/80 p-6 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-8">
                     <div className="max-w-2xl">
                         <span className="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
-                            Creator signup
+                            Creator application
                         </span>
                         <h1 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                            Start creator review without the guesswork
+                            Apply for creator access
                         </h1>
                         <p className="mt-4 max-w-xl text-sm leading-7 text-gray-300 sm:text-base">
-                            Creator signup stays separate from the regular fan flow on purpose. We place you into a protected review lane first, then legal, ID verification, and manual segmenting are handled before creator tools turn on.
+                            Creator applications go through a separate review lane so we can verify your account, send legal paperwork, and request your ID when it&apos;s time. Nothing is turned on until that review is complete.
                         </p>
                     </div>
 
@@ -79,7 +79,7 @@ export default function CreatorApplyPage() {
                                 onClick={handleStartCreatorSignup}
                                 className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 transition-transform active:scale-[0.98]"
                             >
-                                Start creator signup
+                                Start creator application
                                 <ArrowRight className="h-4 w-4" />
                             </button>
                         ) : hasCreatorApplication ? (
@@ -87,7 +87,7 @@ export default function CreatorApplyPage() {
                                 href={CREATOR_WAITLIST_PATH}
                                 className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-purple/20"
                             >
-                                View your creator line status
+                                Check application status
                                 <ArrowRight className="h-4 w-4" />
                             </Link>
                         ) : (
@@ -95,7 +95,7 @@ export default function CreatorApplyPage() {
                                 href="/dashboard/profile"
                                 className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white"
                             >
-                                Open profile support options
+                                Open creator help
                                 <ArrowRight className="h-4 w-4" />
                             </Link>
                         )}
@@ -104,14 +104,14 @@ export default function CreatorApplyPage() {
                             href="/faq"
                             className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-5 py-3 text-sm font-semibold text-gray-200 transition-colors hover:border-brand-purple/30 hover:text-white"
                         >
-                            What is a kandy drop?
+                            Learn about KandyDrops
                             <FileText className="h-4 w-4" />
                         </Link>
                     </div>
 
                     {user && !hasCreatorApplication && !loading ? (
                         <p className="mt-4 rounded-[1.25rem] border border-amber-400/20 bg-amber-400/10 px-4 py-3 text-xs leading-6 text-amber-100">
-                            You&apos;re already signed into a regular account. Creator signup is handled as a dedicated intake flow, so use your profile support options if this account needs manual creator review instead.
+                            You&apos;re already signed into a regular account. If you want this account reviewed for creator access, start a creator application from the signup flow or use your profile support options for help.
                         </p>
                     ) : null}
                 </section>
@@ -138,20 +138,20 @@ export default function CreatorApplyPage() {
                     <article className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-4 backdrop-blur-sm">
                         <h2 className="flex items-center gap-2 text-base font-bold text-white">
                             <BadgeCheck className="h-5 w-5 text-brand-purple" />
-                            Admin-ready review path
+                            What happens after you apply
                         </h2>
                         <p className="mt-3 text-sm leading-7 text-gray-400">
-                            Once you submit, the review state is durable and trackable. Admin can see contracts, legal document delivery, ID verification, and manual segmenting without putting you into a fake success state.
+                            After you submit, your application stays visible to the review team with clear legal, ID, and approval checkpoints. You&apos;ll see the same real status updates on your waiting page.
                         </p>
                     </article>
 
                     <article className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-4 backdrop-blur-sm">
                         <h2 className="flex items-center gap-2 text-base font-bold text-white">
                             <ShieldCheck className="h-5 w-5 text-brand-purple" />
-                            Separate from fan onboarding
+                            What you&apos;ll need later
                         </h2>
                         <p className="mt-3 text-sm leading-7 text-gray-400">
-                            The creator intake lane bypasses the regular user onboarding flow entirely, so creator applicants do not get pushed into fan setup screens while they are still waiting for review.
+                            Be ready to review legal paperwork and upload the front and back of a government-issued photo ID once the review team requests it.
                         </p>
                     </article>
                 </section>

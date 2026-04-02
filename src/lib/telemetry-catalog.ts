@@ -119,6 +119,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "creator_onboarding_submitted", label: "Creator onboarding submitted", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "admin", "onboarding"] },
   { eventName: "creator_admin_queue_materialized", label: "Creator admin queue materialized", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "admin", "onboarding"] },
   { eventName: "creator_id_requested", label: "Creator ID requested", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "admin", "onboarding"] },
+  { eventName: "creator_id_document_uploaded", label: "Creator ID document uploaded", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "admin", "onboarding"] },
   { eventName: "creator_id_submitted", label: "Creator ID submitted", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "admin", "onboarding"] },
   { eventName: "creator_id_submission_failed", label: "Creator ID submission failed", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "admin", "onboarding"] },
   { eventName: "creator_id_verified", label: "Creator ID verified", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "admin", "onboarding"] },

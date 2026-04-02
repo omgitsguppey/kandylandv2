@@ -222,8 +222,9 @@ describe("POST /api/creator/onboarding/id-submission", () => {
         });
     });
 
-    it("stores the uploaded ID and updates canonical onboarding state", async () => {
+    it("stores a partial ID upload without marking review complete until both sides exist", async () => {
         const formData = new FormData();
+        formData.set("slot", "front");
         formData.set("file", new File([new Uint8Array([1, 2, 3])], "government-id.png", { type: "image/png" }));
         const request = new NextRequest("http://localhost/api/creator/onboarding/id-submission", {
             method: "POST",
@@ -236,8 +237,63 @@ describe("POST /api/creator/onboarding/id-submission", () => {
         expect(response.status).toBe(200);
         expect(payload).toMatchObject({
             success: true,
+            uploadedSlot: "front",
+            documentsComplete: false,
         });
         expect(mockState.fileApi.save).toHaveBeenCalledTimes(1);
+        expect(mockState.trackServerEvent).toHaveBeenCalledWith("creator_id_document_uploaded", expect.objectContaining({
+            id_slot: "front",
+            documents_complete: false,
+        }), "creator_1");
+        expect(mockState.sendCreatorOnboardingAdminNotification).not.toHaveBeenCalled();
+        expect(mockState.documents.get("creator_onboarding/creator_1")).toMatchObject({
+            idVerificationStatus: "id_requested",
+            idDocuments: expect.objectContaining({
+                front: expect.objectContaining({
+                    fileName: "government-id.png",
+                }),
+            }),
+        });
+        expect(mockState.documents.get("users/creator_1")).toMatchObject({
+            creatorApplication: expect.objectContaining({
+                idVerificationStatus: "id_requested",
+                idDocuments: expect.objectContaining({
+                    front: expect.objectContaining({
+                        fileName: "government-id.png",
+                    }),
+                }),
+            }),
+        });
+    });
+
+    it("marks ID review ready when the second side is uploaded", async () => {
+        const frontFormData = new FormData();
+        frontFormData.set("slot", "front");
+        frontFormData.set("file", new File([new Uint8Array([1, 2, 3])], "government-id-front.png", { type: "image/png" }));
+        const frontRequest = new NextRequest("http://localhost/api/creator/onboarding/id-submission", {
+            method: "POST",
+            body: frontFormData,
+        });
+
+        await POST(frontRequest);
+
+        const backFormData = new FormData();
+        backFormData.set("slot", "back");
+        backFormData.set("file", new File([new Uint8Array([4, 5, 6])], "government-id-back.png", { type: "image/png" }));
+        const backRequest = new NextRequest("http://localhost/api/creator/onboarding/id-submission", {
+            method: "POST",
+            body: backFormData,
+        });
+
+        const response = await POST(backRequest);
+        const payload = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(payload).toMatchObject({
+            success: true,
+            uploadedSlot: "back",
+            documentsComplete: true,
+        });
         expect(mockState.trackServerEvent).toHaveBeenCalledWith("creator_id_submitted", expect.any(Object), "creator_1");
         expect(mockState.sendCreatorOnboardingAdminNotification).toHaveBeenCalledWith(expect.objectContaining({
             eventKey: "creator_id_submitted:creator_1",
@@ -245,10 +301,26 @@ describe("POST /api/creator/onboarding/id-submission", () => {
         }));
         expect(mockState.documents.get("creator_onboarding/creator_1")).toMatchObject({
             idVerificationStatus: "id_submitted",
+            idDocuments: expect.objectContaining({
+                front: expect.objectContaining({
+                    fileName: "government-id-front.png",
+                }),
+                back: expect.objectContaining({
+                    fileName: "government-id-back.png",
+                }),
+            }),
         });
         expect(mockState.documents.get("users/creator_1")).toMatchObject({
             creatorApplication: expect.objectContaining({
                 idVerificationStatus: "id_submitted",
+                idDocuments: expect.objectContaining({
+                    front: expect.objectContaining({
+                        fileName: "government-id-front.png",
+                    }),
+                    back: expect.objectContaining({
+                        fileName: "government-id-back.png",
+                    }),
+                }),
             }),
         });
         const historyPath = Array.from(mockState.documents.keys()).find((path) => path.startsWith("creator_onboarding/creator_1/history/id_submitted_"));
