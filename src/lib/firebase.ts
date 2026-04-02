@@ -14,7 +14,17 @@ import {
 
 type FirebaseClientConfig = ReturnType<typeof getFirebaseClientConfigForRuntime>;
 
-function normalizeFirebaseClientConfig(): {
+export const EMPTY_FIREBASE_CLIENT_CONFIG: FirebaseClientConfig = Object.freeze({
+    apiKey: "",
+    authDomain: "",
+    projectId: "",
+    storageBucket: "",
+    databaseURL: "",
+    messagingSenderId: "",
+    appId: "",
+});
+
+export function normalizeFirebaseClientConfig(): {
     config: FirebaseClientConfig;
     isConfigured: boolean;
 } {
@@ -43,15 +53,7 @@ function normalizeFirebaseClientConfig(): {
 
     return {
         isConfigured: false,
-        config: {
-            apiKey: "",
-            authDomain: "",
-            projectId: "",
-            storageBucket: "",
-            databaseURL: "",
-            messagingSenderId: "",
-            appId: "",
-        },
+        config: EMPTY_FIREBASE_CLIENT_CONFIG,
     };
 }
 
