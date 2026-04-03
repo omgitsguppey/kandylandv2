@@ -397,7 +397,7 @@ export default function DebugConsole() {
                             <>
                                 <Pill label="Role" value={userProfile?.role || "user"} tone="good" />
                                 <Pill label="GA" value={data?.opsHealth?.runtime?.gaPropertyConfigured ? "Ready" : "Missing"} tone={data?.opsHealth?.runtime?.gaPropertyConfigured ? "good" : "warn"} />
-                                <Pill label="App Check" value={data?.opsHealth?.runtime?.appCheckConfigured ? "Configured" : "Not configured"} tone={data?.opsHealth?.runtime?.appCheckConfigured ? "good" : "warn"} />
+                                <Pill label="VAPID" value={data?.opsHealth?.runtime?.vapidConfigured ? "Yes" : "No"} tone={data?.opsHealth?.runtime?.vapidConfigured ? "good" : "warn"} />
                             </>
                         }
                     >
@@ -409,7 +409,6 @@ export default function DebugConsole() {
                                 <div className="flex justify-between gap-3 py-2"><span className="text-gray-400">Warnings</span><span className="text-white">{data?.opsHealth?.runtime?.warnings?.length || 0}</span></div>
                             </div>
                             <div className="flex flex-wrap gap-2">
-                                <Pill label="reCAPTCHA" value={data?.opsHealth?.runtime?.recaptchaConfigured ? "Yes" : "No"} tone={data?.opsHealth?.runtime?.recaptchaConfigured ? "good" : "warn"} />
                                 <Pill label="VAPID" value={data?.opsHealth?.runtime?.vapidConfigured ? "Yes" : "No"} tone={data?.opsHealth?.runtime?.vapidConfigured ? "good" : "warn"} />
                                 <Pill label="Database URL" value={data?.opsHealth?.runtime?.databaseUrlConfigured ? "Ready" : "Missing"} tone={data?.opsHealth?.runtime?.databaseUrlConfigured ? "good" : "warn"} />
                                 <Pill label="Navigation signing" value={data?.opsHealth?.runtime?.navigationSessionSigningReady ? "Ready" : "Missing"} tone={data?.opsHealth?.runtime?.navigationSessionSigningReady ? "good" : "warn"} />

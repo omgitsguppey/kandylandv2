@@ -1,11 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
-vi.mock("@/lib/firebase-runtime", () => ({
-    shouldRequireAppCheck: () => false,
-}));
 vi.mock("@/lib/server/firebase-admin", () => ({
-    adminAppCheck: { verifyToken: vi.fn() },
     adminAuth: { verifyIdToken: vi.fn() },
     adminDb: null,
 }));

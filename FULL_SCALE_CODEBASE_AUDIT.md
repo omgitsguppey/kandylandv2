@@ -1,8 +1,8 @@
 # Full Scale Codebase Audit
 
 Status: Canonical audit standard and live baseline
-Last refreshed: 2026-04-02
-Last full-scale audit execution: 2026-04-02 23:01:58 -05:00
+Last refreshed: 2026-04-03
+Last full-scale audit execution: 2026-04-03 10:26:24 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
 ## Purpose
@@ -41,162 +41,316 @@ Related evidence snapshots:
 - `DEPENDENCY_CONSISTENCY_AUDIT_2026-03-24.md`
 
 ## Current Baseline
-Current tracked inventory baseline after this audited change on 2026-04-02:
+Current tracked inventory baseline after this audited change on 2026-04-03:
 
-- Total tracked files: `589`
-- Root files: `38`
-- `src`: `354`
-- `src/app`: `116`
+- Total tracked files: `604`
+- Root files: `40`
+- `src`: `351`
+- `src/app`: `115`
 - `src/components`: `65`
 - `src/context`: `4`
 - `src/hooks`: `14`
-- `src/lib`: `132`
+- `src/lib`: `130`
 - `src/lib/server`: `55`
 - `src/types`: `3`
 - `functions`: `36`
 - `functions/src`: `30`
-- `scripts`: `13`
-- `tests`: `80`
+- `scripts`: `17`
+- `tests`: `92`
 - `public`: `11`
 - `dataconnect`: `14`
 - `src/dataconnect-generated`: `15`
 - `src/dataconnect-admin-generated`: `5`
 - `functions/src/dataconnect-admin-generated`: `5`
 
-Current baseline verification on 2026-04-02:
+Current baseline verification on 2026-04-03:
 - `corepack pnpm run check` passed
 - `npx vitest run` passed
+- `npm run check:continuity` passed
+- `npm run check:functions` passed
+- `npm run check:firebase:rules` passed
+- `npm run check:ui:audits` passed
+- `npm run check:ui:lighthouse` passed
 
 Current tolerated non-blocking environment notices:
 - npm unknown env config warnings printed during some script runs
-- Firebase App Check not configured message in runtime snapshot
+- Node `punycode` deprecation warnings printed by Firebase/Vitest tooling on current local Node
+- Windows Chrome cleanup warning may print after local Lighthouse runs when there is no running Chrome instance left to kill
 
 These notices are not automatic audit failures, but they must stay explicitly known and not silently spread into product behavior.
 
 ## Active Audit Entry
-Audit start recorded at: `2026-04-02 22:07:01 -05:00`
+Current audit date: `2026-04-03 07:58:54 -05:00`
+Current branch / commit: `main / 4e61f1f`
 
-Task:
-- finalize creator onboarding truthfulness and admin approval flow
+Current task:
+- audit continuity and debug readiness, install local tooling, and remove App Check
 
-Start-of-task touched surfaces:
+Current mission:
+- research-backed dependency, audit, continuity, blindspot-coverage, Firebase safety, and process hardening for later UI debug-panel and telemetry/parity implementation work
+
+Current expected touched surfaces:
 - root/docs
-- `src/app`
+- root/config
+- lockfiles
+- `scripts`
+- `tests`
+- `src/app/admin`
+- `src/components/Analytics`
+- `src/context`
 - `src/lib`
 - `src/lib/server`
-- `tests`
+- Firebase/config/runtime surfaces
+- only minimal app/config cleanup required to remove Firebase App Check cleanly
 
-Start-of-task expected work areas:
-- creator-facing apply and waitlist pages
-- creator submission and intake persistence routes
-- admin creator review visibility routes and surfaces
-- creator onboarding canonical server helpers
-- creator-facing copy normalization and support path
-- creator ID submission pipeline and diagnostics coverage
-
-Start-of-task canonical helpers/modules to prefer:
-- `src/lib/creator-application.ts`
-- `src/lib/creator-onboarding.ts`
-- `src/lib/server/creator-onboarding.ts`
+Current canonical helpers/modules expected to be used:
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `EVERY_FILE_FUNCTION_CHECKLIST.md`
 - `src/lib/server/auth.ts`
 - `src/lib/server/request-guard.ts`
 - `src/lib/server/route-diagnostics.ts`
 - `src/lib/client-error-reporting.ts`
 - `src/lib/server/server-diagnostics.ts`
+- `src/lib/firebase.ts`
+- existing Playwright, Vitest, ESLint, Firebase runtime, and telemetry audit entrypoints already codified in the repo
 
-Start-of-task known truthfulness risks:
-- creator-facing queue language is still partially present in the current worktree
-- creator-facing stages need to be normalized away from admin-internal wording
-- creator submission, ID, legal, and admin-approval state must be proven to read from the same canonical source
+Current continuity note:
+- the worktree already contained an in-progress continuity/tooling pass from the prior session, and this task reconciles that work against the narrower no-product-refactor scope before signoff
 
-End-of-task audit completion recorded at: `2026-04-02 23:01:58 -05:00`
+Audit start recorded at: `2026-04-03 07:58:54 -05:00`
+
+Start-of-task audit inputs read:
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- `FULL_CODEBASE_AUDIT_2026-04-01.md`
+- `FULL_CODEBASE_POST_AUDIT_2026-03-18.md`
+- `STANDARDIZATION_AUDIT_CHECKLIST.md`
+- `ANALYTICS_SYSTEM_AUDIT_2026-03-18.md`
+- `DEPENDENCY_CONSISTENCY_AUDIT_2026-03-24.md`
+
+End-of-task audit completion recorded at: `2026-04-03 10:26:24 -05:00`
 
 Final touched surfaces:
 - root/docs
-- `src/app`
-- `src/components`
+- root/config
+- lockfiles
+- `scripts`
+- `tests`
+- `src/app/admin`
+- `src/components/Analytics`
 - `src/context`
 - `src/lib`
 - `src/lib/server`
-- `tests`
 
 Final touched files:
+- `AGENTS.md`
+- `EVERY_FILE_FUNCTION_CHECKLIST.md`
 - `FULL_SCALE_CODEBASE_AUDIT.md`
-- `src/app/admin/roster/page.tsx`
-- `src/app/admin/user/[userId]/page.tsx`
-- `src/app/api/creator/onboarding/application/route.ts`
-- `src/app/api/user/register/route.ts`
-- `src/app/creators/apply/page.tsx`
-- `src/app/creators/waitlist/page.tsx`
-- `src/app/page.tsx`
-- `src/components/Auth/AuthModal.tsx`
+- `STANDARDIZATION_AUDIT_CHECKLIST.md`
+- `apphosting.yaml`
+- `eslint.config.mjs`
+- `package.json`
+- `package-lock.json`
+- `pnpm-lock.yaml`
+- `playwright.config.ts`
+- `.dependency-cruiser.cjs`
+- `.lighthouserc.json`
+- `scripts/check-firebase-runtime.ts`
+- `scripts/export-dependency-graph.ts`
+- `scripts/repo-inventory.ts`
+- `scripts/run-lighthouse-audits.mjs`
+- `scripts/trace-adjacent-surfaces.ts`
+- `src/app/admin/debug/page.tsx`
+- `src/app/api/security/recaptcha/route.ts` (removed)
+- `src/components/Analytics/DeepTracker.tsx`
 - `src/context/AuthContext.tsx`
-- `src/lib/creator-application.ts`
-- `src/lib/creator-onboarding.ts`
-- `src/lib/server/creator-onboarding.ts`
-- `tests/unit/creator-onboarding-application-route.spec.ts`
-- `tests/unit/creator-onboarding-server.spec.ts`
-- `tests/unit/creator-onboarding.spec.ts`
-- `tests/unit/creator-waitlist-page.spec.tsx`
-- `tests/unit/performance-bench.spec.ts`
-- `tests/unit/queue-bench.spec.ts`
-- `tests/unit/username-suggestions-bench.spec.ts`
+- `src/lib/admin-ops-health.ts`
+- `src/lib/app-check.ts` (removed)
+- `src/lib/authFetch.ts`
+- `src/lib/firebase-runtime.ts`
+- `src/lib/firebase.ts`
+- `src/lib/manual-recaptcha.ts` (removed)
+- `src/lib/server/admin-ops-health.ts`
+- `src/lib/server/analytics-governance.ts`
+- `src/lib/server/auth.ts`
+- `src/lib/server/firebase-admin.ts`
+- `src/lib/server/request-guard.ts`
+- `tests/unit/auth-handle-api-error.spec.ts`
+- `tests/unit/firebase-client-config.spec.ts`
+- `tests/ui-audits/accessibility.spec.ts`
+- `tests/ui-audits/helpers.ts`
+- `tests/ui-audits/known-accessibility-baseline.ts`
+- `tests/ui-audits/visual-regression.spec.ts`
+- `tests/ui-audits/visual-regression.spec.ts-snapshots/*`
 
 Canonical helpers/modules used in this task:
-- `src/lib/creator-application.ts`
-- `src/lib/creator-onboarding.ts`
-- `src/lib/server/creator-onboarding.ts`
 - `src/lib/server/auth.ts`
 - `src/lib/server/request-guard.ts`
+- `src/lib/server/route-diagnostics.ts`
 - `src/lib/client-error-reporting.ts`
 - `src/lib/server/server-diagnostics.ts`
-- `src/lib/privacy-policy.ts`
+- `src/lib/firebase.ts`
+- `scripts/check-firebase-runtime.ts`
+- Playwright, Vitest, ESLint, Firebase rules tests, and local audit entrypoints already standardized in this repo
+
+Dependency decisions in this task:
+- Installed:
+  - `@axe-core/playwright`
+  - `@lhci/cli`
+  - `dependency-cruiser`
+  - `eslint-plugin-playwright`
+- Already present and kept:
+  - `@playwright/test`
+  - `@firebase/rules-unit-testing`
+  - `firebase-tools`
+- Rejected for this pass:
+  - `eslint-plugin-boundaries`
+    Rejected because `dependency-cruiser` already gives the repo a stronger import-graph and boundary audit surface without layering a second overlapping policy system into ESLint during a non-feature pass.
+  - direct `web-vitals` runtime integration
+    Rejected for this pass because the requested scope was preparation only, and adding live client performance telemetry would cross into product/runtime behavior instead of local verification hardening.
+
+Local CLI readiness:
+- `firebase` CLI detected locally
+- `gcloud` CLI detected locally
+- local auth may still be required later for real remote Firebase/Google Cloud operations, but no new auth step is required to use the local continuity tooling added here
+
+End-of-task readiness summary:
+- App Check is being removed completely from current app/runtime assumptions in this pass.
+- Local continuity tooling is now centered on dependency graphing, adjacency tracing, tracked-file inventory checks, Playwright UI audits, Lighthouse mobile audits, and Firebase rules verification.
+- The repo is being prepared for a later mobile-first debug-panel refactor and a later telemetry/parity consolidation pass, but those implementations are intentionally deferred.
+- Firestore, Storage, Functions, Realtime Database, Data Connect, diagnostics, and analytics all remain in active use and still need a later truthfulness/consolidation pass rather than a tooling-only pass.
+- Historical dated audit snapshots may still mention App Check; they remain evidence only and must not be treated as current runtime truth.
 
 Commands run during this task:
 - `git status --short`
-- focused `eslint` runs across touched creator onboarding files
-- focused `vitest` runs for creator onboarding, waitlist, and benchmark stabilization
-- queue/copy grep checks across `src` and `tests`
+- `Get-Content FULL_SCALE_CODEBASE_AUDIT.md`
+- `Get-Content EVERY_FILE_FUNCTION_CHECKLIST.md`
+- `Get-Content FULL_CODEBASE_AUDIT_2026-04-01.md`
+- `Get-Content FULL_CODEBASE_POST_AUDIT_2026-03-18.md`
+- `Get-Content STANDARDIZATION_AUDIT_CHECKLIST.md`
+- `Get-Content ANALYTICS_SYSTEM_AUDIT_2026-03-18.md`
+- `Get-Content DEPENDENCY_CONSISTENCY_AUDIT_2026-03-24.md`
+- official-doc research for Firebase App Hosting, Firebase Emulator Suite, Playwright, Axe for Playwright, Lighthouse CI, dependency-cruiser, eslint-plugin-playwright, eslint-plugin-boundaries, `web-vitals`, and OpenAI long-horizon maintenance guidance
+- `firebase --version`
+- `gcloud --version`
+- `git grep -n "App Check|app-check|recaptcha" ...`
+- `corepack pnpm install --lockfile-only --ignore-scripts`
+- `npm run check:inventory`
+- `npm run trace:adjacent -- src/lib/firebase.ts`
+- `npm run trace:adjacent -- src/lib/server/auth.ts`
+- `npm run trace:adjacent -- src/components/Analytics/DeepTracker.tsx`
 - `corepack pnpm run check`
 - `npx vitest run`
+- `npm run check:continuity`
+- `npm run check:functions`
+- `npm run check:firebase:rules`
+- `npm run check:ui:audits`
+- `npm run check:ui:lighthouse`
 
 Results:
-- creator-facing queue-number language was removed from the touched creator onboarding surfaces
-- creator applicants now move through a stage-based, backend-connected waiting flow with truthful legal and ID messaging
-- pre-approval edits now update the canonical creator onboarding record instead of creating disconnected ghost state
-- admin/manual approval remains the only approval authority
+- continuity tooling is now installed, documented, and wired into repo-native scripts
+- App Check was fully removed from current app/config/runtime assumptions
+- the repo now has local adjacency tracing, dependency graph export, inventory refreshes, Playwright accessibility audits, Playwright visual audits, Lighthouse mobile audits, and Firebase rules verification as first-class continuity tools
 - `corepack pnpm run check` passed
 - `npx vitest run` passed
+- `npm run check:continuity` passed
+- `npm run check:functions` passed
+- `npm run check:firebase:rules` passed
+- `npm run check:ui:audits` passed
+- `npm run check:ui:lighthouse` passed
 
 Known tolerated warnings and notices:
 - npm unknown env config warnings during `pnpm`/`npm` script chains
-- Firebase App Check not configured message in runtime checks
-- Node `punycode` deprecation warnings during Vitest execution
+- Node `punycode` deprecation warnings during Vitest/Firebase emulator execution
+- `pnpm install --lockfile-only` reported deprecated subdependencies in the current ecosystem tree, but did not block install or verification
+- Windows Chrome cleanup warnings may appear after Lighthouse runs when there is no remaining Chrome process to terminate
+
+Files needing follow-up:
+- auth-bound and admin-bound Playwright audit expansion still needs a stable local auth/emulator seam
+- telemetry truthfulness and admin-debug parity still need the later consolidation/refactor pass
+- Google Cloud and Firebase remote-project inspection still need user auth when future work goes beyond local CLI presence
+- historical audit snapshots that mention App Check should eventually be marked even more explicitly as retired historical context if they start causing confusion
 
 Inventory changed:
 - Yes
-- This change adds `3` tracked files:
-  - `src/app/api/creator/onboarding/application/route.ts`
-  - `tests/unit/creator-onboarding-application-route.spec.ts`
-  - `tests/unit/creator-waitlist-page.spec.tsx`
-- Baseline counts above were refreshed to the post-change tracked inventory
+- App Check removal reduced runtime/helper file count while continuity tooling and UI-audit coverage increased docs/scripts/tests count
+- Current tracked baseline is `604` files
+
+New continuity tools or dependencies added:
+- `.dependency-cruiser.cjs`
+- `.lighthouserc.json`
+- `scripts/export-dependency-graph.ts`
+- `scripts/repo-inventory.ts`
+- `scripts/run-lighthouse-audits.mjs`
+- `scripts/trace-adjacent-surfaces.ts`
+- `tests/ui-audits/accessibility.spec.ts`
+- `tests/ui-audits/helpers.ts`
+- `tests/ui-audits/known-accessibility-baseline.ts`
+- `tests/ui-audits/visual-regression.spec.ts`
+- `tests/ui-audits/visual-regression.spec.ts-snapshots/*`
+- `@axe-core/playwright`
+- `@lhci/cli`
+- `dependency-cruiser`
+- `eslint-plugin-playwright`
+
+App Check fully removed:
+- Yes
 
 ## Last Executed Audit
-Audit execution recorded at: `2026-04-02 23:01:58 -05:00`
+Audit execution recorded at: `2026-04-03 10:26:24 -05:00`
 
 Current audit scope:
-- creator onboarding truthfulness hardening
-- creator waiting-stage standardization
-- admin approval visibility parity
-- creator pre-approval editability and diagnostics coverage
-- benchmark stability so required repo-wide verification stays reproducible
+- continuity and process hardening for future agentic work
+- local UI, accessibility, and performance audit readiness
+- dependency and adjacency blindspot reduction
+- Firebase and Google Cloud local safety/readiness review
+- full removal of Firebase App Check from current app/config/runtime assumptions
 
 Current audit findings:
-- The creator-facing queue number model was synthetic and has now been removed from the touched creator-facing surfaces in favor of stage-based status only.
-- Creator waiting, creator intake, and admin review now rely on the same canonical onboarding state helpers instead of mixed public approximations.
-- Pre-approval creator edits required a canonical write path; that now exists as `src/app/api/creator/onboarding/application/route.ts`, including legacy projection materialization so admin review sees the latest application truth.
-- Legal-document waiting copy and ID verification status now describe only what the backend can prove.
-- Repo-wide verification remains viable after stabilizing benchmark-style tests whose prior thresholds were too machine-sensitive for plain `npx vitest run`.
+- Firestore remains the dominant canonical datastore, while Realtime Database is still used for live analytics materialization and active-user style runtime counters.
+- Cloud Storage is actively used and still requires emulator-first thinking for private/admin-controlled upload paths.
+- Firebase Functions, Data Connect, and local rules testing are real parts of the stack and should be treated as first-class audit surfaces rather than background infrastructure.
+- Machine-learning behavior in the current app is limited to readiness and selection style logic rather than an actively deployed model-serving runtime.
+- Diagnostics infrastructure is materially stronger than telemetry truthfulness; the next major work should consolidate parity, user-journey, and admin-debug truth rather than invent more dashboards first.
+- App Check had become a half-enabled assumption in runtime/docs without being part of a truthful end-to-end local workflow; this pass removes it completely instead of leaving the repo in a misleading partially-enabled state.
+
+## Current Platform Readiness Summary
+What is ready now:
+- local dependency graph auditing
+- local adjacency tracing for touched files
+- tracked-file inventory refreshes
+- Playwright accessibility checks against known stable baselines
+- Playwright screenshot regression checks for stable public mobile-first surfaces
+- local Lighthouse-style mobile audits for stable public routes
+- Firebase Firestore and Storage rules tests
+- local Firebase CLI and Google Cloud CLI detection
+
+What still needs local setup or authentication later:
+- Firebase project auth for remote project inspection and deploy flows
+- Google Cloud auth for real project/runtime inspection beyond local CLI presence
+- stable local auth/emulator seams before admin-only or auth-only Playwright audits can be expanded safely
+
+What still needs future implementation:
+- the later mobile-first debug-panel refactor
+- telemetry and analytics parity consolidation
+- stronger authenticated/admin route UI audit coverage once local auth seams are standardized
+- deeper emulator-backed verification for creator/admin storage and function-triggered flows
+
+What still needs future refactoring:
+- fragmented telemetry and analytics truth models
+- admin/debug observability consolidation across routes, client actions, and parity side effects
+- clearer canonical ownership over active-user, watch-time, drop-off, and user-journey intelligence
+
+What can be trusted today:
+- canonical diagnostics helpers
+- core lint/type/test/rules verification paths
+- the new dependency, adjacency, UI audit, and Lighthouse continuity tooling
+- the statement that App Check is no longer part of the current runtime contract
+
+What cannot be treated as fully trustworthy yet:
+- admin analytics as a complete reflection of true user journeys
+- telemetry-derived user drop-off or bounce intelligence
+- full auth-bound/admin-bound UI regression coverage without more local auth/emulator scaffolding
 
 ## UI System Planning Prep
 This section exists to make future UI standardization auditable before a large refactor starts.
@@ -283,6 +437,18 @@ These rules apply across the codebase:
 9. No build is complete until the end audit runs and the result is captured.
 10. No "looks fine" signoff replaces the required verification commands.
 
+## Continuity and Adjacency Rules
+These are mandatory for long-horizon repo safety:
+
+1. Every broad task must identify touched surfaces before code changes begin.
+2. Every broad task must review adjacent imports/importers for its highest-risk touched files.
+3. If a helper already exists in the canonical map, duplicating it is a continuity failure unless explicitly justified.
+4. If a user-facing or admin-facing surface changes, visual and accessibility verification must be planned before coding starts.
+5. If Firebase rules, storage, functions, or emulator-sensitive behavior changes, emulator-first verification is required.
+6. If loading or rendering paths change, local performance verification must be considered and either run or explicitly rejected with reason.
+7. Live-branch or App Hosting assumptions must be recorded whenever deployment behavior, branch safety, or production rollout behavior is relevant.
+8. New audit or safety tooling must reduce ambiguity; it must not create a second conflicting process.
+
 ## Canonical Helper Map
 These are the current source-of-truth helpers and modules to prefer before creating anything new.
 
@@ -353,6 +519,22 @@ These are the current source-of-truth helpers and modules to prefer before creat
 - `src/lib/server/notification-inbox.ts`
 - `src/lib/notifications.ts`
 - `src/hooks/useNotifications.ts`
+
+### Continuity, adjacency, and UI audit tooling
+- `.dependency-cruiser.cjs`
+  Canonical dependency boundary configuration for architecture drift checks
+- `scripts/repo-inventory.ts`
+  Canonical tracked-file inventory counter for audit-baseline refreshes
+- `scripts/trace-adjacent-surfaces.ts`
+  Canonical touched-file adjacency review helper for imports, importers, sibling files, and likely related tests
+- `scripts/export-dependency-graph.ts`
+  Canonical local dependency-graph exporter
+- `.lighthouserc.json`
+  Canonical local Lighthouse CI configuration for mobile-first route auditing
+- `tests/ui-audits/accessibility.spec.ts`
+  Canonical Playwright accessibility audit entrypoint
+- `tests/ui-audits/visual-regression.spec.ts`
+  Canonical Playwright visual regression audit entrypoint
 
 ## Audit Surface Map
 Every tracked file must fall into one of the surfaces below and satisfy that surface's rules.
@@ -447,29 +629,82 @@ Apply these to every touched file, regardless of type:
 - Generated files must correspond to current schema/runtime usage.
 - Asset churn without runtime use should be questioned.
 
+## UI Audit Expectations
+If a task touches meaningful user-facing or admin-facing UI:
+
+1. Prefer real deterministic public routes first.
+2. If the changed surface is auth-bound or admin-bound, document the missing local auth/emulator seam explicitly instead of inventing a UI-only shadow route.
+3. Run Playwright accessibility coverage for the changed surface or the closest truthful public route.
+4. Run Playwright visual regression coverage for fragile layout/shell work.
+5. Auth-bound shell coverage must only be added after a stable local auth/emulator seam exists.
+6. Do not claim UI parity from screenshots alone if state truth comes from a backend surface that was not verified.
+
+## Dependency and Architecture Drift Checks
+These checks exist to reduce hidden neighboring logic misses:
+
+1. `npm run check:architecture`
+   Enforces boundary rules between app runtime, server-only helpers, and Firebase Functions.
+2. `npm run trace:adjacent -- <path>`
+   Lists direct imports, importers, same-directory siblings, likely related tests, and canonical helpers to review.
+3. `npm run graph:architecture`
+   Exports a local dependency graph snapshot to `output/dependency-graph.json`.
+4. `npm run check:inventory`
+   Prints the current tracked-file inventory surface counts used by this audit baseline.
+
+## Telemetry, AI/ML, and Observability Readiness
+Use these questions whenever work touches analytics, diagnostics, recommendations, or admin/debug surfaces:
+
+1. Is the current behavior truly tracked, or is the UI implying more certainty than the underlying events support?
+2. Is the canonical source of truth Firestore, Realtime Database, Data Connect, Functions materialization, or a downstream export?
+3. Is any machine-learning or recommendation language describing a real runtime system, or only a heuristic/readiness flag?
+4. If an operational side effect fails, can an admin/operator find that failure in the correct diagnostics surface without tailing raw logs?
+5. If a later debug-panel or telemetry refactor is planned, does the current change make that work easier instead of adding one more fragmented pathway?
+
+## Firebase and App Hosting Safety Notes
+When Firebase or Google Cloud surfaces are touched:
+
+1. Prefer emulator-first verification for Firestore rules, Storage rules, and Functions-adjacent behavior where practical.
+2. Do not assume the current local branch is the live App Hosting branch or rollout target.
+3. Record any App Hosting branch, preview, or rollout assumption explicitly in the audit evidence.
+4. Avoid introducing tooling that requires production data or production-only secrets to run local checks.
+5. Treat Firebase runtime warnings as audit evidence, not silent background noise.
+6. Firebase App Check is not part of the current runtime contract in this repo; future work must not assume App Check keys, headers, or verification are active unless a later audited pass explicitly reintroduces them end to end.
+
 ## Build Start Audit
 Before writing code:
 
 1. Read this file.
-2. Confirm which audit surfaces the task touches.
-3. Check whether a canonical helper already exists for the work.
-4. Run `git status --short` and understand the current worktree.
-5. If tracked-file count changed materially since the last baseline, refresh the inventory numbers in this file.
-6. If the task touches routes, diagnostics, telemetry, commerce, or persistence, identify the exact canonical helper/module first.
-7. If the task touches admin or analytics behavior, define where failures should appear in the admin dashboard before writing code.
+2. Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+3. Review any audit snapshots named near the top of this file if they still exist.
+4. Confirm which audit surfaces the task touches.
+5. Check whether a canonical helper already exists for the work.
+6. Run `git status --short` and record the current branch / commit.
+7. Run `npm run trace:adjacent -- <path>` for the highest-risk touched files before writing code.
+8. If tracked-file count changed materially since the last baseline, refresh the inventory numbers in this file.
+9. If the task touches routes, diagnostics, telemetry, commerce, or persistence, identify the exact canonical helper/module first.
+10. If the task touches user-facing or admin-facing UI, decide up front what Playwright a11y and visual coverage is required.
+11. If the task touches Firebase rules, storage, functions, or emulator-sensitive behavior, define the emulator-first verification plan before coding.
+12. If the task touches loading, rendering, or mobile-shell performance, decide whether Lighthouse verification is required and record that decision.
+13. If the task touches admin or analytics behavior, define where failures should appear in the admin dashboard before writing code.
+14. Update the active audit entry in this file before changing application code.
 
 ## Build End Audit
 Before signoff:
 
 1. Review every touched file against the universal questions and surface rules above.
-2. Run `corepack pnpm run check`.
-3. Run `npx vitest run` when the change is broad, cross-cutting, or touches shared helpers.
-4. Verify new or changed diagnostics route to the correct client/server channel.
-5. Verify analytics/economics/PayPal flows still use canonical helpers.
-6. Verify no silent storage/cache/realtime failures were introduced.
-7. Verify any new helper truly reduced duplication instead of adding another layer.
-8. Record any tolerated warnings explicitly.
-9. Update this file if the standard, canonical helper map, or inventory baseline changed.
+2. Re-run `npm run trace:adjacent -- <path>` for the most important touched files if the implementation moved into neighboring helpers or routes.
+3. Run `corepack pnpm run check`.
+4. Run `npx vitest run` when the change is broad, cross-cutting, or touches shared helpers.
+5. Run `npm run check:ui:audits` when meaningful UI changed.
+6. Run `npm run check:ui:lighthouse` when loading/render/performance-sensitive surfaces changed or when a performance audit was planned at start.
+7. Run Firebase emulator/rules verification when Firebase-sensitive surfaces changed.
+8. Verify new or changed diagnostics route to the correct client/server channel.
+9. Verify analytics/economics/PayPal flows still use canonical helpers.
+10. Verify no silent storage/cache/realtime failures were introduced.
+11. Verify any new helper truly reduced duplication instead of adding another layer.
+12. Record any tolerated warnings explicitly.
+13. Update this file if the standard, canonical helper map, inventory baseline, or continuity tooling changed.
+14. Capture the final evidence block before commit.
 
 ## Consistency Failure Conditions
 The audit fails if any of the following are true:
@@ -482,6 +717,11 @@ The audit fails if any of the following are true:
 - A new helper duplicates a canonical helper already listed here.
 - A critical admin/debug surface loses observability for the exact action that can fail.
 - A changed file has no clear verification path.
+- A broad change was made without adjacent import/importer review.
+- Meaningful UI changed without a documented accessibility and visual verification path.
+- Firebase-sensitive changes were signed off without emulator-first verification or an explicit reason it was not practical.
+- A task touched loading/render paths but had no stated performance verification stance.
+- A local audit/tooling addition created a second conflicting process instead of strengthening this file.
 
 ## Economics and PayPal Audit Rules
 These rules are mandatory for any commerce change:
@@ -516,6 +756,7 @@ Canonical helpers used:
 Commands run:
 - corepack pnpm run check
 - npx vitest run
+- npm run trace:adjacent -- <path>
 Result:
 Known tolerated warnings:
 Files needing follow-up:

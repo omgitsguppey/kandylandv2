@@ -1,5 +1,4 @@
 import { auth } from "@/lib/firebase";
-import { getAppCheckToken } from "@/lib/app-check";
 import { recordClientBreadcrumb, recordClientDiagnostic } from "@/lib/client-diagnostics";
 
 function resolveSafeAuthFetchUrl(url: string) {
@@ -44,16 +43,10 @@ export async function authFetch(url: string, options: RequestInit = {}): Promise
     }
 
     const requestStartedAt = Date.now();
-    const [idToken, appCheckToken] = await Promise.all([
-        currentUser.getIdToken(),
-        getAppCheckToken(),
-    ]);
+    const idToken = await currentUser.getIdToken();
 
     const headers = new Headers(options.headers);
     headers.set("Authorization", `Bearer ${idToken}`);
-    if (appCheckToken) {
-        headers.set("X-Firebase-AppCheck", appCheckToken);
-    }
     const hasFormDataBody = typeof FormData !== "undefined" && options.body instanceof FormData;
     if (!headers.has("Content-Type") && options.body && !hasFormDataBody) {
         headers.set("Content-Type", "application/json");

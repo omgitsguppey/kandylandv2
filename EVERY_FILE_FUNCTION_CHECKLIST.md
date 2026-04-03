@@ -1480,7 +1480,7 @@ Detected function-like implementations: 3161
     - Confidence: 99%
   - [x] <anonymous arrow> (arrow, line 1959)
     - Confidence: 99%
-  - [x] [                         { label: "GA property", ready: opsHealthView.runtime.gaPropertyConfigured },                         { label: "Navigation session", ready: opsHealthView.runtime.navigationSessionSigningReady },                         { label: "App Check", ready: opsHealthView.runtime.appCheckConfigured || !opsHealthView.runtime.appCheckRequired },                         { label: "Realtime DB", ready: opsHealthView.runtime.databaseUrlConfigured },                         { label: "VAPID", ready: opsHealthView.runtime.vapidConfigured },                         { label: "reCAPTCHA", ready: opsHealthView.runtime.recaptchaConfigured || !opsHealthView.runtime.appCheckRequired },                       ].map callback (arrow, line 1994)
+  - [x] [                         { label: "GA property", ready: opsHealthView.runtime.gaPropertyConfigured },                         { label: "Navigation session", ready: opsHealthView.runtime.navigationSessionSigningReady },                         { label: "Realtime DB", ready: opsHealthView.runtime.databaseUrlConfigured },                         { label: "VAPID", ready: opsHealthView.runtime.vapidConfigured },                       ].map callback (arrow, line 1994)
     - Confidence: 99%
   - [x] opsHealthView.runtime.warnings.map callback (arrow, line 2013)
     - Confidence: 99%
@@ -1756,7 +1756,7 @@ Detected function-like implementations: 3161
     - Confidence: 99%
   - [x] <anonymous arrow> (arrow, line 305)
     - Confidence: 99%
-  - [x] [                     { label: "GA property", ready: opsHealth.runtime.gaPropertyConfigured },                     { label: "Navigation session", ready: opsHealth.runtime.navigationSessionSigningReady },                     { label: "App Check", ready: opsHealth.runtime.appCheckConfigured || !opsHealth.runtime.appCheckRequired },                     { label: "Realtime DB", ready: opsHealth.runtime.databaseUrlConfigured },                     { label: "VAPID", ready: opsHealth.runtime.vapidConfigured },                     { label: "reCAPTCHA", ready: opsHealth.runtime.recaptchaConfigured || !opsHealth.runtime.appCheckRequired },                   ].map callback (arrow, line 328)
+  - [x] [                     { label: "GA property", ready: opsHealth.runtime.gaPropertyConfigured },                     { label: "Navigation session", ready: opsHealth.runtime.navigationSessionSigningReady },                     { label: "Realtime DB", ready: opsHealth.runtime.databaseUrlConfigured },                     { label: "VAPID", ready: opsHealth.runtime.vapidConfigured },                   ].map callback (arrow, line 328)
     - Confidence: 99%
   - [x] opsHealth.runtime.warnings.map callback (arrow, line 330)
     - Confidence: 99%
@@ -4415,8 +4415,6 @@ Detected function-like implementations: 3161
     - Confidence: 99%
   - [x] flushQueue (arrow, line 151)
     - Confidence: 99%
-  - [x] getAppCheckToken().catch callback (arrow, line 166)
-    - Confidence: 99%
   - [x] pushEvent (arrow, line 197)
     - Confidence: 99%
   - [x] emitPageSummary (arrow, line 212)
@@ -6412,13 +6410,6 @@ Detected function-like implementations: 3161
   - [x] buildAnalyticsTimeKeys (function, line 1)
     - Confidence: 98%
 
-## [x] src/lib/app-check.ts
-- Confidence: 98%
-- Functions detected: 1
-- Functions:
-  - [x] getAppCheckToken (function, line 6)
-    - Confidence: 98%
-
 ## [x] src/lib/authFetch.ts
 - Confidence: 98%
 - Functions detected: 1
@@ -6673,10 +6664,6 @@ Detected function-like implementations: 3161
   - [x] configuredSiteHosts.find callback (arrow, line 29)
     - Confidence: 98%
   - [x] buildDefaultDatabaseUrl (function, line 40)
-    - Confidence: 98%
-  - [x] isAppCheckConfigured (function, line 60)
-    - Confidence: 98%
-  - [x] shouldRequireAppCheck (function, line 64)
     - Confidence: 98%
   - [x] buildFirebaseClientRuntimeSnapshot (function, line 85)
     - Confidence: 98%
@@ -7698,17 +7685,19 @@ Detected function-like implementations: 3161
 
 ## [x] src/lib/server/auth.ts
 - Confidence: 98%
-- Functions detected: 5
+- Functions detected: 6
 - Functions:
-  - [x] verifyAppCheck (function, line 15)
+  - [x] sanitizeApiErrorLogValue (function, line 11)
     - Confidence: 98%
-  - [x] verifyAuth (function, line 39)
+  - [x] buildApiErrorLogEntry (function, line 19)
     - Confidence: 98%
-  - [x] verifyAdmin (function, line 67)
+  - [x] verifyAuth (function, line 32)
     - Confidence: 98%
-  - [x] handleApiError (function, line 88)
+  - [x] verifyAdmin (function, line 56)
     - Confidence: 98%
-  - [x] constructor (constructor, line 119)
+  - [x] handleApiError (function, line 76)
+    - Confidence: 98%
+  - [x] constructor (constructor, line 108)
     - Confidence: 98%
 
 ## [x] src/lib/server/daily-tasks.ts

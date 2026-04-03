@@ -1,0 +1,38 @@
+import { expect, test } from "@playwright/test";
+
+import { openAuditSurface } from "./helpers";
+
+test.describe("UI continuity visual audits", () => {
+  test.skip(({ browserName }) => browserName !== "chromium");
+
+  test("creator apply hero stays stable", async ({ page }) => {
+    await openAuditSurface(page, "/creators/apply", "main");
+    await expect(page.getByRole("button", { name: "Start creator application" })).toBeVisible();
+    await expect(page.locator("main section").first()).toHaveScreenshot("creator-apply-hero.png");
+  });
+
+  test("creator waiting guest hero stays stable", async ({ page }) => {
+    await openAuditSurface(page, "/creators/waitlist", "main");
+    await expect(page.locator("main section").first()).toHaveScreenshot("creator-waitlist-guest-hero.png");
+  });
+
+  test("home hero stays stable", async ({ page }) => {
+    await openAuditSurface(page, "/", "main");
+    const hero = page.locator("main section").first().locator("div.flex.min-w-0.max-w-2xl.w-full.flex-col.items-center").first();
+    await expect(hero).toHaveScreenshot("home-hero.png", {
+      mask: [
+        hero.locator(".animate-ping"),
+      ],
+      maxDiffPixels: 40,
+      timeout: 15000,
+    });
+  });
+
+  test("privacy hero stays stable", async ({ page }) => {
+    await openAuditSurface(page, "/privacy", "main");
+    const introCard = page
+      .getByRole("heading", { name: "How KandyDrops handles your data" })
+      .locator("xpath=ancestor::div[contains(@class, 'rounded-[2rem]')][1]");
+    await expect(introCard).toHaveScreenshot("privacy-page.png", { timeout: 15000 });
+  });
+});

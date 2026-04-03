@@ -15,7 +15,6 @@ import {
     signOut,
 } from "firebase/auth";
 import { auth, firebaseClientConfigured } from "@/lib/firebase";
-import { getAppCheckToken } from "@/lib/app-check";
 import { CLIENT_RUNTIME_STORAGE_KEYS, readSessionStorageValue } from "@/hooks/client-runtime";
 import { UserProfile } from "@/types/db";
 import { normalizeUserProfile } from "@/lib/user-utils";
@@ -133,10 +132,6 @@ function shouldPreferRedirectGoogleSignIn() {
     return false;
 }
 
-async function prepareAuthAppCheck() {
-    await getAppCheckToken();
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -173,7 +168,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 }
 
                 await ensureAuthPersistence();
-                await prepareAuthAppCheck().catch(() => null);
 
                 try {
                     const redirectResult = await getRedirectResult(auth);
@@ -372,7 +366,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         try {
             await ensureAuthPersistence();
-            await prepareAuthAppCheck();
             const provider = new GoogleAuthProvider();
             provider.setCustomParameters({ prompt: "select_account" });
 
@@ -395,31 +388,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 return;
             }
 
-            if (
-                firebaseError?.code === "auth/app-check-token-is-invalid"
-                || firebaseError?.message?.toLowerCase().includes("app check token")
-                || firebaseError?.message?.toLowerCase().includes("recaptcha")
-            ) {
-                try {
-                    toast.loading("Analyzing reCAPTCHA rejection reasons from Google...", { id: "recaptcha-debug" });
-                    const { verifyManualRecaptchaToken } = await import("@/lib/manual-recaptcha");
-                    const result = await verifyManualRecaptchaToken("LOGIN");
-                    toast.dismiss("recaptcha-debug");
-
-                    if (result.error) {
-                        toast.error(`Google API Error: ${result.error}`, { duration: 8000 });
-                    } else if (result.tokenProperties?.valid === false) {
-                        toast.error(`App Check rejected your browser. Reason: ${result.tokenProperties?.invalidReason}`, { duration: 10000 });
-                    } else {
-                        toast.error(`App Check blocked Auth. Manual reCAPTCHA test succeeded (Score: ${result.riskAnalysis?.score}). Your Firebase Console is NOT linked to this key!`, { duration: 10000 });
-                    }
-                } catch (recaptchaErr: any) {
-                    toast.dismiss("recaptcha-debug");
-                    toast.error(`App Check Failed & Manual Check Failed: ${recaptchaErr.message}`, { duration: 8000 });
-                }
-                throw error;
-            }
-
             const message = normalizeAuthErrorMessage(error);
             toast.error(message);
             throw new Error(message);
@@ -433,7 +401,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         try {
             await ensureAuthPersistence();
-            await prepareAuthAppCheck();
             await signInWithEmailAndPassword(auth, email, pass);
             toast.success("Welcome back!");
         } catch (error: unknown) {
@@ -449,7 +416,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             const signupIntent: SignupIntent = input.signupIntent === "creator" ? "creator" : "fan";
             await ensureAuthPersistence();
-            await prepareAuthAppCheck();
             await createUserWithEmailAndPassword(auth, input.email, input.password);
 
             const response = await authFetch("/api/user/register", {

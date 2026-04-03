@@ -18,7 +18,6 @@ export const ANALYTICS_ROUTE_POLICIES = {
     routeName: "analytics/ingest",
     preAuthRouteName: "analytics/ingest/preauth",
     requireTrustedOrigin: true,
-    requireAppCheck: true,
   },
   identifiedTrack: {
     routeName: "telemetry/track",

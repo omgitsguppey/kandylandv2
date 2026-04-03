@@ -3,9 +3,6 @@ export type AdminOpsHealthSeverity = "info" | "warn" | "error";
 
 export interface AdminOpsHealthRuntime {
   gaPropertyConfigured: boolean;
-  appCheckConfigured: boolean;
-  appCheckRequired: boolean;
-  recaptchaConfigured: boolean;
   vapidConfigured: boolean;
   databaseUrlConfigured: boolean;
   projectId: string;

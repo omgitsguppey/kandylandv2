@@ -37,6 +37,7 @@ type PlaywrightConfigEnv = Record<string, string | undefined>;
 
 export function buildPlaywrightConfig(env: PlaywrightConfigEnv = process.env) {
   const baseURL = resolvePlaywrightBaseUrl(env.PLAYWRIGHT_BASE_URL);
+  const useProductionServer = env.PLAYWRIGHT_USE_BUILD === "1";
 
   return defineConfig({
     timeout: 60 * 1000,
@@ -46,6 +47,12 @@ export function buildPlaywrightConfig(env: PlaywrightConfigEnv = process.env) {
     retries: env.CI ? 2 : 0,
     workers: env.CI ? 1 : undefined,
     reporter: 'html',
+    expect: {
+      toHaveScreenshot: {
+        animations: "disabled",
+        caret: "hide",
+      },
+    },
     use: {
       baseURL,
       trace: 'on-first-retry',
@@ -53,10 +60,10 @@ export function buildPlaywrightConfig(env: PlaywrightConfigEnv = process.env) {
 
     // Loopback HTTP is allowed for local test servers; remote targets must use HTTPS.
     webServer: env.PLAYWRIGHT_BASE_URL ? undefined : {
-      command: 'npm run dev',
+      command: useProductionServer ? "npm run start" : "npm run dev",
       url: baseURL,
-      reuseExistingServer: !env.CI,
-      timeout: 120 * 1000,
+      reuseExistingServer: useProductionServer ? false : !env.CI,
+      timeout: useProductionServer ? 180 * 1000 : 120 * 1000,
     },
 
     projects: [

@@ -57,7 +57,7 @@ Apply to every route handler in `src/app/api/**`:
 - [ ] Auth mode is intentional: public, optional auth, user, admin, cron, or trusted-origin only.
 - [ ] Shared `guardApiRequest(...)` is used unless there is a documented reason not to.
 - [ ] Rate limit profile is appropriate for cost/risk.
-- [ ] Origin/App Check expectations are consistent.
+- [ ] Origin and runtime guard expectations are consistent.
 - [ ] Request parsing is validated and bounded.
 - [ ] DB reads/writes are ordered safely for Firestore transactions.
 - [ ] Writes are idempotent or protected by receipts / locks / dedupe keys.
@@ -80,12 +80,12 @@ Apply to pages, components, hooks, and contexts:
 
 ## Firebase / Data Checklist
 
-Apply anywhere Firebase, Firestore, Storage, App Check, Messaging, RTDB, Data Connect, or generated clients are used:
+Apply anywhere Firebase, Firestore, Storage, Messaging, RTDB, Data Connect, or generated clients are used:
 
 - [ ] Client config comes from shared runtime config.
 - [ ] Admin config comes from shared admin/runtime config.
 - [ ] Storage bucket / database URL / project ID do not drift.
-- [ ] App Check behavior is intentional for prod/dev/test.
+- [ ] Client/runtime trust assumptions are intentional for prod/dev/test.
 - [ ] Firestore rules/indexes still match app behavior.
 - [ ] Data Connect generated clients match current schema usage.
 - [ ] Messaging and service worker flows have valid assets and cleanup.
@@ -332,7 +332,7 @@ src/types/gtag.d.ts
 - [x] Audit every file below.
 
 Phase 4 notes:
-- Centralized App Check gating through `src/lib/firebase-runtime.ts` so client and server auth helpers no longer drift on prod/dev enforcement.
+- Centralized Firebase runtime configuration through `src/lib/firebase-runtime.ts` so client/runtime expectations do not drift across environments.
 - Added `src/lib/analytics-time.ts` and reused it from server analytics helpers and the analytics parity backfill script to eliminate duplicate UTC time-key builders.
 - Hardened `src/lib/server/daily-tasks.ts` so task state and lifecycle writes strip nested `undefined` values before hitting Firestore, which fixes the unwrap-follow-up write failure path.
 - Removed a set of internal-only exports from shared browser, navigation, notification, and daily-checkin helpers to keep the public utility surface smaller and more intentional.
@@ -343,7 +343,6 @@ src/lib/analytics-time.ts
 src/lib/analytics-client-engine.ts
 src/lib/analytics-metric-catalog.ts
 src/lib/analytics-semantics.ts
-src/lib/app-check.ts
 src/lib/authFetch.ts
 src/lib/browser-notification-enrollment.ts
 src/lib/browser-utils.ts

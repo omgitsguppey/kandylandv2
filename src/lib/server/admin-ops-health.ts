@@ -380,9 +380,6 @@ export function buildAdminOpsHealth(input: {
     score,
     runtime: {
       gaPropertyConfigured: Boolean(process.env.GA_PROPERTY_ID?.trim()),
-      appCheckConfigured: runtimeSnapshot.appCheckConfigured,
-      appCheckRequired: runtimeSnapshot.appCheckRequired,
-      recaptchaConfigured: Boolean(process.env.NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_SITE_KEY?.trim()),
       vapidConfigured: Boolean(runtimeSnapshot.vapidKey),
       databaseUrlConfigured: Boolean(runtimeSnapshot.databaseURL),
       projectId: runtimeSnapshot.projectId || "",

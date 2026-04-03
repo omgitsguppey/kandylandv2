@@ -26,3 +26,31 @@ git push origin work:main
 ```
 
 Do **not** use `git push origin main` unless you are on the `main` branch locally.
+
+## Continuity Protocol
+
+Before broad refactors, shared-helper work, UI work, Firebase work, or agent-driven maintenance:
+
+1. Read `FULL_SCALE_CODEBASE_AUDIT.md`
+2. Read `EVERY_FILE_FUNCTION_CHECKLIST.md`
+3. Update `FULL_SCALE_CODEBASE_AUDIT.md` at the start and again at the end
+4. Run `git status --short`
+5. Identify touched surfaces and canonical helpers before editing
+6. Run `npm run trace:adjacent -- <path>` for the main touched files so neighboring logic is reviewed on purpose
+
+Use these repo continuity commands when relevant:
+
+- `npm run check:architecture`
+- `npm run graph:architecture`
+- `npm run check:inventory`
+- `npm run trace:adjacent -- <path>`
+- `npm run check:ui:audits`
+- `npm run check:ui:lighthouse`
+- `npm run check:firebase:rules`
+
+Rules:
+
+- When touching user-facing or admin-facing UI, run the Playwright UI audits.
+- When touching render/loading/performance-sensitive paths, run the Lighthouse audit.
+- When touching Firebase rules, storage, or emulator-sensitive behavior, prefer emulator-first verification and run the rules checks.
+- Do not sign off on broad work without updating the audit file with commands run, results, warnings, and follow-up items.

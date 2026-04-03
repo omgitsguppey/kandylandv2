@@ -17,8 +17,6 @@ async function loadFirebaseModule(runtimeConfig: RuntimeConfig) {
   const getApps = vi.fn(() => []);
   const getApp = vi.fn(() => ({ name: "existing-app" }));
   const getAuth = vi.fn(() => ({ name: "auth" }));
-  const initializeAppCheck = vi.fn();
-  const ReCaptchaEnterpriseProvider = vi.fn();
   const recordClientDiagnostic = vi.fn();
 
   vi.doMock("firebase/app", () => ({
@@ -31,18 +29,12 @@ async function loadFirebaseModule(runtimeConfig: RuntimeConfig) {
     getAuth,
   }));
 
-  vi.doMock("firebase/app-check", () => ({
-    initializeAppCheck,
-    ReCaptchaEnterpriseProvider,
-  }));
-
   vi.doMock("@/lib/client-diagnostics", () => ({
     recordClientDiagnostic,
   }));
 
   vi.doMock("@/lib/firebase-runtime", () => ({
     getFirebaseClientConfigForRuntime: vi.fn(() => runtimeConfig),
-    FIREBASE_RECAPTCHA_ENTERPRISE_SITE_KEY: undefined,
     IS_DEVELOPMENT_ENV: false,
     getFirebaseRuntimeWarnings: vi.fn(() => []),
   }));
@@ -56,8 +48,6 @@ async function loadFirebaseModule(runtimeConfig: RuntimeConfig) {
       getApps,
       getApp,
       getAuth,
-      initializeAppCheck,
-      ReCaptchaEnterpriseProvider,
       recordClientDiagnostic,
     },
   };

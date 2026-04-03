@@ -14,7 +14,6 @@ async function main() {
   const fatalWarnings = warnings.filter((warning) => warning.includes("does not match"));
   const missingWarnings = warnings.filter((warning) => !warning.includes("does not match"));
   const shouldFailOnMissingWarnings = process.env.CI === "true" || process.env.NODE_ENV === "production";
-  const shouldRequireAppCheck = process.env.CI === "true" || process.env.NODE_ENV === "production";
 
   console.log("Firebase runtime snapshot:");
   console.log(JSON.stringify({
@@ -25,9 +24,6 @@ async function main() {
     messagingSenderIdPresent: Boolean(snapshot.messagingSenderId),
     appIdPresent: Boolean(snapshot.appId),
     vapidKeyPresent: Boolean(snapshot.vapidKey),
-    recaptchaSiteKeyPresent: Boolean(process.env.NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_SITE_KEY),
-    appCheckConfigured: snapshot.appCheckConfigured,
-    appCheckRequired: snapshot.appCheckRequired,
   }, null, 2));
 
   if (missingWarnings.length > 0) {
@@ -44,18 +40,6 @@ async function main() {
     console.error("Firebase runtime mismatches:");
     fatalWarnings.forEach((warning) => console.error(`- ${warning}`));
     process.exit(1);
-  }
-
-  if (!snapshot.appCheckConfigured) {
-    const message = "Firebase App Check is not configured.";
-    if (shouldRequireAppCheck) {
-      console.error(message);
-      process.exit(1);
-    }
-
-    console.warn(message);
-  } else if (!snapshot.appCheckRequired) {
-    console.log("Firebase App Check is configured and available for local/debug runtime.");
   }
 
   console.log("Firebase runtime check passed.");

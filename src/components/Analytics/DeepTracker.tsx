@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 
 import { createAnalyticsBatchId } from "@/lib/analytics-identifiers";
-import { getAppCheckToken } from "@/lib/app-check";
 import { getClientSessionId } from "@/lib/client-session";
 import { recordClientDiagnostic } from "@/lib/client-diagnostics";
 import { buildAnalyticsSemanticParams, resolveAnalyticsSemanticContext } from "@/lib/analytics-semantics";
@@ -239,20 +238,7 @@ export function DeepTracker() {
             guestFlushInFlightRef.current = (async () => {
                 const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
                 try {
-                    const appCheckToken = await getAppCheckToken().catch(() => null);
-                    if (appCheckToken) {
-                        const response = await fetch("/api/analytics/ingest", {
-                            method: "POST",
-                            body: blob,
-                            keepalive: true,
-                            headers: {
-                                "X-Firebase-AppCheck": appCheckToken,
-                            },
-                        });
-                        if (!response.ok) {
-                            throw new Error(`Guest analytics flush failed (${response.status})`);
-                        }
-                    } else if (navigator?.sendBeacon) {
+                    if (navigator?.sendBeacon) {
                         const accepted = navigator.sendBeacon("/api/analytics/ingest", blob);
                         if (!accepted) {
                             throw new Error("Guest analytics sendBeacon was rejected");

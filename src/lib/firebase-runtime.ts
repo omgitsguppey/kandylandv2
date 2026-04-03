@@ -48,17 +48,6 @@ export const FIREBASE_DATABASE_URL = normalizePublicEnv(process.env.NEXT_PUBLIC_
 export const FIREBASE_MESSAGING_SENDER_ID = normalizePublicEnv(process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID);
 export const FIREBASE_APP_ID = normalizePublicEnv(process.env.NEXT_PUBLIC_FIREBASE_APP_ID);
 export const FIREBASE_VAPID_KEY = normalizePublicEnv(process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY);
-export const FIREBASE_RECAPTCHA_ENTERPRISE_SITE_KEY = normalizePublicEnv(
-  process.env.NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_SITE_KEY,
-);
-
-export function isAppCheckConfigured() {
-  return Boolean(FIREBASE_RECAPTCHA_ENTERPRISE_SITE_KEY);
-}
-
-export function shouldRequireAppCheck() {
-  return IS_PRODUCTION_ENV && isAppCheckConfigured();
-}
 
 export const FIREBASE_CLIENT_CONFIG = {
   apiKey: FIREBASE_API_KEY,
@@ -91,23 +80,17 @@ export function buildFirebaseClientRuntimeSnapshot() {
     messagingSenderId: FIREBASE_MESSAGING_SENDER_ID,
     appId: FIREBASE_APP_ID,
     vapidKey: FIREBASE_VAPID_KEY,
-    appCheckConfigured: isAppCheckConfigured(),
-    appCheckRequired: shouldRequireAppCheck(),
   };
 }
 
 export function getFirebaseRuntimeWarnings() {
   const warnings: string[] = [];
-  const shouldAuditAppCheck = IS_PRODUCTION_ENV || process.env.CI === "true";
   const configuredSiteHosts = getConfiguredSiteHosts().filter((host) => !isLocalHost(host));
 
   if (!FIREBASE_API_KEY) warnings.push("Missing NEXT_PUBLIC_FIREBASE_API_KEY");
   if (!FIREBASE_AUTH_DOMAIN) warnings.push("Missing NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN");
   if (!FIREBASE_PROJECT_ID) warnings.push("Missing NEXT_PUBLIC_FIREBASE_PROJECT_ID");
   if (!FIREBASE_APP_ID) warnings.push("Missing NEXT_PUBLIC_FIREBASE_APP_ID");
-  if (shouldAuditAppCheck && !FIREBASE_RECAPTCHA_ENTERPRISE_SITE_KEY) {
-    warnings.push("Missing NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_SITE_KEY");
-  }
 
   if (FIREBASE_STORAGE_BUCKET && FIREBASE_PROJECT_ID && !FIREBASE_STORAGE_BUCKET.includes(FIREBASE_PROJECT_ID)) {
     warnings.push("Firebase storage bucket does not match the configured project ID");

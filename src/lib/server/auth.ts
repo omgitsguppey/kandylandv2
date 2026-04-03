@@ -1,9 +1,6 @@
 import "server-only";
 import { NextRequest, NextResponse } from "next/server";
-
-import { shouldRequireAppCheck } from "@/lib/firebase-runtime";
-
-import { adminAppCheck, adminAuth, adminDb } from "./firebase-admin";
+import { adminAuth, adminDb } from "./firebase-admin";
 import { RateLimitError, buildRateLimitResponse } from "./rate-limit";
 import { inferDiagnosticChannel, recordRouteFailure } from "./route-diagnostics";
 
@@ -32,33 +29,11 @@ function buildApiErrorLogEntry(error: unknown, context: string, status: number) 
     };
 }
 
-export async function verifyAppCheck(request: NextRequest, required = shouldRequireAppCheck()) {
-    const appCheckToken = request.headers.get("X-Firebase-AppCheck")?.trim();
-
-    if (!appCheckToken) {
-        if (!required) {
-            return null;
-        }
-        throw new AuthError("Missing App Check token", 401);
-    }
-
-    try {
-        return await adminAppCheck.verifyToken(appCheckToken);
-    } catch {
-        if (!required) {
-            return null;
-        }
-        throw new AuthError("Invalid App Check token", 401);
-    }
-}
-
 /**
  * Verify the Firebase ID token from the Authorization header.
  * Returns the decoded user identity or throws an error.
  */
 export async function verifyAuth(request: NextRequest): Promise<AuthResult> {
-    await verifyAppCheck(request);
-
     const authHeader = request.headers.get("Authorization");
     const idToken = authHeader?.startsWith("Bearer ")
         ? authHeader.slice("Bearer ".length).trim()
