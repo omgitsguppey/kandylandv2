@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
         if (!adminDb) {
-            return NextResponse.json({ error: "Database not available" }, { status: 500 });
+            throw new Error("Database not available");
         }
 
         const now = Date.now();
