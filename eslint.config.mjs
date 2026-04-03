@@ -1,5 +1,4 @@
 import nextVitals from "eslint-config-next/core-web-vitals";
-import importPlugin from "eslint-plugin-import";
 import playwrightPlugin from "eslint-plugin-playwright";
 import unusedImports from "eslint-plugin-unused-imports";
 
@@ -21,7 +20,6 @@ const eslintConfig = [
     {
         files: ["**/*.{js,jsx,mjs,ts,tsx,mts,cts}"],
         plugins: {
-            import: importPlugin,
             "unused-imports": unusedImports,
         },
         rules: {

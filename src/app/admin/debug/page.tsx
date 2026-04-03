@@ -24,6 +24,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useAdminOverview } from "@/hooks/useAdminOverview";
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import { useCompactViewport } from "@/hooks/useCompactViewport";
+import type { AdminAiDebugSummary } from "@/lib/ai-debug-assistant";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { cn } from "@/lib/utils";
@@ -137,6 +138,9 @@ export default function DebugConsole() {
     const { data, error, isLoading, mutate } = useAdminPollingSWR<any>("/api/admin/debug", 5000, {
         keepPreviousData: false,
     });
+    const { data: aiDebugData, error: aiDebugError, mutate: mutateAiDebug } = useAdminPollingSWR<AdminAiDebugSummary>("/api/admin/debug/assistant", 15000, {
+        keepPreviousData: true,
+    });
     const { data: overviewData, isLoading: overviewLoading, mutate: mutateOverview } = useAdminOverview();
 
     const recentTransactions = useMemo(() => (
@@ -149,7 +153,7 @@ export default function DebugConsole() {
     ), [overviewData?.recentTransactions]);
 
     const refreshAll = async () => {
-        await Promise.all([mutate(), mutateOverview()]);
+        await Promise.all([mutate(), mutateOverview(), mutateAiDebug()]);
         toast.success("Debug console refreshed");
     };
 
@@ -290,6 +294,11 @@ export default function DebugConsole() {
                 <StatCard label="Users with issues" value={data?.stats?.usersWithTaskIssues ?? "--"} meta="Task assignment integrity" />
                 <StatCard label="Creator issues" value={data?.stats?.creatorOnboardingIssues ?? "--"} meta={`${data?.creatorOnboardingDiagnostics?.summary?.missingQueueCount ?? 0} missing queue`} />
                 <StatCard label="Orchestration" value={data?.orchestration ? `${data.orchestration.summary.score}%` : "--"} meta={`${data?.stats?.orchestrationOpenFindings ?? 0} open findings`} />
+                <StatCard
+                    label="AI debug"
+                    value={aiDebugData ? (aiDebugData.fallback_used ? "Fallback" : "Live") : aiDebugError ? "Error" : "--"}
+                    meta={aiDebugData ? `${aiDebugData.model} | ${aiDebugData.latency_ms}ms` : "Gemini Flash-Lite"}
+                />
             </div>
 
             {error ? <div className="rounded-[1.35rem] border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-100">Debug data could not be loaded right now.</div> : null}
@@ -297,6 +306,79 @@ export default function DebugConsole() {
 
             {activeTab === "overview" ? (
                 <div className="space-y-4">
+                    <Section
+                        title="AI debug assistant"
+                        subtitle="Gemini Flash-Lite summarizes bounded canonical health signals. It is advisory only and never overrides the underlying diagnostics."
+                        defaultOpen
+                        summary={
+                            <>
+                                <Pill
+                                    label="Status"
+                                    value={aiDebugData ? (aiDebugData.fallback_used ? "fallback" : "live") : aiDebugError ? "error" : "loading"}
+                                    tone={aiDebugData ? (aiDebugData.fallback_used ? "warn" : "good") : aiDebugError ? "bad" : "neutral"}
+                                />
+                                <Pill label="Model" value={aiDebugData?.model || "gemini-2.5-flash-lite"} />
+                                <Pill label="Prompt" value={aiDebugData?.prompt_version || "--"} />
+                                <Pill label="Latency" value={aiDebugData ? `${aiDebugData.latency_ms}ms` : "--"} tone={aiDebugData && aiDebugData.latency_ms > 5000 ? "warn" : "neutral"} />
+                            </>
+                        }
+                    >
+                        {aiDebugError ? (
+                            <div className="rounded-[1rem] border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-100">
+                                AI debug summaries could not be loaded right now. Canonical diagnostics remain authoritative.
+                            </div>
+                        ) : null}
+
+                        {aiDebugData ? (
+                            <div className="space-y-4">
+                                <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                    <div className="flex flex-wrap gap-2">
+                                        <Pill label="Generated" value={formatRelative(Date.parse(aiDebugData.generated_at))} />
+                                        {aiDebugData.availability_note ? (
+                                            <Pill label="Availability" value={aiDebugData.fallback_used ? "limited" : "ready"} tone={aiDebugData.fallback_used ? "warn" : "good"} />
+                                        ) : null}
+                                    </div>
+                                    <p className="mt-3 text-sm leading-6 text-gray-200">{aiDebugData.summary}</p>
+                                    {aiDebugData.availability_note ? (
+                                        <p className="mt-3 text-xs leading-6 text-gray-400">{aiDebugData.availability_note}</p>
+                                    ) : null}
+                                </div>
+
+                                <div className="grid gap-4 lg:grid-cols-2">
+                                    <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                        <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Likely root causes</p>
+                                        <ul className="mt-3 space-y-2 text-sm text-gray-200">
+                                            {(aiDebugData.likely_root_causes || []).map((entry) => <li key={entry}>- {entry}</li>)}
+                                        </ul>
+                                    </div>
+                                    <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                        <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Affected systems</p>
+                                        <div className="mt-3 flex flex-wrap gap-2">
+                                            {(aiDebugData.affected_systems || []).map((entry) => <Pill key={entry} label="System" value={entry} tone="warn" />)}
+                                        </div>
+                                    </div>
+                                    <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                        <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Confidence notes</p>
+                                        <ul className="mt-3 space-y-2 text-sm text-gray-200">
+                                            {(aiDebugData.confidence_notes || []).map((entry) => <li key={entry}>- {entry}</li>)}
+                                        </ul>
+                                    </div>
+                                    <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                        <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Suggested next checks</p>
+                                        <ul className="mt-3 space-y-2 text-sm text-gray-200">
+                                            {(aiDebugData.suggested_next_checks || []).map((entry) => <li key={entry}>- {entry}</li>)}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : !aiDebugError ? (
+                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4 text-sm text-gray-300">
+                                <Loader2 className="mr-2 inline h-4 w-4 animate-spin" />
+                                Preparing bounded AI debug summary...
+                            </div>
+                        ) : null}
+                    </Section>
+
                     <Section
                         title="Behavior orchestration"
                         subtitle="The new async coordination layer watches canonical signals, resolves identity ownership, and translates mismatches into plain-English repair suggestions."

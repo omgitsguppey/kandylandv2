@@ -80,25 +80,26 @@ Current tolerated non-blocking environment notices:
 These notices are not automatic audit failures, but they must stay explicitly known and not silently spread into product behavior.
 
 ## Active Audit Entry
-Current audit date: `2026-04-03 11:19:32 -05:00`
-Current branch / commit: `main / eab1d7e`
+Current audit date: `2026-04-03 11:36:42 -05:00`
+Current branch / commit: `main / e67ecad`
 
 Current task:
-- investigate email/password auth throttling and fix notification panel small-screen overflow
+- thread-wide implementation continuity verification and interruption recovery
 
 Current mission:
-- auth truth investigation and UX hardening for the manual email/password login path, plus mobile-safe notification panel sizing without introducing stale or disconnected UI behavior
+- verify every implementation-oriented prompt from this chat against the current repo, identify interruption gaps, finish any materially incomplete work, and leave the standing audit consistent with the final verified repository state
 
 Current expected touched surfaces:
 - root/docs
+- `src/app/admin`
+- `src/app/api`
+- `src/components`
 - `src/context`
-- `src/components/Navigation`
-- `src/components/Auth`
+- `src/hooks`
 - `src/lib`
 - `src/lib/server`
-- `src/app/api`
 - `tests`
-- auth and notification continuity surfaces discovered during investigation
+- dependency/runtime surfaces directly required by any interrupted implementation prompts discovered during verification
 
 Current canonical helpers/modules expected to be used:
 - `FULL_SCALE_CODEBASE_AUDIT.md`
@@ -108,54 +109,63 @@ Current canonical helpers/modules expected to be used:
 - `src/lib/server/route-diagnostics.ts`
 - `src/lib/client-error-reporting.ts`
 - `src/lib/server/server-diagnostics.ts`
-- `src/context/AuthContext.tsx`
-- `src/components/Navigation/NotificationBell.tsx`
+- `src/lib/server/admin-ops-health.ts`
+- `src/app/admin/debug/page.tsx`
+- `src/app/api/admin/debug/route.ts`
 - `src/lib/telemetry.ts`
-- existing Vitest, ESLint, Playwright, Firebase runtime, and continuity verification entrypoints already codified in the repo
+- existing Vitest, ESLint, Playwright, Firebase runtime, continuity, and dependency-boundary verification entrypoints already codified in the repo
 
 Current continuity note:
-- this pass is intentionally a scoped truth-and-fix investigation: auth throttling must be explained against the actual email/password flow, and notification UI adjustments must preserve backend truth and accessibility
+- this pass is not allowed to hand-wave prior prompts as complete; every implementation request in the thread must be verified against current code before signoff, and any interruption gap must either be fixed or explicitly captured as still pending
 
-Audit start recorded at: `2026-04-03 11:19:32 -05:00`
+Audit start recorded at: `2026-04-03 11:36:42 -05:00`
 
 Start-of-task audit inputs read:
 - `FULL_SCALE_CODEBASE_AUDIT.md`
 - `EVERY_FILE_FUNCTION_CHECKLIST.md`
 - current standing audit baseline and checklist companion
+- current thread history as the implementation checklist source
 
-End-of-task audit completion recorded at: `2026-04-03 11:27:07 -05:00`
+End-of-task audit completion recorded at: `2026-04-03 12:14:40 -05:00`
 
 Final touched surfaces:
 - root/docs
-- `src/components/Auth`
-- `src/components/Navigation`
-- `tests`
-- `src/context`
+- dependency/runtime config
+- `src/app/admin`
+- `src/app/api/admin/debug`
 - `src/lib`
+- `src/lib/server`
+- `tests`
 
 Final touched files:
 - `FULL_SCALE_CODEBASE_AUDIT.md`
-- `src/components/Auth/AuthModal.tsx`
-- `src/components/Navigation/NotificationBell.tsx`
-- `src/context/AuthContext.tsx`
-- `src/lib/auth-errors.ts`
-- `tests/unit/auth-errors.spec.ts`
-- `tests/unit/notification-bell-layout.spec.ts`
+- `eslint.config.mjs`
+- `package.json`
+- `package-lock.json`
+- `pnpm-lock.yaml`
+- `src/lib/ai-debug-assistant.ts`
+- `src/lib/server/ai-debug-assistant.ts`
+- `src/app/api/admin/debug/assistant/route.ts`
+- `src/app/admin/debug/page.tsx`
+- `tests/unit/ai-debug-assistant.spec.ts`
+- `tests/unit/admin-debug-assistant-route.spec.ts`
 
 Canonical helpers/modules used in this task:
 - `FULL_SCALE_CODEBASE_AUDIT.md`
 - `EVERY_FILE_FUNCTION_CHECKLIST.md`
-- `src/context/AuthContext.tsx`
-- `src/components/Auth/AuthModal.tsx`
-- `src/components/Navigation/NotificationBell.tsx`
-- `src/lib/auth-errors.ts`
 - `src/lib/server/auth.ts`
-- `src/lib/client-error-reporting.ts`
-- `src/lib/telemetry.ts`
+- `src/lib/server/request-guard.ts`
+- `src/lib/server/route-diagnostics.ts`
+- `src/lib/server/server-diagnostics.ts`
+- `src/lib/server/admin-ops-health.ts`
+- `src/lib/server/admin-orchestration.ts`
+- `src/lib/server/creator-onboarding-diagnostics.ts`
+- `src/hooks/useAdminPollingSWR.ts`
+- `src/app/admin/debug/page.tsx`
 
 Dependency decisions in this task:
 - Installed:
-  - None
+  - `@google-cloud/vertexai`
 - Already present and reused:
   - `@playwright/test`
   - `@axe-core/playwright`
@@ -165,23 +175,27 @@ Dependency decisions in this task:
   - `@firebase/rules-unit-testing`
   - `firebase-tools`
 - Rejected:
-  - None newly rejected in this overnight pass
+  - no new provider SDKs or client-side AI SDKs were added
 
 Manual setup or authentication still required from the user:
-- No new local setup is required for this fix pass
-- If real users continue reporting `auth/too-many-requests`, Firebase Console or Google Cloud auth is still needed later to inspect remote Authentication anti-abuse logs and project-level provider settings directly
+- local Vertex AI execution still requires Application Default Credentials if you want live summaries outside Google-managed runtime
+- manual local step: `gcloud auth application-default login`
+- the Google Cloud project also needs Vertex AI enabled if it is not already enabled for the target runtime project
 
 Exact systems audited or hardened in this pass:
-- manual email/password auth retry and recovery handling
-- client-side email normalization for Firebase auth paths
-- notification dropdown mobile-safe sizing and safe-area fit
-- auth-facing diagnostics and deterministic regression coverage
+- thread-wide implementation prompt continuity across prior interrupted requests
+- admin debug console observability completeness
+- internal AI debug assistant readiness and safe fallback behavior
+- repo-wide verification continuity so `corepack pnpm run check` is trustworthy again
 
 Exact safety, moderation, telemetry, and debug additions made:
-- no new secrets, providers, or backend auth mutation paths were introduced
-- throttled email/password failures now surface with a truthful recovery message instead of raw Firebase wording
-- local retry hammering is reduced by a client-side cooldown gate on the email/password sign-in path
-- notification dropdown sizing now respects small-screen and safe-area constraints more cleanly
+- the only materially incomplete interrupted feature found in thread history was the internal AI debug assistant; it is now implemented as a server-side, admin-only, advisory surface
+- Gemini output is bounded to existing canonical summaries from admin ops health, orchestration, and creator onboarding diagnostics
+- AI output is structured, prompt-versioned, latency-aware, feature-flagged, and explicitly marked as fallback or live
+- deterministic fallback summaries now keep the debug console useful even when Vertex auth, model execution, or parsing fails
+- AI call metadata now records through existing admin/server diagnostic pathways instead of disappearing into raw console-only logs
+- the admin debug console now exposes AI summary status without depending on model success to render the rest of the page
+- the repo-wide ESLint flat-config collision around duplicate `import` plugin registration was removed so the canonical `check` entrypoint passes again
 
 Commands run during this task:
 - `git status --short`
@@ -189,59 +203,69 @@ Commands run during this task:
 - `git rev-parse --short HEAD`
 - `Get-Content FULL_SCALE_CODEBASE_AUDIT.md`
 - `Get-Content EVERY_FILE_FUNCTION_CHECKLIST.md`
-- auth and notification surface searches for `signInWithEmailAndPassword`, `too-many-requests`, and `NotificationBell`
-- targeted reads of `src/context/AuthContext.tsx`, `src/components/Auth/AuthModal.tsx`, and `src/components/Navigation/NotificationBell.tsx`
-- `npx eslint src/context/AuthContext.tsx src/components/Auth/AuthModal.tsx src/components/Navigation/NotificationBell.tsx src/lib/auth-errors.ts tests/unit/auth-errors.spec.ts tests/unit/notification-bell-layout.spec.ts`
-- `corepack pnpm exec vitest run tests/unit/auth-errors.spec.ts tests/unit/notification-bell-layout.spec.ts`
+- targeted code searches confirming prior prompt surfaces already present and identifying the missing AI gap
+- `corepack pnpm add @google-cloud/vertexai`
+- `Get-Content node_modules/@google-cloud/vertexai/README.md`
+- `npm install --package-lock-only --ignore-scripts`
+- `npm run trace:adjacent -- src/lib/server/ai-debug-assistant.ts`
+- `npm run trace:adjacent -- src/app/api/admin/debug/assistant/route.ts`
+- `npm run trace:adjacent -- src/app/admin/debug/page.tsx`
+- `corepack pnpm exec vitest run tests/unit/ai-debug-assistant.spec.ts tests/unit/admin-debug-assistant-route.spec.ts`
+- `npx vitest run`
 - `npm run check:inventory`
 - `corepack pnpm run check`
-- `npx vitest run`
 
 Results:
-- manual email/password auth now trims email input before Firebase calls
-- repeated sign-in hammering is guarded locally so duplicate submits and immediate retry loops do not keep pounding the same Firebase cooldown window
-- `auth/too-many-requests` now maps to a clearer recovery message with password-reset guidance
-- notification dropdown sizing now uses safe-area-aware width and height constraints on smaller screens
-- targeted unit coverage added for auth error resolution and notification panel sizing helpers
+- prior implementation-oriented prompts were reverified against the current repo instead of being assumed complete
+- the only confirmed interruption gap was the missing internal AI debug assistant prompt; that gap is now closed
+- the admin debug console now has a live/fallback AI summary lane driven by bounded canonical health inputs
+- the AI path is server-side only and uses Vertex AI Gemini Flash-Lite with no hardcoded keys and no client-to-model calls
+- deterministic fallback behavior covers disabled flag, missing project config, missing ADC/auth, timeout, and malformed model output
+- structured unit coverage now exists for prompt assembly, feature-flag disabled behavior, auth-unavailable fallback, malformed output fallback, and the admin debug assistant route
 - `corepack pnpm run check` passed
 - `npx vitest run` passed
-- focused ESLint passed
-- focused Vitest passed
 
 Known tolerated warnings and notices:
 - npm unknown env config warnings during `pnpm`/`npm` script chains
 - Node `punycode` deprecation warnings during Vitest execution
+- `npm install --package-lock-only --ignore-scripts` reported existing dependency audit advisories; no new secret or AI-risking dependency behavior was introduced in this pass
 
 Files needing follow-up:
-- remote Firebase Authentication anti-abuse behavior still needs console-level inspection if this report reproduces for multiple real users
-- provider-linking expectations between manual email/password and Google sign-in still need remote project confirmation if mixed-provider account reports continue
-- auth/admin Playwright coverage still needs a stable local auth/emulator seam for end-to-end verification
+- local ADC must still be configured before the AI summary can run live outside managed Google runtime
+- the Vertex AI SDK used here is the exact dependency required by the original prompt, but its own README now marks it deprecated in favor of a later migration path; future audited work should plan that migration without changing this prompt’s required implementation
+- broader debug-panel centralization and telemetry consolidation work remains a separate future implementation surface beyond this interruption-recovery pass
 
 Inventory changed:
 - Yes
-- Net change after this auth and notification fix pass: `603` -> `606`
-- Added tracked files:
-  - `src/lib/auth-errors.ts`
-  - `tests/unit/auth-errors.spec.ts`
-  - `tests/unit/notification-bell-layout.spec.ts`
+- final staged tracked inventory is now `611`
+- net change in this pass: `606` -> `611`
+- newly tracked runtime/test files:
+  - `src/lib/ai-debug-assistant.ts`
+  - `src/lib/server/ai-debug-assistant.ts`
+  - `src/app/api/admin/debug/assistant/route.ts`
+  - `tests/unit/ai-debug-assistant.spec.ts`
+  - `tests/unit/admin-debug-assistant-route.spec.ts`
 
 Final confidence scoring summary:
-- auth/manual sign-in truth is stronger because throttled recovery is now explicit and email normalization is canonicalized
-- notification panel mobile confidence is stronger because the dropdown now sizes against viewport safe areas instead of relying on a fragile fixed width offset
+- thread-wide prompt continuity is stronger because the missing AI integration gap is now explicitly closed instead of merely claimed in narrative updates
+- admin observability confidence is stronger because AI summaries now sit beside canonical diagnostics with explicit fallback and latency metadata
+- repo verification confidence is stronger because the canonical `check` entrypoint was repaired and rerun successfully in the same pass
 
 ## Last Executed Audit
-Audit execution recorded at: `2026-04-03 11:27:07 -05:00`
+Audit execution recorded at: `2026-04-03 12:14:40 -05:00`
 
 Current audit scope:
-- manual auth throttling investigation
-- notification dropdown small-screen hardening
-- auth truth, recovery UX, and targeted regression coverage
+- thread-wide implementation continuity verification
+- interrupted-prompt recovery
+- internal AI debug assistant completion
+- repo verification continuity repair
 
 Current audit findings:
-- Build, lint, type, and full contract verification are healthy on this repo state.
-- The reported email/password issue is best explained locally by a combination of raw Firebase throttle messaging and the absence of a client-side retry guard; this pass fixes both of those repo-side weaknesses.
-- This pass does not prove that remote Firebase Authentication project settings are ideal, so repeat real-user reports should still trigger console-level investigation.
-- Notification dropdown overflow risk on smaller screens is reduced by safe-area-aware sizing rather than a brittle positional offset.
+- The repo-wide implementation history in this thread is materially consistent with current code after re-verification.
+- The only confirmed interrupted implementation gap was the missing internal AI debug assistant; it is now present as a server-side, admin-only, advisory integration.
+- The admin debug console now exposes live or fallback AI root-cause summaries without treating AI output as canonical truth.
+- Full `check` and full `vitest` verification are healthy again on this repo state.
+- Live AI execution still depends on local or managed Google credentials and must not be assumed active everywhere by default.
 
 ## Current Platform Readiness Summary
 What is ready now:
@@ -394,6 +418,12 @@ These are the current source-of-truth helpers and modules to prefer before creat
   Canonical persisted server diagnostics
 - `src/lib/server/admin-ops-health.ts`
   Canonical admin-facing health/status normalization
+- `src/lib/ai-debug-assistant.ts`
+  Canonical shared AI debug output contract, model id, prompt version, and feature-flag constants
+- `src/lib/server/ai-debug-assistant.ts`
+  Canonical server-side Vertex AI debug summarization, fallback behavior, and AI call observability
+- `src/app/api/admin/debug/assistant/route.ts`
+  Canonical admin-only AI debug summary route
 - `src/lib/client-diagnostics.ts`
   Canonical persisted client diagnostics
 - `src/lib/client-error-reporting.ts`
@@ -469,18 +499,18 @@ Every tracked file must fall into one of the surfaces below and satisfy that sur
 
 | Surface | Current count | Files covered | Audit requirement |
 | --- | ---: | --- | --- |
-| Root/config/docs | 38 | root files, repo docs, config, lockfiles | Naming, relevance, drift, tooling consistency, no stale operational docs |
+| Root/config/docs | 41 | root files, repo docs, config, lockfiles | Naming, relevance, drift, tooling consistency, no stale operational docs |
 | `public` | 11 | static assets, manifest, service worker | Asset still referenced, correct destination, no dead screenshots/icons in runtime paths |
 | `src/app` | 116 | pages, layouts, route handlers, loading/error UI | Auth, route semantics, cache rules, diagnostics, no dead route targets |
 | `src/components` | 65 | reusable UI and feature modules | Accessibility, explicit loading/error state, correct telemetry, correct runtime action mapping |
 | `src/context` | 4 | provider layers | No redundant providers, state shape parity, guest/auth correctness |
-| `src/hooks` | 14 | client runtime hooks | Cleanup, error state, diagnostics, polling/realtime parity |
+| `src/hooks` | 13 | client runtime hooks | Cleanup, error state, diagnostics, polling/realtime parity |
 | `src/lib` | 132 | shared client/shared domain helpers | No duplication, canonical helpers, telemetry/economics/time helpers reused |
-| `src/lib/server` | 55 | server-only domain helpers | Structured diagnostics, no raw side-effect-only logging, canonical DB/runtime access |
+| `src/lib/server` | 56 | server-only domain helpers | Structured diagnostics, no raw side-effect-only logging, canonical DB/runtime access |
 | `src/types` | 3 | shared types | Explicitness, current state-shape parity |
 | `functions/src` | 30 | Firebase Functions backend | Runtime parity, orchestration consistency, export coverage |
-| `scripts` | 13 | audits, checks, admin scripts | Still useful, current paths, deterministic behavior |
-| `tests` | 80 | contracts, unit, visual, rules, benches | Coverage remains aligned to runtime-critical areas |
+| `scripts` | 17 | audits, checks, admin scripts | Still useful, current paths, deterministic behavior |
+| `tests` | 96 | contracts, unit, visual, rules, benches | Coverage remains aligned to runtime-critical areas |
 | `dataconnect` + generated clients | 39 | schema + generated SDKs | Generated artifacts current, schema/runtime parity, no stale generated output |
 
 ## Universal Per-File Questions
@@ -587,6 +617,11 @@ Use these questions whenever work touches analytics, diagnostics, recommendation
 3. Is any machine-learning or recommendation language describing a real runtime system, or only a heuristic/readiness flag?
 4. If an operational side effect fails, can an admin/operator find that failure in the correct diagnostics surface without tailing raw logs?
 5. If a later debug-panel or telemetry refactor is planned, does the current change make that work easier instead of adding one more fragmented pathway?
+6. If AI is involved, is the exact model choice explicit and stable in code and audit notes?
+7. If AI is involved, is the invocation server-side only unless a later audited pass explicitly approves client-side use?
+8. Are AI outputs clearly marked as advisory rather than canonical truth?
+9. Are prompt version, model id, fallback status, and latency observable to operators?
+10. If AI cannot run because of auth, project setup, or parsing failure, does the surrounding UI remain useful and truthful?
 
 ## Firebase and App Hosting Safety Notes
 When Firebase or Google Cloud surfaces are touched:
@@ -641,6 +676,7 @@ The audit fails if any of the following are true:
 - A client hook or component can no longer distinguish failed state from empty state.
 - A PayPal or economics flow bypasses canonical shared logic.
 - A telemetry event is emitted outside the catalog/semantics model without justification.
+- An AI summary is treated as canonical truth or allowed to mutate product state.
 - A new cache or storage key is introduced without a documented consistency reason.
 - A new helper duplicates a canonical helper already listed here.
 - A critical admin/debug surface loses observability for the exact action that can fail.
