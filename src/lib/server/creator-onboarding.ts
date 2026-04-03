@@ -3,7 +3,7 @@ import "server-only";
 import type { Transaction } from "firebase-admin/firestore";
 
 import { adminDb } from "@/lib/server/firebase-admin";
-import { generateCreatorQueuePosition, normalizeCreatorApplication } from "@/lib/creator-application";
+import { normalizeCreatorApplication, resolveCreatorQueuePosition } from "@/lib/creator-application";
 import {
     buildCreatorOnboardingCanonicalRecord,
     buildCreatorOnboardingUserProjection,
@@ -310,9 +310,9 @@ export async function ensureCreatorOnboardingSubmission(input: {
         const userData = (userSnap.data() as Record<string, unknown> | undefined) ?? {};
         const existingProjection = normalizeCreatorApplication(userData.creatorApplication);
         const existingCanonical = normalizeCreatorOnboardingCanonicalRecord(onboardingSnap.data());
-        const queuePosition = existingCanonical?.queuePosition
-            ?? existingProjection?.queuePosition
-            ?? generateCreatorQueuePosition();
+        const queuePosition = resolveCreatorQueuePosition(
+            existingCanonical?.queuePosition ?? existingProjection?.queuePosition,
+        );
         const canonical = buildCreatorOnboardingCanonicalRecord({
             userId: input.userId,
             email: input.email ?? (typeof userData.email === "string" ? userData.email : null),
@@ -335,11 +335,14 @@ export async function ensureCreatorOnboardingSubmission(input: {
             creatorContentFocus: input.creatorContentFocus,
             nowMs,
             source: existingCanonical ?? existingProjection ?? {
+                submissionStatus: "awaiting_manual_review",
                 onboardingStartedAt: nowMs,
                 submittedAt: nowMs,
                 onboardingSubmittedAt: nowMs,
                 awaitingManualReviewAt: nowMs,
                 updatedAt: nowMs,
+                idVerificationStatus: "id_requested",
+                idVerificationRequestedAt: nowMs,
             },
         });
 

@@ -20,6 +20,7 @@ import { differenceInYears, parseISO } from "date-fns";
 import { useAuth } from "@/context/AuthContext";
 import type { AuthModalEntryMode } from "@/context/UIContext";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import { CREATOR_REVIEW_TIMELINE_COPY, KREATOR_EXPERIENCES_DEFINITION } from "@/lib/creator-onboarding";
 import { clearTimedFlow, consumeTimedFlow, startTimedFlow, trackEvent } from "@/lib/telemetry";
 import { SECONDARY_UNWRAP_CTA, SIGNUP_SUPPORT_COPY } from "@/lib/marketing-copy";
 
@@ -100,7 +101,7 @@ function getSupportCopy(mode: AuthMode) {
     }
 
     if (mode === "creator_signup") {
-        return "Three quick steps, then we place you in line for creator review, documents, ID verification, and manual segmenting.";
+        return `Three quick steps, then your creator application moves into manual review. ${CREATOR_REVIEW_TIMELINE_COPY}`;
     }
 
     return "We&apos;ll send a secure reset link to your inbox.";
@@ -829,7 +830,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                                 {...register("creatorContentFocus")}
                                                 rows={4}
                                                 className="block w-full resize-none rounded-xl border border-white/10 bg-black/50 px-4 py-3 text-sm text-white transition-colors focus:border-brand-purple focus:outline-none sm:text-base"
-                                                placeholder="A short note for manual review and segmenting."
+                                                placeholder="A short note so the review team understands what you create."
                                             />
                                             {errors.creatorContentFocus ? <p className="pl-1 text-xs text-red-400">{errors.creatorContentFocus.message}</p> : null}
                                         </div>
@@ -875,7 +876,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                                 />
                                             </div>
                                             {errors.dob ? <p className="pl-1 text-xs text-red-400">{errors.dob.message}</p> : null}
-                                            <p className="pl-1 text-xs text-gray-500">Must be 18 or older to join the creator line.</p>
+                                            <p className="pl-1 text-xs text-gray-500">Must be 18 or older to apply for creator access.</p>
                                         </div>
                                     </div>
                                 ) : null}
@@ -886,9 +887,9 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                             <div className="flex items-start gap-3">
                                                 <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-brand-purple" />
                                                 <div>
-                                                    <p className="text-sm font-semibold text-white">Final step: secure your spot</p>
+                                                    <p className="text-sm font-semibold text-white">Final step: submit your application</p>
                                                     <p className="mt-1 text-xs leading-6 text-gray-300">
-                                                        After signup, you&apos;ll land in the creator line while admins prepare documents, ID verification, and manual segmenting.
+                                                        After signup, your creator application moves into manual review. Your waiting page will show legal, ID, and approval updates as they actually happen.
                                                     </p>
                                                 </div>
                                             </div>
@@ -925,7 +926,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                         </div>
 
                                         <div className="rounded-[1.25rem] border border-white/10 bg-black/30 p-4 text-xs leading-6 text-gray-400">
-                                            <p>By joining the creator line, you understand that KandyDrops may request legal documents, ID verification, and manual review before creator tools are enabled.</p>
+                                            <p>By submitting this creator application, you understand that KandyDrops may request legal documents and ID verification before creator tools are enabled.</p>
                                         </div>
                                     </div>
                                 ) : null}
@@ -988,7 +989,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                                 disabled={isLoading}
                                                 className="flex-[1.25] rounded-xl bg-gradient-to-r from-brand-purple to-purple-500 py-3 font-bold text-white shadow-lg shadow-brand-purple/20 transition-all active:scale-[0.98] disabled:opacity-50 hover:opacity-95"
                                             >
-                                                {isLoading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" /> : "Join the creator line"}
+                                                {isLoading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" /> : "Submit creator application"}
                                             </button>
                                         ) : (
                                             <button
@@ -1043,7 +1044,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                             <div className="rounded-[1.25rem] border border-white/10 bg-black/25 px-4 py-3 text-left text-xs leading-6 text-gray-400">
                                                 <p className="font-semibold uppercase tracking-[0.16em] text-gray-500">Creator path</p>
                                                 <p className="mt-1">
-                                                    Creator accounts stay out of the fan onboarding flow. After signup, admins can review legal docs, request ID verification, and manually segment the account before creator tools are enabled.
+                                                    {KREATOR_EXPERIENCES_DEFINITION} Creator accounts stay out of the fan onboarding flow, and creator tools remain locked until manual approval is complete.
                                                 </p>
                                             </div>
                                             <p>

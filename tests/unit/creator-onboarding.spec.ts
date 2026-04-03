@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import {
+    CREATOR_LEGAL_WAITING_HEADLINE,
+    CREATOR_LEGAL_WAITING_HELPER,
+    describeCreatorFacingOnboardingBlockingReason,
     describeCreatorOnboardingBlockingReason,
     getCreatorOnboardingIdDocumentSummary,
     deriveCanonicalCreatorOnboardingStatuses,
@@ -69,6 +72,10 @@ describe("creator onboarding contract", () => {
             label: "Role activation blocked",
             severity: "error",
         });
+        expect(describeCreatorFacingOnboardingBlockingReason("awaiting_segment_assignment")).toMatchObject({
+            label: "Internal review still in progress",
+            severity: "info",
+        });
     });
 
     it("builds creator waitlist status messaging from canonical backend state", () => {
@@ -81,8 +88,8 @@ describe("creator onboarding contract", () => {
             blockingReasons: ["awaiting_legal", "awaiting_id_submission", "awaiting_segment_assignment"],
             readyForApproval: false,
         })).toMatchObject({
-            label: "id requested",
-            summary: "Your next step is to upload the front and back of your ID from this page so review can continue.",
+            stage: "Waiting on ID verification",
+            summary: "Upload the front and back of your ID from this page so identity review can continue.",
         });
 
         expect(getCreatorOnboardingStatusSummary({
@@ -94,8 +101,21 @@ describe("creator onboarding contract", () => {
             blockingReasons: ["role_activation_blocked"],
             readyForApproval: false,
         })).toMatchObject({
-            label: "creator approved",
-            summary: "Approval is recorded, but the creator role cannot activate until the remaining review requirements are resolved.",
+            stage: "Needs attention",
+            summary: "Approval is recorded, but creator access cannot finish until the remaining intake requirements are resolved.",
+        });
+
+        expect(getCreatorOnboardingStatusSummary({
+            submissionStatus: "awaiting_manual_review",
+            approvalStatus: "creator_pending",
+            idVerificationStatus: "id_verified",
+            legalStatus: "legal_pending",
+            segmentationStatus: "segment_unassigned",
+            blockingReasons: ["awaiting_legal"],
+            readyForApproval: false,
+        })).toMatchObject({
+            stage: "Waiting on legal",
+            summary: `${CREATOR_LEGAL_WAITING_HEADLINE} ${CREATOR_LEGAL_WAITING_HELPER}`,
         });
     });
 

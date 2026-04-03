@@ -199,7 +199,7 @@ const CREATOR_LEGAL_STATUS_OPTIONS = [
 ] as const satisfies Array<{ value: CreatorApplicationState["legalStatus"]; label: string }>;
 
 const CREATOR_ID_STATUS_OPTIONS = [
-    { value: "id_not_requested", label: "Not requested" },
+    { value: "id_not_requested", label: "Pending enablement" },
     { value: "id_requested", label: "Requested" },
     { value: "id_submitted", label: "Submitted" },
     { value: "id_verified", label: "Verified" },
@@ -997,12 +997,9 @@ export default function AdminUserAnalyticsPage() {
                                 <Sparkles className="h-4 w-4 text-brand-purple" /> Creator Intake Review
                             </h3>
                             <p className="mt-1 text-xs leading-6 text-gray-400">
-                                Manage the pre-creator lane: legal documents, ID verification, manual segmenting, and review state before this account ever sees creator tools.
+                                Manage the stage-based creator intake lane: legal documents, ID verification, internal review, and approval state before this account ever sees creator tools.
                             </p>
                         </div>
-                        <span className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
-                            Queue #{creatorApplication.queuePosition.toLocaleString()}
-                        </span>
                     </div>
 
                     <div className="mt-5 grid gap-4 xl:grid-cols-[0.92fr_1.08fr]">
@@ -1122,17 +1119,6 @@ export default function AdminUserAnalyticsPage() {
                                         onChange={(event) => updateCreatorApplicationField("segmentLabel", event.target.value)}
                                         className="w-full rounded-2xl border border-white/10 bg-black/45 px-4 py-3 text-sm text-white outline-none"
                                         placeholder="Ex: priority creator, launch partner"
-                                    />
-                                </label>
-
-                                <label className="space-y-2">
-                                    <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Queue position</span>
-                                    <input
-                                        value={creatorApplication.queuePosition}
-                                        onChange={(event) => updateCreatorApplicationField("queuePosition", Math.max(1, Number(event.target.value) || 1))}
-                                        type="number"
-                                        min={1}
-                                        className="w-full rounded-2xl border border-white/10 bg-black/45 px-4 py-3 text-sm text-white outline-none"
                                     />
                                 </label>
 

@@ -337,7 +337,7 @@ function buildQueueQuickActions(entry: CreatorReviewQueueEntry) {
     if (entry.idVerificationStatus === "id_not_requested") {
         actions.push({
             key: "id_requested",
-            label: "Ask for ID",
+            label: "Enable ID upload",
             patch: { idVerificationStatus: "id_requested" },
             tone: "accent",
         });
@@ -780,7 +780,7 @@ export default function AdminRosterPage() {
                             <option value="oldest">Oldest first</option>
                         </select>
                         <span className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
-                            {creatorReviewQueue.length} queued
+                            {creatorReviewQueue.length} open
                         </span>
                     </div>
                 </div>
@@ -862,7 +862,7 @@ export default function AdminRosterPage() {
                                             <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-gray-400">
                                                 <span className="inline-flex items-center gap-1">
                                                     <Clock3 className="h-3.5 w-3.5 text-gray-500" />
-                                                    #{entry.queuePosition > 0 ? entry.queuePosition.toLocaleString() : "—"} in line
+                                                    Review lane item
                                                 </span>
                                                 <span>Submitted {formatRelativeTime(entry.submittedAt)}</span>
                                                 <span>Updated {formatRelativeTime(entry.updatedAt)}</span>
@@ -1173,3 +1173,4 @@ export default function AdminRosterPage() {
         </div>
     );
 }
+

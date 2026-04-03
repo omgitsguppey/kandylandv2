@@ -7,6 +7,7 @@ import { readPreferredAuthenticatedPath } from "@/lib/navigation-persistence";
 
 export const CREATOR_APPLICATION_PATH = "/creators/apply";
 export const CREATOR_WAITLIST_PATH = "/creators/waitlist";
+export const DEFAULT_CREATOR_QUEUE_POSITION = 1;
 
 export type CreatorNavigationState = "creator_waitlist";
 
@@ -26,18 +27,8 @@ function readQueuePosition(value: unknown) {
         : undefined;
 }
 
-export function generateCreatorQueuePosition() {
-    const minimum = 1200;
-    const maximum = 14850;
-    const span = maximum - minimum + 1;
-
-    if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
-        const buffer = new Uint32Array(1);
-        crypto.getRandomValues(buffer);
-        return minimum + (buffer[0] % span);
-    }
-
-    throw new Error("Cryptographically secure random number generation is not available in this environment.");
+export function resolveCreatorQueuePosition(value: unknown) {
+    return readQueuePosition(value) ?? DEFAULT_CREATOR_QUEUE_POSITION;
 }
 
 export function buildInitialCreatorApplication(input: {
@@ -52,19 +43,20 @@ export function buildInitialCreatorApplication(input: {
         : Date.now();
 
     return buildCreatorOnboardingProjectionState({
-        queuePosition: typeof input.queuePosition === "number" && Number.isFinite(input.queuePosition)
-            ? Math.trunc(input.queuePosition)
-            : generateCreatorQueuePosition(),
+        queuePosition: resolveCreatorQueuePosition(input.queuePosition),
         creatorDisplayName: input.creatorDisplayName.trim(),
         creatorPrimaryPlatform: readString(input.creatorPrimaryPlatform) || undefined,
         creatorContentFocus: readString(input.creatorContentFocus) || undefined,
         nowMs: submittedAt,
         source: {
+            submissionStatus: "awaiting_manual_review",
             onboardingStartedAt: submittedAt,
             submittedAt,
             onboardingSubmittedAt: submittedAt,
             awaitingManualReviewAt: submittedAt,
             updatedAt: submittedAt,
+            idVerificationStatus: "id_requested",
+            idVerificationRequestedAt: submittedAt,
         } satisfies LegacyCreatorApplicationSnapshot & Record<string, unknown>,
     });
 }
@@ -87,7 +79,7 @@ export function normalizeCreatorApplication(value: unknown): CreatorApplication 
         ?? Date.now();
 
     return buildCreatorOnboardingProjectionState({
-        queuePosition: readQueuePosition(source.queuePosition) ?? generateCreatorQueuePosition(),
+        queuePosition: resolveCreatorQueuePosition(source.queuePosition),
         creatorDisplayName,
         creatorPrimaryPlatform: readString(source.creatorPrimaryPlatform) || undefined,
         creatorContentFocus: readString(source.creatorContentFocus) || undefined,

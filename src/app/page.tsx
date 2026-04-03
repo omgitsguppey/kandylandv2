@@ -49,7 +49,7 @@ export default function Home() {
         <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-black/55 backdrop-blur-sm">
           <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-black/70 px-4 py-3 text-sm font-medium text-white shadow-xl shadow-black/30">
             <div className="h-5 w-5 animate-spin rounded-full border-2 border-brand-purple border-t-transparent" />
-            {userProfile?.creatorApplication ? "Returning you to your creator queue" : "Returning you to your dashboard"}
+            {userProfile?.creatorApplication ? "Returning you to your creator application status" : "Returning you to your dashboard"}
           </div>
         </div>
       ) : null}

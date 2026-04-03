@@ -7,6 +7,7 @@ import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { CREATOR_WAITLIST_PATH } from "@/lib/creator-application";
+import { CREATOR_REVIEW_TIMELINE_COPY, KREATOR_EXPERIENCES_DEFINITION } from "@/lib/creator-onboarding";
 import { trackEvent } from "@/lib/telemetry";
 
 const CREATOR_STEPS = [
@@ -21,8 +22,8 @@ const CREATOR_STEPS = [
         icon: Users,
     },
     {
-        title: "Join the review line",
-        description: "Finish signup and we’ll save your place while legal, ID review, and creator setup are completed.",
+        title: "Enter manual review",
+        description: "Finish signup and your application will move into manual review while legal and ID steps are completed.",
         icon: ShieldCheck,
     },
 ] as const;
@@ -57,15 +58,16 @@ export default function CreatorApplyPage() {
                             Apply for creator access
                         </h1>
                         <p className="mt-4 max-w-xl text-sm leading-7 text-gray-300 sm:text-base">
-                            Creator applications go through a separate review lane so we can verify your account, send legal paperwork, and request your ID when it&apos;s time. Nothing is turned on until that review is complete.
+                            {KREATOR_EXPERIENCES_DEFINITION} {CREATOR_REVIEW_TIMELINE_COPY} Manual admin approval is required before creator tools turn on.
                         </p>
                     </div>
 
                     <div className="mt-5 flex flex-wrap gap-2">
                         <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-gray-200">Manual review</span>
+                        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-gray-200">5 to 7 business days</span>
                         <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-gray-200">Legal docs</span>
                         <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-gray-200">ID verification</span>
-                        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-gray-200">Manual segmenting</span>
+                        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-gray-200">Stage-based status</span>
                     </div>
 
                     <div className="mt-6 flex flex-wrap gap-3">
@@ -95,7 +97,7 @@ export default function CreatorApplyPage() {
                                 href="/dashboard/profile"
                                 className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white"
                             >
-                                Open creator help
+                                Open profile support
                                 <ArrowRight className="h-4 w-4" />
                             </Link>
                         )}
@@ -111,7 +113,7 @@ export default function CreatorApplyPage() {
 
                     {user && !hasCreatorApplication && !loading ? (
                         <p className="mt-4 rounded-[1.25rem] border border-amber-400/20 bg-amber-400/10 px-4 py-3 text-xs leading-6 text-amber-100">
-                            You&apos;re already signed into a regular account. If you want this account reviewed for creator access, start a creator application from the signup flow or use your profile support options for help.
+                            You are already signed into a regular account. Use your profile support options if this account should enter creator review.
                         </p>
                     ) : null}
                 </section>
@@ -141,17 +143,17 @@ export default function CreatorApplyPage() {
                             What happens after you apply
                         </h2>
                         <p className="mt-3 text-sm leading-7 text-gray-400">
-                            After you submit, your application stays visible to the review team with clear legal, ID, and approval checkpoints. You&apos;ll see the same real status updates on your waiting page.
+                            After you submit, your application stays visible to the review team with clear legal, ID, and approval checkpoints. You will see the same real status updates on your waiting page.
                         </p>
                     </article>
 
                     <article className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-4 backdrop-blur-sm">
                         <h2 className="flex items-center gap-2 text-base font-bold text-white">
                             <ShieldCheck className="h-5 w-5 text-brand-purple" />
-                            What you&apos;ll need later
+                            What you will need later
                         </h2>
                         <p className="mt-3 text-sm leading-7 text-gray-400">
-                            Be ready to review legal paperwork and upload the front and back of a government-issued photo ID once the review team requests it.
+                            Be ready to review legal paperwork and upload the front and back of a government-issued photo ID. Those steps will appear on your waiting page only when the backend review stage actually reaches them.
                         </p>
                     </article>
                 </section>

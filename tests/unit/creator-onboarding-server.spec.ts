@@ -106,7 +106,7 @@ describe("ensureCreatorOnboardingSubmission", () => {
             submissionStatus: "awaiting_manual_review",
             approvalStatus: "creator_pending",
             legalStatus: "legal_pending",
-            idVerificationStatus: "id_not_requested",
+            idVerificationStatus: "id_requested",
             segmentationStatus: "segment_unassigned",
             creatorDisplayName: "Creator Example",
             creatorPrimaryPlatform: "TikTok",

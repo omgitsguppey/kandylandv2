@@ -141,6 +141,11 @@ export const CREATOR_ID_DOCUMENT_SIDES = [
     "back",
 ] as const;
 
+export const KREATOR_EXPERIENCES_DEFINITION = "Kreator Experiences is KandyDrops' gated creator program. Approved creators can publish drops, connect directly with fans, and earn from monetized audience access inside the platform.";
+export const CREATOR_REVIEW_TIMELINE_COPY = "Most applications are reviewed within 5 to 7 business days.";
+export const CREATOR_LEGAL_WAITING_HEADLINE = "No documents have been sent yet.";
+export const CREATOR_LEGAL_WAITING_HELPER = "Documents will appear here once your application reaches the legal review stage.";
+
 export type CreatorOnboardingIdDocumentSide = (typeof CREATOR_ID_DOCUMENT_SIDES)[number];
 
 export type CreatorOnboardingIdDocuments = Partial<Record<CreatorOnboardingIdDocumentSide, CreatorOnboardingIdDocument>>;
@@ -273,9 +278,19 @@ export type CreatorOnboardingBlockingReasonDetail = {
     severity: "info" | "warn" | "error";
 };
 
+export type CreatorFacingStage =
+    | "Application received"
+    | "Under review"
+    | "Waiting on legal"
+    | "Waiting on ID verification"
+    | "Approved"
+    | "Needs attention";
+
 export type CreatorOnboardingStatusSummary = {
+    stage: CreatorFacingStage;
     label: string;
     summary: string;
+    timeline: string;
 };
 
 type CreatorOnboardingStatusSummaryInput = Pick<
@@ -292,6 +307,11 @@ type CreatorOnboardingStatusSummaryInput = Pick<
     readyForApproval?: boolean;
 };
 
+export type CreatorApplicantEditableFields = Pick<
+    CreatorOnboardingProjectionState,
+    "creatorDisplayName" | "creatorPrimaryPlatform" | "creatorContentFocus"
+>;
+
 function readString(value: unknown) {
     return typeof value === "string" ? value.trim() : "";
 }
@@ -300,6 +320,50 @@ function readOptionalTimestamp(value: unknown) {
     return typeof value === "number" && Number.isFinite(value) && value > 0
         ? Math.trunc(value)
         : undefined;
+}
+
+export function sanitizeCreatorApplicantEditableFields(
+    value: unknown,
+): CreatorApplicantEditableFields | undefined {
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
+        return undefined;
+    }
+
+    const source = value as Record<string, unknown>;
+    const creatorDisplayName = readString(source.creatorDisplayName);
+    const creatorPrimaryPlatform = readString(source.creatorPrimaryPlatform);
+    const creatorContentFocus = readString(source.creatorContentFocus);
+
+    if (creatorDisplayName.length < 2 || creatorDisplayName.length > 80) {
+        return undefined;
+    }
+
+    if (creatorPrimaryPlatform.length < 2 || creatorPrimaryPlatform.length > 60) {
+        return undefined;
+    }
+
+    if (creatorContentFocus.length < 8 || creatorContentFocus.length > 500) {
+        return undefined;
+    }
+
+    return {
+        creatorDisplayName,
+        creatorPrimaryPlatform,
+        creatorContentFocus,
+    };
+}
+
+export function canEditCreatorApplicantIntake(input: {
+    approvalStatus: CreatorOnboardingApprovalStatus;
+    role?: string | null;
+} | null | undefined) {
+    if (!input) {
+        return false;
+    }
+
+    return input.approvalStatus !== "creator_approved"
+        && input.role !== "creator"
+        && input.role !== "admin";
 }
 
 function normalizeBlockingReasons(value: unknown) {
@@ -681,6 +745,71 @@ export function describeCreatorOnboardingBlockingReason(
     }
 }
 
+export function describeCreatorFacingOnboardingBlockingReason(
+    reason: CreatorOnboardingBlockingReason,
+): CreatorOnboardingBlockingReasonDetail {
+    switch (reason) {
+        case "approval_rejected":
+            return {
+                reason,
+                label: "Application needs support",
+                description: "Your creator application cannot move forward until creator support reviews it with you.",
+                severity: "error",
+            };
+        case "approval_needs_changes":
+            return {
+                reason,
+                label: "Application needs updates",
+                description: "The review team still needs updated information before manual approval can continue.",
+                severity: "warn",
+            };
+        case "awaiting_legal":
+            return {
+                reason,
+                label: "Waiting on legal review",
+                description: CREATOR_LEGAL_WAITING_HELPER,
+                severity: "warn",
+            };
+        case "awaiting_id_request":
+            return {
+                reason,
+                label: "ID verification setup pending",
+                description: "ID verification is required for every creator application. The secure upload step will appear here as soon as intake setup is ready.",
+                severity: "info",
+            };
+        case "awaiting_id_submission":
+            return {
+                reason,
+                label: "Upload your ID",
+                description: "Upload the front and back of a government-issued photo ID from this page so review can continue.",
+                severity: "warn",
+            };
+        case "awaiting_id_review":
+            return {
+                reason,
+                label: "ID review in progress",
+                description: "Your ID files are in and waiting for manual review.",
+                severity: "info",
+            };
+        case "awaiting_segment_assignment":
+            return {
+                reason,
+                label: "Internal review still in progress",
+                description: "Your application is still moving through internal review before it can reach final approval.",
+                severity: "info",
+            };
+        case "role_activation_blocked":
+            return {
+                reason,
+                label: "Approval needs follow-up",
+                description: "Approval is recorded, but creator access still needs support follow-up before every creator tool can unlock cleanly.",
+                severity: "error",
+            };
+        default:
+            return describeCreatorOnboardingBlockingReason(reason);
+    }
+}
+
 function formatStatusLabel(value: string | undefined) {
     return value ? value.replaceAll("_", " ") : "waiting";
 }
@@ -690,76 +819,107 @@ export function getCreatorOnboardingStatusSummary(
 ): CreatorOnboardingStatusSummary {
     if (!value) {
         return {
-            label: "waiting",
-            summary: "Your creator application is still being prepared.",
+            stage: "Application received",
+            label: "Application received",
+            summary: "Your creator application was received. We will show each required step here as review moves forward.",
+            timeline: CREATOR_REVIEW_TIMELINE_COPY,
         };
     }
+
+    const roleBlocked = (value.blockingReasons ?? []).includes("role_activation_blocked");
 
     if (value.approvalStatus === "creator_needs_changes") {
         return {
-            label: formatStatusLabel(value.approvalStatus),
-            summary: "Admin requested changes before this creator application can move forward.",
+            stage: "Needs attention",
+            label: "Needs attention",
+            summary: "Your application needs follow-up before manual approval can continue. Review the blockers on this page and contact creator support if anything looks wrong.",
+            timeline: CREATOR_REVIEW_TIMELINE_COPY,
         };
     }
 
-    if (value.approvalStatus === "creator_rejected") {
+    if (value.approvalStatus === "creator_rejected" || roleBlocked) {
         return {
-            label: formatStatusLabel(value.approvalStatus),
-            summary: "This creator application was rejected and will stay out of creator tools until admin reopens it.",
+            stage: "Needs attention",
+            label: "Needs attention",
+            summary: value.approvalStatus === "creator_rejected"
+                ? "Your application needs creator support before it can move forward again."
+                : "Approval is recorded, but creator access cannot finish until the remaining intake requirements are resolved.",
+            timeline: CREATOR_REVIEW_TIMELINE_COPY,
         };
     }
 
     if (value.approvalStatus === "creator_approved") {
-            const roleBlocked = (value.blockingReasons ?? []).includes("role_activation_blocked");
         return {
-            label: formatStatusLabel(value.approvalStatus),
-            summary: roleBlocked
-                ? "Approval is recorded, but the creator role cannot activate until the remaining review requirements are resolved."
-                : "Approval is recorded and your creator access is being finalized.",
+            stage: "Approved",
+            label: "Approved",
+            summary: "Your creator access is approved. Open your creator tools from the dashboard to manage your profile, drops, fan messaging, bookings, and payout requests.",
+            timeline: CREATOR_REVIEW_TIMELINE_COPY,
         };
     }
 
-    if (value.readyForApproval) {
-        return {
-            label: "ready for approval",
-            summary: "Legal, ID, and segment requirements are complete. Your application is waiting for final admin approval.",
-        };
-    }
-
-    if (value.idVerificationStatus === "id_requested" || value.idVerificationStatus === "id_rejected") {
+    if (
+        value.idVerificationStatus === "id_not_requested"
+        || value.idVerificationStatus === "id_requested"
+        || value.idVerificationStatus === "id_rejected"
+    ) {
         const idSummary = getCreatorOnboardingIdDocumentSummary(value);
         return {
-            label: formatStatusLabel(value.idVerificationStatus),
-            summary: idSummary.count === 1
-                ? "One ID image is already in. Upload the remaining side from this page so review can continue."
-                : "Your next step is to upload the front and back of your ID from this page so review can continue.",
+            stage: "Waiting on ID verification",
+            label: "Waiting on ID verification",
+            summary: value.idVerificationStatus === "id_not_requested"
+                ? "ID verification is required for every creator application. The secure upload step will appear here as soon as intake setup is ready."
+                : idSummary.count === 1
+                    ? "One ID image is already in. Upload the remaining side from this page so identity review can continue."
+                    : value.idVerificationStatus === "id_rejected"
+                        ? "Your last ID submission needs a replacement. Upload fresh front and back files from this page so review can continue."
+                        : "Upload the front and back of your ID from this page so identity review can continue.",
+            timeline: CREATOR_REVIEW_TIMELINE_COPY,
         };
     }
 
     if (value.idVerificationStatus === "id_submitted") {
         return {
-            label: formatStatusLabel(value.idVerificationStatus),
+            stage: "Waiting on ID verification",
+            label: "Waiting on ID verification",
             summary: "Your ID is uploaded and waiting for manual review.",
+            timeline: CREATOR_REVIEW_TIMELINE_COPY,
         };
     }
 
     if (value.legalStatus !== "legal_signed") {
         return {
-            label: formatStatusLabel(value.legalStatus),
-            summary: "Legal documents still need to be sent and signed before creator approval can finish.",
+            stage: "Waiting on legal",
+            label: "Waiting on legal",
+            summary: value.legalStatus === "legal_sent"
+                ? "Your legal document is ready. Open it from this page and complete the signing step when you are ready."
+                : `${CREATOR_LEGAL_WAITING_HEADLINE} ${CREATOR_LEGAL_WAITING_HELPER}`,
+            timeline: CREATOR_REVIEW_TIMELINE_COPY,
         };
     }
 
-    if (value.segmentationStatus !== "segment_assigned") {
+    if (value.readyForApproval) {
         return {
-            label: formatStatusLabel(value.segmentationStatus),
-            summary: "Admin still needs to assign your creator segment before final approval.",
+            stage: "Under review",
+            label: "Under review",
+            summary: "Your intake steps are complete. The application is waiting for final manual approval.",
+            timeline: CREATOR_REVIEW_TIMELINE_COPY,
+        };
+    }
+
+    if (value.submissionStatus === "onboarding_started" || value.submissionStatus === "onboarding_submitted") {
+        return {
+            stage: "Application received",
+            label: "Application received",
+            summary: "Your application is in the intake lane and will move into manual review as the team processes your compliance steps.",
+            timeline: CREATOR_REVIEW_TIMELINE_COPY,
         };
     }
 
     return {
-        label: formatStatusLabel(value.submissionStatus),
-        summary: "Your creator application is waiting in the manual review queue.",
+        stage: "Under review",
+        label: "Under review",
+        summary: "Your application is in manual review. We will only surface the next real step when the team needs action from you.",
+        timeline: CREATOR_REVIEW_TIMELINE_COPY,
     };
 }
 

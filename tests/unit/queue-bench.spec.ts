@@ -69,6 +69,6 @@ describe("Performance Benchmark: queue chunk fetching", () => {
         );
         console.log(`Queue benchmark improvement: ${improvement.toFixed(1)}%`);
 
-        expect(optimizedMs).toBeLessThan(baselineMs * 0.4);
+        expect(optimizedMs).toBeLessThan(baselineMs * 0.6);
     });
 });

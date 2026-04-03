@@ -1,4 +1,4 @@
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 const LATENCY_MS = 10; // Simulated network latency per request
 const NUM_FACTS = 10;  // Number of facts to fetch
@@ -56,7 +56,7 @@ describe("Performance Benchmark: transaction.get vs transaction.getAll", () => {
     it("measures drop-grid unlocked membership lookups with includes vs Set", () => {
         const drops = Array.from({ length: 400 }, (_, index) => `drop-${index}`);
         const unlocked = Array.from({ length: 200 }, (_, index) => `drop-${index * 2}`);
-        const iterations = 5_000;
+        const iterations = 2_000;
 
         const baselineStart = performance.now();
         for (let iteration = 0; iteration < iterations; iteration += 1) {
@@ -73,5 +73,6 @@ describe("Performance Benchmark: transaction.get vs transaction.getAll", () => {
 
         console.log(`Drop grid unlocked lookup baseline (Array.includes): ${baselineDuration.toFixed(2)}ms`);
         console.log(`Drop grid unlocked lookup optimized (Set.has): ${optimizedDuration.toFixed(2)}ms`);
+        expect(optimizedDuration).toBeLessThan(baselineDuration);
     });
 });

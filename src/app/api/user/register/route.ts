@@ -26,18 +26,15 @@ function normalizeSignupIntent(value: unknown) {
 async function emitCreatorSubmissionSignals(input: {
     userId: string;
     creatorDisplayName: string;
-    queuePosition?: number;
 }) {
     await Promise.allSettled([
         trackServerEvent("creator_onboarding_submitted", {
             page_path: "/api/user/register",
             creator_display_name: input.creatorDisplayName,
-            queue_position: input.queuePosition ?? 0,
         }, input.userId),
         trackServerEvent("creator_admin_queue_materialized", {
             page_path: "/admin/roster",
             creator_display_name: input.creatorDisplayName,
-            queue_position: input.queuePosition ?? 0,
         }, input.userId),
         sendCreatorOnboardingAdminNotification({
             eventKey: `creator_onboarding_submitted:${input.userId}`,
@@ -162,7 +159,6 @@ export async function POST(request: NextRequest) {
                 await emitCreatorSubmissionSignals({
                     userId: caller.uid,
                     creatorDisplayName: creatorSubmission.creatorApplication.creatorDisplayName,
-                    queuePosition: creatorSubmission.creatorApplication.queuePosition,
                 });
             }
 
@@ -242,7 +238,6 @@ export async function POST(request: NextRequest) {
             await emitCreatorSubmissionSignals({
                 userId: caller.uid,
                 creatorDisplayName: creatorSubmission.creatorApplication.creatorDisplayName,
-                queuePosition: creatorSubmission.creatorApplication.queuePosition,
             });
         }
 
@@ -301,7 +296,7 @@ export async function POST(request: NextRequest) {
                 welcome_bonus_gumdrops: welcomeBonus,
                 has_referral_code: !isCreatorSignup && typeof referredBy === "string" && referredBy.trim().length > 0,
                 page_path: isCreatorSignup ? "/creators/waitlist" : "/dashboard",
-                creator_queue_position: creatorSubmission?.creatorApplication.queuePosition,
+                creator_application_submitted: isCreatorSignup,
             }, caller.uid),
         ]);
 

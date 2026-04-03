@@ -477,7 +477,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             const welcomeBonus = typeof result.welcomeBonus === "number" ? Math.max(0, result.welcomeBonus) : 0;
             if (signupIntent === "creator") {
-                toast.success("Creator signup received. We’ll be in contact soon.");
+                toast.success("Creator application received. Check your creator status page for review, legal, and ID updates.");
                 router.push(CREATOR_WAITLIST_PATH);
             } else {
                 toast.success(welcomeBonus > 0 ? `Account created! +${welcomeBonus} Gum Drops` : "Account created!");
@@ -580,3 +580,4 @@ export const useAuth = () => {
     if (!context) throw new Error("useAuth must be used within AuthProvider");
     return context;
 };
+
