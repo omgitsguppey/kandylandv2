@@ -26,6 +26,7 @@ import {
     syncLastVisitedPathOwner,
 } from "@/lib/navigation-persistence";
 import { CREATOR_WAITLIST_PATH, getPreferredAuthenticatedPathForProfile } from "@/lib/creator-application";
+import { normalizeEmailAddress } from "@/lib/auth-errors";
 import { syncClientSessionOwnership } from "@/lib/client-session";
 import { clearTaskGuidanceStorage } from "@/lib/task-guidance";
 import { syncIdentifiedTelemetryOwnership, trackEvent } from "@/lib/telemetry";
@@ -401,7 +402,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         try {
             await ensureAuthPersistence();
-            await signInWithEmailAndPassword(auth, email, pass);
+            await signInWithEmailAndPassword(auth, normalizeEmailAddress(email), pass);
             toast.success("Welcome back!");
         } catch (error: unknown) {
             throw error;
@@ -415,8 +416,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         try {
             const signupIntent: SignupIntent = input.signupIntent === "creator" ? "creator" : "fan";
+            const normalizedEmail = normalizeEmailAddress(input.email);
             await ensureAuthPersistence();
-            await createUserWithEmailAndPassword(auth, input.email, input.password);
+            await createUserWithEmailAndPassword(auth, normalizedEmail, input.password);
 
             const response = await authFetch("/api/user/register", {
                 method: "POST",

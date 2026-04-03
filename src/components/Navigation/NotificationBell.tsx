@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import {
   Bell,
   Check,
@@ -36,6 +36,15 @@ interface NotificationNote {
   dropContext?: {
     previewImageUrl?: string;
     dropTitle?: string;
+  };
+}
+
+export function getNotificationPanelStyle(): CSSProperties {
+  return {
+    width: "min(22rem, calc(100vw - max(1rem, env(safe-area-inset-left)) - max(1rem, env(safe-area-inset-right))))",
+    maxHeight: "min(30rem, calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 5rem))",
+    WebkitBackdropFilter: "blur(30px)",
+    backdropFilter: "blur(30px)",
   };
 }
 
@@ -386,6 +395,7 @@ export function NotificationBell() {
   const { notifications, unreadCount, loading, markAsRead, markAllAsRead } = useNotifications({
     enabled: notificationsEnabled,
   });
+  const panelStyle = getNotificationPanelStyle();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -460,10 +470,10 @@ export function NotificationBell() {
 
       <div
         className={cn(
-          "absolute -right-1 top-full z-50 mt-3 flex max-h-[30rem] w-[min(22rem,calc(100vw-0.75rem))] origin-top-right flex-col overflow-hidden rounded-[1.9rem] border border-white/10 bg-[#111114]/95 shadow-2xl shadow-black/70 transition-all duration-200 sm:right-0 sm:w-[22rem]",
+          "absolute right-0 top-full z-50 mt-3 flex origin-top-right flex-col overflow-hidden rounded-[1.9rem] border border-white/10 bg-[#111114]/95 shadow-2xl shadow-black/70 transition-all duration-200",
           isOpen ? "translate-y-0 scale-100 opacity-100" : "pointer-events-none -translate-y-2 scale-95 opacity-0",
         )}
-        style={{ WebkitBackdropFilter: "blur(30px)", backdropFilter: "blur(30px)" }}
+        style={panelStyle}
       >
         <div className="border-b border-white/10 bg-white/[0.03] px-4 py-3.5">
           <div className="flex items-center justify-between gap-3">

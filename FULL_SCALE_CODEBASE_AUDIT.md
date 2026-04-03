@@ -2,7 +2,7 @@
 
 Status: Canonical audit standard and live baseline
 Last refreshed: 2026-04-03
-Last full-scale audit execution: 2026-04-03 11:04:59 -05:00
+Last full-scale audit execution: 2026-04-03 11:27:07 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
 ## Purpose
@@ -43,20 +43,20 @@ Related evidence snapshots:
 ## Current Baseline
 Current tracked inventory baseline after this audited change on 2026-04-03:
 
-- Total tracked files: `603`
+- Total tracked files: `606`
 - Root files: `41`
-- `src`: `349`
+- `src`: `350`
 - `src/app`: `115`
 - `src/components`: `65`
 - `src/context`: `4`
 - `src/hooks`: `13`
-- `src/lib`: `129`
+- `src/lib`: `130`
 - `src/lib/server`: `55`
 - `src/types`: `3`
 - `functions`: `36`
 - `functions/src`: `30`
 - `scripts`: `17`
-- `tests`: `92`
+- `tests`: `94`
 - `public`: `11`
 - `dataconnect`: `14`
 - `src/dataconnect-generated`: `15`
@@ -80,29 +80,25 @@ Current tolerated non-blocking environment notices:
 These notices are not automatic audit failures, but they must stay explicitly known and not silently spread into product behavior.
 
 ## Active Audit Entry
-Current audit date: `2026-04-03 10:47:08 -05:00`
-Current branch / commit: `main / dd0e7de`
+Current audit date: `2026-04-03 11:19:32 -05:00`
+Current branch / commit: `main / eab1d7e`
 
 Current task:
-- overnight unchecked-surface audit cleanup and confidence scoring
+- investigate email/password auth throttling and fix notification panel small-screen overflow
 
 Current mission:
-- overnight unchecked-surface audit, low-risk cleanup, fresh full-scale status reporting, and explicit confidence scoring across continuity, truth, parity, observability, and readiness surfaces
+- auth truth investigation and UX hardening for the manual email/password login path, plus mobile-safe notification panel sizing without introducing stale or disconnected UI behavior
 
 Current expected touched surfaces:
 - root/docs
-- root/config
-- `scripts`
-- `tests`
-- `src/app/admin`
-- `src/app/api`
-- `src/components`
-- `src/hooks`
 - `src/context`
+- `src/components/Navigation`
+- `src/components/Auth`
 - `src/lib`
 - `src/lib/server`
-- `functions/src`
-- low-risk stale or duplicated continuity surfaces discovered during the audit
+- `src/app/api`
+- `tests`
+- auth and notification continuity surfaces discovered during investigation
 
 Current canonical helpers/modules expected to be used:
 - `FULL_SCALE_CODEBASE_AUDIT.md`
@@ -112,55 +108,48 @@ Current canonical helpers/modules expected to be used:
 - `src/lib/server/route-diagnostics.ts`
 - `src/lib/client-error-reporting.ts`
 - `src/lib/server/server-diagnostics.ts`
-- `src/lib/server/admin-ops-health.ts`
+- `src/context/AuthContext.tsx`
+- `src/components/Navigation/NotificationBell.tsx`
 - `src/lib/telemetry.ts`
-- `src/lib/server/analytics-governance.ts`
-- existing Playwright, Vitest, ESLint, dependency-cruiser, Firebase runtime, and telemetry audit entrypoints already codified in the repo
+- existing Vitest, ESLint, Playwright, Firebase runtime, and continuity verification entrypoints already codified in the repo
 
 Current continuity note:
-- this pass is intentionally not a feature sprint; only low-risk cleanup and gap-closing work discovered by the overnight audit may land
+- this pass is intentionally a scoped truth-and-fix investigation: auth throttling must be explained against the actual email/password flow, and notification UI adjustments must preserve backend truth and accessibility
 
-Audit start recorded at: `2026-04-03 10:47:08 -05:00`
+Audit start recorded at: `2026-04-03 11:19:32 -05:00`
 
 Start-of-task audit inputs read:
 - `FULL_SCALE_CODEBASE_AUDIT.md`
 - `EVERY_FILE_FUNCTION_CHECKLIST.md`
-- `FULL_CODEBASE_AUDIT_2026-04-01.md`
-- `FULL_CODEBASE_POST_AUDIT_2026-03-18.md`
-- `STANDARDIZATION_AUDIT_CHECKLIST.md`
-- `ANALYTICS_SYSTEM_AUDIT_2026-03-18.md`
-- `DEPENDENCY_CONSISTENCY_AUDIT_2026-03-24.md`
+- current standing audit baseline and checklist companion
 
-End-of-task audit completion recorded at: `2026-04-03 11:04:59 -05:00`
+End-of-task audit completion recorded at: `2026-04-03 11:27:07 -05:00`
 
 Final touched surfaces:
 - root/docs
-- root/config
-- `scripts`
+- `src/components/Auth`
+- `src/components/Navigation`
 - `tests`
-- `src/hooks`
+- `src/context`
 - `src/lib`
 
 Final touched files:
-- `EVERY_FILE_FUNCTION_CHECKLIST.md`
 - `FULL_SCALE_CODEBASE_AUDIT.md`
-- `STANDARDIZATION_AUDIT_CHECKLIST.md`
-- `FULL_CODEBASE_AUDIT_2026-04-03.md`
-- `scripts/trace-adjacent-surfaces.ts`
-- `src/hooks/useCachedAuthSWR.ts` (removed)
-- `src/lib/monitoring.ts` (removed)
-- `tests/unit/admin-overview-users.spec.ts`
-- `tests/unit/username-suggestions-bench.spec.ts`
+- `src/components/Auth/AuthModal.tsx`
+- `src/components/Navigation/NotificationBell.tsx`
+- `src/context/AuthContext.tsx`
+- `src/lib/auth-errors.ts`
+- `tests/unit/auth-errors.spec.ts`
+- `tests/unit/notification-bell-layout.spec.ts`
 
 Canonical helpers/modules used in this task:
 - `FULL_SCALE_CODEBASE_AUDIT.md`
 - `EVERY_FILE_FUNCTION_CHECKLIST.md`
-- `scripts/repo-inventory.ts`
-- `scripts/trace-adjacent-surfaces.ts`
+- `src/context/AuthContext.tsx`
+- `src/components/Auth/AuthModal.tsx`
+- `src/components/Navigation/NotificationBell.tsx`
+- `src/lib/auth-errors.ts`
 - `src/lib/server/auth.ts`
-- `src/lib/server/request-guard.ts`
-- `src/lib/server/route-diagnostics.ts`
-- `src/lib/server/server-diagnostics.ts`
 - `src/lib/client-error-reporting.ts`
 - `src/lib/telemetry.ts`
 
@@ -179,20 +168,20 @@ Dependency decisions in this task:
   - None newly rejected in this overnight pass
 
 Manual setup or authentication still required from the user:
-- No new local setup is required for the overnight cleanup itself
-- Firebase and Google Cloud auth are still required later for real remote project inspection or deployment work
+- No new local setup is required for this fix pass
+- If real users continue reporting `auth/too-many-requests`, Firebase Console or Google Cloud auth is still needed later to inspect remote Authentication anti-abuse logs and project-level provider settings directly
 
 Exact systems audited or hardened in this pass:
-- continuity and adjacency review tooling
-- stale checklist metadata and audit discipline surfaces
-- dead helper and dead hook cleanup
-- benchmark-style verification stability
-- overnight confidence scoring and status reporting
+- manual email/password auth retry and recovery handling
+- client-side email normalization for Firebase auth paths
+- notification dropdown mobile-safe sizing and safe-area fit
+- auth-facing diagnostics and deterministic regression coverage
 
 Exact safety, moderation, telemetry, and debug additions made:
-- no new runtime safety or moderation pipes were added in this pass
-- no new telemetry emitters or runtime debug panels were added in this pass
-- debug/continuity hardening was limited to stronger root-file adjacency tracing and clearer audit/reporting truth
+- no new secrets, providers, or backend auth mutation paths were introduced
+- throttled email/password failures now surface with a truthful recovery message instead of raw Firebase wording
+- local retry hammering is reduced by a client-side cooldown gate on the email/password sign-in path
+- notification dropdown sizing now respects small-screen and safe-area constraints more cleanly
 
 Commands run during this task:
 - `git status --short`
@@ -200,91 +189,59 @@ Commands run during this task:
 - `git rev-parse --short HEAD`
 - `Get-Content FULL_SCALE_CODEBASE_AUDIT.md`
 - `Get-Content EVERY_FILE_FUNCTION_CHECKLIST.md`
-- `Get-Content FULL_CODEBASE_AUDIT_2026-04-01.md`
-- `Get-Content FULL_CODEBASE_POST_AUDIT_2026-03-18.md`
-- `Get-Content STANDARDIZATION_AUDIT_CHECKLIST.md`
-- `Get-Content ANALYTICS_SYSTEM_AUDIT_2026-03-18.md`
-- `Get-Content DEPENDENCY_CONSISTENCY_AUDIT_2026-03-24.md`
+- auth and notification surface searches for `signInWithEmailAndPassword`, `too-many-requests`, and `NotificationBell`
+- targeted reads of `src/context/AuthContext.tsx`, `src/components/Auth/AuthModal.tsx`, and `src/components/Navigation/NotificationBell.tsx`
+- `npx eslint src/context/AuthContext.tsx src/components/Auth/AuthModal.tsx src/components/Navigation/NotificationBell.tsx src/lib/auth-errors.ts tests/unit/auth-errors.spec.ts tests/unit/notification-bell-layout.spec.ts`
+- `corepack pnpm exec vitest run tests/unit/auth-errors.spec.ts tests/unit/notification-bell-layout.spec.ts`
 - `npm run check:inventory`
-- `npm run check:continuity`
-- `npm run check:telemetry`
-- `npm run check:analytics-semantics`
-- `npm run trace:adjacent -- middleware.ts`
-- `npm run trace:adjacent -- functions/src/index.ts`
-- `npm run trace:adjacent -- src/components/Analytics/DeepTracker.tsx`
-- `npm run trace:adjacent -- src/lib/server/admin-analytics-data.ts`
-- targeted scans for console-only failures, dead helpers, stale cache helpers, refresh-dependent behavior, and TODO/FIXME markers
 - `corepack pnpm run check`
 - `npx vitest run`
-- `npm run check:functions`
-- `npm run check:firebase:rules`
 
 Results:
-- root runtime hotspots are now traceable through the canonical adjacency helper
-- stale checklist metadata no longer pretends older inventory counts are the current live truth
-- dead `src/lib/monitoring.ts` and dead `src/hooks/useCachedAuthSWR.ts` were removed
-- benchmark-style verification is stable again on this environment
-- fresh overnight audit report generated: `FULL_CODEBASE_AUDIT_2026-04-03.md`
+- manual email/password auth now trims email input before Firebase calls
+- repeated sign-in hammering is guarded locally so duplicate submits and immediate retry loops do not keep pounding the same Firebase cooldown window
+- `auth/too-many-requests` now maps to a clearer recovery message with password-reset guidance
+- notification dropdown sizing now uses safe-area-aware width and height constraints on smaller screens
+- targeted unit coverage added for auth error resolution and notification panel sizing helpers
 - `corepack pnpm run check` passed
 - `npx vitest run` passed
-- `npm run check:continuity` passed
-- `npm run check:functions` passed
-- `npm run check:firebase:rules` passed
+- focused ESLint passed
+- focused Vitest passed
 
 Known tolerated warnings and notices:
 - npm unknown env config warnings during `pnpm`/`npm` script chains
-- Node `punycode` deprecation warnings during Vitest and Firebase emulator execution
-- Firebase emulator SIGINT/shutdown noise during rules tests
+- Node `punycode` deprecation warnings during Vitest execution
 
 Files needing follow-up:
-- `middleware.ts` remains a trust-boundary hotspot even though adjacency tracing is now better
-- `functions/src/index.ts` remains a high-complexity concentration point
-- `src/lib/server/admin-analytics-data.ts` remains a large, interpretation-heavy server truth surface
-- full auth/admin Playwright coverage still needs a stable local auth/emulator seam
-- telemetry truthfulness and admin-dashboard truth consolidation remain unfinished
-- exhaustive checklist body regeneration is still needed if it is to become a literal current inventory again
+- remote Firebase Authentication anti-abuse behavior still needs console-level inspection if this report reproduces for multiple real users
+- provider-linking expectations between manual email/password and Google sign-in still need remote project confirmation if mixed-provider account reports continue
+- auth/admin Playwright coverage still needs a stable local auth/emulator seam for end-to-end verification
 
 Inventory changed:
 - Yes
-- Net change after this overnight pass: `604` -> `603`
-- Removed stale tracked files:
-  - `src/hooks/useCachedAuthSWR.ts`
-  - `src/lib/monitoring.ts`
-- Added fresh overnight audit report:
-  - `FULL_CODEBASE_AUDIT_2026-04-03.md`
+- Net change after this auth and notification fix pass: `603` -> `606`
+- Added tracked files:
+  - `src/lib/auth-errors.ts`
+  - `tests/unit/auth-errors.spec.ts`
+  - `tests/unit/notification-bell-layout.spec.ts`
 
 Final confidence scoring summary:
-- Overall weighted overnight confidence score: `78%`
-- Strong:
-  - build/lint/type health
-  - continuity/audit discipline
-- Acceptable:
-  - dependency/runtime health
-  - route/API consistency
-  - lifecycle/status parity
-  - task/reward parity
-  - creator/fan flow readiness
-  - test coverage quality
-  - observability/diagnostics completeness
-- Shaky:
-  - telemetry truthfulness
-  - admin dashboard source-of-truth confidence
-  - realtime freshness / anti-stale behavior
+- auth/manual sign-in truth is stronger because throttled recovery is now explicit and email normalization is canonicalized
+- notification panel mobile confidence is stronger because the dropdown now sizes against viewport safe areas instead of relying on a fragile fixed width offset
 
 ## Last Executed Audit
-Audit execution recorded at: `2026-04-03 11:04:59 -05:00`
+Audit execution recorded at: `2026-04-03 11:27:07 -05:00`
 
 Current audit scope:
-- overnight unchecked-surface audit
-- low-risk cleanup and stale-surface removal
-- repo-wide status reporting and confidence scoring
-- continuity, truth, parity, and observability gap capture
+- manual auth throttling investigation
+- notification dropdown small-screen hardening
+- auth truth, recovery UX, and targeted regression coverage
 
 Current audit findings:
-- Build, lint, type, contract, continuity, functions, and rules verification are currently healthy on this repo state.
-- The biggest remaining risk is not repository breakage but truth cohesion: telemetry interpretation, admin observability, and realtime freshness are still not fully unified.
-- Continuity discipline is materially better than before this pass because root hotspots can now be traced and stale checklist headers no longer masquerade as current truth.
-- Some long-term hotspots remain intentionally untouched tonight because they need deeper refactors, not cleanup-only changes.
+- Build, lint, type, and full contract verification are healthy on this repo state.
+- The reported email/password issue is best explained locally by a combination of raw Firebase throttle messaging and the absence of a client-side retry guard; this pass fixes both of those repo-side weaknesses.
+- This pass does not prove that remote Firebase Authentication project settings are ideal, so repeat real-user reports should still trigger console-level investigation.
+- Notification dropdown overflow risk on smaller screens is reduced by safe-area-aware sizing rather than a brittle positional offset.
 
 ## Current Platform Readiness Summary
 What is ready now:

@@ -19,6 +19,11 @@ import { differenceInYears, parseISO } from "date-fns";
 
 import { useAuth } from "@/context/AuthContext";
 import type { AuthModalEntryMode } from "@/context/UIContext";
+import {
+    LOCAL_EMAIL_AUTH_SIGN_IN_COOLDOWN_MS,
+    normalizeEmailAddress,
+    resolveEmailAuthError,
+} from "@/lib/auth-errors";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { CREATOR_REVIEW_TIMELINE_COPY, KREATOR_EXPERIENCES_DEFINITION } from "@/lib/creator-onboarding";
 import { clearTimedFlow, consumeTimedFlow, startTimedFlow, trackEvent } from "@/lib/telemetry";
@@ -145,6 +150,8 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
     const wasOpenRef = useRef(false);
     const suggestionRequestRef = useRef(0);
     const availabilityRequestRef = useRef(0);
+    const emailAuthSubmissionInFlightRef = useRef(false);
+    const [emailSignInCooldownUntil, setEmailSignInCooldownUntil] = useState<number | null>(null);
 
     const activeSchema = useMemo(() => buildSchema(mode), [mode]);
     const isCreatorSignupMode = mode === "creator_signup";
@@ -229,12 +236,34 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
         setCheckingUsername(false);
         setUsernameAvailable(null);
         setUsernameTouched(false);
+        emailAuthSubmissionInFlightRef.current = false;
         suggestionRequestRef.current += 1;
         availabilityRequestRef.current += 1;
     }, [clearErrors, initialMode, isOpen, reset]);
 
+    useEffect(() => {
+        if (emailSignInCooldownUntil === null || typeof window === "undefined") {
+            return;
+        }
+
+        const remainingMs = emailSignInCooldownUntil - Date.now();
+        if (remainingMs <= 0) {
+            setEmailSignInCooldownUntil(null);
+            return;
+        }
+
+        const timeoutId = window.setTimeout(() => {
+            setEmailSignInCooldownUntil(null);
+        }, remainingMs);
+
+        return () => {
+            window.clearTimeout(timeoutId);
+        };
+    }, [emailSignInCooldownUntil]);
+
     const watchedEmail = watch("email");
     const watchedUsername = watch("username");
+    const emailSignInBlocked = mode === "signin" && emailSignInCooldownUntil !== null && emailSignInCooldownUntil > Date.now();
 
     useEffect(() => {
         if (!isOpen || !isSignupMode(mode) || usernameTouched || !watchedEmail) {
@@ -335,6 +364,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
         availabilityRequestRef.current += 1;
         setCheckingUsername(false);
         setUsernameAvailable(null);
+        emailAuthSubmissionInFlightRef.current = false;
         setMode(newMode);
         setAuthError(null);
         setResetSent(false);
@@ -404,6 +434,16 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
 
     const onSubmit = async (data: AuthFormData) => {
         const signupIntent = mode === "creator_signup" ? "creator" : "fan";
+        if (emailAuthSubmissionInFlightRef.current) {
+            return;
+        }
+
+        if (mode === "signin" && emailSignInBlocked) {
+            setAuthError("Email/password sign-in is temporarily paused in this browser. Wait a few moments, then try again or reset your password.");
+            return;
+        }
+
+        emailAuthSubmissionInFlightRef.current = true;
         setIsLoading(true);
         setAuthError(null);
 
@@ -473,17 +513,21 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                 trackEvent("auth_sign_in_failed", mergedParams);
             }
 
-            if (firebaseError.code === "auth/email-already-in-use") {
-                setAuthError("Email is already registered.");
-            } else if (firebaseError.message === "Username is already taken.") {
+            if (firebaseError.message === "Username is already taken.") {
                 setAuthError("Username is already taken.");
             } else if (firebaseError.code === "auth/invalid-credential") {
-                setAuthError("Invalid email or password.");
+                const resolution = resolveEmailAuthError(error, "sign_in");
+                setAuthError(resolution.userMessage);
             } else {
-                setAuthError(firebaseError.message || "Authentication failed. Please try again.");
+                const resolution = resolveEmailAuthError(error, isSignupMode(mode) ? "sign_up" : "sign_in");
+                if (!isSignupMode(mode) && resolution.localCooldownMs > 0) {
+                    setEmailSignInCooldownUntil(Date.now() + resolution.localCooldownMs);
+                }
+                setAuthError(resolution.userMessage);
             }
         } finally {
             setIsLoading(false);
+            emailAuthSubmissionInFlightRef.current = false;
         }
     };
 
@@ -501,7 +545,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
         try {
             const { sendPasswordResetEmail, getAuth } = await import("firebase/auth");
             const { auth } = await import("@/lib/firebase");
-            await sendPasswordResetEmail(auth || getAuth(), email);
+            await sendPasswordResetEmail(auth || getAuth(), normalizeEmailAddress(email));
             trackEvent("password_reset_sent");
             setResetSent(true);
         } catch (error: unknown) {
@@ -515,13 +559,14 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                 },
                 consoleLabel: "[Auth Modal] password reset failed",
             });
-            const firebaseError = error as { code?: string; message?: string };
+            const resolution = resolveEmailAuthError(error, "password_reset");
+            const firebaseError = error as { code?: string };
             if (firebaseError.code === "auth/user-not-found") {
                 trackEvent("password_reset_sent");
                 setResetSent(true);
             } else {
                 trackEvent("password_reset_failed", { error_code: firebaseError.code || "unknown" });
-                setAuthError(firebaseError.message || "Failed to send reset email.");
+                setAuthError(resolution.userMessage);
             }
         } finally {
             setIsLoading(false);
@@ -938,10 +983,16 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                     </div>
                                 ) : null}
 
+                                {mode === "signin" && emailSignInBlocked ? (
+                                    <div className="rounded-lg border border-white/10 bg-white/5 p-3 text-xs leading-5 text-gray-300">
+                                        Firebase is temporarily throttling email/password attempts from this device. We pause retries locally for {Math.round(LOCAL_EMAIL_AUTH_SIGN_IN_COOLDOWN_MS / 1_000)} seconds so you do not keep hammering the same cooldown window. Use <span className="font-semibold text-white">Forgot password?</span> if you need a recovery path right now.
+                                    </div>
+                                ) : null}
+
                                 {mode === "signin" ? (
                                     <button
                                         type="submit"
-                                        disabled={isLoading}
+                                        disabled={isLoading || emailSignInBlocked}
                                         className="w-full rounded-xl bg-gradient-to-r from-brand-purple to-purple-500 py-3 font-bold text-white shadow-lg shadow-brand-purple/20 transition-all active:scale-[0.98] disabled:opacity-50 hover:opacity-95"
                                     >
                                         {isLoading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" /> : "Sign In"}

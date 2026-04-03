@@ -1,0 +1,37 @@
+import { describe, expect, it } from "vitest";
+
+import {
+    LOCAL_EMAIL_AUTH_SIGN_IN_COOLDOWN_MS,
+    normalizeEmailAddress,
+    resolveEmailAuthError,
+} from "@/lib/auth-errors";
+
+describe("auth error helpers", () => {
+    it("trims email addresses before Firebase auth calls", () => {
+        expect(normalizeEmailAddress("  test@example.com  ")).toBe("test@example.com");
+    });
+
+    it("maps email/password throttle errors to a recovery message and local cooldown", () => {
+        const resolution = resolveEmailAuthError({ code: "auth/too-many-requests" }, "sign_in");
+
+        expect(resolution.userMessage).toContain("Wait a few minutes");
+        expect(resolution.userMessage).toContain("reset your password");
+        expect(resolution.localCooldownMs).toBe(LOCAL_EMAIL_AUTH_SIGN_IN_COOLDOWN_MS);
+        expect(resolution.allowPasswordReset).toBe(true);
+    });
+
+    it("keeps sign-up throttle errors truthful without pretending password recovery will help", () => {
+        const resolution = resolveEmailAuthError({ code: "auth/too-many-requests" }, "sign_up");
+
+        expect(resolution.userMessage).toContain("sign-up attempts");
+        expect(resolution.localCooldownMs).toBe(0);
+        expect(resolution.allowPasswordReset).toBe(false);
+    });
+
+    it("maps invalid credentials to a friendly sign-in error", () => {
+        const resolution = resolveEmailAuthError({ code: "auth/invalid-credential" }, "sign_in");
+
+        expect(resolution.userMessage).toBe("Invalid email or password.");
+        expect(resolution.localCooldownMs).toBe(0);
+    });
+});
