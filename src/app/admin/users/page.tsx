@@ -615,8 +615,8 @@ export default function UserManagementPage() {
                                                 <td className="p-4 font-mono text-brand-purple">
                                                     <div className="flex items-center gap-2">
                                                         {user.gumDropsBalance} GD
-                                                        <button onClick={() => setEditBalanceUser(user)} className="p-1 rounded-md text-gray-500 hover:text-white transition-colors" title="Edit Balance"><Edit2 className="w-3 h-3" /></button>
-                                                        <button onClick={() => setHistoryUser(user)} className="p-1 rounded-md text-gray-500 hover:text-white transition-colors" title="View History"><ScrollText className="w-3 h-3" /></button>
+                                                        <button onClick={() => setEditBalanceUser(user)} className="p-1 rounded-md text-gray-500 hover:text-white transition-colors" title="Edit Balance" aria-label="Edit Balance"><Edit2 className="w-3 h-3" /></button>
+                                                        <button onClick={() => setHistoryUser(user)} className="p-1 rounded-md text-gray-500 hover:text-white transition-colors" title="View History" aria-label="View History"><ScrollText className="w-3 h-3" /></button>
                                                     </div>
                                                     <div className="mt-2 flex flex-wrap gap-2 text-[10px] text-gray-500">
                                                         <span>{user.unlockedContent?.length || 0} unlocked</span>
@@ -674,12 +674,13 @@ export default function UserManagementPage() {
                                                 <td className="p-4 text-right">
                                                     <div className="flex items-center justify-end gap-1">
                                                         {user.role !== 'creator' && (
-                                                            <button onClick={() => handleRoleUpdate(user.uid, 'creator')} className="p-1.5 text-gray-400 rounded transition-colors" title="Promote"><Plus className="w-3 h-3" /></button>
+                                                            <button onClick={() => handleRoleUpdate(user.uid, 'creator')} className="p-1.5 text-gray-400 rounded transition-colors" title="Promote" aria-label="Promote"><Plus className="w-3 h-3" /></button>
                                                         )}
                                                         <button
                                                             onClick={() => handleVerification(user.uid, !user.isVerified)}
                                                             className={`p-1.5 rounded transition-colors ${user.isVerified ? "text-brand-purple " : "text-gray-400 "}`}
                                                             title="Verify"
+                                                            aria-label="Verify"
                                                         >
                                                             <CheckCircle className="w-3 h-3" />
                                                         </button>
@@ -689,13 +690,13 @@ export default function UserManagementPage() {
                                                         <div className="w-px h-4 bg-white/10 mx-1" />
                                                         {(!user.status || user.status === 'active') ? (
                                                             <>
-                                                                <button onClick={() => { setActionUser(user); setActionType('suspend'); }} className="p-1.5 rounded text-gray-400 transition-colors" title="Suspend"><AlertTriangle className="w-3 h-3" /></button>
-                                                                <button onClick={() => { setActionUser(user); setActionType('ban'); }} className="p-1.5 rounded text-gray-400 transition-colors" title="Ban"><Ban className="w-3 h-3" /></button>
+                                                                <button onClick={() => { setActionUser(user); setActionType('suspend'); }} className="p-1.5 rounded text-gray-400 transition-colors" title="Suspend" aria-label="Suspend"><AlertTriangle className="w-3 h-3" /></button>
+                                                                <button onClick={() => { setActionUser(user); setActionType('ban'); }} className="p-1.5 rounded text-gray-400 transition-colors" title="Ban" aria-label="Ban"><Ban className="w-3 h-3" /></button>
                                                             </>
                                                         ) : (
-                                                            <button onClick={() => { setActionUser(user); setActionType('activate'); }} className="p-1.5 rounded text-brand-purple transition-colors" title="Reactivate"><CheckCircle className="w-3 h-3" /></button>
+                                                            <button onClick={() => { setActionUser(user); setActionType('activate'); }} className="p-1.5 rounded text-brand-purple transition-colors" title="Reactivate" aria-label="Reactivate"><CheckCircle className="w-3 h-3" /></button>
                                                         )}
-                                                        <button onClick={() => setContentUser(user)} className="p-1.5 rounded text-gray-400 transition-colors" title="Content"><Lock className="w-3 h-3" /></button>
+                                                        <button onClick={() => setContentUser(user)} className="p-1.5 rounded text-gray-400 transition-colors" title="Content" aria-label="Content"><Lock className="w-3 h-3" /></button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -1064,7 +1065,7 @@ export default function UserManagementPage() {
                                                     <span className="block truncate">{dropReferences[dropId]?.title || dropId}</span>
                                                     <span className="block truncate text-[11px] text-gray-500">{dropId}</span>
                                                 </div>
-                                                <button onClick={() => handleManageContent('remove', dropId)} disabled={contentActionProcessing} className="p-1 transition-colors" title="Revoke Access"><Ban className="w-3 h-3" /></button>
+                                                <button onClick={() => handleManageContent('remove', dropId)} disabled={contentActionProcessing} className="p-1 transition-colors" title="Revoke Access" aria-label="Revoke Access"><Ban className="w-3 h-3" /></button>
                                             </div>
                                         ))
                                     ) : (
