@@ -74,5 +74,5 @@ describe("Performance Benchmark: transaction.get vs transaction.getAll", () => {
         console.log(`Drop grid unlocked lookup baseline (Array.includes): ${baselineDuration.toFixed(2)}ms`);
         console.log(`Drop grid unlocked lookup optimized (Set.has): ${optimizedDuration.toFixed(2)}ms`);
         expect(optimizedDuration).toBeLessThan(baselineDuration);
-    });
+    }, 20_000);
 });

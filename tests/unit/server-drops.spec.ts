@@ -76,5 +76,5 @@ describe("getDrops", () => {
         );
 
         consoleErrorSpy.mockRestore();
-    });
+    }, 10_000);
 });

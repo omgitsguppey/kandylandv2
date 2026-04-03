@@ -5,17 +5,27 @@ import { handleApiError } from "@/lib/server/auth";
 import { ADMIN, HEAVY_READ } from "@/lib/server/rate-limit";
 import {
     BUILT_IN_DAILY_TASKS,
+    DAILY_TASK_ACTION_OPTIONS,
+    DAILY_TASK_COOLDOWN_DAYS,
+    DAILY_TASK_ICON_OPTIONS,
     DAILY_TASK_LIMIT,
     DAILY_TASK_REWARD_MULTIPLIER,
     DAILY_TASK_REWARD_VERSION,
+    resolveDailyTaskReward,
     type DailyTaskAssignment,
+    type DailyTaskDefinition,
 } from "@/lib/tasks/task-catalog";
 import {
     buildDailyTaskInventory,
+    buildDailyTaskRuntimeAudit,
     CANONICAL_TASK_EVENT_NAMES,
     summarizeDailyTaskInventory,
 } from "@/lib/tasks/task-observability";
-import { TELEMETRY_EVENT_LABELS, TELEMETRY_EVENT_NAMES } from "@/lib/telemetry-catalog";
+import {
+    buildTelemetryEventMetadata,
+    TELEMETRY_EVENT_LABELS,
+    TELEMETRY_EVENT_NAMES,
+} from "@/lib/telemetry-catalog";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { buildAdminOpsHealth } from "@/lib/server/admin-ops-health";
 import { buildAdminOrchestrationSnapshot } from "@/lib/server/admin-orchestration";
@@ -30,6 +40,9 @@ import { buildCreatorOnboardingDiagnostics } from "@/lib/server/creator-onboardi
 import { CREATOR_ONBOARDING_COLLECTION, CREATOR_REVIEW_QUEUE_COLLECTION } from "@/lib/server/creator-onboarding";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+const TASK_GROUP_SET = new Set<string>(["visit", "notifications", "unwrap", "watch", "wallet", "purchase", "feedback", "share"]);
+const TASK_ACTION_SET = new Set<string>(DAILY_TASK_ACTION_OPTIONS.map((option) => option.value));
+const TASK_ICON_SET = new Set<string>(DAILY_TASK_ICON_OPTIONS.map((option) => option.value));
 
 function toNumber(value: unknown) {
     const numeric = Number(value);
@@ -87,6 +100,95 @@ function normalizeTaskIds(rawTasks: unknown) {
             assignedAt: toNumber(task.assignedAt),
         }))
         .filter((task) => task.id.length > 0);
+}
+
+function normalizeStringArray(rawValue: unknown) {
+    if (!Array.isArray(rawValue)) {
+        return [];
+    }
+
+    return rawValue.filter((value): value is string => typeof value === "string" && value.length > 0);
+}
+
+function normalizeHistory(rawValue: unknown) {
+    if (!rawValue || typeof rawValue !== "object" || Array.isArray(rawValue)) {
+        return {} as Record<string, number>;
+    }
+
+    return Object.entries(rawValue as Record<string, unknown>).reduce<Record<string, number>>((history, [key, value]) => {
+        const numericValue = toNumber(value);
+        if (key.length > 0 && numericValue > 0) {
+            history[key] = numericValue;
+        }
+        return history;
+    }, {});
+}
+
+function normalizeCustomTaskDefinition(id: string, rawValue: Record<string, unknown>) {
+    const title = toStringValue(rawValue.title);
+    const subtitle = toStringValue(rawValue.subtitle);
+    const eventName = toStringValue(rawValue.eventName);
+    const actionType = toStringValue(rawValue.actionType);
+    const icon = toStringValue(rawValue.icon);
+    const group = toStringValue(rawValue.group);
+    const scope = toStringValue(rawValue.source) || toStringValue(rawValue.scope);
+
+    const issues: string[] = [];
+    if (!title) {
+        issues.push("missing title");
+    }
+    if (!subtitle) {
+        issues.push("missing subtitle");
+    }
+    if (!eventName) {
+        issues.push("missing eventName");
+    }
+    if (!TASK_ACTION_SET.has(actionType)) {
+        issues.push("invalid actionType");
+    }
+    if (!TASK_ICON_SET.has(icon)) {
+        issues.push("invalid icon");
+    }
+    if (!TASK_GROUP_SET.has(group)) {
+        issues.push("invalid group");
+    }
+    if (scope !== "global" && scope !== "user") {
+        issues.push("invalid scope");
+    }
+
+    if (issues.length > 0) {
+        return {
+            definition: null,
+            issues,
+        };
+    }
+
+    return {
+        definition: {
+            id,
+            source: scope as DailyTaskDefinition["source"],
+            title,
+            subtitle,
+            reward: resolveDailyTaskReward(rawValue.reward, rawValue.rewardVersion),
+            maxProgress: Math.max(1, toNumber(rawValue.maxProgress) || 1),
+            eventName: buildTelemetryEventMetadata(eventName).canonicalEventName,
+            actionType: actionType as DailyTaskDefinition["actionType"],
+            ctaLabel: toStringValue(rawValue.ctaLabel) || "Keep going",
+            icon: icon as DailyTaskDefinition["icon"],
+            group: group as DailyTaskDefinition["group"],
+            cooldownDays: Math.max(1, toNumber(rawValue.cooldownDays) || DAILY_TASK_COOLDOWN_DAYS),
+            oneTime: rawValue.oneTime === true,
+            criteria: rawValue.criteria as DailyTaskDefinition["criteria"] | undefined,
+            uniqueByParamKey: toStringValue(rawValue.uniqueByParamKey) || undefined,
+            targetUserId: toStringValue(rawValue.targetUserId) || null,
+            customTaskId: id,
+            active: rawValue.active !== false,
+            createdAt: toNumber(rawValue.createdAt) || undefined,
+            updatedAt: toNumber(rawValue.updatedAt) || undefined,
+            rewardVersion: toNumber(rawValue.rewardVersion) || undefined,
+        } satisfies DailyTaskDefinition,
+        issues,
+    };
 }
 
 function hasInvalidRefreshMetadata(state: Record<string, unknown> | undefined, nowMs: number) {
@@ -291,6 +393,65 @@ export async function GET(request: NextRequest) {
             };
         });
 
+        const customTaskDefinitionIssues: Array<{
+            kind: "definition";
+            taskId: string;
+            title: string;
+            eventName: string;
+            userId: string;
+            detail: string;
+        }> = [];
+        const customTaskDefinitions = customTaskDefinitionsSnapshot.docs.flatMap((doc) => {
+            const rawValue = doc.data() as Record<string, unknown>;
+            const normalized = normalizeCustomTaskDefinition(doc.id, rawValue);
+            if (!normalized.definition) {
+                customTaskDefinitionIssues.push({
+                    kind: "definition",
+                    taskId: doc.id,
+                    title: toStringValue(rawValue.title) || doc.id,
+                    eventName: toStringValue(rawValue.eventName),
+                    userId: "",
+                    detail: `custom task definition could not be normalized: ${normalized.issues.join(", ")}`,
+                });
+                return [];
+            }
+
+            return [normalized.definition];
+        });
+        const allTaskDefinitions = [...BUILT_IN_DAILY_TASKS, ...customTaskDefinitions];
+        const taskDefinitionsById = new Map(allTaskDefinitions.map((definition) => [definition.id, definition]));
+        const taskIdsByTitle = allTaskDefinitions.reduce<Map<string, string[]>>((map, definition) => {
+            const titleKey = definition.title.trim().toLowerCase();
+            if (!titleKey) {
+                return map;
+            }
+
+            const existing = map.get(titleKey) ?? [];
+            existing.push(definition.id);
+            map.set(titleKey, existing);
+            return map;
+        }, new Map<string, string[]>());
+        const eventNamesToTaskIds = allTaskDefinitions.reduce<Map<string, string[]>>((map, definition) => {
+            const existing = map.get(definition.eventName) ?? [];
+            existing.push(definition.id);
+            map.set(definition.eventName, existing);
+            return map;
+        }, new Map<string, string[]>());
+
+        const runtimeUserStates = usersSnapshot.docs.map((doc) => {
+            const data = doc.data() as Record<string, unknown>;
+            const username = toStringValue(data.username) || toStringValue(data.displayName) || doc.id;
+            const dailyTasksState = data.dailyTasksState as Record<string, unknown> | undefined;
+            return {
+                uid: doc.id,
+                username,
+                tasks: normalizeTaskIds(dailyTasksState?.tasks),
+                completedTaskHistory: normalizeHistory(dailyTasksState?.completedTaskHistory),
+                retiredTaskIds: normalizeStringArray(dailyTasksState?.retiredTaskIds),
+                hasInvalidRefreshMetadata: hasInvalidRefreshMetadata(dailyTasksState, nowMs),
+            };
+        });
+
         const transactionEntries = transactionsSnapshot.docs.map((doc) => ({
             id: doc.id,
             ...(doc.data() as Record<string, unknown>),
@@ -300,10 +461,78 @@ export async function GET(request: NextRequest) {
             .filter((entry) => toStringValue(entry.type) === "daily_reward" && toNumber(entry.timestamp) >= weekAgoMs);
         const completedEvents7d = recentTaskEvents.filter((event) => event.type === "completed" && event.timestamp >= weekAgoMs);
         const receiptEvents7d = recentReceipts.filter((entry) => entry.timestamp >= weekAgoMs);
+        const rewardClaimNormalizationIssues: Array<{
+            kind: "reward_claim";
+            taskId: string;
+            title: string;
+            eventName: string;
+            userId: string;
+            detail: string;
+        }> = [];
+        const rewardClaims7d = rewardTransactions7d.flatMap((entry) => {
+            const description = toStringValue(entry.description);
+            const taskTitle = description.startsWith("Daily Task: ") ? description.replace("Daily Task: ", "") : description;
+            const titleKey = taskTitle.trim().toLowerCase();
+            const matchedTaskIds = titleKey ? (taskIdsByTitle.get(titleKey) ?? []) : [];
+
+            if (matchedTaskIds.length === 1) {
+                return [{
+                    taskId: matchedTaskIds[0],
+                    title: taskTitle || matchedTaskIds[0],
+                    timestamp: toNumber(entry.timestamp),
+                    reward: Math.abs(toNumber(entry.amount)),
+                }];
+            }
+
+            rewardClaimNormalizationIssues.push({
+                kind: "reward_claim",
+                taskId: matchedTaskIds[0] ?? "",
+                title: taskTitle || "unknown",
+                eventName: "",
+                userId: toStringValue(entry.userId),
+                detail: matchedTaskIds.length > 1
+                    ? "daily reward transaction title matched multiple task definitions"
+                    : "daily reward transaction could not be matched to a task definition",
+            });
+            return [];
+        });
+
+        const runtimeTaskAudit = buildDailyTaskRuntimeAudit({
+            definitions: allTaskDefinitions,
+            userStates: runtimeUserStates,
+            taskEvents: recentTaskEvents,
+            receipts: recentReceipts,
+            rewardClaims: rewardClaims7d,
+            eventStats: eventStatsSnapshot.docs.map((doc) => {
+                const data = doc.data() as Record<string, unknown>;
+                return {
+                    eventName: doc.id,
+                    totalCount: toNumber(data.totalCount),
+                    lastSeenAt: toNumber(data.lastSeenAt),
+                };
+            }),
+            taskRollups: taskRollupSnapshot.docs.map((doc) => {
+                const data = doc.data() as Record<string, unknown>;
+                return {
+                    taskId: doc.id,
+                    title: toStringValue(data.title) || doc.id,
+                    eventCount: toNumber(data.eventCount),
+                    rewardTotal: toNumber(data.rewardTotal),
+                    completed: toNumber((data.types as Record<string, unknown> | undefined)?.completed),
+                    started: toNumber((data.types as Record<string, unknown> | undefined)?.started),
+                    failed: toNumber((data.types as Record<string, unknown> | undefined)?.failed),
+                    reminders: toNumber((data.types as Record<string, unknown> | undefined)?.reminder_sent),
+                    lastEventAt: toNumber(data.lastEventAt),
+                };
+            }),
+        });
+        runtimeTaskAudit.unsupportedRuntimeRecords.push(...customTaskDefinitionIssues, ...rewardClaimNormalizationIssues);
+        runtimeTaskAudit.summary.unsupportedRuntimeRecords = runtimeTaskAudit.unsupportedRuntimeRecords.length;
 
         const rewardParityByTask = new Map<string, {
             taskId: string;
             title: string;
+            definitionOrigin: "built_in" | "custom" | "unknown";
             completedCount: number;
             rewardedCount: number;
             rewardTotal: number;
@@ -311,9 +540,11 @@ export async function GET(request: NextRequest) {
         }>();
 
         completedEvents7d.forEach((event) => {
+            const matchedDefinition = taskDefinitionsById.get(event.taskId);
             const current = rewardParityByTask.get(event.taskId) || {
                 taskId: event.taskId,
-                title: event.title,
+                title: matchedDefinition?.title || event.title,
+                definitionOrigin: matchedDefinition?.source === "built_in" ? "built_in" : matchedDefinition ? "custom" : "unknown",
                 completedCount: 0,
                 rewardedCount: 0,
                 rewardTotal: 0,
@@ -327,11 +558,14 @@ export async function GET(request: NextRequest) {
         rewardTransactions7d.forEach((entry) => {
             const description = toStringValue(entry.description);
             const taskTitle = description.startsWith("Daily Task: ") ? description.replace("Daily Task: ", "") : description;
-            const matchedTask = BUILT_IN_DAILY_TASKS.find((task) => task.title === taskTitle);
-            const taskId = matchedTask?.id || taskTitle || "unknown";
+            const matchedTaskIds = taskIdsByTitle.get(taskTitle.trim().toLowerCase()) ?? [];
+            const matchedTaskId = matchedTaskIds.length === 1 ? matchedTaskIds[0] : "";
+            const matchedTask = matchedTaskId ? taskDefinitionsById.get(matchedTaskId) : undefined;
+            const taskId = matchedTaskId || taskTitle || "unknown";
             const current = rewardParityByTask.get(taskId) || {
                 taskId,
                 title: taskTitle || taskId,
+                definitionOrigin: matchedTask?.source === "built_in" ? "built_in" : matchedTask ? "custom" : "unknown",
                 completedCount: 0,
                 rewardedCount: 0,
                 rewardTotal: 0,
@@ -342,15 +576,17 @@ export async function GET(request: NextRequest) {
         });
 
         receiptEvents7d.forEach((entry) => {
-            if (!CANONICAL_TASK_EVENT_NAMES.has(entry.eventName)) {
+            const matchedTaskIds = eventNamesToTaskIds.get(entry.eventName) ?? [];
+            if (matchedTaskIds.length !== 1) {
                 return;
             }
 
-            const matchedTask = BUILT_IN_DAILY_TASKS.find((task) => task.eventName === entry.eventName);
-            const taskId = matchedTask?.id || entry.eventName;
+            const taskId = matchedTaskIds[0];
+            const matchedTask = taskDefinitionsById.get(taskId);
             const current = rewardParityByTask.get(taskId) || {
                 taskId,
                 title: matchedTask?.title || entry.eventName,
+                definitionOrigin: matchedTask?.source === "built_in" ? "built_in" : matchedTask ? "custom" : "unknown",
                 completedCount: 0,
                 rewardedCount: 0,
                 rewardTotal: 0,
@@ -365,7 +601,7 @@ export async function GET(request: NextRequest) {
 
         const eventStats = eventStatsSnapshot.docs.map((doc) => {
             const data = doc.data() as Record<string, unknown>;
-            const taskMatches = BUILT_IN_DAILY_TASKS.filter((task) => task.eventName === doc.id);
+            const taskMatches = allTaskDefinitions.filter((task) => task.eventName === doc.id);
             return {
                 eventName: doc.id,
                 label: TELEMETRY_EVENT_LABELS[doc.id] || doc.id,
@@ -420,19 +656,19 @@ export async function GET(request: NextRequest) {
             };
         }).sort((left, right) => left.dayKey.localeCompare(right.dayKey));
 
-        const customTaskDefinitions = customTaskDefinitionsSnapshot.docs.map((doc) => {
-            const data = doc.data() as Record<string, unknown>;
-            return {
-                id: doc.id,
-                rewardVersion: toNumber(data.rewardVersion),
-                reward: toNumber(data.reward),
-            };
-        });
+        const customTaskDefinitionsSummary = customTaskDefinitions.map((task) => ({
+            id: task.id,
+            rewardVersion: toNumber(task.rewardVersion),
+            reward: toNumber(task.reward),
+            active: task.active !== false,
+            scope: task.source,
+            eventName: task.eventName,
+        }));
 
         const rewardValues = BUILT_IN_DAILY_TASKS.map((task) => task.reward);
-        const legacyRewardVersionCount = customTaskDefinitions.filter((task) => task.rewardVersion !== DAILY_TASK_REWARD_VERSION).length;
-        const customRewardAverage = customTaskDefinitions.length > 0
-            ? Math.round(customTaskDefinitions.reduce((sum, task) => sum + task.reward, 0) / customTaskDefinitions.length)
+        const legacyRewardVersionCount = customTaskDefinitionsSummary.filter((task) => task.rewardVersion !== DAILY_TASK_REWARD_VERSION).length;
+        const customRewardAverage = customTaskDefinitionsSummary.length > 0
+            ? Math.round(customTaskDefinitionsSummary.reduce((sum, task) => sum + task.reward, 0) / customTaskDefinitionsSummary.length)
             : 0;
 
         const creatorSpendTransactions7d = transactionEntries.filter((entry) => {
@@ -579,6 +815,16 @@ export async function GET(request: NextRequest) {
                 criteriaTasks: taskInventorySummary.criteriaTasks,
                 uniqueByParamTasks: taskInventorySummary.uniqueByParamTasks,
                 usersWithTaskIssues: assignmentIssues.length,
+                runtimeAssignedTasks: runtimeTaskAudit.summary.totalAssignments,
+                runtimeBuiltInAssignments: runtimeTaskAudit.summary.builtInAssignments,
+                runtimeCustomAssignments: runtimeTaskAudit.summary.customAssignments,
+                runtimeUsersWithTasks: runtimeTaskAudit.summary.usersWithAssignedTasks,
+                runtimeUsersWithRefreshIssues: runtimeTaskAudit.summary.usersWithRefreshIssues,
+                runtimeUnsupportedTaskRecords: runtimeTaskAudit.summary.unsupportedRuntimeRecords,
+                runtimeCooldownConflictUsers: runtimeTaskAudit.summary.cooldownConflictUsers,
+                runtimeCustomTaskDrift: runtimeTaskAudit.summary.customDefinitionsWithDrift,
+                runtimeSharedEventMappings: runtimeTaskAudit.summary.sharedEventMappings,
+                telemetryAlignmentWarnings: runtimeTaskAudit.summary.telemetryAlignmentWarnings,
                 receiptsLast7d: receiptEvents7d.length,
                 completedEventsLast7d: completedEvents7d.length,
                 rewardTransactionsLast7d: rewardTransactions7d.length,
@@ -607,6 +853,7 @@ export async function GET(request: NextRequest) {
             receiptSummary,
             eventStats: eventStats.slice(0, 40),
             orphanedEventStats,
+            runtimeTaskAudit,
             taskRollups: taskRollups.slice(0, 30),
             dailyTaskSeries,
             taskRewardConfig: {
@@ -617,7 +864,7 @@ export async function GET(request: NextRequest) {
                     : 0,
                 builtInMinReward: rewardValues.length > 0 ? Math.min(...rewardValues) : 0,
                 builtInMaxReward: rewardValues.length > 0 ? Math.max(...rewardValues) : 0,
-                customTaskCount: customTaskDefinitions.length,
+                customTaskCount: customTaskDefinitionsSummary.length,
                 customAverageReward: customRewardAverage,
                 legacyRewardVersionCount,
             },

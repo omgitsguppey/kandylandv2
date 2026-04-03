@@ -2,7 +2,7 @@
 
 Status: Canonical audit standard and live baseline
 Last refreshed: 2026-04-03
-Last full-scale audit execution: 2026-04-03 14:59:01 -05:00
+Last full-scale audit execution: 2026-04-03 16:50:24 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
 ## Purpose
@@ -43,20 +43,20 @@ Related evidence snapshots:
 ## Current Baseline
 Current tracked inventory baseline after this audited change on 2026-04-03:
 
-- Total tracked files: `611`
+- Total tracked files: `613`
 - Root files: `41`
-- `src`: `353`
+- `src`: `354`
 - `src/app`: `116`
 - `src/components`: `65`
 - `src/context`: `4`
 - `src/hooks`: `13`
-- `src/lib`: `132`
+- `src/lib`: `133`
 - `src/lib/server`: `56`
 - `src/types`: `3`
 - `functions`: `36`
 - `functions/src`: `30`
 - `scripts`: `17`
-- `tests`: `96`
+- `tests`: `97`
 - `public`: `11`
 - `dataconnect`: `14`
 - `src/dataconnect-generated`: `15`
@@ -67,10 +67,9 @@ Current baseline verification on 2026-04-03:
 - `corepack pnpm run check` passed
 - `npx vitest run` passed
 - `npm run check:continuity` passed
-- `npm run check:functions` passed
-- `npm run check:firebase:rules` passed
-- `npm run check:ui:audits` remained green from the prior 2026-04-03 continuity pass
-- `npm run check:ui:lighthouse` remained green from the prior 2026-04-03 continuity pass
+- `npm run check:telemetry` passed
+- `npm run check:analytics-semantics` passed
+- adjacency traces passed for the touched runtime task/admin debug surfaces
 
 Current tolerated non-blocking environment notices:
 - npm unknown env config warnings printed during some script runs
@@ -80,22 +79,22 @@ Current tolerated non-blocking environment notices:
 These notices are not automatic audit failures, but they must stay explicitly known and not silently spread into product behavior.
 
 ## Active Audit Entry
-Current audit date: `2026-04-03 14:11:24 -05:00`
-Current branch / commit: `main / d60f4bc`
+Current audit date: `2026-04-03 16:10:39 -05:00`
+Current branch / commit: `main / 57369cf`
 
 Current task:
-- full task-system audit, guidance activation repair, parity hardening, and telemetry coverage expansion
+- runtime task-truth follow-up, custom-task auditability, telemetry/admin truth consolidation, and admin/auth verification readiness
 
 Current mission:
-- audit every built-in daily task and its current live state model, fix missing guidance activation and missing-action cases, ensure completion/reward/parity tracking remains truthful, and expand the standing audit so task metrics, custom event naming, and tracked global/user-level stats are documented canonically
+- continue the 2026-04-03 task-system audit by extending observability from the code-backed task catalog into truthful runtime-backed inspection, making custom/admin-authored task behavior auditable, tightening the relationship between telemetry facts and admin/debug summaries, and improving deterministic readiness for admin/auth-bound verification without inventing fake seams
 
 Current expected touched surfaces:
 - root/docs
+- `scripts`
+- `src/app/admin`
 - `src/app/api/admin`
-- `src/app/api/checkin`
 - `src/app/api/telemetry`
 - `src/components/Admin`
-- `src/components/Dashboard`
 - `src/hooks`
 - `src/lib`
 - `src/lib/server`
@@ -108,32 +107,41 @@ Current canonical helpers/modules expected to be used:
 - `src/lib/tasks/task-catalog.ts`
 - `src/lib/task-guidance.ts`
 - `src/lib/telemetry-catalog.ts`
+- `src/lib/analytics-metric-catalog.ts`
+- `src/lib/server/analytics.ts`
+- `src/lib/server/analytics-governance.ts`
 - `src/lib/telemetry.ts`
 - `src/lib/server/daily-tasks.ts`
+- `src/lib/tasks/task-observability.ts`
 - `src/app/api/admin/debug/route.ts`
+- `src/hooks/useAuthSWR.ts`
+- `src/hooks/client-runtime.ts`
 - `src/lib/client-error-reporting.ts`
 - `src/lib/server/route-diagnostics.ts`
 - existing Vitest, ESLint, continuity, analytics semantics, telemetry audit, and contract verification entrypoints already codified in the repo
 
 Current continuity note:
-- this pass must start from the task catalog and the canonical guidance/parity helpers instead of patching individual UI symptoms; every task must either have a truthful action/guidance path or be explicitly accounted for in the catalog and audit outputs
+- this pass must keep built-in and custom tasks on the same canonical task/telemetry dialect, extend truth into runtime-backed admin/debug inspection instead of inventing shadow reports, and document any runtime gaps honestly if they cannot be proven from code or local verification
 
-Audit start recorded at: `2026-04-03 14:11:24 -05:00`
+Audit start recorded at: `2026-04-03 16:10:39 -05:00`
 
 Start-of-task audit inputs read:
 - `FULL_SCALE_CODEBASE_AUDIT.md`
 - `EVERY_FILE_FUNCTION_CHECKLIST.md`
-- adjacency traces for `src/lib/tasks/task-catalog.ts`, `src/lib/task-guidance.ts`, and `src/lib/telemetry-catalog.ts`
+- `git status --short`
+- adjacency traces for:
+  - `src/lib/server/daily-tasks.ts`
+  - `src/lib/tasks/task-observability.ts`
+  - `src/lib/telemetry-catalog.ts`
+  - `src/lib/server/analytics.ts`
+  - `src/app/api/admin/debug/route.ts`
 
-End-of-task audit completion recorded at: `2026-04-03 14:59:01 -05:00`
+End-of-task audit completion recorded at: `2026-04-03 16:50:24 -05:00`
 
 Final touched surfaces:
 - root/docs
 - `src/app/admin/debug`
-- `src/app/api/admin`
-- `src/app/api/telemetry`
-- `src/lib`
-- `src/lib/server`
+- `src/app/api/admin/debug`
 - `src/lib/tasks`
 - `tests`
 
@@ -141,56 +149,85 @@ Final touched files:
 - `FULL_SCALE_CODEBASE_AUDIT.md`
 - `src/app/admin/debug/page.tsx`
 - `src/app/api/admin/debug/route.ts`
-- `src/app/api/admin/tasks/route.ts`
-- `src/app/api/telemetry/track/route.ts`
-- `src/lib/server/daily-tasks.ts`
-- `src/lib/task-guidance.ts`
 - `src/lib/tasks/task-observability.ts`
-- `tests/unit/task-guidance.spec.ts`
 - `tests/unit/task-observability.spec.ts`
-- `tests/unit/task-observability.spec.ts`
+- `tests/unit/performance-bench.spec.ts`
+- `tests/unit/server-drops.spec.ts`
 
 Canonical helpers/modules used in this task:
 - `FULL_SCALE_CODEBASE_AUDIT.md`
 - `EVERY_FILE_FUNCTION_CHECKLIST.md`
 - `src/lib/tasks/task-catalog.ts`
-- `src/lib/task-guidance.ts`
 - `src/lib/tasks/task-observability.ts`
 - `src/lib/telemetry-catalog.ts`
 - `src/lib/analytics-metric-catalog.ts`
-- `src/lib/telemetry.ts`
-- `src/lib/server/daily-tasks.ts`
 - `src/app/api/admin/debug/route.ts`
-- `src/lib/client-error-reporting.ts`
-- `src/lib/server/route-diagnostics.ts`
+- `src/lib/server/analytics.ts`
+- `src/lib/server/analytics-governance.ts`
+- `src/hooks/useAuthSWR.ts`
+- existing continuity, telemetry, analytics semantics, TypeScript, ESLint, and Vitest verification entrypoints already codified in the repo
 
 Dependency decisions in this task:
 - Installed:
   - none
 - Already present and reused:
-  - existing repo task, telemetry, analytics semantics, continuity, and contract tooling only
+  - existing repo task, telemetry, analytics semantics, continuity, dependency-graph, and contract tooling only
 - Rejected:
   - no new dependency or SDK was needed for this task-system parity pass
 
 Manual setup or authentication still required from the user:
-- none for the code-backed task catalog, guidance, telemetry, and parity fixes in this pass
-- if a later audit needs live production task completion/distribution counts beyond the code-backed catalog inventory, authenticated admin/runtime access is still required for that data pull
+- none for the code paths or local verification run in this pass
+- a real authenticated admin session is still required if you want to inspect live production runtime distribution/completion data through the debug UI, and broader admin-route browser automation still depends on the existing auth/emulator seam rather than a fake shadow route
 
 Exact systems audited or hardened in this pass:
-- built-in daily task catalog completeness, action path truth, and live distribution
-- task guidance runtime-action activation and pending-action safety
-- custom-task admin event-name normalization and debug coverage inventory
-- canonical task progress recording plus telemetry event-stat parity
-- standing audit coverage for task inventory, analytics metrics, and task-observability helpers
+- sampled runtime task distribution across current user task state, task lifecycle events, receipts, rollups, and reward claims
+- built-in versus custom/admin-authored task auditability on one canonical observability surface
+- task telemetry alignment between mapped task definitions, event stats, receipts, and task lifecycle facts
+- deterministic admin/auth-bound verification readiness via a shared pure runtime-audit helper and direct unit coverage
+- standing audit baseline refresh for the repo inventory drift discovered during this pass
 
 Exact safety, moderation, telemetry, and debug additions made:
-- task guidance now recognizes only real runtime actions (`open_notifications`, `open_wallet`, `enable_notifications`, `give_feedback`) instead of incorrectly absorbing navigation actions
-- navigation-backed tasks now route normally instead of being swallowed by the runtime-action path
-- accepted telemetry events now increment `analytics_event_stats` through `recordTelemetryEventStat(...)` when they are noncanonical telemetry facts
-- canonical task progress paths still record through `recordDailyTaskProgressFromEvent(...)`, and now also write event-stat visibility inside the same canonical server path
-- admin task tooling now exposes a machine-derived built-in task inventory and summary instead of relying on partial hand-curated coverage math
-- admin custom-task creation now canonicalizes event names through `buildTelemetryEventMetadata(...)` so alias drift does not create duplicate semantic dialects
-- the admin debug console coverage matrix now surfaces action mode, group, criteria presence, and destination routing so missing or misleading task actions are visible at a glance
+- the admin debug route now produces a canonical `runtimeTaskAudit` snapshot built from the existing task catalog, runtime user state, lifecycle events, receipts, reward claims, event stats, and rollups
+- built-in and custom task runtime rows now expose assignment counts, completion counts, reward-claim visibility, cooldown conflicts, refresh-metadata warnings, target-user drift, inactive-definition activity, and unsupported runtime records
+- task telemetry alignment now explicitly separates mapped task definitions, tracked event stats, receipt visibility, and shared-event ambiguity so admin surfaces stop over-attributing event-level facts to the wrong task
+- ambiguous shared-event mappings such as multi-task event names are now surfaced as ambiguity instead of being falsely treated as task-specific truth
+- reward-claim matching for task parity now uses canonical definition matching first and records ambiguous/unmatched transactions as runtime drift instead of silently forcing them into the wrong task bucket
+- two slow verification-only specs now have explicit per-test timeouts so the repo-wide audit gate remains deterministic under full-suite load without changing product behavior
+
+Current follow-up gaps still open after this pass:
+- the debug panel now exposes truthful runtime task sampling, but this local pass does not claim live production parity until an authenticated admin session reviews the new runtime task modules against real data
+- admin/auth browser-level verification is more ready because the route aggregation is now unit-testable, but a stronger local auth/emulator seam is still needed before expanding deterministic Playwright coverage for protected admin surfaces
+- telemetry/admin metrics are materially less fragmented in the tasks lane, but broader journey analytics across the full product still remain only partially canonical and should continue to be treated carefully outside the task system
+
+Commands run in this pass:
+- `git status --short`
+- `npm run trace:adjacent -- src/lib/server/daily-tasks.ts`
+- `npm run trace:adjacent -- src/lib/tasks/task-observability.ts`
+- `npm run trace:adjacent -- src/lib/telemetry-catalog.ts`
+- `npm run trace:adjacent -- src/lib/server/analytics.ts`
+- `npm run trace:adjacent -- src/app/api/admin/debug/route.ts`
+- `npm run trace:adjacent -- src/app/admin/debug/page.tsx`
+- `npx eslint src/lib/tasks/task-observability.ts src/app/api/admin/debug/route.ts src/app/admin/debug/page.tsx tests/unit/task-observability.spec.ts`
+- `corepack pnpm exec vitest run tests/unit/task-observability.spec.ts`
+- `npm run check:telemetry`
+- `npm run check:analytics-semantics`
+- `npm run check:continuity`
+- `corepack pnpm run check`
+- `npx vitest run`
+
+Results:
+- all listed commands passed at the end of the pass
+- `corepack pnpm run check` passed end to end after tightening the new runtime task types and stabilizing two previously flaky timing-sensitive test timeouts
+- `npx vitest run` passed with `69` files and `380` tests
+
+Known tolerated warnings/notices in this pass:
+- npm unknown env config warnings during chained npm script execution
+- Node `punycode` deprecation warnings from current Firebase/Vitest tooling
+- informational dotenv logging during `check:firebase-runtime`
+
+Inventory changed or not:
+- yes, the standing baseline was stale and has been refreshed from `611` tracked files to `613`
+- this task itself modified existing files only; it did not add or remove tracked files
 
 Current built-in daily task inventory snapshot:
 - Built-in tasks audited: `47`
