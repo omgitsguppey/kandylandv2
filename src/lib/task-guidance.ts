@@ -1,13 +1,19 @@
-import { type DailyTaskAssignment } from "@/lib/tasks/task-catalog";
+import { type DailyTaskActionType, type DailyTaskAssignment } from "@/lib/tasks/task-catalog";
 
 export const TASK_GUIDANCE_STORAGE_KEY = "kandydrops:active-task-guidance";
 export const TASK_GUIDANCE_ACTION_STORAGE_KEY = "kandydrops:active-task-guidance-action";
 export const TASK_GUIDANCE_ACTION_EVENT = "kandydrops:task-guidance-action";
 
-export type TaskGuidanceActionType = Extract<
-  DailyTaskAssignment["actionType"],
-  "action:internal-link" | "action:external-link"
->;
+export const TASK_GUIDANCE_ACTION_TYPES = [
+  "open_notifications",
+  "open_wallet",
+  "enable_notifications",
+  "give_feedback",
+] as const satisfies DailyTaskActionType[];
+
+export type TaskGuidanceActionType = (typeof TASK_GUIDANCE_ACTION_TYPES)[number];
+
+const TASK_GUIDANCE_ACTION_TYPE_SET = new Set<string>(TASK_GUIDANCE_ACTION_TYPES);
 
 export interface TaskGuidanceState {
   taskId: string;
@@ -120,7 +126,7 @@ function writeSessionStorageValue(storageKey: string, value: unknown) {
 export function isTaskGuidanceActionType(
   actionType: DailyTaskAssignment["actionType"] | string,
 ): actionType is TaskGuidanceActionType {
-  return actionType === "open_dashboard" || actionType === "open_drops" || actionType === "open_experiences" || actionType === "open_library" || actionType === "open_notifications" || actionType === "open_wallet" || actionType === "enable_notifications" || actionType === "give_feedback";
+  return TASK_GUIDANCE_ACTION_TYPE_SET.has(actionType);
 }
 
 export function getTaskDestinationPath(destinationHref: string) {

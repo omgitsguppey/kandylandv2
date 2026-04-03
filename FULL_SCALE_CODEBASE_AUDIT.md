@@ -2,7 +2,7 @@
 
 Status: Canonical audit standard and live baseline
 Last refreshed: 2026-04-03
-Last full-scale audit execution: 2026-04-03 11:27:07 -05:00
+Last full-scale audit execution: 2026-04-03 14:59:01 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
 ## Purpose
@@ -43,20 +43,20 @@ Related evidence snapshots:
 ## Current Baseline
 Current tracked inventory baseline after this audited change on 2026-04-03:
 
-- Total tracked files: `606`
+- Total tracked files: `611`
 - Root files: `41`
-- `src`: `350`
-- `src/app`: `115`
+- `src`: `353`
+- `src/app`: `116`
 - `src/components`: `65`
 - `src/context`: `4`
 - `src/hooks`: `13`
-- `src/lib`: `130`
-- `src/lib/server`: `55`
+- `src/lib`: `132`
+- `src/lib/server`: `56`
 - `src/types`: `3`
 - `functions`: `36`
 - `functions/src`: `30`
 - `scripts`: `17`
-- `tests`: `94`
+- `tests`: `96`
 - `public`: `11`
 - `dataconnect`: `14`
 - `src/dataconnect-generated`: `15`
@@ -80,192 +80,317 @@ Current tolerated non-blocking environment notices:
 These notices are not automatic audit failures, but they must stay explicitly known and not silently spread into product behavior.
 
 ## Active Audit Entry
-Current audit date: `2026-04-03 11:36:42 -05:00`
-Current branch / commit: `main / e67ecad`
+Current audit date: `2026-04-03 14:11:24 -05:00`
+Current branch / commit: `main / d60f4bc`
 
 Current task:
-- thread-wide implementation continuity verification and interruption recovery
+- full task-system audit, guidance activation repair, parity hardening, and telemetry coverage expansion
 
 Current mission:
-- verify every implementation-oriented prompt from this chat against the current repo, identify interruption gaps, finish any materially incomplete work, and leave the standing audit consistent with the final verified repository state
+- audit every built-in daily task and its current live state model, fix missing guidance activation and missing-action cases, ensure completion/reward/parity tracking remains truthful, and expand the standing audit so task metrics, custom event naming, and tracked global/user-level stats are documented canonically
 
 Current expected touched surfaces:
 - root/docs
-- `src/app/admin`
-- `src/app/api`
-- `src/components`
-- `src/context`
+- `src/app/api/admin`
+- `src/app/api/checkin`
+- `src/app/api/telemetry`
+- `src/components/Admin`
+- `src/components/Dashboard`
 - `src/hooks`
 - `src/lib`
 - `src/lib/server`
+- `src/lib/tasks`
 - `tests`
-- dependency/runtime surfaces directly required by any interrupted implementation prompts discovered during verification
 
 Current canonical helpers/modules expected to be used:
 - `FULL_SCALE_CODEBASE_AUDIT.md`
 - `EVERY_FILE_FUNCTION_CHECKLIST.md`
-- `src/lib/server/auth.ts`
-- `src/lib/server/request-guard.ts`
-- `src/lib/server/route-diagnostics.ts`
-- `src/lib/client-error-reporting.ts`
-- `src/lib/server/server-diagnostics.ts`
-- `src/lib/server/admin-ops-health.ts`
-- `src/app/admin/debug/page.tsx`
-- `src/app/api/admin/debug/route.ts`
+- `src/lib/tasks/task-catalog.ts`
+- `src/lib/task-guidance.ts`
+- `src/lib/telemetry-catalog.ts`
 - `src/lib/telemetry.ts`
-- existing Vitest, ESLint, Playwright, Firebase runtime, continuity, and dependency-boundary verification entrypoints already codified in the repo
+- `src/lib/server/daily-tasks.ts`
+- `src/app/api/admin/debug/route.ts`
+- `src/lib/client-error-reporting.ts`
+- `src/lib/server/route-diagnostics.ts`
+- existing Vitest, ESLint, continuity, analytics semantics, telemetry audit, and contract verification entrypoints already codified in the repo
 
 Current continuity note:
-- this pass is not allowed to hand-wave prior prompts as complete; every implementation request in the thread must be verified against current code before signoff, and any interruption gap must either be fixed or explicitly captured as still pending
+- this pass must start from the task catalog and the canonical guidance/parity helpers instead of patching individual UI symptoms; every task must either have a truthful action/guidance path or be explicitly accounted for in the catalog and audit outputs
 
-Audit start recorded at: `2026-04-03 11:36:42 -05:00`
+Audit start recorded at: `2026-04-03 14:11:24 -05:00`
 
 Start-of-task audit inputs read:
 - `FULL_SCALE_CODEBASE_AUDIT.md`
 - `EVERY_FILE_FUNCTION_CHECKLIST.md`
-- current standing audit baseline and checklist companion
-- current thread history as the implementation checklist source
+- adjacency traces for `src/lib/tasks/task-catalog.ts`, `src/lib/task-guidance.ts`, and `src/lib/telemetry-catalog.ts`
 
-End-of-task audit completion recorded at: `2026-04-03 12:14:40 -05:00`
+End-of-task audit completion recorded at: `2026-04-03 14:59:01 -05:00`
 
 Final touched surfaces:
 - root/docs
-- dependency/runtime config
-- `src/app/admin`
-- `src/app/api/admin/debug`
+- `src/app/admin/debug`
+- `src/app/api/admin`
+- `src/app/api/telemetry`
 - `src/lib`
 - `src/lib/server`
+- `src/lib/tasks`
 - `tests`
 
 Final touched files:
 - `FULL_SCALE_CODEBASE_AUDIT.md`
-- `eslint.config.mjs`
-- `package.json`
-- `package-lock.json`
-- `pnpm-lock.yaml`
-- `src/lib/ai-debug-assistant.ts`
-- `src/lib/server/ai-debug-assistant.ts`
-- `src/app/api/admin/debug/assistant/route.ts`
 - `src/app/admin/debug/page.tsx`
-- `tests/unit/ai-debug-assistant.spec.ts`
-- `tests/unit/admin-debug-assistant-route.spec.ts`
+- `src/app/api/admin/debug/route.ts`
+- `src/app/api/admin/tasks/route.ts`
+- `src/app/api/telemetry/track/route.ts`
+- `src/lib/server/daily-tasks.ts`
+- `src/lib/task-guidance.ts`
+- `src/lib/tasks/task-observability.ts`
+- `tests/unit/task-guidance.spec.ts`
+- `tests/unit/task-observability.spec.ts`
+- `tests/unit/task-observability.spec.ts`
 
 Canonical helpers/modules used in this task:
 - `FULL_SCALE_CODEBASE_AUDIT.md`
 - `EVERY_FILE_FUNCTION_CHECKLIST.md`
-- `src/lib/server/auth.ts`
-- `src/lib/server/request-guard.ts`
+- `src/lib/tasks/task-catalog.ts`
+- `src/lib/task-guidance.ts`
+- `src/lib/tasks/task-observability.ts`
+- `src/lib/telemetry-catalog.ts`
+- `src/lib/analytics-metric-catalog.ts`
+- `src/lib/telemetry.ts`
+- `src/lib/server/daily-tasks.ts`
+- `src/app/api/admin/debug/route.ts`
+- `src/lib/client-error-reporting.ts`
 - `src/lib/server/route-diagnostics.ts`
-- `src/lib/server/server-diagnostics.ts`
-- `src/lib/server/admin-ops-health.ts`
-- `src/lib/server/admin-orchestration.ts`
-- `src/lib/server/creator-onboarding-diagnostics.ts`
-- `src/hooks/useAdminPollingSWR.ts`
-- `src/app/admin/debug/page.tsx`
 
 Dependency decisions in this task:
 - Installed:
-  - `@google-cloud/vertexai`
+  - none
 - Already present and reused:
-  - `@playwright/test`
-  - `@axe-core/playwright`
-  - `@lhci/cli`
-  - `dependency-cruiser`
-  - `eslint-plugin-playwright`
-  - `@firebase/rules-unit-testing`
-  - `firebase-tools`
+  - existing repo task, telemetry, analytics semantics, continuity, and contract tooling only
 - Rejected:
-  - no new provider SDKs or client-side AI SDKs were added
+  - no new dependency or SDK was needed for this task-system parity pass
 
 Manual setup or authentication still required from the user:
-- local Vertex AI execution still requires Application Default Credentials if you want live summaries outside Google-managed runtime
-- manual local step: `gcloud auth application-default login`
-- the Google Cloud project also needs Vertex AI enabled if it is not already enabled for the target runtime project
+- none for the code-backed task catalog, guidance, telemetry, and parity fixes in this pass
+- if a later audit needs live production task completion/distribution counts beyond the code-backed catalog inventory, authenticated admin/runtime access is still required for that data pull
 
 Exact systems audited or hardened in this pass:
-- thread-wide implementation prompt continuity across prior interrupted requests
-- admin debug console observability completeness
-- internal AI debug assistant readiness and safe fallback behavior
-- repo-wide verification continuity so `corepack pnpm run check` is trustworthy again
+- built-in daily task catalog completeness, action path truth, and live distribution
+- task guidance runtime-action activation and pending-action safety
+- custom-task admin event-name normalization and debug coverage inventory
+- canonical task progress recording plus telemetry event-stat parity
+- standing audit coverage for task inventory, analytics metrics, and task-observability helpers
 
 Exact safety, moderation, telemetry, and debug additions made:
-- the only materially incomplete interrupted feature found in thread history was the internal AI debug assistant; it is now implemented as a server-side, admin-only, advisory surface
-- Gemini output is bounded to existing canonical summaries from admin ops health, orchestration, and creator onboarding diagnostics
-- AI output is structured, prompt-versioned, latency-aware, feature-flagged, and explicitly marked as fallback or live
-- deterministic fallback summaries now keep the debug console useful even when Vertex auth, model execution, or parsing fails
-- AI call metadata now records through existing admin/server diagnostic pathways instead of disappearing into raw console-only logs
-- the admin debug console now exposes AI summary status without depending on model success to render the rest of the page
-- the repo-wide ESLint flat-config collision around duplicate `import` plugin registration was removed so the canonical `check` entrypoint passes again
+- task guidance now recognizes only real runtime actions (`open_notifications`, `open_wallet`, `enable_notifications`, `give_feedback`) instead of incorrectly absorbing navigation actions
+- navigation-backed tasks now route normally instead of being swallowed by the runtime-action path
+- accepted telemetry events now increment `analytics_event_stats` through `recordTelemetryEventStat(...)` when they are noncanonical telemetry facts
+- canonical task progress paths still record through `recordDailyTaskProgressFromEvent(...)`, and now also write event-stat visibility inside the same canonical server path
+- admin task tooling now exposes a machine-derived built-in task inventory and summary instead of relying on partial hand-curated coverage math
+- admin custom-task creation now canonicalizes event names through `buildTelemetryEventMetadata(...)` so alias drift does not create duplicate semantic dialects
+- the admin debug console coverage matrix now surfaces action mode, group, criteria presence, and destination routing so missing or misleading task actions are visible at a glance
+
+Current built-in daily task inventory snapshot:
+- Built-in tasks audited: `47`
+- Unsupported built-in tasks: `0`
+- Canonical tracked built-ins: `15`
+- Telemetry tracked built-ins: `32`
+- Runtime-action built-ins: `12`
+- Navigation-action built-ins: `35`
+- Criteria-filtered built-ins: `11`
+- Unique-keyed built-ins: `26`
+- One-time built-ins: `1`
+- Group distribution:
+  - notifications=`4`
+  - visit=`10`
+  - wallet=`2`
+  - purchase=`2`
+  - unwrap=`9`
+  - watch=`15`
+  - share=`1`
+  - feedback=`4`
+- Action-type distribution:
+  - enable_notifications=`1`
+  - open_notifications=`3`
+  - open_experiences=`3`
+  - open_dashboard=`1`
+  - open_library=`17`
+  - open_drops=`14`
+  - open_wallet=`4`
+  - give_feedback=`4`
+- Event-category distribution:
+  - notifications=`4`
+  - engagement=`6`
+  - tasks=`5`
+  - content=`28`
+  - commerce=`4`
+
+Current built-in daily task catalog:
+
+| Task ID | Group | Action | Mode | Event | Tracking | Progress | Criteria | Unique key |
+| --- | --- | --- | --- | --- | --- | ---: | --- | --- |
+| enable_notifications | notifications | enable_notifications | runtime | task_notifications_enabled | canonical | 1 | no | - |
+| open_notifications | notifications | open_notifications | runtime | notifications_dropdown_opened | telemetry | 1 | no | - |
+| read_notification | notifications | open_notifications | runtime | notification_marked_read | telemetry | 1 | no | - |
+| visit_experiences | visit | open_experiences | navigation | experience_hub_viewed | telemetry | 1 | no | - |
+| check_in_today | visit | open_experiences | navigation | daily_check_in_claim | canonical | 1 | no | - |
+| open_dashboard | visit | open_dashboard | navigation | dashboard_viewed | telemetry | 1 | no | - |
+| open_library | visit | open_library | navigation | library_viewed | telemetry | 1 | no | - |
+| preview_two_drops | visit | open_drops | navigation | drop_preview_opened | telemetry | 2 | no | drop_id |
+| preview_three_drops | visit | open_drops | navigation | drop_preview_opened | telemetry | 3 | no | drop_id |
+| view_three_drop_details | visit | open_drops | navigation | view_drop_details | telemetry | 3 | no | drop_id |
+| open_wallet | wallet | open_wallet | runtime | wallet_opened | telemetry | 1 | no | - |
+| start_checkout | wallet | open_wallet | runtime | begin_checkout | telemetry | 1 | no | - |
+| buy_small_pack | purchase | open_wallet | runtime | gumdrops_purchase_completed | canonical | 1 | yes | - |
+| buy_big_pack | purchase | open_wallet | runtime | gumdrops_purchase_completed | canonical | 1 | yes | - |
+| unwrap_one_drop | unwrap | open_drops | navigation | unlock_drop_success | canonical | 1 | no | drop_id |
+| unwrap_two_drops | unwrap | open_drops | navigation | unlock_drop_success | canonical | 2 | no | drop_id |
+| unwrap_spicy | unwrap | open_drops | navigation | unlock_drop_success | canonical | 1 | yes | drop_id |
+| open_viewer_once | watch | open_library | navigation | viewer_opened | telemetry | 1 | no | drop_id |
+| watch_one_asset | watch | open_library | navigation | viewer_asset_consumed | telemetry | 1 | no | asset_key |
+| watch_two_assets | watch | open_library | navigation | viewer_asset_consumed | telemetry | 2 | no | asset_key |
+| watch_ninety_seconds | watch | open_library | navigation | viewer_watch_checkpoint | telemetry | 1 | yes | - |
+| switch_three_assets | watch | open_library | navigation | viewer_asset_changed | telemetry | 3 | no | asset_key |
+| share_one_drop | share | open_drops | navigation | drop_share_copied | telemetry | 1 | no | drop_id |
+| submit_feedback | feedback | give_feedback | runtime | feedback_submitted | canonical | 1 | no | - |
+| feature_request_feedback | feedback | give_feedback | runtime | feedback_submitted | canonical | 1 | yes | - |
+| bug_report_feedback | feedback | give_feedback | runtime | feedback_submitted | canonical | 1 | yes | - |
+| high_rating_feedback | feedback | give_feedback | runtime | feedback_submitted | canonical | 1 | yes | - |
+| revisit_live_drops | visit | open_drops | navigation | drops_page_viewed | telemetry | 2 | no | - |
+| revisit_experiences_hub | visit | open_experiences | navigation | experience_hub_viewed | telemetry | 2 | no | - |
+| revisit_library_hub | visit | open_library | navigation | library_viewed | telemetry | 2 | no | - |
+| scout_four_drops | unwrap | open_drops | navigation | drop_preview_opened | telemetry | 4 | no | drop_id |
+| inspect_six_drop_details | unwrap | open_drops | navigation | view_drop_details | telemetry | 6 | no | drop_id |
+| unwrap_three_drops | unwrap | open_drops | navigation | unlock_drop_success | canonical | 3 | no | drop_id |
+| unwrap_four_drops | unwrap | open_drops | navigation | unlock_drop_success | canonical | 4 | no | drop_id |
+| unwrap_sweet_drop | unwrap | open_drops | navigation | unlock_drop_success | canonical | 1 | yes | drop_id |
+| unwrap_raw_drop | unwrap | open_drops | navigation | unlock_drop_success | canonical | 1 | yes | drop_id |
+| open_two_unwrapped_drops | watch | open_library | navigation | viewer_opened | telemetry | 2 | no | drop_id |
+| complete_one_viewer_session | watch | open_library | navigation | viewer_session_completed | telemetry | 1 | no | drop_id |
+| complete_two_viewer_sessions | watch | open_library | navigation | viewer_session_completed | telemetry | 2 | no | drop_id |
+| watch_two_full_minutes | watch | open_library | navigation | viewer_session_completed | telemetry | 1 | yes | - |
+| finish_two_files | watch | open_library | navigation | viewer_asset_completed | telemetry | 2 | no | asset_key |
+| finish_four_files | watch | open_library | navigation | viewer_asset_completed | telemetry | 4 | no | asset_key |
+| watch_three_unwrapped_files | watch | open_library | navigation | viewer_asset_consumed | telemetry | 3 | no | asset_key |
+| hit_forty_five_seconds | watch | open_library | navigation | viewer_watch_checkpoint | telemetry | 1 | yes | - |
+| download_one_unwrapped_file | watch | open_library | navigation | viewer_source_downloaded | telemetry | 1 | no | asset_key |
+| chase_a_related_drop | watch | open_library | navigation | viewer_related_drop_clicked | telemetry | 1 | no | destination |
+| open_a_notification_update | notifications | open_notifications | runtime | notification_opened | telemetry | 1 | no | notification_id |
+
+Current analytics metric inventory tracked in the standing audit:
+- Global metrics:
+  - `view_frequency`
+  - `multi_page_session_rate`
+  - `fast_bounce_rate`
+  - `deep_scroll_session_rate`
+  - `returning_actor_rate`
+  - `home_to_dashboard_transition_rate`
+  - `interaction_intensity`
+  - `engaged_exit_rate`
+- User metrics:
+  - `library_visit_rate`
+  - `experiences_visit_rate`
+  - `profile_visit_rate`
+  - `cross_surface_journey_rate`
+  - `checkin_conversion_rate`
+  - `notification_opt_in_rate`
+  - `task_guidance_completion_rate`
+  - `signup_to_onboarding_start_rate`
+  - `onboarding_step_completion_rate`
+- Admin metrics:
+  - `admin_multi_page_rate`
+  - `analytics_review_rate`
+  - `user_drilldown_rate`
+  - `admin_engaged_session_rate`
+  - `admin_returning_actor_rate`
+- Drop metrics:
+  - `drop_catalog_reach_rate`
+  - `preview_click_through_rate`
+  - `preview_to_unlock_rate`
+  - `unlock_to_viewer_rate`
+  - `viewer_completion_rate`
+  - `high_watch_depth_rate`
+  - `repeat_viewer_rate`
+  - `drop_share_rate`
+
+Current canonical task telemetry/parity functions:
+- `trackEvent(...)` in `src/lib/telemetry.ts`
+- `buildTelemetryEventMetadata(...)` in `src/lib/telemetry-catalog.ts`
+- `resolveTrackedTelemetryEvent(...)` in `src/app/api/telemetry/track/route.ts`
+- `recordTelemetryEventStat(...)` in `src/lib/server/daily-tasks.ts`
+- `recordCanonicalTaskEvent(...)` in `src/lib/server/daily-tasks.ts`
+- `recordDailyTaskProgressFromEvent(...)` in `src/lib/server/daily-tasks.ts`
+- `buildDailyTaskInventory(...)` in `src/lib/tasks/task-observability.ts`
+- `summarizeDailyTaskInventory(...)` in `src/lib/tasks/task-observability.ts`
 
 Commands run during this task:
-- `git status --short`
-- `git rev-parse --abbrev-ref HEAD`
-- `git rev-parse --short HEAD`
 - `Get-Content FULL_SCALE_CODEBASE_AUDIT.md`
 - `Get-Content EVERY_FILE_FUNCTION_CHECKLIST.md`
-- targeted code searches confirming prior prompt surfaces already present and identifying the missing AI gap
-- `corepack pnpm add @google-cloud/vertexai`
-- `Get-Content node_modules/@google-cloud/vertexai/README.md`
-- `npm install --package-lock-only --ignore-scripts`
-- `npm run trace:adjacent -- src/lib/server/ai-debug-assistant.ts`
-- `npm run trace:adjacent -- src/app/api/admin/debug/assistant/route.ts`
-- `npm run trace:adjacent -- src/app/admin/debug/page.tsx`
-- `corepack pnpm exec vitest run tests/unit/ai-debug-assistant.spec.ts tests/unit/admin-debug-assistant-route.spec.ts`
+- `npm run trace:adjacent -- src/lib/tasks/task-catalog.ts`
+- `npm run trace:adjacent -- src/lib/task-guidance.ts`
+- `npm run trace:adjacent -- src/lib/telemetry-catalog.ts`
+- `git status --short`
+- machine-derived task inventory generation via `corepack pnpm exec tsx`
+- analytics metric inventory generation via `corepack pnpm exec tsx`
+- `npx eslint src/lib/task-guidance.ts src/lib/tasks/task-observability.ts src/lib/server/daily-tasks.ts src/app/api/telemetry/track/route.ts src/app/api/admin/tasks/route.ts src/app/api/admin/debug/route.ts src/app/admin/debug/page.tsx tests/unit/task-guidance.spec.ts tests/unit/task-observability.spec.ts`
+- `corepack pnpm exec vitest run tests/unit/task-guidance.spec.ts tests/unit/task-observability.spec.ts`
 - `npx vitest run`
-- `npm run check:inventory`
 - `corepack pnpm run check`
 
 Results:
-- prior implementation-oriented prompts were reverified against the current repo instead of being assumed complete
-- the only confirmed interruption gap was the missing internal AI debug assistant prompt; that gap is now closed
-- the admin debug console now has a live/fallback AI summary lane driven by bounded canonical health inputs
-- the AI path is server-side only and uses Vertex AI Gemini Flash-Lite with no hardcoded keys and no client-to-model calls
-- deterministic fallback behavior covers disabled flag, missing project config, missing ADC/auth, timeout, and malformed model output
-- structured unit coverage now exists for prompt assembly, feature-flag disabled behavior, auth-unavailable fallback, malformed output fallback, and the admin debug assistant route
+- all 47 built-in daily tasks now have an auditable action path, event name, tracking source, instruction, and destination in a single machine-derived inventory
+- unsupported built-in task count is explicitly verified at `0`
+- the guidance activation bug is fixed: only runtime-capable task actions are now treated as task-guidance pending actions
+- navigation-backed tasks such as dashboard, drops, experiences, and library tasks now route normally and no longer lose their action handling
+- task telemetry parity is stronger because accepted noncanonical telemetry facts now increment `analytics_event_stats`, while canonical task-progress events also write event-stat visibility through the canonical server path
+- admin custom-task creation now normalizes event names through the telemetry catalog instead of trusting raw user input
+- admin debug now shows richer task coverage truth, including action mode, routing path, criteria presence, and group distribution
 - `corepack pnpm run check` passed
 - `npx vitest run` passed
 
 Known tolerated warnings and notices:
 - npm unknown env config warnings during `pnpm`/`npm` script chains
 - Node `punycode` deprecation warnings during Vitest execution
-- `npm install --package-lock-only --ignore-scripts` reported existing dependency audit advisories; no new secret or AI-risking dependency behavior was introduced in this pass
+- no lint warnings or type errors remain after this pass
 
 Files needing follow-up:
-- local ADC must still be configured before the AI summary can run live outside managed Google runtime
-- the Vertex AI SDK used here is the exact dependency required by the original prompt, but its own README now marks it deprecated in favor of a later migration path; future audited work should plan that migration without changing this prompt’s required implementation
-- broader debug-panel centralization and telemetry consolidation work remains a separate future implementation surface beyond this interruption-recovery pass
+- production distribution/completion counts still need a live authenticated admin/runtime pull if we want a runtime snapshot beyond the code-backed built-in catalog and current debug endpoints
+- user-specific and admin-authored custom tasks still deserve a follow-up audit once there is a real runtime sample of their distribution, cooldown rotation, and reward claim behavior in the live dataset
+- if future product work adds new action types, `TASK_GUIDANCE_ACTION_TYPES` and the task observability inventory should be updated together to keep runtime/navigation parity explicit
 
 Inventory changed:
 - Yes
 - final staged tracked inventory is now `611`
-- net change in this pass: `606` -> `611`
+- net change in this pass: `608` -> `611`
 - newly tracked runtime/test files:
-  - `src/lib/ai-debug-assistant.ts`
-  - `src/lib/server/ai-debug-assistant.ts`
-  - `src/app/api/admin/debug/assistant/route.ts`
-  - `tests/unit/ai-debug-assistant.spec.ts`
-  - `tests/unit/admin-debug-assistant-route.spec.ts`
+  - `src/lib/tasks/task-observability.ts`
+  - `tests/unit/task-observability.spec.ts`
+- top-level baseline counts now also reflect the already-tracked task/debug inventory surfaces that had drifted stale in the standing audit
 
 Final confidence scoring summary:
-- thread-wide prompt continuity is stronger because the missing AI integration gap is now explicitly closed instead of merely claimed in narrative updates
-- admin observability confidence is stronger because AI summaries now sit beside canonical diagnostics with explicit fallback and latency metadata
-- repo verification confidence is stronger because the canonical `check` entrypoint was repaired and rerun successfully in the same pass
+- task-system truth is materially stronger because the catalog, guidance layer, admin tooling, telemetry path, and standing audit now describe the same built-in task model
+- admin/debug observability is stronger because missing-action and missing-tracking gaps are now surfaced via a single inventory and summary path instead of split heuristics
+- telemetry confidence is stronger because accepted telemetry facts and canonical task events now both feed event-stat visibility without creating duplicate semantic dialects
 
 ## Last Executed Audit
-Audit execution recorded at: `2026-04-03 12:14:40 -05:00`
+Audit execution recorded at: `2026-04-03 14:59:01 -05:00`
 
 Current audit scope:
-- thread-wide implementation continuity verification
-- interrupted-prompt recovery
-- internal AI debug assistant completion
-- repo verification continuity repair
+- full daily-task catalog sweep
+- task guidance activation-path verification
+- custom event-name normalization review
+- task telemetry parity and event-stat visibility review
+- analytics metric inventory capture for global, user, admin, and drop scopes
 
 Current audit findings:
-- The repo-wide implementation history in this thread is materially consistent with current code after re-verification.
-- The only confirmed interrupted implementation gap was the missing internal AI debug assistant; it is now present as a server-side, admin-only, advisory integration.
-- The admin debug console now exposes live or fallback AI root-cause summaries without treating AI output as canonical truth.
+- All 47 built-in daily tasks now resolve through an auditable inventory with explicit group, action type, action mode, event name, tracking source, progress target, criteria flag, and uniqueness key.
+- The major task-guidance bug was real: navigation actions were being treated as runtime actions, which could leave some tasks with no functioning action path. That parity gap is now fixed.
+- Built-in task coverage currently resolves to 15 canonical-tracked tasks, 32 telemetry-tracked tasks, and 0 unsupported tasks.
+- Accepted telemetry events now contribute to `analytics_event_stats` when they are noncanonical telemetry facts, while canonical task progress events also write event-stat visibility through the canonical server path.
+- Admin task creation now canonicalizes event names through the telemetry catalog, reducing custom-event alias drift and making task-trigger metrics more trustworthy.
 - Full `check` and full `vitest` verification are healthy again on this repo state.
-- Live AI execution still depends on local or managed Google credentials and must not be assumed active everywhere by default.
 
 ## Current Platform Readiness Summary
 What is ready now:
@@ -434,6 +559,10 @@ These are the current source-of-truth helpers and modules to prefer before creat
 ### Analytics, telemetry, and parity
 - `src/lib/telemetry.ts`
   Canonical client telemetry emitter
+- `src/lib/telemetry-catalog.ts`
+  Canonical event-name catalog, alias normalization, module/category metadata, and tracked-source metadata
+- `src/lib/analytics-metric-catalog.ts`
+  Canonical metric inventory for global, user, admin, and drop-level stats
 - `src/lib/server/analytics.ts`
   Canonical server analytics/event emission
 - `src/lib/server/analytics-governance.ts`
@@ -469,6 +598,8 @@ These are the current source-of-truth helpers and modules to prefer before creat
 - `src/hooks/useAuthSWR.ts`
 - `src/lib/navigation-persistence.ts`
 - `src/lib/task-guidance.ts`
+- `src/lib/tasks/task-observability.ts`
+  Canonical built-in task inventory, tracking-source classification, and task action-mode summary helper
 - `src/hooks/client-runtime.ts`
 
 ### Notifications and messaging
@@ -622,6 +753,22 @@ Use these questions whenever work touches analytics, diagnostics, recommendation
 8. Are AI outputs clearly marked as advisory rather than canonical truth?
 9. Are prompt version, model id, fallback status, and latency observable to operators?
 10. If AI cannot run because of auth, project setup, or parsing failure, does the surrounding UI remain useful and truthful?
+11. If daily tasks are involved, is every built-in task explainable through the task catalog, task guidance, task observability inventory, and either canonical or telemetry-backed tracking?
+12. If event-name tracking changes, are aliases normalized and are global/user metric catalogs still aligned with the canonical telemetry event inventory?
+
+Current canonical analytics metric inventory:
+- Global metrics:
+  `view_frequency`, `multi_page_session_rate`, `fast_bounce_rate`, `deep_scroll_session_rate`, `returning_actor_rate`, `home_to_dashboard_transition_rate`, `interaction_intensity`, `engaged_exit_rate`
+- User metrics:
+  `library_visit_rate`, `experiences_visit_rate`, `profile_visit_rate`, `cross_surface_journey_rate`, `checkin_conversion_rate`, `notification_opt_in_rate`, `task_guidance_completion_rate`, `signup_to_onboarding_start_rate`, `onboarding_step_completion_rate`
+
+Current canonical task telemetry/parity functions:
+- `trackEvent(...)` in `src/lib/telemetry.ts`
+- `buildTelemetryEventMetadata(...)` in `src/lib/telemetry-catalog.ts`
+- `resolveTrackedTelemetryEvent(...)` in `src/lib/server/analytics-event-utils.ts`
+- `recordTelemetryEventStat(...)` in `src/lib/server/daily-tasks.ts`
+- `recordCanonicalTaskEvent(...)` in `src/lib/server/daily-tasks.ts`
+- `recordDailyTaskProgressFromEvent(...)` in `src/lib/server/daily-tasks.ts`
 
 ## Firebase and App Hosting Safety Notes
 When Firebase or Google Cloud surfaces are touched:

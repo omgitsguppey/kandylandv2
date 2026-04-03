@@ -41,14 +41,6 @@ const TASK_RECEIPT_COLLECTION = "daily_task_event_receipts";
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 const ONE_HOUR_MS = 60 * 60 * 1000;
 
-export const CANONICAL_TASK_EVENT_NAMES = new Set([
-  "daily_check_in_claim",
-  "unlock_drop_success",
-  "gumdrops_purchase_completed",
-  "task_notifications_enabled",
-  "feedback_submitted",
-]);
-
 type EventParams = Record<string, string | number | boolean> | undefined;
 type RotationReason = "initial" | "cycle_complete" | "missed_progress";
 
@@ -1096,6 +1088,7 @@ export async function recordDailyTaskProgressFromEvent(
 
     const userData = snapshot.data() as UserProfile;
     const nowMs = Date.now();
+    incrementEventStat(transaction, eventName, nowMs, eventParams ?? {});
     const result = await buildFreshTaskStateForUser(uid, userData, definitions, nowMs, transaction);
     const sourceAwareBalance = readSourceAwareBalance(userData);
     const currentBalance = sourceAwareBalance.total;

@@ -10,7 +10,11 @@ import {
     DAILY_TASK_REWARD_VERSION,
     type DailyTaskAssignment,
 } from "@/lib/tasks/task-catalog";
-import { CANONICAL_TASK_EVENT_NAMES } from "@/lib/server/daily-tasks";
+import {
+    buildDailyTaskInventory,
+    CANONICAL_TASK_EVENT_NAMES,
+    summarizeDailyTaskInventory,
+} from "@/lib/tasks/task-observability";
 import { TELEMETRY_EVENT_LABELS, TELEMETRY_EVENT_NAMES } from "@/lib/telemetry-catalog";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { buildAdminOpsHealth } from "@/lib/server/admin-ops-health";
@@ -208,17 +212,8 @@ export async function GET(request: NextRequest) {
             queueRecords: creatorReviewQueueSnapshot.docs.map((doc) => doc.data() as Record<string, unknown>),
         });
 
-        const coverage = BUILT_IN_DAILY_TASKS.map((task) => ({
-            taskId: task.id,
-            title: task.title,
-            eventName: task.eventName,
-            eventLabel: TELEMETRY_EVENT_LABELS[task.eventName] || task.eventName,
-            trackingSource: inferTrackingSource(task.eventName),
-            oneTime: task.oneTime === true,
-            hasUniqueKey: Boolean(task.uniqueByParamKey),
-            reward: task.reward,
-            maxProgress: task.maxProgress,
-        }));
+        const coverage = buildDailyTaskInventory();
+        const taskInventorySummary = summarizeDailyTaskInventory(coverage);
 
         const unsupportedTasks = coverage.filter((task) => task.trackingSource === "unsupported");
         const telemetryOnlyTasks = coverage.filter((task) => task.trackingSource === "telemetry");
@@ -579,6 +574,10 @@ export async function GET(request: NextRequest) {
                 telemetryValidatedTasks: telemetryOnlyTasks.length,
                 telemetryOnlyTasks: telemetryOnlyTasks.length,
                 unsupportedTasks: unsupportedTasks.length,
+                runtimeTaskActions: taskInventorySummary.runtimeActions,
+                navigationTaskActions: taskInventorySummary.navigationActions,
+                criteriaTasks: taskInventorySummary.criteriaTasks,
+                uniqueByParamTasks: taskInventorySummary.uniqueByParamTasks,
                 usersWithTaskIssues: assignmentIssues.length,
                 receiptsLast7d: receiptEvents7d.length,
                 completedEventsLast7d: completedEvents7d.length,
@@ -598,6 +597,7 @@ export async function GET(request: NextRequest) {
                 releaseEntries: changeLog.length,
             },
             coverage,
+            taskInventorySummary,
             unsupportedTasks,
             telemetryOnlyTasks,
             assignmentIssues,

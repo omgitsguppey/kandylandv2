@@ -531,9 +531,9 @@ export default function DebugConsole() {
                 <div className="space-y-4">
                     <Section
                         title="Coverage matrix"
-                        subtitle="Every built-in task, its trigger source, and whether it relies on canonical or telemetry-backed validation."
+                        subtitle="Every built-in task, its trigger source, action path, and whether it relies on canonical or telemetry-backed validation."
                         defaultOpen
-                        summary={<><Pill label="Built-in" value={data?.stats?.builtInTasks ?? 0} /><Pill label="Canonical" value={data?.stats?.canonicalTasks ?? 0} tone="good" /><Pill label="Telemetry" value={data?.stats?.telemetryValidatedTasks ?? 0} tone="good" /><Pill label="Unsupported" value={data?.stats?.unsupportedTasks ?? 0} tone={data?.stats?.unsupportedTasks ? "warn" : "good"} /></>}
+                        summary={<><Pill label="Built-in" value={data?.stats?.builtInTasks ?? 0} /><Pill label="Canonical" value={data?.stats?.canonicalTasks ?? 0} tone="good" /><Pill label="Telemetry" value={data?.stats?.telemetryValidatedTasks ?? 0} tone="good" /><Pill label="Runtime" value={data?.stats?.runtimeTaskActions ?? 0} /><Pill label="Unsupported" value={data?.stats?.unsupportedTasks ?? 0} tone={data?.stats?.unsupportedTasks ? "warn" : "good"} /></>}
                     >
                         <ScrollWrap>
                             <div className="divide-y divide-white/10">
@@ -549,9 +549,15 @@ export default function DebugConsole() {
                                         <div className="flex flex-wrap gap-2">
                                             <Pill label="Reward" value={task.reward} />
                                             <Pill label="Max" value={task.maxProgress} />
+                                            <Pill label="Group" value={task.group} />
+                                            <Pill label="Action" value={task.actionMode === "runtime" ? `${task.actionType} (runtime)` : `${task.actionType} (route)`} />
                                             {task.oneTime ? <Pill label="Mode" value="one-time" /> : null}
                                             {task.hasUniqueKey ? <Pill label="Keying" value="unique" /> : null}
+                                            {task.hasCriteria ? <Pill label="Criteria" value="filtered" /> : null}
                                         </div>
+                                        <p className="text-xs leading-6 text-gray-400">
+                                            {task.actionLabel} {"->"} {task.destinationHref}
+                                        </p>
                                     </div>
                                 ))}
                             </div>

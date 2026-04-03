@@ -11,7 +11,8 @@ import {
   DAILY_TASK_REWARD_VERSION,
   resolveDailyTaskReward,
 } from "@/lib/tasks/task-catalog";
-import { TELEMETRY_EVENT_OPTIONS } from "@/lib/telemetry-catalog";
+import { buildDailyTaskInventory, summarizeDailyTaskInventory } from "@/lib/tasks/task-observability";
+import { buildTelemetryEventMetadata, TELEMETRY_EVENT_OPTIONS } from "@/lib/telemetry-catalog";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { handleApiError } from "@/lib/server/auth";
@@ -88,9 +89,14 @@ export async function GET(request: NextRequest) {
     const eventStats = eventStatsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     const taskRollups = taskRollupSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
+    const builtInTaskInventory = buildDailyTaskInventory();
+    const builtInTaskSummary = summarizeDailyTaskInventory(builtInTaskInventory);
+
     return NextResponse.json({
       success: true,
       customTasks,
+      builtInTaskInventory,
+      builtInTaskSummary,
       recentTaskEvents,
       eventStats,
       taskRollups,
@@ -113,8 +119,9 @@ export async function POST(request: NextRequest) {
       auth: "admin",
     });
     const parsed = taskSchema.parse(await request.json());
+    const telemetryEvent = buildTelemetryEventMetadata(parsed.eventName);
 
-    if (!TELEMETRY_EVENT_OPTIONS.some((option) => option.eventName === parsed.eventName)) {
+    if (!telemetryEvent.option) {
       return NextResponse.json({ error: "Unknown event trigger" }, { status: 400 });
     }
 
@@ -131,6 +138,7 @@ export async function POST(request: NextRequest) {
       active: true,
       cooldownDays: parsed.cooldownDays,
       oneTime: parsed.oneTime,
+      eventName: telemetryEvent.canonicalEventName,
       targetUserId: parsed.scope === "user" ? parsed.targetUserId ?? null : null,
       uniqueByParamKey: parsed.uniqueByParamKey?.trim() || null,
       criteria: parsed.criteria ?? null,

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import * as admin from "firebase-admin";
-import { CANONICAL_TASK_EVENT_NAMES, recordDailyTaskProgressFromEvent } from "@/lib/server/daily-tasks";
+import { recordDailyTaskProgressFromEvent, recordTelemetryEventStat } from "@/lib/server/daily-tasks";
 import { handleApiError } from "@/lib/server/auth";
 import { ANALYTICS_WRITE } from "@/lib/server/rate-limit";
 import { getDropReferenceMap, resolveDropTitle } from "@/lib/server/drop-references";
@@ -18,6 +18,7 @@ import {
     ANALYTICS_OPERATIONAL_COLLECTIONS,
     ANALYTICS_ROUTE_POLICIES,
 } from "@/lib/server/analytics-governance";
+import { CANONICAL_TASK_EVENT_NAMES } from "@/lib/tasks/task-observability";
 import { sanitizeTelemetryParamsForBackend, type SanitizedTelemetryParams } from "@/lib/telemetry-safety";
 
 const TASK_PROGRESS_EVENT_NAMES = new Set(BUILT_IN_DAILY_TASKS.map((task) => task.eventName));
@@ -323,8 +324,12 @@ export async function POST(req: NextRequest) {
                 }),
         }, { merge: true });
 
+        const acceptedTelemetryFacts = telemetryFacts.filter((event) => acceptedEventIds.has(event.eventId));
         await Promise.all([
-            ...telemetryFacts
+            ...acceptedTelemetryFacts
+                .filter((event) => !event.canAdvanceTaskProgress && !CANONICAL_TASK_EVENT_NAMES.has(event.canonicalEventName))
+                .map((event) => recordTelemetryEventStat(event.canonicalEventName, event.eventParamsWithMetadata)),
+            ...acceptedTelemetryFacts
                 .filter((event) => event.canAdvanceTaskProgress)
                 .map((event) => recordDailyTaskProgressFromEvent(userId, username, event.canonicalEventName, event.eventParamsWithMetadata, {
                     source: "telemetry",
