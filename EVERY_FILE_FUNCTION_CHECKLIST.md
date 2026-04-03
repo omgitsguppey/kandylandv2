@@ -1,15 +1,17 @@
 # Every File and Function Checklist
 
 Generated: 2026-03-19T18:15:26.903Z
+Last continuity note refresh: 2026-04-03
 
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
-Current repo-wide state snapshot: see [REPO_STATE_SCORECARD_2026-03-19.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_STATE_SCORECARD_2026-03-19.md) for the latest validated completion estimate and remaining non-code blockers.
+Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-03 inventory yet.
 
-Repository files in scope: 413
-Detected function-like implementations: 3161
+Historical sweep file-body baseline: 413 tracked files
+Current tracked baseline in the standing audit: 604 tracked files before tonight's cleanup pass
+Detected function-like implementations in this historical sweep: 3161
 
 ## [x] .agent/workflows/pre-commit.md
 - Confidence: 98%

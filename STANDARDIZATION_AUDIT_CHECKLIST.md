@@ -5,8 +5,9 @@ Purpose: complete a full-file standardization sweep before any new UI tweaks or 
 Rule: do not mark this audit complete until every section below is checked and every tracked file in the inventory has been reviewed.
 
 Current inventory baseline:
-- Tracked files in `git ls-files`: `349`
-- Pending new worktree files already included in this checklist: `3`
+- Historical baseline snapshot in this checklist: `349`
+- Current live tracked baseline: see `FULL_SCALE_CODEBASE_AUDIT.md` for the up-to-date inventory and continuity status
+- Pending new worktree files already included in this checklist at the time of the original sweep: `3`
 - Source of truth: `git ls-files`
 - Last checklist refresh: `2026-03-17`
 

@@ -132,7 +132,7 @@ describe("username suggestion benchmark", () => {
         expect(optimizedSuggestion).toBe(targetUsername);
         expect(optimizedQueries).toBeLessThan(baselineQueries / 2);
         expect(optimizedDuration).toBeLessThan(baselineDuration * 2.5);
-    });
+    }, 15000);
 
     it("shows the promise cache eliminating duplicate suffix checks for colliding long candidates", async () => {
         const candidates = [

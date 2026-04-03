@@ -42,6 +42,14 @@ function walkFiles(directory: string, results: string[] = []) {
   return results;
 }
 
+function collectRootFiles() {
+  return readdirSync(ROOT)
+    .map((entry) => path.join(ROOT, entry))
+    .filter((absolutePath) => existsSync(absolutePath) && statSync(absolutePath).isFile())
+    .filter((absolutePath) => FILE_EXTENSIONS.includes(path.extname(absolutePath)))
+    .sort();
+}
+
 function resolveWithCandidates(basePath: string) {
   const candidates = [
     basePath,
@@ -136,6 +144,8 @@ function buildGraph(files: string[]) {
 }
 
 function inferSurface(repoPath: string) {
+  if (repoPath === "middleware.ts") return "root-runtime";
+  if (/^[^/]+\.(ts|tsx|js|jsx|mjs|cjs)$/.test(repoPath)) return "root-config-or-runtime";
   if (repoPath.startsWith("src/app/api/")) return "route-handler";
   if (repoPath.startsWith("src/app/")) return "route-or-page";
   if (repoPath.startsWith("src/components/")) return "component";
@@ -207,7 +217,6 @@ function collectCanonicalHelpers(targetRepoPath: string) {
 
   if (/(storage|cache|persist|session)/.test(targetRepoPath)) {
     suggestions.add("src/hooks/useAuthSWR.ts");
-    suggestions.add("src/hooks/useCachedAuthSWR.ts");
     suggestions.add("src/lib/navigation-persistence.ts");
   }
 
@@ -233,7 +242,10 @@ function normalizeInputTarget(input: string) {
   return input.replace(/\\/g, "/");
 }
 
-const files = INTERNAL_DIRECTORIES.flatMap((directory) => walkFiles(path.join(ROOT, directory)));
+const files = [
+  ...collectRootFiles(),
+  ...INTERNAL_DIRECTORIES.flatMap((directory) => walkFiles(path.join(ROOT, directory))),
+];
 const graph = buildGraph(files);
 const targets = process.argv.slice(2);
 

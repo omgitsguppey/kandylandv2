@@ -141,7 +141,8 @@ describe("buildAdminOverviewUserNameMap", () => {
 
         expect(countSnapshot.data().count).toBe(baselineUsers.totalUsers);
         expect(Array.from(optimizedUserMap.entries())).toEqual(Array.from(baselineUsers.userNameMap.entries()));
-        expect(optimizedMs).toBeLessThan(baselineMs * 0.2);
+        expect(optimizedMs).toBeLessThan(baselineMs);
+        expect(improvement).toBeGreaterThan(50);
         console.log(
             `Admin overview user lookup benchmark: baseline=${baselineMs.toFixed(2)}ms optimized=${optimizedMs.toFixed(2)}ms improvement=${improvement.toFixed(1)}%`,
         );

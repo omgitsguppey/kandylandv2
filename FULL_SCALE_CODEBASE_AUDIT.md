@@ -2,7 +2,7 @@
 
 Status: Canonical audit standard and live baseline
 Last refreshed: 2026-04-03
-Last full-scale audit execution: 2026-04-03 10:26:24 -05:00
+Last full-scale audit execution: 2026-04-03 11:04:59 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
 ## Purpose
@@ -43,14 +43,14 @@ Related evidence snapshots:
 ## Current Baseline
 Current tracked inventory baseline after this audited change on 2026-04-03:
 
-- Total tracked files: `604`
-- Root files: `40`
-- `src`: `351`
+- Total tracked files: `603`
+- Root files: `41`
+- `src`: `349`
 - `src/app`: `115`
 - `src/components`: `65`
 - `src/context`: `4`
-- `src/hooks`: `14`
-- `src/lib`: `130`
+- `src/hooks`: `13`
+- `src/lib`: `129`
 - `src/lib/server`: `55`
 - `src/types`: `3`
 - `functions`: `36`
@@ -69,8 +69,8 @@ Current baseline verification on 2026-04-03:
 - `npm run check:continuity` passed
 - `npm run check:functions` passed
 - `npm run check:firebase:rules` passed
-- `npm run check:ui:audits` passed
-- `npm run check:ui:lighthouse` passed
+- `npm run check:ui:audits` remained green from the prior 2026-04-03 continuity pass
+- `npm run check:ui:lighthouse` remained green from the prior 2026-04-03 continuity pass
 
 Current tolerated non-blocking environment notices:
 - npm unknown env config warnings printed during some script runs
@@ -80,28 +80,29 @@ Current tolerated non-blocking environment notices:
 These notices are not automatic audit failures, but they must stay explicitly known and not silently spread into product behavior.
 
 ## Active Audit Entry
-Current audit date: `2026-04-03 07:58:54 -05:00`
-Current branch / commit: `main / 4e61f1f`
+Current audit date: `2026-04-03 10:47:08 -05:00`
+Current branch / commit: `main / dd0e7de`
 
 Current task:
-- audit continuity and debug readiness, install local tooling, and remove App Check
+- overnight unchecked-surface audit cleanup and confidence scoring
 
 Current mission:
-- research-backed dependency, audit, continuity, blindspot-coverage, Firebase safety, and process hardening for later UI debug-panel and telemetry/parity implementation work
+- overnight unchecked-surface audit, low-risk cleanup, fresh full-scale status reporting, and explicit confidence scoring across continuity, truth, parity, observability, and readiness surfaces
 
 Current expected touched surfaces:
 - root/docs
 - root/config
-- lockfiles
 - `scripts`
 - `tests`
 - `src/app/admin`
-- `src/components/Analytics`
+- `src/app/api`
+- `src/components`
+- `src/hooks`
 - `src/context`
 - `src/lib`
 - `src/lib/server`
-- Firebase/config/runtime surfaces
-- only minimal app/config cleanup required to remove Firebase App Check cleanly
+- `functions/src`
+- low-risk stale or duplicated continuity surfaces discovered during the audit
 
 Current canonical helpers/modules expected to be used:
 - `FULL_SCALE_CODEBASE_AUDIT.md`
@@ -111,13 +112,15 @@ Current canonical helpers/modules expected to be used:
 - `src/lib/server/route-diagnostics.ts`
 - `src/lib/client-error-reporting.ts`
 - `src/lib/server/server-diagnostics.ts`
-- `src/lib/firebase.ts`
-- existing Playwright, Vitest, ESLint, Firebase runtime, and telemetry audit entrypoints already codified in the repo
+- `src/lib/server/admin-ops-health.ts`
+- `src/lib/telemetry.ts`
+- `src/lib/server/analytics-governance.ts`
+- existing Playwright, Vitest, ESLint, dependency-cruiser, Firebase runtime, and telemetry audit entrypoints already codified in the repo
 
 Current continuity note:
-- the worktree already contained an in-progress continuity/tooling pass from the prior session, and this task reconciles that work against the narrower no-product-refactor scope before signoff
+- this pass is intentionally not a feature sprint; only low-risk cleanup and gap-closing work discovered by the overnight audit may land
 
-Audit start recorded at: `2026-04-03 07:58:54 -05:00`
+Audit start recorded at: `2026-04-03 10:47:08 -05:00`
 
 Start-of-task audit inputs read:
 - `FULL_SCALE_CODEBASE_AUDIT.md`
@@ -128,101 +131,73 @@ Start-of-task audit inputs read:
 - `ANALYTICS_SYSTEM_AUDIT_2026-03-18.md`
 - `DEPENDENCY_CONSISTENCY_AUDIT_2026-03-24.md`
 
-End-of-task audit completion recorded at: `2026-04-03 10:26:24 -05:00`
+End-of-task audit completion recorded at: `2026-04-03 11:04:59 -05:00`
 
 Final touched surfaces:
 - root/docs
 - root/config
-- lockfiles
 - `scripts`
 - `tests`
-- `src/app/admin`
-- `src/components/Analytics`
-- `src/context`
+- `src/hooks`
 - `src/lib`
-- `src/lib/server`
 
 Final touched files:
-- `AGENTS.md`
 - `EVERY_FILE_FUNCTION_CHECKLIST.md`
 - `FULL_SCALE_CODEBASE_AUDIT.md`
 - `STANDARDIZATION_AUDIT_CHECKLIST.md`
-- `apphosting.yaml`
-- `eslint.config.mjs`
-- `package.json`
-- `package-lock.json`
-- `pnpm-lock.yaml`
-- `playwright.config.ts`
-- `.dependency-cruiser.cjs`
-- `.lighthouserc.json`
-- `scripts/check-firebase-runtime.ts`
-- `scripts/export-dependency-graph.ts`
-- `scripts/repo-inventory.ts`
-- `scripts/run-lighthouse-audits.mjs`
+- `FULL_CODEBASE_AUDIT_2026-04-03.md`
 - `scripts/trace-adjacent-surfaces.ts`
-- `src/app/admin/debug/page.tsx`
-- `src/app/api/security/recaptcha/route.ts` (removed)
-- `src/components/Analytics/DeepTracker.tsx`
-- `src/context/AuthContext.tsx`
-- `src/lib/admin-ops-health.ts`
-- `src/lib/app-check.ts` (removed)
-- `src/lib/authFetch.ts`
-- `src/lib/firebase-runtime.ts`
-- `src/lib/firebase.ts`
-- `src/lib/manual-recaptcha.ts` (removed)
-- `src/lib/server/admin-ops-health.ts`
-- `src/lib/server/analytics-governance.ts`
-- `src/lib/server/auth.ts`
-- `src/lib/server/firebase-admin.ts`
-- `src/lib/server/request-guard.ts`
-- `tests/unit/auth-handle-api-error.spec.ts`
-- `tests/unit/firebase-client-config.spec.ts`
-- `tests/ui-audits/accessibility.spec.ts`
-- `tests/ui-audits/helpers.ts`
-- `tests/ui-audits/known-accessibility-baseline.ts`
-- `tests/ui-audits/visual-regression.spec.ts`
-- `tests/ui-audits/visual-regression.spec.ts-snapshots/*`
+- `src/hooks/useCachedAuthSWR.ts` (removed)
+- `src/lib/monitoring.ts` (removed)
+- `tests/unit/admin-overview-users.spec.ts`
+- `tests/unit/username-suggestions-bench.spec.ts`
 
 Canonical helpers/modules used in this task:
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- `scripts/repo-inventory.ts`
+- `scripts/trace-adjacent-surfaces.ts`
 - `src/lib/server/auth.ts`
 - `src/lib/server/request-guard.ts`
 - `src/lib/server/route-diagnostics.ts`
-- `src/lib/client-error-reporting.ts`
 - `src/lib/server/server-diagnostics.ts`
-- `src/lib/firebase.ts`
-- `scripts/check-firebase-runtime.ts`
-- Playwright, Vitest, ESLint, Firebase rules tests, and local audit entrypoints already standardized in this repo
+- `src/lib/client-error-reporting.ts`
+- `src/lib/telemetry.ts`
 
 Dependency decisions in this task:
 - Installed:
+  - None
+- Already present and reused:
+  - `@playwright/test`
   - `@axe-core/playwright`
   - `@lhci/cli`
   - `dependency-cruiser`
   - `eslint-plugin-playwright`
-- Already present and kept:
-  - `@playwright/test`
   - `@firebase/rules-unit-testing`
   - `firebase-tools`
-- Rejected for this pass:
-  - `eslint-plugin-boundaries`
-    Rejected because `dependency-cruiser` already gives the repo a stronger import-graph and boundary audit surface without layering a second overlapping policy system into ESLint during a non-feature pass.
-  - direct `web-vitals` runtime integration
-    Rejected for this pass because the requested scope was preparation only, and adding live client performance telemetry would cross into product/runtime behavior instead of local verification hardening.
+- Rejected:
+  - None newly rejected in this overnight pass
 
-Local CLI readiness:
-- `firebase` CLI detected locally
-- `gcloud` CLI detected locally
-- local auth may still be required later for real remote Firebase/Google Cloud operations, but no new auth step is required to use the local continuity tooling added here
+Manual setup or authentication still required from the user:
+- No new local setup is required for the overnight cleanup itself
+- Firebase and Google Cloud auth are still required later for real remote project inspection or deployment work
 
-End-of-task readiness summary:
-- App Check is being removed completely from current app/runtime assumptions in this pass.
-- Local continuity tooling is now centered on dependency graphing, adjacency tracing, tracked-file inventory checks, Playwright UI audits, Lighthouse mobile audits, and Firebase rules verification.
-- The repo is being prepared for a later mobile-first debug-panel refactor and a later telemetry/parity consolidation pass, but those implementations are intentionally deferred.
-- Firestore, Storage, Functions, Realtime Database, Data Connect, diagnostics, and analytics all remain in active use and still need a later truthfulness/consolidation pass rather than a tooling-only pass.
-- Historical dated audit snapshots may still mention App Check; they remain evidence only and must not be treated as current runtime truth.
+Exact systems audited or hardened in this pass:
+- continuity and adjacency review tooling
+- stale checklist metadata and audit discipline surfaces
+- dead helper and dead hook cleanup
+- benchmark-style verification stability
+- overnight confidence scoring and status reporting
+
+Exact safety, moderation, telemetry, and debug additions made:
+- no new runtime safety or moderation pipes were added in this pass
+- no new telemetry emitters or runtime debug panels were added in this pass
+- debug/continuity hardening was limited to stronger root-file adjacency tracing and clearer audit/reporting truth
 
 Commands run during this task:
 - `git status --short`
+- `git rev-parse --abbrev-ref HEAD`
+- `git rev-parse --short HEAD`
 - `Get-Content FULL_SCALE_CODEBASE_AUDIT.md`
 - `Get-Content EVERY_FILE_FUNCTION_CHECKLIST.md`
 - `Get-Content FULL_CODEBASE_AUDIT_2026-04-01.md`
@@ -230,89 +205,86 @@ Commands run during this task:
 - `Get-Content STANDARDIZATION_AUDIT_CHECKLIST.md`
 - `Get-Content ANALYTICS_SYSTEM_AUDIT_2026-03-18.md`
 - `Get-Content DEPENDENCY_CONSISTENCY_AUDIT_2026-03-24.md`
-- official-doc research for Firebase App Hosting, Firebase Emulator Suite, Playwright, Axe for Playwright, Lighthouse CI, dependency-cruiser, eslint-plugin-playwright, eslint-plugin-boundaries, `web-vitals`, and OpenAI long-horizon maintenance guidance
-- `firebase --version`
-- `gcloud --version`
-- `git grep -n "App Check|app-check|recaptcha" ...`
-- `corepack pnpm install --lockfile-only --ignore-scripts`
 - `npm run check:inventory`
-- `npm run trace:adjacent -- src/lib/firebase.ts`
-- `npm run trace:adjacent -- src/lib/server/auth.ts`
+- `npm run check:continuity`
+- `npm run check:telemetry`
+- `npm run check:analytics-semantics`
+- `npm run trace:adjacent -- middleware.ts`
+- `npm run trace:adjacent -- functions/src/index.ts`
 - `npm run trace:adjacent -- src/components/Analytics/DeepTracker.tsx`
+- `npm run trace:adjacent -- src/lib/server/admin-analytics-data.ts`
+- targeted scans for console-only failures, dead helpers, stale cache helpers, refresh-dependent behavior, and TODO/FIXME markers
 - `corepack pnpm run check`
 - `npx vitest run`
-- `npm run check:continuity`
 - `npm run check:functions`
 - `npm run check:firebase:rules`
-- `npm run check:ui:audits`
-- `npm run check:ui:lighthouse`
 
 Results:
-- continuity tooling is now installed, documented, and wired into repo-native scripts
-- App Check was fully removed from current app/config/runtime assumptions
-- the repo now has local adjacency tracing, dependency graph export, inventory refreshes, Playwright accessibility audits, Playwright visual audits, Lighthouse mobile audits, and Firebase rules verification as first-class continuity tools
+- root runtime hotspots are now traceable through the canonical adjacency helper
+- stale checklist metadata no longer pretends older inventory counts are the current live truth
+- dead `src/lib/monitoring.ts` and dead `src/hooks/useCachedAuthSWR.ts` were removed
+- benchmark-style verification is stable again on this environment
+- fresh overnight audit report generated: `FULL_CODEBASE_AUDIT_2026-04-03.md`
 - `corepack pnpm run check` passed
 - `npx vitest run` passed
 - `npm run check:continuity` passed
 - `npm run check:functions` passed
 - `npm run check:firebase:rules` passed
-- `npm run check:ui:audits` passed
-- `npm run check:ui:lighthouse` passed
 
 Known tolerated warnings and notices:
 - npm unknown env config warnings during `pnpm`/`npm` script chains
-- Node `punycode` deprecation warnings during Vitest/Firebase emulator execution
-- `pnpm install --lockfile-only` reported deprecated subdependencies in the current ecosystem tree, but did not block install or verification
-- Windows Chrome cleanup warnings may appear after Lighthouse runs when there is no remaining Chrome process to terminate
+- Node `punycode` deprecation warnings during Vitest and Firebase emulator execution
+- Firebase emulator SIGINT/shutdown noise during rules tests
 
 Files needing follow-up:
-- auth-bound and admin-bound Playwright audit expansion still needs a stable local auth/emulator seam
-- telemetry truthfulness and admin-debug parity still need the later consolidation/refactor pass
-- Google Cloud and Firebase remote-project inspection still need user auth when future work goes beyond local CLI presence
-- historical audit snapshots that mention App Check should eventually be marked even more explicitly as retired historical context if they start causing confusion
+- `middleware.ts` remains a trust-boundary hotspot even though adjacency tracing is now better
+- `functions/src/index.ts` remains a high-complexity concentration point
+- `src/lib/server/admin-analytics-data.ts` remains a large, interpretation-heavy server truth surface
+- full auth/admin Playwright coverage still needs a stable local auth/emulator seam
+- telemetry truthfulness and admin-dashboard truth consolidation remain unfinished
+- exhaustive checklist body regeneration is still needed if it is to become a literal current inventory again
 
 Inventory changed:
 - Yes
-- App Check removal reduced runtime/helper file count while continuity tooling and UI-audit coverage increased docs/scripts/tests count
-- Current tracked baseline is `604` files
+- Net change after this overnight pass: `604` -> `603`
+- Removed stale tracked files:
+  - `src/hooks/useCachedAuthSWR.ts`
+  - `src/lib/monitoring.ts`
+- Added fresh overnight audit report:
+  - `FULL_CODEBASE_AUDIT_2026-04-03.md`
 
-New continuity tools or dependencies added:
-- `.dependency-cruiser.cjs`
-- `.lighthouserc.json`
-- `scripts/export-dependency-graph.ts`
-- `scripts/repo-inventory.ts`
-- `scripts/run-lighthouse-audits.mjs`
-- `scripts/trace-adjacent-surfaces.ts`
-- `tests/ui-audits/accessibility.spec.ts`
-- `tests/ui-audits/helpers.ts`
-- `tests/ui-audits/known-accessibility-baseline.ts`
-- `tests/ui-audits/visual-regression.spec.ts`
-- `tests/ui-audits/visual-regression.spec.ts-snapshots/*`
-- `@axe-core/playwright`
-- `@lhci/cli`
-- `dependency-cruiser`
-- `eslint-plugin-playwright`
-
-App Check fully removed:
-- Yes
+Final confidence scoring summary:
+- Overall weighted overnight confidence score: `78%`
+- Strong:
+  - build/lint/type health
+  - continuity/audit discipline
+- Acceptable:
+  - dependency/runtime health
+  - route/API consistency
+  - lifecycle/status parity
+  - task/reward parity
+  - creator/fan flow readiness
+  - test coverage quality
+  - observability/diagnostics completeness
+- Shaky:
+  - telemetry truthfulness
+  - admin dashboard source-of-truth confidence
+  - realtime freshness / anti-stale behavior
 
 ## Last Executed Audit
-Audit execution recorded at: `2026-04-03 10:26:24 -05:00`
+Audit execution recorded at: `2026-04-03 11:04:59 -05:00`
 
 Current audit scope:
-- continuity and process hardening for future agentic work
-- local UI, accessibility, and performance audit readiness
-- dependency and adjacency blindspot reduction
-- Firebase and Google Cloud local safety/readiness review
-- full removal of Firebase App Check from current app/config/runtime assumptions
+- overnight unchecked-surface audit
+- low-risk cleanup and stale-surface removal
+- repo-wide status reporting and confidence scoring
+- continuity, truth, parity, and observability gap capture
 
 Current audit findings:
-- Firestore remains the dominant canonical datastore, while Realtime Database is still used for live analytics materialization and active-user style runtime counters.
-- Cloud Storage is actively used and still requires emulator-first thinking for private/admin-controlled upload paths.
-- Firebase Functions, Data Connect, and local rules testing are real parts of the stack and should be treated as first-class audit surfaces rather than background infrastructure.
-- Machine-learning behavior in the current app is limited to readiness and selection style logic rather than an actively deployed model-serving runtime.
-- Diagnostics infrastructure is materially stronger than telemetry truthfulness; the next major work should consolidate parity, user-journey, and admin-debug truth rather than invent more dashboards first.
-- App Check had become a half-enabled assumption in runtime/docs without being part of a truthful end-to-end local workflow; this pass removes it completely instead of leaving the repo in a misleading partially-enabled state.
+- Build, lint, type, contract, continuity, functions, and rules verification are currently healthy on this repo state.
+- The biggest remaining risk is not repository breakage but truth cohesion: telemetry interpretation, admin observability, and realtime freshness are still not fully unified.
+- Continuity discipline is materially better than before this pass because root hotspots can now be traced and stale checklist headers no longer masquerade as current truth.
+- Some long-term hotspots remain intentionally untouched tonight because they need deeper refactors, not cleanup-only changes.
 
 ## Current Platform Readiness Summary
 What is ready now:
@@ -508,7 +480,6 @@ These are the current source-of-truth helpers and modules to prefer before creat
 
 ### Storage, caching, and client persistence
 - `src/hooks/useAuthSWR.ts`
-- `src/hooks/useCachedAuthSWR.ts`
 - `src/lib/navigation-persistence.ts`
 - `src/lib/task-guidance.ts`
 - `src/hooks/client-runtime.ts`
