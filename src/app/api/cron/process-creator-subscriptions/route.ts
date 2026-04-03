@@ -10,6 +10,7 @@ import { buildCreatorAccrual, buildSourceAwareBalancePatch, readSourceAwareBalan
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { markNotificationsRuntimeChanged } from "@/lib/server/notification-runtime";
+import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 
 const SUBSCRIPTION_TERM_MS = 30 * 24 * 60 * 60 * 1000;
 const WARNING_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
@@ -31,7 +32,9 @@ export async function GET(request: NextRequest) {
 
         if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
             if (!cronSecret) {
-                console.error("CRON_SECRET is not configured for cron/process-creator-subscriptions");
+                recordRouteWarning("cron/process-creator-subscriptions", "CRON_SECRET missing", {
+                    routeName: "cron/process-creator-subscriptions",
+                });
             }
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }

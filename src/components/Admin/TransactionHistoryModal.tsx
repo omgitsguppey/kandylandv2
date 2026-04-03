@@ -6,6 +6,7 @@ import { ArrowDownLeft, ArrowUpRight, Loader2, ScrollText, TrendingUp } from "lu
 
 import { Button } from "@/components/ui/Button";
 import { authFetch } from "@/lib/authFetch";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
 import {
     getTransactionBadgeLabel,
@@ -38,7 +39,16 @@ export function TransactionHistoryModal({ user, onClose }: Props) {
                 }
                 setTransactions(result.transactions || []);
             } catch (error) {
-                console.error("Error fetching transactions:", error);
+                reportClientIssue({
+                    channel: "payments",
+                    message: "Admin transaction history fetch failed",
+                    error,
+                    detail: {
+                        component: "TransactionHistoryModal",
+                        userId: user.uid,
+                    },
+                    consoleLabel: "[Transaction History Modal] fetch failed",
+                });
                 setTransactions([]);
                 setError(error instanceof Error ? error.message : "Failed to load transactions");
             } finally {

@@ -45,6 +45,7 @@ import {
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import { useNow } from "@/hooks/useNow";
 import { useAuth } from "@/context/AuthContext";
+import { reportStorageIssue } from "@/lib/client-error-reporting";
 import { cn } from "@/lib/utils";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
@@ -732,8 +733,10 @@ export default function AdminAnalyticsPage() {
         if (typeof parsed.viewerUserFilter === "string") {
           setViewerUserFilter(parsed.viewerUserFilter);
         }
-      } catch {
-        // Ignore malformed session storage values.
+      } catch (error) {
+        reportStorageIssue("admin analytics filters read", error, {
+          storageKey: analyticsFilterStorageKey,
+        });
       }
     }, 0);
 
@@ -757,8 +760,10 @@ export default function AdminAnalyticsPage() {
           viewerUserFilter,
         }),
       );
-    } catch {
-      // Ignore storage failures in restricted browsing contexts.
+    } catch (error) {
+      reportStorageIssue("admin analytics filters write", error, {
+        storageKey: analyticsFilterStorageKey,
+      });
     }
   }, [activeTab, analyticsFilterStorageKey, range, viewerUserDraft, viewerUserFilter]);
 

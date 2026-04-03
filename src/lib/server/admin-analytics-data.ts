@@ -4,22 +4,11 @@ import { BetaAnalyticsDataClient } from "@google-analytics/data";
 
 import { adminDb } from "./firebase-admin";
 import { fetchTelemetryLogs, safeRunReport } from "./admin-analytics-shared";
+import {
+  safeDocumentWithDiagnostics,
+  safeQueryWithDiagnostics,
+} from "./diagnostic-read-fallbacks";
 import { ADMIN_TELEMETRY_LOG_EVENT_NAMES, TELEMETRY_EVENT_QUERY_NAMES } from "@/lib/telemetry-catalog";
-
-function emptyQuerySnapshot() {
-  return {
-    docs: [],
-    size: 0,
-    empty: true,
-  } as unknown as FirebaseFirestore.QuerySnapshot;
-}
-
-function emptyDocumentSnapshot() {
-  return {
-    exists: false,
-    data: () => undefined,
-  } as unknown as FirebaseFirestore.DocumentSnapshot;
-}
 
 export function getAdminAnalyticsPropertyId() {
   return process.env.GA_PROPERTY_ID || "";
@@ -56,24 +45,6 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
   const analyticsEventNames = TELEMETRY_EVENT_QUERY_NAMES;
   const trafficDimensionName = timelineBucket === "hour" ? "dateHour" : "date";
   const issues: string[] = [];
-
-  const safeQuery = async (label: string, reader: () => Promise<FirebaseFirestore.QuerySnapshot>) => {
-    try {
-      return await reader();
-    } catch {
-      issues.push(`${label} unavailable`);
-      return emptyQuerySnapshot();
-    }
-  };
-
-  const safeDocument = async (label: string, reader: () => Promise<FirebaseFirestore.DocumentSnapshot>) => {
-    try {
-      return await reader();
-    } catch {
-      issues.push(`${label} unavailable`);
-      return emptyDocumentSnapshot();
-    }
-  };
 
     const [
         response,
@@ -174,80 +145,220 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
         },
       },
     }),
-    safeQuery("daily analytics rollups", () => adminDb.collection("analytics_rollups_daily")
-      .where("dayKey", ">=", startDayKey)
-      .get()),
-    safeQuery("page analytics rollups", () => adminDb.collection("analytics_page_daily")
-      .where("dayKey", ">=", startDayKey)
-      .get()),
-    safeQuery("drop analytics rollups", () => adminDb.collection("analytics_drop_daily")
-      .where("dayKey", ">=", startDayKey)
-      .get()),
-    safeQuery("task analytics rollups", () => adminDb.collection("analytics_task_daily")
-      .where("dayKey", ">=", startDayKey)
-      .get()),
-    safeQuery("commerce analytics rollups", () => adminDb.collection("analytics_commerce_daily")
-      .where("dayKey", ">=", startDayKey)
-      .get()),
-    safeQuery("session analytics facts", () => adminDb.collection("analytics_session_facts")
-      .where("dayKey", ">=", startDayKey)
-      .get()),
-    safeQuery("pipeline analytics", () => adminDb.collection("analytics_pipeline_daily")
-      .where("dayKey", ">=", startDayKey)
-      .get()),
+    safeQueryWithDiagnostics({
+      routeName: "admin/analytics/historical",
+      channel: "analytics",
+      label: "daily analytics rollups",
+      issues,
+      reader: () => adminDb.collection("analytics_rollups_daily")
+        .where("dayKey", ">=", startDayKey)
+        .get(),
+    }),
+    safeQueryWithDiagnostics({
+      routeName: "admin/analytics/historical",
+      channel: "analytics",
+      label: "page analytics rollups",
+      issues,
+      reader: () => adminDb.collection("analytics_page_daily")
+        .where("dayKey", ">=", startDayKey)
+        .get(),
+    }),
+    safeQueryWithDiagnostics({
+      routeName: "admin/analytics/historical",
+      channel: "analytics",
+      label: "drop analytics rollups",
+      issues,
+      reader: () => adminDb.collection("analytics_drop_daily")
+        .where("dayKey", ">=", startDayKey)
+        .get(),
+    }),
+    safeQueryWithDiagnostics({
+      routeName: "admin/analytics/historical",
+      channel: "analytics",
+      label: "task analytics rollups",
+      issues,
+      reader: () => adminDb.collection("analytics_task_daily")
+        .where("dayKey", ">=", startDayKey)
+        .get(),
+    }),
+    safeQueryWithDiagnostics({
+      routeName: "admin/analytics/historical",
+      channel: "commerce",
+      label: "commerce analytics rollups",
+      issues,
+      reader: () => adminDb.collection("analytics_commerce_daily")
+        .where("dayKey", ">=", startDayKey)
+        .get(),
+    }),
+    safeQueryWithDiagnostics({
+      routeName: "admin/analytics/historical",
+      channel: "analytics",
+      label: "session analytics facts",
+      issues,
+      reader: () => adminDb.collection("analytics_session_facts")
+        .where("dayKey", ">=", startDayKey)
+        .get(),
+    }),
+    safeQueryWithDiagnostics({
+      routeName: "admin/analytics/historical",
+      channel: "analytics",
+      label: "pipeline analytics",
+      issues,
+      reader: () => adminDb.collection("analytics_pipeline_daily")
+        .where("dayKey", ">=", startDayKey)
+        .get(),
+    }),
     period === "all"
-      ? safeQuery("analytics event facts", () => adminDb.collection("analytics_event_facts")
-        .orderBy("timestamp", "desc")
-        .get())
-      : safeQuery("analytics event facts", () => adminDb.collection("analytics_event_facts")
-        .where("timestamp", ">=", startMs)
-        .get()),
-    safeQuery("analytics event stats", () => adminDb.collection("analytics_event_stats").get()),
+      ? safeQueryWithDiagnostics({
+        routeName: "admin/analytics/historical",
+        channel: "analytics",
+        label: "analytics event facts",
+        issues,
+        reader: () => adminDb.collection("analytics_event_facts")
+          .orderBy("timestamp", "desc")
+          .get(),
+      })
+      : safeQueryWithDiagnostics({
+        routeName: "admin/analytics/historical",
+        channel: "analytics",
+        label: "analytics event facts",
+        issues,
+        reader: () => adminDb.collection("analytics_event_facts")
+          .where("timestamp", ">=", startMs)
+          .get(),
+      }),
+    safeQueryWithDiagnostics({
+      routeName: "admin/analytics/historical",
+      channel: "analytics",
+      label: "analytics event stats",
+      issues,
+      reader: () => adminDb.collection("analytics_event_stats").get(),
+    }),
     period === "all"
-      ? safeQuery("security events", () => adminDb.collection("security_events")
-        .orderBy("timestamp", "desc")
-        .get())
-      : safeQuery("security events", () => adminDb.collection("security_events")
-        .where("timestamp", ">=", startMs)
-        .orderBy("timestamp", "desc")
-        .get()),
+      ? safeQueryWithDiagnostics({
+        routeName: "admin/analytics/historical",
+        channel: "analytics",
+        label: "security events",
+        issues,
+        reader: () => adminDb.collection("security_events")
+          .orderBy("timestamp", "desc")
+          .get(),
+      })
+      : safeQueryWithDiagnostics({
+        routeName: "admin/analytics/historical",
+        channel: "analytics",
+        label: "security events",
+        issues,
+        reader: () => adminDb.collection("security_events")
+          .where("timestamp", ">=", startMs)
+          .orderBy("timestamp", "desc")
+          .get(),
+      }),
     period === "all"
-      ? safeQuery("guest analytics batches", () => adminDb.collection("analytics_guest_batches")
-        .orderBy("receivedAtMs", "desc")
-        .get())
-      : safeQuery("guest analytics batches", () => adminDb.collection("analytics_guest_batches")
-        .where("receivedAtMs", ">=", startMs)
-        .orderBy("receivedAtMs", "desc")
-        .get()),
-    safeDocument("commerce analytics summary", () => adminDb.collection("analytics_commerce_rollup")
-      .doc("summary")
-      .get()),
+      ? safeQueryWithDiagnostics({
+        routeName: "admin/analytics/historical",
+        channel: "analytics",
+        label: "guest analytics batches",
+        issues,
+        reader: () => adminDb.collection("analytics_guest_batches")
+          .orderBy("receivedAtMs", "desc")
+          .get(),
+      })
+      : safeQueryWithDiagnostics({
+        routeName: "admin/analytics/historical",
+        channel: "analytics",
+        label: "guest analytics batches",
+        issues,
+        reader: () => adminDb.collection("analytics_guest_batches")
+          .where("receivedAtMs", ">=", startMs)
+          .orderBy("receivedAtMs", "desc")
+          .get(),
+      }),
+    safeDocumentWithDiagnostics({
+      routeName: "admin/analytics/historical",
+      channel: "commerce",
+      label: "commerce analytics summary",
+      issues,
+      reader: () => adminDb.collection("analytics_commerce_rollup")
+        .doc("summary")
+        .get(),
+    }),
     period === "all"
-      ? safeQuery("server diagnostics", () => adminDb.collection("server_diagnostics")
-        .orderBy("createdAtMs", "desc")
-        .get())
-      : safeQuery("server diagnostics", () => adminDb.collection("server_diagnostics")
-        .where("createdAtMs", ">=", startMs)
-        .orderBy("createdAtMs", "desc")
-        .get()),
-    safeQuery("task analytics summary", () => adminDb.collection("analytics_task_rollup").get()),
-    period === "all" ? safeQuery("drops archive", () => adminDb.collection("drops").get()) : Promise.resolve<FirebaseFirestore.QuerySnapshot | null>(null),
+      ? safeQueryWithDiagnostics({
+        routeName: "admin/analytics/historical",
+        channel: "admin",
+        label: "server diagnostics",
+        issues,
+        reader: () => adminDb.collection("server_diagnostics")
+          .orderBy("createdAtMs", "desc")
+          .get(),
+      })
+      : safeQueryWithDiagnostics({
+        routeName: "admin/analytics/historical",
+        channel: "admin",
+        label: "server diagnostics",
+        issues,
+        reader: () => adminDb.collection("server_diagnostics")
+          .where("createdAtMs", ">=", startMs)
+          .orderBy("createdAtMs", "desc")
+          .get(),
+      }),
+    safeQueryWithDiagnostics({
+      routeName: "admin/analytics/historical",
+      channel: "analytics",
+      label: "task analytics summary",
+      issues,
+      reader: () => adminDb.collection("analytics_task_rollup").get(),
+    }),
     period === "all"
-      ? safeQuery("watch sessions", () => adminDb.collection("analytics_watch_sessions")
-        .orderBy("lastSeenAtMs", "desc")
-        .get())
-      : safeQuery("watch sessions", () => adminDb.collection("analytics_watch_sessions")
-        .where("lastSeenAtMs", ">=", startMs)
-        .orderBy("lastSeenAtMs", "desc")
-        .get()),
+      ? safeQueryWithDiagnostics({
+        routeName: "admin/analytics/historical",
+        channel: "admin",
+        label: "drops archive",
+        issues,
+        reader: () => adminDb.collection("drops").get(),
+      })
+      : Promise.resolve<FirebaseFirestore.QuerySnapshot | null>(null),
     period === "all"
-      ? safeQuery("watch assets", () => adminDb.collection("analytics_watch_assets")
-        .orderBy("lastSeenAtMs", "desc")
-        .get())
-      : safeQuery("watch assets", () => adminDb.collection("analytics_watch_assets")
-        .where("lastSeenAtMs", ">=", startMs)
-        .orderBy("lastSeenAtMs", "desc")
-        .get()),
+      ? safeQueryWithDiagnostics({
+        routeName: "admin/analytics/historical",
+        channel: "analytics",
+        label: "watch sessions",
+        issues,
+        reader: () => adminDb.collection("analytics_watch_sessions")
+          .orderBy("lastSeenAtMs", "desc")
+          .get(),
+      })
+      : safeQueryWithDiagnostics({
+        routeName: "admin/analytics/historical",
+        channel: "analytics",
+        label: "watch sessions",
+        issues,
+        reader: () => adminDb.collection("analytics_watch_sessions")
+          .where("lastSeenAtMs", ">=", startMs)
+          .orderBy("lastSeenAtMs", "desc")
+          .get(),
+      }),
+    period === "all"
+      ? safeQueryWithDiagnostics({
+        routeName: "admin/analytics/historical",
+        channel: "analytics",
+        label: "watch assets",
+        issues,
+        reader: () => adminDb.collection("analytics_watch_assets")
+          .orderBy("lastSeenAtMs", "desc")
+          .get(),
+      })
+      : safeQueryWithDiagnostics({
+        routeName: "admin/analytics/historical",
+        channel: "analytics",
+        label: "watch assets",
+        issues,
+        reader: () => adminDb.collection("analytics_watch_assets")
+          .where("lastSeenAtMs", ">=", startMs)
+          .orderBy("lastSeenAtMs", "desc")
+          .get(),
+      }),
   ]);
 
   const [
@@ -256,18 +367,36 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
     transactionsInRangeSnapshot,
   ] = await Promise.all([
     fetchTelemetryLogs(ADMIN_TELEMETRY_LOG_EVENT_NAMES, startMs),
-    safeQuery("daily task events", () => adminDb.collection("daily_task_events")
-      .where("timestamp", ">=", startMs)
-      .orderBy("timestamp", "desc")
-      .get()),
-    period === "all"
-      ? safeQuery("transactions", () => adminDb.collection("transactions")
-        .orderBy("timestamp", "desc")
-        .get())
-      : safeQuery("transactions", () => adminDb.collection("transactions")
+    safeQueryWithDiagnostics({
+      routeName: "admin/analytics/historical",
+      channel: "analytics",
+      label: "daily task events",
+      issues,
+      reader: () => adminDb.collection("daily_task_events")
         .where("timestamp", ">=", startMs)
         .orderBy("timestamp", "desc")
-        .get()),
+        .get(),
+    }),
+    period === "all"
+      ? safeQueryWithDiagnostics({
+        routeName: "admin/analytics/historical",
+        channel: "commerce",
+        label: "transactions",
+        issues,
+        reader: () => adminDb.collection("transactions")
+          .orderBy("timestamp", "desc")
+          .get(),
+      })
+      : safeQueryWithDiagnostics({
+        routeName: "admin/analytics/historical",
+        channel: "commerce",
+        label: "transactions",
+        issues,
+        reader: () => adminDb.collection("transactions")
+          .where("timestamp", ">=", startMs)
+          .orderBy("timestamp", "desc")
+          .get(),
+      }),
   ]);
 
   return {

@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/Button";
 import { Loader2, AlertCircle } from "lucide-react";
 import { dispatchAdminOverviewSync } from "@/hooks/client-runtime";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 
 import { toast } from "sonner";
 
@@ -51,7 +52,17 @@ export function BalanceAdjustmentModal({ user, onClose, onSuccess }: Props) {
                 toast.error(result.error || "Failed to update balance");
             }
         } catch (error) {
-            console.error(error);
+            reportClientIssue({
+                channel: "payments",
+                message: "Admin balance adjustment failed",
+                error,
+                detail: {
+                    component: "BalanceAdjustmentModal",
+                    userId: user.uid,
+                    amount: val,
+                },
+                consoleLabel: "[Balance Adjustment Modal] update failed",
+            });
             toast.error("An unexpected error occurred");
         } finally {
             setProcessing(false);

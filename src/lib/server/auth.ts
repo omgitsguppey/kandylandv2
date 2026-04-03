@@ -5,6 +5,7 @@ import { shouldRequireAppCheck } from "@/lib/firebase-runtime";
 
 import { adminAppCheck, adminAuth, adminDb } from "./firebase-admin";
 import { RateLimitError, buildRateLimitResponse } from "./rate-limit";
+import { inferDiagnosticChannel, recordRouteFailure } from "./route-diagnostics";
 
 export interface AuthResult {
     uid: string;
@@ -112,9 +113,17 @@ export function handleApiError(error: any, context: string) {
         return NextResponse.json({ error: error.message }, { status: error.status });
     }
     const status = error instanceof AuthError ? error.status : 500;
+    const diagnosticChannel = inferDiagnosticChannel(context);
 
     // Keep structured logs useful for observability without forwarding raw stacks or payloads.
     console.error(JSON.stringify(buildApiErrorLogEntry(error, context, status)));
+    recordRouteFailure(context, error, {
+        channel: diagnosticChannel,
+        includePipelineHealth: diagnosticChannel === "analytics",
+        detail: {
+            status,
+        },
+    });
 
     const clientMessage = status >= 500
         ? "Internal server error"

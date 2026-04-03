@@ -9,6 +9,7 @@ import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import type { DailyTasksState } from "@/lib/tasks/task-catalog";
 import { recordCanonicalTaskEvent } from "@/lib/server/daily-tasks";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { touchUserRuntime } from "@/lib/server/user-runtime";
 import type { UserProfile } from "@/types/db";
 
@@ -117,7 +118,14 @@ export async function POST(request: NextRequest) {
                 transaction_id: `${userId}:checkin:${result.lastCheckIn}`,
             });
         } catch (taskEventError) {
-            console.error("Check-in completed but daily task progress sync failed", taskEventError);
+            recordRouteWarning("checkin", "Check-in completed but daily task progress sync failed", taskEventError, {
+                channel: "analytics",
+                detail: {
+                    userId,
+                    reward: result.reward,
+                    streakCount: result.nextStreak,
+                },
+            });
         }
 
         const updatedUserSnapshot = await userRef.get();

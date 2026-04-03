@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { CLIENT_RUNTIME_EVENTS, dispatchClientRuntimeEvent } from "@/hooks/client-runtime";
 import { enableBrowserNotifications } from "@/lib/browser-notification-enrollment";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 import { trackEvent } from "@/lib/telemetry";
 import type { TaskGuidanceActionType } from "@/lib/task-guidance";
 
@@ -57,7 +58,16 @@ export function useTaskGuidanceActions() {
           toast.success("Notifications enabled.");
           return true;
         } catch (error) {
-          console.error("Failed to enable notifications", error);
+          reportClientIssue({
+            channel: "notifications",
+            message: "Task guidance notification enable failed",
+            error,
+            detail: {
+              source: options.source,
+              actionType,
+            },
+            consoleLabel: "[TaskGuidance] enable notifications failed",
+          });
           toast.error("We could not enable notifications right now.");
           return true;
         }

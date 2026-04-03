@@ -19,6 +19,7 @@ import { differenceInYears, parseISO } from "date-fns";
 
 import { useAuth } from "@/context/AuthContext";
 import type { AuthModalEntryMode } from "@/context/UIContext";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 import { clearTimedFlow, consumeTimedFlow, startTimedFlow, trackEvent } from "@/lib/telemetry";
 import { SECONDARY_UNWRAP_CTA, SIGNUP_SUPPORT_COPY } from "@/lib/marketing-copy";
 
@@ -261,7 +262,16 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                     setUsernameAvailable(true);
                 }
             } catch (error) {
-                console.error(error);
+                reportClientIssue({
+                    channel: "auth",
+                    severity: "warn",
+                    message: "Username suggestion lookup failed",
+                    error,
+                    detail: {
+                        action: "suggest_username",
+                    },
+                    consoleLabel: "[Auth Modal] username suggestion failed",
+                });
             }
         }, 250);
 
@@ -298,7 +308,17 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                     setValue("username", result.normalized, { shouldValidate: true, shouldDirty: false });
                 }
             } catch (error) {
-                console.error(error);
+                reportClientIssue({
+                    channel: "auth",
+                    severity: "warn",
+                    message: "Username availability lookup failed",
+                    error,
+                    detail: {
+                        action: "check_username_availability",
+                        username: watchedUsername,
+                    },
+                    consoleLabel: "[Auth Modal] username availability failed",
+                });
             } finally {
                 if (requestId === availabilityRequestRef.current) {
                     setCheckingUsername(false);
@@ -334,6 +354,16 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
             trackEvent("auth_google_sign_in_success", mergedParams);
             onClose();
         } catch (error: unknown) {
+            reportClientIssue({
+                channel: "auth",
+                message: "Google sign-in failed",
+                error,
+                detail: {
+                    action: "google_sign_in",
+                    sourceMode: mode,
+                },
+                consoleLabel: "[Auth Modal] Google sign-in failed",
+            });
             const { mergedParams } = consumeTimedFlow(AUTH_GOOGLE_FLOW, { source_mode: mode });
             trackEvent("auth_google_sign_in_failed", mergedParams);
             setAuthError(error instanceof Error ? error.message : "Failed to sign in with Google.");
@@ -418,7 +448,17 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
             onClose();
             reset();
         } catch (error: unknown) {
-            console.error(error);
+            reportClientIssue({
+                channel: "auth",
+                message: isSignupMode(mode) ? "Email sign-up failed" : "Email sign-in failed",
+                error,
+                detail: {
+                    action: isSignupMode(mode) ? "email_sign_up" : "email_sign_in",
+                    entryMode: initialMode,
+                    signupIntent,
+                },
+                consoleLabel: "[Auth Modal] email auth failed",
+            });
             const firebaseError = error as { code?: string; message?: string };
             const flowKey = isSignupMode(mode) ? AUTH_SIGN_UP_FLOW : AUTH_SIGN_IN_FLOW;
             const { mergedParams } = consumeTimedFlow(flowKey, {
@@ -464,7 +504,16 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
             trackEvent("password_reset_sent");
             setResetSent(true);
         } catch (error: unknown) {
-            console.error("Password reset error:", error);
+            reportClientIssue({
+                channel: "auth",
+                message: "Password reset failed",
+                error,
+                detail: {
+                    action: "password_reset",
+                    email,
+                },
+                consoleLabel: "[Auth Modal] password reset failed",
+            });
             const firebaseError = error as { code?: string; message?: string };
             if (firebaseError.code === "auth/user-not-found") {
                 trackEvent("password_reset_sent");

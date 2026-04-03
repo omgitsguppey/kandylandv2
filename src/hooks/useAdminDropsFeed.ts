@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 
+import { reportRealtimeIssue } from "@/lib/client-error-reporting";
 import { db } from "@/lib/firebase-data";
 import { normalizeDropRecordOrFallback } from "@/lib/drop-read-models";
 import type { Drop } from "@/types/db";
@@ -34,7 +35,9 @@ export function useAdminDropsFeed() {
             setLoadError(null);
             setLoading(false);
         }, (error) => {
-            console.error("Failed to subscribe to drops", error);
+            reportRealtimeIssue("admin drops feed", error, {
+                scope: "admin_drops_subscription",
+            });
             setLoadError(error instanceof Error ? error.message : "Failed to load drops.");
             setLoading(false);
         });

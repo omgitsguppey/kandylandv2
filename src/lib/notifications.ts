@@ -1,6 +1,6 @@
-
+"use client";
 import { authFetch } from "@/lib/authFetch";
-import { captureException } from "@/lib/monitoring";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 import { DropNotificationContext, NotificationTarget, NotificationType } from "@/lib/notification-contracts";
 
 export interface NotificationPayload {
@@ -26,7 +26,16 @@ export async function sendNotification(payload: NotificationPayload) {
             duplicate: result.duplicate === true,
         };
     } catch (error) {
-        captureException(error, { context: "sendNotification", payload });
+        reportClientIssue({
+            channel: "notifications",
+            message: "Notification send failed",
+            error,
+            detail: {
+                context: "sendNotification",
+                payload,
+            },
+            consoleLabel: "[Notifications] send failed",
+        });
         return { success: false, error };
     }
 }
@@ -40,7 +49,16 @@ export async function markNotificationAsRead(notificationId: string) {
 
         return response.ok;
     } catch (error) {
-        captureException(error, { context: "markNotificationAsRead", notificationId });
+        reportClientIssue({
+            channel: "notifications",
+            message: "Notification mark-as-read failed",
+            error,
+            detail: {
+                context: "markNotificationAsRead",
+                notificationId,
+            },
+            consoleLabel: "[Notifications] mark as read failed",
+        });
         return false;
     }
 }

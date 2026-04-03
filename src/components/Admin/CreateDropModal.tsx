@@ -19,6 +19,7 @@ import {
     type DropFormData,
 } from "@/lib/admin-drop-form";
 import { dispatchAdminOverviewSync } from "@/hooks/client-runtime";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 import { toast } from "sonner";
 
 const AVAILABLE_TAGS = ["Sweet", "Spicy", "RAW"];
@@ -313,7 +314,16 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                     setCreatorOptions(Array.isArray(result.creators) ? result.creators : []);
                 }
             } catch (error) {
-                console.error("Failed to load creator options", error);
+                reportClientIssue({
+                    channel: "ui",
+                    message: "Admin drop creator options fetch failed",
+                    error,
+                    detail: {
+                        adminView: "create_drop_modal",
+                        mode,
+                    },
+                    consoleLabel: "[Create Drop Modal] load creator options failed",
+                });
             }
         }
 
@@ -357,14 +367,25 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                     onClose();
                 }
             } catch (err) {
-                console.error("Error fetching drop:", err);
+                reportClientIssue({
+                    channel: "ui",
+                    message: "Drop editor fetch failed",
+                    error: err,
+                    detail: {
+                        adminView: "create_drop_modal",
+                        mode,
+                        dropId: dropId || duplicateFromId,
+                        isDuplicate: Boolean(duplicateFromId),
+                    },
+                    consoleLabel: "[Create Drop Modal] fetch drop failed",
+                });
             } finally {
                 setFetching(false);
             }
         }
 
         fetchDrop();
-    }, [creatorIdOverride, duplicateFromId, dropId, isOpen, onClose, reset]);
+    }, [creatorIdOverride, duplicateFromId, dropId, isOpen, mode, onClose, reset]);
 
     const handleCoverAssetsChange = useCallback((assets: UploadedAsset[]) => {
         const primary = assets[0];
@@ -437,7 +458,17 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                 }
                 setDuplicateWarnings(Array.isArray(result.duplicates) ? result.duplicates : []);
             } catch (error) {
-                console.error("Duplicate filename check failed", error);
+                reportClientIssue({
+                    channel: "ui",
+                    message: "Drop duplicate filename check failed",
+                    error,
+                    detail: {
+                        adminView: "create_drop_modal",
+                        mode,
+                        dropId: dropId || undefined,
+                    },
+                    consoleLabel: "[Create Drop Modal] duplicate filename check failed",
+                });
             } finally {
                 setCheckingDuplicateNames(false);
             }
@@ -446,7 +477,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
         return () => {
             window.clearTimeout(timeoutId);
         };
-    }, [contentAssets, coverFileName, dropId, isOpen]);
+    }, [contentAssets, coverFileName, dropId, isOpen, mode]);
 
     const handleToggleUploads = useCallback(() => {
         setUploadsOpen((prev) => !prev);
@@ -512,7 +543,19 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
             onSuccess();
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : "Failed to save drop.";
-            console.error("Error saving drop:", error);
+            reportClientIssue({
+                channel: "ui",
+                message: "Drop save failed",
+                error,
+                detail: {
+                    adminView: "create_drop_modal",
+                    mode,
+                    dropId: dropId || undefined,
+                    isEditMode,
+                    dropType: data.type,
+                },
+                consoleLabel: "[Create Drop Modal] save drop failed",
+            });
             toast.error(message);
         }
     };

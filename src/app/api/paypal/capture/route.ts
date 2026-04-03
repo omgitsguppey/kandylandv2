@@ -14,52 +14,13 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { resolveExpectedGumdropPrice } from "@/lib/gumdrops-packages";
 import type { UserProfile } from "@/types/db";
 import { touchUserRuntime } from "@/lib/server/user-runtime";
+import { capturePayPalOrder } from "@/lib/server/paypal";
+import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 
 const bodySchema = z.object({
   orderId: z.string().min(1),
   expectedDrops: z.number().int().positive(),
 });
-
-const PAYPAL_BASE_URL = "https://api-m.paypal.com";
-
-function getPayPalCredentials() {
-  const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE;
-  const clientSecret = process.env.PAYPAL_CLIENT_SECRET_LIVE;
-  return { clientId, clientSecret };
-}
-
-async function getPayPalAccessToken(): Promise<string> {
-  const { clientId, clientSecret } = getPayPalCredentials();
-
-  if (!clientId || !clientSecret) {
-    throw new Error("PayPal credentials not configured. Please add NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE and PAYPAL_CLIENT_SECRET_LIVE to your environment variables.");
-  }
-
-  const auth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
-  const response = await fetch(`${PAYPAL_BASE_URL}/v1/oauth2/token`, {
-    method: "POST",
-    headers: { Authorization: `Basic ${auth}`, "Content-Type": "application/x-www-form-urlencoded" },
-    body: "grant_type=client_credentials",
-  });
-
-  if (!response.ok) throw new Error("Failed to obtain PayPal access token");
-  const data = await response.json();
-  return z.object({ access_token: z.string().min(1) }).parse(data).access_token;
-}
-
-async function capturePayPalOrder(orderId: string): Promise<Record<string, unknown>> {
-  const accessToken = await getPayPalAccessToken();
-  const response = await fetch(`${PAYPAL_BASE_URL}/v2/checkout/orders/${orderId}/capture`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
-      "PayPal-Request-Id": `capture_${orderId}`
-    },
-  });
-  if (!response.ok) throw new Error(`PayPal capture failed: ${response.status}`);
-  return (await response.json()) as Record<string, unknown>;
-}
 
 async function logFailedTransaction(userId: string, orderId: string, expectedDrops: number, reason: string) {
   if (!adminDb) return;
@@ -74,7 +35,15 @@ async function logFailedTransaction(userId: string, orderId: string, expectedDro
       description: `Failed purchase attempt: ${reason}`,
     });
   } catch (err) {
-    console.error("Failed to log failed transaction:", err);
+    recordRouteWarning("paypal/capture", "Failed to log failed transaction", err, {
+      channel: "commerce",
+      detail: {
+        userId,
+        orderId,
+        expectedDrops,
+        reason,
+      },
+    });
   }
 }
 
@@ -115,13 +84,31 @@ export async function POST(request: NextRequest) {
 
     const parsed = captureSchema.parse(captureData);
     if (parsed.status !== "COMPLETED") {
-      logFailedTransaction(userId, orderId, expectedDrops, "Payment was not completed initially in PayPal");
+      recordRouteWarning("paypal/capture", "PayPal capture returned a non-completed status", undefined, {
+        channel: "commerce",
+        detail: {
+          userId,
+          orderId,
+          expectedDrops,
+          paypalStatus: parsed.status,
+        },
+      });
+      void logFailedTransaction(userId, orderId, expectedDrops, "Payment was not completed initially in PayPal");
       return NextResponse.json({ error: "Payment was not completed" }, { status: 400 });
     }
 
     const capture = parsed.purchase_units[0]?.payments.captures[0];
     if (!capture || capture.amount.currency_code !== "USD") {
-      logFailedTransaction(userId, orderId, expectedDrops, "Invalid currency or missing capture data");
+      recordRouteWarning("paypal/capture", "PayPal capture returned invalid currency or missing capture data", undefined, {
+        channel: "commerce",
+        detail: {
+          userId,
+          orderId,
+          expectedDrops,
+          currencyCode: capture?.amount.currency_code,
+        },
+      });
+      void logFailedTransaction(userId, orderId, expectedDrops, "Invalid currency or missing capture data");
       return NextResponse.json({ error: "Invalid payment data" }, { status: 400 });
     }
 
@@ -133,7 +120,17 @@ export async function POST(request: NextRequest) {
 
     // Ensures the package exists / mathematical logic is met, AND that the exact price matches PayPal
     if (!expectedPrice || paidAmountStr !== expectedPrice) {
-      logFailedTransaction(userId, orderId, expectedDrops, `Package mismatch: paid ${paidAmountStr} for expected ${expectedDrops} drops`);
+      recordRouteWarning("paypal/capture", "PayPal package verification failed", undefined, {
+        channel: "commerce",
+        detail: {
+          userId,
+          orderId,
+          expectedDrops,
+          expectedPrice: expectedPrice ?? "missing",
+          paidAmount: paidAmountStr,
+        },
+      });
+      void logFailedTransaction(userId, orderId, expectedDrops, `Package mismatch: paid ${paidAmountStr} for expected ${expectedDrops} drops`);
       return NextResponse.json({ error: "Payment package mismatch" }, { status: 400 });
     }
 
@@ -165,7 +162,16 @@ export async function POST(request: NextRequest) {
     if (customId) {
       const [capturedUserId] = customId.split(":");
       if (capturedUserId !== userId) {
-        logFailedTransaction(userId, orderId, expectedDrops, "User identity mismatch in capture payload");
+        recordRouteWarning("paypal/capture", "PayPal user verification failed", undefined, {
+          channel: "commerce",
+          detail: {
+            userId,
+            orderId,
+            expectedDrops,
+            capturedUserId,
+          },
+        });
+        void logFailedTransaction(userId, orderId, expectedDrops, "User identity mismatch in capture payload");
         return NextResponse.json({ error: "User verification failed" }, { status: 403 });
       }
     }
@@ -271,10 +277,24 @@ export async function POST(request: NextRequest) {
     ]);
 
     if (analyticsResult.status === "rejected") {
-      console.error("Server-side tracking failed:", analyticsResult.reason);
+      recordRouteWarning("paypal/capture", "Purchase verified analytics sync failed", analyticsResult.reason, {
+        channel: "analytics",
+        detail: {
+          userId,
+          orderId,
+          expectedDrops: dropsToCredit,
+        },
+      });
     }
     if (taskEventResult.status === "rejected") {
-      console.error("Purchase completed but daily task progress sync failed", taskEventResult.reason);
+      recordRouteWarning("paypal/capture", "Purchase completed but daily task progress sync failed", taskEventResult.reason, {
+        channel: "analytics",
+        detail: {
+          userId,
+          orderId,
+          expectedDrops: dropsToCredit,
+        },
+      });
     }
 
     const updatedUserSnapshot = await userRef.get();

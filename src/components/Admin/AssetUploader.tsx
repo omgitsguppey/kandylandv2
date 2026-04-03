@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import Cropper, { Area } from "react-easy-crop";
 import { trackEvent } from "@/lib/telemetry";
 import { generateSecureClientId } from "@/lib/client-random";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 
 export type UploadAspectRatio = "1:1" | "16:9" | "9:16";
 
@@ -234,13 +235,25 @@ export function AssetUploader({
         }
         : item));
     } catch (error) {
-      console.error("Asset upload failed", error);
+      reportClientIssue({
+        channel: "ui",
+        message: "Admin asset upload failed",
+        error,
+        detail: {
+          component: "AssetUploader",
+          folder,
+          label,
+          kind: target.kind,
+          fileName: target.fileName,
+        },
+        consoleLabel: "[AssetUploader] upload failed",
+      });
       try {
         trackEvent('asset_upload_failed', { kind: target.kind, error: error instanceof Error ? error.message : "unknown" });
       } catch (e) { }
       setAssets((current) => current.map((item) => item.id === target.id ? { ...item, uploading: false } : item));
     }
-  }, [disableCrop, folder]);
+  }, [disableCrop, folder, label]);
 
   const handleSelectFiles = useCallback((selectedFiles: FileList | null) => {
     if (!selectedFiles) return;

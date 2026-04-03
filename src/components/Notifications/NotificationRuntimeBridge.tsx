@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { CLIENT_RUNTIME_EVENTS, dispatchClientRuntimeEvent } from "@/hooks/client-runtime";
 import { authFetch } from "@/lib/authFetch";
+import { reportRealtimeIssue } from "@/lib/client-error-reporting";
 import { getCSTDayBoundaries, isSameCSTDay } from "@/lib/timezone";
 import { onNotificationMessage, showBrowserNotification } from "@/lib/firebase-messaging";
 import { trackEvent } from "@/lib/telemetry";
@@ -181,7 +182,10 @@ export function NotificationRuntimeBridge() {
                 })
                 .catch((error) => {
                     reminderSyncKeyRef.current = null;
-                    console.error("Failed to sync task reminder", error);
+                    reportRealtimeIssue("task reminder sync", error, {
+                        userId: user.uid,
+                        reminderKey,
+                    });
                     return false;
                 });
         };

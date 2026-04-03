@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { SWRConfiguration, SWRResponse } from "swr";
 
 import { useAuth } from "@/context/AuthContext";
+import { reportStorageIssue } from "@/lib/client-error-reporting";
 import { useAuthSWR } from "@/hooks/useAuthSWR";
 
 type CachedEnvelope<T> = {
@@ -44,7 +45,10 @@ function readCachedEnvelope<T>(cacheKey: string, ttlMs: number) {
             value: parsed.value as T,
             ageMs: Math.max(0, Date.now() - savedAtMs),
         };
-    } catch {
+    } catch (error) {
+        reportStorageIssue("cached auth swr read", error, {
+            cacheKey,
+        });
         return { value: undefined, ageMs: null as number | null };
     }
 }
@@ -60,8 +64,10 @@ function writeCachedEnvelope<T>(cacheKey: string, value: T) {
             savedAtMs: Date.now(),
         };
         window.sessionStorage.setItem(cacheKey, JSON.stringify(envelope));
-    } catch {
-        // Ignore storage failures in restricted contexts.
+    } catch (error) {
+        reportStorageIssue("cached auth swr write", error, {
+            cacheKey,
+        });
     }
 }
 

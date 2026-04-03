@@ -15,6 +15,7 @@ import { authFetch } from "@/lib/authFetch";
 import { getCSTDayBoundaries } from "@/lib/timezone";
 import { enableBrowserNotifications } from "@/lib/browser-notification-enrollment";
 import { recordClientDiagnostic } from "@/lib/client-diagnostics";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 import { shouldBypassFanOnboarding } from "@/lib/creator-application";
 
 type FlavorPreference = "Sweet" | "Spicy" | "RAW" | "";
@@ -172,7 +173,16 @@ export function GuidedOnboarding() {
                 }
             })
             .catch((err) => {
-                console.warn("Failed to generate onboarding storage key:", err);
+                reportClientIssue({
+                    channel: "storage",
+                    severity: "warn",
+                    message: "Onboarding storage key generation failed",
+                    error: err,
+                    detail: {
+                        action: "build_onboarding_completion_storage_key",
+                    },
+                    consoleLabel: "[Onboarding] storage key generation failed",
+                });
                 if (!cancelled) {
                     setCompletionStorageKey(`kandydrops_onboarding_fallback_${user.uid}`);
                     setIsCheckingKey(false);
@@ -509,6 +519,15 @@ export function GuidedOnboarding() {
             });
         } catch (error) {
             const message = error instanceof Error ? error.message : "We could not complete your check-in.";
+            reportClientIssue({
+                channel: "auth",
+                message: "Onboarding daily check-in failed",
+                error,
+                detail: {
+                    action: "onboarding_checkin",
+                },
+                consoleLabel: "[Onboarding] daily check-in failed",
+            });
             toast.error(message);
         } finally {
             setIsCheckingIn(false);
@@ -539,7 +558,15 @@ export function GuidedOnboarding() {
 
             toast.error(result.message);
         } catch (error) {
-            console.error("Failed to enable browser notifications during onboarding", error);
+            reportClientIssue({
+                channel: "notifications",
+                message: "Onboarding notification enable failed",
+                error,
+                detail: {
+                    action: "enable_notifications",
+                },
+                consoleLabel: "[Onboarding] notification enable failed",
+            });
             toast.error("We could not enable notifications right now.");
         } finally {
             setIsEnablingNotifications(false);
@@ -571,8 +598,18 @@ export function GuidedOnboarding() {
             commitStepMetric(finalStepMetric, {
                 completed_step_count: stepMetrics.length,
             });
-        } catch {
-            // noop
+        } catch (error) {
+            reportClientIssue({
+                channel: "telemetry",
+                severity: "warn",
+                message: "Onboarding step completion metric commit failed",
+                error,
+                detail: {
+                    action: "commit_step_metric",
+                    scope: "apply_completed_onboarding_state",
+                },
+                consoleLabel: "[Onboarding] step metric commit failed",
+            });
         }
 
         trackEvent("guided_onboarding_completed", {
@@ -641,8 +678,18 @@ export function GuidedOnboarding() {
                 commitStepMetric(finalStepMetric, {
                     completed_step_count: stepMetrics.length,
                 });
-            } catch {
-                // noop
+            } catch (error) {
+                reportClientIssue({
+                    channel: "telemetry",
+                    severity: "warn",
+                    message: "Onboarding completion metric commit failed",
+                    error,
+                    detail: {
+                        action: "commit_step_metric",
+                        scope: "complete_onboarding",
+                    },
+                    consoleLabel: "[Onboarding] completion metric commit failed",
+                });
             }
 
             trackEvent("guided_onboarding_completed", {
@@ -659,7 +706,15 @@ export function GuidedOnboarding() {
             toast.success("You’re all set. Your dashboard is ready.");
             focusDashboardHome();
         } catch (error) {
-            console.error("Error completing onboarding:", error);
+            reportClientIssue({
+                channel: "auth",
+                message: "Onboarding completion failed",
+                error,
+                detail: {
+                    action: "complete_onboarding",
+                },
+                consoleLabel: "[Onboarding] completion failed",
+            });
             try {
                 const userProfileRef = doc(db, "users", user.uid);
                 const legacyProfileRef = doc(db, "users", user.uid, "profile", "default");
@@ -687,7 +742,16 @@ export function GuidedOnboarding() {
                     return;
                 }
             } catch (recoveryError) {
-                console.error("Failed to verify onboarding recovery state:", recoveryError);
+                reportClientIssue({
+                    channel: "auth",
+                    severity: "warn",
+                    message: "Onboarding recovery verification failed",
+                    error: recoveryError,
+                    detail: {
+                        action: "verify_onboarding_recovery",
+                    },
+                    consoleLabel: "[Onboarding] recovery verification failed",
+                });
             }
             const message = error instanceof Error ? error.message : "Failed to finish onboarding.";
             toast.error(message);

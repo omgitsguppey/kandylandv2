@@ -11,11 +11,15 @@ const MAX_ERROR_ENTRIES = 24;
 
 export type ClientDiagnosticChannel =
   | "telemetry"
+  | "auth"
   | "firebase"
   | "realtime"
   | "cache"
   | "runtime"
   | "network"
+  | "notifications"
+  | "payments"
+  | "storage"
   | "ui"
   | "error"
   | "feedback"

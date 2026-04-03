@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { AdminTasksManager } from "@/components/Admin/AdminTasksManager";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 import { describeSecurityEvent } from "@/lib/security-events";
 import { toast } from "sonner";
 
@@ -155,7 +156,16 @@ export default function UserManagementPage() {
             setDropReferences(result.dropReferences || {});
             setSummary(result.summary || null);
         } catch (error) {
-            console.error("Error fetching users:", error);
+            reportClientIssue({
+                channel: "ui",
+                message: "Admin users fetch failed",
+                error,
+                detail: {
+                    adminView: "users",
+                    action: "fetch_users",
+                },
+                consoleLabel: "[Admin Users] fetch users failed",
+            });
             toast.error(error instanceof Error ? error.message : "Failed to load users");
         } finally {
             setLoading(false);
@@ -172,7 +182,16 @@ export default function UserManagementPage() {
             }
             setFeedback(result.feedback || []);
         } catch (error) {
-            console.error("Error fetching feedback:", error);
+            reportClientIssue({
+                channel: "feedback",
+                message: "Admin feedback fetch failed",
+                error,
+                detail: {
+                    adminView: "users",
+                    action: "fetch_feedback",
+                },
+                consoleLabel: "[Admin Users] fetch feedback failed",
+            });
             toast.error("Failed to load feedback");
         } finally {
             setLoadingFeedback(false);
@@ -254,7 +273,18 @@ export default function UserManagementPage() {
             setActionUser(null);
             setReason("");
         } catch (error: any) {
-            console.error("Error updating user status:", error);
+            reportClientIssue({
+                channel: "ui",
+                message: "Admin user status update failed",
+                error,
+                detail: {
+                    adminView: "users",
+                    action: "update_status",
+                    userId: actionUser.uid,
+                    nextStatus: actionType === "activate" ? "active" : actionType,
+                },
+                consoleLabel: "[Admin Users] update status failed",
+            });
             toast.error(error.message || "Failed to update user status.");
         } finally {
             setProcessing(false);
@@ -300,7 +330,19 @@ export default function UserManagementPage() {
             }
             setContentInput("");
         } catch (error: any) {
-            console.error("Error managing content:", error);
+            reportClientIssue({
+                channel: "ui",
+                message: "Admin user content access update failed",
+                error,
+                detail: {
+                    adminView: "users",
+                    action: "manage_content",
+                    operation: action,
+                    userId: contentUser.uid,
+                    dropId: normalizedDropId,
+                },
+                consoleLabel: "[Admin Users] manage content failed",
+            });
             toast.error(error.message || "Failed to update content access.");
         } finally {
             setContentActionProcessing(false);
@@ -320,7 +362,18 @@ export default function UserManagementPage() {
             setUsers((current) => current.map((u) => (u.uid === uid ? { ...u, role: newRole } : u)));
             toast.success(`Role updated to ${newRole}`);
         } catch (error: any) {
-            console.error(error);
+            reportClientIssue({
+                channel: "ui",
+                message: "Admin user role update failed",
+                error,
+                detail: {
+                    adminView: "users",
+                    action: "update_role",
+                    userId: uid,
+                    role: newRole,
+                },
+                consoleLabel: "[Admin Users] update role failed",
+            });
             toast.error(error.message || "Failed to update role");
         }
     };
@@ -336,7 +389,18 @@ export default function UserManagementPage() {
             // Update local state
             setUsers((current) => current.map((u) => (u.uid === uid ? { ...u, isVerified } : u)));
         } catch (error: any) {
-            console.error(error);
+            reportClientIssue({
+                channel: "ui",
+                message: "Admin user verification update failed",
+                error,
+                detail: {
+                    adminView: "users",
+                    action: "update_verification",
+                    userId: uid,
+                    isVerified,
+                },
+                consoleLabel: "[Admin Users] update verification failed",
+            });
             toast.error(error.message || "Failed to update verification");
         }
     };

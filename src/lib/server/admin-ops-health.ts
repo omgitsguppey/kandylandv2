@@ -123,11 +123,15 @@ function readRouteFailureLastSeenAt(
 }
 
 function buildChannelLabel(channel: string) {
+  if (channel === "admin") return "Admin";
   if (channel === "analytics") return "Analytics";
   if (channel === "auth") return "Auth";
+  if (channel === "commerce") return "Commerce";
+  if (channel === "cron") return "Cron";
   if (channel === "creator_onboarding") return "Creator Onboarding";
   if (channel === "firebase") return "Firebase";
   if (channel === "middleware") return "Middleware";
+  if (channel === "notifications") return "Notifications";
   if (channel === "runtime") return "Runtime";
   return channel || "Unknown";
 }

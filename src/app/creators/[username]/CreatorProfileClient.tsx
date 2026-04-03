@@ -24,6 +24,7 @@ import { DropGrid } from "@/components/DropGrid";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { authFetch } from "@/lib/authFetch";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 import {
     CREATOR_BOOKING_MIN_MINUTES,
     CREATOR_BOOKING_RATES,
@@ -91,7 +92,15 @@ export default function CreatorProfileClient() {
                 setCreator(result.creator);
                 setDrops(result.drops || []);
             } catch (error) {
-                console.error("Error fetching creator:", error);
+                reportClientIssue({
+                    channel: "network",
+                    message: "Creator profile fetch failed",
+                    error,
+                    detail: {
+                        username,
+                    },
+                    consoleLabel: "[CreatorProfile] fetch failed",
+                });
                 toast.error("Failed to load profile.");
             } finally {
                 setLoading(false);
@@ -170,7 +179,16 @@ export default function CreatorProfileClient() {
                 setBookings(Array.isArray(bookingResult.bookings) ? bookingResult.bookings : []);
                 setBroadcasts(Array.isArray(broadcastResult.broadcasts) ? broadcastResult.broadcasts : []);
             } catch (error) {
-                console.error("Failed to hydrate creator experience state", error);
+                reportClientIssue({
+                    channel: "runtime",
+                    severity: "warn",
+                    message: "Creator experience hydration failed",
+                    error,
+                    detail: {
+                        creatorId,
+                    },
+                    consoleLabel: "[CreatorProfile] hydrate experience state failed",
+                });
             }
         }
 
@@ -195,7 +213,16 @@ export default function CreatorProfileClient() {
             const result = await response.json() as { broadcasts?: Array<Record<string, unknown>> };
             setBroadcasts(Array.isArray(result.broadcasts) ? result.broadcasts : []);
         } catch (error) {
-            console.error("Failed to refresh creator broadcasts", error);
+            reportClientIssue({
+                channel: "notifications",
+                severity: "warn",
+                message: "Creator broadcasts refresh failed",
+                error,
+                detail: {
+                    creatorId,
+                },
+                consoleLabel: "[CreatorProfile] refresh broadcasts failed",
+            });
         }
     };
 
@@ -234,7 +261,16 @@ export default function CreatorProfileClient() {
             }
             toast.success(following ? `Unfollowed ${creator.displayName}` : `Following ${creator.displayName}!`);
         } catch (error: any) {
-            console.error("Follow error:", error);
+            reportClientIssue({
+                channel: "ui",
+                message: "Creator follow action failed",
+                error,
+                detail: {
+                    creatorId: creator.uid,
+                    action: following ? "unfollow" : "follow",
+                },
+                consoleLabel: "[CreatorProfile] follow action failed",
+            });
             toast.error(error.message || "Action failed.");
         } finally {
             setFollowLoading(false);
@@ -267,7 +303,16 @@ export default function CreatorProfileClient() {
                 setNotificationsEnabled(action === "enable_notifications");
             }
         } catch (error: any) {
-            console.error("Creator relationship action failed", error);
+            reportClientIssue({
+                channel: action.includes("notification") ? "notifications" : "ui",
+                message: "Creator relationship action failed",
+                error,
+                detail: {
+                    creatorId: creator.uid,
+                    action,
+                },
+                consoleLabel: "[CreatorProfile] relationship action failed",
+            });
             toast.error(error.message || "Action failed.");
         }
     };
@@ -301,7 +346,16 @@ export default function CreatorProfileClient() {
             }
             toast.success(nextActive ? "Subscription started." : "Subscription canceled.");
         } catch (error: any) {
-            console.error("Subscription action failed", error);
+            reportClientIssue({
+                channel: "payments",
+                message: "Creator subscription action failed",
+                error,
+                detail: {
+                    creatorId: creator.uid,
+                    action: subscriptionActive ? "cancel" : "subscribe",
+                },
+                consoleLabel: "[CreatorProfile] subscription action failed",
+            });
             toast.error(error.message || "Subscription update failed.");
         } finally {
             setSubscribeLoading(false);
@@ -362,7 +416,17 @@ export default function CreatorProfileClient() {
             setMessages(Array.isArray(refreshResult.messages) ? refreshResult.messages : []);
             toast.success("Message sent.");
         } catch (error: any) {
-            console.error("Creator message failed", error);
+            reportClientIssue({
+                channel: "ui",
+                message: "Creator message send failed",
+                error,
+                detail: {
+                    creatorId: creator.uid,
+                    messageKind,
+                    hasAttachment: Boolean(messageFile),
+                },
+                consoleLabel: "[CreatorProfile] send message failed",
+            });
             toast.error(error.message || "Message failed.");
         } finally {
             setSendingMessage(false);
@@ -398,7 +462,16 @@ export default function CreatorProfileClient() {
             setRequestDetails("");
             toast.success("Custom request submitted.");
         } catch (error: any) {
-            console.error("Creator request failed", error);
+            reportClientIssue({
+                channel: "payments",
+                message: "Creator custom request failed",
+                error,
+                detail: {
+                    creatorId: creator.uid,
+                    requestCategoryId,
+                },
+                consoleLabel: "[CreatorProfile] custom request failed",
+            });
             toast.error(error.message || "Request failed.");
         } finally {
             setCreatingRequest(false);
@@ -437,7 +510,17 @@ export default function CreatorProfileClient() {
             setBookings(Array.isArray(refreshResult.bookings) ? refreshResult.bookings : []);
             toast.success("Creator booking confirmed.");
         } catch (error: any) {
-            console.error("Creator booking failed", error);
+            reportClientIssue({
+                channel: "payments",
+                message: "Creator booking failed",
+                error,
+                detail: {
+                    creatorId: creator.uid,
+                    serviceType: bookingServiceType,
+                    durationMinutes: bookingDurationMinutes,
+                },
+                consoleLabel: "[CreatorProfile] booking failed",
+            });
             toast.error(error.message || "Booking failed.");
         } finally {
             setCreatingBooking(false);

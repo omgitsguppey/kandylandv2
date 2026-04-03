@@ -26,6 +26,7 @@ import {
   shouldActivateCreatorRole,
   syncCreatorOnboardingDocuments,
 } from "@/lib/server/creator-onboarding";
+import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 
 function toTimestampNumber(value: unknown): number {
@@ -1513,7 +1514,13 @@ export async function POST(request: NextRequest) {
         grant_source: "admin",
         transaction_id: `admin-grant:${userId}:${normalizedDropId}:${result.grantedAt ?? "unknown"}`,
       }, userId).catch((error) => {
-        console.error("Failed to mirror admin grant into analytics facts:", error);
+        recordRouteWarning("admin/users", "Failed to mirror admin grant into analytics facts", error, {
+          channel: "analytics",
+          detail: {
+            userId,
+            dropId: normalizedDropId,
+          },
+        });
       });
     }
 

@@ -13,6 +13,7 @@ import { markNotificationsRuntimeChanged, touchNotificationsRuntime } from "@/li
 import { HEAVY_READ, STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { touchUserRuntime } from "@/lib/server/user-runtime";
+import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 
 const DUPLICATE_NOTIFICATION_WINDOW_MS = 2 * 60 * 1000;
 
@@ -154,7 +155,12 @@ export async function POST(request: NextRequest) {
       try {
         await broadcastFCM(payload.title, payload.message, payload.link || "/drops");
       } catch (error) {
-        console.error("Notification broadcast failed after notification was recorded:", error);
+        recordRouteWarning("notifications", "Notification broadcast failed after persistence", {
+          routeName: "notifications",
+          notificationId: notificationRef.id,
+          targetGlobal: true,
+          message: error instanceof Error ? error.message : String(error),
+        });
       }
     }
 

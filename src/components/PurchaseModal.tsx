@@ -18,6 +18,7 @@ import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
 import { dispatchActivitySync } from "@/lib/activity-sync";
 import { FIXED_GUMDROP_PACKAGES } from "@/lib/gumdrops-packages";
 import type { DailyTasksState } from "@/lib/tasks/task-catalog";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 
 interface PurchaseModalProps {
   isOpen: boolean;
@@ -234,6 +235,18 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
       });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Purchase failed. Please contact support.";
+      reportClientIssue({
+        channel: "payments",
+        message: "PayPal capture approval failed",
+        error: err,
+        detail: {
+          stage: "capture",
+          packageLabel: selectedPackage.label,
+          packageDrops: selectedPackage.drops,
+          packagePrice: selectedPackage.price,
+        },
+        consoleLabel: "[Wallet] PayPal capture failed",
+      });
       setError(message);
       trackEvent("gumdrops_purchase_failed", {
         package_label: selectedPackage.label,
@@ -417,24 +430,55 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                 package_drops: selectedPackage.drops,
                                 package_price: selectedPackage.price,
                               });
-                              const response = await authFetch("/api/paypal/create", {
-                                method: "POST",
-                                body: JSON.stringify({ expectedDrops: selectedPackage.drops }),
-                              });
+                              try {
+                                const response = await authFetch("/api/paypal/create", {
+                                  method: "POST",
+                                  body: JSON.stringify({ expectedDrops: selectedPackage.drops }),
+                                });
 
-                              const order = await response.json();
+                                const order = await response.json();
 
-                              if (!response.ok) {
-                                toast.error(order.error || "Failed to initialize payment.");
-                                throw new Error(order.error || "Failed to initialize payment.");
+                                if (!response.ok) {
+                                  toast.error(order.error || "Failed to initialize payment.");
+                                  throw new Error(order.error || "Failed to initialize payment.");
+                                }
+
+                                return order.id;
+                              } catch (error) {
+                                reportClientIssue({
+                                  channel: "payments",
+                                  message: "PayPal order initialization failed",
+                                  error,
+                                  detail: {
+                                    stage: "create_order",
+                                    packageLabel: selectedPackage.label,
+                                    packageDrops: selectedPackage.drops,
+                                    packagePrice: selectedPackage.price,
+                                  },
+                                  consoleLabel: "[Wallet] PayPal order initialization failed",
+                                });
+                                throw error;
                               }
-
-                              return order.id;
                             }}
                             onApprove={async (data) => {
                               if (data.orderID) await handleApprove(data.orderID);
                             }}
-                            onError={() => setError("PayPal encountered an error. Please try again.")}
+                            onError={() => {
+                              const message = "PayPal encountered an error. Please try again.";
+                              reportClientIssue({
+                                channel: "payments",
+                                severity: "warn",
+                                message: "PayPal checkout surface errored",
+                                detail: {
+                                  stage: "paypal_buttons",
+                                  packageLabel: selectedPackage.label,
+                                  packageDrops: selectedPackage.drops,
+                                  packagePrice: selectedPackage.price,
+                                },
+                                consoleLabel: "[Wallet] PayPal buttons error",
+                              });
+                              setError(message);
+                            }}
                           />
                         )}
                       </div>

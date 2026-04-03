@@ -13,6 +13,7 @@ import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { touchUserRuntime } from "@/lib/server/user-runtime";
 import { ensureCreatorOnboardingSubmission } from "@/lib/server/creator-onboarding";
 import { sendCreatorOnboardingAdminNotification } from "@/lib/server/creator-onboarding-alerts";
+import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 
 function normalizeRegistrationMethod(value: unknown) {
     return value === "google" ? "google" : "email";
@@ -283,7 +284,12 @@ export async function POST(request: NextRequest) {
                     });
                 }
             } catch (err) {
-                console.error("Failed to process referral bonus:", err);
+                recordRouteWarning("user/register", "Referral bonus processing failed", {
+                    routeName: "user/register",
+                    referredBy,
+                    uid: caller.uid,
+                    message: err instanceof Error ? err.message : String(err),
+                });
                 // Do not fail registration if referral processing fails
             }
         }

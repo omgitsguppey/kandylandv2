@@ -13,6 +13,7 @@ import { trackEvent } from "@/lib/telemetry";
 import { getCSTDayBoundaries } from "@/lib/timezone";
 import { cn } from "@/lib/utils";
 import { dispatchActivitySync } from "@/lib/activity-sync";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 import type { DailyTasksState } from "@/lib/tasks/task-catalog";
 
 function formatCountdown(remainingMs: number): string {
@@ -155,7 +156,17 @@ export function DailyCheckIn() {
             emitGuidedCheckIn("success");
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : "Failed to claim reward";
-            console.error("Error claiming daily reward:", error);
+            reportClientIssue({
+                channel: "payments",
+                message: "Daily check-in reward claim failed",
+                error,
+                detail: {
+                    component: "DailyCheckIn",
+                    rewardAmount,
+                    canCheckIn,
+                },
+                consoleLabel: "[DailyCheckIn] claim failed",
+            });
             emitGuidedCheckIn("error", message);
             toast.error(message);
         } finally {

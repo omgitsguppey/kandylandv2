@@ -25,6 +25,7 @@ import { useAdminOverview } from "@/hooks/useAdminOverview";
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import { useCompactViewport } from "@/hooks/useCompactViewport";
 import { authFetch } from "@/lib/authFetch";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 import { cn } from "@/lib/utils";
 
 type DebugTabId = "overview" | "tasks" | "telemetry" | "reports" | "ops";
@@ -170,7 +171,16 @@ export default function DebugConsole() {
             toast.success("Simulation successful");
             await mutateOverview();
         } catch (issue) {
-            console.error(issue);
+            reportClientIssue({
+                channel: "ui",
+                message: "Admin debug balance simulation failed",
+                error: issue,
+                detail: {
+                    action: "simulate_balance_adjustment",
+                    amount: simAmount,
+                },
+                consoleLabel: "[Admin Debug] simulate purchase failed",
+            });
             toast.error(issue instanceof Error ? issue.message : "Simulation failed");
         } finally {
             setProcessing(false);
@@ -192,7 +202,16 @@ export default function DebugConsole() {
             toast.success(action === "apply" ? "Repair action queued" : "Proposal dismissed");
             await mutate();
         } catch (issue) {
-            console.error(issue);
+            reportClientIssue({
+                channel: "ui",
+                message: "Admin debug repair action failed",
+                error: issue,
+                detail: {
+                    action,
+                    proposalId,
+                },
+                consoleLabel: "[Admin Debug] repair action failed",
+            });
             toast.error(issue instanceof Error ? issue.message : "Repair action failed");
         } finally {
             setRepairingId(null);

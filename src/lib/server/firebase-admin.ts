@@ -1,7 +1,6 @@
 import "server-only";
 import * as admin from "firebase-admin";
 import { FIREBASE_DATABASE_URL, FIREBASE_PROJECT_ID, FIREBASE_STORAGE_BUCKET } from "@/lib/firebase-runtime";
-import { captureException } from "@/lib/monitoring";
 
 if (!admin.apps.length) {
     try {
@@ -32,7 +31,7 @@ if (!admin.apps.length) {
             });
         }
     } catch (error) {
-        captureException(error, { context: "Firebase Admin Initialization Error" });
+        console.error("Firebase Admin Initialization Error", error);
         throw error;
     }
 }

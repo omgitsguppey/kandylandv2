@@ -8,6 +8,7 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { handleApiError } from "@/lib/server/auth";
 import { buildDropQueueLifecycleProjection } from "@/lib/drop-queue-lifecycle";
 import { resolveDropStatusFromTiming } from "@/lib/drop-status";
+import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 
 type QueuedDropRuntime = {
     id: string;
@@ -34,7 +35,9 @@ export async function GET(request: NextRequest) {
 
         if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
             if (!cronSecret) {
-                console.error("CRON_SECRET is not configured for cron/process-queue");
+                recordRouteWarning("cron/process-queue", "CRON_SECRET is not configured", undefined, {
+                    channel: "cron",
+                });
             }
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
@@ -139,8 +142,6 @@ export async function GET(request: NextRequest) {
         });
 
     } catch (error: unknown) {
-        console.error("Queue process error:", error);
-        // Keep detailed diagnostics in server logs, but return a generic 500 to callers.
         return handleApiError(error, "Cron.ProcessQueue.GET");
     }
 }

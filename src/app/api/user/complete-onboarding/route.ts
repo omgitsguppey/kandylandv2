@@ -13,6 +13,7 @@ import {
 } from "@/lib/server/onboarding-analytics";
 import { buildSourceAwareBalancePatch, creditSourceAwareGumdrops, normalizeGumdropBalance, readSourceAwareBalance } from "@/lib/gumdrop-ledger";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
+import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 
 type OnboardingFactWrite = {
     key: string;
@@ -270,7 +271,8 @@ export async function POST(req: NextRequest) {
                 profile: true,
             }, result.nowMs);
         } catch (error) {
-            console.error("Failed to sync user runtime after onboarding completion", {
+            recordRouteWarning("user/complete-onboarding", "Onboarding runtime sync failed", {
+                routeName: "user/complete-onboarding",
                 uid,
                 message: error instanceof Error ? error.message : String(error),
             });

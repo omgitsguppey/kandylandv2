@@ -4,6 +4,18 @@ export const LAST_VISITED_PATH_OWNER_KEY = "kandydrops:last-visited-path-owner";
 export const LAST_VISITED_PATH_OWNER_COOKIE = "kandydrops_last_path_owner";
 export type NavigationRole = "admin" | "creator" | "user";
 
+function reportNavigationStorageIssue(scope: string, error: unknown, detail?: Record<string, unknown>) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  void import("@/lib/client-error-reporting")
+    .then(({ reportStorageIssue }) => {
+      reportStorageIssue(scope, error, detail);
+    })
+    .catch(() => undefined);
+}
+
 function isPersistableAppPath(path: string) {
   return (
     path.startsWith("/")
@@ -66,7 +78,10 @@ function readLastVisitedPath() {
   try {
     const value = window.sessionStorage.getItem(LAST_VISITED_PATH_KEY);
     return value && isPersistableAppPath(value) ? value : null;
-  } catch {
+  } catch (error) {
+    reportNavigationStorageIssue("navigation persistence read path", error, {
+      storageKey: LAST_VISITED_PATH_KEY,
+    });
     return null;
   }
 }
@@ -79,7 +94,10 @@ function readLastVisitedPathOwner() {
   try {
     const value = window.sessionStorage.getItem(LAST_VISITED_PATH_OWNER_KEY);
     return value && value.length > 0 ? value : null;
-  } catch {
+  } catch (error) {
+    reportNavigationStorageIssue("navigation persistence read owner", error, {
+      storageKey: LAST_VISITED_PATH_OWNER_KEY,
+    });
     return null;
   }
 }
@@ -98,8 +116,11 @@ function writeLastVisitedPathOwner(ownerId: string | null | undefined) {
 
     window.sessionStorage.setItem(LAST_VISITED_PATH_OWNER_KEY, ownerId);
     writeCookie(LAST_VISITED_PATH_OWNER_COOKIE, ownerId, 60 * 60 * 24 * 30);
-  } catch {
-    // Ignore storage failures in restricted contexts.
+  } catch (error) {
+    reportNavigationStorageIssue("navigation persistence write owner", error, {
+      storageKey: LAST_VISITED_PATH_OWNER_KEY,
+      ownerId: ownerId || "",
+    });
   }
 }
 
@@ -119,8 +140,11 @@ export function writeLastVisitedPath(path: string, ownerId?: string | null) {
 
   try {
     window.sessionStorage.setItem(LAST_VISITED_PATH_KEY, path);
-  } catch {
-    // Ignore storage failures in restricted contexts.
+  } catch (error) {
+    reportNavigationStorageIssue("navigation persistence write path", error, {
+      storageKey: LAST_VISITED_PATH_KEY,
+      path,
+    });
   }
 
   writeCookie(LAST_VISITED_PATH_COOKIE, path, 60 * 60 * 24 * 30);
@@ -150,8 +174,10 @@ export function clearLastVisitedPath() {
 
   try {
     window.sessionStorage.removeItem(LAST_VISITED_PATH_KEY);
-  } catch {
-    // Ignore storage failures in restricted contexts.
+  } catch (error) {
+    reportNavigationStorageIssue("navigation persistence clear path", error, {
+      storageKey: LAST_VISITED_PATH_KEY,
+    });
   }
 
   clearCookie(LAST_VISITED_PATH_COOKIE);

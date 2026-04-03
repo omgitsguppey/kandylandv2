@@ -19,8 +19,8 @@ import { enableBrowserNotifications } from "@/lib/browser-notification-enrollmen
 import { CREATOR_BOOKING_RATES, CREATOR_SUBSCRIPTION_MIN_GD, DEFAULT_CREATOR_SETTINGS, type CreatorRequestCategoryConfig, type CreatorSettings } from "@/lib/creator-experiences";
 import { getBrowserGlobalPrivacyControl, persistPrivacySettingsSnapshot } from "@/lib/privacy-consent";
 import { PRIVACY_POLICY_LAST_UPDATED, PRIVACY_SUPPORT_EMAIL } from "@/lib/privacy-policy";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 import { trackEvent } from "@/lib/telemetry";
-import { captureException } from "@/lib/monitoring";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { CreateDropModal } from "@/components/Admin/CreateDropModal";
 
@@ -278,7 +278,17 @@ export default function ProfilePage() {
                     setCreatorBroadcasts(Array.isArray(broadcastsResult.broadcasts) ? broadcastsResult.broadcasts : []);
                 }
             } catch (error) {
-                captureException(error, { source: "profile_page", action: "load_creator_settings" });
+                reportClientIssue({
+                    channel: "network",
+                    severity: "warn",
+                    message: "Profile creator settings load failed",
+                    error,
+                    detail: {
+                        source: "profile_page",
+                        action: "load_creator_settings",
+                    },
+                    consoleLabel: "[Profile] creator settings load failed",
+                });
                 if (!cancelled) {
                     setCreatorSettingsState(userProfile?.creatorSettings || DEFAULT_CREATOR_SETTINGS);
                 }
@@ -415,7 +425,16 @@ export default function ProfilePage() {
                 : "Browser reminders are on, but push delivery is limited in this browser.");
             toast.success("Browser notifications enabled.");
         } catch (error) {
-            captureException(error, { source: "profile_page", action: "enable_browser_notifications" });
+            reportClientIssue({
+                channel: "notifications",
+                message: "Profile browser notification enable failed",
+                error,
+                detail: {
+                    source: "profile_page",
+                    action: "enable_browser_notifications",
+                },
+                consoleLabel: "[Profile] browser notification enable failed",
+            });
             toast.error("We could not enable browser notifications right now.");
         } finally {
             setNotificationSetupLoading(false);

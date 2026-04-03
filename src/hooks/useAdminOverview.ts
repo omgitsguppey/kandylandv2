@@ -7,6 +7,7 @@ import type { Drop, Transaction } from "@/types/db";
 
 export interface AdminOverviewResponse {
     success: boolean;
+    issues?: string[];
     stats: {
         totalUsers: number;
         activeDrops: number;

@@ -9,6 +9,7 @@ import { enableBrowserNotifications } from "@/lib/browser-notification-enrollmen
 import { trackEvent } from "@/lib/telemetry";
 import { toast } from "sonner";
 import { hashIdentifier } from "@/hooks/client-runtime";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 
 async function getDismissKey(uid: string) {
     const hashedId = await hashIdentifier(uid);
@@ -160,7 +161,16 @@ export function NotificationPromptBanner() {
             });
             toast.success("Browser notifications enabled.");
         } catch (error) {
-            console.error("Failed to enable browser notifications", error);
+            reportClientIssue({
+                channel: "notifications",
+                message: "Notification prompt enable failed",
+                error,
+                detail: {
+                    component: "NotificationPromptBanner",
+                    needsStandaloneInstall,
+                },
+                consoleLabel: "[NotificationPromptBanner] enable failed",
+            });
             toast.error("We could not turn on notifications right now.");
         } finally {
             setLoading(false);

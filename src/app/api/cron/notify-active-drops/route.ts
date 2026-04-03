@@ -6,6 +6,8 @@ import { resolveDropStatusFromTiming } from "@/lib/drop-status";
 import { CRON } from "@/lib/server/rate-limit";
 import { markDropsRuntimeChanged } from "@/lib/server/drop-runtime";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { handleApiError } from "@/lib/server/auth";
+import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 
 // This cron job should be called frequently (e.g. every 5-15 minutes)
 export async function GET(request: NextRequest) {
@@ -19,7 +21,9 @@ export async function GET(request: NextRequest) {
 
         if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
             if (!cronSecret) {
-                console.error("CRON_SECRET is not configured for cron/notify-active-drops");
+                recordRouteWarning("cron/notify-active-drops", "CRON_SECRET is not configured", undefined, {
+                    channel: "cron",
+                });
             }
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
@@ -88,7 +92,12 @@ export async function GET(request: NextRequest) {
                     .get();
                 ownersSnap.forEach(userDoc => excludedUserIds.push(userDoc.id));
             } catch (err) {
-                console.error(`Failed to fetch owners for drop ${dropId}`, err);
+                recordRouteWarning("cron/notify-active-drops", "Failed to fetch owners for active drop notification", err, {
+                    channel: "cron",
+                    detail: {
+                        dropId,
+                    },
+                });
             }
 
             const isReturn = (drop.activationCount || 0) >= 1;
@@ -152,7 +161,6 @@ export async function GET(request: NextRequest) {
         });
 
     } catch (error: any) {
-        console.error("Notify active drops error:", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return handleApiError(error, "Cron.NotifyActiveDrops.GET");
     }
 }

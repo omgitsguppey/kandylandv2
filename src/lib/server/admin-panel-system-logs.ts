@@ -7,6 +7,7 @@ import {
     type AdminPanelSystemLog,
     type AdminPanelSystemLogStatus,
 } from "@/lib/admin-panel-system-logs";
+import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 
 const PANEL_LOG_WRITE_THROTTLE_MS = 30 * 60 * 1000;
 
@@ -412,6 +413,11 @@ export async function syncAdminPanelSystemLogs(logs: AdminPanelSystemLog[]) {
             await batch.commit();
         }
     } catch (error) {
-        console.warn("Admin panel system log sync failed:", error);
+        recordRouteWarning("admin/system-logs", "Admin panel system log sync failed", error, {
+            channel: "admin",
+            detail: {
+                logCount: logs.length,
+            },
+        });
     }
 }

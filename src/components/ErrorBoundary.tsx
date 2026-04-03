@@ -2,7 +2,6 @@
 
 import { Component, ErrorInfo, ReactNode } from "react";
 import { AlertCircle, RefreshCw } from "lucide-react";
-import { captureException } from "@/lib/monitoring";
 import { recordClientError } from "@/lib/client-diagnostics";
 import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
 
@@ -27,7 +26,6 @@ export class ErrorBoundary extends Component<Props, State> {
     }
 
     public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-        captureException(error, { componentStack: errorInfo.componentStack });
         recordClientError(error, {
             componentStack: errorInfo.componentStack ?? undefined,
             source: "error_boundary",

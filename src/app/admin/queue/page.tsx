@@ -7,6 +7,7 @@ import { collection, getDocs } from "firebase/firestore";
 import NextImage from "next/image";
 
 import { authFetch } from "@/lib/authFetch";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 import { toast } from "sonner";
 import { db } from "@/lib/firebase-data";
 import { Drop } from "@/types/db";
@@ -96,7 +97,15 @@ export default function ManageQueuePage() {
             setDrops(dropsMap);
             return true;
         } catch (err: any) {
-            console.error(err);
+            reportClientIssue({
+                channel: "network",
+                message: "Admin queue load failed",
+                error: err,
+                detail: {
+                    action: "fetch_queue_data",
+                },
+                consoleLabel: "[Admin Queue] load failed",
+            });
             setConfig(null);
             setDrops({});
             const message = err instanceof Error ? err.message : "Failed to load queue data";
@@ -129,7 +138,15 @@ export default function ManageQueuePage() {
             }
             toast.success("Queue configuration saved!");
         } catch (err: any) {
-            console.error(err);
+            reportClientIssue({
+                channel: "network",
+                message: "Admin queue save failed",
+                error: err,
+                detail: {
+                    action: "save_queue_config",
+                },
+                consoleLabel: "[Admin Queue] save failed",
+            });
             const message = err instanceof Error ? err.message : "Failed to save configuration.";
             setError(message);
             toast.error(message);

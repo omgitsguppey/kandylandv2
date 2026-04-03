@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useAuthIdentity } from "@/context/AuthContext";
 import { CLIENT_RUNTIME_EVENTS, dispatchClientRuntimeEvent } from "@/hooks/client-runtime";
-import { recordClientDiagnostic } from "@/lib/client-diagnostics";
+import { reportClientIssue, reportRealtimeIssue } from "@/lib/client-error-reporting";
 import { markNotificationAsRead } from "@/lib/notifications";
 import { NOTIFICATION_RUNTIME_COLLECTION, NOTIFICATION_RUNTIME_DOC_ID } from "@/lib/notification-runtime";
 import { AppNotification } from "@/lib/notification-contracts";
@@ -26,12 +26,14 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
     const userId = user?.uid ?? null;
     const [notificationsState, setNotificationsState] = useState<Notification[]>([]);
     const [loadedForUserId, setLoadedForUserId] = useState<string | null>(null);
+    const [loadError, setLoadError] = useState<string | null>(null);
     const etagRef = useRef<string | null>(null);
 
     useEffect(() => {
         if (!userId) {
             setNotificationsState([]);
             setLoadedForUserId(null);
+            setLoadError(null);
             etagRef.current = null;
             return;
         }
@@ -56,6 +58,7 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
                 const response = await authFetch("/api/notifications", { headers });
                 if (response.status === 304) {
                     if (!cancelled) {
+                        setLoadError(null);
                         setLoadedForUserId(currentUserId);
                     }
                     return;
@@ -84,13 +87,15 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
                 etagRef.current = response.headers.get("etag");
                 setNotificationsState(scopedNotifications);
                 setLoadedForUserId(currentUserId);
+                setLoadError(null);
             } catch (error) {
-                console.error("Failed to load notifications", error);
-                recordClientDiagnostic("realtime", "Notifications fetch failed", {
+                const message = error instanceof Error ? error.message : String(error);
+                reportRealtimeIssue("notifications fetch", error, {
                     userId: currentUserId,
-                    message: error instanceof Error ? error.message : String(error),
+                    message,
                 });
                 if (!cancelled) {
+                    setLoadError(message);
                     setLoadedForUserId(currentUserId);
                 }
             }
@@ -122,7 +127,7 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
                         refreshOnDemand();
                     },
                     (error) => {
-                        recordClientDiagnostic("realtime", "Notifications runtime subscription failed", {
+                        reportRealtimeIssue("notifications runtime subscription", error, {
                             scope: "system",
                             message: error.message,
                         });
@@ -143,16 +148,23 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
                         }
                     },
                     (error) => {
-                        recordClientDiagnostic("realtime", "Notifications user runtime subscription failed", {
+                        reportRealtimeIssue("notifications user runtime subscription", error, {
                             scope: "user",
                             message: error.message,
                         });
                     },
                 );
             } catch (error) {
-                recordClientDiagnostic("firebase", "Notifications runtime setup failed", {
-                    userId: currentUserId,
-                    message: error instanceof Error ? error.message : String(error),
+                reportClientIssue({
+                    channel: "firebase",
+                    severity: "warn",
+                    message: "Notifications runtime setup failed",
+                    error,
+                    detail: {
+                        userId: currentUserId,
+                        message: error instanceof Error ? error.message : String(error),
+                    },
+                    consoleLabel: "[Notifications] runtime setup failed",
                 });
             }
         };
@@ -280,5 +292,5 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
         };
     };
 
-    return { notifications, unreadCount, loading, markAsRead, markAllAsRead };
+    return { notifications, unreadCount, loading, error: loadError, markAsRead, markAllAsRead };
 }

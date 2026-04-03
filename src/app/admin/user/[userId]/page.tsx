@@ -30,6 +30,7 @@ import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";
 import type { SupportReadinessSnapshot } from "@/lib/support-readiness";
 import { trackEvent } from "@/lib/telemetry";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 import {
     describeCreatorOnboardingBlockingReason,
     type CreatorOnboardingCanonicalRecord,
@@ -340,7 +341,16 @@ export default function AdminUserAnalyticsPage() {
             setCreatorRestrictionsState(result.user.creatorRestrictions || null);
             setError(null);
         } catch (fetchError: unknown) {
-            console.error("Failed to load user analytics.", fetchError);
+            reportClientIssue({
+                channel: "ui",
+                message: "Admin user detail fetch failed",
+                error: fetchError,
+                detail: {
+                    adminView: "user_detail",
+                    userId,
+                },
+                consoleLabel: "[Admin User Detail] load analytics failed",
+            });
             const message = fetchError instanceof Error ? fetchError.message : "Failed to load deeper analytics. Try again.";
             setTargetUser(null);
             setTransactions([]);
@@ -476,7 +486,17 @@ export default function AdminUserAnalyticsPage() {
             toast.success("Creator intake updated.");
             await loadUserData();
         } catch (actionError) {
-            console.error("Failed to save creator application", actionError);
+            reportClientIssue({
+                channel: "ui",
+                message: "Admin creator application save failed",
+                error: actionError,
+                detail: {
+                    adminView: "user_detail",
+                    action: "save_creator_application",
+                    userId: targetUser?.uid ?? userId,
+                },
+                consoleLabel: "[Admin User Detail] save creator application failed",
+            });
             toast.error(actionError instanceof Error ? actionError.message : "Failed to save creator application.");
         } finally {
             setSavingCreatorApplication(false);
@@ -520,7 +540,17 @@ export default function AdminUserAnalyticsPage() {
             toast.success("Creator restrictions updated.");
             await loadUserData();
         } catch (actionError) {
-            console.error("Failed to save creator restrictions", actionError);
+            reportClientIssue({
+                channel: "ui",
+                message: "Admin creator restrictions save failed",
+                error: actionError,
+                detail: {
+                    adminView: "user_detail",
+                    action: "save_creator_restrictions",
+                    userId: targetUser?.uid ?? userId,
+                },
+                consoleLabel: "[Admin User Detail] save creator restrictions failed",
+            });
             toast.error(actionError instanceof Error ? actionError.message : "Failed to save creator restrictions.");
         } finally {
             setSavingCreatorRestrictions(false);
@@ -540,7 +570,18 @@ export default function AdminUserAnalyticsPage() {
             toast.success("Creator message removed.");
             await loadUserData();
         } catch (actionError) {
-            console.error("Failed to remove creator message", actionError);
+            reportClientIssue({
+                channel: "ui",
+                message: "Admin creator message removal failed",
+                error: actionError,
+                detail: {
+                    adminView: "user_detail",
+                    action: "remove_creator_message",
+                    userId: targetUser?.uid ?? userId,
+                    messageId,
+                },
+                consoleLabel: "[Admin User Detail] remove creator message failed",
+            });
             toast.error(actionError instanceof Error ? actionError.message : "Failed to remove creator message.");
         } finally {
             setCreatorActionKey(null);
@@ -560,7 +601,18 @@ export default function AdminUserAnalyticsPage() {
             toast.success("Creator broadcast removed.");
             await loadUserData();
         } catch (actionError) {
-            console.error("Failed to remove creator broadcast", actionError);
+            reportClientIssue({
+                channel: "ui",
+                message: "Admin creator broadcast removal failed",
+                error: actionError,
+                detail: {
+                    adminView: "user_detail",
+                    action: "remove_creator_broadcast",
+                    userId: targetUser?.uid ?? userId,
+                    broadcastId,
+                },
+                consoleLabel: "[Admin User Detail] remove creator broadcast failed",
+            });
             toast.error(actionError instanceof Error ? actionError.message : "Failed to remove creator broadcast.");
         } finally {
             setCreatorActionKey(null);
@@ -584,7 +636,19 @@ export default function AdminUserAnalyticsPage() {
             toast.success(action === "honor" ? "Payout honored." : "Payout rejected.");
             await loadUserData();
         } catch (actionError) {
-            console.error("Failed to review payout", actionError);
+            reportClientIssue({
+                channel: "payments",
+                message: "Admin creator payout review failed",
+                error: actionError,
+                detail: {
+                    adminView: "user_detail",
+                    action: "review_payout",
+                    userId: targetUser?.uid ?? userId,
+                    payoutRequestId,
+                    reviewAction: action,
+                },
+                consoleLabel: "[Admin User Detail] review payout failed",
+            });
             toast.error(actionError instanceof Error ? actionError.message : "Failed to review payout.");
         } finally {
             setCreatorActionKey(null);

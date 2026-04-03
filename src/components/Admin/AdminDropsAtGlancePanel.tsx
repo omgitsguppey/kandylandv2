@@ -14,6 +14,7 @@ import { formatAdminCompactDateTime } from "@/lib/admin-drop-formatting";
 import { resolveAdminDropLifecycleFacts } from "@/lib/admin-drop-lifecycle";
 import { buildAdminQueueProjection, type AdminDropQueueConfig } from "@/lib/admin-drop-queue";
 import { authFetch } from "@/lib/authFetch";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 import { cn } from "@/lib/utils";
 import type { Drop } from "@/types/db";
 
@@ -203,7 +204,17 @@ export function AdminDropsAtGlancePanel() {
             dispatchAdminOverviewSync();
             toast.success(added ? "Drop added to queue" : "Drop removed from queue");
         } catch (error) {
-            console.error("Failed to toggle queue from admin home", error);
+            reportClientIssue({
+                channel: "ui",
+                message: "Admin home queue toggle failed",
+                error,
+                detail: {
+                    adminView: "home_drops_module",
+                    action: "toggle_queue",
+                    dropId,
+                },
+                consoleLabel: "[Admin Drops Home] toggle queue failed",
+            });
             toast.error(error instanceof Error ? error.message : "Failed to update queue.");
         } finally {
             setQueueingDropId(null);

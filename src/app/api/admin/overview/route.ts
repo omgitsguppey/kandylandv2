@@ -12,6 +12,11 @@ import { APP_TIMEZONE, fromCSTInput, getCSTDateKey, shiftCSTDateKey } from "@/li
 import { getTransactionRevenueCents, normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { buildAdminOverviewUserNameMap } from "@/lib/server/admin-overview-users";
+import {
+    safeCountWithDiagnostics,
+    safeDocumentWithDiagnostics,
+    safeQueryWithDiagnostics,
+} from "@/lib/server/diagnostic-read-fallbacks";
 
 const THIRTY_DAY_WINDOW = 30;
 const CHART_LABEL_FORMATTER = new Intl.DateTimeFormat("en-US", {
@@ -19,21 +24,6 @@ const CHART_LABEL_FORMATTER = new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "2-digit",
 });
-
-type QuerySnapshotLike = {
-    docs: Array<{ id: string; data: () => Record<string, unknown> }>;
-    size: number;
-    empty: boolean;
-};
-
-type DocumentSnapshotLike = {
-    exists: boolean;
-    data: () => Record<string, unknown> | undefined;
-};
-
-type CountSnapshotLike = {
-    data: () => { count: unknown } | undefined;
-};
 
 function toTimestampNumber(value: unknown): number {
     if (typeof value === "number" && Number.isFinite(value)) {
@@ -91,51 +81,6 @@ function buildThirtyDayChart(nowMs: number) {
     return days;
 }
 
-function emptyQuerySnapshot(): QuerySnapshotLike {
-    return {
-        docs: [],
-        size: 0,
-        empty: true,
-    };
-}
-
-function emptyDocumentSnapshot(): DocumentSnapshotLike {
-    return {
-        exists: false,
-        data: () => undefined,
-    };
-}
-
-function emptyCountSnapshot(): CountSnapshotLike {
-    return {
-        data: () => ({ count: 0 }),
-    };
-}
-
-async function safeQuerySnapshot(reader: () => Promise<QuerySnapshotLike>) {
-    try {
-        return await reader();
-    } catch {
-        return emptyQuerySnapshot();
-    }
-}
-
-async function safeDocumentSnapshot(reader: () => Promise<DocumentSnapshotLike>) {
-    try {
-        return await reader();
-    } catch {
-        return emptyDocumentSnapshot();
-    }
-}
-
-async function safeCountSnapshot(reader: () => Promise<CountSnapshotLike>) {
-    try {
-        return await reader();
-    } catch {
-        return emptyCountSnapshot();
-    }
-}
-
 export async function GET(request: NextRequest) {
     try {
         await guardApiRequest(request, {
@@ -153,20 +98,57 @@ export async function GET(request: NextRequest) {
 
         const now = Date.now();
         const thirtyDayStartMs = fromCSTInput(`${shiftCSTDateKey(getCSTDateKey(now), -(THIRTY_DAY_WINDOW - 1))}T00:00`);
+        const issues: string[] = [];
         const [usersCountSnapshot, dropsSnapshot, recentTransactionsSnapshot, adminActivitySnapshot, commerceSummarySnapshot, recentChartTransactionsSnapshot] = await Promise.all([
-            safeCountSnapshot(() => adminDb.collection("users").count().get() as Promise<CountSnapshotLike>),
-            safeQuerySnapshot(() => adminDb.collection("drops").get() as Promise<QuerySnapshotLike>),
-            safeQuerySnapshot(() => adminDb.collection("transactions").orderBy("timestamp", "desc").limit(20).get() as Promise<QuerySnapshotLike>),
-            safeQuerySnapshot(() => adminDb.collection("transactions")
-                .where("type", "==", "admin_adjustment")
-                .orderBy("timestamp", "desc")
-                .limit(10)
-                .get() as Promise<QuerySnapshotLike>),
-            safeDocumentSnapshot(() => adminDb.collection("analytics_commerce_rollup").doc("summary").get() as Promise<DocumentSnapshotLike>),
-            safeQuerySnapshot(() => adminDb.collection("transactions")
-                .where("timestamp", ">=", thirtyDayStartMs)
-                .orderBy("timestamp", "desc")
-                .get() as Promise<QuerySnapshotLike>),
+            safeCountWithDiagnostics({
+                routeName: "admin/overview",
+                channel: "admin",
+                label: "users count",
+                issues,
+                reader: () => adminDb.collection("users").count().get(),
+            }),
+            safeQueryWithDiagnostics({
+                routeName: "admin/overview",
+                channel: "admin",
+                label: "drops",
+                issues,
+                reader: () => adminDb.collection("drops").get(),
+            }),
+            safeQueryWithDiagnostics({
+                routeName: "admin/overview",
+                channel: "admin",
+                label: "recent transactions",
+                issues,
+                reader: () => adminDb.collection("transactions").orderBy("timestamp", "desc").limit(20).get(),
+            }),
+            safeQueryWithDiagnostics({
+                routeName: "admin/overview",
+                channel: "admin",
+                label: "admin activity",
+                issues,
+                reader: () => adminDb.collection("transactions")
+                    .where("type", "==", "admin_adjustment")
+                    .orderBy("timestamp", "desc")
+                    .limit(10)
+                    .get(),
+            }),
+            safeDocumentWithDiagnostics({
+                routeName: "admin/overview",
+                channel: "commerce",
+                label: "commerce summary",
+                issues,
+                reader: () => adminDb.collection("analytics_commerce_rollup").doc("summary").get(),
+            }),
+            safeQueryWithDiagnostics({
+                routeName: "admin/overview",
+                channel: "commerce",
+                label: "chart transactions",
+                issues,
+                reader: () => adminDb.collection("transactions")
+                    .where("timestamp", ">=", thirtyDayStartMs)
+                    .orderBy("timestamp", "desc")
+                    .get(),
+            }),
         ]);
 
         const drops = dropsSnapshot.docs.flatMap((doc) => {
@@ -264,6 +246,7 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json({
             success: true,
+            issues,
             stats: {
                 totalUsers: toNumber(usersCountSnapshot.data()?.count),
                 activeDrops: drops.filter((drop) => drop.status === "active").length,

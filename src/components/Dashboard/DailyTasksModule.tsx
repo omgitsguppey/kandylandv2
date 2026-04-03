@@ -50,6 +50,7 @@ import {
   type TaskGuidancePendingAction,
 } from "@/lib/task-guidance";
 import { dispatchActivitySync } from "@/lib/activity-sync";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 
 type FeedbackCategory = "general" | "feature_request" | "bug_report" | "creator_request";
 
@@ -203,7 +204,17 @@ export function DailyTasksModule() {
         await rotateTasks();
       } catch (error) {
         if (!cancelled) {
-          console.error("Task rotation failed", error);
+          reportClientIssue({
+            channel: "runtime",
+            severity: "warn",
+            message: "Daily tasks initial rotation failed",
+            error,
+            detail: {
+              component: "DailyTasksModule",
+              phase: "mount",
+            },
+            consoleLabel: "[DailyTasks] initial rotation failed",
+          });
         }
       }
     }
@@ -229,7 +240,18 @@ export function DailyTasksModule() {
         }
       } catch (error) {
         if (!cancelled) {
-          console.error("Task rotation failed", error);
+          reportClientIssue({
+            channel: "runtime",
+            severity: "warn",
+            message: "Daily tasks deadline rotation failed",
+            error,
+            detail: {
+              component: "DailyTasksModule",
+              phase: "deadline",
+              nextRefreshMs,
+            },
+            consoleLabel: "[DailyTasks] deadline rotation failed",
+          });
         }
       }
     }
@@ -409,7 +431,17 @@ export function DailyTasksModule() {
       dispatchActivitySync();
       toast.success("Thanks for the feedback.");
     } catch (error) {
-      console.error("Feedback submission failed", error);
+      reportClientIssue({
+        channel: "feedback",
+        message: "Daily tasks feedback submission failed",
+        error,
+        detail: {
+          component: "DailyTasksModule",
+          feedbackCategory,
+          feedbackRating,
+        },
+        consoleLabel: "[DailyTasks] feedback submission failed",
+      });
       toast.error(error instanceof Error ? error.message : "Feedback failed");
     } finally {
       setFeedbackLoading(false);

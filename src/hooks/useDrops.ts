@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import useSWRInfinite from "swr/infinite";
-import { recordClientDiagnostic } from "@/lib/client-diagnostics";
+import { reportClientIssue, reportRealtimeIssue } from "@/lib/client-error-reporting";
 import { Drop } from "@/types/db";
 import { applyDropStatus } from "@/lib/drop-status";
 import { DROP_RUNTIME_COLLECTION, DROP_RUNTIME_DOC_ID } from "@/lib/drop-runtime";
@@ -157,17 +157,22 @@ export function useDrops(
             refreshDrops(isConstrained ? 6_000 : 1_500);
           },
           (error) => {
-            console.error("Failed to subscribe to drop runtime updates", error);
-            recordClientDiagnostic("realtime", "Drop runtime subscription failed", {
+            reportRealtimeIssue("drop runtime subscription", error, {
               message: error.message,
             });
           },
         );
       } catch (error) {
         if (!cancelled) {
-          console.error("Failed to initialize drop runtime subscription", error);
-          recordClientDiagnostic("firebase", "Drop runtime setup failed", {
-            message: error instanceof Error ? error.message : String(error),
+          reportClientIssue({
+            channel: "firebase",
+            severity: "warn",
+            message: "Drop runtime setup failed",
+            error,
+            detail: {
+              message: error instanceof Error ? error.message : String(error),
+            },
+            consoleLabel: "[Drops] runtime setup failed",
           });
         }
       }

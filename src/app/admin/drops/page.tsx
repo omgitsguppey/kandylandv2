@@ -8,6 +8,7 @@ import Image from "next/image";
 import { Drop } from "@/types/db";
 import { cn } from "@/lib/utils";
 import { authFetch } from "@/lib/authFetch";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 import { toast } from "sonner";
 import { sendNotification } from "@/lib/notifications";
 import { CreateDropModal } from "@/components/Admin/CreateDropModal";
@@ -267,7 +268,16 @@ export default function AdminDropsPage() {
                     setCreatorOptions(Array.isArray(result.creators) ? result.creators : []);
                 }
             } catch (error) {
-                console.error("Failed to fetch creator options", error);
+                reportClientIssue({
+                    channel: "network",
+                    severity: "warn",
+                    message: "Admin drops creator options fetch failed",
+                    error,
+                    detail: {
+                        action: "fetch_creator_options",
+                    },
+                    consoleLabel: "[Admin Drops] creator options fetch failed",
+                });
             }
         };
 
@@ -506,7 +516,16 @@ export default function AdminDropsPage() {
             dispatchAdminOverviewSync();
             toast.success("Drop deleted successfully");
         } catch (error: any) {
-            console.error("Error deleting drop:", error);
+            reportClientIssue({
+                channel: "network",
+                message: "Admin drop delete failed",
+                error,
+                detail: {
+                    action: "delete_drop",
+                    dropId: id,
+                },
+                consoleLabel: "[Admin Drops] delete failed",
+            });
             toast.error(error.message || "Failed to delete drop.");
         }
     }, []);
@@ -532,7 +551,17 @@ export default function AdminDropsPage() {
             dispatchAdminOverviewSync();
             toast.success(approvalStatus === "approved" ? "Creator drop approved" : "Creator drop rejected");
         } catch (error: any) {
-            console.error("Failed to review creator drop", error);
+            reportClientIssue({
+                channel: "network",
+                message: "Admin drop review failed",
+                error,
+                detail: {
+                    action: "review_drop",
+                    dropId,
+                    approvalStatus,
+                },
+                consoleLabel: "[Admin Drops] review failed",
+            });
             toast.error(error.message || "Review failed.");
         } finally {
             setReviewingDropId(null);
@@ -593,7 +622,16 @@ export default function AdminDropsPage() {
             toast.success(`Successfully deleted ${selectedDropIds.size} drop(s).`);
             setSelectedDropIds(new Set());
         } catch (error) {
-            console.error("Error bulk deleting drops:", error);
+            reportClientIssue({
+                channel: "network",
+                message: "Admin bulk drop delete failed",
+                error,
+                detail: {
+                    action: "bulk_delete_drops",
+                    selectedCount: selectedDropIds.size,
+                },
+                consoleLabel: "[Admin Drops] bulk delete failed",
+            });
             toast.error(error instanceof Error ? error.message : "One or more drops failed to delete.");
         }
     }, [selectedDropIds]);
@@ -622,7 +660,16 @@ export default function AdminDropsPage() {
             dispatchAdminOverviewSync();
             toast.success(added ? "Added to Queue" : "Removed from Queue");
         } catch (error: any) {
-            console.error("Error toggling queue:", error);
+            reportClientIssue({
+                channel: "network",
+                message: "Admin queue toggle failed",
+                error,
+                detail: {
+                    action: "toggle_auto_queue",
+                    dropId,
+                },
+                consoleLabel: "[Admin Drops] queue toggle failed",
+            });
             toast.error(error.message || "Failed to toggle queue state.");
         }
     }, [mutateQueueConfig]);

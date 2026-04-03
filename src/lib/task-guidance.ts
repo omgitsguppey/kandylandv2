@@ -32,6 +32,18 @@ export interface TaskGuidancePendingAction {
   createdAt: number;
 }
 
+function reportTaskGuidanceStorageIssue(scope: string, error: unknown, detail?: Record<string, unknown>) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  void import("@/lib/client-error-reporting")
+    .then(({ reportStorageIssue }) => {
+      reportStorageIssue(scope, error, detail);
+    })
+    .catch(() => undefined);
+}
+
 function getTaskGuidanceSessionStorage() {
   if (typeof window === "undefined") {
     return null;
@@ -47,8 +59,10 @@ function clearLegacyTaskGuidanceLocalStorage(storageKey: string) {
 
   try {
     window.localStorage.removeItem(storageKey);
-  } catch {
-    // Best-effort cleanup for older persistent task-guidance state.
+  } catch (error) {
+    reportTaskGuidanceStorageIssue("task guidance legacy cleanup", error, {
+      storageKey,
+    });
   }
 }
 
@@ -67,7 +81,10 @@ function readSessionStorageValue(storageKey: string): unknown {
   try {
     const raw = storage.getItem(storageKey);
     return raw ? JSON.parse(raw) : null;
-  } catch {
+  } catch (error) {
+    reportTaskGuidanceStorageIssue("task guidance read", error, {
+      storageKey,
+    });
     return null;
   }
 }
@@ -81,11 +98,23 @@ function writeSessionStorageValue(storageKey: string, value: unknown) {
   clearLegacyTaskGuidanceLocalStorage(storageKey);
 
   if (value === null) {
-    storage.removeItem(storageKey);
+    try {
+      storage.removeItem(storageKey);
+    } catch (error) {
+      reportTaskGuidanceStorageIssue("task guidance clear", error, {
+        storageKey,
+      });
+    }
     return;
   }
 
-  storage.setItem(storageKey, JSON.stringify(value));
+  try {
+    storage.setItem(storageKey, JSON.stringify(value));
+  } catch (error) {
+    reportTaskGuidanceStorageIssue("task guidance write", error, {
+      storageKey,
+    });
+  }
 }
 
 export function isTaskGuidanceActionType(

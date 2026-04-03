@@ -4,15 +4,19 @@ import { FieldValue } from "firebase-admin/firestore";
 
 import { adminDb } from "./firebase-admin";
 
-type ServerDiagnosticChannel =
+export type ServerDiagnosticChannel =
   | "analytics"
+  | "admin"
   | "auth"
+  | "commerce"
+  | "cron"
   | "creator_onboarding"
   | "firebase"
   | "middleware"
+  | "notifications"
   | "runtime";
 
-type ServerDiagnosticSeverity = "info" | "warn" | "error";
+export type ServerDiagnosticSeverity = "info" | "warn" | "error";
 
 interface ServerDiagnosticInput {
   channel: ServerDiagnosticChannel;

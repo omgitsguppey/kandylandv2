@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { authFetch } from "@/lib/authFetch";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 import { toast } from "sonner";
 
 import Image from "next/image";
@@ -43,7 +44,15 @@ export default function ContentManagerPage() {
 
             setFiles(Array.isArray(payload.files) ? payload.files : []);
         } catch (error) {
-            console.error("Error fetching files:", error);
+            reportClientIssue({
+                channel: "network",
+                message: "Admin content fetch failed",
+                error,
+                detail: {
+                    action: "fetch_files",
+                },
+                consoleLabel: "[Admin Content] fetch files failed",
+            });
             setError(error instanceof Error ? error.message : "Failed to load content files.");
         } finally {
             setLoading(false);
@@ -73,7 +82,15 @@ export default function ContentManagerPage() {
             setFiles((current) => [uploadedFile, ...current.filter((entry) => entry.fullPath !== uploadedFile.fullPath)]);
             toast.success("File uploaded.");
         } catch (error) {
-            console.error("Error uploading file:", error);
+            reportClientIssue({
+                channel: "network",
+                message: "Admin content upload failed",
+                error,
+                detail: {
+                    action: "upload_file",
+                },
+                consoleLabel: "[Admin Content] upload failed",
+            });
             const message = error instanceof Error ? error.message : "Upload failed.";
             setError(message);
             toast.error(message);
@@ -99,7 +116,16 @@ export default function ContentManagerPage() {
             setFiles((current) => current.filter((file) => file.fullPath !== fullPath));
             toast.success("File deleted.");
         } catch (error) {
-            console.error("Error deleting file:", error);
+            reportClientIssue({
+                channel: "network",
+                message: "Admin content delete failed",
+                error,
+                detail: {
+                    action: "delete_file",
+                    fullPath,
+                },
+                consoleLabel: "[Admin Content] delete failed",
+            });
             const message = error instanceof Error ? error.message : "Delete failed.";
             setError(message);
             toast.error(message);
@@ -111,7 +137,16 @@ export default function ContentManagerPage() {
             await navigator.clipboard.writeText(text);
             toast.success("URL copied to clipboard.");
         } catch (error) {
-            console.error("Error copying asset URL:", error);
+            reportClientIssue({
+                channel: "ui",
+                severity: "warn",
+                message: "Admin content clipboard copy failed",
+                error,
+                detail: {
+                    action: "copy_asset_url",
+                },
+                consoleLabel: "[Admin Content] clipboard copy failed",
+            });
             const message = error instanceof Error ? error.message : "Failed to copy URL.";
             setError(message);
             toast.error(message);

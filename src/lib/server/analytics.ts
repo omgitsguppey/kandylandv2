@@ -4,6 +4,7 @@ import * as admin from "firebase-admin";
 
 import { adminDb } from "./firebase-admin";
 import { buildAnalyticsTimeKeys, resolveTrackedTelemetryEvent } from "./analytics-event-utils";
+import { recordRouteWarning } from "./route-diagnostics";
 import { buildAnalyticsSemanticParams } from "@/lib/analytics-semantics";
 
 function sanitizeServerParams(params: Record<string, unknown>) {
@@ -120,7 +121,14 @@ export async function trackServerEvent(
       }),
     ]);
   } catch (error) {
-    console.error("Failed to mirror server event into analytics facts:", error);
+    recordRouteWarning("server/analytics", "Failed to mirror server event into analytics facts", error, {
+      channel: "analytics",
+      detail: {
+        rawEventName,
+        canonicalEventName,
+        userId: userId || "",
+      },
+    });
   }
 
   if (!measurementId || !apiSecret) {
@@ -154,9 +162,26 @@ export async function trackServerEvent(
     );
 
     if (!response.ok) {
-      console.error("Failed to send GA server event", await response.text());
+      const responseText = await response.text();
+      recordRouteWarning("server/analytics", "Failed to send GA server event", undefined, {
+        channel: "analytics",
+        detail: {
+          rawEventName,
+          canonicalEventName,
+          userId: userId || "",
+          status: response.status,
+          responseText,
+        },
+      });
     }
   } catch (error) {
-    console.error("GA server tracking error:", error);
+    recordRouteWarning("server/analytics", "GA server tracking error", error, {
+      channel: "analytics",
+      detail: {
+        rawEventName,
+        canonicalEventName,
+        userId: userId || "",
+      },
+    });
   }
 }

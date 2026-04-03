@@ -15,6 +15,7 @@ import {
 import { sendGlobalDropNotification } from "@/lib/server/push-notifications";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { ADMIN } from "@/lib/server/rate-limit";
+import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 
 const ALLOWED_DROP_FIELDS = [
     "title", "description", "imageUrl", "contentUrl", "contentUrls", "unlockCost",
@@ -70,7 +71,13 @@ export async function POST(request: NextRequest) {
                     `drop-activation:${docRef.id}:${resolvedInitial.validFrom}`,
                 );
             } catch (notifError) {
-                console.error("Non-fatal: Failed to generate global notification for new drop", notifError);
+                recordRouteWarning("admin/drops", "Failed to generate global notification for new drop", notifError, {
+                    channel: "notifications",
+                    detail: {
+                        dropId: docRef.id,
+                        title: sanitized.title as string,
+                    },
+                });
             }
         }
 
@@ -132,7 +139,13 @@ export async function PUT(request: NextRequest) {
                     `drop-activation:${dropId}:${nextTiming.validFrom}`,
                 );
             } catch (notifError) {
-                console.error("Non-fatal: Failed to generate activation notification for updated drop", notifError);
+                recordRouteWarning("admin/drops", "Failed to generate activation notification for updated drop", notifError, {
+                    channel: "notifications",
+                    detail: {
+                        dropId,
+                        title: typeof sanitized.title === "string" ? sanitized.title : existingDrop.title,
+                    },
+                });
             }
         }
 

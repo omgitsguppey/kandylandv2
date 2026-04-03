@@ -7,8 +7,9 @@
  * @param reason - The reason for the adjustment (required).
  * @returns Object containing success status and new balance.
  */
+"use client";
 import { authFetch } from "@/lib/authFetch";
-import { captureException } from "@/lib/monitoring";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 
 export async function adjustUserBalance(userId: string, amount: number, reason: string) {
     if (!userId || !amount || !reason) {
@@ -35,7 +36,17 @@ export async function adjustUserBalance(userId: string, amount: number, reason: 
             newBalance: typeof result.balanceAfter === "number" ? result.balanceAfter : undefined,
         };
     } catch (error: any) {
-        captureException(error, { context: "Balance Adjustment Error" });
+        reportClientIssue({
+            channel: "ui",
+            message: "Admin balance adjustment failed",
+            error,
+            detail: {
+                context: "Balance Adjustment Error",
+                userId,
+                amount,
+            },
+            consoleLabel: "[Admin Balance] adjustment failed",
+        });
         return { success: false, error: error.message };
     }
 }

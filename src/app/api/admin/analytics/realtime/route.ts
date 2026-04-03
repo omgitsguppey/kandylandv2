@@ -13,17 +13,10 @@ import { createAdminAnalyticsDataClient, getAdminAnalyticsPropertyId } from "@/l
 import { buildHistoricalOnboardingOverview } from "@/lib/server/admin-analytics-historical-onboarding";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { ANALYTICS_CANONICAL_COLLECTIONS, ANALYTICS_OPERATIONAL_COLLECTIONS } from "@/lib/server/analytics-governance";
+import { safeQueryWithDiagnostics } from "@/lib/server/diagnostic-read-fallbacks";
 
 const propertyId = getAdminAnalyticsPropertyId();
 const analyticsClient = createAdminAnalyticsDataClient();
-
-function emptyQuerySnapshot() {
-  return {
-    docs: [],
-    size: 0,
-    empty: true,
-  } as unknown as FirebaseFirestore.QuerySnapshot;
-}
 
 export async function GET(request: NextRequest) {
   try {
@@ -47,15 +40,6 @@ export async function GET(request: NextRequest) {
     const thirtyMinsAgo = nowMs - 30 * 60 * 1000;
     const onboardingWindowStartMs = nowMs - 24 * 60 * 60 * 1000;
     const issues: string[] = [];
-
-    const safeQuery = async (label: string, reader: () => Promise<FirebaseFirestore.QuerySnapshot>) => {
-      try {
-        return await reader();
-      } catch {
-        issues.push(`${label} unavailable`);
-        return emptyQuerySnapshot();
-      }
-    };
 
     const totalActiveResponse = await safeRunRealtimeReport(analyticsClient, {
       property: `properties/${propertyId}`,
@@ -89,12 +73,24 @@ export async function GET(request: NextRequest) {
     liveData.sort((a, b) => b.minute - a.minute);
 
     const [sessionsQuery, onboardingFactsSnapshot] = await Promise.all([
-      safeQuery("active user sessions", () => adminDb.collection(ANALYTICS_OPERATIONAL_COLLECTIONS.activeUsers)
-        .where("lastSeenAt", ">=", thirtyMinsAgo)
-        .get()),
-      safeQuery("onboarding event facts", () => adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.identifiedEventFacts)
-        .where("timestamp", ">=", onboardingWindowStartMs)
-        .get()),
+      safeQueryWithDiagnostics({
+        routeName: "admin/analytics/realtime",
+        channel: "analytics",
+        label: "active user sessions",
+        issues,
+        reader: () => adminDb.collection(ANALYTICS_OPERATIONAL_COLLECTIONS.activeUsers)
+          .where("lastSeenAt", ">=", thirtyMinsAgo)
+          .get(),
+      }),
+      safeQueryWithDiagnostics({
+        routeName: "admin/analytics/realtime",
+        channel: "analytics",
+        label: "onboarding event facts",
+        issues,
+        reader: () => adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.identifiedEventFacts)
+          .where("timestamp", ">=", onboardingWindowStartMs)
+          .get(),
+      }),
     ]);
 
     const onboardingOverview = buildHistoricalOnboardingOverview({
