@@ -1,0 +1,87 @@
+
+> kandydrops@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.1 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.2:3000
+✓ Ready in 533ms
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+- Experiments (use with caution):
+  · optimizePackageImports
+
+○ Compiling / ...
+ GET / 200 in 12.0s (next.js: 11.0s, application-code: 958ms)
+[browser] [2026-04-04T14:08:48.932Z]  @firebase/database: FIREBASE FATAL ERROR: Cannot parse Firebase url. Please use https://<YOUR FIREBASE>.firebaseio.com
+    at module evaluation (src/lib/firebase-data.ts:14:98)
+    at <unknown> (.next/dev/static/chunks/_0ln39cq._.js:24:16)
+    at async subscribeToDropRuntime (src/hooks/useDrops.ts:141:47)
+  12 | ...
+  13 | ...
+> 14 | ...e(app, FIREBASE_DATABASE_URL) : getDatabase(app);
+     |                                               ^
+  15 | ... (src/lib/firebase-data.ts:14:98)
+[browser] [Drops] runtime setup failed Error: FIREBASE FATAL ERROR: Cannot parse Firebase url. Please use https://<YOUR FIREBASE>.firebaseio.com
+    at module evaluation (src/lib/firebase-data.ts:14:98)
+    at <unknown> (.next/dev/static/chunks/_0ln39cq._.js:24:16)
+    at async subscribeToDropRuntime (src/hooks/useDrops.ts:141:47)
+  12 | ...
+  13 | ...
+> 14 | ...e(app, FIREBASE_DATABASE_URL) : getDatabase(app);
+     |                                               ^
+  15 | ... (src/lib/client-error-reporting.ts:44:13)
+Remote rate-limit cleanup failed: Error: Unable to detect a Project Id in the current environment.
+To learn more about authentication and Google APIs, visit:
+https://cloud.google.com/docs/authentication/getting-started
+    at <unknown> (https://cloud.google.com/docs/authentication/getting-started)
+    at <unknown> (src/lib/server/rate-limit.ts:65:18)
+    at maybeCleanupRemote (src/lib/server/rate-limit.ts:79:6)
+    at checkRateLimit (src/lib/server/rate-limit.ts:166:15)
+    at guardApiRequest (src/lib/server/request-guard.ts:54:25)
+    at GET (src/app/api/drops/route.ts:54:30)
+  63 |                 .where("expiresAt", "<", now - REMOTE_EXPIRED_GRACE_MS)
+  64 |                 .limit(100)
+> 65 |                 .get();
+     |                  ^
+  66 |
+  67 |             if (snapshot.empty) {
+  68 |                 return;
+Remote rate-limit check failed. Falling back to local limiter: Error: Unable to detect a Project Id in the current environment.
+To learn more about authentication and Google APIs, visit:
+https://cloud.google.com/docs/authentication/getting-started
+    at <unknown> (https://cloud.google.com/docs/authentication/getting-started)
+    at <unknown> (src/lib/server/rate-limit.ts:65:18)
+    at maybeCleanupRemote (src/lib/server/rate-limit.ts:79:6)
+    at checkRateLimit (src/lib/server/rate-limit.ts:166:15)
+    at guardApiRequest (src/lib/server/request-guard.ts:54:25)
+    at GET (src/app/api/drops/route.ts:54:30)
+  63 |                 .where("expiresAt", "<", now - REMOTE_EXPIRED_GRACE_MS)
+  64 |                 .limit(100)
+> 65 |                 .get();
+     |                  ^
+  66 |
+  67 |             if (snapshot.empty) {
+  68 |                 return;
+Error fetching drops: Error: Unable to detect a Project Id in the current environment.
+To learn more about authentication and Google APIs, visit:
+https://cloud.google.com/docs/authentication/getting-started
+    at <unknown> (https://cloud.google.com/docs/authentication/getting-started)
+    at <unknown> (src/lib/server/rate-limit.ts:65:18)
+    at maybeCleanupRemote (src/lib/server/rate-limit.ts:79:6)
+    at checkRateLimit (src/lib/server/rate-limit.ts:166:15)
+    at guardApiRequest (src/lib/server/request-guard.ts:54:25)
+    at GET (src/app/api/drops/route.ts:54:30)
+    at <unknown> (src/lib/server/drops.ts:20:89)
+    at GET (src/app/api/drops/route.ts:64:40)
+  63 |                 .where("expiresAt", "<", now - REMOTE_EXPIRED_GRACE_MS)
+  64 |                 .limit(100)
+> 65 |                 .get();
+     |                  ^
+  66 |
+  67 |             if (snapshot.empty) {
+  68 |                 return;
+[?25h

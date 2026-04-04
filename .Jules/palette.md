@@ -9,3 +9,7 @@
 ## 2024-03-31 - Added ARIA label to mobile profile avatar
 **Learning:** Found a profile avatar `<button>` in the Navbar that was visually an icon-only button on mobile devices (`md:hidden`). It used an image or initial for sighted users but lacked an accessible name for screen readers.
 **Action:** Always provide an `aria-label` to avatar or profile buttons when they function as icon-only interactive elements without visible text labels.
+
+## 2024-04-04 - Accessible tooltips for icon-only buttons
+**Learning:** Using `aria-label` is crucial for screen readers on icon-only buttons, but sighted keyboard-only users and pointer users can still be left guessing the button's action if its icon is ambiguous. Furthermore, interactive elements must show clear `focus-visible` indicators.
+**Action:** When implementing UX enhancements for icon-only or ambiguously named interactive elements, use native HTML `title` attributes alongside `aria-label`s to provide visible tooltips for sighted users while maintaining screen reader accessibility, and always ensure `focus-visible` styles are present.
