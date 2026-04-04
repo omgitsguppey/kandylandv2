@@ -32,11 +32,14 @@ Do **not** use `git push origin main` unless you are on the `main` branch locall
 Before broad refactors, shared-helper work, UI work, Firebase work, or agent-driven maintenance:
 
 1. Read `FULL_SCALE_CODEBASE_AUDIT.md`
-2. Read `EVERY_FILE_FUNCTION_CHECKLIST.md`
-3. Update `FULL_SCALE_CODEBASE_AUDIT.md` at the start and again at the end
-4. Run `git status --short`
-5. Identify touched surfaces and canonical helpers before editing
-6. Run `npm run trace:adjacent -- <path>` for the main touched files so neighboring logic is reviewed on purpose
+2. Read `REPO_MEMORY_LEDGER.md`
+3. Read `EVERY_FILE_FUNCTION_CHECKLIST.md`
+4. Update `FULL_SCALE_CODEBASE_AUDIT.md` at the start and again at the end
+5. Run `git status --short`
+6. Identify touched surfaces and canonical helpers before editing
+7. Run `npm run trace:adjacent -- <path>` for the main touched files so neighboring logic is reviewed on purpose
+
+Codex is assistive local tooling, not an authority. If tracked code, canonical docs, or verification output disagree with prior chat context, the tracked repo wins and the docs must be updated.
 
 Use these repo continuity commands when relevant:
 

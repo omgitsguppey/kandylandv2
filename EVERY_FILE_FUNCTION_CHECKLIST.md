@@ -7,10 +7,10 @@ Purpose: exhaustive no-skip audit checklist covering every repository file curre
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
-Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-03 inventory yet.
+Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-03 inventory yet.
 
 Historical sweep file-body baseline: 413 tracked files
-Current tracked baseline in the standing audit: 604 tracked files before tonight's cleanup pass
+Current tracked baseline in the standing audit: 614 tracked files after the 2026-04-03 repo-memory hardening pass
 Detected function-like implementations in this historical sweep: 3161
 
 ## [x] .agent/workflows/pre-commit.md

@@ -2,7 +2,7 @@
 
 Status: Canonical audit standard and live baseline
 Last refreshed: 2026-04-03
-Last full-scale audit execution: 2026-04-03 16:50:24 -05:00
+Last full-scale audit execution: 2026-04-03 19:16:34 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
 ## Purpose
@@ -40,11 +40,96 @@ Related evidence snapshots:
 - `ANALYTICS_SYSTEM_AUDIT_2026-03-18.md`
 - `DEPENDENCY_CONSISTENCY_AUDIT_2026-03-24.md`
 
+## Canonical Stack, Workflow, and Deployment Context
+- This repo is developed locally first.
+- Google Antigravity and Codex may both be used locally to assist build, review, implementation, and verification work before changes are committed.
+- Those tools are assistive local workflow tooling only. They are not authoritative runtime, deployment, or architecture sources of truth.
+- The authoritative sources of truth are git-tracked runtime code, canonical docs, canonical helpers, audit scripts, and the verification commands named in this file.
+- The product originated as a static-first system and later pivoted into a backend/server architecture. The exact pivot date is not fully recoverable from current tracked evidence and is therefore recorded as historical continuity context rather than a claimed precise timestamp.
+- The deployed runtime target is Firebase App Hosting, with Firebase and Google Cloud services providing backend behavior where present in code: Firestore, Realtime Database, Storage, Functions, Data Connect, and server-side Vertex AI integration where enabled.
+- Local AI/developer tooling may work on uncommitted files, but repository truth does not change until the resulting decisions are written into tracked files and verified.
+
+## Repository Memory and Decision Ledger
+- `REPO_MEMORY_LEDGER.md` is the canonical concise ledger for architectural pivots, workflow-authority decisions, deprecated patterns, and major continuity-sensitive repo decisions.
+- Use it when a task touches deployment assumptions, dependency/tooling meaning, historical pivots, workflow authority, or anything that founder memory or AI context might otherwise be forced to explain informally.
+- This audit file remains the standing policy and surface map. The ledger records the major decisions that explain why those policies and surfaces look the way they do.
+
+## Dependency, Tooling, and Artifact Classification
+Every meaningful package, config file, generated artifact, and local tool surface must fit one of the classes below:
+
+1. Runtime dependencies
+   Root `package.json` `dependencies`, `functions/package.json` `dependencies`, generated Data Connect SDKs used by the app/functions, and Firebase/Google runtime libraries that affect shipped behavior.
+
+2. Dev dependencies
+   Root and `functions/` `devDependencies` used for linting, typing, testing, builds, audits, code generation, and local verification.
+
+3. Local workflow tooling
+   Codex, Google Antigravity, `gh`, `firebase`, `gcloud`, `AGENTS.md`, `.agent/workflows/pre-commit.md`, and local scripts that help humans or agents work safely but are not themselves runtime truth.
+
+4. Deployment and platform dependencies
+   `apphosting.yaml`, `firebase.json`, `.firebaserc`, Firestore/Storage/Realtime rules and indexes, App Hosting metadata, service-account or ADC expectations, and other files/CLIs that define deployed behavior or cloud connectivity.
+
+5. Governance and continuity dependencies
+   `FULL_SCALE_CODEBASE_AUDIT.md`, `EVERY_FILE_FUNCTION_CHECKLIST.md`, `REPO_MEMORY_LEDGER.md`, dated audit snapshots, continuity scripts, dependency graph rules, visual/a11y/perf audit configs, and the verification commands that keep future changes explainable.
+
+6. Generated artifacts
+   Lockfiles, generated Data Connect clients, generated backend metadata such as `backends.json`, and other generated files that may still materially affect dependency resolution, runtime integration, or contributor understanding.
+
+Generated does not mean ignorable. Generated means:
+- do not hand-edit unless that generation path is the audited source of truth,
+- classify the file explicitly,
+- and record when it changes repo behavior, contributor workflow, or deployment assumptions.
+
+## Dependency Delta Recording Rules
+When dependencies, tooling, or generated artifacts change:
+
+1. Record which class changed: runtime, dev, local workflow, platform, governance, or generated artifact.
+2. Record which source file owns the change: root `package.json`, `functions/package.json`, config file, generated client, or continuity doc.
+3. Record whether build/runtime behavior changed, contributor workflow changed, or both.
+4. Record which verification commands were run because of the change.
+5. Update this file if the canonical dependency/tooling story changed.
+6. Update `REPO_MEMORY_LEDGER.md` if the change reflects a durable architectural or workflow decision rather than a routine version bump.
+7. Until a later audited pass intentionally consolidates package-manager strategy, keep root `package-lock.json` and `pnpm-lock.yaml` synchronized when the root dependency graph changes.
+8. `functions/package-lock.json` remains the dependency-resolution companion to `functions/package.json` and must stay aligned with Functions-specific dependency changes.
+9. `backends.json` is generated App Hosting backend metadata, not the canonical deploy configuration. It must never be treated as the primary source of truth for deployment behavior or environment contracts.
+
+## Contributor Continuity Requirements
+- A future contributor must be able to orient from tracked repo artifacts without needing private AI context or founder memory as the first interpretation layer.
+- Required first-read surfaces for broad work are:
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+  - `REPO_MEMORY_LEDGER.md`
+  - `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- Required first-read surfaces for runtime/deployment changes also include:
+  - `package.json`
+  - `functions/package.json`
+  - `firebase.json`
+  - `apphosting.yaml`
+- `AGENTS.md` and `.agent/workflows/pre-commit.md` are workflow guidance, not architecture authority.
+- If tracked docs and runtime code disagree, code plus verification plus audit scripts win, and the docs must be updated in the same change.
+
+## Root, Platform, and Governance Accountability Matrix
+Every tracked root-level artifact must be explainable through one of the classes below.
+
+| Class | Files | Meaning | Canonical handling |
+| --- | --- | --- | --- |
+| Governance baseline | `FULL_SCALE_CODEBASE_AUDIT.md`, `REPO_MEMORY_LEDGER.md`, `EVERY_FILE_FUNCTION_CHECKLIST.md` | Standing audit policy, decision ledger, and exhaustive historical inventory companion | Must stay mutually consistent on counts, continuity rules, and authority language |
+| Workflow guidance | `AGENTS.md`, `.agent/workflows/pre-commit.md` | Contributor and agent workflow instructions | Useful, but not architecture authority; must point back to canonical docs |
+| Historical evidence snapshots | `FULL_CODEBASE_AUDIT_2026-04-01.md`, `FULL_CODEBASE_AUDIT_2026-04-03.md`, `FULL_CODEBASE_POST_AUDIT_2026-03-18.md`, `ANALYTICS_SYSTEM_AUDIT_2026-03-18.md`, `DEPENDENCY_CONSISTENCY_AUDIT_2026-03-24.md`, `STANDARDIZATION_AUDIT_CHECKLIST.md`, `TELEMETRY_MIDDLEWARE_AUDIT_2026-03-23.md`, `V1_STABILITY_AUDIT_2026-03-24.md`, `REPO_STATE_SCORECARD_2026-03-18.md`, `REPO_STATE_SCORECARD_2026-03-19.md` | Historical audit evidence, not living policy | Must not contradict the standing audit without an explicit note that they are historical |
+| Local planning or ephemeral evidence | `CHANGELOG.md`, `plan_review.md`, `status.txt` | Historical planning/status context | Useful as evidence only; not canonical architecture truth |
+| Root dependency surfaces | `package.json`, `package-lock.json`, `pnpm-lock.yaml` | Root dependency graph and resolution state | Must stay synchronized with dependency changes and the dependency classification rules above |
+| Functions dependency surfaces | `functions/package.json`, `functions/package-lock.json` | Firebase Functions-specific dependency graph | Must stay aligned with Functions runtime and lint/build verification |
+| Platform and deploy config | `apphosting.yaml`, `firebase.json`, `.firebaserc`, `backends.json`, `firestore.rules`, `firestore.indexes.json`, `database.rules.json`, `storage.rules` | App Hosting, Firebase services, rules, and generated backend metadata | Must be treated as deployment/platform truth or explicitly classified as generated evidence |
+| Quality and continuity tooling config | `eslint.config.mjs`, `tsconfig.json`, `next.config.ts`, `playwright.config.ts`, `vitest.config.ts`, `vitest.rules.config.ts`, `.dependency-cruiser.cjs`, `.lighthouserc.json`, `knip.json`, `.ncurc.json`, `.npmrc`, `.gitignore` | Build, lint, dependency, audit, and test behavior | Must stay consistent with the verification commands promised in this file |
+| Root runtime or admin utility files | `middleware.ts`, `makeAdmin.js` | Runtime boundary enforcement and local admin utility behavior | Must stay truthful about their actual authority and risk; no hidden assumptions |
+
 ## Current Baseline
 Current tracked inventory baseline after this audited change on 2026-04-03:
 
-- Total tracked files: `613`
-- Root files: `41`
+- Total tracked files: `614`
+- Root files: `42`
+- Root markdown/docs: `16`
+- Root lockfiles: `2`
+- Root config/runtime/tooling files: `24`
 - `src`: `354`
 - `src/app`: `116`
 - `src/components`: `65`
@@ -67,9 +152,10 @@ Current baseline verification on 2026-04-03:
 - `corepack pnpm run check` passed
 - `npx vitest run` passed
 - `npm run check:continuity` passed
+- `npm run check:inventory` passed
 - `npm run check:telemetry` passed
 - `npm run check:analytics-semantics` passed
-- adjacency traces passed for the touched runtime task/admin debug surfaces
+- adjacency traces passed for the touched continuity/tooling surfaces
 
 Current tolerated non-blocking environment notices:
 - npm unknown env config warnings printed during some script runs
@@ -79,64 +165,174 @@ Current tolerated non-blocking environment notices:
 These notices are not automatic audit failures, but they must stay explicitly known and not silently spread into product behavior.
 
 ## Active Audit Entry
-Current audit date: `2026-04-03 16:10:39 -05:00`
-Current branch / commit: `main / 57369cf`
+Current audit date: `2026-04-03 19:05:30 -05:00`
+Current branch / commit: `main / 56fd38d`
 
 Current task:
-- runtime task-truth follow-up, custom-task auditability, telemetry/admin truth consolidation, and admin/auth verification readiness
+- full repository memory and traceability hardening pass for long-term multi-developer continuity in a local-first repo deployed through Firebase App Hosting
 
 Current mission:
-- continue the 2026-04-03 task-system audit by extending observability from the code-backed task catalog into truthful runtime-backed inspection, making custom/admin-authored task behavior auditable, tightening the relationship between telemetry facts and admin/debug summaries, and improving deterministic readiness for admin/auth-bound verification without inventing fake seams
+- make the repository itself remember its architecture, dependency classes, workflow authority, deployment context, historical pivots, and canonical continuity rules so future contributors do not need Codex, Antigravity, or founder memory as the first interpretation layer
 
 Current expected touched surfaces:
 - root/docs
+- root config and governance files
 - `scripts`
-- `src/app/admin`
-- `src/app/api/admin`
-- `src/app/api/telemetry`
-- `src/components/Admin`
-- `src/hooks`
-- `src/lib`
-- `src/lib/server`
-- `src/lib/tasks`
-- `tests`
+- audit and continuity tooling references
 
 Current canonical helpers/modules expected to be used:
 - `FULL_SCALE_CODEBASE_AUDIT.md`
 - `EVERY_FILE_FUNCTION_CHECKLIST.md`
-- `src/lib/tasks/task-catalog.ts`
-- `src/lib/task-guidance.ts`
-- `src/lib/telemetry-catalog.ts`
-- `src/lib/analytics-metric-catalog.ts`
-- `src/lib/server/analytics.ts`
-- `src/lib/server/analytics-governance.ts`
-- `src/lib/telemetry.ts`
-- `src/lib/server/daily-tasks.ts`
-- `src/lib/tasks/task-observability.ts`
-- `src/app/api/admin/debug/route.ts`
-- `src/hooks/useAuthSWR.ts`
-- `src/hooks/client-runtime.ts`
-- `src/lib/client-error-reporting.ts`
-- `src/lib/server/route-diagnostics.ts`
-- existing Vitest, ESLint, continuity, analytics semantics, telemetry audit, and contract verification entrypoints already codified in the repo
+- `package.json`
+- `functions/package.json`
+- `firebase.json`
+- `apphosting.yaml`
+- `AGENTS.md`
+- `.agent/workflows/pre-commit.md`
+- `scripts/repo-inventory.ts`
+- `scripts/trace-adjacent-surfaces.ts`
+- existing continuity, dependency-graph, telemetry, analytics semantics, typecheck, and Vitest verification entrypoints already codified in the repo
 
 Current continuity note:
-- this pass must keep built-in and custom tasks on the same canonical task/telemetry dialect, extend truth into runtime-backed admin/debug inspection instead of inventing shadow reports, and document any runtime gaps honestly if they cannot be proven from code or local verification
+- this pass must classify root/governance/platform artifacts explicitly, record the static-first to backend/server pivot without inventing missing history, distinguish assistive tooling from authoritative repo truth, and leave the repo more legible to contributors who have no private AI context
 
-Audit start recorded at: `2026-04-03 16:10:39 -05:00`
+Audit start recorded at: `2026-04-03 19:05:30 -05:00`
 
 Start-of-task audit inputs read:
 - `FULL_SCALE_CODEBASE_AUDIT.md`
 - `EVERY_FILE_FUNCTION_CHECKLIST.md`
 - `git status --short`
+- root/config/process surfaces including:
+  - `package.json`
+  - `functions/package.json`
+  - `firebase.json`
+  - `apphosting.yaml`
+  - `AGENTS.md`
+  - `.dependency-cruiser.cjs`
+  - `.lighthouserc.json`
+  - `eslint.config.mjs`
+  - `playwright.config.ts`
+  - `next.config.ts`
+  - `tsconfig.json`
+  - `knip.json`
+  - `backends.json`
+  - `.agent/workflows/pre-commit.md`
 - adjacency traces for:
-  - `src/lib/server/daily-tasks.ts`
-  - `src/lib/tasks/task-observability.ts`
-  - `src/lib/telemetry-catalog.ts`
-  - `src/lib/server/analytics.ts`
-  - `src/app/api/admin/debug/route.ts`
+  - `scripts/repo-inventory.ts`
+  - `AGENTS.md` attempted but not supported by the internal adjacency tracer because it only maps internal code files
 
-End-of-task audit completion recorded at: `2026-04-03 16:50:24 -05:00`
+End-of-task audit completion recorded at: `2026-04-03 19:16:34 -05:00`
+
+Final touched surfaces:
+- root/docs
+- root config and governance files
+- `scripts`
+
+Final touched files:
+- `.agent/workflows/pre-commit.md`
+- `AGENTS.md`
+- `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `REPO_MEMORY_LEDGER.md`
+- `scripts/repo-inventory.ts`
+
+Canonical helpers/modules used in this task:
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- `REPO_MEMORY_LEDGER.md`
+- `package.json`
+- `functions/package.json`
+- `firebase.json`
+- `apphosting.yaml`
+- `AGENTS.md`
+- `.agent/workflows/pre-commit.md`
+- `scripts/repo-inventory.ts`
+- `scripts/trace-adjacent-surfaces.ts`
+
+Dependency decisions in this task:
+- Installed:
+  - none
+- Already present and reused:
+  - existing root and Functions dependency graphs
+  - existing continuity, dependency-graph, telemetry, analytics semantics, TypeScript, ESLint, and Vitest tooling
+- Rejected:
+  - no new package dependency or SaaS dependency was justified for this continuity-only pass
+
+Dependency/tooling classification outcome:
+- runtime, dev, local workflow, deployment/platform, governance/continuity, and generated-artifact classes are now explicitly documented in the standing audit
+- root lockfiles are now explicitly treated as a continuity contract until a future audited package-manager consolidation occurs
+- `backends.json` is now explicitly recorded as generated App Hosting metadata rather than deploy authority
+
+Manual setup or authentication still required from the user:
+- none for the documentation, script, or verification work completed in this pass
+- Firebase and Google Cloud auth are still required later for real remote inspection/deploy work, but this task did not need them
+
+Exact systems audited or hardened in this pass:
+- canonical stack/build/deployment context
+- dependency/tooling classification and delta-recording rules
+- contributor continuity requirements that make Codex and Antigravity optional helpers rather than hidden authorities
+- root/governance/platform artifact accountability
+- repo-memory decision recording for major historical pivots and workflow rules
+- inventory tooling for root docs/lockfiles/config-runtime-tooling visibility
+
+Exact safety, moderation, telemetry, and debug additions made:
+- no product runtime behavior changed
+- continuity safety improved by making deployment authority, dependency classes, and workflow authority explicit in tracked docs
+- repo-memory and architecture decisions now have a canonical ledger instead of relying on private context
+
+Current follow-up gaps still open after this pass:
+- the detailed body of `EVERY_FILE_FUNCTION_CHECKLIST.md` remains a historical sweep and has not been fully regenerated against the new 614-file baseline
+- some historical evidence docs may still contain stale counts or pre-standard wording because they are snapshots, not living policy
+- `backends.json` remains a generated platform snapshot and should continue to be treated carefully in future secret-hygiene review rather than as canonical config
+- exact historical dates for early static-first to backend/server pivot milestones are still not fully recoverable from current tracked evidence
+
+Commands run in this pass:
+- `git status --short`
+- `Get-Content FULL_SCALE_CODEBASE_AUDIT.md`
+- `Get-Content EVERY_FILE_FUNCTION_CHECKLIST.md`
+- `Get-Content package.json`
+- `Get-Content functions/package.json`
+- `Get-Content firebase.json`
+- `Get-Content apphosting.yaml`
+- `Get-Content AGENTS.md`
+- `Get-Content .dependency-cruiser.cjs`
+- `Get-Content .lighthouserc.json`
+- `Get-Content eslint.config.mjs`
+- `Get-Content playwright.config.ts`
+- `Get-Content next.config.ts`
+- `Get-Content tsconfig.json`
+- `Get-Content knip.json`
+- `Get-Content backends.json`
+- `Get-Content .agent/workflows/pre-commit.md`
+- `npm run trace:adjacent -- scripts/repo-inventory.ts`
+- `npm run check:inventory`
+- `npm run check:continuity`
+- `corepack pnpm run check`
+- `npx vitest run`
+
+Results:
+- all listed commands passed at the end of the pass
+- `corepack pnpm run check` passed end to end
+- `npx vitest run` passed with `69` files and `380` tests
+- `npm run check:continuity` passed with architecture, inventory, and cycle checks green
+- staged inventory now resolves to `614` tracked files after adding the repo-memory ledger
+
+Known tolerated warnings/notices in this pass:
+- npm unknown env config warnings during chained npm script execution
+- Node `punycode` deprecation warnings from current Firebase/Vitest tooling
+- informational dotenv logging during `check:firebase-runtime`
+- Git warned that `REPO_MEMORY_LEDGER.md` will normalize from LF to CRLF on the next Git touch in this Windows worktree
+
+Inventory changed or not:
+- yes
+- standing tracked-file baseline is now `614`
+- net change in this pass: `613` -> `614`
+- root-file baseline is now `42`
+- root markdown/docs baseline is now `16`
+- root lockfile baseline remains `2`
+- root config/runtime/tooling baseline remains `24`
+
+## Previous 2026-04-03 Task-System Audit Reference
 
 Final touched surfaces:
 - root/docs
@@ -567,6 +763,18 @@ These are mandatory for long-horizon repo safety:
 ## Canonical Helper Map
 These are the current source-of-truth helpers and modules to prefer before creating anything new.
 
+### Governance, repo memory, and continuity authority
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+  Canonical audit standard, build-start/build-end policy, surface map, and helper map
+- `REPO_MEMORY_LEDGER.md`
+  Canonical concise ledger for major architectural decisions, pivots, deprecated patterns, and workflow-authority rules
+- `EVERY_FILE_FUNCTION_CHECKLIST.md`
+  Canonical exhaustive historical file/function sweep companion that must stay aligned with the standing audit baseline
+- `AGENTS.md`
+  Codex-specific workflow guidance; useful, but subordinate to the standing audit and repo-memory ledger
+- `.agent/workflows/pre-commit.md`
+  Contributor/agent verification workflow guidance that must stay aligned with the current audit contract
+
 ### Request, auth, and route handling
 - `src/lib/server/auth.ts`
   Canonical API error response handling via `handleApiError(...)`
@@ -650,7 +858,7 @@ These are the current source-of-truth helpers and modules to prefer before creat
 - `.dependency-cruiser.cjs`
   Canonical dependency boundary configuration for architecture drift checks
 - `scripts/repo-inventory.ts`
-  Canonical tracked-file inventory counter for audit-baseline refreshes
+  Canonical tracked-file inventory counter for audit-baseline refreshes, including root doc/lockfile/config-runtime-tooling visibility
 - `scripts/trace-adjacent-surfaces.ts`
   Canonical touched-file adjacency review helper for imports, importers, sibling files, and likely related tests
 - `scripts/export-dependency-graph.ts`
@@ -667,18 +875,18 @@ Every tracked file must fall into one of the surfaces below and satisfy that sur
 
 | Surface | Current count | Files covered | Audit requirement |
 | --- | ---: | --- | --- |
-| Root/config/docs | 41 | root files, repo docs, config, lockfiles | Naming, relevance, drift, tooling consistency, no stale operational docs |
+| Root/config/docs | 42 | root files, repo docs, config, lockfiles | Naming, relevance, drift, tooling consistency, no stale operational docs |
 | `public` | 11 | static assets, manifest, service worker | Asset still referenced, correct destination, no dead screenshots/icons in runtime paths |
 | `src/app` | 116 | pages, layouts, route handlers, loading/error UI | Auth, route semantics, cache rules, diagnostics, no dead route targets |
 | `src/components` | 65 | reusable UI and feature modules | Accessibility, explicit loading/error state, correct telemetry, correct runtime action mapping |
 | `src/context` | 4 | provider layers | No redundant providers, state shape parity, guest/auth correctness |
 | `src/hooks` | 13 | client runtime hooks | Cleanup, error state, diagnostics, polling/realtime parity |
-| `src/lib` | 132 | shared client/shared domain helpers | No duplication, canonical helpers, telemetry/economics/time helpers reused |
+| `src/lib` | 133 | shared client/shared domain helpers | No duplication, canonical helpers, telemetry/economics/time helpers reused |
 | `src/lib/server` | 56 | server-only domain helpers | Structured diagnostics, no raw side-effect-only logging, canonical DB/runtime access |
 | `src/types` | 3 | shared types | Explicitness, current state-shape parity |
 | `functions/src` | 30 | Firebase Functions backend | Runtime parity, orchestration consistency, export coverage |
 | `scripts` | 17 | audits, checks, admin scripts | Still useful, current paths, deterministic behavior |
-| `tests` | 96 | contracts, unit, visual, rules, benches | Coverage remains aligned to runtime-critical areas |
+| `tests` | 97 | contracts, unit, visual, rules, benches | Coverage remains aligned to runtime-critical areas |
 | `dataconnect` + generated clients | 39 | schema + generated SDKs | Generated artifacts current, schema/runtime parity, no stale generated output |
 
 ## Universal Per-File Questions
@@ -821,19 +1029,21 @@ When Firebase or Google Cloud surfaces are touched:
 Before writing code:
 
 1. Read this file.
-2. Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
-3. Review any audit snapshots named near the top of this file if they still exist.
-4. Confirm which audit surfaces the task touches.
-5. Check whether a canonical helper already exists for the work.
-6. Run `git status --short` and record the current branch / commit.
-7. Run `npm run trace:adjacent -- <path>` for the highest-risk touched files before writing code.
-8. If tracked-file count changed materially since the last baseline, refresh the inventory numbers in this file.
-9. If the task touches routes, diagnostics, telemetry, commerce, or persistence, identify the exact canonical helper/module first.
-10. If the task touches user-facing or admin-facing UI, decide up front what Playwright a11y and visual coverage is required.
-11. If the task touches Firebase rules, storage, functions, or emulator-sensitive behavior, define the emulator-first verification plan before coding.
-12. If the task touches loading, rendering, or mobile-shell performance, decide whether Lighthouse verification is required and record that decision.
-13. If the task touches admin or analytics behavior, define where failures should appear in the admin dashboard before writing code.
-14. Update the active audit entry in this file before changing application code.
+2. Read `REPO_MEMORY_LEDGER.md`.
+3. Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+4. Review any audit snapshots named near the top of this file if they still exist.
+5. Confirm which audit surfaces the task touches.
+6. Check whether a canonical helper already exists for the work.
+7. Run `git status --short` and record the current branch / commit.
+8. Run `npm run trace:adjacent -- <path>` for the highest-risk touched files before writing code.
+9. If tracked-file count changed materially since the last baseline, refresh the inventory numbers in this file.
+10. If the task changes runtime, dev, local workflow, platform, governance, or generated-artifact dependencies, record that class before editing.
+11. If the task touches routes, diagnostics, telemetry, commerce, or persistence, identify the exact canonical helper/module first.
+12. If the task touches user-facing or admin-facing UI, decide up front what Playwright a11y and visual coverage is required.
+13. If the task touches Firebase rules, storage, functions, or emulator-sensitive behavior, define the emulator-first verification plan before coding.
+14. If the task touches loading, rendering, or mobile-shell performance, decide whether Lighthouse verification is required and record that decision.
+15. If the task touches admin or analytics behavior, define where failures should appear in the admin dashboard before writing code.
+16. Update the active audit entry in this file before changing application code.
 
 ## Build End Audit
 Before signoff:
@@ -850,8 +1060,9 @@ Before signoff:
 10. Verify no silent storage/cache/realtime failures were introduced.
 11. Verify any new helper truly reduced duplication instead of adding another layer.
 12. Record any tolerated warnings explicitly.
-13. Update this file if the standard, canonical helper map, inventory baseline, or continuity tooling changed.
-14. Capture the final evidence block before commit.
+13. Update this file if the standard, canonical helper map, inventory baseline, continuity tooling, or dependency classification story changed.
+14. Update `REPO_MEMORY_LEDGER.md` if the task created or clarified a durable architectural/workflow decision.
+15. Capture the final evidence block before commit.
 
 ## Consistency Failure Conditions
 The audit fails if any of the following are true:
@@ -870,6 +1081,9 @@ The audit fails if any of the following are true:
 - Firebase-sensitive changes were signed off without emulator-first verification or an explicit reason it was not practical.
 - A task touched loading/render paths but had no stated performance verification stance.
 - A local audit/tooling addition created a second conflicting process instead of strengthening this file.
+- A dependency, tooling, platform, or generated-artifact change was made without being classified and recorded.
+- A future contributor would still need private AI memory or founder memory as the first step to recover current architecture or workflow authority.
+- A root/platform/generated artifact meaningfully affects repo truth but is left unexplained in canonical docs.
 
 ## Economics and PayPal Audit Rules
 These rules are mandatory for any commerce change:
@@ -907,9 +1121,11 @@ Commands run:
 - npm run trace:adjacent -- <path>
 Result:
 Known tolerated warnings:
+Dependency/tooling changes:
 Files needing follow-up:
 Inventory count changed:
 This file updated:
+Repo memory ledger updated:
 ```
 
 ## Practical Rule For This Repo

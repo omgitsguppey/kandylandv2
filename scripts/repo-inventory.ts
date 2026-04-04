@@ -5,6 +5,22 @@ type InventoryEntry = {
   count: number;
 };
 
+function isRootFile(file: string) {
+  return !file.includes("/");
+}
+
+function isRootMarkdownDoc(file: string) {
+  return isRootFile(file) && file.endsWith(".md");
+}
+
+function isRootLockfile(file: string) {
+  return isRootFile(file) && (file === "package-lock.json" || file === "pnpm-lock.yaml");
+}
+
+function isRootConfigOrRuntimeFile(file: string) {
+  return isRootFile(file) && !isRootMarkdownDoc(file) && !isRootLockfile(file);
+}
+
 function readTrackedFiles() {
   const output = execFileSync("git", ["ls-files"], {
     cwd: process.cwd(),
@@ -24,7 +40,10 @@ function countByPrefix(files: string[], prefix: string) {
 function buildInventory(files: string[]): InventoryEntry[] {
   return [
     { label: "Total tracked files", count: files.length },
-    { label: "Root files", count: files.filter((file) => !file.includes("/")).length },
+    { label: "Root files", count: files.filter((file) => isRootFile(file)).length },
+    { label: "Root markdown/docs", count: files.filter((file) => isRootMarkdownDoc(file)).length },
+    { label: "Root lockfiles", count: files.filter((file) => isRootLockfile(file)).length },
+    { label: "Root config/runtime/tooling files", count: files.filter((file) => isRootConfigOrRuntimeFile(file)).length },
     { label: "src", count: countByPrefix(files, "src/") },
     { label: "src/app", count: countByPrefix(files, "src/app/") },
     { label: "src/components", count: countByPrefix(files, "src/components/") },
