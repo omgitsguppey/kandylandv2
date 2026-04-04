@@ -125,7 +125,7 @@ Every tracked root-level artifact must be explainable through one of the classes
 ## Current Baseline
 Current tracked inventory baseline after this audited change on 2026-04-04:
 
-- Total tracked files: `620`
+- Total tracked files: `621`
 - Root files: `42`
 - Root markdown/docs: `16`
 - Root lockfiles: `2`
@@ -141,7 +141,7 @@ Current tracked inventory baseline after this audited change on 2026-04-04:
 - `functions`: `36`
 - `functions/src`: `30`
 - `scripts`: `17`
-- `tests`: `99`
+- `tests`: `100`
 - `public`: `11`
 - `dataconnect`: `14`
 - `src/dataconnect-generated`: `15`
@@ -165,59 +165,100 @@ Current tolerated non-blocking environment notices:
 These notices are not automatic audit failures, but they must stay explicitly known and not silently spread into product behavior.
 
 ## Active Audit Entry
-Current audit date: `2026-04-03 21:02:00 -05:00`
-Current branch / commit: `main / 2e266c3`
+Current audit date: `2026-04-04 14:40:00 -05:00`
+Current branch / commit: `main / c630feb`
 
 Current task:
-- unified creator onboarding, admin roster, contract, audit-trail, fan-readiness, and Gum Drop economics verification pass
+- fix broken historical revenue tracking in admin analytics while recent transactions still show completed purchases
 
 Current mission:
-- simplify creator intake/admin UX aggressively
-- separate creator onboarding from generic user-management spillover
-- finalize the canonical creator onboarding flow across intro acknowledgment, KYC/ID package, native contract state, admin signature, approval, return, rejection, and creator dashboard unlock
-- verify creator-dependent fan readiness and hide dead-end creator fan surfaces when no approved creators are live
-- verify and harden backend Gum Drop source separation while preserving one visible client balance
+- restore truthful historical purchase revenue visibility in admin analytics
+- preserve the recent-transactions feed as the canonical realtime commerce witness
+- remove timestamp-shape drift between Firestore ledger writes and admin analytics range queries
+- keep admin observability aligned so overview and historical commerce surfaces read the same canonical transaction timing fields
 
 Current expected touched surfaces:
 - `FULL_SCALE_CODEBASE_AUDIT.md`
-- `REPO_MEMORY_LEDGER.md`
-- `src/lib/creator-onboarding.ts`
-- `src/lib/creator-application.ts`
-- `src/lib/server/creator-onboarding.ts`
-- `src/app/creators/apply/page.tsx`
-- `src/app/creators/waitlist/page.tsx`
-- `src/app/api/creator/onboarding/application/route.ts`
-- `src/app/api/creator/onboarding/id-submission/route.ts`
-- `src/app/admin/roster/page.tsx`
-- `src/app/api/admin/roster/route.ts`
-- `src/app/admin/user/[userId]/page.tsx`
-- `src/app/api/admin/user/[userId]/route.ts`
-- `src/app/api/admin/users/route.ts`
-- creator contract / legal / audit-trail helpers and routes where present
-- creator/fan discovery and creator experience readiness surfaces where live-creator gating is required
-- Gum Drop source-aware ledger helpers, creator spend routes, and related tests
+- `src/lib/server/admin-analytics-data.ts`
+- `src/app/api/admin/analytics/historical/route.ts`
+- `src/app/api/admin/overview/route.ts`
+- transaction normalization or server commerce helpers only if required to keep timestamp truth canonical
+- focused admin analytics / overview tests
 
 Current canonical helpers/modules expected to be used:
 - `FULL_SCALE_CODEBASE_AUDIT.md`
-- `REPO_MEMORY_LEDGER.md`
-- `EVERY_FILE_FUNCTION_CHECKLIST.md`
-- `src/lib/creator-onboarding.ts`
-- `src/lib/creator-application.ts`
-- `src/lib/server/creator-onboarding.ts`
-- `src/lib/gumdrop-ledger.ts`
-- `src/lib/server/gumdrop-ledger.ts`
-- `src/lib/creator-experiences.ts`
-- `src/lib/server/creator-experiences.ts`
+- `src/lib/server/admin-analytics-data.ts`
+- `src/lib/server/admin-analytics-shared.ts`
+- `src/lib/transaction-normalizers.ts`
 - `src/lib/server/auth.ts`
 - `src/lib/server/request-guard.ts`
 - `src/lib/server/route-diagnostics.ts`
-- `src/lib/client-error-reporting.ts`
-- existing telemetry, diagnostics, and Vitest/TypeScript/ESLint verification entrypoints already codified in the repo
+- existing Vitest/TypeScript/ESLint verification entrypoints already codified in the repo
 
 Current continuity note:
-- this pass must preserve the existing canonical onboarding helpers and working creator commerce logic, remove creator logic spillover and duplicated admin pathways, demote segment assignment out of onboarding-critical truth, and avoid claiming Gum Drop economics behavior that is not already defined in code or canonical docs
+- this pass must not fake revenue by patching UI-only numbers; it must repair the canonical admin range-read path so completed purchase transactions written by the ledger remain visible in both overview and historical analytics
 
-Audit start recorded at: `2026-04-03 21:02:00 -05:00`
+Audit start recorded at: `2026-04-04 14:40:00 -05:00`
+
+Current result:
+- fixed
+
+Final touched surfaces:
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `src/lib/transaction-normalizers.ts`
+- `src/lib/server/admin-analytics-data.ts`
+- `src/app/api/admin/overview/route.ts`
+- `tests/unit/admin-overview-route.spec.ts`
+- `tests/unit/admin-analytics-data.spec.ts`
+
+Root-cause summary:
+- the canonical ledger writes purchase transactions with `timestamp` as a Firestore server timestamp and `timestampMs` as the numeric mirror
+- recent transaction feeds remained truthful because they only ordered by `timestamp`
+- historical analytics and the overview revenue chart were incorrectly range-filtering on `timestamp >= startMs` with a number, which dropped timestamp-backed purchase docs from ranged commerce reads
+
+Canonical helpers used:
+- `src/lib/transaction-normalizers.ts`
+- `src/lib/server/admin-analytics-data.ts`
+- `src/lib/server/admin-analytics-shared.ts`
+- `src/lib/server/auth.ts`
+- `src/lib/server/request-guard.ts`
+
+Commands run:
+- `git status --short`
+- `npm run trace:adjacent -- src/lib/server/admin-analytics-data.ts`
+- `npm run trace:adjacent -- src/app/api/admin/analytics/historical/route.ts`
+- `npm run trace:adjacent -- src/app/admin/analytics/page.tsx`
+- `npm run trace:adjacent -- src/lib/transaction-normalizers.ts`
+- `npm run trace:adjacent -- src/app/api/admin/overview/route.ts`
+- `npx eslint src/lib/transaction-normalizers.ts src/lib/server/admin-analytics-data.ts src/app/api/admin/overview/route.ts tests/unit/admin-overview-route.spec.ts tests/unit/admin-analytics-data.spec.ts`
+- `corepack pnpm exec vitest run tests/unit/admin-overview-route.spec.ts tests/unit/admin-analytics-data.spec.ts`
+- `corepack pnpm run check`
+- `npx vitest run`
+
+Result:
+- all listed commands passed
+- `corepack pnpm run check` passed end to end
+- `npx vitest run` passed with `72` files and `386` tests
+
+Known tolerated warnings/notices in this pass:
+- npm unknown env config warnings during chained npm script execution
+- Node `punycode` deprecation warnings from current Firebase/Vitest tooling
+- informational dotenv logging during `check:firebase-runtime`
+- telemetry audit still reports one cataloged event with no current emitter: `creator_segment_assigned`
+
+Dependency/tooling changes:
+- none
+
+Files needing follow-up:
+- legacy pre-mirror transaction documents that never received `timestampMs` would still need a data backfill if ranged raw-transaction analytics must be perfect across the full archive instead of truthful for current canonical ledger writes
+
+Inventory changed:
+- yes
+- the standing tracked-file baseline has been refreshed from `620` to `621`
+- one new focused test file was added for the admin analytics source loader, bringing `tests` from `99` to `100`
+
+Repo memory ledger updated:
+- no
 
 Start-of-task audit inputs read:
 - `FULL_SCALE_CODEBASE_AUDIT.md`

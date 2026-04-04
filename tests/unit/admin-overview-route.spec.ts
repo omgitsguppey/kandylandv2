@@ -273,4 +273,42 @@ describe("GET /api/admin/overview", () => {
         );
         expect(mockState.handleApiError).not.toHaveBeenCalled();
     });
+
+    it("counts recent purchase revenue from timestampMs-backed transactions in the chart window", async () => {
+        const nowMs = Date.now();
+        mockState.collections.set("users", [
+            {
+                id: "fan_1",
+                data: () => ({
+                    username: "fanone",
+                }),
+            },
+        ]);
+        mockState.collections.set("drops", []);
+        mockState.collections.set("transactions", [
+            {
+                id: "tx_purchase_timestampms",
+                data: () => ({
+                    userId: "fan_1",
+                    type: "purchase_currency",
+                    status: "completed",
+                    timestamp: {
+                        toMillis: () => nowMs - 1_000,
+                    },
+                    timestampMs: nowMs - 1_000,
+                    grossRevenueCents: 750,
+                    description: "Timestamp mirror purchase",
+                }),
+            },
+        ]);
+
+        const request = new NextRequest("http://localhost/api/admin/overview");
+        const response = await GET(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(payload.stats.grossRevenueCents).toBe(750);
+        expect(payload.chartData.some((entry: { revenue: number }) => entry.revenue === 7.5)).toBe(true);
+        expect(mockState.handleApiError).not.toHaveBeenCalled();
+    });
 });

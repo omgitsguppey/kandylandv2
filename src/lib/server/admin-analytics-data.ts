@@ -393,8 +393,8 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
         label: "transactions",
         issues,
         reader: () => adminDb.collection("transactions")
-          .where("timestamp", ">=", startMs)
-          .orderBy("timestamp", "desc")
+          .where("timestampMs", ">=", startMs)
+          .orderBy("timestampMs", "desc")
           .get(),
       }),
   ]);

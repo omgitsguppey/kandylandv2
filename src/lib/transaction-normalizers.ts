@@ -114,6 +114,18 @@ function normalizeTimestamp(value: unknown): number {
   return 0;
 }
 
+function resolveTransactionTimestampMs(input: {
+  timestamp: unknown;
+  timestampMs?: number;
+}) {
+  const normalizedTimestamp = normalizeTimestamp(input.timestamp);
+  const normalizedTimestampMs = typeof input.timestampMs === "number" && Number.isFinite(input.timestampMs)
+    ? Math.max(0, Math.trunc(input.timestampMs))
+    : 0;
+
+  return Math.max(normalizedTimestamp, normalizedTimestampMs);
+}
+
 function normalizeType(rawType: string): z.infer<typeof transactionTypeSchema> {
   if (rawType === "purchase") {
     return "purchase_currency";
@@ -238,6 +250,10 @@ export function getTransactionBadgeLabel(
 export function normalizeTransactionRecord(raw: unknown, id: string): Transaction {
   const parsed = transactionRecordSchema.parse(raw);
   const type = normalizeType(parsed.type);
+  const resolvedTimestampMs = resolveTransactionTimestampMs({
+    timestamp: parsed.timestamp,
+    timestampMs: parsed.timestampMs,
+  });
   return {
     id,
     userId: parsed.userId,
@@ -251,8 +267,8 @@ export function normalizeTransactionRecord(raw: unknown, id: string): Transactio
       description: parsed.description,
       rewardSource: parsed.rewardSource,
     }),
-    timestamp: normalizeTimestamp(parsed.timestamp),
-    timestampMs: parsed.timestampMs,
+    timestamp: resolvedTimestampMs,
+    timestampMs: resolvedTimestampMs,
     balanceBefore: parsed.balanceBefore,
     balanceAfter: parsed.balanceAfter,
     cost: parsed.cost,

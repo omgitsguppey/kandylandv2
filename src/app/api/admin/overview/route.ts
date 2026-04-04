@@ -145,8 +145,8 @@ export async function GET(request: NextRequest) {
                 label: "chart transactions",
                 issues,
                 reader: () => adminDb.collection("transactions")
-                    .where("timestamp", ">=", thirtyDayStartMs)
-                    .orderBy("timestamp", "desc")
+                    .where("timestampMs", ">=", thirtyDayStartMs)
+                    .orderBy("timestampMs", "desc")
                     .get(),
             }),
         ]);
