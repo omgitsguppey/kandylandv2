@@ -263,3 +263,27 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `src/app/api/creator/subscriptions/route.ts`
   - `FULL_SCALE_CODEBASE_AUDIT.md`
 - Follow-up gaps: Spend priority across mixed balances, refund rules, expiry, and payout-linkage policy still need to stay explicitly documented when product direction finalizes those choices.
+
+### 15. Manual Firebase sign-in accepts username or email through server-side resolution
+- Approximate date: Canonicalized and recorded on 2026-04-04
+- Status: Active canonical auth rule
+- Problem/context: The product identity model is username-heavy, but Firebase email/password authentication is email-based. Leaving manual sign-in email-only caused real users to retry with usernames, which could fall through as invalid credentials and escalate into Firebase `auth/too-many-requests` throttling.
+- Decision made: Keep Firebase email/password as the canonical underlying auth mechanism, but allow the manual sign-in surface to accept either email or username by resolving usernames to the canonical account email through a trusted-origin, rate-limited server lookup before the Firebase sign-in call.
+- What became canonical:
+  - the sign-in UI accepts `Email or username`
+  - username normalization routes through the existing username helper
+  - username lookup happens server-side only
+  - unresolved usernames still return generic invalid-credential behavior instead of leaking account existence
+  - Firebase throttle behavior remains truthful and visible rather than being disguised as success or empty state
+- What is now disallowed or deprecated:
+  - treating manual sign-in as email-only on the client while the rest of the product encourages username identity
+  - sending arbitrary username strings straight into Firebase email/password auth
+  - inventing a second credential system outside the canonical Firebase flow
+- Truth lives in:
+  - `src/context/AuthContext.tsx`
+  - `src/components/Auth/AuthModal.tsx`
+  - `src/lib/auth-errors.ts`
+  - `src/lib/user-utils.ts`
+  - `src/app/api/auth/manual-sign-in-lookup/route.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: If remote Firebase Authentication anti-abuse settings still throttle legitimate users after this fix, that remaining issue must be investigated in the Firebase/Google Cloud project configuration rather than by re-fragmenting the local auth flow.

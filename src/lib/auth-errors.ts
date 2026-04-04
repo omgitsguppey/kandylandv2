@@ -3,6 +3,8 @@ type FirebaseLikeError = {
     message?: string;
 };
 
+const SIMPLE_EMAIL_ADDRESS_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export type EmailAuthAction = "sign_in" | "sign_up" | "password_reset";
 
 export type EmailAuthErrorResolution = {
@@ -16,6 +18,16 @@ export const LOCAL_EMAIL_AUTH_SIGN_IN_COOLDOWN_MS = 30_000;
 
 export function normalizeEmailAddress(email: string) {
     return email.trim();
+}
+
+export function looksLikeEmailAddress(value: string) {
+    return SIMPLE_EMAIL_ADDRESS_PATTERN.test(normalizeEmailAddress(value));
+}
+
+export function buildFirebaseLikeAuthError(code: string, message?: string) {
+    const error = new Error(message ?? code) as Error & FirebaseLikeError;
+    error.code = code;
+    return error;
 }
 
 export function resolveEmailAuthError(error: unknown, action: EmailAuthAction): EmailAuthErrorResolution {
@@ -35,7 +47,7 @@ export function resolveEmailAuthError(error: unknown, action: EmailAuthAction): 
     if (code === "auth/invalid-credential") {
         return {
             code,
-            userMessage: "Invalid email or password.",
+            userMessage: "Invalid email, username, or password.",
             localCooldownMs: 0,
             allowPasswordReset: true,
         };
@@ -44,7 +56,7 @@ export function resolveEmailAuthError(error: unknown, action: EmailAuthAction): 
     if (code === "auth/too-many-requests") {
         const userMessage = action === "sign_up"
             ? "Too many email/password sign-up attempts were blocked from this device or network. Wait a few minutes before trying again."
-            : "Too many email/password sign-in attempts were blocked on this device. Wait a few minutes before trying again, or reset your password instead.";
+            : "Too many manual sign-in attempts were blocked on this device. Wait a few minutes before trying again, or reset your password instead.";
 
         return {
             code,

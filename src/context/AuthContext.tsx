@@ -26,7 +26,11 @@ import {
     syncLastVisitedPathOwner,
 } from "@/lib/navigation-persistence";
 import { CREATOR_WAITLIST_PATH, getPreferredAuthenticatedPathForProfile } from "@/lib/creator-application";
-import { normalizeEmailAddress } from "@/lib/auth-errors";
+import {
+    buildFirebaseLikeAuthError,
+    looksLikeEmailAddress,
+    normalizeEmailAddress,
+} from "@/lib/auth-errors";
 import { syncClientSessionOwnership } from "@/lib/client-session";
 import { clearTaskGuidanceStorage } from "@/lib/task-guidance";
 import { syncIdentifiedTelemetryOwnership, trackEvent } from "@/lib/telemetry";
@@ -52,7 +56,7 @@ type SignUpResult = {
 interface AuthIdentityContextType {
     user: User | null;
     signInWithGoogle: () => Promise<void>;
-    signInWithEmail: (email: string, pass: string) => Promise<void>;
+    signInWithEmail: (identifier: string, pass: string) => Promise<void>;
     signUpWithEmail: (input: SignUpInput) => Promise<SignUpResult>;
     logout: () => Promise<void>;
 }
@@ -76,6 +80,59 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 let persistencePromise: Promise<void> | null = null;
 const GOOGLE_REDIRECT_PENDING_KEY = "auth_google_redirect_pending";
+
+async function resolveManualSignInEmail(identifier: string) {
+    const normalizedIdentifier = identifier.trim();
+    if (!normalizedIdentifier) {
+        throw buildFirebaseLikeAuthError("auth/invalid-credential");
+    }
+
+    if (looksLikeEmailAddress(normalizedIdentifier)) {
+        return {
+            resolvedEmail: normalizeEmailAddress(normalizedIdentifier),
+            identifierType: "email" as const,
+        };
+    }
+
+    const response = await fetch("/api/auth/manual-sign-in-lookup", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            identifier: normalizedIdentifier,
+        }),
+    });
+
+    let payload: {
+        error?: string;
+        resolvedEmail?: string | null;
+        identifierType?: "email" | "username" | "unknown";
+        authErrorCode?: string;
+    } = {};
+    try {
+        payload = await response.json();
+    } catch {
+        payload = {};
+    }
+
+    if (!response.ok) {
+        if (response.status === 429) {
+            throw buildFirebaseLikeAuthError("auth/too-many-requests");
+        }
+
+        throw new Error(payload.error || "Username sign-in is temporarily unavailable. Use your account email or try again shortly.");
+    }
+
+    if (typeof payload.resolvedEmail !== "string" || !looksLikeEmailAddress(payload.resolvedEmail)) {
+        throw buildFirebaseLikeAuthError(payload.authErrorCode || "auth/invalid-credential");
+    }
+
+    return {
+        resolvedEmail: normalizeEmailAddress(payload.resolvedEmail),
+        identifierType: payload.identifierType === "username" ? "username" : "email" as const,
+    };
+}
 
 function ensureAuthPersistence() {
     if (!auth) {
@@ -395,14 +452,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
-    const signInWithEmail = useCallback(async (email: string, pass: string) => {
+    const signInWithEmail = useCallback(async (identifier: string, pass: string) => {
         if (!auth || !firebaseClientConfigured) {
             throw new Error("Authentication is unavailable in this environment.");
         }
 
         try {
             await ensureAuthPersistence();
-            await signInWithEmailAndPassword(auth, normalizeEmailAddress(email), pass);
+            const resolvedIdentity = await resolveManualSignInEmail(identifier);
+            await signInWithEmailAndPassword(auth, resolvedIdentity.resolvedEmail, pass);
             toast.success("Welcome back!");
         } catch (error: unknown) {
             throw error;

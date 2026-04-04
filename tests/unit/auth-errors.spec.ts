@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import {
+    buildFirebaseLikeAuthError,
     LOCAL_EMAIL_AUTH_SIGN_IN_COOLDOWN_MS,
+    looksLikeEmailAddress,
     normalizeEmailAddress,
     resolveEmailAuthError,
 } from "@/lib/auth-errors";
@@ -9,6 +11,11 @@ import {
 describe("auth error helpers", () => {
     it("trims email addresses before Firebase auth calls", () => {
         expect(normalizeEmailAddress("  test@example.com  ")).toBe("test@example.com");
+    });
+
+    it("distinguishes likely email addresses from usernames for manual sign-in", () => {
+        expect(looksLikeEmailAddress("test@example.com")).toBe(true);
+        expect(looksLikeEmailAddress("creator_handle")).toBe(false);
     });
 
     it("maps email/password throttle errors to a recovery message and local cooldown", () => {
@@ -31,7 +38,14 @@ describe("auth error helpers", () => {
     it("maps invalid credentials to a friendly sign-in error", () => {
         const resolution = resolveEmailAuthError({ code: "auth/invalid-credential" }, "sign_in");
 
-        expect(resolution.userMessage).toBe("Invalid email or password.");
+        expect(resolution.userMessage).toBe("Invalid email, username, or password.");
         expect(resolution.localCooldownMs).toBe(0);
+    });
+
+    it("can build Firebase-like auth errors for synthetic manual-sign-in failures", () => {
+        const error = buildFirebaseLikeAuthError("auth/invalid-credential");
+
+        expect(error.code).toBe("auth/invalid-credential");
+        expect(error.message).toBe("auth/invalid-credential");
     });
 });

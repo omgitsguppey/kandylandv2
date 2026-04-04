@@ -125,13 +125,13 @@ Every tracked root-level artifact must be explainable through one of the classes
 ## Current Baseline
 Current tracked inventory baseline after this audited change on 2026-04-04:
 
-- Total tracked files: `621`
+- Total tracked files: `623`
 - Root files: `42`
 - Root markdown/docs: `16`
 - Root lockfiles: `2`
 - Root config/runtime/tooling files: `24`
-- `src`: `358`
-- `src/app`: `118`
+- `src`: `359`
+- `src/app`: `119`
 - `src/components`: `65`
 - `src/context`: `4`
 - `src/hooks`: `13`
@@ -141,7 +141,7 @@ Current tracked inventory baseline after this audited change on 2026-04-04:
 - `functions`: `36`
 - `functions/src`: `30`
 - `scripts`: `17`
-- `tests`: `100`
+- `tests`: `101`
 - `public`: `11`
 - `dataconnect`: `14`
 - `src/dataconnect-generated`: `15`
@@ -165,80 +165,93 @@ Current tolerated non-blocking environment notices:
 These notices are not automatic audit failures, but they must stay explicitly known and not silently spread into product behavior.
 
 ## Active Audit Entry
-Current audit date: `2026-04-04 14:40:00 -05:00`
-Current branch / commit: `main / c630feb`
+Current audit date: `2026-04-04 16:05:00 -05:00`
+Current branch / commit: `main / 10e4f90`
 
 Current task:
-- fix broken historical revenue tracking in admin analytics while recent transactions still show completed purchases
+- review and fix manual username/password login failures for non-Google sign-in
 
 Current mission:
-- restore truthful historical purchase revenue visibility in admin analytics
-- preserve the recent-transactions feed as the canonical realtime commerce witness
-- remove timestamp-shape drift between Firestore ledger writes and admin analytics range queries
-- keep admin observability aligned so overview and historical commerce surfaces read the same canonical transaction timing fields
+- make manual sign-in truthful and reliable for users who identify themselves by username instead of email
+- stop invalid username attempts from falling through to Firebase as bogus email sign-ins that can trigger `auth/too-many-requests`
+- preserve the canonical email/password auth path while extending it safely to username-or-email entry
+- keep auth failures observable through the existing client/server diagnostics patterns
 
 Current expected touched surfaces:
 - `FULL_SCALE_CODEBASE_AUDIT.md`
-- `src/lib/server/admin-analytics-data.ts`
-- `src/app/api/admin/analytics/historical/route.ts`
-- `src/app/api/admin/overview/route.ts`
-- transaction normalization or server commerce helpers only if required to keep timestamp truth canonical
-- focused admin analytics / overview tests
+- `src/context/AuthContext.tsx`
+- `src/components/Auth/AuthModal.tsx`
+- `src/lib/auth-errors.ts`
+- `src/app/api/auth/**` username/manual sign-in lookup surface
+- focused auth route/helper tests
 
 Current canonical helpers/modules expected to be used:
 - `FULL_SCALE_CODEBASE_AUDIT.md`
-- `src/lib/server/admin-analytics-data.ts`
-- `src/lib/server/admin-analytics-shared.ts`
-- `src/lib/transaction-normalizers.ts`
+- `src/lib/auth-errors.ts`
+- `src/lib/user-utils.ts`
 - `src/lib/server/auth.ts`
 - `src/lib/server/request-guard.ts`
+- `src/lib/server/rate-limit.ts`
 - `src/lib/server/route-diagnostics.ts`
+- `src/lib/client-error-reporting.ts`
 - existing Vitest/TypeScript/ESLint verification entrypoints already codified in the repo
 
 Current continuity note:
-- this pass must not fake revenue by patching UI-only numbers; it must repair the canonical admin range-read path so completed purchase transactions written by the ledger remain visible in both overview and historical analytics
+- this pass must not create a second auth dialect or a fake local shortcut; it should make the existing Firebase email/password flow accept either canonical email input or a username that is safely resolved to the account email before Firebase sign-in is attempted
 
-Audit start recorded at: `2026-04-04 14:40:00 -05:00`
-
-Current result:
-- fixed
-
-Final touched surfaces:
+Audit start recorded at: `2026-04-04 16:05:00 -05:00`
+Start-of-task audit inputs read:
 - `FULL_SCALE_CODEBASE_AUDIT.md`
-- `src/lib/transaction-normalizers.ts`
-- `src/lib/server/admin-analytics-data.ts`
-- `src/app/api/admin/overview/route.ts`
-- `tests/unit/admin-overview-route.spec.ts`
-- `tests/unit/admin-analytics-data.spec.ts`
-
-Root-cause summary:
-- the canonical ledger writes purchase transactions with `timestamp` as a Firestore server timestamp and `timestampMs` as the numeric mirror
-- recent transaction feeds remained truthful because they only ordered by `timestamp`
-- historical analytics and the overview revenue chart were incorrectly range-filtering on `timestamp >= startMs` with a number, which dropped timestamp-backed purchase docs from ranged commerce reads
-
-Canonical helpers used:
-- `src/lib/transaction-normalizers.ts`
-- `src/lib/server/admin-analytics-data.ts`
-- `src/lib/server/admin-analytics-shared.ts`
-- `src/lib/server/auth.ts`
-- `src/lib/server/request-guard.ts`
-
-Commands run:
+- `REPO_MEMORY_LEDGER.md`
+- `EVERY_FILE_FUNCTION_CHECKLIST.md`
 - `git status --short`
-- `npm run trace:adjacent -- src/lib/server/admin-analytics-data.ts`
-- `npm run trace:adjacent -- src/app/api/admin/analytics/historical/route.ts`
-- `npm run trace:adjacent -- src/app/admin/analytics/page.tsx`
-- `npm run trace:adjacent -- src/lib/transaction-normalizers.ts`
-- `npm run trace:adjacent -- src/app/api/admin/overview/route.ts`
-- `npx eslint src/lib/transaction-normalizers.ts src/lib/server/admin-analytics-data.ts src/app/api/admin/overview/route.ts tests/unit/admin-overview-route.spec.ts tests/unit/admin-analytics-data.spec.ts`
-- `corepack pnpm exec vitest run tests/unit/admin-overview-route.spec.ts tests/unit/admin-analytics-data.spec.ts`
+- adjacency review targets:
+  - `src/context/AuthContext.tsx`
+  - `src/components/Auth/AuthModal.tsx`
+  - `src/lib/auth-errors.ts`
+  - `src/app/api/auth/manual-sign-in-lookup/route.ts`
+
+Commands run before and during implementation:
+- `git status --short`
+- `npm run trace:adjacent -- src/context/AuthContext.tsx`
+- `npm run trace:adjacent -- src/components/Auth/AuthModal.tsx`
+- `npm run trace:adjacent -- src/lib/auth-errors.ts`
+- `npm run trace:adjacent -- src/app/api/auth/manual-sign-in-lookup/route.ts`
+- `npx eslint src/context/AuthContext.tsx src/components/Auth/AuthModal.tsx src/lib/auth-errors.ts src/app/api/auth/manual-sign-in-lookup/route.ts tests/unit/auth-errors.spec.ts tests/unit/manual-sign-in-lookup-route.spec.ts`
+- `corepack pnpm exec vitest run tests/unit/auth-errors.spec.ts tests/unit/manual-sign-in-lookup-route.spec.ts`
+- `npm run check:inventory`
 - `corepack pnpm run check`
 - `npx vitest run`
 
+End-of-task audit completion recorded at: `2026-04-04 16:18:00 -05:00`
+
+Final touched surfaces:
+- root/docs
+- `src/app/api/auth/manual-sign-in-lookup`
+- `src/components/Auth`
+- `src/context/AuthContext.tsx`
+- `src/lib/auth-errors.ts`
+- `tests/unit/auth-errors.spec.ts`
+- `tests/unit/manual-sign-in-lookup-route.spec.ts`
+
+Canonical helpers/modules actually used:
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `REPO_MEMORY_LEDGER.md`
+- `src/lib/auth-errors.ts`
+- `src/lib/user-utils.ts`
+- `src/lib/server/auth.ts`
+- `src/lib/server/request-guard.ts`
+- `src/lib/server/rate-limit.ts`
+- `src/lib/server/route-diagnostics.ts`
+- existing Vitest, ESLint, and inventory verification entrypoints already codified in the repo
+
 Result:
 - all listed commands passed
+- focused ESLint passed for all touched auth surfaces
+- focused Vitest passed for manual sign-in helper and route coverage
+- `npm run check:inventory` passed with the staged tracked-file baseline updated to `623`
 - `corepack pnpm run check` passed end to end
-- `npx vitest run` passed with `72` files and `386` tests
+- `npx vitest run` passed with `73` files and `391` tests
 
 Known tolerated warnings/notices in this pass:
 - npm unknown env config warnings during chained npm script execution
@@ -250,52 +263,17 @@ Dependency/tooling changes:
 - none
 
 Files needing follow-up:
-- legacy pre-mirror transaction documents that never received `timestampMs` would still need a data backfill if ranged raw-transaction analytics must be perfect across the full archive instead of truthful for current canonical ledger writes
+- if real users still hit `auth/too-many-requests` after this username-or-email fix, the next investigation step is Firebase Authentication anti-abuse/provider inspection in the remote project because local code can prevent bogus username attempts from reaching Firebase but cannot override server-side throttling policies
 
 Inventory changed:
 - yes
-- the standing tracked-file baseline has been refreshed from `620` to `621`
-- one new focused test file was added for the admin analytics source loader, bringing `tests` from `99` to `100`
+- the standing tracked-file baseline has been refreshed from `621` to `623`
+- `src` moved from `358` to `359`
+- `src/app` moved from `118` to `119`
+- `tests` moved from `100` to `101`
 
 Repo memory ledger updated:
-- no
-
-Start-of-task audit inputs read:
-- `FULL_SCALE_CODEBASE_AUDIT.md`
-- `REPO_MEMORY_LEDGER.md`
-- `EVERY_FILE_FUNCTION_CHECKLIST.md`
-- `git status --short`
-- creator/admin/economics/fan-readiness surfaces including:
-  - `src/lib/creator-onboarding.ts`
-  - `src/lib/creator-application.ts`
-  - `src/lib/server/creator-onboarding.ts`
-  - `src/lib/gumdrop-ledger.ts`
-  - `src/lib/server/gumdrop-ledger.ts`
-  - `src/app/creators/apply/page.tsx`
-  - `src/app/creators/waitlist/page.tsx`
-  - `src/app/api/creator/onboarding/application/route.ts`
-  - `src/app/api/creator/onboarding/id-submission/route.ts`
-  - `src/lib/legal-documents.ts`
-  - `src/lib/orchestration/contract.ts`
-  - `functions/src/orchestration-contract.ts`
-  - `src/app/admin/roster/page.tsx`
-  - `src/app/api/admin/roster/route.ts`
-  - `src/app/admin/user/[userId]/page.tsx`
-  - `src/app/api/admin/user/[userId]/route.ts`
-  - `src/app/api/admin/users/route.ts`
-  - `src/app/api/admin/creator-options/route.ts`
-  - `src/lib/creator-public-pages.ts`
-  - `src/lib/creator-experiences.ts`
-  - `src/lib/server/creator-experiences.ts`
-  - `src/app/experiences/ExperiencesClient.tsx`
-  - `src/components/CreatorDiscoveryRail.tsx`
-  - `src/app/api/creator/relationships/route.ts`
-  - `src/app/api/user/follow/route.ts`
-  - `src/app/api/creator/messages/route.ts`
-  - `src/app/api/creator/bookings/route.ts`
-  - `src/app/api/creator/subscriptions/route.ts`
-  - `src/app/api/creators/[username]/route.ts`
-- adjacency traces for:
+- yes
   - `src/lib/creator-onboarding.ts`
   - `src/lib/server/creator-onboarding.ts`
   - `src/app/admin/roster/page.tsx`
@@ -938,6 +916,12 @@ These are the current source-of-truth helpers and modules to prefer before creat
   Canonical request guard, auth mode, origin checks, and rate-limit entry point
 - `src/lib/server/route-diagnostics.ts`
   Canonical server-side route warning/failure reporting
+- `src/lib/auth-errors.ts`
+  Canonical manual-sign-in identifier classification, Firebase-like auth error synthesis, and user-safe auth error copy
+- `src/lib/user-utils.ts`
+  Canonical username normalization for identity and lookup flows
+- `src/app/api/auth/manual-sign-in-lookup/route.ts`
+  Canonical trusted-origin, rate-limited username-to-email resolver for manual Firebase sign-in
 
 ### Structured diagnostics and admin observability
 - `src/lib/server/server-diagnostics.ts`
@@ -1057,11 +1041,11 @@ Every tracked file must fall into one of the surfaces below and satisfy that sur
 | --- | ---: | --- | --- |
 | Root/config/docs | 42 | root files, repo docs, config, lockfiles | Naming, relevance, drift, tooling consistency, no stale operational docs |
 | `public` | 11 | static assets, manifest, service worker | Asset still referenced, correct destination, no dead screenshots/icons in runtime paths |
-| `src/app` | 116 | pages, layouts, route handlers, loading/error UI | Auth, route semantics, cache rules, diagnostics, no dead route targets |
+| `src/app` | 119 | pages, layouts, route handlers, loading/error UI | Auth, route semantics, cache rules, diagnostics, no dead route targets |
 | `src/components` | 65 | reusable UI and feature modules | Accessibility, explicit loading/error state, correct telemetry, correct runtime action mapping |
 | `src/context` | 4 | provider layers | No redundant providers, state shape parity, guest/auth correctness |
 | `src/hooks` | 13 | client runtime hooks | Cleanup, error state, diagnostics, polling/realtime parity |
-| `src/lib` | 133 | shared client/shared domain helpers | No duplication, canonical helpers, telemetry/economics/time helpers reused |
+| `src/lib` | 135 | shared client/shared domain helpers | No duplication, canonical helpers, telemetry/economics/time helpers reused |
 | `src/lib/server` | 56 | server-only domain helpers | Structured diagnostics, no raw side-effect-only logging, canonical DB/runtime access |
 | `src/types` | 3 | shared types | Explicitness, current state-shape parity |
 | `functions/src` | 30 | Firebase Functions backend | Runtime parity, orchestration consistency, export coverage |

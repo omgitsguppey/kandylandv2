@@ -21,6 +21,7 @@ import { useAuth } from "@/context/AuthContext";
 import type { AuthModalEntryMode } from "@/context/UIContext";
 import {
     LOCAL_EMAIL_AUTH_SIGN_IN_COOLDOWN_MS,
+    looksLikeEmailAddress,
     normalizeEmailAddress,
     resolveEmailAuthError,
 } from "@/lib/auth-errors";
@@ -45,7 +46,7 @@ const CREATOR_PLATFORM_OPTIONS = [
 ] as const;
 
 const authFormSchema = z.object({
-    email: z.string().email("Invalid email address"),
+    email: z.string().trim().min(1, "Email is required"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     username: z.string().optional(),
     dob: z.string().optional(),
@@ -53,6 +54,9 @@ const authFormSchema = z.object({
     creatorPrimaryPlatform: z.string().optional(),
     creatorContentFocus: z.string().optional(),
 });
+
+const signInIdentifierSchema = z.string().trim().min(1, "Enter your email or username");
+const emailAddressSchema = z.string().trim().email("Invalid email address");
 
 type AuthFormData = z.infer<typeof authFormSchema>;
 
@@ -115,6 +119,7 @@ function getSupportCopy(mode: AuthMode) {
 function buildSchema(mode: AuthMode) {
     if (mode === "creator_signup") {
         return authFormSchema.extend({
+            email: emailAddressSchema,
             creatorDisplayName: z.string().min(2, "Tell us what you want to be called."),
             creatorPrimaryPlatform: z.string().min(2, "Choose the platform you use most."),
             creatorContentFocus: z.string().min(8, "Give admins a little context about your content."),
@@ -127,6 +132,7 @@ function buildSchema(mode: AuthMode) {
 
     if (mode === "signup") {
         return authFormSchema.extend({
+            email: emailAddressSchema,
             username: z.string()
                 .min(3, "Username must be at least 3 characters")
                 .regex(/^[a-z0-9_-]+$/, "Use lowercase letters, numbers, dashes, or underscores"),
@@ -134,7 +140,15 @@ function buildSchema(mode: AuthMode) {
         });
     }
 
-    return authFormSchema;
+    if (mode === "forgot_password") {
+        return authFormSchema.extend({
+            email: emailAddressSchema,
+        });
+    }
+
+    return authFormSchema.extend({
+        email: signInIdentifierSchema,
+    });
 }
 
 export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps) {
@@ -434,12 +448,15 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
 
     const onSubmit = async (data: AuthFormData) => {
         const signupIntent = mode === "creator_signup" ? "creator" : "fan";
+        const manualIdentifierType = !isSignupMode(mode)
+            ? looksLikeEmailAddress(data.email) ? "email" : "username"
+            : undefined;
         if (emailAuthSubmissionInFlightRef.current) {
             return;
         }
 
         if (mode === "signin" && emailSignInBlocked) {
-            setAuthError("Email/password sign-in is temporarily paused in this browser. Wait a few moments, then try again or reset your password.");
+            setAuthError("Manual sign-in is temporarily paused in this browser. Wait a few moments, then try again or reset your password.");
             return;
         }
 
@@ -479,10 +496,19 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                 });
                 trackEvent("auth_sign_up_success", mergedParams);
             } else {
-                startTimedFlow(AUTH_SIGN_IN_FLOW, { entry_mode: initialMode });
-                trackEvent("auth_sign_in_attempted", { entry_mode: initialMode });
+                startTimedFlow(AUTH_SIGN_IN_FLOW, {
+                    entry_mode: initialMode,
+                    manual_identifier_type: manualIdentifierType,
+                });
+                trackEvent("auth_sign_in_attempted", {
+                    entry_mode: initialMode,
+                    manual_identifier_type: manualIdentifierType,
+                });
                 await signInWithEmail(data.email, data.password);
-                const { mergedParams } = consumeTimedFlow(AUTH_SIGN_IN_FLOW, { entry_mode: initialMode });
+                const { mergedParams } = consumeTimedFlow(AUTH_SIGN_IN_FLOW, {
+                    entry_mode: initialMode,
+                    manual_identifier_type: manualIdentifierType,
+                });
                 trackEvent("auth_sign_in_success", mergedParams);
             }
 
@@ -505,6 +531,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
             const { mergedParams } = consumeTimedFlow(flowKey, {
                 error_code: firebaseError.code || "unknown",
                 entry_mode: initialMode,
+                manual_identifier_type: manualIdentifierType,
                 signup_intent: signupIntent,
             });
             if (isSignupMode(mode)) {
@@ -725,18 +752,19 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                 {mode === "signin" ? (
                                     <>
                                         <div className="space-y-2">
-                                            <label className="text-xs font-medium text-gray-400 sm:text-sm">Email</label>
+                                            <label className="text-xs font-medium text-gray-400 sm:text-sm">Email or username</label>
                                             <div className="relative overflow-hidden">
-                                                <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
+                                                <User className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
                                                 <input
                                                     {...register("email")}
-                                                    type="email"
-                                                    autoComplete="email"
+                                                    type="text"
+                                                    autoComplete="username"
                                                     className="block w-full rounded-xl border border-white/10 bg-black/50 px-10 py-2.5 text-sm text-white transition-colors focus:border-brand-purple focus:outline-none sm:py-3 sm:text-base"
-                                                    placeholder="Email address"
+                                                    placeholder="Email or username"
                                                 />
                                             </div>
                                             {errors.email ? <p className="pl-1 text-xs text-red-400">{errors.email.message}</p> : null}
+                                            {!errors.email ? <p className="pl-1 text-xs text-gray-500">Use the email you signed up with or your exact username.</p> : null}
                                         </div>
 
                                         <div className="space-y-2">
@@ -985,7 +1013,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
 
                                 {mode === "signin" && emailSignInBlocked ? (
                                     <div className="rounded-lg border border-white/10 bg-white/5 p-3 text-xs leading-5 text-gray-300">
-                                        Firebase is temporarily throttling email/password attempts from this device. We pause retries locally for {Math.round(LOCAL_EMAIL_AUTH_SIGN_IN_COOLDOWN_MS / 1_000)} seconds so you do not keep hammering the same cooldown window. Use <span className="font-semibold text-white">Forgot password?</span> if you need a recovery path right now.
+                                        Firebase is temporarily throttling manual sign-in attempts from this device. We pause retries locally for {Math.round(LOCAL_EMAIL_AUTH_SIGN_IN_COOLDOWN_MS / 1_000)} seconds so you do not keep hammering the same cooldown window. Use <span className="font-semibold text-white">Forgot password?</span> if you need a recovery path right now.
                                     </div>
                                 ) : null}
 
