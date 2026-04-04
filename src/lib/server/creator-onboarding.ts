@@ -250,6 +250,10 @@ export function buildCreatorOnboardingStatusChangeHistoryEntries(input: {
         }
     }
 
+    if (!input.before.legallyClearedAt && input.after.legallyClearedAt) {
+        addEntry("creator_legally_cleared", "Creator marked legally cleared by owner", input.after.agreementBasis || "Manual override");
+    }
+
     if (input.before.role !== "creator" && input.after.role === "creator") {
         addEntry("creator_role_activated", "Creator role activated");
     }

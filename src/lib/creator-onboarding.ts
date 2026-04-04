@@ -97,6 +97,13 @@ export type CreatorOnboardingBlockingReason = (typeof CREATOR_ONBOARDING_BLOCKIN
 export type CreatorContractDocumentStatus = "contract_not_sent" | "contract_sent";
 export type CreatorContractSignatureStatus = "signature_pending" | "signature_signed";
 
+export type CreatorOnboardingAgreementBasis = "legacy_signed" | "2026_mgsa" | "custom_uploaded";
+export const CREATOR_ONBOARDING_AGREEMENT_BASIS_OPTIONS = [
+    "legacy_signed",
+    "2026_mgsa",
+    "custom_uploaded",
+] as const;
+
 const SUBMISSION_STATUS_SET = new Set<CreatorOnboardingSubmissionStatus>(CREATOR_ONBOARDING_SUBMISSION_STATUSES);
 const LEGAL_STATUS_SET = new Set<CreatorOnboardingLegalStatus>(CREATOR_ONBOARDING_LEGAL_STATUSES);
 const ID_STATUS_SET = new Set<CreatorOnboardingIdStatus>(CREATOR_ONBOARDING_ID_STATUSES);
@@ -122,6 +129,7 @@ const HISTORY_EVENT_TYPE_SET = new Set<CreatorOnboardingHistoryEventType>([
     "creator_needs_changes",
     "owner_override_applied",
     "owner_override_cleared",
+    "creator_legally_cleared",
     "creator_role_activated",
     "creator_role_activation_blocked",
     "admin_notes_updated",
@@ -213,6 +221,9 @@ export type CreatorOnboardingProjectionState = {
     segmentAssignedAt?: number;
     creatorTemplateId?: string;
     creatorTemplateLabel?: string;
+    agreementBasis?: CreatorOnboardingAgreementBasis;
+    legallyClearedAt?: number;
+    legallyClearedBy?: string;
     ownerOverrideActive?: boolean;
     ownerOverrideReason?: string;
     ownerOverrideAt?: number;
@@ -270,6 +281,9 @@ export type CreatorReviewQueueEntry = {
     creatorSignatureStatus: CreatorContractSignatureStatus;
     adminSignatureStatus: CreatorContractSignatureStatus;
     introAcknowledgedAt?: number;
+    agreementBasis?: CreatorOnboardingAgreementBasis;
+    legallyClearedAt?: number;
+    legallyClearedBy?: string;
     ownerOverrideActive?: boolean;
     readyForApproval: boolean;
     creatorReviewQueueVisible: boolean;
@@ -311,6 +325,7 @@ export type CreatorOnboardingHistoryEventType =
     | "creator_needs_changes"
     | "owner_override_applied"
     | "owner_override_cleared"
+    | "creator_legally_cleared"
     | "creator_role_activated"
     | "creator_role_activation_blocked"
     | "admin_notes_updated";
@@ -716,11 +731,12 @@ export function computeCreatorOnboardingBlockingReasons(input: {
     segmentationStatus: CreatorOnboardingSegmentStatus;
     approvalStatus: CreatorOnboardingApprovalStatus;
     ownerOverrideActive?: boolean;
+    legallyClearedAt?: number;
     role?: string | null;
 }) {
     const blockingReasons: CreatorOnboardingBlockingReason[] = [];
 
-    if (!input.introAcknowledgedAt) {
+    if (!input.introAcknowledgedAt && !input.legallyClearedAt && !input.ownerOverrideActive) {
         blockingReasons.push("awaiting_intro_acknowledgement");
     }
 
@@ -730,19 +746,21 @@ export function computeCreatorOnboardingBlockingReasons(input: {
         blockingReasons.push("approval_needs_changes");
     }
 
-    if (input.ownerOverrideActive !== true && input.contractDocumentStatus !== "contract_sent") {
+    if (input.ownerOverrideActive !== true && !input.legallyClearedAt && input.contractDocumentStatus !== "contract_sent") {
         blockingReasons.push("awaiting_legal");
     }
 
-    if (input.idVerificationStatus === "id_not_requested") {
-        blockingReasons.push("awaiting_id_request");
-    } else if (input.idVerificationStatus === "id_requested" || input.idVerificationStatus === "id_rejected") {
-        blockingReasons.push("awaiting_id_submission");
-    } else if (input.idVerificationStatus === "id_submitted") {
-        blockingReasons.push("awaiting_id_review");
+    if (!input.legallyClearedAt && !input.ownerOverrideActive) {
+        if (input.idVerificationStatus === "id_not_requested") {
+            blockingReasons.push("awaiting_id_request");
+        } else if (input.idVerificationStatus === "id_requested" || input.idVerificationStatus === "id_rejected") {
+            blockingReasons.push("awaiting_id_submission");
+        } else if (input.idVerificationStatus === "id_submitted") {
+            blockingReasons.push("awaiting_id_review");
+        }
     }
 
-    if (input.ownerOverrideActive !== true && input.contractDocumentStatus === "contract_sent") {
+    if (input.ownerOverrideActive !== true && !input.legallyClearedAt && input.contractDocumentStatus === "contract_sent") {
         if (input.creatorSignatureStatus !== "signature_signed") {
             blockingReasons.push("awaiting_creator_contract_signature");
         } else if (input.adminSignatureStatus !== "signature_signed") {
@@ -767,8 +785,9 @@ export function hasCreatorApprovalPrerequisites(input: {
     idVerificationStatus: CreatorOnboardingIdStatus;
     segmentationStatus: CreatorOnboardingSegmentStatus;
     ownerOverrideActive?: boolean;
+    legallyClearedAt?: number;
 }) {
-    if (input.ownerOverrideActive) {
+    if (input.ownerOverrideActive || input.legallyClearedAt) {
         return true;
     }
 
@@ -788,6 +807,7 @@ export function isCreatorReadyForApproval(input: {
     segmentationStatus: CreatorOnboardingSegmentStatus;
     approvalStatus: CreatorOnboardingApprovalStatus;
     ownerOverrideActive?: boolean;
+    legallyClearedAt?: number;
 }) {
     return hasCreatorApprovalPrerequisites(input)
         && input.approvalStatus === "creator_pending";
@@ -1097,6 +1117,7 @@ export function deriveCreatorReviewQueueBucket(input: {
     approvalStatus: CreatorOnboardingApprovalStatus;
     introAcknowledgedAt?: number;
     ownerOverrideActive?: boolean;
+    legallyClearedAt?: number;
 }) {
     if (input.approvalStatus === "creator_approved") {
         return "approved" satisfies CreatorReviewQueueBucket;
@@ -1112,6 +1133,10 @@ export function deriveCreatorReviewQueueBucket(input: {
 
     if (isCreatorReadyForApproval(input)) {
         return "ready_for_approval" satisfies CreatorReviewQueueBucket;
+    }
+
+    if (input.legallyClearedAt || input.ownerOverrideActive) {
+        return "newest_submissions" satisfies CreatorReviewQueueBucket;
     }
 
     if (!input.introAcknowledgedAt) {
@@ -1169,6 +1194,11 @@ export function buildCreatorOnboardingProjectionState(input: {
     const approvalStatus = canonicalStatuses.approvalStatus;
     const introAcknowledgedAt = readOptionalTimestamp(sourceRecord?.["introAcknowledgedAt"]);
     const ownerOverrideActive = sourceRecord?.["ownerOverrideActive"] === true;
+    const legallyClearedAt = readOptionalTimestamp(sourceRecord?.["legallyClearedAt"]);
+    const agreementBasis = typeof sourceRecord?.["agreementBasis"] === "string" 
+        ? sourceRecord["agreementBasis"] as CreatorOnboardingAgreementBasis 
+        : undefined;
+
     const blockingReasons = computeCreatorOnboardingBlockingReasons({
         introAcknowledgedAt,
         legalStatus,
@@ -1179,6 +1209,7 @@ export function buildCreatorOnboardingProjectionState(input: {
         segmentationStatus,
         approvalStatus,
         ownerOverrideActive,
+        legallyClearedAt,
         role: input.role,
     });
     const readyForApproval = isCreatorReadyForApproval({
@@ -1190,6 +1221,7 @@ export function buildCreatorOnboardingProjectionState(input: {
         segmentationStatus,
         approvalStatus,
         ownerOverrideActive,
+        legallyClearedAt,
     });
 
     return {
@@ -1239,6 +1271,9 @@ export function buildCreatorOnboardingProjectionState(input: {
             ?? readOptionalTimestamp(sourceRecord?.["segmentedAt"]),
         creatorTemplateId: readString(sourceRecord?.["creatorTemplateId"]) || DEFAULT_CREATOR_TEMPLATE_ID,
         creatorTemplateLabel: readString(sourceRecord?.["creatorTemplateLabel"]) || DEFAULT_CREATOR_TEMPLATE_LABEL,
+        agreementBasis,
+        legallyClearedAt,
+        legallyClearedBy: readString(sourceRecord?.["legallyClearedBy"]) || undefined,
         ownerOverrideActive,
         ownerOverrideReason: readString(sourceRecord?.["ownerOverrideReason"]) || undefined,
         ownerOverrideAt: readOptionalTimestamp(sourceRecord?.["ownerOverrideAt"]),
@@ -1328,6 +1363,9 @@ export function buildCreatorOnboardingUserProjection(
         segmentAssignedAt: canonical.segmentAssignedAt,
         creatorTemplateId: canonical.creatorTemplateId,
         creatorTemplateLabel: canonical.creatorTemplateLabel,
+        agreementBasis: canonical.agreementBasis,
+        legallyClearedAt: canonical.legallyClearedAt,
+        legallyClearedBy: canonical.legallyClearedBy,
         ownerOverrideActive: canonical.ownerOverrideActive,
         ownerOverrideReason: canonical.ownerOverrideReason,
         ownerOverrideAt: canonical.ownerOverrideAt,
@@ -1387,6 +1425,7 @@ export function buildCreatorOnboardingCanonicalRecord(input: {
         segmentationStatus: projection.segmentationStatus,
         approvalStatus: projection.approvalStatus,
         ownerOverrideActive: projection.ownerOverrideActive,
+        legallyClearedAt: projection.legallyClearedAt,
         role,
     });
     const readyForApproval = isCreatorReadyForApproval({
@@ -1398,6 +1437,7 @@ export function buildCreatorOnboardingCanonicalRecord(input: {
         segmentationStatus: projection.segmentationStatus,
         approvalStatus: projection.approvalStatus,
         ownerOverrideActive: projection.ownerOverrideActive,
+        legallyClearedAt: projection.legallyClearedAt,
     });
 
     return {

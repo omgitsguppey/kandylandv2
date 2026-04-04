@@ -5,6 +5,7 @@ import type {
     CreatorOnboardingLegalStatus,
     CreatorOnboardingSegmentStatus,
     CreatorOnboardingSubmissionStatus,
+    CreatorOnboardingAgreementBasis,
 } from "@/lib/creator-onboarding";
 
 export type CreatorRequestCategoryConfig = {
@@ -249,6 +250,9 @@ export type CreatorApplication = {
     introAcknowledgedByUid?: string;
     introAcknowledgedByName?: string;
     legalStatus: CreatorLegalDocumentStatus;
+    agreementBasis?: CreatorOnboardingAgreementBasis;
+    legallyClearedAt?: number;
+    legallyClearedBy?: string;
     contractVersion?: string;
     contractDocumentStatus?: CreatorContractDocumentStatus;
     creatorSignatureStatus?: CreatorContractSignatureStatus;

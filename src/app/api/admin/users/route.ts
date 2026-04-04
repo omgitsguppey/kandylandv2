@@ -169,6 +169,17 @@ function buildCreatorApplicationAdminSource(
     }
   }
 
+  if (current.legallyClearedAt !== incoming.legallyClearedAt) {
+    if (incoming.legallyClearedAt) {
+      nextSource.legallyClearedAt = nowMs;
+      nextSource.legallyClearedBy = actorLabel;
+    } else {
+      nextSource.legallyClearedAt = undefined;
+      nextSource.legallyClearedBy = undefined;
+      nextSource.agreementBasis = undefined;
+    }
+  }
+
   return nextSource;
 }
 
@@ -185,7 +196,12 @@ function buildCreatorLifecycleEvents(input: {
     | "creator_approved"
     | "creator_rejected"
     | "creator_needs_changes"
+    | "creator_legally_cleared_override"
   > = [];
+
+  if (!input.before.legallyClearedAt && input.after.legallyClearedAt) {
+    events.push("creator_legally_cleared_override");
+  }
 
   if (input.before.legalStatus !== input.after.legalStatus) {
     if (input.after.legalStatus === "legal_sent") {
@@ -238,6 +254,8 @@ async function emitCreatorLifecycleTelemetry(
         return trackServerEvent("creator_id_verified", payload, userId);
       case "creator_id_rejected":
         return trackServerEvent("creator_id_rejected", payload, userId);
+      case "creator_legally_cleared_override":
+        return trackServerEvent("creator_legally_cleared_override", payload, userId);
       case "creator_approved":
         return trackServerEvent("creator_approved", payload, userId);
       case "creator_rejected":

@@ -1177,6 +1177,52 @@ export default function AdminUserAnalyticsPage() {
                                         placeholder="Internal notes for contracts, docs, ID review, or segment decisions"
                                     />
                                 </label>
+
+                                <div className="col-span-1 mt-2 rounded-[1.35rem] border border-brand-purple/20 bg-brand-purple/5 p-4 sm:col-span-2">
+                                    <div className="flex items-start justify-between gap-4">
+                                        <div>
+                                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">Already-Signed Activation</p>
+                                            <p className="mt-1 text-xs leading-6 text-gray-300">
+                                                Bypass the canonical legal and ID flows for creators whose agreements were signed externally. This securely flags the account as legally cleared.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                                        <label className="space-y-2">
+                                            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple/70">Agreement Basis</span>
+                                            <select
+                                                value={creatorApplication.agreementBasis || ""}
+                                                onChange={(event) => updateCreatorApplicationField("agreementBasis", event.target.value as CreatorApplicationState["agreementBasis"])}
+                                                className="w-full rounded-2xl border border-brand-purple/20 bg-black/45 px-4 py-3 text-sm text-white outline-none focus:border-brand-purple"
+                                            >
+                                                <option value="">None (Standard Onboarding)</option>
+                                                <option value="external_agency">External Agency</option>
+                                                <option value="direct_hire">Direct Hire</option>
+                                                <option value="legacy_signed">Legacy Contract</option>
+                                                <option value="owner_exemption">Owner Exemption</option>
+                                            </select>
+                                        </label>
+                                        <div className="flex items-end">
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const isCleared = !!creatorApplication.legallyClearedAt;
+                                                    updateCreatorApplicationField("legallyClearedAt", isCleared ? undefined : Date.now());
+                                                    if (isCleared) {
+                                                        updateCreatorApplicationField("agreementBasis", undefined);
+                                                    }
+                                                }}
+                                                className={`w-full rounded-2xl border px-4 py-3 text-sm font-bold transition-all ${
+                                                    creatorApplication.legallyClearedAt
+                                                        ? "border-brand-purple bg-brand-purple/20 text-brand-purple shadow-[0_0_15px_rgba(168,85,247,0.2)]"
+                                                        : "border-white/10 bg-white/5 text-gray-400 hover:bg-white/10 border-dashed"
+                                                }`}
+                                            >
+                                                {creatorApplication.legallyClearedAt ? "Legally Cleared & Active" : "Mark as Legally Cleared"}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="mt-4 flex flex-wrap gap-2 text-[11px] text-gray-500">
