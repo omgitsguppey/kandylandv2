@@ -106,7 +106,7 @@ describe("ensureCreatorOnboardingSubmission", () => {
             submissionStatus: "awaiting_manual_review",
             approvalStatus: "creator_pending",
             legalStatus: "legal_pending",
-            idVerificationStatus: "id_requested",
+            idVerificationStatus: "id_not_requested",
             segmentationStatus: "segment_unassigned",
             creatorDisplayName: "Creator Example",
             creatorPrimaryPlatform: "TikTok",
@@ -117,7 +117,7 @@ describe("ensureCreatorOnboardingSubmission", () => {
         expect(mockState.documents.get("creator_onboarding/creator_1")).toBeTruthy();
         expect(mockState.documents.get("creator_review_queue/creator_1")).toMatchObject({
             userId: "creator_1",
-            queueBucket: "waiting_on_id",
+            queueBucket: "newest_submissions",
             creatorReviewQueueVisible: true,
         });
         expect(mockState.documents.get("users/creator_1")).toMatchObject({

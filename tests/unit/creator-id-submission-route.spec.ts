@@ -187,10 +187,14 @@ describe("POST /api/creator/onboarding/id-submission", () => {
                 creatorDisplayName: "Creator One",
                 bypassFanOnboarding: true,
                 legalStatus: "legal_pending",
+                contractDocumentStatus: "contract_not_sent",
+                creatorSignatureStatus: "signature_pending",
+                adminSignatureStatus: "signature_pending",
+                introAcknowledgedAt: 1_710_000_000_090,
                 idVerificationStatus: "id_requested",
                 idVerificationRequestedAt: 1_710_000_000_100,
                 segmentationStatus: "segment_unassigned",
-                blockingReasons: ["awaiting_legal", "awaiting_id_submission", "awaiting_segment_assignment"],
+                blockingReasons: ["awaiting_legal", "awaiting_id_submission"],
                 readyForApproval: false,
                 creatorReviewQueueVisible: true,
             },
@@ -213,16 +217,20 @@ describe("POST /api/creator/onboarding/id-submission", () => {
             creatorDisplayName: "Creator One",
             bypassFanOnboarding: true,
             legalStatus: "legal_pending",
+            contractDocumentStatus: "contract_not_sent",
+            creatorSignatureStatus: "signature_pending",
+            adminSignatureStatus: "signature_pending",
+            introAcknowledgedAt: 1_710_000_000_090,
             idVerificationStatus: "id_requested",
             idVerificationRequestedAt: 1_710_000_000_100,
             segmentationStatus: "segment_unassigned",
-            blockingReasons: ["awaiting_legal", "awaiting_id_submission", "awaiting_segment_assignment"],
+            blockingReasons: ["awaiting_legal", "awaiting_id_submission"],
             readyForApproval: false,
             creatorReviewQueueVisible: true,
         });
     });
 
-    it("stores a partial ID upload without marking review complete until both sides exist", async () => {
+    it("stores a partial ID upload without marking review complete until the full verification package exists", async () => {
         const formData = new FormData();
         formData.set("slot", "front");
         formData.set("file", new File([new Uint8Array([1, 2, 3])], "government-id.png", { type: "image/png" }));
@@ -266,38 +274,41 @@ describe("POST /api/creator/onboarding/id-submission", () => {
         });
     });
 
-    it("marks ID review ready when the second side is uploaded", async () => {
-        const frontFormData = new FormData();
-        frontFormData.set("slot", "front");
-        frontFormData.set("file", new File([new Uint8Array([1, 2, 3])], "government-id-front.png", { type: "image/png" }));
-        const frontRequest = new NextRequest("http://localhost/api/creator/onboarding/id-submission", {
-            method: "POST",
-            body: frontFormData,
-        });
+    it("marks ID review ready when the fourth verification file is uploaded", async () => {
+        const uploadSlot = async (
+            slot: "front" | "back" | "face_with_id" | "video_with_id",
+            fileName: string,
+            type: string,
+            bytes: number[],
+        ) => {
+            const formData = new FormData();
+            formData.set("slot", slot);
+            formData.set("file", new File([new Uint8Array(bytes)], fileName, { type }));
+            const request = new NextRequest("http://localhost/api/creator/onboarding/id-submission", {
+                method: "POST",
+                body: formData,
+            });
 
-        await POST(frontRequest);
+            return POST(request);
+        };
 
-        const backFormData = new FormData();
-        backFormData.set("slot", "back");
-        backFormData.set("file", new File([new Uint8Array([4, 5, 6])], "government-id-back.png", { type: "image/png" }));
-        const backRequest = new NextRequest("http://localhost/api/creator/onboarding/id-submission", {
-            method: "POST",
-            body: backFormData,
-        });
+        await uploadSlot("front", "government-id-front.png", "image/png", [1, 2, 3]);
+        await uploadSlot("back", "government-id-back.png", "image/png", [4, 5, 6]);
+        await uploadSlot("face_with_id", "government-id-selfie.png", "image/png", [7, 8, 9]);
 
-        const response = await POST(backRequest);
+        const response = await uploadSlot("video_with_id", "government-id-video.mp4", "video/mp4", [10, 11, 12]);
         const payload = await response.json();
 
         expect(response.status).toBe(200);
         expect(payload).toMatchObject({
             success: true,
-            uploadedSlot: "back",
+            uploadedSlot: "video_with_id",
             documentsComplete: true,
         });
         expect(mockState.trackServerEvent).toHaveBeenCalledWith("creator_id_submitted", expect.any(Object), "creator_1");
         expect(mockState.sendCreatorOnboardingAdminNotification).toHaveBeenCalledWith(expect.objectContaining({
             eventKey: "creator_id_submitted:creator_1",
-            link: "/admin/user/creator_1",
+            link: "/admin/roster?focus=creator_1",
         }));
         expect(mockState.documents.get("creator_onboarding/creator_1")).toMatchObject({
             idVerificationStatus: "id_submitted",
@@ -307,6 +318,12 @@ describe("POST /api/creator/onboarding/id-submission", () => {
                 }),
                 back: expect.objectContaining({
                     fileName: "government-id-back.png",
+                }),
+                face_with_id: expect.objectContaining({
+                    fileName: "government-id-selfie.png",
+                }),
+                video_with_id: expect.objectContaining({
+                    fileName: "government-id-video.mp4",
                 }),
             }),
         });
@@ -319,6 +336,12 @@ describe("POST /api/creator/onboarding/id-submission", () => {
                     }),
                     back: expect.objectContaining({
                         fileName: "government-id-back.png",
+                    }),
+                    face_with_id: expect.objectContaining({
+                        fileName: "government-id-selfie.png",
+                    }),
+                    video_with_id: expect.objectContaining({
+                        fileName: "government-id-video.mp4",
                     }),
                 }),
             }),

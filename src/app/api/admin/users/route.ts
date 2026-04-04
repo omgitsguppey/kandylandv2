@@ -22,6 +22,7 @@ import {
   buildCreatorOnboardingStatusChangeHistoryEntries,
   CREATOR_ONBOARDING_COLLECTION,
   CreatorOnboardingActor,
+  isCreatorOwnerEmail,
   recordCreatorOnboardingHistoryEntries,
   shouldActivateCreatorRole,
   syncCreatorOnboardingDocuments,
@@ -59,6 +60,8 @@ function readUserRole(value: unknown): "user" | "creator" | "admin" {
 }
 
 class InvalidCreatorApplicationUpdateError extends Error {}
+class InvalidCreatorOnboardingTransitionError extends Error {}
+class ForbiddenCreatorOnboardingActionError extends Error {}
 
 function resolveCreatorApplicationUpdate(input: {
   patch: Record<string, unknown>;
@@ -129,6 +132,19 @@ function buildCreatorApplicationAdminSource(
     }
   }
 
+  if (current.contractDocumentStatus !== incoming.contractDocumentStatus && incoming.contractDocumentStatus === "contract_sent") {
+    nextSource.legalDocumentSentAt = nowMs;
+  }
+
+  if (current.creatorSignatureStatus !== incoming.creatorSignatureStatus && incoming.creatorSignatureStatus === "signature_signed") {
+    nextSource.creatorContractSignedAt = nextSource.creatorContractSignedAt ?? nowMs;
+  }
+
+  if (current.adminSignatureStatus !== incoming.adminSignatureStatus && incoming.adminSignatureStatus === "signature_signed") {
+    nextSource.adminContractSignedAt = nextSource.adminContractSignedAt ?? nowMs;
+    nextSource.legalDocumentSignedAt = nowMs;
+  }
+
   if (current.idVerificationStatus !== incoming.idVerificationStatus) {
     if (incoming.idVerificationStatus === "id_requested") {
       nextSource.idVerificationRequestedAt = nowMs;
@@ -141,11 +157,16 @@ function buildCreatorApplicationAdminSource(
     }
   }
 
-  if (
-    current.segmentationStatus !== incoming.segmentationStatus
-    && incoming.segmentationStatus === "segment_assigned"
-  ) {
-    nextSource.segmentAssignedAt = nowMs;
+  if (current.approvalStatus !== incoming.approvalStatus && incoming.approvalStatus === "creator_rejected") {
+    nextSource.rejectedAt = nowMs;
+    nextSource.reapplyAvailableAt = nowMs + (30 * 24 * 60 * 60 * 1000);
+  }
+
+  if (current.ownerOverrideActive !== incoming.ownerOverrideActive) {
+    if (incoming.ownerOverrideActive) {
+      nextSource.ownerOverrideAt = nowMs;
+      nextSource.ownerOverrideBy = actorLabel;
+    }
   }
 
   return nextSource;
@@ -161,7 +182,6 @@ function buildCreatorLifecycleEvents(input: {
     | "creator_id_requested"
     | "creator_id_verified"
     | "creator_id_rejected"
-    | "creator_segment_assigned"
     | "creator_approved"
     | "creator_rejected"
     | "creator_needs_changes"
@@ -182,15 +202,6 @@ function buildCreatorLifecycleEvents(input: {
       events.push("creator_id_verified");
     } else if (input.after.idVerificationStatus === "id_rejected") {
       events.push("creator_id_rejected");
-    }
-  }
-
-  if (
-    input.before.segmentationStatus !== input.after.segmentationStatus
-    || input.before.segmentLabel !== input.after.segmentLabel
-  ) {
-    if (input.after.segmentationStatus === "segment_assigned") {
-      events.push("creator_segment_assigned");
     }
   }
 
@@ -227,8 +238,6 @@ async function emitCreatorLifecycleTelemetry(
         return trackServerEvent("creator_id_verified", payload, userId);
       case "creator_id_rejected":
         return trackServerEvent("creator_id_rejected", payload, userId);
-      case "creator_segment_assigned":
-        return trackServerEvent("creator_segment_assigned", payload, userId);
       case "creator_approved":
         return trackServerEvent("creator_approved", payload, userId);
       case "creator_rejected":
@@ -1104,6 +1113,7 @@ export async function PUT(request: NextRequest) {
       role: "admin",
       label: authResult?.email ?? authResult?.uid ?? "Admin",
     };
+    const isOwnerActor = isCreatorOwnerEmail(authResult?.email);
     const nowMs = Date.now();
     let creatorLifecycleEvents: ReturnType<typeof buildCreatorLifecycleEvents> = [];
     let creatorOnboardingDiagnostic: CreatorOnboardingDiagnosticEntry | null = null;
@@ -1171,6 +1181,15 @@ export async function PUT(request: NextRequest) {
           nowMs,
           actor.label,
         );
+
+        if (
+          Object.prototype.hasOwnProperty.call(creatorApplicationPatch, "ownerOverrideActive")
+          && creatorApplicationUpdate.ownerOverrideActive !== currentCanonical.ownerOverrideActive
+          && !isOwnerActor
+        ) {
+          throw new ForbiddenCreatorOnboardingActionError("Owner override is restricted to the primary owner control.");
+        }
+
         let nextCanonical = buildCreatorOnboardingCanonicalRecord({
           userId,
           email: typeof userData.email === "string" ? userData.email : null,
@@ -1188,6 +1207,14 @@ export async function PUT(request: NextRequest) {
         });
 
         const shouldPromoteCreatorRole = shouldActivateCreatorRole(nextCanonical);
+        if (
+          nextCanonical.approvalStatus === "creator_approved"
+          && !shouldPromoteCreatorRole
+          && nextCanonical.ownerOverrideActive !== true
+        ) {
+          throw new InvalidCreatorOnboardingTransitionError("Creator approval requires intro acknowledgment, accepted identity verification, and both agreement signatures unless owner override is active.");
+        }
+
         const currentRole = readUserRole(userData.role);
         const requestedRole = sanitized.role !== undefined ? readUserRole(sanitized.role) : undefined;
         let nextRole = currentRole;
@@ -1271,7 +1298,9 @@ export async function PUT(request: NextRequest) {
               approvalStatus: nextCanonical.approvalStatus,
               legalStatus: nextCanonical.legalStatus,
               idVerificationStatus: nextCanonical.idVerificationStatus,
-              segmentationStatus: nextCanonical.segmentationStatus,
+              contractDocumentStatus: nextCanonical.contractDocumentStatus,
+              creatorSignatureStatus: nextCanonical.creatorSignatureStatus,
+              adminSignatureStatus: nextCanonical.adminSignatureStatus,
             },
           };
         }
@@ -1325,12 +1354,14 @@ export async function PUT(request: NextRequest) {
                 approvalStatus: currentCanonical.approvalStatus,
                 legalStatus: currentCanonical.legalStatus,
                 idVerificationStatus: currentCanonical.idVerificationStatus,
-                segmentationStatus: currentCanonical.segmentationStatus,
+                contractDocumentStatus: currentCanonical.contractDocumentStatus,
+                creatorSignatureStatus: currentCanonical.creatorSignatureStatus,
+                adminSignatureStatus: currentCanonical.adminSignatureStatus,
               },
             });
 
             return NextResponse.json({
-              error: "Creator role cannot be activated until legal, ID, segment, and approval requirements are complete.",
+              error: "Creator role cannot be activated until intro acknowledgment, ID verification, and agreement signatures are complete.",
             }, { status: 400 });
           }
 
@@ -1405,6 +1436,14 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     if (error instanceof InvalidCreatorApplicationUpdateError) {
       return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+
+    if (error instanceof InvalidCreatorOnboardingTransitionError) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+
+    if (error instanceof ForbiddenCreatorOnboardingActionError) {
+      return NextResponse.json({ error: error.message }, { status: 403 });
     }
 
     return handleApiError(error, "Admin.Users.PUT");

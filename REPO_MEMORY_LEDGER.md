@@ -1,7 +1,7 @@
 # Repo Memory Ledger
 
 Status: Canonical repository-memory and architecture-decision ledger
-Last refreshed: 2026-04-03
+Last refreshed: 2026-04-04
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
 ## Purpose
@@ -191,3 +191,75 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `backends.json`
   - `FULL_SCALE_CODEBASE_AUDIT.md`
 - Follow-up gaps: `backends.json` should continue to be handled carefully because generated platform snapshots can contain operationally sensitive metadata.
+
+### 12. Creator onboarding is a staged audited intake, not a queue-position workflow
+- Approximate date: Canonical sequence finalized and recorded on 2026-04-04
+- Status: Active canonical product flow
+- Problem/context: Creator onboarding had drifted across waitlist copy, admin review controls, legacy queue language, segment assumptions, and partially disconnected compliance/legal steps.
+- Decision made: Treat creator onboarding as one staged intake flow: creator signup and basic info, short creator/fan intro acknowledgment, full identity verification package, native MGSA review and creator signature, admin countersign, manual approval/return/rejection, then creator dashboard unlock.
+- What became canonical:
+  - creator-facing stages are stage-based only, with no numeric queue position
+  - the intro acknowledgment is required and part of the audit trail
+  - the identity verification package requires front of ID, back of ID, face with ID, and a short video with government name plus current date
+  - approval is separate from countersign and cannot happen before prerequisites unless owner override is explicitly used
+  - segment assignment is no longer an onboarding-critical blocker
+- What is now disallowed or deprecated:
+  - queue-position language on creator-facing surfaces
+  - treating segment assignment as an approval prerequisite
+  - approving creators before intro acknowledgment, identity verification, and both agreement signatures without owner override
+- Truth lives in:
+  - `src/lib/creator-onboarding.ts`
+  - `src/lib/creator-application.ts`
+  - `src/lib/server/creator-onboarding.ts`
+  - `src/lib/creator-contract.ts`
+  - `src/app/creators/apply/page.tsx`
+  - `src/app/creators/waitlist/page.tsx`
+  - `src/app/api/creator/onboarding/intro/route.ts`
+  - `src/app/api/creator/onboarding/id-submission/route.ts`
+  - `src/app/api/creator/onboarding/contract-signature/route.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: Admin countersign and template selection are present in the roster flow, but the system still uses native product UI rather than a third-party e-sign platform, and richer template-choosing UX can still improve later without changing the sequence.
+
+### 13. Creator administration belongs in creator roster/intake, not generic user management
+- Approximate date: Canonical separation recorded on 2026-04-04
+- Status: Active canonical admin UX rule
+- Problem/context: Creator onboarding and creator operations had bled into generic user-management detail pages, creating duplicate controls, vertical-spaghetti review UX, and unclear authority boundaries.
+- Decision made: Treat creator intake/live operations as roster-owned flows. Generic user management should hand off into the creator record rather than carrying duplicate creator onboarding controls.
+- What became canonical:
+  - compact Intake / Live / Create Creator roster navigation
+  - direct creator creation from roster with owner-only bypass/live-path controls
+  - user management retains only a clean handoff into the creator record
+- What is now disallowed or deprecated:
+  - piling creator onboarding controls into generic user drilldowns as a parallel admin surface
+  - showing every possible creator action inline on every list row
+- Truth lives in:
+  - `src/app/admin/roster/page.tsx`
+  - `src/app/api/admin/roster/route.ts`
+  - `src/app/admin/user/[userId]/page.tsx`
+  - `src/app/api/admin/users/route.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: Legacy hidden creator sections still exist in the user-management page for safety, and can be deleted in a later cleanup pass once this handoff model has had enough runtime usage.
+
+### 14. Gum Drop economics are backend source-aware even though the client shows one balance
+- Approximate date: Existing code path explicitly audited and recorded on 2026-04-04
+- Status: Active canonical economics rule
+- Problem/context: Creator experiences, messaging, and booking flows need to distinguish paid versus non-paid Gum Drops even when the visible wallet balance stays unified.
+- Decision made: Preserve one client-visible Gum Drop balance, but keep backend/source-aware accounting separate for purchased and reward balances, with creator-experience spend rules deciding whether reward balance is allowed.
+- What became canonical:
+  - source-aware balance reads and writes through the canonical Gum Drop ledger helpers
+  - reward sources remain explicitly classified, including at least task rewards and check-in rewards
+  - creator messages, subscriptions, bookings, and custom requests enforce purchased-only spend policies
+- What is now disallowed or deprecated:
+  - collapsing creator-experience restricted spend into a single undifferentiated balance internally
+  - treating reward and purchased Gum Drops as interchangeable for creator-restricted spend
+- Truth lives in:
+  - `src/lib/gumdrop-ledger.ts`
+  - `src/lib/server/gumdrop-ledger.ts`
+  - `src/lib/server/creator-experiences.ts`
+  - `src/app/api/checkin/route.ts`
+  - `src/lib/server/daily-tasks.ts`
+  - `src/app/api/creator/messages/route.ts`
+  - `src/app/api/creator/bookings/route.ts`
+  - `src/app/api/creator/subscriptions/route.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: Spend priority across mixed balances, refund rules, expiry, and payout-linkage policy still need to stay explicitly documented when product direction finalizes those choices.

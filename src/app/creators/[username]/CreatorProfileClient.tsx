@@ -240,10 +240,10 @@ export default function CreatorProfileClient() {
 
         try {
             const action = following ? "unfollow" : "follow";
-            const response = await authFetch("/api/user/follow", {
+            const response = await authFetch("/api/creator/relationships", {
                 method: "POST",
                 body: JSON.stringify({
-                    targetUserId: creator.uid,
+                    creatorId: creator.uid,
                     action,
                 }),
             });

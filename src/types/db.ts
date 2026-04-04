@@ -190,11 +190,13 @@ export type CreatorPayoutRequest = {
 };
 
 export type CreatorOnboardingBlockingReason =
+    | "awaiting_intro_acknowledgement"
     | "awaiting_legal"
+    | "awaiting_creator_contract_signature"
+    | "awaiting_admin_countersign"
     | "awaiting_id_request"
     | "awaiting_id_submission"
     | "awaiting_id_review"
-    | "awaiting_segment_assignment"
     | "approval_needs_changes"
     | "approval_rejected"
     | "role_activation_blocked";
@@ -220,7 +222,11 @@ export type CreatorIdDocumentRecord = {
     reviewedAt?: number;
 };
 
-export type CreatorIdDocumentSide = "front" | "back";
+export type CreatorContractDocumentStatus = "contract_not_sent" | "contract_sent";
+
+export type CreatorContractSignatureStatus = "signature_pending" | "signature_signed";
+
+export type CreatorIdDocumentSide = "front" | "back" | "face_with_id" | "video_with_id";
 
 export type CreatorIdDocuments = Partial<Record<CreatorIdDocumentSide, CreatorIdDocumentRecord>>;
 
@@ -238,11 +244,28 @@ export type CreatorApplication = {
     creatorPrimaryPlatform?: string;
     creatorContentFocus?: string;
     bypassFanOnboarding: boolean;
+    introAcknowledgedAt?: number;
+    introAcknowledgedVersion?: string;
+    introAcknowledgedByUid?: string;
+    introAcknowledgedByName?: string;
     legalStatus: CreatorLegalDocumentStatus;
+    contractVersion?: string;
+    contractDocumentStatus?: CreatorContractDocumentStatus;
+    creatorSignatureStatus?: CreatorContractSignatureStatus;
+    adminSignatureStatus?: CreatorContractSignatureStatus;
     legalDocumentUrl?: string;
     legalDocumentSentAt?: number;
+    creatorContractSignedAt?: number;
+    creatorContractSignedByName?: string;
+    creatorContractSignedIp?: string;
+    creatorContractSignedUserAgent?: string;
+    adminContractSignedAt?: number;
+    adminContractSignedByName?: string;
+    adminContractSignedIp?: string;
+    adminContractSignedUserAgent?: string;
     legalDocumentSignedAt?: number;
     idVerificationStatus: CreatorIdVerificationStatus;
+    kycDueAt?: number;
     idVerificationRequestedAt?: number;
     idVerificationSubmittedAt?: number;
     idVerificationReviewedAt?: number;
@@ -251,6 +274,14 @@ export type CreatorApplication = {
     segmentationStatus: CreatorSegmentationStatus;
     segmentLabel?: string;
     segmentAssignedAt?: number;
+    creatorTemplateId?: string;
+    creatorTemplateLabel?: string;
+    ownerOverrideActive?: boolean;
+    ownerOverrideReason?: string;
+    ownerOverrideAt?: number;
+    ownerOverrideBy?: string;
+    rejectedAt?: number;
+    reapplyAvailableAt?: number;
     reviewedBy?: string;
     adminNotes?: string;
     blockingReasons?: CreatorOnboardingBlockingReason[];

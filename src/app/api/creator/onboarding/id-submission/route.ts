@@ -24,6 +24,9 @@ const ALLOWED_ID_CONTENT_TYPES = new Set([
     "image/png",
     "image/webp",
     "application/pdf",
+    "video/mp4",
+    "video/quicktime",
+    "video/webm",
 ]);
 
 function sanitizeFileName(fileName: string) {
@@ -31,10 +34,14 @@ function sanitizeFileName(fileName: string) {
 }
 
 function normalizeIdSlot(value: FormDataEntryValue | null) {
-    return value === "back" ? "back" : "front";
+    if (value === "back" || value === "face_with_id" || value === "video_with_id") {
+        return value;
+    }
+
+    return "front";
 }
 
-function buildStoragePath(userId: string, slot: "front" | "back", fileName: string) {
+function buildStoragePath(userId: string, slot: "front" | "back" | "face_with_id" | "video_with_id", fileName: string) {
     return `creator-onboarding/${userId}/id/${slot}/${Date.now()}_${sanitizeFileName(fileName)}`;
 }
 
@@ -44,7 +51,7 @@ function buildErrorResponse(status: number, message: string) {
 
 export async function POST(request: NextRequest) {
     let uploadedStoragePath: string | null = null;
-    let uploadedSlot: "front" | "back" = "front";
+    let uploadedSlot: "front" | "back" | "face_with_id" | "video_with_id" = "front";
 
     try {
         const caller = await guardApiRequest(request, {
@@ -71,7 +78,7 @@ export async function POST(request: NextRequest) {
         }
 
         if (!ALLOWED_ID_CONTENT_TYPES.has(file.type)) {
-            return buildErrorResponse(400, "Only JPG, PNG, WebP, and PDF ID uploads are supported.");
+            return buildErrorResponse(400, "Only JPG, PNG, WebP, PDF, and common video uploads are supported.");
         }
 
         if (file.size > MAX_ID_UPLOAD_BYTES) {
@@ -194,8 +201,8 @@ export async function POST(request: NextRequest) {
                     actorLabel: typeof latestUserData.displayName === "string" ? latestUserData.displayName : canonical.creatorDisplayName,
                     timestamp: nowMs,
                     summary: documentsComplete
-                        ? "Creator ID submitted for review"
-                        : `Creator ID ${uploadedSlot} uploaded`,
+                        ? "Creator verification package submitted for review"
+                        : `Creator verification file ${uploadedSlot} uploaded`,
                     metadata: {
                         slot: uploadedSlot,
                         documentsComplete,
@@ -236,9 +243,9 @@ export async function POST(request: NextRequest) {
                 }, caller.uid),
                 sendCreatorOnboardingAdminNotification({
                     eventKey: `creator_id_submitted:${caller.uid}`,
-                    title: "Creator ID ready for review",
-                    message: `${canonical.creatorDisplayName} submitted both ID images for manual review.`,
-                    link: `/admin/user/${caller.uid}`,
+                    title: "Creator verification package ready for review",
+                    message: `${canonical.creatorDisplayName} submitted the required verification package for manual review.`,
+                    link: `/admin/roster?focus=${caller.uid}`,
                     type: "warning",
                 }),
             ] : []),

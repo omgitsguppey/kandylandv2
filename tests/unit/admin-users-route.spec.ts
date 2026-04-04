@@ -181,6 +181,11 @@ function seedCreatorApplicant(input: {
     idVerificationStatus: "id_not_requested" | "id_requested" | "id_submitted" | "id_verified" | "id_rejected";
     segmentationStatus: "segment_unassigned" | "segment_assigned";
     approvalStatus?: "creator_pending" | "creator_approved" | "creator_rejected" | "creator_needs_changes";
+    introAcknowledgedAt?: number;
+    contractDocumentStatus?: "contract_not_sent" | "contract_sent";
+    creatorSignatureStatus?: "signature_pending" | "signature_signed";
+    adminSignatureStatus?: "signature_pending" | "signature_signed";
+    ownerOverrideActive?: boolean;
 }) {
     const nowMs = 1_710_000_000_000;
     const canonical = buildCreatorOnboardingCanonicalRecord({
@@ -210,9 +215,14 @@ function seedCreatorApplicant(input: {
             creatorPrimaryPlatform: "TikTok",
             creatorContentFocus: "Launch drops",
             bypassFanOnboarding: true,
+            introAcknowledgedAt: input.introAcknowledgedAt,
             legalStatus: input.legalStatus,
+            contractDocumentStatus: input.contractDocumentStatus,
+            creatorSignatureStatus: input.creatorSignatureStatus,
+            adminSignatureStatus: input.adminSignatureStatus,
             idVerificationStatus: input.idVerificationStatus,
             segmentationStatus: input.segmentationStatus,
+            ownerOverrideActive: input.ownerOverrideActive,
         },
     });
 
@@ -252,6 +262,7 @@ describe("PUT /api/admin/users", () => {
             legalStatus: "legal_signed",
             idVerificationStatus: "id_verified",
             segmentationStatus: "segment_assigned",
+            introAcknowledgedAt: 1_710_000_000_100,
         });
 
         const request = new NextRequest("http://localhost/api/admin/users", {
@@ -289,7 +300,7 @@ describe("PUT /api/admin/users", () => {
         expect(mockState.recordServerDiagnostic).not.toHaveBeenCalled();
     });
 
-    it("persists creator approval but blocks public role activation when prerequisites are incomplete", async () => {
+    it("blocks creator approval when prerequisites are incomplete", async () => {
         seedCreatorApplicant({
             userId: "creator_blocked",
             legalStatus: "legal_pending",
@@ -313,31 +324,20 @@ describe("PUT /api/admin/users", () => {
         const response = await PUT(request);
         const payload = await response.json();
 
-        expect(response.status).toBe(200);
-        expect(payload).toMatchObject({ success: true });
+        expect(response.status).toBe(400);
         expect(mockState.documents.get("users/creator_blocked")).toMatchObject({
             role: "user",
             creatorApplication: expect.objectContaining({
-                approvalStatus: "creator_approved",
-                blockingReasons: expect.arrayContaining([
-                    "awaiting_legal",
-                    "awaiting_id_submission",
-                    "awaiting_segment_assignment",
-                    "role_activation_blocked",
-                ]),
+                approvalStatus: "creator_pending",
             }),
         });
         expect(mockState.documents.get("creator_onboarding/creator_blocked")).toMatchObject({
-            approvalStatus: "creator_approved",
+            approvalStatus: "creator_pending",
             role: "user",
         });
-        const historyPaths = Array.from(mockState.documents.keys()).filter((path) => path.startsWith("creator_onboarding/creator_blocked/history/"));
-        expect(historyPaths.some((path) => path.includes("creator_approved_"))).toBe(true);
-        expect(historyPaths.some((path) => path.includes("creator_role_activation_blocked_"))).toBe(true);
-        expect(mockState.recordServerDiagnostic).toHaveBeenCalledWith(expect.objectContaining({
-            channel: "creator_onboarding",
-            message: "Creator role activation blocked by onboarding prerequisites",
-        }));
+        expect(payload).toMatchObject({
+            error: "Creator approval requires intro acknowledgment, accepted identity verification, and both agreement signatures unless owner override is active.",
+        });
     });
 
     it("rejects direct creator role activation when canonical onboarding prerequisites are incomplete", async () => {
@@ -363,7 +363,7 @@ describe("PUT /api/admin/users", () => {
 
         expect(response.status).toBe(400);
         expect(payload).toMatchObject({
-            error: "Creator role cannot be activated until legal, ID, segment, and approval requirements are complete.",
+            error: "Creator role cannot be activated until intro acknowledgment, ID verification, and agreement signatures are complete.",
         });
         expect(mockState.documents.get("users/creator_direct_block")).toMatchObject({
             role: "user",
@@ -381,6 +381,7 @@ describe("PUT /api/admin/users", () => {
             idVerificationStatus: "id_verified",
             segmentationStatus: "segment_assigned",
             approvalStatus: "creator_approved",
+            introAcknowledgedAt: 1_710_000_000_100,
         });
 
         const request = new NextRequest("http://localhost/api/admin/users", {

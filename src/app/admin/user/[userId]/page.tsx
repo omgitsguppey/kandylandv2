@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
@@ -33,6 +34,7 @@ import { trackEvent } from "@/lib/telemetry";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import {
     describeCreatorOnboardingBlockingReason,
+    getCreatorOnboardingStatusSummary,
     type CreatorOnboardingCanonicalRecord,
     type CreatorOnboardingHistoryEntry,
 } from "@/lib/creator-onboarding";
@@ -441,6 +443,13 @@ export default function AdminUserAnalyticsPage() {
         .map((reason) => describeCreatorOnboardingBlockingReason(reason));
     const creatorReadyForApproval = creatorOnboardingCanonical?.readyForApproval ?? creatorApplication?.readyForApproval ?? false;
     const creatorRoleState = creatorOnboardingCanonical?.role ?? targetUser?.role ?? "user";
+    const creatorRecordHref = targetUser ? `/admin/roster?focus=${targetUser.uid}` : "/admin/roster";
+    const creatorRecordSummary = creatorOnboardingCanonical
+        ? getCreatorOnboardingStatusSummary(creatorOnboardingCanonical)
+        : creatorApplication
+            ? getCreatorOnboardingStatusSummary(creatorApplication)
+            : null;
+    const showCreatorControlsInUserManagement = false;
 
     const updateCreatorApplicationField = <K extends keyof CreatorApplicationState>(key: K, value: CreatorApplicationState[K]) => {
         setCreatorApplicationState((current) => {
@@ -989,7 +998,43 @@ export default function AdminUserAnalyticsPage() {
                 </div>
             </div>
 
-            {creatorApplication ? (
+            {(creatorApplication || isCreatorOpsUser) ? (
+                <div className="glass-panel rounded-3xl border border-white/5 p-6">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                            <h3 className="flex items-center gap-2 text-sm font-bold text-white">
+                                <Sparkles className="h-4 w-4 text-brand-purple" /> Creator record handoff
+                            </h3>
+                            <p className="mt-1 text-xs leading-6 text-gray-400">
+                                Creator intake, contract, ID review, approval, and live creator operations now live in the dedicated creator roster. Generic user management only links you into that focused record.
+                            </p>
+                        </div>
+                        {creatorRecordSummary ? (
+                            <span className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
+                                {creatorRecordSummary.stage}
+                            </span>
+                        ) : null}
+                    </div>
+                    <div className="mt-4 flex flex-wrap gap-3">
+                        <Link
+                            href={creatorRecordHref}
+                            className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-bold text-black"
+                        >
+                            Open creator record
+                            <ArrowLeft className="h-4 w-4 rotate-180" />
+                        </Link>
+                        {creatorOnboardingCanonical ? (
+                            <p className="max-w-2xl text-sm leading-6 text-gray-400">{creatorRecordSummary?.summary}</p>
+                        ) : (
+                            <p className="max-w-2xl text-sm leading-6 text-gray-400">
+                                This account has creator-linked state, but the focused roster record is the canonical place to review onboarding, creator operations, overrides, and audit trail details.
+                            </p>
+                        )}
+                    </div>
+                </div>
+            ) : null}
+
+            {showCreatorControlsInUserManagement && creatorApplication ? (
                 <div className="glass-panel rounded-3xl border border-white/5 p-6">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                         <div>
@@ -1294,7 +1339,7 @@ export default function AdminUserAnalyticsPage() {
                 </div>
             ) : null}
 
-            {isCreatorOpsUser ? (
+            {showCreatorControlsInUserManagement && isCreatorOpsUser ? (
                 <div className="glass-panel rounded-3xl border border-white/5 p-6">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                         <div>

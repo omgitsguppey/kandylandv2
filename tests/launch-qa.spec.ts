@@ -178,7 +178,7 @@ test.describe("API Routes - Auth Enforcement", () => {
         { method: "post", route: "/api/drops/track", data: { dropId: "test" } },
         { method: "post", route: "/api/paypal/capture", data: { orderId: "test", expectedDrops: 100 } },
         { method: "put", route: "/api/user/profile", data: { displayName: "test" } },
-        { method: "post", route: "/api/user/follow", data: { targetUserId: "test", action: "follow" } },
+        { method: "post", route: "/api/creator/relationships", data: { creatorId: "test", action: "follow" } },
         { method: "post", route: "/api/user/register", data: { displayName: "test" } },
         { method: "put", route: "/api/notifications", data: { notificationId: "test" } },
         { method: "post", route: "/api/notifications", data: { title: "test", message: "test", type: "info", target: { global: true } } },

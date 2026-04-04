@@ -55,8 +55,7 @@ export function buildInitialCreatorApplication(input: {
             onboardingSubmittedAt: submittedAt,
             awaitingManualReviewAt: submittedAt,
             updatedAt: submittedAt,
-            idVerificationStatus: "id_requested",
-            idVerificationRequestedAt: submittedAt,
+            idVerificationStatus: "id_not_requested",
         } satisfies LegacyCreatorApplicationSnapshot & Record<string, unknown>,
     });
 }

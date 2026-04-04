@@ -72,8 +72,8 @@ describe("creator onboarding contract", () => {
             label: "Role activation blocked",
             severity: "error",
         });
-        expect(describeCreatorFacingOnboardingBlockingReason("awaiting_segment_assignment")).toMatchObject({
-            label: "Internal review still in progress",
+        expect(describeCreatorFacingOnboardingBlockingReason("awaiting_intro_acknowledgement")).toMatchObject({
+            label: "Review the creator intro",
             severity: "info",
         });
     });
@@ -84,12 +84,14 @@ describe("creator onboarding contract", () => {
             approvalStatus: "creator_pending",
             idVerificationStatus: "id_requested",
             legalStatus: "legal_pending",
-            segmentationStatus: "segment_unassigned",
-            blockingReasons: ["awaiting_legal", "awaiting_id_submission", "awaiting_segment_assignment"],
+            contractDocumentStatus: "contract_not_sent",
+            creatorSignatureStatus: "signature_pending",
+            adminSignatureStatus: "signature_pending",
+            blockingReasons: ["awaiting_intro_acknowledgement"],
             readyForApproval: false,
         })).toMatchObject({
-            stage: "Waiting on ID verification",
-            summary: "Upload the front and back of your ID from this page so identity review can continue.",
+            stage: "Application received",
+            summary: "Your creator application is in the intake lane. Review the short creator intro on this page before identity verification begins.",
         });
 
         expect(getCreatorOnboardingStatusSummary({
@@ -97,7 +99,9 @@ describe("creator onboarding contract", () => {
             approvalStatus: "creator_approved",
             idVerificationStatus: "id_verified",
             legalStatus: "legal_signed",
-            segmentationStatus: "segment_assigned",
+            contractDocumentStatus: "contract_sent",
+            creatorSignatureStatus: "signature_signed",
+            adminSignatureStatus: "signature_signed",
             blockingReasons: ["role_activation_blocked"],
             readyForApproval: false,
         })).toMatchObject({
@@ -110,7 +114,10 @@ describe("creator onboarding contract", () => {
             approvalStatus: "creator_pending",
             idVerificationStatus: "id_verified",
             legalStatus: "legal_pending",
-            segmentationStatus: "segment_unassigned",
+            introAcknowledgedAt: 1_710_000_000_100,
+            contractDocumentStatus: "contract_not_sent",
+            creatorSignatureStatus: "signature_pending",
+            adminSignatureStatus: "signature_pending",
             blockingReasons: ["awaiting_legal"],
             readyForApproval: false,
         })).toMatchObject({
@@ -163,7 +170,7 @@ describe("creator onboarding contract", () => {
         expect(canonical?.idDocuments?.back?.fileName).toBe("modern-back.png");
         expect(getCreatorOnboardingIdDocumentSummary(canonical)).toMatchObject({
             count: 2,
-            complete: true,
+            complete: false,
         });
     });
 

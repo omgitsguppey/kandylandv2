@@ -9,6 +9,7 @@ import {
     LifeBuoy,
     PencilLine,
     ShieldCheck,
+    Sparkles,
     UploadCloud,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -18,6 +19,12 @@ import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import {
+    CREATOR_CONTRACT_SUMMARY_BULLETS,
+    CREATOR_INTRO_CREATOR_BULLETS,
+    CREATOR_INTRO_FAN_BULLETS,
+    CREATOR_MASTER_SERVICE_AGREEMENT_SECTIONS,
+} from "@/lib/creator-contract";
 import {
     canEditCreatorApplicantIntake,
     CREATOR_LEGAL_WAITING_HEADLINE,
@@ -32,19 +39,20 @@ import {
 import { PRIVACY_SUPPORT_EMAIL } from "@/lib/privacy-policy";
 
 type CreatorApplicationState = NonNullable<NonNullable<ReturnType<typeof useAuth>["userProfile"]>["creatorApplication"]>;
-type IdUploadSide = "front" | "back";
+type IdUploadSide = "front" | "back" | "face_with_id" | "video_with_id";
 type EditableApplicationDraft = {
     creatorDisplayName: string;
     creatorPrimaryPlatform: string;
     creatorContentFocus: string;
 };
 
-const ID_UPLOAD_ACCEPT = ".jpg,.jpeg,.png,.webp,.pdf";
+const ID_UPLOAD_ACCEPT = ".jpg,.jpeg,.png,.webp,.pdf,.mp4,.mov,.webm";
 const ID_UPLOAD_REQUIREMENTS = [
     "Front of a government-issued photo ID",
     "Back of the same ID",
-    "JPG, PNG, WebP, or PDF up to 15MB",
-    "If your ID only has one side, upload the same file in both slots",
+    "A selfie holding that ID",
+    "A short video holding the ID while stating your government name and today's date",
+    "Images, PDFs, and common video formats up to 15MB each",
 ] as const;
 
 const ID_UPLOAD_SIDES: Array<{
@@ -61,6 +69,16 @@ const ID_UPLOAD_SIDES: Array<{
         side: "back",
         title: "Back of ID",
         description: "Upload the reverse side so the review team can verify the full document.",
+    },
+    {
+        side: "face_with_id",
+        title: "Face with ID",
+        description: "Show your face clearly while holding the same ID used in this application.",
+    },
+    {
+        side: "video_with_id",
+        title: "Video with ID",
+        description: "Record a short video holding the ID and saying your government name and today's date.",
     },
 ];
 
@@ -81,17 +99,13 @@ function formatStatusLabel(value: string | undefined) {
     return value.replaceAll("_", " ");
 }
 
-function buildUploadButtonLabel(frontSelected: boolean, backSelected: boolean) {
-    if (frontSelected && backSelected) {
-        return "Upload both files";
+function buildUploadButtonLabel(selectedCount: number) {
+    if (selectedCount >= 4) {
+        return "Upload full verification package";
     }
 
-    if (frontSelected) {
-        return "Upload front of ID";
-    }
-
-    if (backSelected) {
-        return "Upload back of ID";
+    if (selectedCount > 0) {
+        return `Upload ${selectedCount} verification file${selectedCount === 1 ? "" : "s"}`;
     }
 
     return "Choose files to upload";
@@ -159,14 +173,14 @@ function getIdVerificationPresentation(value: CreatorApplicationState | null, co
     if (count === 0) {
         return {
             label: "Missing",
-            description: "ID verification is required for every creator application. Upload the front and back of your ID from this page when the secure upload step is available.",
+            description: "ID verification is required for every creator application. Upload the full four-part verification package from this page when the secure upload step is available.",
         };
     }
 
     if (!complete) {
         return {
             label: "Pending",
-            description: "One ID file is already in. Upload the remaining side from this page so identity review can continue.",
+            description: "Part of the verification package is already in. Upload the remaining files from this page so identity review can continue.",
         };
     }
 
@@ -183,10 +197,15 @@ export default function CreatorWaitlistPage() {
     const [selectedIdFiles, setSelectedIdFiles] = useState<Record<IdUploadSide, File | null>>({
         front: null,
         back: null,
+        face_with_id: null,
+        video_with_id: null,
     });
     const [editableDraft, setEditableDraft] = useState<EditableApplicationDraft>(buildDefaultEditableDraft(userProfile?.creatorApplication));
     const [uploadingId, setUploadingId] = useState(false);
     const [savingApplication, setSavingApplication] = useState(false);
+    const [acknowledgingIntro, setAcknowledgingIntro] = useState(false);
+    const [signatureName, setSignatureName] = useState("");
+    const [signingContract, setSigningContract] = useState(false);
 
     useEffect(() => {
         const nextApplication = userProfile?.creatorApplication ?? null;
@@ -206,8 +225,9 @@ export default function CreatorWaitlistPage() {
     const statusSummary = getCreatorOnboardingStatusSummary(creatorApplication);
     const idSummary = getCreatorOnboardingIdDocumentSummary(creatorApplication);
     const idPresentation = getIdVerificationPresentation(creatorApplication, idSummary.count, idSummary.complete);
-    const hasSelectedFiles = Boolean(selectedIdFiles.front || selectedIdFiles.back);
-    const uploadButtonLabel = buildUploadButtonLabel(Boolean(selectedIdFiles.front), Boolean(selectedIdFiles.back));
+    const selectedUploadCount = Object.values(selectedIdFiles).filter(Boolean).length;
+    const hasSelectedFiles = selectedUploadCount > 0;
+    const uploadButtonLabel = buildUploadButtonLabel(selectedUploadCount);
     const creatorSupportHref = buildCreatorSupportHref({
         userId: user?.uid ?? null,
         username: userProfile?.username ?? null,
@@ -224,35 +244,152 @@ export default function CreatorWaitlistPage() {
         };
     }), [creatorApplication, selectedIdFiles]);
 
-    const legalDocumentReady = creatorApplication?.legalStatus === "legal_sent" && Boolean(creatorApplication.legalDocumentUrl);
+    const introAcknowledged = Boolean(creatorApplication?.introAcknowledgedAt);
+    const contractReady = creatorApplication?.contractDocumentStatus === "contract_sent";
+    const creatorContractSigned = creatorApplication?.creatorSignatureStatus === "signature_signed";
+    const adminCountersigned = creatorApplication?.adminSignatureStatus === "signature_signed";
     const currentAction = creatorApplication
         ? statusSummary.stage === "Approved"
             ? {
                 title: "Open your creator tools",
                 description: "Approval is complete. Use your creator dashboard and standard creator management pages for profile updates, drops, messaging, bookings, and payouts where they are enabled.",
             }
-            : canSubmitId
+            : !introAcknowledged
                 ? {
-                    title: "Upload your ID documents",
-                    description: idSummary.count === 1
-                        ? "One side is already in. Upload the remaining file so identity review can continue."
-                        : "Your next step is to upload the front and back of your ID from this page.",
+                    title: "Acknowledge the creator program",
+                    description: "Read the short creator and fan explainer on this page before the identity and contract steps can continue.",
                 }
-                : legalDocumentReady
+                : canSubmitId
+                ? {
+                    title: "Upload your verification package",
+                    description: idSummary.count > 0
+                        ? "Part of the required verification package is already in. Upload the remaining files so identity review can continue."
+                        : "Your next step is to upload the required verification package from this page.",
+                }
+                : contractReady && !creatorContractSigned
                     ? {
-                        title: "Review your legal document",
-                        description: "Open the agreement from this page and complete any required signature steps when you are ready.",
+                        title: "Review and sign your agreement",
+                        description: "Read the summary, review the full agreement, and add your signature from this page when you are ready.",
                     }
-                    : statusSummary.stage === "Needs attention"
+                    : creatorContractSigned && !adminCountersigned
                         ? {
-                            title: "Contact creator support",
-                            description: "This application needs follow-up. Use the creator support action on this page if anything looks incomplete or contradictory.",
+                            title: "Wait for countersign",
+                            description: "Your signature is on file. The agreement is still waiting for admin countersign before approval can continue.",
                         }
-                        : {
-                            title: "Wait for review updates",
-                            description: "You are caught up right now. This page will only change when the review team needs something from you or when approval is complete.",
-                        }
+                        : contractReady
+                            ? {
+                                title: "Wait for review updates",
+                                description: "Your agreement and verification steps are in progress. This page will update again if the review team needs changes or when approval is complete.",
+                            }
+                            : statusSummary.stage === "Needs attention"
+                                ? {
+                                    title: "Contact creator support",
+                                    description: "This application needs follow-up. Use the creator support action on this page if anything looks incomplete or contradictory.",
+                                }
+                                : {
+                                    title: "Wait for review updates",
+                                    description: "You are caught up right now. This page will only change when the review team needs something from you or when approval is complete.",
+                                }
         : null;
+    const stageHistory = creatorApplication ? [
+        { label: "Application submitted", at: creatorApplication.submittedAt },
+        { label: "Creator intro acknowledged", at: creatorApplication.introAcknowledgedAt },
+        { label: "ID requested", at: creatorApplication.idVerificationRequestedAt },
+        { label: "ID submitted", at: creatorApplication.idVerificationSubmittedAt },
+        { label: "ID reviewed", at: creatorApplication.idVerificationReviewedAt },
+        { label: "Creator signed agreement", at: creatorApplication.creatorContractSignedAt },
+        { label: "Admin countersigned", at: creatorApplication.adminContractSignedAt },
+        {
+            label: creatorApplication.approvalStatus === "creator_rejected"
+                ? "Application rejected"
+                : creatorApplication.approvalStatus === "creator_needs_changes"
+                    ? "Returned for changes"
+                    : creatorApplication.approvalStatus === "creator_approved"
+                        ? "Approved"
+                        : "Last review touch",
+            at: creatorApplication.approvalStatus === "creator_rejected"
+                ? creatorApplication.rejectedAt
+                : creatorApplication.updatedAt,
+        },
+    ].filter((entry) => typeof entry.at === "number" && entry.at > 0) : [];
+
+    const handleIntroAcknowledgement = async () => {
+        try {
+            setAcknowledgingIntro(true);
+            const response = await authFetch("/api/creator/onboarding/intro", {
+                method: "POST",
+            });
+            const result = await response.json().catch(() => ({})) as {
+                error?: string;
+                creatorApplication?: CreatorApplicationState;
+            };
+
+            if (!response.ok || !result.creatorApplication) {
+                throw new Error(result.error || "Failed to record the creator intro acknowledgment.");
+            }
+
+            setCreatorApplicationState(result.creatorApplication);
+            toast.success("Creator intro acknowledged.");
+        } catch (error) {
+            reportClientIssue({
+                channel: "auth",
+                severity: "error",
+                message: "Creator intro acknowledgment failed",
+                error,
+                detail: {
+                    action: "acknowledge_creator_intro",
+                    userId: user?.uid ?? null,
+                },
+                consoleLabel: "[Creator Waitlist] intro acknowledgment failed",
+            });
+            toast.error(error instanceof Error ? error.message : "Failed to record the creator intro acknowledgment.");
+        } finally {
+            setAcknowledgingIntro(false);
+        }
+    };
+
+    const handleContractSignature = async () => {
+        if (signatureName.trim().length < 2) {
+            toast.error("Enter your legal name before signing.");
+            return;
+        }
+
+        try {
+            setSigningContract(true);
+            const response = await authFetch("/api/creator/onboarding/contract-signature", {
+                method: "POST",
+                body: JSON.stringify({
+                    signatureName: signatureName.trim(),
+                }),
+            });
+            const result = await response.json().catch(() => ({})) as {
+                error?: string;
+                creatorApplication?: CreatorApplicationState;
+            };
+
+            if (!response.ok || !result.creatorApplication) {
+                throw new Error(result.error || "Failed to sign the creator agreement.");
+            }
+
+            setCreatorApplicationState(result.creatorApplication);
+            toast.success("Agreement signed.");
+        } catch (error) {
+            reportClientIssue({
+                channel: "auth",
+                severity: "error",
+                message: "Creator contract signing failed",
+                error,
+                detail: {
+                    action: "sign_creator_contract",
+                    userId: user?.uid ?? null,
+                },
+                consoleLabel: "[Creator Waitlist] contract signing failed",
+            });
+            toast.error(error instanceof Error ? error.message : "Failed to sign the creator agreement.");
+        } finally {
+            setSigningContract(false);
+        }
+    };
 
     const handleSelectIdFile = (side: IdUploadSide, file: File | null) => {
         setSelectedIdFiles((current) => ({
@@ -266,7 +403,7 @@ export default function CreatorWaitlistPage() {
             .filter((entry): entry is [IdUploadSide, File] => Boolean(entry[1]));
 
         if (pendingUploads.length === 0) {
-            toast.error("Choose the front, back, or both ID files before uploading.");
+            toast.error("Choose one or more verification files before uploading.");
             return;
         }
 
@@ -301,12 +438,14 @@ export default function CreatorWaitlistPage() {
             setSelectedIdFiles({
                 front: null,
                 back: null,
+                face_with_id: null,
+                video_with_id: null,
             });
 
             const nextSummary = getCreatorOnboardingIdDocumentSummary(nextCreatorApplication);
             toast.success(nextSummary.complete
-                ? "Both ID files are in. The review team can now verify your identity."
-                : "ID file uploaded. Add the remaining side when you are ready.");
+                ? "The full verification package is in. The review team can now verify your identity."
+                : "Verification file uploaded. Add the remaining files when you are ready.");
         } catch (error) {
             reportClientIssue({
                 channel: "auth",
@@ -481,14 +620,20 @@ export default function CreatorWaitlistPage() {
                                                 Open creator dashboard
                                             </Link>
                                         ) : null}
-                                        {legalDocumentReady && creatorApplication.legalDocumentUrl ? (
+                                        {!introAcknowledged ? (
                                             <a
-                                                href={creatorApplication.legalDocumentUrl}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
+                                                href="#creator-intro"
                                                 className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black transition-colors hover:bg-gray-100"
                                             >
-                                                Open legal document
+                                                Review creator intro
+                                            </a>
+                                        ) : null}
+                                        {contractReady && !creatorContractSigned ? (
+                                            <a
+                                                href="#creator-contract"
+                                                className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black transition-colors hover:bg-gray-100"
+                                            >
+                                                Review agreement
                                             </a>
                                         ) : null}
                                         {canSubmitId ? (
@@ -521,7 +666,8 @@ export default function CreatorWaitlistPage() {
                                     <div className="mt-4 space-y-3 text-sm leading-6 text-gray-300">
                                         <p>Manual admin approval is the only way creator access turns on.</p>
                                         <p>No queue number is used on this page. Status is stage-based only.</p>
-                                        <p>Legal and ID steps only appear here when backend review actually requires them.</p>
+                                        <p>The creator intro acknowledgment is required before identity and contract review continue.</p>
+                                        <p>The legal step on this page is the native in-app agreement flow, not a fake external placeholder.</p>
                                         <p>Until approval is complete, this page is your single source of truth for creator intake updates.</p>
                                     </div>
                                 </div>
@@ -538,17 +684,21 @@ export default function CreatorWaitlistPage() {
                                 Legal
                             </div>
                             <p className="mt-3 text-sm font-semibold text-white">
-                                {creatorApplication.legalStatus === "legal_pending"
+                                {creatorApplication.contractDocumentStatus !== "contract_sent"
                                     ? CREATOR_LEGAL_WAITING_HEADLINE
-                                    : creatorApplication.legalStatus === "legal_sent"
-                                        ? "Your legal document is ready."
+                                    : creatorApplication.creatorSignatureStatus !== "signature_signed"
+                                        ? "Your creator agreement is ready."
+                                        : creatorApplication.adminSignatureStatus !== "signature_signed"
+                                            ? "Waiting on admin countersign."
                                         : "Legal review complete."}
                             </p>
                             <p className="mt-2 text-sm leading-7 text-gray-400">
-                                {creatorApplication.legalStatus === "legal_pending"
+                                {creatorApplication.contractDocumentStatus !== "contract_sent"
                                     ? CREATOR_LEGAL_WAITING_HELPER
-                                    : creatorApplication.legalStatus === "legal_sent"
-                                        ? "Open the agreement from this page and complete any required signature steps when you are ready."
+                                    : creatorApplication.creatorSignatureStatus !== "signature_signed"
+                                        ? "Review the summary, read the full agreement, and sign from this page when you are ready."
+                                        : creatorApplication.adminSignatureStatus !== "signature_signed"
+                                            ? "Your signature is on file. Approval stays blocked until admin countersign is complete or owner override is used."
                                         : "Your signed legal record is already attached to the application."}
                             </p>
                         </article>
@@ -614,6 +764,120 @@ export default function CreatorWaitlistPage() {
                                     </div>
                                 ))
                             )}
+                        </div>
+                    </section>
+                ) : null}
+
+                {creatorApplication ? (
+                    <section className="grid gap-4 md:grid-cols-[0.95fr_1.05fr]">
+                        <article id="creator-intro" className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-4 backdrop-blur-sm">
+                            <div className="flex items-center gap-2 text-base font-bold text-white">
+                                <Sparkles className="h-5 w-5 text-brand-purple" />
+                                Creator intro
+                            </div>
+                            <p className="mt-3 text-sm leading-7 text-gray-400">
+                                This short intro is required acknowledgment before identity review and contract signing continue.
+                            </p>
+                            <div className="mt-4 grid gap-3 md:grid-cols-2">
+                                <div className="rounded-[1.3rem] border border-white/10 bg-black/25 p-3">
+                                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">For creators</p>
+                                    <div className="mt-3 space-y-2 text-sm leading-6 text-gray-300">
+                                        {CREATOR_INTRO_CREATOR_BULLETS.map((bullet) => <p key={bullet}>- {bullet}</p>)}
+                                    </div>
+                                </div>
+                                <div className="rounded-[1.3rem] border border-white/10 bg-black/25 p-3">
+                                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">For fans</p>
+                                    <div className="mt-3 space-y-2 text-sm leading-6 text-gray-300">
+                                        {CREATOR_INTRO_FAN_BULLETS.map((bullet) => <p key={bullet}>- {bullet}</p>)}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="mt-4 flex flex-wrap gap-3">
+                                {introAcknowledged ? (
+                                    <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-sm font-semibold text-emerald-200">
+                                        Acknowledged on {new Date(creatorApplication.introAcknowledgedAt!).toLocaleString()}
+                                    </span>
+                                ) : (
+                                    <button type="button" onClick={() => void handleIntroAcknowledgement()} disabled={acknowledgingIntro} className="rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 disabled:opacity-50">
+                                        {acknowledgingIntro ? "Saving..." : "Acknowledge creator intro"}
+                                    </button>
+                                )}
+                            </div>
+                        </article>
+
+                        <article id="creator-contract" className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-4 backdrop-blur-sm">
+                            <div className="flex items-center gap-2 text-base font-bold text-white">
+                                <BadgeCheck className="h-5 w-5 text-brand-purple" />
+                                Creator agreement
+                            </div>
+                            <p className="mt-3 text-sm leading-7 text-gray-400">
+                                The contract step stays native to this product: plain-language summary first, then the full agreement, then signature capture, then the internal audit trail.
+                            </p>
+                            <div className="mt-4 rounded-[1.3rem] border border-white/10 bg-black/25 p-3">
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Plain-language summary</p>
+                                <div className="mt-3 space-y-2 text-sm leading-6 text-gray-300">
+                                    {CREATOR_CONTRACT_SUMMARY_BULLETS.map((bullet) => <p key={bullet}>- {bullet}</p>)}
+                                </div>
+                            </div>
+                            <details className="mt-4 rounded-[1.3rem] border border-white/10 bg-black/25 p-3">
+                                <summary className="cursor-pointer text-sm font-semibold text-white">Read the full MGSA</summary>
+                                <div className="mt-3 space-y-3 text-sm leading-6 text-gray-300">
+                                    {CREATOR_MASTER_SERVICE_AGREEMENT_SECTIONS.map((section) => (
+                                        <div key={section.heading}>
+                                            <p className="font-semibold text-white">{section.heading}</p>
+                                            <p className="mt-1">{section.body}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </details>
+                            <div className="mt-4 space-y-3">
+                                <label className="space-y-2">
+                                    <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Legal signature name</span>
+                                    <input
+                                        value={signatureName}
+                                        onChange={(event) => setSignatureName(event.target.value)}
+                                        className="w-full rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-sm text-white outline-none"
+                                        placeholder="Enter your legal name exactly as it should appear"
+                                    />
+                                </label>
+                                <div className="flex flex-wrap gap-3">
+                                    {creatorContractSigned ? (
+                                        <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-sm font-semibold text-emerald-200">
+                                            Signed on {new Date(creatorApplication.creatorContractSignedAt!).toLocaleString()}
+                                        </span>
+                                    ) : (
+                                        <button type="button" onClick={() => void handleContractSignature()} disabled={signingContract || !contractReady} className="rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 disabled:opacity-50">
+                                            {signingContract ? "Signing..." : "Sign agreement"}
+                                        </button>
+                                    )}
+                                    {adminCountersigned ? (
+                                        <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-sm font-semibold text-emerald-200">
+                                            Countersigned on {new Date(creatorApplication.adminContractSignedAt!).toLocaleString()}
+                                        </span>
+                                    ) : (
+                                        <span className="rounded-full border border-white/10 bg-black/30 px-4 py-2 text-sm font-semibold text-gray-300">
+                                            Admin countersign still pending
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        </article>
+                    </section>
+                ) : null}
+
+                {creatorApplication ? (
+                    <section className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-4 backdrop-blur-sm">
+                        <h2 className="text-base font-bold text-white">Stage history</h2>
+                        <p className="mt-2 text-sm leading-7 text-gray-400">
+                            Creators only see milestone history from the real backend stages and signatures attached to this application.
+                        </p>
+                        <div className="mt-4 space-y-3">
+                            {stageHistory.map((entry) => (
+                                <div key={`${entry.label}-${entry.at}`} className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3">
+                                    <p className="text-sm font-semibold text-white">{entry.label}</p>
+                                    <p className="mt-1 text-xs text-gray-400">{new Date(entry.at!).toLocaleString()}</p>
+                                </div>
+                            ))}
                         </div>
                     </section>
                 ) : null}
@@ -699,10 +963,10 @@ export default function CreatorWaitlistPage() {
                     >
                         <h2 className="flex items-center gap-2 text-base font-bold text-white">
                             <UploadCloud className="h-5 w-5 text-brand-purple" />
-                            Upload your ID documents
+                            Upload your verification package
                         </h2>
                         <p className="mt-3 text-sm leading-7 text-gray-300">
-                            ID verification is required for every creator applicant. Upload the front and back of the same government-issued photo ID so the review team can verify this step.
+                            ID verification is required for every creator applicant. Upload the full verification package here: front of ID, back of ID, face with ID, and the short video holding the ID and stating your government name and today&apos;s date.
                         </p>
 
                         <div className="mt-4 grid gap-2 sm:grid-cols-2">
@@ -757,10 +1021,10 @@ export default function CreatorWaitlistPage() {
                         <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <p className="text-xs leading-6 text-gray-300">
                                 {idSummary.count === 0
-                                    ? "No ID files have been received yet."
+                                    ? "No verification files have been received yet."
                                     : idSummary.complete
-                                        ? "Both sides are uploaded and ready for review."
-                                        : "One side is in. Upload the remaining file to finish this step."}
+                                        ? "The full verification package is uploaded and ready for review."
+                                        : "Part of the verification package is in. Upload the remaining files to finish this step."}
                             </p>
                             <button
                                 type="button"

@@ -61,7 +61,7 @@ const DEFAULT_SERVER_SOURCES: TelemetryEventSource[] = ["ga4", "backend"];
 const DEFAULT_CANONICAL_SERVER_SOURCES: TelemetryEventSource[] = ["ga4", "backend", "canonical"];
 const DEFAULT_GA_ONLY_SOURCES: TelemetryEventSource[] = ["ga4"];
 
-export const TELEMETRY_EVENT_INDEX_VERSION = "2026.03.30.1";
+export const TELEMETRY_EVENT_INDEX_VERSION = "2026.04.04.1";
 
 export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "auth_modal_opened", label: "Auth modal opened", category: "auth", sources: DEFAULT_CLIENT_SOURCES, modules: ["auth"] },
@@ -117,6 +117,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "creator_apply_viewed", label: "Creator apply page viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement", "navigation"] },
   { eventName: "creator_waitlist_viewed", label: "Creator waitlist page viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement", "navigation"] },
   { eventName: "creator_onboarding_submitted", label: "Creator onboarding submitted", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "admin", "onboarding"] },
+  { eventName: "creator_intro_acknowledged", label: "Creator intro acknowledged", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "admin", "onboarding"] },
   { eventName: "creator_admin_queue_materialized", label: "Creator admin queue materialized", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "admin", "onboarding"] },
   { eventName: "creator_id_requested", label: "Creator ID requested", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "admin", "onboarding"] },
   { eventName: "creator_id_document_uploaded", label: "Creator ID document uploaded", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "admin", "onboarding"] },
@@ -125,6 +126,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "creator_id_verified", label: "Creator ID verified", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "admin", "onboarding"] },
   { eventName: "creator_id_rejected", label: "Creator ID rejected", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "admin", "onboarding"] },
   { eventName: "creator_legal_sent", label: "Creator legal sent", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "admin", "onboarding"] },
+  { eventName: "creator_contract_signed", label: "Creator contract signed", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "admin", "onboarding"] },
   { eventName: "creator_legal_signed", label: "Creator legal signed", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "admin", "onboarding"] },
   { eventName: "creator_segment_assigned", label: "Creator segment assigned", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "admin", "onboarding"] },
   { eventName: "creator_approved", label: "Creator approved", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "admin", "onboarding"] },
@@ -250,6 +252,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "admin_queue_viewed", label: "Admin queue viewed", category: "admin", sources: DEFAULT_CLIENT_SOURCES, modules: ["admin", "navigation"] },
   { eventName: "admin_roster_viewed", label: "Admin roster viewed", category: "admin", sources: DEFAULT_CLIENT_SOURCES, modules: ["admin", "navigation"] },
   { eventName: "admin_user_detail_viewed", label: "Admin user detail viewed", category: "admin", sources: DEFAULT_CLIENT_SOURCES, modules: ["admin", "navigation"] },
+  { eventName: "admin_creator_created_directly", label: "Creator created directly from roster", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["admin", "creator", "onboarding"] },
   { eventName: "creator_application_review_saved", label: "Creator application review saved", category: "admin", sources: DEFAULT_CLIENT_SOURCES, modules: ["admin", "creator"] },
   {
     eventName: "security_screenshot_attempted",
@@ -303,6 +306,8 @@ export const TELEMETRY_MODULE_INDEXES: TelemetryModuleIndex[] = [
       "onboarding_step_viewed",
       "avatar_uploaded",
       "user_registered",
+      "creator_intro_acknowledged",
+      "creator_contract_signed",
     ],
     fallbackSources: ["analytics_event_facts", "ga4", "telemetry_logs"],
   },
@@ -445,6 +450,8 @@ export const TELEMETRY_MODULE_INDEXES: TelemetryModuleIndex[] = [
       "creator_unfavorited",
       "creator_apply_viewed",
       "creator_waitlist_viewed",
+      "creator_intro_acknowledged",
+      "creator_contract_signed",
       "creator_profile_viewed",
       "creator_broadcast_opened",
       "creator_message_sent",
@@ -512,6 +519,7 @@ export const TELEMETRY_MODULE_INDEXES: TelemetryModuleIndex[] = [
       "admin_queue_viewed",
       "admin_roster_viewed",
       "admin_user_detail_viewed",
+      "admin_creator_created_directly",
       "creator_application_review_saved",
     ],
     fallbackSources: ["analytics_event_facts", "ga4"],
@@ -589,7 +597,10 @@ export const ADMIN_TELEMETRY_LOG_EVENT_NAMES = [
   "admin_queue_viewed",
   "admin_roster_viewed",
   "admin_user_detail_viewed",
+  "admin_creator_created_directly",
   "creator_application_review_saved",
+  "creator_intro_acknowledged",
+  "creator_contract_signed",
   "navigation_click",
   "viewer_opened",
   "viewer_content_loaded",

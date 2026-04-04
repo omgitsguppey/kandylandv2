@@ -23,7 +23,7 @@ const CREATOR_STEPS = [
     },
     {
         title: "Enter manual review",
-        description: "Finish signup and your application will move into manual review while legal and ID steps are completed.",
+        description: "Finish signup and your application will move into manual review. The creator intro, identity package, and agreement steps happen next on your waiting page.",
         icon: ShieldCheck,
     },
 ] as const;
@@ -153,7 +153,7 @@ export default function CreatorApplyPage() {
                             What you will need later
                         </h2>
                         <p className="mt-3 text-sm leading-7 text-gray-400">
-                            Be ready to review legal paperwork and upload the front and back of a government-issued photo ID. Those steps will appear on your waiting page only when the backend review stage actually reaches them.
+                            Be ready to acknowledge the short creator intro, upload the full verification package, and review the in-app agreement. Those steps appear on your waiting page only when the backend review stage actually reaches them.
                         </p>
                     </article>
                 </section>

@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { adminAuth, adminDb } from "@/lib/server/firebase-admin";
 import { normalizeCreatorApplication } from "@/lib/creator-application";
-import { CREATOR_COLLECTIONS, isCreatorRole } from "@/lib/creator-experiences";
+import { DEFAULT_CREATOR_RESTRICTIONS, DEFAULT_CREATOR_SETTINGS, CREATOR_COLLECTIONS, isCreatorRole } from "@/lib/creator-experiences";
 import {
+    buildCreatorOnboardingCanonicalRecord,
     type CreatorOnboardingBlockingReason,
     type CreatorOnboardingApprovalStatus,
+    type CreatorContractDocumentStatus,
+    type CreatorContractSignatureStatus,
     type CreatorOnboardingIdStatus,
     type CreatorOnboardingLegalStatus,
     type CreatorOnboardingSegmentStatus,
@@ -12,12 +16,21 @@ import {
     type CreatorReviewQueueBucket,
 } from "@/lib/creator-onboarding";
 import { handleApiError } from "@/lib/server/auth";
-import { ensureCreatorOnboardingSubmission, CREATOR_REVIEW_QUEUE_COLLECTION } from "@/lib/server/creator-onboarding";
-import { adminDb } from "@/lib/server/firebase-admin";
+import { DEFAULT_CREATOR_TEMPLATE_ID, DEFAULT_CREATOR_TEMPLATE_LABEL } from "@/lib/creator-contract";
+import {
+    buildCreatorOnboardingStatusChangeHistoryEntries,
+    ensureCreatorOnboardingSubmission,
+    CREATOR_REVIEW_QUEUE_COLLECTION,
+    isCreatorOwnerEmail,
+    PRIMARY_CREATOR_OWNER_EMAIL,
+    recordCreatorOnboardingHistoryEntries,
+    syncCreatorOnboardingDocuments,
+} from "@/lib/server/creator-onboarding";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
+import { generateUniqueUsernameSuggestion } from "@/lib/server/username-suggestions";
 
 type RosterRole = "user" | "creator" | "admin";
 type RosterStatus = "active" | "suspended" | "banned";
@@ -43,9 +56,14 @@ type CreatorReviewQueueRosterEntry = RosterEntry & {
     legalStatus: CreatorOnboardingLegalStatus;
     idVerificationStatus: CreatorOnboardingIdStatus;
     segmentationStatus: CreatorOnboardingSegmentStatus;
+    contractDocumentStatus: CreatorContractDocumentStatus;
+    creatorSignatureStatus: CreatorContractSignatureStatus;
+    adminSignatureStatus: CreatorContractSignatureStatus;
     creatorPrimaryPlatform?: string;
     creatorContentFocus?: string;
     blockingReasons: CreatorOnboardingBlockingReason[];
+    introAcknowledgedAt?: number;
+    ownerOverrideActive?: boolean;
     readyForApproval: boolean;
     creatorReviewQueueVisible: boolean;
     submittedAt: number;
@@ -57,7 +75,15 @@ type CreatorReviewQueueRosterEntry = RosterEntry & {
     idDocumentBackFileName?: string;
     idDocumentFrontContentType?: string;
     idDocumentBackContentType?: string;
+    idDocumentFaceFileName?: string;
+    idDocumentVideoFileName?: string;
+    idDocumentFaceContentType?: string;
+    idDocumentVideoContentType?: string;
     idDocumentCount: number;
+    creatorTemplateId?: string;
+    creatorTemplateLabel?: string;
+    kycDueAt?: number;
+    reapplyAvailableAt?: number;
     adminNotes?: string;
     reviewedBy?: string;
 };
@@ -75,8 +101,6 @@ type CreatorOpsAggregate = {
     totalAccruedGd: number;
     pendingCashoutGd: number;
 };
-
-const PRIMARY_ROSTER_ADMIN_EMAIL = "uylusjohnson@gmail.com";
 
 function toTimestampNumber(value: unknown): number {
     if (typeof value === "number" && Number.isFinite(value)) {
@@ -194,9 +218,14 @@ function serializeQueueEntry(
         segmentationStatus: raw.segmentationStatus === "segment_assigned"
             ? "segment_assigned"
             : "segment_unassigned",
+        contractDocumentStatus: raw.contractDocumentStatus === "contract_sent" ? "contract_sent" : "contract_not_sent",
+        creatorSignatureStatus: raw.creatorSignatureStatus === "signature_signed" ? "signature_signed" : "signature_pending",
+        adminSignatureStatus: raw.adminSignatureStatus === "signature_signed" ? "signature_signed" : "signature_pending",
         creatorPrimaryPlatform: readString(raw.creatorPrimaryPlatform) || undefined,
         creatorContentFocus: readString(raw.creatorContentFocus) || undefined,
         blockingReasons: readStringArray(raw.blockingReasons) as CreatorOnboardingBlockingReason[],
+        introAcknowledgedAt: toTimestampNumber(raw.introAcknowledgedAt) || undefined,
+        ownerOverrideActive: raw.ownerOverrideActive === true,
         readyForApproval: readBoolean(raw.readyForApproval),
         creatorReviewQueueVisible: raw.creatorReviewQueueVisible !== false,
         submittedAt: toTimestampNumber(raw.submittedAt),
@@ -215,6 +244,12 @@ function serializeQueueEntry(
         idDocumentBackFileName: readString(raw.idDocumentBackFileName)
             || creatorApplication?.idDocuments?.back?.fileName
             || undefined,
+        idDocumentFaceFileName: readString(raw.idDocumentFaceFileName)
+            || creatorApplication?.idDocuments?.face_with_id?.fileName
+            || undefined,
+        idDocumentVideoFileName: readString(raw.idDocumentVideoFileName)
+            || creatorApplication?.idDocuments?.video_with_id?.fileName
+            || undefined,
         idDocumentFrontContentType: readString(raw.idDocumentFrontContentType)
             || creatorApplication?.idDocuments?.front?.contentType
             || ((!creatorApplication?.idDocuments || Object.keys(creatorApplication.idDocuments).length === 0)
@@ -224,11 +259,26 @@ function serializeQueueEntry(
         idDocumentBackContentType: readString(raw.idDocumentBackContentType)
             || creatorApplication?.idDocuments?.back?.contentType
             || undefined,
+        idDocumentFaceContentType: readString(raw.idDocumentFaceContentType)
+            || creatorApplication?.idDocuments?.face_with_id?.contentType
+            || undefined,
+        idDocumentVideoContentType: readString(raw.idDocumentVideoContentType)
+            || creatorApplication?.idDocuments?.video_with_id?.contentType
+            || undefined,
         idDocumentCount: typeof raw.idDocumentCount === "number" && Number.isFinite(raw.idDocumentCount)
             ? Math.max(0, Math.trunc(raw.idDocumentCount))
-            : [creatorApplication?.idDocuments?.front ?? ((!creatorApplication?.idDocuments || Object.keys(creatorApplication.idDocuments).length === 0) ? creatorApplication?.idDocument : undefined), creatorApplication?.idDocuments?.back]
+            : [
+                creatorApplication?.idDocuments?.front ?? ((!creatorApplication?.idDocuments || Object.keys(creatorApplication.idDocuments).length === 0) ? creatorApplication?.idDocument : undefined),
+                creatorApplication?.idDocuments?.back,
+                creatorApplication?.idDocuments?.face_with_id,
+                creatorApplication?.idDocuments?.video_with_id,
+            ]
                 .filter(Boolean)
                 .length,
+        creatorTemplateId: readString(raw.creatorTemplateId) || undefined,
+        creatorTemplateLabel: readString(raw.creatorTemplateLabel) || undefined,
+        kycDueAt: toTimestampNumber(raw.kycDueAt) || undefined,
+        reapplyAvailableAt: toTimestampNumber(raw.reapplyAvailableAt) || undefined,
         adminNotes: readString(raw.adminNotes) || undefined,
         reviewedBy: readString(raw.reviewedBy) || undefined,
     };
@@ -461,7 +511,7 @@ export async function GET(request: NextRequest) {
         });
 
         const rosterUsers = allUsers
-            .filter((entry) => isCreatorRole(entry.role) || (entry.role === "admin" && entry.email.toLowerCase() === PRIMARY_ROSTER_ADMIN_EMAIL))
+            .filter((entry) => isCreatorRole(entry.role) || (entry.role === "admin" && entry.email.toLowerCase() === PRIMARY_CREATOR_OWNER_EMAIL))
             .sort((left, right) => {
                 if (left.role !== right.role) {
                     return left.role === "admin" ? -1 : 1;
@@ -526,5 +576,216 @@ export async function GET(request: NextRequest) {
         });
     } catch (error) {
         return handleApiError(error, "Admin.Roster.GET");
+    }
+}
+
+function readRoleLabel(value: unknown) {
+    return typeof value === "string" && value.trim().length > 0 ? value.trim() : "Admin";
+}
+
+export async function POST(request: NextRequest) {
+    try {
+        const caller = await guardApiRequest(request, {
+            routeName: "admin/roster",
+            rateLimit: ADMIN,
+            requireTrustedOrigin: true,
+            auth: "admin",
+        });
+
+        if (!adminDb || !adminAuth) {
+            return NextResponse.json({ error: "Database or auth not available" }, { status: 500 });
+        }
+
+        const body = await request.json().catch(() => ({})) as Record<string, unknown>;
+        const displayName = readString(body.displayName);
+        const email = readString(body.email).toLowerCase();
+        const preferredUsername = readString(body.handle);
+        const creatorPrimaryPlatform = readString(body.platform);
+        const creatorContentFocus = readString(body.contentType);
+        const password = readString(body.password);
+        const creatorPath = body.creatorPath === "live_override" ? "live_override" : "intake";
+        const compliancePath = body.compliancePath === "bypass" ? "bypass" : "required";
+        const ownerOverrideReason = readString(body.ownerOverrideReason)
+            || (creatorPath === "live_override" ? "Direct creator creation owner override" : "");
+        const isOwnerActor = isCreatorOwnerEmail(caller?.email);
+
+        if (
+            displayName.length < 2
+            || email.length < 5
+            || creatorPrimaryPlatform.length < 2
+            || creatorContentFocus.length < 2
+            || password.length < 6
+        ) {
+            return NextResponse.json({ error: "Enter name, email, platform, handle, content type, and a password." }, { status: 400 });
+        }
+
+        if ((creatorPath === "live_override" || compliancePath === "bypass") && !isOwnerActor) {
+            return NextResponse.json({
+                error: "Only the primary owner can bypass creator onboarding locks during direct creator creation.",
+            }, { status: 403 });
+        }
+
+        if (creatorPath === "live_override" && ownerOverrideReason.length < 8) {
+            return NextResponse.json({
+                error: "Enter an internal owner override reason before creating a live creator path directly.",
+            }, { status: 400 });
+        }
+
+        const username = await generateUniqueUsernameSuggestion({
+            preferredUsername,
+            displayName,
+            email,
+            uid: "pending-direct-creator",
+        });
+        const nowMs = Date.now();
+        const authUser = await adminAuth.createUser({
+            email,
+            password,
+            displayName,
+            emailVerified: false,
+            disabled: false,
+        });
+
+        const role = creatorPath === "live_override" ? "creator" : "user";
+        const userRef = adminDb.collection("users").doc(authUser.uid);
+        await userRef.set({
+            uid: authUser.uid,
+            email,
+            displayName,
+            username,
+            role,
+            creator: role === "creator",
+            status: "active",
+            isVerified: false,
+            gumDropsBalance: 0,
+            gumDropsPurchasedBalance: 0,
+            gumDropsRewardBalance: 0,
+            unlockedContent: [],
+            unlockedContentTimestamps: {},
+            following: [],
+            favoriteCreators: [],
+            creatorNotificationPreferences: {},
+            creatorSettings: DEFAULT_CREATOR_SETTINGS,
+            creatorRestrictions: DEFAULT_CREATOR_RESTRICTIONS,
+            createdAt: nowMs,
+        }, { merge: true });
+
+        const submission = await ensureCreatorOnboardingSubmission({
+            userId: authUser.uid,
+            email,
+            displayName,
+            username,
+            photoURL: null,
+            role,
+            createdAt: nowMs,
+            creatorDisplayName: displayName,
+            creatorPrimaryPlatform,
+            creatorContentFocus,
+            nowMs,
+            actor: {
+                id: caller?.uid ?? "admin",
+                role: "admin",
+                label: readRoleLabel(caller?.email ?? caller?.uid),
+            },
+        });
+
+        const onboardingRef = adminDb.collection("creator_onboarding").doc(authUser.uid);
+        const latestOnboardingSnap = await onboardingRef.get();
+        const currentCanonical = submission.canonical;
+        const latestCanonical = buildCreatorOnboardingCanonicalRecord({
+            userId: authUser.uid,
+            email,
+            username,
+            displayName,
+            photoURL: null,
+            role,
+            createdAt: nowMs,
+            queuePosition: currentCanonical.queuePosition,
+            creatorDisplayName: displayName,
+            creatorPrimaryPlatform,
+            creatorContentFocus,
+            nowMs,
+            source: latestOnboardingSnap.data() as Record<string, unknown> | undefined,
+        });
+
+        await adminDb.runTransaction(async (transaction) => {
+            const nextCanonical = buildCreatorOnboardingCanonicalRecord({
+                userId: authUser.uid,
+                email,
+                username,
+                displayName,
+                photoURL: null,
+                role: creatorPath === "live_override" ? "creator" : role,
+                createdAt: nowMs,
+                queuePosition: latestCanonical.queuePosition,
+                creatorDisplayName: displayName,
+                creatorPrimaryPlatform,
+                creatorContentFocus,
+                nowMs,
+                source: {
+                    ...latestCanonical,
+                    introAcknowledgedAt: nowMs,
+                    introAcknowledgedVersion: "creator_intro_2026_v1",
+                    introAcknowledgedByUid: authUser.uid,
+                    introAcknowledgedByName: displayName,
+                    creatorTemplateId: DEFAULT_CREATOR_TEMPLATE_ID,
+                    creatorTemplateLabel: DEFAULT_CREATOR_TEMPLATE_LABEL,
+                    ownerOverrideActive: creatorPath === "live_override",
+                    ownerOverrideReason: creatorPath === "live_override" ? ownerOverrideReason : undefined,
+                    ownerOverrideAt: creatorPath === "live_override" ? nowMs : undefined,
+                    ownerOverrideBy: creatorPath === "live_override" ? readRoleLabel(caller?.email ?? caller?.uid) : undefined,
+                    idVerificationStatus: compliancePath === "bypass" ? "id_verified" : "id_requested",
+                    idVerificationRequestedAt: nowMs,
+                    idVerificationSubmittedAt: compliancePath === "bypass" ? nowMs : undefined,
+                    idVerificationReviewedAt: compliancePath === "bypass" ? nowMs : undefined,
+                    contractDocumentStatus: compliancePath === "bypass" ? "contract_sent" : "contract_not_sent",
+                    creatorSignatureStatus: compliancePath === "bypass" ? "signature_signed" : "signature_pending",
+                    adminSignatureStatus: compliancePath === "bypass" ? "signature_signed" : "signature_pending",
+                    legalDocumentSentAt: compliancePath === "bypass" ? nowMs : undefined,
+                    creatorContractSignedAt: compliancePath === "bypass" ? nowMs : undefined,
+                    creatorContractSignedByName: compliancePath === "bypass" ? displayName : undefined,
+                    adminContractSignedAt: compliancePath === "bypass" ? nowMs : undefined,
+                    adminContractSignedByName: compliancePath === "bypass" ? readRoleLabel(caller?.email ?? caller?.uid) : undefined,
+                    approvalStatus: creatorPath === "live_override" ? "creator_approved" : "creator_pending",
+                    updatedAt: nowMs,
+                },
+            });
+
+            syncCreatorOnboardingDocuments(transaction, {
+                userId: authUser.uid,
+                displayName,
+                canonical: nextCanonical,
+            });
+
+            recordCreatorOnboardingHistoryEntries(
+                transaction,
+                authUser.uid,
+                buildCreatorOnboardingStatusChangeHistoryEntries({
+                    before: latestCanonical,
+                    after: nextCanonical,
+                    actor: {
+                        id: caller?.uid ?? "admin",
+                        role: "admin",
+                        label: readRoleLabel(caller?.email ?? caller?.uid),
+                    },
+                    timestamp: nowMs,
+                }),
+            );
+        });
+
+        await trackServerEvent("admin_creator_created_directly", {
+            page_path: "/admin/roster",
+            creator_path: creatorPath,
+            compliance_path: compliancePath,
+        }, authUser.uid).catch(() => undefined);
+
+        return NextResponse.json({
+            success: true,
+            userId: authUser.uid,
+            creatorPath,
+            compliancePath,
+        });
+    } catch (error) {
+        return handleApiError(error, "Admin.Roster.POST");
     }
 }

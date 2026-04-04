@@ -1,7 +1,7 @@
 # Full Scale Codebase Audit
 
 Status: Canonical audit standard and live baseline
-Last refreshed: 2026-04-03
+Last refreshed: 2026-04-04
 Last full-scale audit execution: 2026-04-03 19:16:34 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
@@ -123,32 +123,32 @@ Every tracked root-level artifact must be explainable through one of the classes
 | Root runtime or admin utility files | `middleware.ts`, `makeAdmin.js` | Runtime boundary enforcement and local admin utility behavior | Must stay truthful about their actual authority and risk; no hidden assumptions |
 
 ## Current Baseline
-Current tracked inventory baseline after this audited change on 2026-04-03:
+Current tracked inventory baseline after this audited change on 2026-04-04:
 
-- Total tracked files: `614`
+- Total tracked files: `620`
 - Root files: `42`
 - Root markdown/docs: `16`
 - Root lockfiles: `2`
 - Root config/runtime/tooling files: `24`
-- `src`: `354`
-- `src/app`: `116`
+- `src`: `358`
+- `src/app`: `118`
 - `src/components`: `65`
 - `src/context`: `4`
 - `src/hooks`: `13`
-- `src/lib`: `133`
+- `src/lib`: `135`
 - `src/lib/server`: `56`
 - `src/types`: `3`
 - `functions`: `36`
 - `functions/src`: `30`
 - `scripts`: `17`
-- `tests`: `97`
+- `tests`: `99`
 - `public`: `11`
 - `dataconnect`: `14`
 - `src/dataconnect-generated`: `15`
 - `src/dataconnect-admin-generated`: `5`
 - `functions/src/dataconnect-admin-generated`: `5`
 
-Current baseline verification on 2026-04-03:
+Current baseline verification on 2026-04-04:
 - `corepack pnpm run check` passed
 - `npx vitest run` passed
 - `npm run check:continuity` passed
@@ -165,172 +165,287 @@ Current tolerated non-blocking environment notices:
 These notices are not automatic audit failures, but they must stay explicitly known and not silently spread into product behavior.
 
 ## Active Audit Entry
-Current audit date: `2026-04-03 19:05:30 -05:00`
-Current branch / commit: `main / 56fd38d`
+Current audit date: `2026-04-03 21:02:00 -05:00`
+Current branch / commit: `main / 2e266c3`
 
 Current task:
-- full repository memory and traceability hardening pass for long-term multi-developer continuity in a local-first repo deployed through Firebase App Hosting
+- unified creator onboarding, admin roster, contract, audit-trail, fan-readiness, and Gum Drop economics verification pass
 
 Current mission:
-- make the repository itself remember its architecture, dependency classes, workflow authority, deployment context, historical pivots, and canonical continuity rules so future contributors do not need Codex, Antigravity, or founder memory as the first interpretation layer
+- simplify creator intake/admin UX aggressively
+- separate creator onboarding from generic user-management spillover
+- finalize the canonical creator onboarding flow across intro acknowledgment, KYC/ID package, native contract state, admin signature, approval, return, rejection, and creator dashboard unlock
+- verify creator-dependent fan readiness and hide dead-end creator fan surfaces when no approved creators are live
+- verify and harden backend Gum Drop source separation while preserving one visible client balance
 
 Current expected touched surfaces:
-- root/docs
-- root config and governance files
-- `scripts`
-- audit and continuity tooling references
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `REPO_MEMORY_LEDGER.md`
+- `src/lib/creator-onboarding.ts`
+- `src/lib/creator-application.ts`
+- `src/lib/server/creator-onboarding.ts`
+- `src/app/creators/apply/page.tsx`
+- `src/app/creators/waitlist/page.tsx`
+- `src/app/api/creator/onboarding/application/route.ts`
+- `src/app/api/creator/onboarding/id-submission/route.ts`
+- `src/app/admin/roster/page.tsx`
+- `src/app/api/admin/roster/route.ts`
+- `src/app/admin/user/[userId]/page.tsx`
+- `src/app/api/admin/user/[userId]/route.ts`
+- `src/app/api/admin/users/route.ts`
+- creator contract / legal / audit-trail helpers and routes where present
+- creator/fan discovery and creator experience readiness surfaces where live-creator gating is required
+- Gum Drop source-aware ledger helpers, creator spend routes, and related tests
 
 Current canonical helpers/modules expected to be used:
 - `FULL_SCALE_CODEBASE_AUDIT.md`
+- `REPO_MEMORY_LEDGER.md`
 - `EVERY_FILE_FUNCTION_CHECKLIST.md`
-- `package.json`
-- `functions/package.json`
-- `firebase.json`
-- `apphosting.yaml`
-- `AGENTS.md`
-- `.agent/workflows/pre-commit.md`
-- `scripts/repo-inventory.ts`
-- `scripts/trace-adjacent-surfaces.ts`
-- existing continuity, dependency-graph, telemetry, analytics semantics, typecheck, and Vitest verification entrypoints already codified in the repo
+- `src/lib/creator-onboarding.ts`
+- `src/lib/creator-application.ts`
+- `src/lib/server/creator-onboarding.ts`
+- `src/lib/gumdrop-ledger.ts`
+- `src/lib/server/gumdrop-ledger.ts`
+- `src/lib/creator-experiences.ts`
+- `src/lib/server/creator-experiences.ts`
+- `src/lib/server/auth.ts`
+- `src/lib/server/request-guard.ts`
+- `src/lib/server/route-diagnostics.ts`
+- `src/lib/client-error-reporting.ts`
+- existing telemetry, diagnostics, and Vitest/TypeScript/ESLint verification entrypoints already codified in the repo
 
 Current continuity note:
-- this pass must classify root/governance/platform artifacts explicitly, record the static-first to backend/server pivot without inventing missing history, distinguish assistive tooling from authoritative repo truth, and leave the repo more legible to contributors who have no private AI context
+- this pass must preserve the existing canonical onboarding helpers and working creator commerce logic, remove creator logic spillover and duplicated admin pathways, demote segment assignment out of onboarding-critical truth, and avoid claiming Gum Drop economics behavior that is not already defined in code or canonical docs
 
-Audit start recorded at: `2026-04-03 19:05:30 -05:00`
+Audit start recorded at: `2026-04-03 21:02:00 -05:00`
 
 Start-of-task audit inputs read:
 - `FULL_SCALE_CODEBASE_AUDIT.md`
+- `REPO_MEMORY_LEDGER.md`
 - `EVERY_FILE_FUNCTION_CHECKLIST.md`
 - `git status --short`
-- root/config/process surfaces including:
-  - `package.json`
-  - `functions/package.json`
-  - `firebase.json`
-  - `apphosting.yaml`
-  - `AGENTS.md`
-  - `.dependency-cruiser.cjs`
-  - `.lighthouserc.json`
-  - `eslint.config.mjs`
-  - `playwright.config.ts`
-  - `next.config.ts`
-  - `tsconfig.json`
-  - `knip.json`
-  - `backends.json`
-  - `.agent/workflows/pre-commit.md`
+- creator/admin/economics/fan-readiness surfaces including:
+  - `src/lib/creator-onboarding.ts`
+  - `src/lib/creator-application.ts`
+  - `src/lib/server/creator-onboarding.ts`
+  - `src/lib/gumdrop-ledger.ts`
+  - `src/lib/server/gumdrop-ledger.ts`
+  - `src/app/creators/apply/page.tsx`
+  - `src/app/creators/waitlist/page.tsx`
+  - `src/app/api/creator/onboarding/application/route.ts`
+  - `src/app/api/creator/onboarding/id-submission/route.ts`
+  - `src/lib/legal-documents.ts`
+  - `src/lib/orchestration/contract.ts`
+  - `functions/src/orchestration-contract.ts`
+  - `src/app/admin/roster/page.tsx`
+  - `src/app/api/admin/roster/route.ts`
+  - `src/app/admin/user/[userId]/page.tsx`
+  - `src/app/api/admin/user/[userId]/route.ts`
+  - `src/app/api/admin/users/route.ts`
+  - `src/app/api/admin/creator-options/route.ts`
+  - `src/lib/creator-public-pages.ts`
+  - `src/lib/creator-experiences.ts`
+  - `src/lib/server/creator-experiences.ts`
+  - `src/app/experiences/ExperiencesClient.tsx`
+  - `src/components/CreatorDiscoveryRail.tsx`
+  - `src/app/api/creator/relationships/route.ts`
+  - `src/app/api/user/follow/route.ts`
+  - `src/app/api/creator/messages/route.ts`
+  - `src/app/api/creator/bookings/route.ts`
+  - `src/app/api/creator/subscriptions/route.ts`
+  - `src/app/api/creators/[username]/route.ts`
 - adjacency traces for:
-  - `scripts/repo-inventory.ts`
-  - `AGENTS.md` attempted but not supported by the internal adjacency tracer because it only maps internal code files
+  - `src/lib/creator-onboarding.ts`
+  - `src/lib/server/creator-onboarding.ts`
+  - `src/app/admin/roster/page.tsx`
+  - `src/app/admin/user/[userId]/page.tsx`
+  - `src/lib/gumdrop-ledger.ts`
+  - `src/lib/server/gumdrop-ledger.ts`
 
-End-of-task audit completion recorded at: `2026-04-03 19:16:34 -05:00`
+Initial current-state findings:
+- creator onboarding still carries queue-position and segment-assignment assumptions that are no longer canonical
+- creator ID submission currently supports front/back uploads only and does not yet cover the full required verification package
+- legal flow is still mostly a URL/state field, not a native contract + signature + audit-trail product flow
+- admin roster and admin user detail both still contain overlapping creator onboarding controls, creating vertical-spaghetti duplication
+- direct creator creation and owner override are not yet implemented as first-class canonical flows
+- creator commerce already has stronger purchased-only Gum Drop spend protections than creator onboarding/admin currently has continuity
+- creator-dependent fan surfaces are partially well-gated, but the full “no live creators” and dead-end audit still requires targeted implementation review
+
+End-of-task audit completion recorded at: `2026-04-04 08:41:37 -05:00`
 
 Final touched surfaces:
 - root/docs
-- root config and governance files
-- `scripts`
+- `src/app/admin/roster`
+- `src/app/admin/user/[userId]`
+- `src/app/api/admin/roster`
+- `src/app/api/admin/users`
+- `src/app/api/creator/onboarding/id-submission`
+- `src/app/api/creator/onboarding/intro`
+- `src/app/api/creator/onboarding/contract-signature`
+- `src/app/creators/apply`
+- `src/app/creators/waitlist`
+- `src/app/creators/[username]`
+- `src/components/CreatorDiscoveryRail`
+- `src/lib/creator-application`
+- `src/lib/creator-admin`
+- `src/lib/creator-contract`
+- `src/lib/creator-onboarding`
+- `src/lib/server/creator-onboarding`
+- `src/lib/telemetry-catalog`
+- `src/types`
+- `tests/unit`
+- `tests/launch-qa`
 
 Final touched files:
-- `.agent/workflows/pre-commit.md`
-- `AGENTS.md`
-- `EVERY_FILE_FUNCTION_CHECKLIST.md`
 - `FULL_SCALE_CODEBASE_AUDIT.md`
 - `REPO_MEMORY_LEDGER.md`
-- `scripts/repo-inventory.ts`
+- `src/app/admin/roster/page.tsx`
+- `src/app/admin/user/[userId]/page.tsx`
+- `src/app/api/admin/roster/route.ts`
+- `src/app/api/admin/users/route.ts`
+- `src/app/api/creator/onboarding/id-submission/route.ts`
+- `src/app/api/creator/onboarding/intro/route.ts`
+- `src/app/api/creator/onboarding/contract-signature/route.ts`
+- `src/app/creators/[username]/CreatorProfileClient.tsx`
+- `src/app/creators/apply/page.tsx`
+- `src/app/creators/waitlist/page.tsx`
+- `src/components/CreatorDiscoveryRail.tsx`
+- `src/lib/creator-application.ts`
+- `src/lib/creator-admin.ts`
+- `src/lib/creator-contract.ts`
+- `src/lib/creator-onboarding.ts`
+- `src/lib/server/creator-onboarding.ts`
+- `src/lib/telemetry-catalog.ts`
+- `src/types/db.ts`
+- `tests/launch-qa.spec.ts`
+- `tests/unit/admin-users-route.spec.ts`
+- `tests/unit/creator-contract-signature-route.spec.ts`
+- `tests/unit/creator-id-submission-route.spec.ts`
+- `tests/unit/creator-onboarding-diagnostics.spec.ts`
+- `tests/unit/creator-onboarding-intro-route.spec.ts`
+- `tests/unit/creator-onboarding-server.spec.ts`
+- `tests/unit/creator-onboarding.spec.ts`
+- `tests/unit/creator-waitlist-page.spec.tsx`
 
 Canonical helpers/modules used in this task:
 - `FULL_SCALE_CODEBASE_AUDIT.md`
-- `EVERY_FILE_FUNCTION_CHECKLIST.md`
 - `REPO_MEMORY_LEDGER.md`
-- `package.json`
-- `functions/package.json`
-- `firebase.json`
-- `apphosting.yaml`
-- `AGENTS.md`
-- `.agent/workflows/pre-commit.md`
-- `scripts/repo-inventory.ts`
-- `scripts/trace-adjacent-surfaces.ts`
+- `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- `src/lib/creator-onboarding.ts`
+- `src/lib/creator-application.ts`
+- `src/lib/server/creator-onboarding.ts`
+- `src/lib/creator-contract.ts`
+- `src/lib/creator-admin.ts`
+- `src/lib/gumdrop-ledger.ts`
+- `src/lib/server/gumdrop-ledger.ts`
+- `src/lib/server/creator-experiences.ts`
+- `src/lib/telemetry-catalog.ts`
+- `src/lib/server/auth.ts`
+- `src/lib/server/request-guard.ts`
+- `src/lib/server/route-diagnostics.ts`
+- `src/lib/client-error-reporting.ts`
 
 Dependency decisions in this task:
-- Installed:
-  - none
-- Already present and reused:
-  - existing root and Functions dependency graphs
-  - existing continuity, dependency-graph, telemetry, analytics semantics, TypeScript, ESLint, and Vitest tooling
-- Rejected:
-  - no new package dependency or SaaS dependency was justified for this continuity-only pass
-
-Dependency/tooling classification outcome:
-- runtime, dev, local workflow, deployment/platform, governance/continuity, and generated-artifact classes are now explicitly documented in the standing audit
-- root lockfiles are now explicitly treated as a continuity contract until a future audited package-manager consolidation occurs
-- `backends.json` is now explicitly recorded as generated App Hosting metadata rather than deploy authority
+- no new npm dependencies added
+- telemetry catalog updated to keep new creator onboarding/admin emitters inside the canonical naming system
+- no platform or lockfile changes required
 
 Manual setup or authentication still required from the user:
-- none for the documentation, script, or verification work completed in this pass
-- Firebase and Google Cloud auth are still required later for real remote inspection/deploy work, but this task did not need them
+- none for code verification in this pass
+- normal authenticated admin runtime review is still required if the owner wants to inspect live creator intake data in production after deploy
 
 Exact systems audited or hardened in this pass:
-- canonical stack/build/deployment context
-- dependency/tooling classification and delta-recording rules
-- contributor continuity requirements that make Codex and Antigravity optional helpers rather than hidden authorities
-- root/governance/platform artifact accountability
-- repo-memory decision recording for major historical pivots and workflow rules
-- inventory tooling for root docs/lockfiles/config-runtime-tooling visibility
+- creator onboarding state machine and creator-facing stage model
+- creator intro acknowledgment and audit trail
+- creator verification package upload model
+- native creator agreement summary/MGSA/signature path
+- admin roster intake/live/create flows
+- owner override authority rules
+- creator approval/return/reject role-activation guards
+- user-management vs creator-roster separation
+- creator follow path canonicalization on public profile
+- creator-dependent fan discovery/readiness empty states
+- Gum Drop source-aware spend verification for creator experiences
+- creator onboarding/admin telemetry catalog coverage
 
 Exact safety, moderation, telemetry, and debug additions made:
-- no product runtime behavior changed
-- continuity safety improved by making deployment authority, dependency classes, and workflow authority explicit in tracked docs
-- repo-memory and architecture decisions now have a canonical ledger instead of relying on private context
+- added canonical creator intro acknowledgment telemetry
+- added canonical creator contract signature telemetry
+- added canonical direct-creator-creation telemetry
+- strengthened creator onboarding audit/history writes for intro, contract signature, rejection windows, and override state
+- added creator discovery client diagnostic reporting so fan-side creator readiness failures are not console-only
 
 Current follow-up gaps still open after this pass:
-- the detailed body of `EVERY_FILE_FUNCTION_CHECKLIST.md` remains a historical sweep and has not been fully regenerated against the new 614-file baseline
-- some historical evidence docs may still contain stale counts or pre-standard wording because they are snapshots, not living policy
-- `backends.json` remains a generated platform snapshot and should continue to be treated carefully in future secret-hygiene review rather than as canonical config
-- exact historical dates for early static-first to backend/server pivot milestones are still not fully recoverable from current tracked evidence
+- creator contract flow is now native and auditable, but admin countersign still operates through roster controls rather than a richer dedicated countersign screen
+- owner can choose live/direct compliance-bypass creation, but approval-time template selection is still default-backed rather than a broader template chooser UX
+- creator-dependent fan surfaces are now more truthful, but a larger live-runtime fan readiness audit is still useful once more approved creators exist
+- Gum Drop spend priority, refund behavior, expiry, and payout-linkage policy remain product questions where the repo does not yet define a fuller canonical rule
 
 Commands run in this pass:
 - `git status --short`
 - `Get-Content FULL_SCALE_CODEBASE_AUDIT.md`
+- `Get-Content REPO_MEMORY_LEDGER.md`
 - `Get-Content EVERY_FILE_FUNCTION_CHECKLIST.md`
-- `Get-Content package.json`
-- `Get-Content functions/package.json`
-- `Get-Content firebase.json`
-- `Get-Content apphosting.yaml`
-- `Get-Content AGENTS.md`
-- `Get-Content .dependency-cruiser.cjs`
-- `Get-Content .lighthouserc.json`
-- `Get-Content eslint.config.mjs`
-- `Get-Content playwright.config.ts`
-- `Get-Content next.config.ts`
-- `Get-Content tsconfig.json`
-- `Get-Content knip.json`
-- `Get-Content backends.json`
-- `Get-Content .agent/workflows/pre-commit.md`
-- `npm run trace:adjacent -- scripts/repo-inventory.ts`
+- adjacency traces for creator onboarding, roster, admin user detail, and Gum Drop ledger helpers
+- targeted source reads for creator onboarding, creator admin, creator fan-experience, contract, and Gum Drop surfaces
+- `npx eslint src/app/admin/roster/page.tsx src/app/api/admin/roster/route.ts src/app/api/admin/users/route.ts src/app/creators/apply/page.tsx src/app/creators/waitlist/page.tsx src/app/creators/[username]/CreatorProfileClient.tsx src/app/admin/user/[userId]/page.tsx src/lib/creator-onboarding.ts src/lib/server/creator-onboarding.ts src/lib/creator-application.ts src/lib/creator-admin.ts src/lib/creator-contract.ts src/types/db.ts src/app/api/creator/onboarding/id-submission/route.ts src/app/api/creator/onboarding/intro/route.ts src/app/api/creator/onboarding/contract-signature/route.ts tests/unit/creator-onboarding.spec.ts tests/unit/creator-onboarding-server.spec.ts tests/unit/creator-id-submission-route.spec.ts tests/unit/creator-waitlist-page.spec.tsx tests/unit/creator-onboarding-intro-route.spec.ts tests/unit/creator-contract-signature-route.spec.ts tests/launch-qa.spec.ts`
+- `corepack pnpm exec vitest run tests/unit/creator-onboarding.spec.ts tests/unit/creator-onboarding-server.spec.ts tests/unit/creator-id-submission-route.spec.ts tests/unit/creator-waitlist-page.spec.tsx tests/unit/creator-onboarding-application-route.spec.ts tests/unit/creator-onboarding-intro-route.spec.ts tests/unit/creator-contract-signature-route.spec.ts`
+- `corepack pnpm exec vitest run tests/unit/admin-users-route.spec.ts`
+- `corepack pnpm exec vitest run tests/unit/admin-users-route.spec.ts tests/unit/creator-onboarding-diagnostics.spec.ts tests/unit/creator-onboarding.spec.ts tests/unit/creator-onboarding-server.spec.ts tests/unit/creator-id-submission-route.spec.ts tests/unit/creator-waitlist-page.spec.tsx tests/unit/creator-onboarding-application-route.spec.ts tests/unit/creator-onboarding-intro-route.spec.ts tests/unit/creator-contract-signature-route.spec.ts`
 - `npm run check:inventory`
-- `npm run check:continuity`
+- `npm run check:telemetry`
 - `corepack pnpm run check`
 - `npx vitest run`
 
 Results:
-- all listed commands passed at the end of the pass
-- `corepack pnpm run check` passed end to end
-- `npx vitest run` passed with `69` files and `380` tests
-- `npm run check:continuity` passed with architecture, inventory, and cycle checks green
-- staged inventory now resolves to `614` tracked files after adding the repo-memory ledger
+- creator onboarding now uses one stage-based creator-facing truth model with intro acknowledgment, four-part ID package, native agreement signature, admin countersign gate, approval/return/reject separation, and owner override support
+- creator admin is now centered in the roster flow instead of spilling major onboarding controls across generic user management
+- direct creator creation exists in the roster with owner-only live/compliance-bypass paths
+- canonical follow wiring on public creator pages now routes through the creator relationship API
+- Gum Drop economics verification confirms source-aware backend separation is already active for creator-restricted spend while the client still shows one balance
+- `npm run check:inventory` passed
+- `npm run check:telemetry` passed
+- `corepack pnpm run check` passed
+- `npx vitest run` passed with `71` test files and `384` tests
 
 Known tolerated warnings/notices in this pass:
 - npm unknown env config warnings during chained npm script execution
 - Node `punycode` deprecation warnings from current Firebase/Vitest tooling
 - informational dotenv logging during `check:firebase-runtime`
-- Git warned that `REPO_MEMORY_LEDGER.md` will normalize from LF to CRLF on the next Git touch in this Windows worktree
+- telemetry audit still reports one cataloged event with no current emitter: `creator_segment_assigned`
 
 Inventory changed or not:
 - yes
-- standing tracked-file baseline is now `614`
-- net change in this pass: `613` -> `614`
-- root-file baseline is now `42`
-- root markdown/docs baseline is now `16`
+- standing tracked-file baseline has been refreshed from `614` to `620`
+- root-file baseline remains `42`
+- root markdown/docs baseline remains `16`
 - root lockfile baseline remains `2`
 - root config/runtime/tooling baseline remains `24`
+
+Current-state assessment after implementation:
+- Creator onboarding state machine: finished for the current canonical staged flow
+- KYC/contract flow: partial; the verification package, native summary/MGSA/signature, and audit trail are live, but richer countersign/template UX can still improve later
+- Admin approval/rejection/return flow: finished for the current canonical review model
+- Direct creator creation: finished, with owner-only live/compliance bypass
+- User-management spillover: finished at the default UX level; user management now hands off to the creator record instead of acting as a second intake surface
+- Creator dashboard unlock: partial; unlock is correctly tied to approval/role activation, but template selection remains default-backed rather than fully chooser-driven
+- Fan feature gating/readiness: partial; approved/live creator surfaces are truthfully gated, but broader runtime fan-readiness inspection should continue as more creators go live
+- Gum Drop source separation and spend logic: strong backend truth, with unresolved product-policy questions called out below rather than guessed
+
+Gum Drop economics verification matrix:
+- source separation: finished
+- ledger recording: finished
+- paid-vs-nonpaid logic: finished for creator-restricted spend
+- task reward accounting: finished
+- check-in accounting: finished
+- creator experience spend logic: finished
+- messaging spend logic: finished
+- admin/creator customization hooks: partial
+
+Remaining unresolved questions the repo does not fully define yet:
+- exact spend priority and refund handling when future product rules allow more mixed-source experience types
+- whether creator template selection should stay default-backed or become an explicit approval-time chooser
+- long-term retention policy for selfie/video verification assets when owner-configurable controls are expanded
 
 ## Previous 2026-04-03 Task-System Audit Reference
 
@@ -828,6 +943,30 @@ These are the current source-of-truth helpers and modules to prefer before creat
   Canonical PayPal create endpoint
 - `src/app/api/paypal/capture/route.ts`
   Canonical PayPal capture endpoint
+
+### Creator onboarding, roster, and contract flow
+- `src/lib/creator-onboarding.ts`
+  Canonical creator onboarding state model, creator-facing stages, blockers, and approval prerequisites
+- `src/lib/creator-application.ts`
+  Canonical creator-facing projection normalization and editable intake helper
+- `src/lib/server/creator-onboarding.ts`
+  Canonical onboarding projection sync, review queue materialization, history entry writing, and creator role activation gate
+- `src/lib/creator-contract.ts`
+  Canonical creator intro copy, MGSA summary/full-section content, template defaults, and contract-version constants
+- `src/lib/creator-admin.ts`
+  Canonical creator-owner authority helper for owner-only override flows
+- `src/app/api/creator/onboarding/intro/route.ts`
+  Canonical creator intro acknowledgment route
+- `src/app/api/creator/onboarding/id-submission/route.ts`
+  Canonical creator identity verification package upload route
+- `src/app/api/creator/onboarding/contract-signature/route.ts`
+  Canonical creator agreement-signature route
+- `src/app/api/admin/roster/route.ts`
+  Canonical roster inventory and direct creator creation route
+- `src/app/api/admin/users/route.ts`
+  Canonical creator approval/rejection/return mutation route
+- `src/app/admin/roster/page.tsx`
+  Canonical creator intake/live admin surface
 
 ### Drop lifecycle, scheduling, and queue parity
 - `src/lib/drop-status.ts`

@@ -36,6 +36,13 @@
  * instead of ad hoc nested status blobs with no queue materializer.
  */
 
+import {
+    CREATOR_MASTER_SERVICE_AGREEMENT_VERSION,
+    CREATOR_ONBOARDING_INTRO_VERSION,
+    DEFAULT_CREATOR_TEMPLATE_ID,
+    DEFAULT_CREATOR_TEMPLATE_LABEL,
+} from "@/lib/creator-contract";
+
 export const CREATOR_ONBOARDING_SUBMISSION_STATUSES = [
     "onboarding_started",
     "onboarding_submitted",
@@ -69,11 +76,13 @@ export const CREATOR_ONBOARDING_APPROVAL_STATUSES = [
 ] as const;
 
 export const CREATOR_ONBOARDING_BLOCKING_REASONS = [
+    "awaiting_intro_acknowledgement",
     "awaiting_legal",
+    "awaiting_creator_contract_signature",
+    "awaiting_admin_countersign",
     "awaiting_id_request",
     "awaiting_id_submission",
     "awaiting_id_review",
-    "awaiting_segment_assignment",
     "approval_needs_changes",
     "approval_rejected",
     "role_activation_blocked",
@@ -85,6 +94,8 @@ export type CreatorOnboardingIdStatus = (typeof CREATOR_ONBOARDING_ID_STATUSES)[
 export type CreatorOnboardingSegmentStatus = (typeof CREATOR_ONBOARDING_SEGMENT_STATUSES)[number];
 export type CreatorOnboardingApprovalStatus = (typeof CREATOR_ONBOARDING_APPROVAL_STATUSES)[number];
 export type CreatorOnboardingBlockingReason = (typeof CREATOR_ONBOARDING_BLOCKING_REASONS)[number];
+export type CreatorContractDocumentStatus = "contract_not_sent" | "contract_sent";
+export type CreatorContractSignatureStatus = "signature_pending" | "signature_signed";
 
 const SUBMISSION_STATUS_SET = new Set<CreatorOnboardingSubmissionStatus>(CREATOR_ONBOARDING_SUBMISSION_STATUSES);
 const LEGAL_STATUS_SET = new Set<CreatorOnboardingLegalStatus>(CREATOR_ONBOARDING_LEGAL_STATUSES);
@@ -97,16 +108,20 @@ const HISTORY_EVENT_TYPE_SET = new Set<CreatorOnboardingHistoryEventType>([
     "onboarding_submitted",
     "awaiting_manual_review",
     "admin_queue_materialized",
+    "intro_acknowledged",
     "legal_sent",
-    "legal_signed",
     "id_requested",
     "id_submitted",
     "id_verified",
     "id_rejected",
-    "segment_assigned",
+    "creator_contract_signed",
+    "admin_contract_signed",
+    "legal_signed",
     "creator_approved",
     "creator_rejected",
     "creator_needs_changes",
+    "owner_override_applied",
+    "owner_override_cleared",
     "creator_role_activated",
     "creator_role_activation_blocked",
     "admin_notes_updated",
@@ -139,6 +154,8 @@ export type CreatorOnboardingIdDocument = {
 export const CREATOR_ID_DOCUMENT_SIDES = [
     "front",
     "back",
+    "face_with_id",
+    "video_with_id",
 ] as const;
 
 export const KREATOR_EXPERIENCES_DEFINITION = "Kreator Experiences is KandyDrops' gated creator program. Approved creators can publish drops, connect directly with fans, and earn from monetized audience access inside the platform.";
@@ -164,11 +181,28 @@ export type CreatorOnboardingProjectionState = {
     creatorPrimaryPlatform?: string;
     creatorContentFocus?: string;
     bypassFanOnboarding: boolean;
+    introAcknowledgedAt?: number;
+    introAcknowledgedVersion?: string;
+    introAcknowledgedByUid?: string;
+    introAcknowledgedByName?: string;
     legalStatus: CreatorOnboardingLegalStatus;
+    contractVersion?: string;
+    contractDocumentStatus: CreatorContractDocumentStatus;
+    creatorSignatureStatus: CreatorContractSignatureStatus;
+    adminSignatureStatus: CreatorContractSignatureStatus;
     legalDocumentUrl?: string;
     legalDocumentSentAt?: number;
+    creatorContractSignedAt?: number;
+    creatorContractSignedByName?: string;
+    creatorContractSignedIp?: string;
+    creatorContractSignedUserAgent?: string;
+    adminContractSignedAt?: number;
+    adminContractSignedByName?: string;
+    adminContractSignedIp?: string;
+    adminContractSignedUserAgent?: string;
     legalDocumentSignedAt?: number;
     idVerificationStatus: CreatorOnboardingIdStatus;
+    kycDueAt?: number;
     idVerificationRequestedAt?: number;
     idVerificationSubmittedAt?: number;
     idVerificationReviewedAt?: number;
@@ -177,6 +211,14 @@ export type CreatorOnboardingProjectionState = {
     segmentationStatus: CreatorOnboardingSegmentStatus;
     segmentLabel?: string;
     segmentAssignedAt?: number;
+    creatorTemplateId?: string;
+    creatorTemplateLabel?: string;
+    ownerOverrideActive?: boolean;
+    ownerOverrideReason?: string;
+    ownerOverrideAt?: number;
+    ownerOverrideBy?: string;
+    rejectedAt?: number;
+    reapplyAvailableAt?: number;
     reviewedBy?: string;
     adminNotes?: string;
     blockingReasons: CreatorOnboardingBlockingReason[];
@@ -224,6 +266,11 @@ export type CreatorReviewQueueEntry = {
     legalStatus: CreatorOnboardingLegalStatus;
     idVerificationStatus: CreatorOnboardingIdStatus;
     segmentationStatus: CreatorOnboardingSegmentStatus;
+    contractDocumentStatus: CreatorContractDocumentStatus;
+    creatorSignatureStatus: CreatorContractSignatureStatus;
+    adminSignatureStatus: CreatorContractSignatureStatus;
+    introAcknowledgedAt?: number;
+    ownerOverrideActive?: boolean;
     readyForApproval: boolean;
     creatorReviewQueueVisible: boolean;
     blockingReasons: CreatorOnboardingBlockingReason[];
@@ -236,6 +283,10 @@ export type CreatorReviewQueueEntry = {
     idDocumentBackFileName?: string;
     idDocumentFrontContentType?: string;
     idDocumentBackContentType?: string;
+    idDocumentFaceFileName?: string;
+    idDocumentVideoFileName?: string;
+    idDocumentFaceContentType?: string;
+    idDocumentVideoContentType?: string;
     idDocumentCount: number;
     adminNotes?: string;
     reviewedBy?: string;
@@ -246,16 +297,20 @@ export type CreatorOnboardingHistoryEventType =
     | "onboarding_submitted"
     | "awaiting_manual_review"
     | "admin_queue_materialized"
+    | "intro_acknowledged"
     | "legal_sent"
-    | "legal_signed"
     | "id_requested"
     | "id_submitted"
     | "id_verified"
     | "id_rejected"
-    | "segment_assigned"
+    | "creator_contract_signed"
+    | "admin_contract_signed"
+    | "legal_signed"
     | "creator_approved"
     | "creator_rejected"
     | "creator_needs_changes"
+    | "owner_override_applied"
+    | "owner_override_cleared"
     | "creator_role_activated"
     | "creator_role_activation_blocked"
     | "admin_notes_updated";
@@ -293,16 +348,19 @@ export type CreatorOnboardingStatusSummary = {
     timeline: string;
 };
 
-type CreatorOnboardingStatusSummaryInput = Pick<
-    CreatorOnboardingProjectionState,
-    | "submissionStatus"
-    | "approvalStatus"
-    | "idVerificationStatus"
-    | "legalStatus"
-    | "segmentationStatus"
-    | "idDocument"
-    | "idDocuments"
-> & {
+type CreatorOnboardingStatusSummaryInput = {
+    submissionStatus?: CreatorOnboardingSubmissionStatus;
+    approvalStatus?: CreatorOnboardingApprovalStatus;
+    idVerificationStatus?: CreatorOnboardingIdStatus;
+    legalStatus?: CreatorOnboardingLegalStatus;
+    introAcknowledgedAt?: number;
+    contractDocumentStatus?: CreatorContractDocumentStatus;
+    creatorSignatureStatus?: CreatorContractSignatureStatus;
+    adminSignatureStatus?: CreatorContractSignatureStatus;
+    segmentationStatus?: CreatorOnboardingSegmentStatus;
+    idDocument?: CreatorOnboardingIdDocument;
+    idDocuments?: CreatorOnboardingIdDocuments;
+    reapplyAvailableAt?: number;
     blockingReasons?: CreatorOnboardingBlockingReason[];
     readyForApproval?: boolean;
 };
@@ -311,6 +369,33 @@ export type CreatorApplicantEditableFields = Pick<
     CreatorOnboardingProjectionState,
     "creatorDisplayName" | "creatorPrimaryPlatform" | "creatorContentFocus"
 >;
+
+function normalizeContractDocumentStatus(value: unknown, legalStatus?: CreatorOnboardingLegalStatus) {
+    if (value === "contract_sent") {
+        return "contract_sent" satisfies CreatorContractDocumentStatus;
+    }
+
+    if (legalStatus === "legal_sent" || legalStatus === "legal_signed") {
+        return "contract_sent" satisfies CreatorContractDocumentStatus;
+    }
+
+    return "contract_not_sent" satisfies CreatorContractDocumentStatus;
+}
+
+function normalizeContractSignatureStatus(
+    value: unknown,
+    legalStatus?: CreatorOnboardingLegalStatus,
+) {
+    if (value === "signature_signed") {
+        return "signature_signed" satisfies CreatorContractSignatureStatus;
+    }
+
+    if (legalStatus === "legal_signed") {
+        return "signature_signed" satisfies CreatorContractSignatureStatus;
+    }
+
+    return "signature_pending" satisfies CreatorContractSignatureStatus;
+}
 
 function readString(value: unknown) {
     return typeof value === "string" ? value.trim() : "";
@@ -362,6 +447,7 @@ export function canEditCreatorApplicantIntake(input: {
     }
 
     return input.approvalStatus !== "creator_approved"
+        && input.approvalStatus !== "creator_rejected"
         && input.role !== "creator"
         && input.role !== "admin";
 }
@@ -466,13 +552,18 @@ export function getCreatorOnboardingIdDocumentSummary(
 ) {
     const front = getCreatorOnboardingIdDocumentBySide(value, "front");
     const back = getCreatorOnboardingIdDocumentBySide(value, "back");
-    const count = [front, back].filter(Boolean).length;
+    const faceWithId = getCreatorOnboardingIdDocumentBySide(value, "face_with_id");
+    const videoWithId = getCreatorOnboardingIdDocumentBySide(value, "video_with_id");
+    const count = [front, back, faceWithId, videoWithId].filter(Boolean).length;
 
     return {
         front,
         back,
+        faceWithId,
+        videoWithId,
         count,
-        complete: Boolean(front && back),
+        requiredCount: CREATOR_ID_DOCUMENT_SIDES.length,
+        complete: Boolean(front && back && faceWithId && videoWithId),
     };
 }
 
@@ -616,13 +707,22 @@ export function deriveCanonicalCreatorOnboardingStatuses(
 }
 
 export function computeCreatorOnboardingBlockingReasons(input: {
+    introAcknowledgedAt?: number;
     legalStatus: CreatorOnboardingLegalStatus;
+    contractDocumentStatus: CreatorContractDocumentStatus;
+    creatorSignatureStatus: CreatorContractSignatureStatus;
+    adminSignatureStatus: CreatorContractSignatureStatus;
     idVerificationStatus: CreatorOnboardingIdStatus;
     segmentationStatus: CreatorOnboardingSegmentStatus;
     approvalStatus: CreatorOnboardingApprovalStatus;
+    ownerOverrideActive?: boolean;
     role?: string | null;
 }) {
     const blockingReasons: CreatorOnboardingBlockingReason[] = [];
+
+    if (!input.introAcknowledgedAt) {
+        blockingReasons.push("awaiting_intro_acknowledgement");
+    }
 
     if (input.approvalStatus === "creator_rejected") {
         blockingReasons.push("approval_rejected");
@@ -630,7 +730,7 @@ export function computeCreatorOnboardingBlockingReasons(input: {
         blockingReasons.push("approval_needs_changes");
     }
 
-    if (input.legalStatus !== "legal_signed") {
+    if (input.ownerOverrideActive !== true && input.contractDocumentStatus !== "contract_sent") {
         blockingReasons.push("awaiting_legal");
     }
 
@@ -642,8 +742,12 @@ export function computeCreatorOnboardingBlockingReasons(input: {
         blockingReasons.push("awaiting_id_review");
     }
 
-    if (input.segmentationStatus !== "segment_assigned") {
-        blockingReasons.push("awaiting_segment_assignment");
+    if (input.ownerOverrideActive !== true && input.contractDocumentStatus === "contract_sent") {
+        if (input.creatorSignatureStatus !== "signature_signed") {
+            blockingReasons.push("awaiting_creator_contract_signature");
+        } else if (input.adminSignatureStatus !== "signature_signed") {
+            blockingReasons.push("awaiting_admin_countersign");
+        }
     }
 
     if (input.approvalStatus === "creator_approved" && input.role !== "creator" && input.role !== "admin") {
@@ -656,20 +760,34 @@ export function computeCreatorOnboardingBlockingReasons(input: {
 }
 
 export function hasCreatorApprovalPrerequisites(input: {
+    introAcknowledgedAt?: number;
     legalStatus: CreatorOnboardingLegalStatus;
+    creatorSignatureStatus: CreatorContractSignatureStatus;
+    adminSignatureStatus: CreatorContractSignatureStatus;
     idVerificationStatus: CreatorOnboardingIdStatus;
     segmentationStatus: CreatorOnboardingSegmentStatus;
+    ownerOverrideActive?: boolean;
 }) {
-    return input.legalStatus === "legal_signed"
-        && input.idVerificationStatus === "id_verified"
-        && input.segmentationStatus === "segment_assigned";
+    if (input.ownerOverrideActive) {
+        return true;
+    }
+
+    return Boolean(input.introAcknowledgedAt)
+        && input.legalStatus === "legal_signed"
+        && input.creatorSignatureStatus === "signature_signed"
+        && input.adminSignatureStatus === "signature_signed"
+        && input.idVerificationStatus === "id_verified";
 }
 
 export function isCreatorReadyForApproval(input: {
+    introAcknowledgedAt?: number;
     legalStatus: CreatorOnboardingLegalStatus;
+    creatorSignatureStatus: CreatorContractSignatureStatus;
+    adminSignatureStatus: CreatorContractSignatureStatus;
     idVerificationStatus: CreatorOnboardingIdStatus;
     segmentationStatus: CreatorOnboardingSegmentStatus;
     approvalStatus: CreatorOnboardingApprovalStatus;
+    ownerOverrideActive?: boolean;
 }) {
     return hasCreatorApprovalPrerequisites(input)
         && input.approvalStatus === "creator_pending";
@@ -696,8 +814,29 @@ export function describeCreatorOnboardingBlockingReason(
         case "awaiting_legal":
             return {
                 reason,
-                label: "Legal still pending",
-                description: "Creator approval is blocked until legal documents have been sent and signed.",
+                label: "Contract not sent",
+                description: "Creator approval is blocked until the current agreement is sent from the native creator contract flow.",
+                severity: "warn",
+            };
+        case "awaiting_intro_acknowledgement":
+            return {
+                reason,
+                label: "Intro acknowledgment still missing",
+                description: "The creator has not yet acknowledged the required intro explaining how creator access and fan access work in KandyDrops.",
+                severity: "info",
+            };
+        case "awaiting_creator_contract_signature":
+            return {
+                reason,
+                label: "Waiting on creator signature",
+                description: "The agreement has been sent, but the creator still needs to sign before countersign and approval can continue.",
+                severity: "warn",
+            };
+        case "awaiting_admin_countersign":
+            return {
+                reason,
+                label: "Waiting on admin countersign",
+                description: "The creator signed the agreement, but admin countersign is still missing.",
                 severity: "warn",
             };
         case "awaiting_id_request":
@@ -720,13 +859,6 @@ export function describeCreatorOnboardingBlockingReason(
                 label: "Waiting on ID review",
                 description: "An ID was submitted and is waiting for admin review.",
                 severity: "info",
-            };
-        case "awaiting_segment_assignment":
-            return {
-                reason,
-                label: "Segment still unassigned",
-                description: "Admin still needs to assign a manual creator segment before approval is fully ready.",
-                severity: "warn",
             };
         case "role_activation_blocked":
             return {
@@ -770,6 +902,27 @@ export function describeCreatorFacingOnboardingBlockingReason(
                 description: CREATOR_LEGAL_WAITING_HELPER,
                 severity: "warn",
             };
+        case "awaiting_intro_acknowledgement":
+            return {
+                reason,
+                label: "Review the creator intro",
+                description: "Before compliance starts, acknowledge the short creator intro on this page so the audit trail can record that you reviewed how creator access works.",
+                severity: "info",
+            };
+        case "awaiting_creator_contract_signature":
+            return {
+                reason,
+                label: "Sign your agreement",
+                description: "Your contract is ready. Review the summary, read the full agreement, and sign it from this page.",
+                severity: "warn",
+            };
+        case "awaiting_admin_countersign":
+            return {
+                reason,
+                label: "Waiting on countersign",
+                description: "Your agreement is signed on your side. The review team still needs to countersign before approval can continue.",
+                severity: "info",
+            };
         case "awaiting_id_request":
             return {
                 reason,
@@ -789,13 +942,6 @@ export function describeCreatorFacingOnboardingBlockingReason(
                 reason,
                 label: "ID review in progress",
                 description: "Your ID files are in and waiting for manual review.",
-                severity: "info",
-            };
-        case "awaiting_segment_assignment":
-            return {
-                reason,
-                label: "Internal review still in progress",
-                description: "Your application is still moving through internal review before it can reach final approval.",
                 severity: "info",
             };
         case "role_activation_blocked":
@@ -826,9 +972,15 @@ export function getCreatorOnboardingStatusSummary(
         };
     }
 
+    const approvalStatus = value.approvalStatus ?? "creator_pending";
+    const idVerificationStatus = value.idVerificationStatus ?? "id_not_requested";
+    const legalStatus = value.legalStatus ?? "legal_pending";
+    const contractDocumentStatus = value.contractDocumentStatus ?? normalizeContractDocumentStatus(undefined, legalStatus);
+    const creatorSignatureStatus = value.creatorSignatureStatus ?? normalizeContractSignatureStatus(undefined, legalStatus);
+    const submissionStatus = value.submissionStatus ?? "awaiting_manual_review";
     const roleBlocked = (value.blockingReasons ?? []).includes("role_activation_blocked");
 
-    if (value.approvalStatus === "creator_needs_changes") {
+    if (approvalStatus === "creator_needs_changes") {
         return {
             stage: "Needs attention",
             label: "Needs attention",
@@ -837,18 +989,20 @@ export function getCreatorOnboardingStatusSummary(
         };
     }
 
-    if (value.approvalStatus === "creator_rejected" || roleBlocked) {
+    if (approvalStatus === "creator_rejected" || roleBlocked) {
         return {
             stage: "Needs attention",
             label: "Needs attention",
-            summary: value.approvalStatus === "creator_rejected"
-                ? "Your application needs creator support before it can move forward again."
+            summary: approvalStatus === "creator_rejected"
+                ? value.reapplyAvailableAt && value.reapplyAvailableAt > Date.now()
+                    ? "Your application was rejected. You can start a new creator application after the required reapply wait period ends."
+                    : "Your application was rejected. You can start a fresh creator application when you are ready to reapply."
                 : "Approval is recorded, but creator access cannot finish until the remaining intake requirements are resolved.",
             timeline: CREATOR_REVIEW_TIMELINE_COPY,
         };
     }
 
-    if (value.approvalStatus === "creator_approved") {
+    if (approvalStatus === "creator_approved") {
         return {
             stage: "Approved",
             label: "Approved",
@@ -857,27 +1011,36 @@ export function getCreatorOnboardingStatusSummary(
         };
     }
 
+    if (!value.introAcknowledgedAt) {
+        return {
+            stage: "Application received",
+            label: "Application received",
+            summary: "Your creator application is in the intake lane. Review the short creator intro on this page before identity verification begins.",
+            timeline: CREATOR_REVIEW_TIMELINE_COPY,
+        };
+    }
+
     if (
-        value.idVerificationStatus === "id_not_requested"
-        || value.idVerificationStatus === "id_requested"
-        || value.idVerificationStatus === "id_rejected"
+        idVerificationStatus === "id_not_requested"
+        || idVerificationStatus === "id_requested"
+        || idVerificationStatus === "id_rejected"
     ) {
         const idSummary = getCreatorOnboardingIdDocumentSummary(value);
         return {
             stage: "Waiting on ID verification",
             label: "Waiting on ID verification",
-            summary: value.idVerificationStatus === "id_not_requested"
+            summary: idVerificationStatus === "id_not_requested"
                 ? "ID verification is required for every creator application. The secure upload step will appear here as soon as intake setup is ready."
                 : idSummary.count === 1
-                    ? "One ID image is already in. Upload the remaining side from this page so identity review can continue."
-                    : value.idVerificationStatus === "id_rejected"
-                        ? "Your last ID submission needs a replacement. Upload fresh front and back files from this page so review can continue."
-                        : "Upload the front and back of your ID from this page so identity review can continue.",
+                    ? "Part of your verification package is already in. Upload the remaining required files from this page so identity review can continue."
+                    : idVerificationStatus === "id_rejected"
+                        ? "Your last ID submission needs a replacement. Upload a fresh verification package from this page so review can continue."
+                        : "Upload the required verification package from this page so identity review can continue.",
             timeline: CREATOR_REVIEW_TIMELINE_COPY,
         };
     }
 
-    if (value.idVerificationStatus === "id_submitted") {
+    if (idVerificationStatus === "id_submitted") {
         return {
             stage: "Waiting on ID verification",
             label: "Waiting on ID verification",
@@ -886,12 +1049,14 @@ export function getCreatorOnboardingStatusSummary(
         };
     }
 
-    if (value.legalStatus !== "legal_signed") {
+    if (legalStatus !== "legal_signed") {
         return {
             stage: "Waiting on legal",
             label: "Waiting on legal",
-            summary: value.legalStatus === "legal_sent"
-                ? "Your legal document is ready. Open it from this page and complete the signing step when you are ready."
+            summary: contractDocumentStatus === "contract_sent"
+                ? creatorSignatureStatus !== "signature_signed"
+                    ? "Your contract is ready. Open it from this page, review the summary, and complete your signature step."
+                    : "Your contract is signed on your side and is waiting for admin countersign."
                 : `${CREATOR_LEGAL_WAITING_HEADLINE} ${CREATOR_LEGAL_WAITING_HELPER}`,
             timeline: CREATOR_REVIEW_TIMELINE_COPY,
         };
@@ -906,7 +1071,7 @@ export function getCreatorOnboardingStatusSummary(
         };
     }
 
-    if (value.submissionStatus === "onboarding_started" || value.submissionStatus === "onboarding_submitted") {
+    if (submissionStatus === "onboarding_started" || submissionStatus === "onboarding_submitted") {
         return {
             stage: "Application received",
             label: "Application received",
@@ -925,9 +1090,13 @@ export function getCreatorOnboardingStatusSummary(
 
 export function deriveCreatorReviewQueueBucket(input: {
     legalStatus: CreatorOnboardingLegalStatus;
+    creatorSignatureStatus: CreatorContractSignatureStatus;
+    adminSignatureStatus: CreatorContractSignatureStatus;
     idVerificationStatus: CreatorOnboardingIdStatus;
     segmentationStatus: CreatorOnboardingSegmentStatus;
     approvalStatus: CreatorOnboardingApprovalStatus;
+    introAcknowledgedAt?: number;
+    ownerOverrideActive?: boolean;
 }) {
     if (input.approvalStatus === "creator_approved") {
         return "approved" satisfies CreatorReviewQueueBucket;
@@ -943,6 +1112,10 @@ export function deriveCreatorReviewQueueBucket(input: {
 
     if (isCreatorReadyForApproval(input)) {
         return "ready_for_approval" satisfies CreatorReviewQueueBucket;
+    }
+
+    if (!input.introAcknowledgedAt) {
+        return "newest_submissions" satisfies CreatorReviewQueueBucket;
     }
 
     if (input.idVerificationStatus !== "id_verified") {
@@ -974,22 +1147,49 @@ export function buildCreatorOnboardingProjectionState(input: {
     const onboardingSubmittedAt = readOptionalTimestamp(sourceRecord?.["onboardingSubmittedAt"]) ?? submittedAt;
     const awaitingManualReviewAt = readOptionalTimestamp(sourceRecord?.["awaitingManualReviewAt"]) ?? onboardingSubmittedAt;
     const updatedAt = readOptionalTimestamp(sourceRecord?.["updatedAt"]) ?? input.nowMs;
-    const legalStatus = canonicalStatuses.legalStatus;
+    const contractDocumentStatus = normalizeContractDocumentStatus(
+        sourceRecord?.["contractDocumentStatus"],
+        canonicalStatuses.legalStatus,
+    );
+    const creatorSignatureStatus = normalizeContractSignatureStatus(
+        sourceRecord?.["creatorSignatureStatus"],
+        canonicalStatuses.legalStatus,
+    );
+    const adminSignatureStatus = normalizeContractSignatureStatus(
+        sourceRecord?.["adminSignatureStatus"],
+        canonicalStatuses.legalStatus,
+    );
+    const legalStatus = creatorSignatureStatus === "signature_signed" && adminSignatureStatus === "signature_signed"
+        ? "legal_signed"
+        : contractDocumentStatus === "contract_sent"
+            ? "legal_sent"
+            : canonicalStatuses.legalStatus;
     const idVerificationStatus = canonicalStatuses.idVerificationStatus;
     const segmentationStatus = canonicalStatuses.segmentationStatus;
     const approvalStatus = canonicalStatuses.approvalStatus;
-    const blockingReasons = normalizeBlockingReasons(source?.blockingReasons) || computeCreatorOnboardingBlockingReasons({
+    const introAcknowledgedAt = readOptionalTimestamp(sourceRecord?.["introAcknowledgedAt"]);
+    const ownerOverrideActive = sourceRecord?.["ownerOverrideActive"] === true;
+    const blockingReasons = computeCreatorOnboardingBlockingReasons({
+        introAcknowledgedAt,
         legalStatus,
+        contractDocumentStatus,
+        creatorSignatureStatus,
+        adminSignatureStatus,
         idVerificationStatus,
         segmentationStatus,
         approvalStatus,
+        ownerOverrideActive,
         role: input.role,
     });
     const readyForApproval = isCreatorReadyForApproval({
+        introAcknowledgedAt,
         legalStatus,
+        creatorSignatureStatus,
+        adminSignatureStatus,
         idVerificationStatus,
         segmentationStatus,
         approvalStatus,
+        ownerOverrideActive,
     });
 
     return {
@@ -1006,11 +1206,28 @@ export function buildCreatorOnboardingProjectionState(input: {
         creatorPrimaryPlatform: readString(input.creatorPrimaryPlatform) || undefined,
         creatorContentFocus: readString(input.creatorContentFocus) || undefined,
         bypassFanOnboarding: sourceRecord?.["bypassFanOnboarding"] !== false,
+        introAcknowledgedAt,
+        introAcknowledgedVersion: readString(sourceRecord?.["introAcknowledgedVersion"]) || CREATOR_ONBOARDING_INTRO_VERSION,
+        introAcknowledgedByUid: readString(sourceRecord?.["introAcknowledgedByUid"]) || undefined,
+        introAcknowledgedByName: readString(sourceRecord?.["introAcknowledgedByName"]) || undefined,
         legalStatus,
+        contractVersion: readString(sourceRecord?.["contractVersion"]) || CREATOR_MASTER_SERVICE_AGREEMENT_VERSION,
+        contractDocumentStatus,
+        creatorSignatureStatus,
+        adminSignatureStatus,
         legalDocumentUrl: readString(sourceRecord?.["legalDocumentUrl"]) || undefined,
         legalDocumentSentAt: readOptionalTimestamp(sourceRecord?.["legalDocumentSentAt"]),
+        creatorContractSignedAt: readOptionalTimestamp(sourceRecord?.["creatorContractSignedAt"]),
+        creatorContractSignedByName: readString(sourceRecord?.["creatorContractSignedByName"]) || undefined,
+        creatorContractSignedIp: readString(sourceRecord?.["creatorContractSignedIp"]) || undefined,
+        creatorContractSignedUserAgent: readString(sourceRecord?.["creatorContractSignedUserAgent"]) || undefined,
+        adminContractSignedAt: readOptionalTimestamp(sourceRecord?.["adminContractSignedAt"]),
+        adminContractSignedByName: readString(sourceRecord?.["adminContractSignedByName"]) || undefined,
+        adminContractSignedIp: readString(sourceRecord?.["adminContractSignedIp"]) || undefined,
+        adminContractSignedUserAgent: readString(sourceRecord?.["adminContractSignedUserAgent"]) || undefined,
         legalDocumentSignedAt: readOptionalTimestamp(sourceRecord?.["legalDocumentSignedAt"]),
         idVerificationStatus,
+        kycDueAt: readOptionalTimestamp(sourceRecord?.["kycDueAt"]),
         idVerificationRequestedAt: readOptionalTimestamp(sourceRecord?.["idVerificationRequestedAt"]),
         idVerificationSubmittedAt: readOptionalTimestamp(sourceRecord?.["idVerificationSubmittedAt"]),
         idVerificationReviewedAt: readOptionalTimestamp(sourceRecord?.["idVerificationReviewedAt"]),
@@ -1020,6 +1237,14 @@ export function buildCreatorOnboardingProjectionState(input: {
         segmentLabel: readString(sourceRecord?.["segmentLabel"]) || undefined,
         segmentAssignedAt: readOptionalTimestamp(sourceRecord?.["segmentAssignedAt"])
             ?? readOptionalTimestamp(sourceRecord?.["segmentedAt"]),
+        creatorTemplateId: readString(sourceRecord?.["creatorTemplateId"]) || DEFAULT_CREATOR_TEMPLATE_ID,
+        creatorTemplateLabel: readString(sourceRecord?.["creatorTemplateLabel"]) || DEFAULT_CREATOR_TEMPLATE_LABEL,
+        ownerOverrideActive,
+        ownerOverrideReason: readString(sourceRecord?.["ownerOverrideReason"]) || undefined,
+        ownerOverrideAt: readOptionalTimestamp(sourceRecord?.["ownerOverrideAt"]),
+        ownerOverrideBy: readString(sourceRecord?.["ownerOverrideBy"]) || undefined,
+        rejectedAt: readOptionalTimestamp(sourceRecord?.["rejectedAt"]),
+        reapplyAvailableAt: readOptionalTimestamp(sourceRecord?.["reapplyAvailableAt"]),
         reviewedBy: readString(sourceRecord?.["reviewedBy"]) || undefined,
         adminNotes: readString(sourceRecord?.["adminNotes"]) || undefined,
         blockingReasons,
@@ -1071,11 +1296,28 @@ export function buildCreatorOnboardingUserProjection(
         creatorPrimaryPlatform: canonical.creatorPrimaryPlatform,
         creatorContentFocus: canonical.creatorContentFocus,
         bypassFanOnboarding: canonical.bypassFanOnboarding,
+        introAcknowledgedAt: canonical.introAcknowledgedAt,
+        introAcknowledgedVersion: canonical.introAcknowledgedVersion,
+        introAcknowledgedByUid: canonical.introAcknowledgedByUid,
+        introAcknowledgedByName: canonical.introAcknowledgedByName,
         legalStatus: canonical.legalStatus,
+        contractVersion: canonical.contractVersion,
+        contractDocumentStatus: canonical.contractDocumentStatus,
+        creatorSignatureStatus: canonical.creatorSignatureStatus,
+        adminSignatureStatus: canonical.adminSignatureStatus,
         legalDocumentUrl: canonical.legalDocumentUrl,
         legalDocumentSentAt: canonical.legalDocumentSentAt,
+        creatorContractSignedAt: canonical.creatorContractSignedAt,
+        creatorContractSignedByName: canonical.creatorContractSignedByName,
+        creatorContractSignedIp: canonical.creatorContractSignedIp,
+        creatorContractSignedUserAgent: canonical.creatorContractSignedUserAgent,
+        adminContractSignedAt: canonical.adminContractSignedAt,
+        adminContractSignedByName: canonical.adminContractSignedByName,
+        adminContractSignedIp: canonical.adminContractSignedIp,
+        adminContractSignedUserAgent: canonical.adminContractSignedUserAgent,
         legalDocumentSignedAt: canonical.legalDocumentSignedAt,
         idVerificationStatus: canonical.idVerificationStatus,
+        kycDueAt: canonical.kycDueAt,
         idVerificationRequestedAt: canonical.idVerificationRequestedAt,
         idVerificationSubmittedAt: canonical.idVerificationSubmittedAt,
         idVerificationReviewedAt: canonical.idVerificationReviewedAt,
@@ -1084,6 +1326,14 @@ export function buildCreatorOnboardingUserProjection(
         segmentationStatus: canonical.segmentationStatus,
         segmentLabel: canonical.segmentLabel,
         segmentAssignedAt: canonical.segmentAssignedAt,
+        creatorTemplateId: canonical.creatorTemplateId,
+        creatorTemplateLabel: canonical.creatorTemplateLabel,
+        ownerOverrideActive: canonical.ownerOverrideActive,
+        ownerOverrideReason: canonical.ownerOverrideReason,
+        ownerOverrideAt: canonical.ownerOverrideAt,
+        ownerOverrideBy: canonical.ownerOverrideBy,
+        rejectedAt: canonical.rejectedAt,
+        reapplyAvailableAt: canonical.reapplyAvailableAt,
         reviewedBy: canonical.reviewedBy,
         adminNotes: canonical.adminNotes,
         blockingReasons: canonical.blockingReasons,
@@ -1128,17 +1378,26 @@ export function buildCreatorOnboardingCanonicalRecord(input: {
             : undefined,
     });
     const blockingReasons = computeCreatorOnboardingBlockingReasons({
+        introAcknowledgedAt: projection.introAcknowledgedAt,
         legalStatus: projection.legalStatus,
+        contractDocumentStatus: projection.contractDocumentStatus,
+        creatorSignatureStatus: projection.creatorSignatureStatus,
+        adminSignatureStatus: projection.adminSignatureStatus,
         idVerificationStatus: projection.idVerificationStatus,
         segmentationStatus: projection.segmentationStatus,
         approvalStatus: projection.approvalStatus,
+        ownerOverrideActive: projection.ownerOverrideActive,
         role,
     });
     const readyForApproval = isCreatorReadyForApproval({
+        introAcknowledgedAt: projection.introAcknowledgedAt,
         legalStatus: projection.legalStatus,
+        creatorSignatureStatus: projection.creatorSignatureStatus,
+        adminSignatureStatus: projection.adminSignatureStatus,
         idVerificationStatus: projection.idVerificationStatus,
         segmentationStatus: projection.segmentationStatus,
         approvalStatus: projection.approvalStatus,
+        ownerOverrideActive: projection.ownerOverrideActive,
     });
 
     return {
@@ -1209,9 +1468,13 @@ export function buildCreatorReviewQueueEntry(input: {
     const idDocumentSummary = getCreatorOnboardingIdDocumentSummary(canonical);
     const queueBucket = deriveCreatorReviewQueueBucket({
         legalStatus: canonical.legalStatus,
+        creatorSignatureStatus: canonical.creatorSignatureStatus,
+        adminSignatureStatus: canonical.adminSignatureStatus,
         idVerificationStatus: canonical.idVerificationStatus,
         segmentationStatus: canonical.segmentationStatus,
         approvalStatus: canonical.approvalStatus,
+        introAcknowledgedAt: canonical.introAcknowledgedAt,
+        ownerOverrideActive: canonical.ownerOverrideActive,
     });
 
     return {
@@ -1233,6 +1496,11 @@ export function buildCreatorReviewQueueEntry(input: {
         legalStatus: canonical.legalStatus,
         idVerificationStatus: canonical.idVerificationStatus,
         segmentationStatus: canonical.segmentationStatus,
+        contractDocumentStatus: canonical.contractDocumentStatus,
+        creatorSignatureStatus: canonical.creatorSignatureStatus,
+        adminSignatureStatus: canonical.adminSignatureStatus,
+        introAcknowledgedAt: canonical.introAcknowledgedAt,
+        ownerOverrideActive: canonical.ownerOverrideActive,
         readyForApproval: canonical.readyForApproval,
         creatorReviewQueueVisible: canonical.creatorReviewQueueVisible,
         blockingReasons: canonical.blockingReasons,
@@ -1243,8 +1511,12 @@ export function buildCreatorReviewQueueEntry(input: {
         idDocumentFileName: canonical.idDocument?.fileName,
         idDocumentFrontFileName: idDocumentSummary.front?.fileName,
         idDocumentBackFileName: idDocumentSummary.back?.fileName,
+        idDocumentFaceFileName: idDocumentSummary.faceWithId?.fileName,
+        idDocumentVideoFileName: idDocumentSummary.videoWithId?.fileName,
         idDocumentFrontContentType: idDocumentSummary.front?.contentType,
         idDocumentBackContentType: idDocumentSummary.back?.contentType,
+        idDocumentFaceContentType: idDocumentSummary.faceWithId?.contentType,
+        idDocumentVideoContentType: idDocumentSummary.videoWithId?.contentType,
         idDocumentCount: idDocumentSummary.count,
         adminNotes: canonical.adminNotes,
         reviewedBy: canonical.reviewedBy,

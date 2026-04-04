@@ -2,6 +2,7 @@ import "server-only";
 
 import type { Transaction } from "firebase-admin/firestore";
 
+import { PRIMARY_CREATOR_OWNER_EMAIL, isCreatorOwnerEmail } from "@/lib/creator-admin";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { normalizeCreatorApplication, resolveCreatorQueuePosition } from "@/lib/creator-application";
 import {
@@ -25,6 +26,8 @@ export type CreatorOnboardingActor = {
     role: "creator" | "admin" | "system";
     label: string;
 };
+
+export { PRIMARY_CREATOR_OWNER_EMAIL, isCreatorOwnerEmail };
 
 function stripUndefinedDeep<T>(value: T): T {
     if (value === undefined) {
@@ -186,12 +189,33 @@ export function buildCreatorOnboardingStatusChangeHistoryEntries(input: {
         );
     }
 
-    if (input.before.legalStatus !== input.after.legalStatus) {
-        if (input.after.legalStatus === "legal_sent") {
-            addEntry("legal_sent", "Legal documents sent to creator");
-        } else if (input.after.legalStatus === "legal_signed") {
-            addEntry("legal_signed", "Legal documents signed by creator");
-        }
+    if (!input.before.introAcknowledgedAt && input.after.introAcknowledgedAt) {
+        addEntry("intro_acknowledged", "Creator intro acknowledged");
+    }
+
+    if (
+        input.before.contractDocumentStatus !== input.after.contractDocumentStatus
+        && input.after.contractDocumentStatus === "contract_sent"
+    ) {
+        addEntry("legal_sent", "Legal documents sent to creator");
+    }
+
+    if (
+        input.before.creatorSignatureStatus !== input.after.creatorSignatureStatus
+        && input.after.creatorSignatureStatus === "signature_signed"
+    ) {
+        addEntry("creator_contract_signed", "Creator signed the agreement");
+    }
+
+    if (
+        input.before.adminSignatureStatus !== input.after.adminSignatureStatus
+        && input.after.adminSignatureStatus === "signature_signed"
+    ) {
+        addEntry("admin_contract_signed", "Admin countersigned the agreement");
+    }
+
+    if (input.before.legalStatus !== input.after.legalStatus && input.after.legalStatus === "legal_signed") {
+        addEntry("legal_signed", "Legal documents fully signed");
     }
 
     if (input.before.idVerificationStatus !== input.after.idVerificationStatus) {
@@ -201,15 +225,6 @@ export function buildCreatorOnboardingStatusChangeHistoryEntries(input: {
             addEntry("id_verified", "Creator ID verified");
         } else if (input.after.idVerificationStatus === "id_rejected") {
             addEntry("id_rejected", "Creator ID rejected");
-        }
-    }
-
-    if (
-        input.before.segmentationStatus !== input.after.segmentationStatus
-        || input.before.segmentLabel !== input.after.segmentLabel
-    ) {
-        if (input.after.segmentationStatus === "segment_assigned") {
-            addEntry("segment_assigned", "Creator segment assigned", input.after.segmentLabel || undefined);
         }
     }
 
@@ -225,6 +240,14 @@ export function buildCreatorOnboardingStatusChangeHistoryEntries(input: {
 
     if (input.before.adminNotes !== input.after.adminNotes && readString(input.after.adminNotes)) {
         addEntry("admin_notes_updated", "Creator admin notes updated");
+    }
+
+    if (input.before.ownerOverrideActive !== input.after.ownerOverrideActive) {
+        if (input.after.ownerOverrideActive) {
+            addEntry("owner_override_applied", "Owner override applied", input.after.ownerOverrideReason || undefined);
+        } else {
+            addEntry("owner_override_cleared", "Owner override cleared");
+        }
     }
 
     if (input.before.role !== "creator" && input.after.role === "creator") {
@@ -341,8 +364,7 @@ export async function ensureCreatorOnboardingSubmission(input: {
                 onboardingSubmittedAt: nowMs,
                 awaitingManualReviewAt: nowMs,
                 updatedAt: nowMs,
-                idVerificationStatus: "id_requested",
-                idVerificationRequestedAt: nowMs,
+                idVerificationStatus: "id_not_requested",
             },
         });
 

@@ -26,10 +26,12 @@ const mockState = vi.hoisted(() => ({
                 creatorContentFocus: "Pop culture creator notes",
                 bypassFanOnboarding: true,
                 legalStatus: "legal_pending",
-                idVerificationStatus: "id_requested",
-                idVerificationRequestedAt: 1_710_000_000_100,
+                contractDocumentStatus: "contract_not_sent",
+                creatorSignatureStatus: "signature_pending",
+                adminSignatureStatus: "signature_pending",
+                idVerificationStatus: "id_not_requested",
                 segmentationStatus: "segment_unassigned",
-                blockingReasons: ["awaiting_legal", "awaiting_id_submission", "awaiting_segment_assignment"],
+                blockingReasons: ["awaiting_intro_acknowledgement", "awaiting_legal", "awaiting_id_request"],
                 readyForApproval: false,
                 creatorReviewQueueVisible: true,
             },
@@ -80,7 +82,9 @@ describe("CreatorWaitlistPage", () => {
     it("renders stage-based status without exposing a synthetic queue position", () => {
         const markup = renderToStaticMarkup(<CreatorWaitlistPage />);
 
-        expect(markup).toContain("Stage: Waiting on ID verification");
+        expect(markup).toContain("Stage: Application received");
+        expect(markup).toContain("Creator intro");
+        expect(markup).toContain("Acknowledge creator intro");
         expect(markup).toContain("Revise your application");
         expect(markup).toContain("No queue number is used on this page. Status is stage-based only.");
         expect(markup).not.toContain("777");

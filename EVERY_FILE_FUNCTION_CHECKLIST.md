@@ -1,16 +1,16 @@
 # Every File and Function Checklist
 
 Generated: 2026-03-19T18:15:26.903Z
-Last continuity note refresh: 2026-04-03
+Last continuity note refresh: 2026-04-04
 
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
-Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-03 inventory yet.
+Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-04 inventory yet.
 
 Historical sweep file-body baseline: 413 tracked files
-Current tracked baseline in the standing audit: 614 tracked files after the 2026-04-03 repo-memory hardening pass
+Current tracked baseline in the standing audit: 620 tracked files after the 2026-04-04 creator onboarding and economics finalization pass
 Detected function-like implementations in this historical sweep: 3161
 
 ## [x] .agent/workflows/pre-commit.md

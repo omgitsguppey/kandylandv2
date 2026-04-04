@@ -7,6 +7,7 @@ import { CheckCircle2, Heart, Sparkles, Users } from "lucide-react";
 
 import { useAuth } from "@/context/AuthContext";
 import { authFetch } from "@/lib/authFetch";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 import { buildCreatorDiscoveryNavigationParams } from "@/lib/creator-public-pages";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/telemetry";
@@ -89,7 +90,17 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
                     setLoading(false);
                 }
             } catch (error) {
-                console.error("Failed to load creator discovery", error);
+                reportClientIssue({
+                    channel: "ui",
+                    severity: "warn",
+                    message: "Creator discovery rail failed to load",
+                    error,
+                    detail: {
+                        surface,
+                        signedIn: Boolean(user),
+                    },
+                    consoleLabel: "[CreatorDiscoveryRail] load failed",
+                });
                 if (!cancelled) {
                     setLoading(false);
                 }
