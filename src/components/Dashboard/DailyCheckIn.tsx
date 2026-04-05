@@ -138,7 +138,7 @@ export function DailyCheckIn() {
             import("canvas-confetti").then((confettiModule) => {
                 const launchConfetti = confettiModule.default;
                 const end = Date.now() + 1000;
-                const colors = ["#ec4899", "#facc15"];
+                const colors = ["#a476ff", "#facc15"];
 
                 (function frame() {
                     launchConfetti({ particleCount: 2, angle: 60, spread: 55, origin: { x: 0 }, colors });
@@ -219,7 +219,7 @@ export function DailyCheckIn() {
                                 <div
                                     className={cn(
                                         "w-full h-1.5 rounded-full transition-all",
-                                        isActive ? "bg-brand-purple shadow-[0_0_10px_#ec4899]" : "bg-white/10"
+                                        isActive ? "bg-brand-purple shadow-[0_0_10px_rgba(164,118,255,0.8)]" : "bg-white/10"
                                     )}
                                 />
                                 <span
@@ -240,7 +240,7 @@ export function DailyCheckIn() {
                 </p>
 
                 {!canCheckIn ? (
-                    <div className="w-full py-4 rounded-xl bg-white/5 border border-white/5 text-center text-gray-400 font-medium flex items-center justify-center gap-2">
+                    <div className="w-full py-4 rounded-2xl bg-white/5 border border-white/5 text-center text-gray-400 font-medium flex items-center justify-center gap-2">
                         <CheckCircle className="w-5 h-5 text-brand-purple" />
                         Come back tomorrow for {nextRewardAmount} Drops!
                     </div>
@@ -251,7 +251,7 @@ export function DailyCheckIn() {
                         disabled={loading}
                         data-onboarding-target="daily-reward-claim"
                         data-onboarding-radius="16"
-                        className="w-full py-6 text-lg rounded-xl text-white shadow-[0_0_20px_rgba(236,72,153,0.3)] _0_30px_rgba(236,72,153,0.5)]"
+                        className="w-full py-6 text-lg rounded-2xl text-white shadow-[0_0_20px_rgba(164,118,255,0.35)] hover:shadow-[0_0_30px_rgba(164,118,255,0.5)] transition-shadow"
                     >
                         {loading ? (
                             <Loader2 className="w-5 h-5 animate-spin" />
