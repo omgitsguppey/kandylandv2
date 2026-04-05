@@ -124,8 +124,8 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
 
     const header = title || (followedCreators.length > 0 ? "Creators you follow" : "Recommended creators");
     const support = followedCreators.length > 0
-        ? "Jump back into the approved creator profiles already in your fan loop."
-        : "Start following creators to unlock drops, private requests, and live creator experiences.";
+        ? "Jump back into your creator loop."
+        : "Follow creators to unlock drops and private requests.";
     const emptyTitle = surface === "dashboard"
         ? "Creator spotlight opens as creators go live"
         : surface === "drops"
@@ -140,8 +140,8 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
     if (primaryCreators.length === 0) {
         return (
             <section className={cn(
-                "glass-panel rounded-[2rem] border border-white/10 p-4 sm:p-5",
-                compact ? "space-y-3" : "space-y-4",
+                "glass-panel rounded-[2rem] border border-white/10 p-3 sm:p-4",
+                compact ? "space-y-2" : "space-y-3",
             )}>
                 <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
                     <Sparkles className="h-3.5 w-3.5" />
@@ -160,8 +160,8 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
 
     return (
         <section className={cn(
-            "glass-panel rounded-[2rem] border border-white/10 p-4 sm:p-5",
-            compact ? "space-y-3" : "space-y-4",
+            "glass-panel rounded-[2rem] border border-white/10 p-3 sm:p-4",
+            compact ? "space-y-2" : "space-y-3",
         )}>
             <div className="flex items-start justify-between gap-4">
                 <div>
@@ -169,7 +169,7 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
                         <Sparkles className="h-3.5 w-3.5" />
                         Creator spotlight
                     </div>
-                    <h3 className="mt-3 text-lg font-black text-white sm:text-xl">{header}</h3>
+                    <h3 className="mt-2 text-balance text-lg font-black text-white sm:text-xl">{header}</h3>
                     <p className="mt-1 max-w-2xl text-sm leading-6 text-gray-400">{support}</p>
                 </div>
                 <div className="hidden shrink-0 rounded-2xl border border-white/10 bg-black/30 px-3 py-2 text-right sm:block">

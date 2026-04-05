@@ -1393,23 +1393,29 @@ export default function AdminAnalyticsPage() {
               <SectionCard title="Auth Outcome Split" subtitle="Start, finish, and average completion speed by auth method." icon={Users}>
                 <div className="grid gap-4 lg:grid-cols-[0.85fr_1.15fr]">
                   <div className="h-64 w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={authBreakdown.map((item) => ({ name: item.method, value: item.successes }))}
-                          dataKey="value"
-                          nameKey="name"
-                          innerRadius={56}
-                          outerRadius={86}
-                          paddingAngle={4}
-                        >
-                          {authBreakdown.map((item, index) => (
-                            <Cell key={item.method} fill={PIE_COLORS[index % PIE_COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <Tooltip content={<AnalyticsTooltip />} />
-                      </PieChart>
-                    </ResponsiveContainer>
+                    {authBreakdown.length > 0 ? (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={authBreakdown.map((item) => ({ name: item.method, value: item.successes }))}
+                            dataKey="value"
+                            nameKey="name"
+                            innerRadius={56}
+                            outerRadius={86}
+                            paddingAngle={4}
+                          >
+                            {authBreakdown.map((item, index) => (
+                              <Cell key={item.method} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                            ))}
+                          </Pie>
+                          <Tooltip content={<AnalyticsTooltip />} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="flex h-full items-center justify-center rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
+                        No sign-in data in this range.
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-3">
@@ -1440,15 +1446,21 @@ export default function AdminAnalyticsPage() {
               <SectionCard title="Onboarding Velocity" subtitle="How long new users take to finish the guided tour on mobile." icon={PlayCircle}>
                 <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
                   <div className="h-64 w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={onboardingDurationBuckets} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
-                        <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-                        <XAxis dataKey="label" stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
-                        <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
-                        <Tooltip content={<AnalyticsTooltip />} />
-                        <Bar dataKey="count" name="Completions" fill="#b28cff" radius={[10, 10, 0, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
+                    {onboardingStartCount > 0 ? (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={onboardingDurationBuckets} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
+                          <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                          <XAxis dataKey="label" stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                          <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                          <Tooltip content={<AnalyticsTooltip />} />
+                          <Bar dataKey="count" name="Completions" fill="#b28cff" radius={[10, 10, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="flex h-full items-center justify-center rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
+                        No onboarding data in this range.
+                      </div>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 self-start">
@@ -1509,17 +1521,23 @@ export default function AdminAnalyticsPage() {
                 </div>
 
                 <div className="mt-5 h-72 w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={semanticQualityCards} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
-                      <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-                      <XAxis dataKey="label" stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
-                      <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
-                      <Tooltip content={<AnalyticsTooltip />} />
-                      <Bar dataKey="views" name="Views" fill="#b28cff" radius={[10, 10, 0, 0]} />
-                      <Bar dataKey="engaged" name="Engaged" fill="#22d3ee" radius={[10, 10, 0, 0]} />
-                      <Bar dataKey="bounced" name="Bounced" fill="#f59e0b" radius={[10, 10, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
+                  {semanticQualityCards.some(card => card.views > 0 || card.engaged > 0 || card.bounced > 0) ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={semanticQualityCards} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
+                        <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                        <XAxis dataKey="label" stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                        <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                        <Tooltip content={<AnalyticsTooltip />} />
+                        <Bar dataKey="views" name="Views" fill="#b28cff" radius={[10, 10, 0, 0]} />
+                        <Bar dataKey="engaged" name="Engaged" fill="#22d3ee" radius={[10, 10, 0, 0]} />
+                        <Bar dataKey="bounced" name="Bounced" fill="#f59e0b" radius={[10, 10, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="flex h-full items-center justify-center rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
+                      No quality analytics data in this range.
+                    </div>
+                  )}
                 </div>
               </SectionCard>
             </div>

@@ -583,7 +583,7 @@ export default function CreatorProfileClient() {
                                 </div>
                                 <p className="mt-2 font-medium text-brand-purple">@{creator.username}</p>
                                 <p className="mt-3 max-w-2xl text-sm leading-7 text-gray-300 sm:text-base">
-                                    {creator.bio || "This creator profile is live and ready for fans to follow, browse drops, and unlock approved creator experiences."}
+                                    {creator.bio || "Live creator profile. Ready for fans and drops."}
                                 </p>
                                 <div className="mt-4 flex flex-wrap gap-2">
                                     <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-gray-200">
@@ -607,7 +607,7 @@ export default function CreatorProfileClient() {
                                     type="button"
                                     onClick={handleFollow}
                                     disabled={followLoading}
-                                    className={`flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-bold transition-all ${following ? "border border-white/15 bg-white/10 text-white" : "bg-brand-purple text-white shadow-lg shadow-brand-purple/20"}`}
+                                    className={`flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-bold transition-all ${following ? "border border-white/15 bg-white/10 text-white" : "bg-brand-purple text-white shadow-lg shadow-brand-purple/20"}`}
                                 >
                                     {followLoading ? (
                                         <Loader2 className="h-5 w-5 animate-spin" />
@@ -630,7 +630,7 @@ export default function CreatorProfileClient() {
                                         }
                                         void handleRelationshipAction(favorited ? "unfavorite" : "favorite");
                                     }}
-                                    className={`flex w-full items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-bold transition-all ${favorited ? "border-brand-purple/30 bg-brand-purple/15 text-brand-purple" : "border-white/10 bg-white/5 text-white"}`}
+                                    className={`flex w-full items-center justify-center gap-2 rounded-2xl border px-4 py-2.5 text-sm font-bold transition-all ${favorited ? "border-brand-purple/30 bg-brand-purple/15 text-brand-purple" : "border-white/10 bg-white/5 text-white"}`}
                                 >
                                     <Heart className="h-4 w-4" />
                                     {favorited ? "Saved to favorites" : "Save creator"}
@@ -644,7 +644,7 @@ export default function CreatorProfileClient() {
                                         }
                                         void handleRelationshipAction(notificationsEnabled ? "disable_notifications" : "enable_notifications");
                                     }}
-                                    className={`flex w-full items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-bold transition-all ${notificationsEnabled ? "border-white/20 bg-white/15 text-white" : "border-white/10 bg-white/5 text-gray-200"}`}
+                                    className={`flex w-full items-center justify-center gap-2 rounded-2xl border px-4 py-2.5 text-sm font-bold transition-all ${notificationsEnabled ? "border-white/20 bg-white/15 text-white" : "border-white/10 bg-white/5 text-gray-200"}`}
                                 >
                                     <Bell className="h-4 w-4" />
                                     {notificationsEnabled ? "Alerts on" : "Turn on alerts"}
@@ -654,7 +654,7 @@ export default function CreatorProfileClient() {
                     </div>
 
                     {summaryCards.length > 0 ? (
-                        <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                             {summaryCards.map((card) => (
                                 <article key={card.key} className="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-4">
                                     <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-gray-500">{card.eyebrow}</p>
@@ -664,13 +664,13 @@ export default function CreatorProfileClient() {
                             ))}
                         </div>
                     ) : (
-                        <div className="mt-5 rounded-[1.5rem] border border-dashed border-white/10 bg-white/[0.03] px-4 py-4 text-sm leading-6 text-gray-400">
+                        <div className="mt-4 rounded-[1.5rem] border border-dashed border-white/10 bg-white/[0.03] px-4 py-4 text-sm leading-6 text-gray-400">
                             This creator profile is live, but fan-facing experiences have not been switched on yet.
                         </div>
                     )}
                 </section>
 
-                <div className="mt-6 space-y-6">
+                <div className="mt-6 space-y-4">
                     {(creatorSettings.subscriptionsEnabled || creatorSettings.messagingEnabled) ? (
                         <div className="grid gap-4 lg:grid-cols-2">
                             {creatorSettings.subscriptionsEnabled ? (

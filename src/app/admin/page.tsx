@@ -15,7 +15,7 @@ import { TopDropsPanel } from "@/components/Admin/TopDropsPanel";
 
 export default function AdminDashboardPage() {
     return (
-        <div className="space-y-4 md:space-y-6">
+        <div className="space-y-3 md:space-y-4">
             <PageViewEvent eventName="admin_dashboard_viewed" />
             <AdminPageHeader
                 eyebrow="Control Room"
@@ -38,8 +38,8 @@ export default function AdminDashboardPage() {
                         </Link>
                     )}
                 >
-                    <div className="space-y-4">
-                        <div className="overflow-hidden rounded-[1.6rem] border border-white/10 bg-gradient-to-r from-brand-purple/10 to-transparent p-4 md:p-5">
+                    <div className="space-y-3">
+                        <div className="overflow-hidden rounded-[1.6rem] border border-white/10 bg-gradient-to-r from-brand-purple/10 to-transparent p-3 md:p-4">
                             <div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between">
                                 <div className="flex items-center gap-4">
                                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-purple/20 text-brand-purple md:h-12 md:w-12 md:rounded-2xl">

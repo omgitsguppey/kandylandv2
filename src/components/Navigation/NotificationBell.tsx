@@ -230,7 +230,7 @@ function NotificationItem({
   const isRead = Boolean(currentUserId && note.readBy.includes(currentUserId));
   const relativeTime = note.createdAt?.toDate
     ? formatDistanceToNow(note.createdAt.toDate(), { addSuffix: true })
-    : "Just now";
+    : "Recent";
   const autoMarkedReadRef = useRef(false);
 
   const markViewedAsRead = async () => {
@@ -289,35 +289,20 @@ function NotificationItem({
   };
 
   return (
-    <div className="rounded-[1.5rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] p-3 shadow-[0_14px_34px_rgba(0,0,0,0.28)] transition-colors hover:bg-white/[0.08]">
-      <div className="flex gap-3">
+    <div className="rounded-[1.5rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] p-2.5 shadow-[0_14px_34px_rgba(0,0,0,0.28)] transition-colors hover:bg-white/[0.08]">
+      <div className="flex gap-2.5">
         <NotificationThumbnail note={note} />
 
         <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-3">
+          <div className="flex items-start justify-between gap-2.5">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-1.5">
                 <span className="text-[10px] font-black uppercase tracking-[0.16em] text-gray-400">
                   KandyDrops
                 </span>
-                <span
-                  className={cn(
-                    "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.14em]",
-                    pill.className,
-                  )}
-                >
-                  <PillIcon className="h-2.5 w-2.5" />
-                  {taskRelated ? "Task" : pill.label}
-                </span>
-                {isRead ? (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.14em] text-gray-300">
-                    <Check className="h-2.5 w-2.5" />
-                    Read
-                  </span>
-                ) : null}
               </div>
               <p className="mt-1 text-sm font-semibold leading-5 text-white">{note.title}</p>
-              {subject ? (
+              {isExpanded && subject ? (
                 <p className="mt-1 text-[11px] font-medium text-gray-400">
                   {subject}
                 </p>
@@ -329,7 +314,7 @@ function NotificationItem({
               ) : null}
             </div>
 
-            <div className="flex shrink-0 flex-col items-end gap-2">
+            <div className="flex shrink-0 flex-col items-end gap-2.5">
               <span className="text-[10px] font-medium text-gray-500">{relativeTime}</span>
               <button
                 type="button"

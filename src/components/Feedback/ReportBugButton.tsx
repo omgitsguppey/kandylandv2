@@ -201,7 +201,7 @@ export function ReportBugButton({
   const buttonClassName = cn(
     "transition-colors active:scale-95",
     variant === "floating"
-      ? "inline-flex h-11 items-center gap-2 rounded-full border border-white/10 bg-black/60 px-4 text-xs font-semibold text-gray-200 shadow-xl shadow-black/40 backdrop-blur-md hover:border-brand-purple/30 hover:text-white"
+      ? "inline-flex h-10 items-center gap-2 rounded-full border border-white/10 bg-black/60 px-3.5 text-[11px] font-semibold text-gray-200 shadow-xl shadow-black/40 backdrop-blur-md hover:border-brand-purple/30 hover:text-white"
       : variant === "pill"
         ? "inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-gray-300 hover:border-brand-purple/30 hover:text-white"
         : variant === "icon"

@@ -16,6 +16,9 @@ const NAV_ITEMS = [
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/roster", label: "Roster", icon: ListChecks },
   { href: "/admin/debug", label: "Debug", icon: Terminal },
+  { href: "/admin/ai", label: "AI", icon: Terminal },
+  { href: "/admin/content", label: "Content", icon: Package },
+  { href: "/admin/economy", label: "Economy", icon: TrendingUp },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
