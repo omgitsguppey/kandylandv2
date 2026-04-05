@@ -33,7 +33,7 @@ export default function MobileBottomBar() {
     return (
         <div
             className="pointer-events-none fixed inset-x-0 z-40 px-3 md:hidden sm:px-4"
-            style={{ bottom: "calc(env(safe-area-inset-bottom) + 0.45rem)" }}
+            style={{ bottom: "calc(env(safe-area-inset-bottom) + 0.85rem)" }}
         >
             <nav
                 className="pointer-events-auto mx-auto flex max-w-7xl items-center justify-between rounded-full border border-white/10 bg-black/55 px-3.5 py-2 shadow-xl shadow-black/40 backdrop-blur-xl"
