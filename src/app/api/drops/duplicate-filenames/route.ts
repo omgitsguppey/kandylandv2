@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
 
         const { fileNames, excludeDropId } = duplicateFilenameSchema.parse(await request.json());
         const normalizedTargets = Array.from(new Set(fileNames.map(normalizeFileName)));
-        const snapshot = await adminDb.collection("drops").get();
+        const snapshot = await adminDb.collection("drops").where("creatorId", "==", caller.uid).get();
 
         const matches = snapshot.docs.flatMap((doc) => {
             if (excludeDropId && doc.id === excludeDropId) {
