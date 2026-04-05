@@ -45,7 +45,7 @@ export default function CreatorProfileClient() {
     const username = params.username as string;
 
     const [activeTab, setActiveTab] = useState<"drops" | "experiences">("drops");
-    const [creator, setCreator] = useState<UserProfile | null>(null);
+    const [creator, setCreator] = useState<(UserProfile & { followerCount?: number }) | null>(null);
     const [drops, setDrops] = useState<Drop[]>([]);
     const [loading, setLoading] = useState(true);
     const [following, setFollowing] = useState(false);
@@ -81,7 +81,7 @@ export default function CreatorProfileClient() {
                 });
                 const result = await response.json() as {
                     success?: boolean;
-                    creator?: UserProfile;
+                    creator?: UserProfile & { followerCount?: number };
                     drops?: Drop[];
                 };
 
@@ -576,9 +576,12 @@ export default function CreatorProfileClient() {
                                         {creator.bio}
                                     </p>
                                 ) : null}
-                                <div className="mt-4 flex flex-wrap gap-4">
+                                <div className="mt-4 flex flex-wrap items-center gap-4">
                                     <span className="text-sm">
                                         <b className="text-white">{drops.length}</b> <span className="text-gray-400">Drops</span>
+                                    </span>
+                                    <span className="text-sm">
+                                        <b className="text-white">{creator.followerCount || 0}</b> <span className="text-gray-400">Followers</span>
                                     </span>
                                 </div>
                             </div>

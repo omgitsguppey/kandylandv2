@@ -46,6 +46,9 @@ export async function GET(
             return NextResponse.json({ error: "Creator not found" }, { status: 404 });
         }
 
+        const opsSnapshot = await adminDb.collection("creator_ops").doc(creatorDoc.id).get();
+        const followerCount = opsSnapshot.exists ? (Number((opsSnapshot.data()?.summary as { followerCount?: number })?.followerCount) || 0) : 0;
+
         const creator = {
             uid: creatorDoc.id,
             displayName: typeof creatorRaw.displayName === "string" ? creatorRaw.displayName : "Creator",
@@ -54,6 +57,7 @@ export async function GET(
             bannerUrl: typeof creatorRaw.bannerUrl === "string" ? creatorRaw.bannerUrl : undefined,
             bio: typeof creatorRaw.bio === "string" ? creatorRaw.bio : undefined,
             isVerified: creatorRaw.isVerified === true,
+            followerCount,
             creatorSettings: normalizeCreatorSettings(creatorRaw.creatorSettings),
         };
 
