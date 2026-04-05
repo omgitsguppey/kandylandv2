@@ -243,3 +243,7 @@ Result:
     - **Architecture**: Extracted `CompactTitleMarquee` from `src/app/admin/drops/page.tsx` into a new global shared component `src/components/ui/TitleMarquee.tsx`.
     - **Typography Integrity**: Replaced raw `drop.title` variables inside `DropCard` and `FeaturedCarousel` with the new responsive `TitleMarquee` system while ensuring trailing descriptions are universally capped at strict `line-clamp-1` and `line-clamp-2` configs.
     - **Visual Compaction**: Migrated the `CreatorDiscoveryRail` layout completely to an Instagram-story style horizontal bubble array. Adjusted `StickyFilterBar` with a native expansion array (showing 4 primary tags) clamped by a dynamic Chevron toggle layout. Moved `ScrollToTop` floating node to identically match the global active system constraints.
+
+## Wallet Module UI & Metadata Compaction
+- **Root Cause Identified**: The Wallet module possessed excessive vertical footprint and visually confusing card structures. The PayPal metadata taxonomy was using legacy identifiers that didn't match the localized naming.
+- **Fix Implemented**: Renamed localized string metadata matching the platform taxonomies: 'Sugar Rush Pack', 'Sweet Pack', 'Kandy Bag Pack', 'Kandy Land Pack', and 'King Size Bundle'. Overhauled module UI with a 2-line horizontal grid structure for packages, injected a direct profile balance chip, standardized standard tracking, and decreased physical height bounding box styling padding across the module base grid layout.

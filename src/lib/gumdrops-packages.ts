@@ -6,10 +6,10 @@ export interface GumdropPackageDefinition {
 }
 
 export const FIXED_GUMDROP_PACKAGES: GumdropPackageDefinition[] = [
-    { drops: 100, priceUsd: 1, label: "Starter Pack" },
-    { drops: 550, priceUsd: 5, label: "Fan Pack", bonus: "+50 Bonus" },
-    { drops: 1100, priceUsd: 10, label: "Premium Stash", bonus: "+100 Bonus" },
-    { drops: 2500, priceUsd: 20, label: "Ultimate Kandy", bonus: "+500 Bonus" },
+    { drops: 100, priceUsd: 1, label: "Sugar Rush Pack" },
+    { drops: 550, priceUsd: 5, label: "Sweet Pack", bonus: "+50 Bonus" },
+    { drops: 1100, priceUsd: 10, label: "Kandy Bag Pack", bonus: "+100 Bonus" },
+    { drops: 2500, priceUsd: 20, label: "Kandy Land Pack", bonus: "+500 Bonus" },
 ];
 
 export function isBundleGumdropAmount(drops: number) {
