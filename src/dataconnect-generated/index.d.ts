@@ -1,4 +1,4 @@
-import { ConnectorConfig, DataConnect, QueryRef, QueryPromise, MutationRef, MutationPromise } from 'firebase/data-connect';
+import { ConnectorConfig, DataConnect, QueryRef, QueryPromise, ExecuteQueryOptions, MutationRef, MutationPromise } from 'firebase/data-connect';
 
 export const connectorConfig: ConnectorConfig;
 
@@ -157,6 +157,6 @@ interface ListAiInteractionsRef {
 }
 export const listAiInteractionsRef: ListAiInteractionsRef;
 
-export function listAiInteractions(): QueryPromise<ListAiInteractionsData, undefined>;
-export function listAiInteractions(dc: DataConnect): QueryPromise<ListAiInteractionsData, undefined>;
+export function listAiInteractions(options?: ExecuteQueryOptions): QueryPromise<ListAiInteractionsData, undefined>;
+export function listAiInteractions(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListAiInteractionsData, undefined>;
 

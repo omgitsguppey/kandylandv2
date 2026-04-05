@@ -177,7 +177,7 @@ extend type AiInteraction {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "AiInteraction.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "AiInteraction.id", purpose: ENTITY_ID)
 }
 extend type AnalyticsAlert {
   """
@@ -341,7 +341,7 @@ extend type AnalyticsAlert {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "AnalyticsAlert.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "AnalyticsAlert.id", purpose: ENTITY_ID)
 }
 extend type AnalyticsBundleDaily {
   """
@@ -820,7 +820,7 @@ extend type AnalyticsBundleDaily {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "AnalyticsBundleDaily.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "AnalyticsBundleDaily.id", purpose: ENTITY_ID)
 }
 extend type AnalyticsCommerceDaily {
   """
@@ -1412,7 +1412,7 @@ extend type AnalyticsCommerceDaily {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "AnalyticsCommerceDaily.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "AnalyticsCommerceDaily.id", purpose: ENTITY_ID)
 }
 extend type AnalyticsCommerceRollup {
   """
@@ -1960,7 +1960,7 @@ extend type AnalyticsCommerceRollup {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "AnalyticsCommerceRollup.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "AnalyticsCommerceRollup.id", purpose: ENTITY_ID)
 }
 extend type AnalyticsDropDaily {
   """
@@ -2404,7 +2404,7 @@ extend type AnalyticsDropDaily {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "AnalyticsDropDaily.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "AnalyticsDropDaily.id", purpose: ENTITY_ID)
 }
 extend type AnalyticsEventFact {
   """
@@ -2772,7 +2772,7 @@ extend type AnalyticsEventFact {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "AnalyticsEventFact.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "AnalyticsEventFact.id", purpose: ENTITY_ID)
 }
 extend type AnalyticsExportStatus {
   """
@@ -2928,7 +2928,7 @@ extend type AnalyticsExportStatus {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "AnalyticsExportStatus.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "AnalyticsExportStatus.id", purpose: ENTITY_ID)
 }
 extend type AnalyticsHeatmapPoint {
   """
@@ -3048,7 +3048,7 @@ extend type AnalyticsHeatmapPoint {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "AnalyticsHeatmapPoint.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "AnalyticsHeatmapPoint.id", purpose: ENTITY_ID)
 }
 extend type AnalyticsPageDaily {
   """
@@ -3404,7 +3404,7 @@ extend type AnalyticsPageDaily {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "AnalyticsPageDaily.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "AnalyticsPageDaily.id", purpose: ENTITY_ID)
 }
 extend type AnalyticsSecurityDaily {
   """
@@ -3506,7 +3506,7 @@ extend type AnalyticsSecurityDaily {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "AnalyticsSecurityDaily.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "AnalyticsSecurityDaily.id", purpose: ENTITY_ID)
 }
 extend type AnalyticsSessionFact {
   """
@@ -3881,7 +3881,7 @@ extend type AnalyticsSessionFact {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "AnalyticsSessionFact.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "AnalyticsSessionFact.id", purpose: ENTITY_ID)
 }
 extend type AnalyticsTargetDaily {
   """
@@ -4054,7 +4054,7 @@ extend type AnalyticsTargetDaily {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "AnalyticsTargetDaily.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "AnalyticsTargetDaily.id", purpose: ENTITY_ID)
 }
 extend type AnalyticsTaskDaily {
   """
@@ -4261,7 +4261,7 @@ extend type AnalyticsTaskDaily {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "AnalyticsTaskDaily.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "AnalyticsTaskDaily.id", purpose: ENTITY_ID)
 }
 extend type AnalyticsTaskRollup {
   """
@@ -4477,7 +4477,7 @@ extend type AnalyticsTaskRollup {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "AnalyticsTaskRollup.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "AnalyticsTaskRollup.id", purpose: ENTITY_ID)
 }
 extend type AnalyticsUserDaily {
   """
@@ -5367,7 +5367,7 @@ extend type AnalyticsUserDaily {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "AnalyticsUserDaily.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "AnalyticsUserDaily.id", purpose: ENTITY_ID)
 }
 extend type AnalyticsUserRollup {
   """
@@ -6248,7 +6248,7 @@ extend type AnalyticsUserRollup {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "AnalyticsUserRollup.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "AnalyticsUserRollup.id", purpose: ENTITY_ID)
 }
 extend type AnalyticsUserSecurityRollup {
   """
@@ -6413,7 +6413,7 @@ extend type AnalyticsUserSecurityRollup {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "AnalyticsUserSecurityRollup.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "AnalyticsUserSecurityRollup.id", purpose: ENTITY_ID)
 }
 extend type AnalyticsWatchAsset {
   """
@@ -7140,7 +7140,7 @@ extend type AnalyticsWatchAsset {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "AnalyticsWatchAsset.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "AnalyticsWatchAsset.id", purpose: ENTITY_ID)
 }
 extend type AnalyticsWatchSession {
   """
@@ -7998,5 +7998,5 @@ extend type AnalyticsWatchSession {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "AnalyticsWatchSession.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "AnalyticsWatchSession.id", purpose: ENTITY_ID)
 }

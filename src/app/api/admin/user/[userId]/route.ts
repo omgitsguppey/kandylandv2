@@ -650,29 +650,30 @@ export async function GET(
 
         let creatorOps: Record<string, unknown> | null = null;
         if (isCreatorRole(user.role)) {
-            const [
-                relationshipSnap,
-                subscriptionSnap,
-                requestSnap,
-                bookingSnap,
-                payoutSnap,
-                accrualSnap,
-                threadSnap,
-                messageSnap,
-                broadcastSnap,
-                pendingSubmissionSnap,
-            ] = await Promise.all([
-                adminDb.collection(CREATOR_COLLECTIONS.relationships).where("creatorId", "==", userId).get(),
-                adminDb.collection(CREATOR_COLLECTIONS.subscriptions).where("creatorId", "==", userId).get(),
-                adminDb.collection(CREATOR_COLLECTIONS.requests).where("creatorId", "==", userId).orderBy("createdAt", "desc").limit(10).get(),
-                adminDb.collection(CREATOR_COLLECTIONS.bookings).where("creatorId", "==", userId).orderBy("startAt", "desc").limit(10).get(),
-                adminDb.collection(CREATOR_COLLECTIONS.payoutRequests).where("creatorId", "==", userId).orderBy("createdAt", "desc").limit(10).get(),
-                adminDb.collection(CREATOR_COLLECTIONS.ledgerAccruals).where("creatorId", "==", userId).orderBy("createdAt", "desc").limit(10).get(),
-                adminDb.collection(CREATOR_COLLECTIONS.messageThreads).where("creatorId", "==", userId).orderBy("lastMessageAt", "desc").limit(12).get(),
-                adminDb.collection(CREATOR_COLLECTIONS.messages).where("creatorId", "==", userId).orderBy("createdAt", "desc").limit(20).get(),
-                adminDb.collection(CREATOR_COLLECTIONS.broadcasts).where("creatorId", "==", userId).orderBy("createdAtMs", "desc").limit(6).get(),
-                adminDb.collection("drops").where("submittedByCreatorId", "==", userId).get(),
-            ]);
+            try {
+                const [
+                    relationshipSnap,
+                    subscriptionSnap,
+                    requestSnap,
+                    bookingSnap,
+                    payoutSnap,
+                    accrualSnap,
+                    threadSnap,
+                    messageSnap,
+                    broadcastSnap,
+                    pendingSubmissionSnap,
+                ] = await Promise.all([
+                    adminDb.collection(CREATOR_COLLECTIONS.relationships).where("creatorId", "==", userId).get(),
+                    adminDb.collection(CREATOR_COLLECTIONS.subscriptions).where("creatorId", "==", userId).get(),
+                    adminDb.collection(CREATOR_COLLECTIONS.requests).where("creatorId", "==", userId).get(),
+                    adminDb.collection(CREATOR_COLLECTIONS.bookings).where("creatorId", "==", userId).get(),
+                    adminDb.collection(CREATOR_COLLECTIONS.payoutRequests).where("creatorId", "==", userId).get(),
+                    adminDb.collection(CREATOR_COLLECTIONS.ledgerAccruals).where("creatorId", "==", userId).get(),
+                    adminDb.collection(CREATOR_COLLECTIONS.messageThreads).where("creatorId", "==", userId).get(),
+                    adminDb.collection(CREATOR_COLLECTIONS.messages).where("creatorId", "==", userId).get(),
+                    adminDb.collection(CREATOR_COLLECTIONS.broadcasts).where("creatorId", "==", userId).get(),
+                    adminDb.collection("drops").where("submittedByCreatorId", "==", userId).get(),
+                ]);
 
             const relationshipSummary = relationshipSnap.docs.reduce((acc, doc) => {
                 const data = doc.data() as Record<string, unknown>;
@@ -695,15 +696,35 @@ export async function GET(
             const subscriptions: Array<Record<string, unknown> & { id: string }> = subscriptionSnap.docs
                 .map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) }) as Record<string, unknown> & { id: string })
                 .sort((left, right) => toTimestampNumber(right["renewAt"]) - toTimestampNumber(left["renewAt"]));
-            const requests: Array<Record<string, unknown> & { id: string }> = requestSnap.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) }) as Record<string, unknown> & { id: string });
-            const bookings: Array<Record<string, unknown> & { id: string }> = bookingSnap.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) }) as Record<string, unknown> & { id: string });
-            const payouts: Array<Record<string, unknown> & { id: string }> = payoutSnap.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) }) as Record<string, unknown> & { id: string });
-            const accruals: Array<Record<string, unknown> & { id: string }> = accrualSnap.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) }) as Record<string, unknown> & { id: string });
-            const threads: Array<Record<string, unknown> & { id: string }> = threadSnap.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) }) as Record<string, unknown> & { id: string });
-            const messages: Array<Record<string, unknown> & { id: string }> = messageSnap.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) }) as Record<string, unknown> & { id: string });
+            const requests: Array<Record<string, unknown> & { id: string }> = requestSnap.docs
+                .map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) }) as Record<string, unknown> & { id: string })
+                .sort((left, right) => toTimestampNumber(right["createdAt"]) - toTimestampNumber(left["createdAt"]))
+                .slice(0, 10);
+            const bookings: Array<Record<string, unknown> & { id: string }> = bookingSnap.docs
+                .map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) }) as Record<string, unknown> & { id: string })
+                .sort((left, right) => toTimestampNumber(right["startAt"]) - toTimestampNumber(left["startAt"]))
+                .slice(0, 10);
+            const payouts: Array<Record<string, unknown> & { id: string }> = payoutSnap.docs
+                .map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) }) as Record<string, unknown> & { id: string })
+                .sort((left, right) => toTimestampNumber(right["createdAt"]) - toTimestampNumber(left["createdAt"]))
+                .slice(0, 10);
+            const accruals: Array<Record<string, unknown> & { id: string }> = accrualSnap.docs
+                .map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) }) as Record<string, unknown> & { id: string })
+                .sort((left, right) => toTimestampNumber(right["createdAt"]) - toTimestampNumber(left["createdAt"]))
+                .slice(0, 10);
+            const threads: Array<Record<string, unknown> & { id: string }> = threadSnap.docs
+                .map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) }) as Record<string, unknown> & { id: string })
+                .sort((left, right) => toTimestampNumber(right["lastMessageAt"]) - toTimestampNumber(left["lastMessageAt"]))
+                .slice(0, 12);
+            const messages: Array<Record<string, unknown> & { id: string }> = messageSnap.docs
+                .map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) }) as Record<string, unknown> & { id: string })
+                .sort((left, right) => toTimestampNumber(right["createdAt"]) - toTimestampNumber(left["createdAt"]))
+                .slice(0, 20);
             const broadcasts: Array<Record<string, unknown> & { id: string }> = broadcastSnap.docs
                 .map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) }) as Record<string, unknown> & { id: string })
-                .filter((entry) => entry["removedAt"] === undefined);
+                .filter((entry) => entry["removedAt"] === undefined)
+                .sort((left, right) => toTimestampNumber(right["createdAtMs"]) - toTimestampNumber(left["createdAtMs"]))
+                .slice(0, 6);
             const pendingSubmissions = pendingSubmissionSnap.docs
                 .map((doc) => ({
                     id: doc.id,
@@ -740,6 +761,37 @@ export async function GET(
                 broadcasts,
                 pendingSubmissions,
             };
+            } catch (error) {
+                console.warn("[Admin] Gracefully recovered from creatorOps indexing or fetch error:", error);
+                
+                creatorOps = {
+                    summary: {
+                        followerCount: 0,
+                        favoriteCount: 0,
+                        notificationsEnabledCount: 0,
+                        activeSubscribers: 0,
+                        lapsedSubscribers: 0,
+                        openRequests: 0,
+                        bookedCalls: 0,
+                        completedCalls: 0,
+                        pendingPayouts: 0,
+                        openThreads: 0,
+                        pendingDropSubmissions: 0,
+                        totalAccruedGd: 0,
+                        pendingCashoutGd: 0,
+                        broadcasts: 0,
+                    },
+                    subscriptions: [],
+                    requests: [],
+                    bookings: [],
+                    payouts: [],
+                    accruals: [],
+                    threads: [],
+                    messages: [],
+                    broadcasts: [],
+                    pendingSubmissions: [],
+                };
+            }
         }
 
         return NextResponse.json({

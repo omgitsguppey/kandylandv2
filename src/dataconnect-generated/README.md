@@ -62,7 +62,7 @@ Below are examples of how to use the `example` connector's generated functions t
 ## ListAiInteractions
 You can execute the `ListAiInteractions` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect-generated/index.d.ts](./index.d.ts):
 ```typescript
-listAiInteractions(): QueryPromise<ListAiInteractionsData, undefined>;
+listAiInteractions(options?: ExecuteQueryOptions): QueryPromise<ListAiInteractionsData, undefined>;
 
 interface ListAiInteractionsRef {
   ...
@@ -73,7 +73,7 @@ export const listAiInteractionsRef: ListAiInteractionsRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
 ```typescript
-listAiInteractions(dc: DataConnect): QueryPromise<ListAiInteractionsData, undefined>;
+listAiInteractions(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListAiInteractionsData, undefined>;
 
 interface ListAiInteractionsRef {
   ...

@@ -129,7 +129,7 @@ input AiInteraction_Data {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AiInteraction`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AiInteraction`.`completionTokens` of type `Int`
   """
@@ -137,11 +137,11 @@ input AiInteraction_Data {
   """
   ✨ `_expr` server value variant of `completionTokens` (✨ Generated from Field `AiInteraction`.`completionTokens` of type `Int`)
   """
-  completionTokens_expr: Int_Expr
+  completionTokens_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `completionTokens` (✨ Generated from Field `AiInteraction`.`completionTokens` of type `Int`)
   """
-  completionTokens_update: [Int_Update!]
+  completionTokens_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AiInteraction`.`createdAt` of type `Date!`
   """
@@ -149,15 +149,15 @@ input AiInteraction_Data {
   """
   ✨ `_date` server value variant of `createdAt` (✨ Generated from Field `AiInteraction`.`createdAt` of type `Date!`)
   """
-  createdAt_date: Date_Relative
+  createdAt_date: Date_Relative @fdc_forbiddenInVariables
   """
   ✨ `_expr` server value variant of `createdAt` (✨ Generated from Field `AiInteraction`.`createdAt` of type `Date!`)
   """
-  createdAt_expr: Date_Expr
+  createdAt_expr: Date_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `createdAt` (✨ Generated from Field `AiInteraction`.`createdAt` of type `Date!`)
   """
-  createdAt_update: [Date_Update!]
+  createdAt_update: [Date_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AiInteraction`.`latencyMs` of type `Int!`
   """
@@ -165,11 +165,11 @@ input AiInteraction_Data {
   """
   ✨ `_expr` server value variant of `latencyMs` (✨ Generated from Field `AiInteraction`.`latencyMs` of type `Int!`)
   """
-  latencyMs_expr: Int_Expr
+  latencyMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `latencyMs` (✨ Generated from Field `AiInteraction`.`latencyMs` of type `Int!`)
   """
-  latencyMs_update: [Int_Update!]
+  latencyMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AiInteraction`.`modelUsed` of type `String!`
   """
@@ -177,7 +177,7 @@ input AiInteraction_Data {
   """
   ✨ `_expr` server value variant of `modelUsed` (✨ Generated from Field `AiInteraction`.`modelUsed` of type `String!`)
   """
-  modelUsed_expr: String_Expr
+  modelUsed_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AiInteraction`.`promptContent` of type `String!`
   """
@@ -185,7 +185,7 @@ input AiInteraction_Data {
   """
   ✨ `_expr` server value variant of `promptContent` (✨ Generated from Field `AiInteraction`.`promptContent` of type `String!`)
   """
-  promptContent_expr: String_Expr
+  promptContent_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AiInteraction`.`promptTokens` of type `Int`
   """
@@ -193,11 +193,11 @@ input AiInteraction_Data {
   """
   ✨ `_expr` server value variant of `promptTokens` (✨ Generated from Field `AiInteraction`.`promptTokens` of type `Int`)
   """
-  promptTokens_expr: Int_Expr
+  promptTokens_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `promptTokens` (✨ Generated from Field `AiInteraction`.`promptTokens` of type `Int`)
   """
-  promptTokens_update: [Int_Update!]
+  promptTokens_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AiInteraction`.`responseContent` of type `String!`
   """
@@ -205,7 +205,7 @@ input AiInteraction_Data {
   """
   ✨ `_expr` server value variant of `responseContent` (✨ Generated from Field `AiInteraction`.`responseContent` of type `String!`)
   """
-  responseContent_expr: String_Expr
+  responseContent_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AiInteraction`.`userId` of type `String!`
   """
@@ -213,7 +213,7 @@ input AiInteraction_Data {
   """
   ✨ `_expr` server value variant of `userId` (✨ Generated from Field `AiInteraction`.`userId` of type `String!`)
   """
-  userId_expr: String_Expr
+  userId_expr: String_Expr @fdc_forbiddenInVariables
 }
 """
 ✨ Generated filter input type for table 'AiInteraction'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
@@ -409,7 +409,7 @@ input AiInteraction_Key {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AiInteraction`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
 }
 """
 ✨ Generated list filter input type for table 'AiInteraction'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
@@ -572,7 +572,7 @@ input AnalyticsAlert_Data {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsAlert`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsAlert`.`baseline` of type `Int`
   """
@@ -580,11 +580,11 @@ input AnalyticsAlert_Data {
   """
   ✨ `_expr` server value variant of `baseline` (✨ Generated from Field `AnalyticsAlert`.`baseline` of type `Int`)
   """
-  baseline_expr: Int_Expr
+  baseline_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `baseline` (✨ Generated from Field `AnalyticsAlert`.`baseline` of type `Int`)
   """
-  baseline_update: [Int_Update!]
+  baseline_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsAlert`.`current` of type `Int`
   """
@@ -592,11 +592,11 @@ input AnalyticsAlert_Data {
   """
   ✨ `_expr` server value variant of `current` (✨ Generated from Field `AnalyticsAlert`.`current` of type `Int`)
   """
-  current_expr: Int_Expr
+  current_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `current` (✨ Generated from Field `AnalyticsAlert`.`current` of type `Int`)
   """
-  current_update: [Int_Update!]
+  current_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsAlert`.`generatedAtMs` of type `Int!`
   """
@@ -604,11 +604,11 @@ input AnalyticsAlert_Data {
   """
   ✨ `_expr` server value variant of `generatedAtMs` (✨ Generated from Field `AnalyticsAlert`.`generatedAtMs` of type `Int!`)
   """
-  generatedAtMs_expr: Int_Expr
+  generatedAtMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `generatedAtMs` (✨ Generated from Field `AnalyticsAlert`.`generatedAtMs` of type `Int!`)
   """
-  generatedAtMs_update: [Int_Update!]
+  generatedAtMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsAlert`.`hourKey` of type `String!`
   """
@@ -616,7 +616,7 @@ input AnalyticsAlert_Data {
   """
   ✨ `_expr` server value variant of `hourKey` (✨ Generated from Field `AnalyticsAlert`.`hourKey` of type `String!`)
   """
-  hourKey_expr: String_Expr
+  hourKey_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsAlert`.`message` of type `String!`
   """
@@ -624,7 +624,7 @@ input AnalyticsAlert_Data {
   """
   ✨ `_expr` server value variant of `message` (✨ Generated from Field `AnalyticsAlert`.`message` of type `String!`)
   """
-  message_expr: String_Expr
+  message_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsAlert`.`severity` of type `String!`
   """
@@ -632,7 +632,7 @@ input AnalyticsAlert_Data {
   """
   ✨ `_expr` server value variant of `severity` (✨ Generated from Field `AnalyticsAlert`.`severity` of type `String!`)
   """
-  severity_expr: String_Expr
+  severity_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsAlert`.`type` of type `String!`
   """
@@ -640,7 +640,7 @@ input AnalyticsAlert_Data {
   """
   ✨ `_expr` server value variant of `type` (✨ Generated from Field `AnalyticsAlert`.`type` of type `String!`)
   """
-  type_expr: String_Expr
+  type_expr: String_Expr @fdc_forbiddenInVariables
 }
 """
 ✨ Generated filter input type for table 'AnalyticsAlert'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
@@ -820,7 +820,7 @@ input AnalyticsAlert_Key {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsAlert`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
 }
 """
 ✨ Generated list filter input type for table 'AnalyticsAlert'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
@@ -967,7 +967,7 @@ input AnalyticsBundleDaily_Data {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsBundleDaily`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsBundleDaily`.`adjustedProfitUsdTotal` of type `Float!`
   """
@@ -975,11 +975,11 @@ input AnalyticsBundleDaily_Data {
   """
   ✨ `_expr` server value variant of `adjustedProfitUsdTotal` (✨ Generated from Field `AnalyticsBundleDaily`.`adjustedProfitUsdTotal` of type `Float!`)
   """
-  adjustedProfitUsdTotal_expr: Float_Expr
+  adjustedProfitUsdTotal_expr: Float_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `adjustedProfitUsdTotal` (✨ Generated from Field `AnalyticsBundleDaily`.`adjustedProfitUsdTotal` of type `Float!`)
   """
-  adjustedProfitUsdTotal_update: [Float_Update!]
+  adjustedProfitUsdTotal_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsBundleDaily`.`bonusGumDropsTotal` of type `Int!`
   """
@@ -987,11 +987,11 @@ input AnalyticsBundleDaily_Data {
   """
   ✨ `_expr` server value variant of `bonusGumDropsTotal` (✨ Generated from Field `AnalyticsBundleDaily`.`bonusGumDropsTotal` of type `Int!`)
   """
-  bonusGumDropsTotal_expr: Int_Expr
+  bonusGumDropsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `bonusGumDropsTotal` (✨ Generated from Field `AnalyticsBundleDaily`.`bonusGumDropsTotal` of type `Int!`)
   """
-  bonusGumDropsTotal_update: [Int_Update!]
+  bonusGumDropsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsBundleDaily`.`bonusValueUsdTotal` of type `Float!`
   """
@@ -999,11 +999,11 @@ input AnalyticsBundleDaily_Data {
   """
   ✨ `_expr` server value variant of `bonusValueUsdTotal` (✨ Generated from Field `AnalyticsBundleDaily`.`bonusValueUsdTotal` of type `Float!`)
   """
-  bonusValueUsdTotal_expr: Float_Expr
+  bonusValueUsdTotal_expr: Float_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `bonusValueUsdTotal` (✨ Generated from Field `AnalyticsBundleDaily`.`bonusValueUsdTotal` of type `Float!`)
   """
-  bonusValueUsdTotal_update: [Float_Update!]
+  bonusValueUsdTotal_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsBundleDaily`.`bundleKey` of type `String!`
   """
@@ -1011,7 +1011,7 @@ input AnalyticsBundleDaily_Data {
   """
   ✨ `_expr` server value variant of `bundleKey` (✨ Generated from Field `AnalyticsBundleDaily`.`bundleKey` of type `String!`)
   """
-  bundleKey_expr: String_Expr
+  bundleKey_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsBundleDaily`.`bundleLabel` of type `String`
   """
@@ -1019,7 +1019,7 @@ input AnalyticsBundleDaily_Data {
   """
   ✨ `_expr` server value variant of `bundleLabel` (✨ Generated from Field `AnalyticsBundleDaily`.`bundleLabel` of type `String`)
   """
-  bundleLabel_expr: String_Expr
+  bundleLabel_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsBundleDaily`.`bundleTier` of type `String`
   """
@@ -1027,7 +1027,7 @@ input AnalyticsBundleDaily_Data {
   """
   ✨ `_expr` server value variant of `bundleTier` (✨ Generated from Field `AnalyticsBundleDaily`.`bundleTier` of type `String`)
   """
-  bundleTier_expr: String_Expr
+  bundleTier_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsBundleDaily`.`dayKey` of type `String!`
   """
@@ -1035,7 +1035,7 @@ input AnalyticsBundleDaily_Data {
   """
   ✨ `_expr` server value variant of `dayKey` (✨ Generated from Field `AnalyticsBundleDaily`.`dayKey` of type `String!`)
   """
-  dayKey_expr: String_Expr
+  dayKey_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsBundleDaily`.`deliveredGumDropsTotal` of type `Int!`
   """
@@ -1043,11 +1043,11 @@ input AnalyticsBundleDaily_Data {
   """
   ✨ `_expr` server value variant of `deliveredGumDropsTotal` (✨ Generated from Field `AnalyticsBundleDaily`.`deliveredGumDropsTotal` of type `Int!`)
   """
-  deliveredGumDropsTotal_expr: Int_Expr
+  deliveredGumDropsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `deliveredGumDropsTotal` (✨ Generated from Field `AnalyticsBundleDaily`.`deliveredGumDropsTotal` of type `Int!`)
   """
-  deliveredGumDropsTotal_update: [Int_Update!]
+  deliveredGumDropsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsBundleDaily`.`grossRevenueUsdTotal` of type `Float!`
   """
@@ -1055,11 +1055,11 @@ input AnalyticsBundleDaily_Data {
   """
   ✨ `_expr` server value variant of `grossRevenueUsdTotal` (✨ Generated from Field `AnalyticsBundleDaily`.`grossRevenueUsdTotal` of type `Float!`)
   """
-  grossRevenueUsdTotal_expr: Float_Expr
+  grossRevenueUsdTotal_expr: Float_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `grossRevenueUsdTotal` (✨ Generated from Field `AnalyticsBundleDaily`.`grossRevenueUsdTotal` of type `Float!`)
   """
-  grossRevenueUsdTotal_update: [Float_Update!]
+  grossRevenueUsdTotal_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsBundleDaily`.`lastTransactionAtMs` of type `Int`
   """
@@ -1067,11 +1067,11 @@ input AnalyticsBundleDaily_Data {
   """
   ✨ `_expr` server value variant of `lastTransactionAtMs` (✨ Generated from Field `AnalyticsBundleDaily`.`lastTransactionAtMs` of type `Int`)
   """
-  lastTransactionAtMs_expr: Int_Expr
+  lastTransactionAtMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `lastTransactionAtMs` (✨ Generated from Field `AnalyticsBundleDaily`.`lastTransactionAtMs` of type `Int`)
   """
-  lastTransactionAtMs_update: [Int_Update!]
+  lastTransactionAtMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsBundleDaily`.`netRevenueCentsTotal` of type `Int!`
   """
@@ -1079,11 +1079,11 @@ input AnalyticsBundleDaily_Data {
   """
   ✨ `_expr` server value variant of `netRevenueCentsTotal` (✨ Generated from Field `AnalyticsBundleDaily`.`netRevenueCentsTotal` of type `Int!`)
   """
-  netRevenueCentsTotal_expr: Int_Expr
+  netRevenueCentsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `netRevenueCentsTotal` (✨ Generated from Field `AnalyticsBundleDaily`.`netRevenueCentsTotal` of type `Int!`)
   """
-  netRevenueCentsTotal_update: [Int_Update!]
+  netRevenueCentsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsBundleDaily`.`netRevenueUsdTotal` of type `Float!`
   """
@@ -1091,11 +1091,11 @@ input AnalyticsBundleDaily_Data {
   """
   ✨ `_expr` server value variant of `netRevenueUsdTotal` (✨ Generated from Field `AnalyticsBundleDaily`.`netRevenueUsdTotal` of type `Float!`)
   """
-  netRevenueUsdTotal_expr: Float_Expr
+  netRevenueUsdTotal_expr: Float_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `netRevenueUsdTotal` (✨ Generated from Field `AnalyticsBundleDaily`.`netRevenueUsdTotal` of type `Float!`)
   """
-  netRevenueUsdTotal_update: [Float_Update!]
+  netRevenueUsdTotal_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsBundleDaily`.`paidGumDropsTotal` of type `Int!`
   """
@@ -1103,11 +1103,11 @@ input AnalyticsBundleDaily_Data {
   """
   ✨ `_expr` server value variant of `paidGumDropsTotal` (✨ Generated from Field `AnalyticsBundleDaily`.`paidGumDropsTotal` of type `Int!`)
   """
-  paidGumDropsTotal_expr: Int_Expr
+  paidGumDropsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `paidGumDropsTotal` (✨ Generated from Field `AnalyticsBundleDaily`.`paidGumDropsTotal` of type `Int!`)
   """
-  paidGumDropsTotal_update: [Int_Update!]
+  paidGumDropsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsBundleDaily`.`paypalFeeCentsTotal` of type `Int!`
   """
@@ -1115,11 +1115,11 @@ input AnalyticsBundleDaily_Data {
   """
   ✨ `_expr` server value variant of `paypalFeeCentsTotal` (✨ Generated from Field `AnalyticsBundleDaily`.`paypalFeeCentsTotal` of type `Int!`)
   """
-  paypalFeeCentsTotal_expr: Int_Expr
+  paypalFeeCentsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `paypalFeeCentsTotal` (✨ Generated from Field `AnalyticsBundleDaily`.`paypalFeeCentsTotal` of type `Int!`)
   """
-  paypalFeeCentsTotal_update: [Int_Update!]
+  paypalFeeCentsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsBundleDaily`.`paypalFeeUsdTotal` of type `Float!`
   """
@@ -1127,11 +1127,11 @@ input AnalyticsBundleDaily_Data {
   """
   ✨ `_expr` server value variant of `paypalFeeUsdTotal` (✨ Generated from Field `AnalyticsBundleDaily`.`paypalFeeUsdTotal` of type `Float!`)
   """
-  paypalFeeUsdTotal_expr: Float_Expr
+  paypalFeeUsdTotal_expr: Float_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `paypalFeeUsdTotal` (✨ Generated from Field `AnalyticsBundleDaily`.`paypalFeeUsdTotal` of type `Float!`)
   """
-  paypalFeeUsdTotal_update: [Float_Update!]
+  paypalFeeUsdTotal_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsBundleDaily`.`purchaseCount` of type `Int!`
   """
@@ -1139,11 +1139,11 @@ input AnalyticsBundleDaily_Data {
   """
   ✨ `_expr` server value variant of `purchaseCount` (✨ Generated from Field `AnalyticsBundleDaily`.`purchaseCount` of type `Int!`)
   """
-  purchaseCount_expr: Int_Expr
+  purchaseCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `purchaseCount` (✨ Generated from Field `AnalyticsBundleDaily`.`purchaseCount` of type `Int!`)
   """
-  purchaseCount_update: [Int_Update!]
+  purchaseCount_update: [Int_Update!] @fdc_forbiddenInVariables
 }
 """
 ✨ Generated filter input type for table 'AnalyticsBundleDaily'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
@@ -1539,7 +1539,7 @@ input AnalyticsBundleDaily_Key {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsBundleDaily`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
 }
 """
 ✨ Generated list filter input type for table 'AnalyticsBundleDaily'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
@@ -1902,7 +1902,7 @@ input AnalyticsCommerceDaily_Data {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsCommerceDaily`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceDaily`.`adjustedProfitUsdTotal` of type `Float!`
   """
@@ -1910,11 +1910,11 @@ input AnalyticsCommerceDaily_Data {
   """
   ✨ `_expr` server value variant of `adjustedProfitUsdTotal` (✨ Generated from Field `AnalyticsCommerceDaily`.`adjustedProfitUsdTotal` of type `Float!`)
   """
-  adjustedProfitUsdTotal_expr: Float_Expr
+  adjustedProfitUsdTotal_expr: Float_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `adjustedProfitUsdTotal` (✨ Generated from Field `AnalyticsCommerceDaily`.`adjustedProfitUsdTotal` of type `Float!`)
   """
-  adjustedProfitUsdTotal_update: [Float_Update!]
+  adjustedProfitUsdTotal_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceDaily`.`bonusGumDropsTotal` of type `Int!`
   """
@@ -1922,11 +1922,11 @@ input AnalyticsCommerceDaily_Data {
   """
   ✨ `_expr` server value variant of `bonusGumDropsTotal` (✨ Generated from Field `AnalyticsCommerceDaily`.`bonusGumDropsTotal` of type `Int!`)
   """
-  bonusGumDropsTotal_expr: Int_Expr
+  bonusGumDropsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `bonusGumDropsTotal` (✨ Generated from Field `AnalyticsCommerceDaily`.`bonusGumDropsTotal` of type `Int!`)
   """
-  bonusGumDropsTotal_update: [Int_Update!]
+  bonusGumDropsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceDaily`.`bonusValueUsdTotal` of type `Float!`
   """
@@ -1934,11 +1934,11 @@ input AnalyticsCommerceDaily_Data {
   """
   ✨ `_expr` server value variant of `bonusValueUsdTotal` (✨ Generated from Field `AnalyticsCommerceDaily`.`bonusValueUsdTotal` of type `Float!`)
   """
-  bonusValueUsdTotal_expr: Float_Expr
+  bonusValueUsdTotal_expr: Float_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `bonusValueUsdTotal` (✨ Generated from Field `AnalyticsCommerceDaily`.`bonusValueUsdTotal` of type `Float!`)
   """
-  bonusValueUsdTotal_update: [Float_Update!]
+  bonusValueUsdTotal_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceDaily`.`dayKey` of type `String!`
   """
@@ -1946,7 +1946,7 @@ input AnalyticsCommerceDaily_Data {
   """
   ✨ `_expr` server value variant of `dayKey` (✨ Generated from Field `AnalyticsCommerceDaily`.`dayKey` of type `String!`)
   """
-  dayKey_expr: String_Expr
+  dayKey_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceDaily`.`deliveredGumDropsTotal` of type `Int!`
   """
@@ -1954,11 +1954,11 @@ input AnalyticsCommerceDaily_Data {
   """
   ✨ `_expr` server value variant of `deliveredGumDropsTotal` (✨ Generated from Field `AnalyticsCommerceDaily`.`deliveredGumDropsTotal` of type `Int!`)
   """
-  deliveredGumDropsTotal_expr: Int_Expr
+  deliveredGumDropsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `deliveredGumDropsTotal` (✨ Generated from Field `AnalyticsCommerceDaily`.`deliveredGumDropsTotal` of type `Int!`)
   """
-  deliveredGumDropsTotal_update: [Int_Update!]
+  deliveredGumDropsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceDaily`.`grossRevenueUsdTotal` of type `Float!`
   """
@@ -1966,11 +1966,11 @@ input AnalyticsCommerceDaily_Data {
   """
   ✨ `_expr` server value variant of `grossRevenueUsdTotal` (✨ Generated from Field `AnalyticsCommerceDaily`.`grossRevenueUsdTotal` of type `Float!`)
   """
-  grossRevenueUsdTotal_expr: Float_Expr
+  grossRevenueUsdTotal_expr: Float_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `grossRevenueUsdTotal` (✨ Generated from Field `AnalyticsCommerceDaily`.`grossRevenueUsdTotal` of type `Float!`)
   """
-  grossRevenueUsdTotal_update: [Float_Update!]
+  grossRevenueUsdTotal_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceDaily`.`lastTransactionAtMs` of type `Int`
   """
@@ -1978,11 +1978,11 @@ input AnalyticsCommerceDaily_Data {
   """
   ✨ `_expr` server value variant of `lastTransactionAtMs` (✨ Generated from Field `AnalyticsCommerceDaily`.`lastTransactionAtMs` of type `Int`)
   """
-  lastTransactionAtMs_expr: Int_Expr
+  lastTransactionAtMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `lastTransactionAtMs` (✨ Generated from Field `AnalyticsCommerceDaily`.`lastTransactionAtMs` of type `Int`)
   """
-  lastTransactionAtMs_update: [Int_Update!]
+  lastTransactionAtMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceDaily`.`netRevenueCentsTotal` of type `Int!`
   """
@@ -1990,11 +1990,11 @@ input AnalyticsCommerceDaily_Data {
   """
   ✨ `_expr` server value variant of `netRevenueCentsTotal` (✨ Generated from Field `AnalyticsCommerceDaily`.`netRevenueCentsTotal` of type `Int!`)
   """
-  netRevenueCentsTotal_expr: Int_Expr
+  netRevenueCentsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `netRevenueCentsTotal` (✨ Generated from Field `AnalyticsCommerceDaily`.`netRevenueCentsTotal` of type `Int!`)
   """
-  netRevenueCentsTotal_update: [Int_Update!]
+  netRevenueCentsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceDaily`.`netRevenueUsdTotal` of type `Float!`
   """
@@ -2002,11 +2002,11 @@ input AnalyticsCommerceDaily_Data {
   """
   ✨ `_expr` server value variant of `netRevenueUsdTotal` (✨ Generated from Field `AnalyticsCommerceDaily`.`netRevenueUsdTotal` of type `Float!`)
   """
-  netRevenueUsdTotal_expr: Float_Expr
+  netRevenueUsdTotal_expr: Float_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `netRevenueUsdTotal` (✨ Generated from Field `AnalyticsCommerceDaily`.`netRevenueUsdTotal` of type `Float!`)
   """
-  netRevenueUsdTotal_update: [Float_Update!]
+  netRevenueUsdTotal_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceDaily`.`paidGumDropsTotal` of type `Int!`
   """
@@ -2014,11 +2014,11 @@ input AnalyticsCommerceDaily_Data {
   """
   ✨ `_expr` server value variant of `paidGumDropsTotal` (✨ Generated from Field `AnalyticsCommerceDaily`.`paidGumDropsTotal` of type `Int!`)
   """
-  paidGumDropsTotal_expr: Int_Expr
+  paidGumDropsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `paidGumDropsTotal` (✨ Generated from Field `AnalyticsCommerceDaily`.`paidGumDropsTotal` of type `Int!`)
   """
-  paidGumDropsTotal_update: [Int_Update!]
+  paidGumDropsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceDaily`.`paypalFeeCentsTotal` of type `Int!`
   """
@@ -2026,11 +2026,11 @@ input AnalyticsCommerceDaily_Data {
   """
   ✨ `_expr` server value variant of `paypalFeeCentsTotal` (✨ Generated from Field `AnalyticsCommerceDaily`.`paypalFeeCentsTotal` of type `Int!`)
   """
-  paypalFeeCentsTotal_expr: Int_Expr
+  paypalFeeCentsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `paypalFeeCentsTotal` (✨ Generated from Field `AnalyticsCommerceDaily`.`paypalFeeCentsTotal` of type `Int!`)
   """
-  paypalFeeCentsTotal_update: [Int_Update!]
+  paypalFeeCentsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceDaily`.`paypalFeeUsdTotal` of type `Float!`
   """
@@ -2038,11 +2038,11 @@ input AnalyticsCommerceDaily_Data {
   """
   ✨ `_expr` server value variant of `paypalFeeUsdTotal` (✨ Generated from Field `AnalyticsCommerceDaily`.`paypalFeeUsdTotal` of type `Float!`)
   """
-  paypalFeeUsdTotal_expr: Float_Expr
+  paypalFeeUsdTotal_expr: Float_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `paypalFeeUsdTotal` (✨ Generated from Field `AnalyticsCommerceDaily`.`paypalFeeUsdTotal` of type `Float!`)
   """
-  paypalFeeUsdTotal_update: [Float_Update!]
+  paypalFeeUsdTotal_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceDaily`.`purchaseCount` of type `Int!`
   """
@@ -2050,11 +2050,11 @@ input AnalyticsCommerceDaily_Data {
   """
   ✨ `_expr` server value variant of `purchaseCount` (✨ Generated from Field `AnalyticsCommerceDaily`.`purchaseCount` of type `Int!`)
   """
-  purchaseCount_expr: Int_Expr
+  purchaseCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `purchaseCount` (✨ Generated from Field `AnalyticsCommerceDaily`.`purchaseCount` of type `Int!`)
   """
-  purchaseCount_update: [Int_Update!]
+  purchaseCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceDaily`.`spendGdTotal` of type `Int!`
   """
@@ -2062,11 +2062,11 @@ input AnalyticsCommerceDaily_Data {
   """
   ✨ `_expr` server value variant of `spendGdTotal` (✨ Generated from Field `AnalyticsCommerceDaily`.`spendGdTotal` of type `Int!`)
   """
-  spendGdTotal_expr: Int_Expr
+  spendGdTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `spendGdTotal` (✨ Generated from Field `AnalyticsCommerceDaily`.`spendGdTotal` of type `Int!`)
   """
-  spendGdTotal_update: [Int_Update!]
+  spendGdTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceDaily`.`transactionCount` of type `Int!`
   """
@@ -2074,11 +2074,11 @@ input AnalyticsCommerceDaily_Data {
   """
   ✨ `_expr` server value variant of `transactionCount` (✨ Generated from Field `AnalyticsCommerceDaily`.`transactionCount` of type `Int!`)
   """
-  transactionCount_expr: Int_Expr
+  transactionCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `transactionCount` (✨ Generated from Field `AnalyticsCommerceDaily`.`transactionCount` of type `Int!`)
   """
-  transactionCount_update: [Int_Update!]
+  transactionCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceDaily`.`unlockCount` of type `Int!`
   """
@@ -2086,11 +2086,11 @@ input AnalyticsCommerceDaily_Data {
   """
   ✨ `_expr` server value variant of `unlockCount` (✨ Generated from Field `AnalyticsCommerceDaily`.`unlockCount` of type `Int!`)
   """
-  unlockCount_expr: Int_Expr
+  unlockCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `unlockCount` (✨ Generated from Field `AnalyticsCommerceDaily`.`unlockCount` of type `Int!`)
   """
-  unlockCount_update: [Int_Update!]
+  unlockCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceDaily`.`unlockSpendGdTotal` of type `Int!`
   """
@@ -2098,11 +2098,11 @@ input AnalyticsCommerceDaily_Data {
   """
   ✨ `_expr` server value variant of `unlockSpendGdTotal` (✨ Generated from Field `AnalyticsCommerceDaily`.`unlockSpendGdTotal` of type `Int!`)
   """
-  unlockSpendGdTotal_expr: Int_Expr
+  unlockSpendGdTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `unlockSpendGdTotal` (✨ Generated from Field `AnalyticsCommerceDaily`.`unlockSpendGdTotal` of type `Int!`)
   """
-  unlockSpendGdTotal_update: [Int_Update!]
+  unlockSpendGdTotal_update: [Int_Update!] @fdc_forbiddenInVariables
 }
 """
 ✨ Generated filter input type for table 'AnalyticsCommerceDaily'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
@@ -2570,7 +2570,7 @@ input AnalyticsCommerceDaily_Key {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsCommerceDaily`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
 }
 """
 ✨ Generated list filter input type for table 'AnalyticsCommerceDaily'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
@@ -3005,7 +3005,7 @@ input AnalyticsCommerceRollup_Data {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsCommerceRollup`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceRollup`.`adjustedProfitUsdTotal` of type `Float!`
   """
@@ -3013,11 +3013,11 @@ input AnalyticsCommerceRollup_Data {
   """
   ✨ `_expr` server value variant of `adjustedProfitUsdTotal` (✨ Generated from Field `AnalyticsCommerceRollup`.`adjustedProfitUsdTotal` of type `Float!`)
   """
-  adjustedProfitUsdTotal_expr: Float_Expr
+  adjustedProfitUsdTotal_expr: Float_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `adjustedProfitUsdTotal` (✨ Generated from Field `AnalyticsCommerceRollup`.`adjustedProfitUsdTotal` of type `Float!`)
   """
-  adjustedProfitUsdTotal_update: [Float_Update!]
+  adjustedProfitUsdTotal_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceRollup`.`bonusGumDropsTotal` of type `Int!`
   """
@@ -3025,11 +3025,11 @@ input AnalyticsCommerceRollup_Data {
   """
   ✨ `_expr` server value variant of `bonusGumDropsTotal` (✨ Generated from Field `AnalyticsCommerceRollup`.`bonusGumDropsTotal` of type `Int!`)
   """
-  bonusGumDropsTotal_expr: Int_Expr
+  bonusGumDropsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `bonusGumDropsTotal` (✨ Generated from Field `AnalyticsCommerceRollup`.`bonusGumDropsTotal` of type `Int!`)
   """
-  bonusGumDropsTotal_update: [Int_Update!]
+  bonusGumDropsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceRollup`.`bonusValueUsdTotal` of type `Float!`
   """
@@ -3037,11 +3037,11 @@ input AnalyticsCommerceRollup_Data {
   """
   ✨ `_expr` server value variant of `bonusValueUsdTotal` (✨ Generated from Field `AnalyticsCommerceRollup`.`bonusValueUsdTotal` of type `Float!`)
   """
-  bonusValueUsdTotal_expr: Float_Expr
+  bonusValueUsdTotal_expr: Float_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `bonusValueUsdTotal` (✨ Generated from Field `AnalyticsCommerceRollup`.`bonusValueUsdTotal` of type `Float!`)
   """
-  bonusValueUsdTotal_update: [Float_Update!]
+  bonusValueUsdTotal_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceRollup`.`deliveredGumDropsTotal` of type `Int!`
   """
@@ -3049,11 +3049,11 @@ input AnalyticsCommerceRollup_Data {
   """
   ✨ `_expr` server value variant of `deliveredGumDropsTotal` (✨ Generated from Field `AnalyticsCommerceRollup`.`deliveredGumDropsTotal` of type `Int!`)
   """
-  deliveredGumDropsTotal_expr: Int_Expr
+  deliveredGumDropsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `deliveredGumDropsTotal` (✨ Generated from Field `AnalyticsCommerceRollup`.`deliveredGumDropsTotal` of type `Int!`)
   """
-  deliveredGumDropsTotal_update: [Int_Update!]
+  deliveredGumDropsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceRollup`.`grossRevenueUsdTotal` of type `Float!`
   """
@@ -3061,11 +3061,11 @@ input AnalyticsCommerceRollup_Data {
   """
   ✨ `_expr` server value variant of `grossRevenueUsdTotal` (✨ Generated from Field `AnalyticsCommerceRollup`.`grossRevenueUsdTotal` of type `Float!`)
   """
-  grossRevenueUsdTotal_expr: Float_Expr
+  grossRevenueUsdTotal_expr: Float_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `grossRevenueUsdTotal` (✨ Generated from Field `AnalyticsCommerceRollup`.`grossRevenueUsdTotal` of type `Float!`)
   """
-  grossRevenueUsdTotal_update: [Float_Update!]
+  grossRevenueUsdTotal_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceRollup`.`lastTransactionAtMs` of type `Int`
   """
@@ -3073,11 +3073,11 @@ input AnalyticsCommerceRollup_Data {
   """
   ✨ `_expr` server value variant of `lastTransactionAtMs` (✨ Generated from Field `AnalyticsCommerceRollup`.`lastTransactionAtMs` of type `Int`)
   """
-  lastTransactionAtMs_expr: Int_Expr
+  lastTransactionAtMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `lastTransactionAtMs` (✨ Generated from Field `AnalyticsCommerceRollup`.`lastTransactionAtMs` of type `Int`)
   """
-  lastTransactionAtMs_update: [Int_Update!]
+  lastTransactionAtMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceRollup`.`netRevenueCentsTotal` of type `Int!`
   """
@@ -3085,11 +3085,11 @@ input AnalyticsCommerceRollup_Data {
   """
   ✨ `_expr` server value variant of `netRevenueCentsTotal` (✨ Generated from Field `AnalyticsCommerceRollup`.`netRevenueCentsTotal` of type `Int!`)
   """
-  netRevenueCentsTotal_expr: Int_Expr
+  netRevenueCentsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `netRevenueCentsTotal` (✨ Generated from Field `AnalyticsCommerceRollup`.`netRevenueCentsTotal` of type `Int!`)
   """
-  netRevenueCentsTotal_update: [Int_Update!]
+  netRevenueCentsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceRollup`.`netRevenueUsdTotal` of type `Float!`
   """
@@ -3097,11 +3097,11 @@ input AnalyticsCommerceRollup_Data {
   """
   ✨ `_expr` server value variant of `netRevenueUsdTotal` (✨ Generated from Field `AnalyticsCommerceRollup`.`netRevenueUsdTotal` of type `Float!`)
   """
-  netRevenueUsdTotal_expr: Float_Expr
+  netRevenueUsdTotal_expr: Float_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `netRevenueUsdTotal` (✨ Generated from Field `AnalyticsCommerceRollup`.`netRevenueUsdTotal` of type `Float!`)
   """
-  netRevenueUsdTotal_update: [Float_Update!]
+  netRevenueUsdTotal_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceRollup`.`paidGumDropsTotal` of type `Int!`
   """
@@ -3109,11 +3109,11 @@ input AnalyticsCommerceRollup_Data {
   """
   ✨ `_expr` server value variant of `paidGumDropsTotal` (✨ Generated from Field `AnalyticsCommerceRollup`.`paidGumDropsTotal` of type `Int!`)
   """
-  paidGumDropsTotal_expr: Int_Expr
+  paidGumDropsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `paidGumDropsTotal` (✨ Generated from Field `AnalyticsCommerceRollup`.`paidGumDropsTotal` of type `Int!`)
   """
-  paidGumDropsTotal_update: [Int_Update!]
+  paidGumDropsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceRollup`.`paypalFeeCentsTotal` of type `Int!`
   """
@@ -3121,11 +3121,11 @@ input AnalyticsCommerceRollup_Data {
   """
   ✨ `_expr` server value variant of `paypalFeeCentsTotal` (✨ Generated from Field `AnalyticsCommerceRollup`.`paypalFeeCentsTotal` of type `Int!`)
   """
-  paypalFeeCentsTotal_expr: Int_Expr
+  paypalFeeCentsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `paypalFeeCentsTotal` (✨ Generated from Field `AnalyticsCommerceRollup`.`paypalFeeCentsTotal` of type `Int!`)
   """
-  paypalFeeCentsTotal_update: [Int_Update!]
+  paypalFeeCentsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceRollup`.`paypalFeeUsdTotal` of type `Float!`
   """
@@ -3133,11 +3133,11 @@ input AnalyticsCommerceRollup_Data {
   """
   ✨ `_expr` server value variant of `paypalFeeUsdTotal` (✨ Generated from Field `AnalyticsCommerceRollup`.`paypalFeeUsdTotal` of type `Float!`)
   """
-  paypalFeeUsdTotal_expr: Float_Expr
+  paypalFeeUsdTotal_expr: Float_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `paypalFeeUsdTotal` (✨ Generated from Field `AnalyticsCommerceRollup`.`paypalFeeUsdTotal` of type `Float!`)
   """
-  paypalFeeUsdTotal_update: [Float_Update!]
+  paypalFeeUsdTotal_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceRollup`.`purchaseCount` of type `Int!`
   """
@@ -3145,11 +3145,11 @@ input AnalyticsCommerceRollup_Data {
   """
   ✨ `_expr` server value variant of `purchaseCount` (✨ Generated from Field `AnalyticsCommerceRollup`.`purchaseCount` of type `Int!`)
   """
-  purchaseCount_expr: Int_Expr
+  purchaseCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `purchaseCount` (✨ Generated from Field `AnalyticsCommerceRollup`.`purchaseCount` of type `Int!`)
   """
-  purchaseCount_update: [Int_Update!]
+  purchaseCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceRollup`.`transactionCount` of type `Int!`
   """
@@ -3157,11 +3157,11 @@ input AnalyticsCommerceRollup_Data {
   """
   ✨ `_expr` server value variant of `transactionCount` (✨ Generated from Field `AnalyticsCommerceRollup`.`transactionCount` of type `Int!`)
   """
-  transactionCount_expr: Int_Expr
+  transactionCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `transactionCount` (✨ Generated from Field `AnalyticsCommerceRollup`.`transactionCount` of type `Int!`)
   """
-  transactionCount_update: [Int_Update!]
+  transactionCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceRollup`.`unlockCount` of type `Int!`
   """
@@ -3169,11 +3169,11 @@ input AnalyticsCommerceRollup_Data {
   """
   ✨ `_expr` server value variant of `unlockCount` (✨ Generated from Field `AnalyticsCommerceRollup`.`unlockCount` of type `Int!`)
   """
-  unlockCount_expr: Int_Expr
+  unlockCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `unlockCount` (✨ Generated from Field `AnalyticsCommerceRollup`.`unlockCount` of type `Int!`)
   """
-  unlockCount_update: [Int_Update!]
+  unlockCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsCommerceRollup`.`unlockSpendGdTotal` of type `Int!`
   """
@@ -3181,11 +3181,11 @@ input AnalyticsCommerceRollup_Data {
   """
   ✨ `_expr` server value variant of `unlockSpendGdTotal` (✨ Generated from Field `AnalyticsCommerceRollup`.`unlockSpendGdTotal` of type `Int!`)
   """
-  unlockSpendGdTotal_expr: Int_Expr
+  unlockSpendGdTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `unlockSpendGdTotal` (✨ Generated from Field `AnalyticsCommerceRollup`.`unlockSpendGdTotal` of type `Int!`)
   """
-  unlockSpendGdTotal_update: [Int_Update!]
+  unlockSpendGdTotal_update: [Int_Update!] @fdc_forbiddenInVariables
 }
 """
 ✨ Generated filter input type for table 'AnalyticsCommerceRollup'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
@@ -3621,7 +3621,7 @@ input AnalyticsCommerceRollup_Key {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsCommerceRollup`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
 }
 """
 ✨ Generated list filter input type for table 'AnalyticsCommerceRollup'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
@@ -4024,7 +4024,7 @@ input AnalyticsDropDaily_Data {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsDropDaily`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsDropDaily`.`dayKey` of type `String!`
   """
@@ -4032,7 +4032,7 @@ input AnalyticsDropDaily_Data {
   """
   ✨ `_expr` server value variant of `dayKey` (✨ Generated from Field `AnalyticsDropDaily`.`dayKey` of type `String!`)
   """
-  dayKey_expr: String_Expr
+  dayKey_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsDropDaily`.`downloadCount` of type `Int!`
   """
@@ -4040,11 +4040,11 @@ input AnalyticsDropDaily_Data {
   """
   ✨ `_expr` server value variant of `downloadCount` (✨ Generated from Field `AnalyticsDropDaily`.`downloadCount` of type `Int!`)
   """
-  downloadCount_expr: Int_Expr
+  downloadCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `downloadCount` (✨ Generated from Field `AnalyticsDropDaily`.`downloadCount` of type `Int!`)
   """
-  downloadCount_update: [Int_Update!]
+  downloadCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsDropDaily`.`dropCategory` of type `String`
   """
@@ -4052,7 +4052,7 @@ input AnalyticsDropDaily_Data {
   """
   ✨ `_expr` server value variant of `dropCategory` (✨ Generated from Field `AnalyticsDropDaily`.`dropCategory` of type `String`)
   """
-  dropCategory_expr: String_Expr
+  dropCategory_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsDropDaily`.`dropId` of type `String!`
   """
@@ -4060,7 +4060,7 @@ input AnalyticsDropDaily_Data {
   """
   ✨ `_expr` server value variant of `dropId` (✨ Generated from Field `AnalyticsDropDaily`.`dropId` of type `String!`)
   """
-  dropId_expr: String_Expr
+  dropId_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsDropDaily`.`dropTitle` of type `String`
   """
@@ -4068,7 +4068,7 @@ input AnalyticsDropDaily_Data {
   """
   ✨ `_expr` server value variant of `dropTitle` (✨ Generated from Field `AnalyticsDropDaily`.`dropTitle` of type `String`)
   """
-  dropTitle_expr: String_Expr
+  dropTitle_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsDropDaily`.`eventCount` of type `Int!`
   """
@@ -4076,11 +4076,11 @@ input AnalyticsDropDaily_Data {
   """
   ✨ `_expr` server value variant of `eventCount` (✨ Generated from Field `AnalyticsDropDaily`.`eventCount` of type `Int!`)
   """
-  eventCount_expr: Int_Expr
+  eventCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `eventCount` (✨ Generated from Field `AnalyticsDropDaily`.`eventCount` of type `Int!`)
   """
-  eventCount_update: [Int_Update!]
+  eventCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsDropDaily`.`lastEventAtMs` of type `Int`
   """
@@ -4088,11 +4088,11 @@ input AnalyticsDropDaily_Data {
   """
   ✨ `_expr` server value variant of `lastEventAtMs` (✨ Generated from Field `AnalyticsDropDaily`.`lastEventAtMs` of type `Int`)
   """
-  lastEventAtMs_expr: Int_Expr
+  lastEventAtMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `lastEventAtMs` (✨ Generated from Field `AnalyticsDropDaily`.`lastEventAtMs` of type `Int`)
   """
-  lastEventAtMs_update: [Int_Update!]
+  lastEventAtMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsDropDaily`.`loadMsTotal` of type `Int!`
   """
@@ -4100,11 +4100,11 @@ input AnalyticsDropDaily_Data {
   """
   ✨ `_expr` server value variant of `loadMsTotal` (✨ Generated from Field `AnalyticsDropDaily`.`loadMsTotal` of type `Int!`)
   """
-  loadMsTotal_expr: Int_Expr
+  loadMsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `loadMsTotal` (✨ Generated from Field `AnalyticsDropDaily`.`loadMsTotal` of type `Int!`)
   """
-  loadMsTotal_update: [Int_Update!]
+  loadMsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsDropDaily`.`loadSampleCount` of type `Int!`
   """
@@ -4112,11 +4112,11 @@ input AnalyticsDropDaily_Data {
   """
   ✨ `_expr` server value variant of `loadSampleCount` (✨ Generated from Field `AnalyticsDropDaily`.`loadSampleCount` of type `Int!`)
   """
-  loadSampleCount_expr: Int_Expr
+  loadSampleCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `loadSampleCount` (✨ Generated from Field `AnalyticsDropDaily`.`loadSampleCount` of type `Int!`)
   """
-  loadSampleCount_update: [Int_Update!]
+  loadSampleCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsDropDaily`.`relatedClickCount` of type `Int!`
   """
@@ -4124,11 +4124,11 @@ input AnalyticsDropDaily_Data {
   """
   ✨ `_expr` server value variant of `relatedClickCount` (✨ Generated from Field `AnalyticsDropDaily`.`relatedClickCount` of type `Int!`)
   """
-  relatedClickCount_expr: Int_Expr
+  relatedClickCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `relatedClickCount` (✨ Generated from Field `AnalyticsDropDaily`.`relatedClickCount` of type `Int!`)
   """
-  relatedClickCount_update: [Int_Update!]
+  relatedClickCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsDropDaily`.`spendGdTotal` of type `Int!`
   """
@@ -4136,11 +4136,11 @@ input AnalyticsDropDaily_Data {
   """
   ✨ `_expr` server value variant of `spendGdTotal` (✨ Generated from Field `AnalyticsDropDaily`.`spendGdTotal` of type `Int!`)
   """
-  spendGdTotal_expr: Int_Expr
+  spendGdTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `spendGdTotal` (✨ Generated from Field `AnalyticsDropDaily`.`spendGdTotal` of type `Int!`)
   """
-  spendGdTotal_update: [Int_Update!]
+  spendGdTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsDropDaily`.`unlockTransactionCount` of type `Int!`
   """
@@ -4148,11 +4148,11 @@ input AnalyticsDropDaily_Data {
   """
   ✨ `_expr` server value variant of `unlockTransactionCount` (✨ Generated from Field `AnalyticsDropDaily`.`unlockTransactionCount` of type `Int!`)
   """
-  unlockTransactionCount_expr: Int_Expr
+  unlockTransactionCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `unlockTransactionCount` (✨ Generated from Field `AnalyticsDropDaily`.`unlockTransactionCount` of type `Int!`)
   """
-  unlockTransactionCount_update: [Int_Update!]
+  unlockTransactionCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsDropDaily`.`unwrapCount` of type `Int!`
   """
@@ -4160,11 +4160,11 @@ input AnalyticsDropDaily_Data {
   """
   ✨ `_expr` server value variant of `unwrapCount` (✨ Generated from Field `AnalyticsDropDaily`.`unwrapCount` of type `Int!`)
   """
-  unwrapCount_expr: Int_Expr
+  unwrapCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `unwrapCount` (✨ Generated from Field `AnalyticsDropDaily`.`unwrapCount` of type `Int!`)
   """
-  unwrapCount_update: [Int_Update!]
+  unwrapCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsDropDaily`.`viewerSessionCount` of type `Int!`
   """
@@ -4172,11 +4172,11 @@ input AnalyticsDropDaily_Data {
   """
   ✨ `_expr` server value variant of `viewerSessionCount` (✨ Generated from Field `AnalyticsDropDaily`.`viewerSessionCount` of type `Int!`)
   """
-  viewerSessionCount_expr: Int_Expr
+  viewerSessionCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `viewerSessionCount` (✨ Generated from Field `AnalyticsDropDaily`.`viewerSessionCount` of type `Int!`)
   """
-  viewerSessionCount_update: [Int_Update!]
+  viewerSessionCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsDropDaily`.`watchSecondsTotal` of type `Int!`
   """
@@ -4184,11 +4184,11 @@ input AnalyticsDropDaily_Data {
   """
   ✨ `_expr` server value variant of `watchSecondsTotal` (✨ Generated from Field `AnalyticsDropDaily`.`watchSecondsTotal` of type `Int!`)
   """
-  watchSecondsTotal_expr: Int_Expr
+  watchSecondsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `watchSecondsTotal` (✨ Generated from Field `AnalyticsDropDaily`.`watchSecondsTotal` of type `Int!`)
   """
-  watchSecondsTotal_update: [Int_Update!]
+  watchSecondsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
 }
 """
 ✨ Generated filter input type for table 'AnalyticsDropDaily'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
@@ -4560,7 +4560,7 @@ input AnalyticsDropDaily_Key {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsDropDaily`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
 }
 """
 ✨ Generated list filter input type for table 'AnalyticsDropDaily'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
@@ -4899,7 +4899,7 @@ input AnalyticsEventFact_Data {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsEventFact`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsEventFact`.`consentMode` of type `String`
   """
@@ -4907,7 +4907,7 @@ input AnalyticsEventFact_Data {
   """
   ✨ `_expr` server value variant of `consentMode` (✨ Generated from Field `AnalyticsEventFact`.`consentMode` of type `String`)
   """
-  consentMode_expr: String_Expr
+  consentMode_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsEventFact`.`dayKey` of type `String!`
   """
@@ -4915,7 +4915,7 @@ input AnalyticsEventFact_Data {
   """
   ✨ `_expr` server value variant of `dayKey` (✨ Generated from Field `AnalyticsEventFact`.`dayKey` of type `String!`)
   """
-  dayKey_expr: String_Expr
+  dayKey_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsEventFact`.`dropCategory` of type `String`
   """
@@ -4923,7 +4923,7 @@ input AnalyticsEventFact_Data {
   """
   ✨ `_expr` server value variant of `dropCategory` (✨ Generated from Field `AnalyticsEventFact`.`dropCategory` of type `String`)
   """
-  dropCategory_expr: String_Expr
+  dropCategory_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsEventFact`.`dropId` of type `String`
   """
@@ -4931,7 +4931,7 @@ input AnalyticsEventFact_Data {
   """
   ✨ `_expr` server value variant of `dropId` (✨ Generated from Field `AnalyticsEventFact`.`dropId` of type `String`)
   """
-  dropId_expr: String_Expr
+  dropId_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsEventFact`.`dropTitle` of type `String`
   """
@@ -4939,7 +4939,7 @@ input AnalyticsEventFact_Data {
   """
   ✨ `_expr` server value variant of `dropTitle` (✨ Generated from Field `AnalyticsEventFact`.`dropTitle` of type `String`)
   """
-  dropTitle_expr: String_Expr
+  dropTitle_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsEventFact`.`durationMs` of type `Int`
   """
@@ -4947,11 +4947,11 @@ input AnalyticsEventFact_Data {
   """
   ✨ `_expr` server value variant of `durationMs` (✨ Generated from Field `AnalyticsEventFact`.`durationMs` of type `Int`)
   """
-  durationMs_expr: Int_Expr
+  durationMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `durationMs` (✨ Generated from Field `AnalyticsEventFact`.`durationMs` of type `Int`)
   """
-  durationMs_update: [Int_Update!]
+  durationMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsEventFact`.`eventName` of type `String!`
   """
@@ -4959,7 +4959,7 @@ input AnalyticsEventFact_Data {
   """
   ✨ `_expr` server value variant of `eventName` (✨ Generated from Field `AnalyticsEventFact`.`eventName` of type `String!`)
   """
-  eventName_expr: String_Expr
+  eventName_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsEventFact`.`globalPrivacyControl` of type `Boolean`
   """
@@ -4967,7 +4967,7 @@ input AnalyticsEventFact_Data {
   """
   ✨ `_expr` server value variant of `globalPrivacyControl` (✨ Generated from Field `AnalyticsEventFact`.`globalPrivacyControl` of type `Boolean`)
   """
-  globalPrivacyControl_expr: Boolean_Expr
+  globalPrivacyControl_expr: Boolean_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsEventFact`.`hourKey` of type `String!`
   """
@@ -4975,7 +4975,7 @@ input AnalyticsEventFact_Data {
   """
   ✨ `_expr` server value variant of `hourKey` (✨ Generated from Field `AnalyticsEventFact`.`hourKey` of type `String!`)
   """
-  hourKey_expr: String_Expr
+  hourKey_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsEventFact`.`isMobileViewport` of type `Boolean`
   """
@@ -4983,7 +4983,7 @@ input AnalyticsEventFact_Data {
   """
   ✨ `_expr` server value variant of `isMobileViewport` (✨ Generated from Field `AnalyticsEventFact`.`isMobileViewport` of type `Boolean`)
   """
-  isMobileViewport_expr: Boolean_Expr
+  isMobileViewport_expr: Boolean_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsEventFact`.`loadMs` of type `Int`
   """
@@ -4991,11 +4991,11 @@ input AnalyticsEventFact_Data {
   """
   ✨ `_expr` server value variant of `loadMs` (✨ Generated from Field `AnalyticsEventFact`.`loadMs` of type `Int`)
   """
-  loadMs_expr: Int_Expr
+  loadMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `loadMs` (✨ Generated from Field `AnalyticsEventFact`.`loadMs` of type `Int`)
   """
-  loadMs_update: [Int_Update!]
+  loadMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsEventFact`.`minuteKey` of type `String`
   """
@@ -5003,7 +5003,7 @@ input AnalyticsEventFact_Data {
   """
   ✨ `_expr` server value variant of `minuteKey` (✨ Generated from Field `AnalyticsEventFact`.`minuteKey` of type `String`)
   """
-  minuteKey_expr: String_Expr
+  minuteKey_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsEventFact`.`pagePath` of type `String`
   """
@@ -5011,7 +5011,7 @@ input AnalyticsEventFact_Data {
   """
   ✨ `_expr` server value variant of `pagePath` (✨ Generated from Field `AnalyticsEventFact`.`pagePath` of type `String`)
   """
-  pagePath_expr: String_Expr
+  pagePath_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsEventFact`.`sessionId` of type `String`
   """
@@ -5019,7 +5019,7 @@ input AnalyticsEventFact_Data {
   """
   ✨ `_expr` server value variant of `sessionId` (✨ Generated from Field `AnalyticsEventFact`.`sessionId` of type `String`)
   """
-  sessionId_expr: String_Expr
+  sessionId_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsEventFact`.`source` of type `String!`
   """
@@ -5027,7 +5027,7 @@ input AnalyticsEventFact_Data {
   """
   ✨ `_expr` server value variant of `source` (✨ Generated from Field `AnalyticsEventFact`.`source` of type `String!`)
   """
-  source_expr: String_Expr
+  source_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsEventFact`.`timestampMs` of type `Int!`
   """
@@ -5035,11 +5035,11 @@ input AnalyticsEventFact_Data {
   """
   ✨ `_expr` server value variant of `timestampMs` (✨ Generated from Field `AnalyticsEventFact`.`timestampMs` of type `Int!`)
   """
-  timestampMs_expr: Int_Expr
+  timestampMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `timestampMs` (✨ Generated from Field `AnalyticsEventFact`.`timestampMs` of type `Int!`)
   """
-  timestampMs_update: [Int_Update!]
+  timestampMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsEventFact`.`userId` of type `String`
   """
@@ -5047,7 +5047,7 @@ input AnalyticsEventFact_Data {
   """
   ✨ `_expr` server value variant of `userId` (✨ Generated from Field `AnalyticsEventFact`.`userId` of type `String`)
   """
-  userId_expr: String_Expr
+  userId_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsEventFact`.`username` of type `String`
   """
@@ -5055,7 +5055,7 @@ input AnalyticsEventFact_Data {
   """
   ✨ `_expr` server value variant of `username` (✨ Generated from Field `AnalyticsEventFact`.`username` of type `String`)
   """
-  username_expr: String_Expr
+  username_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsEventFact`.`viewportHeight` of type `Int`
   """
@@ -5063,11 +5063,11 @@ input AnalyticsEventFact_Data {
   """
   ✨ `_expr` server value variant of `viewportHeight` (✨ Generated from Field `AnalyticsEventFact`.`viewportHeight` of type `Int`)
   """
-  viewportHeight_expr: Int_Expr
+  viewportHeight_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `viewportHeight` (✨ Generated from Field `AnalyticsEventFact`.`viewportHeight` of type `Int`)
   """
-  viewportHeight_update: [Int_Update!]
+  viewportHeight_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsEventFact`.`viewportWidth` of type `Int`
   """
@@ -5075,11 +5075,11 @@ input AnalyticsEventFact_Data {
   """
   ✨ `_expr` server value variant of `viewportWidth` (✨ Generated from Field `AnalyticsEventFact`.`viewportWidth` of type `Int`)
   """
-  viewportWidth_expr: Int_Expr
+  viewportWidth_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `viewportWidth` (✨ Generated from Field `AnalyticsEventFact`.`viewportWidth` of type `Int`)
   """
-  viewportWidth_update: [Int_Update!]
+  viewportWidth_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsEventFact`.`watchSeconds` of type `Int`
   """
@@ -5087,11 +5087,11 @@ input AnalyticsEventFact_Data {
   """
   ✨ `_expr` server value variant of `watchSeconds` (✨ Generated from Field `AnalyticsEventFact`.`watchSeconds` of type `Int`)
   """
-  watchSeconds_expr: Int_Expr
+  watchSeconds_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `watchSeconds` (✨ Generated from Field `AnalyticsEventFact`.`watchSeconds` of type `Int`)
   """
-  watchSeconds_update: [Int_Update!]
+  watchSeconds_update: [Int_Update!] @fdc_forbiddenInVariables
 }
 """
 ✨ Generated filter input type for table 'AnalyticsEventFact'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
@@ -5431,7 +5431,7 @@ input AnalyticsEventFact_Key {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsEventFact`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
 }
 """
 ✨ Generated list filter input type for table 'AnalyticsEventFact'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
@@ -5738,7 +5738,7 @@ input AnalyticsExportStatus_Data {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsExportStatus`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsExportStatus`.`domain` of type `String!`
   """
@@ -5746,7 +5746,7 @@ input AnalyticsExportStatus_Data {
   """
   ✨ `_expr` server value variant of `domain` (✨ Generated from Field `AnalyticsExportStatus`.`domain` of type `String!`)
   """
-  domain_expr: String_Expr
+  domain_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsExportStatus`.`exportVersion` of type `String!`
   """
@@ -5754,7 +5754,7 @@ input AnalyticsExportStatus_Data {
   """
   ✨ `_expr` server value variant of `exportVersion` (✨ Generated from Field `AnalyticsExportStatus`.`exportVersion` of type `String!`)
   """
-  exportVersion_expr: String_Expr
+  exportVersion_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsExportStatus`.`lastError` of type `String`
   """
@@ -5762,7 +5762,7 @@ input AnalyticsExportStatus_Data {
   """
   ✨ `_expr` server value variant of `lastError` (✨ Generated from Field `AnalyticsExportStatus`.`lastError` of type `String`)
   """
-  lastError_expr: String_Expr
+  lastError_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsExportStatus`.`lastExportedAtMs` of type `Int!`
   """
@@ -5770,11 +5770,11 @@ input AnalyticsExportStatus_Data {
   """
   ✨ `_expr` server value variant of `lastExportedAtMs` (✨ Generated from Field `AnalyticsExportStatus`.`lastExportedAtMs` of type `Int!`)
   """
-  lastExportedAtMs_expr: Int_Expr
+  lastExportedAtMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `lastExportedAtMs` (✨ Generated from Field `AnalyticsExportStatus`.`lastExportedAtMs` of type `Int!`)
   """
-  lastExportedAtMs_update: [Int_Update!]
+  lastExportedAtMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsExportStatus`.`lastSourceUpdatedAtMs` of type `Int`
   """
@@ -5782,11 +5782,11 @@ input AnalyticsExportStatus_Data {
   """
   ✨ `_expr` server value variant of `lastSourceUpdatedAtMs` (✨ Generated from Field `AnalyticsExportStatus`.`lastSourceUpdatedAtMs` of type `Int`)
   """
-  lastSourceUpdatedAtMs_expr: Int_Expr
+  lastSourceUpdatedAtMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `lastSourceUpdatedAtMs` (✨ Generated from Field `AnalyticsExportStatus`.`lastSourceUpdatedAtMs` of type `Int`)
   """
-  lastSourceUpdatedAtMs_update: [Int_Update!]
+  lastSourceUpdatedAtMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsExportStatus`.`sourceCollection` of type `String!`
   """
@@ -5794,7 +5794,7 @@ input AnalyticsExportStatus_Data {
   """
   ✨ `_expr` server value variant of `sourceCollection` (✨ Generated from Field `AnalyticsExportStatus`.`sourceCollection` of type `String!`)
   """
-  sourceCollection_expr: String_Expr
+  sourceCollection_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsExportStatus`.`sourceKey` of type `String!`
   """
@@ -5802,7 +5802,7 @@ input AnalyticsExportStatus_Data {
   """
   ✨ `_expr` server value variant of `sourceKey` (✨ Generated from Field `AnalyticsExportStatus`.`sourceKey` of type `String!`)
   """
-  sourceKey_expr: String_Expr
+  sourceKey_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsExportStatus`.`status` of type `String!`
   """
@@ -5810,7 +5810,7 @@ input AnalyticsExportStatus_Data {
   """
   ✨ `_expr` server value variant of `status` (✨ Generated from Field `AnalyticsExportStatus`.`status` of type `String!`)
   """
-  status_expr: String_Expr
+  status_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsExportStatus`.`timeZone` of type `String!`
   """
@@ -5818,7 +5818,7 @@ input AnalyticsExportStatus_Data {
   """
   ✨ `_expr` server value variant of `timeZone` (✨ Generated from Field `AnalyticsExportStatus`.`timeZone` of type `String!`)
   """
-  timeZone_expr: String_Expr
+  timeZone_expr: String_Expr @fdc_forbiddenInVariables
 }
 """
 ✨ Generated filter input type for table 'AnalyticsExportStatus'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
@@ -5998,7 +5998,7 @@ input AnalyticsExportStatus_Key {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsExportStatus`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
 }
 """
 ✨ Generated list filter input type for table 'AnalyticsExportStatus'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
@@ -6145,7 +6145,7 @@ input AnalyticsHeatmapPoint_Data {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsHeatmapPoint`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsHeatmapPoint`.`bucket` of type `String!`
   """
@@ -6153,7 +6153,7 @@ input AnalyticsHeatmapPoint_Data {
   """
   ✨ `_expr` server value variant of `bucket` (✨ Generated from Field `AnalyticsHeatmapPoint`.`bucket` of type `String!`)
   """
-  bucket_expr: String_Expr
+  bucket_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsHeatmapPoint`.`count` of type `Int!`
   """
@@ -6161,11 +6161,11 @@ input AnalyticsHeatmapPoint_Data {
   """
   ✨ `_expr` server value variant of `count` (✨ Generated from Field `AnalyticsHeatmapPoint`.`count` of type `Int!`)
   """
-  count_expr: Int_Expr
+  count_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `count` (✨ Generated from Field `AnalyticsHeatmapPoint`.`count` of type `Int!`)
   """
-  count_update: [Int_Update!]
+  count_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsHeatmapPoint`.`dayKey` of type `String!`
   """
@@ -6173,7 +6173,7 @@ input AnalyticsHeatmapPoint_Data {
   """
   ✨ `_expr` server value variant of `dayKey` (✨ Generated from Field `AnalyticsHeatmapPoint`.`dayKey` of type `String!`)
   """
-  dayKey_expr: String_Expr
+  dayKey_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsHeatmapPoint`.`lastUpdatedAtMs` of type `Int`
   """
@@ -6181,11 +6181,11 @@ input AnalyticsHeatmapPoint_Data {
   """
   ✨ `_expr` server value variant of `lastUpdatedAtMs` (✨ Generated from Field `AnalyticsHeatmapPoint`.`lastUpdatedAtMs` of type `Int`)
   """
-  lastUpdatedAtMs_expr: Int_Expr
+  lastUpdatedAtMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `lastUpdatedAtMs` (✨ Generated from Field `AnalyticsHeatmapPoint`.`lastUpdatedAtMs` of type `Int`)
   """
-  lastUpdatedAtMs_update: [Int_Update!]
+  lastUpdatedAtMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsHeatmapPoint`.`pagePath` of type `String!`
   """
@@ -6193,7 +6193,7 @@ input AnalyticsHeatmapPoint_Data {
   """
   ✨ `_expr` server value variant of `pagePath` (✨ Generated from Field `AnalyticsHeatmapPoint`.`pagePath` of type `String!`)
   """
-  pagePath_expr: String_Expr
+  pagePath_expr: String_Expr @fdc_forbiddenInVariables
 }
 """
 ✨ Generated filter input type for table 'AnalyticsHeatmapPoint'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
@@ -6341,7 +6341,7 @@ input AnalyticsHeatmapPoint_Key {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsHeatmapPoint`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
 }
 """
 ✨ Generated list filter input type for table 'AnalyticsHeatmapPoint'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
@@ -6456,7 +6456,7 @@ input AnalyticsPageDaily_Data {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsPageDaily`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsPageDaily`.`clickCount` of type `Int!`
   """
@@ -6464,11 +6464,11 @@ input AnalyticsPageDaily_Data {
   """
   ✨ `_expr` server value variant of `clickCount` (✨ Generated from Field `AnalyticsPageDaily`.`clickCount` of type `Int!`)
   """
-  clickCount_expr: Int_Expr
+  clickCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `clickCount` (✨ Generated from Field `AnalyticsPageDaily`.`clickCount` of type `Int!`)
   """
-  clickCount_update: [Int_Update!]
+  clickCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsPageDaily`.`dayKey` of type `String!`
   """
@@ -6476,7 +6476,7 @@ input AnalyticsPageDaily_Data {
   """
   ✨ `_expr` server value variant of `dayKey` (✨ Generated from Field `AnalyticsPageDaily`.`dayKey` of type `String!`)
   """
-  dayKey_expr: String_Expr
+  dayKey_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsPageDaily`.`dwellMsTotal` of type `Int!`
   """
@@ -6484,11 +6484,11 @@ input AnalyticsPageDaily_Data {
   """
   ✨ `_expr` server value variant of `dwellMsTotal` (✨ Generated from Field `AnalyticsPageDaily`.`dwellMsTotal` of type `Int!`)
   """
-  dwellMsTotal_expr: Int_Expr
+  dwellMsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `dwellMsTotal` (✨ Generated from Field `AnalyticsPageDaily`.`dwellMsTotal` of type `Int!`)
   """
-  dwellMsTotal_update: [Int_Update!]
+  dwellMsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsPageDaily`.`dwellSampleCount` of type `Int!`
   """
@@ -6496,11 +6496,11 @@ input AnalyticsPageDaily_Data {
   """
   ✨ `_expr` server value variant of `dwellSampleCount` (✨ Generated from Field `AnalyticsPageDaily`.`dwellSampleCount` of type `Int!`)
   """
-  dwellSampleCount_expr: Int_Expr
+  dwellSampleCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `dwellSampleCount` (✨ Generated from Field `AnalyticsPageDaily`.`dwellSampleCount` of type `Int!`)
   """
-  dwellSampleCount_update: [Int_Update!]
+  dwellSampleCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsPageDaily`.`hoverCount` of type `Int!`
   """
@@ -6508,11 +6508,11 @@ input AnalyticsPageDaily_Data {
   """
   ✨ `_expr` server value variant of `hoverCount` (✨ Generated from Field `AnalyticsPageDaily`.`hoverCount` of type `Int!`)
   """
-  hoverCount_expr: Int_Expr
+  hoverCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `hoverCount` (✨ Generated from Field `AnalyticsPageDaily`.`hoverCount` of type `Int!`)
   """
-  hoverCount_update: [Int_Update!]
+  hoverCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsPageDaily`.`lastEventAtMs` of type `Int`
   """
@@ -6520,11 +6520,11 @@ input AnalyticsPageDaily_Data {
   """
   ✨ `_expr` server value variant of `lastEventAtMs` (✨ Generated from Field `AnalyticsPageDaily`.`lastEventAtMs` of type `Int`)
   """
-  lastEventAtMs_expr: Int_Expr
+  lastEventAtMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `lastEventAtMs` (✨ Generated from Field `AnalyticsPageDaily`.`lastEventAtMs` of type `Int`)
   """
-  lastEventAtMs_update: [Int_Update!]
+  lastEventAtMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsPageDaily`.`maxScrollDepth` of type `Int!`
   """
@@ -6532,11 +6532,11 @@ input AnalyticsPageDaily_Data {
   """
   ✨ `_expr` server value variant of `maxScrollDepth` (✨ Generated from Field `AnalyticsPageDaily`.`maxScrollDepth` of type `Int!`)
   """
-  maxScrollDepth_expr: Int_Expr
+  maxScrollDepth_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `maxScrollDepth` (✨ Generated from Field `AnalyticsPageDaily`.`maxScrollDepth` of type `Int!`)
   """
-  maxScrollDepth_update: [Int_Update!]
+  maxScrollDepth_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsPageDaily`.`pagePath` of type `String!`
   """
@@ -6544,7 +6544,7 @@ input AnalyticsPageDaily_Data {
   """
   ✨ `_expr` server value variant of `pagePath` (✨ Generated from Field `AnalyticsPageDaily`.`pagePath` of type `String!`)
   """
-  pagePath_expr: String_Expr
+  pagePath_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsPageDaily`.`pageViews` of type `Int!`
   """
@@ -6552,11 +6552,11 @@ input AnalyticsPageDaily_Data {
   """
   ✨ `_expr` server value variant of `pageViews` (✨ Generated from Field `AnalyticsPageDaily`.`pageViews` of type `Int!`)
   """
-  pageViews_expr: Int_Expr
+  pageViews_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `pageViews` (✨ Generated from Field `AnalyticsPageDaily`.`pageViews` of type `Int!`)
   """
-  pageViews_update: [Int_Update!]
+  pageViews_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsPageDaily`.`scrollCount` of type `Int!`
   """
@@ -6564,11 +6564,11 @@ input AnalyticsPageDaily_Data {
   """
   ✨ `_expr` server value variant of `scrollCount` (✨ Generated from Field `AnalyticsPageDaily`.`scrollCount` of type `Int!`)
   """
-  scrollCount_expr: Int_Expr
+  scrollCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `scrollCount` (✨ Generated from Field `AnalyticsPageDaily`.`scrollCount` of type `Int!`)
   """
-  scrollCount_update: [Int_Update!]
+  scrollCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsPageDaily`.`visibilityCount` of type `Int!`
   """
@@ -6576,11 +6576,11 @@ input AnalyticsPageDaily_Data {
   """
   ✨ `_expr` server value variant of `visibilityCount` (✨ Generated from Field `AnalyticsPageDaily`.`visibilityCount` of type `Int!`)
   """
-  visibilityCount_expr: Int_Expr
+  visibilityCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `visibilityCount` (✨ Generated from Field `AnalyticsPageDaily`.`visibilityCount` of type `Int!`)
   """
-  visibilityCount_update: [Int_Update!]
+  visibilityCount_update: [Int_Update!] @fdc_forbiddenInVariables
 }
 """
 ✨ Generated filter input type for table 'AnalyticsPageDaily'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
@@ -6888,7 +6888,7 @@ input AnalyticsPageDaily_Key {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsPageDaily`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
 }
 """
 ✨ Generated list filter input type for table 'AnalyticsPageDaily'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
@@ -7163,7 +7163,7 @@ input AnalyticsSecurityDaily_Data {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsSecurityDaily`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsSecurityDaily`.`dayKey` of type `String!`
   """
@@ -7171,7 +7171,7 @@ input AnalyticsSecurityDaily_Data {
   """
   ✨ `_expr` server value variant of `dayKey` (✨ Generated from Field `AnalyticsSecurityDaily`.`dayKey` of type `String!`)
   """
-  dayKey_expr: String_Expr
+  dayKey_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsSecurityDaily`.`eventCount` of type `Int!`
   """
@@ -7179,11 +7179,11 @@ input AnalyticsSecurityDaily_Data {
   """
   ✨ `_expr` server value variant of `eventCount` (✨ Generated from Field `AnalyticsSecurityDaily`.`eventCount` of type `Int!`)
   """
-  eventCount_expr: Int_Expr
+  eventCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `eventCount` (✨ Generated from Field `AnalyticsSecurityDaily`.`eventCount` of type `Int!`)
   """
-  eventCount_update: [Int_Update!]
+  eventCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsSecurityDaily`.`lastEventAtMs` of type `Int`
   """
@@ -7191,11 +7191,11 @@ input AnalyticsSecurityDaily_Data {
   """
   ✨ `_expr` server value variant of `lastEventAtMs` (✨ Generated from Field `AnalyticsSecurityDaily`.`lastEventAtMs` of type `Int`)
   """
-  lastEventAtMs_expr: Int_Expr
+  lastEventAtMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `lastEventAtMs` (✨ Generated from Field `AnalyticsSecurityDaily`.`lastEventAtMs` of type `Int`)
   """
-  lastEventAtMs_update: [Int_Update!]
+  lastEventAtMs_update: [Int_Update!] @fdc_forbiddenInVariables
 }
 """
 ✨ Generated filter input type for table 'AnalyticsSecurityDaily'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
@@ -7327,7 +7327,7 @@ input AnalyticsSecurityDaily_Key {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsSecurityDaily`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
 }
 """
 ✨ Generated list filter input type for table 'AnalyticsSecurityDaily'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
@@ -7426,7 +7426,7 @@ input AnalyticsSessionFact_Data {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsSessionFact`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsSessionFact`.`completedCount` of type `Int!`
   """
@@ -7434,11 +7434,11 @@ input AnalyticsSessionFact_Data {
   """
   ✨ `_expr` server value variant of `completedCount` (✨ Generated from Field `AnalyticsSessionFact`.`completedCount` of type `Int!`)
   """
-  completedCount_expr: Int_Expr
+  completedCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `completedCount` (✨ Generated from Field `AnalyticsSessionFact`.`completedCount` of type `Int!`)
   """
-  completedCount_update: [Int_Update!]
+  completedCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsSessionFact`.`dayKey` of type `String!`
   """
@@ -7446,7 +7446,7 @@ input AnalyticsSessionFact_Data {
   """
   ✨ `_expr` server value variant of `dayKey` (✨ Generated from Field `AnalyticsSessionFact`.`dayKey` of type `String!`)
   """
-  dayKey_expr: String_Expr
+  dayKey_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsSessionFact`.`dropId` of type `String`
   """
@@ -7454,7 +7454,7 @@ input AnalyticsSessionFact_Data {
   """
   ✨ `_expr` server value variant of `dropId` (✨ Generated from Field `AnalyticsSessionFact`.`dropId` of type `String`)
   """
-  dropId_expr: String_Expr
+  dropId_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsSessionFact`.`dropTitle` of type `String`
   """
@@ -7462,7 +7462,7 @@ input AnalyticsSessionFact_Data {
   """
   ✨ `_expr` server value variant of `dropTitle` (✨ Generated from Field `AnalyticsSessionFact`.`dropTitle` of type `String`)
   """
-  dropTitle_expr: String_Expr
+  dropTitle_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsSessionFact`.`eventCount` of type `Int!`
   """
@@ -7470,11 +7470,11 @@ input AnalyticsSessionFact_Data {
   """
   ✨ `_expr` server value variant of `eventCount` (✨ Generated from Field `AnalyticsSessionFact`.`eventCount` of type `Int!`)
   """
-  eventCount_expr: Int_Expr
+  eventCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `eventCount` (✨ Generated from Field `AnalyticsSessionFact`.`eventCount` of type `Int!`)
   """
-  eventCount_update: [Int_Update!]
+  eventCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsSessionFact`.`firstEventAtMs` of type `Int!`
   """
@@ -7482,11 +7482,11 @@ input AnalyticsSessionFact_Data {
   """
   ✨ `_expr` server value variant of `firstEventAtMs` (✨ Generated from Field `AnalyticsSessionFact`.`firstEventAtMs` of type `Int!`)
   """
-  firstEventAtMs_expr: Int_Expr
+  firstEventAtMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `firstEventAtMs` (✨ Generated from Field `AnalyticsSessionFact`.`firstEventAtMs` of type `Int!`)
   """
-  firstEventAtMs_update: [Int_Update!]
+  firstEventAtMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsSessionFact`.`hourKey` of type `String!`
   """
@@ -7494,7 +7494,7 @@ input AnalyticsSessionFact_Data {
   """
   ✨ `_expr` server value variant of `hourKey` (✨ Generated from Field `AnalyticsSessionFact`.`hourKey` of type `String!`)
   """
-  hourKey_expr: String_Expr
+  hourKey_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsSessionFact`.`lastEventAtMs` of type `Int!`
   """
@@ -7502,11 +7502,11 @@ input AnalyticsSessionFact_Data {
   """
   ✨ `_expr` server value variant of `lastEventAtMs` (✨ Generated from Field `AnalyticsSessionFact`.`lastEventAtMs` of type `Int!`)
   """
-  lastEventAtMs_expr: Int_Expr
+  lastEventAtMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `lastEventAtMs` (✨ Generated from Field `AnalyticsSessionFact`.`lastEventAtMs` of type `Int!`)
   """
-  lastEventAtMs_update: [Int_Update!]
+  lastEventAtMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsSessionFact`.`loadMsTotal` of type `Int!`
   """
@@ -7514,11 +7514,11 @@ input AnalyticsSessionFact_Data {
   """
   ✨ `_expr` server value variant of `loadMsTotal` (✨ Generated from Field `AnalyticsSessionFact`.`loadMsTotal` of type `Int!`)
   """
-  loadMsTotal_expr: Int_Expr
+  loadMsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `loadMsTotal` (✨ Generated from Field `AnalyticsSessionFact`.`loadMsTotal` of type `Int!`)
   """
-  loadMsTotal_update: [Int_Update!]
+  loadMsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsSessionFact`.`loadSampleCount` of type `Int!`
   """
@@ -7526,11 +7526,11 @@ input AnalyticsSessionFact_Data {
   """
   ✨ `_expr` server value variant of `loadSampleCount` (✨ Generated from Field `AnalyticsSessionFact`.`loadSampleCount` of type `Int!`)
   """
-  loadSampleCount_expr: Int_Expr
+  loadSampleCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `loadSampleCount` (✨ Generated from Field `AnalyticsSessionFact`.`loadSampleCount` of type `Int!`)
   """
-  loadSampleCount_update: [Int_Update!]
+  loadSampleCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsSessionFact`.`pagePath` of type `String`
   """
@@ -7538,7 +7538,7 @@ input AnalyticsSessionFact_Data {
   """
   ✨ `_expr` server value variant of `pagePath` (✨ Generated from Field `AnalyticsSessionFact`.`pagePath` of type `String`)
   """
-  pagePath_expr: String_Expr
+  pagePath_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsSessionFact`.`sessionId` of type `String!`
   """
@@ -7546,7 +7546,7 @@ input AnalyticsSessionFact_Data {
   """
   ✨ `_expr` server value variant of `sessionId` (✨ Generated from Field `AnalyticsSessionFact`.`sessionId` of type `String!`)
   """
-  sessionId_expr: String_Expr
+  sessionId_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsSessionFact`.`startedCount` of type `Int!`
   """
@@ -7554,11 +7554,11 @@ input AnalyticsSessionFact_Data {
   """
   ✨ `_expr` server value variant of `startedCount` (✨ Generated from Field `AnalyticsSessionFact`.`startedCount` of type `Int!`)
   """
-  startedCount_expr: Int_Expr
+  startedCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `startedCount` (✨ Generated from Field `AnalyticsSessionFact`.`startedCount` of type `Int!`)
   """
-  startedCount_update: [Int_Update!]
+  startedCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsSessionFact`.`userId` of type `String`
   """
@@ -7566,7 +7566,7 @@ input AnalyticsSessionFact_Data {
   """
   ✨ `_expr` server value variant of `userId` (✨ Generated from Field `AnalyticsSessionFact`.`userId` of type `String`)
   """
-  userId_expr: String_Expr
+  userId_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsSessionFact`.`username` of type `String`
   """
@@ -7574,7 +7574,7 @@ input AnalyticsSessionFact_Data {
   """
   ✨ `_expr` server value variant of `username` (✨ Generated from Field `AnalyticsSessionFact`.`username` of type `String`)
   """
-  username_expr: String_Expr
+  username_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsSessionFact`.`watchSecondsTotal` of type `Int!`
   """
@@ -7582,11 +7582,11 @@ input AnalyticsSessionFact_Data {
   """
   ✨ `_expr` server value variant of `watchSecondsTotal` (✨ Generated from Field `AnalyticsSessionFact`.`watchSecondsTotal` of type `Int!`)
   """
-  watchSecondsTotal_expr: Int_Expr
+  watchSecondsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `watchSecondsTotal` (✨ Generated from Field `AnalyticsSessionFact`.`watchSecondsTotal` of type `Int!`)
   """
-  watchSecondsTotal_update: [Int_Update!]
+  watchSecondsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
 }
 """
 ✨ Generated filter input type for table 'AnalyticsSessionFact'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
@@ -7918,7 +7918,7 @@ input AnalyticsSessionFact_Key {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsSessionFact`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
 }
 """
 ✨ Generated list filter input type for table 'AnalyticsSessionFact'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
@@ -8217,7 +8217,7 @@ input AnalyticsTargetDaily_Data {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsTargetDaily`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsTargetDaily`.`clickCount` of type `Int!`
   """
@@ -8225,11 +8225,11 @@ input AnalyticsTargetDaily_Data {
   """
   ✨ `_expr` server value variant of `clickCount` (✨ Generated from Field `AnalyticsTargetDaily`.`clickCount` of type `Int!`)
   """
-  clickCount_expr: Int_Expr
+  clickCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `clickCount` (✨ Generated from Field `AnalyticsTargetDaily`.`clickCount` of type `Int!`)
   """
-  clickCount_update: [Int_Update!]
+  clickCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsTargetDaily`.`dayKey` of type `String!`
   """
@@ -8237,7 +8237,7 @@ input AnalyticsTargetDaily_Data {
   """
   ✨ `_expr` server value variant of `dayKey` (✨ Generated from Field `AnalyticsTargetDaily`.`dayKey` of type `String!`)
   """
-  dayKey_expr: String_Expr
+  dayKey_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsTargetDaily`.`hoverCount` of type `Int!`
   """
@@ -8245,11 +8245,11 @@ input AnalyticsTargetDaily_Data {
   """
   ✨ `_expr` server value variant of `hoverCount` (✨ Generated from Field `AnalyticsTargetDaily`.`hoverCount` of type `Int!`)
   """
-  hoverCount_expr: Int_Expr
+  hoverCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `hoverCount` (✨ Generated from Field `AnalyticsTargetDaily`.`hoverCount` of type `Int!`)
   """
-  hoverCount_update: [Int_Update!]
+  hoverCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsTargetDaily`.`lastEventAtMs` of type `Int`
   """
@@ -8257,11 +8257,11 @@ input AnalyticsTargetDaily_Data {
   """
   ✨ `_expr` server value variant of `lastEventAtMs` (✨ Generated from Field `AnalyticsTargetDaily`.`lastEventAtMs` of type `Int`)
   """
-  lastEventAtMs_expr: Int_Expr
+  lastEventAtMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `lastEventAtMs` (✨ Generated from Field `AnalyticsTargetDaily`.`lastEventAtMs` of type `Int`)
   """
-  lastEventAtMs_update: [Int_Update!]
+  lastEventAtMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsTargetDaily`.`pagePath` of type `String!`
   """
@@ -8269,7 +8269,7 @@ input AnalyticsTargetDaily_Data {
   """
   ✨ `_expr` server value variant of `pagePath` (✨ Generated from Field `AnalyticsTargetDaily`.`pagePath` of type `String!`)
   """
-  pagePath_expr: String_Expr
+  pagePath_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsTargetDaily`.`targetKey` of type `String!`
   """
@@ -8277,7 +8277,7 @@ input AnalyticsTargetDaily_Data {
   """
   ✨ `_expr` server value variant of `targetKey` (✨ Generated from Field `AnalyticsTargetDaily`.`targetKey` of type `String!`)
   """
-  targetKey_expr: String_Expr
+  targetKey_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsTargetDaily`.`targetTag` of type `String`
   """
@@ -8285,7 +8285,7 @@ input AnalyticsTargetDaily_Data {
   """
   ✨ `_expr` server value variant of `targetTag` (✨ Generated from Field `AnalyticsTargetDaily`.`targetTag` of type `String`)
   """
-  targetTag_expr: String_Expr
+  targetTag_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsTargetDaily`.`targetText` of type `String`
   """
@@ -8293,7 +8293,7 @@ input AnalyticsTargetDaily_Data {
   """
   ✨ `_expr` server value variant of `targetText` (✨ Generated from Field `AnalyticsTargetDaily`.`targetText` of type `String`)
   """
-  targetText_expr: String_Expr
+  targetText_expr: String_Expr @fdc_forbiddenInVariables
 }
 """
 ✨ Generated filter input type for table 'AnalyticsTargetDaily'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
@@ -8481,7 +8481,7 @@ input AnalyticsTargetDaily_Key {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsTargetDaily`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
 }
 """
 ✨ Generated list filter input type for table 'AnalyticsTargetDaily'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
@@ -8636,7 +8636,7 @@ input AnalyticsTaskDaily_Data {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsTaskDaily`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsTaskDaily`.`dayKey` of type `String!`
   """
@@ -8644,7 +8644,7 @@ input AnalyticsTaskDaily_Data {
   """
   ✨ `_expr` server value variant of `dayKey` (✨ Generated from Field `AnalyticsTaskDaily`.`dayKey` of type `String!`)
   """
-  dayKey_expr: String_Expr
+  dayKey_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsTaskDaily`.`durationMsTotal` of type `Int!`
   """
@@ -8652,11 +8652,11 @@ input AnalyticsTaskDaily_Data {
   """
   ✨ `_expr` server value variant of `durationMsTotal` (✨ Generated from Field `AnalyticsTaskDaily`.`durationMsTotal` of type `Int!`)
   """
-  durationMsTotal_expr: Int_Expr
+  durationMsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `durationMsTotal` (✨ Generated from Field `AnalyticsTaskDaily`.`durationMsTotal` of type `Int!`)
   """
-  durationMsTotal_update: [Int_Update!]
+  durationMsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsTaskDaily`.`durationSampleCount` of type `Int!`
   """
@@ -8664,11 +8664,11 @@ input AnalyticsTaskDaily_Data {
   """
   ✨ `_expr` server value variant of `durationSampleCount` (✨ Generated from Field `AnalyticsTaskDaily`.`durationSampleCount` of type `Int!`)
   """
-  durationSampleCount_expr: Int_Expr
+  durationSampleCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `durationSampleCount` (✨ Generated from Field `AnalyticsTaskDaily`.`durationSampleCount` of type `Int!`)
   """
-  durationSampleCount_update: [Int_Update!]
+  durationSampleCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsTaskDaily`.`eventCount` of type `Int!`
   """
@@ -8676,11 +8676,11 @@ input AnalyticsTaskDaily_Data {
   """
   ✨ `_expr` server value variant of `eventCount` (✨ Generated from Field `AnalyticsTaskDaily`.`eventCount` of type `Int!`)
   """
-  eventCount_expr: Int_Expr
+  eventCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `eventCount` (✨ Generated from Field `AnalyticsTaskDaily`.`eventCount` of type `Int!`)
   """
-  eventCount_update: [Int_Update!]
+  eventCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsTaskDaily`.`lastEventAtMs` of type `Int`
   """
@@ -8688,11 +8688,11 @@ input AnalyticsTaskDaily_Data {
   """
   ✨ `_expr` server value variant of `lastEventAtMs` (✨ Generated from Field `AnalyticsTaskDaily`.`lastEventAtMs` of type `Int`)
   """
-  lastEventAtMs_expr: Int_Expr
+  lastEventAtMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `lastEventAtMs` (✨ Generated from Field `AnalyticsTaskDaily`.`lastEventAtMs` of type `Int`)
   """
-  lastEventAtMs_update: [Int_Update!]
+  lastEventAtMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsTaskDaily`.`rewardTotal` of type `Int!`
   """
@@ -8700,11 +8700,11 @@ input AnalyticsTaskDaily_Data {
   """
   ✨ `_expr` server value variant of `rewardTotal` (✨ Generated from Field `AnalyticsTaskDaily`.`rewardTotal` of type `Int!`)
   """
-  rewardTotal_expr: Int_Expr
+  rewardTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `rewardTotal` (✨ Generated from Field `AnalyticsTaskDaily`.`rewardTotal` of type `Int!`)
   """
-  rewardTotal_update: [Int_Update!]
+  rewardTotal_update: [Int_Update!] @fdc_forbiddenInVariables
 }
 """
 ✨ Generated filter input type for table 'AnalyticsTaskDaily'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
@@ -8908,7 +8908,7 @@ input AnalyticsTaskDaily_Key {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsTaskDaily`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
 }
 """
 ✨ Generated list filter input type for table 'AnalyticsTaskDaily'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
@@ -9079,7 +9079,7 @@ input AnalyticsTaskRollup_Data {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsTaskRollup`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsTaskRollup`.`durationMsTotal` of type `Int!`
   """
@@ -9087,11 +9087,11 @@ input AnalyticsTaskRollup_Data {
   """
   ✨ `_expr` server value variant of `durationMsTotal` (✨ Generated from Field `AnalyticsTaskRollup`.`durationMsTotal` of type `Int!`)
   """
-  durationMsTotal_expr: Int_Expr
+  durationMsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `durationMsTotal` (✨ Generated from Field `AnalyticsTaskRollup`.`durationMsTotal` of type `Int!`)
   """
-  durationMsTotal_update: [Int_Update!]
+  durationMsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsTaskRollup`.`durationSampleCount` of type `Int!`
   """
@@ -9099,11 +9099,11 @@ input AnalyticsTaskRollup_Data {
   """
   ✨ `_expr` server value variant of `durationSampleCount` (✨ Generated from Field `AnalyticsTaskRollup`.`durationSampleCount` of type `Int!`)
   """
-  durationSampleCount_expr: Int_Expr
+  durationSampleCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `durationSampleCount` (✨ Generated from Field `AnalyticsTaskRollup`.`durationSampleCount` of type `Int!`)
   """
-  durationSampleCount_update: [Int_Update!]
+  durationSampleCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsTaskRollup`.`eventCount` of type `Int!`
   """
@@ -9111,11 +9111,11 @@ input AnalyticsTaskRollup_Data {
   """
   ✨ `_expr` server value variant of `eventCount` (✨ Generated from Field `AnalyticsTaskRollup`.`eventCount` of type `Int!`)
   """
-  eventCount_expr: Int_Expr
+  eventCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `eventCount` (✨ Generated from Field `AnalyticsTaskRollup`.`eventCount` of type `Int!`)
   """
-  eventCount_update: [Int_Update!]
+  eventCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsTaskRollup`.`lastEventAtMs` of type `Int`
   """
@@ -9123,11 +9123,11 @@ input AnalyticsTaskRollup_Data {
   """
   ✨ `_expr` server value variant of `lastEventAtMs` (✨ Generated from Field `AnalyticsTaskRollup`.`lastEventAtMs` of type `Int`)
   """
-  lastEventAtMs_expr: Int_Expr
+  lastEventAtMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `lastEventAtMs` (✨ Generated from Field `AnalyticsTaskRollup`.`lastEventAtMs` of type `Int`)
   """
-  lastEventAtMs_update: [Int_Update!]
+  lastEventAtMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsTaskRollup`.`rewardTotal` of type `Int!`
   """
@@ -9135,11 +9135,11 @@ input AnalyticsTaskRollup_Data {
   """
   ✨ `_expr` server value variant of `rewardTotal` (✨ Generated from Field `AnalyticsTaskRollup`.`rewardTotal` of type `Int!`)
   """
-  rewardTotal_expr: Int_Expr
+  rewardTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `rewardTotal` (✨ Generated from Field `AnalyticsTaskRollup`.`rewardTotal` of type `Int!`)
   """
-  rewardTotal_update: [Int_Update!]
+  rewardTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsTaskRollup`.`taskId` of type `String!`
   """
@@ -9147,7 +9147,7 @@ input AnalyticsTaskRollup_Data {
   """
   ✨ `_expr` server value variant of `taskId` (✨ Generated from Field `AnalyticsTaskRollup`.`taskId` of type `String!`)
   """
-  taskId_expr: String_Expr
+  taskId_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsTaskRollup`.`title` of type `String`
   """
@@ -9155,7 +9155,7 @@ input AnalyticsTaskRollup_Data {
   """
   ✨ `_expr` server value variant of `title` (✨ Generated from Field `AnalyticsTaskRollup`.`title` of type `String`)
   """
-  title_expr: String_Expr
+  title_expr: String_Expr @fdc_forbiddenInVariables
 }
 """
 ✨ Generated filter input type for table 'AnalyticsTaskRollup'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
@@ -9367,7 +9367,7 @@ input AnalyticsTaskRollup_Key {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsTaskRollup`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
 }
 """
 ✨ Generated list filter input type for table 'AnalyticsTaskRollup'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
@@ -9546,7 +9546,7 @@ input AnalyticsUserDaily_Data {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsUserDaily`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserDaily`.`adjustedProfitUsdTotal` of type `Float!`
   """
@@ -9554,11 +9554,11 @@ input AnalyticsUserDaily_Data {
   """
   ✨ `_expr` server value variant of `adjustedProfitUsdTotal` (✨ Generated from Field `AnalyticsUserDaily`.`adjustedProfitUsdTotal` of type `Float!`)
   """
-  adjustedProfitUsdTotal_expr: Float_Expr
+  adjustedProfitUsdTotal_expr: Float_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `adjustedProfitUsdTotal` (✨ Generated from Field `AnalyticsUserDaily`.`adjustedProfitUsdTotal` of type `Float!`)
   """
-  adjustedProfitUsdTotal_update: [Float_Update!]
+  adjustedProfitUsdTotal_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserDaily`.`bonusGumDropsTotal` of type `Int!`
   """
@@ -9566,11 +9566,11 @@ input AnalyticsUserDaily_Data {
   """
   ✨ `_expr` server value variant of `bonusGumDropsTotal` (✨ Generated from Field `AnalyticsUserDaily`.`bonusGumDropsTotal` of type `Int!`)
   """
-  bonusGumDropsTotal_expr: Int_Expr
+  bonusGumDropsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `bonusGumDropsTotal` (✨ Generated from Field `AnalyticsUserDaily`.`bonusGumDropsTotal` of type `Int!`)
   """
-  bonusGumDropsTotal_update: [Int_Update!]
+  bonusGumDropsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserDaily`.`bonusValueUsdTotal` of type `Float!`
   """
@@ -9578,11 +9578,11 @@ input AnalyticsUserDaily_Data {
   """
   ✨ `_expr` server value variant of `bonusValueUsdTotal` (✨ Generated from Field `AnalyticsUserDaily`.`bonusValueUsdTotal` of type `Float!`)
   """
-  bonusValueUsdTotal_expr: Float_Expr
+  bonusValueUsdTotal_expr: Float_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `bonusValueUsdTotal` (✨ Generated from Field `AnalyticsUserDaily`.`bonusValueUsdTotal` of type `Float!`)
   """
-  bonusValueUsdTotal_update: [Float_Update!]
+  bonusValueUsdTotal_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserDaily`.`dayKey` of type `String!`
   """
@@ -9590,7 +9590,7 @@ input AnalyticsUserDaily_Data {
   """
   ✨ `_expr` server value variant of `dayKey` (✨ Generated from Field `AnalyticsUserDaily`.`dayKey` of type `String!`)
   """
-  dayKey_expr: String_Expr
+  dayKey_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserDaily`.`deliveredGumDropsTotal` of type `Int!`
   """
@@ -9598,11 +9598,11 @@ input AnalyticsUserDaily_Data {
   """
   ✨ `_expr` server value variant of `deliveredGumDropsTotal` (✨ Generated from Field `AnalyticsUserDaily`.`deliveredGumDropsTotal` of type `Int!`)
   """
-  deliveredGumDropsTotal_expr: Int_Expr
+  deliveredGumDropsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `deliveredGumDropsTotal` (✨ Generated from Field `AnalyticsUserDaily`.`deliveredGumDropsTotal` of type `Int!`)
   """
-  deliveredGumDropsTotal_update: [Int_Update!]
+  deliveredGumDropsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserDaily`.`eventCount` of type `Int!`
   """
@@ -9610,11 +9610,11 @@ input AnalyticsUserDaily_Data {
   """
   ✨ `_expr` server value variant of `eventCount` (✨ Generated from Field `AnalyticsUserDaily`.`eventCount` of type `Int!`)
   """
-  eventCount_expr: Int_Expr
+  eventCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `eventCount` (✨ Generated from Field `AnalyticsUserDaily`.`eventCount` of type `Int!`)
   """
-  eventCount_update: [Int_Update!]
+  eventCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserDaily`.`grossRevenueUsdTotal` of type `Float!`
   """
@@ -9622,11 +9622,11 @@ input AnalyticsUserDaily_Data {
   """
   ✨ `_expr` server value variant of `grossRevenueUsdTotal` (✨ Generated from Field `AnalyticsUserDaily`.`grossRevenueUsdTotal` of type `Float!`)
   """
-  grossRevenueUsdTotal_expr: Float_Expr
+  grossRevenueUsdTotal_expr: Float_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `grossRevenueUsdTotal` (✨ Generated from Field `AnalyticsUserDaily`.`grossRevenueUsdTotal` of type `Float!`)
   """
-  grossRevenueUsdTotal_update: [Float_Update!]
+  grossRevenueUsdTotal_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserDaily`.`lastSeenAtMs` of type `Int`
   """
@@ -9634,11 +9634,11 @@ input AnalyticsUserDaily_Data {
   """
   ✨ `_expr` server value variant of `lastSeenAtMs` (✨ Generated from Field `AnalyticsUserDaily`.`lastSeenAtMs` of type `Int`)
   """
-  lastSeenAtMs_expr: Int_Expr
+  lastSeenAtMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `lastSeenAtMs` (✨ Generated from Field `AnalyticsUserDaily`.`lastSeenAtMs` of type `Int`)
   """
-  lastSeenAtMs_update: [Int_Update!]
+  lastSeenAtMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserDaily`.`loadMsTotal` of type `Int!`
   """
@@ -9646,11 +9646,11 @@ input AnalyticsUserDaily_Data {
   """
   ✨ `_expr` server value variant of `loadMsTotal` (✨ Generated from Field `AnalyticsUserDaily`.`loadMsTotal` of type `Int!`)
   """
-  loadMsTotal_expr: Int_Expr
+  loadMsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `loadMsTotal` (✨ Generated from Field `AnalyticsUserDaily`.`loadMsTotal` of type `Int!`)
   """
-  loadMsTotal_update: [Int_Update!]
+  loadMsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserDaily`.`loadSampleCount` of type `Int!`
   """
@@ -9658,11 +9658,11 @@ input AnalyticsUserDaily_Data {
   """
   ✨ `_expr` server value variant of `loadSampleCount` (✨ Generated from Field `AnalyticsUserDaily`.`loadSampleCount` of type `Int!`)
   """
-  loadSampleCount_expr: Int_Expr
+  loadSampleCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `loadSampleCount` (✨ Generated from Field `AnalyticsUserDaily`.`loadSampleCount` of type `Int!`)
   """
-  loadSampleCount_update: [Int_Update!]
+  loadSampleCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserDaily`.`netRevenueCentsTotal` of type `Int!`
   """
@@ -9670,11 +9670,11 @@ input AnalyticsUserDaily_Data {
   """
   ✨ `_expr` server value variant of `netRevenueCentsTotal` (✨ Generated from Field `AnalyticsUserDaily`.`netRevenueCentsTotal` of type `Int!`)
   """
-  netRevenueCentsTotal_expr: Int_Expr
+  netRevenueCentsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `netRevenueCentsTotal` (✨ Generated from Field `AnalyticsUserDaily`.`netRevenueCentsTotal` of type `Int!`)
   """
-  netRevenueCentsTotal_update: [Int_Update!]
+  netRevenueCentsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserDaily`.`netRevenueUsdTotal` of type `Float!`
   """
@@ -9682,11 +9682,11 @@ input AnalyticsUserDaily_Data {
   """
   ✨ `_expr` server value variant of `netRevenueUsdTotal` (✨ Generated from Field `AnalyticsUserDaily`.`netRevenueUsdTotal` of type `Float!`)
   """
-  netRevenueUsdTotal_expr: Float_Expr
+  netRevenueUsdTotal_expr: Float_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `netRevenueUsdTotal` (✨ Generated from Field `AnalyticsUserDaily`.`netRevenueUsdTotal` of type `Float!`)
   """
-  netRevenueUsdTotal_update: [Float_Update!]
+  netRevenueUsdTotal_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserDaily`.`paidGumDropsTotal` of type `Int!`
   """
@@ -9694,11 +9694,11 @@ input AnalyticsUserDaily_Data {
   """
   ✨ `_expr` server value variant of `paidGumDropsTotal` (✨ Generated from Field `AnalyticsUserDaily`.`paidGumDropsTotal` of type `Int!`)
   """
-  paidGumDropsTotal_expr: Int_Expr
+  paidGumDropsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `paidGumDropsTotal` (✨ Generated from Field `AnalyticsUserDaily`.`paidGumDropsTotal` of type `Int!`)
   """
-  paidGumDropsTotal_update: [Int_Update!]
+  paidGumDropsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserDaily`.`paypalFeeCentsTotal` of type `Int!`
   """
@@ -9706,11 +9706,11 @@ input AnalyticsUserDaily_Data {
   """
   ✨ `_expr` server value variant of `paypalFeeCentsTotal` (✨ Generated from Field `AnalyticsUserDaily`.`paypalFeeCentsTotal` of type `Int!`)
   """
-  paypalFeeCentsTotal_expr: Int_Expr
+  paypalFeeCentsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `paypalFeeCentsTotal` (✨ Generated from Field `AnalyticsUserDaily`.`paypalFeeCentsTotal` of type `Int!`)
   """
-  paypalFeeCentsTotal_update: [Int_Update!]
+  paypalFeeCentsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserDaily`.`paypalFeeUsdTotal` of type `Float!`
   """
@@ -9718,11 +9718,11 @@ input AnalyticsUserDaily_Data {
   """
   ✨ `_expr` server value variant of `paypalFeeUsdTotal` (✨ Generated from Field `AnalyticsUserDaily`.`paypalFeeUsdTotal` of type `Float!`)
   """
-  paypalFeeUsdTotal_expr: Float_Expr
+  paypalFeeUsdTotal_expr: Float_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `paypalFeeUsdTotal` (✨ Generated from Field `AnalyticsUserDaily`.`paypalFeeUsdTotal` of type `Float!`)
   """
-  paypalFeeUsdTotal_update: [Float_Update!]
+  paypalFeeUsdTotal_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserDaily`.`purchaseCount` of type `Int!`
   """
@@ -9730,11 +9730,11 @@ input AnalyticsUserDaily_Data {
   """
   ✨ `_expr` server value variant of `purchaseCount` (✨ Generated from Field `AnalyticsUserDaily`.`purchaseCount` of type `Int!`)
   """
-  purchaseCount_expr: Int_Expr
+  purchaseCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `purchaseCount` (✨ Generated from Field `AnalyticsUserDaily`.`purchaseCount` of type `Int!`)
   """
-  purchaseCount_update: [Int_Update!]
+  purchaseCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserDaily`.`revenueCentsTotal` of type `Int!`
   """
@@ -9742,11 +9742,11 @@ input AnalyticsUserDaily_Data {
   """
   ✨ `_expr` server value variant of `revenueCentsTotal` (✨ Generated from Field `AnalyticsUserDaily`.`revenueCentsTotal` of type `Int!`)
   """
-  revenueCentsTotal_expr: Int_Expr
+  revenueCentsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `revenueCentsTotal` (✨ Generated from Field `AnalyticsUserDaily`.`revenueCentsTotal` of type `Int!`)
   """
-  revenueCentsTotal_update: [Int_Update!]
+  revenueCentsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserDaily`.`sessionCount` of type `Int!`
   """
@@ -9754,11 +9754,11 @@ input AnalyticsUserDaily_Data {
   """
   ✨ `_expr` server value variant of `sessionCount` (✨ Generated from Field `AnalyticsUserDaily`.`sessionCount` of type `Int!`)
   """
-  sessionCount_expr: Int_Expr
+  sessionCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `sessionCount` (✨ Generated from Field `AnalyticsUserDaily`.`sessionCount` of type `Int!`)
   """
-  sessionCount_update: [Int_Update!]
+  sessionCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserDaily`.`spendGdTotal` of type `Int!`
   """
@@ -9766,11 +9766,11 @@ input AnalyticsUserDaily_Data {
   """
   ✨ `_expr` server value variant of `spendGdTotal` (✨ Generated from Field `AnalyticsUserDaily`.`spendGdTotal` of type `Int!`)
   """
-  spendGdTotal_expr: Int_Expr
+  spendGdTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `spendGdTotal` (✨ Generated from Field `AnalyticsUserDaily`.`spendGdTotal` of type `Int!`)
   """
-  spendGdTotal_update: [Int_Update!]
+  spendGdTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserDaily`.`taskEventCount` of type `Int!`
   """
@@ -9778,11 +9778,11 @@ input AnalyticsUserDaily_Data {
   """
   ✨ `_expr` server value variant of `taskEventCount` (✨ Generated from Field `AnalyticsUserDaily`.`taskEventCount` of type `Int!`)
   """
-  taskEventCount_expr: Int_Expr
+  taskEventCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `taskEventCount` (✨ Generated from Field `AnalyticsUserDaily`.`taskEventCount` of type `Int!`)
   """
-  taskEventCount_update: [Int_Update!]
+  taskEventCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserDaily`.`taskRewardTotal` of type `Int!`
   """
@@ -9790,11 +9790,11 @@ input AnalyticsUserDaily_Data {
   """
   ✨ `_expr` server value variant of `taskRewardTotal` (✨ Generated from Field `AnalyticsUserDaily`.`taskRewardTotal` of type `Int!`)
   """
-  taskRewardTotal_expr: Int_Expr
+  taskRewardTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `taskRewardTotal` (✨ Generated from Field `AnalyticsUserDaily`.`taskRewardTotal` of type `Int!`)
   """
-  taskRewardTotal_update: [Int_Update!]
+  taskRewardTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserDaily`.`uid` of type `String!`
   """
@@ -9802,7 +9802,7 @@ input AnalyticsUserDaily_Data {
   """
   ✨ `_expr` server value variant of `uid` (✨ Generated from Field `AnalyticsUserDaily`.`uid` of type `String!`)
   """
-  uid_expr: String_Expr
+  uid_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserDaily`.`unlockCount` of type `Int!`
   """
@@ -9810,11 +9810,11 @@ input AnalyticsUserDaily_Data {
   """
   ✨ `_expr` server value variant of `unlockCount` (✨ Generated from Field `AnalyticsUserDaily`.`unlockCount` of type `Int!`)
   """
-  unlockCount_expr: Int_Expr
+  unlockCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `unlockCount` (✨ Generated from Field `AnalyticsUserDaily`.`unlockCount` of type `Int!`)
   """
-  unlockCount_update: [Int_Update!]
+  unlockCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserDaily`.`unlockSpendGdTotal` of type `Int!`
   """
@@ -9822,11 +9822,11 @@ input AnalyticsUserDaily_Data {
   """
   ✨ `_expr` server value variant of `unlockSpendGdTotal` (✨ Generated from Field `AnalyticsUserDaily`.`unlockSpendGdTotal` of type `Int!`)
   """
-  unlockSpendGdTotal_expr: Int_Expr
+  unlockSpendGdTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `unlockSpendGdTotal` (✨ Generated from Field `AnalyticsUserDaily`.`unlockSpendGdTotal` of type `Int!`)
   """
-  unlockSpendGdTotal_update: [Int_Update!]
+  unlockSpendGdTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserDaily`.`unwrapCount` of type `Int!`
   """
@@ -9834,11 +9834,11 @@ input AnalyticsUserDaily_Data {
   """
   ✨ `_expr` server value variant of `unwrapCount` (✨ Generated from Field `AnalyticsUserDaily`.`unwrapCount` of type `Int!`)
   """
-  unwrapCount_expr: Int_Expr
+  unwrapCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `unwrapCount` (✨ Generated from Field `AnalyticsUserDaily`.`unwrapCount` of type `Int!`)
   """
-  unwrapCount_update: [Int_Update!]
+  unwrapCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserDaily`.`username` of type `String`
   """
@@ -9846,7 +9846,7 @@ input AnalyticsUserDaily_Data {
   """
   ✨ `_expr` server value variant of `username` (✨ Generated from Field `AnalyticsUserDaily`.`username` of type `String`)
   """
-  username_expr: String_Expr
+  username_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserDaily`.`watchSecondsTotal` of type `Int!`
   """
@@ -9854,11 +9854,11 @@ input AnalyticsUserDaily_Data {
   """
   ✨ `_expr` server value variant of `watchSecondsTotal` (✨ Generated from Field `AnalyticsUserDaily`.`watchSecondsTotal` of type `Int!`)
   """
-  watchSecondsTotal_expr: Int_Expr
+  watchSecondsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `watchSecondsTotal` (✨ Generated from Field `AnalyticsUserDaily`.`watchSecondsTotal` of type `Int!`)
   """
-  watchSecondsTotal_update: [Int_Update!]
+  watchSecondsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
 }
 """
 ✨ Generated filter input type for table 'AnalyticsUserDaily'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
@@ -10534,7 +10534,7 @@ input AnalyticsUserDaily_Key {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsUserDaily`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
 }
 """
 ✨ Generated list filter input type for table 'AnalyticsUserDaily'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
@@ -11177,7 +11177,7 @@ input AnalyticsUserRollup_Data {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsUserRollup`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserRollup`.`adjustedProfitUsdTotal` of type `Float!`
   """
@@ -11185,11 +11185,11 @@ input AnalyticsUserRollup_Data {
   """
   ✨ `_expr` server value variant of `adjustedProfitUsdTotal` (✨ Generated from Field `AnalyticsUserRollup`.`adjustedProfitUsdTotal` of type `Float!`)
   """
-  adjustedProfitUsdTotal_expr: Float_Expr
+  adjustedProfitUsdTotal_expr: Float_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `adjustedProfitUsdTotal` (✨ Generated from Field `AnalyticsUserRollup`.`adjustedProfitUsdTotal` of type `Float!`)
   """
-  adjustedProfitUsdTotal_update: [Float_Update!]
+  adjustedProfitUsdTotal_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserRollup`.`bonusGumDropsTotal` of type `Int!`
   """
@@ -11197,11 +11197,11 @@ input AnalyticsUserRollup_Data {
   """
   ✨ `_expr` server value variant of `bonusGumDropsTotal` (✨ Generated from Field `AnalyticsUserRollup`.`bonusGumDropsTotal` of type `Int!`)
   """
-  bonusGumDropsTotal_expr: Int_Expr
+  bonusGumDropsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `bonusGumDropsTotal` (✨ Generated from Field `AnalyticsUserRollup`.`bonusGumDropsTotal` of type `Int!`)
   """
-  bonusGumDropsTotal_update: [Int_Update!]
+  bonusGumDropsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserRollup`.`bonusValueUsdTotal` of type `Float!`
   """
@@ -11209,11 +11209,11 @@ input AnalyticsUserRollup_Data {
   """
   ✨ `_expr` server value variant of `bonusValueUsdTotal` (✨ Generated from Field `AnalyticsUserRollup`.`bonusValueUsdTotal` of type `Float!`)
   """
-  bonusValueUsdTotal_expr: Float_Expr
+  bonusValueUsdTotal_expr: Float_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `bonusValueUsdTotal` (✨ Generated from Field `AnalyticsUserRollup`.`bonusValueUsdTotal` of type `Float!`)
   """
-  bonusValueUsdTotal_update: [Float_Update!]
+  bonusValueUsdTotal_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserRollup`.`deliveredGumDropsTotal` of type `Int!`
   """
@@ -11221,11 +11221,11 @@ input AnalyticsUserRollup_Data {
   """
   ✨ `_expr` server value variant of `deliveredGumDropsTotal` (✨ Generated from Field `AnalyticsUserRollup`.`deliveredGumDropsTotal` of type `Int!`)
   """
-  deliveredGumDropsTotal_expr: Int_Expr
+  deliveredGumDropsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `deliveredGumDropsTotal` (✨ Generated from Field `AnalyticsUserRollup`.`deliveredGumDropsTotal` of type `Int!`)
   """
-  deliveredGumDropsTotal_update: [Int_Update!]
+  deliveredGumDropsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserRollup`.`eventCount` of type `Int!`
   """
@@ -11233,11 +11233,11 @@ input AnalyticsUserRollup_Data {
   """
   ✨ `_expr` server value variant of `eventCount` (✨ Generated from Field `AnalyticsUserRollup`.`eventCount` of type `Int!`)
   """
-  eventCount_expr: Int_Expr
+  eventCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `eventCount` (✨ Generated from Field `AnalyticsUserRollup`.`eventCount` of type `Int!`)
   """
-  eventCount_update: [Int_Update!]
+  eventCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserRollup`.`grossRevenueUsdTotal` of type `Float!`
   """
@@ -11245,11 +11245,11 @@ input AnalyticsUserRollup_Data {
   """
   ✨ `_expr` server value variant of `grossRevenueUsdTotal` (✨ Generated from Field `AnalyticsUserRollup`.`grossRevenueUsdTotal` of type `Float!`)
   """
-  grossRevenueUsdTotal_expr: Float_Expr
+  grossRevenueUsdTotal_expr: Float_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `grossRevenueUsdTotal` (✨ Generated from Field `AnalyticsUserRollup`.`grossRevenueUsdTotal` of type `Float!`)
   """
-  grossRevenueUsdTotal_update: [Float_Update!]
+  grossRevenueUsdTotal_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserRollup`.`lastSeenAtMs` of type `Int`
   """
@@ -11257,11 +11257,11 @@ input AnalyticsUserRollup_Data {
   """
   ✨ `_expr` server value variant of `lastSeenAtMs` (✨ Generated from Field `AnalyticsUserRollup`.`lastSeenAtMs` of type `Int`)
   """
-  lastSeenAtMs_expr: Int_Expr
+  lastSeenAtMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `lastSeenAtMs` (✨ Generated from Field `AnalyticsUserRollup`.`lastSeenAtMs` of type `Int`)
   """
-  lastSeenAtMs_update: [Int_Update!]
+  lastSeenAtMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserRollup`.`loadMsTotal` of type `Int!`
   """
@@ -11269,11 +11269,11 @@ input AnalyticsUserRollup_Data {
   """
   ✨ `_expr` server value variant of `loadMsTotal` (✨ Generated from Field `AnalyticsUserRollup`.`loadMsTotal` of type `Int!`)
   """
-  loadMsTotal_expr: Int_Expr
+  loadMsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `loadMsTotal` (✨ Generated from Field `AnalyticsUserRollup`.`loadMsTotal` of type `Int!`)
   """
-  loadMsTotal_update: [Int_Update!]
+  loadMsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserRollup`.`loadSampleCount` of type `Int!`
   """
@@ -11281,11 +11281,11 @@ input AnalyticsUserRollup_Data {
   """
   ✨ `_expr` server value variant of `loadSampleCount` (✨ Generated from Field `AnalyticsUserRollup`.`loadSampleCount` of type `Int!`)
   """
-  loadSampleCount_expr: Int_Expr
+  loadSampleCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `loadSampleCount` (✨ Generated from Field `AnalyticsUserRollup`.`loadSampleCount` of type `Int!`)
   """
-  loadSampleCount_update: [Int_Update!]
+  loadSampleCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserRollup`.`netRevenueCentsTotal` of type `Int!`
   """
@@ -11293,11 +11293,11 @@ input AnalyticsUserRollup_Data {
   """
   ✨ `_expr` server value variant of `netRevenueCentsTotal` (✨ Generated from Field `AnalyticsUserRollup`.`netRevenueCentsTotal` of type `Int!`)
   """
-  netRevenueCentsTotal_expr: Int_Expr
+  netRevenueCentsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `netRevenueCentsTotal` (✨ Generated from Field `AnalyticsUserRollup`.`netRevenueCentsTotal` of type `Int!`)
   """
-  netRevenueCentsTotal_update: [Int_Update!]
+  netRevenueCentsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserRollup`.`netRevenueUsdTotal` of type `Float!`
   """
@@ -11305,11 +11305,11 @@ input AnalyticsUserRollup_Data {
   """
   ✨ `_expr` server value variant of `netRevenueUsdTotal` (✨ Generated from Field `AnalyticsUserRollup`.`netRevenueUsdTotal` of type `Float!`)
   """
-  netRevenueUsdTotal_expr: Float_Expr
+  netRevenueUsdTotal_expr: Float_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `netRevenueUsdTotal` (✨ Generated from Field `AnalyticsUserRollup`.`netRevenueUsdTotal` of type `Float!`)
   """
-  netRevenueUsdTotal_update: [Float_Update!]
+  netRevenueUsdTotal_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserRollup`.`paidGumDropsTotal` of type `Int!`
   """
@@ -11317,11 +11317,11 @@ input AnalyticsUserRollup_Data {
   """
   ✨ `_expr` server value variant of `paidGumDropsTotal` (✨ Generated from Field `AnalyticsUserRollup`.`paidGumDropsTotal` of type `Int!`)
   """
-  paidGumDropsTotal_expr: Int_Expr
+  paidGumDropsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `paidGumDropsTotal` (✨ Generated from Field `AnalyticsUserRollup`.`paidGumDropsTotal` of type `Int!`)
   """
-  paidGumDropsTotal_update: [Int_Update!]
+  paidGumDropsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserRollup`.`paypalFeeCentsTotal` of type `Int!`
   """
@@ -11329,11 +11329,11 @@ input AnalyticsUserRollup_Data {
   """
   ✨ `_expr` server value variant of `paypalFeeCentsTotal` (✨ Generated from Field `AnalyticsUserRollup`.`paypalFeeCentsTotal` of type `Int!`)
   """
-  paypalFeeCentsTotal_expr: Int_Expr
+  paypalFeeCentsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `paypalFeeCentsTotal` (✨ Generated from Field `AnalyticsUserRollup`.`paypalFeeCentsTotal` of type `Int!`)
   """
-  paypalFeeCentsTotal_update: [Int_Update!]
+  paypalFeeCentsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserRollup`.`paypalFeeUsdTotal` of type `Float!`
   """
@@ -11341,11 +11341,11 @@ input AnalyticsUserRollup_Data {
   """
   ✨ `_expr` server value variant of `paypalFeeUsdTotal` (✨ Generated from Field `AnalyticsUserRollup`.`paypalFeeUsdTotal` of type `Float!`)
   """
-  paypalFeeUsdTotal_expr: Float_Expr
+  paypalFeeUsdTotal_expr: Float_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `paypalFeeUsdTotal` (✨ Generated from Field `AnalyticsUserRollup`.`paypalFeeUsdTotal` of type `Float!`)
   """
-  paypalFeeUsdTotal_update: [Float_Update!]
+  paypalFeeUsdTotal_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserRollup`.`purchaseCount` of type `Int!`
   """
@@ -11353,11 +11353,11 @@ input AnalyticsUserRollup_Data {
   """
   ✨ `_expr` server value variant of `purchaseCount` (✨ Generated from Field `AnalyticsUserRollup`.`purchaseCount` of type `Int!`)
   """
-  purchaseCount_expr: Int_Expr
+  purchaseCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `purchaseCount` (✨ Generated from Field `AnalyticsUserRollup`.`purchaseCount` of type `Int!`)
   """
-  purchaseCount_update: [Int_Update!]
+  purchaseCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserRollup`.`revenueCentsTotal` of type `Int!`
   """
@@ -11365,11 +11365,11 @@ input AnalyticsUserRollup_Data {
   """
   ✨ `_expr` server value variant of `revenueCentsTotal` (✨ Generated from Field `AnalyticsUserRollup`.`revenueCentsTotal` of type `Int!`)
   """
-  revenueCentsTotal_expr: Int_Expr
+  revenueCentsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `revenueCentsTotal` (✨ Generated from Field `AnalyticsUserRollup`.`revenueCentsTotal` of type `Int!`)
   """
-  revenueCentsTotal_update: [Int_Update!]
+  revenueCentsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserRollup`.`sessionCount` of type `Int!`
   """
@@ -11377,11 +11377,11 @@ input AnalyticsUserRollup_Data {
   """
   ✨ `_expr` server value variant of `sessionCount` (✨ Generated from Field `AnalyticsUserRollup`.`sessionCount` of type `Int!`)
   """
-  sessionCount_expr: Int_Expr
+  sessionCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `sessionCount` (✨ Generated from Field `AnalyticsUserRollup`.`sessionCount` of type `Int!`)
   """
-  sessionCount_update: [Int_Update!]
+  sessionCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserRollup`.`spendGdTotal` of type `Int!`
   """
@@ -11389,11 +11389,11 @@ input AnalyticsUserRollup_Data {
   """
   ✨ `_expr` server value variant of `spendGdTotal` (✨ Generated from Field `AnalyticsUserRollup`.`spendGdTotal` of type `Int!`)
   """
-  spendGdTotal_expr: Int_Expr
+  spendGdTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `spendGdTotal` (✨ Generated from Field `AnalyticsUserRollup`.`spendGdTotal` of type `Int!`)
   """
-  spendGdTotal_update: [Int_Update!]
+  spendGdTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserRollup`.`taskEventCount` of type `Int!`
   """
@@ -11401,11 +11401,11 @@ input AnalyticsUserRollup_Data {
   """
   ✨ `_expr` server value variant of `taskEventCount` (✨ Generated from Field `AnalyticsUserRollup`.`taskEventCount` of type `Int!`)
   """
-  taskEventCount_expr: Int_Expr
+  taskEventCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `taskEventCount` (✨ Generated from Field `AnalyticsUserRollup`.`taskEventCount` of type `Int!`)
   """
-  taskEventCount_update: [Int_Update!]
+  taskEventCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserRollup`.`taskRewardTotal` of type `Int!`
   """
@@ -11413,11 +11413,11 @@ input AnalyticsUserRollup_Data {
   """
   ✨ `_expr` server value variant of `taskRewardTotal` (✨ Generated from Field `AnalyticsUserRollup`.`taskRewardTotal` of type `Int!`)
   """
-  taskRewardTotal_expr: Int_Expr
+  taskRewardTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `taskRewardTotal` (✨ Generated from Field `AnalyticsUserRollup`.`taskRewardTotal` of type `Int!`)
   """
-  taskRewardTotal_update: [Int_Update!]
+  taskRewardTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserRollup`.`uid` of type `String!`
   """
@@ -11425,7 +11425,7 @@ input AnalyticsUserRollup_Data {
   """
   ✨ `_expr` server value variant of `uid` (✨ Generated from Field `AnalyticsUserRollup`.`uid` of type `String!`)
   """
-  uid_expr: String_Expr
+  uid_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserRollup`.`unlockCount` of type `Int!`
   """
@@ -11433,11 +11433,11 @@ input AnalyticsUserRollup_Data {
   """
   ✨ `_expr` server value variant of `unlockCount` (✨ Generated from Field `AnalyticsUserRollup`.`unlockCount` of type `Int!`)
   """
-  unlockCount_expr: Int_Expr
+  unlockCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `unlockCount` (✨ Generated from Field `AnalyticsUserRollup`.`unlockCount` of type `Int!`)
   """
-  unlockCount_update: [Int_Update!]
+  unlockCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserRollup`.`unlockSpendGdTotal` of type `Int!`
   """
@@ -11445,11 +11445,11 @@ input AnalyticsUserRollup_Data {
   """
   ✨ `_expr` server value variant of `unlockSpendGdTotal` (✨ Generated from Field `AnalyticsUserRollup`.`unlockSpendGdTotal` of type `Int!`)
   """
-  unlockSpendGdTotal_expr: Int_Expr
+  unlockSpendGdTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `unlockSpendGdTotal` (✨ Generated from Field `AnalyticsUserRollup`.`unlockSpendGdTotal` of type `Int!`)
   """
-  unlockSpendGdTotal_update: [Int_Update!]
+  unlockSpendGdTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserRollup`.`unwrapCount` of type `Int!`
   """
@@ -11457,11 +11457,11 @@ input AnalyticsUserRollup_Data {
   """
   ✨ `_expr` server value variant of `unwrapCount` (✨ Generated from Field `AnalyticsUserRollup`.`unwrapCount` of type `Int!`)
   """
-  unwrapCount_expr: Int_Expr
+  unwrapCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `unwrapCount` (✨ Generated from Field `AnalyticsUserRollup`.`unwrapCount` of type `Int!`)
   """
-  unwrapCount_update: [Int_Update!]
+  unwrapCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserRollup`.`username` of type `String`
   """
@@ -11469,7 +11469,7 @@ input AnalyticsUserRollup_Data {
   """
   ✨ `_expr` server value variant of `username` (✨ Generated from Field `AnalyticsUserRollup`.`username` of type `String`)
   """
-  username_expr: String_Expr
+  username_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserRollup`.`watchSecondsTotal` of type `Int!`
   """
@@ -11477,11 +11477,11 @@ input AnalyticsUserRollup_Data {
   """
   ✨ `_expr` server value variant of `watchSecondsTotal` (✨ Generated from Field `AnalyticsUserRollup`.`watchSecondsTotal` of type `Int!`)
   """
-  watchSecondsTotal_expr: Int_Expr
+  watchSecondsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `watchSecondsTotal` (✨ Generated from Field `AnalyticsUserRollup`.`watchSecondsTotal` of type `Int!`)
   """
-  watchSecondsTotal_update: [Int_Update!]
+  watchSecondsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
 }
 """
 ✨ Generated filter input type for table 'AnalyticsUserRollup'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
@@ -12149,7 +12149,7 @@ input AnalyticsUserRollup_Key {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsUserRollup`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
 }
 """
 ✨ Generated list filter input type for table 'AnalyticsUserRollup'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
@@ -12784,7 +12784,7 @@ input AnalyticsUserSecurityRollup_Data {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsUserSecurityRollup`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserSecurityRollup`.`eventCount` of type `Int!`
   """
@@ -12792,11 +12792,11 @@ input AnalyticsUserSecurityRollup_Data {
   """
   ✨ `_expr` server value variant of `eventCount` (✨ Generated from Field `AnalyticsUserSecurityRollup`.`eventCount` of type `Int!`)
   """
-  eventCount_expr: Int_Expr
+  eventCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `eventCount` (✨ Generated from Field `AnalyticsUserSecurityRollup`.`eventCount` of type `Int!`)
   """
-  eventCount_update: [Int_Update!]
+  eventCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserSecurityRollup`.`lastDropId` of type `String`
   """
@@ -12804,7 +12804,7 @@ input AnalyticsUserSecurityRollup_Data {
   """
   ✨ `_expr` server value variant of `lastDropId` (✨ Generated from Field `AnalyticsUserSecurityRollup`.`lastDropId` of type `String`)
   """
-  lastDropId_expr: String_Expr
+  lastDropId_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserSecurityRollup`.`lastEventAtMs` of type `Int`
   """
@@ -12812,11 +12812,11 @@ input AnalyticsUserSecurityRollup_Data {
   """
   ✨ `_expr` server value variant of `lastEventAtMs` (✨ Generated from Field `AnalyticsUserSecurityRollup`.`lastEventAtMs` of type `Int`)
   """
-  lastEventAtMs_expr: Int_Expr
+  lastEventAtMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `lastEventAtMs` (✨ Generated from Field `AnalyticsUserSecurityRollup`.`lastEventAtMs` of type `Int`)
   """
-  lastEventAtMs_update: [Int_Update!]
+  lastEventAtMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserSecurityRollup`.`lastLabel` of type `String`
   """
@@ -12824,7 +12824,7 @@ input AnalyticsUserSecurityRollup_Data {
   """
   ✨ `_expr` server value variant of `lastLabel` (✨ Generated from Field `AnalyticsUserSecurityRollup`.`lastLabel` of type `String`)
   """
-  lastLabel_expr: String_Expr
+  lastLabel_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserSecurityRollup`.`lastLocationLabel` of type `String`
   """
@@ -12832,7 +12832,7 @@ input AnalyticsUserSecurityRollup_Data {
   """
   ✨ `_expr` server value variant of `lastLocationLabel` (✨ Generated from Field `AnalyticsUserSecurityRollup`.`lastLocationLabel` of type `String`)
   """
-  lastLocationLabel_expr: String_Expr
+  lastLocationLabel_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserSecurityRollup`.`lastMessage` of type `String`
   """
@@ -12840,7 +12840,7 @@ input AnalyticsUserSecurityRollup_Data {
   """
   ✨ `_expr` server value variant of `lastMessage` (✨ Generated from Field `AnalyticsUserSecurityRollup`.`lastMessage` of type `String`)
   """
-  lastMessage_expr: String_Expr
+  lastMessage_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserSecurityRollup`.`lastPagePath` of type `String`
   """
@@ -12848,7 +12848,7 @@ input AnalyticsUserSecurityRollup_Data {
   """
   ✨ `_expr` server value variant of `lastPagePath` (✨ Generated from Field `AnalyticsUserSecurityRollup`.`lastPagePath` of type `String`)
   """
-  lastPagePath_expr: String_Expr
+  lastPagePath_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserSecurityRollup`.`lastReason` of type `String`
   """
@@ -12856,7 +12856,7 @@ input AnalyticsUserSecurityRollup_Data {
   """
   ✨ `_expr` server value variant of `lastReason` (✨ Generated from Field `AnalyticsUserSecurityRollup`.`lastReason` of type `String`)
   """
-  lastReason_expr: String_Expr
+  lastReason_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserSecurityRollup`.`uid` of type `String!`
   """
@@ -12864,7 +12864,7 @@ input AnalyticsUserSecurityRollup_Data {
   """
   ✨ `_expr` server value variant of `uid` (✨ Generated from Field `AnalyticsUserSecurityRollup`.`uid` of type `String!`)
   """
-  uid_expr: String_Expr
+  uid_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsUserSecurityRollup`.`username` of type `String`
   """
@@ -12872,7 +12872,7 @@ input AnalyticsUserSecurityRollup_Data {
   """
   ✨ `_expr` server value variant of `username` (✨ Generated from Field `AnalyticsUserSecurityRollup`.`username` of type `String`)
   """
-  username_expr: String_Expr
+  username_expr: String_Expr @fdc_forbiddenInVariables
 }
 """
 ✨ Generated filter input type for table 'AnalyticsUserSecurityRollup'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
@@ -13060,7 +13060,7 @@ input AnalyticsUserSecurityRollup_Key {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsUserSecurityRollup`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
 }
 """
 ✨ Generated list filter input type for table 'AnalyticsUserSecurityRollup'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
@@ -13215,7 +13215,7 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsWatchAsset`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`assetIndex` of type `Int!`
   """
@@ -13223,11 +13223,11 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `assetIndex` (✨ Generated from Field `AnalyticsWatchAsset`.`assetIndex` of type `Int!`)
   """
-  assetIndex_expr: Int_Expr
+  assetIndex_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `assetIndex` (✨ Generated from Field `AnalyticsWatchAsset`.`assetIndex` of type `Int!`)
   """
-  assetIndex_update: [Int_Update!]
+  assetIndex_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`assetKey` of type `String!`
   """
@@ -13235,7 +13235,7 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `assetKey` (✨ Generated from Field `AnalyticsWatchAsset`.`assetKey` of type `String!`)
   """
-  assetKey_expr: String_Expr
+  assetKey_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`checkpointMaxSeconds` of type `Int!`
   """
@@ -13243,11 +13243,11 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `checkpointMaxSeconds` (✨ Generated from Field `AnalyticsWatchAsset`.`checkpointMaxSeconds` of type `Int!`)
   """
-  checkpointMaxSeconds_expr: Int_Expr
+  checkpointMaxSeconds_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `checkpointMaxSeconds` (✨ Generated from Field `AnalyticsWatchAsset`.`checkpointMaxSeconds` of type `Int!`)
   """
-  checkpointMaxSeconds_update: [Int_Update!]
+  checkpointMaxSeconds_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`clientSessionId` of type `String`
   """
@@ -13255,7 +13255,7 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `clientSessionId` (✨ Generated from Field `AnalyticsWatchAsset`.`clientSessionId` of type `String`)
   """
-  clientSessionId_expr: String_Expr
+  clientSessionId_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`completedAtMs` of type `Int`
   """
@@ -13263,11 +13263,11 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `completedAtMs` (✨ Generated from Field `AnalyticsWatchAsset`.`completedAtMs` of type `Int`)
   """
-  completedAtMs_expr: Int_Expr
+  completedAtMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `completedAtMs` (✨ Generated from Field `AnalyticsWatchAsset`.`completedAtMs` of type `Int`)
   """
-  completedAtMs_update: [Int_Update!]
+  completedAtMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`consumedAtMs` of type `Int`
   """
@@ -13275,11 +13275,11 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `consumedAtMs` (✨ Generated from Field `AnalyticsWatchAsset`.`consumedAtMs` of type `Int`)
   """
-  consumedAtMs_expr: Int_Expr
+  consumedAtMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `consumedAtMs` (✨ Generated from Field `AnalyticsWatchAsset`.`consumedAtMs` of type `Int`)
   """
-  consumedAtMs_update: [Int_Update!]
+  consumedAtMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`contentKind` of type `String`
   """
@@ -13287,7 +13287,7 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `contentKind` (✨ Generated from Field `AnalyticsWatchAsset`.`contentKind` of type `String`)
   """
-  contentKind_expr: String_Expr
+  contentKind_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`dropCategory` of type `String`
   """
@@ -13295,7 +13295,7 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `dropCategory` (✨ Generated from Field `AnalyticsWatchAsset`.`dropCategory` of type `String`)
   """
-  dropCategory_expr: String_Expr
+  dropCategory_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`dropId` of type `String!`
   """
@@ -13303,7 +13303,7 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `dropId` (✨ Generated from Field `AnalyticsWatchAsset`.`dropId` of type `String!`)
   """
-  dropId_expr: String_Expr
+  dropId_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`dropTitle` of type `String`
   """
@@ -13311,7 +13311,7 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `dropTitle` (✨ Generated from Field `AnalyticsWatchAsset`.`dropTitle` of type `String`)
   """
-  dropTitle_expr: String_Expr
+  dropTitle_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`durationSeconds` of type `Int`
   """
@@ -13319,11 +13319,11 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `durationSeconds` (✨ Generated from Field `AnalyticsWatchAsset`.`durationSeconds` of type `Int`)
   """
-  durationSeconds_expr: Int_Expr
+  durationSeconds_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `durationSeconds` (✨ Generated from Field `AnalyticsWatchAsset`.`durationSeconds` of type `Int`)
   """
-  durationSeconds_update: [Int_Update!]
+  durationSeconds_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`firstSeenAtMs` of type `Int!`
   """
@@ -13331,11 +13331,11 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `firstSeenAtMs` (✨ Generated from Field `AnalyticsWatchAsset`.`firstSeenAtMs` of type `Int!`)
   """
-  firstSeenAtMs_expr: Int_Expr
+  firstSeenAtMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `firstSeenAtMs` (✨ Generated from Field `AnalyticsWatchAsset`.`firstSeenAtMs` of type `Int!`)
   """
-  firstSeenAtMs_update: [Int_Update!]
+  firstSeenAtMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`heartbeatCount` of type `Int!`
   """
@@ -13343,11 +13343,11 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `heartbeatCount` (✨ Generated from Field `AnalyticsWatchAsset`.`heartbeatCount` of type `Int!`)
   """
-  heartbeatCount_expr: Int_Expr
+  heartbeatCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `heartbeatCount` (✨ Generated from Field `AnalyticsWatchAsset`.`heartbeatCount` of type `Int!`)
   """
-  heartbeatCount_update: [Int_Update!]
+  heartbeatCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`isCompleted` of type `Boolean!`
   """
@@ -13355,7 +13355,7 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `isCompleted` (✨ Generated from Field `AnalyticsWatchAsset`.`isCompleted` of type `Boolean!`)
   """
-  isCompleted_expr: Boolean_Expr
+  isCompleted_expr: Boolean_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`isConsumed` of type `Boolean!`
   """
@@ -13363,7 +13363,7 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `isConsumed` (✨ Generated from Field `AnalyticsWatchAsset`.`isConsumed` of type `Boolean!`)
   """
-  isConsumed_expr: Boolean_Expr
+  isConsumed_expr: Boolean_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`lastDayKey` of type `String!`
   """
@@ -13371,7 +13371,7 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `lastDayKey` (✨ Generated from Field `AnalyticsWatchAsset`.`lastDayKey` of type `String!`)
   """
-  lastDayKey_expr: String_Expr
+  lastDayKey_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`lastHourKey` of type `String!`
   """
@@ -13379,7 +13379,7 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `lastHourKey` (✨ Generated from Field `AnalyticsWatchAsset`.`lastHourKey` of type `String!`)
   """
-  lastHourKey_expr: String_Expr
+  lastHourKey_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`lastSeenAtMs` of type `Int!`
   """
@@ -13387,11 +13387,11 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `lastSeenAtMs` (✨ Generated from Field `AnalyticsWatchAsset`.`lastSeenAtMs` of type `Int!`)
   """
-  lastSeenAtMs_expr: Int_Expr
+  lastSeenAtMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `lastSeenAtMs` (✨ Generated from Field `AnalyticsWatchAsset`.`lastSeenAtMs` of type `Int!`)
   """
-  lastSeenAtMs_update: [Int_Update!]
+  lastSeenAtMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`lastSequence` of type `Int!`
   """
@@ -13399,11 +13399,11 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `lastSequence` (✨ Generated from Field `AnalyticsWatchAsset`.`lastSequence` of type `Int!`)
   """
-  lastSequence_expr: Int_Expr
+  lastSequence_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `lastSequence` (✨ Generated from Field `AnalyticsWatchAsset`.`lastSequence` of type `Int!`)
   """
-  lastSequence_update: [Int_Update!]
+  lastSequence_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`loadMsTotal` of type `Int!`
   """
@@ -13411,11 +13411,11 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `loadMsTotal` (✨ Generated from Field `AnalyticsWatchAsset`.`loadMsTotal` of type `Int!`)
   """
-  loadMsTotal_expr: Int_Expr
+  loadMsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `loadMsTotal` (✨ Generated from Field `AnalyticsWatchAsset`.`loadMsTotal` of type `Int!`)
   """
-  loadMsTotal_update: [Int_Update!]
+  loadMsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`loadSampleCount` of type `Int!`
   """
@@ -13423,11 +13423,11 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `loadSampleCount` (✨ Generated from Field `AnalyticsWatchAsset`.`loadSampleCount` of type `Int!`)
   """
-  loadSampleCount_expr: Int_Expr
+  loadSampleCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `loadSampleCount` (✨ Generated from Field `AnalyticsWatchAsset`.`loadSampleCount` of type `Int!`)
   """
-  loadSampleCount_update: [Int_Update!]
+  loadSampleCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`maxProgressSeconds` of type `Int!`
   """
@@ -13435,11 +13435,11 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `maxProgressSeconds` (✨ Generated from Field `AnalyticsWatchAsset`.`maxProgressSeconds` of type `Int!`)
   """
-  maxProgressSeconds_expr: Int_Expr
+  maxProgressSeconds_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `maxProgressSeconds` (✨ Generated from Field `AnalyticsWatchAsset`.`maxProgressSeconds` of type `Int!`)
   """
-  maxProgressSeconds_update: [Int_Update!]
+  maxProgressSeconds_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`pagePath` of type `String`
   """
@@ -13447,7 +13447,7 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `pagePath` (✨ Generated from Field `AnalyticsWatchAsset`.`pagePath` of type `String`)
   """
-  pagePath_expr: String_Expr
+  pagePath_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`sessionStartedAtMs` of type `Int!`
   """
@@ -13455,11 +13455,11 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `sessionStartedAtMs` (✨ Generated from Field `AnalyticsWatchAsset`.`sessionStartedAtMs` of type `Int!`)
   """
-  sessionStartedAtMs_expr: Int_Expr
+  sessionStartedAtMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `sessionStartedAtMs` (✨ Generated from Field `AnalyticsWatchAsset`.`sessionStartedAtMs` of type `Int!`)
   """
-  sessionStartedAtMs_update: [Int_Update!]
+  sessionStartedAtMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`startedAtMs` of type `Int!`
   """
@@ -13467,11 +13467,11 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `startedAtMs` (✨ Generated from Field `AnalyticsWatchAsset`.`startedAtMs` of type `Int!`)
   """
-  startedAtMs_expr: Int_Expr
+  startedAtMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `startedAtMs` (✨ Generated from Field `AnalyticsWatchAsset`.`startedAtMs` of type `Int!`)
   """
-  startedAtMs_update: [Int_Update!]
+  startedAtMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`startedDayKey` of type `String!`
   """
@@ -13479,7 +13479,7 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `startedDayKey` (✨ Generated from Field `AnalyticsWatchAsset`.`startedDayKey` of type `String!`)
   """
-  startedDayKey_expr: String_Expr
+  startedDayKey_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`startedHourKey` of type `String!`
   """
@@ -13487,7 +13487,7 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `startedHourKey` (✨ Generated from Field `AnalyticsWatchAsset`.`startedHourKey` of type `String!`)
   """
-  startedHourKey_expr: String_Expr
+  startedHourKey_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`totalVisibleSeconds` of type `Float!`
   """
@@ -13495,11 +13495,11 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `totalVisibleSeconds` (✨ Generated from Field `AnalyticsWatchAsset`.`totalVisibleSeconds` of type `Float!`)
   """
-  totalVisibleSeconds_expr: Float_Expr
+  totalVisibleSeconds_expr: Float_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `totalVisibleSeconds` (✨ Generated from Field `AnalyticsWatchAsset`.`totalVisibleSeconds` of type `Float!`)
   """
-  totalVisibleSeconds_update: [Float_Update!]
+  totalVisibleSeconds_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`totalWatchSeconds` of type `Float!`
   """
@@ -13507,11 +13507,11 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `totalWatchSeconds` (✨ Generated from Field `AnalyticsWatchAsset`.`totalWatchSeconds` of type `Float!`)
   """
-  totalWatchSeconds_expr: Float_Expr
+  totalWatchSeconds_expr: Float_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `totalWatchSeconds` (✨ Generated from Field `AnalyticsWatchAsset`.`totalWatchSeconds` of type `Float!`)
   """
-  totalWatchSeconds_update: [Float_Update!]
+  totalWatchSeconds_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`userId` of type `String`
   """
@@ -13519,7 +13519,7 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `userId` (✨ Generated from Field `AnalyticsWatchAsset`.`userId` of type `String`)
   """
-  userId_expr: String_Expr
+  userId_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`username` of type `String`
   """
@@ -13527,7 +13527,7 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `username` (✨ Generated from Field `AnalyticsWatchAsset`.`username` of type `String`)
   """
-  username_expr: String_Expr
+  username_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchAsset`.`watchSessionId` of type `String!`
   """
@@ -13535,7 +13535,7 @@ input AnalyticsWatchAsset_Data {
   """
   ✨ `_expr` server value variant of `watchSessionId` (✨ Generated from Field `AnalyticsWatchAsset`.`watchSessionId` of type `String!`)
   """
-  watchSessionId_expr: String_Expr
+  watchSessionId_expr: String_Expr @fdc_forbiddenInVariables
 }
 """
 ✨ Generated filter input type for table 'AnalyticsWatchAsset'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
@@ -14123,7 +14123,7 @@ input AnalyticsWatchAsset_Key {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsWatchAsset`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
 }
 """
 ✨ Generated list filter input type for table 'AnalyticsWatchAsset'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
@@ -14678,7 +14678,7 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsWatchSession`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`activeAssetIndex` of type `Int`
   """
@@ -14686,11 +14686,11 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `activeAssetIndex` (✨ Generated from Field `AnalyticsWatchSession`.`activeAssetIndex` of type `Int`)
   """
-  activeAssetIndex_expr: Int_Expr
+  activeAssetIndex_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `activeAssetIndex` (✨ Generated from Field `AnalyticsWatchSession`.`activeAssetIndex` of type `Int`)
   """
-  activeAssetIndex_update: [Int_Update!]
+  activeAssetIndex_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`activeAssetKey` of type `String`
   """
@@ -14698,7 +14698,7 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `activeAssetKey` (✨ Generated from Field `AnalyticsWatchSession`.`activeAssetKey` of type `String`)
   """
-  activeAssetKey_expr: String_Expr
+  activeAssetKey_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`assetSwitchCount` of type `Int!`
   """
@@ -14706,11 +14706,11 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `assetSwitchCount` (✨ Generated from Field `AnalyticsWatchSession`.`assetSwitchCount` of type `Int!`)
   """
-  assetSwitchCount_expr: Int_Expr
+  assetSwitchCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `assetSwitchCount` (✨ Generated from Field `AnalyticsWatchSession`.`assetSwitchCount` of type `Int!`)
   """
-  assetSwitchCount_update: [Int_Update!]
+  assetSwitchCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`averageLoadMs` of type `Int!`
   """
@@ -14718,11 +14718,11 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `averageLoadMs` (✨ Generated from Field `AnalyticsWatchSession`.`averageLoadMs` of type `Int!`)
   """
-  averageLoadMs_expr: Int_Expr
+  averageLoadMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `averageLoadMs` (✨ Generated from Field `AnalyticsWatchSession`.`averageLoadMs` of type `Int!`)
   """
-  averageLoadMs_update: [Int_Update!]
+  averageLoadMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`clientSessionId` of type `String`
   """
@@ -14730,7 +14730,7 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `clientSessionId` (✨ Generated from Field `AnalyticsWatchSession`.`clientSessionId` of type `String`)
   """
-  clientSessionId_expr: String_Expr
+  clientSessionId_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`closeReason` of type `String`
   """
@@ -14738,7 +14738,7 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `closeReason` (✨ Generated from Field `AnalyticsWatchSession`.`closeReason` of type `String`)
   """
-  closeReason_expr: String_Expr
+  closeReason_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`closedAtMs` of type `Int`
   """
@@ -14746,11 +14746,11 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `closedAtMs` (✨ Generated from Field `AnalyticsWatchSession`.`closedAtMs` of type `Int`)
   """
-  closedAtMs_expr: Int_Expr
+  closedAtMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `closedAtMs` (✨ Generated from Field `AnalyticsWatchSession`.`closedAtMs` of type `Int`)
   """
-  closedAtMs_update: [Int_Update!]
+  closedAtMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`completedAssetCount` of type `Int!`
   """
@@ -14758,11 +14758,11 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `completedAssetCount` (✨ Generated from Field `AnalyticsWatchSession`.`completedAssetCount` of type `Int!`)
   """
-  completedAssetCount_expr: Int_Expr
+  completedAssetCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `completedAssetCount` (✨ Generated from Field `AnalyticsWatchSession`.`completedAssetCount` of type `Int!`)
   """
-  completedAssetCount_update: [Int_Update!]
+  completedAssetCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`consumedAssetCount` of type `Int!`
   """
@@ -14770,11 +14770,11 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `consumedAssetCount` (✨ Generated from Field `AnalyticsWatchSession`.`consumedAssetCount` of type `Int!`)
   """
-  consumedAssetCount_expr: Int_Expr
+  consumedAssetCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `consumedAssetCount` (✨ Generated from Field `AnalyticsWatchSession`.`consumedAssetCount` of type `Int!`)
   """
-  consumedAssetCount_update: [Int_Update!]
+  consumedAssetCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`contentCount` of type `Int!`
   """
@@ -14782,11 +14782,11 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `contentCount` (✨ Generated from Field `AnalyticsWatchSession`.`contentCount` of type `Int!`)
   """
-  contentCount_expr: Int_Expr
+  contentCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `contentCount` (✨ Generated from Field `AnalyticsWatchSession`.`contentCount` of type `Int!`)
   """
-  contentCount_update: [Int_Update!]
+  contentCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`downloadCount` of type `Int!`
   """
@@ -14794,11 +14794,11 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `downloadCount` (✨ Generated from Field `AnalyticsWatchSession`.`downloadCount` of type `Int!`)
   """
-  downloadCount_expr: Int_Expr
+  downloadCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `downloadCount` (✨ Generated from Field `AnalyticsWatchSession`.`downloadCount` of type `Int!`)
   """
-  downloadCount_update: [Int_Update!]
+  downloadCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`dropCategory` of type `String`
   """
@@ -14806,7 +14806,7 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `dropCategory` (✨ Generated from Field `AnalyticsWatchSession`.`dropCategory` of type `String`)
   """
-  dropCategory_expr: String_Expr
+  dropCategory_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`dropId` of type `String!`
   """
@@ -14814,7 +14814,7 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `dropId` (✨ Generated from Field `AnalyticsWatchSession`.`dropId` of type `String!`)
   """
-  dropId_expr: String_Expr
+  dropId_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`dropTitle` of type `String`
   """
@@ -14822,7 +14822,7 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `dropTitle` (✨ Generated from Field `AnalyticsWatchSession`.`dropTitle` of type `String`)
   """
-  dropTitle_expr: String_Expr
+  dropTitle_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`firstSeenAtMs` of type `Int!`
   """
@@ -14830,11 +14830,11 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `firstSeenAtMs` (✨ Generated from Field `AnalyticsWatchSession`.`firstSeenAtMs` of type `Int!`)
   """
-  firstSeenAtMs_expr: Int_Expr
+  firstSeenAtMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `firstSeenAtMs` (✨ Generated from Field `AnalyticsWatchSession`.`firstSeenAtMs` of type `Int!`)
   """
-  firstSeenAtMs_update: [Int_Update!]
+  firstSeenAtMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`isClosed` of type `Boolean!`
   """
@@ -14842,7 +14842,7 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `isClosed` (✨ Generated from Field `AnalyticsWatchSession`.`isClosed` of type `Boolean!`)
   """
-  isClosed_expr: Boolean_Expr
+  isClosed_expr: Boolean_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`lastDayKey` of type `String!`
   """
@@ -14850,7 +14850,7 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `lastDayKey` (✨ Generated from Field `AnalyticsWatchSession`.`lastDayKey` of type `String!`)
   """
-  lastDayKey_expr: String_Expr
+  lastDayKey_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`lastHourKey` of type `String!`
   """
@@ -14858,7 +14858,7 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `lastHourKey` (✨ Generated from Field `AnalyticsWatchSession`.`lastHourKey` of type `String!`)
   """
-  lastHourKey_expr: String_Expr
+  lastHourKey_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`lastSeenAtMs` of type `Int!`
   """
@@ -14866,11 +14866,11 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `lastSeenAtMs` (✨ Generated from Field `AnalyticsWatchSession`.`lastSeenAtMs` of type `Int!`)
   """
-  lastSeenAtMs_expr: Int_Expr
+  lastSeenAtMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `lastSeenAtMs` (✨ Generated from Field `AnalyticsWatchSession`.`lastSeenAtMs` of type `Int!`)
   """
-  lastSeenAtMs_update: [Int_Update!]
+  lastSeenAtMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`lastSequence` of type `Int!`
   """
@@ -14878,11 +14878,11 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `lastSequence` (✨ Generated from Field `AnalyticsWatchSession`.`lastSequence` of type `Int!`)
   """
-  lastSequence_expr: Int_Expr
+  lastSequence_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `lastSequence` (✨ Generated from Field `AnalyticsWatchSession`.`lastSequence` of type `Int!`)
   """
-  lastSequence_update: [Int_Update!]
+  lastSequence_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`loadMsTotal` of type `Int!`
   """
@@ -14890,11 +14890,11 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `loadMsTotal` (✨ Generated from Field `AnalyticsWatchSession`.`loadMsTotal` of type `Int!`)
   """
-  loadMsTotal_expr: Int_Expr
+  loadMsTotal_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `loadMsTotal` (✨ Generated from Field `AnalyticsWatchSession`.`loadMsTotal` of type `Int!`)
   """
-  loadMsTotal_update: [Int_Update!]
+  loadMsTotal_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`loadSampleCount` of type `Int!`
   """
@@ -14902,11 +14902,11 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `loadSampleCount` (✨ Generated from Field `AnalyticsWatchSession`.`loadSampleCount` of type `Int!`)
   """
-  loadSampleCount_expr: Int_Expr
+  loadSampleCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `loadSampleCount` (✨ Generated from Field `AnalyticsWatchSession`.`loadSampleCount` of type `Int!`)
   """
-  loadSampleCount_update: [Int_Update!]
+  loadSampleCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`maxAssetWatchSeconds` of type `Float!`
   """
@@ -14914,11 +14914,11 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `maxAssetWatchSeconds` (✨ Generated from Field `AnalyticsWatchSession`.`maxAssetWatchSeconds` of type `Float!`)
   """
-  maxAssetWatchSeconds_expr: Float_Expr
+  maxAssetWatchSeconds_expr: Float_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `maxAssetWatchSeconds` (✨ Generated from Field `AnalyticsWatchSession`.`maxAssetWatchSeconds` of type `Float!`)
   """
-  maxAssetWatchSeconds_update: [Float_Update!]
+  maxAssetWatchSeconds_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`pagePath` of type `String`
   """
@@ -14926,7 +14926,7 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `pagePath` (✨ Generated from Field `AnalyticsWatchSession`.`pagePath` of type `String`)
   """
-  pagePath_expr: String_Expr
+  pagePath_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`relatedClickCount` of type `Int!`
   """
@@ -14934,11 +14934,11 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `relatedClickCount` (✨ Generated from Field `AnalyticsWatchSession`.`relatedClickCount` of type `Int!`)
   """
-  relatedClickCount_expr: Int_Expr
+  relatedClickCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `relatedClickCount` (✨ Generated from Field `AnalyticsWatchSession`.`relatedClickCount` of type `Int!`)
   """
-  relatedClickCount_update: [Int_Update!]
+  relatedClickCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`sessionStartedAtMs` of type `Int!`
   """
@@ -14946,11 +14946,11 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `sessionStartedAtMs` (✨ Generated from Field `AnalyticsWatchSession`.`sessionStartedAtMs` of type `Int!`)
   """
-  sessionStartedAtMs_expr: Int_Expr
+  sessionStartedAtMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `sessionStartedAtMs` (✨ Generated from Field `AnalyticsWatchSession`.`sessionStartedAtMs` of type `Int!`)
   """
-  sessionStartedAtMs_update: [Int_Update!]
+  sessionStartedAtMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`startedDayKey` of type `String!`
   """
@@ -14958,7 +14958,7 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `startedDayKey` (✨ Generated from Field `AnalyticsWatchSession`.`startedDayKey` of type `String!`)
   """
-  startedDayKey_expr: String_Expr
+  startedDayKey_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`startedHourKey` of type `String!`
   """
@@ -14966,7 +14966,7 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `startedHourKey` (✨ Generated from Field `AnalyticsWatchSession`.`startedHourKey` of type `String!`)
   """
-  startedHourKey_expr: String_Expr
+  startedHourKey_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`totalVisibleSeconds` of type `Float!`
   """
@@ -14974,11 +14974,11 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `totalVisibleSeconds` (✨ Generated from Field `AnalyticsWatchSession`.`totalVisibleSeconds` of type `Float!`)
   """
-  totalVisibleSeconds_expr: Float_Expr
+  totalVisibleSeconds_expr: Float_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `totalVisibleSeconds` (✨ Generated from Field `AnalyticsWatchSession`.`totalVisibleSeconds` of type `Float!`)
   """
-  totalVisibleSeconds_update: [Float_Update!]
+  totalVisibleSeconds_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`totalWatchSeconds` of type `Float!`
   """
@@ -14986,11 +14986,11 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `totalWatchSeconds` (✨ Generated from Field `AnalyticsWatchSession`.`totalWatchSeconds` of type `Float!`)
   """
-  totalWatchSeconds_expr: Float_Expr
+  totalWatchSeconds_expr: Float_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `totalWatchSeconds` (✨ Generated from Field `AnalyticsWatchSession`.`totalWatchSeconds` of type `Float!`)
   """
-  totalWatchSeconds_update: [Float_Update!]
+  totalWatchSeconds_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`unwrappedAtMs` of type `Int`
   """
@@ -14998,11 +14998,11 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `unwrappedAtMs` (✨ Generated from Field `AnalyticsWatchSession`.`unwrappedAtMs` of type `Int`)
   """
-  unwrappedAtMs_expr: Int_Expr
+  unwrappedAtMs_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `unwrappedAtMs` (✨ Generated from Field `AnalyticsWatchSession`.`unwrappedAtMs` of type `Int`)
   """
-  unwrappedAtMs_update: [Int_Update!]
+  unwrappedAtMs_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`userId` of type `String`
   """
@@ -15010,7 +15010,7 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `userId` (✨ Generated from Field `AnalyticsWatchSession`.`userId` of type `String`)
   """
-  userId_expr: String_Expr
+  userId_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`username` of type `String`
   """
@@ -15018,7 +15018,7 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `username` (✨ Generated from Field `AnalyticsWatchSession`.`username` of type `String`)
   """
-  username_expr: String_Expr
+  username_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`viewedAssetCount` of type `Int!`
   """
@@ -15026,11 +15026,11 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `viewedAssetCount` (✨ Generated from Field `AnalyticsWatchSession`.`viewedAssetCount` of type `Int!`)
   """
-  viewedAssetCount_expr: Int_Expr
+  viewedAssetCount_expr: Int_Expr @fdc_forbiddenInVariables
   """
   ✨ `_update` server value variant of `viewedAssetCount` (✨ Generated from Field `AnalyticsWatchSession`.`viewedAssetCount` of type `Int!`)
   """
-  viewedAssetCount_update: [Int_Update!]
+  viewedAssetCount_update: [Int_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `AnalyticsWatchSession`.`watchSessionId` of type `String!`
   """
@@ -15038,7 +15038,7 @@ input AnalyticsWatchSession_Data {
   """
   ✨ `_expr` server value variant of `watchSessionId` (✨ Generated from Field `AnalyticsWatchSession`.`watchSessionId` of type `String!`)
   """
-  watchSessionId_expr: String_Expr
+  watchSessionId_expr: String_Expr @fdc_forbiddenInVariables
 }
 """
 ✨ Generated filter input type for table 'AnalyticsWatchSession'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
@@ -15714,7 +15714,7 @@ input AnalyticsWatchSession_Key {
   """
   ✨ `_expr` server value variant of `id` (✨ Generated from Field `AnalyticsWatchSession`.`id` of type `UUID!`)
   """
-  id_expr: UUID_Expr
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
 }
 """
 ✨ Generated list filter input type for table 'AnalyticsWatchSession'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.

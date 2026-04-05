@@ -1,11 +1,10 @@
-import { queryRef, executeQuery, mutationRef, executeMutation, validateArgs } from 'firebase/data-connect';
+import { queryRef, executeQuery, validateArgsWithOptions, mutationRef, executeMutation, validateArgs } from 'firebase/data-connect';
 
 export const connectorConfig = {
   connector: 'example',
   service: 'kandydrops-by-ikandy-service',
   location: 'us-central1'
 };
-
 export const createAiInteractionRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
@@ -14,7 +13,8 @@ export const createAiInteractionRef = (dcOrVars, vars) => {
 createAiInteractionRef.operationName = 'CreateAiInteraction';
 
 export function createAiInteraction(dcOrVars, vars) {
-  return executeMutation(createAiInteractionRef(dcOrVars, vars));
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(createAiInteractionRef(dcInstance, inputVars));
 }
 
 export const listAiInteractionsRef = (dc) => {
@@ -24,7 +24,9 @@ export const listAiInteractionsRef = (dc) => {
 }
 listAiInteractionsRef.operationName = 'ListAiInteractions';
 
-export function listAiInteractions(dc) {
-  return executeQuery(listAiInteractionsRef(dc));
+export function listAiInteractions(dcOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
+  return executeQuery(listAiInteractionsRef(dcInstance, inputVars), inputOpts && inputOpts.fetchPolicy);
 }
 
