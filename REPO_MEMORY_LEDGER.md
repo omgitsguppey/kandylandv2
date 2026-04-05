@@ -287,3 +287,8 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `src/app/api/auth/manual-sign-in-lookup/route.ts`
   - `FULL_SCALE_CODEBASE_AUDIT.md`
 - Follow-up gaps: If remote Firebase Authentication anti-abuse settings still throttle legitimate users after this fix, that remaining issue must be investigated in the Firebase/Google Cloud project configuration rather than by re-fragmenting the local auth flow.
+
+### [2026-04-05] Public Creator Profile UX and Alert Deduplication
+- **Commit scope**: UI/UX refinement on `src/app/creators/[username]/CreatorProfileClient.tsx`.
+- **UX changes**: Introduced Drops vs. Experiences tab bar; purged legacy marketing chips; simplified copy; migrated static SaaS service grids into the Experiences tab interaction surface.
+- **Architecture implication**: We now intercept the creator bell follow/alert click with `currentUserProfile?.notificationSettings?.newDropAlerts`. If global alerts are ON, the frontend UI displays a simulated active state but intercepts the save to avoid duplicated payload broadcasts. This reduces redundant backend calls for active subscribers.

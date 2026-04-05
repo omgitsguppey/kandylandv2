@@ -247,3 +247,13 @@ Result:
 ## Wallet Module UI & Metadata Compaction
 - **Root Cause Identified**: The Wallet module possessed excessive vertical footprint and visually confusing card structures. The PayPal metadata taxonomy was using legacy identifiers that didn't match the localized naming.
 - **Fix Implemented**: Renamed localized string metadata matching the platform taxonomies: 'Sugar Rush Pack', 'Sweet Pack', 'Kandy Bag Pack', 'Kandy Land Pack', and 'King Size Bundle'. Overhauled module UI with a 2-line horizontal grid structure for packages, injected a direct profile balance chip, standardized standard tracking, and decreased physical height bounding box styling padding across the module base grid layout.
+
+## Dashboard Task Alert & Daily Rewards Refinement
+- **Root Cause Identifed**: The dashboard task alert had generic text ('How To'), tall pill button, and sat too close to the welcome header. The daily rewards progress indicator featured a mismatched red color language and non-standard generic CTA border radius.
+- **Fix Implemented**: Condensed task alert string, shrank task alert button height specifically applying purple brand accent styles, and evenly shifted task alert spacing margins to balance between top nav and welcome header. Removed the #ec4899 pink/red hues from daily rewards streak/progress indicators in favor of brand purple, and conformed claim CTA specifically to match standard rounded-2xl site language border radius styles.
+
+### [2026-04-05] Public Creator Profile Redesign and Notification Logic Consolidation
+- **Surfaces Touched**: `src/app/creators/[username]/CreatorProfileClient.tsx`
+- **Refactor Details**: Transformed the public creator profile from a stacked SaaS-style demo into a clean, mobile-first social profile. Introduced X-style tabbed structure (Drops vs. Experiences) and relocated noisy service modules (Subscriptions, Messaging, Requests, Bookings) to the Experiences tab. Purged muddy radial gradients to restore true black/white/purple palette.
+- **Logic Update**: Integrated global `newDropAlerts` check into the creator bell alert logic. If user has global alerts on, creator-specific alerts fall back cleanly without creating duplicated backend toggle calls.
+- **Verification**: `corepack pnpm tsc --noEmit` passed, and `npm run trace:adjacent` executed flawlessly ensuring no broken adjacent dependencies.
