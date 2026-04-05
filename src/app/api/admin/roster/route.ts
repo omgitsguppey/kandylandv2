@@ -90,7 +90,7 @@ type CreatorReviewQueueRosterEntry = RosterEntry & {
 
 type CreatorOpsAggregate = {
     followerCount: number;
-    favoriteCount: number;
+
     notificationsEnabledCount: number;
     activeSubscribers: number;
     openRequests: number;
@@ -136,7 +136,7 @@ function readStringArray(value: unknown) {
 function buildEmptyCreatorOpsAggregate(): CreatorOpsAggregate {
     return {
         followerCount: 0,
-        favoriteCount: 0,
+
         notificationsEnabledCount: 0,
         activeSubscribers: 0,
         openRequests: 0,
@@ -429,9 +429,7 @@ export async function GET(request: NextRequest) {
             if (raw.following === true) {
                 current.followerCount += 1;
             }
-            if (raw.favorited === true) {
-                current.favoriteCount += 1;
-            }
+
             if (raw.notificationsEnabled === true) {
                 current.notificationsEnabledCount += 1;
             }
@@ -548,7 +546,7 @@ export async function GET(request: NextRequest) {
             verifiedCreatorCount: creatorUsers.filter((entry) => entry.isVerified).length,
             activeCreatorCount: creatorUsers.filter((entry) => entry.status === "active").length,
             totalFollowers: creatorOpsValues.reduce((sum, entry) => sum + entry.followerCount, 0),
-            totalFavorites: creatorOpsValues.reduce((sum, entry) => sum + entry.favoriteCount, 0),
+
             totalAlertOptIns: creatorOpsValues.reduce((sum, entry) => sum + entry.notificationsEnabledCount, 0),
             activeSubscriptions: creatorOpsValues.reduce((sum, entry) => sum + entry.activeSubscribers, 0),
             openRequests: creatorOpsValues.reduce((sum, entry) => sum + entry.openRequests, 0),
@@ -663,7 +661,7 @@ export async function POST(request: NextRequest) {
             unlockedContent: [],
             unlockedContentTimestamps: {},
             following: [],
-            favoriteCreators: [],
+
             creatorNotificationPreferences: {},
             creatorSettings: DEFAULT_CREATOR_SETTINGS,
             creatorRestrictions: DEFAULT_CREATOR_RESTRICTIONS,

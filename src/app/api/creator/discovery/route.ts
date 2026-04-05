@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
             adminDb.collection("creator_relationships").get(),
         ]);
 
-        const relationshipCounts = new Map<string, { followers: number; favorites: number; notifications: number }>();
+        const relationshipCounts = new Map<string, { followers: number; notifications: number }>();
         relationshipsSnap.docs.forEach((doc) => {
             const data = doc.data() as Record<string, unknown>;
             const creatorId = typeof data.creatorId === "string" ? data.creatorId : "";
@@ -46,12 +46,9 @@ export async function GET(request: NextRequest) {
                 return;
             }
 
-            const current = relationshipCounts.get(creatorId) ?? { followers: 0, favorites: 0, notifications: 0 };
+            const current = relationshipCounts.get(creatorId) ?? { followers: 0, notifications: 0 };
             if (data.following === true) {
                 current.followers += 1;
-            }
-            if (data.favorited === true) {
-                current.favorites += 1;
             }
             if (data.notificationsEnabled === true) {
                 current.notifications += 1;
@@ -73,7 +70,7 @@ export async function GET(request: NextRequest) {
             .map((doc) => ({ uid: doc.id, ...(doc.data() as Record<string, unknown>) }) as DiscoveryCreatorRecord)
             .filter((entry) => isCreatorRole(entry.role) && entry.status !== "suspended" && entry.status !== "banned")
             .map((entry) => {
-                const counts = relationshipCounts.get(entry.uid) ?? { followers: 0, favorites: 0, notifications: 0 };
+                const counts = relationshipCounts.get(entry.uid) ?? { followers: 0, notifications: 0 };
                 return {
                     uid: entry.uid,
                     displayName: typeof entry.displayName === "string" && entry.displayName.trim().length > 0 ? entry.displayName.trim() : "Creator",
@@ -83,13 +80,12 @@ export async function GET(request: NextRequest) {
                     isVerified: entry.isVerified === true,
                     activeDropCount: activeDropCounts.get(entry.uid) ?? 0,
                     followerCount: counts.followers,
-                    favoriteCount: counts.favorites,
                     notificationsEnabledCount: counts.notifications,
                 };
             })
             .sort((left, right) => {
-                const leftScore = left.followerCount * 3 + left.favoriteCount * 2 + left.activeDropCount;
-                const rightScore = right.followerCount * 3 + right.favoriteCount * 2 + right.activeDropCount;
+                const leftScore = left.followerCount * 3 + left.activeDropCount;
+                const rightScore = right.followerCount * 3 + right.activeDropCount;
                 return rightScore - leftScore || left.displayName.localeCompare(right.displayName);
             })
             .slice(0, surface === "dashboard" ? 8 : 12);

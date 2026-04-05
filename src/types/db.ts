@@ -59,7 +59,6 @@ export type CreatorRelationship = {
     userId: string;
     creatorId: string;
     following: boolean;
-    favorited: boolean;
     notificationsEnabled: boolean;
     createdAt: number;
     updatedAt: number;
@@ -70,7 +69,6 @@ export type CreatorRelationship = {
 
 export type CreatorRelationshipCounts = {
     followerCount: number;
-    favoriteCount: number;
     notificationsEnabledCount: number;
 };
 
@@ -311,7 +309,6 @@ export interface UserProfile {
     unlockedContent: string[]; // Array of Drop IDs
     unlockedContentTimestamps?: Record<string, number>; // Drop ID -> unwrap timestamp (ms)
     following?: string[]; // Array of Creator UIDs
-    favoriteCreators?: string[];
     creatorNotificationPreferences?: Record<string, boolean>;
     createdAt: number; // Timestamp
     lastCheckIn?: number; // Timestamp of last daily reward claim

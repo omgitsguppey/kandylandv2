@@ -44,7 +44,7 @@ export default function Hero({ activeDrops }: HeroProps) {
                     </h1>
 
                     <p className="max-w-lg text-[15px] font-medium leading-6 text-gray-400 max-[360px]:text-[14px] max-[360px]:leading-6 sm:text-xl sm:leading-relaxed">
-                        Unwrap KandyDrops from your favorite creators and keep them before they disappear!
+                        Unwrap KandyDrops from your top creators and keep them before they disappear!
                     </p>
 
                     <div className="flex w-full flex-col justify-center gap-2.5 pt-1 max-[360px]:gap-2 sm:w-auto sm:flex-row sm:gap-4 sm:pt-3">

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { CheckCircle2, Heart, Sparkles, Users } from "lucide-react";
+import { Sparkles, Users } from "lucide-react";
 
 import { useAuth } from "@/context/AuthContext";
 import { authFetch } from "@/lib/authFetch";

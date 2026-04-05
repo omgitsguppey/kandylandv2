@@ -46,8 +46,12 @@ export async function GET(
             return NextResponse.json({ error: "Creator not found" }, { status: 404 });
         }
 
-        const opsSnapshot = await adminDb.collection("creator_ops").doc(creatorDoc.id).get();
-        const followerCount = opsSnapshot.exists ? (Number((opsSnapshot.data()?.summary as { followerCount?: number })?.followerCount) || 0) : 0;
+        const followersSnapshot = await adminDb.collection("creator_relationships")
+            .where("creatorId", "==", creatorDoc.id)
+            .where("following", "==", true)
+            .count()
+            .get();
+        const followerCount = followersSnapshot.data().count;
 
         const creator = {
             uid: creatorDoc.id,

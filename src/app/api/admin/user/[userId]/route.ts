@@ -680,16 +680,14 @@ export async function GET(
                 if (data.following === true) {
                     acc.followerCount += 1;
                 }
-                if (data.favorited === true) {
-                    acc.favoriteCount += 1;
-                }
+
                 if (data.notificationsEnabled === true) {
                     acc.notificationsEnabledCount += 1;
                 }
                 return acc;
             }, {
                 followerCount: 0,
-                favoriteCount: 0,
+
                 notificationsEnabledCount: 0,
             });
 
@@ -767,7 +765,7 @@ export async function GET(
                 creatorOps = {
                     summary: {
                         followerCount: 0,
-                        favoriteCount: 0,
+
                         notificationsEnabledCount: 0,
                         activeSubscribers: 0,
                         lapsedSubscribers: 0,

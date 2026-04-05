@@ -8,7 +8,6 @@ import {
     CalendarClock,
     CheckCircle2,
     Ghost,
-    Heart,
     Loader2,
     Lock,
     MessageSquare,
@@ -49,7 +48,7 @@ export default function CreatorProfileClient() {
     const [drops, setDrops] = useState<Drop[]>([]);
     const [loading, setLoading] = useState(true);
     const [following, setFollowing] = useState(false);
-    const [favorited, setFavorited] = useState(false);
+    const [messageGateOpen, setMessageGateOpen] = useState(false);
     const [notificationsEnabled, setNotificationsEnabled] = useState(false);
     const [followLoading, setFollowLoading] = useState(false);
     const [subscriptionActive, setSubscriptionActive] = useState(false);
@@ -126,7 +125,6 @@ export default function CreatorProfileClient() {
     useEffect(() => {
         if (currentUserProfile && creator) {
             setFollowing(currentUserProfile.following?.includes(creator.uid) || false);
-            setFavorited(currentUserProfile.favoriteCreators?.includes(creator.uid) || false);
             setNotificationsEnabled(currentUserProfile.creatorNotificationPreferences?.[creator.uid] === true);
         }
     }, [currentUserProfile, creator]);
@@ -172,7 +170,6 @@ export default function CreatorProfileClient() {
 
                 if (relationshipResult.relationship) {
                     setFollowing(relationshipResult.relationship.following === true);
-                    setFavorited(relationshipResult.relationship.favorited === true);
                     setNotificationsEnabled(relationshipResult.relationship.notificationsEnabled === true);
                 }
                 setSubscriptionActive(relationshipResult.subscription?.status === "active" || bookingResult.subscriptionActive === true);
@@ -298,9 +295,7 @@ export default function CreatorProfileClient() {
                 throw new Error(typeof result.error === "string" ? result.error : "Action failed.");
             }
 
-            if (action === "favorite" || action === "unfavorite") {
-                setFavorited(action === "favorite");
-            }
+
             if (action === "enable_notifications" || action === "disable_notifications") {
                 setNotificationsEnabled(action === "enable_notifications");
             }
@@ -609,17 +604,11 @@ export default function CreatorProfileClient() {
                                 </button>
                                 <button
                                     type="button"
-                                    onClick={() => {
-                                        if (!currentUser) {
-                                            openAuthModal("signup");
-                                            return;
-                                        }
-                                        void handleRelationshipAction(favorited ? "unfavorite" : "favorite");
-                                    }}
-                                    className={`flex w-full items-center justify-center gap-2 rounded-2xl border px-4 py-2.5 text-sm font-bold transition-all ${favorited ? "border-brand-purple/30 bg-brand-purple/15 text-brand-purple" : "border-white/10 bg-white/5 text-white"}`}
+                                    onClick={() => setMessageGateOpen(true)}
+                                    className="flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-white/10"
                                 >
-                                    <Heart className="h-4 w-4" />
-                                    {favorited ? "Saved" : "Save"}
+                                    <MessageSquare className="h-4 w-4" />
+                                    Message
                                 </button>
                                 <button
                                     type="button"
@@ -999,6 +988,56 @@ export default function CreatorProfileClient() {
                     )}
                 </div>
             </div>
+            {messageGateOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 backdrop-blur-sm">
+                    <div className="w-full max-w-sm rounded-[2rem] border border-white/10 bg-zinc-900 p-8 text-center shadow-2xl">
+                        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-brand-purple/20 text-brand-purple">
+                            <MessageSquare className="h-8 w-8" />
+                        </div>
+                        <h3 className="mb-3 text-2xl font-black text-white">Direct Messages</h3>
+                        
+                        {notificationsEnabled ? (
+                            <>
+                                <p className="mb-8 text-sm leading-relaxed text-gray-400">
+                                    Direct messaging with creators is launching very soon. You already have notifications enabled, so we will alert you the moment this feature goes live!
+                                </p>
+                                <button
+                                    type="button"
+                                    onClick={() => setMessageGateOpen(false)}
+                                    className="w-full rounded-xl bg-white/10 py-3.5 font-bold text-white hover:bg-white/20 transition-all"
+                                >
+                                    Sounds good
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <p className="mb-8 text-sm leading-relaxed text-gray-400">
+                                    Direct messaging with creators is launching very soon. Turn on notifications to be alerted the moment {creator.displayName} is ready to chat.
+                                </p>
+                                <div className="space-y-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            void handleRelationshipAction("enable_notifications");
+                                            setMessageGateOpen(false);
+                                        }}
+                                        className="w-full rounded-xl bg-brand-purple py-3.5 font-bold text-white shadow-lg shadow-brand-purple/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                                    >
+                                        Enable Notifications
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setMessageGateOpen(false)}
+                                        className="w-full rounded-xl bg-transparent py-3.5 font-bold text-gray-400 transition-all hover:text-white"
+                                    >
+                                        Check back later
+                                    </button>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

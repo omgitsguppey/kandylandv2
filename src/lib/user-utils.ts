@@ -118,7 +118,6 @@ export function normalizeUserProfile(raw: unknown, user: User): UserProfile | nu
         unlockedContent: toStringArray(source.unlockedContent),
         unlockedContentTimestamps: toStringNumberRecord(source.unlockedContentTimestamps),
         following: toStringArray(source.following),
-        favoriteCreators: toStringArray(source.favoriteCreators),
         creatorNotificationPreferences: source.creatorNotificationPreferences && typeof source.creatorNotificationPreferences === "object"
             ? Object.fromEntries(
                 Object.entries(source.creatorNotificationPreferences as Record<string, unknown>)

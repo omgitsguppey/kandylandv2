@@ -290,7 +290,6 @@ type UserCommerceMetrics = {
 
 type CreatorOpsAggregate = {
   followerCount: number;
-  favoriteCount: number;
   notificationsEnabledCount: number;
   activeSubscribers: number;
   openRequests: number;
@@ -311,7 +310,6 @@ type CreatorOnboardingDiagnosticEntry = {
 function buildEmptyCreatorOpsAggregate(): CreatorOpsAggregate {
   return {
     followerCount: 0,
-    favoriteCount: 0,
     notificationsEnabledCount: 0,
     activeSubscribers: 0,
     openRequests: 0,
@@ -557,9 +555,7 @@ export async function GET(request: NextRequest) {
       if (raw.following === true) {
         current.followerCount += 1;
       }
-      if (raw.favorited === true) {
-        current.favoriteCount += 1;
-      }
+
       if (raw.notificationsEnabled === true) {
         current.notificationsEnabledCount += 1;
       }
@@ -1063,7 +1059,7 @@ export async function GET(request: NextRequest) {
       creatorOps: {
         creatorsWithFollowers: Array.from(creatorOpsByUser.values()).filter((entry) => entry.followerCount > 0).length,
         totalFollowers: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.followerCount, 0),
-        totalFavorites: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.favoriteCount, 0),
+
         totalAlertOptIns: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.notificationsEnabledCount, 0),
         activeSubscriptions: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.activeSubscribers, 0),
         openRequests: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.openRequests, 0),

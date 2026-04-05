@@ -120,7 +120,6 @@ export function buildRelationshipPatch(input: {
     creatorUsername?: string;
     creatorPhotoURL?: string | null;
     following?: boolean;
-    favorited?: boolean;
     notificationsEnabled?: boolean;
     existing?: Record<string, unknown>;
 }) {
@@ -133,7 +132,6 @@ export function buildRelationshipPatch(input: {
         creatorUsername: input.creatorUsername,
         creatorPhotoURL: input.creatorPhotoURL ?? null,
         following: input.following ?? input.existing?.following === true,
-        favorited: input.favorited ?? input.existing?.favorited === true,
         notificationsEnabled: input.notificationsEnabled ?? input.existing?.notificationsEnabled === true,
         createdAt: typeof input.existing?.createdAt === "number" ? Number(input.existing.createdAt) : now,
         updatedAt: now,

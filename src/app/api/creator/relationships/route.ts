@@ -14,7 +14,6 @@ type CreatorRelationshipRecord = Record<string, unknown> & {
     id: string;
     creatorId?: unknown;
     following?: unknown;
-    favorited?: unknown;
     notificationsEnabled?: unknown;
 };
 
@@ -34,8 +33,7 @@ const relationshipActionSchema = z.object({
     action: z.enum([
         "follow",
         "unfollow",
-        "favorite",
-        "unfavorite",
+
         "enable_notifications",
         "disable_notifications",
     ]),
@@ -196,11 +194,7 @@ export async function POST(request: NextRequest) {
                 : action === "unfollow"
                     ? false
                     : existingRelationship.following === true;
-            const nextFavorited = action === "favorite"
-                ? true
-                : action === "unfavorite"
-                    ? false
-                    : existingRelationship.favorited === true;
+
             const nextNotificationsEnabled = action === "enable_notifications"
                 ? true
                 : action === "disable_notifications"
@@ -214,16 +208,13 @@ export async function POST(request: NextRequest) {
                 creatorUsername: creator.username,
                 creatorPhotoURL: creator.photoURL,
                 following: nextFollowing,
-                favorited: nextFavorited,
+
                 notificationsEnabled: nextNotificationsEnabled,
                 existing: existingRelationship,
             }), { merge: true });
 
             const currentFollowing = Array.isArray(userData.following)
                 ? userData.following.filter((entry): entry is string => typeof entry === "string")
-                : [];
-            const currentFavorites = Array.isArray(userData.favoriteCreators)
-                ? userData.favoriteCreators.filter((entry): entry is string => typeof entry === "string")
                 : [];
             const nextNotificationPrefs = userData.creatorNotificationPreferences && typeof userData.creatorNotificationPreferences === "object"
                 ? { ...(userData.creatorNotificationPreferences as Record<string, unknown>) }
@@ -233,12 +224,6 @@ export async function POST(request: NextRequest) {
                 transaction.update(userRef, { following: FieldValue.arrayUnion(creatorId) });
             } else if (action === "unfollow" && currentFollowing.includes(creatorId)) {
                 transaction.update(userRef, { following: FieldValue.arrayRemove(creatorId) });
-            }
-
-            if (action === "favorite") {
-                transaction.update(userRef, { favoriteCreators: FieldValue.arrayUnion(creatorId) });
-            } else if (action === "unfavorite" && currentFavorites.includes(creatorId)) {
-                transaction.update(userRef, { favoriteCreators: FieldValue.arrayRemove(creatorId) });
             }
 
             if (action === "enable_notifications" || action === "disable_notifications") {
@@ -255,12 +240,6 @@ export async function POST(request: NextRequest) {
                 opsPatch.followerCount = FieldValue.increment(-1);
             }
 
-            if (existingRelationship.favorited !== true && nextFavorited) {
-                opsPatch.favoriteCount = FieldValue.increment(1);
-            } else if (existingRelationship.favorited === true && !nextFavorited) {
-                opsPatch.favoriteCount = FieldValue.increment(-1);
-            }
-
             if (existingRelationship.notificationsEnabled !== true && nextNotificationsEnabled) {
                 opsPatch.alertOptIns = FieldValue.increment(1);
             } else if (existingRelationship.notificationsEnabled === true && !nextNotificationsEnabled) {
@@ -273,7 +252,7 @@ export async function POST(request: NextRequest) {
 
             return {
                 following: nextFollowing,
-                favorited: nextFavorited,
+
                 notificationsEnabled: nextNotificationsEnabled,
             };
         });
@@ -282,10 +261,7 @@ export async function POST(request: NextRequest) {
             ? "creator_followed"
             : action === "unfollow"
                 ? "creator_unfollowed"
-                : action === "favorite"
-                    ? "creator_favorited"
-                    : action === "unfavorite"
-                        ? "creator_unfavorited"
+
                         : action === "enable_notifications"
                             ? "creator_notifications_enabled"
                             : "creator_notifications_disabled";
