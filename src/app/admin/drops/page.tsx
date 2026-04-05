@@ -1,6 +1,6 @@
 "use client";
 
-import { type CSSProperties, startTransition, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import { startTransition, useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
 import { BellRing, Calendar, Check, ChevronDown, ChevronUp, Clock3, Copy, Edit, Package, PlusCircle, Repeat, Search, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -21,6 +21,7 @@ import { dispatchAdminOverviewSync } from "@/hooks/client-runtime";
 import { useAdminDropsFeed } from "@/hooks/useAdminDropsFeed";
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import { useNow } from "@/hooks/useNow";
+import { TitleMarquee } from "@/components/ui/TitleMarquee";
 
 interface DropNotificationDraft {
     dropId: string;
@@ -93,69 +94,6 @@ function getDelaySeed(value: string) {
     return Array.from(value).reduce((total, char) => total + char.charCodeAt(0), 0) % 6;
 }
 
-function CompactTitleMarquee({
-    title,
-    delaySeed,
-    className,
-}: {
-    title: string;
-    delaySeed: number;
-    className?: string;
-}) {
-    const frameRef = useRef<HTMLDivElement | null>(null);
-    const textRef = useRef<HTMLParagraphElement | null>(null);
-    const [overflowPx, setOverflowPx] = useState(0);
-    const marqueeStyle = overflowPx > 0 ? ({
-        ["--admin-title-shift" as string]: `-${overflowPx}px`,
-        animationDelay: `${delaySeed * 1.15}s`,
-    } satisfies CSSProperties) : undefined;
-
-    useEffect(() => {
-        const measure = () => {
-            const frame = frameRef.current;
-            const text = textRef.current;
-            if (!frame || !text) {
-                return;
-            }
-
-            const nextOverflow = Math.ceil(text.scrollWidth - frame.clientWidth);
-            setOverflowPx(nextOverflow > 20 ? nextOverflow : 0);
-        };
-
-        measure();
-
-        if (typeof ResizeObserver === "undefined") {
-            window.addEventListener("resize", measure);
-            return () => window.removeEventListener("resize", measure);
-        }
-
-        const observer = new ResizeObserver(() => measure());
-        if (frameRef.current) {
-            observer.observe(frameRef.current);
-        }
-        if (textRef.current) {
-            observer.observe(textRef.current);
-        }
-
-        return () => observer.disconnect();
-    }, [title]);
-
-    return (
-        <div ref={frameRef} className="overflow-hidden">
-            <p
-                ref={textRef}
-                className={cn(
-                    "block whitespace-nowrap text-[0.95rem] font-semibold leading-tight tracking-[-0.01em] text-white",
-                    overflowPx > 0 ? "admin-drop-title-marquee" : "truncate",
-                    className,
-                )}
-                style={marqueeStyle}
-            >
-                {title}
-            </p>
-        </div>
-    );
-}
 
 function IconChipButton({
     label,
@@ -908,7 +846,7 @@ export default function AdminDropsPage() {
                                                     <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">
                                                         {item.schedulePrimaryLabel}
                                                     </p>
-                                                    <CompactTitleMarquee title={drop.title} delaySeed={delaySeed} className="mt-1 text-[0.92rem]" />
+                                                    <TitleMarquee title={drop.title} delaySeed={delaySeed} className="mt-1 text-[0.92rem]" />
                                                 </div>
                                                 <button
                                                     type="button"
@@ -1092,7 +1030,7 @@ export default function AdminDropsPage() {
                                                         )}
                                                     </div>
                                                     <div className="min-w-0">
-                                                        <CompactTitleMarquee title={drop.title} delaySeed={delaySeed} />
+                                                        <TitleMarquee title={drop.title} delaySeed={delaySeed} className="text-[0.95rem] font-semibold leading-tight tracking-[-0.01em] text-white" />
                                                         <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-500">
                                                             <span className="truncate">{drop.id}</span>
                                                             {drop.submittedByCreatorId ? (
@@ -1245,34 +1183,6 @@ export default function AdminDropsPage() {
                     onSuccess={closeCreateModal}
                 />
             </div>
-
-            <style jsx global>{`
-                @keyframes admin-drop-title-marquee {
-                    0%,
-                    18%,
-                    100% {
-                        transform: translate3d(0, 0, 0);
-                    }
-                    34%,
-                    58% {
-                        transform: translate3d(var(--admin-title-shift), 0, 0);
-                    }
-                    76% {
-                        transform: translate3d(0, 0, 0);
-                    }
-                }
-
-                .admin-drop-title-marquee {
-                    animation: admin-drop-title-marquee 17.5s cubic-bezier(0.23, 1, 0.32, 1) infinite;
-                    will-change: transform;
-                }
-
-                @media (prefers-reduced-motion: reduce) {
-                    .admin-drop-title-marquee {
-                        animation: none;
-                    }
-                }
-            `}</style>
         </>
     );
 }

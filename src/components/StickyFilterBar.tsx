@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, Sparkles, Clock, Flame, Tag } from "lucide-react";
+import { Search, Sparkles, Clock, Flame, Tag, ChevronDown, ChevronUp } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { useRef, useState, useEffect } from "react";
@@ -23,6 +23,7 @@ export default function StickyFilterBar({
 }: FilterBarProps) {
     const [isSticky, setIsSticky] = useState(false);
     const [localSearch, setLocalSearch] = useState(searchQuery);
+    const [isExpanded, setIsExpanded] = useState(false);
     const barRef = useRef<HTMLDivElement>(null);
 
     const triggerHaptic = () => {
@@ -106,9 +107,14 @@ export default function StickyFilterBar({
                     />
                 </div>
 
-                {/* Categories (Horizontal Scroll) */}
-                <div className="flex w-full flex-wrap items-center gap-2 pl-1 md:w-auto md:flex-nowrap md:overflow-x-auto md:no-scrollbar md:pl-0">
-                    {categories.map((cat) => {
+                {/* Categories (Horizontal/Wrap) */}
+                <div className={cn(
+                    "flex flex-1 items-center gap-2 transition-all mt-1 md:mt-0 pl-1 md:pl-0",
+                    isExpanded ? "flex-wrap" : "flex-nowrap overflow-x-auto no-scrollbar pr-2"
+                )}>
+                    {categories.map((cat, index) => {
+                        if (!isExpanded && index > 3) return null;
+                        
                         const Icon = icons[cat] || Tag;
                         const isSelected = selectedCategory === cat;
 
@@ -118,14 +124,15 @@ export default function StickyFilterBar({
                                 onClick={() => {
                                     triggerHaptic();
                                     onSelectCategory(cat);
+                                    if (isExpanded) setIsExpanded(false);
                                 }}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 className={cn(
-                                    "relative flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border",
+                                    "relative flex shrink-0 items-center gap-2 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border",
                                     isSelected
                                         ? "text-white border-brand-purple/50"
-                                        : "bg-white/5 text-gray-400 border-white/5  "
+                                        : "bg-white/5 text-gray-400 border-white/5 hover:text-white hover:bg-white/10"
                                 )}
                             >
                                 <AnimatePresence>
@@ -145,6 +152,20 @@ export default function StickyFilterBar({
                             </motion.button>
                         );
                     })}
+                    
+                    {categories.length > 4 && (
+                        <motion.button
+                            onClick={() => {
+                                triggerHaptic();
+                                setIsExpanded((prev) => !prev);
+                            }}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="relative flex shrink-0 items-center justify-center px-3 py-2 rounded-full text-xs font-bold transition-all bg-white/5 text-gray-400 border border-white/5 hover:text-white hover:bg-white/10"
+                        >
+                            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                        </motion.button>
+                    )}
                 </div>
             </div>
         </div>

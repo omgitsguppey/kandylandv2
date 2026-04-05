@@ -11,6 +11,7 @@ import { reportClientIssue } from "@/lib/client-error-reporting";
 import { buildCreatorDiscoveryNavigationParams } from "@/lib/creator-public-pages";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/telemetry";
+import { TitleMarquee } from "@/components/ui/TitleMarquee";
 
 type CreatorCard = {
     uid: string;
@@ -191,63 +192,32 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
                                     surface,
                                 }));
                             }}
-                            className="group w-[10rem] shrink-0"
+                            className="group flex w-[5.5rem] shrink-0 flex-col items-center gap-2"
                         >
-                            <div className="rounded-[1.75rem] border border-white/10 bg-black/25 p-3 transition-all group-hover:border-brand-purple/30 group-hover:bg-white/[0.07]">
-                                <div className="flex items-start gap-3">
-                                    <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full border border-brand-purple/25 bg-black/40 shadow-[0_0_0_4px_rgba(255,255,255,0.02)] transition-transform group-hover:scale-[1.03]">
-                                        {creator.photoURL ? (
-                                            <Image src={creator.photoURL} alt={creator.displayName} width={56} height={56} className="h-full w-full object-cover" />
-                                        ) : (
-                                            <span className="text-sm font-black text-white">{initialsFor(creator.displayName)}</span>
-                                        )}
-                                    </div>
-                                    <div className="min-w-0 flex-1">
-                                        <div className="flex items-center gap-1.5">
-                                            <p className="truncate text-sm font-bold text-white">{creator.displayName}</p>
-                                            {creator.isVerified ? <CheckCircle2 className="h-4 w-4 shrink-0 text-brand-purple" /> : null}
-                                        </div>
-                                        <p className="truncate text-xs text-gray-500">{creator.username ? `@${creator.username}` : "creator"}</p>
-                                        {creator.bio ? (
-                                            <p className="mt-2 line-clamp-2 text-xs leading-5 text-gray-400">{creator.bio}</p>
-                                        ) : (
-                                            <p className="mt-2 text-xs leading-5 text-gray-500">
-                                                Approved creator profile with live fan experiences.
-                                            </p>
-                                        )}
-                                    </div>
+                            <div className={cn(
+                                "rounded-full p-[2px] transition-transform group-hover:scale-105",
+                                creator.following ? "bg-white/10" : "bg-gradient-to-tr from-brand-purple to-pink-500"
+                            )}>
+                                <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-[3px] border-black bg-zinc-900">
+                                    {creator.photoURL ? (
+                                        <Image src={creator.photoURL} alt={creator.displayName} width={64} height={64} className="h-full w-full object-cover" />
+                                    ) : (
+                                        <span className="text-sm font-black text-white">{initialsFor(creator.displayName)}</span>
+                                    )}
                                 </div>
-                                <div className="mt-3 flex flex-wrap gap-1.5 text-[10px] text-gray-300">
-                                    {creator.following ? (
-                                        <span className="inline-flex items-center gap-1 rounded-full border border-brand-purple/25 bg-brand-purple/10 px-2 py-1 font-bold text-brand-purple">
-                                            <Users className="h-3 w-3" />
-                                            Following
-                                        </span>
-                                    ) : null}
-                                    {creator.followerCount ? (
-                                        <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-1 font-bold">
-                                            <Users className="h-3 w-3" />
-                                            {creator.followerCount} fans
-                                        </span>
-                                    ) : null}
-                                    {creator.activeDropCount ? (
-                                        <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-1 font-bold">
-                                            <Sparkles className="h-3 w-3" />
-                                            {creator.activeDropCount} live
-                                        </span>
-                                    ) : null}
-                                    {!creator.following && !creator.followerCount && creator.favoriteCount ? (
-                                        <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-1 font-bold">
-                                            <Heart className="h-3 w-3" />
-                                            {creator.favoriteCount} saved
-                                        </span>
-                                    ) : null}
-                                    {!creator.following && !creator.followerCount && !creator.activeDropCount && !creator.favoriteCount ? (
-                                        <span className="inline-flex rounded-full border border-white/10 bg-white/5 px-2 py-1 font-bold text-gray-400">
-                                            Profile ready
-                                        </span>
-                                    ) : null}
-                                </div>
+                            </div>
+                            
+                            <div className="flex w-full flex-col items-center pb-1 text-center">
+                                <TitleMarquee
+                                    title={creator.displayName}
+                                    delaySeed={creator.uid.charCodeAt(0) % 6}
+                                    className="w-full text-xs font-bold text-white tracking-tight"
+                                />
+                                {creator.following ? (
+                                    <span className="mt-0.5 text-[9px] font-semibold text-gray-500 uppercase tracking-widest">Following</span>
+                                ) : (
+                                    <span className="mt-0.5 text-[10px] font-medium text-brand-purple">Follow</span>
+                                )}
                             </div>
                         </Link>
                     ))}

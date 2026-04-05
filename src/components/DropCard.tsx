@@ -20,6 +20,7 @@ import { SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
 import { showUnwrapSuccessToast } from "@/components/Toasts/UnwrapSuccessToast";
 import { getDropViewCount } from "@/lib/drop-engagement";
 import { dispatchActivitySync } from "@/lib/activity-sync";
+import { TitleMarquee } from "@/components/ui/TitleMarquee";
 
 
 interface DropCardProps {
@@ -457,7 +458,13 @@ function DropCardBase({
                     </div>
                     <div className="absolute bottom-1.5 left-1.5 right-1.5 space-y-1">
                         {displayedTags.length > 0 ? <DropCardBadge label={displayedTags[0]} compact /> : null}
-                        <p className="text-[10px] font-bold text-white line-clamp-2 leading-tight">{drop.title}</p>
+                        <div className="w-full">
+                            <TitleMarquee 
+                                title={drop.title} 
+                                delaySeed={drop.id.charCodeAt(0) % 6} 
+                                className="text-[10px] font-bold text-white leading-tight" 
+                            />
+                        </div>
                     </div>
                 </button>
                 <div className="mt-2 flex flex-col gap-2 flex-grow justify-between">
@@ -523,7 +530,13 @@ function DropCardBase({
                 <DropCardTimer validUntil={drop.validUntil} />
 
                 <div>
-                    <h3 className="text-sm md:text-base font-bold text-white mb-0.5 md:mb-1 leading-tight tracking-tight line-clamp-1">{drop.title}</h3>
+                    <div className="mb-0.5 md:mb-1 w-full max-w-full overflow-hidden">
+                        <TitleMarquee 
+                            title={drop.title} 
+                            delaySeed={drop.id.charCodeAt(0) % 6} 
+                            className="text-sm md:text-base font-bold text-white leading-tight tracking-tight" 
+                        />
+                    </div>
                     <p className="text-[10px] md:text-xs text-gray-400 line-clamp-1 font-medium leading-relaxed">{drop.description}</p>
                 </div>
 

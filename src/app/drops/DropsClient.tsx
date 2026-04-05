@@ -289,13 +289,7 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
 
             {creatorRailReady ? <CreatorDiscoveryRail surface="drops" compact /> : null}
 
-            <StickyFilterBar
-                categories={CATEGORIES}
-                selectedCategory={selectedCategory}
-                onSelectCategory={setSelectedCategory}
-                searchQuery={searchQuery}
-                onSearchChange={setSearchQuery}
-            />
+
 
             {!searchQuery && selectedCategory === "All" && featuredReady && (
                 <div className="mt-6">
@@ -304,17 +298,25 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
             )}
 
             <div id="live-drops" className="mt-8 min-h-[500px]">
-                <div className="flex items-center justify-between mb-8 px-4 md:px-0 gap-3">
-                    <h2 className="text-2xl font-bold text-white tracking-tight">
-                        {searchQuery ? `Search Results: "${searchQuery}"` : selectedCategory === "All" ? "All KandyDrops" : `${selectedCategory} Drops`}
-                    </h2>
-                    <span className="text-gray-500 text-xs md:text-sm font-mono px-2.5 py-1 rounded-full border border-white/10 bg-white/[0.03]">
-                        {filteredDrops.length} items
-                    </span>
+                <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 px-4 md:px-0 gap-4 md:gap-3">
+                    <div className="flex items-center gap-3">
+                        <h2 className="text-2xl font-bold text-white tracking-tight">
+                            {searchQuery ? `Search Results: "${searchQuery}"` : selectedCategory === "All" ? "All KandyDrops" : `${selectedCategory} Drops`}
+                        </h2>
+                        <span className="text-gray-500 text-xs md:text-sm font-medium px-2.5 py-1 rounded-full border border-white/10 bg-white/[0.03]">
+                            {filteredDrops.length} items
+                        </span>
+                    </div>
                 </div>
-
-                <div className="mb-5 px-4 md:px-0">
-                    <p className="text-sm text-gray-400">Live KandyDrops can disappear when the timer ends. Unwrap while they&apos;re active to keep them in your library.</p>
+                
+                <div className="mb-6 -mx-4 md:mx-0 px-4 md:px-0">
+                    <StickyFilterBar
+                        categories={CATEGORIES}
+                        selectedCategory={selectedCategory}
+                        onSelectCategory={setSelectedCategory}
+                        searchQuery={searchQuery}
+                        onSearchChange={setSearchQuery}
+                    />
                 </div>
 
                 <div className="relative border border-white/5 bg-white/[0.01] rounded-[2.5rem] p-2 md:p-6">

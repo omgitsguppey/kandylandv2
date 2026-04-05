@@ -10,6 +10,7 @@ import { getSupportedDropAspectRatio } from "@/lib/drop-presentation";
 
 import { useUserProfile } from "@/context/AuthContext";
 import { trackEvent } from "@/lib/telemetry";
+import { TitleMarquee } from "@/components/ui/TitleMarquee";
 
 interface FeaturedCarouselProps {
     drops: Drop[];
@@ -183,7 +184,13 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
                                     </div>
 
                                     <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6 space-y-2 text-left">
-                                        <h3 className="text-2xl font-bold text-white leading-tight">{drop.title}</h3>
+                                        <div className="w-full max-w-full overflow-hidden">
+                                            <TitleMarquee 
+                                                title={drop.title} 
+                                                delaySeed={drop.id.charCodeAt(0) % 6} 
+                                                className="text-2xl font-bold text-white leading-tight" 
+                                            />
+                                        </div>
                                         <p className="text-sm text-gray-300 line-clamp-2">{drop.description}</p>
 
                                         <div className="flex items-center gap-1.5 opacity-80 text-xs font-semibold text-white/90 pb-1">
