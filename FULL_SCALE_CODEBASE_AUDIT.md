@@ -255,3 +255,8 @@ Result:
 ## Public Creator Profile Redesign and Notification Logic Consolidation
 - **Root Cause Identified**: The public creator profile page functioned as a stacked SaaS-style demo surface, lacked a cohesive mobile-first social profile layout, and included redundant bell notification logic that didn't sync securely with the global `newDropAlerts` preference.
 - **Fix Implemented**: Transformed the creator profile into a clean, mobile-first design with an X-style tabbed structure (Drops vs. Experiences). Relocated noisy service modules (Subscriptions, Messaging, Requests, Bookings) into the Experiences tab. Purged radial gradients to align with the black/white/purple palette. Intercepted the creator bell logic with `currentUserProfile?.notificationSettings?.newDropAlerts`—triggering an active simulated UI state without executing redundant backend payload calls if global alerts are enabled. `corepack pnpm tsc --noEmit` and adjacency traces successfully validated.
+
+### [2026-04-05] Realtime Follower Count Hardening
+- **Surfaces Touched**: `src/app/api/creator/relationships/route.ts`
+- **Refactor Details**: Verified that follower/favorite numbers shown on the public profile were updated by scraping backend APIs. However, to guarantee real-time backend parity on creator metrics without depending on admin route aggregation, inserted natively atomic FieldValue tracking (ollowerCount, avoriteCount, lertOptIns) onto the creator_ops snapshot within the primary Firebase relationship mutation transaction.
+- **Verification**: `corepack pnpm tsc --noEmit` passed and changes committed locally.

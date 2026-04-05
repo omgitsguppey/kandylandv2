@@ -177,6 +177,7 @@ export async function POST(request: NextRequest) {
 
         const relationshipRef = adminDb.collection(CREATOR_COLLECTIONS.relationships).doc(buildCreatorRelationshipId(caller.uid, creatorId));
         const userRef = adminDb.collection("users").doc(caller.uid);
+        const creatorOpsRef = adminDb.collection("creator_ops").doc(creatorId);
 
         const result = await adminDb.runTransaction(async (transaction) => {
             const [relationshipSnap, userSnap] = await Promise.all([
@@ -245,6 +246,29 @@ export async function POST(request: NextRequest) {
                 transaction.update(userRef, {
                     creatorNotificationPreferences: nextNotificationPrefs,
                 });
+            }
+
+            const opsPatch: Record<string, unknown> = {};
+            if (existingRelationship.following !== true && nextFollowing) {
+                opsPatch.followerCount = FieldValue.increment(1);
+            } else if (existingRelationship.following === true && !nextFollowing) {
+                opsPatch.followerCount = FieldValue.increment(-1);
+            }
+
+            if (existingRelationship.favorited !== true && nextFavorited) {
+                opsPatch.favoriteCount = FieldValue.increment(1);
+            } else if (existingRelationship.favorited === true && !nextFavorited) {
+                opsPatch.favoriteCount = FieldValue.increment(-1);
+            }
+
+            if (existingRelationship.notificationsEnabled !== true && nextNotificationsEnabled) {
+                opsPatch.alertOptIns = FieldValue.increment(1);
+            } else if (existingRelationship.notificationsEnabled === true && !nextNotificationsEnabled) {
+                opsPatch.alertOptIns = FieldValue.increment(-1);
+            }
+
+            if (Object.keys(opsPatch).length > 0) {
+                transaction.set(creatorOpsRef, { summary: opsPatch }, { merge: true });
             }
 
             return {
