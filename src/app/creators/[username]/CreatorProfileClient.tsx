@@ -51,6 +51,7 @@ export default function CreatorProfileClient() {
     const [messageGateOpen, setMessageGateOpen] = useState(false);
     const [notificationsEnabled, setNotificationsEnabled] = useState(false);
     const [followLoading, setFollowLoading] = useState(false);
+    const [relationshipLoading, setRelationshipLoading] = useState(false);
     const [subscriptionActive, setSubscriptionActive] = useState(false);
     const [subscribeLoading, setSubscribeLoading] = useState(false);
     const [messageText, setMessageText] = useState("");
@@ -276,11 +277,17 @@ export default function CreatorProfileClient() {
         }
     };
 
-    const handleRelationshipAction = async (action: "favorite" | "unfavorite" | "enable_notifications" | "disable_notifications") => {
+    const handleRelationshipAction = async (action: "enable_notifications" | "disable_notifications") => {
         if (!currentUser || !creator) {
             toast.error("Please sign in to manage creator relationships.");
             return;
         }
+
+        if (relationshipLoading) {
+            return;
+        }
+
+        setRelationshipLoading(true);
 
         try {
             const response = await authFetch("/api/creator/relationships", {
@@ -311,6 +318,8 @@ export default function CreatorProfileClient() {
                 consoleLabel: "[CreatorProfile] relationship action failed",
             });
             toast.error(error.message || "Action failed.");
+        } finally {
+            setRelationshipLoading(false);
         }
     };
 
@@ -612,7 +621,7 @@ export default function CreatorProfileClient() {
                                 </button>
                                 <button
                                     type="button"
-                                    disabled={hasGlobalAlerts || followLoading || subscribeLoading}
+                                    disabled={hasGlobalAlerts || followLoading || subscribeLoading || relationshipLoading}
                                     onClick={() => {
                                         if (hasGlobalAlerts) return;
                                         if (!currentUser) {
@@ -1017,11 +1026,13 @@ export default function CreatorProfileClient() {
                                 <div className="space-y-3">
                                     <button
                                         type="button"
-                                        onClick={() => {
-                                            void handleRelationshipAction("enable_notifications");
+                                        disabled={relationshipLoading}
+                                        onClick={async () => {
+                                            if (relationshipLoading) return;
+                                            await handleRelationshipAction("enable_notifications");
                                             setMessageGateOpen(false);
                                         }}
-                                        className="w-full rounded-xl bg-brand-purple py-3.5 font-bold text-white shadow-lg shadow-brand-purple/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                                        className="w-full rounded-xl bg-brand-purple py-3.5 font-bold text-white shadow-lg shadow-brand-purple/20 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         Enable Notifications
                                     </button>
