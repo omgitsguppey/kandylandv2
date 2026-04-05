@@ -82,6 +82,7 @@ export function Navbar() {
                                         onClick={() => openPurchaseModal()}
                                         className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-brand-purple to-pink-600 text-white shadow-lg shadow-brand-purple/20 transition-all active:scale-95"
                                         title="Buy Gum Drops"
+                                        aria-label="Buy Gum Drops"
                                     >
                                         <Plus className="h-4 w-4" />
                                     </button>

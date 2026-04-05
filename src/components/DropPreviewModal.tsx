@@ -312,6 +312,7 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
                       onClick={handleShare}
                       className="h-11 w-11 rounded-full border border-white/15 bg-white/5 text-gray-200 flex items-center justify-center hover:bg-white/10 transition-colors"
                       aria-label="Share"
+                      title="Share"
                     >
                       <Share2 className="h-5 w-5" />
                     </button>
@@ -321,6 +322,7 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
                       onClick={onClose}
                       className="h-11 w-11 rounded-full border border-white/15 bg-white/5 text-gray-200 flex items-center justify-center hover:bg-white/10 transition-colors"
                       aria-label="Close"
+                      title="Close"
                     >
                       <X className="h-5 w-5" />
                     </button>
