@@ -11,7 +11,7 @@ import { authFetch } from "@/lib/authFetch";
 import { motion, AnimatePresence } from "framer-motion";
 import { GuestComponentBlur } from "@/components/Auth/GuestComponentBlur";
 import { clearTimedFlow, consumeTimedFlow, startTimedFlow, trackEvent } from "@/lib/telemetry";
-import { GUMDROPS_SUPPORT_COPY, SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
+import { SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
 import { useUI } from "@/context/UIContext";
 import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
 import { ReportBugButton } from "@/components/Feedback/ReportBugButton";

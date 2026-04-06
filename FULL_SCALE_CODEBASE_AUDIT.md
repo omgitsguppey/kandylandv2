@@ -269,3 +269,9 @@ Result:
          -   * * F o l l o w e r   C o u n t   H a r d e n i n g * * :   F i x e d   a   d e c o u p l i n g   b u g   w h e r e   p u b l i c   p r o f i l e   f o l l o w e r   c o u n t s   r e t u r n e d   0   d u e   t o   a n   o u t - o f - s y n c   d e p e n d e n c y   o n   t h e   \ c r e a t o r _ o p s . s u m m a r y \   p r o x y .   R e f a c t o r e d   \  p i / c r e a t o r s / [ u s e r n a m e ] / r o u t e . t s \   t o   p e r f o r m   a   d i r e c t   \ . c o u n t ( ) \   a g g r e g a t e   q u e r y   o v e r   t h e   r e a l - t i m e   \ c r e a t o r _ r e l a t i o n s h i p s \   l e d g e r   c o l l e c t i o n   f o r   \  o l l o w i n g   = =   t r u e \ ,   g u a r a n t e e i n g   p e r f e c t   f o l l o w e r   s y n c h r o n i z a t i o n . 
   
  
+### [2026-04-06] GumDrop Economics & Ledger Integrity Hardening
+- **Surfaces Touched**: `src/app/api/paypal/capture/route.ts`, `src/components/PurchaseModal.tsx`, `tests/unit/gumdrop-economics.spec.ts`
+- **Refactor Details**:
+    - **Source Separation Fix**: Discovered a critical arbitrage vector where `bonusGumDrops` from package purchases were incorrectly credited to the `"purchased"` ledger instead of the `"reward"` ledger inside the PayPal capture route. This meant bonus drops could be spent on Creator Experiences (which pay out at an 80% USD revenue share against a fixed 100 GD = $1 anchor). By separating them, the platform economics are protected from effectively cashing out 50% discount bundles at full 100 GD = $1 rate.
+    - **UI Truth**: Corrected the "King Size Bundle" presentation string inside `tests/unit/gumdrop-economics.spec.ts` to match the localized taxonomies properly. Purged unused support copy variables from `PurchaseModal.tsx`.
+- **Verification**: `npm run check` and `npm run test:contracts` passed.
