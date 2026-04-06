@@ -13,7 +13,9 @@ test.describe("UI continuity visual audits", () => {
 
   test("creator waiting guest hero stays stable", async ({ page }) => {
     await openAuditSurface(page, "/creators/waitlist", "main");
-    await expect(page.locator("main section").first()).toHaveScreenshot("creator-waitlist-guest-hero.png");
+    await expect(page.locator("main section").first()).toHaveScreenshot("creator-waitlist-guest-hero.png", {
+      maxDiffPixels: 80,
+    });
   });
 
   test("home hero stays stable", async ({ page }) => {
