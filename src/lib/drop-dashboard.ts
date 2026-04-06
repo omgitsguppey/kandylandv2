@@ -5,14 +5,16 @@ export function mergeResolvedDropsById(primaryDrops: Drop[], secondaryDrops: Dro
     const mergedDrops = new Map<string, Drop>();
 
     primaryDrops.forEach((drop) => {
-        mergedDrops.set(drop.id, applyDropStatus(drop, now));
+        mergedDrops.set(drop.id, drop);
     });
 
     secondaryDrops.forEach((drop) => {
-        mergedDrops.set(drop.id, applyDropStatus(drop, now));
+        mergedDrops.set(drop.id, drop);
     });
 
-    return Array.from(mergedDrops.values()).sort((left, right) => right.validFrom - left.validFrom);
+    return Array.from(mergedDrops.values())
+        .map((drop) => applyDropStatus(drop, now))
+        .sort((left, right) => right.validFrom - left.validFrom);
 }
 
 export function buildDashboardCollectionState(drops: Drop[], ownedIds: Set<string>, now?: number) {

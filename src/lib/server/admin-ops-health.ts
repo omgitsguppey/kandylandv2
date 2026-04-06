@@ -154,10 +154,7 @@ function buildRouteLabel(routeKey: string) {
 }
 
 function getNavigationSessionSigningReady() {
-  return Boolean(
-    process.env.NAVIGATION_COOKIE_SECRET?.trim()
-    || process.env.FIREBASE_PRIVATE_KEY?.trim(),
-  );
+  return Boolean(process.env.NAVIGATION_COOKIE_SECRET?.trim());
 }
 
 export function buildAdminOpsHealth(input: {

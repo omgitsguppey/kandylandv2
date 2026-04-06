@@ -455,6 +455,48 @@ describe("PUT /api/admin/users", () => {
         expect(mockState.trackServerEvent).toHaveBeenCalledWith("creator_needs_changes", expect.any(Object), "creator_review_updates");
     });
 
+    it("records segment assignment and owner override lifecycle signals when those states change", async () => {
+        seedCreatorApplicant({
+            userId: "creator_override_case",
+            legalStatus: "legal_sent",
+            idVerificationStatus: "id_submitted",
+            segmentationStatus: "segment_unassigned",
+        });
+        mockState.guardApiRequest.mockResolvedValue({
+            uid: "owner_1",
+            email: "uylusjohnson@gmail.com",
+            role: "admin",
+        });
+
+        const existingProjection = mockState.documents.get("users/creator_override_case")?.creatorApplication as Record<string, unknown>;
+        const request = new NextRequest("http://localhost/api/admin/users", {
+            method: "PUT",
+            body: JSON.stringify({
+                userId: "creator_override_case",
+                updates: {
+                    creatorApplication: {
+                        ...existingProjection,
+                        segmentationStatus: "segment_assigned",
+                        segmentLabel: "Priority",
+                        ownerOverrideActive: true,
+                        ownerOverrideReason: "Manual legal clearance",
+                    },
+                },
+            }),
+        });
+
+        const response = await PUT(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(payload).toMatchObject({ success: true });
+        const historyPaths = Array.from(mockState.documents.keys()).filter((path) => path.startsWith("creator_onboarding/creator_override_case/history/"));
+        expect(historyPaths.some((path) => path.includes("creator_segment_assigned_"))).toBe(true);
+        expect(historyPaths.some((path) => path.includes("owner_override_applied_"))).toBe(true);
+        expect(mockState.trackServerEvent).toHaveBeenCalledWith("creator_segment_assigned", expect.any(Object), "creator_override_case");
+        expect(mockState.trackServerEvent).toHaveBeenCalledWith("owner_override_applied", expect.any(Object), "creator_override_case");
+    });
+
     it("tracks creator rejection canonically without activating creator tools", async () => {
         seedCreatorApplicant({
             userId: "creator_rejected_case",

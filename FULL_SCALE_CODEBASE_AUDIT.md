@@ -300,12 +300,7 @@ Results:
 - npm prints unknown env config warnings during some script chains.
 - Current Firebase/Vitest tooling prints Node `punycode` deprecation warnings.
 - `check:firebase-runtime` prints informational dotenv loading logs when run through the canonical `check` pipeline.
-- `check:telemetry` passes but still reports `6` cataloged events with no detected emitters:
-  - `creator_segment_assigned`
-  - `creator_role_activated`
-  - `creator_role_activation_blocked`
-  - `owner_override_applied`
-  - `owner_override_cleared`
+- `check:telemetry` passes but still reports `1` cataloged event with no detected emitter:
   - `creator_broadcast_opened`
 
 ## Current open follow-up gaps
@@ -413,3 +408,154 @@ Known warnings and non-blocking notices during this task:
 Follow-up gaps:
 - direct authenticated browser verification of the admin create-drop AI flow still depends on a local admin/auth automation seam that does not currently exist
 - this pass improves unsaved draft scoping and error truth, but it does not add full cross-session draft persistence beyond the stored AI job records already written server-side
+
+### Continuation: Open PR Assimilation Pass
+Current audit date: 2026-04-06 11:22:01 -05:00
+Current branch / commit for continuation start: `main` / `982eada`
+Continuation task:
+- review every open GitHub PR against current `main`, apply any not-yet-assimilated changes, and close PRs once their work is confirmed implemented or deliberately assimilated
+
+Continuation start state:
+- working tree clean after pushing `982eada`
+- canonical startup docs re-read:
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+  - `REPO_MEMORY_LEDGER.md`
+  - `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- GitHub CLI authenticated for repository review and PR maintenance
+
+Open PR set at continuation start:
+- `#151` `⚡ Bolt: Optimize drops dashboard map loop`
+- `#150` `🎨 Palette: Make icon-only DropCard indicators accessible`
+- `#149` `Clean event tracking drift and dependency inconsistencies`
+- `#148` `🛡️ Improve privacy compliance and settings truth`
+- `#147` `📊 Fix analytics truth and tracking integrity drift`
+- `#146` `💸 Fix GumDrop economics and ledger integrity drift`
+- `#145` `🔀 Resolve merge conflicts and integration drift`
+- `#144` `🛡️ Sentinel: [HIGH] Fix authorization bypass in duplicate filenames endpoint`
+- `#143` `🎨 Palette: Add tooltips to icon-only buttons`
+- `#141` `⚡ Bolt: Add aspect ratio map cache to drop presentation`
+- `#140` `🎨 Palette: Add accessible tooltips and focus styles to modal buttons`
+- `#139` `🛡️ Sentinel: [MEDIUM] Fix Cron Route Unsanitized Error Handling`
+- `#138` `🎨 Palette: Add ARIA labels to admin user action buttons`
+
+Continuation method:
+- inspect each open PR diff and changed-file set against current `main`
+- determine whether its behavior is already represented in current `main`, needs to be applied, or is stale/conflicting
+- if still needed and safe, assimilate the change into current `main` or the PR branch
+- close the PR once its work is confirmed already implemented or after the missing work is applied
+
+Continuation touched surfaces:
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `src/app/api/drops/duplicate-filenames/route.ts`
+- `src/lib/server/fcm-utils.ts`
+- `src/app/api/paypal/capture/route.ts`
+- `src/components/DropCard.tsx`
+- `src/components/Auth/AuthModal.tsx`
+- `src/components/DropPreviewModal.tsx`
+- `src/components/Navbar.tsx`
+- `src/components/Navigation/ScrollToTop.tsx`
+- `src/app/admin/users/page.tsx`
+- `src/app/admin/analytics/page.tsx`
+- `src/app/admin/roster/page.tsx`
+- `src/app/api/admin/users/route.ts`
+- `src/lib/server/creator-onboarding.ts`
+- `src/lib/creator-onboarding.ts`
+- `src/lib/server/admin-ops-health.ts`
+- `src/hooks/useDrops.ts`
+- `src/lib/drop-dashboard.ts`
+- `tests/unit/admin-users-route.spec.ts`
+- `tests/unit/duplicate-filenames-route.spec.ts`
+- `tests/unit/fcm-utils.spec.ts`
+- `tests/unit/paypal-capture-route.spec.ts`
+
+Canonical helpers and modules reused for continuation:
+- `src/lib/server/request-guard.ts`
+- `src/lib/server/auth.ts`
+- `src/lib/server/analytics.ts`
+- `src/lib/server/route-diagnostics.ts`
+- `src/lib/server/server-diagnostics.ts`
+- `src/lib/gumdrop-economics.ts`
+- `src/lib/gumdrop-ledger.ts`
+- `src/lib/server/gumdrop-ledger.ts`
+- `src/lib/creator-onboarding.ts`
+- `src/lib/server/creator-onboarding.ts`
+- `src/lib/telemetry-catalog.ts`
+- `src/lib/telemetry.ts`
+- `src/lib/drop-status.ts`
+- `src/lib/drop-presentation.ts`
+
+Continuation findings and assimilated changes:
+- `#144` duplicate-filename authorization gap was still present. Current `main` queried every drop for any authenticated caller. The endpoint now scopes non-admin callers to `creatorId == caller.uid` and keeps admin access global.
+- `#148` browser push notification truth gap was still present. FCM broadcast now respects stored notification preferences and only sends to users with `browserPushEnabled === true` and `newDropAlerts !== false`.
+- `#146` GumDrop source-aware ledger crediting was still incomplete in PayPal capture. Purchased GumDrops and bonus GumDrops are now credited into `purchased` and `reward` backend balances separately instead of collapsing the full grant into `purchased`.
+- `#150` was only partially present. Drop file-count and view indicators now expose truthful accessible labels/tooltips without changing card behavior.
+- `#143`, `#140`, and `#138` were only partially present. Current-main-compatible tooltip, title, focus, and `aria-label` fixes were assimilated for icon-only controls in auth, drop preview, navbar, scroll-to-top, and admin users.
+- `#147` analytics/admin telemetry drift was still present in current `main`. The admin analytics page now avoids rendering empty auth/onboarding charts from zero-only payloads, the roster now emits `creator_application_review_saved`, and creator onboarding lifecycle emission/history now includes segment assignment, role activation, blocked activation, and owner override transitions.
+- `#139` contained one still-valid truth fix. Admin ops health no longer treats `FIREBASE_PRIVATE_KEY` as sufficient for navigation-session signing readiness; that readiness now reflects `NAVIGATION_COOKIE_SECRET` only.
+- `#151` performance cleanup was still missing and safe to assimilate. Drop feed/dashboard de-duplication now resolves drop status once per surviving drop rather than repeatedly in intermediary map/filter passes.
+
+PRs deliberately not transplanted wholesale:
+- `#145` is stale and conflicts with the current audited GumDrop package naming and already-landed merge fixes. Useful current-main-compatible pieces were already present or were absorbed through other targeted changes.
+- `#141` adds an id-keyed aspect-ratio cache on top of the existing dimension parsing cache. Current `main` already caches parsed dimensions, and the extra id cache risks stale presentation when a drop's stored dimensions change, so it was not adopted.
+- `#149` is stale and overlaps multiple already-landed or separately-assimilated fixes. Its current-main-compatible telemetry truth work was absorbed through the targeted changes above instead of merging stale branch churn.
+
+Commands run for continuation:
+- `git status --short`
+- `gh auth status`
+- `gh pr list --state open --limit 100 --json number,title,headRefName,baseRefName,url,isDraft`
+- `git fetch origin` for each open PR head branch
+- adjacency traces:
+  - `npm run trace:adjacent -- src/app/api/drops/duplicate-filenames/route.ts`
+  - `npm run trace:adjacent -- src/lib/server/fcm-utils.ts`
+  - `npm run trace:adjacent -- src/app/api/paypal/capture/route.ts`
+  - `npm run trace:adjacent -- src/app/api/admin/users/route.ts`
+  - `npm run trace:adjacent -- src/app/admin/analytics/page.tsx`
+  - `npm run trace:adjacent -- src/lib/server/admin-ops-health.ts`
+  - `npm run trace:adjacent -- src/app/admin/roster/page.tsx`
+  - `npm run trace:adjacent -- src/components/DropCard.tsx`
+  - `npm run trace:adjacent -- src/app/admin/users/page.tsx`
+- focused `eslint` on all touched route/component/helper/spec files
+- focused `vitest` on:
+  - `tests/unit/duplicate-filenames-route.spec.ts`
+  - `tests/unit/fcm-utils.spec.ts`
+  - `tests/unit/paypal-capture-route.spec.ts`
+  - `tests/unit/admin-users-route.spec.ts`
+- `npm run check:telemetry`
+- `npm run check:inventory`
+- `npm run check:ui:audits`
+- `npm run check:ui:lighthouse`
+- `corepack pnpm run check`
+- `npx vitest run`
+
+Continuation results:
+- focused `eslint` passed
+- focused `vitest` passed with `4` files and `12` tests
+- `npm run check:telemetry` passed
+  - cataloged events with no detected emitters reduced from `6` to `1`
+- `npm run check:inventory` passed
+- `npm run check:ui:lighthouse` passed
+- `corepack pnpm run check` passed
+- `npx vitest run` passed with `82` files and `413` tests
+- `npm run check:ui:audits` failed only on the existing Mobile Chrome `/creators/waitlist` visual-regression instability
+  - accessibility audits passed
+  - all other visual-regression checks passed
+  - the remaining failure is the known unstable `creator-waitlist-guest-hero` screenshot size flip, not a new assimilation regression
+
+Runtime truth and continuity implications from continuation:
+- duplicate filename checks no longer expose cross-creator asset-name discovery to ordinary authenticated users
+- drop/browser push notifications now map to actual stored notification preferences instead of broadcasting indiscriminately
+- GumDrop purchase grants now preserve backend source separation required by creator-restricted spend logic
+- admin analytics truth no longer renders empty auth/onboarding charts just because zero-valued rows exist
+- creator onboarding lifecycle emitters now align with the canonical telemetry catalog for segment, role-activation, and owner-override transitions
+- admin debug readiness is stricter and more truthful for navigation session signing
+
+Known warnings and non-blocking notices during continuation:
+- npm unknown env config warnings during script chains
+- Node `punycode` deprecation warnings from Firebase/Vitest tooling
+- `check:firebase-runtime` informational dotenv logs inside the canonical `check` pipeline
+- `npm run check:ui:audits` still fails on the existing Mobile Chrome creator-waitlist snapshot instability
+- `check:telemetry` still reports `creator_broadcast_opened` with no detected emitter
+
+Continuation follow-up gaps:
+- `creator_broadcast_opened` remains cataloged without a detected emitter
+- the Mobile Chrome creator-waitlist hero screenshot remains unstable across consecutive captures and still needs a separate audit-safe stabilization pass

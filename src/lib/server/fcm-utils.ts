@@ -23,7 +23,7 @@ export async function broadcastFCM(title: string, body: string, url: string = "/
         let tokensSent = false;
 
         const stream = adminDb.collection("users")
-            .select("fcmTokens")
+            .select("fcmTokens", "notificationSettings")
             .stream();
 
         const dispatchBatch = async (tokens: string[]) => {
@@ -42,8 +42,17 @@ export async function broadcastFCM(title: string, body: string, url: string = "/
         for await (const doc of stream) {
             const documentSnapshot = doc as unknown as FirebaseFirestore.DocumentSnapshot;
             const data = documentSnapshot.data();
-            if (data && data.fcmTokens && Array.isArray(data.fcmTokens)) {
-                tokensChunk.push(...data.fcmTokens);
+            const notificationSettings = data?.notificationSettings && typeof data.notificationSettings === "object"
+                ? data.notificationSettings as Record<string, unknown>
+                : {};
+            const browserPushEnabled = notificationSettings.browserPushEnabled === true;
+            const newDropAlertsEnabled = notificationSettings.newDropAlerts !== false;
+            const tokens = Array.isArray(data?.fcmTokens)
+                ? data.fcmTokens.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0)
+                : [];
+
+            if (browserPushEnabled && newDropAlertsEnabled && tokens.length > 0) {
+                tokensChunk.push(...tokens);
 
                 while (tokensChunk.length >= BATCH_SIZE) {
                     const batchToDispatch = tokensChunk.slice(0, BATCH_SIZE);

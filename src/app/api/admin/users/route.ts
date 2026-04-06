@@ -193,9 +193,14 @@ function buildCreatorLifecycleEvents(input: {
     | "creator_id_requested"
     | "creator_id_verified"
     | "creator_id_rejected"
+    | "creator_segment_assigned"
     | "creator_approved"
     | "creator_rejected"
     | "creator_needs_changes"
+    | "creator_role_activated"
+    | "creator_role_activation_blocked"
+    | "owner_override_applied"
+    | "owner_override_cleared"
     | "creator_legally_cleared_override"
   > = [];
 
@@ -221,6 +226,13 @@ function buildCreatorLifecycleEvents(input: {
     }
   }
 
+  if (
+    input.before.segmentationStatus !== input.after.segmentationStatus
+    && input.after.segmentationStatus === "segment_assigned"
+  ) {
+    events.push("creator_segment_assigned");
+  }
+
   if (input.before.approvalStatus !== input.after.approvalStatus) {
     if (input.after.approvalStatus === "creator_approved") {
       events.push("creator_approved");
@@ -229,6 +241,26 @@ function buildCreatorLifecycleEvents(input: {
     } else if (input.after.approvalStatus === "creator_needs_changes") {
       events.push("creator_needs_changes");
     }
+  }
+
+  if (input.before.ownerOverrideActive !== input.after.ownerOverrideActive) {
+    if (input.after.ownerOverrideActive) {
+      events.push("owner_override_applied");
+    } else {
+      events.push("owner_override_cleared");
+    }
+  }
+
+  if (input.before.role !== "creator" && input.after.role === "creator") {
+    events.push("creator_role_activated");
+  }
+
+  if (
+    input.after.approvalStatus === "creator_approved"
+    && input.after.role !== "creator"
+    && (input.before.approvalStatus !== "creator_approved" || input.before.role === "creator")
+  ) {
+    events.push("creator_role_activation_blocked");
   }
 
   return events;
@@ -254,6 +286,16 @@ async function emitCreatorLifecycleTelemetry(
         return trackServerEvent("creator_id_verified", payload, userId);
       case "creator_id_rejected":
         return trackServerEvent("creator_id_rejected", payload, userId);
+      case "creator_segment_assigned":
+        return trackServerEvent("creator_segment_assigned", payload, userId);
+      case "creator_role_activated":
+        return trackServerEvent("creator_role_activated", payload, userId);
+      case "creator_role_activation_blocked":
+        return trackServerEvent("creator_role_activation_blocked", payload, userId);
+      case "owner_override_applied":
+        return trackServerEvent("owner_override_applied", payload, userId);
+      case "owner_override_cleared":
+        return trackServerEvent("owner_override_cleared", payload, userId);
       case "creator_legally_cleared_override":
         return trackServerEvent("creator_legally_cleared_override", payload, userId);
       case "creator_approved":
@@ -1226,6 +1268,9 @@ export async function PUT(request: NextRequest) {
           && !shouldPromoteCreatorRole
           && nextCanonical.ownerOverrideActive !== true
         ) {
+          await trackServerEvent("creator_role_activation_blocked", {
+            page_path: `/admin/user/${userId}`,
+          }, userId).catch(() => undefined);
           throw new InvalidCreatorOnboardingTransitionError("Creator approval requires intro acknowledgment, accepted identity verification, and both agreement signatures unless owner override is active.");
         }
 
@@ -1357,6 +1402,9 @@ export async function PUT(request: NextRequest) {
 
         if (currentCanonical) {
           if (!shouldActivateCreatorRole(currentCanonical)) {
+            await trackServerEvent("creator_role_activation_blocked", {
+              page_path: `/admin/user/${userId}`,
+            }, userId).catch(() => undefined);
             await recordServerDiagnostic({
               channel: "creator_onboarding",
               severity: "warn",

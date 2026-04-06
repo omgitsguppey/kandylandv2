@@ -35,6 +35,7 @@ import {
 } from "@/lib/creator-onboarding";
 import { PRIMARY_CREATOR_OWNER_EMAIL } from "@/lib/creator-admin";
 import { useAuth } from "@/context/AuthContext";
+import { trackEvent } from "@/lib/telemetry";
 
 type RosterTab = "intake" | "live" | "create";
 
@@ -349,6 +350,10 @@ export default function AdminRosterPage() {
                 throw new Error(result.error || "Failed to update creator intake.");
             }
             await Promise.all([refreshRoster(), refreshSelectedDetail()]);
+            trackEvent("creator_application_review_saved", {
+                creator_user_id: selectedUserId,
+                review_action: actionKey,
+            });
             toast.success("Creator intake updated.");
         } catch (error) {
             reportClientIssue({

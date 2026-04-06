@@ -310,19 +310,21 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
                   {drop.id && (
                     <button
                       onClick={handleShare}
-                      className="h-11 w-11 rounded-full border border-white/15 bg-white/5 text-gray-200 flex items-center justify-center hover:bg-white/10 transition-colors"
+                      className="h-11 w-11 rounded-full border border-white/15 bg-white/5 text-gray-200 flex items-center justify-center transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0A0F]"
                       aria-label="Share"
+                      title="Share"
                     >
-                      <Share2 className="h-5 w-5" />
+                      <Share2 aria-hidden="true" className="h-5 w-5" />
                     </button>
                   )}
                   <Dialog.Close asChild>
                     <button
                       onClick={onClose}
-                      className="h-11 w-11 rounded-full border border-white/15 bg-white/5 text-gray-200 flex items-center justify-center hover:bg-white/10 transition-colors"
+                      className="h-11 w-11 rounded-full border border-white/15 bg-white/5 text-gray-200 flex items-center justify-center transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0A0F]"
                       aria-label="Close"
+                      title="Close"
                     >
-                      <X className="h-5 w-5" />
+                      <X aria-hidden="true" className="h-5 w-5" />
                     </button>
                   </Dialog.Close>
                 </div>

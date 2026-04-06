@@ -1002,6 +1002,8 @@ export default function AdminAnalyticsPage() {
     ...item,
     shortLabel: item.dropTitle.length > 16 ? `${item.dropTitle.slice(0, 16)}...` : item.dropTitle,
   }));
+  const hasAuthSuccessData = authBreakdown.some((item) => item.successes > 0);
+  const hasOnboardingVelocityData = onboardingDurationBuckets.some((bucket) => bucket.count > 0);
   const historicalHasSignals =
     historySeries.some((point) => point.users > 0 || point.views > 0 || point.sessions > 0 || point.newUsers > 0)
     || eventBreakdown.length > 0
@@ -1393,7 +1395,7 @@ export default function AdminAnalyticsPage() {
               <SectionCard title="Auth Outcome Split" subtitle="Start, finish, and average completion speed by auth method." icon={Users}>
                 <div className="grid gap-4 lg:grid-cols-[0.85fr_1.15fr]">
                   <div className="h-64 w-full">
-                    {authBreakdown.length > 0 ? (
+                    {hasAuthSuccessData ? (
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                           <Pie
@@ -1446,7 +1448,7 @@ export default function AdminAnalyticsPage() {
               <SectionCard title="Onboarding Velocity" subtitle="How long new users take to finish the guided tour on mobile." icon={PlayCircle}>
                 <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
                   <div className="h-64 w-full">
-                    {onboardingStartCount > 0 ? (
+                    {hasOnboardingVelocityData ? (
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={onboardingDurationBuckets} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
                           <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />

@@ -69,20 +69,25 @@ interface FileCountChipProps {
 const FileCountChip = ({ images, videos, compact = false }: FileCountChipProps) => {
     if (images === 0 && videos === 0) return null;
 
+    const fileCountLabel = [
+        images > 0 ? `${images} ${images === 1 ? "image" : "images"}` : null,
+        videos > 0 ? `${videos} ${videos === 1 ? "video" : "videos"}` : null,
+    ].filter(Boolean).join(", ");
+
     return (
         <div className={cn(
             "backdrop-blur-md rounded-full font-bold text-white shadow-xl border border-white/20 flex items-center gap-2 bg-black/60 z-30",
             compact ? "px-2 py-0.5 text-[9px] gap-1.5" : "px-3 py-1 text-[10px] md:text-xs"
-        )}>
+        )} aria-label={fileCountLabel} title={fileCountLabel}>
             {images > 0 && (
                 <div className="flex items-center gap-1">
-                    <ImageIcon className={compact ? "w-2.5 h-2.5" : "w-3 h-3 md:w-3.5 md:h-3.5"} />
+                    <ImageIcon aria-hidden="true" className={compact ? "w-2.5 h-2.5" : "w-3 h-3 md:w-3.5 md:h-3.5"} />
                     <span>{images}</span>
                 </div>
             )}
             {videos > 0 && (
                 <div className="flex items-center gap-1">
-                    <Film className={compact ? "w-2.5 h-2.5" : "w-3 h-3 md:w-3.5 md:h-3.5"} />
+                    <Film aria-hidden="true" className={compact ? "w-2.5 h-2.5" : "w-3 h-3 md:w-3.5 md:h-3.5"} />
                     <span>{videos}</span>
                 </div>
             )}
@@ -473,8 +478,12 @@ function DropCardBase({
                             <div className="inline-flex px-2 py-1 rounded-md border border-brand-purple/20 bg-brand-purple/10 text-brand-purple font-bold text-[10px] w-fit">
                                 {drop.unlockCost} GD
                             </div>
-                            <div className="flex items-center gap-1 opacity-60 text-[9px] font-medium text-white/80">
-                                <Eye className="w-2.5 h-2.5" />
+                            <div
+                                className="flex items-center gap-1 opacity-60 text-[9px] font-medium text-white/80"
+                                aria-label={`${totalViews.toLocaleString()} views`}
+                                title={`${totalViews.toLocaleString()} views`}
+                            >
+                                <Eye aria-hidden="true" className="w-2.5 h-2.5" />
                                 <span>{totalViews.toLocaleString()}</span>
                             </div>
                         </div>
@@ -545,8 +554,12 @@ function DropCardBase({
                         <div className="flex items-center gap-1 md:gap-2 px-2 py-1 bg-brand-purple/10 rounded-lg border border-brand-purple/20">
                             <span className="text-brand-purple font-bold text-[10px] md:text-xs tracking-wide whitespace-nowrap">{drop.unlockCost} GD</span>
                         </div>
-                        <div className="flex items-center gap-1 opacity-60 text-[9px] font-medium text-white/80">
-                            <Eye className="w-2.5 h-2.5" />
+                        <div
+                            className="flex items-center gap-1 opacity-60 text-[9px] font-medium text-white/80"
+                            aria-label={`${totalViews.toLocaleString()} views`}
+                            title={`${totalViews.toLocaleString()} views`}
+                        >
+                            <Eye aria-hidden="true" className="w-2.5 h-2.5" />
                             <span>{totalViews.toLocaleString()}</span>
                         </div>
                     </div>

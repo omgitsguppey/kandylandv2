@@ -1,0 +1,204 @@
+import { NextRequest, NextResponse } from "next/server";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+type StoredDoc = Record<string, unknown>;
+
+const mockState = vi.hoisted(() => {
+    const documents = new Map<string, StoredDoc>();
+    const transactionWrites: Array<{ path: string; data: StoredDoc }> = [];
+    let autoId = 0;
+
+    const buildDocSnapshot = (path: string) => ({
+        exists: documents.has(path),
+        data: () => documents.get(path),
+    });
+
+    const buildDocRef = (path: string) => ({
+        path,
+        async get() {
+            return buildDocSnapshot(path);
+        },
+    });
+
+    const adminDb = {
+        collection(name: string) {
+            return {
+                doc(id?: string) {
+                    const resolvedId = id ?? `auto_${++autoId}`;
+                    return buildDocRef(`${name}/${resolvedId}`);
+                },
+            };
+        },
+        async runTransaction(callback: (transaction: {
+            get: (ref: { path: string }) => Promise<{ exists: boolean; data: () => StoredDoc | undefined }>;
+            update: (ref: { path: string }, data: StoredDoc) => void;
+            set: (ref: { path: string }, data: StoredDoc) => void;
+        }) => Promise<unknown>) {
+            return callback({
+                async get(ref) {
+                    return buildDocSnapshot(ref.path);
+                },
+                update(ref, data) {
+                    documents.set(ref.path, {
+                        ...(documents.get(ref.path) ?? {}),
+                        ...data,
+                    });
+                },
+                set(ref, data) {
+                    transactionWrites.push({ path: ref.path, data });
+                    documents.set(ref.path, {
+                        ...(documents.get(ref.path) ?? {}),
+                        ...data,
+                    });
+                },
+            });
+        },
+    };
+
+    return {
+        documents,
+        transactionWrites,
+        adminDb,
+        guardApiRequest: vi.fn(),
+        handleApiError: vi.fn(),
+        capturePayPalOrder: vi.fn(),
+        trackServerEvent: vi.fn(async () => undefined),
+        recordCanonicalTaskEvent: vi.fn(async () => undefined),
+        touchUserRuntime: vi.fn(async () => undefined),
+        recordRouteWarning: vi.fn(),
+        reset() {
+            documents.clear();
+            transactionWrites.length = 0;
+            autoId = 0;
+            this.guardApiRequest.mockReset();
+            this.handleApiError.mockReset();
+            this.capturePayPalOrder.mockReset();
+            this.trackServerEvent.mockReset();
+            this.recordCanonicalTaskEvent.mockReset();
+            this.touchUserRuntime.mockReset();
+            this.recordRouteWarning.mockReset();
+        },
+    };
+});
+
+vi.mock("@/lib/server/firebase-admin", () => ({
+    adminDb: mockState.adminDb,
+}));
+
+vi.mock("@/lib/server/request-guard", () => ({
+    guardApiRequest: mockState.guardApiRequest,
+}));
+
+vi.mock("@/lib/server/auth", () => ({
+    handleApiError: mockState.handleApiError,
+}));
+
+vi.mock("@/lib/server/rate-limit", () => ({
+    SENSITIVE_WRITE: {},
+}));
+
+vi.mock("@/lib/server/paypal", () => ({
+    capturePayPalOrder: mockState.capturePayPalOrder,
+}));
+
+vi.mock("@/lib/server/analytics", () => ({
+    trackServerEvent: mockState.trackServerEvent,
+}));
+
+vi.mock("@/lib/server/daily-tasks", () => ({
+    recordCanonicalTaskEvent: mockState.recordCanonicalTaskEvent,
+}));
+
+vi.mock("@/lib/server/user-runtime", () => ({
+    touchUserRuntime: mockState.touchUserRuntime,
+}));
+
+vi.mock("@/lib/server/route-diagnostics", () => ({
+    recordRouteWarning: mockState.recordRouteWarning,
+}));
+
+vi.mock("firebase-admin/firestore", () => ({
+    FieldValue: {
+        serverTimestamp: () => "__server_timestamp__",
+    },
+}));
+
+import { POST } from "@/app/api/paypal/capture/route";
+
+describe("POST /api/paypal/capture", () => {
+    beforeEach(() => {
+        mockState.reset();
+        mockState.guardApiRequest.mockResolvedValue({
+            uid: "fan_1",
+            email: "fan@example.com",
+        });
+        mockState.handleApiError.mockImplementation((error: Error) => NextResponse.json({
+            error: error.message,
+        }, { status: 500 }));
+        mockState.capturePayPalOrder.mockResolvedValue({
+            status: "COMPLETED",
+            purchase_units: [
+                {
+                    custom_id: "fan_1:550",
+                    payments: {
+                        captures: [
+                            {
+                                id: "capture_1",
+                                custom_id: "fan_1:550",
+                                amount: {
+                                    currency_code: "USD",
+                                    value: "5.00",
+                                },
+                                seller_receivable_breakdown: {
+                                    paypal_fee: {
+                                        currency_code: "USD",
+                                        value: "0.45",
+                                    },
+                                    net_amount: {
+                                        currency_code: "USD",
+                                        value: "4.55",
+                                    },
+                                },
+                            },
+                        ],
+                    },
+                },
+            ],
+        });
+        mockState.documents.set("users/fan_1", {
+            uid: "fan_1",
+            email: "fan@example.com",
+            username: "fan_1",
+            displayName: "Fan One",
+            gumDropsBalance: 0,
+            gumDropsPurchasedBalance: 0,
+            gumDropsRewardBalance: 0,
+        });
+    });
+
+    it("credits purchased and bonus GumDrops into separate backend sources", async () => {
+        const request = new NextRequest("http://localhost/api/paypal/capture", {
+            method: "POST",
+            body: JSON.stringify({
+                orderId: "order_1",
+                expectedDrops: 550,
+            }),
+        });
+
+        const response = await POST(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(payload).toMatchObject({
+            success: true,
+            drops: 550,
+            gumDropsBalance: 550,
+        });
+        expect(mockState.documents.get("users/fan_1")).toMatchObject({
+            gumDropsBalance: 550,
+            gumDropsPurchasedBalance: 500,
+            gumDropsRewardBalance: 50,
+        });
+        expect(mockState.trackServerEvent).toHaveBeenCalledWith("purchase_verified", expect.any(Object), "fan_1");
+    });
+});

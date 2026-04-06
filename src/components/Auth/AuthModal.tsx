@@ -638,6 +638,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                             onClick={onClose}
                             className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-2 text-gray-400 transition-colors hover:bg-white/5 hover:text-white sm:right-4"
                             aria-label="Close authentication modal"
+                            title="Close authentication modal"
                         >
                             <X className="h-5 w-5" />
                         </button>

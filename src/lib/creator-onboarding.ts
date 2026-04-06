@@ -124,6 +124,7 @@ const HISTORY_EVENT_TYPE_SET = new Set<CreatorOnboardingHistoryEventType>([
     "creator_contract_signed",
     "admin_contract_signed",
     "legal_signed",
+    "creator_segment_assigned",
     "creator_approved",
     "creator_rejected",
     "creator_needs_changes",
@@ -320,6 +321,7 @@ export type CreatorOnboardingHistoryEventType =
     | "creator_contract_signed"
     | "admin_contract_signed"
     | "legal_signed"
+    | "creator_segment_assigned"
     | "creator_approved"
     | "creator_rejected"
     | "creator_needs_changes"

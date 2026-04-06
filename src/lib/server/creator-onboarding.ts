@@ -228,6 +228,13 @@ export function buildCreatorOnboardingStatusChangeHistoryEntries(input: {
         }
     }
 
+    if (
+        input.before.segmentationStatus !== input.after.segmentationStatus
+        && input.after.segmentationStatus === "segment_assigned"
+    ) {
+        addEntry("creator_segment_assigned", "Creator segment assigned", input.after.segmentLabel || undefined);
+    }
+
     if (input.before.approvalStatus !== input.after.approvalStatus) {
         if (input.after.approvalStatus === "creator_approved") {
             addEntry("creator_approved", "Creator approved");
@@ -258,7 +265,11 @@ export function buildCreatorOnboardingStatusChangeHistoryEntries(input: {
         addEntry("creator_role_activated", "Creator role activated");
     }
 
-    if (input.after.approvalStatus === "creator_approved" && input.after.role !== "creator") {
+    if (
+        input.after.approvalStatus === "creator_approved"
+        && input.after.role !== "creator"
+        && (input.before.approvalStatus !== "creator_approved" || input.before.role === "creator")
+    ) {
         addEntry("creator_role_activation_blocked", "Creator approval is blocked from activating the public creator role");
     }
 

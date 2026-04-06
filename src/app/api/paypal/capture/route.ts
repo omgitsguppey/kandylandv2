@@ -192,7 +192,13 @@ export async function POST(request: NextRequest) {
       const sourceAwareBalance = readSourceAwareBalance(userData);
       const currentBalance = normalizeGumdropBalance(sourceAwareBalance.total);
       const nextBalance = computeNextGumdropBalance(currentBalance, dropsToCredit);
-      const nextSourceAwareBalance = creditSourceAwareGumdrops(sourceAwareBalance, dropsToCredit, "purchased");
+      let nextSourceAwareBalance = sourceAwareBalance;
+      if (economics.paidGumDrops > 0) {
+        nextSourceAwareBalance = creditSourceAwareGumdrops(nextSourceAwareBalance, economics.paidGumDrops, "purchased");
+      }
+      if (economics.bonusGumDrops > 0) {
+        nextSourceAwareBalance = creditSourceAwareGumdrops(nextSourceAwareBalance, economics.bonusGumDrops, "reward");
+      }
       const username = typeof userData.username === "string" && userData.username.trim().length > 0
         ? userData.username.trim()
         : typeof userData.displayName === "string" && userData.displayName.trim().length > 0
