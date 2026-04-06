@@ -1,0 +1,56 @@
+<<<<<<< SEARCH
+  useEffect(() => {
+    const upcomingExpirations: number[] = [];
+    for (const drop of swrDrops) {
+      const resolvedDrop = applyDropStatus(drop, sweepNowMs);
+      if (resolvedDrop.status === "active" && resolvedDrop.validUntil && resolvedDrop.validUntil > sweepNowMs) {
+        upcomingExpirations.push(resolvedDrop.validUntil);
+      }
+    }
+
+    if (upcomingExpirations.length === 0) {
+      return;
+    }
+=======
+  useEffect(() => {
+    const upcomingExpirations: number[] = [];
+    for (const drop of swrDrops) {
+      const status = resolveDropStatusFromTiming(drop, sweepNowMs);
+      if (status === "active" && drop.validUntil && drop.validUntil > sweepNowMs) {
+        upcomingExpirations.push(drop.validUntil);
+      }
+    }
+
+    if (upcomingExpirations.length === 0) {
+      return;
+    }
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+  const clientDrops = useMemo(() => {
+    // Single-pass filtering avoids cloning drops that will be discarded immediately.
+    const nextDrops: Drop[] = [];
+
+    for (const drop of swrDrops) {
+      const resolvedDrop = applyDropStatus(drop, sweepNowMs);
+      if (!statusFilter || statusFilter.includes(resolvedDrop.status)) {
+        nextDrops.push(resolvedDrop);
+      }
+    }
+
+    return nextDrops;
+  }, [statusFilter, sweepNowMs, swrDrops]);
+=======
+  const clientDrops = useMemo(() => {
+    // Single-pass filtering avoids cloning drops that will be discarded immediately.
+    const nextDrops: Drop[] = [];
+
+    for (const drop of swrDrops) {
+      const status = resolveDropStatusFromTiming(drop, sweepNowMs);
+      if (!statusFilter || statusFilter.includes(status)) {
+        nextDrops.push(applyDropStatus(drop, sweepNowMs));
+      }
+    }
+
+    return nextDrops;
+  }, [statusFilter, sweepNowMs, swrDrops]);
+>>>>>>> REPLACE

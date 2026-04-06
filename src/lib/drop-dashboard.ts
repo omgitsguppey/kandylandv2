@@ -2,17 +2,22 @@ import { applyDropStatus, isDropActiveNow } from "@/lib/drop-status";
 import type { Drop } from "@/types/db";
 
 export function mergeResolvedDropsById(primaryDrops: Drop[], secondaryDrops: Drop[], now: number) {
-    const mergedDrops = new Map<string, Drop>();
+    const uniqueDrops = new Map<string, Drop>();
 
-    primaryDrops.forEach((drop) => {
-        mergedDrops.set(drop.id, applyDropStatus(drop, now));
-    });
+    for (const drop of primaryDrops) {
+        uniqueDrops.set(drop.id, drop);
+    }
 
-    secondaryDrops.forEach((drop) => {
-        mergedDrops.set(drop.id, applyDropStatus(drop, now));
-    });
+    for (const drop of secondaryDrops) {
+        uniqueDrops.set(drop.id, drop);
+    }
 
-    return Array.from(mergedDrops.values()).sort((left, right) => right.validFrom - left.validFrom);
+    const resolvedDrops: Drop[] = [];
+    for (const drop of uniqueDrops.values()) {
+        resolvedDrops.push(applyDropStatus(drop, now));
+    }
+
+    return resolvedDrops.sort((left, right) => right.validFrom - left.validFrom);
 }
 
 export function buildDashboardCollectionState(drops: Drop[], ownedIds: Set<string>, now?: number) {

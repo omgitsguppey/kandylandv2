@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import useSWRInfinite from "swr/infinite";
 import { reportClientIssue, reportRealtimeIssue } from "@/lib/client-error-reporting";
 import { Drop } from "@/types/db";
-import { applyDropStatus } from "@/lib/drop-status";
+import { applyDropStatus, resolveDropStatusFromTiming } from "@/lib/drop-status";
 import { DROP_RUNTIME_COLLECTION, DROP_RUNTIME_DOC_ID } from "@/lib/drop-runtime";
 import { useNetworkConditions } from "@/hooks/useNetworkConditions";
 
@@ -191,9 +191,9 @@ export function useDrops(
   useEffect(() => {
     const upcomingExpirations: number[] = [];
     for (const drop of swrDrops) {
-      const resolvedDrop = applyDropStatus(drop, sweepNowMs);
-      if (resolvedDrop.status === "active" && resolvedDrop.validUntil && resolvedDrop.validUntil > sweepNowMs) {
-        upcomingExpirations.push(resolvedDrop.validUntil);
+      const status = resolveDropStatusFromTiming(drop, sweepNowMs);
+      if (status === "active" && drop.validUntil && drop.validUntil > sweepNowMs) {
+        upcomingExpirations.push(drop.validUntil);
       }
     }
 
@@ -217,9 +217,9 @@ export function useDrops(
     const nextDrops: Drop[] = [];
 
     for (const drop of swrDrops) {
-      const resolvedDrop = applyDropStatus(drop, sweepNowMs);
-      if (!statusFilter || statusFilter.includes(resolvedDrop.status)) {
-        nextDrops.push(resolvedDrop);
+      const status = resolveDropStatusFromTiming(drop, sweepNowMs);
+      if (!statusFilter || statusFilter.includes(status)) {
+        nextDrops.push(applyDropStatus(drop, sweepNowMs));
       }
     }
 
