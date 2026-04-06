@@ -11,7 +11,7 @@ import { authFetch } from "@/lib/authFetch";
 import { motion, AnimatePresence } from "framer-motion";
 import { GuestComponentBlur } from "@/components/Auth/GuestComponentBlur";
 import { clearTimedFlow, consumeTimedFlow, startTimedFlow, trackEvent } from "@/lib/telemetry";
-import { GUMDROPS_SUPPORT_COPY, SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
+import { SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
 import { useUI } from "@/context/UIContext";
 import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
 import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
@@ -319,19 +319,28 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                 });
                               }}
                               className={cn(
-                                "relative p-3 rounded-2xl text-left border flex flex-col justify-center",
+                                "relative flex min-h-[6.6rem] flex-col justify-between rounded-2xl border p-3 text-left",
                                 isSelected
                                   ? "bg-brand-purple/10 border-brand-purple/50 ring-1 ring-brand-purple/30 shadow-[0_0_20px_rgba(236,72,153,0.15)] scale-[1.02]"
                                   : "bg-white/5 border-white/5 hover:bg-white/10 transition-colors"
                               )}
                             >
-                              <div className="flex justify-between items-center w-full mb-0.5">
-                                <span className="font-bold text-lg text-white">{pkg.drops}</span>
-                                <span className={cn("font-bold text-sm", isSelected ? "text-brand-purple" : "text-white")}>${pkg.price.toFixed(2)}</span>
+                              <div className="flex items-start justify-between gap-2">
+                                <div>
+                                  <span className="text-lg font-bold text-white">{pkg.drops}</span>
+                                  <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                                    GumDrops
+                                  </p>
+                                </div>
+                                <span className={cn("shrink-0 pt-0.5 text-xs font-bold", isSelected ? "text-brand-purple" : "text-white")}>${pkg.price.toFixed(2)}</span>
                               </div>
-                              <div className="flex justify-between items-center w-full">
-                                <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wider line-clamp-1">{pkg.label}</span>
-                                {pkg.bonus && <span className="text-[10px] font-bold text-[#8fff9d] whitespace-nowrap ml-1">{pkg.bonus}</span>}
+                              <div className="mt-2 space-y-1">
+                                <p className="text-[11px] font-semibold leading-4 text-white">{pkg.label}</p>
+                                {pkg.bonus ? (
+                                  <span className="inline-flex rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-emerald-300">
+                                    {pkg.bonus}
+                                  </span>
+                                ) : null}
                               </div>
                             </button>
                           );
@@ -351,17 +360,20 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                           }
                         }}
                         className={cn(
-                          "relative w-full p-3 mb-6 rounded-2xl text-left border flex flex-col justify-center gap-1.5 transition-all cursor-pointer mt-3",
+                          "relative mt-3 mb-6 flex w-full cursor-pointer flex-col gap-2 rounded-2xl border p-3 text-left transition-all",
                           isBundleSelected
                             ? "bg-brand-purple/10 border-brand-purple/50 ring-1 ring-brand-purple/30 shadow-[0_0_20px_rgba(236,72,153,0.15)] scale-[1.02]"
                             : "bg-white/5 border-white/5 hover:bg-white/10"
                         )}
                       >
-                        <div className="flex justify-between items-center w-full">
-                          <div className="flex items-center">
-                            <span className="font-bold text-[22px] text-white">{customDrops.toLocaleString()}</span>
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <span className="text-[22px] font-bold text-white">{customDrops.toLocaleString()}</span>
+                            <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                              GumDrops
+                            </p>
                           </div>
-                          <div className="flex items-center gap-1.5 bg-black/40 rounded-xl p-0.5 border border-white/10 shrink-0">
+                          <div className="flex shrink-0 items-center gap-1 rounded-xl border border-white/10 bg-black/40 p-0.5">
                             <button
                               aria-label="Decrease bundle size"
                               type="button"
@@ -371,13 +383,13 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                               }}
                               disabled={!canDecreaseBundle && isBundleSelected}
                               className={cn(
-                                "w-8 h-8 rounded-lg flex flex-col items-center justify-center text-white transition-colors cursor-pointer",
+                                "flex h-7 w-7 flex-col items-center justify-center rounded-lg text-white transition-colors cursor-pointer",
                                 !canDecreaseBundle && isBundleSelected ? "opacity-30 cursor-not-allowed bg-white/5" : "bg-white/10 hover:bg-white/20"
                               )}
                             >
-                              <Minus className="w-3.5 h-3.5" />
+                              <Minus className="h-3 w-3" />
                             </button>
-                            <div className="w-8 text-center text-sm font-bold text-white">{customDrops / 1000}k</div>
+                            <div className="w-9 text-center text-xs font-bold text-white">{customDrops / 1000}k</div>
                             <button
                               aria-label="Increase bundle size"
                               type="button"
@@ -387,21 +399,23 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                               }}
                               disabled={!canIncreaseBundle && isBundleSelected}
                               className={cn(
-                                "w-8 h-8 rounded-lg flex items-center justify-center text-white transition-colors cursor-pointer mr-0.5",
+                                "mr-0.5 flex h-7 w-7 items-center justify-center rounded-lg text-white transition-colors cursor-pointer",
                                 !canIncreaseBundle && isBundleSelected ? "opacity-30 cursor-not-allowed bg-brand-purple/30" : "bg-brand-purple/80 hover:bg-brand-purple"
                               )}
                             >
-                              <Plus className="w-4 h-4 font-bold" />
+                              <Plus className="h-3.5 w-3.5 font-bold" />
                             </button>
                           </div>
                         </div>
 
-                        <div className="flex justify-between items-center w-full mt-0.5">
-                          <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wider flex items-center gap-2">
-                            King Size Bundle
-                            <span className="bg-[#8fff9d]/20 text-[#8fff9d] px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide">100% Extra Value</span>
-                          </span>
-                          <span className={cn("font-bold text-sm", isBundleSelected ? "text-brand-purple" : "text-white")}>
+                        <div className="flex items-end justify-between gap-3">
+                          <div className="space-y-1">
+                            <p className="text-[11px] font-semibold leading-4 text-white">King Size Bundle</p>
+                            <span className="inline-flex rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-emerald-300">
+                              100% extra value
+                            </span>
+                          </div>
+                          <span className={cn("shrink-0 text-xs font-bold", isBundleSelected ? "text-brand-purple" : "text-white")}>
                             ${((customDrops / 1000) * 5).toFixed(2)}
                           </span>
                         </div>

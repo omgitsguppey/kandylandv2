@@ -1,72 +1,22 @@
-import { randomUUID } from "node:crypto";
-
 import { NextRequest, NextResponse } from "next/server";
 
 import { handleApiError } from "@/lib/server/auth";
 import { adminStorage } from "@/lib/server/firebase-admin";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import {
+    ensureFirebaseDownloadUrl,
+    sanitizeStorageFileName,
+    serializeStorageFile,
+} from "@/lib/server/storage-assets";
 
 const DROPS_CONTENT_PREFIX = "drops/";
-
-type StorageObjectMetadata = {
-    contentType?: string;
-    size?: string | number;
-    timeCreated?: string;
-    metadata?: Record<string, string | number | boolean | null> | undefined;
-};
-
-function sanitizeUploadFileName(fileName: string) {
-    const normalizedName = fileName.split(/[/\\]/).pop() ?? "upload";
-    return normalizedName.replace(/[^A-Za-z0-9._-]+/g, "_").slice(0, 120) || "upload";
-}
 
 function isSafeDropsContentPath(fullPath: string) {
     return fullPath.startsWith(DROPS_CONTENT_PREFIX)
         && fullPath.length > DROPS_CONTENT_PREFIX.length
         && !fullPath.includes("..")
         && !fullPath.endsWith("/");
-}
-
-function getExistingDownloadToken(metadata: StorageObjectMetadata) {
-    const rawTokens = metadata.metadata?.firebaseStorageDownloadTokens;
-    return typeof rawTokens === "string" ? rawTokens.split(",")[0]?.trim() || null : null;
-}
-
-function buildFirebaseDownloadUrl(storagePath: string, downloadToken: string) {
-    const bucketName = adminStorage.bucket().name;
-    return `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/${encodeURIComponent(storagePath)}?alt=media&token=${downloadToken}`;
-}
-
-async function ensureFirebaseDownloadUrl(file: { name: string; setMetadata: (metadata: StorageObjectMetadata) => Promise<unknown> }, metadata: StorageObjectMetadata) {
-    const existingToken = getExistingDownloadToken(metadata);
-    if (existingToken) {
-        return buildFirebaseDownloadUrl(file.name, existingToken);
-    }
-
-    const nextToken = randomUUID();
-    await file.setMetadata({
-        metadata: {
-            ...metadata.metadata,
-            firebaseStorageDownloadTokens: nextToken,
-        },
-    });
-    return buildFirebaseDownloadUrl(file.name, nextToken);
-}
-
-function serializeStorageFile(fullPath: string, metadata: StorageObjectMetadata, url: string) {
-    return {
-        name: fullPath.split("/").pop() ?? fullPath,
-        fullPath,
-        url,
-        size: typeof metadata.size === "number"
-            ? metadata.size
-            : typeof metadata.size === "string"
-                ? Number(metadata.size) || undefined
-                : undefined,
-        contentType: metadata.contentType,
-        timeCreated: metadata.timeCreated,
-    };
 }
 
 export async function GET(request: NextRequest) {
@@ -83,7 +33,7 @@ export async function GET(request: NextRequest) {
             .filter((file) => isSafeDropsContentPath(file.name))
             .map(async (file) => {
                 const [metadata] = await file.getMetadata();
-                const url = await ensureFirebaseDownloadUrl(file, metadata);
+                const url = await ensureFirebaseDownloadUrl(adminStorage.bucket(), file, metadata);
                 return serializeStorageFile(file.name, metadata, url);
             }));
 
@@ -114,7 +64,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Missing upload file" }, { status: 400 });
         }
 
-        const fullPath = `${DROPS_CONTENT_PREFIX}${Date.now()}_${sanitizeUploadFileName(file.name)}`;
+        const fullPath = `${DROPS_CONTENT_PREFIX}${Date.now()}_${sanitizeStorageFileName(file.name)}`;
         const storageFile = adminStorage.bucket().file(fullPath);
         await storageFile.save(Buffer.from(await file.arrayBuffer()), {
             resumable: false,
@@ -122,7 +72,7 @@ export async function POST(request: NextRequest) {
         });
 
         const [metadata] = await storageFile.getMetadata();
-        const url = await ensureFirebaseDownloadUrl(storageFile, metadata);
+        const url = await ensureFirebaseDownloadUrl(adminStorage.bucket(), storageFile, metadata);
 
         return NextResponse.json({
             success: true,

@@ -17,7 +17,7 @@ export function GlobalBugReportTrigger() {
 
   return (
     <div
-      className="pointer-events-none fixed bottom-[calc(env(safe-area-inset-bottom)+6.25rem)] left-3 z-40 md:bottom-8 md:left-5"
+      className="pointer-events-none fixed bottom-[calc(env(safe-area-inset-bottom)+5.75rem)] left-3 z-40 md:bottom-7 md:left-5"
     >
       <ReportBugButton
         context={`global:${pathname}`}

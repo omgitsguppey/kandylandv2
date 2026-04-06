@@ -111,19 +111,19 @@ export default function DashboardClient({ drops }: DashboardClientProps) {
                     <DailyCheckIn />
                     {creatorRailReady ? <CreatorDiscoveryRail surface="dashboard" compact /> : null}
 
-                    <div className="glass-panel rounded-3xl p-4 md:p-6">
-                        <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-white">
+                    <div className="glass-panel rounded-3xl p-4 md:p-5">
+                        <h3 className="mb-3 flex items-center gap-2 text-base font-bold text-white md:text-lg">
                             <Star className="h-5 w-5 text-brand-purple" /> Your Stats
                         </h3>
 
                         <div className="grid grid-cols-2 gap-3">
-                            <div className="flex items-center justify-between gap-3 rounded-xl border border-white/5 bg-white/5 p-3 md:rounded-2xl md:p-4">
-                                <span className="text-xs font-bold uppercase text-gray-500 md:text-sm">Gum Drops</span>
-                                <span className="text-lg font-bold text-brand-purple md:text-xl">{userProfile.gumDropsBalance || 0}</span>
+                            <div className="flex items-center justify-between gap-3 rounded-xl border border-white/5 bg-white/[0.06] px-3 py-3 md:rounded-2xl md:px-4 md:py-3.5">
+                                <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500 md:text-xs">Gum Drops</span>
+                                <span className="text-lg font-black text-brand-purple md:text-xl">{userProfile.gumDropsBalance || 0}</span>
                             </div>
-                            <div className="flex items-center justify-between gap-3 rounded-xl border border-white/5 bg-white/5 p-3 md:rounded-2xl md:p-4">
-                                <span className="text-xs font-bold uppercase text-gray-500 md:text-sm">Unlocked</span>
-                                <span className="text-lg font-bold text-brand-purple md:text-xl">{userProfile.unlockedContent?.length || 0}</span>
+                            <div className="flex items-center justify-between gap-3 rounded-xl border border-white/5 bg-white/[0.06] px-3 py-3 md:rounded-2xl md:px-4 md:py-3.5">
+                                <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500 md:text-xs">Unlocked</span>
+                                <span className="text-lg font-black text-brand-purple md:text-xl">{userProfile.unlockedContent?.length || 0}</span>
                             </div>
                         </div>
                     </div>

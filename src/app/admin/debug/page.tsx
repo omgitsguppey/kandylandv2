@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import {
     Activity,
-    Bug,
     ChevronDown,
     ChevronUp,
     Loader2,
@@ -12,8 +11,8 @@ import {
     Radio,
     RefreshCw,
     ShieldAlert,
+    Sparkles,
     Terminal,
-    Workflow,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -29,14 +28,14 @@ import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { cn } from "@/lib/utils";
 
-type DebugTabId = "overview" | "tasks" | "telemetry" | "reports" | "ops";
+type DebugTabId = "now" | "actions" | "monitoring" | "ai" | "advanced";
 
 const DEBUG_TABS: Array<{ id: DebugTabId; label: string; icon: typeof Activity }> = [
-    { id: "overview", label: "Overview", icon: Activity },
-    { id: "tasks", label: "Tasks", icon: Workflow },
-    { id: "telemetry", label: "Telemetry", icon: Radio },
-    { id: "reports", label: "Reports", icon: Bug },
-    { id: "ops", label: "Ops", icon: ShieldAlert },
+    { id: "now", label: "Right now", icon: Activity },
+    { id: "actions", label: "Action lane", icon: ShieldAlert },
+    { id: "monitoring", label: "Monitoring", icon: Radio },
+    { id: "ai", label: "AI", icon: Sparkles },
+    { id: "advanced", label: "Advanced", icon: Terminal },
 ];
 
 function formatTimestamp(timestamp?: number) {
@@ -133,7 +132,7 @@ export default function DebugConsole() {
     const [processing, setProcessing] = useState(false);
     const [repairingId, setRepairingId] = useState<string | null>(null);
     const [simAmount, setSimAmount] = useState("500");
-    const [activeTab, setActiveTab] = useState<DebugTabId>("overview");
+    const [activeTab, setActiveTab] = useState<DebugTabId>("now");
 
     const { data, error, isLoading, mutate } = useAdminPollingSWR<any>("/api/admin/debug", 5000, {
         keepPreviousData: false,
@@ -151,6 +150,42 @@ export default function DebugConsole() {
                 : "Pending",
         }))
     ), [overviewData?.recentTransactions]);
+    const panelLogWarnCount = useMemo(
+        () => (data?.panelSystemLogs || []).filter((entry: any) => entry.status === "warn").length,
+        [data?.panelSystemLogs],
+    );
+    const panelLogFailCount = useMemo(
+        () => (data?.panelSystemLogs || []).filter((entry: any) => entry.status === "fail").length,
+        [data?.panelSystemLogs],
+    );
+    const derivedActionCount = useMemo(
+        () => (data?.stats?.orchestrationActionableRepairs ?? 0) + panelLogWarnCount + panelLogFailCount,
+        [data?.stats?.orchestrationActionableRepairs, panelLogFailCount, panelLogWarnCount],
+    );
+    const freshestLoadedSignalAt = useMemo(() => {
+        const timestamps = [
+            ...recentTransactions.map((entry) => (typeof entry.timestamp === "number" ? entry.timestamp : 0)),
+            ...(data?.panelSystemLogs || []).map((entry: any) => typeof entry.updatedAtMs === "number" ? entry.updatedAtMs : 0),
+            ...(data?.opsHealth?.diagnostics?.recent || []).map((entry: any) => typeof entry.timestamp === "number" ? entry.timestamp : 0),
+            aiDebugData?.generated_at ? Date.parse(aiDebugData.generated_at) : 0,
+        ].filter((value) => Number.isFinite(value) && value > 0);
+
+        return timestamps.length > 0 ? Math.max(...timestamps) : 0;
+    }, [aiDebugData?.generated_at, data?.opsHealth?.diagnostics?.recent, data?.panelSystemLogs, recentTransactions]);
+    const aiStatusLabel = aiDebugError
+        ? "Unavailable"
+        : !aiDebugData
+            ? "Loading"
+            : aiDebugData.fallback_used
+                ? "Fallback"
+                : "Live";
+    const aiStatusTone: "neutral" | "good" | "warn" | "bad" = aiDebugError
+        ? "bad"
+        : !aiDebugData
+            ? "neutral"
+            : aiDebugData.fallback_used
+                ? "warn"
+                : "good";
 
     const refreshAll = async () => {
         await Promise.all([mutate(), mutateOverview(), mutateAiDebug()]);
@@ -226,7 +261,7 @@ export default function DebugConsole() {
         if (isCompactViewport) {
             return (
                 <div className="rounded-[1.2rem] border border-white/10 bg-black/25 p-3">
-                    <label className="mb-2 block text-[11px] uppercase tracking-[0.18em] text-gray-400">Debug lane</label>
+                    <label className="mb-2 block text-[11px] uppercase tracking-[0.18em] text-gray-400">Operator lane</label>
                     <select
                         value={activeTab}
                         onChange={(event) => setActiveTab(event.target.value as DebugTabId)}
@@ -267,61 +302,587 @@ export default function DebugConsole() {
             <PageViewEvent eventName="admin_debug_viewed" />
             <AdminPageHeader
                 eyebrow="Admin Debug"
-                title="Compact Debug Console"
-                subtitle="Inspect task coverage, telemetry health, bug intake, and runtime ops in a tighter mobile-first flow without removing any debug surfaces."
-                actions={
-                    <>
-                        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-4 py-2 text-sm text-gray-300">
-                            <Terminal className="h-4 w-4 text-brand-purple" />
-                            Production Firebase tools
-                        </div>
-                        <Button variant="glass" onClick={refreshAll}>
-                            <RefreshCw className="mr-2 h-4 w-4" />
-                            Refresh
-                        </Button>
-                    </>
-                }
+                title="Debug Console"
+                actions={(
+                    <Button variant="glass" onClick={refreshAll}>
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                        Refresh
+                    </Button>
+                )}
             />
 
             {renderTabControls()}
 
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-                <StatCard label="Ops score" value={data?.opsHealth ? `${data.opsHealth.score}%` : "--"} meta={`${data?.opsHealth?.pipeline?.failureCount || 0} pipeline failures`} />
-                <StatCard label="Built-in tasks" value={data?.stats?.builtInTasks ?? "--"} meta={`${data?.stats?.runtimeAssignedTasks ?? 0} sampled assignments`} />
-                <StatCard label="Telemetry events" value={data?.stats?.trackedTelemetryEvents ?? "--"} meta={`${data?.stats?.orphanedTelemetryEvents ?? 0} orphaned`} />
-                <StatCard label="Receipts 7d" value={data?.stats?.receiptsLast7d ?? "--"} meta={`${data?.stats?.completedEventsLast7d ?? 0} completions`} />
-                <StatCard label="Bug reports 7d" value={data?.stats?.bugReportsLast7d ?? "--"} meta={`${data?.bugReports?.length ?? 0} loaded`} />
-                <StatCard label="Users with issues" value={data?.stats?.usersWithTaskIssues ?? "--"} meta={`${data?.stats?.runtimeUsersWithRefreshIssues ?? 0} refresh warnings`} />
-                <StatCard label="Creator issues" value={data?.stats?.creatorOnboardingIssues ?? "--"} meta={`${data?.creatorOnboardingDiagnostics?.summary?.missingQueueCount ?? 0} missing queue`} />
-                <StatCard label="Orchestration" value={data?.orchestration ? `${data.orchestration.summary.score}%` : "--"} meta={`${data?.stats?.orchestrationOpenFindings ?? 0} open findings`} />
-                <StatCard
-                    label="AI debug"
-                    value={aiDebugData ? (aiDebugData.fallback_used ? "Fallback" : "Live") : aiDebugError ? "Error" : "--"}
-                    meta={aiDebugData ? `${aiDebugData.model} | ${aiDebugData.latency_ms}ms` : "Gemini Flash-Lite"}
-                />
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-7">
+                <StatCard label="Health score" value={data?.opsHealth ? `${data.opsHealth.score}%` : "--"} meta={`${data?.opsHealth?.pipeline?.failureCount || 0} sampled pipeline failures`} />
+                <StatCard label="Pipeline failures" value={data?.opsHealth?.pipeline?.failureCount ?? "--"} meta={data?.opsHealth?.pipeline?.lastFailureAt ? `last ${formatRelative(data.opsHealth.pipeline.lastFailureAt)}` : "no recent failure in sample"} />
+                <StatCard label="Task-issue users" value={data?.stats?.usersWithTaskIssues ?? "--"} meta={`${data?.stats?.runtimeUsersWithRefreshIssues ?? 0} sampled refresh warnings`} />
+                <StatCard label="Creator issues" value={data?.stats?.creatorOnboardingIssues ?? "--"} meta={`${data?.creatorOnboardingDiagnostics?.summary?.missingQueueCount ?? 0} missing queue links`} />
+                <StatCard label="Open actions" value={derivedActionCount} meta={`${data?.stats?.orchestrationActionableRepairs ?? 0} proposals + ${panelLogWarnCount + panelLogFailCount} panel log warnings/failures`} />
+                <StatCard label="Freshest signal" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "--"} meta="derived from loaded diagnostics, panel logs, transactions, and AI status" />
+                <StatCard label="AI assistant" value={aiStatusLabel} meta={aiDebugData ? `${aiDebugData.model} | ${aiDebugData.latency_ms}ms` : aiDebugError ? "assistant unavailable" : "waiting for summary"} />
             </div>
 
             {error ? <div className="rounded-[1.35rem] border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-100">Debug data could not be loaded right now.</div> : null}
             {(isLoading || overviewLoading) && !data ? <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-6 text-sm text-gray-300"><Loader2 className="mr-2 inline h-4 w-4 animate-spin" />Loading debug surfaces...</div> : null}
 
-            {activeTab === "overview" ? (
+            {activeTab === "now" ? (
+                <div className="space-y-4">
+                    <Section
+                        title="System health now"
+                        subtitle="Loaded health score, recent pipeline failures, and downstream freshness. The score is derived from the current sample, not full-system certainty."
+                        defaultOpen
+                        summary={<><Pill label="Score" value={`${data?.opsHealth?.score ?? 0}%`} tone={(data?.opsHealth?.score ?? 0) >= 90 ? "good" : (data?.opsHealth?.score ?? 0) >= 70 ? "warn" : "bad"} /><Pill label="Pipeline failures" value={data?.opsHealth?.pipeline?.failureCount ?? 0} tone={(data?.opsHealth?.pipeline?.failureCount ?? 0) > 0 ? "warn" : "good"} /><Pill label="Diagnostic channels" value={(data?.opsHealth?.diagnostics?.channels || []).length} /><Pill label="Freshest loaded signal" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "Not loaded"} /></>}
+                    >
+                        <div className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
+                            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-1">
+                                <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                    <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Pipeline</p>
+                                    <p className="mt-2 text-xl font-black text-white">{data?.opsHealth?.pipeline?.failureCount ?? 0}</p>
+                                    <p className="mt-1 text-sm text-gray-400">Recent sampled failures. Last failure {formatRelative(data?.opsHealth?.pipeline?.lastFailureAt)}.</p>
+                                </div>
+                                <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                    <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Diagnostics</p>
+                                    <p className="mt-2 text-xl font-black text-white">{data?.opsHealth?.diagnostics?.errorCount ?? 0}</p>
+                                    <p className="mt-1 text-sm text-gray-400">Errors in the current loaded sample across tracked diagnostic channels.</p>
+                                </div>
+                                <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                    <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Downstream writers</p>
+                                    <p className="mt-2 text-xl font-black text-white">{(data?.opsHealth?.materializers || []).length}</p>
+                                    <p className="mt-1 text-sm text-gray-400">Materializers tracked in this health slice. Missing writers outside this slice are still possible.</p>
+                                </div>
+                                <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                    <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Runtime warnings</p>
+                                    <p className="mt-2 text-xl font-black text-white">{(data?.opsHealth?.runtime?.warnings || []).length}</p>
+                                    <p className="mt-1 text-sm text-gray-400">Environment and runtime warnings from the current backend configuration check.</p>
+                                </div>
+                            </div>
+                            <div className="space-y-4">
+                                <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div>
+                                            <p className="font-semibold text-white">Top failing routes</p>
+                                            <p className="mt-1 text-xs text-gray-400">Recent route failures from the loaded pipeline sample.</p>
+                                        </div>
+                                        <Pill label="Routes" value={(data?.opsHealth?.pipeline?.routes || []).length} tone={(data?.opsHealth?.pipeline?.routes || []).length ? "warn" : "good"} />
+                                    </div>
+                                    {(data?.opsHealth?.pipeline?.routes || []).length ? (
+                                        <div className="mt-4 space-y-2">
+                                            {(data?.opsHealth?.pipeline?.routes || []).slice(0, 6).map((route: any) => (
+                                                <div key={route.routeKey} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm">
+                                                    <div>
+                                                        <p className="font-semibold text-white">{route.label}</p>
+                                                        <p className="text-xs text-gray-400">{route.routeKey}</p>
+                                                    </div>
+                                                    <Pill label="Failures" value={route.count} tone={route.count ? "warn" : "good"} />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="mt-4 text-sm text-emerald-100">No route failures are present in the loaded pipeline sample.</p>
+                                    )}
+                                </div>
+                                <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div>
+                                            <p className="font-semibold text-white">Degraded downstream writers</p>
+                                            <p className="mt-1 text-xs text-gray-400">Only materializers tracked by the current health builder are represented here.</p>
+                                        </div>
+                                        <Pill label="Degraded" value={(data?.opsHealth?.materializers || []).filter((materializer: any) => materializer.status !== "healthy").length} tone={(data?.opsHealth?.materializers || []).some((materializer: any) => materializer.status !== "healthy") ? "warn" : "good"} />
+                                    </div>
+                                    {(data?.opsHealth?.materializers || []).length ? (
+                                        <div className="mt-4 space-y-2">
+                                            {(data?.opsHealth?.materializers || []).slice(0, 6).map((materializer: any) => (
+                                                <div key={materializer.key} className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
+                                                    <div className="flex flex-wrap items-center justify-between gap-2">
+                                                        <div>
+                                                            <p className="font-semibold text-white">{materializer.label}</p>
+                                                            <p className="text-xs text-gray-400">{materializer.engine}</p>
+                                                        </div>
+                                                        <Pill label="Status" value={materializer.status} tone={materializer.status === "healthy" ? "good" : materializer.status === "warn" ? "warn" : "bad"} />
+                                                    </div>
+                                                    <p className="mt-2 text-sm text-gray-300">{materializer.detail}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="mt-4 text-sm text-gray-300">No downstream materializer sample is loaded right now.</p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </Section>
+
+                    <Section
+                        title="Creator intake blockers"
+                        subtitle="Live cross-checks between onboarding records, queue entries, and user projections. This is a real mismatch check, not a blanket readiness claim."
+                        defaultOpen={(data?.creatorOnboardingDiagnostics?.summary?.totalIssues ?? 0) > 0}
+                        summary={<><Pill label="Issues" value={data?.creatorOnboardingDiagnostics?.summary?.totalIssues ?? 0} tone={(data?.creatorOnboardingDiagnostics?.summary?.totalIssues ?? 0) > 0 ? "warn" : "good"} /><Pill label="Missing queue" value={data?.creatorOnboardingDiagnostics?.summary?.missingQueueCount ?? 0} tone={(data?.creatorOnboardingDiagnostics?.summary?.missingQueueCount ?? 0) > 0 ? "bad" : "good"} /><Pill label="Role mismatch" value={data?.creatorOnboardingDiagnostics?.summary?.roleMismatchCount ?? 0} tone={(data?.creatorOnboardingDiagnostics?.summary?.roleMismatchCount ?? 0) > 0 ? "warn" : "good"} /></>}
+                    >
+                        <div className="grid gap-4 lg:grid-cols-3">
+                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Missing queue links</p>
+                                <p className="mt-2 text-xl font-black text-white">{data?.creatorOnboardingDiagnostics?.summary?.missingQueueCount ?? 0}</p>
+                                <p className="mt-1 text-sm text-gray-400">Canonical onboarding exists but the roster review queue entry is missing.</p>
+                            </div>
+                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Missing source records</p>
+                                <p className="mt-2 text-xl font-black text-white">{(data?.creatorOnboardingDiagnostics?.summary?.missingSourceCount ?? 0) + (data?.creatorOnboardingDiagnostics?.summary?.projectionWithoutSourceCount ?? 0)}</p>
+                                <p className="mt-1 text-sm text-gray-400">Queue or projection exists without a canonical onboarding record behind it.</p>
+                            </div>
+                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Blocked in limbo</p>
+                                <p className="mt-2 text-xl font-black text-white">{(data?.creatorOnboardingDiagnostics?.summary?.stuckAwaitingReviewCount ?? 0) + (data?.creatorOnboardingDiagnostics?.summary?.roleMismatchCount ?? 0)}</p>
+                                <p className="mt-1 text-sm text-gray-400">Applicants waiting with no clear next state, or with approval and role state out of sync.</p>
+                            </div>
+                        </div>
+
+                        <div className="mt-4 rounded-[1rem] border border-white/10 bg-white/[0.03]">
+                            <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
+                                <div>
+                                    <p className="font-semibold text-white">Current creator onboarding issues</p>
+                                    <p className="text-xs text-gray-400">Live backend mismatches from the current debug load.</p>
+                                </div>
+                                <Pill label="Rows" value={(data?.creatorOnboardingDiagnostics?.issues || []).length} />
+                            </div>
+                            <div className="divide-y divide-white/10">
+                                {(data?.creatorOnboardingDiagnostics?.issues || []).length === 0 ? (
+                                    <div className="px-4 py-6 text-sm text-gray-300">No creator onboarding anomalies are currently detected.</div>
+                                ) : (
+                                    (data?.creatorOnboardingDiagnostics?.issues || []).slice(0, 12).map((issue: any) => (
+                                        <div key={`${issue.key}-${issue.userId}`} className="space-y-2 px-4 py-3">
+                                            <div className="flex flex-wrap items-start justify-between gap-2">
+                                                <div>
+                                                    <p className="font-semibold text-white">{issue.message}</p>
+                                                    <p className="text-xs text-gray-400">{issue.creatorDisplayName} · {issue.userId}</p>
+                                                </div>
+                                                <Pill label="Severity" value={issue.severity} tone={issue.severity === "error" ? "bad" : "warn"} />
+                                            </div>
+                                            <p className="text-sm text-gray-300">{issue.detail}</p>
+                                            <a href={issue.link} className="text-xs font-semibold text-brand-purple hover:text-white">
+                                                Open creator record
+                                            </a>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    </Section>
+
+                    <Section
+                        title="Recent diagnostics and downstream writers"
+                        subtitle="Recent diagnostics, route failures, and materializer freshness. This is a loaded sample, not full historical coverage."
+                        defaultOpen={!isCompactViewport && ((data?.opsHealth?.diagnostics?.errorCount ?? 0) > 0 || (data?.opsHealth?.pipeline?.failureCount ?? 0) > 0)}
+                        summary={<><Pill label="Channels" value={(data?.opsHealth?.diagnostics?.channels || []).length} /><Pill label="Recent diagnostics" value={(data?.opsHealth?.diagnostics?.recent || []).length} /><Pill label="Routes" value={(data?.opsHealth?.pipeline?.routes || []).length} /></>}
+                    >
+                        <div className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
+                            <ScrollWrap>
+                                <div className="divide-y divide-white/10">
+                                    {(data?.opsHealth?.diagnostics?.channels || []).map((channel: any) => (
+                                        <div key={channel.key} className="space-y-2 px-4 py-3">
+                                            <div className="flex flex-wrap items-start justify-between gap-2">
+                                                <div>
+                                                    <p className="font-semibold text-white">{channel.label}</p>
+                                                    <p className="text-xs text-gray-400">{formatRelative(channel.lastSeenAt)}</p>
+                                                </div>
+                                                <Pill label="Count" value={channel.count} />
+                                            </div>
+                                            <div className="flex flex-wrap gap-2">
+                                                <Pill label="Errors" value={channel.errorCount} tone={channel.errorCount ? "bad" : "good"} />
+                                                <Pill label="Warns" value={channel.warnCount} tone={channel.warnCount ? "warn" : "good"} />
+                                                <Pill label="Info" value={channel.infoCount} />
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {(data?.opsHealth?.pipeline?.routes || []).map((route: any) => (
+                                        <div key={route.routeKey} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
+                                            <div>
+                                                <p className="font-semibold text-white">{route.label}</p>
+                                                <p className="text-xs text-gray-400">{route.routeKey}</p>
+                                            </div>
+                                            <Pill label="Failures" value={route.count} tone={route.count ? "warn" : "good"} />
+                                        </div>
+                                    ))}
+                                </div>
+                            </ScrollWrap>
+                            <ScrollWrap>
+                                <div className="divide-y divide-white/10">
+                                    {(data?.opsHealth?.diagnostics?.recent || []).map((entry: any) => (
+                                        <div key={entry.id} className="space-y-2 px-4 py-3">
+                                            <div className="flex flex-wrap items-start justify-between gap-2">
+                                                <div>
+                                                    <p className="font-semibold text-white">{entry.channel}</p>
+                                                    <p className="text-xs text-gray-400">{formatTimestamp(entry.timestamp)}</p>
+                                                </div>
+                                                <Pill label="Severity" value={entry.severity} tone={entry.severity === "error" ? "bad" : entry.severity === "warn" ? "warn" : "neutral"} />
+                                            </div>
+                                            <p className="text-sm text-gray-200">{entry.message}</p>
+                                            {entry.detailPreview ? <p className="text-xs text-gray-400">{entry.detailPreview}</p> : null}
+                                        </div>
+                                    ))}
+                                    {(data?.opsHealth?.materializers || []).map((materializer: any) => (
+                                        <div key={materializer.key} className="space-y-2 px-4 py-3">
+                                            <div className="flex flex-wrap items-start justify-between gap-2">
+                                                <div>
+                                                    <p className="font-semibold text-white">{materializer.label}</p>
+                                                    <p className="text-xs text-gray-400">{materializer.engine}</p>
+                                                </div>
+                                                <Pill label="Status" value={materializer.status} tone={materializer.status === "healthy" ? "good" : materializer.status === "warn" ? "warn" : "bad"} />
+                                            </div>
+                                            <div className="flex flex-wrap gap-2">
+                                                <Pill label="Count" value={materializer.count} />
+                                                <Pill label="Last seen" value={formatRelative(materializer.lastSeenAt)} />
+                                            </div>
+                                            <p className="text-sm text-gray-300">{materializer.detail}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </ScrollWrap>
+                        </div>
+                    </Section>
+
+                    <Section
+                        title="Panel status by section"
+                        subtitle="Saved panel summaries with concrete next actions. Counts here are derived from the current persisted panel log set."
+                        defaultOpen={(panelLogWarnCount + panelLogFailCount) > 0}
+                        summary={<><Pill label="Panels" value={(data?.panelSystemLogs || []).length} /><Pill label="Warn" value={panelLogWarnCount} tone={panelLogWarnCount > 0 ? "warn" : "good"} /><Pill label="Fail" value={panelLogFailCount} tone={panelLogFailCount > 0 ? "bad" : "good"} /></>}
+                    >
+                        <ScrollWrap>
+                            <div className="divide-y divide-white/10">
+                                {(data?.panelSystemLogs || []).map((entry: any) => (
+                                    <div key={entry.id} className="space-y-2 px-4 py-3">
+                                        <div className="flex flex-wrap items-start justify-between gap-2">
+                                            <div>
+                                                <p className="font-semibold text-white">{entry.panelTitle}</p>
+                                                <p className="text-xs text-gray-400">{entry.tab} | {formatRelative(entry.updatedAtMs)}</p>
+                                            </div>
+                                            <Pill label="Status" value={entry.status} tone={entry.status === "healthy" ? "good" : entry.status === "warn" ? "warn" : "bad"} />
+                                        </div>
+                                        <p className="text-sm text-gray-200">{entry.summary}</p>
+                                        <p className="text-xs text-gray-400">{entry.action}</p>
+                                        <div className="flex flex-wrap gap-2">
+                                            <Pill label="Signals" value={entry.signalCount ?? 0} tone={(entry.signalCount ?? 0) > 0 ? (entry.status === "fail" ? "bad" : "warn") : "good"} />
+                                            {(entry.signalKeys || []).slice(0, 3).map((signalKey: string) => (
+                                                <Pill key={`${entry.id}:${signalKey}`} label="Signal" value={signalKey} />
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                                {(data?.panelSystemLogs || []).length === 0 ? (
+                                    <div className="px-4 py-4 text-sm text-gray-300">No persisted panel logs are loaded yet.</div>
+                                ) : null}
+                            </div>
+                        </ScrollWrap>
+                    </Section>
+                </div>
+            ) : null}
+
+            {activeTab === "actions" ? (
+                <div className="space-y-4">
+                    <Section
+                        title="Repairs available now"
+                        subtitle="Open repair proposals that can be applied or dismissed. Actor bleed risk stays visible in advanced internals."
+                        defaultOpen={(data?.stats?.orchestrationActionableRepairs ?? 0) > 0}
+                        summary={<><Pill label="Actionable" value={data?.stats?.orchestrationActionableRepairs ?? 0} tone={(data?.stats?.orchestrationActionableRepairs ?? 0) ? "warn" : "good"} /><Pill label="Contamination risks" value={data?.orchestration?.summary?.contaminationRisks ?? 0} tone={(data?.orchestration?.summary?.contaminationRisks ?? 0) ? "bad" : "good"} /></>}
+                    >
+                        <ScrollWrap>
+                            <div className="divide-y divide-white/10">
+                                {(data?.orchestration?.proposals || []).length ? (data?.orchestration?.proposals || []).map((proposal: any) => (
+                                    <div key={proposal.id} className="space-y-2 px-4 py-3">
+                                        <div className="flex flex-wrap items-start justify-between gap-2">
+                                            <div>
+                                                <p className="font-semibold text-white">{proposal.label}</p>
+                                                <p className="text-xs text-gray-400">{proposal.sourceDocumentPath}</p>
+                                            </div>
+                                            <Pill label="Status" value={proposal.status} tone={proposal.status === "open" ? "warn" : proposal.status === "resolved" ? "good" : "neutral"} />
+                                        </div>
+                                        <p className="text-sm text-gray-200">{proposal.detail}</p>
+                                        <div className="flex flex-wrap gap-2">
+                                            <Button
+                                                variant="glass"
+                                                size="sm"
+                                                disabled={repairingId === proposal.id || proposal.actionType !== "rebuild_projection" || proposal.status !== "open"}
+                                                onClick={() => handleRepairProposal(proposal.id, "apply")}
+                                            >
+                                                {repairingId === proposal.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                                Apply
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                disabled={repairingId === proposal.id || proposal.status !== "open"}
+                                                onClick={() => handleRepairProposal(proposal.id, "dismiss")}
+                                            >
+                                                Dismiss
+                                            </Button>
+                                        </div>
+                                    </div>
+                                )) : <div className="px-4 py-4 text-sm text-emerald-100">No repair proposals are open in the current orchestration sample.</div>}
+                            </div>
+                        </ScrollWrap>
+                    </Section>
+
+                    <Section
+                        title="Bug reports to triage"
+                        subtitle="Recent bug intake with severity, path, and diagnostic context. This is a loaded sample, not a full incident system."
+                        defaultOpen={(data?.bugReports || []).length > 0}
+                        summary={<><Pill label="Loaded" value={(data?.bugReports || []).length} /><Pill label="Last 7d" value={data?.stats?.bugReportsLast7d ?? 0} tone={(data?.stats?.bugReportsLast7d ?? 0) > 0 ? "warn" : "good"} /></>}
+                    >
+                        <div className="space-y-3">
+                            {(data?.bugReports || []).length ? (data?.bugReports || []).map((report: any) => (
+                                <div key={report.id} className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                    <div className="flex flex-wrap items-start justify-between gap-3">
+                                        <div className="min-w-0">
+                                            <p className="truncate font-semibold text-white">{report.summary || "Untitled bug report"}</p>
+                                            <p className="mt-1 text-xs text-gray-400">{report.currentPath || "Unknown path"} | {report.componentName || "Unknown component"}</p>
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            <Pill label="Status" value={report.status} />
+                                            <Pill label="Severity" value={report.severity} tone={report.severity === "high" || report.severity === "critical" ? "bad" : report.severity === "medium" ? "warn" : "neutral"} />
+                                        </div>
+                                    </div>
+                                    <p className="mt-3 line-clamp-3 text-sm text-gray-300">{report.message}</p>
+                                    <div className="mt-3 flex flex-wrap gap-2">
+                                        <Pill label="Breadcrumbs" value={report.breadcrumbsCount} />
+                                        <Pill label="Diagnostics" value={report.diagnosticsCount} />
+                                        <Pill label="Rollouts" value={report.rolloutCount} />
+                                        <Pill label="When" value={formatRelative(report.timestamp)} />
+                                    </div>
+                                </div>
+                            )) : <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4 text-sm text-gray-300">No bug reports are loaded in the current sample.</div>}
+                        </div>
+                    </Section>
+
+                    <Section
+                        title="Manual admin tools (not live health)"
+                        subtitle="Operator-triggered utilities only. These tools do not reflect current system health and should not be read as monitoring."
+                        defaultOpen={false}
+                        summary={<><Pill label="Self top-up" value={`${simAmount} drops`} /><Pill label="Webhook" value="Manual test" tone="warn" /></>}
+                    >
+                        <div className="rounded-[1rem] border border-amber-400/20 bg-amber-500/10 p-4 text-sm text-amber-100">
+                            Manual tools can help investigate or simulate behavior, but they are not live monitoring signals and they do not prove system health.
+                        </div>
+                        <div className="mt-4 grid gap-4 lg:grid-cols-[1.3fr_1fr]">
+                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Add Gum Drops to the current admin user</p>
+                                <div className="mt-3 flex gap-2">
+                                    <input
+                                        type="number"
+                                        className="min-h-11 flex-1 rounded-[1rem] border border-white/10 bg-black/40 px-3 text-white"
+                                        value={simAmount}
+                                        onChange={(event) => setSimAmount(event.target.value)}
+                                    />
+                                    <Button variant="brand" onClick={handleSimulatePurchase} disabled={processing}>
+                                        {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+                                    </Button>
+                                </div>
+                            </div>
+                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Manual webhook test</p>
+                                <Button variant="glass" className="mt-3 w-full" onClick={() => toast.info("Webhook simulation is still backend-gated and not implemented here yet.")}>
+                                    <PlayCircle className="mr-2 h-4 w-4" />
+                                    Test Payment Webhook
+                                </Button>
+                            </div>
+                        </div>
+                    </Section>
+                </div>
+            ) : null}
+
+            {activeTab === "monitoring" ? (
+                <div className="space-y-4">
+                    <Section
+                        title="Recent transactions"
+                        subtitle="Latest loaded commerce entries. This is a bounded feed for fast inspection, not a full historical export."
+                        defaultOpen
+                        summary={<><Pill label="Loaded" value={recentTransactions.length} /><Pill label="Feed window" value="Latest loaded entries" /></>}
+                    >
+                        <ScrollWrap>
+                            <table className="w-full text-left text-sm">
+                                <thead className="sticky top-0 bg-black/80 text-[11px] uppercase tracking-[0.16em] text-gray-400">
+                                    <tr><th className="px-3 py-3">Time</th><th className="px-3 py-3">Type</th><th className="px-3 py-3">Amount</th><th className="px-3 py-3">User</th><th className="px-3 py-3">Description</th></tr>
+                                </thead>
+                                <tbody className="divide-y divide-white/10">
+                                    {recentTransactions.map((entry: any) => (
+                                        <tr key={entry.id}>
+                                            <td className="px-3 py-3 text-gray-400">{entry.timestampLabel}</td>
+                                            <td className="px-3 py-3 text-brand-purple">{entry.type}</td>
+                                            <td className="px-3 py-3 text-white">{entry.amount}</td>
+                                            <td className="px-3 py-3 text-gray-300">{entry.username ? `@${entry.username}` : entry.userId}</td>
+                                            <td className="px-3 py-3 text-gray-400">{entry.description}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </ScrollWrap>
+                    </Section>
+
+                    <Section
+                        title="Admin session and runtime prerequisites"
+                        subtitle="Current admin identity plus narrow runtime prerequisites that affect debug behavior. This is not a system-wide readiness claim."
+                        defaultOpen={false}
+                        summary={<><Pill label="Role" value={userProfile?.role || "user"} tone="good" /><Pill label="GA property" value={data?.opsHealth?.runtime?.gaPropertyConfigured ? "Ready" : "Missing"} tone={data?.opsHealth?.runtime?.gaPropertyConfigured ? "good" : "warn"} /><Pill label="VAPID" value={data?.opsHealth?.runtime?.vapidConfigured ? "Yes" : "No"} tone={data?.opsHealth?.runtime?.vapidConfigured ? "good" : "warn"} /></>}
+                    >
+                        <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                            <p className="mb-4 text-sm text-gray-300">These checks describe the current admin session and a few runtime prerequisites used by debug/admin flows. They do not prove that all runtime dependencies are healthy everywhere else.</p>
+                            <div className="grid gap-4 lg:grid-cols-[1fr_1.2fr]">
+                                <div className="rounded-[1rem] border border-white/10 bg-black/20 p-4 text-sm text-gray-300">
+                                    <div className="flex justify-between gap-3 border-b border-white/10 py-2"><span className="text-gray-400">User ID</span><span className="truncate font-mono text-xs text-white">{user?.uid || "--"}</span></div>
+                                    <div className="flex justify-between gap-3 border-b border-white/10 py-2"><span className="text-gray-400">Email</span><span className="truncate text-white">{user?.email || "--"}</span></div>
+                                    <div className="flex justify-between gap-3 border-b border-white/10 py-2"><span className="text-gray-400">Project</span><span className="truncate text-white">{data?.opsHealth?.runtime?.projectId || "--"}</span></div>
+                                    <div className="flex justify-between gap-3 py-2"><span className="text-gray-400">Warnings</span><span className="text-white">{data?.opsHealth?.runtime?.warnings?.length || 0}</span></div>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    <Pill label="VAPID" value={data?.opsHealth?.runtime?.vapidConfigured ? "Yes" : "No"} tone={data?.opsHealth?.runtime?.vapidConfigured ? "good" : "warn"} />
+                                    <Pill label="Database URL" value={data?.opsHealth?.runtime?.databaseUrlConfigured ? "Ready" : "Missing"} tone={data?.opsHealth?.runtime?.databaseUrlConfigured ? "good" : "warn"} />
+                                    <Pill label="Navigation signing" value={data?.opsHealth?.runtime?.navigationSessionSigningReady ? "Ready" : "Missing"} tone={data?.opsHealth?.runtime?.navigationSessionSigningReady ? "good" : "warn"} />
+                                    {(data?.opsHealth?.runtime?.warnings || []).map((warning: string) => <Pill key={warning} label="Warning" value={warning} tone="warn" />)}
+                                </div>
+                            </div>
+                        </div>
+                    </Section>
+
+                    <Section
+                        title="Recent event flow"
+                        subtitle="Derived recent events normalized from telemetry and backend signals. This helps with interpretation, but it is not canonical truth by itself."
+                        defaultOpen={!isCompactViewport}
+                        summary={<><Pill label="Events" value={data?.stats?.orchestrationEvents ?? 0} /><Pill label="Low confidence" value={data?.stats?.orchestrationLowConfidence ?? 0} tone={(data?.stats?.orchestrationLowConfidence ?? 0) ? "warn" : "good"} /></>}
+                    >
+                        <ScrollWrap>
+                            <div className="divide-y divide-white/10">
+                                {(data?.orchestration?.events || []).map((event: any) => (
+                                    <div key={event.id} className="space-y-2 px-4 py-3">
+                                        <div className="flex flex-wrap items-start justify-between gap-2">
+                                            <div>
+                                                <p className="font-semibold text-white">{event.normalizedLabel}</p>
+                                                <p className="text-xs text-gray-400">{event.domain} | {event.systemKey}</p>
+                                            </div>
+                                            <Pill label="Status" value={event.status} tone={event.status === "critical" ? "bad" : event.status === "attention" ? "warn" : "good"} />
+                                        </div>
+                                        <p className="text-sm text-gray-200">{event.humanSummary}</p>
+                                        <div className="flex flex-wrap gap-2">
+                                            <Pill label="Actor" value={event.actor.actorLabel || event.actor.actorType} />
+                                            <Pill label="Surface" value={event.session.sourceSurface || "background"} />
+                                            <Pill label="Findings" value={event.findingCount} tone={event.findingCount ? "warn" : "good"} />
+                                            <Pill label="Eval eligible" value={event.readiness.trainingEligible ? "yes" : "no"} tone={event.readiness.trainingEligible ? "good" : "warn"} />
+                                        </div>
+                                        {event.dependencyReadiness.missing?.length ? (
+                                            <p className="text-xs text-gray-400">Missing inputs: {event.dependencyReadiness.missing.join(", ")}</p>
+                                        ) : null}
+                                    </div>
+                                ))}
+                            </div>
+                        </ScrollWrap>
+                    </Section>
+
+                    <Section
+                        title="Recent task activity sample"
+                        subtitle="Recent task events and longer-tail rollups. This is an activity sample, not a full user-journey ledger."
+                        defaultOpen={false}
+                        summary={<><Pill label="Recent events" value={(data?.recentTaskEvents || []).length} /><Pill label="Rollups" value={(data?.taskRollups || []).length} /><Pill label="Daily points" value={(data?.dailyTaskSeries || []).length} /></>}
+                    >
+                        <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+                            <ScrollWrap>
+                                <div className="divide-y divide-white/10">
+                                    {(data?.recentTaskEvents || []).map((event: any) => (
+                                        <div key={event.id} className="space-y-2 px-4 py-3">
+                                            <div className="flex flex-wrap items-start justify-between gap-2">
+                                                <div>
+                                                    <p className="font-semibold text-white">{event.title}</p>
+                                                    <p className="text-xs text-gray-400">{event.triggerEvent}</p>
+                                                </div>
+                                                <Pill label={event.type} value={formatRelative(event.timestamp)} />
+                                            </div>
+                                            <div className="flex flex-wrap gap-2">
+                                                <Pill label="User" value={event.username} />
+                                                <Pill label="Reward" value={event.reward} />
+                                                <Pill label="Progress" value={`${event.progress}/${event.maxProgress}`} />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </ScrollWrap>
+                            <ScrollWrap>
+                                <div className="divide-y divide-white/10">
+                                    {(data?.taskRollups || []).map((rollup: any) => (
+                                        <div key={rollup.taskId} className="space-y-2 px-4 py-3">
+                                            <div className="flex flex-wrap items-start justify-between gap-2">
+                                                <div>
+                                                    <p className="font-semibold text-white">{rollup.title}</p>
+                                                    <p className="text-xs text-gray-400">Last event {formatRelative(rollup.lastEventAt)}</p>
+                                                </div>
+                                                <Pill label="Completed" value={rollup.completed} />
+                                            </div>
+                                            <div className="flex flex-wrap gap-2">
+                                                <Pill label="Started" value={rollup.started} />
+                                                <Pill label="Failed" value={rollup.failed} tone={rollup.failed ? "warn" : "good"} />
+                                                <Pill label="Reminders" value={rollup.reminders} />
+                                                <Pill label="Reward total" value={rollup.rewardTotal} />
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {(data?.dailyTaskSeries || []).map((day: any) => (
+                                        <div key={day.dayKey} className="flex flex-wrap items-center gap-2 px-4 py-3 text-sm text-gray-300">
+                                            <span className="font-semibold text-white">{day.dayKey}</span>
+                                            <Pill label="Events" value={day.eventCount} />
+                                            <Pill label="Completed" value={day.completed} />
+                                            <Pill label="Failed" value={day.failed} tone={day.failed ? "warn" : "good"} />
+                                            <Pill label="Rewards" value={day.rewardTotal} />
+                                        </div>
+                                    ))}
+                                </div>
+                            </ScrollWrap>
+                        </div>
+                    </Section>
+
+                    <Section
+                        title="Recent receipts and dedupe sample"
+                        subtitle="Recent receipts plus dedupe counters. This is a sample view of receipt visibility, not a full ledger reconciliation screen."
+                        defaultOpen={false}
+                        summary={<><Pill label="Receipts 7d" value={data?.stats?.receiptsLast7d ?? 0} /><Pill label="Recent" value={(data?.recentReceipts || []).length} /></>}
+                    >
+                        <div className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
+                            <ScrollWrap>
+                                <div className="divide-y divide-white/10">
+                                    {(data?.receiptSummary || []).map((receipt: any) => (
+                                        <div key={receipt.eventName} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
+                                            <div>
+                                                <p className="font-semibold text-white">{receipt.eventName}</p>
+                                                <p className="text-xs text-gray-400">{formatTimestamp(receipt.lastSeenAt)}</p>
+                                            </div>
+                                            <Pill label="Count" value={receipt.count} />
+                                        </div>
+                                    ))}
+                                </div>
+                            </ScrollWrap>
+                            <ScrollWrap>
+                                <div className="divide-y divide-white/10">
+                                    {(data?.recentReceipts || []).map((receipt: any) => (
+                                        <div key={receipt.id} className="space-y-2 px-4 py-3">
+                                            <div className="flex flex-wrap items-start justify-between gap-2">
+                                                <div>
+                                                    <p className="font-semibold text-white">{receipt.eventName}</p>
+                                                    <p className="text-xs text-gray-400">{receipt.uid || "guest"} | {receipt.receiptKey}</p>
+                                                </div>
+                                                <Pill label="Source" value={receipt.source} />
+                                            </div>
+                                            <p className="text-xs text-gray-400">{formatTimestamp(receipt.timestamp)}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </ScrollWrap>
+                        </div>
+                    </Section>
+                </div>
+            ) : null}
+
+            {activeTab === "ai" ? (
                 <div className="space-y-4">
                     <Section
                         title="AI debug assistant"
-                        subtitle="Gemini Flash-Lite summarizes bounded canonical health signals. It is advisory only and never overrides the underlying diagnostics."
+                        subtitle="Advisory summary over bounded canonical signals. Live model output, fallback summaries, and unavailability stay labeled."
                         defaultOpen
-                        summary={
-                            <>
-                                <Pill
-                                    label="Status"
-                                    value={aiDebugData ? (aiDebugData.fallback_used ? "fallback" : "live") : aiDebugError ? "error" : "loading"}
-                                    tone={aiDebugData ? (aiDebugData.fallback_used ? "warn" : "good") : aiDebugError ? "bad" : "neutral"}
-                                />
-                                <Pill label="Model" value={aiDebugData?.model || "gemini-2.5-flash-lite"} />
-                                <Pill label="Prompt" value={aiDebugData?.prompt_version || "--"} />
-                                <Pill label="Latency" value={aiDebugData ? `${aiDebugData.latency_ms}ms` : "--"} tone={aiDebugData && aiDebugData.latency_ms > 5000 ? "warn" : "neutral"} />
-                            </>
-                        }
+                        summary={<><Pill label="Status" value={aiStatusLabel} tone={aiStatusTone} /><Pill label="Model" value={aiDebugData?.model || "gemini-2.5-flash-lite"} /><Pill label="Last run" value={aiDebugData?.generated_at ? formatRelative(Date.parse(aiDebugData.generated_at)) : "Not recorded"} /><Pill label="Latency" value={aiDebugData ? `${aiDebugData.latency_ms}ms` : "--"} tone={aiDebugData && aiDebugData.latency_ms > 5000 ? "warn" : "neutral"} /></>}
                     >
                         {aiDebugError ? (
                             <div className="rounded-[1rem] border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-100">
@@ -331,45 +892,50 @@ export default function DebugConsole() {
 
                         {aiDebugData ? (
                             <div className="space-y-4">
-                                <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                                    <div className="flex flex-wrap gap-2">
-                                        <Pill label="Generated" value={formatRelative(Date.parse(aiDebugData.generated_at))} />
+                                <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+                                    <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                        <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">What it found</p>
+                                        <p className="mt-3 text-sm leading-6 text-gray-200">{aiDebugData.summary}</p>
+                                        <div className="mt-4 flex flex-wrap gap-2">
+                                            <Pill label="Source" value={aiDebugData.fallback_used ? "Deterministic fallback" : "Live model"} tone={aiDebugData.fallback_used ? "warn" : "good"} />
+                                            <Pill label="Prompt" value={aiDebugData.prompt_version} />
+                                            <Pill label="Generated" value={formatTimestamp(Date.parse(aiDebugData.generated_at))} />
+                                        </div>
                                         {aiDebugData.availability_note ? (
-                                            <Pill label="Availability" value={aiDebugData.fallback_used ? "limited" : "ready"} tone={aiDebugData.fallback_used ? "warn" : "good"} />
+                                            <p className="mt-3 text-xs leading-6 text-gray-400">{aiDebugData.availability_note}</p>
                                         ) : null}
                                     </div>
-                                    <p className="mt-3 text-sm leading-6 text-gray-200">{aiDebugData.summary}</p>
-                                    {aiDebugData.availability_note ? (
-                                        <p className="mt-3 text-xs leading-6 text-gray-400">{aiDebugData.availability_note}</p>
-                                    ) : null}
-                                </div>
-
-                                <div className="grid gap-4 lg:grid-cols-2">
                                     <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                                        <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Likely root causes</p>
-                                        <ul className="mt-3 space-y-2 text-sm text-gray-200">
-                                            {(aiDebugData.likely_root_causes || []).map((entry) => <li key={entry}>- {entry}</li>)}
-                                        </ul>
-                                    </div>
-                                    <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                                        <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Affected systems</p>
-                                        <div className="mt-3 flex flex-wrap gap-2">
-                                            {(aiDebugData.affected_systems || []).map((entry) => <Pill key={entry} label="System" value={entry} tone="warn" />)}
-                                        </div>
-                                    </div>
-                                    <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                                        <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Confidence notes</p>
-                                        <ul className="mt-3 space-y-2 text-sm text-gray-200">
-                                            {(aiDebugData.confidence_notes || []).map((entry) => <li key={entry}>- {entry}</li>)}
-                                        </ul>
-                                    </div>
-                                    <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                                        <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Suggested next checks</p>
+                                        <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">What to do next</p>
                                         <ul className="mt-3 space-y-2 text-sm text-gray-200">
                                             {(aiDebugData.suggested_next_checks || []).map((entry) => <li key={entry}>- {entry}</li>)}
                                         </ul>
                                     </div>
                                 </div>
+
+                                <details className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                    <summary className="cursor-pointer text-sm font-semibold text-white">Technical detail</summary>
+                                    <div className="mt-4 grid gap-4 lg:grid-cols-3">
+                                        <div className="rounded-[1rem] border border-white/10 bg-black/20 p-4">
+                                            <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Likely root causes</p>
+                                            <ul className="mt-3 space-y-2 text-sm text-gray-200">
+                                                {(aiDebugData.likely_root_causes || []).map((entry) => <li key={entry}>- {entry}</li>)}
+                                            </ul>
+                                        </div>
+                                        <div className="rounded-[1rem] border border-white/10 bg-black/20 p-4">
+                                            <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Affected systems</p>
+                                            <div className="mt-3 flex flex-wrap gap-2">
+                                                {(aiDebugData.affected_systems || []).map((entry) => <Pill key={entry} label="System" value={entry} tone="warn" />)}
+                                            </div>
+                                        </div>
+                                        <div className="rounded-[1rem] border border-white/10 bg-black/20 p-4">
+                                            <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Confidence notes</p>
+                                            <ul className="mt-3 space-y-2 text-sm text-gray-200">
+                                                {(aiDebugData.confidence_notes || []).map((entry) => <li key={entry}>- {entry}</li>)}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </details>
                             </div>
                         ) : !aiDebugError ? (
                             <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4 text-sm text-gray-300">
@@ -378,28 +944,25 @@ export default function DebugConsole() {
                             </div>
                         ) : null}
                     </Section>
+                </div>
+            ) : null}
 
+            {activeTab === "advanced" ? (
+                <div className="space-y-4">
                     <Section
-                        title="Behavior orchestration"
-                        subtitle="The new async coordination layer watches canonical signals, resolves identity ownership, and translates mismatches into plain-English repair suggestions."
-                        defaultOpen
-                        summary={
-                            <>
-                                <Pill label="Health" value={`${data?.orchestration?.summary?.score ?? 0}%`} tone={(data?.orchestration?.summary?.score ?? 0) >= 90 ? "good" : (data?.orchestration?.summary?.score ?? 0) >= 70 ? "warn" : "bad"} />
-                                <Pill label="Open findings" value={data?.orchestration?.summary?.openFindings ?? 0} tone={(data?.orchestration?.summary?.openFindings ?? 0) ? "warn" : "good"} />
-                                <Pill label="Actionable repairs" value={data?.orchestration?.summary?.actionableProposals ?? 0} tone={(data?.orchestration?.summary?.actionableProposals ?? 0) ? "warn" : "good"} />
-                                <Pill label="Recommendation-ready" value={data?.orchestration?.summary?.recommendationReady ?? 0} />
-                            </>
-                        }
+                        title="Behavior normalization internals"
+                        subtitle="Derived internal coordination state: normalized events, open findings, dependency gaps, and domain-level coverage. Useful, but not canonical truth by itself."
+                        defaultOpen={false}
+                        summary={<><Pill label="Health" value={`${data?.orchestration?.summary?.score ?? 0}%`} tone={(data?.orchestration?.summary?.score ?? 0) >= 90 ? "good" : (data?.orchestration?.summary?.score ?? 0) >= 70 ? "warn" : "bad"} /><Pill label="Open findings" value={data?.orchestration?.summary?.openFindings ?? 0} tone={(data?.orchestration?.summary?.openFindings ?? 0) ? "warn" : "good"} /><Pill label="Actionable repairs" value={data?.orchestration?.summary?.actionableProposals ?? 0} tone={(data?.orchestration?.summary?.actionableProposals ?? 0) ? "warn" : "good"} /><Pill label="Low confidence" value={data?.orchestration?.summary?.lowConfidenceEvents ?? 0} tone={(data?.orchestration?.summary?.lowConfidenceEvents ?? 0) ? "warn" : "good"} /></>}
                     >
                         <div className="grid gap-4 xl:grid-cols-[1fr_1fr]">
                             <div className="space-y-3">
                                 <div className="grid grid-cols-2 gap-3">
-                                    <StatCard label="Normalized events" value={data?.orchestration?.summary?.eventCount ?? 0} meta="Recent orchestration sample" />
-                                    <StatCard label="Training-ready" value={data?.orchestration?.summary?.trainingEligible ?? 0} meta={`${data?.orchestration?.summary?.lowConfidenceEvents ?? 0} low confidence`} />
+                                    <StatCard label="Normalized events" value={data?.orchestration?.summary?.eventCount ?? 0} meta="Recent derived event sample" />
+                                    <StatCard label="Eval eligible" value={data?.orchestration?.summary?.trainingEligible ?? 0} meta={`${data?.orchestration?.summary?.lowConfidenceEvents ?? 0} low-confidence events`} />
                                 </div>
                                 <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                                    <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Dependency readiness</p>
+                                    <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Dependency gaps</p>
                                     <div className="mt-3 flex flex-wrap gap-2">
                                         <Pill label="Missing actor" value={data?.orchestration?.dependencyReadiness?.actorMissingCount ?? 0} tone={(data?.orchestration?.dependencyReadiness?.actorMissingCount ?? 0) ? "warn" : "good"} />
                                         <Pill label="Missing session" value={data?.orchestration?.dependencyReadiness?.sessionMissingCount ?? 0} tone={(data?.orchestration?.dependencyReadiness?.sessionMissingCount ?? 0) ? "warn" : "good"} />
@@ -408,7 +971,7 @@ export default function DebugConsole() {
                                     </div>
                                 </div>
                                 <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                                    <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Domain coverage</p>
+                                    <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Coverage by domain</p>
                                     <div className="mt-3 space-y-2">
                                         {(data?.orchestration?.domainSummary || []).slice(0, 6).map((entry: any) => (
                                             <div key={entry.key} className="flex flex-wrap items-center justify-between gap-2 text-sm text-gray-300">
@@ -441,99 +1004,39 @@ export default function DebugConsole() {
                     </Section>
 
                     <Section
-                        title="Simulation tools"
-                        subtitle="Keep quick admin-side checks available without turning them into the whole page."
-                        defaultOpen
-                        summary={<><Pill label="Self top-up" value={`${simAmount} drops`} /><Pill label="Webhook" value="Placeholder" tone="warn" /></>}
-                    >
-                        <div className="grid gap-4 lg:grid-cols-[1.3fr_1fr]">
-                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Add Gum Drops (to self)</p>
-                                <div className="mt-3 flex gap-2">
-                                    <input
-                                        type="number"
-                                        className="min-h-11 flex-1 rounded-[1rem] border border-white/10 bg-black/40 px-3 text-white"
-                                        value={simAmount}
-                                        onChange={(event) => setSimAmount(event.target.value)}
-                                    />
-                                    <Button variant="brand" onClick={handleSimulatePurchase} disabled={processing}>
-                                        {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-                                    </Button>
-                                </div>
-                            </div>
-                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Webhook test</p>
-                                <Button variant="glass" className="mt-3 w-full" onClick={() => toast.info("Webhook simulation is still backend-gated and not implemented here yet.")}>
-                                    <PlayCircle className="mr-2 h-4 w-4" />
-                                    Test Payment Webhook
-                                </Button>
-                            </div>
-                        </div>
-                    </Section>
-
-                    <Section
-                        title="Session and runtime"
-                        subtitle="Shows who is using the console plus the runtime switches most likely to affect debugging."
-                        defaultOpen={!isCompactViewport}
-                        summary={
-                            <>
-                                <Pill label="Role" value={userProfile?.role || "user"} tone="good" />
-                                <Pill label="GA" value={data?.opsHealth?.runtime?.gaPropertyConfigured ? "Ready" : "Missing"} tone={data?.opsHealth?.runtime?.gaPropertyConfigured ? "good" : "warn"} />
-                                <Pill label="VAPID" value={data?.opsHealth?.runtime?.vapidConfigured ? "Yes" : "No"} tone={data?.opsHealth?.runtime?.vapidConfigured ? "good" : "warn"} />
-                            </>
-                        }
-                    >
-                        <div className="grid gap-4 lg:grid-cols-[1fr_1.2fr]">
-                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4 text-sm text-gray-300">
-                                <div className="flex justify-between gap-3 border-b border-white/10 py-2"><span className="text-gray-400">User ID</span><span className="truncate font-mono text-xs text-white">{user?.uid || "--"}</span></div>
-                                <div className="flex justify-between gap-3 border-b border-white/10 py-2"><span className="text-gray-400">Email</span><span className="truncate text-white">{user?.email || "--"}</span></div>
-                                <div className="flex justify-between gap-3 border-b border-white/10 py-2"><span className="text-gray-400">Project</span><span className="truncate text-white">{data?.opsHealth?.runtime?.projectId || "--"}</span></div>
-                                <div className="flex justify-between gap-3 py-2"><span className="text-gray-400">Warnings</span><span className="text-white">{data?.opsHealth?.runtime?.warnings?.length || 0}</span></div>
-                            </div>
-                            <div className="flex flex-wrap gap-2">
-                                <Pill label="VAPID" value={data?.opsHealth?.runtime?.vapidConfigured ? "Yes" : "No"} tone={data?.opsHealth?.runtime?.vapidConfigured ? "good" : "warn"} />
-                                <Pill label="Database URL" value={data?.opsHealth?.runtime?.databaseUrlConfigured ? "Ready" : "Missing"} tone={data?.opsHealth?.runtime?.databaseUrlConfigured ? "good" : "warn"} />
-                                <Pill label="Navigation signing" value={data?.opsHealth?.runtime?.navigationSessionSigningReady ? "Ready" : "Missing"} tone={data?.opsHealth?.runtime?.navigationSessionSigningReady ? "good" : "warn"} />
-                                {(data?.opsHealth?.runtime?.warnings || []).map((warning: string) => <Pill key={warning} label="Warning" value={warning} tone="warn" />)}
-                            </div>
-                        </div>
-                    </Section>
-
-                    <Section
-                        title="Recent transactions"
-                        subtitle="Keeps the legacy live transaction view, but inside a bounded inline panel instead of a full-page table."
-                        defaultOpen={!isCompactViewport}
-                        summary={<><Pill label="Loaded" value={recentTransactions.length} /><Pill label="Feed" value="Last 20 entries" /></>}
+                        title="Actor ownership and bleed risk"
+                        subtitle="Per-actor summaries from the normalization layer. Useful for debugging cross-session contamination, but still a derived view."
+                        defaultOpen={false}
+                        summary={<><Pill label="Actors" value={(data?.orchestration?.actorSummaries || []).length} /><Pill label="Contamination risks" value={data?.orchestration?.summary?.contaminationRisks ?? 0} tone={(data?.orchestration?.summary?.contaminationRisks ?? 0) ? "bad" : "good"} /></>}
                     >
                         <ScrollWrap>
-                            <table className="w-full text-left text-sm">
-                                <thead className="sticky top-0 bg-black/80 text-[11px] uppercase tracking-[0.16em] text-gray-400">
-                                    <tr><th className="px-3 py-3">Time</th><th className="px-3 py-3">Type</th><th className="px-3 py-3">Amount</th><th className="px-3 py-3">User</th><th className="px-3 py-3">Description</th></tr>
-                                </thead>
-                                <tbody className="divide-y divide-white/10">
-                                    {recentTransactions.map((entry: any) => (
-                                        <tr key={entry.id}>
-                                            <td className="px-3 py-3 text-gray-400">{entry.timestampLabel}</td>
-                                            <td className="px-3 py-3 text-brand-purple">{entry.type}</td>
-                                            <td className="px-3 py-3 text-white">{entry.amount}</td>
-                                            <td className="px-3 py-3 text-gray-300">{entry.username ? `@${entry.username}` : entry.userId}</td>
-                                            <td className="px-3 py-3 text-gray-400">{entry.description}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                            <div className="divide-y divide-white/10">
+                                {(data?.orchestration?.actorSummaries || []).map((actor: any) => (
+                                    <div key={actor.id} className="space-y-2 px-4 py-3">
+                                        <div className="flex flex-wrap items-start justify-between gap-2">
+                                            <div>
+                                                <p className="font-semibold text-white">{actor.actorLabel || actor.actorId || actor.actorType}</p>
+                                                <p className="text-xs text-gray-400">{actor.actorType} | {actor.actorId || "anonymous"}</p>
+                                            </div>
+                                            <Pill label="Events" value={actor.eventCount} />
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            <Pill label="Warnings" value={actor.warningCount} tone={actor.warningCount ? "warn" : "good"} />
+                                            <Pill label="Critical" value={actor.criticalCount} tone={actor.criticalCount ? "bad" : "good"} />
+                                            <Pill label="Bleed risk" value={actor.contaminationCount} tone={actor.contaminationCount ? "bad" : "good"} />
+                                        </div>
+                                        {actor.topDomains?.length ? <p className="text-xs text-gray-400">Domains: {actor.topDomains.join(", ")}</p> : null}
+                                    </div>
+                                ))}
+                            </div>
                         </ScrollWrap>
                     </Section>
-                </div>
-            ) : null}
 
-            {activeTab === "tasks" ? (
-                <div className="space-y-4">
                     <Section
-                        title="Coverage matrix"
-                        subtitle="Every built-in task, its trigger source, action path, and whether it relies on canonical or telemetry-backed validation."
-                        defaultOpen
-                        summary={<><Pill label="Built-in" value={data?.stats?.builtInTasks ?? 0} /><Pill label="Canonical" value={data?.stats?.canonicalTasks ?? 0} tone="good" /><Pill label="Telemetry" value={data?.stats?.telemetryValidatedTasks ?? 0} tone="good" /><Pill label="Runtime" value={data?.stats?.runtimeTaskActions ?? 0} /><Pill label="Unsupported" value={data?.stats?.unsupportedTasks ?? 0} tone={data?.stats?.unsupportedTasks ? "warn" : "good"} /></>}
+                        title="Task catalog coverage"
+                        subtitle="Built-in task definitions, trigger source, and action path. This is code-backed catalog truth, not live completion behavior."
+                        defaultOpen={false}
+                        summary={<><Pill label="Built-in" value={data?.stats?.builtInTasks ?? 0} /><Pill label="Canonical" value={data?.stats?.canonicalTasks ?? 0} tone="good" /><Pill label="Telemetry" value={data?.stats?.telemetryValidatedTasks ?? 0} tone="good" /><Pill label="Unsupported" value={data?.stats?.unsupportedTasks ?? 0} tone={data?.stats?.unsupportedTasks ? "warn" : "good"} /></>}
                     >
                         <ScrollWrap>
                             <div className="divide-y divide-white/10">
@@ -565,9 +1068,9 @@ export default function DebugConsole() {
                     </Section>
 
                     <Section
-                        title="Integrity and parity"
-                        subtitle="Combines user assignment issues with reward parity so the highest-signal task problems stay together."
-                        defaultOpen={!isCompactViewport}
+                        title="Task parity and Gum Drop guardrails"
+                        subtitle="Combines task assignment issues, reward parity, and creator-spend guardrails so the higher-risk mismatches stay together."
+                        defaultOpen={false}
                         summary={<><Pill label="Affected users" value={data?.stats?.usersWithTaskIssues ?? 0} tone={data?.stats?.usersWithTaskIssues ? "warn" : "good"} /><Pill label="Reward delta 7d" value={data?.stats?.rewardEventDeltaLast7d ?? 0} tone={(data?.stats?.rewardEventDeltaLast7d ?? 0) === 0 ? "good" : "warn"} /><Pill label="Creator spend violations" value={data?.stats?.creatorSpendViolationsLast7d ?? 0} tone={(data?.stats?.creatorSpendViolationsLast7d ?? 0) === 0 ? "good" : "warn"} /></>}
                     >
                         <div className="mb-4 grid gap-3 md:grid-cols-2">
@@ -579,7 +1082,7 @@ export default function DebugConsole() {
                                     <Pill label="Legacy custom" value={data?.taskRewardConfig?.legacyRewardVersionCount ?? 0} tone={(data?.taskRewardConfig?.legacyRewardVersionCount ?? 0) === 0 ? "good" : "warn"} />
                                 </div>
                                 <p className="mt-3 text-xs leading-6 text-gray-400">
-                                    Current task rewards are normalized under one active version so built-ins, legacy custom tasks, receipts, and admin task tools can stay in sync after economy tuning.
+                                    Reward settings are normalized under one active version so built-ins, legacy custom tasks, receipts, and admin task tools stay aligned after economy tuning.
                                 </p>
                             </div>
                             <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
@@ -590,7 +1093,7 @@ export default function DebugConsole() {
                                     <Pill label="Amount mismatches" value={data?.creatorSpendParity?.amountMismatchCount ?? 0} tone={(data?.creatorSpendParity?.amountMismatchCount ?? 0) === 0 ? "good" : "warn"} />
                                 </div>
                                 <p className="mt-3 text-xs leading-6 text-gray-400">
-                                    Creator chat, subscriptions, requests, and bookings are expected to consume purchased Gum Drops only. Any reward-spend or amount mismatch is surfaced here as a parity warning.
+                                    Creator chat, subscriptions, requests, and bookings are expected to consume purchased Gum Drops only. Reward-spend or amount mismatch remains a parity warning.
                                 </p>
                             </div>
                         </div>
@@ -655,9 +1158,9 @@ export default function DebugConsole() {
                     </Section>
 
                     <Section
-                        title="Runtime distribution and custom task drift"
-                        subtitle="Sampled runtime state from current user assignments, task events, receipts, reward claims, and rollups so built-ins and custom tasks can be inspected on the same truth surface."
-                        defaultOpen={!isCompactViewport}
+                        title="Runtime task sample and custom-task drift"
+                        subtitle="Sampled runtime state from user assignments, task events, receipts, reward claims, and rollups so built-ins and custom tasks can be inspected on the same truth surface."
+                        defaultOpen={false}
                         summary={<><Pill label="Sampled users" value={data?.runtimeTaskAudit?.summary?.sampledUsers ?? 0} /><Pill label="Assignments" value={data?.stats?.runtimeAssignedTasks ?? 0} /><Pill label="Custom assigned" value={data?.stats?.runtimeCustomAssignments ?? 0} tone={(data?.stats?.runtimeCustomAssignments ?? 0) > 0 ? "good" : "warn"} /><Pill label="Cooldown drift" value={data?.stats?.runtimeCooldownConflictUsers ?? 0} tone={(data?.stats?.runtimeCooldownConflictUsers ?? 0) === 0 ? "good" : "warn"} /><Pill label="Unsupported runtime" value={data?.stats?.runtimeUnsupportedTaskRecords ?? 0} tone={(data?.stats?.runtimeUnsupportedTaskRecords ?? 0) === 0 ? "good" : "warn"} /></>}
                     >
                         <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
@@ -715,7 +1218,7 @@ export default function DebugConsole() {
                                         <Pill label="No runtime signal" value={data?.runtimeTaskAudit?.summary?.customDefinitionsWithoutRuntimeSignals ?? 0} />
                                     </div>
                                     <p className="mt-3 text-xs leading-6 text-gray-400">
-                                        Custom and admin-authored tasks now stay on the same runtime truth model as built-ins. This panel surfaces assignments, drift, reward visibility, cooldown pressure, and definitions that still exist only on paper.
+                                        Custom and admin-authored tasks stay on the same runtime truth model as built-ins. This panel surfaces assignments, drift, reward visibility, cooldown pressure, and definitions that still exist only on paper.
                                     </p>
                                 </div>
                                 <ScrollWrap>
@@ -744,69 +1247,9 @@ export default function DebugConsole() {
                     </Section>
 
                     <Section
-                        title="Recent task flow and rollups"
-                        subtitle="Recent event flow on one side, long-tail rollups and daily series on the other."
-                        defaultOpen={!isCompactViewport}
-                        summary={<><Pill label="Recent events" value={(data?.recentTaskEvents || []).length} /><Pill label="Rollups" value={(data?.taskRollups || []).length} /><Pill label="Daily points" value={(data?.dailyTaskSeries || []).length} /></>}
-                    >
-                        <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-                            <ScrollWrap>
-                                <div className="divide-y divide-white/10">
-                                    {(data?.recentTaskEvents || []).map((event: any) => (
-                                        <div key={event.id} className="space-y-2 px-4 py-3">
-                                            <div className="flex flex-wrap items-start justify-between gap-2">
-                                                <div>
-                                                    <p className="font-semibold text-white">{event.title}</p>
-                                                    <p className="text-xs text-gray-400">{event.triggerEvent}</p>
-                                                </div>
-                                                <Pill label={event.type} value={formatRelative(event.timestamp)} />
-                                            </div>
-                                            <div className="flex flex-wrap gap-2">
-                                                <Pill label="User" value={event.username} />
-                                                <Pill label="Reward" value={event.reward} />
-                                                <Pill label="Progress" value={`${event.progress}/${event.maxProgress}`} />
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </ScrollWrap>
-                            <ScrollWrap>
-                                <div className="divide-y divide-white/10">
-                                    {(data?.taskRollups || []).map((rollup: any) => (
-                                        <div key={rollup.taskId} className="space-y-2 px-4 py-3">
-                                            <div className="flex flex-wrap items-start justify-between gap-2">
-                                                <div>
-                                                    <p className="font-semibold text-white">{rollup.title}</p>
-                                                    <p className="text-xs text-gray-400">Last event {formatRelative(rollup.lastEventAt)}</p>
-                                                </div>
-                                                <Pill label="Completed" value={rollup.completed} />
-                                            </div>
-                                            <div className="flex flex-wrap gap-2">
-                                                <Pill label="Started" value={rollup.started} />
-                                                <Pill label="Failed" value={rollup.failed} tone={rollup.failed ? "warn" : "good"} />
-                                                <Pill label="Reminders" value={rollup.reminders} />
-                                                <Pill label="Reward total" value={rollup.rewardTotal} />
-                                            </div>
-                                        </div>
-                                    ))}
-                                    {(data?.dailyTaskSeries || []).map((day: any) => (
-                                        <div key={day.dayKey} className="flex flex-wrap items-center gap-2 px-4 py-3 text-sm text-gray-300">
-                                            <span className="font-semibold text-white">{day.dayKey}</span>
-                                            <Pill label="Events" value={day.eventCount} />
-                                            <Pill label="Completed" value={day.completed} />
-                                            <Pill label="Failed" value={day.failed} tone={day.failed ? "warn" : "good"} />
-                                            <Pill label="Rewards" value={day.rewardTotal} />
-                                        </div>
-                                    ))}
-                                </div>
-                            </ScrollWrap>
-                        </div>
-                    </Section>
-
-                    <Section
-                        title="Task telemetry alignment"
-                        subtitle="Separates canonical task facts, telemetry event stats, and ambiguous shared-event mappings so operators can see which task signals are truly attributable."
-                        defaultOpen={!isCompactViewport}
+                        title="Task telemetry mapping"
+                        subtitle="Canonical task facts, telemetry event stats, and shared-event ambiguity shown separately so attribution uncertainty stays visible."
+                        defaultOpen={false}
                         summary={<><Pill label="Alignment warnings" value={data?.stats?.telemetryAlignmentWarnings ?? 0} tone={(data?.stats?.telemetryAlignmentWarnings ?? 0) === 0 ? "good" : "warn"} /><Pill label="Shared events" value={data?.stats?.runtimeSharedEventMappings ?? 0} tone={(data?.stats?.runtimeSharedEventMappings ?? 0) === 0 ? "good" : "warn"} /><Pill label="Unsupported runtime" value={data?.stats?.runtimeUnsupportedTaskRecords ?? 0} tone={(data?.stats?.runtimeUnsupportedTaskRecords ?? 0) === 0 ? "good" : "warn"} /></>}
                     >
                         <div className="grid gap-4 xl:grid-cols-[1fr_1fr]">
@@ -881,15 +1324,11 @@ export default function DebugConsole() {
                             </div>
                         </div>
                     </Section>
-                </div>
-            ) : null}
 
-            {activeTab === "telemetry" ? (
-                <div className="space-y-4">
                     <Section
-                        title="Event coverage"
-                        subtitle="Tracked events, mapped tasks, and last-seen visibility in one bounded panel."
-                        defaultOpen
+                        title="Telemetry coverage sample"
+                        subtitle="Tracked events, task mappings, and last-seen visibility in one bounded sample. This does not equal full journey truth."
+                        defaultOpen={false}
                         summary={<><Pill label="Tracked events" value={data?.stats?.trackedTelemetryEvents ?? 0} /><Pill label="Orphaned" value={data?.stats?.orphanedTelemetryEvents ?? 0} tone={data?.stats?.orphanedTelemetryEvents ? "warn" : "good"} /></>}
                     >
                         <ScrollWrap>
@@ -916,82 +1355,9 @@ export default function DebugConsole() {
                     </Section>
 
                     <Section
-                        title="Normalized orchestration stream"
-                        subtitle="Recent normalized events translated out of raw telemetry, watch-time, creator, ledger, and notification signals."
-                        defaultOpen={!isCompactViewport}
-                        summary={<><Pill label="Events" value={data?.stats?.orchestrationEvents ?? 0} /><Pill label="Low confidence" value={data?.stats?.orchestrationLowConfidence ?? 0} tone={(data?.stats?.orchestrationLowConfidence ?? 0) ? "warn" : "good"} /></>}
-                    >
-                        <ScrollWrap>
-                            <div className="divide-y divide-white/10">
-                                {(data?.orchestration?.events || []).map((event: any) => (
-                                    <div key={event.id} className="space-y-2 px-4 py-3">
-                                        <div className="flex flex-wrap items-start justify-between gap-2">
-                                            <div>
-                                                <p className="font-semibold text-white">{event.normalizedLabel}</p>
-                                                <p className="text-xs text-gray-400">{event.domain} | {event.systemKey}</p>
-                                            </div>
-                                            <Pill label="Status" value={event.status} tone={event.status === "critical" ? "bad" : event.status === "attention" ? "warn" : "good"} />
-                                        </div>
-                                        <p className="text-sm text-gray-200">{event.humanSummary}</p>
-                                        <div className="flex flex-wrap gap-2">
-                                            <Pill label="Actor" value={event.actor.actorLabel || event.actor.actorType} />
-                                            <Pill label="Surface" value={event.session.sourceSurface || "background"} />
-                                            <Pill label="Findings" value={event.findingCount} tone={event.findingCount ? "warn" : "good"} />
-                                            <Pill label="Training" value={event.readiness.trainingEligible ? "ready" : "blocked"} tone={event.readiness.trainingEligible ? "good" : "warn"} />
-                                            <Pill label="Recommend" value={event.readiness.recommendationReady ? "ready" : "blocked"} tone={event.readiness.recommendationReady ? "good" : "warn"} />
-                                        </div>
-                                        {event.dependencyReadiness.missing?.length ? (
-                                            <p className="text-xs text-gray-400">Missing: {event.dependencyReadiness.missing.join(", ")}</p>
-                                        ) : null}
-                                    </div>
-                                ))}
-                            </div>
-                        </ScrollWrap>
-                    </Section>
-
-                    <Section
-                        title="Receipt visibility"
-                        subtitle="Keeps the dedupe layer visible without forcing two full tables on screen at once."
-                        defaultOpen={!isCompactViewport}
-                        summary={<><Pill label="Receipts 7d" value={data?.stats?.receiptsLast7d ?? 0} /><Pill label="Recent" value={(data?.recentReceipts || []).length} /></>}
-                    >
-                        <div className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
-                            <ScrollWrap>
-                                <div className="divide-y divide-white/10">
-                                    {(data?.receiptSummary || []).map((receipt: any) => (
-                                        <div key={receipt.eventName} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
-                                            <div>
-                                                <p className="font-semibold text-white">{receipt.eventName}</p>
-                                                <p className="text-xs text-gray-400">{formatTimestamp(receipt.lastSeenAt)}</p>
-                                            </div>
-                                            <Pill label="Count" value={receipt.count} />
-                                        </div>
-                                    ))}
-                                </div>
-                            </ScrollWrap>
-                            <ScrollWrap>
-                                <div className="divide-y divide-white/10">
-                                    {(data?.recentReceipts || []).map((receipt: any) => (
-                                        <div key={receipt.id} className="space-y-2 px-4 py-3">
-                                            <div className="flex flex-wrap items-start justify-between gap-2">
-                                                <div>
-                                                    <p className="font-semibold text-white">{receipt.eventName}</p>
-                                                    <p className="text-xs text-gray-400">{receipt.uid || "guest"} | {receipt.receiptKey}</p>
-                                                </div>
-                                                <Pill label="Source" value={receipt.source} />
-                                            </div>
-                                            <p className="text-xs text-gray-400">{formatTimestamp(receipt.timestamp)}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            </ScrollWrap>
-                        </div>
-                    </Section>
-
-                    <Section
-                        title="Orphaned telemetry"
-                        subtitle="Compact warning list for tracked events that do not map to a task."
-                        defaultOpen={!isCompactViewport}
+                        title="Tracked events with no task mapping"
+                        subtitle="Warning list for tracked events that do not currently map to a task."
+                        defaultOpen={false}
                         summary={<><Pill label="Orphaned" value={(data?.orphanedEventStats || []).length} tone={(data?.orphanedEventStats || []).length ? "warn" : "good"} /></>}
                     >
                         {(data?.orphanedEventStats || []).length ? (
@@ -1005,7 +1371,7 @@ export default function DebugConsole() {
                                             </div>
                                             <Pill label="Count" value={compactNumber(event.totalCount)} tone="warn" />
                                         </div>
-                                        <p className="mt-3 text-sm text-amber-100">Last seen {formatRelative(event.lastSeenAt)}. This event is tracked, but does not currently power any task mapping.</p>
+                                        <p className="mt-3 text-sm text-amber-100">Last seen {formatRelative(event.lastSeenAt)}. This event is tracked, but it does not currently power any task mapping.</p>
                                     </div>
                                 ))}
                             </div>
@@ -1013,46 +1379,11 @@ export default function DebugConsole() {
                             <div className="rounded-[1rem] border border-emerald-400/20 bg-emerald-500/10 p-4 text-sm text-emerald-100">Every tracked telemetry event in this slice is mapped to at least one task.</div>
                         )}
                     </Section>
-                </div>
-            ) : null}
-
-            {activeTab === "reports" ? (
-                <div className="space-y-4">
-                    <Section
-                        title="Bug intake"
-                        subtitle="Keeps incoming bug reports readable on mobile without pushing the user into a separate detail surface."
-                        defaultOpen
-                        summary={<><Pill label="Loaded" value={(data?.bugReports || []).length} /><Pill label="Last 7d" value={data?.stats?.bugReportsLast7d ?? 0} tone={(data?.stats?.bugReportsLast7d ?? 0) > 0 ? "warn" : "good"} /></>}
-                    >
-                        <div className="space-y-3">
-                            {(data?.bugReports || []).length ? (data?.bugReports || []).map((report: any) => (
-                                <div key={report.id} className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                                    <div className="flex flex-wrap items-start justify-between gap-3">
-                                        <div className="min-w-0">
-                                            <p className="truncate font-semibold text-white">{report.summary || "Untitled bug report"}</p>
-                                            <p className="mt-1 text-xs text-gray-400">{report.currentPath || "Unknown path"} | {report.componentName || "Unknown component"}</p>
-                                        </div>
-                                        <div className="flex flex-wrap gap-2">
-                                            <Pill label="Status" value={report.status} />
-                                            <Pill label="Severity" value={report.severity} tone={report.severity === "high" || report.severity === "critical" ? "bad" : report.severity === "medium" ? "warn" : "neutral"} />
-                                        </div>
-                                    </div>
-                                    <p className="mt-3 line-clamp-3 text-sm text-gray-300">{report.message}</p>
-                                    <div className="mt-3 flex flex-wrap gap-2">
-                                        <Pill label="Breadcrumbs" value={report.breadcrumbsCount} />
-                                        <Pill label="Diagnostics" value={report.diagnosticsCount} />
-                                        <Pill label="Rollouts" value={report.rolloutCount} />
-                                        <Pill label="When" value={formatRelative(report.timestamp)} />
-                                    </div>
-                                </div>
-                            )) : <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4 text-sm text-gray-300">No bug reports are loaded in the current sample.</div>}
-                        </div>
-                    </Section>
 
                     <Section
-                        title="Rollout registry"
-                        subtitle="Makes the current experimentation footprint readable without leaving the debug console."
-                        defaultOpen={!isCompactViewport}
+                        title="Experiment and rollout registry"
+                        subtitle="Current experimentation footprint and sample actor resolution. Useful for context, but not live service health."
+                        defaultOpen={false}
                         summary={<><Pill label="Configured rollouts" value={(data?.rollouts || []).length} /><Pill label="Sample actors" value={data?.stats?.rolloutSamples ?? 0} /></>}
                     >
                         <div className="space-y-4">
@@ -1116,29 +1447,29 @@ export default function DebugConsole() {
                             ) : null}
 
                             <div className="grid gap-3 lg:grid-cols-2">
-                            {(data?.rollouts || []).map((rollout: any) => (
-                                <div key={rollout.id} className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                                    <div className="flex items-start justify-between gap-3">
-                                        <div>
-                                            <p className="font-semibold text-white">{rollout.label}</p>
-                                            <p className="mt-1 text-xs text-gray-400">{rollout.id}</p>
+                                {(data?.rollouts || []).map((rollout: any) => (
+                                    <div key={rollout.id} className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div>
+                                                <p className="font-semibold text-white">{rollout.label}</p>
+                                                <p className="mt-1 text-xs text-gray-400">{rollout.id}</p>
+                                            </div>
+                                            <Pill label="Enabled" value={rollout.enabled ? "Yes" : "No"} tone={rollout.enabled ? "good" : "warn"} />
                                         </div>
-                                        <Pill label="Enabled" value={rollout.enabled ? "Yes" : "No"} tone={rollout.enabled ? "good" : "warn"} />
+                                        <p className="mt-3 text-sm text-gray-300">{rollout.description}</p>
+                                        <div className="mt-3 flex flex-wrap gap-2">
+                                            <Pill label="Kind" value={rollout.kind} />
+                                            <Pill label="Stage" value={rollout.stage} tone={rollout.stage === "alpha" ? "warn" : "good"} />
+                                            <Pill label="Owner" value={rollout.owner} />
+                                            <Pill label="Audience" value={rollout.audience} />
+                                            <Pill label="Rollout" value={`${rollout.rolloutPercent}%`} />
+                                            <Pill label="Default" value={rollout.defaultVariant} />
+                                            <Pill label="Kill switch" value={rollout.killSwitchable ? "Ready" : "Locked"} tone={rollout.killSwitchable ? "good" : "warn"} />
+                                        </div>
+                                        {(rollout.requiredSegments || []).length ? <p className="mt-3 text-xs text-gray-400">Requires: {(rollout.requiredSegments || []).join(", ")}</p> : null}
+                                        {(rollout.excludedSegments || []).length ? <p className="mt-1 text-xs text-gray-500">Excludes: {(rollout.excludedSegments || []).join(", ")}</p> : null}
                                     </div>
-                                    <p className="mt-3 text-sm text-gray-300">{rollout.description}</p>
-                                    <div className="mt-3 flex flex-wrap gap-2">
-                                        <Pill label="Kind" value={rollout.kind} />
-                                        <Pill label="Stage" value={rollout.stage} tone={rollout.stage === "alpha" ? "warn" : "good"} />
-                                        <Pill label="Owner" value={rollout.owner} />
-                                        <Pill label="Audience" value={rollout.audience} />
-                                        <Pill label="Rollout" value={`${rollout.rolloutPercent}%`} />
-                                        <Pill label="Default" value={rollout.defaultVariant} />
-                                        <Pill label="Kill switch" value={rollout.killSwitchable ? "Ready" : "Locked"} tone={rollout.killSwitchable ? "good" : "warn"} />
-                                    </div>
-                                    {(rollout.requiredSegments || []).length ? <p className="mt-3 text-xs text-gray-400">Requires: {(rollout.requiredSegments || []).join(", ")}</p> : null}
-                                    {(rollout.excludedSegments || []).length ? <p className="mt-1 text-xs text-gray-500">Excludes: {(rollout.excludedSegments || []).join(", ")}</p> : null}
-                                </div>
-                            ))}
+                                ))}
                             </div>
 
                             {(data?.rolloutSamples || []).length ? (
@@ -1177,263 +1508,6 @@ export default function DebugConsole() {
                                 </div>
                             ) : null}
                         </div>
-                    </Section>
-                </div>
-            ) : null}
-
-            {activeTab === "ops" ? (
-                <div className="space-y-4">
-                    <Section
-                        title="Repair proposals and actor ownership"
-                        subtitle="Admin-confirmed rebuilds stay inline here, and actor summaries help spot cross-session bleed before it becomes a reporting problem."
-                        defaultOpen
-                        summary={<><Pill label="Actionable" value={data?.stats?.orchestrationActionableRepairs ?? 0} tone={(data?.stats?.orchestrationActionableRepairs ?? 0) ? "warn" : "good"} /><Pill label="Contamination" value={data?.orchestration?.summary?.contaminationRisks ?? 0} tone={(data?.orchestration?.summary?.contaminationRisks ?? 0) ? "bad" : "good"} /></>}
-                    >
-                        <div className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
-                            <ScrollWrap>
-                                <div className="divide-y divide-white/10">
-                                    {(data?.orchestration?.proposals || []).length ? (data?.orchestration?.proposals || []).map((proposal: any) => (
-                                        <div key={proposal.id} className="space-y-2 px-4 py-3">
-                                            <div className="flex flex-wrap items-start justify-between gap-2">
-                                                <div>
-                                                    <p className="font-semibold text-white">{proposal.label}</p>
-                                                    <p className="text-xs text-gray-400">{proposal.sourceDocumentPath}</p>
-                                                </div>
-                                                <Pill label="Status" value={proposal.status} tone={proposal.status === "open" ? "warn" : proposal.status === "resolved" ? "good" : "neutral"} />
-                                            </div>
-                                            <p className="text-sm text-gray-200">{proposal.detail}</p>
-                                            <div className="flex flex-wrap gap-2">
-                                                <Button
-                                                    variant="glass"
-                                                    size="sm"
-                                                    disabled={repairingId === proposal.id || proposal.actionType !== "rebuild_projection" || proposal.status !== "open"}
-                                                    onClick={() => handleRepairProposal(proposal.id, "apply")}
-                                                >
-                                                    {repairingId === proposal.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                                                    Apply
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    disabled={repairingId === proposal.id || proposal.status !== "open"}
-                                                    onClick={() => handleRepairProposal(proposal.id, "dismiss")}
-                                                >
-                                                    Dismiss
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    )) : <div className="px-4 py-4 text-sm text-emerald-100">No repair proposals are open in the current orchestration sample.</div>}
-                                </div>
-                            </ScrollWrap>
-                            <ScrollWrap>
-                                <div className="divide-y divide-white/10">
-                                    {(data?.orchestration?.actorSummaries || []).map((actor: any) => (
-                                        <div key={actor.id} className="space-y-2 px-4 py-3">
-                                            <div className="flex flex-wrap items-start justify-between gap-2">
-                                                <div>
-                                                    <p className="font-semibold text-white">{actor.actorLabel || actor.actorId || actor.actorType}</p>
-                                                    <p className="text-xs text-gray-400">{actor.actorType} | {actor.actorId || "anonymous"}</p>
-                                                </div>
-                                                <Pill label="Events" value={actor.eventCount} />
-                                            </div>
-                                            <div className="flex flex-wrap gap-2">
-                                                <Pill label="Warnings" value={actor.warningCount} tone={actor.warningCount ? "warn" : "good"} />
-                                                <Pill label="Critical" value={actor.criticalCount} tone={actor.criticalCount ? "bad" : "good"} />
-                                                <Pill label="Bleed risk" value={actor.contaminationCount} tone={actor.contaminationCount ? "bad" : "good"} />
-                                            </div>
-                                            {actor.topDomains?.length ? <p className="text-xs text-gray-400">Domains: {actor.topDomains.join(", ")}</p> : null}
-                                        </div>
-                                    ))}
-                                </div>
-                            </ScrollWrap>
-                        </div>
-                    </Section>
-
-                    <Section
-                        title="Pipeline health"
-                        subtitle="High-level runtime, diagnostics, and materializer health without forcing every list open by default."
-                        defaultOpen
-                        summary={<><Pill label="Score" value={`${data?.opsHealth?.score ?? 0}%`} tone={(data?.opsHealth?.score ?? 0) >= 90 ? "good" : (data?.opsHealth?.score ?? 0) >= 70 ? "warn" : "bad"} /><Pill label="Failures" value={data?.opsHealth?.pipeline?.failureCount ?? 0} tone={data?.opsHealth?.pipeline?.failureCount ? "warn" : "good"} /><Pill label="Diagnostics" value={data?.opsHealth?.diagnostics?.total ?? 0} /></>}
-                    >
-                        <div className="grid gap-4 lg:grid-cols-3">
-                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4"><p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Pipeline</p><p className="mt-2 text-xl font-black text-white">{data?.opsHealth?.pipeline?.failureCount ?? 0}</p><p className="mt-1 text-sm text-gray-400">Last failure {formatRelative(data?.opsHealth?.pipeline?.lastFailureAt)}</p></div>
-                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4"><p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Diagnostics</p><p className="mt-2 text-xl font-black text-white">{data?.opsHealth?.diagnostics?.errorCount ?? 0}</p><p className="mt-1 text-sm text-gray-400">Errors in recent sample</p></div>
-                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4"><p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Materializers</p><p className="mt-2 text-xl font-black text-white">{(data?.opsHealth?.materializers || []).length}</p><p className="mt-1 text-sm text-gray-400">Tracked downstream writers</p></div>
-                        </div>
-                    </Section>
-
-                    <Section
-                        title="Creator onboarding diagnostics"
-                        subtitle="Live cross-checks between user projections, canonical onboarding sources, and the admin review queue so creator applicants cannot disappear into silent limbo."
-                        defaultOpen
-                        summary={
-                            <>
-                                <Pill label="Issues" value={data?.creatorOnboardingDiagnostics?.summary?.totalIssues ?? 0} tone={(data?.creatorOnboardingDiagnostics?.summary?.totalIssues ?? 0) > 0 ? "warn" : "good"} />
-                                <Pill label="Missing queue" value={data?.creatorOnboardingDiagnostics?.summary?.missingQueueCount ?? 0} tone={(data?.creatorOnboardingDiagnostics?.summary?.missingQueueCount ?? 0) > 0 ? "bad" : "good"} />
-                                <Pill label="Role mismatch" value={data?.creatorOnboardingDiagnostics?.summary?.roleMismatchCount ?? 0} tone={(data?.creatorOnboardingDiagnostics?.summary?.roleMismatchCount ?? 0) > 0 ? "warn" : "good"} />
-                            </>
-                        }
-                    >
-                        <div className="grid gap-4 lg:grid-cols-3">
-                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Missing queue</p>
-                                <p className="mt-2 text-xl font-black text-white">{data?.creatorOnboardingDiagnostics?.summary?.missingQueueCount ?? 0}</p>
-                                <p className="mt-1 text-sm text-gray-400">Canonical onboarding exists but roster review queue materialization is missing.</p>
-                            </div>
-                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Missing source</p>
-                                <p className="mt-2 text-xl font-black text-white">{(data?.creatorOnboardingDiagnostics?.summary?.missingSourceCount ?? 0) + (data?.creatorOnboardingDiagnostics?.summary?.projectionWithoutSourceCount ?? 0)}</p>
-                                <p className="mt-1 text-sm text-gray-400">Queue or user projection exists without a canonical onboarding source-of-truth record.</p>
-                            </div>
-                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Blocked limbo</p>
-                                <p className="mt-2 text-xl font-black text-white">{(data?.creatorOnboardingDiagnostics?.summary?.stuckAwaitingReviewCount ?? 0) + (data?.creatorOnboardingDiagnostics?.summary?.roleMismatchCount ?? 0)}</p>
-                                <p className="mt-1 text-sm text-gray-400">Creators waiting with no blockers or with role/approval mismatch that needs manual attention.</p>
-                            </div>
-                        </div>
-
-                        <div className="mt-4 rounded-[1rem] border border-white/10 bg-white/[0.03]">
-                            <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
-                                <div>
-                                    <p className="font-semibold text-white">Current creator onboarding issues</p>
-                                    <p className="text-xs text-gray-400">These checks run against live backend state on every debug load.</p>
-                                </div>
-                                <Pill label="Rows" value={(data?.creatorOnboardingDiagnostics?.issues || []).length} />
-                            </div>
-                            <div className="divide-y divide-white/10">
-                                {(data?.creatorOnboardingDiagnostics?.issues || []).length === 0 ? (
-                                    <div className="px-4 py-6 text-sm text-gray-300">No creator onboarding anomalies are currently detected.</div>
-                                ) : (
-                                    (data?.creatorOnboardingDiagnostics?.issues || []).slice(0, 12).map((issue: any) => (
-                                        <div key={`${issue.key}-${issue.userId}`} className="space-y-2 px-4 py-3">
-                                            <div className="flex flex-wrap items-start justify-between gap-2">
-                                                <div>
-                                                    <p className="font-semibold text-white">{issue.message}</p>
-                                                    <p className="text-xs text-gray-400">{issue.creatorDisplayName} · {issue.userId}</p>
-                                                </div>
-                                                <Pill label="Severity" value={issue.severity} tone={issue.severity === "error" ? "bad" : "warn"} />
-                                            </div>
-                                            <p className="text-sm text-gray-300">{issue.detail}</p>
-                                            <a href={issue.link} className="text-xs font-semibold text-brand-purple hover:text-white">
-                                                Open creator record
-                                            </a>
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-                        </div>
-                    </Section>
-
-                    <Section
-                        title="Diagnostics and materializers"
-                        subtitle="Shows noisy channels, recent diagnostics, route failures, and downstream freshness in one lane."
-                        defaultOpen={!isCompactViewport}
-                        summary={<><Pill label="Channels" value={(data?.opsHealth?.diagnostics?.channels || []).length} /><Pill label="Recent diagnostics" value={(data?.opsHealth?.diagnostics?.recent || []).length} /><Pill label="Routes" value={(data?.opsHealth?.pipeline?.routes || []).length} /></>}
-                    >
-                        <div className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
-                            <ScrollWrap>
-                                <div className="divide-y divide-white/10">
-                                    {(data?.opsHealth?.diagnostics?.channels || []).map((channel: any) => (
-                                        <div key={channel.key} className="space-y-2 px-4 py-3">
-                                            <div className="flex flex-wrap items-start justify-between gap-2">
-                                                <div>
-                                                    <p className="font-semibold text-white">{channel.label}</p>
-                                                    <p className="text-xs text-gray-400">{formatRelative(channel.lastSeenAt)}</p>
-                                                </div>
-                                                <Pill label="Count" value={channel.count} />
-                                            </div>
-                                            <div className="flex flex-wrap gap-2">
-                                                <Pill label="Errors" value={channel.errorCount} tone={channel.errorCount ? "bad" : "good"} />
-                                                <Pill label="Warns" value={channel.warnCount} tone={channel.warnCount ? "warn" : "good"} />
-                                                <Pill label="Info" value={channel.infoCount} />
-                                            </div>
-                                        </div>
-                                    ))}
-                                    {(data?.opsHealth?.pipeline?.routes || []).map((route: any) => (
-                                        <div key={route.routeKey} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
-                                            <div>
-                                                <p className="font-semibold text-white">{route.label}</p>
-                                                <p className="text-xs text-gray-400">{route.routeKey}</p>
-                                            </div>
-                                            <Pill label="Failures" value={route.count} tone={route.count ? "warn" : "good"} />
-                                        </div>
-                                    ))}
-                                </div>
-                            </ScrollWrap>
-                            <ScrollWrap>
-                                <div className="divide-y divide-white/10">
-                                    {(data?.opsHealth?.diagnostics?.recent || []).map((entry: any) => (
-                                        <div key={entry.id} className="space-y-2 px-4 py-3">
-                                            <div className="flex flex-wrap items-start justify-between gap-2">
-                                                <div>
-                                                    <p className="font-semibold text-white">{entry.channel}</p>
-                                                    <p className="text-xs text-gray-400">{formatTimestamp(entry.timestamp)}</p>
-                                                </div>
-                                                <Pill label="Severity" value={entry.severity} tone={entry.severity === "error" ? "bad" : entry.severity === "warn" ? "warn" : "neutral"} />
-                                            </div>
-                                            <p className="text-sm text-gray-200">{entry.message}</p>
-                                            {entry.detailPreview ? <p className="text-xs text-gray-400">{entry.detailPreview}</p> : null}
-                                        </div>
-                                    ))}
-                                    {(data?.opsHealth?.materializers || []).map((materializer: any) => (
-                                        <div key={materializer.key} className="space-y-2 px-4 py-3">
-                                            <div className="flex flex-wrap items-start justify-between gap-2">
-                                                <div>
-                                                    <p className="font-semibold text-white">{materializer.label}</p>
-                                                    <p className="text-xs text-gray-400">{materializer.engine}</p>
-                                                </div>
-                                                <Pill label="Status" value={materializer.status} tone={materializer.status === "healthy" ? "good" : materializer.status === "warn" ? "warn" : "bad"} />
-                                            </div>
-                                            <div className="flex flex-wrap gap-2">
-                                                <Pill label="Count" value={materializer.count} />
-                                                <Pill label="Last seen" value={formatRelative(materializer.lastSeenAt)} />
-                                            </div>
-                                            <p className="text-sm text-gray-300">{materializer.detail}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            </ScrollWrap>
-                        </div>
-                    </Section>
-
-                    <Section
-                        title="Actionable panel logs"
-                        subtitle="Each major debug panel now resolves into a backend system log with a concrete next action, so parity warnings stop disappearing with the UI refresh cycle."
-                        defaultOpen={!isCompactViewport}
-                        summary={
-                            <>
-                                <Pill label="Panels" value={(data?.panelSystemLogs || []).length} />
-                                <Pill label="Warn" value={(data?.panelSystemLogs || []).filter((entry: any) => entry.status === "warn").length} tone={(data?.panelSystemLogs || []).some((entry: any) => entry.status === "warn") ? "warn" : "good"} />
-                                <Pill label="Fail" value={(data?.panelSystemLogs || []).filter((entry: any) => entry.status === "fail").length} tone={(data?.panelSystemLogs || []).some((entry: any) => entry.status === "fail") ? "bad" : "good"} />
-                            </>
-                        }
-                    >
-                        <ScrollWrap>
-                            <div className="divide-y divide-white/10">
-                                {(data?.panelSystemLogs || []).map((entry: any) => (
-                                    <div key={entry.id} className="space-y-2 px-4 py-3">
-                                        <div className="flex flex-wrap items-start justify-between gap-2">
-                                            <div>
-                                                <p className="font-semibold text-white">{entry.panelTitle}</p>
-                                                <p className="text-xs text-gray-400">{entry.tab} | {formatRelative(entry.updatedAtMs)}</p>
-                                            </div>
-                                            <Pill label="Status" value={entry.status} tone={entry.status === "healthy" ? "good" : entry.status === "warn" ? "warn" : "bad"} />
-                                        </div>
-                                        <p className="text-sm text-gray-200">{entry.summary}</p>
-                                        <p className="text-xs text-gray-400">{entry.action}</p>
-                                        <div className="flex flex-wrap gap-2">
-                                            <Pill label="Signals" value={entry.signalCount ?? 0} tone={(entry.signalCount ?? 0) > 0 ? (entry.status === "fail" ? "bad" : "warn") : "good"} />
-                                            {(entry.signalKeys || []).slice(0, 3).map((signalKey: string) => (
-                                                <Pill key={`${entry.id}:${signalKey}`} label="Signal" value={signalKey} />
-                                            ))}
-                                        </div>
-                                    </div>
-                                ))}
-                                {(data?.panelSystemLogs || []).length === 0 ? (
-                                    <div className="px-4 py-4 text-sm text-gray-300">No persisted panel logs are loaded yet.</div>
-                                ) : null}
-                            </div>
-                        </ScrollWrap>
                     </Section>
                 </div>
             ) : null}

@@ -15,9 +15,15 @@ import type { Drop } from "@/types/db";
 
 interface HomeActiveDropsCarouselProps {
     drops: Drop[];
+    autoPlayMs?: number;
+    emptyLabel?: string;
 }
 
-export const HomeActiveDropsCarousel = memo(function HomeActiveDropsCarousel({ drops }: HomeActiveDropsCarouselProps) {
+export const HomeActiveDropsCarousel = memo(function HomeActiveDropsCarousel({
+    drops,
+    autoPlayMs = 0,
+    emptyLabel = "No live experiences are ready right now.",
+}: HomeActiveDropsCarouselProps) {
     const router = useRouter();
     const { user } = useAuthIdentity();
     const { openAuthModal } = useUI();
@@ -49,10 +55,46 @@ export const HomeActiveDropsCarousel = memo(function HomeActiveDropsCarousel({ d
         emblaApi?.reInit({ loop: activeDrops.length > 1, align: "start" });
     }, [activeDrops.length, emblaApi]);
 
+    useEffect(() => {
+        if (!emblaApi || activeDrops.length <= 1 || autoPlayMs <= 0) {
+            return;
+        }
+
+        let timeoutId: number | null = null;
+
+        const scheduleNext = () => {
+            if (timeoutId) {
+                window.clearTimeout(timeoutId);
+            }
+
+            timeoutId = window.setTimeout(() => {
+                if (emblaApi.canScrollNext()) {
+                    emblaApi.scrollNext();
+                } else {
+                    emblaApi.scrollTo(0);
+                }
+            }, autoPlayMs);
+        };
+
+        scheduleNext();
+        emblaApi.on("select", scheduleNext);
+        emblaApi.on("pointerDown", scheduleNext);
+        emblaApi.on("settle", scheduleNext);
+
+        return () => {
+            if (timeoutId) {
+                window.clearTimeout(timeoutId);
+            }
+            emblaApi.off("select", scheduleNext);
+            emblaApi.off("pointerDown", scheduleNext);
+            emblaApi.off("settle", scheduleNext);
+        };
+    }, [activeDrops.length, autoPlayMs, emblaApi]);
+
     if (activeDrops.length === 0) {
         return (
             <div className="rounded-[1.6rem] border border-white/10 bg-zinc-950 px-5 py-12 text-center text-sm text-gray-500">
-                New drops are being staged right now.
+                {emptyLabel}
             </div>
         );
     }

@@ -16,7 +16,6 @@ type AdminPageHeaderProps = {
 
 export function AdminPageHeader({
     title,
-    subtitle,
     eyebrow = "Admin Console",
     actions,
     topSlot,
@@ -38,11 +37,6 @@ export function AdminPageHeader({
                     </p>
                 ) : null}
                 <h1 className="text-3xl font-black tracking-tight text-white md:text-4xl">{title}</h1>
-                {subtitle ? (
-                    <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-400 md:text-base">
-                        {subtitle}
-                    </p>
-                ) : null}
             </div>
             {actions ? (
                 <div className="mt-5 flex flex-wrap items-center justify-center gap-2 sm:gap-3">

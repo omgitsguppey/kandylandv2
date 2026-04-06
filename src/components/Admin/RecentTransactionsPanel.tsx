@@ -4,13 +4,20 @@ import { useEffect, useMemo, useState } from "react";
 import { formatDistance } from "date-fns";
 import { collection, limit, onSnapshot, orderBy, query } from "firebase/firestore";
 
-import { useAdminOverview } from "@/hooks/useAdminOverview";
+import type { AdminOverviewResponse, AdminOverviewTransactionRecord } from "@/lib/admin-overview";
+import { paginateOverviewItems } from "@/lib/admin-overview";
 import { useNow } from "@/hooks/useNow";
 import { db } from "@/lib/firebase-data";
-import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
-import type { Transaction } from "@/types/db";
+import { getTransactionBadgeLabel, normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 
-type DisplayTransaction = Transaction & { username?: string };
+type RecentTransactionsPanelProps = {
+    transactions: AdminOverviewResponse["recentTransactions"];
+    truthNote: string;
+};
+
+type DisplayTransaction = AdminOverviewTransactionRecord;
+
+const PAGE_SIZE = 5;
 
 function toTimestampNumber(value: unknown): number {
     if (typeof value === "number" && Number.isFinite(value)) {
@@ -43,26 +50,24 @@ function toDisplayTransaction(
         timestamp: typeof normalized.timestamp === "number"
             ? normalized.timestamp
             : toTimestampNumber(normalized.timestamp),
+        sourceScope: "realtime_firestore",
     };
 }
 
-/**
- * Displays the 20 most recent transactions with a real-time listener.
- * Owns its own onSnapshot subscription scoped to recent transactions.
- */
-export function RecentTransactionsPanel() {
-    const { data } = useAdminOverview();
+export function RecentTransactionsPanel({ transactions: fallbackTransactions, truthNote }: RecentTransactionsPanelProps) {
     const nowMs = useNow({ intervalMs: 60_000 });
     const [liveTransactions, setLiveTransactions] = useState<DisplayTransaction[] | null>(null);
-    const fallbackTransactions = useMemo(
-        () => (data?.recentTransactions || []) as DisplayTransaction[],
-        [data?.recentTransactions],
-    );
+    const [page, setPage] = useState(0);
     const fallbackById = useMemo(
         () => new Map(fallbackTransactions.map((transaction) => [transaction.id, transaction])),
         [fallbackTransactions],
     );
     const transactions = liveTransactions ?? fallbackTransactions;
+    const isLiveFeedActive = liveTransactions !== null;
+    const paginated = useMemo(
+        () => paginateOverviewItems(transactions, page, PAGE_SIZE),
+        [page, transactions],
+    );
 
     useEffect(() => {
         const recentTransactionsQuery = query(
@@ -94,40 +99,95 @@ export function RecentTransactionsPanel() {
     }, [fallbackById]);
 
     return (
-        <div className="glass-panel rounded-[1.6rem] border border-white/10 p-3.5 md:p-5">
-            <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-lg font-bold text-white">Recent Transactions</h3>
-                <span className="text-xs text-gray-400">Realtime</span>
+        <div className="space-y-3">
+            <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-400">
+                {isLiveFeedActive ? (
+                    <span className="rounded-full border border-emerald-400/15 bg-emerald-500/10 px-2.5 py-1 text-emerald-200">
+                        Live Firestore feed
+                    </span>
+                ) : (
+                    <span className="rounded-full border border-white/10 bg-black/30 px-2.5 py-1">
+                        5s polled overview fallback
+                    </span>
+                )}
+                <span className="text-xs text-gray-500">{truthNote}</span>
             </div>
-            <div className="space-y-2.5">
-                {transactions.length === 0 ? (
-                    <div className="py-4 text-center text-sm text-gray-500">No recent transactions.</div>
-                ) : transactions.map((tx) => {
-                    const timestamp = typeof tx.timestamp === "number" && tx.timestamp > 0
-                        ? tx.timestamp
-                        : toTimestampNumber(tx.timestamp);
-                    const relativeLabel = timestamp > 0 && nowMs > 0
-                        ? formatDistance(timestamp, nowMs, { addSuffix: true })
-                        : "Just now";
-                    return (
-                        <details key={tx.id} className="rounded-2xl border border-white/5 bg-black/30 p-3">
-                            <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
-                                <div>
-                                    <div className="line-clamp-1 text-sm font-semibold text-white">{tx.description}</div>
-                                    <div className="text-xs font-medium text-brand-purple">{tx.username ? `@${tx.username}` : `${tx.userId.slice(0, 8)}...`}</div>
-                                </div>
-                                <div className="text-right">
-                                    <div className="text-sm font-mono text-brand-purple">{tx.amount > 0 ? "+" : ""}{tx.amount}</div>
-                                    <div className="text-[10px] text-gray-500">{relativeLabel}</div>
-                                </div>
-                            </summary>
-                            <div className="mt-2 rounded-xl border border-white/10 bg-black/40 px-2.5 py-2 text-[11px] text-gray-400">
-                                UID: <span className="font-semibold text-white">{tx.userId}</span>
+
+            {transactions.length === 0 ? (
+                <div className="rounded-[1.35rem] border border-white/8 bg-black/25 px-4 py-8 text-center">
+                    <p className="text-sm font-semibold text-white">No recent transactions are available.</p>
+                    <p className="mt-1 text-sm text-gray-400">{truthNote}</p>
+                </div>
+            ) : (
+                <>
+                    <div className="space-y-2">
+                        {paginated.items.map((transaction) => {
+                            const timestamp = typeof transaction.timestamp === "number" && transaction.timestamp > 0
+                                ? transaction.timestamp
+                                : toTimestampNumber(transaction.timestamp);
+                            const relativeLabel = timestamp > 0 && nowMs > 0
+                                ? formatDistance(timestamp, nowMs, { addSuffix: true })
+                                : "Unknown time";
+
+                            return (
+                                <article
+                                    key={transaction.id}
+                                    className="grid grid-cols-[minmax(0,1fr),auto,auto] items-center gap-3 rounded-[1.15rem] border border-white/8 bg-black/30 px-3 py-3"
+                                >
+                                    <div className="min-w-0">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-300">
+                                                {getTransactionBadgeLabel(transaction)}
+                                            </span>
+                                            <p className="line-clamp-1 text-sm font-semibold text-white">{transaction.description}</p>
+                                        </div>
+                                        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-gray-400">
+                                            <span>{transaction.username ? `@${transaction.username}` : transaction.userId.slice(0, 8)}</span>
+                                            <span>{relativeLabel}</span>
+                                        </div>
+                                    </div>
+                                    <div className="text-right text-sm font-semibold text-white">
+                                        {transaction.amount > 0 ? "+" : ""}{transaction.amount}
+                                    </div>
+                                    <div className="text-[11px] text-gray-500">
+                                        {transaction.type === "purchase_currency" && transaction.grossRevenueCents
+                                            ? `$${(transaction.grossRevenueCents / 100).toFixed(2)}`
+                                            : transaction.type === "unlock_content"
+                                                ? `${Math.abs(transaction.amount)} GD`
+                                                : ""}
+                                    </div>
+                                </article>
+                            );
+                        })}
+                    </div>
+
+                    {paginated.totalPages > 1 ? (
+                        <div className="flex items-center justify-between text-xs text-gray-400">
+                            <p>
+                                Showing {paginated.startIndex + 1}-{paginated.endIndex} of {transactions.length}
+                            </p>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setPage((current) => Math.max(0, current - 1))}
+                                    disabled={paginated.page === 0}
+                                    className="rounded-full border border-white/10 px-3 py-1.5 text-white disabled:opacity-40"
+                                >
+                                    Previous
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setPage((current) => Math.min(paginated.totalPages - 1, current + 1))}
+                                    disabled={paginated.page >= paginated.totalPages - 1}
+                                    className="rounded-full border border-white/10 px-3 py-1.5 text-white disabled:opacity-40"
+                                >
+                                    Next
+                                </button>
                             </div>
-                        </details>
-                    );
-                })}
-            </div>
+                        </div>
+                    ) : null}
+                </>
+            )}
         </div>
     );
 }

@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useAuth, useUserProfile } from "@/context/AuthContext";
 import { updateProfile } from "firebase/auth";
 import { Button } from "@/components/ui/Button";
-import { Loader2, Save, User, AtSign, Bell, Globe, ShieldAlert, Mail, Camera, LogOut, Download, Trash2, Lock, FileText, CalendarClock, MessageSquare, Sparkles, Wallet, CircleHelp, LifeBuoy } from "lucide-react";
+import { Loader2, User, AtSign, Bell, Globe, ShieldAlert, Mail, Camera, LogOut, Download, Trash2, Lock, FileText, CalendarClock, MessageSquare, Sparkles, Wallet, CircleHelp, LifeBuoy, CalendarDays } from "lucide-react";
 
 import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";
@@ -23,6 +23,7 @@ import { reportClientIssue } from "@/lib/client-error-reporting";
 import { trackEvent } from "@/lib/telemetry";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { CreateDropModal } from "@/components/Admin/CreateDropModal";
+import { REFERRAL_BONUS_GD } from "@/lib/referrals";
 
 const TIMEZONE_OPTIONS = [
     "Auto",
@@ -41,6 +42,7 @@ type TimezoneOption = (typeof TIMEZONE_OPTIONS)[number];
 interface ProfileSettingsFormState {
     displayName: string;
     username: string;
+    dateOfBirth: string;
     timezone: TimezoneOption;
     inAppEnabled: boolean;
     browserPushEnabled: boolean;
@@ -69,6 +71,7 @@ function sanitizeUsername(value: string): string {
 function buildFormState(params: {
     displayName: string | null;
     username: string | null;
+    dateOfBirth: string | null;
     timezone: unknown;
     inAppEnabled: unknown;
     browserPushEnabled: unknown;
@@ -83,6 +86,7 @@ function buildFormState(params: {
     return {
         displayName: (params.displayName ?? "").trim(),
         username: sanitizeUsername((params.username ?? "").trim()),
+        dateOfBirth: typeof params.dateOfBirth === "string" ? params.dateOfBirth : "",
         timezone: normalizeTimezone(params.timezone),
         inAppEnabled: params.inAppEnabled !== false,
         browserPushEnabled: params.browserPushEnabled === true,
@@ -123,7 +127,7 @@ function ToggleRow({
     badge?: string;
 }) {
     return (
-        <div className={`flex items-start justify-between gap-4 rounded-[1.15rem] border px-4 py-3 transition-colors ${disabled ? "border-white/5 bg-black/20 opacity-75" : "border-white/10 bg-black/30"}`}>
+        <div className={`flex items-start justify-between gap-4 rounded-[1.15rem] border px-4 py-2.5 transition-colors ${disabled ? "border-white/5 bg-black/20 opacity-75" : "border-white/10 bg-black/30"}`}>
             <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                     <p className="flex items-center gap-2 text-sm font-medium text-gray-100">{icon}{label}</p>
@@ -133,7 +137,7 @@ function ToggleRow({
                         </span>
                     ) : null}
                 </div>
-                {description ? <p className="mt-1 text-xs leading-5 text-gray-500">{description}</p> : null}
+                {description ? <p className="mt-1 text-xs leading-[1.35rem] text-gray-500">{description}</p> : null}
             </div>
             <button
                 type="button"
@@ -161,7 +165,7 @@ function StaticSettingRow({
     badge?: string;
 }) {
     return (
-        <div className="flex items-start justify-between gap-4 rounded-[1.15rem] border border-white/10 bg-black/30 px-4 py-3">
+        <div className="flex items-start justify-between gap-4 rounded-[1.15rem] border border-white/10 bg-black/30 px-4 py-2.5">
             <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                     <p className="flex items-center gap-2 text-sm font-medium text-gray-100">{icon}{label}</p>
@@ -184,6 +188,7 @@ export default function ProfilePage() {
     const normalizedInitialState = useMemo(() => buildFormState({
         displayName: userProfile?.displayName ?? user?.displayName ?? null,
         username: userProfile?.username ?? null,
+        dateOfBirth: typeof userProfile?.dateOfBirth === "string" ? userProfile.dateOfBirth : null,
         timezone: userProfile?.accountSettings?.timezone,
         inAppEnabled: userProfile?.notificationSettings?.inAppEnabled,
         browserPushEnabled: userProfile?.notificationSettings?.browserPushEnabled,
@@ -198,6 +203,7 @@ export default function ProfilePage() {
         user?.displayName,
         userProfile?.displayName,
         userProfile?.username,
+        userProfile?.dateOfBirth,
         userProfile?.accountSettings?.timezone,
         userProfile?.notificationSettings?.inAppEnabled,
         userProfile?.notificationSettings?.browserPushEnabled,
@@ -218,6 +224,10 @@ export default function ProfilePage() {
     const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
     const [notificationSetupLoading, setNotificationSetupLoading] = useState(false);
     const [notificationSupportMessage, setNotificationSupportMessage] = useState<string | null>(null);
+    const autosaveTimeoutRef = useRef<number | null>(null);
+    const autosaveFeedbackTimeoutRef = useRef<number | null>(null);
+    const autosaveReadyRef = useRef(false);
+    const lastSavedSignatureRef = useRef(JSON.stringify(normalizedInitialState));
     const [runtimeOrigin, setRuntimeOrigin] = useState(SITE_ORIGIN);
     const [creatorSettingsState, setCreatorSettingsState] = useState<CreatorSettings>(DEFAULT_CREATOR_SETTINGS);
     const [creatorSettingsLoading, setCreatorSettingsLoading] = useState(false);
@@ -239,7 +249,20 @@ export default function ProfilePage() {
 
     useEffect(() => {
         setFormState(normalizedInitialState);
+        lastSavedSignatureRef.current = JSON.stringify(normalizedInitialState);
+        autosaveReadyRef.current = true;
     }, [normalizedInitialState]);
+
+    useEffect(() => {
+        return () => {
+            if (autosaveTimeoutRef.current) {
+                window.clearTimeout(autosaveTimeoutRef.current);
+            }
+            if (autosaveFeedbackTimeoutRef.current) {
+                window.clearTimeout(autosaveFeedbackTimeoutRef.current);
+            }
+        };
+    }, []);
 
     useEffect(() => {
         if (!isCreatorAccount) {
@@ -324,7 +347,39 @@ export default function ProfilePage() {
         setFormState((previous) => ({ ...previous, [key]: value }));
     };
 
-    const savePrivacyPreferences = async (nextPrivacyState: Pick<
+    const scheduleAutosaveFeedbackReset = useCallback(() => {
+        if (autosaveFeedbackTimeoutRef.current) {
+            window.clearTimeout(autosaveFeedbackTimeoutRef.current);
+        }
+
+        autosaveFeedbackTimeoutRef.current = window.setTimeout(() => {
+            setSaveFeedback(null);
+        }, 2400);
+    }, []);
+
+    const buildSettingsPayload = useCallback((nextState: ProfileSettingsFormState) => ({
+        displayName: nextState.displayName.trim(),
+        username: sanitizeUsername(nextState.username),
+        dateOfBirth: nextState.dateOfBirth || null,
+        accountSettings: {
+            timezone: nextState.timezone,
+        },
+        notificationSettings: {
+            inAppEnabled: nextState.inAppEnabled,
+            browserPushEnabled: nextState.browserPushEnabled,
+            newDropAlerts: nextState.newDropAlerts,
+            expiringSoonAlerts: nextState.expiringSoonAlerts,
+        },
+        privacySettings: {
+            anonymousAnalyticsEnabled: nextState.anonymousAnalyticsEnabled,
+            identifiedAnalyticsEnabled: nextState.identifiedAnalyticsEnabled,
+            allowRecommendations: nextState.allowRecommendations,
+            showInAnonymousStats: nextState.showInAnonymousStats,
+            honorGlobalPrivacyControl: nextState.honorGlobalPrivacyControl,
+        },
+    }), []);
+
+    const savePrivacyPreferences = useCallback(async (nextPrivacyState: Pick<
         ProfileSettingsFormState,
         | "anonymousAnalyticsEnabled"
         | "identifiedAnalyticsEnabled"
@@ -357,7 +412,57 @@ export default function ProfilePage() {
             showInAnonymousStats: nextPrivacyState.showInAnonymousStats,
             honorGlobalPrivacyControl: nextPrivacyState.honorGlobalPrivacyControl,
         });
-    };
+    }, []);
+
+    const persistSettings = useCallback(async (nextState: ProfileSettingsFormState) => {
+        if (!user) {
+            return false;
+        }
+
+        const nextSignature = JSON.stringify(nextState);
+        if (nextSignature === lastSavedSignatureRef.current) {
+            return true;
+        }
+
+        setSaving(true);
+        setSaveFeedback("Saving...");
+
+        try {
+            const trimmedDisplayName = nextState.displayName.trim();
+            if (trimmedDisplayName.length > 0 && trimmedDisplayName !== user.displayName) {
+                await updateProfile(user, { displayName: trimmedDisplayName });
+            }
+
+            const response = await authFetch("/api/user/profile", {
+                method: "PUT",
+                body: JSON.stringify(buildSettingsPayload(nextState)),
+            });
+
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(typeof result.error === "string" ? result.error : "Failed to save settings.");
+            }
+
+            persistPrivacySettingsSnapshot({
+                anonymousAnalyticsEnabled: nextState.anonymousAnalyticsEnabled,
+                identifiedAnalyticsEnabled: nextState.identifiedAnalyticsEnabled,
+                allowRecommendations: nextState.allowRecommendations,
+                showInAnonymousStats: nextState.showInAnonymousStats,
+                honorGlobalPrivacyControl: nextState.honorGlobalPrivacyControl,
+            });
+            lastSavedSignatureRef.current = nextSignature;
+            setSaveFeedback("Saved");
+            scheduleAutosaveFeedbackReset();
+            return true;
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : "Failed to update settings.";
+            setSaveFeedback(message);
+            toast.error(message);
+            return false;
+        } finally {
+            setSaving(false);
+        }
+    }, [buildSettingsPayload, scheduleAutosaveFeedbackReset, user]);
 
     useEffect(() => {
         let cancelled = false;
@@ -441,7 +546,7 @@ export default function ProfilePage() {
         }
     };
 
-    const handleWithdrawOptionalTracking = async () => {
+    const handleWithdrawOptionalTracking = useCallback(async () => {
         const nextState = {
             anonymousAnalyticsEnabled: false,
             identifiedAnalyticsEnabled: false,
@@ -455,11 +560,17 @@ export default function ProfilePage() {
 
         try {
             await savePrivacyPreferences(nextState);
+            const nextFormState = {
+                ...formState,
+                ...nextState,
+            };
             setFormState((previous) => ({
                 ...previous,
                 ...nextState,
             }));
-            setSaveFeedback("Optional tracking disabled");
+            lastSavedSignatureRef.current = JSON.stringify(nextFormState);
+            setSaveFeedback("Essential-only mode saved");
+            scheduleAutosaveFeedbackReset();
             toast.success("Optional tracking disabled.");
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : "Failed to update privacy settings.";
@@ -468,70 +579,32 @@ export default function ProfilePage() {
         } finally {
             setSaving(false);
         }
-    };
+    }, [formState, savePrivacyPreferences, scheduleAutosaveFeedbackReset]);
 
-    const handleSave = async (event: React.FormEvent) => {
-        event.preventDefault();
-        if (!user) {
-            toast.error("You must be signed in to save settings.");
+    useEffect(() => {
+        if (!user || !autosaveReadyRef.current) {
             return;
         }
 
-        setSaving(true);
-        setSaveFeedback(null);
-
-        try {
-            const trimmedDisplayName = formState.displayName.trim();
-            if (trimmedDisplayName.length > 0) {
-                await updateProfile(user, { displayName: trimmedDisplayName });
-            }
-
-            const response = await authFetch("/api/user/profile", {
-                method: "PUT",
-                body: JSON.stringify({
-                    displayName: trimmedDisplayName,
-                    username: sanitizeUsername(formState.username),
-                    accountSettings: {
-                        timezone: formState.timezone,
-                    },
-                    notificationSettings: {
-                        inAppEnabled: formState.inAppEnabled,
-                        browserPushEnabled: formState.browserPushEnabled,
-                        newDropAlerts: formState.newDropAlerts,
-                        expiringSoonAlerts: formState.expiringSoonAlerts,
-                    },
-                    privacySettings: {
-                        anonymousAnalyticsEnabled: formState.anonymousAnalyticsEnabled,
-                        identifiedAnalyticsEnabled: formState.identifiedAnalyticsEnabled,
-                        allowRecommendations: formState.allowRecommendations,
-                        showInAnonymousStats: formState.showInAnonymousStats,
-                        honorGlobalPrivacyControl: formState.honorGlobalPrivacyControl,
-                    },
-                }),
-            });
-
-            const result = await response.json();
-            if (!response.ok) {
-                throw new Error(typeof result.error === "string" ? result.error : "Failed to save settings.");
-            }
-
-            persistPrivacySettingsSnapshot({
-                anonymousAnalyticsEnabled: formState.anonymousAnalyticsEnabled,
-                identifiedAnalyticsEnabled: formState.identifiedAnalyticsEnabled,
-                allowRecommendations: formState.allowRecommendations,
-                showInAnonymousStats: formState.showInAnonymousStats,
-                honorGlobalPrivacyControl: formState.honorGlobalPrivacyControl,
-            });
-            setSaveFeedback("Changes saved");
-            toast.success("Settings updated successfully.");
-        } catch (error: unknown) {
-            const message = error instanceof Error ? error.message : "Failed to update settings.";
-            setSaveFeedback(message);
-            toast.error(message);
-        } finally {
-            setSaving(false);
+        const nextSignature = JSON.stringify(formState);
+        if (nextSignature === lastSavedSignatureRef.current) {
+            return;
         }
-    };
+
+        if (autosaveTimeoutRef.current) {
+            window.clearTimeout(autosaveTimeoutRef.current);
+        }
+
+        autosaveTimeoutRef.current = window.setTimeout(() => {
+            void persistSettings(formState);
+        }, 650);
+
+        return () => {
+            if (autosaveTimeoutRef.current) {
+                window.clearTimeout(autosaveTimeoutRef.current);
+            }
+        };
+    }, [formState, persistSettings, user]);
 
     const handleChangeAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -731,12 +804,14 @@ export default function ProfilePage() {
     return (
         <div className="w-full px-4 max-w-2xl mx-auto">
             <PageViewEvent eventName="profile_settings_viewed" />
-            <header className="mb-5">
-                <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-brand-purple">Profile Settings</h1>
-                <p className="text-gray-400 text-sm mt-1">Manage account identity, notifications, privacy, and security.</p>
+            <header className="mb-5 flex items-start justify-between gap-3">
+                <h1 className="bg-gradient-to-r from-brand-purple to-brand-purple bg-clip-text text-2xl font-bold text-transparent md:text-3xl">Profile Settings</h1>
+                <div className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] ${saving ? "border-brand-purple/25 bg-brand-purple/10 text-white" : saveFeedback && saveFeedback !== "Saved" ? "border-red-500/25 bg-red-500/10 text-red-200" : "border-white/10 bg-white/5 text-gray-300"}`}>
+                    {saving ? "Saving" : saveFeedback ?? "Autosave on"}
+                </div>
             </header>
 
-            <form onSubmit={handleSave} className="space-y-4">
+            <form onSubmit={(event) => event.preventDefault()} className="space-y-4">
                 <SectionCard title="Profile">
                     <div className="flex items-center gap-4">
                         <div className="group relative h-20 w-20 rounded-full overflow-hidden border border-white/10 bg-black/40 shrink-0 cursor-pointer">
@@ -804,26 +879,42 @@ export default function ProfilePage() {
 
                 <SectionCard title="Account & Identity">
                     <div className="rounded-xl border border-white/5 bg-black/25 px-3 py-2.5">
-                        <p className="text-xs text-gray-500 mb-1">Email address (managed by Google)</p>
+                        <p className="text-xs text-gray-500 mb-1">Email address</p>
                         <p className="text-sm text-gray-200 flex items-center gap-2"><Mail className="w-4 h-4 text-gray-400" /> {profileEmail}</p>
                     </div>
 
-                    <div>
-                        <label htmlFor="timezone" className="block text-sm font-medium text-gray-300 mb-1.5">Region / Timezone</label>
-                        <div className="relative">
-                            <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-                            <select
-                                id="timezone"
-                                value={formState.timezone}
-                                onChange={(event) => updateForm("timezone", normalizeTimezone(event.target.value))}
-                                className="w-full appearance-none rounded-xl border border-white/10 bg-black/40 py-2.5 pl-9 pr-3 text-sm text-white"
-                            >
-                                {TIMEZONE_OPTIONS.map((timezone) => (
-                                    <option key={timezone} value={timezone}>
-                                        {timezone}
-                                    </option>
-                                ))}
-                            </select>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                        <div>
+                            <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-300 mb-1.5">Birthday</label>
+                            <div className="relative">
+                                <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                                <input
+                                    type="date"
+                                    id="dateOfBirth"
+                                    value={formState.dateOfBirth}
+                                    onChange={(event) => updateForm("dateOfBirth", event.target.value)}
+                                    className="w-full rounded-xl border border-white/10 bg-black/40 py-2.5 pl-9 pr-3 text-sm text-white"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label htmlFor="timezone" className="block text-sm font-medium text-gray-300 mb-1.5">Timezone</label>
+                            <div className="relative">
+                                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                                <select
+                                    id="timezone"
+                                    value={formState.timezone}
+                                    onChange={(event) => updateForm("timezone", normalizeTimezone(event.target.value))}
+                                    className="w-full appearance-none rounded-xl border border-white/10 bg-black/40 py-2.5 pl-9 pr-3 text-sm text-white"
+                                >
+                                    {TIMEZONE_OPTIONS.map((timezone) => (
+                                        <option key={timezone} value={timezone}>
+                                            {timezone}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </SectionCard>
@@ -1056,36 +1147,48 @@ export default function ProfilePage() {
                 ) : null}
 
                 <SectionCard title="Notifications">
-                    <ToggleRow
-                        label="Browser notifications"
-                        description={notificationSupportMessage || "Use browser reminders for daily tasks, check-ins, and live drop alerts."}
-                        checked={formState.browserPushEnabled}
-                        onChange={(value) => void handleBrowserPushToggle(value)}
-                        icon={<Bell className="h-4 w-4 text-brand-purple" />}
-                        disabled={notificationSetupLoading}
-                        badge={notificationSetupLoading ? "Setting up" : "Browser"}
-                    />
-                    <ToggleRow
-                        label="In-app notifications"
-                        description="Shows task, drop, and account activity alerts inside KandyDrops."
-                        checked={formState.inAppEnabled}
-                        onChange={(value) => updateForm("inAppEnabled", value)}
-                        icon={<Bell className="h-4 w-4 text-brand-purple" />}
-                    />
-                    <ToggleRow
-                        label="New drop alerts"
-                        description="Alerts you when new drops or creator releases become available."
-                        checked={formState.newDropAlerts}
-                        onChange={(value) => updateForm("newDropAlerts", value)}
-                        icon={<Bell className="h-4 w-4 text-brand-purple" />}
-                    />
-                    <ToggleRow
-                        label="Expiring soon alerts"
-                        description="Warns you before limited-time drops or tasks expire."
-                        checked={formState.expiringSoonAlerts}
-                        onChange={(value) => updateForm("expiringSoonAlerts", value)}
-                        icon={<Bell className="h-4 w-4 text-brand-purple" />}
-                    />
+                    <div className="space-y-2">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Required service and account notices</p>
+                        <StaticSettingRow
+                            label="Account and purchase notices"
+                            description="Security, payment, and account recovery notices stay on because they are required to run your account safely."
+                            icon={<Bell className="h-4 w-4 text-brand-purple" />}
+                            badge="Always on"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Optional product alerts</p>
+                        <ToggleRow
+                            label="Browser push alerts"
+                            description={notificationSupportMessage || "Use browser reminders for daily tasks, check-ins, and live drop alerts."}
+                            checked={formState.browserPushEnabled}
+                            onChange={(value) => void handleBrowserPushToggle(value)}
+                            icon={<Bell className="h-4 w-4 text-brand-purple" />}
+                            disabled={notificationSetupLoading}
+                            badge={notificationSetupLoading ? "Setting up" : "Browser"}
+                        />
+                        <ToggleRow
+                            label="In-app activity alerts"
+                            description="Shows account, task, and drop alerts inside KandyDrops."
+                            checked={formState.inAppEnabled}
+                            onChange={(value) => updateForm("inAppEnabled", value)}
+                            icon={<Bell className="h-4 w-4 text-brand-purple" />}
+                        />
+                        <ToggleRow
+                            label="New drop releases"
+                            description="Alerts you when new drops or creator releases become available."
+                            checked={formState.newDropAlerts}
+                            onChange={(value) => updateForm("newDropAlerts", value)}
+                            icon={<Bell className="h-4 w-4 text-brand-purple" />}
+                        />
+                        <ToggleRow
+                            label="Ending soon reminders"
+                            description="Warns you before limited-time drops or tasks expire."
+                            checked={formState.expiringSoonAlerts}
+                            onChange={(value) => updateForm("expiringSoonAlerts", value)}
+                            icon={<Bell className="h-4 w-4 text-brand-purple" />}
+                        />
+                    </div>
                 </SectionCard>
 
                 <SectionCard title="Privacy, Tracking & Rights">
@@ -1179,21 +1282,21 @@ export default function ProfilePage() {
                                 </Button>
                                 <Link
                                     href="/privacy"
-                                    className="inline-flex min-h-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+                                    className="inline-flex min-h-10 items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/10"
                                 >
                                     Privacy policy
                                 </Link>
                             </div>
                         </div>
                         <p className="mt-3 text-[11px] leading-5 text-gray-500">
-                            Last privacy notice update: {PRIVACY_POLICY_LAST_UPDATED}. Data export is in Data &amp; Security below, and account deletion stays in the Danger Zone.
+                            Last privacy notice update: {PRIVACY_POLICY_LAST_UPDATED}. Data export stays below in Data &amp; Security, and account deletion stays isolated in the Danger Zone.
                         </p>
                     </div>
                 </SectionCard>
 
                 <SectionCard title="Refer a Friend">
                     <div className="rounded-xl border border-brand-purple/20 bg-brand-purple/5 p-4 flex flex-col gap-3">
-                        <p className="text-sm text-gray-300">Invite your friends! You both get <strong className="text-brand-purple">25 Gum Drops</strong> when they sign up.</p>
+                        <p className="text-sm text-gray-300">Get <strong className="text-brand-purple">{REFERRAL_BONUS_GD} GumDrops</strong> when a friend signs up with your link.</p>
                         <div className="flex gap-2">
                             <input
                                 type="text"
@@ -1283,19 +1386,6 @@ export default function ProfilePage() {
                         Delete Account
                     </Button>
                 </section>
-
-                <div className="sticky bottom-[calc(68px+env(safe-area-inset-bottom))] z-10 pt-1">
-                    <div className="rounded-2xl border border-white/10 bg-black/70 backdrop-blur-md p-3">
-                        <Button type="submit" variant="brand" disabled={saving} className="w-full font-bold tracking-wide">
-                            {saving ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Saving...</> : <><Save className="w-4 h-4 mr-2" />Save Changes</>}
-                        </Button>
-                        {saveFeedback ? (
-                            <p className={`mt-2 text-xs ${saveFeedback === "Changes saved" ? "text-brand-purple" : "text-red-400"}`}>
-                                {saveFeedback}
-                            </p>
-                        ) : null}
-                    </div>
-                </div>
             </form>
             {isCreatorAccount ? (
                 <CreateDropModal

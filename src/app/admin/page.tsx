@@ -1,134 +1,155 @@
 "use client";
 
-import Link from "next/link";
-import { Activity, Package, TrendingUp, Users } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
 
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
-import { AdminAnalyticsCharts } from "@/components/Admin/AdminAnalyticsCharts";
 import { AdminActivityLogPanel } from "@/components/Admin/AdminActivityLogPanel";
+import { AdminAnalyticsCharts } from "@/components/Admin/AdminAnalyticsCharts";
 import { AdminDashboardModule } from "@/components/Admin/AdminDashboardModule";
 import { AdminDropsAtGlancePanel } from "@/components/Admin/AdminDropsAtGlancePanel";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { AdminStatsBar } from "@/components/Admin/AdminStatsBar";
 import { RecentTransactionsPanel } from "@/components/Admin/RecentTransactionsPanel";
 import { TopDropsPanel } from "@/components/Admin/TopDropsPanel";
+import { useAdminOverview } from "@/hooks/useAdminOverview";
 
 export default function AdminDashboardPage() {
+    const { data, isLoading } = useAdminOverview();
+    const issueCount = data?.issues?.length ?? 0;
+    const lastCommerceLabel = data?.freshness.lastTransactionAt
+        ? formatDistanceToNow(data.freshness.lastTransactionAt, { addSuffix: true })
+        : "No recent transaction timestamp";
+
     return (
         <div className="space-y-3 md:space-y-4">
             <PageViewEvent eventName="admin_dashboard_viewed" />
             <AdminPageHeader
                 eyebrow="Control Room"
                 title="Admin Dashboard"
-                subtitle="Expandable modules for live platform health, drop operations, revenue trends, and moderation without hopping between tabs."
+                actions={(
+                    <>
+                        <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1.5 text-xs font-semibold text-white">
+                            5s polled snapshot
+                        </span>
+                        <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1.5 text-xs font-semibold text-white">
+                            Last commerce activity {lastCommerceLabel}
+                        </span>
+                        {issueCount > 0 ? (
+                            <span className="rounded-full border border-amber-400/20 bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-200">
+                                {issueCount} overview issue{issueCount === 1 ? "" : "s"}
+                            </span>
+                        ) : null}
+                    </>
+                )}
             />
 
-            <div className="space-y-3 md:space-y-4">
-                <AdminDashboardModule
-                    title="Platform pulse"
-                    description="Fresh overview stats and a straight path into the deeper analytics workspace."
-                    defaultOpen={true}
-                    actions={(
-                        <Link
-                            href="/admin/analytics"
-                            className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white transition-colors hover:border-brand-purple/40 hover:text-brand-pink"
-                        >
-                            <TrendingUp className="h-4 w-4" />
-                            Analytics
-                        </Link>
-                    )}
-                >
-                    <div className="space-y-3">
-                        <div className="overflow-hidden rounded-[1.6rem] border border-white/10 bg-gradient-to-r from-brand-purple/10 to-transparent p-3 md:p-4">
-                            <div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between">
-                                <div className="flex items-center gap-4">
-                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-purple/20 text-brand-purple md:h-12 md:w-12 md:rounded-2xl">
-                                        <TrendingUp className="h-5 w-5 md:h-6 md:w-6" />
-                                    </div>
-                                    <div>
-                                        <h2 className="text-lg font-bold text-white md:text-xl">Core Metrics Hub</h2>
-                                        <p className="text-xs text-gray-400 md:text-sm">Real-time analytics, funnels, device mix, and parity tracking without stale cached payloads.</p>
-                                    </div>
-                                </div>
-                                <Link
-                                    href="/admin/analytics"
-                                    className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white transition-colors hover:border-brand-purple/40 hover:text-brand-pink"
-                                >
-                                    Open analytics
-                                </Link>
+            <div className="grid gap-3 xl:grid-cols-12">
+                <div className="xl:col-span-12">
+                    <AdminDashboardModule title="Platform pulse" defaultOpen={true}>
+                        {data ? (
+                            <AdminStatsBar
+                                stats={data.stats}
+                                deltas={data.deltas}
+                                truthNote={data.truthNotes.platformPulse}
+                                issueCount={issueCount}
+                            />
+                        ) : (
+                            <div className="grid grid-cols-2 gap-2.5 xl:grid-cols-4">
+                                {Array.from({ length: 4 }).map((_, index) => (
+                                    <div key={index} className="h-28 animate-pulse rounded-[1.35rem] border border-white/8 bg-white/5" />
+                                ))}
                             </div>
-                        </div>
+                        )}
+                    </AdminDashboardModule>
+                </div>
 
-                        <AdminStatsBar />
-                    </div>
-                </AdminDashboardModule>
+                <div className="xl:col-span-7">
+                    <AdminDashboardModule title="Drops at a glance" defaultOpen={true}>
+                        <AdminDropsAtGlancePanel />
+                    </AdminDashboardModule>
+                </div>
 
-                <AdminDashboardModule
-                    title="Drops at a glance"
-                    description="Quickly create, edit, queue, and sanity-check every drop from the home dashboard."
-                    defaultOpen={true}
-                    actions={(
-                        <>
-                            <Link
-                                href="/admin/drops"
-                                className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white transition-colors hover:border-brand-purple/40 hover:text-brand-pink"
-                            >
-                                <Package className="h-4 w-4" />
-                                Drops
-                            </Link>
-                            <Link
-                                href="/admin/queue"
-                                className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white transition-colors hover:border-brand-purple/40 hover:text-brand-pink"
-                            >
-                                <Activity className="h-4 w-4" />
-                                Queue
-                            </Link>
-                        </>
-                    )}
-                >
-                    <AdminDropsAtGlancePanel />
-                </AdminDashboardModule>
+                <div className="xl:col-span-5">
+                    <AdminDashboardModule title="Revenue trends" defaultOpen={true}>
+                        <AdminAnalyticsCharts
+                            chartData={data?.chartData || []}
+                            trendSummary={data?.trendSummary || {
+                                windowDays: 30,
+                                currentStartDayKey: "",
+                                currentEndDayKey: "",
+                                previousStartDayKey: "",
+                                previousEndDayKey: "",
+                                currentRevenueCents: 0,
+                                previousRevenueCents: 0,
+                                currentUnwraps: 0,
+                                previousUnwraps: 0,
+                                currentPurchases: 0,
+                                previousPurchases: 0,
+                                currentNewUsers: 0,
+                                previousNewUsers: 0,
+                                revenueActiveDays: 0,
+                                unwrapActiveDays: 0,
+                                bestRevenueDay: null,
+                                bestUnwrapDay: null,
+                                topUnlockDrop: null,
+                            }}
+                            truthNote={data?.truthNotes.revenue || "30-day revenue and unwrap trends are loading."}
+                            issueCount={issueCount}
+                            loading={isLoading && !data}
+                        />
+                    </AdminDashboardModule>
+                </div>
 
-                <AdminDashboardModule
-                    title="Revenue trends"
-                    description="Thirty-day revenue and unwrap movement from the same overview feed that powers the rest of the dashboard."
-                    defaultOpen={true}
-                >
-                    <AdminAnalyticsCharts />
-                </AdminDashboardModule>
+                <div className="xl:col-span-5">
+                    <AdminDashboardModule title="Top performing drops" defaultOpen={true}>
+                        {data ? (
+                            <TopDropsPanel
+                                topDrops={data.topDrops}
+                                truthNote={data.truthNotes.topDrops}
+                            />
+                        ) : (
+                            <div className="space-y-2">
+                                {Array.from({ length: 5 }).map((_, index) => (
+                                    <div key={index} className="h-16 animate-pulse rounded-[1.2rem] border border-white/8 bg-white/5" />
+                                ))}
+                            </div>
+                        )}
+                    </AdminDashboardModule>
+                </div>
 
-                <AdminDashboardModule
-                    title="Top performing drops"
-                    description="A quick leaderboard for the drops drawing the most unlock demand."
-                    defaultOpen={false}
-                >
-                    <TopDropsPanel />
-                </AdminDashboardModule>
+                <div className="xl:col-span-7">
+                    <AdminDashboardModule title="Recent transactions" defaultOpen={true}>
+                        {data ? (
+                            <RecentTransactionsPanel
+                                transactions={data.recentTransactions}
+                                truthNote={data.truthNotes.transactions}
+                            />
+                        ) : (
+                            <div className="space-y-2">
+                                {Array.from({ length: 5 }).map((_, index) => (
+                                    <div key={index} className="h-16 animate-pulse rounded-[1.2rem] border border-white/8 bg-white/5" />
+                                ))}
+                            </div>
+                        )}
+                    </AdminDashboardModule>
+                </div>
 
-                <AdminDashboardModule
-                    title="Recent transactions"
-                    description="Live commerce activity for the most recent purchases and balance changes."
-                    defaultOpen={false}
-                >
-                    <RecentTransactionsPanel />
-                </AdminDashboardModule>
-
-                <AdminDashboardModule
-                    title="Admin activity"
-                    description="Moderation and operational activity from the broader admin workspace."
-                    defaultOpen={false}
-                    actions={(
-                        <Link
-                            href="/admin/users"
-                            className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white transition-colors hover:border-brand-purple/40 hover:text-brand-pink"
-                        >
-                            <Users className="h-4 w-4" />
-                            Users
-                        </Link>
-                    )}
-                >
-                    <AdminActivityLogPanel />
-                </AdminDashboardModule>
+                <div className="xl:col-span-12">
+                    <AdminDashboardModule title="Admin activity" defaultOpen={true}>
+                        {data ? (
+                            <AdminActivityLogPanel
+                                activity={data.adminActivity}
+                                truthNote={data.truthNotes.adminActivity}
+                            />
+                        ) : (
+                            <div className="space-y-2">
+                                {Array.from({ length: 5 }).map((_, index) => (
+                                    <div key={index} className="h-16 animate-pulse rounded-[1.2rem] border border-white/8 bg-white/5" />
+                                ))}
+                            </div>
+                        )}
+                    </AdminDashboardModule>
+                </div>
             </div>
         </div>
     );

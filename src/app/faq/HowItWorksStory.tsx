@@ -19,10 +19,7 @@ import { Button } from "@/components/ui/Button";
 import { useAuthIdentity } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { cn } from "@/lib/utils";
-import {
-  GUMDROPS_PRIMARY_CTA,
-  SECONDARY_UNWRAP_CTA,
-} from "@/lib/marketing-copy";
+import { SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
 import type { HowItWorksStep } from "./faq-data";
 
 type HowItWorksStoryProps = {
@@ -32,7 +29,7 @@ type HowItWorksStoryProps = {
 export function HowItWorksStory({ steps }: HowItWorksStoryProps) {
   const [activeStepId, setActiveStepId] = useState<HowItWorksStep["id"]>(steps[0]?.id ?? "join");
   const { user } = useAuthIdentity();
-  const { openAuthModal, openPurchaseModal } = useUI();
+  const { openAuthModal } = useUI();
   const router = useRouter();
 
   const activeStep = useMemo(
@@ -56,15 +53,6 @@ export function HowItWorksStory({ steps }: HowItWorksStoryProps) {
     }
 
     router.push("/drops");
-  };
-
-  const handleSecondaryAction = () => {
-    if (!user) {
-      openAuthModal("signup");
-      return;
-    }
-
-    openPurchaseModal();
   };
 
   return (
@@ -118,34 +106,26 @@ export function HowItWorksStory({ steps }: HowItWorksStoryProps) {
           <h2 className="mt-3 text-[1.6rem] font-black tracking-tight text-white max-[360px]:text-[1.45rem] sm:text-3xl">{activeStep.title}</h2>
           <p className="mt-3 text-sm leading-6 text-gray-300 sm:text-base sm:leading-7">{activeStep.description}</p>
 
-          <div className="mt-5 grid gap-3 sm:grid-cols-[auto_1fr]">
-            <div className="rounded-2xl border border-brand-purple/20 bg-brand-purple/10 px-4 py-3 text-center sm:min-w-[108px]">
+          <div className="mt-5 grid gap-3">
+            <div className="rounded-2xl border border-brand-purple/20 bg-brand-purple/10 px-4 py-3 text-center sm:max-w-[132px]">
               <div className="text-lg font-black tracking-tight text-white">{activeStep.metricValue}</div>
               <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-brand-purple/80">
                 {activeStep.metricLabel}
               </div>
             </div>
-            <details className="rounded-2xl border border-white/10 bg-black/35 text-left text-sm text-gray-300">
-              <summary className="cursor-pointer list-none px-4 py-3 font-semibold text-white">
-                See more about this step
-              </summary>
-              <div className="space-y-3 border-t border-white/10 px-4 py-3">
-                <div className="flex flex-wrap gap-2">
-                  {activeStep.callouts.map((callout) => (
-                    <span
-                      key={callout}
-                      className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-semibold text-gray-200"
-                    >
-                      {callout}
-                    </span>
-                  ))}
-                </div>
-                <p className="text-sm leading-6 text-gray-300">Use Gum Drops to unwrap live KandyDrops before they disappear.</p>
-              </div>
-            </details>
+            <div className="flex flex-wrap gap-2">
+              {activeStep.callouts.map((callout) => (
+                <span
+                  key={callout}
+                  className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-semibold text-gray-200"
+                >
+                  {callout}
+                </span>
+              ))}
+            </div>
           </div>
 
-          <div className="mt-6 flex flex-col gap-3">
+          <div className="mt-6">
             <Button
               type="button"
               variant="brand"
@@ -155,15 +135,6 @@ export function HowItWorksStory({ steps }: HowItWorksStoryProps) {
             >
               {SECONDARY_UNWRAP_CTA}
               <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-            <Button
-              type="button"
-              variant="brand"
-              size="lg"
-              onClick={handleSecondaryAction}
-              className="h-auto min-h-[3.25rem] w-full rounded-2xl px-5 py-3.5 text-left text-sm font-bold leading-5 whitespace-normal text-white shadow-[0_0_26px_rgba(164,118,255,0.22)] sm:min-h-14 sm:py-4"
-            >
-              {GUMDROPS_PRIMARY_CTA}
             </Button>
           </div>
         </motion.div>

@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Sparkles, Users } from "lucide-react";
+import { CheckCircle2, Loader2, Sparkles, Users } from "lucide-react";
 
 import { useAuth } from "@/context/AuthContext";
+import { useUI } from "@/context/UIContext";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { buildCreatorDiscoveryNavigationParams } from "@/lib/creator-public-pages";
@@ -45,9 +46,11 @@ function initialsFor(name: string) {
 
 export function CreatorDiscoveryRail({ surface, title, compact = false }: CreatorDiscoveryRailProps) {
     const { user } = useAuth();
+    const { openAuthModal } = useUI();
     const [recommendedCreators, setRecommendedCreators] = useState<CreatorCard[]>([]);
     const [followedCreators, setFollowedCreators] = useState<CreatorCard[]>([]);
     const [loading, setLoading] = useState(true);
+    const [pendingCreatorId, setPendingCreatorId] = useState<string | null>(null);
 
     useEffect(() => {
         let cancelled = false;
@@ -69,10 +72,23 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
                     const relationshipResult = await relationshipResponse.json() as {
                         relationships?: Array<Record<string, unknown>>;
                         recommendedCreators?: CreatorCard[];
+                        followedCreators?: CreatorCard[];
                     };
+                    const relationshipMap = new Map(
+                        (relationshipResult.relationships || [])
+                            .filter((entry) => typeof entry.creatorId === "string")
+                            .map((entry) => [String(entry.creatorId), entry]),
+                    );
 
-                    nextRecommended = relationshipResult.recommendedCreators || nextRecommended;
-                    nextFollowed = (relationshipResult.relationships || [])
+                    nextRecommended = (relationshipResult.recommendedCreators || nextRecommended).map((creator) => {
+                        const relationship = relationshipMap.get(creator.uid);
+                        return {
+                            ...creator,
+                            following: relationship?.following === true,
+                            notificationsEnabled: relationship?.notificationsEnabled === true,
+                        };
+                    });
+                    nextFollowed = relationshipResult.followedCreators || (relationshipResult.relationships || [])
                         .filter((entry) => entry.following === true && typeof entry.creatorId === "string")
                         .map((entry) => ({
                             uid: String(entry.creatorId),
@@ -82,6 +98,8 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
                             following: entry.following === true,
                             favorited: entry.favorited === true,
                             notificationsEnabled: entry.notificationsEnabled === true,
+                            followerCount: typeof entry.followerCount === "number" ? entry.followerCount : 0,
+                            isVerified: entry.isVerified === true,
                         }));
                 }
 
@@ -118,6 +136,88 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
         () => followedCreators.length > 0 ? followedCreators : recommendedCreators,
         [followedCreators, recommendedCreators],
     );
+    const followerFormatter = useMemo(() => new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }), []);
+
+    const handleFollowToggle = async (creator: CreatorCard) => {
+        if (!user) {
+            openAuthModal("signup");
+            return;
+        }
+
+        if (pendingCreatorId) {
+            return;
+        }
+
+        const action = creator.following ? "unfollow" : "follow";
+        setPendingCreatorId(creator.uid);
+
+        try {
+            const response = await authFetch("/api/creator/relationships", {
+                method: "POST",
+                body: JSON.stringify({
+                    creatorId: creator.uid,
+                    action,
+                }),
+            });
+            const result = await response.json() as {
+                error?: string;
+                relationship?: {
+                    creatorId?: string;
+                    following?: boolean;
+                    followerCount?: number | null;
+                };
+            };
+            if (!response.ok || !result.relationship) {
+                throw new Error(result.error || "Could not update creator follow state.");
+            }
+
+            const nextFollowing = result.relationship.following === true;
+            const nextFollowerCount = typeof result.relationship.followerCount === "number"
+                ? result.relationship.followerCount
+                : creator.followerCount;
+
+            setRecommendedCreators((current) => {
+                const updated = current.map((entry) => (
+                    entry.uid === creator.uid
+                        ? { ...entry, following: nextFollowing, followerCount: nextFollowerCount }
+                        : entry
+                ));
+                if (!nextFollowing && !updated.some((entry) => entry.uid === creator.uid)) {
+                    return [{ ...creator, following: false, followerCount: nextFollowerCount }, ...updated];
+                }
+                return updated;
+            });
+            setFollowedCreators((current) => {
+                const existingIndex = current.findIndex((entry) => entry.uid === creator.uid);
+                if (nextFollowing) {
+                    if (existingIndex >= 0) {
+                        return current.map((entry) => (
+                            entry.uid === creator.uid
+                                ? { ...entry, following: true, followerCount: nextFollowerCount }
+                                : entry
+                        ));
+                    }
+                    return [{ ...creator, following: true, followerCount: nextFollowerCount }, ...current];
+                }
+                return current.filter((entry) => entry.uid !== creator.uid);
+            });
+        } catch (error) {
+            reportClientIssue({
+                channel: "ui",
+                severity: "warn",
+                message: "Creator discovery follow toggle failed",
+                error,
+                detail: {
+                    surface,
+                    creatorId: creator.uid,
+                    action,
+                },
+                consoleLabel: "[CreatorDiscoveryRail] follow toggle failed",
+            });
+        } finally {
+            setPendingCreatorId(null);
+        }
+    };
 
     if (loading) {
         return null;
@@ -182,44 +282,70 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
             <div className="overflow-x-auto pb-1">
                 <div className={cn("flex min-w-max gap-3", compact ? "pr-2" : "pr-4")}>
                     {primaryCreators.map((creator) => (
-                        <Link
+                        <div
                             key={creator.uid}
-                            href={creator.username ? `/creators/${creator.username}` : "#"}
-                            onClick={() => {
-                                trackEvent("navigation_click", buildCreatorDiscoveryNavigationParams({
-                                    creatorId: creator.uid,
-                                    creatorUsername: creator.username,
-                                    surface,
-                                }));
-                            }}
-                            className="group flex w-[5.5rem] shrink-0 flex-col items-center gap-2"
+                            className="group flex w-[6.8rem] shrink-0 flex-col items-center gap-2.5 rounded-[1.75rem] border border-white/5 bg-white/[0.03] px-2.5 py-3 text-center"
                         >
-                            <div className={cn(
-                                "rounded-full p-[2px] transition-transform group-hover:scale-105",
-                                creator.following ? "bg-white/10" : "bg-gradient-to-tr from-brand-purple to-pink-500"
-                            )}>
-                                <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-[3px] border-black bg-zinc-900">
-                                    {creator.photoURL ? (
-                                        <Image src={creator.photoURL} alt={creator.displayName} width={64} height={64} className="h-full w-full object-cover" />
-                                    ) : (
-                                        <span className="text-sm font-black text-white">{initialsFor(creator.displayName)}</span>
-                                    )}
+                            <Link
+                                href={creator.username ? `/creators/${creator.username}` : "#"}
+                                onClick={() => {
+                                    trackEvent("navigation_click", buildCreatorDiscoveryNavigationParams({
+                                        creatorId: creator.uid,
+                                        creatorUsername: creator.username,
+                                        surface,
+                                    }));
+                                }}
+                                className="flex w-full flex-col items-center gap-2"
+                            >
+                                <div className={cn(
+                                    "rounded-full p-[2px] transition-transform group-hover:scale-105",
+                                    creator.following ? "bg-white/10" : "bg-gradient-to-tr from-brand-purple to-pink-500"
+                                )}>
+                                    <div className="flex h-[4.4rem] w-[4.4rem] items-center justify-center overflow-hidden rounded-full border-[3px] border-black bg-zinc-900">
+                                        {creator.photoURL ? (
+                                            <Image src={creator.photoURL} alt={creator.displayName} width={72} height={72} className="h-full w-full object-cover" />
+                                        ) : (
+                                            <span className="text-sm font-black text-white">{initialsFor(creator.displayName)}</span>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                            
-                            <div className="flex w-full flex-col items-center pb-1 text-center">
-                                <TitleMarquee
-                                    title={creator.displayName}
-                                    delaySeed={creator.uid.charCodeAt(0) % 6}
-                                    className="w-full text-xs font-bold text-white tracking-tight"
-                                />
-                                {creator.following ? (
-                                    <span className="mt-0.5 text-[9px] font-semibold text-gray-500 uppercase tracking-widest">Following</span>
-                                ) : (
-                                    <span className="mt-0.5 text-[10px] font-medium text-brand-purple">Follow</span>
+
+                                <div className="flex w-full flex-col items-center">
+                                    <div className="flex max-w-full items-center justify-center gap-1">
+                                        <TitleMarquee
+                                            title={creator.displayName}
+                                            delaySeed={creator.uid.charCodeAt(0) % 6}
+                                            className="max-w-full text-[11px] font-bold text-white tracking-tight"
+                                        />
+                                        {creator.isVerified ? <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-brand-purple" /> : null}
+                                    </div>
+                                    {creator.username ? (
+                                        <TitleMarquee
+                                            title={creator.username.replace(/^@+/, "")}
+                                            delaySeed={(creator.uid.charCodeAt(0) + 2) % 6}
+                                            className="mt-0.5 max-w-full text-[10px] font-medium text-gray-300"
+                                        />
+                                    ) : null}
+                                    <p className="mt-1 text-[10px] text-gray-500">
+                                        {followerFormatter.format(Math.max(creator.followerCount ?? 0, 0))} followers
+                                    </p>
+                                </div>
+                            </Link>
+
+                            <button
+                                type="button"
+                                onClick={() => void handleFollowToggle(creator)}
+                                disabled={pendingCreatorId === creator.uid}
+                                className={cn(
+                                    "inline-flex min-h-7 items-center justify-center rounded-full border px-3 py-1 text-[10px] font-bold transition-colors",
+                                    creator.following
+                                        ? "border-white/10 bg-white/8 text-white"
+                                        : "border-brand-purple/30 bg-brand-purple/15 text-white",
                                 )}
-                            </div>
-                        </Link>
+                            >
+                                {pendingCreatorId === creator.uid ? <Loader2 className="h-3 w-3 animate-spin" /> : creator.following ? "Following" : "Follow"}
+                            </button>
+                        </div>
                     ))}
                 </div>
             </div>

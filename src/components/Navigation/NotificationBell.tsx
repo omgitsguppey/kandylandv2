@@ -178,6 +178,19 @@ function getNotificationActionLabel(note: NotificationNote) {
   return "Open";
 }
 
+function formatNotificationTimestamp(note: NotificationNote) {
+  if (!note.createdAt?.toDate) {
+    return "Delivery time unavailable";
+  }
+
+  return note.createdAt.toDate().toLocaleString([], {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
 function NotificationThumbnail({ note }: { note: NotificationNote }) {
   if (note.dropContext?.previewImageUrl) {
     return (
@@ -193,12 +206,20 @@ function NotificationThumbnail({ note }: { note: NotificationNote }) {
     );
   }
 
+  if (isTaskRelatedNotification(note)) {
+    return (
+      <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-[1rem] border border-brand-purple/20 bg-brand-purple/12 text-brand-purple">
+        <TriangleAlert className="h-4.5 w-4.5" />
+      </div>
+    );
+  }
+
   const pill = getTypePill(note.type);
   const Icon = pill.icon;
   const fallbackLetter = (note.title.trim()[0] || "K").toUpperCase();
 
   return (
-    <div className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-[1.1rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(178,140,255,0.35),rgba(20,20,24,0.95)_72%)]">
+    <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-[1rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(178,140,255,0.35),rgba(20,20,24,0.95)_72%)]">
       <span className="text-lg font-black text-white/90">{fallbackLetter}</span>
       <div className="absolute bottom-1 right-1 rounded-full border border-white/15 bg-black/60 p-1 text-brand-purple">
         <Icon className="h-2.5 w-2.5" />
@@ -223,14 +244,14 @@ function NotificationItem({
   const router = useRouter();
   const pill = getTypePill(note.type);
   const PillIcon = pill.icon;
-  const taskRelated = isTaskRelatedNotification(note);
   const subject = getNotificationSubject(note);
   const details = getNotificationDetails(note, subject);
   const expandable = details.length > 0;
   const isRead = Boolean(currentUserId && note.readBy.includes(currentUserId));
   const relativeTime = note.createdAt?.toDate
     ? formatDistanceToNow(note.createdAt.toDate(), { addSuffix: true })
-    : "Recent";
+    : null;
+  const deliveredAt = formatNotificationTimestamp(note);
   const autoMarkedReadRef = useRef(false);
 
   const markViewedAsRead = async () => {
@@ -289,19 +310,19 @@ function NotificationItem({
   };
 
   return (
-    <div className="rounded-[1.5rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] p-2.5 shadow-[0_14px_34px_rgba(0,0,0,0.28)] transition-colors hover:bg-white/[0.08]">
-      <div className="flex gap-2.5">
+    <div className="rounded-[1.35rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] p-2 shadow-[0_14px_34px_rgba(0,0,0,0.28)] transition-colors hover:bg-white/[0.08]">
+      <div className="flex gap-2">
         <NotificationThumbnail note={note} />
 
         <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-2.5">
+          <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-1.5">
                 <span className="text-[10px] font-black uppercase tracking-[0.16em] text-gray-400">
                   KandyDrops
                 </span>
               </div>
-              <p className="mt-1 text-sm font-semibold leading-5 text-white">{note.title}</p>
+              <p className="mt-0.5 text-sm font-semibold leading-5 text-white">{note.title}</p>
               {isExpanded && subject ? (
                 <p className="mt-1 text-[11px] font-medium text-gray-400">
                   {subject}
@@ -314,8 +335,13 @@ function NotificationItem({
               ) : null}
             </div>
 
-            <div className="flex shrink-0 flex-col items-end gap-2.5">
-              <span className="text-[10px] font-medium text-gray-500">{relativeTime}</span>
+            <div className="flex shrink-0 flex-col items-end gap-1.5">
+              <span className="text-right text-[10px] font-medium text-gray-500">
+                {deliveredAt}
+              </span>
+              {relativeTime ? (
+                <span className="text-[10px] text-gray-600">{relativeTime}</span>
+              ) : null}
               <button
                 type="button"
                 aria-label={isRead ? "Already read" : "Mark as read"}
@@ -323,7 +349,7 @@ function NotificationItem({
                   void handleMarkAsRead();
                 }}
                 disabled={isPending || isRead}
-                className="inline-flex h-7 items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 text-[10px] font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-white/10 disabled:cursor-default disabled:opacity-70"
+                className="inline-flex h-6 items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 text-[9px] font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-white/10 disabled:cursor-default disabled:opacity-70"
                 title="Mark as read"
               >
                 <Check className="h-3 w-3" />
@@ -332,7 +358,7 @@ function NotificationItem({
             </div>
           </div>
 
-          <div className="mt-3 flex flex-wrap items-center gap-2">
+          <div className="mt-2 flex flex-wrap items-center gap-1.5">
             {(note.dropContext || note.link) ? (
               <button
                 type="button"
@@ -341,7 +367,7 @@ function NotificationItem({
                   void openNotification();
                 }}
                 disabled={isPending}
-                className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-brand-purple/25 bg-white px-3 py-1.5 text-[11px] font-bold text-black transition-opacity hover:opacity-90 disabled:opacity-75"
+                className="inline-flex min-h-7 items-center gap-1.5 rounded-full border border-brand-purple/25 bg-white px-3 py-1 text-[10px] font-bold text-black transition-opacity hover:opacity-90 disabled:opacity-75"
               >
                 <ExternalLink className="h-3.5 w-3.5" />
                 {getNotificationActionLabel(note)}
@@ -353,7 +379,7 @@ function NotificationItem({
                 type="button"
                 aria-expanded={isExpanded}
                 onClick={handleToggleExpanded}
-                className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-white/10"
+                className="inline-flex min-h-7 items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold text-white transition-colors hover:bg-white/10"
               >
                 <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", isExpanded ? "rotate-180" : "")} />
                 {isExpanded ? "Less" : "Details"}

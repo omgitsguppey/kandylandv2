@@ -63,7 +63,7 @@ function toTaskEvent(raw: Record<string, unknown>, id: string) {
         reward: Number(raw.reward) || 0,
         progress: Number(raw.progress) || 0,
         maxProgress: Number(raw.maxProgress) || 0,
-        timestamp: Number(raw.timestamp) || 0,
+        timestamp: toTimestampNumber(raw.timestamp),
     };
 }
 
@@ -72,6 +72,14 @@ function renderTransactionLabel(transaction: ReturnType<typeof normalizeTransact
 }
 
 function renderTaskEventLabel(taskEvent: NonNullable<ReturnType<typeof toTaskEvent>>) {
+    if (taskEvent.type === "assigned") {
+        return `Task ready: ${taskEvent.title}`;
+    }
+
+    if (taskEvent.type === "started") {
+        return `Task in progress: ${taskEvent.title}`;
+    }
+
     if (taskEvent.type === "completed") {
         return `Task complete: ${taskEvent.title}`;
     }
@@ -80,7 +88,7 @@ function renderTaskEventLabel(taskEvent: NonNullable<ReturnType<typeof toTaskEve
         return `Task reset: ${taskEvent.title}`;
     }
 
-    return taskEvent.title;
+    return `Task reminder: ${taskEvent.title}`;
 }
 
 async function fetchTransactions(uid: string, limitCount?: number) {
@@ -186,7 +194,7 @@ function buildActivityItems(
 
     const taskItems = taskEventsSnapshot.docs.flatMap((doc) => {
         const normalized = toTaskEvent(doc.data() as Record<string, unknown>, doc.id);
-        if (!normalized || (normalized.type !== "completed" && normalized.type !== "failed")) {
+        if (!normalized) {
             return [];
         }
 
@@ -201,6 +209,13 @@ function buildActivityItems(
 
     return [...transactionItems, ...taskItems].sort((left, right) => right.timestamp - left.timestamp);
 }
+
+export const __test = {
+    toTimestampNumber,
+    toTaskEvent,
+    buildActivityItems,
+    renderTaskEventLabel,
+};
 
 export async function GET(request: NextRequest) {
     try {

@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 interface AdminDashboardModuleProps {
     title: string;
-    description: string;
+    description?: string;
     defaultOpen?: boolean;
     actions?: ReactNode;
     children: ReactNode;
@@ -34,7 +34,7 @@ export function AdminDashboardModule({
             >
                 <div className="min-w-0">
                     <h2 className="text-base font-bold text-white md:text-lg">{title}</h2>
-                    <p className="mt-1 text-sm leading-relaxed text-gray-400">{description}</p>
+                    {description ? <p className="mt-1 text-sm leading-relaxed text-gray-400">{description}</p> : null}
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                     {actions ? (

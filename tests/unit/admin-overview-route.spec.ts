@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { getCSTDateKey, shiftCSTDateKey } from "@/lib/timezone";
+
 type MockDoc = {
     id: string;
     data: () => Record<string, unknown>;
@@ -16,6 +18,27 @@ type OrderClause = {
     field: string;
     direction: "asc" | "desc";
 };
+
+function toSortableValue(value: unknown) {
+    if (typeof value === "number" && Number.isFinite(value)) {
+        return value;
+    }
+
+    if (
+        value
+        && typeof value === "object"
+        && "toMillis" in value
+        && typeof (value as { toMillis: () => number }).toMillis === "function"
+    ) {
+        return (value as { toMillis: () => number }).toMillis();
+    }
+
+    if (typeof value === "string") {
+        return value;
+    }
+
+    return 0;
+}
 
 const mockState = vi.hoisted(() => {
     const collections = new Map<string, MockDoc[]>();
@@ -35,20 +58,22 @@ const mockState = vi.hoisted(() => {
         const applyClauses = (docs: MockDoc[]) => {
             let filtered = docs.filter((doc) => {
                 const raw = doc.data();
+
                 return clauses.every((clause) => {
+                    const actual = clause.field === "__name__" ? doc.id : raw[clause.field];
+
                     if (clause.operator === "==") {
-                        return raw[clause.field] === clause.value;
+                        return actual === clause.value;
                     }
 
                     if (clause.operator === ">=") {
-                        const actual = raw[clause.field];
-                        return typeof actual === "number"
-                            && typeof clause.value === "number"
-                            && actual >= clause.value;
+                        const actualValue = toSortableValue(actual);
+                        const clauseValue = toSortableValue(clause.value);
+                        return actualValue >= clauseValue;
                     }
 
                     if (clause.operator === "in" && Array.isArray(clause.value)) {
-                        return clause.value.includes(clause.field === "__name__" ? doc.id : raw[clause.field]);
+                        return clause.value.includes(actual);
                     }
 
                     return true;
@@ -58,10 +83,10 @@ const mockState = vi.hoisted(() => {
             if (order) {
                 const activeOrder = order;
                 filtered = [...filtered].sort((left, right) => {
-                    const leftValue = left.data()[activeOrder.field];
-                    const rightValue = right.data()[activeOrder.field];
-                    const direction = activeOrder.direction === "desc" ? -1 : 1;
-                    return ((Number(leftValue) || 0) - (Number(rightValue) || 0)) * direction;
+                    const leftValue = toSortableValue(left.data()[activeOrder.field]);
+                    const rightValue = toSortableValue(right.data()[activeOrder.field]);
+                    const comparison = leftValue > rightValue ? 1 : leftValue < rightValue ? -1 : 0;
+                    return activeOrder.direction === "desc" ? comparison * -1 : comparison;
                 });
             }
 
@@ -120,19 +145,19 @@ const mockState = vi.hoisted(() => {
         },
         guardApiRequest: vi.fn(),
         handleApiError: vi.fn(),
-        normalizeDropRecord: vi.fn(),
-        applyDropStatus: vi.fn(),
-        normalizeTransactionRecord: vi.fn(),
-        getTransactionRevenueCents: vi.fn(),
+        normalizeDrop: vi.fn(),
+        isDropHidden: vi.fn(),
+        buildUserMap: vi.fn(),
+        fetchTelemetryLogs: vi.fn(),
         reset() {
             collections.clear();
             documents.clear();
             this.guardApiRequest.mockReset();
             this.handleApiError.mockReset();
-            this.normalizeDropRecord.mockReset();
-            this.applyDropStatus.mockReset();
-            this.normalizeTransactionRecord.mockReset();
-            this.getTransactionRevenueCents.mockReset();
+            this.normalizeDrop.mockReset();
+            this.isDropHidden.mockReset();
+            this.buildUserMap.mockReset();
+            this.fetchTelemetryLogs.mockReset();
         },
     };
 });
@@ -154,17 +179,23 @@ vi.mock("@/lib/server/rate-limit", () => ({
     HEAVY_READ: {},
 }));
 
-vi.mock("@/lib/drop-normalizers", () => ({
-    normalizeDropRecord: mockState.normalizeDropRecord,
+vi.mock("@/lib/server/diagnostic-read-fallbacks", () => ({
+    safeQueryWithDiagnostics: async <T,>({ reader }: { reader: () => Promise<T> }) => reader(),
+    safeDocumentWithDiagnostics: async <T,>({ reader }: { reader: () => Promise<T> }) => reader(),
+    safeCountWithDiagnostics: async <T,>({ reader }: { reader: () => Promise<T> }) => reader(),
 }));
 
-vi.mock("@/lib/drop-status", () => ({
-    applyDropStatus: mockState.applyDropStatus,
+vi.mock("@/lib/drop-read-models", () => ({
+    normalizeAndApplyDropStatusOrNull: mockState.normalizeDrop,
+    isDropHiddenFromPublic: mockState.isDropHidden,
 }));
 
-vi.mock("@/lib/transaction-normalizers", () => ({
-    normalizeTransactionRecord: mockState.normalizeTransactionRecord,
-    getTransactionRevenueCents: mockState.getTransactionRevenueCents,
+vi.mock("@/lib/server/admin-overview-users", () => ({
+    buildAdminOverviewUserNameMap: mockState.buildUserMap,
+}));
+
+vi.mock("@/lib/server/admin-analytics-shared", () => ({
+    fetchTelemetryLogs: mockState.fetchTelemetryLogs,
 }));
 
 import { GET } from "@/app/api/admin/overview/route";
@@ -179,30 +210,48 @@ describe("GET /api/admin/overview", () => {
         mockState.handleApiError.mockImplementation((error: unknown) => NextResponse.json({
             error: error instanceof Error ? error.message : String(error),
         }, { status: 500 }));
-        mockState.normalizeDropRecord.mockImplementation((data: Record<string, unknown>, id: string) => ({
+        mockState.normalizeDrop.mockImplementation((data: Record<string, unknown>, id: string) => ({
             id,
             ...data,
         }));
-        mockState.applyDropStatus.mockImplementation((drop: Record<string, unknown>) => ({
-            ...drop,
-            status: drop.status ?? "active",
-        }));
-        mockState.normalizeTransactionRecord.mockImplementation((data: Record<string, unknown>, id: string) => ({
-            id,
-            ...data,
-        }));
-        mockState.getTransactionRevenueCents.mockImplementation((transaction: Record<string, unknown>) =>
-            Number(transaction.grossRevenueCents ?? 0),
-        );
+        mockState.isDropHidden.mockReturnValue(false);
+        mockState.buildUserMap.mockImplementation(async ({ userIds }: { userIds: Iterable<string> }) => {
+            const map = new Map<string, string>();
+            Array.from(userIds).forEach((userId) => {
+                if (userId === "fan_1") {
+                    map.set(userId, "fanone");
+                }
+                if (userId === "fan_2") {
+                    map.set(userId, "fantwo");
+                }
+                if (userId === "admin_1") {
+                    map.set(userId, "adminone");
+                }
+            });
+            return map;
+        });
+        mockState.fetchTelemetryLogs.mockResolvedValue({});
     });
 
-    it("returns overview payload with usernames without throwing before the user map is built", async () => {
+    it("returns merged overview stats, truthful deltas, and an admin-only mixed activity feed", async () => {
         const nowMs = Date.now();
+        const todayKey = getCSTDateKey(nowMs);
+        const currentDayKey = shiftCSTDateKey(todayKey, -1);
+        const previousDayKey = shiftCSTDateKey(todayKey, -31);
+
         mockState.collections.set("users", [
             {
                 id: "fan_1",
                 data: () => ({
                     username: "fanone",
+                    createdAt: nowMs - 2 * 24 * 60 * 60 * 1000,
+                }),
+            },
+            {
+                id: "fan_2",
+                data: () => ({
+                    username: "fantwo",
+                    createdAt: nowMs - 35 * 24 * 60 * 60 * 1000,
                 }),
             },
         ]);
@@ -210,8 +259,21 @@ describe("GET /api/admin/overview", () => {
             {
                 id: "drop_1",
                 data: () => ({
-                    totalUnlocks: 4,
+                    title: "Sour Burst",
                     status: "active",
+                    totalUnlocks: 7,
+                    totalClicks: 11,
+                    unlockCost: 20,
+                }),
+            },
+            {
+                id: "drop_2",
+                data: () => ({
+                    title: "Cherry Pop",
+                    status: "scheduled",
+                    totalUnlocks: 3,
+                    totalClicks: 5,
+                    unlockCost: 15,
                 }),
             },
         ]);
@@ -223,18 +285,9 @@ describe("GET /api/admin/overview", () => {
                     type: "purchase_currency",
                     status: "completed",
                     timestamp: nowMs - 1_000,
-                    grossRevenueCents: 500,
+                    timestampMs: nowMs - 1_000,
+                    grossRevenueCents: 800,
                     description: "Starter pack",
-                }),
-            },
-            {
-                id: "tx_admin",
-                data: () => ({
-                    userId: "fan_1",
-                    type: "admin_adjustment",
-                    status: "completed",
-                    timestamp: nowMs - 2_000,
-                    description: "Manual credit",
                 }),
             },
             {
@@ -243,23 +296,91 @@ describe("GET /api/admin/overview", () => {
                     userId: "fan_1",
                     type: "unlock_content",
                     status: "completed",
-                    timestamp: nowMs - 3_000,
+                    timestamp: nowMs - 2_000,
+                    timestampMs: nowMs - 2_000,
+                    amount: -20,
+                    relatedDropId: "drop_1",
                     description: "Unlocked premium drop",
                 }),
             },
+            {
+                id: "tx_admin",
+                data: () => ({
+                    userId: "fan_2",
+                    type: "admin_adjustment",
+                    status: "completed",
+                    timestamp: nowMs - 3_000,
+                    timestampMs: nowMs - 3_000,
+                    amount: 25,
+                    description: "Admin Adjustment: goodwill",
+                    adjustedBy: "owner@example.com",
+                }),
+            },
         ]);
+        mockState.collections.set("analytics_commerce_daily", [
+            {
+                id: `${currentDayKey}_commerce`,
+                data: () => ({
+                    dayKey: currentDayKey,
+                    revenueCentsTotal: 1200,
+                    unlockCount: 9,
+                    purchaseCount: 5,
+                }),
+            },
+            {
+                id: `${previousDayKey}_commerce`,
+                data: () => ({
+                    dayKey: previousDayKey,
+                    revenueCentsTotal: 600,
+                    unlockCount: 4,
+                    purchaseCount: 2,
+                }),
+            },
+        ]);
+        mockState.collections.set("analytics_drop_daily", [
+            {
+                id: `${currentDayKey}_drop_1`,
+                data: () => ({
+                    dayKey: currentDayKey,
+                    dropId: "drop_1",
+                    unlockTransactionCount: 7,
+                }),
+            },
+        ]);
+        mockState.documents.set("analytics_commerce_rollup/summary", {
+            grossRevenueUsdTotal: 120.5,
+            unlockCount: 44,
+            lastTransactionAt: nowMs - 1_000,
+        });
+        mockState.fetchTelemetryLogs.mockResolvedValue({
+            admin_dashboard_viewed: [
+                {
+                    eventName: "admin_dashboard_viewed",
+                    params: { page_path: "/admin" },
+                    userId: "admin_1",
+                    username: "adminone",
+                    timestamp: nowMs - 1_500,
+                },
+            ],
+        });
 
-        const request = new NextRequest("http://localhost/api/admin/overview");
-        const response = await GET(request);
+        const response = await GET(new NextRequest("http://localhost/api/admin/overview"));
         const payload = await response.json();
 
         expect(response.status).toBe(200);
-        expect(payload.stats.totalUsers).toBe(1);
+        expect(payload.stats.totalUsers).toBe(2);
+        expect(payload.stats.liveDrops).toBe(1);
+        expect(payload.stats.grossRevenueCents).toBe(12050);
+        expect(payload.stats.totalUnwraps).toBe(44);
+        expect(payload.stats.currentWindowPurchases).toBe(5);
+        expect(payload.deltas.purchases.current).toBe(5);
+        expect(payload.deltas.purchases.previous).toBe(2);
         expect(payload.recentTransactions).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({
                     id: "tx_purchase",
                     username: "fanone",
+                    sourceScope: "overview_snapshot",
                 }),
             ]),
         );
@@ -267,48 +388,74 @@ describe("GET /api/admin/overview", () => {
             expect.arrayContaining([
                 expect.objectContaining({
                     id: "tx_admin",
-                    username: "fanone",
+                    source: "transactions",
+                    domain: "admin",
+                    actorLabel: "owner@example.com",
+                }),
+                expect.objectContaining({
+                    source: "telemetry_logs",
+                    domain: "admin",
+                    label: "Admin dashboard viewed",
                 }),
             ]),
         );
+        expect(payload.trendSummary.topUnlockDrop).toEqual({
+            dropId: "drop_1",
+            title: "Sour Burst",
+            unwraps: 7,
+        });
+        expect(payload.truthNotes.adminActivity).toContain("admin balance adjustments");
         expect(mockState.handleApiError).not.toHaveBeenCalled();
     });
 
-    it("counts recent purchase revenue from timestampMs-backed transactions in the chart window", async () => {
+    it("falls back honestly when the lifetime commerce summary is unavailable", async () => {
         const nowMs = Date.now();
+        const todayKey = getCSTDateKey(nowMs);
+        const currentDayKey = shiftCSTDateKey(todayKey, -1);
+
         mockState.collections.set("users", [
             {
                 id: "fan_1",
                 data: () => ({
                     username: "fanone",
+                    createdAt: nowMs - 2 * 24 * 60 * 60 * 1000,
                 }),
             },
         ]);
-        mockState.collections.set("drops", []);
-        mockState.collections.set("transactions", [
+        mockState.collections.set("drops", [
             {
-                id: "tx_purchase_timestampms",
+                id: "drop_1",
                 data: () => ({
-                    userId: "fan_1",
-                    type: "purchase_currency",
-                    status: "completed",
-                    timestamp: {
-                        toMillis: () => nowMs - 1_000,
-                    },
-                    timestampMs: nowMs - 1_000,
-                    grossRevenueCents: 750,
-                    description: "Timestamp mirror purchase",
+                    title: "Sour Burst",
+                    status: "active",
+                    totalUnlocks: 9,
+                    totalClicks: 4,
+                    unlockCost: 20,
                 }),
             },
         ]);
+        mockState.collections.set("transactions", []);
+        mockState.collections.set("analytics_commerce_daily", [
+            {
+                id: `${currentDayKey}_commerce`,
+                data: () => ({
+                    dayKey: currentDayKey,
+                    revenueCentsTotal: 500,
+                    unlockCount: 3,
+                    purchaseCount: 1,
+                }),
+            },
+        ]);
+        mockState.collections.set("analytics_drop_daily", []);
 
-        const request = new NextRequest("http://localhost/api/admin/overview");
-        const response = await GET(request);
+        const response = await GET(new NextRequest("http://localhost/api/admin/overview"));
         const payload = await response.json();
 
         expect(response.status).toBe(200);
-        expect(payload.stats.grossRevenueCents).toBe(750);
-        expect(payload.chartData.some((entry: { revenue: number }) => entry.revenue === 7.5)).toBe(true);
-        expect(mockState.handleApiError).not.toHaveBeenCalled();
+        expect(payload.stats.grossRevenueCents).toBe(500);
+        expect(payload.stats.totalUnwraps).toBe(9);
+        expect(payload.deltas.accounts.percentChange).toBeNull();
+        expect(payload.truthNotes.platformPulse).toContain("scoped");
+        expect(payload.adminActivity).toEqual([]);
     });
 });

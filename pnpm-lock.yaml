@@ -65,6 +65,9 @@ importers:
       framer-motion:
         specifier: ^12.38.0
         version: 12.38.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      google-auth-library:
+        specifier: ^9.15.1
+        version: 9.15.1
       lucide-react:
         specifier: ^0.563.0
         version: 0.563.0(react@19.2.4)

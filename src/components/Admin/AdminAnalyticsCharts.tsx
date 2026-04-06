@@ -2,54 +2,137 @@
 
 import { useMemo, useState } from "react";
 import {
-    AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-    BarChart, Bar
+    Area,
+    AreaChart,
+    Bar,
+    BarChart,
+    CartesianGrid,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
 } from "recharts";
-import { useAdminOverview } from "@/hooks/useAdminOverview";
+
+import type { AdminOverviewResponse } from "@/lib/admin-overview";
+import { calculateOverviewMetricDelta } from "@/lib/admin-overview";
 import { trackEvent } from "@/lib/telemetry";
 
-interface ChartDataPoint {
-    date: string;
-    revenue: number;
-    unwraps: number;
+type AdminAnalyticsChartsProps = {
+    chartData: AdminOverviewResponse["chartData"];
+    trendSummary: AdminOverviewResponse["trendSummary"];
+    truthNote: string;
+    issueCount: number;
+    loading?: boolean;
+};
+
+function formatDeltaSummary(current: number, previous: number, suffix = "") {
+    const delta = calculateOverviewMetricDelta(current, previous);
+
+    if (delta.percentChange === null) {
+        return previous === 0 && current > 0 ? `New${suffix}` : `No change${suffix}`;
+    }
+
+    if (delta.percentChange === 0) {
+        return `Flat${suffix}`;
+    }
+
+    const sign = delta.percentChange > 0 ? "+" : "-";
+    const absoluteValue = Math.abs(delta.percentChange);
+    return `${sign}${absoluteValue.toFixed(absoluteValue >= 10 ? 0 : 1)}%${suffix}`;
 }
 
-export function AdminAnalyticsCharts() {
-    const { data, isLoading } = useAdminOverview();
-    const loading = isLoading;
+export function AdminAnalyticsCharts({
+    chartData,
+    trendSummary,
+    truthNote,
+    issueCount,
+    loading = false,
+}: AdminAnalyticsChartsProps) {
     const [chartView, setChartView] = useState<"revenue" | "unwraps">("revenue");
-    const chartData = useMemo<ChartDataPoint[]>(
-        () => (data?.chartData || []).map((entry) => ({
-            date: entry.date,
-            revenue: entry.revenue,
-            unwraps: entry.unwraps,
-        })),
-        [data],
+
+    const chartHasData = useMemo(
+        () => chartData.some((entry) => entry.revenue > 0 || entry.unwraps > 0),
+        [chartData],
     );
 
+    const supportCards = useMemo(() => {
+        if (chartView === "revenue") {
+            return [
+                {
+                    label: "Window total",
+                    value: `$${(trendSummary.currentRevenueCents / 100).toFixed(2)}`,
+                },
+                {
+                    label: "Vs prior window",
+                    value: formatDeltaSummary(trendSummary.currentRevenueCents, trendSummary.previousRevenueCents),
+                },
+                {
+                    label: "Best day",
+                    value: trendSummary.bestRevenueDay
+                        ? `${trendSummary.bestRevenueDay.label} · $${trendSummary.bestRevenueDay.value.toFixed(2)}`
+                        : "No revenue days yet",
+                },
+                {
+                    label: "Active days",
+                    value: `${trendSummary.revenueActiveDays} of ${trendSummary.windowDays}`,
+                },
+            ];
+        }
+
+        return [
+            {
+                label: "Window unwraps",
+                value: trendSummary.currentUnwraps.toLocaleString(),
+            },
+            {
+                label: "Vs prior window",
+                value: formatDeltaSummary(trendSummary.currentUnwraps, trendSummary.previousUnwraps),
+            },
+            {
+                label: "Best day",
+                value: trendSummary.bestUnwrapDay
+                    ? `${trendSummary.bestUnwrapDay.label} · ${trendSummary.bestUnwrapDay.value.toLocaleString()}`
+                    : "No unwrap days yet",
+            },
+            {
+                label: "Strongest driver",
+                value: trendSummary.topUnlockDrop
+                    ? `${trendSummary.topUnlockDrop.title} · ${trendSummary.topUnlockDrop.unwraps.toLocaleString()}`
+                    : "No drop-level unwrap lead yet",
+            },
+        ];
+    }, [chartView, trendSummary]);
+
     if (loading) {
-        return (
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
-                <div className="h-64 animate-pulse rounded-[1.6rem] border border-white/10 bg-white/5 md:h-72" />
-                <div className="h-64 animate-pulse rounded-[1.6rem] border border-white/10 bg-white/5 md:h-72" />
-            </div>
-        );
+        return <div className="h-[22rem] animate-pulse rounded-[1.4rem] border border-white/10 bg-white/5" />;
     }
 
     return (
         <div className="space-y-3">
-            <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-black/30 p-2">
-                <p className="px-2 text-xs font-bold uppercase tracking-[0.14em] text-gray-500">Trend focus</p>
-                <div className="inline-flex items-center gap-1 rounded-xl bg-black/40 p-1">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-400">
+                    <span className="rounded-full border border-white/10 bg-black/30 px-2.5 py-1">
+                        Last {trendSummary.windowDays} days
+                    </span>
+                    <span className="rounded-full border border-white/10 bg-black/30 px-2.5 py-1">
+                        Polled overview data
+                    </span>
+                    {issueCount > 0 ? (
+                        <span className="rounded-full border border-amber-400/20 bg-amber-500/10 px-2.5 py-1 text-amber-200">
+                            {issueCount} read issue{issueCount === 1 ? "" : "s"}
+                        </span>
+                    ) : null}
+                </div>
+                <div className="inline-flex items-center gap-1 rounded-xl border border-white/10 bg-black/35 p-1">
                     <button
                         type="button"
                         onClick={() => {
                             setChartView("revenue");
                             trackEvent("admin_chart_view_changed", { view: "revenue" });
                         }}
-                        className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${chartView === "revenue" ? "bg-brand-purple/25 text-white" : "text-gray-400"}`}
+                        className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${chartView === "revenue" ? "bg-brand-purple/20 text-white" : "text-gray-400"}`}
                     >
-                        Revenue
+                        Revenue view
                     </button>
                     <button
                         type="button"
@@ -57,64 +140,78 @@ export function AdminAnalyticsCharts() {
                             setChartView("unwraps");
                             trackEvent("admin_chart_view_changed", { view: "unwraps" });
                         }}
-                        className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${chartView === "unwraps" ? "bg-pink-500/25 text-white" : "text-gray-400"}`}
+                        className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${chartView === "unwraps" ? "bg-brand-purple/20 text-white" : "text-gray-400"}`}
                     >
-                        Unwraps
+                        Unwrap view
                     </button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
-            <div className={`glass-panel rounded-[1.6rem] border border-white/10 p-3.5 md:p-5 ${chartView === "unwraps" ? "hidden md:block" : ""}`}>
-                <h3 className="text-white font-bold mb-4 md:mb-6 flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-brand-purple shadow-[0_0_10px_#d946ef]" />
-                    30-Day Revenue
-                </h3>
-                <div className="h-56 md:h-64 w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={chartData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
-                            <defs>
-                                <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#d946ef" stopOpacity={0.3} />
-                                    <stop offset="95%" stopColor="#d946ef" stopOpacity={0} />
-                                </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                            <XAxis dataKey="date" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} minTickGap={30} />
-                            <YAxis stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => "$" + value} />
-                            <Tooltip
-                                contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: 'white' }}
-                                itemStyle={{ color: '#d946ef', fontWeight: 'bold' }}
-                                formatter={(value: any) => ["$" + Number(value).toFixed(2), "Revenue"]}
-                            />
-                            <Area type="monotone" dataKey="revenue" stroke="#d946ef" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
-                        </AreaChart>
-                    </ResponsiveContainer>
-                </div>
+            <div className="grid grid-cols-2 gap-2.5 xl:grid-cols-4">
+                {supportCards.map((card) => (
+                    <div key={card.label} className="rounded-[1.25rem] border border-white/8 bg-black/30 px-3 py-3">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">{card.label}</p>
+                        <p className="mt-1 text-sm font-bold text-white">{card.value}</p>
+                    </div>
+                ))}
             </div>
 
-            <div className={`glass-panel rounded-[1.6rem] border border-white/10 p-3.5 md:p-5 ${chartView === "revenue" ? "hidden md:block" : ""}`}>
-                <h3 className="text-white font-bold mb-4 md:mb-6 flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-pink-500 shadow-[0_0_10px_#ec4899]" />
-                    30-Day Unwraps
-                </h3>
-                <div className="h-56 md:h-64 w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={chartData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                            <XAxis dataKey="date" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} minTickGap={30} />
-                            <YAxis stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
-                            <Tooltip
-                                contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: 'white' }}
-                                itemStyle={{ color: '#ec4899', fontWeight: 'bold' }}
-                                cursor={{ fill: 'rgba(255,255,255,0.05)' }}
-                            />
-                            <Bar dataKey="unwraps" fill="#ec4899" radius={[4, 4, 0, 0]} name="Total Unwraps" />
-                        </BarChart>
-                    </ResponsiveContainer>
+            {!chartHasData ? (
+                <div className="rounded-[1.35rem] border border-white/8 bg-black/25 px-4 py-8 text-center">
+                    <p className="text-sm font-semibold text-white">No overview trend data is available for this window.</p>
+                    <p className="mt-1 text-sm text-gray-400">{truthNote}</p>
                 </div>
-            </div>
-            </div>
+            ) : (
+                <div className="rounded-[1.45rem] border border-white/8 bg-black/30 p-3.5 md:p-4">
+                    <div className="h-[17rem] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            {chartView === "revenue" ? (
+                                <AreaChart data={chartData} margin={{ top: 12, right: 8, left: -20, bottom: 0 }}>
+                                    <defs>
+                                        <linearGradient id="overviewRevenueGradient" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#d946ef" stopOpacity={0.28} />
+                                            <stop offset="95%" stopColor="#d946ef" stopOpacity={0} />
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                                    <XAxis dataKey="date" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} minTickGap={22} />
+                                    <YAxis stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
+                                    <Tooltip
+                                        contentStyle={{
+                                            backgroundColor: "rgba(0,0,0,0.85)",
+                                            borderColor: "rgba(255,255,255,0.12)",
+                                            borderRadius: "12px",
+                                            color: "white",
+                                        }}
+                                        itemStyle={{ color: "#d946ef", fontWeight: "bold" }}
+                                        formatter={(value) => [`$${Number(value ?? 0).toFixed(2)}`, "Revenue"]}
+                                    />
+                                    <Area type="monotone" dataKey="revenue" stroke="#d946ef" strokeWidth={2.6} fillOpacity={1} fill="url(#overviewRevenueGradient)" />
+                                </AreaChart>
+                            ) : (
+                                <BarChart data={chartData} margin={{ top: 12, right: 8, left: -20, bottom: 0 }}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                                    <XAxis dataKey="date" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} minTickGap={22} />
+                                    <YAxis stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
+                                    <Tooltip
+                                        contentStyle={{
+                                            backgroundColor: "rgba(0,0,0,0.85)",
+                                            borderColor: "rgba(255,255,255,0.12)",
+                                            borderRadius: "12px",
+                                            color: "white",
+                                        }}
+                                        itemStyle={{ color: "#f472b6", fontWeight: "bold" }}
+                                        formatter={(value) => [Number(value ?? 0).toLocaleString(), "Unwraps"]}
+                                    />
+                                    <Bar dataKey="unwraps" fill="#f472b6" radius={[6, 6, 0, 0]} />
+                                </BarChart>
+                            )}
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+            )}
+
+            <p className="text-xs text-gray-500">{truthNote}</p>
         </div>
     );
 }

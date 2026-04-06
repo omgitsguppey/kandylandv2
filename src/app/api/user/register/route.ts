@@ -14,6 +14,7 @@ import { touchUserRuntime } from "@/lib/server/user-runtime";
 import { ensureCreatorOnboardingSubmission } from "@/lib/server/creator-onboarding";
 import { sendCreatorOnboardingAdminNotification } from "@/lib/server/creator-onboarding-alerts";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
+import { REFERRAL_BONUS_GD } from "@/lib/referrals";
 
 function normalizeRegistrationMethod(value: unknown) {
     return value === "google" ? "google" : "email";
@@ -255,14 +256,14 @@ export async function POST(request: NextRequest) {
 
                         const sourceAwareBalance = readSourceAwareBalance(latestReferrerSnap.data() ?? {});
                         const currentBalance = normalizeGumdropBalance(sourceAwareBalance.total);
-                        const nextBalance = creditSourceAwareGumdrops(sourceAwareBalance, 25, "reward");
+                        const nextBalance = creditSourceAwareGumdrops(sourceAwareBalance, REFERRAL_BONUS_GD, "reward");
                         const transactionRef = adminDb.collection("transactions").doc();
 
                         transaction.update(referrerRef, buildSourceAwareBalancePatch(nextBalance));
                         transaction.set(transactionRef, buildCompletedGumdropTransaction({
                             userId: referredBy,
                             type: "referral_bonus",
-                            amount: 25,
+                            amount: REFERRAL_BONUS_GD,
                             description: `Referral bonus for inviting ${displayName || "a new user"}`,
                             balanceBefore: currentBalance,
                             balanceAfter: nextBalance.total,

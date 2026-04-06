@@ -42,6 +42,10 @@ export function getErrorMessage(error: unknown, fallback = "Unexpected error") {
 export function inferDiagnosticChannel(context: string): ServerDiagnosticChannel {
   const normalizedContext = context.toLowerCase();
 
+  if (normalizedContext.includes("vertex") || normalizedContext.includes("imagen") || normalizedContext.includes("/ai") || normalizedContext.includes("ai/")) {
+    return "ai";
+  }
+
   if (normalizedContext.includes("analytics") || normalizedContext.includes("telemetry") || normalizedContext.includes("watch")) {
     return "analytics";
   }

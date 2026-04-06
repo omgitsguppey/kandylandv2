@@ -26,27 +26,11 @@ export default function FAQPage() {
             How it works
           </h1>
           <p className="mx-auto max-w-xl text-sm text-gray-400 sm:text-lg">
-            The quick mobile guide to Gum Drops, live drops, library access, and daily rewards.
+            Tap through the five steps to see how KandyDrops works.
           </p>
         </div>
 
         <FAQClient sections={FAQ_SECTIONS} steps={HOW_IT_WORKS_STEPS} />
-
-        <div className="mt-16 sm:mt-24 text-center glass-panel p-8 rounded-3xl border border-white/10 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-brand-purple/10 via-brand-purple/10 to-brand-purple/10" />
-          <div className="relative z-10">
-            <h3 className="text-2xl font-bold text-white mb-2">Still need help?</h3>
-            <p className="text-gray-400 mb-6 max-w-md mx-auto">
-              If you still need help after the mobile guide and FAQs, reach out to support and we&apos;ll help you keep unwrapping.
-            </p>
-            <a
-              href="mailto:support@kandydrops.com"
-              className="inline-flex items-center justify-center rounded-full bg-brand-purple px-8 py-3 font-bold text-white transition-opacity shadow-[0_0_30px_rgba(164,118,255,0.25)] hover:opacity-90"
-            >
-              Contact Support
-            </a>
-          </div>
-        </div>
       </div>
     </div>
   );

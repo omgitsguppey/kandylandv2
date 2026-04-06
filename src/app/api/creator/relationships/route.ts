@@ -28,6 +28,16 @@ type RecommendedCreatorRecord = Record<string, unknown> & {
     isVerified?: unknown;
 };
 
+type CreatorListEntry = {
+    uid: string;
+    displayName: string;
+    username: string;
+    photoURL: string | null;
+    bio: string;
+    isVerified: boolean;
+    followerCount: number;
+};
+
 const relationshipActionSchema = z.object({
     creatorId: z.string().trim().min(1),
     action: z.enum([
@@ -66,6 +76,20 @@ async function getCreatorRecord(creatorId: string) {
     };
 }
 
+async function countActiveCreatorFollowers(creatorId: string) {
+    if (!adminDb) {
+        return 0;
+    }
+
+    const snapshot = await adminDb.collection(CREATOR_COLLECTIONS.relationships)
+        .where("creatorId", "==", creatorId)
+        .where("following", "==", true)
+        .count()
+        .get();
+
+    return Number(snapshot.data().count) || 0;
+}
+
 export async function GET(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
@@ -90,16 +114,25 @@ export async function GET(request: NextRequest) {
             ...(doc.data() as Record<string, unknown>),
         }) as CreatorRelationshipRecord);
 
-        const recommendedCreatorDocs = adminDb.collection("users")
-            .where("role", "==", "creator")
-            .where("status", "not-in", ["suspended", "banned"])
-            .select("role", "status", "displayName", "username", "photoURL", "bio", "isVerified")
-            .stream();
+        const [creatorOpsSnap, recommendedCreatorDocs] = await Promise.all([
+            adminDb.collection("creator_ops").get(),
+            adminDb.collection("users")
+                .where("role", "==", "creator")
+                .where("status", "not-in", ["suspended", "banned"])
+                .select("role", "status", "displayName", "username", "photoURL", "bio", "isVerified")
+                .get(),
+        ]);
+        const creatorFollowerCounts = new Map(
+            creatorOpsSnap.docs.map((doc) => {
+                const summary = doc.data()?.summary as Record<string, unknown> | undefined;
+                return [doc.id, typeof summary?.followerCount === "number" ? summary.followerCount : 0] as const;
+            }),
+        );
 
-        const validCreators = [];
-        for await (const chunk of recommendedCreatorDocs) {
-            const doc = chunk as unknown as FirebaseFirestore.DocumentSnapshot;
+        const validCreators: CreatorListEntry[] = [];
+        for (const doc of recommendedCreatorDocs.docs) {
             const entry = { id: doc.id, ...(doc.data() as Record<string, unknown>) } as RecommendedCreatorRecord;
+            const followerCount = creatorFollowerCounts.get(entry.id) ?? 0;
             if (isCreatorRole(entry.role) && entry.status !== "suspended" && entry.status !== "banned") {
                 validCreators.push({
                     uid: entry.id,
@@ -108,9 +141,11 @@ export async function GET(request: NextRequest) {
                     photoURL: typeof entry.photoURL === "string" ? entry.photoURL : null,
                     bio: typeof entry.bio === "string" ? entry.bio : "",
                     isVerified: entry.isVerified === true,
+                    followerCount,
                 });
             }
         }
+        const validCreatorsById = new Map(validCreators.map((entry) => [entry.uid, entry]));
         const validCreatorIds = new Set(validCreators.map((entry) => entry.uid));
         const relationships = rawRelationships.filter((entry) => typeof entry.creatorId === "string" && validCreatorIds.has(entry.creatorId));
 
@@ -128,6 +163,19 @@ export async function GET(request: NextRequest) {
         const followedCreatorIds = relationships
             .filter((entry) => entry.following === true && typeof entry.creatorId === "string")
             .map((entry) => String(entry.creatorId));
+        const followedCreators = followedCreatorIds
+            .map((entry) => validCreatorsById.get(entry))
+            .filter((entry): entry is CreatorListEntry => Boolean(entry))
+            .map((entry) => ({
+                uid: entry.uid,
+                displayName: entry.displayName,
+                username: entry.username,
+                photoURL: entry.photoURL,
+                bio: entry.bio,
+                isVerified: entry.isVerified,
+                followerCount: entry.followerCount,
+                following: true,
+            }));
         const recommendedCreators = validCreators
             .filter((entry) => !followedCreatorIds.includes(entry.uid))
             .slice(0, 12)
@@ -138,11 +186,13 @@ export async function GET(request: NextRequest) {
                 photoURL: entry.photoURL,
                 bio: entry.bio,
                 isVerified: entry.isVerified,
+                followerCount: entry.followerCount,
             }));
 
         return NextResponse.json({
             success: true,
             relationships,
+            followedCreators,
             recommendedCreators,
         });
     } catch (error) {
@@ -273,11 +323,14 @@ export async function POST(request: NextRequest) {
             transaction_id: `${caller.uid}:${creatorId}:${action}`,
         }, caller.uid).catch(() => null);
 
+        const followerCount = await countActiveCreatorFollowers(creatorId).catch(() => null);
+
         return NextResponse.json({
             success: true,
             relationship: {
                 creatorId,
                 ...result,
+                followerCount,
             },
         });
     } catch (error) {

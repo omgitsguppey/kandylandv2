@@ -46,6 +46,7 @@ export function FAQClient({ sections, steps }: FAQClientProps) {
   const [query, setQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [openQuestionKey, setOpenQuestionKey] = useState<string | null>(null);
+  const [showAllFilters, setShowAllFilters] = useState(false);
   const deferredQuery = useDeferredValue(query);
   const lastTrackedSearchRef = useRef("");
 
@@ -105,6 +106,9 @@ export function FAQClient({ sections, steps }: FAQClientProps) {
     () => ["All", ...sections.map((section) => section.category)],
     [sections]
   );
+  const primaryCategoryFilters = categoryFilters.slice(0, 3);
+  const extraCategoryFilters = categoryFilters.slice(3);
+  const visibleFilters = primaryCategoryFilters;
 
   return (
     <div className="space-y-8 sm:space-y-14">
@@ -117,12 +121,8 @@ export function FAQClient({ sections, steps }: FAQClientProps) {
               Quick answers
             </p>
             <h2 className="mt-2 text-2xl font-black tracking-tight text-white sm:text-3xl">
-              Search or browse the details
+              Search FAQs
             </h2>
-            <p className="mt-2 text-sm leading-7 text-gray-400 sm:text-base">
-              Start with the mobile guide above, then use the questions below for specifics about
-              Gum Drops, live drops, your library, and daily Experiences.
-            </p>
           </div>
 
           <div className="relative">
@@ -140,9 +140,9 @@ export function FAQClient({ sections, steps }: FAQClientProps) {
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-            {categoryFilters.map((category) => {
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            {visibleFilters.map((category) => {
               const isSelected = selectedCategory === category;
 
               return (
@@ -167,10 +167,52 @@ export function FAQClient({ sections, steps }: FAQClientProps) {
                 </button>
               );
             })}
+            {extraCategoryFilters.length > 0 ? (
+              <button
+                type="button"
+                onClick={() => setShowAllFilters((current) => !current)}
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-xs font-bold text-gray-300 transition-colors hover:bg-white/[0.06]"
+              >
+                <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", showAllFilters ? "rotate-180" : "")} />
+                {showAllFilters ? "Fewer filters" : "More filters"}
+              </button>
+            ) : null}
           </div>
-          <p className="shrink-0 text-xs text-gray-500" aria-live="polite">
-            {totalVisibleQuestions} answer{totalVisibleQuestions === 1 ? "" : "s"}
-          </p>
+          {showAllFilters && extraCategoryFilters.length > 0 ? (
+            <div className="flex flex-wrap items-center gap-2">
+              {extraCategoryFilters.map((category) => {
+                const isSelected = selectedCategory === category;
+
+                return (
+                  <button
+                    key={category}
+                    type="button"
+                    onClick={() => {
+                      setSelectedCategory(category);
+                      trackEvent("faq_category_selected", {
+                        category,
+                        visible_questions: totalVisibleQuestions,
+                      });
+                    }}
+                    className={cn(
+                      "rounded-full border px-4 py-2 text-xs font-bold transition-all",
+                      isSelected
+                        ? "border-brand-purple/40 bg-brand-purple/15 text-white shadow-[0_0_20px_rgba(164,118,255,0.14)]"
+                        : "border-white/10 bg-white/[0.03] text-gray-400"
+                    )}
+                  >
+                    {category}
+                  </button>
+                );
+              })}
+            </div>
+          ) : null}
+          <div className="flex items-center justify-between gap-3">
+            <div />
+            <p className="shrink-0 text-xs text-gray-500" aria-live="polite">
+              {totalVisibleQuestions} answer{totalVisibleQuestions === 1 ? "" : "s"}
+            </p>
+          </div>
         </div>
       </section>
 

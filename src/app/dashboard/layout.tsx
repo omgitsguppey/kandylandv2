@@ -40,8 +40,10 @@ export default function DashboardLayout({
 
     return (
         <div className="relative flex-1 w-full">
-            <NotificationPromptBanner />
-            <div className="w-full">{children}</div>
+            <div className="w-full space-y-2 pb-2 sm:space-y-3 sm:pb-3">
+                <NotificationPromptBanner />
+                <div className="w-full">{children}</div>
+            </div>
         </div>
     );
 }

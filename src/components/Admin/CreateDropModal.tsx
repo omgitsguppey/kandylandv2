@@ -6,6 +6,7 @@ import { db } from "@/lib/firebase-data";
 import { Loader2, Save, Calendar, DollarSign, X, ImageIcon, FileAudio, ChevronDown, ChevronUp } from "lucide-react";
 import * as Dialog from "@radix-ui/react-dialog";
 
+import { AiDropCoverGeneratorPanel } from "@/components/Admin/AiDropCoverGeneratorPanel";
 import { AssetUploader, UploadAspectRatio } from "@/components/Admin/AssetUploader";
 import { useForm, SubmitHandler, useWatch, FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,6 +21,7 @@ import {
 } from "@/lib/admin-drop-form";
 import { dispatchAdminOverviewSync } from "@/hooks/client-runtime";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import type { AdminAiDropCoverJobRecord } from "@/lib/ai-drop-covers";
 import { toast } from "sonner";
 
 const AVAILABLE_TAGS = ["Sweet", "Spicy", "RAW"];
@@ -90,6 +92,7 @@ interface FilesAndAssetsSectionProps {
     initialContentAssets: UploadedAsset[];
     onCoverAssetsChange: (assets: UploadedAsset[]) => void;
     onContentAssetsChange: (assets: UploadedAsset[]) => void;
+    aiPanel?: ReactNode;
     errors: FieldErrors<DropFormData>;
 }
 
@@ -142,6 +145,7 @@ const FilesAndAssetsSection = memo(function FilesAndAssetsSection({
     initialContentAssets,
     onCoverAssetsChange,
     onContentAssetsChange,
+    aiPanel,
     errors,
 }: FilesAndAssetsSectionProps) {
     const contentAssetCount = initialContentAssets.length > 0 ? initialContentAssets.length : (contentUrl ? 1 : 0);
@@ -170,6 +174,7 @@ const FilesAndAssetsSection = memo(function FilesAndAssetsSection({
 
             {uploadsOpen ? (
                 <div className="space-y-3 border-t border-white/6 px-4 pb-4 pt-3">
+                    {aiPanel}
                     <AssetUploader
                         label="Cover"
                         folder="drops/images"
@@ -229,6 +234,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
     const [actionSettingsOpen, setActionSettingsOpen] = useState(true);
     const [coverAspectRatio, setCoverAspectRatio] = useState<UploadAspectRatio>("1:1");
     const [contentAspectRatio, setContentAspectRatio] = useState<UploadAspectRatio>("1:1");
+    const [selectedAiCoverJobId, setSelectedAiCoverJobId] = useState<string | null>(null);
 
     const {
         register,
@@ -243,6 +249,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
     });
 
     const dropType = useWatch({ control, name: "type" });
+    const creatorIdValue = useWatch({ control, name: "creatorId" }) || "";
     const watchedTags = useWatch({ control, name: "tags" });
     const currentTags = useMemo(() => watchedTags || [], [watchedTags]);
     const imageUrl = useWatch({ control, name: "imageUrl" }) || "";
@@ -254,6 +261,11 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
     const unlockCostValue = useWatch({ control, name: "unlockCost" }) || 0;
     const validFromValue = useWatch({ control, name: "validFrom" }) || "";
     const validUntilValue = useWatch({ control, name: "validUntil" }) || "";
+    const selectedCreator = useMemo(
+        () => creatorOptions.find((option) => option.uid === creatorIdValue) ?? null,
+        [creatorIdValue, creatorOptions],
+    );
+    const selectedCreatorName = selectedCreator?.displayName || null;
 
     const basicsSummary = useMemo(() => {
         const typeLabel = dropType === "promo" ? "Promo drop" : dropType === "external" ? "External drop" : "Content drop";
@@ -340,6 +352,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
             setPricingOpen(true);
             setActionSettingsOpen(true);
             setUploadsOpen(true);
+            setSelectedAiCoverJobId(null);
             reset(createDefaultDropFormValues(creatorIdOverride));
             setDuplicateWarnings([]);
             return;
@@ -391,6 +404,13 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
         const primary = assets[0];
         setValue("imageUrl", primary?.url || "", { shouldValidate: true });
         setValue("coverFileName", primary?.fileName || "", { shouldValidate: false });
+        setSelectedAiCoverJobId(null);
+    }, [setValue]);
+
+    const handleApplyAiCover = useCallback((job: AdminAiDropCoverJobRecord) => {
+        setValue("imageUrl", job.imageUrl || "", { shouldValidate: true });
+        setValue("coverFileName", job.fileName || "", { shouldValidate: false });
+        setSelectedAiCoverJobId(job.id);
     }, [setValue]);
 
     const handleContentAssetsChange = useCallback((assets: UploadedAsset[]) => {
@@ -514,12 +534,14 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
 
             dropData.mediaCounts = summarizeMediaCounts(contentAssets, data.fileMetadata?.type);
 
+            let persistedDropId = dropId || null;
+
             if (isEditMode) {
                 const response = await authFetch(mode === "creator" ? "/api/creator/drops" : "/api/admin/drops", {
                     method: "PUT",
                     body: JSON.stringify({ dropId, dropData }),
                 });
-                const result = await response.json();
+                const result = await response.json() as { error?: string };
                 if (!response.ok) throw new Error(result.error);
                 toast.success(mode === "creator" ? "Drop submission updated successfully" : "Drop updated successfully");
             } else {
@@ -532,9 +554,40 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                         },
                     }),
                 });
-                const result = await response.json();
+                const result = await response.json() as { error?: string; id?: string };
                 if (!response.ok) throw new Error(result.error);
+                persistedDropId = typeof result.id === "string" ? result.id : null;
                 toast.success(mode === "creator" ? "Drop submitted for admin approval" : "Drop created successfully");
+            }
+
+            if (mode === "admin" && selectedAiCoverJobId && persistedDropId) {
+                try {
+                    const response = await authFetch("/api/admin/ai/drop-covers/feedback", {
+                        method: "POST",
+                        body: JSON.stringify({
+                            jobId: selectedAiCoverJobId,
+                            action: "link_drop",
+                            dropId: persistedDropId,
+                        }),
+                    });
+                    if (!response.ok) {
+                        const result = await response.json().catch(() => ({})) as { error?: string };
+                        throw new Error(result.error || "Failed to link AI cover history");
+                    }
+                } catch (linkError) {
+                    reportClientIssue({
+                        channel: "ui",
+                        severity: "warn",
+                        message: "AI drop cover history link failed after drop save",
+                        error: linkError,
+                        detail: {
+                            adminView: "create_drop_modal",
+                            selectedAiCoverJobId,
+                            persistedDropId,
+                        },
+                        consoleLabel: "[Create Drop Modal] AI cover link failed",
+                    });
+                }
             }
 
             if (mode === "admin") {
@@ -719,6 +772,20 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                         initialContentAssets={contentAssets}
                                         onCoverAssetsChange={handleCoverAssetsChange}
                                         onContentAssetsChange={handleContentAssetsChange}
+                                        aiPanel={mode === "admin" ? (
+                                            <AiDropCoverGeneratorPanel
+                                                visible={uploadsOpen}
+                                                title={titleValue}
+                                                creatorId={creatorIdValue || creatorIdOverride || null}
+                                                creatorName={selectedCreatorName}
+                                                dropId={dropId}
+                                                dropType={dropType}
+                                                tags={currentTags}
+                                                selectedJobId={selectedAiCoverJobId}
+                                                onApplyCover={handleApplyAiCover}
+                                                onSelectedJobChange={setSelectedAiCoverJobId}
+                                            />
+                                        ) : null}
                                         errors={errors}
                                     />
 

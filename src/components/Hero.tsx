@@ -32,7 +32,7 @@ export default function Hero({ activeDrops }: HeroProps) {
                 <div className="flex min-w-0 max-w-2xl w-full flex-col items-center space-y-3.5 max-[360px]:space-y-3 sm:space-y-7">
                     <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/20 bg-brand-purple/10 px-3 py-1.5 text-[10px] font-bold tracking-wide text-brand-purple max-[360px]:px-2.5 max-[360px]:py-1 max-[360px]:text-[9px] sm:text-sm">
                         <Sparkles className="w-4 h-4" />
-                        EXCLUSIVE CREATOR EXPERIENCES
+                        Exclusive Creator Experiences
                     </div>
 
                     <h1 className="inline-flex max-w-fit flex-col items-center text-[clamp(1.95rem,9.4vw,4.5rem)] font-extrabold leading-[1.02] tracking-tighter text-white sm:leading-[1.1] lg:text-7xl landscape:max-w-none landscape:text-[clamp(2.1rem,7vw,3.5rem)]">
@@ -50,7 +50,7 @@ export default function Hero({ activeDrops }: HeroProps) {
                     <div className="flex w-full flex-col justify-center gap-2.5 pt-1 max-[360px]:gap-2 sm:w-auto sm:flex-row sm:gap-4 sm:pt-3">
                         {user ? (
                             <Link href="/dashboard" className="w-full sm:w-auto" onClick={() => trackEvent("hero_cta_clicked", { destination: "/dashboard" })}>
-                                <Button size="lg" variant="brand" className="w-full rounded-full px-6 py-3.5 text-base font-bold shadow-[0_0_30px_rgba(178,140,255,0.4)] transition-all hover:shadow-[0_0_40px_rgba(178,140,255,0.6)] max-[360px]:py-3 md:px-10 md:py-6 md:text-lg">
+                                <Button size="lg" variant="brand" className="w-full rounded-2xl px-6 py-3.5 text-base font-bold shadow-[0_0_30px_rgba(178,140,255,0.4)] transition-all hover:shadow-[0_0_40px_rgba(178,140,255,0.6)] max-[360px]:py-3 md:px-10 md:py-6 md:text-lg">
                                     Go to Dashboard <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2" />
                                 </Button>
                             </Link>
@@ -62,7 +62,7 @@ export default function Hero({ activeDrops }: HeroProps) {
                                 }}
                                 size="lg"
                                 variant="brand"
-                                className="w-full rounded-full px-6 py-3.5 text-base font-bold shadow-[0_0_30px_rgba(178,140,255,0.4)] transition-all hover:shadow-[0_0_40px_rgba(178,140,255,0.6)] max-[360px]:py-3 sm:w-auto md:px-10 md:py-6 md:text-lg"
+                                className="w-full rounded-2xl px-6 py-3.5 text-base font-bold shadow-[0_0_30px_rgba(178,140,255,0.4)] transition-all hover:shadow-[0_0_40px_rgba(178,140,255,0.6)] max-[360px]:py-3 sm:w-auto md:px-10 md:py-6 md:text-lg"
                             >
                                 Unwrap Your KandyDrops <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2" />
                             </Button>
@@ -71,7 +71,7 @@ export default function Hero({ activeDrops }: HeroProps) {
 
                     <div className="flex w-full flex-col justify-center gap-2 sm:w-auto sm:flex-row sm:gap-3">
                         <Link href="/faq" className="w-full sm:w-auto" onClick={() => trackEvent("hero_cta_clicked", { destination: "/faq" })}>
-                            <Button variant="outline" size="lg" className="w-full rounded-full border border-white/10 bg-white/[0.04] px-6 py-3 text-sm font-bold text-white hover:bg-white/[0.08]">
+                            <Button variant="outline" size="lg" className="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-6 py-3 text-sm font-bold text-white hover:bg-white/[0.08]">
                                 See How It Works
                             </Button>
                         </Link>

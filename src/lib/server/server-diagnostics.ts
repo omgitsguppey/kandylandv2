@@ -5,6 +5,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "./firebase-admin";
 
 export type ServerDiagnosticChannel =
+  | "ai"
   | "analytics"
   | "admin"
   | "auth"

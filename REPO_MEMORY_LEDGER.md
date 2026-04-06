@@ -1,7 +1,7 @@
 # Repo Memory Ledger
 
 Status: Canonical repository-memory and architecture-decision ledger
-Last refreshed: 2026-04-04
+Last refreshed: 2026-04-05
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
 ## Purpose
@@ -288,7 +288,48 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `FULL_SCALE_CODEBASE_AUDIT.md`
 - Follow-up gaps: If remote Firebase Authentication anti-abuse settings still throttle legitimate users after this fix, that remaining issue must be investigated in the Firebase/Google Cloud project configuration rather than by re-fragmenting the local auth flow.
 
-### [2026-04-05] Public Creator Profile UX and Alert Deduplication
-- **Commit scope**: UI/UX refinement on `src/app/creators/[username]/CreatorProfileClient.tsx`.
-- **UX changes**: Introduced Drops vs. Experiences tab bar; purged legacy marketing chips; simplified copy; migrated static SaaS service grids into the Experiences tab interaction surface.
-- **Architecture implication**: We now intercept the creator bell follow/alert click with `currentUserProfile?.notificationSettings?.newDropAlerts`. If global alerts are ON, the frontend UI displays a simulated active state but intercepts the save to avoid duplicated payload broadcasts. This reduces redundant backend calls for active subscribers.
+### 16. Creator alert controls avoid duplicate writes when global new-drop alerts are already active
+- Approximate date: Recorded explicitly on 2026-04-05 from current tracked creator-profile behavior
+- Status: Active canonical UX/runtime rule
+- Problem/context: The creator profile follow/alert surface risked double-writing or redundantly toggling creator-specific alert state when the user had already enabled global new-drop alerts.
+- Decision made: When global new-drop alerts are already enabled, the creator alert UI should reflect the active state without issuing duplicate writes that pretend a second backend toggle is needed.
+- What became canonical:
+  - creator-profile alert controls respect the existing global notification signal
+  - UI may present the creator alert state as satisfied when the broader notification setting already covers it
+  - redundant backend writes are avoided instead of being treated as required user actions
+- What is now disallowed or deprecated:
+  - duplicate alert mutations that only restate an already-active global notification preference
+  - making the creator alert control appear broken when the broader setting already fulfills the user intent
+- Truth lives in:
+  - `src/app/creators/[username]/CreatorProfileClient.tsx`
+  - `src/lib/notifications.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: Global-versus-creator notification precedence should continue to stay explicit anywhere new alert controls are added.
+
+### 17. AI drop-cover generation is server-side, title-driven, and admin-only
+- Approximate date: Canonicalized and recorded on 2026-04-05
+- Status: Active canonical AI/runtime rule
+- Problem/context: The first real AI layer could easily drift into prompt-box UX, client-side secrets, fake “live training,” or decorative admin pages that do not expose actual runtime truth.
+- Decision made: Treat AI drop-cover generation as an admin-only, server-side Vertex image-generation workflow that uses title-driven actions, persisted job history, honest cost estimation, and real feedback logging without exposing prompts or secrets to the client.
+- What became canonical:
+  - generation happens server-side only through a dedicated Vertex image path using ADC or Google-managed credentials
+  - the admin UI offers button actions only: generate, regenerate, like, dislike, and use as cover
+  - generated art is the visual background/hero layer, while production-safe text treatment remains deterministic in the app rather than model-rendered
+  - runtime status, toggle state, job history, feedback signals, latency, and aggregate estimated cost are visible in the Admin AI page
+  - feedback collection is real dataset history; instant live training is not claimed
+- What is now disallowed or deprecated:
+  - public prompt fields for cover generation
+  - client-side model calls or hardcoded API keys
+  - text-only models pretending to generate production cover assets
+  - fake runtime, fake training, or fake cost precision
+- Truth lives in:
+  - `src/lib/ai-drop-covers.ts`
+  - `src/lib/server/ai-drop-covers.ts`
+  - `src/app/api/admin/ai/drop-covers/route.ts`
+  - `src/app/api/admin/ai/drop-covers/generate/route.ts`
+  - `src/app/api/admin/ai/drop-covers/feedback/route.ts`
+  - `src/app/admin/ai/page.tsx`
+  - `src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+  - `src/components/Admin/CreateDropModal.tsx`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: Billing truth is still estimated from vendor pricing plus stored job metadata rather than direct billing export, and richer model-evaluation/tuning workflows remain future work.

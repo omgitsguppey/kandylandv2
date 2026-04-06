@@ -189,6 +189,21 @@ export async function PUT(request: NextRequest) {
             updates.accountSettings = normalizedAccountSettings;
         }
 
+        if (payload.dateOfBirth !== undefined) {
+            if (payload.dateOfBirth === null || payload.dateOfBirth === "") {
+                updates.dateOfBirth = FieldValue.delete();
+            } else {
+                const parsedDob = parseAdultDateOfBirth(payload.dateOfBirth);
+                if (!parsedDob.ok) {
+                    return NextResponse.json(
+                        { error: parsedDob.error },
+                        { status: parsedDob.status ?? 400 },
+                    );
+                }
+                updates.dateOfBirth = parsedDob.value;
+            }
+        }
+
         const userRef = adminDb.collection("users").doc(caller.uid);
         const userSnap = await userRef.get();
         if (!userSnap.exists) {

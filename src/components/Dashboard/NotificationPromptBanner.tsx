@@ -193,12 +193,12 @@ export function NotificationPromptBanner() {
     }
 
     return (
-        <div className="sticky top-0 z-40 px-3 py-2 sm:px-4 sm:py-3">
-            <div className="mx-auto max-w-5xl overflow-hidden rounded-[1.6rem] border border-white/10 bg-[#17171c]/90 shadow-[0_16px_36px_rgba(0,0,0,0.28)] backdrop-blur-xl">
-                <div className="relative flex items-start px-3.5 py-4 sm:px-4">
+        <div className="px-3 pb-3 pt-3 sm:px-4 sm:pb-4 sm:pt-4">
+            <div className="mx-auto max-w-5xl overflow-hidden rounded-[1.45rem] border border-white/10 bg-[#17171c]/90 shadow-[0_16px_36px_rgba(0,0,0,0.28)] backdrop-blur-xl">
+                <div className="relative flex items-start px-3.5 py-3 sm:px-4 sm:py-3.5">
                     <div className="flex min-w-0 flex-1 flex-col">
                         <div className="flex items-start gap-3">
-                            <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[1rem] border border-brand-purple/25 bg-brand-purple/12 text-brand-purple">
+                            <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.9rem] border border-brand-purple/25 bg-brand-purple/12 text-brand-purple">
                                 {needsStandaloneInstall ? <Smartphone className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
                             </div>
                             <div className="min-w-0 pr-6">
@@ -209,16 +209,16 @@ export function NotificationPromptBanner() {
                                     Never miss a drop or experience!
                                 </p>
                                 <p className="mt-1 text-[12px] leading-5 text-gray-300">
-                                    Drops disappear fast, turn on notifications to make sure you don’t miss out!
+                                    Drops disappear fast, turn on notifications to make sure you don&apos;t miss out!
                                 </p>
                             </div>
                         </div>
-                        <div className="mt-3.5">
+                        <div className="mt-3">
                             <button
                                 type="button"
                                 onClick={() => void handleEnable()}
                                 disabled={loading}
-                                className="inline-flex min-h-9 w-[180px] items-center justify-center rounded-xl bg-brand-purple px-4 py-2 text-[13px] font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+                                className="inline-flex min-h-8 items-center justify-center rounded-2xl bg-brand-purple px-4 py-2 text-[13px] font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
                             >
                                 {loading ? "Please wait" : "Turn on notifications"}
                             </button>

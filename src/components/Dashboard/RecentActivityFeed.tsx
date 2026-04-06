@@ -94,6 +94,14 @@ function renderTransactionLabel(transaction: Transaction) {
 }
 
 function renderTaskEventLabel(taskEvent: TaskEventRecord) {
+    if (taskEvent.type === "assigned") {
+        return `Task ready: ${taskEvent.title}`;
+    }
+
+    if (taskEvent.type === "started") {
+        return `Task in progress: ${taskEvent.title}`;
+    }
+
     if (taskEvent.type === "completed") {
         return `Task complete: ${taskEvent.title}`;
     }
@@ -102,7 +110,7 @@ function renderTaskEventLabel(taskEvent: TaskEventRecord) {
         return `Task reset: ${taskEvent.title}`;
     }
 
-    return taskEvent.title;
+    return `Task reminder: ${taskEvent.title}`;
 }
 
 function getActivitySearchText(activity: ActivityItem) {
@@ -192,16 +200,31 @@ function ActivityFeedItem({ item }: { item: ActivityItem }) {
     }
 
     const completed = item.taskEvent.type === "completed";
+    const failed = item.taskEvent.type === "failed";
+    const neutral = !completed && !failed;
+    const statusLabel = item.taskEvent.type === "assigned"
+        ? "Ready"
+        : item.taskEvent.type === "started"
+            ? `${item.taskEvent.progress}/${item.taskEvent.maxProgress || 1}`
+            : item.taskEvent.type === "reminder_sent"
+                ? "Reminder"
+                : failed
+                    ? "Reset"
+                    : `+${item.taskEvent.reward} GD`;
 
     return (
         <div className="flex items-center justify-between rounded-2xl border border-white/5 bg-white/5 p-3">
             <div className="flex min-w-0 items-center gap-3">
                 <div className={completed
                     ? "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-purple/20 text-brand-purple"
-                    : "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-gray-300"}>
+                    : neutral
+                        ? "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-gray-200"
+                        : "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-gray-300"}>
                     {completed
                         ? <CheckCircle2 className="h-5 w-5" />
-                        : <TriangleAlert className="h-5 w-5" />}
+                        : neutral
+                            ? <Activity className="h-5 w-5" />
+                            : <TriangleAlert className="h-5 w-5" />}
                 </div>
                 <div className="min-w-0">
                     <p className="line-clamp-1 text-sm font-bold text-white">
@@ -212,8 +235,12 @@ function ActivityFeedItem({ item }: { item: ActivityItem }) {
                     </p>
                 </div>
             </div>
-            <div className={completed ? "shrink-0 text-sm font-bold text-brand-purple" : "shrink-0 text-sm font-bold text-gray-400"}>
-                {completed ? `+${item.taskEvent.reward} GD` : `${item.taskEvent.progress}/${item.taskEvent.maxProgress}`}
+            <div className={completed
+                ? "shrink-0 text-sm font-bold text-brand-purple"
+                : neutral
+                    ? "shrink-0 text-xs font-bold uppercase tracking-[0.14em] text-gray-300"
+                    : "shrink-0 text-xs font-bold uppercase tracking-[0.14em] text-gray-400"}>
+                {statusLabel}
             </div>
         </div>
     );
@@ -228,7 +255,7 @@ function RecentActivityEmptyState({ onOpenExperiences, onUnwrapNow }: EmptyState
     return (
         <div className="py-6 text-center">
             <p className="text-sm text-gray-500">
-                Your recent unwraps, Gum Drop changes, and task results will appear here.
+                Your recent unlocks, Gum Drop changes, and task history will appear here.
             </p>
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
                 <button
