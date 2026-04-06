@@ -666,3 +666,76 @@ Known warnings and non-blocking notices during continuation:
 Continuation follow-up gaps:
 - there is still no local authenticated browser automation seam for the admin create-drop flow, so final behavioral verification for this pass is route-contract and repo-check based rather than a captured signed-in admin browser session
 - if a deployed project is blocked from the Vertex global endpoint by organization resource-location policy, operators may still need an explicit environment override to a permitted regional location
+
+### Continuation: Live AI Cover Settings Drift Correction
+Current audit date: 2026-04-06 15:15:31 -05:00
+Current branch / commit for continuation start: `main` / `1631728`
+Continuation task:
+- investigate why the runtime was still attempting `imagen-3.0-fast-generate-001` in `us-central1` after the Imagen 4 default fix and eliminate the stale live configuration path
+
+Continuation start state:
+- working tree clean at continuation start
+- canonical startup docs re-read:
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+  - `REPO_MEMORY_LEDGER.md`
+  - `EVERY_FILE_FUNCTION_CHECKLIST.md`
+
+Confirmed root cause:
+- the pushed repo code on `main` already targeted Imagen 4 Fast by default, but the live Firebase settings document `adminSettings/aiDropCovers` was still persisted with:
+  - `model: imagen-3.0-fast-generate-001`
+  - `location: us-central1`
+  - `priceBasis: vertex-ai-pricing-imagen-fast-2026-04-05`
+- that stale settings row was sufficient to reproduce the exact Vertex permission error against the old regional Imagen 3 publisher model path in environments still resolving from persisted settings
+
+Continuation touched surfaces:
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `src/lib/server/ai-drop-covers.ts`
+- live Firebase document: `adminSettings/aiDropCovers`
+
+Continuation implementation:
+- `getAdminAiDropCoverSettings()` now detects stale persisted AI-cover settings and self-heals them by writing the normalized canonical settings back to Firestore
+- the live Firebase settings document was updated directly so current operator testing no longer depends on waiting for a later settings toggle or a later deploy cycle
+
+Live settings document after correction:
+- `model: imagen-4.0-fast-generate-001`
+- `location: global`
+- `priceBasis: vertex-ai-pricing-imagen-4-fast-2026-04-06`
+- `pricePerGenerationUsd: 0.02`
+
+Commands run for continuation:
+- `git status --short`
+- direct Firestore read of `adminSettings/aiDropCovers`
+- direct Firestore update of `adminSettings/aiDropCovers`
+- focused `eslint` on:
+  - `src/lib/server/ai-drop-covers.ts`
+  - `src/lib/ai-drop-covers.ts`
+  - `tests/unit/ai-drop-covers.spec.ts`
+  - `tests/unit/admin-ai-drop-covers-generate-route.spec.ts`
+  - `tests/unit/admin-ai-drop-covers-route.spec.ts`
+- focused `vitest` on:
+  - `tests/unit/ai-drop-covers.spec.ts`
+  - `tests/unit/admin-ai-drop-covers-generate-route.spec.ts`
+  - `tests/unit/admin-ai-drop-covers-route.spec.ts`
+- `corepack pnpm run check`
+
+Continuation results:
+- direct Firestore read confirmed the stale live config before the fix
+- direct Firestore update succeeded and confirmed the corrected live config after the fix
+- focused `eslint` passed
+- focused `vitest` passed with `3` files and `12` tests
+- `corepack pnpm run check` passed
+
+Runtime truth and continuity implications from continuation:
+- the actual runtime failure was a persisted live settings drift problem, not another unsaved-drop workflow bug
+- the repo now self-heals this exact drift class by rewriting legacy AI-cover settings to canonical values when they are loaded
+- the live Admin AI runtime settings now align with the committed repo defaults instead of silently pinning generation to Imagen 3 regional routing
+
+Known warnings and non-blocking notices during continuation:
+- npm unknown env config warnings during script chains
+- Node `punycode` deprecation warnings from Firebase/Vitest tooling
+- `check:firebase-runtime` informational dotenv logs inside the canonical `check` pipeline
+- `check:telemetry` still reports `creator_broadcast_opened` with no detected emitter
+
+Continuation follow-up gaps:
+- a live admin-browser generation attempt still needs to be performed by an authenticated operator to confirm the project’s actual Vertex permissions for Imagen 4 on the global endpoint
+- if the project is denied on the global endpoint by org policy, an explicit allowed regional override will still be required

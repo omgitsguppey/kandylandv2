@@ -289,6 +289,21 @@ function normalizeSettings(raw: unknown): AdminAiDropCoverSettings {
     });
 }
 
+function settingsRequireCanonicalMigration(raw: unknown, normalized: AdminAiDropCoverSettings) {
+    if (!raw || typeof raw !== "object") {
+        return false;
+    }
+
+    const data = raw as Record<string, unknown>;
+    return (
+        getString(data.model) !== normalized.model
+        || getString(data.location) !== normalized.location
+        || getString(data.priceBasis) !== normalized.priceBasis
+        || getString(data.priceSourceUrl) !== normalized.priceSourceUrl
+        || toNumber(data.pricePerGenerationUsd, NaN) !== normalized.pricePerGenerationUsd
+    );
+}
+
 function normalizeSummary(raw: unknown): AdminAiDropCoverSummaryRecord {
     if (!raw || typeof raw !== "object") {
         return {
@@ -548,7 +563,17 @@ export async function getAdminAiDropCoverSettings() {
     }
 
     const snapshot = await adminDb.collection("adminSettings").doc(ADMIN_AI_DROP_COVER_SETTINGS_DOC).get();
-    return normalizeSettings(snapshot.exists ? snapshot.data() : null);
+    const rawData = snapshot.exists ? snapshot.data() : null;
+    const normalized = normalizeSettings(rawData);
+
+    if (snapshot.exists && settingsRequireCanonicalMigration(rawData, normalized)) {
+        await adminDb.collection("adminSettings").doc(ADMIN_AI_DROP_COVER_SETTINGS_DOC).set({
+            ...normalized,
+            updatedAt: FieldValue.serverTimestamp(),
+        }, { merge: true });
+    }
+
+    return normalized;
 }
 
 export async function saveAdminAiDropCoverSettings(input: {
