@@ -9,10 +9,10 @@ import {
 } from "@/lib/gumdrop-economics";
 
 describe("getBundlePresentation", () => {
-  it("returns Starter Pack for 100", () => {
+  it("returns Sugar Rush Pack for 100", () => {
     expect(getBundlePresentation(100)).toEqual({
-      bundleLabel: "Starter Pack",
-      bundleKey: "starter_pack",
+      bundleLabel: "Sugar Rush Pack",
+      bundleKey: "sugar_rush_pack",
       bundleTier: "entry",
       baseAmount: 100,
       bonus: 0,
@@ -20,10 +20,10 @@ describe("getBundlePresentation", () => {
     });
   });
 
-  it("returns Fan Pack for 550", () => {
+  it("returns Sweet Pack for 550", () => {
     expect(getBundlePresentation(550)).toEqual({
-      bundleLabel: "Fan Pack",
-      bundleKey: "fan_pack",
+      bundleLabel: "Sweet Pack",
+      bundleKey: "sweet_pack",
       bundleTier: "bonus",
       baseAmount: 500,
       bonus: 50,
@@ -31,10 +31,10 @@ describe("getBundlePresentation", () => {
     });
   });
 
-  it("returns Premium Stash for 1100", () => {
+  it("returns Kandy Bag Pack for 1100", () => {
     expect(getBundlePresentation(1100)).toEqual({
-      bundleLabel: "Premium Stash",
-      bundleKey: "premium_stash",
+      bundleLabel: "Kandy Bag Pack",
+      bundleKey: "kandy_bag_pack",
       bundleTier: "bonus",
       baseAmount: 1100,
       bonus: 0,
@@ -42,10 +42,10 @@ describe("getBundlePresentation", () => {
     });
   });
 
-  it("returns Ultimate Kandy for 2500", () => {
+  it("returns Kandy Land Pack for 2500", () => {
     expect(getBundlePresentation(2500)).toEqual({
-      bundleLabel: "Ultimate Kandy",
-      bundleKey: "ultimate_kandy",
+      bundleLabel: "Kandy Land Pack",
+      bundleKey: "kandy_land_pack",
       bundleTier: "bonus",
       baseAmount: 2500,
       bonus: 0,
@@ -55,7 +55,7 @@ describe("getBundlePresentation", () => {
 
   it("returns custom bundle for small custom amounts with no bonus", () => {
     expect(getBundlePresentation(600)).toEqual({
-      bundleLabel: "600 GD Bundle",
+      bundleLabel: "King Size Bundle",
       bundleKey: "bundle_600",
       bundleTier: "custom",
       baseAmount: 600,
@@ -66,7 +66,7 @@ describe("getBundlePresentation", () => {
 
   it("returns generic bundle for large custom amounts with a bonus", () => {
     expect(getBundlePresentation(5050)).toEqual({
-      bundleLabel: "5,050 GD Bundle",
+      bundleLabel: "King Size Bundle",
       bundleKey: "bundle_5050",
       bundleTier: "bundle",
       baseAmount: 5000,

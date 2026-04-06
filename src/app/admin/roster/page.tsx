@@ -11,6 +11,7 @@ import { toast } from "sonner";
 
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
+import { trackEvent } from "@/lib/telemetry";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import {
@@ -343,6 +344,10 @@ export default function AdminRosterPage() {
                         },
                     },
                 }),
+            });
+            trackEvent("creator_application_review_saved", {
+                user_id: selectedUserId,
+                action: actionKey,
             });
             const result = await response.json().catch(() => ({})) as { error?: string };
             if (!response.ok) {
