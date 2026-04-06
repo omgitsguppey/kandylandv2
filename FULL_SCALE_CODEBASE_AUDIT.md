@@ -4,7 +4,7 @@ Status: Canonical audit standard and live baseline
 Last refreshed: 2026-04-06
 Last full-scale audit execution: 2026-04-06 08:55:43 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
-Audited HEAD at start: `6408bc0`
+Audited HEAD at start: `078f522`
 
 ## Purpose
 This file is the standing audit contract for the repository.
@@ -108,7 +108,7 @@ Current notable runtime package versions:
 ## Current tracked inventory baseline
 Verified by `npm run check:inventory` on 2026-04-06:
 
-- Total tracked files: `657`
+- Total tracked files: `660`
 - Root files: `54`
 - Root markdown/docs: `16`
 - Root lockfiles: `2`
@@ -124,7 +124,7 @@ Verified by `npm run check:inventory` on 2026-04-06:
 - `functions`: `37`
 - `functions/src`: `30`
 - `scripts`: `17`
-- `tests`: `107`
+- `tests`: `110`
 - `public`: `11`
 - `dataconnect`: `14`
 - `src/dataconnect-generated`: `15`
@@ -304,7 +304,7 @@ Results:
   - `creator_broadcast_opened`
 
 ## Current open follow-up gaps
-- `EVERY_FILE_FUNCTION_CHECKLIST.md` remains a historical exhaustive sweep and has not been regenerated against the current `657` tracked-file baseline.
+- `EVERY_FILE_FUNCTION_CHECKLIST.md` remains a historical exhaustive sweep and has not been regenerated against the current `660` tracked-file baseline.
 - Public creator/discovery follower counts now reconcile immediately after local follow actions, but there is still no cross-user realtime follower aggregate subscription.
 - Referral rewards are currently `100` GumDrops for the referrer only; the referred friend does not yet receive a parallel backend reward.
 - General user settings autosave is present, but creator-specific controls in the profile/settings view still use their existing manual-save path.
@@ -739,3 +739,145 @@ Known warnings and non-blocking notices during continuation:
 Continuation follow-up gaps:
 - a live admin-browser generation attempt still needs to be performed by an authenticated operator to confirm the project’s actual Vertex permissions for Imagen 4 on the global endpoint
 - if the project is denied on the global endpoint by org policy, an explicit allowed regional override will still be required
+
+### Continuation: App Hosting Rollout Failure Root Cause
+Current audit date: 2026-04-06 15:44:38 -05:00
+Current branch / commit for continuation start: `main` / `bc3b49a`
+Continuation task:
+- investigate the reported overlooked codebase errors and determine why the last 5 commits all failed after push
+
+Continuation start state:
+- working tree clean at continuation start
+- canonical startup docs re-read:
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+  - `REPO_MEMORY_LEDGER.md`
+  - `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- adjacency traces run before editing:
+  - `npm run trace:adjacent -- src/lib/server/ai-drop-covers.ts`
+  - `npm run trace:adjacent -- src/app/api/admin/ai/drop-covers/generate/route.ts`
+
+Confirmed root cause:
+- the last 5 commits did fail after push, but they all failed on the same external deployment check: `App Hosting - Rollout (kandydrops-by-ikandy/us-central1/kandydrops)`
+- the failure was not a new TypeScript, lint, unit-test, or Next build regression in the codebase
+- Cloud Build logs for rollout `build-2026-04-06-006` showed the real failing step before `next build`:
+  - `ERR_PNPM_OUTDATED_LOCKFILE Cannot install with "frozen-lockfile" because pnpm-lock.yaml is not up to date with <ROOT>/package.json`
+  - the stale lockfile still contained removed devDependency specifiers for `@lhci/cli` and `eslint-plugin-import`
+- the regression originated in the earlier dependency cleanup commit that removed those packages from `package.json` without synchronizing `pnpm-lock.yaml`
+- the next four commits inherited the same broken root lockfile, so all five push-triggered App Hosting rollouts failed for the same reason
+
+Continuation touched surfaces:
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `package.json`
+- `pnpm-lock.yaml`
+
+Canonical helpers and modules reused for continuation:
+- `AGENTS.md`
+- `package.json`
+- `pnpm-lock.yaml`
+- `scripts/repo-inventory.ts`
+- canonical verification scripts under `package.json`
+
+Continuation implementation:
+- synchronized `pnpm-lock.yaml` with the current root `package.json`
+- added a canonical `check:pnpm-lock` script and wired it into `npm run check` so future local signoff catches App Hosting-style frozen-lockfile failures before push
+- verified the App Hosting-equivalent install gate locally with `corepack pnpm install --frozen-lockfile`
+- re-ran broad repo verification to determine whether any additional currently reproducible codebase failures remained after the lockfile correction
+
+Commands run for continuation:
+- `git status --short`
+- `git log -5 --oneline`
+- `gh auth status`
+- `git remote -v`
+- `gh api repos/omgitsguppey/kandylandv2/commits/bc3b49a/check-runs`
+- `gh api repos/omgitsguppey/kandylandv2/commits/1631728/check-runs`
+- `gh api repos/omgitsguppey/kandylandv2/commits/5566eb5/check-runs`
+- `gh api repos/omgitsguppey/kandylandv2/commits/982eada/check-runs`
+- `gh api repos/omgitsguppey/kandylandv2/commits/078f522/check-runs`
+- `firebase apphosting:backends:get kandydrops --project kandydrops-by-ikandy`
+- `corepack pnpm run build`
+- `corepack pnpm run check`
+- `gcloud logging read 'resource.type="build"' --project kandydrops-by-ikandy --freshness=7d --limit 20 --format=json`
+- `gcloud logging read 'resource.type="build" AND resource.labels.build_id="48c3e6c8-9e30-4db9-b410-606a901467ce"' --project kandydrops-by-ikandy --limit 500 --format='value(timestamp,textPayload)'`
+- `corepack pnpm install --lockfile-only`
+- `npm install --package-lock-only`
+- `corepack pnpm install --frozen-lockfile`
+- `npm run check:consistency`
+- `npx vitest run`
+- `npm run check:inventory`
+
+Continuation results:
+- confirmed all 5 recent commits failed on the same Firebase App Hosting rollout check
+- confirmed the real deploy blocker was stale `pnpm-lock.yaml`, not a failing app build or failing test suite
+- `corepack pnpm install --frozen-lockfile` passed after the lockfile sync, matching the App Hosting install contract that had been failing remotely
+- the new `check:pnpm-lock` guard passed inside `npm run check:consistency`
+- `corepack pnpm run build` passed
+- `corepack pnpm run check` passed
+- `npm run check:consistency` passed
+- `npx vitest run` passed with `82` files and `415` tests
+- `npm run check:inventory` passed and reports `660` tracked files
+- no additional currently reproducible local codebase failures were found beyond the already-known non-blocking warnings and the previously documented AI-provider permission/path work
+
+Runtime truth and continuity implications from continuation:
+- the last 5 failed commits were a deployment lockfile-integrity problem, not 5 separate runtime regressions
+- App Hosting is currently using `pnpm install` with frozen-lockfile behavior during rollout, so root package manifest edits must keep `pnpm-lock.yaml` synchronized or deploys will fail before the app build even starts
+- local `next build` and canonical checks were not sufficient to catch this specific failure until the frozen-lockfile install was reproduced directly
+
+Known warnings and non-blocking notices during continuation:
+- npm unknown env config warnings during script chains
+- Node `punycode` deprecation warnings from Firebase/Vitest tooling
+- `check:firebase-runtime` informational dotenv logs inside the canonical `check` pipeline
+- `check:telemetry` still reports `creator_broadcast_opened` with no detected emitter
+
+Continuation follow-up gaps:
+- the current AI image-generation runtime still depends on actual project permission to call the configured Vertex publisher model endpoint
+- the standing exhaustive checklist file remains historically scoped and is still not regenerated against the current `660` tracked-file baseline
+
+### Continuation: Vertex Runtime Permission Grant
+Current audit date: 2026-04-06 15:53:42 -05:00
+Current branch / commit for continuation start: `main` / `bc3b49a`
+Continuation task:
+- verify whether Vertex permission was actually missing for the App Hosting runtime and grant the correct runtime IAM role if needed
+
+Continuation start state:
+- canonical startup docs were already read in the active continuity pass
+- runtime service account identified from the deployed App Hosting Cloud Run service:
+  - `firebase-app-hosting-compute@kandydrops-by-ikandy.iam.gserviceaccount.com`
+
+Confirmed findings:
+- `aiplatform.googleapis.com` is enabled in project `kandydrops-by-ikandy`
+- the App Hosting runtime service account did not have any Vertex AI user role before this continuation
+- the runtime therefore lacked the normal project-level IAM grant used for publisher-model predict calls
+
+Continuation touched surfaces:
+- live Google Cloud IAM policy for project `kandydrops-by-ikandy`
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+
+Continuation implementation:
+- granted `roles/aiplatform.user` to:
+  - `serviceAccount:firebase-app-hosting-compute@kandydrops-by-ikandy.iam.gserviceaccount.com`
+
+Commands run for continuation:
+- `gcloud run services describe kandydrops --region us-central1 --project kandydrops-by-ikandy --format="value(spec.template.spec.serviceAccountName)"`
+- `gcloud services list --enabled --project kandydrops-by-ikandy --filter="NAME:aiplatform.googleapis.com" --format="value(NAME)"`
+- `gcloud projects get-iam-policy kandydrops-by-ikandy --format=json`
+- `gcloud projects add-iam-policy-binding kandydrops-by-ikandy --member="serviceAccount:firebase-app-hosting-compute@kandydrops-by-ikandy.iam.gserviceaccount.com" --role="roles/aiplatform.user" --condition=None`
+- `gcloud projects get-iam-policy kandydrops-by-ikandy --flatten="bindings[].members" --filter="bindings.members:firebase-app-hosting-compute@kandydrops-by-ikandy.iam.gserviceaccount.com AND bindings.role:roles/aiplatform.user" --format="table(bindings.role,bindings.members)"`
+- `gcloud services list --enabled --project kandydrops-by-ikandy --filter="NAME:firebasevertexai.googleapis.com OR NAME:aiplatform.googleapis.com" --format="table(NAME,TITLE)"`
+- attempted verification by impersonated access token mint:
+  - `gcloud auth print-access-token --impersonate-service-account=firebase-app-hosting-compute@kandydrops-by-ikandy.iam.gserviceaccount.com`
+
+Continuation results:
+- the required runtime IAM role grant succeeded
+- policy verification confirms the App Hosting runtime service account now holds `roles/aiplatform.user`
+- direct impersonated verification of the same runtime identity could not be completed from the current logged-in user because that user does not hold `iam.serviceAccounts.getAccessToken` on the App Hosting runtime service account
+- this impersonation gap does not block the app runtime itself from calling Vertex; it only blocks local operator-side token minting for an exact same-identity probe
+
+Runtime truth and continuity implications from continuation:
+- basic Vertex runtime permission was genuinely missing and is now granted
+- if AI image generation still fails after this point, the next blocker is no longer the missing `roles/aiplatform.user` grant; it will be model/location availability, org policy, request shape, or provider/runtime behavior
+
+Known warnings and non-blocking notices during continuation:
+- local same-identity verification is still blocked by missing `iam.serviceAccounts.getAccessToken` for the operator account on the App Hosting runtime service account
+
+Continuation follow-up gaps:
+- an authenticated admin app test or an explicit temporary `roles/iam.serviceAccountTokenCreator` grant is still needed if exact same-identity local probing is required
