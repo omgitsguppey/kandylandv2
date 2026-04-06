@@ -235,6 +235,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
     const [coverAspectRatio, setCoverAspectRatio] = useState<UploadAspectRatio>("1:1");
     const [contentAspectRatio, setContentAspectRatio] = useState<UploadAspectRatio>("1:1");
     const [selectedAiCoverJobId, setSelectedAiCoverJobId] = useState<string | null>(null);
+    const [draftSessionId, setDraftSessionId] = useState<string | null>(null);
 
     const {
         register,
@@ -353,9 +354,16 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
             setActionSettingsOpen(true);
             setUploadsOpen(true);
             setSelectedAiCoverJobId(null);
+            setDraftSessionId(null);
             reset(createDefaultDropFormValues(creatorIdOverride));
             setDuplicateWarnings([]);
             return;
+        }
+
+        if (!dropId) {
+            setDraftSessionId((current) => current || crypto.randomUUID());
+        } else {
+            setDraftSessionId(null);
         }
 
         if (!dropId && !duplicateFromId) {
@@ -779,6 +787,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                                 creatorId={creatorIdValue || creatorIdOverride || null}
                                                 creatorName={selectedCreatorName}
                                                 dropId={dropId}
+                                                draftSessionId={draftSessionId}
                                                 dropType={dropType}
                                                 tags={currentTags}
                                                 selectedJobId={selectedAiCoverJobId}

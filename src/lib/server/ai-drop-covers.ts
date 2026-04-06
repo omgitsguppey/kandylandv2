@@ -4,6 +4,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { GoogleAuth } from "google-auth-library";
 
 import {
+    type AdminAiDropCoverErrorCode,
     ADMIN_AI_DROP_COVER_JOBS_COLLECTION,
     ADMIN_AI_DROP_COVER_MODEL,
     ADMIN_AI_DROP_COVER_OUTPUT_MIME_TYPE,
@@ -28,7 +29,7 @@ import {
     type AdminAiDropCoverSettings,
     type AdminAiDropCoverSummaryRecord,
 } from "@/lib/ai-drop-covers";
-import { FIREBASE_PROJECT_ID } from "@/lib/firebase-runtime";
+import { FIREBASE_PROJECT_ID, FIREBASE_STORAGE_BUCKET } from "@/lib/firebase-runtime";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { adminDb, adminStorage } from "@/lib/server/firebase-admin";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
@@ -91,6 +92,7 @@ type AdminAiDropCoverGenerationInput = {
     creatorName?: string | null;
     creatorId?: string | null;
     dropId?: string | null;
+    draftSessionId?: string | null;
     dropType?: "content" | "promo" | "external" | string | null;
     tags?: string[] | null;
     previousJobId?: string | null;
@@ -105,6 +107,39 @@ type AdminAiDropCoverFeedbackInput = {
     actorUid: string;
     actorEmail?: string | undefined;
 };
+
+export class AdminAiDropCoverError extends Error {
+    code: AdminAiDropCoverErrorCode;
+    status: number;
+    clientMessage: string;
+
+    constructor(
+        code: AdminAiDropCoverErrorCode,
+        status: number,
+        message: string,
+        clientMessage = message,
+    ) {
+        super(message);
+        this.name = "AdminAiDropCoverError";
+        this.code = code;
+        this.status = status;
+        this.clientMessage = clientMessage;
+    }
+}
+
+export function toAdminAiDropCoverClientError(error: unknown) {
+    if (!(error instanceof AdminAiDropCoverError)) {
+        return null;
+    }
+
+    return {
+        status: error.status,
+        body: {
+            error: error.clientMessage,
+            errorCode: error.code,
+        },
+    };
+}
 
 function summarizeAiAvailabilityIssue(error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
@@ -130,6 +165,44 @@ function summarizeAiAvailabilityIssue(error: unknown) {
 
 function toNumber(value: unknown, fallback = 0) {
     return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function createAdminAiDropCoverError(
+    code: AdminAiDropCoverErrorCode,
+    status: number,
+    message: string,
+    clientMessage = message,
+) {
+    return new AdminAiDropCoverError(code, status, message, clientMessage);
+}
+
+function classifyProviderError(error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    const normalized = message.toLowerCase();
+
+    if (normalized.includes("timed out")) {
+        return createAdminAiDropCoverError(
+            "provider_timeout",
+            504,
+            message,
+            "AI cover generation timed out before the image finished rendering. Try again in a moment.",
+        );
+    }
+
+    return createAdminAiDropCoverError(
+        "provider_unavailable",
+        503,
+        message,
+        summarizeAiAvailabilityIssue(error),
+    );
+}
+
+function classifyDatabaseError(error: unknown, message: string, clientMessage: string) {
+    return createAdminAiDropCoverError("database_failed", 503, message, clientMessage);
+}
+
+function classifyStorageError(error: unknown, message: string, clientMessage: string) {
+    return createAdminAiDropCoverError("storage_failed", 503, message, clientMessage);
 }
 
 function getString(value: unknown) {
@@ -202,6 +275,7 @@ function normalizeJobRecord(id: string, raw: unknown): AdminAiDropCoverJobRecord
         title: getString(data.title) || "Untitled Drop",
         creatorName: typeof data.creatorName === "string" ? data.creatorName : null,
         dropId: typeof data.dropId === "string" ? data.dropId : null,
+        draftSessionId: typeof data.draftSessionId === "string" ? data.draftSessionId : null,
         model: getString(data.model) || ADMIN_AI_DROP_COVER_MODEL,
         location: getString(data.location) || DEFAULT_VERTEX_LOCATION,
         promptVersion: getString(data.promptVersion) || ADMIN_AI_DROP_COVER_PROMPT_VERSION,
@@ -279,7 +353,16 @@ async function applySummaryDelta(delta: SummaryDelta) {
         updatePayload.lastFailureAtMs = delta.lastFailureAtMs;
     }
 
-    await adminDb.collection(ADMIN_AI_DROP_COVER_SUMMARY_COLLECTION).doc(ADMIN_AI_DROP_COVER_SUMMARY_DOC).set(updatePayload, { merge: true });
+    try {
+        await adminDb.collection(ADMIN_AI_DROP_COVER_SUMMARY_COLLECTION).doc(ADMIN_AI_DROP_COVER_SUMMARY_DOC).set(updatePayload, { merge: true });
+    } catch (error) {
+        recordRouteWarning("admin/ai/drop-covers/summary", "Admin AI drop cover summary update failed", error, {
+            channel: "ai",
+            detail: {
+                fields: Object.keys(delta),
+            },
+        });
+    }
 }
 
 async function getVertexAccessToken(project?: string) {
@@ -445,12 +528,46 @@ export async function saveAdminAiDropCoverSettings(input: {
 export async function getAdminAiDropCoverRuntimeStatus() {
     const settings = await getAdminAiDropCoverSettings();
     const runtime = resolveAdminAiDropCoverRuntime(settings);
+    const configuredStorageBucket = (
+        adminStorage?.app?.options?.storageBucket
+        || FIREBASE_STORAGE_BUCKET
+        || process.env.FIREBASE_STORAGE_BUCKET
+        || ""
+    ).trim();
 
     if (!settings.enabled) {
         return adminAiDropCoverRuntimeSchema.parse({
             enabled: false,
             status: "disabled",
             note: "AI cover generation is turned off from the Admin AI page.",
+            project: runtime.project,
+            location: runtime.location,
+            model: runtime.model,
+            pricePerGenerationUsd: settings.pricePerGenerationUsd,
+            priceBasis: settings.priceBasis,
+            priceSourceUrl: settings.priceSourceUrl,
+        });
+    }
+
+    if (!adminDb) {
+        return adminAiDropCoverRuntimeSchema.parse({
+            enabled: true,
+            status: "error",
+            note: "Firebase Admin database access is unavailable, so AI cover jobs cannot be recorded yet.",
+            project: runtime.project,
+            location: runtime.location,
+            model: runtime.model,
+            pricePerGenerationUsd: settings.pricePerGenerationUsd,
+            priceBasis: settings.priceBasis,
+            priceSourceUrl: settings.priceSourceUrl,
+        });
+    }
+
+    if (!adminStorage || !configuredStorageBucket) {
+        return adminAiDropCoverRuntimeSchema.parse({
+            enabled: true,
+            status: "error",
+            note: "Firebase Storage bucket configuration is missing, so generated covers cannot be saved yet.",
             project: runtime.project,
             location: runtime.location,
             model: runtime.model,
@@ -555,26 +672,70 @@ export async function buildAdminAiDropCoverDashboard() {
 
 export async function generateAdminAiDropCover(input: AdminAiDropCoverGenerationInput) {
     if (!adminDb || !adminStorage) {
-        throw new Error("AI cover generation requires Firebase Admin runtime access.");
+        throw createAdminAiDropCoverError(
+            "runtime_unavailable",
+            503,
+            "AI cover generation requires Firebase Admin runtime access.",
+            "AI cover generation is unavailable because the admin Firebase runtime is not ready.",
+        );
     }
 
     const settings = await getAdminAiDropCoverSettings();
     if (!settings.enabled) {
-        throw new Error("AI cover generation is turned off.");
+        throw createAdminAiDropCoverError("feature_disabled", 409, "AI cover generation is turned off.");
     }
 
     const runtime = resolveAdminAiDropCoverRuntime(settings);
+    const storageBucketName = (
+        adminStorage.app?.options?.storageBucket
+        || FIREBASE_STORAGE_BUCKET
+        || process.env.FIREBASE_STORAGE_BUCKET
+        || ""
+    ).trim();
     if (!runtime.project) {
-        throw new Error("Vertex project configuration is missing.");
+        throw createAdminAiDropCoverError(
+            "runtime_unavailable",
+            503,
+            "Vertex project configuration is missing.",
+            "AI cover generation is unavailable because the Google Cloud project is not configured.",
+        );
+    }
+
+    if (!storageBucketName) {
+        throw createAdminAiDropCoverError(
+            "runtime_unavailable",
+            503,
+            "Firebase Storage bucket configuration is missing.",
+            "AI cover generation cannot save images until the Firebase Storage bucket is configured.",
+        );
     }
 
     const title = input.title.trim();
+    const draftSessionId = input.draftSessionId?.trim() || "";
+    if (!input.dropId && draftSessionId.length === 0) {
+        throw createAdminAiDropCoverError(
+            "draft_session_required",
+            400,
+            "Unsaved drop cover generation requires a draft session id.",
+            "This draft could not be identified. Close and reopen Create Drop, then try AI cover generation again.",
+        );
+    }
+
     const nowMs = Date.now();
     const estimatedCostUsd = estimateAdminAiDropCoverCostUsd(runtime.model, 1);
     const jobRef = adminDb.collection(ADMIN_AI_DROP_COVER_JOBS_COLLECTION).doc();
-    const previousJob = input.previousJobId
-        ? await adminDb.collection(ADMIN_AI_DROP_COVER_JOBS_COLLECTION).doc(input.previousJobId).get()
-        : null;
+    let previousJob: FirebaseFirestore.DocumentSnapshot | null = null;
+    try {
+        previousJob = input.previousJobId
+            ? await adminDb.collection(ADMIN_AI_DROP_COVER_JOBS_COLLECTION).doc(input.previousJobId).get()
+            : null;
+    } catch (error) {
+        throw classifyDatabaseError(
+            error,
+            error instanceof Error ? error.message : "Failed to load the previous AI cover job.",
+            "AI cover generation could not load the previous generation history. Try again.",
+        );
+    }
     const previousJobRecord = previousJob?.exists
         ? normalizeJobRecord(previousJob.id, previousJob.data())
         : null;
@@ -588,28 +749,37 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
     };
     const prompt = buildAdminAiDropCoverPrompt(promptInput);
 
-    await jobRef.set({
-        title,
-        creatorName: input.creatorName || null,
-        creatorId: input.creatorId || null,
-        dropId: input.dropId || null,
-        model: runtime.model,
-        location: runtime.location,
-        promptVersion: ADMIN_AI_DROP_COVER_PROMPT_VERSION,
-        recipeLabel: getAdminAiDropCoverRecipeLabel(),
-        status: "running",
-        feedback: "neutral",
-        accepted: false,
-        requestedAtMs: nowMs,
-        estimatedCostUsd: 0,
-        billed: false,
-        previousJobId: previousJobRecord?.id || null,
-        chainId,
-        chainDepth,
-        createdAt: FieldValue.serverTimestamp(),
-        updatedAt: FieldValue.serverTimestamp(),
-        updatedAtMs: nowMs,
-    });
+    try {
+        await jobRef.set({
+            title,
+            creatorName: input.creatorName || null,
+            creatorId: input.creatorId || null,
+            dropId: input.dropId || null,
+            draftSessionId: draftSessionId || null,
+            model: runtime.model,
+            location: runtime.location,
+            promptVersion: ADMIN_AI_DROP_COVER_PROMPT_VERSION,
+            recipeLabel: getAdminAiDropCoverRecipeLabel(),
+            status: "running",
+            feedback: "neutral",
+            accepted: false,
+            requestedAtMs: nowMs,
+            estimatedCostUsd: 0,
+            billed: false,
+            previousJobId: previousJobRecord?.id || null,
+            chainId,
+            chainDepth,
+            createdAt: FieldValue.serverTimestamp(),
+            updatedAt: FieldValue.serverTimestamp(),
+            updatedAtMs: nowMs,
+        });
+    } catch (error) {
+        throw classifyDatabaseError(
+            error,
+            error instanceof Error ? error.message : "Failed to create the AI cover job record.",
+            "AI cover generation could not record its job history. Check Firebase admin database access and try again.",
+        );
+    }
     await applySummaryDelta({
         generationCount: 1,
         regeneratedCount: previousJobRecord ? 1 : 0,
@@ -620,52 +790,81 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
     let latencyMs = 0;
 
     try {
-        const accessToken = await getVertexAccessToken(runtime.project);
-        const generated = await generateVertexImage({
-            accessToken,
-            prompt,
-            runtime,
-            aspectRatio: settings.aspectRatio,
-            outputMimeType: settings.outputMimeType,
-        });
+        let accessToken = "";
+        try {
+            accessToken = await getVertexAccessToken(runtime.project);
+        } catch (error) {
+            throw classifyProviderError(error);
+        }
+
+        let generated: GenerateVertexImageResult;
+        try {
+            generated = await generateVertexImage({
+                accessToken,
+                prompt,
+                runtime,
+                aspectRatio: settings.aspectRatio,
+                outputMimeType: settings.outputMimeType,
+            });
+        } catch (error) {
+            throw classifyProviderError(error);
+        }
         billed = true;
         latencyMs = Date.now() - startedAtMs;
 
         const { fileName, storagePath } = createStoragePath(jobRef.id, title);
-        const storageFile = adminStorage.bucket().file(storagePath);
-        await storageFile.save(generated.bytes, {
-            resumable: false,
-            contentType: generated.mimeType || ADMIN_AI_DROP_COVER_OUTPUT_MIME_TYPE,
-            metadata: {
-                cacheControl: "public,max-age=31536000,immutable",
+        const bucket = adminStorage.bucket(storageBucketName);
+        const storageFile = bucket.file(storagePath);
+        let imageUrl = "";
+        try {
+            await storageFile.save(generated.bytes, {
+                resumable: false,
+                contentType: generated.mimeType || ADMIN_AI_DROP_COVER_OUTPUT_MIME_TYPE,
                 metadata: {
-                    aiOrigin: "vertex_imagen",
-                    aiModel: runtime.model,
-                    aiPromptVersion: ADMIN_AI_DROP_COVER_PROMPT_VERSION,
-                    aiJobId: jobRef.id,
+                    cacheControl: "public,max-age=31536000,immutable",
+                    metadata: {
+                        aiOrigin: "vertex_imagen",
+                        aiModel: runtime.model,
+                        aiPromptVersion: ADMIN_AI_DROP_COVER_PROMPT_VERSION,
+                        aiJobId: jobRef.id,
+                    },
                 },
-            },
-        });
+            });
 
-        const metadataResult = await storageFile.getMetadata();
-        const metadata = (Array.isArray(metadataResult) ? metadataResult[0] : metadataResult) as unknown as StorageObjectMetadata;
-        const imageUrl = await ensureFirebaseDownloadUrl(adminStorage.bucket(), storageFile, metadata);
+            const metadataResult = await storageFile.getMetadata();
+            const metadata = (Array.isArray(metadataResult) ? metadataResult[0] : metadataResult) as unknown as StorageObjectMetadata;
+            imageUrl = await ensureFirebaseDownloadUrl(bucket, storageFile, metadata);
+        } catch (error) {
+            throw classifyStorageError(
+                error,
+                error instanceof Error ? error.message : "Failed to save the generated cover image.",
+                "The cover image was generated but could not be saved to storage. Check Firebase Storage configuration and try again.",
+            );
+        }
         const completedAtMs = Date.now();
 
-        await jobRef.set({
-            status: "succeeded",
-            completedAtMs,
-            latencyMs,
-            billed: true,
-            estimatedCostUsd,
-            imageUrl,
-            storagePath,
-            mimeType: generated.mimeType || ADMIN_AI_DROP_COVER_OUTPUT_MIME_TYPE,
-            fileName,
-            errorMessage: null,
-            updatedAt: FieldValue.serverTimestamp(),
-            updatedAtMs: completedAtMs,
-        }, { merge: true });
+        try {
+            await jobRef.set({
+                status: "succeeded",
+                completedAtMs,
+                latencyMs,
+                billed: true,
+                estimatedCostUsd,
+                imageUrl,
+                storagePath,
+                mimeType: generated.mimeType || ADMIN_AI_DROP_COVER_OUTPUT_MIME_TYPE,
+                fileName,
+                errorMessage: null,
+                updatedAt: FieldValue.serverTimestamp(),
+                updatedAtMs: completedAtMs,
+            }, { merge: true });
+        } catch (error) {
+            throw classifyDatabaseError(
+                error,
+                error instanceof Error ? error.message : "Failed to update the completed AI cover job.",
+                "The cover image was generated, but the job record could not be finalized. Check Firebase admin database access and try again.",
+            );
+        }
 
         await applySummaryDelta({
             successfulGenerationCount: 1,
@@ -695,13 +894,26 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
             ai_model: runtime.model,
             ai_prompt_version: ADMIN_AI_DROP_COVER_PROMPT_VERSION,
             drop_id: input.dropId || "",
+            draft_session_id: draftSessionId,
             latency_ms: latencyMs,
             estimated_cost_usd: estimatedCostUsd,
             regenerated_from_job_id: previousJobRecord?.id || "",
         }, input.requestedByUid);
 
+        let finalizedSnapshotData: Record<string, unknown> = {};
+        try {
+            finalizedSnapshotData = ((await jobRef.get()).data() || {}) as Record<string, unknown>;
+        } catch (error) {
+            recordRouteWarning("admin/ai/drop-covers/generate", "Failed to re-read completed AI cover job", error, {
+                channel: "ai",
+                detail: {
+                    jobId: jobRef.id,
+                },
+            });
+        }
+
         return normalizeJobRecord(jobRef.id, {
-            ...(await jobRef.get()).data(),
+            ...finalizedSnapshotData,
             imageUrl,
             storagePath,
             mimeType: generated.mimeType || ADMIN_AI_DROP_COVER_OUTPUT_MIME_TYPE,
@@ -711,22 +923,41 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
             estimatedCostUsd,
             latencyMs,
             completedAtMs,
+            draftSessionId: draftSessionId || null,
         });
     } catch (error) {
+        const classifiedError = error instanceof AdminAiDropCoverError
+            ? error
+            : createAdminAiDropCoverError(
+                "runtime_unavailable",
+                503,
+                error instanceof Error ? error.message : String(error),
+                "AI cover generation is unavailable right now.",
+            );
         const failedAtMs = Date.now();
         latencyMs = latencyMs || (failedAtMs - startedAtMs);
-        const errorMessage = error instanceof Error ? error.message : String(error);
+        const errorMessage = classifiedError.message;
 
-        await jobRef.set({
-            status: "failed",
-            completedAtMs: failedAtMs,
-            latencyMs,
-            billed,
-            estimatedCostUsd: billed ? estimatedCostUsd : 0,
-            errorMessage,
-            updatedAt: FieldValue.serverTimestamp(),
-            updatedAtMs: failedAtMs,
-        }, { merge: true });
+        try {
+            await jobRef.set({
+                status: "failed",
+                completedAtMs: failedAtMs,
+                latencyMs,
+                billed,
+                estimatedCostUsd: billed ? estimatedCostUsd : 0,
+                errorMessage,
+                updatedAt: FieldValue.serverTimestamp(),
+                updatedAtMs: failedAtMs,
+            }, { merge: true });
+        } catch (persistError) {
+            recordRouteWarning("admin/ai/drop-covers/generate", "Failed to persist AI drop cover failure state", persistError, {
+                channel: "ai",
+                detail: {
+                    jobId: jobRef.id,
+                    failureCode: classifiedError.code,
+                },
+            });
+        }
 
         await applySummaryDelta({
             failedGenerationCount: 1,
@@ -738,8 +969,11 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
             channel: "ai",
             detail: {
                 jobId: jobRef.id,
+                dropId: input.dropId || "",
+                draftSessionId,
                 model: runtime.model,
                 promptVersion: ADMIN_AI_DROP_COVER_PROMPT_VERSION,
+                failureCode: classifiedError.code,
                 billed,
                 latencyMs,
             },
@@ -751,13 +985,15 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
             ai_model: runtime.model,
             ai_prompt_version: ADMIN_AI_DROP_COVER_PROMPT_VERSION,
             drop_id: input.dropId || "",
+            draft_session_id: draftSessionId,
             latency_ms: latencyMs,
             estimated_cost_usd: billed ? estimatedCostUsd : 0,
             billed,
             failure_reason: errorMessage.slice(0, 120),
+            failure_code: classifiedError.code,
         }, input.requestedByUid);
 
-        throw error;
+        throw classifiedError;
     }
 }
 

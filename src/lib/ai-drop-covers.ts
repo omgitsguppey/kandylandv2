@@ -24,6 +24,16 @@ export type AdminAiDropCoverFeedback = "neutral" | "liked" | "disliked";
 
 export type AdminAiDropCoverFeedbackAction = "like" | "dislike" | "accept" | "link_drop";
 
+export type AdminAiDropCoverErrorCode =
+    | "feature_disabled"
+    | "validation_failed"
+    | "draft_session_required"
+    | "runtime_unavailable"
+    | "provider_unavailable"
+    | "provider_timeout"
+    | "storage_failed"
+    | "database_failed";
+
 export interface AdminAiDropCoverPromptInput {
     title: string;
     creatorName?: string | null;
@@ -50,6 +60,7 @@ export interface AdminAiDropCoverJobRecord {
     title: string;
     creatorName?: string | null;
     dropId?: string | null;
+    draftSessionId?: string | null;
     model: string;
     location: string;
     promptVersion: string;
@@ -95,6 +106,7 @@ export const adminAiDropCoverJobSchema = z.object({
     title: z.string(),
     creatorName: z.string().nullable().optional(),
     dropId: z.string().nullable().optional(),
+    draftSessionId: z.string().nullable().optional(),
     model: z.string(),
     location: z.string(),
     promptVersion: z.string(),

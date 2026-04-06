@@ -315,10 +315,10 @@ Results:
 - General user settings autosave is present, but creator-specific controls in the profile/settings view still use their existing manual-save path.
 
 ## Active audit entry
-Current audit date: 2026-04-06 08:55:43 -05:00
-Current branch / commit: `main` / `6408bc0`
+Current audit date: 2026-04-06 09:19:54 -05:00
+Current branch / commit: `main` / `078f522`
 Current task:
-- Full codebase audit and standing-baseline rewrite of `FULL_SCALE_CODEBASE_AUDIT.md`
+- Focused debug-and-fix pass for the Create Drop -> Files & Assets -> AI Cover Generation runtime failure on brand-new unsaved drops
 
 Audit start state:
 - working tree clean at start
@@ -327,34 +327,89 @@ Audit start state:
   - `REPO_MEMORY_LEDGER.md`
   - `EVERY_FILE_FUNCTION_CHECKLIST.md`
 
-Inspected surfaces during this audit:
-- root governance, workflow, platform, and dependency files
-- root tracked evidence and diagnostic artifacts
-- `package.json` and `functions/package.json`
-- `scripts/*` continuity and verification entrypoints
-- `src/app`, `src/components`, `src/context`, `src/hooks`, `src/lib`, `src/lib/server`, `functions/src`, `tests`, `public`, and `dataconnect`
+Root-cause conclusion:
+- The brand-new Create Drop flow was already intended to support pre-save AI cover generation. The modal only links the accepted AI cover job to the real drop after save; it does not require a persisted drop before generation.
+- The actual failure class was not a hard missing-`dropId` validation. The failure path was the server-side generation stack behind `POST /api/admin/ai/drop-covers/generate`, which called `generateAdminAiDropCover(...)` and then collapsed any non-auth exception through `handleApiError(...)` into a generic `500 Internal server error`.
+- The unsaved flow also lacked a canonical draft-scoping identifier, so pre-save jobs had `dropId: null` and no stable server-side draft identity for history/reconciliation beyond local in-memory state.
+- The runtime “ready” signal for AI cover generation was narrower than the full generation path. It verified Vertex token access, but it did not explicitly fail readiness when Firebase Storage bucket configuration was missing.
 
-Files changed in this task:
+Touched surfaces:
 - `FULL_SCALE_CODEBASE_AUDIT.md`
-- `package.json`
-- `package-lock.json`
-- `tests/ui-audits/visual-regression.spec.ts`
-- `tests/ui-audits/visual-regression.spec.ts-snapshots/creator-apply-hero-Mobile-Chrome-win32.png`
-- `tests/ui-audits/visual-regression.spec.ts-snapshots/creator-waitlist-guest-hero-Mobile-Chrome-win32.png`
-- `tests/ui-audits/visual-regression.spec.ts-snapshots/home-hero-Mobile-Chrome-win32.png`
-- `tests/ui-audits/visual-regression.spec.ts-snapshots/home-hero-chromium-win32.png`
-- `tests/ui-audits/visual-regression.spec.ts-snapshots/privacy-page-Mobile-Chrome-win32.png`
+- `src/components/Admin/CreateDropModal.tsx`
+- `src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+- `src/app/api/admin/ai/drop-covers/generate/route.ts`
+- `src/lib/ai-drop-covers.ts`
+- `src/lib/server/ai-drop-covers.ts`
+- `tests/unit/admin-ai-drop-covers-generate-route.spec.ts`
 
-This audit rewrite intentionally removed:
-- stale counts
-- stale verification dates
-- prior appended task notes that no longer served as the standing baseline
-- corrupted/encoded historical fragments that were no longer reliable as live policy
+Canonical helpers used:
+- `src/lib/ai-drop-covers.ts`
+- `src/lib/server/ai-drop-covers.ts`
+- `src/lib/server/storage-assets.ts`
+- `src/lib/server/auth.ts`
+- `src/lib/server/request-guard.ts`
+- `src/lib/server/route-diagnostics.ts`
+- `src/lib/server/server-diagnostics.ts`
+- `src/components/Admin/CreateDropModal.tsx`
+- `src/components/Admin/AiDropCoverGeneratorPanel.tsx`
 
-Failure-resolution note:
-- Root dependency hygiene is now green after removing two genuinely unused root devDependencies.
-- UI continuity audits are now green after refreshing the visual baselines and adding one explicit bounded tolerance for the Mobile Chrome creator-waitlist hero.
+What changed:
+- added explicit unsaved-draft scoping through `draftSessionId` so brand-new drop cover jobs have a stable pre-save identity instead of relying on `dropId: null`
+- route now rejects unsaved generation requests that are missing a valid draft session with a truthful `400 draft_session_required` response instead of allowing the flow to fall through opaquely
+- AI cover generation now throws route-specific typed errors for runtime, provider, storage, and database failures, and the route returns actionable JSON error responses instead of a generic `500 Internal server error`
+- create-drop AI panel now sends `draftSessionId`, keeps unsaved job history scoped to that draft, and renders inline actionable error state for generation failures
+- AI runtime readiness now explicitly fails if Firebase Admin database access or Firebase Storage bucket configuration is unavailable, so the admin UI does not overstate readiness
+- summary-rollup writes for AI cover generation are now best-effort so a summary update failure does not abort the underlying generation flow
 
-End-of-task truth note:
-- This file is now a current baseline, not a mixed baseline-plus-history dump.
-- Historical detail remains in the dated audit snapshots, the repo memory ledger, and the checklist companion.
+Behavior now:
+- brand-new unsaved drops can generate AI covers against a stable draft session
+- accepted covers can still be applied before save and are still linked to the persisted drop after the create-drop submit succeeds
+- if the unsaved draft session is missing or invalid, the user gets a direct inline error telling them to reopen Create Drop instead of hitting a generic internal server error
+- if provider/runtime/storage/database failures occur, the user sees a bounded actionable message and the route records structured diagnostics without exposing secrets
+
+Commands run:
+- `git status --short`
+- `npm run trace:adjacent -- src/components/Admin/CreateDropModal.tsx`
+- `npm run trace:adjacent -- src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+- `npm run trace:adjacent -- src/app/api/admin/ai/drop-covers/generate/route.ts`
+- `npm run trace:adjacent -- src/lib/server/ai-drop-covers.ts`
+- focused `eslint` on touched AI cover files
+- `corepack pnpm exec vitest run tests/unit/admin-ai-drop-covers-generate-route.spec.ts tests/unit/ai-drop-covers.spec.ts`
+- `npm run check:ui:audits`
+- `corepack pnpm run check`
+- `npx vitest run`
+
+Results:
+- adjacency traces completed for all main touched files
+- focused `eslint` passed
+- focused AI cover route/shared tests passed
+- `npm run check:ui:audits` passed
+- `corepack pnpm run check` passed
+- `npx vitest run` passed with `79` files and `408` tests
+
+Runtime truth and verification notes:
+- verified in code and route tests that unsaved generation no longer depends on a persisted drop id; it depends on a stable `draftSessionId`
+- verified route coverage for:
+  - saved-drop generation input
+  - unsaved draft generation input
+  - missing-draft-session rejection
+  - actionable provider/runtime error mapping
+- verified the submit path still links an accepted AI cover to the persisted drop only after create-drop save succeeds
+- verified no nested create-drop save-order change was introduced for assets or content uploads
+- no authenticated browser automation seam exists locally for this admin-only flow, so end-to-end click verification was done through route-contract tests plus full build/lint/test/UI-audit coverage rather than a live signed-in Playwright session
+
+Known warnings and non-blocking notices during this task:
+- npm unknown env config warnings during script chains
+- Node `punycode` deprecation warnings from Firebase/Vitest tooling
+- `check:firebase-runtime` informational dotenv logs inside the canonical `check` pipeline
+- `check:telemetry` still reports 6 cataloged events with no detected emitters:
+  - `creator_segment_assigned`
+  - `creator_role_activated`
+  - `creator_role_activation_blocked`
+  - `owner_override_applied`
+  - `owner_override_cleared`
+  - `creator_broadcast_opened`
+
+Follow-up gaps:
+- direct authenticated browser verification of the admin create-drop AI flow still depends on a local admin/auth automation seam that does not currently exist
+- this pass improves unsaved draft scoping and error truth, but it does not add full cross-session draft persistence beyond the stored AI job records already written server-side

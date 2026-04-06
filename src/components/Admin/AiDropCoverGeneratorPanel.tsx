@@ -7,6 +7,7 @@ import { Check, Loader2, RefreshCw, Sparkles, ThumbsDown, ThumbsUp, TriangleAler
 import { toast } from "sonner";
 
 import {
+    type AdminAiDropCoverErrorCode,
     formatAdminAiUsd,
     type AdminAiDropCoverJobRecord,
     type AdminAiDropCoverRuntimeStatus,
@@ -36,6 +37,7 @@ interface AiDropCoverGeneratorPanelProps {
     creatorId?: string | null;
     creatorName?: string | null;
     dropId?: string | null;
+    draftSessionId?: string | null;
     dropType?: string | null;
     tags?: string[];
     selectedJobId?: string | null;
@@ -43,12 +45,40 @@ interface AiDropCoverGeneratorPanelProps {
     onSelectedJobChange: (jobId: string | null) => void;
 }
 
-function buildScopedJobs(allJobs: AdminAiDropCoverJobRecord[], dropId?: string | null) {
-    if (!dropId) {
+function buildScopedJobs(
+    allJobs: AdminAiDropCoverJobRecord[],
+    dropId?: string | null,
+    draftSessionId?: string | null,
+) {
+    if (!dropId && !draftSessionId) {
         return [];
     }
 
-    return allJobs.filter((job) => job.dropId === dropId || job.acceptedForDropId === dropId);
+    return allJobs.filter((job) => (
+        (dropId && (job.dropId === dropId || job.acceptedForDropId === dropId))
+        || (draftSessionId && job.draftSessionId === draftSessionId)
+    ));
+}
+
+function getGenerationErrorMessage(errorCode?: AdminAiDropCoverErrorCode, fallback?: string) {
+    switch (errorCode) {
+        case "draft_session_required":
+            return "This draft could not be identified. Close and reopen Create Drop, then try AI cover generation again.";
+        case "provider_unavailable":
+            return fallback || "The Vertex image provider is unavailable right now. Check Admin AI runtime/auth and try again.";
+        case "provider_timeout":
+            return fallback || "The image provider timed out before the cover finished rendering. Try again.";
+        case "storage_failed":
+            return fallback || "The cover image rendered, but KandyDrops could not save it to Firebase Storage.";
+        case "database_failed":
+            return fallback || "The AI cover job could not be recorded or finalized in Firebase.";
+        case "runtime_unavailable":
+            return fallback || "AI cover generation is unavailable because a required runtime dependency is not ready.";
+        case "feature_disabled":
+            return fallback || "AI cover generation is turned off.";
+        default:
+            return fallback || "Cover generation failed";
+    }
 }
 
 function StatusPill({ status }: { status: AdminAiDropCoverJobRecord["status"] }) {
@@ -74,6 +104,7 @@ export function AiDropCoverGeneratorPanel({
     creatorId,
     creatorName,
     dropId,
+    draftSessionId,
     dropType,
     tags,
     selectedJobId,
@@ -85,6 +116,7 @@ export function AiDropCoverGeneratorPanel({
     const [loadingDashboard, setLoadingDashboard] = useState(false);
     const [generating, setGenerating] = useState(false);
     const [feedbackingJobId, setFeedbackingJobId] = useState<string | null>(null);
+    const [generationError, setGenerationError] = useState<string | null>(null);
 
     const titleReady = title.trim().length >= 3;
     const latestJob = jobs[0] ?? null;
@@ -105,10 +137,7 @@ export function AiDropCoverGeneratorPanel({
             }
 
             setDashboard(result);
-            const scoped = buildScopedJobs(result.recentJobs || [], dropId);
-            if (scoped.length > 0) {
-                setJobs(scoped);
-            }
+            setJobs(buildScopedJobs(result.recentJobs || [], dropId, draftSessionId));
         } catch (error) {
             reportClientIssue({
                 channel: "ui",
@@ -124,7 +153,7 @@ export function AiDropCoverGeneratorPanel({
         } finally {
             setLoadingDashboard(false);
         }
-    }, [dropId, visible]);
+    }, [draftSessionId, dropId, visible]);
 
     useEffect(() => {
         if (!visible) {
@@ -140,6 +169,7 @@ export function AiDropCoverGeneratorPanel({
         }
 
         setGenerating(true);
+        setGenerationError(null);
         try {
             const response = await authFetch("/api/admin/ai/drop-covers/generate", {
                 method: "POST",
@@ -148,14 +178,19 @@ export function AiDropCoverGeneratorPanel({
                     creatorId,
                     creatorName,
                     dropId,
+                    draftSessionId,
                     dropType,
                     tags,
                     previousJobId: previousJobId || undefined,
                 }),
             });
-            const result = await response.json() as { error?: string; job?: AdminAiDropCoverJobRecord };
+            const result = await response.json() as {
+                error?: string;
+                errorCode?: AdminAiDropCoverErrorCode;
+                job?: AdminAiDropCoverJobRecord;
+            };
             if (!response.ok || !result.job) {
-                throw new Error(result.error || "Cover generation failed");
+                throw new Error(getGenerationErrorMessage(result.errorCode, result.error || "Cover generation failed"));
             }
 
             setJobs((current) => [result.job!, ...current.filter((job) => job.id !== result.job!.id)].slice(0, 6));
@@ -171,14 +206,17 @@ export function AiDropCoverGeneratorPanel({
                     title: title.trim(),
                     previousJobId: previousJobId || undefined,
                     dropId: dropId || undefined,
+                    draftSessionId: draftSessionId || undefined,
                 },
                 consoleLabel: "[AI Drop Cover Panel] generation failed",
             });
-            toast.error(error instanceof Error ? error.message : "Cover generation failed");
+            const message = error instanceof Error ? error.message : "Cover generation failed";
+            setGenerationError(message);
+            toast.error(message);
         } finally {
             setGenerating(false);
         }
-    }, [creatorId, creatorName, dropId, dropType, generating, refreshDashboard, tags, title, titleReady]);
+    }, [creatorId, creatorName, draftSessionId, dropId, dropType, generating, refreshDashboard, tags, title, titleReady]);
 
     const handleFeedback = useCallback(async (jobId: string, action: "like" | "dislike" | "accept") => {
         setFeedbackingJobId(jobId);
@@ -276,6 +314,12 @@ export function AiDropCoverGeneratorPanel({
                 )}
             </div>
 
+            {!dropId && draftSessionId ? (
+                <div className="mt-3 rounded-[1rem] border border-white/10 bg-black/25 p-3 text-[11px] text-gray-300">
+                    Draft-safe mode: generate and select a cover before saving. The accepted cover job will be linked to the real drop record after Create Drop succeeds.
+                </div>
+            ) : null}
+
             {featureEnabled && runtimeReady ? (
                 <div className="mt-3 flex flex-wrap gap-2">
                     <button
@@ -318,6 +362,12 @@ export function AiDropCoverGeneratorPanel({
                         <Loader2 className="h-4 w-4 animate-spin" />
                         Generating a new cover from the current drop title…
                     </div>
+                </div>
+            ) : null}
+
+            {generationError ? (
+                <div className="mt-3 rounded-[1rem] border border-red-400/20 bg-red-500/10 p-3 text-sm text-red-100">
+                    {generationError}
                 </div>
             ) : null}
 

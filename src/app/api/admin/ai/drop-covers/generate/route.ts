@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { getAdminAiDropCoverSettings, generateAdminAiDropCover } from "@/lib/server/ai-drop-covers";
+import {
+    generateAdminAiDropCover,
+    getAdminAiDropCoverSettings,
+    toAdminAiDropCoverClientError,
+} from "@/lib/server/ai-drop-covers";
 import { handleApiError } from "@/lib/server/auth";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
@@ -20,7 +24,10 @@ export async function POST(request: NextRequest) {
 
         const settings = await getAdminAiDropCoverSettings();
         if (!settings.enabled) {
-            return NextResponse.json({ error: "AI cover generation is turned off." }, { status: 409 });
+            return NextResponse.json({
+                error: "AI cover generation is turned off.",
+                errorCode: "feature_disabled",
+            }, { status: 409 });
         }
 
         const body = await request.json() as {
@@ -28,20 +35,34 @@ export async function POST(request: NextRequest) {
             creatorName?: unknown;
             creatorId?: unknown;
             dropId?: unknown;
+            draftSessionId?: unknown;
             dropType?: unknown;
             tags?: unknown;
             previousJobId?: unknown;
         };
         const title = typeof body.title === "string" ? body.title.trim() : "";
         if (title.length < 3) {
-            return NextResponse.json({ error: "Drop title must be at least 3 characters before generating a cover." }, { status: 400 });
+            return NextResponse.json({
+                error: "Drop title must be at least 3 characters before generating a cover.",
+                errorCode: "validation_failed",
+            }, { status: 400 });
+        }
+
+        const dropId = typeof body.dropId === "string" ? body.dropId : null;
+        const draftSessionId = typeof body.draftSessionId === "string" ? body.draftSessionId.trim() : "";
+        if (!dropId && draftSessionId.length < 8) {
+            return NextResponse.json({
+                error: "Unsaved drop cover generation requires a valid draft session. Close and reopen Create Drop, then try again.",
+                errorCode: "draft_session_required",
+            }, { status: 400 });
         }
 
         const job = await generateAdminAiDropCover({
             title,
             creatorName: typeof body.creatorName === "string" ? body.creatorName : null,
             creatorId: typeof body.creatorId === "string" ? body.creatorId : null,
-            dropId: typeof body.dropId === "string" ? body.dropId : null,
+            dropId,
+            draftSessionId: draftSessionId || null,
             dropType: typeof body.dropType === "string" ? body.dropType : null,
             tags: Array.isArray(body.tags) ? body.tags.filter((value): value is string => typeof value === "string") : [],
             previousJobId: typeof body.previousJobId === "string" ? body.previousJobId : null,
@@ -59,6 +80,10 @@ export async function POST(request: NextRequest) {
             },
         });
     } catch (error) {
+        const aiError = toAdminAiDropCoverClientError(error);
+        if (aiError) {
+            return NextResponse.json(aiError.body, { status: aiError.status });
+        }
         return handleApiError(error, "admin/ai/drop-covers/generate");
     }
 }
