@@ -323,6 +323,7 @@ export type CreatorOnboardingHistoryEventType =
     | "creator_approved"
     | "creator_rejected"
     | "creator_needs_changes"
+    | "creator_segment_assigned"
     | "owner_override_applied"
     | "owner_override_cleared"
     | "creator_legally_cleared"

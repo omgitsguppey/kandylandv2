@@ -204,7 +204,7 @@ Start-of-task audit inputs read:
 
 Commands run before and during implementation:
 - corepack pnpm run check
-- 
+-
 px vitest run
 
 End-of-task audit completion recorded at: 2026-04-04 18:05:00 -05:00
@@ -226,6 +226,14 @@ Result:
 - all listed commands passed
 - completely fulfilled task constraints for bypassing ID verification and Legal forms
 
+### [2026-04-06] Event Tracking Integrity + Dependency Cleanup Pass
+- **Task**: Inspect full repository for redundant, stale, orphaned, duplicated, or semantically drifted events.
+- **Root Cause Identified**: The `check:telemetry` script reported "Cataloged events with no detected emitters" (`creator_segment_assigned`, `creator_role_activated`, `creator_role_activation_blocked`, `owner_override_applied`, `owner_override_cleared`).
+- **Fix Implemented**:
+    - **Telemetry Emission Alignment**: Added missing event emissions for the cataloged but unemitted events to `buildCreatorLifecycleEvents` and `emitCreatorLifecycleTelemetry` inside `src/app/api/admin/users/route.ts` and `src/lib/server/creator-onboarding.ts`.
+    - **Bundle Presentation Test Hardening**: Verified `tests/unit/gumdrop-economics.spec.ts` bundle name assertions correctly align with `src/lib/gumdrop-economics.ts` metadata compaction variables ("Sugar Rush Pack", "Sweet Pack", "Kandy Bag Pack", "Kandy Land Pack", "King Size Bundle").
+    - **Dead Import Removal**: Cleaned `GUMDROPS_SUPPORT_COPY` unused import from `src/components/PurchaseModal.tsx`.
+- **Verification**: `npm run check:telemetry` passes with 0 orphaned events. `npm run test:contracts` and `npm run check` pass successfully.
 
 ## Bug Resolution: Admin Roster Creator Approval
 - **Root Cause Identifed**: When approving a creator, the UI GET endpoint sequentially fired parallel queries to aggregate creatorOps analytics. Brand new creators lack initialized collections, triggering a FAILED_PRECONDITION index crash in the local Firebase emulator, cascading into a 500 server error and breaking the dashboard visually.
@@ -261,11 +269,10 @@ Result:
 - **Refactor Details**: Verified that follower/favorite numbers shown on the public profile were updated by scraping backend APIs. However, to guarantee real-time backend parity on creator metrics without depending on admin route aggregation, inserted natively atomic FieldValue tracking (ollowerCount, avoriteCount, lertOptIns) onto the creator_ops snapshot within the primary Firebase relationship mutation transaction.
 - **Verification**: `corepack pnpm tsc --noEmit` passed and changes committed locally.
 
- # # #   [ 2 0 2 6 - 0 4 - 0 5 ]   P u r g e   F a v o r i t i n g   L o g i c   &   I m p l e m e n t   M e s s a g e   M o d u l e 
- -   * * S u r f a c e s   T o u c h e d * * :   \ s r c / t y p e s / d b . t s \ ,   \ s r c / l i b / s e r v e r / c r e a t o r - e x p e r i e n c e s . t s \ ,   \ s r c / l i b / u s e r - u t i l s . t s \ ,   \ s r c / l i b / t e l e m e t r y - c a t a l o g . t s \ ,   \ s r c / l i b / t a s k s / t a s k - c a t a l o g . t s \ ,   \ s r c / c o m p o n e n t s / H e r o . t s x \ ,   \ s r c / a p p / a p i / a d m i n / u s e r s / r o u t e . t s \ ,   \ s r c / a p p / a p i / a d m i n / u s e r / [ u s e r I d ] / r o u t e . t s \ ,   \ s r c / a p p / a p i / a d m i n / r o s t e r / r o u t e . t s \ ,   \ s r c / a p p / a p i / c r e a t o r / d i s c o v e r y / r o u t e . t s \ ,   \ s r c / a p p / c r e a t o r s / [ u s e r n a m e ] / r o u t e . t s \ ,   \ s r c / a p p / a p i / c r e a t o r / r e l a t i o n s h i p s / r o u t e . t s \ ,   \ s r c / c o m p o n e n t s / C r e a t o r D i s c o v e r y R a i l . t s x \ ,   \ s r c / a p p / c r e a t o r s / [ u s e r n a m e ] / C r e a t o r P r o f i l e C l i e n t . t s x \ 
- -   * * R e f a c t o r   D e t a i l s * * : 
-         -   * * F a v o r i t i n g   P u r g e * * :   R e m o v e d   a l l   f a v o r i t i n g   a n d   s a v i n g   f u n c t i o n a l i t y   a c r o s s   t h e   p l a t f o r m .   D e l e t e d   \  a v o r i t e d \ ,   \  a v o r i t e C o u n t \ ,   a n d   \  a v o r i t e C r e a t o r s \   f i e l d s   f r o m   d a t a b a s e   t y p e s .   S t r i p p e d   a g g r e g a t i o n   a n d   t r a c k i n g   l o g i c   f r o m   a d m i n   d a s h b o a r d   a n a l y t i c s   a n d   c r e a t o r   d i s c o v e r y   r a n k i n g   f o r m u l a .   P u r g e d   f a v o r i t i n g   t r a n s a c t i o n s   a n d   t e l e m e t r y   e v e n t s   f r o m   r e l a t i o n s h i p   r o u t e s   a n d   u s e r   p r o f i l e s .   R e p l a c e d   \  a v o r i t e C o u n t \   r e n d e r   l o g i c   w h e r e v e r   p r e s e n t . 
-         -   * * M e s s a g e   M o d u l e   S u b s t i t u t i o n * * :   R e p l a c e d   t h e   ' S a v e '   b u t t o n   o n   p u b l i c   c r e a t o r   p r o f i l e s   w i t h   a   ' M e s s a g e '   b u t t o n .   I m p l e m e n t e d   a   f r i c t i o n l e s s ,   f i x e d   ' M e s s a g e   G a t e '   f e a t u r e - m o d u l e .   W h e n   t o g g l e d ,   t h e   m o d u l e   v e r i f i e s   b a c k e n d   n o t i f i c a t i o n   o p t - i n   s t a t u s .   I f   a l r e a d y   o p t e d   i n ,   i t   p r o m p t s   ' c h e c k   b a c k   l a t e r ' .   I f   o p t e d   o u t ,   a   l o w - f r i c t i o n   \ e n a b l e _ n o t i f i c a t i o n s \   b a c k e n d   t r a n s a c t i o n   p r o m p t   n a t i v e l y   s e c u r e s   a n   e m a i l   w o r k f l o w   o p t - i n . 
-         -   * * F o l l o w e r   C o u n t   H a r d e n i n g * * :   F i x e d   a   d e c o u p l i n g   b u g   w h e r e   p u b l i c   p r o f i l e   f o l l o w e r   c o u n t s   r e t u r n e d   0   d u e   t o   a n   o u t - o f - s y n c   d e p e n d e n c y   o n   t h e   \ c r e a t o r _ o p s . s u m m a r y \   p r o x y .   R e f a c t o r e d   \  p i / c r e a t o r s / [ u s e r n a m e ] / r o u t e . t s \   t o   p e r f o r m   a   d i r e c t   \ . c o u n t ( ) \   a g g r e g a t e   q u e r y   o v e r   t h e   r e a l - t i m e   \ c r e a t o r _ r e l a t i o n s h i p s \   l e d g e r   c o l l e c t i o n   f o r   \  o l l o w i n g   = =   t r u e \ ,   g u a r a n t e e i n g   p e r f e c t   f o l l o w e r   s y n c h r o n i z a t i o n . 
-  
- 
+### [2026-04-05] Purge Favoriting Logic & Implement Message Module
+- **Surfaces Touched**: \src/types/db.ts\, \src/lib/server/creator-experiences.ts\, \src/lib/user-utils.ts\, \src/lib/telemetry-catalog.ts\, \src/lib/tasks/task-catalog.ts\, \src/components/Hero.tsx\, \src/app/api/admin/users/route.ts\, \src/app/api/admin/user/[userId]/route.ts\, \src/app/api/admin/roster/route.ts\, \src/app/api/creator/discovery/route.ts\, \src/app/creators/[username]/route.ts\, \src/app/api/creator/relationships/route.ts\, \src/components/CreatorDiscoveryRail.tsx\, \src/app/creators/[username]/CreatorProfileClient.tsx\
+- **Refactor Details**:
+    - **Favoriting Purge**: Removed all favoriting and saving functionality across the platform. Deleted \avorited\, \avoriteCount\, and \avoriteCreators\ fields from database types. Stripped aggregation and tracking logic from admin dashboard analytics and creator discovery ranking formula. Purged favoriting transactions and telemetry events from relationship routes and user profiles. Replaced \avoriteCount\ render logic wherever present.
+    - **Message Module Substitution**: Replaced the 'Save' button on public creator profiles with a 'Message' button. Implemented a frictionless, fixed 'Message Gate' feature-module. When toggled, the module verifies backend notification opt-in status. If already opted in, it prompts 'check back later'. If opted out, a low-friction \enable_notifications\ backend transaction prompt natively secures an email workflow opt-in.
+    - **Follower Count Hardening**: Fixed a decoupling bug where public profile follower counts returned 0 due to an out-of-sync dependency on the \creator_ops.summary\ proxy. Refactored \pi/creators/[username]/route.ts\ to perform a direct \.count()\ aggregate query over the real-time \creator_relationships\ ledger collection for \ollowing == true\, guaranteeing perfect follower synchronization.
+

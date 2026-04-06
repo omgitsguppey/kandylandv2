@@ -197,6 +197,11 @@ function buildCreatorLifecycleEvents(input: {
     | "creator_rejected"
     | "creator_needs_changes"
     | "creator_legally_cleared_override"
+    | "creator_segment_assigned"
+    | "creator_role_activated"
+    | "creator_role_activation_blocked"
+    | "owner_override_applied"
+    | "owner_override_cleared"
   > = [];
 
   if (!input.before.legallyClearedAt && input.after.legallyClearedAt) {
@@ -231,6 +236,26 @@ function buildCreatorLifecycleEvents(input: {
     }
   }
 
+  if (input.before.segmentationStatus !== input.after.segmentationStatus && input.after.segmentationStatus === "segment_assigned") {
+    events.push("creator_segment_assigned");
+  }
+
+  if (input.before.role !== "creator" && input.after.role === "creator") {
+    events.push("creator_role_activated");
+  }
+
+  if (input.after.approvalStatus === "creator_approved" && input.after.role !== "creator") {
+    events.push("creator_role_activation_blocked");
+  }
+
+  if (input.before.ownerOverrideActive !== input.after.ownerOverrideActive) {
+    if (input.after.ownerOverrideActive) {
+      events.push("owner_override_applied");
+    } else {
+      events.push("owner_override_cleared");
+    }
+  }
+
   return events;
 }
 
@@ -262,6 +287,16 @@ async function emitCreatorLifecycleTelemetry(
         return trackServerEvent("creator_rejected", payload, userId);
       case "creator_needs_changes":
         return trackServerEvent("creator_needs_changes", payload, userId);
+      case "creator_segment_assigned":
+        return trackServerEvent("creator_segment_assigned", payload, userId);
+      case "creator_role_activated":
+        return trackServerEvent("creator_role_activated", payload, userId);
+      case "creator_role_activation_blocked":
+        return trackServerEvent("creator_role_activation_blocked", payload, userId);
+      case "owner_override_applied":
+        return trackServerEvent("owner_override_applied", payload, userId);
+      case "owner_override_cleared":
+        return trackServerEvent("owner_override_cleared", payload, userId);
       default:
         return Promise.resolve();
     }

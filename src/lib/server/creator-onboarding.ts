@@ -218,6 +218,10 @@ export function buildCreatorOnboardingStatusChangeHistoryEntries(input: {
         addEntry("legal_signed", "Legal documents fully signed");
     }
 
+    if (input.before.segmentationStatus !== input.after.segmentationStatus && input.after.segmentationStatus === "segment_assigned") {
+        addEntry("creator_segment_assigned", "Creator segment assigned");
+    }
+
     if (input.before.idVerificationStatus !== input.after.idVerificationStatus) {
         if (input.after.idVerificationStatus === "id_requested") {
             addEntry("id_requested", "Creator ID requested");
