@@ -9,3 +9,7 @@
 ## 2024-03-31 - Added ARIA label to mobile profile avatar
 **Learning:** Found a profile avatar `<button>` in the Navbar that was visually an icon-only button on mobile devices (`md:hidden`). It used an image or initial for sighted users but lacked an accessible name for screen readers.
 **Action:** Always provide an `aria-label` to avatar or profile buttons when they function as icon-only interactive elements without visible text labels.
+
+## 2024-05-18 - Added Tooltips and Screen Reader Labels to Icon-Only Statistics
+**Learning:** Found statistical indicators in `DropCard.tsx` (like view counts and file counts) that were visually just an icon next to a number. Sighted users without context might not understand the icon, and screen reader users would only hear "Image 5".
+**Action:** When implementing icon-and-number informational chips, wrap the number in `aria-hidden="true"`, add a `title` to the wrapper for sighted users, and append a visually hidden (`sr-only`) label specifying the full meaning for screen readers.

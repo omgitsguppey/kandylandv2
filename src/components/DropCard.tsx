@@ -75,15 +75,17 @@ const FileCountChip = ({ images, videos, compact = false }: FileCountChipProps) 
             compact ? "px-2 py-0.5 text-[9px] gap-1.5" : "px-3 py-1 text-[10px] md:text-xs"
         )}>
             {images > 0 && (
-                <div className="flex items-center gap-1">
-                    <ImageIcon className={compact ? "w-2.5 h-2.5" : "w-3 h-3 md:w-3.5 md:h-3.5"} />
-                    <span>{images}</span>
+                <div className="flex items-center gap-1" title={`${images} ${images === 1 ? 'image' : 'images'}`}>
+                    <ImageIcon aria-hidden="true" className={compact ? "w-2.5 h-2.5" : "w-3 h-3 md:w-3.5 md:h-3.5"} />
+                    <span aria-hidden="true">{images}</span>
+                    <span className="sr-only">{images} {images === 1 ? 'image' : 'images'}</span>
                 </div>
             )}
             {videos > 0 && (
-                <div className="flex items-center gap-1">
-                    <Film className={compact ? "w-2.5 h-2.5" : "w-3 h-3 md:w-3.5 md:h-3.5"} />
-                    <span>{videos}</span>
+                <div className="flex items-center gap-1" title={`${videos} ${videos === 1 ? 'video' : 'videos'}`}>
+                    <Film aria-hidden="true" className={compact ? "w-2.5 h-2.5" : "w-3 h-3 md:w-3.5 md:h-3.5"} />
+                    <span aria-hidden="true">{videos}</span>
+                    <span className="sr-only">{videos} {videos === 1 ? 'video' : 'videos'}</span>
                 </div>
             )}
         </div>
@@ -473,9 +475,13 @@ function DropCardBase({
                             <div className="inline-flex px-2 py-1 rounded-md border border-brand-purple/20 bg-brand-purple/10 text-brand-purple font-bold text-[10px] w-fit">
                                 {drop.unlockCost} GD
                             </div>
-                            <div className="flex items-center gap-1 opacity-60 text-[9px] font-medium text-white/80">
-                                <Eye className="w-2.5 h-2.5" />
-                                <span>{totalViews.toLocaleString()}</span>
+                            <div
+                                className="flex items-center gap-1 opacity-60 text-[9px] font-medium text-white/80"
+                                title={`${totalViews.toLocaleString()} ${totalViews === 1 ? 'view' : 'views'}`}
+                            >
+                                <Eye aria-hidden="true" className="w-2.5 h-2.5" />
+                                <span aria-hidden="true">{totalViews.toLocaleString()}</span>
+                                <span className="sr-only">{totalViews} {totalViews === 1 ? 'view' : 'views'}</span>
                             </div>
                         </div>
                         {ctaButton}
@@ -545,9 +551,13 @@ function DropCardBase({
                         <div className="flex items-center gap-1 md:gap-2 px-2 py-1 bg-brand-purple/10 rounded-lg border border-brand-purple/20">
                             <span className="text-brand-purple font-bold text-[10px] md:text-xs tracking-wide whitespace-nowrap">{drop.unlockCost} GD</span>
                         </div>
-                        <div className="flex items-center gap-1 opacity-60 text-[9px] font-medium text-white/80">
-                            <Eye className="w-2.5 h-2.5" />
-                            <span>{totalViews.toLocaleString()}</span>
+                        <div
+                            className="flex items-center gap-1 opacity-60 text-[9px] font-medium text-white/80"
+                            title={`${totalViews.toLocaleString()} ${totalViews === 1 ? 'view' : 'views'}`}
+                        >
+                            <Eye aria-hidden="true" className="w-2.5 h-2.5" />
+                            <span aria-hidden="true">{totalViews.toLocaleString()}</span>
+                            <span className="sr-only">{totalViews} {totalViews === 1 ? 'view' : 'views'}</span>
                         </div>
                     </div>
                     <div className="w-full">
