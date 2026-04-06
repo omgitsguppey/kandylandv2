@@ -47,15 +47,16 @@ export function getBundlePresentation(deliveredGumDrops: number) {
 
   switch (deliveredGumDrops) {
     case 100:
-      return { ...presentationInfo, bundleLabel: "Sugar Rush Pack", bundleKey: "sugar_rush_pack", bundleTier: "entry" as const };
+      return { ...presentationInfo, bundleLabel: "Starter Pack", bundleKey: "starter_pack", bundleTier: "entry" as const };
     case 550:
-      return { ...presentationInfo, bundleLabel: "Sweet Pack", bundleKey: "sweet_pack", bundleTier: "bonus" as const };
+      return { ...presentationInfo, bundleLabel: "Fan Pack", bundleKey: "fan_pack", bundleTier: "bonus" as const };
     case 1100:
-      return { ...presentationInfo, bundleLabel: "Kandy Bag Pack", bundleKey: "kandy_bag_pack", bundleTier: "bonus" as const };
+      return { ...presentationInfo, bundleLabel: "Premium Stash", bundleKey: "premium_stash", bundleTier: "bonus" as const };
     case 2500:
-      return { ...presentationInfo, bundleLabel: "Kandy Land Pack", bundleKey: "kandy_land_pack", bundleTier: "bonus" as const };
+      return { ...presentationInfo, bundleLabel: "Ultimate Kandy", bundleKey: "ultimate_kandy", bundleTier: "bonus" as const };
     default: {
-      const bundleLabel = "King Size Bundle";
+      const formattedAmount = new Intl.NumberFormat("en-US").format(deliveredGumDrops);
+      const bundleLabel = deliveredGumDrops >= 5000 ? `${formattedAmount} GD Bundle` : `${deliveredGumDrops} GD Bundle`;
       return {
         ...presentationInfo,
         bundleLabel,
