@@ -559,3 +559,110 @@ Known warnings and non-blocking notices during continuation:
 Continuation follow-up gaps:
 - `creator_broadcast_opened` remains cataloged without a detected emitter
 - the Mobile Chrome creator-waitlist hero screenshot remains unstable across consecutive captures and still needs a separate audit-safe stabilization pass
+
+### Continuation: AI Cover Model/Location Runtime Fix
+Current audit date: 2026-04-06 14:49:52 -05:00
+Current branch / commit for continuation start: `main` / `5566eb5`
+Continuation task:
+- fix the AI drop-cover runtime so it no longer defaults to Imagen 3 / regional-only routing and no longer hides model-location denial behind a generic provider failure
+
+Continuation start state:
+- working tree clean at start
+- canonical startup docs re-read:
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+  - `REPO_MEMORY_LEDGER.md`
+  - `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- adjacency traces run before editing:
+  - `npm run trace:adjacent -- src/lib/server/ai-drop-covers.ts`
+  - `npm run trace:adjacent -- src/app/api/admin/ai/drop-covers/generate/route.ts`
+
+Initial root-cause findings:
+- the canonical AI drop-cover defaults were still `imagen-3.0-fast-generate-001` and `us-central1`
+- the Vertex publisher endpoint builder only handled regional hostnames and did not explicitly support the global publisher endpoint form
+- the runtime status labeled the system `ready` after an ADC token check even though final model access still depended on the configured model and location being permitted for the project
+- provider failures caused by model/location denial were being bucketed into generic provider-unavailable messaging instead of a bounded operator-facing model/location error
+
+Continuation touched surfaces:
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `src/lib/ai-drop-covers.ts`
+- `src/lib/server/ai-drop-covers.ts`
+- `src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+- `src/app/admin/ai/page.tsx`
+- `tests/unit/ai-drop-covers.spec.ts`
+- `tests/unit/admin-ai-drop-covers-generate-route.spec.ts`
+- `tests/unit/admin-ai-drop-covers-route.spec.ts`
+
+Canonical helpers and modules reused for continuation:
+- `src/lib/ai-drop-covers.ts`
+- `src/lib/server/ai-drop-covers.ts`
+- `src/lib/server/auth.ts`
+- `src/lib/server/request-guard.ts`
+- `src/lib/server/route-diagnostics.ts`
+- `src/lib/server/server-diagnostics.ts`
+- `src/lib/authFetch.ts`
+- `src/lib/client-error-reporting.ts`
+
+External runtime truth verified for continuation:
+- Google Cloud Vertex AI generative model docs currently list Imagen 4 and Imagen 4 Fast publisher models on Vertex and document both regional and global endpoints.
+- The repo runtime had still been pinned to the older Imagen 3 fast default and a regional-only host pattern even though the intended current path is Imagen 4.
+
+Continuation implementation and fixes:
+- the canonical drop-cover default model is now `imagen-4.0-fast-generate-001`
+- the canonical default location is now `global`
+- legacy saved defaults are normalized forward so existing installs using the old implicit `imagen-3.0-fast-generate-001` plus `us-central1` pair now resolve to the new Imagen 4 Fast global runtime without requiring a manual Firestore settings edit
+- the runtime resolver now lets explicit environment overrides (`VERTEX_AI_IMAGE_MODEL`, `GOOGLE_VERTEX_IMAGE_MODEL`, `VERTEX_AI_LOCATION`, `GOOGLE_CLOUD_LOCATION`, `GCLOUD_LOCATION`) supersede stored defaults if operators need to correct deployment behavior without changing the Firestore settings document first
+- the Vertex publisher endpoint builder now supports the global endpoint form (`aiplatform.googleapis.com`) instead of assuming every generation request must use a regional hostname
+- provider failures that clearly indicate model/location denial are now returned as bounded `model_location_unavailable` client errors instead of a generic provider-unavailable bucket
+- the create-drop AI cover panel now maps that new error code to a specific operator-facing message
+- the Admin AI page fallback location display now matches the new canonical global default
+- the Admin AI runtime note is now more truthful: auth/storage/job recording can be configured while final model access is still only proven by a successful generation request
+
+Commands run for continuation:
+- `git status --short`
+- adjacency traces:
+  - `npm run trace:adjacent -- src/lib/server/ai-drop-covers.ts`
+  - `npm run trace:adjacent -- src/app/api/admin/ai/drop-covers/generate/route.ts`
+  - `npm run trace:adjacent -- src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+- focused `eslint` on:
+  - `src/lib/ai-drop-covers.ts`
+  - `src/lib/server/ai-drop-covers.ts`
+  - `src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+  - `src/app/admin/ai/page.tsx`
+  - `tests/unit/ai-drop-covers.spec.ts`
+  - `tests/unit/admin-ai-drop-covers-generate-route.spec.ts`
+  - `tests/unit/admin-ai-drop-covers-route.spec.ts`
+- focused `vitest` on:
+  - `tests/unit/ai-drop-covers.spec.ts`
+  - `tests/unit/admin-ai-drop-covers-generate-route.spec.ts`
+  - `tests/unit/admin-ai-drop-covers-route.spec.ts`
+- `corepack pnpm run check`
+- `npx vitest run`
+- `npm run check:ui:audits`
+- `npm run check:ui:lighthouse`
+
+Continuation results:
+- focused `eslint` passed
+- focused `vitest` passed with `3` files and `12` tests
+- `corepack pnpm run check` passed
+- `npx vitest run` passed with `82` files and `415` tests
+- `npm run check:ui:audits` passed
+- `npm run check:ui:lighthouse` passed on the clean rerun
+  - the first attempt failed only because a separate `next build` from the parallel UI-audit command was still active; this was a build-process collision, not a product regression
+
+Runtime truth and continuity implications from continuation:
+- the drop-cover generation path now targets Imagen 4 Fast by default instead of the stale Imagen 3 fast default
+- the runtime can now use the Vertex global publisher endpoint, which better matches the current Google-supported endpoint model for Imagen 4
+- existing saved AI-cover settings that were carrying the old implicit default no longer silently pin the product to Imagen 3 unless an operator explicitly overrides the runtime
+- the Admin AI page no longer overstates its readiness as full model availability; it now says credentials/config are ready while generation success still proves final model access
+- create-drop failures caused by model/location permission or availability mismatches now return a bounded actionable error instead of collapsing into a generic provider failure
+
+Known warnings and non-blocking notices during continuation:
+- npm unknown env config warnings during script chains
+- Node `punycode` deprecation warnings from Firebase/Vitest tooling
+- `check:firebase-runtime` informational dotenv logs inside the canonical `check` pipeline
+- `check:telemetry` still reports `creator_broadcast_opened` with no detected emitter
+- `npm run check:ui:lighthouse` produced non-blocking Windows temp-directory cleanup warnings after Chrome exit
+
+Continuation follow-up gaps:
+- there is still no local authenticated browser automation seam for the admin create-drop flow, so final behavioral verification for this pass is route-contract and repo-check based rather than a captured signed-in admin browser session
+- if a deployed project is blocked from the Vertex global endpoint by organization resource-location policy, operators may still need an explicit environment override to a permitted regional location

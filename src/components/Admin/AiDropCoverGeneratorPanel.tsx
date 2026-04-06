@@ -64,6 +64,8 @@ function getGenerationErrorMessage(errorCode?: AdminAiDropCoverErrorCode, fallba
     switch (errorCode) {
         case "draft_session_required":
             return "This draft could not be identified. Close and reopen Create Drop, then try AI cover generation again.";
+        case "model_location_unavailable":
+            return fallback || "The configured AI image model is not available to this project in the current Vertex location. Check Admin AI runtime settings and Google Cloud model access.";
         case "provider_unavailable":
             return fallback || "The Vertex image provider is unavailable right now. Check Admin AI runtime/auth and try again.";
         case "provider_timeout":

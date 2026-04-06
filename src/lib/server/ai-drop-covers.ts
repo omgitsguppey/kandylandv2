@@ -5,6 +5,7 @@ import { GoogleAuth } from "google-auth-library";
 
 import {
     type AdminAiDropCoverErrorCode,
+    ADMIN_AI_DROP_COVER_DEFAULT_LOCATION,
     ADMIN_AI_DROP_COVER_JOBS_COLLECTION,
     ADMIN_AI_DROP_COVER_MODEL,
     ADMIN_AI_DROP_COVER_OUTPUT_MIME_TYPE,
@@ -22,6 +23,8 @@ import {
     getAdminAiDropCoverPricePerGenerationUsd,
     getAdminAiDropCoverRecipeLabel,
     getDefaultAdminAiDropCoverSettings,
+    normalizeAdminAiDropCoverLocation,
+    normalizeAdminAiDropCoverModel,
     type AdminAiDropCoverFeedbackAction,
     type AdminAiDropCoverJobRecord,
     type AdminAiDropCoverJobStatus,
@@ -40,7 +43,7 @@ import {
     type StorageObjectMetadata,
 } from "@/lib/server/storage-assets";
 
-const DEFAULT_VERTEX_LOCATION = "us-central1";
+const DEFAULT_VERTEX_LOCATION = ADMIN_AI_DROP_COVER_DEFAULT_LOCATION;
 const VERTEX_SCOPE = "https://www.googleapis.com/auth/cloud-platform";
 const DEFAULT_TIMEOUT_MS = 20_000;
 const RECENT_JOB_LIMIT = 18;
@@ -141,9 +144,36 @@ export function toAdminAiDropCoverClientError(error: unknown) {
     };
 }
 
-function summarizeAiAvailabilityIssue(error: unknown) {
+function summarizeAiAvailabilityIssue(
+    error: unknown,
+    runtime?: Pick<AdminAiDropCoverRuntime, "model" | "location">,
+    stage: "auth" | "predict" = "predict",
+) {
     const message = error instanceof Error ? error.message : String(error);
     const normalized = message.toLowerCase();
+
+    const likelyModelLocationIssue = (
+        (
+            normalized.includes("permission denied")
+            || normalized.includes("permission_denied")
+            || normalized.includes("does not have permission")
+            || normalized.includes("doesn't have permission")
+            || normalized.includes("does not have access")
+        )
+        && (
+            normalized.includes("model")
+            || normalized.includes("publisher")
+            || normalized.includes("location")
+            || normalized.includes("resource locations")
+        )
+    ) || (
+        (normalized.includes("not found") || normalized.includes("unsupported") || normalized.includes("not available"))
+        && (normalized.includes("model") || normalized.includes("location") || normalized.includes("publisher"))
+    );
+
+    if (stage === "predict" && likelyModelLocationIssue) {
+        return `The configured Vertex image model (${runtime?.model || "current model"}) is not available to this project in ${runtime?.location || "the configured location"}. KandyDrops now targets Imagen 4 Fast on the Vertex global endpoint; if this still fails, check project model access and org location policy.`;
+    }
 
     if (
         normalized.includes("application default credentials")
@@ -151,7 +181,7 @@ function summarizeAiAvailabilityIssue(error: unknown) {
         || normalized.includes("default credentials")
         || normalized.includes("login required")
         || normalized.includes("unauthenticated")
-        || normalized.includes("permission_denied")
+        || (stage === "auth" && normalized.includes("permission_denied"))
     ) {
         return "Vertex image generation credentials are unavailable. Run `gcloud auth application-default login` locally or use a Google-managed runtime identity.";
     }
@@ -176,7 +206,11 @@ function createAdminAiDropCoverError(
     return new AdminAiDropCoverError(code, status, message, clientMessage);
 }
 
-function classifyProviderError(error: unknown) {
+function classifyProviderError(
+    error: unknown,
+    runtime?: Pick<AdminAiDropCoverRuntime, "model" | "location">,
+    stage: "auth" | "predict" = "predict",
+) {
     const message = error instanceof Error ? error.message : String(error);
     const normalized = message.toLowerCase();
 
@@ -189,11 +223,20 @@ function classifyProviderError(error: unknown) {
         );
     }
 
+    if (summarizeAiAvailabilityIssue(error, runtime, stage).includes("not available to this project")) {
+        return createAdminAiDropCoverError(
+            "model_location_unavailable",
+            503,
+            message,
+            summarizeAiAvailabilityIssue(error, runtime, stage),
+        );
+    }
+
     return createAdminAiDropCoverError(
         "provider_unavailable",
         503,
         message,
-        summarizeAiAvailabilityIssue(error),
+        summarizeAiAvailabilityIssue(error, runtime, stage),
     );
 }
 
@@ -216,18 +259,30 @@ function normalizeSettings(raw: unknown): AdminAiDropCoverSettings {
     }
 
     const data = raw as Record<string, unknown>;
+    const rawModel = getString(data.model);
+    const rawLocation = getString(data.location);
+    const normalizedModel = normalizeAdminAiDropCoverModel(rawModel || defaults.model);
+    const normalizedLocation = normalizeAdminAiDropCoverLocation(rawLocation || defaults.location, rawModel || normalizedModel);
+    const migratedLegacyDefault = (
+        (!!rawModel && rawModel !== normalizedModel)
+        || (!!rawLocation && rawLocation !== normalizedLocation)
+    );
     return adminAiDropCoverSettingsSchema.parse({
         ...defaults,
         enabled: typeof data.enabled === "boolean" ? data.enabled : defaults.enabled,
-        model: getString(data.model) || defaults.model,
-        location: getString(data.location) || defaults.location,
+        model: normalizedModel,
+        location: normalizedLocation,
         aspectRatio: "1:1",
         outputMimeType: getString(data.outputMimeType) || defaults.outputMimeType,
-        pricePerGenerationUsd: typeof data.pricePerGenerationUsd === "number"
+        pricePerGenerationUsd: !migratedLegacyDefault && typeof data.pricePerGenerationUsd === "number"
             ? data.pricePerGenerationUsd
-            : getAdminAiDropCoverPricePerGenerationUsd(getString(data.model) || defaults.model),
-        priceBasis: getString(data.priceBasis) || defaults.priceBasis,
-        priceSourceUrl: getString(data.priceSourceUrl) || defaults.priceSourceUrl,
+            : getAdminAiDropCoverPricePerGenerationUsd(normalizedModel),
+        priceBasis: !migratedLegacyDefault && getString(data.priceBasis)
+            ? getString(data.priceBasis)
+            : defaults.priceBasis,
+        priceSourceUrl: !migratedLegacyDefault && getString(data.priceSourceUrl)
+            ? getString(data.priceSourceUrl)
+            : defaults.priceSourceUrl,
         updatedAtMs: typeof data.updatedAtMs === "number" ? data.updatedAtMs : undefined,
         updatedByUid: getString(data.updatedByUid) || undefined,
         updatedByEmail: typeof data.updatedByEmail === "string" ? data.updatedByEmail : undefined,
@@ -401,9 +456,17 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number) {
     });
 }
 
+function buildVertexPublisherPredictEndpoint(runtime: AdminAiDropCoverRuntime) {
+    const hostname = runtime.location === "global"
+        ? "aiplatform.googleapis.com"
+        : `${runtime.location}-aiplatform.googleapis.com`;
+
+    return `https://${hostname}/v1/projects/${runtime.project}/locations/${runtime.location}/publishers/google/models/${runtime.model}:predict`;
+}
+
 async function generateVertexImage(input: GenerateVertexImageInput): Promise<GenerateVertexImageResult> {
     const response = await withTimeout(fetch(
-        `https://${input.runtime.location}-aiplatform.googleapis.com/v1/projects/${input.runtime.project}/locations/${input.runtime.location}/publishers/google/models/${input.runtime.model}:predict`,
+        buildVertexPublisherPredictEndpoint(input.runtime),
         {
             method: "POST",
             headers: {
@@ -451,6 +514,18 @@ async function generateVertexImage(input: GenerateVertexImageInput): Promise<Gen
 
 export function resolveAdminAiDropCoverRuntime(settings?: Partial<AdminAiDropCoverSettings>): AdminAiDropCoverRuntime {
     const normalizedSettings = normalizeSettings(settings);
+    const runtimeModel = normalizeAdminAiDropCoverModel(
+        process.env.VERTEX_AI_IMAGE_MODEL
+        || process.env.GOOGLE_VERTEX_IMAGE_MODEL
+        || normalizedSettings.model,
+    );
+    const runtimeLocation = normalizeAdminAiDropCoverLocation(
+        process.env.VERTEX_AI_LOCATION
+        || process.env.GOOGLE_CLOUD_LOCATION
+        || process.env.GCLOUD_LOCATION
+        || normalizedSettings.location,
+        runtimeModel,
+    );
     const project = (
         process.env.GOOGLE_CLOUD_PROJECT
         || process.env.GCLOUD_PROJECT
@@ -462,14 +537,8 @@ export function resolveAdminAiDropCoverRuntime(settings?: Partial<AdminAiDropCov
 
     return {
         project,
-        location: (
-            normalizedSettings.location
-            || process.env.VERTEX_AI_LOCATION
-            || process.env.GOOGLE_CLOUD_LOCATION
-            || process.env.GCLOUD_LOCATION
-            || DEFAULT_VERTEX_LOCATION
-        ).trim() || DEFAULT_VERTEX_LOCATION,
-        model: normalizedSettings.model || ADMIN_AI_DROP_COVER_MODEL,
+        location: runtimeLocation || DEFAULT_VERTEX_LOCATION,
+        model: runtimeModel || ADMIN_AI_DROP_COVER_MODEL,
     };
 }
 
@@ -596,7 +665,7 @@ export async function getAdminAiDropCoverRuntimeStatus() {
         return adminAiDropCoverRuntimeSchema.parse({
             enabled: true,
             status: "ready",
-            note: `Vertex image generation is ready. Estimated cost is ${formatAdminAiUsd(settings.pricePerGenerationUsd)} per image based on the current Google Cloud pricing page.`,
+            note: `Vertex credentials, Firebase Storage, and AI job recording are configured. The active image runtime is ${runtime.model} in ${runtime.location}; final model access is only fully verified when a generation request succeeds. Estimated cost is ${formatAdminAiUsd(settings.pricePerGenerationUsd)} per image based on the current Google Cloud pricing page.`,
             project: runtime.project,
             location: runtime.location,
             model: runtime.model,
@@ -608,7 +677,7 @@ export async function getAdminAiDropCoverRuntimeStatus() {
         return adminAiDropCoverRuntimeSchema.parse({
             enabled: true,
             status: "auth_missing",
-            note: summarizeAiAvailabilityIssue(error),
+            note: summarizeAiAvailabilityIssue(error, runtime, "auth"),
             project: runtime.project,
             location: runtime.location,
             model: runtime.model,
@@ -794,7 +863,7 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
         try {
             accessToken = await getVertexAccessToken(runtime.project);
         } catch (error) {
-            throw classifyProviderError(error);
+            throw classifyProviderError(error, runtime, "auth");
         }
 
         let generated: GenerateVertexImageResult;
@@ -807,7 +876,7 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
                 outputMimeType: settings.outputMimeType,
             });
         } catch (error) {
-            throw classifyProviderError(error);
+            throw classifyProviderError(error, runtime, "predict");
         }
         billed = true;
         latencyMs = Date.now() - startedAtMs;

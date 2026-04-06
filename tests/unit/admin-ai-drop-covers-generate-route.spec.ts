@@ -69,8 +69,8 @@ describe("POST /api/admin/ai/drop-covers/generate", () => {
         mockState.generateAdminAiDropCover.mockResolvedValue({
             id: "job_1",
             title: "Cherry Rush",
-            model: "imagen-3.0-fast-generate-001",
-            location: "us-central1",
+            model: "imagen-4.0-fast-generate-001",
+            location: "global",
             promptVersion: "drop-cover-v1",
             recipeLabel: "KandyDrops title-safe cover art",
             status: "succeeded",
@@ -123,8 +123,8 @@ describe("POST /api/admin/ai/drop-covers/generate", () => {
             id: "job_draft_1",
             title: "Cherry Rush",
             draftSessionId: "draft-session-123",
-            model: "imagen-3.0-fast-generate-001",
-            location: "us-central1",
+            model: "imagen-4.0-fast-generate-001",
+            location: "global",
             promptVersion: "drop-cover-v1",
             recipeLabel: "KandyDrops title-safe cover art",
             status: "succeeded",
@@ -186,13 +186,13 @@ describe("POST /api/admin/ai/drop-covers/generate", () => {
 
     it("maps provider/runtime failures to actionable AI errors instead of a generic internal server error", async () => {
         mockState.getAdminAiDropCoverSettings.mockResolvedValue({ enabled: true });
-        const providerError = new Error("Could not load the default credentials.");
+        const providerError = new Error("Permission denied while accessing publishers/google/models/imagen-4.0-fast-generate-001 in location global.");
         mockState.generateAdminAiDropCover.mockRejectedValue(providerError);
         mockState.toAdminAiDropCoverClientError.mockReturnValue({
             status: 503,
             body: {
-                error: "Vertex image generation credentials are unavailable. Run `gcloud auth application-default login` locally or use a Google-managed runtime identity.",
-                errorCode: "provider_unavailable",
+                error: "The configured Vertex image model (imagen-4.0-fast-generate-001) is not available to this project in global. KandyDrops now targets Imagen 4 Fast on the Vertex global endpoint; if this still fails, check project model access and org location policy.",
+                errorCode: "model_location_unavailable",
             },
         });
 
@@ -207,8 +207,8 @@ describe("POST /api/admin/ai/drop-covers/generate", () => {
         const body = await response.json();
 
         expect(response.status).toBe(503);
-        expect(body.errorCode).toBe("provider_unavailable");
-        expect(body.error).toContain("credentials");
+        expect(body.errorCode).toBe("model_location_unavailable");
+        expect(body.error).toContain("imagen-4.0-fast-generate-001");
         expect(mockState.toAdminAiDropCoverClientError).toHaveBeenCalledWith(providerError);
         expect(mockState.handleApiError).not.toHaveBeenCalled();
     });

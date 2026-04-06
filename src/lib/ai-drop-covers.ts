@@ -5,9 +5,12 @@ export const ADMIN_AI_DROP_COVER_JOBS_COLLECTION = "admin_ai_drop_cover_jobs";
 export const ADMIN_AI_DROP_COVER_SUMMARY_COLLECTION = "admin_ai_drop_cover_summary";
 export const ADMIN_AI_DROP_COVER_SUMMARY_DOC = "overview";
 
-export const ADMIN_AI_DROP_COVER_MODEL = "imagen-3.0-fast-generate-001";
+export const ADMIN_AI_DROP_COVER_MODEL = "imagen-4.0-fast-generate-001";
+export const ADMIN_AI_DROP_COVER_DEFAULT_LOCATION = "global";
+export const ADMIN_AI_DROP_COVER_LEGACY_DEFAULT_MODEL = "imagen-3.0-fast-generate-001";
+export const ADMIN_AI_DROP_COVER_LEGACY_DEFAULT_LOCATION = "us-central1";
 export const ADMIN_AI_DROP_COVER_PROMPT_VERSION = "drop-cover-v1";
-export const ADMIN_AI_DROP_COVER_PRICE_BASIS = "vertex-ai-pricing-imagen-fast-2026-04-05";
+export const ADMIN_AI_DROP_COVER_PRICE_BASIS = "vertex-ai-pricing-imagen-4-fast-2026-04-06";
 export const ADMIN_AI_DROP_COVER_PRICE_SOURCE_URL = "https://cloud.google.com/vertex-ai/generative-ai/pricing";
 export const ADMIN_AI_DROP_COVER_OUTPUT_MIME_TYPE = "image/png";
 
@@ -29,6 +32,7 @@ export type AdminAiDropCoverErrorCode =
     | "validation_failed"
     | "draft_session_required"
     | "runtime_unavailable"
+    | "model_location_unavailable"
     | "provider_unavailable"
     | "provider_timeout"
     | "storage_failed"
@@ -248,11 +252,41 @@ export function estimateAdminAiDropCoverCostUsd(model = ADMIN_AI_DROP_COVER_MODE
     return Number((getAdminAiDropCoverPricePerGenerationUsd(model) * normalizedCount).toFixed(4));
 }
 
+export function normalizeAdminAiDropCoverModel(model?: string | null) {
+    const normalizedModel = model?.trim() || "";
+
+    if (!normalizedModel || normalizedModel === ADMIN_AI_DROP_COVER_LEGACY_DEFAULT_MODEL) {
+        return ADMIN_AI_DROP_COVER_MODEL;
+    }
+
+    return normalizedModel;
+}
+
+export function normalizeAdminAiDropCoverLocation(location?: string | null, model?: string | null) {
+    const normalizedLocation = location?.trim() || "";
+    const rawModel = model?.trim() || "";
+    const normalizedModel = normalizeAdminAiDropCoverModel(rawModel);
+
+    if (!normalizedLocation) {
+        return ADMIN_AI_DROP_COVER_DEFAULT_LOCATION;
+    }
+
+    if (
+        normalizedLocation === ADMIN_AI_DROP_COVER_LEGACY_DEFAULT_LOCATION
+        && normalizedModel === ADMIN_AI_DROP_COVER_MODEL
+        && (!rawModel || rawModel === ADMIN_AI_DROP_COVER_LEGACY_DEFAULT_MODEL)
+    ) {
+        return ADMIN_AI_DROP_COVER_DEFAULT_LOCATION;
+    }
+
+    return normalizedLocation;
+}
+
 export function getDefaultAdminAiDropCoverSettings(): AdminAiDropCoverSettings {
     return {
         enabled: false,
         model: ADMIN_AI_DROP_COVER_MODEL,
-        location: "us-central1",
+        location: ADMIN_AI_DROP_COVER_DEFAULT_LOCATION,
         aspectRatio: "1:1",
         outputMimeType: ADMIN_AI_DROP_COVER_OUTPUT_MIME_TYPE,
         pricePerGenerationUsd: getAdminAiDropCoverPricePerGenerationUsd(),

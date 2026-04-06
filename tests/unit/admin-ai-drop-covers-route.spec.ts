@@ -45,21 +45,21 @@ describe("GET/PUT /api/admin/ai/drop-covers", () => {
         mockState.buildAdminAiDropCoverDashboard.mockResolvedValue({
             settings: {
                 enabled: true,
-                model: "imagen-3.0-fast-generate-001",
-                location: "us-central1",
+                model: "imagen-4.0-fast-generate-001",
+                location: "global",
                 pricePerGenerationUsd: 0.02,
-                priceBasis: "vertex-ai-pricing-imagen-fast-2026-04-05",
+                priceBasis: "vertex-ai-pricing-imagen-4-fast-2026-04-06",
                 priceSourceUrl: "https://cloud.google.com/vertex-ai/generative-ai/pricing",
             },
             runtime: {
                 enabled: true,
                 status: "ready",
-                note: "Vertex image generation is ready.",
+                note: "Vertex credentials, Firebase Storage, and AI job recording are configured.",
                 project: "kandydrops-by-ikandy",
-                location: "us-central1",
-                model: "imagen-3.0-fast-generate-001",
+                location: "global",
+                model: "imagen-4.0-fast-generate-001",
                 pricePerGenerationUsd: 0.02,
-                priceBasis: "vertex-ai-pricing-imagen-fast-2026-04-05",
+                priceBasis: "vertex-ai-pricing-imagen-4-fast-2026-04-06",
                 priceSourceUrl: "https://cloud.google.com/vertex-ai/generative-ai/pricing",
             },
             aggregate: {
@@ -78,12 +78,12 @@ describe("GET/PUT /api/admin/ai/drop-covers", () => {
         });
         mockState.saveAdminAiDropCoverSettings.mockResolvedValue({
             enabled: false,
-            model: "imagen-3.0-fast-generate-001",
-            location: "us-central1",
+            model: "imagen-4.0-fast-generate-001",
+            location: "global",
             aspectRatio: "1:1",
             outputMimeType: "image/png",
             pricePerGenerationUsd: 0.02,
-            priceBasis: "vertex-ai-pricing-imagen-fast-2026-04-05",
+            priceBasis: "vertex-ai-pricing-imagen-4-fast-2026-04-06",
             priceSourceUrl: "https://cloud.google.com/vertex-ai/generative-ai/pricing",
         });
     });

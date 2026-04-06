@@ -1,11 +1,14 @@
 import { describe, expect, it } from "vitest";
 
 import {
+    ADMIN_AI_DROP_COVER_DEFAULT_LOCATION,
     ADMIN_AI_DROP_COVER_MODEL,
     ADMIN_AI_DROP_COVER_PRICE_BASIS,
     buildAdminAiDropCoverPrompt,
     estimateAdminAiDropCoverCostUsd,
     getDefaultAdminAiDropCoverSettings,
+    normalizeAdminAiDropCoverLocation,
+    normalizeAdminAiDropCoverModel,
 } from "@/lib/ai-drop-covers";
 
 describe("ai drop cover shared contract", () => {
@@ -33,7 +36,18 @@ describe("ai drop cover shared contract", () => {
 
         expect(settings.enabled).toBe(false);
         expect(settings.model).toBe(ADMIN_AI_DROP_COVER_MODEL);
+        expect(settings.location).toBe(ADMIN_AI_DROP_COVER_DEFAULT_LOCATION);
         expect(settings.priceBasis).toBe(ADMIN_AI_DROP_COVER_PRICE_BASIS);
         expect(settings.aspectRatio).toBe("1:1");
+    });
+
+    it("migrates the legacy Imagen 3 fast default to Imagen 4 fast", () => {
+        expect(normalizeAdminAiDropCoverModel("imagen-3.0-fast-generate-001")).toBe("imagen-4.0-fast-generate-001");
+        expect(normalizeAdminAiDropCoverModel("imagen-4.0-generate-001")).toBe("imagen-4.0-generate-001");
+    });
+
+    it("migrates the legacy default location to the global endpoint for the migrated default model", () => {
+        expect(normalizeAdminAiDropCoverLocation("us-central1", "imagen-3.0-fast-generate-001")).toBe("global");
+        expect(normalizeAdminAiDropCoverLocation("us-central1", "imagen-4.0-generate-001")).toBe("us-central1");
     });
 });
