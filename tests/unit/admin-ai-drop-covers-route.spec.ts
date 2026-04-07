@@ -45,11 +45,17 @@ describe("GET/PUT /api/admin/ai/drop-covers", () => {
         mockState.buildAdminAiDropCoverDashboard.mockResolvedValue({
             settings: {
                 enabled: true,
-                model: "imagen-4.0-fast-generate-001",
+                model: "gemini-2.5-flash-image",
                 location: "global",
-                pricePerGenerationUsd: 0.02,
-                priceBasis: "vertex-ai-pricing-imagen-4-fast-2026-04-06",
+                pricePerGenerationUsd: 0.0387,
+                priceBasis: "vertex-ai-pricing-gemini-2.5-flash-image-2026-04-06",
                 priceSourceUrl: "https://cloud.google.com/vertex-ai/generative-ai/pricing",
+                generationMode: "standard",
+                useTemplateReference: false,
+                useRecentDropCoverReferences: false,
+                templateReferenceUrl: null,
+                templateReferenceStoragePath: null,
+                templateReferenceFileName: null,
             },
             runtime: {
                 enabled: true,
@@ -57,9 +63,10 @@ describe("GET/PUT /api/admin/ai/drop-covers", () => {
                 note: "Vertex credentials, Firebase Storage, and AI job recording are configured.",
                 project: "kandydrops-by-ikandy",
                 location: "global",
-                model: "imagen-4.0-fast-generate-001",
-                pricePerGenerationUsd: 0.02,
-                priceBasis: "vertex-ai-pricing-imagen-4-fast-2026-04-06",
+                model: "gemini-2.5-flash-image",
+                generationMode: "standard",
+                pricePerGenerationUsd: 0.0387,
+                priceBasis: "vertex-ai-pricing-gemini-2.5-flash-image-2026-04-06",
                 priceSourceUrl: "https://cloud.google.com/vertex-ai/generative-ai/pricing",
             },
             aggregate: {
@@ -75,16 +82,26 @@ describe("GET/PUT /api/admin/ai/drop-covers", () => {
                 activeGenerationCount: 0,
             },
             recentJobs: [],
+            referenceAssets: {
+                template: null,
+                recentDropCovers: [],
+            },
         });
         mockState.saveAdminAiDropCoverSettings.mockResolvedValue({
             enabled: false,
-            model: "imagen-4.0-fast-generate-001",
+            model: "gemini-2.5-flash-image",
             location: "global",
             aspectRatio: "1:1",
             outputMimeType: "image/png",
-            pricePerGenerationUsd: 0.02,
-            priceBasis: "vertex-ai-pricing-imagen-4-fast-2026-04-06",
+            pricePerGenerationUsd: 0.0387,
+            priceBasis: "vertex-ai-pricing-gemini-2.5-flash-image-2026-04-06",
             priceSourceUrl: "https://cloud.google.com/vertex-ai/generative-ai/pricing",
+            generationMode: "standard",
+            useTemplateReference: false,
+            useRecentDropCoverReferences: false,
+            templateReferenceUrl: null,
+            templateReferenceStoragePath: null,
+            templateReferenceFileName: null,
         });
     });
 
@@ -115,6 +132,31 @@ describe("GET/PUT /api/admin/ai/drop-covers", () => {
         expect(body.success).toBe(true);
         expect(mockState.saveAdminAiDropCoverSettings).toHaveBeenCalledWith({
             enabled: false,
+            actorUid: "admin_1",
+            actorEmail: "admin@example.com",
+        });
+    });
+
+    it("updates reference guidance flags through the canonical settings helper", async () => {
+        const request = new NextRequest("http://localhost/api/admin/ai/drop-covers", {
+            method: "PUT",
+            body: JSON.stringify({
+                useTemplateReference: true,
+                useRecentDropCoverReferences: true,
+            }),
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+        const response = await PUT(request);
+        const body = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(body.success).toBe(true);
+        expect(mockState.saveAdminAiDropCoverSettings).toHaveBeenCalledWith({
+            enabled: undefined,
+            useTemplateReference: true,
+            useRecentDropCoverReferences: true,
             actorUid: "admin_1",
             actorEmail: "admin@example.com",
         });

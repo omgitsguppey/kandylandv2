@@ -333,3 +333,52 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `src/components/Admin/CreateDropModal.tsx`
   - `FULL_SCALE_CODEBASE_AUDIT.md`
 - Follow-up gaps: Billing truth is still estimated from vendor pricing plus stored job metadata rather than direct billing export, and richer model-evaluation/tuning workflows remain future work.
+
+### 18. AI cover “training” is reference-guided customization, not live fine-tuning
+- Approximate date: Canonicalized and recorded on 2026-04-06
+- Status: Active canonical AI/runtime rule
+- Problem/context: Admin operators want the cover generator to follow a fixed KandyDrops house style and existing catalog covers, but claiming live retraining or hidden fine-tuning would overstate what the Vertex image stack is actually doing.
+- Decision made: Treat AI cover “training” as a truthful reference-guided generation workflow. The admin AI page can upload one template image and optionally use recent live drop covers as additional style references, while the generation runtime switches to the supported Vertex reference-image customization path and keeps the feedback history as a future evaluation dataset.
+- What became canonical:
+  - admin operators can upload and remove a single AI cover template from the Admin AI page
+  - the runtime can use that template and/or recent live drop covers as reference images for generation
+  - reference-guided mode is recorded in settings, runtime state, job history, and admin UI
+  - the product continues to say “reference-guided” or “style references” instead of falsely claiming live model training
+  - accepted/liked/disliked generation history remains real feedback data for later tuning work
+- What is now disallowed or deprecated:
+  - calling the current reference-image workflow “live retraining” or “fine-tuning”
+  - pretending existing drop covers are being used when no reference source is actually available
+  - leaving the admin AI page unable to show which reference inputs are active
+- Truth lives in:
+  - `src/lib/ai-drop-covers.ts`
+  - `src/lib/server/ai-drop-covers.ts`
+  - `src/app/api/admin/ai/drop-covers/route.ts`
+  - `src/app/api/admin/ai/drop-covers/template/route.ts`
+  - `src/app/admin/ai/page.tsx`
+  - `src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: Reference-guided generation still depends on actual project access to the Vertex customization model, and the system does not yet do deterministic post-generation frame compositing from a template image.
+
+### 19. Create Drop chooses between two Gemini image models per generation
+- Approximate date: Canonicalized and recorded on 2026-04-06
+- Status: Active canonical AI/runtime rule
+- Problem/context: One fixed image model was too rigid for drop operations. Operators need a faster lower-cost default and a higher-cost quality option at generation time without forking the rest of the create-drop flow.
+- Decision made: Keep admin AI settings responsible for enablement and reference inputs, but let Create Drop choose between two supported Gemini image models per generation: `gemini-2.5-flash-image` and `gemini-3-pro-image-preview`.
+- What became canonical:
+  - the create-drop AI panel exposes the model choice inline next to Generate
+  - `gemini-2.5-flash-image` is the default operator path
+  - `gemini-3-pro-image-preview` is available as a per-generation preview-quality override
+  - cost shown in the create-drop panel is tied to the selected model instead of a fake flat price
+  - the server route validates requested models against the bounded allowlist instead of accepting arbitrary model ids from the client
+  - job history records the actual model used for each generation
+- What is now disallowed or deprecated:
+  - pretending one fixed model handles every cover-generation use case equally well
+  - accepting arbitrary client-supplied model ids in the create-drop generation route
+  - flattening preview-model lifecycle/cost risk into the same operator language as the default GA model
+- Truth lives in:
+  - `src/lib/ai-drop-covers.ts`
+  - `src/lib/server/ai-drop-covers.ts`
+  - `src/app/api/admin/ai/drop-covers/generate/route.ts`
+  - `src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: `gemini-3-pro-image-preview` remains preview-stage and may need a future replacement path if Google changes availability, pricing, or lifecycle.

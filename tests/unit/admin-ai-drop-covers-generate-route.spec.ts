@@ -69,7 +69,7 @@ describe("POST /api/admin/ai/drop-covers/generate", () => {
         mockState.generateAdminAiDropCover.mockResolvedValue({
             id: "job_1",
             title: "Cherry Rush",
-            model: "imagen-4.0-fast-generate-001",
+            model: "gemini-2.5-flash-image",
             location: "global",
             promptVersion: "drop-cover-v1",
             recipeLabel: "KandyDrops title-safe cover art",
@@ -77,7 +77,7 @@ describe("POST /api/admin/ai/drop-covers/generate", () => {
             feedback: "neutral",
             accepted: false,
             requestedAtMs: 123,
-            estimatedCostUsd: 0.02,
+            estimatedCostUsd: 0.0387,
             billed: true,
             imageUrl: "https://example.com/cover.png",
             storagePath: "drops/images/generated/2026/04/job_1.png",
@@ -95,6 +95,7 @@ describe("POST /api/admin/ai/drop-covers/generate", () => {
                 dropId: "drop_1",
                 dropType: "content",
                 tags: ["Sweet"],
+                requestedModel: "gemini-3-pro-image-preview",
             }),
             headers: { "Content-Type": "application/json" },
         }));
@@ -112,6 +113,7 @@ describe("POST /api/admin/ai/drop-covers/generate", () => {
             dropType: "content",
             tags: ["Sweet"],
             previousJobId: null,
+            requestedModel: "gemini-3-pro-image-preview",
             requestedByUid: "admin_1",
             requestedByEmail: "admin@example.com",
         });
@@ -123,7 +125,7 @@ describe("POST /api/admin/ai/drop-covers/generate", () => {
             id: "job_draft_1",
             title: "Cherry Rush",
             draftSessionId: "draft-session-123",
-            model: "imagen-4.0-fast-generate-001",
+            model: "gemini-2.5-flash-image",
             location: "global",
             promptVersion: "drop-cover-v1",
             recipeLabel: "KandyDrops title-safe cover art",
@@ -131,7 +133,7 @@ describe("POST /api/admin/ai/drop-covers/generate", () => {
             feedback: "neutral",
             accepted: false,
             requestedAtMs: 123,
-            estimatedCostUsd: 0.02,
+            estimatedCostUsd: 0.0387,
             billed: true,
             imageUrl: "https://example.com/cover.png",
             storagePath: "drops/images/generated/2026/04/job_draft_1.png",
@@ -162,9 +164,29 @@ describe("POST /api/admin/ai/drop-covers/generate", () => {
             dropType: "content",
             tags: [],
             previousJobId: null,
+            requestedModel: null,
             requestedByUid: "admin_1",
             requestedByEmail: "admin@example.com",
         });
+    });
+
+    it("rejects unsupported requested models before reaching the server helper", async () => {
+        mockState.getAdminAiDropCoverSettings.mockResolvedValue({ enabled: true });
+
+        const response = await POST(new NextRequest("http://localhost/api/admin/ai/drop-covers/generate", {
+            method: "POST",
+            body: JSON.stringify({
+                title: "Cherry Rush",
+                draftSessionId: "draft-session-123",
+                requestedModel: "imagen-4.0-fast-generate-001",
+            }),
+            headers: { "Content-Type": "application/json" },
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(400);
+        expect(body.errorCode).toBe("validation_failed");
+        expect(mockState.generateAdminAiDropCover).not.toHaveBeenCalled();
     });
 
     it("blocks unsaved generation without a draft session id", async () => {
@@ -186,12 +208,12 @@ describe("POST /api/admin/ai/drop-covers/generate", () => {
 
     it("maps provider/runtime failures to actionable AI errors instead of a generic internal server error", async () => {
         mockState.getAdminAiDropCoverSettings.mockResolvedValue({ enabled: true });
-        const providerError = new Error("Permission denied while accessing publishers/google/models/imagen-4.0-fast-generate-001 in location global.");
+        const providerError = new Error("Permission denied while accessing publishers/google/models/gemini-3-pro-image-preview in location global.");
         mockState.generateAdminAiDropCover.mockRejectedValue(providerError);
         mockState.toAdminAiDropCoverClientError.mockReturnValue({
             status: 503,
             body: {
-                error: "The configured Vertex image model (imagen-4.0-fast-generate-001) is not available to this project in global. KandyDrops now targets Imagen 4 Fast on the Vertex global endpoint; if this still fails, check project model access and org location policy.",
+                error: "The configured Vertex image model (gemini-3-pro-image-preview) is not available to this project in global. Check Google Cloud model access, preview-model availability, and org location policy.",
                 errorCode: "model_location_unavailable",
             },
         });
@@ -208,7 +230,7 @@ describe("POST /api/admin/ai/drop-covers/generate", () => {
 
         expect(response.status).toBe(503);
         expect(body.errorCode).toBe("model_location_unavailable");
-        expect(body.error).toContain("imagen-4.0-fast-generate-001");
+        expect(body.error).toContain("gemini-3-pro-image-preview");
         expect(mockState.toAdminAiDropCoverClientError).toHaveBeenCalledWith(providerError);
         expect(mockState.handleApiError).not.toHaveBeenCalled();
     });

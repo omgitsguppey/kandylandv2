@@ -881,3 +881,233 @@ Known warnings and non-blocking notices during continuation:
 
 Continuation follow-up gaps:
 - an authenticated admin app test or an explicit temporary `roles/iam.serviceAccountTokenCreator` grant is still needed if exact same-identity local probing is required
+
+### Continuation: Admin AI Reference-Guided Cover Inputs
+Current audit date: 2026-04-06 17:08:00 -05:00
+Current branch / commit for continuation start: `main` / `0a4b50d`
+Continuation task:
+- research and implement truthful AI cover “training” controls on the Admin AI page so the runtime can reference a fixed cover template and existing drop covers without falsely claiming live model retraining
+
+Continuation start state:
+- working tree clean at continuation start
+- canonical startup docs re-read:
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+  - `REPO_MEMORY_LEDGER.md`
+  - `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- adjacency traces run before editing:
+  - `npm run trace:adjacent -- src/app/admin/ai/page.tsx`
+  - `npm run trace:adjacent -- src/lib/server/ai-drop-covers.ts`
+  - `npm run trace:adjacent -- src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+  - `npm run trace:adjacent -- src/app/api/admin/ai/drop-covers/route.ts`
+
+Research findings anchored to current platform truth:
+- Google Cloud Vertex supports reference-image style customization for Imagen, but that capability is not the same thing as live model training or online fine-tuning
+- the supported truthful operator model for this repo is reference-guided generation plus persisted feedback history
+- current Google Cloud pricing also lists Imagen 3 image customization in the same per-image pricing class as standard Imagen 3 generation, so the estimated cost can remain explicit rather than guessed
+
+Confirmed repo baseline before implementation:
+- the Admin AI page could toggle the feature and inspect job history, but it could not upload a style template or tell the runtime to use existing covers as references
+- the create-drop AI panel was still title-only and could not show whether the next generation would use any reference guidance
+- the AI job record and dashboard contract did not record standard versus reference-guided generation mode
+- the current implementation had real feedback logging, but no truthful “train it on our look” control path
+
+Continuation touched surfaces:
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `REPO_MEMORY_LEDGER.md`
+- `src/lib/ai-drop-covers.ts`
+- `src/lib/server/ai-drop-covers.ts`
+- `src/app/api/admin/ai/drop-covers/route.ts`
+- `src/app/api/admin/ai/drop-covers/template/route.ts`
+- `src/app/admin/ai/page.tsx`
+- `src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+- `tests/unit/ai-drop-covers.spec.ts`
+- `tests/unit/admin-ai-drop-covers-route.spec.ts`
+- `tests/unit/admin-ai-drop-covers-template-route.spec.ts`
+
+Canonical helpers and modules reused for continuation:
+- `src/lib/ai-drop-covers.ts`
+- `src/lib/server/ai-drop-covers.ts`
+- `src/lib/server/storage-assets.ts`
+- `src/lib/server/firebase-admin.ts`
+- `src/lib/server/request-guard.ts`
+- `src/lib/server/auth.ts`
+- `src/lib/server/route-diagnostics.ts`
+- `src/lib/server/server-diagnostics.ts`
+- `src/lib/server/analytics.ts`
+- `src/hooks/useAdminPollingSWR.ts`
+- `src/lib/authFetch.ts`
+- `src/lib/client-error-reporting.ts`
+
+Continuation implementation:
+- extended the shared AI cover settings contract to distinguish:
+  - standard title-only generation
+  - reference-guided generation
+  - template-reference usage
+  - recent-drop-cover reference usage
+- added a dedicated admin route for uploading and removing a single AI cover template image:
+  - `src/app/api/admin/ai/drop-covers/template/route.ts`
+- stored the uploaded template in Firebase Storage under a dedicated AI reference path and persisted its URL/path/file metadata into the canonical AI cover settings document
+- taught the server-side generation helper to:
+  - load the uploaded template as a reference image when enabled
+  - load up to 4 recent live drop covers as additional reference images when enabled
+  - keep reference-guided generation on the selected/default Gemini image runtime by passing the uploaded template and recent covers as image inputs
+  - keep one canonical generation stack instead of splitting standard and reference-guided flows across different model families
+- kept the implementation truthful:
+  - this is reference-guided generation, not live fine-tuning
+  - the runtime fails with an actionable validation error if reference-guided mode is enabled but no usable template/recent covers exist
+  - the create-drop panel and Admin AI page now show whether the next generation is standard or reference-guided
+- extended job history and dashboard state to record and display:
+  - generation mode
+  - total reference image count
+  - whether the uploaded template was used
+  - how many recent drop covers were used
+
+Commands run for continuation:
+- `git status --short`
+- `npm run trace:adjacent -- src/app/admin/ai/page.tsx`
+- `npm run trace:adjacent -- src/lib/server/ai-drop-covers.ts`
+- `npm run trace:adjacent -- src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+- `npm run trace:adjacent -- src/app/api/admin/ai/drop-covers/route.ts`
+- `npm run trace:adjacent -- src/app/api/admin/ai/drop-covers/template/route.ts`
+- focused lint:
+  - `npx eslint src/app/admin/ai/page.tsx src/app/api/admin/ai/drop-covers/route.ts src/app/api/admin/ai/drop-covers/template/route.ts src/components/Admin/AiDropCoverGeneratorPanel.tsx src/lib/ai-drop-covers.ts src/lib/server/ai-drop-covers.ts tests/unit/ai-drop-covers.spec.ts tests/unit/admin-ai-drop-covers-route.spec.ts tests/unit/admin-ai-drop-covers-template-route.spec.ts`
+- focused tests:
+  - `corepack pnpm exec vitest run tests/unit/ai-drop-covers.spec.ts tests/unit/admin-ai-drop-covers-route.spec.ts tests/unit/admin-ai-drop-covers-template-route.spec.ts tests/unit/admin-ai-drop-covers-generate-route.spec.ts`
+- `npm run check:inventory`
+- `npm run check:ui:audits`
+- `npm run check:ui:lighthouse`
+- `corepack pnpm run check`
+- `npx vitest run`
+
+Continuation results:
+- focused lint passed
+- focused Vitest passed with `4` files and `17` tests
+- `npm run check:inventory` passed and still reports `660` tracked files because the new template route and its unit test are local/untracked until commit
+- `npm run check:ui:audits` passed after a truthful sequential rerun
+- `npm run check:ui:lighthouse` passed
+- `corepack pnpm run check` passed
+- `npx vitest run` passed with `83` files and `420` tests
+- an initial attempt to run multiple build-based verification commands in parallel caused a Next build collision (`Another next build process is already running`); that was a verification-orchestration issue, not a code failure, and the affected checks were rerun sequentially to completion
+
+Runtime truth and continuity implications from continuation:
+- the Admin AI page can now control reference-guided generation against a real uploaded cover template and recent live drop covers
+- the repo now treats “train the AI on our covers” as a truthful reference-image customization workflow instead of fake live training
+- the active generation model/path shown in the UI now matches whether reference guidance is turned on
+- job history, pricing, and runtime notes remain explicit about what is estimated, what is real, and what depends on actual Vertex access
+
+Known warnings and non-blocking notices during continuation:
+- npm unknown env config warnings during canonical script chains
+- `check:firebase-runtime` informational dotenv logs inside the canonical `check` pipeline
+- Node `punycode` deprecation warnings from Firebase/Vitest tooling
+- Lighthouse cleanup emitted temporary Windows `EPERM` warnings while deleting temp folders after successful audits
+- `check:telemetry` still reports `creator_broadcast_opened` with no detected emitter
+
+Continuation follow-up gaps:
+- the new reference-guided runtime still depends on real project access to the Vertex customization model path (`imagen-3.0-capability-001` in `us-central1`)
+- the current implementation uses reference images as style guidance only; it does not yet perform deterministic template-frame compositing after generation
+- direct authenticated browser verification of the admin AI page and create-drop AI flow still depends on a local admin/auth automation seam that does not currently exist
+
+### Continuation: Create-Drop AI Model Switch
+Current audit date: 2026-04-06 20:05:00 -05:00
+Current branch / commit for continuation start: `main` / `0a4b50d`
+Continuation task:
+- add operator-selectable Google image-model choices in the create-drop AI cover flow so admins can switch between Gemini image models next to Generate without forking the rest of the cover-generation stack
+
+Continuation start state:
+- working tree already dirty at continuation start from the uncommitted Admin AI reference-guided cover-input pass
+- canonical startup docs re-read:
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+  - `REPO_MEMORY_LEDGER.md`
+  - `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- adjacency traces run before editing:
+  - `npm run trace:adjacent -- src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+  - `npm run trace:adjacent -- src/components/Admin/CreateDropModal.tsx`
+  - `npm run trace:adjacent -- src/lib/server/ai-drop-covers.ts`
+  - `npm run trace:adjacent -- src/app/api/admin/ai/drop-covers/generate/route.ts`
+
+Confirmed continuation surfaces before implementation:
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `src/lib/ai-drop-covers.ts`
+- `src/lib/server/ai-drop-covers.ts`
+- `src/app/api/admin/ai/drop-covers/generate/route.ts`
+- `src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+- `src/components/Admin/CreateDropModal.tsx`
+- `tests/unit/ai-drop-covers.spec.ts`
+- `tests/unit/admin-ai-drop-covers-generate-route.spec.ts`
+- `tests/unit/admin-ai-drop-covers-route.spec.ts`
+
+Canonical helpers and modules reused for continuation:
+- `src/lib/ai-drop-covers.ts`
+- `src/lib/server/ai-drop-covers.ts`
+- `src/lib/server/storage-assets.ts`
+- `src/lib/server/firebase-admin.ts`
+- `src/lib/server/request-guard.ts`
+- `src/lib/server/auth.ts`
+- `src/lib/server/route-diagnostics.ts`
+- `src/lib/server/server-diagnostics.ts`
+- `src/lib/server/analytics.ts`
+- `src/lib/authFetch.ts`
+- `src/lib/client-error-reporting.ts`
+
+Continuation implementation:
+- changed the default admin AI cover runtime from the old Imagen default to `gemini-2.5-flash-image` on the global Vertex endpoint
+- added a bounded selectable-model allowlist for Create Drop:
+  - `gemini-2.5-flash-image`
+  - `gemini-3-pro-image-preview`
+- kept model choice local to the create-drop AI panel so admin enablement/reference settings remain canonical and job history still records the exact model used per generation
+- replaced the single-model generate path with provider-aware runtime execution:
+  - Gemini models use Vertex `:generateContent`
+  - existing non-Gemini models still route through publisher-model `:predict`
+- kept reference-guided generation truthful under the Gemini path by sending the uploaded template and recent drop covers as image inputs instead of pretending a separate tuned model exists
+- added route-level validation so the create-drop switch cannot submit arbitrary model ids
+- updated the create-drop AI panel to show:
+  - the selected model inline next to Generate
+  - preview-stage status on the `gemini-3-pro-image-preview` option
+  - per-model estimated cost before generation
+  - the actual model label on returned generation cards
+- current repo truth supersedes the earlier reference-only note above: reference-guided generation no longer forces a switch to `imagen-3.0-capability-001`; it now runs on the selected/default Gemini image model when references are enabled
+
+Commands run for continuation:
+- `git status --short`
+- `npm run trace:adjacent -- src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+- `npm run trace:adjacent -- src/components/Admin/CreateDropModal.tsx`
+- `npm run trace:adjacent -- src/lib/server/ai-drop-covers.ts`
+- `npm run trace:adjacent -- src/app/api/admin/ai/drop-covers/generate/route.ts`
+- focused lint:
+  - `npx eslint src/lib/ai-drop-covers.ts src/lib/server/ai-drop-covers.ts src/app/api/admin/ai/drop-covers/generate/route.ts src/components/Admin/AiDropCoverGeneratorPanel.tsx tests/unit/ai-drop-covers.spec.ts tests/unit/admin-ai-drop-covers-route.spec.ts tests/unit/admin-ai-drop-covers-generate-route.spec.ts tests/unit/admin-ai-drop-covers-template-route.spec.ts`
+- focused tests:
+  - `corepack pnpm exec vitest run tests/unit/ai-drop-covers.spec.ts tests/unit/admin-ai-drop-covers-route.spec.ts tests/unit/admin-ai-drop-covers-generate-route.spec.ts tests/unit/admin-ai-drop-covers-template-route.spec.ts`
+- `npm run check:inventory`
+- `npm run check:ui:audits`
+- `npm run check:ui:lighthouse`
+- `corepack pnpm run check`
+- `npx vitest run`
+- final `git status --short`
+
+Continuation results:
+- focused lint passed
+- focused Vitest passed with `4` files and `18` tests
+- `npm run check:inventory` passed and still reports `660` tracked files because the admin AI template route and its unit test remain local/untracked until commit
+- `npm run check:ui:audits` passed
+- `npm run check:ui:lighthouse` passed
+- `corepack pnpm run check` passed
+- `npx vitest run` passed with `83` files and `421` tests
+- the first `check:ui:audits` run failed on a real TypeScript narrowing error in `src/app/api/admin/ai/drop-covers/generate/route.ts`; that route was fixed and the full audit sequence was rerun to green
+
+Runtime truth and continuity implications from continuation:
+- create-drop AI generation now has a real operator-visible model switch without creating a second cover-generation architecture
+- the selected model changes the displayed estimated cost and the recorded job model truthfully for each generation
+- reference-guided generation stays compatible with the uploaded template and recent-cover inputs under the Gemini image path
+- the preview-quality model remains clearly marked as preview instead of being presented as equally stable to the GA default
+
+Known warnings and non-blocking notices during continuation:
+- npm unknown env config warnings during canonical script chains
+- `check:firebase-runtime` informational dotenv logs inside the canonical `check` pipeline
+- Node `punycode` deprecation warnings from Firebase/Vitest tooling
+- Lighthouse cleanup emitted temporary Windows `EPERM` warnings while deleting temp folders after successful audits
+- `check:telemetry` still reports `creator_broadcast_opened` with no detected emitter
+
+Continuation follow-up gaps:
+- `gemini-3-pro-image-preview` remains preview-stage and may need a future replacement if Google changes lifecycle, availability, or pricing
+- the current implementation still relies on model-generated hero/background art plus app-side deterministic text treatment; it does not yet perform deterministic template-frame compositing
+- direct authenticated browser verification of the admin AI page and create-drop AI flow still depends on a local admin/auth automation seam that does not currently exist

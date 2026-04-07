@@ -1,18 +1,21 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState, type ChangeEvent } from "react";
 import Image from "next/image";
 import {
     Activity,
     CheckCircle2,
     DollarSign,
+    ImageIcon,
     Loader2,
     Power,
     RefreshCw,
     Sparkles,
     ThumbsDown,
     ThumbsUp,
+    Trash2,
     TriangleAlert,
+    Upload,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -20,7 +23,12 @@ import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { Button } from "@/components/ui/Button";
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
-import { formatAdminAiUsd, type AdminAiDropCoverJobRecord, type AdminAiDropCoverRuntimeStatus } from "@/lib/ai-drop-covers";
+import {
+    formatAdminAiUsd,
+    type AdminAiDropCoverJobRecord,
+    type AdminAiDropCoverReferenceAsset,
+    type AdminAiDropCoverRuntimeStatus,
+} from "@/lib/ai-drop-covers";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { cn } from "@/lib/utils";
@@ -33,6 +41,12 @@ type AdminAiDropCoverDashboard = {
         pricePerGenerationUsd: number;
         priceBasis: string;
         priceSourceUrl: string;
+        generationMode: "standard" | "reference_guided";
+        useTemplateReference: boolean;
+        useRecentDropCoverReferences: boolean;
+        templateReferenceUrl?: string | null;
+        templateReferenceStoragePath?: string | null;
+        templateReferenceFileName?: string | null;
     };
     runtime: {
         enabled: boolean;
@@ -41,6 +55,7 @@ type AdminAiDropCoverDashboard = {
         project: string;
         location: string;
         model: string;
+        generationMode: "standard" | "reference_guided";
         pricePerGenerationUsd: number;
         priceBasis: string;
         priceSourceUrl: string;
@@ -58,6 +73,10 @@ type AdminAiDropCoverDashboard = {
         activeGenerationCount: number;
     };
     recentJobs: AdminAiDropCoverJobRecord[];
+    referenceAssets: {
+        template: AdminAiDropCoverReferenceAsset | null;
+        recentDropCovers: AdminAiDropCoverReferenceAsset[];
+    };
 };
 
 function formatTimestamp(timestamp?: number | null) {
@@ -106,6 +125,10 @@ function JobStatusBadge({ job }: { job: AdminAiDropCoverJobRecord }) {
 
 export default function AIAdminPage() {
     const [updatingToggle, setUpdatingToggle] = useState(false);
+    const [savingReferenceSettings, setSavingReferenceSettings] = useState(false);
+    const [uploadingTemplate, setUploadingTemplate] = useState(false);
+    const [removingTemplate, setRemovingTemplate] = useState(false);
+    const templateInputRef = useRef<HTMLInputElement | null>(null);
     const {
         data,
         error,
@@ -119,6 +142,27 @@ export default function AIAdminPage() {
         () => (data?.recentJobs || []).filter((job) => job.accepted && job.imageUrl).slice(0, 6),
         [data?.recentJobs],
     );
+    const missingReferenceInputs = Boolean(
+        data?.settings.generationMode === "reference_guided"
+        && (!data.referenceAssets.template && (data.referenceAssets.recentDropCovers || []).length === 0),
+    );
+
+    const persistSettingsPatch = async (
+        patch: Partial<AdminAiDropCoverDashboard["settings"]>,
+        successMessage: string,
+    ) => {
+        const response = await authFetch("/api/admin/ai/drop-covers", {
+            method: "PUT",
+            body: JSON.stringify(patch),
+        });
+        const result = await response.json().catch(() => ({})) as { error?: string };
+        if (!response.ok) {
+            throw new Error(result.error || "Failed to update AI cover controls");
+        }
+
+        toast.success(successMessage);
+        await mutate();
+    };
 
     const handleToggle = async () => {
         if (!data?.settings) {
@@ -157,9 +201,123 @@ export default function AIAdminPage() {
         }
     };
 
+    const handleReferenceToggle = async (
+        field: "useTemplateReference" | "useRecentDropCoverReferences",
+        nextValue: boolean,
+    ) => {
+        if (!data?.settings) {
+            return;
+        }
+
+        setSavingReferenceSettings(true);
+        try {
+            await persistSettingsPatch({
+                [field]: nextValue,
+            }, nextValue
+                ? field === "useTemplateReference"
+                    ? "Template guidance enabled"
+                    : "Recent cover references enabled"
+                : field === "useTemplateReference"
+                    ? "Template guidance disabled"
+                    : "Recent cover references disabled");
+        } catch (issue) {
+            reportClientIssue({
+                channel: "ui",
+                message: "Admin AI reference toggle update failed",
+                error: issue,
+                detail: {
+                    adminView: "admin_ai_page",
+                    field,
+                    nextValue,
+                },
+                consoleLabel: "[Admin AI] reference toggle failed",
+            });
+            toast.error(issue instanceof Error ? issue.message : "Failed to update reference guidance");
+        } finally {
+            setSavingReferenceSettings(false);
+        }
+    };
+
+    const handleTemplateFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) {
+            return;
+        }
+
+        setUploadingTemplate(true);
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const response = await authFetch("/api/admin/ai/drop-covers/template", {
+                method: "POST",
+                body: formData,
+            });
+            const result = await response.json().catch(() => ({})) as { error?: string };
+            if (!response.ok) {
+                throw new Error(result.error || "Failed to upload AI cover template");
+            }
+
+            toast.success("AI cover template uploaded");
+            await mutate();
+        } catch (issue) {
+            reportClientIssue({
+                channel: "ui",
+                message: "Admin AI template upload failed",
+                error: issue,
+                detail: {
+                    adminView: "admin_ai_page",
+                    fileName: file.name,
+                    fileSize: file.size,
+                },
+                consoleLabel: "[Admin AI] template upload failed",
+            });
+            toast.error(issue instanceof Error ? issue.message : "Failed to upload AI cover template");
+        } finally {
+            event.target.value = "";
+            setUploadingTemplate(false);
+        }
+    };
+
+    const handleRemoveTemplate = async () => {
+        setRemovingTemplate(true);
+        try {
+            const response = await authFetch("/api/admin/ai/drop-covers/template", {
+                method: "DELETE",
+            });
+            const result = await response.json().catch(() => ({})) as { error?: string };
+            if (!response.ok) {
+                throw new Error(result.error || "Failed to remove AI cover template");
+            }
+
+            toast.success("AI cover template removed");
+            await mutate();
+        } catch (issue) {
+            reportClientIssue({
+                channel: "ui",
+                message: "Admin AI template removal failed",
+                error: issue,
+                detail: {
+                    adminView: "admin_ai_page",
+                },
+                consoleLabel: "[Admin AI] template removal failed",
+            });
+            toast.error(issue instanceof Error ? issue.message : "Failed to remove AI cover template");
+        } finally {
+            setRemovingTemplate(false);
+        }
+    };
+
     return (
         <div className="space-y-6">
             <PageViewEvent eventName="admin_ai_viewed" />
+            <input
+                ref={templateInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                className="hidden"
+                onChange={(event) => void handleTemplateFileChange(event)}
+            />
             <AdminPageHeader
                 eyebrow="AI Operations"
                 title="AI Cover Generation"
@@ -193,7 +351,11 @@ export default function AIAdminPage() {
             />
 
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-                <StatCard label="Runtime" value={data?.runtime.status || (error ? "error" : "--")} meta={data?.runtime.model || "Vertex"} />
+                <StatCard
+                    label="Runtime"
+                    value={data?.runtime.status || (error ? "error" : "--")}
+                    meta={data?.runtime.generationMode === "reference_guided" ? `${data?.runtime.model || "Vertex"} | reference-guided` : (data?.runtime.model || "Vertex")}
+                />
                 <StatCard label="Generations" value={data?.aggregate.generationCount ?? "--"} meta={`${data?.aggregate.activeGenerationCount ?? 0} active`} />
                 <StatCard label="Accepted" value={data?.aggregate.acceptedCount ?? "--"} meta={`${data?.aggregate.regeneratedCount ?? 0} regens`} />
                 <StatCard label="Signals" value={`${data?.aggregate.likedCount ?? 0}/${data?.aggregate.dislikedCount ?? 0}`} meta="likes / dislikes" />
@@ -242,11 +404,138 @@ export default function AIAdminPage() {
             </section>
 
             <section className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4 md:p-5">
+                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                    <div>
+                        <h2 className="text-lg font-bold text-white">Reference-guided cover inputs</h2>
+                        <p className="mt-1 text-sm text-gray-400">
+                            This is the truthful “train it on our look” control surface: upload one template image and optionally let the generator borrow style cues from recent live drop covers. This is reference-guided generation, not live fine-tuning.
+                        </p>
+                    </div>
+                    <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-gray-200">
+                        <ImageIcon className="h-3.5 w-3.5" />
+                        {data?.settings.generationMode === "reference_guided" ? "Reference-guided mode active" : "Standard title-only mode"}
+                    </div>
+                </div>
+
+                <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+                    <div className="rounded-[1.15rem] border border-white/10 bg-black/25 p-4">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                            <div>
+                                <p className="text-sm font-semibold text-white">Template reference</p>
+                                <p className="mt-1 text-xs text-gray-400">Use a single house-style cover template as the strongest visual guide.</p>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                                <Button
+                                    type="button"
+                                    variant={data?.settings.useTemplateReference ? "brand" : "outline"}
+                                    size="sm"
+                                    onClick={() => void handleReferenceToggle("useTemplateReference", !(data?.settings.useTemplateReference === true))}
+                                    disabled={!data?.settings || savingReferenceSettings || uploadingTemplate}
+                                >
+                                    {savingReferenceSettings ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : null}
+                                    {data?.settings.useTemplateReference ? "Template on" : "Template off"}
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="glass"
+                                    size="sm"
+                                    onClick={() => templateInputRef.current?.click()}
+                                    disabled={uploadingTemplate}
+                                >
+                                    {uploadingTemplate ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : <Upload className="mr-2 h-3.5 w-3.5" />}
+                                    Upload template
+                                </Button>
+                                {data?.referenceAssets.template ? (
+                                    <Button
+                                        type="button"
+                                        variant="danger"
+                                        size="sm"
+                                        onClick={() => void handleRemoveTemplate()}
+                                        disabled={removingTemplate}
+                                    >
+                                        {removingTemplate ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : <Trash2 className="mr-2 h-3.5 w-3.5" />}
+                                        Remove
+                                    </Button>
+                                ) : null}
+                            </div>
+                        </div>
+
+                        {data?.referenceAssets.template ? (
+                            <div className="mt-4 overflow-hidden rounded-[1rem] border border-white/10 bg-black">
+                                <div className="relative aspect-square">
+                                    <Image
+                                        src={data.referenceAssets.template.imageUrl}
+                                        alt={data.referenceAssets.template.fileName || "AI cover template"}
+                                        fill
+                                        sizes="(max-width: 1280px) 100vw, 460px"
+                                        className="object-cover"
+                                    />
+                                </div>
+                                <div className="flex flex-wrap items-center justify-between gap-2 p-3 text-xs text-gray-300">
+                                    <span className="font-medium text-white">{data.referenceAssets.template.fileName || "Current template"}</span>
+                                    <span>{data.settings.useTemplateReference ? "Will be used in the next generation" : "Uploaded but currently off"}</span>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="mt-4 rounded-[1rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-400">
+                                No template uploaded yet. Upload one square cover template if you want the AI to follow a fixed house style more closely.
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="rounded-[1.15rem] border border-white/10 bg-black/25 p-4">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                            <div>
+                                <p className="text-sm font-semibold text-white">Recent live drop covers</p>
+                                <p className="mt-1 text-xs text-gray-400">Recent published covers can be used as additional style references when you want the next cover to stay closer to the current catalog.</p>
+                            </div>
+                            <Button
+                                type="button"
+                                variant={data?.settings.useRecentDropCoverReferences ? "brand" : "outline"}
+                                size="sm"
+                                onClick={() => void handleReferenceToggle("useRecentDropCoverReferences", !(data?.settings.useRecentDropCoverReferences === true))}
+                                disabled={!data?.settings || savingReferenceSettings}
+                            >
+                                {savingReferenceSettings ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : null}
+                                {data?.settings.useRecentDropCoverReferences ? "Recent covers on" : "Recent covers off"}
+                            </Button>
+                        </div>
+
+                        {(data?.referenceAssets.recentDropCovers || []).length > 0 ? (
+                            <div className="mt-4 grid grid-cols-2 gap-3">
+                                {data!.referenceAssets.recentDropCovers.map((asset) => (
+                                    <article key={asset.id} className="overflow-hidden rounded-[1rem] border border-white/10 bg-black/30">
+                                        <div className="relative aspect-square">
+                                            <Image src={asset.imageUrl} alt={asset.title || "Recent drop cover"} fill sizes="(max-width: 1280px) 50vw, 220px" className="object-cover" />
+                                        </div>
+                                        <div className="space-y-1 p-3">
+                                            <p className="text-xs font-semibold text-white">{asset.title || "Untitled Drop"}</p>
+                                            <p className="text-[11px] text-gray-400">{asset.dropId || "drop"}</p>
+                                        </div>
+                                    </article>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="mt-4 rounded-[1rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-400">
+                                No recent drop covers with image assets are available for reference guidance yet.
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {missingReferenceInputs ? (
+                    <div className="mt-4 rounded-[1rem] border border-amber-400/20 bg-amber-500/10 p-3 text-sm text-amber-100">
+                        Reference-guided mode is selected, but there is no uploaded template and no recent covered drops to borrow from yet. The next generation will fail until at least one reference source exists.
+                    </div>
+                ) : null}
+            </section>
+
+            <section className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4 md:p-5">
                 <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
                     <div>
                         <h2 className="text-lg font-bold text-white">Feedback dataset</h2>
                         <p className="mt-1 text-sm text-gray-400">
-                            These are real operator signals only: generate, regenerate, like, dislike, and accepted-cover selections. No live model retraining is claimed here.
+                            These are real operator signals only: generate, regenerate, like, dislike, accepted-cover selections, and any uploaded reference template. No live model retraining is claimed here.
                         </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
@@ -321,6 +610,12 @@ export default function AIAdminPage() {
                                     <div className="min-w-0 space-y-2">
                                         <div className="flex flex-wrap items-center gap-2">
                                             <JobStatusBadge job={job} />
+                                            {job.generationMode === "reference_guided" ? (
+                                                <span className="inline-flex items-center gap-1 rounded-full border border-brand-purple/20 bg-brand-purple/10 px-2.5 py-1 text-[11px] text-brand-purple">
+                                                    <ImageIcon className="h-3 w-3" />
+                                                    {job.referenceImageCount ? `${job.referenceImageCount} refs` : "Reference-guided"}
+                                                </span>
+                                            ) : null}
                                             {job.feedback === "liked" ? (
                                                 <span className="inline-flex items-center gap-1 rounded-full border border-emerald-400/20 bg-emerald-500/10 px-2.5 py-1 text-[11px] text-emerald-100">
                                                     <ThumbsUp className="h-3 w-3" />
@@ -345,6 +640,11 @@ export default function AIAdminPage() {
                                             <p className="mt-1 text-[11px] text-gray-500">
                                                 Requested {formatTimestamp(job.requestedAtMs)}{job.creatorName ? ` | ${job.creatorName}` : ""}
                                             </p>
+                                            {job.generationMode === "reference_guided" ? (
+                                                <p className="mt-1 text-[11px] text-gray-500">
+                                                    {job.templateReferenceUsed ? "Template" : "No template"}{job.recentDropReferenceCount ? ` | ${job.recentDropReferenceCount} recent drop covers` : ""}
+                                                </p>
+                                            ) : null}
                                         </div>
                                         {job.errorMessage ? <p className="text-sm text-red-200">{job.errorMessage}</p> : null}
                                     </div>

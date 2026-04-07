@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { isAdminAiDropCoverSelectableModel } from "@/lib/ai-drop-covers";
 import {
     generateAdminAiDropCover,
     getAdminAiDropCoverSettings,
@@ -39,6 +40,7 @@ export async function POST(request: NextRequest) {
             dropType?: unknown;
             tags?: unknown;
             previousJobId?: unknown;
+            requestedModel?: unknown;
         };
         const title = typeof body.title === "string" ? body.title.trim() : "";
         if (title.length < 3) {
@@ -50,12 +52,23 @@ export async function POST(request: NextRequest) {
 
         const dropId = typeof body.dropId === "string" ? body.dropId : null;
         const draftSessionId = typeof body.draftSessionId === "string" ? body.draftSessionId.trim() : "";
+        const requestedModel = typeof body.requestedModel === "string" ? body.requestedModel.trim() : "";
         if (!dropId && draftSessionId.length < 8) {
             return NextResponse.json({
                 error: "Unsaved drop cover generation requires a valid draft session. Close and reopen Create Drop, then try again.",
                 errorCode: "draft_session_required",
             }, { status: 400 });
         }
+
+        if (requestedModel && !isAdminAiDropCoverSelectableModel(requestedModel)) {
+            return NextResponse.json({
+                error: "The requested AI image model is not supported in the create-drop switch.",
+                errorCode: "validation_failed",
+            }, { status: 400 });
+        }
+        const boundedRequestedModel = isAdminAiDropCoverSelectableModel(requestedModel)
+            ? requestedModel
+            : null;
 
         const job = await generateAdminAiDropCover({
             title,
@@ -66,6 +79,7 @@ export async function POST(request: NextRequest) {
             dropType: typeof body.dropType === "string" ? body.dropType : null,
             tags: Array.isArray(body.tags) ? body.tags.filter((value): value is string => typeof value === "string") : [],
             previousJobId: typeof body.previousJobId === "string" ? body.previousJobId : null,
+            requestedModel: boundedRequestedModel,
             requestedByUid: caller?.uid || "",
             requestedByEmail: caller?.email,
         });

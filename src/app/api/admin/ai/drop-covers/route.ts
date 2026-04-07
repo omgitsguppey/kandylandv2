@@ -40,13 +40,23 @@ export async function PUT(request: NextRequest) {
             scopeToCaller: true,
         });
 
-        const body = await request.json() as { enabled?: unknown };
-        if (typeof body.enabled !== "boolean") {
-            return NextResponse.json({ error: "Missing enabled boolean" }, { status: 400 });
+        const body = await request.json() as {
+            enabled?: unknown;
+            useTemplateReference?: unknown;
+            useRecentDropCoverReferences?: unknown;
+        };
+        if (
+            typeof body.enabled !== "boolean"
+            && typeof body.useTemplateReference !== "boolean"
+            && typeof body.useRecentDropCoverReferences !== "boolean"
+        ) {
+            return NextResponse.json({ error: "Missing AI settings update fields" }, { status: 400 });
         }
 
         const settings = await saveAdminAiDropCoverSettings({
-            enabled: body.enabled,
+            enabled: typeof body.enabled === "boolean" ? body.enabled : undefined,
+            useTemplateReference: typeof body.useTemplateReference === "boolean" ? body.useTemplateReference : undefined,
+            useRecentDropCoverReferences: typeof body.useRecentDropCoverReferences === "boolean" ? body.useRecentDropCoverReferences : undefined,
             actorUid: caller?.uid || "",
             actorEmail: caller?.email,
         });
