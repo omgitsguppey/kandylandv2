@@ -21,6 +21,7 @@ If a future change cannot be explained against this file, the codebase is not fu
 ## Authority and scope
 - This file is the live audit baseline and process contract.
 - `REPO_MEMORY_LEDGER.md` is the canonical durable decision ledger.
+- Cleaned up event tracking drift and missing catalog entries for backend telemetry events mapping on 2026-04-07.
 - `EVERY_FILE_FUNCTION_CHECKLIST.md` is the exhaustive historical file/function companion, not the current live baseline.
 - Dated audit files and scorecards in the repo are evidence snapshots, not living policy.
 - `git ls-files` is the literal source of truth for tracked-file inventory.

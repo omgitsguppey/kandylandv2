@@ -32,7 +32,7 @@ const CHART_LABEL_FORMATTER = new Intl.DateTimeFormat("en-US", {
 });
 const ADMIN_ACTIVITY_TELEMETRY_EVENT_NAMES = (
     TELEMETRY_MODULE_INDEXES.find((moduleIndex) => moduleIndex.key === "admin")?.eventNames ?? []
-).filter((eventName) => eventName.startsWith("admin_") || eventName === "creator_application_review_saved");
+).filter((eventName) => eventName.startsWith("admin_") || eventName.startsWith("creator_") || eventName.startsWith("owner_"));
 
 function toTimestampNumber(value: unknown): number {
     if (typeof value === "number" && Number.isFinite(value)) {
