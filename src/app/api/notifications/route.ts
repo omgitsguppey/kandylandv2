@@ -153,7 +153,7 @@ export async function POST(request: NextRequest) {
 
     if (payload.target.global) {
       try {
-        await broadcastFCM(payload.title, payload.message, payload.link || "/drops");
+        await broadcastFCM(payload.title, payload.message, payload.link || "/drops", "general");
       } catch (error) {
         recordRouteWarning("notifications", "Notification broadcast failed after persistence", {
           routeName: "notifications",

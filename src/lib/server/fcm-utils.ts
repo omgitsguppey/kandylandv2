@@ -12,7 +12,14 @@ import * as admin from "firebase-admin";
  * @param url The router click-through target when clicked
  * @returns boolean indicating whether the broadcast was fully successful
  */
-export async function broadcastFCM(title: string, body: string, url: string = "/drops"): Promise<boolean> {
+export type NotificationBroadcastType = "new_drop" | "expiring_soon" | "system_alert" | "general";
+
+export async function broadcastFCM(
+    title: string,
+    body: string,
+    url: string = "/drops",
+    type: NotificationBroadcastType = "general"
+): Promise<boolean> {
     if (!adminDb) return false;
 
     try {
@@ -45,13 +52,29 @@ export async function broadcastFCM(title: string, body: string, url: string = "/
             const notificationSettings = data?.notificationSettings && typeof data.notificationSettings === "object"
                 ? data.notificationSettings as Record<string, unknown>
                 : {};
+
             const browserPushEnabled = notificationSettings.browserPushEnabled === true;
-            const newDropAlertsEnabled = notificationSettings.newDropAlerts !== false;
+            const newDropAlertsEnabled = notificationSettings.newDropAlerts === true;
+            const expiringSoonAlertsEnabled = notificationSettings.expiringSoonAlerts === true;
+
+            let shouldSend = false;
+            if (browserPushEnabled) {
+                if (type === "system_alert") {
+                    shouldSend = true;
+                } else if (type === "new_drop") {
+                    shouldSend = newDropAlertsEnabled;
+                } else if (type === "expiring_soon") {
+                    shouldSend = expiringSoonAlertsEnabled;
+                } else {
+                    shouldSend = true;
+                }
+            }
+
             const tokens = Array.isArray(data?.fcmTokens)
                 ? data.fcmTokens.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0)
                 : [];
 
-            if (browserPushEnabled && newDropAlertsEnabled && tokens.length > 0) {
+            if (shouldSend && tokens.length > 0) {
                 tokensChunk.push(...tokens);
 
                 while (tokensChunk.length >= BATCH_SIZE) {

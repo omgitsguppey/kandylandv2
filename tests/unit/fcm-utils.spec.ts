@@ -90,7 +90,7 @@ describe("broadcastFCM", () => {
             },
         );
 
-        const result = await broadcastFCM("Kandy Drops", "A new drop is live.");
+        const result = await broadcastFCM("Kandy Drops", "A new drop is live.", "/drops", "new_drop");
 
         expect(result).toBe(true);
         expect(mockState.selectedFields).toEqual([["fcmTokens", "notificationSettings"]]);

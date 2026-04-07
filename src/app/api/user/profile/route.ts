@@ -74,10 +74,10 @@ function normalizePrivacySettings(value: unknown): {
     const showInAnonymousStats = source.showInAnonymousStats === true;
 
     return {
-        allowRecommendations: allowRecommendations && identifiedAnalyticsEnabled,
-        showInAnonymousStats: showInAnonymousStats && anonymousAnalyticsEnabled,
-        anonymousAnalyticsEnabled: anonymousAnalyticsEnabled || identifiedAnalyticsEnabled || showInAnonymousStats,
-        identifiedAnalyticsEnabled,
+        allowRecommendations: allowRecommendations,
+        showInAnonymousStats: showInAnonymousStats,
+        anonymousAnalyticsEnabled: anonymousAnalyticsEnabled,
+        identifiedAnalyticsEnabled: identifiedAnalyticsEnabled,
         honorGlobalPrivacyControl: source.honorGlobalPrivacyControl !== false,
         consentUpdatedAt: Date.now(),
         privacyPolicyVersion: PRIVACY_POLICY_VERSION,
