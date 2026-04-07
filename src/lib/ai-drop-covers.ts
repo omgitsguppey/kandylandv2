@@ -56,6 +56,8 @@ export type AdminAiDropCoverRuntimeStatus =
     | "auth_missing"
     | "error";
 
+export type AdminAiDropCoverPreflightStatus = "pass" | "warn" | "fail";
+
 export type AdminAiDropCoverJobStatus = "running" | "succeeded" | "failed";
 
 export type AdminAiDropCoverFeedback = "neutral" | "liked" | "disliked";
@@ -89,6 +91,7 @@ export type AdminAiDropCoverFlavorFamily =
 
 export interface AdminAiDropCoverPromptInput {
     title: string;
+    creatorId?: string | null;
     creatorName?: string | null;
     dropType?: "content" | "promo" | "external" | string | null;
     tags?: string[] | null;
@@ -96,6 +99,7 @@ export interface AdminAiDropCoverPromptInput {
 
 export interface AdminAiDropCoverConsistencyRecipe {
     family: AdminAiDropCoverFlavorFamily;
+    creatorId?: string | null;
     creatorName?: string | null;
     normalizedFlavorTitle: string;
     focusTerms: string[];
@@ -130,6 +134,7 @@ export interface AdminAiDropCoverSettings {
 export interface AdminAiDropCoverJobRecord {
     id: string;
     title: string;
+    creatorId?: string | null;
     creatorName?: string | null;
     dropId?: string | null;
     draftSessionId?: string | null;
@@ -156,6 +161,7 @@ export interface AdminAiDropCoverJobRecord {
     chainDepth?: number;
     referenceImageCount?: number;
     templateReferenceUsed?: boolean;
+    catalogDropReferenceCount?: number;
     recentDropReferenceCount?: number;
     retainedAiReferenceCount?: number;
     retainedAcceptedAiReferenceCount?: number;
@@ -168,12 +174,13 @@ export interface AdminAiDropCoverJobRecord {
 
 export interface AdminAiDropCoverReferenceAsset {
     id: string;
-    source: "template" | "recent_drop_cover" | "retained_ai_cover";
+    source: "template" | "catalog_drop_cover" | "recent_drop_cover" | "retained_ai_cover";
     imageUrl: string;
     fileName?: string | null;
     storagePath?: string | null;
     dropId?: string | null;
     title?: string | null;
+    creatorId?: string | null;
     creatorName?: string | null;
     retentionReason?: "template" | "catalog" | "accepted" | "liked";
     accepted?: boolean;
@@ -199,6 +206,61 @@ export interface AdminAiDropCoverModelOption {
     location: string;
 }
 
+export interface AdminAiDropCoverPreflightCheck {
+    key: string;
+    label: string;
+    status: AdminAiDropCoverPreflightStatus;
+    detail: string;
+    updatedAtMs?: number | null;
+}
+
+export interface AdminAiDropCoverModelHealth {
+    id: AdminAiDropCoverSelectableModel;
+    label: string;
+    shortLabel: string;
+    provider: "gemini";
+    launchStage: "ga" | "preview";
+    selected: boolean;
+    location: string;
+    runtimeStatus: AdminAiDropCoverRuntimeStatus;
+    preflightStatus: AdminAiDropCoverPreflightStatus;
+    note: string;
+    authReady: boolean;
+    recentGenerationCount: number;
+    recentSuccessCount: number;
+    recentFailureCount: number;
+    activeGenerationCount: number;
+    lastRequestedAtMs?: number | null;
+    lastSuccessAtMs?: number | null;
+    lastFailureAtMs?: number | null;
+    lastFailureMessage?: string | null;
+    diagnosticWarnCount: number;
+    diagnosticErrorCount: number;
+}
+
+export interface AdminAiDropCoverRuntimeDiagnostic {
+    id: string;
+    severity: "info" | "warn" | "error";
+    message: string;
+    createdAtMs: number;
+    model?: string | null;
+    generationMode?: AdminAiDropCoverGenerationMode | null;
+    jobId?: string | null;
+    failureCode?: string | null;
+    summary?: string | null;
+}
+
+export interface AdminAiDropCoverVisualSignalSummary {
+    templateCount: number;
+    catalogDropCoverCount: number;
+    retainedAiCoverCount: number;
+    acceptedRetainedCount: number;
+    likedRetainedCount: number;
+    dislikedHistoryCount: number;
+    totalReusableReferenceCount: number;
+    referenceGuidanceReady: boolean;
+}
+
 export interface AdminAiDropCoverSummaryRecord {
     generationCount: number;
     successfulGenerationCount: number;
@@ -218,6 +280,7 @@ export interface AdminAiDropCoverSummaryRecord {
 export const adminAiDropCoverJobSchema = z.object({
     id: z.string(),
     title: z.string(),
+    creatorId: z.string().nullable().optional(),
     creatorName: z.string().nullable().optional(),
     dropId: z.string().nullable().optional(),
     draftSessionId: z.string().nullable().optional(),
@@ -244,6 +307,7 @@ export const adminAiDropCoverJobSchema = z.object({
     chainDepth: z.number().optional(),
     referenceImageCount: z.number().optional(),
     templateReferenceUsed: z.boolean().optional(),
+    catalogDropReferenceCount: z.number().optional(),
     recentDropReferenceCount: z.number().optional(),
     retainedAiReferenceCount: z.number().optional(),
     retainedAcceptedAiReferenceCount: z.number().optional(),
@@ -287,8 +351,17 @@ export const adminAiDropCoverRuntimeSchema = z.object({
     priceSourceUrl: z.string().url(),
 });
 
+export const adminAiDropCoverPreflightCheckSchema = z.object({
+    key: z.string(),
+    label: z.string(),
+    status: z.enum(["pass", "warn", "fail"]),
+    detail: z.string(),
+    updatedAtMs: z.number().nullable().optional(),
+});
+
 export const adminAiDropCoverConsistencyRecipeSchema = z.object({
     family: z.enum(["apple_spice", "berry", "citrus", "cream", "chocolate", "coffee", "mint", "tropical", "candy", "neutral"]),
+    creatorId: z.string().nullable().optional(),
     creatorName: z.string().nullable().optional(),
     normalizedFlavorTitle: z.string(),
     focusTerms: z.array(z.string()),
@@ -302,12 +375,13 @@ export const adminAiDropCoverConsistencyRecipeSchema = z.object({
 
 export const adminAiDropCoverReferenceAssetSchema = z.object({
     id: z.string(),
-    source: z.enum(["template", "recent_drop_cover", "retained_ai_cover"]),
+    source: z.enum(["template", "catalog_drop_cover", "recent_drop_cover", "retained_ai_cover"]),
     imageUrl: z.string().url(),
     fileName: z.string().nullable().optional(),
     storagePath: z.string().nullable().optional(),
     dropId: z.string().nullable().optional(),
     title: z.string().nullable().optional(),
+    creatorId: z.string().nullable().optional(),
     creatorName: z.string().nullable().optional(),
     retentionReason: z.enum(["template", "catalog", "accepted", "liked"]).optional(),
     accepted: z.boolean().optional(),
@@ -322,10 +396,60 @@ export const adminAiDropCoverReferenceAssetSchema = z.object({
     selectionReasons: z.array(z.string()).optional(),
 });
 
+export const adminAiDropCoverModelHealthSchema = z.object({
+    id: z.enum(["gemini-2.5-flash-image", "gemini-3-pro-image-preview"]),
+    label: z.string(),
+    shortLabel: z.string(),
+    provider: z.literal("gemini"),
+    launchStage: z.enum(["ga", "preview"]),
+    selected: z.boolean(),
+    location: z.string(),
+    runtimeStatus: z.enum(["disabled", "ready", "missing_project", "auth_missing", "error"]),
+    preflightStatus: z.enum(["pass", "warn", "fail"]),
+    note: z.string(),
+    authReady: z.boolean(),
+    recentGenerationCount: z.number(),
+    recentSuccessCount: z.number(),
+    recentFailureCount: z.number(),
+    activeGenerationCount: z.number(),
+    lastRequestedAtMs: z.number().nullable().optional(),
+    lastSuccessAtMs: z.number().nullable().optional(),
+    lastFailureAtMs: z.number().nullable().optional(),
+    lastFailureMessage: z.string().nullable().optional(),
+    diagnosticWarnCount: z.number(),
+    diagnosticErrorCount: z.number(),
+});
+
+export const adminAiDropCoverRuntimeDiagnosticSchema = z.object({
+    id: z.string(),
+    severity: z.enum(["info", "warn", "error"]),
+    message: z.string(),
+    createdAtMs: z.number(),
+    model: z.string().nullable().optional(),
+    generationMode: z.enum(["standard", "reference_guided"]).nullable().optional(),
+    jobId: z.string().nullable().optional(),
+    failureCode: z.string().nullable().optional(),
+    summary: z.string().nullable().optional(),
+});
+
+export const adminAiDropCoverVisualSignalSummarySchema = z.object({
+    templateCount: z.number(),
+    catalogDropCoverCount: z.number(),
+    retainedAiCoverCount: z.number(),
+    acceptedRetainedCount: z.number(),
+    likedRetainedCount: z.number(),
+    dislikedHistoryCount: z.number(),
+    totalReusableReferenceCount: z.number(),
+    referenceGuidanceReady: z.boolean(),
+});
+
 export const adminAiDropCoverSummarySchema = z.object({
     refreshedAtMs: z.number(),
     settings: adminAiDropCoverSettingsSchema,
     runtime: adminAiDropCoverRuntimeSchema,
+    preflightChecks: z.array(adminAiDropCoverPreflightCheckSchema),
+    modelHealth: z.array(adminAiDropCoverModelHealthSchema),
+    recentDiagnostics: z.array(adminAiDropCoverRuntimeDiagnosticSchema),
     aggregate: z.object({
         generationCount: z.number(),
         successfulGenerationCount: z.number(),
@@ -343,9 +467,10 @@ export const adminAiDropCoverSummarySchema = z.object({
     recentJobs: z.array(adminAiDropCoverJobSchema),
     referenceAssets: z.object({
         template: adminAiDropCoverReferenceAssetSchema.nullable(),
-        recentDropCovers: z.array(adminAiDropCoverReferenceAssetSchema),
+        catalogDropCovers: z.array(adminAiDropCoverReferenceAssetSchema),
         retainedAiCovers: z.array(adminAiDropCoverReferenceAssetSchema),
     }),
+    visualSignals: adminAiDropCoverVisualSignalSummarySchema,
 });
 
 const DEFAULT_RECIPE_LABEL = "KandyDrops title-safe cover art";
@@ -525,6 +650,7 @@ export function buildAdminAiDropCoverConsistencyRecipe(input: AdminAiDropCoverPr
 
     return {
         family,
+        creatorId: input.creatorId?.trim() || null,
         creatorName: input.creatorName?.trim() || null,
         normalizedFlavorTitle,
         focusTerms,
@@ -538,7 +664,7 @@ export function buildAdminAiDropCoverConsistencyRecipe(input: AdminAiDropCoverPr
 }
 
 export function scoreAdminAiDropCoverReferenceAsset(
-    asset: Pick<AdminAiDropCoverReferenceAsset, "id" | "source" | "title" | "creatorName" | "retentionReason">,
+    asset: Pick<AdminAiDropCoverReferenceAsset, "id" | "source" | "title" | "creatorId" | "creatorName" | "retentionReason">,
     recipe: AdminAiDropCoverConsistencyRecipe,
 ) {
     const assetTitle = asset.title?.trim() || "";
@@ -577,12 +703,19 @@ export function scoreAdminAiDropCoverReferenceAsset(
             score += 16;
             reasons.push("liked by operator");
         }
-    } else if (asset.source === "recent_drop_cover") {
+    } else if (asset.source === "catalog_drop_cover" || asset.source === "recent_drop_cover") {
         score += 8;
-        reasons.push("published live drop cover");
+        reasons.push("published drop cover");
     }
 
     if (
+        asset.creatorId
+        && recipe.creatorId
+        && asset.creatorId.trim().toLowerCase() === recipe.creatorId.trim().toLowerCase()
+    ) {
+        score += 8;
+        reasons.push("same creator id");
+    } else if (
         asset.creatorName
         && recipe.creatorName
         && asset.creatorName.trim().toLowerCase() === recipe.creatorName.trim().toLowerCase()

@@ -112,7 +112,7 @@ describe("ai drop cover shared contract", () => {
             },
             {
                 id: "fallback",
-                source: "recent_drop_cover",
+                source: "catalog_drop_cover",
                 imageUrl: "https://example.com/caramel.png",
                 title: "Caramel Latte",
             },

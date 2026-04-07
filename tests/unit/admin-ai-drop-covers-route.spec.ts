@@ -70,6 +70,40 @@ describe("GET/PUT /api/admin/ai/drop-covers", () => {
                 priceBasis: "vertex-ai-pricing-gemini-2.5-flash-image-2026-04-06",
                 priceSourceUrl: "https://cloud.google.com/vertex-ai/generative-ai/pricing",
             },
+            preflightChecks: [
+                {
+                    key: "feature_toggle",
+                    label: "Feature toggle",
+                    status: "pass",
+                    detail: "AI cover generation is enabled from the Admin AI page.",
+                },
+            ],
+            modelHealth: [
+                {
+                    id: "gemini-2.5-flash-image",
+                    label: "Gemini 2.5 Flash Image",
+                    shortLabel: "2.5 Flash",
+                    provider: "gemini",
+                    launchStage: "ga",
+                    selected: true,
+                    location: "global",
+                    runtimeStatus: "ready",
+                    preflightStatus: "pass",
+                    note: "Last proven by a successful 2.5 Flash generation.",
+                    authReady: true,
+                    recentGenerationCount: 3,
+                    recentSuccessCount: 3,
+                    recentFailureCount: 0,
+                    activeGenerationCount: 0,
+                    lastRequestedAtMs: 1712515200000,
+                    lastSuccessAtMs: 1712515200000,
+                    lastFailureAtMs: null,
+                    lastFailureMessage: null,
+                    diagnosticWarnCount: 0,
+                    diagnosticErrorCount: 0,
+                },
+            ],
+            recentDiagnostics: [],
             aggregate: {
                 generationCount: 4,
                 successfulGenerationCount: 3,
@@ -85,8 +119,18 @@ describe("GET/PUT /api/admin/ai/drop-covers", () => {
             recentJobs: [],
             referenceAssets: {
                 template: null,
-                recentDropCovers: [],
+                catalogDropCovers: [],
                 retainedAiCovers: [],
+            },
+            visualSignals: {
+                templateCount: 0,
+                catalogDropCoverCount: 0,
+                retainedAiCoverCount: 0,
+                acceptedRetainedCount: 0,
+                likedRetainedCount: 0,
+                dislikedHistoryCount: 1,
+                totalReusableReferenceCount: 0,
+                referenceGuidanceReady: false,
             },
         });
         mockState.saveAdminAiDropCoverSettings.mockResolvedValue({
@@ -139,6 +183,29 @@ describe("GET/PUT /api/admin/ai/drop-covers", () => {
         });
     });
 
+    it("updates the default AI model through the canonical settings helper", async () => {
+        const request = new NextRequest("http://localhost/api/admin/ai/drop-covers", {
+            method: "PUT",
+            body: JSON.stringify({ model: "gemini-3-pro-image-preview" }),
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+        const response = await PUT(request);
+        const body = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(body.success).toBe(true);
+        expect(mockState.saveAdminAiDropCoverSettings).toHaveBeenCalledWith({
+            enabled: undefined,
+            model: "gemini-3-pro-image-preview",
+            useTemplateReference: undefined,
+            useRecentDropCoverReferences: undefined,
+            actorUid: "admin_1",
+            actorEmail: "admin@example.com",
+        });
+    });
+
     it("updates reference guidance flags through the canonical settings helper", async () => {
         const request = new NextRequest("http://localhost/api/admin/ai/drop-covers", {
             method: "PUT",
@@ -162,5 +229,21 @@ describe("GET/PUT /api/admin/ai/drop-covers", () => {
             actorUid: "admin_1",
             actorEmail: "admin@example.com",
         });
+    });
+
+    it("rejects unsupported default models before hitting the settings helper", async () => {
+        const request = new NextRequest("http://localhost/api/admin/ai/drop-covers", {
+            method: "PUT",
+            body: JSON.stringify({ model: "imagen-4.0-fast-generate-001" }),
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+        const response = await PUT(request);
+        const body = await response.json();
+
+        expect(response.status).toBe(400);
+        expect(body.error).toContain("Unsupported default AI image model");
+        expect(mockState.saveAdminAiDropCoverSettings).not.toHaveBeenCalled();
     });
 });

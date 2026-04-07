@@ -27,22 +27,28 @@ import {
     getAdminAiDropCoverPriceBasis,
     getAdminAiDropCoverPricePerGenerationUsd,
     getAdminAiDropCoverRecipeLabel,
+    getAdminAiDropCoverSelectableModelOptions,
     isAdminAiDropCoverSelectableModel,
     getDefaultAdminAiDropCoverSettings,
     normalizeAdminAiDropCoverLocation,
     normalizeAdminAiDropCoverModel,
     selectAdminAiDropCoverReferenceAssets,
+    type AdminAiDropCoverModelHealth,
+    type AdminAiDropCoverPreflightCheck,
     type AdminAiDropCoverFeedbackAction,
     type AdminAiDropCoverGenerationMode,
     type AdminAiDropCoverJobRecord,
     type AdminAiDropCoverJobStatus,
+    type AdminAiDropCoverRuntimeDiagnostic,
     type AdminAiDropCoverSelectableModel,
     type AdminAiDropCoverConsistencyRecipe,
     type AdminAiDropCoverPromptInput,
     type AdminAiDropCoverReferenceAsset,
     type AdminAiDropCoverSettings,
     type AdminAiDropCoverSummaryRecord,
+    type AdminAiDropCoverVisualSignalSummary,
 } from "@/lib/ai-drop-covers";
+import { getFiniteDropTimestamp } from "@/lib/drop-status";
 import { FIREBASE_PROJECT_ID, FIREBASE_STORAGE_BUCKET } from "@/lib/firebase-runtime";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { adminDb, adminStorage } from "@/lib/server/firebase-admin";
@@ -58,9 +64,9 @@ const DEFAULT_VERTEX_LOCATION = ADMIN_AI_DROP_COVER_DEFAULT_LOCATION;
 const VERTEX_SCOPE = "https://www.googleapis.com/auth/cloud-platform";
 const DEFAULT_TIMEOUT_MS = 20_000;
 const RECENT_JOB_LIMIT = 18;
-const RECENT_REFERENCE_DROP_LIMIT = 4;
+const DROP_COVER_CATALOG_PREVIEW_LIMIT = 4;
 const RETAINED_AI_REFERENCE_LIMIT = 4;
-const RECENT_REFERENCE_DROP_CANDIDATE_LIMIT = 12;
+const DROP_COVER_CATALOG_CANDIDATE_LIMIT = 12;
 const RETAINED_AI_REFERENCE_CANDIDATE_LIMIT = 12;
 const MAX_REFERENCE_INPUTS = 6;
 const TEMPLATE_REFERENCE_STYLE_DESCRIPTION = "KandyDrops premium candy-poster cover art with centered hero framing, strong flavor palette, and title-safe negative space.";
@@ -70,6 +76,14 @@ type AdminAiDropCoverRuntime = {
     location: string;
     model: string;
     provider: "gemini_generate_content";
+};
+
+type AdminAiDropCoverRuntimeSnapshot = {
+    settings: AdminAiDropCoverSettings;
+    runtime: AdminAiDropCoverRuntime;
+    configuredStorageBucket: string;
+    authReady: boolean;
+    authError: unknown;
 };
 
 type SummaryDelta = Partial<{
@@ -152,12 +166,18 @@ type LoadedReferenceImage = {
     styleDescription?: string;
 };
 
+type DropReferenceCandidateDoc = {
+    id: string;
+    data: () => Record<string, unknown>;
+};
+
 type AdminAiDropCoverReferenceContext = {
     generationMode: AdminAiDropCoverGenerationMode;
     recipe: AdminAiDropCoverConsistencyRecipe;
     referenceImages: LoadedReferenceImage[];
     referenceAssets: AdminAiDropCoverReferenceAsset[];
     templateReferenceUsed: boolean;
+    catalogDropReferenceCount: number;
     recentDropReferenceCount: number;
     retainedAiReferenceCount: number;
     retainedAcceptedAiReferenceCount: number;
@@ -305,6 +325,39 @@ function getString(value: unknown) {
     return typeof value === "string" ? value : "";
 }
 
+function formatIsoTimestamp(timestamp?: number | null) {
+    return typeof timestamp === "number" && Number.isFinite(timestamp) && timestamp > 0
+        ? new Date(timestamp).toISOString()
+        : "not recorded";
+}
+
+function buildAiDiagnosticSummary(detail: Record<string, unknown>) {
+    const parts: string[] = [];
+    const model = getString(detail.model);
+    const failureCode = getString(detail.failureCode);
+    const generationMode = getString(detail.generationMode);
+    const jobId = getString(detail.jobId);
+    const referenceImageCount = toNumber(detail.referenceImageCount, NaN);
+
+    if (failureCode) {
+        parts.push(`code ${failureCode}`);
+    }
+    if (model) {
+        parts.push(model);
+    }
+    if (generationMode) {
+        parts.push(generationMode.replace(/_/g, " "));
+    }
+    if (jobId) {
+        parts.push(`job ${jobId}`);
+    }
+    if (Number.isFinite(referenceImageCount)) {
+        parts.push(`${referenceImageCount} refs`);
+    }
+
+    return parts.length > 0 ? parts.join(" | ") : null;
+}
+
 function getGenerationModeDefaults(_generationMode: AdminAiDropCoverGenerationMode) {
     return {
         model: ADMIN_AI_DROP_COVER_MODEL,
@@ -428,6 +481,7 @@ function normalizeJobRecord(id: string, raw: unknown): AdminAiDropCoverJobRecord
     return adminAiDropCoverJobSchema.parse({
         id,
         title: getString(data.title) || "Untitled Drop",
+        creatorId: typeof data.creatorId === "string" ? data.creatorId : null,
         creatorName: typeof data.creatorName === "string" ? data.creatorName : null,
         dropId: typeof data.dropId === "string" ? data.dropId : null,
         draftSessionId: typeof data.draftSessionId === "string" ? data.draftSessionId : null,
@@ -456,6 +510,7 @@ function normalizeJobRecord(id: string, raw: unknown): AdminAiDropCoverJobRecord
         chainDepth: toNumber(data.chainDepth),
         referenceImageCount: toNumber(data.referenceImageCount),
         templateReferenceUsed: data.templateReferenceUsed === true,
+        catalogDropReferenceCount: toNumber(data.catalogDropReferenceCount || data.recentDropReferenceCount),
         recentDropReferenceCount: toNumber(data.recentDropReferenceCount),
         retainedAiReferenceCount: toNumber(data.retainedAiReferenceCount),
         retainedAcceptedAiReferenceCount: toNumber(data.retainedAcceptedAiReferenceCount),
@@ -499,48 +554,93 @@ function createTemplateReferenceStoragePath(fileName: string) {
 }
 
 function normalizeReferenceAsset(raw: AdminAiDropCoverReferenceAsset) {
-    return adminAiDropCoverReferenceAssetSchema.parse(raw);
+    return adminAiDropCoverReferenceAssetSchema.parse({
+        ...raw,
+        source: raw.source === "recent_drop_cover" ? "catalog_drop_cover" : raw.source,
+    });
 }
 
-async function listRecentDropCoverReferenceAssets(excludeDropId?: string | null, limit = RECENT_REFERENCE_DROP_LIMIT) {
+function buildDropCoverCatalogReferenceCandidate(
+    docId: string,
+    raw: Record<string, unknown>,
+) {
+    const imageUrl = getString(raw.imageUrl);
+    if (!imageUrl) {
+        return null;
+    }
+
+    return {
+        asset: normalizeReferenceAsset({
+            id: `drop_${docId}`,
+            source: "catalog_drop_cover",
+            imageUrl,
+            fileName: typeof raw.coverFileName === "string"
+                ? raw.coverFileName
+                : typeof raw.fileName === "string"
+                    ? raw.fileName
+                    : null,
+            storagePath: typeof raw.storagePath === "string" ? raw.storagePath : null,
+            dropId: docId,
+            title: getString(raw.title) || "Untitled Drop",
+            creatorId: getString(raw.creatorId) || null,
+            creatorName: getString(raw.creatorName) || null,
+            retentionReason: "catalog",
+        }),
+        unlocks: toNumber(raw.totalUnlocks),
+        recencyMs: Math.max(
+            getFiniteDropTimestamp(raw.validFrom) || 0,
+            getFiniteDropTimestamp(raw.createdAt) || 0,
+            getFiniteDropTimestamp(raw.updatedAt) || 0,
+        ),
+    };
+}
+
+export function buildCatalogDropCoverReferenceAssetsFromDocs(
+    docs: DropReferenceCandidateDoc[],
+    options?: {
+        excludeDropId?: string | null;
+        limit?: number;
+    },
+) {
+    const limit = Math.max(0, options?.limit ?? DROP_COVER_CATALOG_PREVIEW_LIMIT);
+    const excludeDropId = options?.excludeDropId || null;
+    const seenImageUrls = new Set<string>();
+    const candidates = docs
+        .filter((doc) => !excludeDropId || doc.id !== excludeDropId)
+        .map((doc) => buildDropCoverCatalogReferenceCandidate(doc.id, doc.data()))
+        .filter((candidate): candidate is NonNullable<ReturnType<typeof buildDropCoverCatalogReferenceCandidate>> => Boolean(candidate))
+        .filter((candidate) => {
+            if (seenImageUrls.has(candidate.asset.imageUrl)) {
+                return false;
+            }
+            seenImageUrls.add(candidate.asset.imageUrl);
+            return true;
+        });
+
+    return candidates
+        .sort((left, right) => {
+            if (right.unlocks !== left.unlocks) {
+                return right.unlocks - left.unlocks;
+            }
+            if (right.recencyMs !== left.recencyMs) {
+                return right.recencyMs - left.recencyMs;
+            }
+            return (left.asset.title || "").localeCompare(right.asset.title || "");
+        })
+        .slice(0, limit)
+        .map((candidate) => candidate.asset);
+}
+
+async function listCatalogDropCoverReferenceAssets(excludeDropId?: string | null, limit = DROP_COVER_CATALOG_PREVIEW_LIMIT) {
     if (!adminDb) {
         return [] as AdminAiDropCoverReferenceAsset[];
     }
 
-    const snapshot = await adminDb.collection("drops")
-        .orderBy("validFrom", "desc")
-        .limit(24)
-        .get();
-
-    const assets: AdminAiDropCoverReferenceAsset[] = [];
-    for (const doc of snapshot.docs) {
-        if (excludeDropId && doc.id === excludeDropId) {
-            continue;
-        }
-
-        const data = doc.data();
-        const imageUrl = getString(data.imageUrl);
-        if (!imageUrl) {
-            continue;
-        }
-
-        assets.push(normalizeReferenceAsset({
-            id: `drop_${doc.id}`,
-            source: "recent_drop_cover",
-            imageUrl,
-            fileName: typeof data.fileName === "string" ? data.fileName : null,
-            storagePath: typeof data.storagePath === "string" ? data.storagePath : null,
-            dropId: doc.id,
-            title: getString(data.title) || "Untitled Drop",
-            creatorName: getString(data.creatorName) || null,
-        }));
-
-        if (assets.length >= limit) {
-            break;
-        }
-    }
-
-    return assets;
+    const snapshot = await adminDb.collection("drops").get();
+    return buildCatalogDropCoverReferenceAssetsFromDocs(snapshot.docs, {
+        excludeDropId,
+        limit,
+    });
 }
 
 async function listRetainedAiCoverReferenceAssets(limit = RETAINED_AI_REFERENCE_LIMIT) {
@@ -581,6 +681,7 @@ async function listRetainedAiCoverReferenceAssets(limit = RETAINED_AI_REFERENCE_
             storagePath: job.storagePath || null,
             dropId: job.acceptedForDropId || job.dropId || null,
             title: job.title || "Retained AI cover",
+            creatorId: job.creatorId || null,
             creatorName: job.creatorName || null,
             retentionReason: accepted ? "accepted" : "liked",
             accepted,
@@ -689,6 +790,7 @@ async function buildReferenceContext(
             referenceImages: [],
             referenceAssets: [],
             templateReferenceUsed: false,
+            catalogDropReferenceCount: 0,
             recentDropReferenceCount: 0,
             retainedAiReferenceCount: 0,
             retainedAcceptedAiReferenceCount: 0,
@@ -699,7 +801,7 @@ async function buildReferenceContext(
     const referenceImages: LoadedReferenceImage[] = [];
     const referenceAssets: AdminAiDropCoverReferenceAsset[] = [];
     let templateReferenceUsed = false;
-    let recentDropReferenceCount = 0;
+    let catalogDropReferenceCount = 0;
     let retainedAiReferenceCount = 0;
     let retainedAcceptedAiReferenceCount = 0;
     let retainedLikedAiReferenceCount = 0;
@@ -747,7 +849,7 @@ async function buildReferenceContext(
     const candidateAssets = [
         ...(await listRetainedAiCoverReferenceAssets(RETAINED_AI_REFERENCE_CANDIDATE_LIMIT)),
         ...(wantsRecentDropReferences
-            ? await listRecentDropCoverReferenceAssets(dropId, RECENT_REFERENCE_DROP_CANDIDATE_LIMIT)
+            ? await listCatalogDropCoverReferenceAssets(dropId, DROP_COVER_CATALOG_CANDIDATE_LIMIT)
             : []),
     ];
     const selectedCandidateAssets = selectAdminAiDropCoverReferenceAssets(
@@ -776,8 +878,8 @@ async function buildReferenceContext(
                 if (asset.retentionReason === "liked") {
                     retainedLikedAiReferenceCount += 1;
                 }
-            } else if (asset.source === "recent_drop_cover") {
-                recentDropReferenceCount += 1;
+            } else if (asset.source === "catalog_drop_cover" || asset.source === "recent_drop_cover") {
+                catalogDropReferenceCount += 1;
             }
         } catch (error) {
             recordRouteWarning("admin/ai/drop-covers/reference-image", "Failed to load ranked AI cover reference", error, {
@@ -796,7 +898,7 @@ async function buildReferenceContext(
             "validation_failed",
             400,
             "Reference-guided cover generation was enabled, but no usable reference images could be loaded.",
-            "Reference-guided generation is on, but no usable template, retained positive AI cover, or recent drop cover was available. Upload a template, keep at least one covered drop live, or turn reference guidance off.",
+            "Reference-guided generation is on, but no usable template, retained positive AI cover, or drop cover library reference was available. Upload a template, keep at least one covered drop in the catalog, or turn reference guidance off.",
         );
     }
 
@@ -806,7 +908,8 @@ async function buildReferenceContext(
         referenceImages,
         referenceAssets,
         templateReferenceUsed,
-        recentDropReferenceCount,
+        catalogDropReferenceCount,
+        recentDropReferenceCount: catalogDropReferenceCount,
         retainedAiReferenceCount,
         retainedAcceptedAiReferenceCount,
         retainedLikedAiReferenceCount,
@@ -1028,15 +1131,24 @@ export async function getAdminAiDropCoverSettings() {
 
 export async function saveAdminAiDropCoverSettings(input: {
     enabled?: boolean;
+    model?: AdminAiDropCoverSelectableModel;
     useTemplateReference?: boolean;
     useRecentDropCoverReferences?: boolean;
     actorUid: string;
     actorEmail?: string | undefined;
 }) {
     const existing = await getAdminAiDropCoverSettings();
+    const nextModel = input.model && isAdminAiDropCoverSelectableModel(input.model)
+        ? input.model
+        : existing.model;
+    const nextModelOption = getAdminAiDropCoverModelOption(nextModel);
     const nextSettings = normalizeSettings({
         ...existing,
         enabled: typeof input.enabled === "boolean" ? input.enabled : existing.enabled,
+        model: nextModel,
+        location: nextModelOption?.location || existing.location,
+        pricePerGenerationUsd: nextModelOption?.pricePerGenerationUsd || existing.pricePerGenerationUsd,
+        priceBasis: nextModelOption?.priceBasis || existing.priceBasis,
         useTemplateReference: typeof input.useTemplateReference === "boolean"
             ? input.useTemplateReference
             : existing.useTemplateReference,
@@ -1239,15 +1351,50 @@ export async function removeAdminAiDropCoverTemplate(input: {
     return nextSettings;
 }
 
-export async function getAdminAiDropCoverRuntimeStatus() {
-    const settings = await getAdminAiDropCoverSettings();
-    const runtime = resolveAdminAiDropCoverRuntime(settings);
+async function resolveAdminAiDropCoverRuntimeSnapshot(
+    settings: AdminAiDropCoverSettings,
+    requestedModel?: string | null,
+): Promise<AdminAiDropCoverRuntimeSnapshot> {
+    const runtime = resolveAdminAiDropCoverRuntime(settings, requestedModel);
     const configuredStorageBucket = (
         adminStorage?.app?.options?.storageBucket
         || FIREBASE_STORAGE_BUCKET
         || process.env.FIREBASE_STORAGE_BUCKET
         || ""
     ).trim();
+
+    if (!settings.enabled || !adminDb || !adminStorage || !configuredStorageBucket || !runtime.project) {
+        return {
+            settings,
+            runtime,
+            configuredStorageBucket,
+            authReady: false,
+            authError: null,
+        };
+    }
+
+    try {
+        await getVertexAccessToken(runtime.project);
+        return {
+            settings,
+            runtime,
+            configuredStorageBucket,
+            authReady: true,
+            authError: null,
+        };
+    } catch (error) {
+        return {
+            settings,
+            runtime,
+            configuredStorageBucket,
+            authReady: false,
+            authError: error,
+        };
+    }
+}
+
+function buildAdminAiDropCoverRuntimeStatusFromSnapshot(snapshot: AdminAiDropCoverRuntimeSnapshot) {
+    const { settings, runtime, configuredStorageBucket, authReady, authError } = snapshot;
 
     if (!settings.enabled) {
         return adminAiDropCoverRuntimeSchema.parse({
@@ -1309,27 +1456,11 @@ export async function getAdminAiDropCoverRuntimeStatus() {
         });
     }
 
-    try {
-        await getVertexAccessToken(runtime.project);
-        return adminAiDropCoverRuntimeSchema.parse({
-            enabled: true,
-            status: "ready",
-            note: settings.generationMode === "reference_guided"
-                ? `Credential, storage, and job-recording checks passed. When reference-guided generation is on, KandyDrops can send the uploaded template, retained positive AI covers, and retained live drop covers as image references to ${runtime.model} in ${runtime.location}. This page does not expose hidden model reasoning or weight updates. Final model access is still only proven by a successful generation request.`
-                : `Credential, storage, and job-recording checks passed. The active image runtime is ${runtime.model} in ${runtime.location}. This page does not expose hidden model reasoning or weight updates, and final model access is only proven by a successful generation request.`,
-            project: runtime.project,
-            location: runtime.location,
-            model: runtime.model,
-            generationMode: settings.generationMode,
-            pricePerGenerationUsd: settings.pricePerGenerationUsd,
-            priceBasis: settings.priceBasis,
-            priceSourceUrl: settings.priceSourceUrl,
-        });
-    } catch (error) {
+    if (!authReady) {
         return adminAiDropCoverRuntimeSchema.parse({
             enabled: true,
             status: "auth_missing",
-            note: summarizeAiAvailabilityIssue(error, runtime, "auth"),
+            note: summarizeAiAvailabilityIssue(authError, runtime, "auth"),
             project: runtime.project,
             location: runtime.location,
             model: runtime.model,
@@ -1339,6 +1470,30 @@ export async function getAdminAiDropCoverRuntimeStatus() {
             priceSourceUrl: settings.priceSourceUrl,
         });
     }
+
+    return adminAiDropCoverRuntimeSchema.parse({
+        enabled: true,
+        status: "ready",
+        note: settings.generationMode === "reference_guided"
+            ? `Credential, storage, and job-recording checks passed. When reference-guided generation is on, KandyDrops can send the uploaded template, retained positive AI covers, and retained drop cover library references as image inputs to ${runtime.model} in ${runtime.location}. This page does not expose hidden model reasoning or weight updates. Final model access is still only proven by a successful generation request.`
+            : `Credential, storage, and job-recording checks passed. The active image runtime is ${runtime.model} in ${runtime.location}. This page does not expose hidden model reasoning or weight updates, and final model access is only proven by a successful generation request.`,
+        project: runtime.project,
+        location: runtime.location,
+        model: runtime.model,
+        generationMode: settings.generationMode,
+        pricePerGenerationUsd: settings.pricePerGenerationUsd,
+        priceBasis: settings.priceBasis,
+        priceSourceUrl: settings.priceSourceUrl,
+    });
+}
+
+export async function getAdminAiDropCoverRuntimeStatus(
+    requestedModel?: string | null,
+    settingsOverride?: AdminAiDropCoverSettings,
+) {
+    const settings = settingsOverride ?? await getAdminAiDropCoverSettings();
+    const snapshot = await resolveAdminAiDropCoverRuntimeSnapshot(settings, requestedModel);
+    return buildAdminAiDropCoverRuntimeStatusFromSnapshot(snapshot);
 }
 
 export async function listRecentAdminAiDropCoverJobs(limit = RECENT_JOB_LIMIT) {
@@ -1354,11 +1509,258 @@ export async function listRecentAdminAiDropCoverJobs(limit = RECENT_JOB_LIMIT) {
     return snapshot.docs.map((doc) => normalizeJobRecord(doc.id, doc.data()));
 }
 
+async function listRecentAdminAiDiagnostics(limit = 12) {
+    if (!adminDb) {
+        return [] as AdminAiDropCoverRuntimeDiagnostic[];
+    }
+
+    try {
+        const snapshot = await adminDb.collection("server_diagnostics")
+            .orderBy("createdAtMs", "desc")
+            .limit(Math.max(limit * 10, 80))
+            .get();
+        const diagnostics: AdminAiDropCoverRuntimeDiagnostic[] = [];
+        for (const doc of snapshot.docs) {
+            const data = (doc.data() || {}) as Record<string, unknown>;
+            if (getString(data.channel) !== "ai") {
+                continue;
+            }
+
+            const detail = data.detail && typeof data.detail === "object"
+                ? data.detail as Record<string, unknown>
+                : {};
+
+            diagnostics.push({
+                id: doc.id,
+                severity: data.severity === "error" || data.severity === "warn" ? data.severity : "info",
+                message: getString(data.message) || "AI diagnostic recorded",
+                createdAtMs: toNumber(data.createdAtMs),
+                model: getString(detail.model) || null,
+                generationMode: detail.generationMode === "reference_guided" ? "reference_guided" : detail.generationMode === "standard" ? "standard" : null,
+                jobId: getString(detail.jobId) || null,
+                failureCode: getString(detail.failureCode) || null,
+                summary: buildAiDiagnosticSummary(detail),
+            });
+
+            if (diagnostics.length >= limit) {
+                break;
+            }
+        }
+
+        return diagnostics;
+    } catch (error) {
+        recordRouteWarning("admin/ai/drop-covers/diagnostics", "Failed to load recent AI diagnostics", error, {
+            channel: "ai",
+            detail: {
+                limit,
+            },
+        });
+        return [] as AdminAiDropCoverRuntimeDiagnostic[];
+    }
+}
+
+function buildVisualSignalsSummary(input: {
+    settings: AdminAiDropCoverSettings;
+    templateAsset: AdminAiDropCoverReferenceAsset | null;
+    catalogDropCovers: AdminAiDropCoverReferenceAsset[];
+    retainedAiCovers: AdminAiDropCoverReferenceAsset[];
+    aggregate: Pick<AdminAiDropCoverSummaryRecord, "dislikedCount">;
+}): AdminAiDropCoverVisualSignalSummary {
+    const acceptedRetainedCount = input.retainedAiCovers.filter((asset) => asset.retentionReason === "accepted").length;
+    const likedRetainedCount = input.retainedAiCovers.filter((asset) => asset.retentionReason === "liked").length;
+    const totalReusableReferenceCount = (input.templateAsset ? 1 : 0) + input.catalogDropCovers.length + input.retainedAiCovers.length;
+    const referenceGuidanceReady = input.settings.generationMode === "reference_guided"
+        ? totalReusableReferenceCount > 0
+        : totalReusableReferenceCount > 0;
+
+    return {
+        templateCount: input.templateAsset ? 1 : 0,
+        catalogDropCoverCount: input.catalogDropCovers.length,
+        retainedAiCoverCount: input.retainedAiCovers.length,
+        acceptedRetainedCount,
+        likedRetainedCount,
+        dislikedHistoryCount: input.aggregate.dislikedCount,
+        totalReusableReferenceCount,
+        referenceGuidanceReady,
+    };
+}
+
+async function buildModelHealthEntries(input: {
+    settings: AdminAiDropCoverSettings;
+    recentJobs: AdminAiDropCoverJobRecord[];
+    diagnostics: AdminAiDropCoverRuntimeDiagnostic[];
+}) {
+    const options = getAdminAiDropCoverSelectableModelOptions();
+
+    return await Promise.all(options.map(async (option) => {
+        const runtime = await getAdminAiDropCoverRuntimeStatus(option.id, input.settings);
+        const modelJobs = input.recentJobs.filter((job) => job.model === option.id);
+        const modelDiagnostics = input.diagnostics.filter((entry) => entry.model === option.id);
+        const recentGenerationCount = modelJobs.length;
+        const recentSuccessCount = modelJobs.filter((job) => job.status === "succeeded").length;
+        const recentFailureCount = modelJobs.filter((job) => job.status === "failed").length;
+        const activeGenerationCount = modelJobs.filter((job) => job.status === "running").length;
+        const lastRequestedAtMs = modelJobs.find((job) => typeof job.requestedAtMs === "number")?.requestedAtMs || null;
+        const lastSuccessAtMs = modelJobs.find((job) => job.status === "succeeded" && typeof job.completedAtMs === "number")?.completedAtMs || null;
+        const latestFailedJob = modelJobs.find((job) => job.status === "failed") || null;
+        const lastFailureAtMs = latestFailedJob?.completedAtMs || null;
+        const lastFailureMessage = latestFailedJob?.errorMessage || null;
+        const diagnosticWarnCount = modelDiagnostics.filter((entry) => entry.severity === "warn").length;
+        const diagnosticErrorCount = modelDiagnostics.filter((entry) => entry.severity === "error").length;
+
+        let preflightStatus: AdminAiDropCoverModelHealth["preflightStatus"] =
+            runtime.status === "ready" ? "pass" : runtime.status === "disabled" ? "warn" : "fail";
+        let note = runtime.note;
+
+        if (runtime.status === "ready") {
+            if (lastFailureAtMs && (!lastSuccessAtMs || lastFailureAtMs > lastSuccessAtMs)) {
+                preflightStatus = "warn";
+                note = lastFailureMessage
+                    ? `Last ${option.shortLabel} generation failed at ${formatIsoTimestamp(lastFailureAtMs)}. ${lastFailureMessage}`
+                    : `Last ${option.shortLabel} generation failed at ${formatIsoTimestamp(lastFailureAtMs)}. Review the recent AI diagnostics before using it again.`;
+            } else if (lastSuccessAtMs) {
+                note = `Last proven by a successful ${option.shortLabel} generation at ${formatIsoTimestamp(lastSuccessAtMs)}.`;
+            } else if (activeGenerationCount > 0) {
+                preflightStatus = "warn";
+                note = `${activeGenerationCount} ${option.shortLabel} generation job${activeGenerationCount === 1 ? "" : "s"} currently running.`;
+            } else {
+                preflightStatus = "warn";
+                note = `${option.shortLabel} prerequisites are ready, but this model has not been proven by a successful generation yet.`;
+            }
+        }
+
+        return {
+            ...option,
+            selected: input.settings.model === option.id,
+            location: runtime.location,
+            runtimeStatus: runtime.status,
+            preflightStatus,
+            note,
+            authReady: runtime.status === "ready",
+            recentGenerationCount,
+            recentSuccessCount,
+            recentFailureCount,
+            activeGenerationCount,
+            lastRequestedAtMs,
+            lastSuccessAtMs,
+            lastFailureAtMs,
+            lastFailureMessage,
+            diagnosticWarnCount,
+            diagnosticErrorCount,
+        } satisfies AdminAiDropCoverModelHealth;
+    }));
+}
+
+function buildPreflightChecks(input: {
+    snapshot: AdminAiDropCoverRuntimeSnapshot;
+    runtime: ReturnType<typeof adminAiDropCoverRuntimeSchema.parse>;
+    modelHealth: AdminAiDropCoverModelHealth[];
+    diagnostics: AdminAiDropCoverRuntimeDiagnostic[];
+    visualSignals: AdminAiDropCoverVisualSignalSummary;
+}): AdminAiDropCoverPreflightCheck[] {
+    const recentError = input.diagnostics.find((entry) => entry.severity === "error") || null;
+    const recentWarn = input.diagnostics.find((entry) => entry.severity === "warn") || null;
+    const selectedModel = input.modelHealth.find((entry) => entry.selected) || input.modelHealth[0] || null;
+
+    return [
+        {
+            key: "feature_toggle",
+            label: "Feature toggle",
+            status: input.snapshot.settings.enabled ? "pass" : "warn",
+            detail: input.snapshot.settings.enabled
+                ? "AI cover generation is enabled from the Admin AI page."
+                : "AI cover generation is turned off from the Admin AI page.",
+            updatedAtMs: input.snapshot.settings.updatedAtMs || null,
+        },
+        {
+            key: "job_ledger",
+            label: "Job ledger",
+            status: adminDb ? "pass" : "fail",
+            detail: adminDb
+                ? "Firebase Admin database access is ready for AI job history."
+                : "Firebase Admin database access is unavailable, so AI jobs cannot be recorded.",
+            updatedAtMs: null,
+        },
+        {
+            key: "storage_bucket",
+            label: "Storage bucket",
+            status: adminStorage && input.snapshot.configuredStorageBucket ? "pass" : "fail",
+            detail: adminStorage && input.snapshot.configuredStorageBucket
+                ? `Generated covers will save into ${input.snapshot.configuredStorageBucket}.`
+                : "Firebase Storage bucket configuration is missing, so generated covers cannot be saved.",
+            updatedAtMs: null,
+        },
+        {
+            key: "vertex_project",
+            label: "Cloud project",
+            status: input.snapshot.runtime.project ? "pass" : "fail",
+            detail: input.snapshot.runtime.project
+                ? `Vertex requests resolve against ${input.snapshot.runtime.project}.`
+                : "Vertex project configuration is missing. Set GOOGLE_CLOUD_PROJECT or FIREBASE_PROJECT_ID.",
+            updatedAtMs: null,
+        },
+        {
+            key: "vertex_auth",
+            label: "Vertex auth",
+            status: !input.snapshot.runtime.project
+                ? "warn"
+                : input.snapshot.authReady
+                    ? "pass"
+                    : input.runtime.enabled
+                        ? "fail"
+                        : "warn",
+            detail: !input.snapshot.runtime.project
+                ? "Vertex auth cannot be checked until the Google Cloud project is configured."
+                : input.snapshot.authReady
+                    ? "The current runtime can mint a Vertex access token."
+                    : input.runtime.enabled
+                        ? summarizeAiAvailabilityIssue(input.snapshot.authError, input.snapshot.runtime, "auth")
+                        : "Vertex auth is not checked while the feature is disabled.",
+            updatedAtMs: null,
+        },
+        {
+            key: "selected_model",
+            label: "Selected model",
+            status: selectedModel?.preflightStatus || "warn",
+            detail: selectedModel
+                ? `${selectedModel.label}: ${selectedModel.note}`
+                : "No model status is available yet.",
+            updatedAtMs: selectedModel?.lastSuccessAtMs || selectedModel?.lastFailureAtMs || selectedModel?.lastRequestedAtMs || null,
+        },
+        {
+            key: "visual_signals",
+            label: "Visual signals",
+            status: input.snapshot.settings.generationMode === "reference_guided"
+                ? (input.visualSignals.referenceGuidanceReady ? "pass" : "fail")
+                : (input.visualSignals.totalReusableReferenceCount > 0 ? "pass" : "warn"),
+            detail: input.snapshot.settings.generationMode === "reference_guided"
+                ? input.visualSignals.referenceGuidanceReady
+                    ? `${input.visualSignals.totalReusableReferenceCount} reusable visual reference${input.visualSignals.totalReusableReferenceCount === 1 ? "" : "s"} are ready for the next guided generation.`
+                    : "Reference-guided mode is enabled, but there is no template, retained live cover, or retained positive AI cover ready for the next generation."
+                : input.visualSignals.totalReusableReferenceCount > 0
+                    ? `${input.visualSignals.totalReusableReferenceCount} reusable visual reference${input.visualSignals.totalReusableReferenceCount === 1 ? "" : "s"} are retained even though standard mode is currently selected.`
+                    : "Standard mode does not require retained references, and none are currently retained.",
+            updatedAtMs: null,
+        },
+        {
+            key: "recent_diagnostics",
+            label: "Recent diagnostics",
+            status: recentError ? "fail" : recentWarn ? "warn" : "pass",
+            detail: recentError
+                ? `${recentError.message}${recentError.summary ? ` (${recentError.summary})` : ""}`
+                : recentWarn
+                    ? `${recentWarn.message}${recentWarn.summary ? ` (${recentWarn.summary})` : ""}`
+                    : "No recent AI warnings or errors were recorded in server diagnostics.",
+            updatedAtMs: recentError?.createdAtMs || recentWarn?.createdAtMs || null,
+        },
+    ];
+}
+
 export async function buildAdminAiDropCoverDashboard() {
     const refreshedAtMs = Date.now();
-    const [settings, runtime, recentJobs, summarySnapshot, activeJobsSnapshot, recentDropCovers, retainedAiCovers] = await Promise.all([
-        getAdminAiDropCoverSettings(),
-        getAdminAiDropCoverRuntimeStatus(),
+    const settings = await getAdminAiDropCoverSettings();
+    const [runtimeSnapshot, recentJobs, summarySnapshot, activeJobsSnapshot, catalogDropCovers, retainedAiCovers, recentDiagnostics] = await Promise.all([
+        resolveAdminAiDropCoverRuntimeSnapshot(settings, settings.model),
         listRecentAdminAiDropCoverJobs(),
         adminDb
             ? adminDb.collection(ADMIN_AI_DROP_COVER_SUMMARY_COLLECTION).doc(ADMIN_AI_DROP_COVER_SUMMARY_DOC).get()
@@ -1366,9 +1768,11 @@ export async function buildAdminAiDropCoverDashboard() {
         adminDb
             ? adminDb.collection(ADMIN_AI_DROP_COVER_JOBS_COLLECTION).where("status", "==", "running").get()
             : Promise.resolve(null),
-        listRecentDropCoverReferenceAssets(null),
+        listCatalogDropCoverReferenceAssets(null),
         listRetainedAiCoverReferenceAssets(),
+        listRecentAdminAiDiagnostics(),
     ]);
+    const runtime = buildAdminAiDropCoverRuntimeStatusFromSnapshot(runtimeSnapshot);
 
     const summary = normalizeSummary(summarySnapshot?.exists ? summarySnapshot.data() : null);
     const averageLatencyMs = summary.latencySampleCount > 0
@@ -1390,13 +1794,35 @@ export async function buildAdminAiDropCoverDashboard() {
     const decoratedTemplateAsset = templateAsset
         ? applyReferenceUsageStats([templateAsset], recentJobs)[0] || null
         : null;
-    const decoratedRecentDropCovers = applyReferenceUsageStats(recentDropCovers, recentJobs);
+    const decoratedCatalogDropCovers = applyReferenceUsageStats(catalogDropCovers, recentJobs);
     const decoratedRetainedAiCovers = applyReferenceUsageStats(retainedAiCovers, recentJobs);
+    const visualSignals = buildVisualSignalsSummary({
+        settings,
+        templateAsset: decoratedTemplateAsset,
+        catalogDropCovers: decoratedCatalogDropCovers,
+        retainedAiCovers: decoratedRetainedAiCovers,
+        aggregate: summary,
+    });
+    const modelHealth = await buildModelHealthEntries({
+        settings,
+        recentJobs,
+        diagnostics: recentDiagnostics,
+    });
+    const preflightChecks = buildPreflightChecks({
+        snapshot: runtimeSnapshot,
+        runtime,
+        modelHealth,
+        diagnostics: recentDiagnostics,
+        visualSignals,
+    });
 
     return adminAiDropCoverSummarySchema.parse({
         refreshedAtMs,
         settings,
         runtime,
+        preflightChecks,
+        modelHealth,
+        recentDiagnostics,
         aggregate: {
             generationCount: summary.generationCount,
             successfulGenerationCount: summary.successfulGenerationCount,
@@ -1414,9 +1840,10 @@ export async function buildAdminAiDropCoverDashboard() {
         recentJobs,
         referenceAssets: {
             template: decoratedTemplateAsset,
-            recentDropCovers: decoratedRecentDropCovers,
+            catalogDropCovers: decoratedCatalogDropCovers,
             retainedAiCovers: decoratedRetainedAiCovers,
         },
+        visualSignals,
     });
 }
 
@@ -1502,6 +1929,7 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
     const chainDepth = previousJobRecord ? (previousJobRecord.chainDepth || 0) + 1 : 0;
     const promptInput: AdminAiDropCoverPromptInput = {
         title,
+        creatorId: input.creatorId,
         creatorName: input.creatorName,
         dropType: input.dropType,
         tags: input.tags,
@@ -1538,6 +1966,7 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
             chainDepth,
             referenceImageCount: referenceContext.referenceImages.length,
             templateReferenceUsed: referenceContext.templateReferenceUsed,
+            catalogDropReferenceCount: referenceContext.catalogDropReferenceCount,
             recentDropReferenceCount: referenceContext.recentDropReferenceCount,
             retainedAiReferenceCount: referenceContext.retainedAiReferenceCount,
             retainedAcceptedAiReferenceCount: referenceContext.retainedAcceptedAiReferenceCount,
@@ -1715,6 +2144,7 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
             consistencyRecipe: recipe,
             referenceImageCount: referenceContext.referenceImages.length,
             templateReferenceUsed: referenceContext.templateReferenceUsed,
+            catalogDropReferenceCount: referenceContext.catalogDropReferenceCount,
             recentDropReferenceCount: referenceContext.recentDropReferenceCount,
             retainedAiReferenceCount: referenceContext.retainedAiReferenceCount,
             retainedAcceptedAiReferenceCount: referenceContext.retainedAcceptedAiReferenceCount,

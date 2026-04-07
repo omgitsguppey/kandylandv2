@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { isAdminAiDropCoverSelectableModel } from "@/lib/ai-drop-covers";
 import { handleApiError } from "@/lib/server/auth";
 import { buildAdminAiDropCoverDashboard, saveAdminAiDropCoverSettings } from "@/lib/server/ai-drop-covers";
 import { ADMIN_AI_CONTROL, ADMIN_AI_DASHBOARD_READ } from "@/lib/server/rate-limit";
@@ -42,11 +43,17 @@ export async function PUT(request: NextRequest) {
 
         const body = await request.json() as {
             enabled?: unknown;
+            model?: unknown;
             useTemplateReference?: unknown;
             useRecentDropCoverReferences?: unknown;
         };
+        const requestedModel = typeof body.model === "string" ? body.model.trim() : "";
+        if (requestedModel && !isAdminAiDropCoverSelectableModel(requestedModel)) {
+            return NextResponse.json({ error: "Unsupported default AI image model" }, { status: 400 });
+        }
         if (
             typeof body.enabled !== "boolean"
+            && !requestedModel
             && typeof body.useTemplateReference !== "boolean"
             && typeof body.useRecentDropCoverReferences !== "boolean"
         ) {
@@ -55,6 +62,7 @@ export async function PUT(request: NextRequest) {
 
         const settings = await saveAdminAiDropCoverSettings({
             enabled: typeof body.enabled === "boolean" ? body.enabled : undefined,
+            model: requestedModel && isAdminAiDropCoverSelectableModel(requestedModel) ? requestedModel : undefined,
             useTemplateReference: typeof body.useTemplateReference === "boolean" ? body.useTemplateReference : undefined,
             useRecentDropCoverReferences: typeof body.useRecentDropCoverReferences === "boolean" ? body.useRecentDropCoverReferences : undefined,
             actorUid: caller?.uid || "",

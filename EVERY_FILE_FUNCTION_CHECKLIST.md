@@ -10,7 +10,7 @@ Scoring: all entries below are marked as included in the current validated sweep
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-07 inventory yet.
 
 Historical sweep file-body baseline: 413 tracked files
-Current tracked baseline in the standing audit: 685 tracked files after the 2026-04-07 support-foundation and PR-assimilation audit pass
+Current tracked baseline in the standing audit: 687 tracked files after the 2026-04-07 AI drop-cover catalog audit pass
 Detected function-like implementations in this historical sweep: 3161
 
 ## [x] .agent/workflows/pre-commit.md

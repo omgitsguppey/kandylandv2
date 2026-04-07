@@ -2,9 +2,9 @@
 
 Status: Canonical audit standard and live baseline
 Last refreshed: 2026-04-07
-Last full-scale audit execution: 2026-04-07 13:38:40 -05:00
+Last full-scale audit execution: 2026-04-07 18:47:17 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
-Audited HEAD at start: `dcf7910`
+Audited HEAD at start: `8b24119`
 
 ## Purpose
 This file is the standing audit contract for the repository.
@@ -108,7 +108,7 @@ Current notable runtime package versions:
 ## Current tracked inventory baseline
 Verified by `npm run check:inventory` on 2026-04-07:
 
-- Total tracked files: `685`
+- Total tracked files: `687`
 - Root files: `54`
 - Root markdown/docs: `16`
 - Root lockfiles: `2`
@@ -124,7 +124,7 @@ Verified by `npm run check:inventory` on 2026-04-07:
 - `functions`: `37`
 - `functions/src`: `30`
 - `scripts`: `17`
-- `tests`: `120`
+- `tests`: `122`
 - `public`: `11`
 - `dataconnect`: `14`
 - `src/dataconnect-generated`: `15`
@@ -463,100 +463,125 @@ Results:
 - Lighthouse cleanup can emit temporary Windows `EPERM` warnings while deleting temp folders after successful audits.
 
 ## Current open follow-up gaps
-- `EVERY_FILE_FUNCTION_CHECKLIST.md` remains a historical exhaustive sweep and has not been regenerated against the current `670` tracked-file baseline.
+- `EVERY_FILE_FUNCTION_CHECKLIST.md` remains a historical exhaustive sweep and has not been regenerated against the current `686` tracked-file baseline.
 - Public creator/discovery follower counts now reconcile immediately after local follow actions, but there is still no cross-user realtime follower aggregate subscription.
 - The creator workspace added on `/dashboard` is a live route-backed operations surface, but it is still polling route reads on page load and action refreshes rather than maintaining separate realtime subscriptions for each creator queue.
-- The admin AI page now exposes persisted runtime state, retained references, recipe scoring, and refresh cadence truthfully, but it is still client-polling persisted job state rather than step-streaming provider internals.
+- The admin AI page now exposes preflight checks, per-model status, recent AI diagnostics, retained visual signals, and active-job polling truthfully, but it is still client-polling persisted job state rather than provider-side step streaming.
+- Final model access is only proven by a successful generation request. The admin AI page can preflight auth, storage, project, and recent failures, but it cannot prove hidden provider/model denial without making a real generation request.
 - Legacy Imagen model/location strings still exist only as normalization aliases in the shared AI-cover contract so stored settings and old job history migrate cleanly to Gemini.
 
 ## Active audit entry
-Current audit date: 2026-04-07 02:53:19 -05:00
-Current branch / commit at audit start: `main` / `59d801b`
+Current audit date: 2026-04-07 14:23:57 -05:00
+Current branch / commit at audit start: `main` / `8b24119`
 Current task:
-- Full-scale realtime/truth audit for lingering static or simulative behavior, legacy AI-cover runtime cleanup, reference-consistency improvements for drop-cover generation, and adaptive rate limiting for cost-heavy admin AI routes after crossing 200 users
+- full-scale AI codebase audit focused on lingering old AI logic and non-truthful admin AI status
+- make the admin AI page show actionable preflight failures before generation
+- show retained visual signals, per-model control, and recent AI errors at a glance without simulated training language
 
 Audit start state:
-- working tree already dirty at audit start because the earlier creator workspace/admin debug pass had not been committed yet
+- working tree clean at audit start
 - canonical startup docs re-read:
   - `FULL_SCALE_CODEBASE_AUDIT.md`
   - `REPO_MEMORY_LEDGER.md`
   - `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- startup continuity commands completed:
+  - `git status --short`
+  - `npm run trace:adjacent -- src/app/admin/ai/page.tsx`
+  - `npm run trace:adjacent -- src/lib/server/ai-drop-covers.ts`
+  - `npm run trace:adjacent -- src/app/api/admin/ai/drop-covers/route.ts`
+  - `npm run trace:adjacent -- src/app/api/admin/ai/drop-covers/generate/route.ts`
+  - `npm run trace:adjacent -- src/components/Admin/AiDropCoverGeneratorPanel.tsx`
 
-Root-cause and audit conclusions:
-- no lingering legacy Imagen execution path remained in the live AI cover runtime; the only old model references left were migration aliases used to normalize persisted settings/history into Gemini defaults
-- the Admin AI page was still truthful but too opaque: it needed to show real retained-reference reuse, recipe analysis, and the actual polling cadence instead of implying fixed cadence or hidden model-state introspection
-- fixed-rate limits on admin AI and realtime analytics routes were too blunt for a >200-user product and did not reflect rising cost pressure on expensive generation and read-heavy live dashboards
-- the canonical admin panel-system log builder still contained an outdated `Simulation tools` record even after the debug page copy had been cleaned up; that backing log now says `Manual admin tools` and explicitly avoids implying live health
+Audit conclusions:
+- no live legacy Imagen execution path remained in the AI cover runtime
+  - the only lingering Imagen strings were the expected migration aliases in `src/lib/ai-drop-covers.ts`, route-diagnostic channel inference, and test fixtures/assertions
+- the admin AI page already exposed retained references and job history, but it still collapsed too much truth into one runtime card
+  - no preflight checklist
+  - no per-model health/proven-state surface
+  - no recent AI diagnostics lane
+  - no default-model control on the admin AI page itself
+- recent AI failures and readiness signals existed in job history and `server_diagnostics`, but they were not summarized at a glance before an operator tried another generation
 
-Touched surfaces:
+Exact touched surfaces:
 - `FULL_SCALE_CODEBASE_AUDIT.md`
-- `REPO_MEMORY_LEDGER.md`
-- `EVERY_FILE_FUNCTION_CHECKLIST.md`
-- `src/app/admin/ai/page.tsx`
-- `src/app/admin/debug/page.tsx`
-- `src/app/api/admin/ai/drop-covers/feedback/route.ts`
-- `src/app/api/admin/ai/drop-covers/generate/route.ts`
-- `src/app/api/admin/ai/drop-covers/route.ts`
-- `src/app/api/admin/ai/drop-covers/template/route.ts`
-- `src/app/api/admin/analytics/realtime/route.ts`
-- `src/app/api/admin/debug/assistant/route.ts`
-- `src/app/api/creator/bookings/route.ts`
-- `src/app/api/creator/messages/route.ts`
-- `src/app/dashboard/DashboardClient.tsx`
-- `src/app/dashboard/profile/page.tsx`
-- `src/components/Dashboard/CreatorWorkspacePanel.tsx`
 - `src/lib/ai-drop-covers.ts`
-- `src/lib/server/admin-panel-system-logs.ts`
 - `src/lib/server/ai-drop-covers.ts`
-- `src/lib/server/rate-limit.ts`
-- `src/lib/server/request-guard.ts`
-- `tests/unit/admin-ai-drop-covers-feedback-route.spec.ts`
-- `tests/unit/admin-ai-drop-covers-generate-route.spec.ts`
+- `src/app/admin/ai/page.tsx`
+- `src/app/api/admin/ai/drop-covers/route.ts`
 - `tests/unit/admin-ai-drop-covers-route.spec.ts`
-- `tests/unit/admin-ai-drop-covers-template-route.spec.ts`
-- `tests/unit/admin-analytics-realtime-route.spec.ts`
-- `tests/unit/admin-debug-assistant-route.spec.ts`
-- `tests/unit/ai-drop-covers.spec.ts`
-- `tests/unit/creator-bookings-route.spec.ts`
-- `tests/unit/creator-messages-route.spec.ts`
-- `tests/unit/rate-limit.spec.ts`
 
 Canonical helpers used:
 - `src/lib/ai-drop-covers.ts`
 - `src/lib/server/ai-drop-covers.ts`
-- `src/lib/server/rate-limit.ts`
-- `src/lib/server/request-guard.ts`
-- `src/lib/server/admin-panel-system-logs.ts`
 - `src/lib/server/auth.ts`
 - `src/lib/server/route-diagnostics.ts`
 - `src/lib/server/server-diagnostics.ts`
 - `src/lib/authFetch.ts`
 - `src/lib/client-error-reporting.ts`
 
-What changed:
-- kept legacy Imagen strings only as migration aliases inside the shared AI-cover contract; the live server runtime now stays on the Gemini `generateContent` path only
-- added consistency-recipe analysis and ranked reference selection so later drop-cover generations can reuse retained positive signals instead of treating all references equally
-- made the Admin AI page expose real retained references, real reuse stats, latest analyzed recipe data, and true active-vs-idle poll cadence
-- applied adaptive rate limiting to cost-heavy admin AI/dashboard routes using the registered `users` count with thresholds at `200`, `500`, and `1000` users
-- re-audited the earlier creator workspace/debug changes and carried them into the same verified commit
-- renamed the canonical debug backing log from `Simulation tools` to `Manual admin tools` so the debug route and page no longer disagree about whether that lane represents live health
+Implementation results:
+- the shared AI-cover contract now includes canonical types for:
+  - preflight checks
+  - per-model health
+  - recent runtime diagnostics
+  - retained visual-signal summaries
+- the admin AI dashboard builder now returns:
+  - real preflight checks derived from feature toggle, database, storage, project, auth, selected-model state, visual-signal readiness, and recent AI diagnostics
+  - model-by-model health for `gemini-2.5-flash-image` and `gemini-3-pro-image-preview`
+  - recent AI diagnostics from the real `server_diagnostics` channel
+  - retained visual-signal counts so the page can show what is actually being reused later
+- the admin AI settings route now supports bounded default-model changes from the admin AI page
+- the admin AI page now shows:
+  - blocking issues and warnings at the top
+  - a preflight checklist before generation
+  - individual model cards with default-model control and recent proven/failure state
+  - recent AI diagnostics
+  - existing retained visual signals and running-job references without simulated training copy
 
-Runtime truth and cost-control implications:
-- the Admin AI page is now honest about what exists: persisted job state, retained references, stored operator feedback, and recipe selection data; it still does not pretend to expose hidden model reasoning or live weight training
-- adaptive rate limiting now reduces AI generation and high-frequency admin read budgets as the registered user base grows, which lowers spend risk without inventing fake per-user quotas in the UI
-- creator experience routes remain ownership-scoped and dashboard-backed from the earlier pass; this audit did not reopen their underlying backend contract
+Commands run:
+- `git status --short`
+- adjacency traces:
+  - `npm run trace:adjacent -- src/app/admin/ai/page.tsx`
+  - `npm run trace:adjacent -- src/lib/server/ai-drop-covers.ts`
+  - `npm run trace:adjacent -- src/app/api/admin/ai/drop-covers/route.ts`
+  - `npm run trace:adjacent -- src/app/api/admin/ai/drop-covers/generate/route.ts`
+  - `npm run trace:adjacent -- src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+- focused lint:
+  - `npx eslint src/lib/ai-drop-covers.ts src/lib/server/ai-drop-covers.ts src/app/admin/ai/page.tsx src/app/api/admin/ai/drop-covers/route.ts tests/unit/admin-ai-drop-covers-route.spec.ts`
+- focused tests:
+  - `corepack pnpm exec vitest run tests/unit/ai-drop-covers.spec.ts tests/unit/admin-ai-drop-covers-route.spec.ts tests/unit/admin-ai-drop-covers-generate-route.spec.ts`
+- `npm run check:inventory`
+- `npm run check:ui:lighthouse`
+- `npm run check:ui:audits`
+- `corepack pnpm run check`
+- `npx vitest run`
+- AI audit sweep:
+  - PowerShell `Select-String` scan for `imagen-`, `Imagen`, `simulate`, `simulative`, `live training`, and `weight updates`
+
+Results:
+- focused lint passed
+- focused AI tests passed with `3` files and `20` tests
+- `npm run check:inventory` passed with `686` tracked files and `121` test files
+- `npm run check:ui:lighthouse` passed
+- `npm run check:ui:audits` passed
+- `corepack pnpm run check` passed
+- `npx vitest run` passed with `93` files and `459` tests
+- generated `playwright-report/` and `test-results/` artifacts were removed before signoff
+- the lingering-AI sweep confirmed:
+  - legacy Imagen strings remain only in migration aliases, test fixtures/assertions, and generic route-diagnostic channel matching
+  - no live Imagen execution path remains in the runtime
+  - remaining “simulate/live training/weight updates” wording is now explicit negative language that says those signals do not exist, not fake capability copy
 
 Known warnings and tolerated notices during this pass:
-- npm unknown env config warnings during some script chains
+- npm unknown env config warnings during canonical script chains
 - Firebase/Vitest `punycode` deprecation warnings
 - informational dotenv logs during the canonical `check` pipeline
 - Lighthouse temp-folder cleanup can emit Windows `EPERM` warnings after successful runs
 
 Follow-up gaps:
-- no provider-side step streaming exists for Gemini image generation; the admin page remains a truthful polling surface over persisted job state
-- full checklist regeneration against the 670-file baseline is still pending
-- creator workspace queues are route-backed and refresh-driven rather than individual realtime subscriptions
-- Chromium `/creators/waitlist` visual baselines remain unstable and still need a separate stabilization or baseline-refresh pass
+- no provider-side step streaming exists for Gemini image generation; the admin AI page remains a truthful polling surface over persisted job state
+- model/location access can only be finally proven by a successful generation; the admin page cannot zero-cost preflight hidden provider denial
+- full checklist regeneration against the `686` tracked-file baseline is still pending
 
 ### Historical audit entries
 
@@ -1194,7 +1219,7 @@ Continuation implementation:
 - stored the uploaded template in Firebase Storage under a dedicated AI reference path and persisted its URL/path/file metadata into the canonical AI cover settings document
 - taught the server-side generation helper to:
   - load the uploaded template as a reference image when enabled
-  - load up to 4 recent live drop covers as additional reference images when enabled
+- load up to 4 retained drop-cover library references as additional reference images when enabled
   - keep reference-guided generation on the selected/default Gemini image runtime by passing the uploaded template and recent covers as image inputs
   - keep one canonical generation stack instead of splitting standard and reference-guided flows across different model families
 - kept the implementation truthful:
@@ -1205,7 +1230,7 @@ Continuation implementation:
   - generation mode
   - total reference image count
   - whether the uploaded template was used
-  - how many recent drop covers were used
+- how many drop-cover library references were used
 
 Commands run for continuation:
 - `git status --short`
@@ -1235,7 +1260,7 @@ Continuation results:
 - an initial attempt to run multiple build-based verification commands in parallel caused a Next build collision (`Another next build process is already running`); that was a verification-orchestration issue, not a code failure, and the affected checks were rerun sequentially to completion
 
 Runtime truth and continuity implications from continuation:
-- the Admin AI page can now control reference-guided generation against a real uploaded cover template and recent live drop covers
+- the Admin AI page can now control reference-guided generation against a real uploaded cover template and retained drop-cover library references
 - the repo now treats “train the AI on our covers” as a truthful reference-image customization workflow instead of fake live training
 - the active generation model/path shown in the UI now matches whether reference guidance is turned on
 - job history, pricing, and runtime notes remain explicit about what is estimated, what is real, and what depends on actual Vertex access
@@ -1303,7 +1328,7 @@ Continuation implementation:
 - replaced the single-model generate path with provider-aware runtime execution:
   - Gemini models use Vertex `:generateContent`
   - existing non-Gemini models still route through publisher-model `:predict`
-- kept reference-guided generation truthful under the Gemini path by sending the uploaded template and recent drop covers as image inputs instead of pretending a separate tuned model exists
+- kept reference-guided generation truthful under the Gemini path by sending the uploaded template and retained drop-cover library references as image inputs instead of pretending a separate tuned model exists
 - added route-level validation so the create-drop switch cannot submit arbitrary model ids
 - updated the create-drop AI panel to show:
   - the selected model inline next to Generate
@@ -1406,7 +1431,7 @@ Continuation implementation:
 - removed operator-facing wording on the Admin AI page that implied live training, model-side retention, or hidden model introspection
 - rewired the Admin AI page to show the real retained reference library instead:
   - uploaded template reference
-  - retained live drop covers already uploaded in the catalog
+- retained drop covers already uploaded in the catalog
   - retained positive AI covers from accepted/liked past generations
 - extended the AI cover job record to store the exact reference assets used by each generation so the Admin AI page can show which retained images were actually sent with each run
 - changed reference-guided generation to reuse positively-scored AI covers for later generations; dislikes stay in history and are not reused as references
@@ -1972,7 +1997,7 @@ Initial AI audit findings before implementation:
 - the shared AI cover contract still exposes legacy Imagen constants, pricing entries, and model-location normalization as first-class runtime values instead of a bounded migration shim
 - the server AI runtime still preserves an older non-Gemini publisher-model `:predict` branch even though the current product path is Gemini image generation
 - the Admin AI page is truthful about not doing hidden training, but it still relies on 10-second polling only and does not show a canonical per-job consistency recipe or why retained references were selected
-- recent live drop covers and retained positive AI covers are visible, but their reuse value is only partially observable because the page does not surface positive reuse counts or ranked selection reasons
+- retained drop-cover library references and positive AI covers are visible, but their reuse value is only partially observable because the page does not surface positive reuse counts or ranked selection reasons
 
 ### Continuation: In-site Support Foundation and Dead Support Redirect Removal
 Current audit date: 2026-04-07 03:43:16 -05:00
@@ -2119,3 +2144,131 @@ Continuation follow-up gaps:
 - support is polling-backed at 10 seconds and does not yet use realtime listeners or sockets
 - public signed-out/legal support still routes users toward authenticated in-site support rather than a separate guest intake flow
 - bug reports and support threads are intentionally separate; there is no automatic bug-report-to-ticket conversion yet
+
+### Continuation: AI Drop-Cover Catalog Audit for Create-Drop + Legacy Coverage
+Current audit date: 2026-04-07 18:47:17 -05:00
+Current branch / commit for continuation start: `main` / `8b24119`
+Continuation task:
+- full-scale audit to ensure the create-drop form and legacy drops both feed the AI cover reference/training system truthfully
+- remove stale AI wording from the admin surface and continuity docs
+- commit and push the catalog/legacy reference fix with a full audit refresh
+
+Continuation start state:
+- working tree was already dirty at continuation start from the prior local Admin AI observability pass and preserved for continuity
+- canonical startup docs re-read:
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+  - `REPO_MEMORY_LEDGER.md`
+  - `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- `git status --short` confirmed the existing local AI admin modifications before this continuation
+- adjacency traces completed before editing for:
+  - `src/lib/server/ai-drop-covers.ts`
+  - `src/components/Admin/CreateDropModal.tsx`
+  - `src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+  - `src/app/api/admin/drops/route.ts`
+
+Initial audit findings before implementation:
+- the create-drop form was already feeding the AI cover system truthfully:
+  - generation requests already carried `creatorId`
+  - accepted AI covers were already linked back to the saved drop through the canonical `link_drop` feedback action after save
+- the real gap was the non-AI reference library:
+  - `src/lib/server/ai-drop-covers.ts` only sampled a small `validFrom`-ordered set of recent drop covers
+  - that excluded older legacy covers and any drops with older timestamp shapes or missing `validFrom`
+  - the Admin AI page therefore overstated the breadth of the reusable cover library
+- no live legacy Imagen execution path was found beyond migration aliases and compatibility fields kept for persisted settings/job history
+
+Exact touched surfaces:
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `REPO_MEMORY_LEDGER.md`
+- `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- `src/app/admin/ai/page.tsx`
+- `src/app/api/admin/ai/drop-covers/route.ts`
+- `src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+- `src/lib/ai-drop-covers.ts`
+- `src/lib/server/ai-drop-covers.ts`
+- `tests/unit/admin-ai-drop-covers-route.spec.ts`
+- `tests/unit/ai-drop-covers.spec.ts`
+- `tests/unit/admin-ai-drop-cover-catalog.spec.ts`
+
+Canonical helpers and modules actually reused:
+- `src/components/Admin/CreateDropModal.tsx`
+- `src/lib/ai-drop-covers.ts`
+- `src/lib/server/ai-drop-covers.ts`
+- `src/lib/drop-status.ts`
+- `src/hooks/useAdminPollingSWR.ts`
+- `src/lib/authFetch.ts`
+- `src/lib/client-error-reporting.ts`
+- `src/lib/server/firebase-admin.ts`
+- `src/lib/server/route-diagnostics.ts`
+- `src/lib/server/server-diagnostics.ts`
+- `src/lib/server/storage-assets.ts`
+
+Implementation results:
+- kept the create-drop feed path intact because it was already correct:
+  - create-drop generation requests continue to send `creatorId`
+  - accepted AI covers continue to link to the saved drop through the canonical feedback route after save
+- replaced the recent-only reference sample with a real drop-cover catalog:
+  - AI reference assets are now built from the full `drops` collection instead of a recent `validFrom` query
+  - legacy/current recency is normalized through the shared drop timestamp helper
+  - duplicate image URLs are deduped before ranking
+  - ranking now prefers higher `totalUnlocks`, then newer timestamps, then title
+- strengthened reference matching:
+  - reference assets now carry `creatorId`
+  - selection scoring can prefer same creator id before falling back to creator-name matching
+- corrected admin/operator truth language:
+  - the Admin AI page and create-drop AI panel now say `drop cover library` / `catalog covers` instead of `recent` or `live` covers
+  - retained visual-signal counts now explicitly include catalog covers spanning current and legacy drops
+- added regression coverage for the catalog behavior:
+  - verifies legacy timestamp-shaped drops and current drops both enter the reusable reference catalog
+  - verifies the current drop id can be excluded from the catalog when generating for that drop
+
+Runtime truth and continuity implications:
+- the create-drop form already fed accepted AI jobs into the retained AI pool; this continuation closes the missing legacy/current non-AI cover side
+- the reusable drop-cover reference library now spans current and legacy uploaded covers present in the catalog instead of a recent-only sample
+- old `recentDropReferenceCount` compatibility fields remain only to read and preserve historical job documents while the canonical live meaning is now `catalogDropReferenceCount`
+- no hidden training or fine-tuning was added; the runtime remains reference-guided generation plus retained feedback/reuse signals
+
+Commands run for continuation:
+- `git status --short`
+- adjacency traces:
+  - `npm run trace:adjacent -- src/lib/server/ai-drop-covers.ts`
+  - `npm run trace:adjacent -- src/components/Admin/CreateDropModal.tsx`
+  - `npm run trace:adjacent -- src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+  - `npm run trace:adjacent -- src/app/api/admin/drops/route.ts`
+- focused lint:
+  - `npx eslint src/app/admin/ai/page.tsx src/app/api/admin/ai/drop-covers/route.ts src/components/Admin/AiDropCoverGeneratorPanel.tsx src/lib/ai-drop-covers.ts src/lib/server/ai-drop-covers.ts tests/unit/ai-drop-covers.spec.ts tests/unit/admin-ai-drop-covers-route.spec.ts tests/unit/admin-ai-drop-cover-catalog.spec.ts`
+- focused tests:
+  - `corepack pnpm exec vitest run tests/unit/ai-drop-covers.spec.ts tests/unit/admin-ai-drop-covers-route.spec.ts tests/unit/admin-ai-drop-covers-generate-route.spec.ts tests/unit/admin-ai-drop-cover-catalog.spec.ts`
+- repo-wide verification:
+  - `npm run check:architecture`
+  - `npm run check:continuity`
+  - `npm run check:telemetry`
+  - `npm run check:inventory`
+  - `npm run check:ui:lighthouse`
+  - `npm run check:ui:audits`
+  - `corepack pnpm run check`
+  - `npx vitest run`
+
+Continuation results:
+- focused lint passed
+- focused AI Vitest passed with `4` files and `22` tests
+- `npm run check:architecture` passed
+- `npm run check:continuity` passed
+- `npm run check:telemetry` passed with `0` cataloged events lacking emitters
+- `npm run check:inventory` passed and now reports `687` tracked files / `122` test files after staging the new AI catalog regression test
+- `npm run check:ui:lighthouse` passed
+- `corepack pnpm run check` passed
+- `npx vitest run` passed with `94` files and `461` tests
+- `npm run check:ui:audits` failed only on the existing Chromium `/creators/waitlist` guest-hero screenshot instability; accessibility passed and the rest of the suite passed
+- generated `playwright-report/` and `test-results/` artifacts from the failing visual audit were removed before signoff
+
+Known warnings and non-blocking notices during continuation:
+- npm unknown env config warnings during canonical script chains
+- `check:firebase-runtime` informational dotenv logs inside the canonical `check` pipeline
+- Node `punycode` deprecation warnings from Firebase/Vitest tooling
+- Lighthouse cleanup emitted temporary Windows `EPERM` warnings while deleting temp folders after successful audits
+- the Chromium `/creators/waitlist` guest-hero visual baseline remains unstable and can alternate between two section heights without any code change in this continuation
+
+Continuation follow-up gaps:
+- the drop-cover catalog currently scans the full `drops` collection for correctness; if cost or latency becomes an issue, the next step is a canonical summarized cover-reference index rather than a return to sampled recent-cover logic
+- compatibility reads still preserve `recentDropReferenceCount` for older AI job documents; new logic should continue to treat `catalogDropReferenceCount` as the live truth
+- the pre-existing Chromium `/creators/waitlist` visual instability still needs a separate stabilization or baseline refresh pass

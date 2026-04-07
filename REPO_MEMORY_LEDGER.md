@@ -338,10 +338,10 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Approximate date: Canonicalized and recorded on 2026-04-06
 - Status: Active canonical AI/runtime rule
 - Problem/context: Admin operators want the cover generator to follow a fixed KandyDrops house style and existing catalog covers, but claiming live retraining or hidden fine-tuning would overstate what the Vertex image stack is actually doing.
-- Decision made: Treat AI cover “training” as a truthful reference-guided generation workflow. The admin AI page can upload one template image and optionally use recent live drop covers as additional style references, while the generation runtime switches to the supported Vertex reference-image customization path and keeps the feedback history as a future evaluation dataset.
+- Decision made: Treat AI cover “training” as a truthful reference-guided generation workflow. The admin AI page can upload one template image and optionally use the retained drop-cover library as additional style references, while the generation runtime keeps the feedback history as a future evaluation dataset instead of pretending live fine-tuning exists.
 - What became canonical:
   - admin operators can upload and remove a single AI cover template from the Admin AI page
-  - the runtime can use that template and/or recent live drop covers as reference images for generation
+  - the runtime can use that template and/or retained drop-cover library references for generation
   - reference-guided mode is recorded in settings, runtime state, job history, and admin UI
   - the product continues to say “reference-guided” or “style references” instead of falsely claiming live model training
   - accepted/liked/disliked generation history remains real feedback data for later tuning work
@@ -541,3 +541,27 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `src/lib/gumdrop-ledger.ts`
   - `FULL_SCALE_CODEBASE_AUDIT.md`
 - Follow-up gaps: If operators ever need to grant purchased-equivalent balance intentionally, that needs a separate audited route and explicit UI language rather than overloading the current manual adjustment tool.
+
+### 26. AI drop-cover reuse pulls from the full drop catalog, not a recent-only sample
+- Approximate date: Canonicalized and recorded on 2026-04-07
+- Status: Active canonical AI/runtime rule
+- Problem/context: The create-drop flow was already feeding accepted AI jobs back into the retained AI reference pool, but the non-AI cover reference side still sampled only a small recent `validFrom` window of drop covers. That excluded older legacy covers and made the Admin AI page overstate the breadth of the reusable cover library.
+- Decision made: Treat drop-cover references as a full catalog, not a recent feed. The create-drop form remains responsible for linking accepted AI jobs to saved drops, and the shared AI reference library now scans the full drop catalog so current and legacy uploaded covers can both seed future generations.
+- What became canonical:
+  - accepted AI covers from the create-drop flow feed the retained AI reference pool once they are liked or accepted and linked to saved drops
+  - drop-cover library references are built from the full `drops` collection instead of a recent-only `validFrom` sample
+  - legacy timestamp shapes are normalized through the shared drop timestamp helper before reference ranking
+  - the Admin AI page describes this input truthfully as a drop-cover library spanning current and legacy catalog covers
+  - reference selection can use creator id, creator name, title/flavor similarity, and positive operator feedback without pretending the model trained itself
+- What is now disallowed or deprecated:
+  - describing a recent-only sample as the full reusable cover library
+  - assuming `validFrom` is the only trustworthy recency signal for legacy drop covers
+  - leaving accepted create-drop AI jobs disconnected from the saved drop they were chosen for
+- Truth lives in:
+  - `src/components/Admin/CreateDropModal.tsx`
+  - `src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+  - `src/lib/ai-drop-covers.ts`
+  - `src/lib/server/ai-drop-covers.ts`
+  - `src/lib/drop-status.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: The catalog scan is intentionally admin-only and correctness-first. If it becomes too expensive, the next step is a canonical summarized cover-reference index rather than going back to sampled recent-cover logic.

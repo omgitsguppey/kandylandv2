@@ -318,7 +318,7 @@ export function AiDropCoverGeneratorPanel({
                     </div>
                     <p className="mt-1 text-xs text-gray-400">
                         {dashboard?.settings.generationMode === "reference_guided"
-                            ? "Reference-guided mode is active. The server uses the uploaded template and/or recent drop covers as style references, while keeping cover text deterministic in the product UI."
+                            ? "Reference-guided mode is active. The server uses the uploaded template and/or the retained drop cover library as style references, while keeping cover text deterministic in the product UI."
                             : "Title-driven only. The server builds the hidden image recipe and keeps cover text deterministic in the product UI instead of trusting model-rendered text."}
                     </p>
                 </div>
@@ -353,7 +353,7 @@ export function AiDropCoverGeneratorPanel({
 
             {dashboard?.settings.generationMode === "reference_guided" ? (
                 <div className="mt-3 rounded-[1rem] border border-brand-purple/20 bg-brand-purple/10 p-3 text-[11px] text-brand-purple">
-                    Reference-guided generation is active for this drop. The next {selectedModelOption.shortLabel} render will use the uploaded template{dashboard.settings.useRecentDropCoverReferences ? " and recent live drop covers" : ""} as style guidance.
+                    Reference-guided generation is active for this drop. The next {selectedModelOption.shortLabel} render will use the uploaded template{dashboard.settings.useRecentDropCoverReferences ? " and the retained drop cover library" : ""} as style guidance.
                 </div>
             ) : null}
 
@@ -471,7 +471,7 @@ export function AiDropCoverGeneratorPanel({
                                             </p>
                                             {job.generationMode === "reference_guided" ? (
                                                 <p className="mt-1 text-[11px] text-gray-500">
-                                                    {job.referenceImageCount ? `${job.referenceImageCount} style references` : "Reference-guided"}{job.templateReferenceUsed ? " | template" : ""}{job.recentDropReferenceCount ? ` | ${job.recentDropReferenceCount} recent covers` : ""}
+                                                    {job.referenceImageCount ? `${job.referenceImageCount} style references` : "Reference-guided"}{job.templateReferenceUsed ? " | template" : ""}{(job.catalogDropReferenceCount || job.recentDropReferenceCount) ? ` | ${job.catalogDropReferenceCount || job.recentDropReferenceCount} catalog covers` : ""}
                                                 </p>
                                             ) : null}
                                         </div>

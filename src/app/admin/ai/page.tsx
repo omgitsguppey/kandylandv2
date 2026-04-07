@@ -28,8 +28,12 @@ import {
     ADMIN_AI_DROP_COVER_IDLE_POLL_INTERVAL_MS,
     formatAdminAiUsd,
     type AdminAiDropCoverJobRecord,
+    type AdminAiDropCoverModelHealth,
+    type AdminAiDropCoverPreflightCheck,
     type AdminAiDropCoverReferenceAsset,
+    type AdminAiDropCoverRuntimeDiagnostic,
     type AdminAiDropCoverRuntimeStatus,
+    type AdminAiDropCoverSelectableModel,
 } from "@/lib/ai-drop-covers";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
@@ -63,6 +67,9 @@ type AdminAiDropCoverDashboard = {
         priceBasis: string;
         priceSourceUrl: string;
     };
+    preflightChecks: AdminAiDropCoverPreflightCheck[];
+    modelHealth: AdminAiDropCoverModelHealth[];
+    recentDiagnostics: AdminAiDropCoverRuntimeDiagnostic[];
     aggregate: {
         generationCount: number;
         successfulGenerationCount: number;
@@ -80,8 +87,18 @@ type AdminAiDropCoverDashboard = {
     recentJobs: AdminAiDropCoverJobRecord[];
     referenceAssets: {
         template: AdminAiDropCoverReferenceAsset | null;
-        recentDropCovers: AdminAiDropCoverReferenceAsset[];
+        catalogDropCovers: AdminAiDropCoverReferenceAsset[];
         retainedAiCovers: AdminAiDropCoverReferenceAsset[];
+    };
+    visualSignals: {
+        templateCount: number;
+        catalogDropCoverCount: number;
+        retainedAiCoverCount: number;
+        acceptedRetainedCount: number;
+        likedRetainedCount: number;
+        dislikedHistoryCount: number;
+        totalReusableReferenceCount: number;
+        referenceGuidanceReady: boolean;
     };
 };
 
@@ -108,6 +125,28 @@ function runtimeTone(status?: AdminAiDropCoverRuntimeStatus) {
             return "border-white/10 bg-white/5 text-gray-200";
         default:
             return "border-amber-400/20 bg-amber-500/10 text-amber-100";
+    }
+}
+
+function preflightTone(status?: AdminAiDropCoverPreflightCheck["status"]) {
+    switch (status) {
+        case "pass":
+            return "border-emerald-400/20 bg-emerald-500/10 text-emerald-100";
+        case "fail":
+            return "border-red-400/20 bg-red-500/10 text-red-100";
+        default:
+            return "border-amber-400/20 bg-amber-500/10 text-amber-100";
+    }
+}
+
+function diagnosticTone(severity?: AdminAiDropCoverRuntimeDiagnostic["severity"]) {
+    switch (severity) {
+        case "error":
+            return "border-red-400/20 bg-red-500/10 text-red-100";
+        case "warn":
+            return "border-amber-400/20 bg-amber-500/10 text-amber-100";
+        default:
+            return "border-white/10 bg-white/5 text-gray-200";
     }
 }
 
@@ -141,7 +180,7 @@ function describeReferenceAsset(asset: AdminAiDropCoverReferenceAsset) {
     if (asset.source === "retained_ai_cover") {
         return asset.retentionReason === "accepted" ? "Accepted AI cover" : "Liked AI cover";
     }
-    return "Live drop cover";
+    return "Drop cover library";
 }
 
 function formatReuseStats(asset: AdminAiDropCoverReferenceAsset) {
@@ -166,6 +205,7 @@ function getPollCadenceLabel(refreshIntervalMs: number) {
 
 export default function AIAdminPage() {
     const [updatingToggle, setUpdatingToggle] = useState(false);
+    const [savingModelId, setSavingModelId] = useState<AdminAiDropCoverSelectableModel | null>(null);
     const [savingReferenceSettings, setSavingReferenceSettings] = useState(false);
     const [uploadingTemplate, setUploadingTemplate] = useState(false);
     const [removingTemplate, setRemovingTemplate] = useState(false);
@@ -180,13 +220,29 @@ export default function AIAdminPage() {
     const retainedLikedCount = useMemo(() => (data?.referenceAssets.retainedAiCovers || []).filter((asset) => asset.retentionReason === "liked").length, [data?.referenceAssets.retainedAiCovers]);
     const retainedReferenceCount = useMemo(() => (
         (data?.referenceAssets.template ? 1 : 0)
-        + (data?.referenceAssets.recentDropCovers.length || 0)
+        + (data?.referenceAssets.catalogDropCovers.length || 0)
         + (data?.referenceAssets.retainedAiCovers.length || 0)
     ), [data?.referenceAssets]);
+    const failingPreflightChecks = useMemo(
+        () => (data?.preflightChecks || []).filter((check) => check.status === "fail"),
+        [data?.preflightChecks],
+    );
+    const warningPreflightChecks = useMemo(
+        () => (data?.preflightChecks || []).filter((check) => check.status === "warn"),
+        [data?.preflightChecks],
+    );
+    const selectedModelHealth = useMemo(
+        () => (data?.modelHealth || []).find((entry) => entry.selected) || null,
+        [data?.modelHealth],
+    );
+    const latestDiagnostic = useMemo(
+        () => (data?.recentDiagnostics || [])[0] || null,
+        [data?.recentDiagnostics],
+    );
     const missingReferenceInputs = Boolean(
         data?.settings.generationMode === "reference_guided"
         && !data.referenceAssets.template
-        && (data.referenceAssets.recentDropCovers || []).length === 0
+        && (data.referenceAssets.catalogDropCovers || []).length === 0
         && (data.referenceAssets.retainedAiCovers || []).length === 0,
     );
     const latestRecipe = data?.recentJobs.find((job) => job.consistencyRecipe)?.consistencyRecipe || null;
@@ -215,6 +271,25 @@ export default function AIAdminPage() {
         if (!response.ok) throw new Error(result.error || "Failed to update AI cover controls");
         toast.success(successMessage);
         await mutate();
+    };
+
+    const handleDefaultModelChange = async (modelId: AdminAiDropCoverSelectableModel) => {
+        if (!data?.settings || data.settings.model === modelId) return;
+        setSavingModelId(modelId);
+        try {
+            await persistSettingsPatch({ model: modelId }, `${modelId === "gemini-3-pro-image-preview" ? "Gemini 3 Pro Image Preview" : "Gemini 2.5 Flash Image"} set as default model`);
+        } catch (issue) {
+            reportClientIssue({
+                channel: "ui",
+                message: "Admin AI default model update failed",
+                error: issue,
+                detail: { adminView: "admin_ai_page", modelId },
+                consoleLabel: "[Admin AI] model update failed",
+            });
+            toast.error(issue instanceof Error ? issue.message : "Failed to update the default AI image model");
+        } finally {
+            setSavingModelId(null);
+        }
     };
 
     const handleToggle = async () => {
@@ -329,8 +404,14 @@ export default function AIAdminPage() {
                 actions={(
                     <>
                         <div className={cn("inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm", runtimeTone(data?.runtime.status))}>
-                            {data?.runtime.status === "ready" ? <Sparkles className="h-4 w-4" /> : <TriangleAlert className="h-4 w-4" />}
-                            {data?.runtime.status === "ready" ? "Vertex checks passed" : data?.runtime.status === "disabled" ? "AI off" : "Needs attention"}
+                            {failingPreflightChecks.length === 0 && warningPreflightChecks.length === 0 ? <Sparkles className="h-4 w-4" /> : <TriangleAlert className="h-4 w-4" />}
+                            {failingPreflightChecks.length > 0
+                                ? `${failingPreflightChecks.length} blocking issue${failingPreflightChecks.length === 1 ? "" : "s"}`
+                                : warningPreflightChecks.length > 0
+                                    ? `${warningPreflightChecks.length} warning${warningPreflightChecks.length === 1 ? "" : "s"}`
+                                    : data?.runtime.status === "disabled"
+                                        ? "AI off"
+                                        : "Vertex checks passed"}
                         </div>
                         <Button variant="glass" onClick={() => void mutate()}>
                             <RefreshCw className="mr-2 h-4 w-4" />
@@ -355,13 +436,14 @@ export default function AIAdminPage() {
                 <StatCard
                     label="Runtime"
                     value={data?.runtime.status || (error ? "error" : "--")}
-                    meta={data?.runtime.generationMode === "reference_guided" ? `${data?.runtime.model || "Vertex"} | reference-guided` : (data?.runtime.model || "Vertex")}
+                    meta={selectedModelHealth ? `${selectedModelHealth.label} | ${selectedModelHealth.preflightStatus}` : (data?.runtime.model || "Vertex")}
                 />
+                <StatCard label="Blocking checks" value={failingPreflightChecks.length} meta={failingPreflightChecks.length ? "fix before generating" : "none"} />
+                <StatCard label="Warnings" value={warningPreflightChecks.length} meta={latestDiagnostic ? `${latestDiagnostic.severity} at ${formatCompactTimestamp(latestDiagnostic.createdAtMs)}` : "no recent AI warning"} />
                 <StatCard label="Active jobs" value={data?.aggregate.activeGenerationCount ?? "--"} meta={pollCadenceLabel} />
                 <StatCard label="Last refresh" value={lastRefreshLabel} meta="persisted dashboard snapshot time" />
-                <StatCard label="Last success" value={formatCompactTimestamp(data?.aggregate.lastSuccessAtMs)} meta={`${data?.aggregate.successfulGenerationCount ?? 0} succeeded`} />
-                <StatCard label="Retained refs" value={data ? retainedReferenceCount : "--"} meta="template + live covers + positive AI covers" />
-                <StatCard label="Signals" value={`${data?.aggregate.acceptedCount ?? 0}/${data?.aggregate.likedCount ?? 0}`} meta={`${data?.aggregate.dislikedCount ?? 0} disliked and not reused`} />
+                <StatCard label="Selected model" value={selectedModelHealth?.shortLabel || "--"} meta={selectedModelHealth?.lastSuccessAtMs ? `last success ${formatCompactTimestamp(selectedModelHealth.lastSuccessAtMs)}` : selectedModelHealth?.note || "not yet proven"} />
+                <StatCard label="Visual signals" value={data?.visualSignals.totalReusableReferenceCount ?? "--"} meta={`${data?.visualSignals.templateCount ?? 0} template | ${data?.visualSignals.catalogDropCoverCount ?? 0} catalog | ${data?.visualSignals.retainedAiCoverCount ?? 0} positive AI`} />
                 <StatCard label="Estimated cost" value={data ? formatAdminAiUsd(data.aggregate.totalEstimatedCostUsd) : "--"} meta={data ? `${formatAdminAiUsd(data.settings.pricePerGenerationUsd)} each | ${data.settings.model}` : "Pricing unavailable"} />
             </div>
 
@@ -378,12 +460,40 @@ export default function AIAdminPage() {
                 </div>
             ) : null}
 
+            {failingPreflightChecks.length > 0 ? (
+                <div className="rounded-[1.5rem] border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-100">
+                    <p className="font-semibold text-white">Blocking AI issues</p>
+                    <div className="mt-3 space-y-2">
+                        {failingPreflightChecks.slice(0, 4).map((check) => (
+                            <div key={check.key} className="rounded-[1rem] border border-red-300/20 bg-black/20 px-3 py-2">
+                                <p className="font-medium text-white">{check.label}</p>
+                                <p className="mt-1 text-xs text-red-100">{check.detail}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            ) : null}
+
+            {!failingPreflightChecks.length && warningPreflightChecks.length > 0 ? (
+                <div className="rounded-[1.5rem] border border-amber-400/20 bg-amber-500/10 p-4 text-sm text-amber-100">
+                    <p className="font-semibold text-white">AI warnings</p>
+                    <div className="mt-3 space-y-2">
+                        {warningPreflightChecks.slice(0, 3).map((check) => (
+                            <div key={check.key} className="rounded-[1rem] border border-amber-300/20 bg-black/20 px-3 py-2">
+                                <p className="font-medium text-white">{check.label}</p>
+                                <p className="mt-1 text-xs text-amber-100">{check.detail}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            ) : null}
+
             <section className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4 md:p-5">
                 <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                     <div className="min-w-0">
-                        <h2 className="text-lg font-bold text-white">Runtime checks and live activity</h2>
+                        <h2 className="text-lg font-bold text-white">Preflight, model control, and live diagnostics</h2>
                         <p className="mt-1 text-sm text-gray-400">
-                            This page polls every {refreshIntervalMs / 1000}s while jobs are active and every {ADMIN_AI_DROP_COVER_IDLE_POLL_INTERVAL_MS / 1000}s when idle. It shows persisted job state, retained references, and stored feedback only. It does not expose hidden model reasoning or live weight training because those signals do not exist in this runtime.
+                            This page polls every {refreshIntervalMs / 1000}s while jobs are active and every {ADMIN_AI_DROP_COVER_IDLE_POLL_INTERVAL_MS / 1000}s when idle. It shows persisted job state, retained visual signals, and stored diagnostics only. It does not simulate live training, hidden reasoning, or provider-side step streaming because those signals do not exist in this runtime.
                         </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
@@ -401,75 +511,200 @@ export default function AIAdminPage() {
                         </span>
                     </div>
                 </div>
-                <div className="mt-4 rounded-[1.15rem] border border-white/10 bg-black/25 p-4 text-sm text-gray-300">
-                    <p>{data?.runtime.note || "Runtime status not loaded."}</p>
-                    <p className="mt-2 text-xs text-gray-500">
-                        Cost is tracked as a real estimate from the current Google Cloud Vertex AI pricing page for the active image model. Failed requests that never reach a successful model response are not counted as billed.
-                    </p>
-                </div>
-                <div className="mt-4 rounded-[1.15rem] border border-white/10 bg-black/25 p-4">
-                    <div className="flex items-center justify-between gap-3">
-                        <div>
-                            <p className="text-sm font-semibold text-white">Running now</p>
-                            <p className="mt-1 text-xs text-gray-400">Near-real-time running jobs from the last completed poll. No provider-side step stream exists beyond these persisted job states.</p>
+                <div className="mt-4 grid gap-4 xl:grid-cols-[0.92fr_1.08fr]">
+                    <div className="space-y-4">
+                        <div className="rounded-[1.15rem] border border-white/10 bg-black/25 p-4 text-sm text-gray-300">
+                            <p>{data?.runtime.note || "Runtime status not loaded."}</p>
+                            <p className="mt-2 text-xs text-gray-500">
+                                Cost is tracked as a real estimate from the current Google Cloud Vertex AI pricing page for the active image model. Failed requests that never reach a successful model response are not counted as billed.
+                            </p>
                         </div>
-                        <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-gray-200">
-                            <Activity className="h-3.5 w-3.5" />
-                            {activeJobs.length} active
-                        </span>
+                        <div className="rounded-[1.15rem] border border-white/10 bg-black/25 p-4">
+                            <div className="flex items-center justify-between gap-3">
+                                <div>
+                                    <p className="text-sm font-semibold text-white">Preflight checks</p>
+                                    <p className="mt-1 text-xs text-gray-400">What can block the next generation before you waste a run.</p>
+                                </div>
+                                <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-gray-200">
+                                    <TriangleAlert className="h-3.5 w-3.5" />
+                                    {failingPreflightChecks.length} fail / {warningPreflightChecks.length} warn
+                                </span>
+                            </div>
+                            <div className="mt-4 space-y-3">
+                                {(data?.preflightChecks || []).map((check) => (
+                                    <div key={check.key} className={cn("rounded-[1rem] border px-3 py-3", preflightTone(check.status))}>
+                                        <div className="flex flex-wrap items-center justify-between gap-2">
+                                            <p className="text-sm font-semibold text-white">{check.label}</p>
+                                            <span className="text-[11px] font-semibold uppercase tracking-[0.16em]">
+                                                {check.status}
+                                            </span>
+                                        </div>
+                                        <p className="mt-2 text-xs leading-5">{check.detail}</p>
+                                        {check.updatedAtMs ? (
+                                            <p className="mt-2 text-[11px] text-white/60">Last signal {formatCompactTimestamp(check.updatedAtMs)}</p>
+                                        ) : null}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     </div>
-                    {activeJobs.length > 0 ? (
-                        <div className="mt-4 grid gap-3 md:grid-cols-2">
-                            {activeJobs.map((job) => (
-                                <article key={job.id} className="rounded-[1rem] border border-cyan-400/20 bg-cyan-500/10 p-3 text-sm text-cyan-100">
-                                    <div className="flex items-start justify-between gap-3">
-                                        <div>
-                                            <p className="font-semibold text-white">{job.title}</p>
-                                            <p className="mt-1 text-xs text-cyan-100/80">
-                                                Requested {formatTimestamp(job.requestedAtMs)} | {job.model}
-                                            </p>
-                                            {job.consistencyRecipe ? (
-                                                <p className="mt-1 text-[11px] text-cyan-100/75">
-                                                    Recipe: {job.consistencyRecipe.family.replace(/_/g, " ")} | focus {job.consistencyRecipe.focusTerms.join(", ") || "title-only"}
-                                                </p>
+
+                    <div className="space-y-4">
+                        <div className="rounded-[1.15rem] border border-white/10 bg-black/25 p-4">
+                            <div className="flex items-center justify-between gap-3">
+                                <div>
+                                    <p className="text-sm font-semibold text-white">Individual model control</p>
+                                    <p className="mt-1 text-xs text-gray-400">Pick the default model and see the last proven state for each model separately.</p>
+                                </div>
+                                <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-gray-200">
+                                    <Sparkles className="h-3.5 w-3.5" />
+                                    {selectedModelHealth?.label || "No default model"}
+                                </span>
+                            </div>
+                            <div className="mt-4 grid gap-3 md:grid-cols-2">
+                                {(data?.modelHealth || []).map((model) => (
+                                    <article key={model.id} className={cn("rounded-[1rem] border p-4", preflightTone(model.preflightStatus))}>
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div>
+                                                <p className="text-sm font-semibold text-white">{model.label}</p>
+                                                <p className="mt-1 text-[11px] text-white/70">{model.location} | {model.launchStage === "preview" ? "Preview model" : "GA model"}</p>
+                                            </div>
+                                            {model.selected ? (
+                                                <span className="inline-flex items-center gap-1 rounded-full border border-brand-purple/20 bg-brand-purple/10 px-2.5 py-1 text-[11px] text-brand-purple">
+                                                    Default
+                                                </span>
                                             ) : null}
                                         </div>
-                                        <JobStatusBadge job={job} />
-                                    </div>
-                                    {(job.referenceAssets || []).length > 0 ? (
-                                        <div className="mt-3 space-y-2">
-                                            {job.referenceAssets!.map((asset) => (
-                                                <div key={`${job.id}_${asset.id}`} className="rounded-[0.85rem] border border-cyan-300/20 bg-black/25 px-2.5 py-2 text-[11px] text-cyan-50">
-                                                    <div className="inline-flex items-center gap-1">
-                                                        <ImageIcon className="h-3 w-3" />
-                                                        {describeReferenceAsset(asset)}: {asset.title || asset.dropId || asset.fileName || asset.id}
-                                                    </div>
-                                                    {asset.selectionReasons?.length ? (
-                                                        <p className="mt-1 text-cyan-100/75">
-                                                            Score {asset.selectionScore ?? 0}: {asset.selectionReasons.join(" | ")}
+                                        <p className="mt-3 text-xs leading-5 text-white/80">{model.note}</p>
+                                        <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-white/75">
+                                            <div className="rounded-2xl border border-white/10 bg-black/20 px-3 py-2">
+                                                <p className="text-[10px] uppercase tracking-[0.16em] text-white/50">Recent runs</p>
+                                                <p className="mt-1 text-sm font-semibold text-white">{model.recentGenerationCount}</p>
+                                            </div>
+                                            <div className="rounded-2xl border border-white/10 bg-black/20 px-3 py-2">
+                                                <p className="text-[10px] uppercase tracking-[0.16em] text-white/50">Warn / error</p>
+                                                <p className="mt-1 text-sm font-semibold text-white">{model.diagnosticWarnCount} / {model.diagnosticErrorCount}</p>
+                                            </div>
+                                        </div>
+                                        <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-white/70">
+                                            <span>Success {model.lastSuccessAtMs ? formatCompactTimestamp(model.lastSuccessAtMs) : "none"}</span>
+                                            <span>Failure {model.lastFailureAtMs ? formatCompactTimestamp(model.lastFailureAtMs) : "none"}</span>
+                                        </div>
+                                        <div className="mt-4">
+                                            <Button
+                                                type="button"
+                                                variant={model.selected ? "brand" : "outline"}
+                                                size="sm"
+                                                onClick={() => void handleDefaultModelChange(model.id)}
+                                                disabled={savingModelId !== null && savingModelId !== model.id}
+                                            >
+                                                {savingModelId === model.id ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : null}
+                                                {model.selected ? "Default model" : "Set as default"}
+                                            </Button>
+                                        </div>
+                                    </article>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="rounded-[1.15rem] border border-white/10 bg-black/25 p-4">
+                            <div className="flex items-center justify-between gap-3">
+                                <div>
+                                    <p className="text-sm font-semibold text-white">Recent AI diagnostics</p>
+                                    <p className="mt-1 text-xs text-gray-400">Latest stored AI warnings and failures from the real server diagnostic channel.</p>
+                                </div>
+                                <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-gray-200">
+                                    <Activity className="h-3.5 w-3.5" />
+                                    {(data?.recentDiagnostics || []).length} loaded
+                                </span>
+                            </div>
+                            {(data?.recentDiagnostics || []).length > 0 ? (
+                                <div className="mt-4 space-y-3">
+                                    {data!.recentDiagnostics.map((entry) => (
+                                        <div key={entry.id} className={cn("rounded-[1rem] border px-3 py-3", diagnosticTone(entry.severity))}>
+                                            <div className="flex flex-wrap items-center justify-between gap-2">
+                                                <p className="text-sm font-semibold text-white">{entry.message}</p>
+                                                <span className="text-[11px] font-semibold uppercase tracking-[0.16em]">{entry.severity}</span>
+                                            </div>
+                                            <p className="mt-2 text-xs text-white/75">
+                                                {entry.summary || "No extra diagnostic detail recorded."}
+                                            </p>
+                                            <p className="mt-2 text-[11px] text-white/60">{formatCompactTimestamp(entry.createdAtMs)}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="mt-4 rounded-[1rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-400">
+                                    No recent AI diagnostics were recorded.
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="rounded-[1.15rem] border border-white/10 bg-black/25 p-4">
+                            <div className="flex items-center justify-between gap-3">
+                                <div>
+                                    <p className="text-sm font-semibold text-white">Running now</p>
+                                    <p className="mt-1 text-xs text-gray-400">Near-real-time running jobs from the last completed poll. No provider-side step stream exists beyond these persisted job states.</p>
+                                </div>
+                                <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-gray-200">
+                                    <Activity className="h-3.5 w-3.5" />
+                                    {activeJobs.length} active
+                                </span>
+                            </div>
+                            {activeJobs.length > 0 ? (
+                                <div className="mt-4 grid gap-3 md:grid-cols-2">
+                                    {activeJobs.map((job) => (
+                                        <article key={job.id} className="rounded-[1rem] border border-cyan-400/20 bg-cyan-500/10 p-3 text-sm text-cyan-100">
+                                            <div className="flex items-start justify-between gap-3">
+                                                <div>
+                                                    <p className="font-semibold text-white">{job.title}</p>
+                                                    <p className="mt-1 text-xs text-cyan-100/80">
+                                                        Requested {formatTimestamp(job.requestedAtMs)} | {job.model}
+                                                    </p>
+                                                    {job.consistencyRecipe ? (
+                                                        <p className="mt-1 text-[11px] text-cyan-100/75">
+                                                            Recipe: {job.consistencyRecipe.family.replace(/_/g, " ")} | focus {job.consistencyRecipe.focusTerms.join(", ") || "title-only"}
                                                         </p>
                                                     ) : null}
                                                 </div>
-                                            ))}
-                                        </div>
-                                    ) : null}
-                                </article>
-                            ))}
+                                                <JobStatusBadge job={job} />
+                                            </div>
+                                            {(job.referenceAssets || []).length > 0 ? (
+                                                <div className="mt-3 space-y-2">
+                                                    {job.referenceAssets!.map((asset) => (
+                                                        <div key={`${job.id}_${asset.id}`} className="rounded-[0.85rem] border border-cyan-300/20 bg-black/25 px-2.5 py-2 text-[11px] text-cyan-50">
+                                                            <div className="inline-flex items-center gap-1">
+                                                                <ImageIcon className="h-3 w-3" />
+                                                                {describeReferenceAsset(asset)}: {asset.title || asset.dropId || asset.fileName || asset.id}
+                                                            </div>
+                                                            {asset.selectionReasons?.length ? (
+                                                                <p className="mt-1 text-cyan-100/75">
+                                                                    Score {asset.selectionScore ?? 0}: {asset.selectionReasons.join(" | ")}
+                                                                </p>
+                                                            ) : null}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : null}
+                                        </article>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="mt-4 rounded-[1rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-400">
+                                    No AI cover job is running right now.
+                                </div>
+                            )}
                         </div>
-                    ) : (
-                        <div className="mt-4 rounded-[1rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-400">
-                            No AI cover job is running right now.
-                        </div>
-                    )}
+                    </div>
                 </div>
             </section>
 
             <section className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4 md:p-5">
                 <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                     <div>
-                        <h2 className="text-lg font-bold text-white">Retained reference library</h2>
+                        <h2 className="text-lg font-bold text-white">Retained visual signals</h2>
                         <p className="mt-1 text-sm text-gray-400">
-                            KandyDrops does not retrain model weights here. Later reference-guided generations reuse this retained library: the uploaded template, retained live drop covers, and positively scored AI covers.
+                            KandyDrops does not retrain model weights here. Later reference-guided generations reuse these retained visual signals: the uploaded template, the drop cover library across current and legacy drops, and positively scored AI covers.
                         </p>
                     </div>
                     <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-gray-200">
@@ -483,7 +718,7 @@ export default function AIAdminPage() {
                         <div className="flex flex-wrap items-center justify-between gap-2">
                             <div>
                                 <p className="text-sm font-semibold text-white">Template reference</p>
-                                <p className="mt-1 text-xs text-gray-400">One uploaded template can act as the strongest fixed style anchor.</p>
+                                <p className="mt-1 text-xs text-gray-400">One uploaded template acts as the strongest fixed style anchor for later generations.</p>
                             </div>
                             <div className="flex flex-wrap gap-2">
                                 <Button
@@ -547,8 +782,8 @@ export default function AIAdminPage() {
                     <div className="rounded-[1.15rem] border border-white/10 bg-black/25 p-4">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                             <div>
-                                <p className="text-sm font-semibold text-white">Retained live drop covers</p>
-                                <p className="mt-1 text-xs text-gray-400">These are real uploaded drop covers currently eligible as reference inputs.</p>
+                                <p className="text-sm font-semibold text-white">Drop cover library</p>
+                                <p className="mt-1 text-xs text-gray-400">These are real uploaded drop covers currently eligible as reference inputs, including older legacy covers still present in the drop catalog.</p>
                             </div>
                             <Button
                                 type="button"
@@ -558,16 +793,16 @@ export default function AIAdminPage() {
                                 disabled={!data?.settings || savingReferenceSettings}
                             >
                                 {savingReferenceSettings ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : null}
-                                {data?.settings.useRecentDropCoverReferences ? "Recent covers on" : "Recent covers off"}
+                                {data?.settings.useRecentDropCoverReferences ? "Library on" : "Library off"}
                             </Button>
                         </div>
 
-                        {(data?.referenceAssets.recentDropCovers || []).length > 0 ? (
+                        {(data?.referenceAssets.catalogDropCovers || []).length > 0 ? (
                             <div className="mt-4 grid grid-cols-2 gap-3">
-                                {data!.referenceAssets.recentDropCovers.map((asset) => (
+                                {data!.referenceAssets.catalogDropCovers.map((asset) => (
                                     <article key={asset.id} className="overflow-hidden rounded-[1rem] border border-white/10 bg-black/30">
                                         <div className="relative aspect-square">
-                                            <Image src={asset.imageUrl} alt={asset.title || "Live drop cover"} fill sizes="(max-width: 1280px) 50vw, 220px" className="object-cover" />
+                                            <Image src={asset.imageUrl} alt={asset.title || "Drop cover library reference"} fill sizes="(max-width: 1280px) 50vw, 220px" className="object-cover" />
                                         </div>
                                         <div className="space-y-1 p-3">
                                             <p className="text-xs font-semibold text-white">{asset.title || "Untitled Drop"}</p>
@@ -579,7 +814,7 @@ export default function AIAdminPage() {
                             </div>
                         ) : (
                             <div className="mt-4 rounded-[1rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-400">
-                                No uploaded live drop covers are currently retained as usable references.
+                                No uploaded drop covers are currently retained in the library as usable references.
                             </div>
                         )}
                     </div>
@@ -615,7 +850,7 @@ export default function AIAdminPage() {
 
                 {missingReferenceInputs ? (
                     <div className="mt-4 rounded-[1rem] border border-amber-400/20 bg-amber-500/10 p-3 text-sm text-amber-100">
-                        Reference-guided mode is selected, but there is no uploaded template, no retained positive AI cover, and no retained live drop cover to send as a reference yet. The next generation will fail until at least one reference source exists.
+                        Reference-guided mode is selected, but there is no uploaded template, no retained positive AI cover, and no drop cover library reference to send yet. The next generation will fail until at least one reference source exists.
                     </div>
                 ) : null}
             </section>
@@ -723,7 +958,7 @@ export default function AIAdminPage() {
                                             ) : null}
                                             {job.generationMode === "reference_guided" ? (
                                                 <p className="mt-1 text-[11px] text-gray-500">
-                                                    Template {job.templateReferenceUsed ? "on" : "off"} | {job.recentDropReferenceCount || 0} live covers | {job.retainedAiReferenceCount || 0} retained AI covers
+                                                    Template {job.templateReferenceUsed ? "on" : "off"} | {job.catalogDropReferenceCount || job.recentDropReferenceCount || 0} catalog covers | {job.retainedAiReferenceCount || 0} retained AI covers
                                                 </p>
                                             ) : null}
                                         </div>
