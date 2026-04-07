@@ -71,20 +71,30 @@ type AdminAiDropCoverDashboard = {
         totalEstimatedCostUsd: number;
         averageLatencyMs: number;
         activeGenerationCount: number;
+        lastSuccessAtMs?: number | null;
+        lastFailureAtMs?: number | null;
     };
     recentJobs: AdminAiDropCoverJobRecord[];
     referenceAssets: {
         template: AdminAiDropCoverReferenceAsset | null;
         recentDropCovers: AdminAiDropCoverReferenceAsset[];
+        retainedAiCovers: AdminAiDropCoverReferenceAsset[];
     };
 };
 
 function formatTimestamp(timestamp?: number | null) {
-    if (!timestamp) {
-        return "Not recorded";
-    }
-
+    if (!timestamp) return "Not recorded";
     return new Date(timestamp).toLocaleString();
+}
+
+function formatCompactTimestamp(timestamp?: number | null) {
+    if (!timestamp) return "Not recorded";
+    return new Date(timestamp).toLocaleString([], {
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+    });
 }
 
 function runtimeTone(status?: AdminAiDropCoverRuntimeStatus) {
@@ -123,28 +133,37 @@ function JobStatusBadge({ job }: { job: AdminAiDropCoverJobRecord }) {
     );
 }
 
+function describeReferenceAsset(asset: AdminAiDropCoverReferenceAsset) {
+    if (asset.source === "template") return "Template";
+    if (asset.source === "retained_ai_cover") {
+        return asset.retentionReason === "accepted" ? "Accepted AI cover" : "Liked AI cover";
+    }
+    return "Live drop cover";
+}
+
 export default function AIAdminPage() {
     const [updatingToggle, setUpdatingToggle] = useState(false);
     const [savingReferenceSettings, setSavingReferenceSettings] = useState(false);
     const [uploadingTemplate, setUploadingTemplate] = useState(false);
     const [removingTemplate, setRemovingTemplate] = useState(false);
     const templateInputRef = useRef<HTMLInputElement | null>(null);
-    const {
-        data,
-        error,
-        isLoading,
-        mutate,
-    } = useAdminPollingSWR<AdminAiDropCoverDashboard>("/api/admin/ai/drop-covers", 10_000, {
+    const { data, error, isLoading, mutate } = useAdminPollingSWR<AdminAiDropCoverDashboard>("/api/admin/ai/drop-covers", 10_000, {
         keepPreviousData: true,
     });
 
-    const acceptedJobs = useMemo(
-        () => (data?.recentJobs || []).filter((job) => job.accepted && job.imageUrl).slice(0, 6),
-        [data?.recentJobs],
-    );
+    const activeJobs = useMemo(() => (data?.recentJobs || []).filter((job) => job.status === "running").slice(0, 4), [data?.recentJobs]);
+    const retainedAcceptedCount = useMemo(() => (data?.referenceAssets.retainedAiCovers || []).filter((asset) => asset.retentionReason === "accepted").length, [data?.referenceAssets.retainedAiCovers]);
+    const retainedLikedCount = useMemo(() => (data?.referenceAssets.retainedAiCovers || []).filter((asset) => asset.retentionReason === "liked").length, [data?.referenceAssets.retainedAiCovers]);
+    const retainedReferenceCount = useMemo(() => (
+        (data?.referenceAssets.template ? 1 : 0)
+        + (data?.referenceAssets.recentDropCovers.length || 0)
+        + (data?.referenceAssets.retainedAiCovers.length || 0)
+    ), [data?.referenceAssets]);
     const missingReferenceInputs = Boolean(
         data?.settings.generationMode === "reference_guided"
-        && (!data.referenceAssets.template && (data.referenceAssets.recentDropCovers || []).length === 0),
+        && !data.referenceAssets.template
+        && (data.referenceAssets.recentDropCovers || []).length === 0
+        && (data.referenceAssets.retainedAiCovers || []).length === 0,
     );
 
     const persistSettingsPatch = async (
@@ -156,32 +175,21 @@ export default function AIAdminPage() {
             body: JSON.stringify(patch),
         });
         const result = await response.json().catch(() => ({})) as { error?: string };
-        if (!response.ok) {
-            throw new Error(result.error || "Failed to update AI cover controls");
-        }
-
+        if (!response.ok) throw new Error(result.error || "Failed to update AI cover controls");
         toast.success(successMessage);
         await mutate();
     };
 
     const handleToggle = async () => {
-        if (!data?.settings) {
-            return;
-        }
-
+        if (!data?.settings) return;
         setUpdatingToggle(true);
         try {
             const response = await authFetch("/api/admin/ai/drop-covers", {
                 method: "PUT",
-                body: JSON.stringify({
-                    enabled: !data.settings.enabled,
-                }),
+                body: JSON.stringify({ enabled: !data.settings.enabled }),
             });
             const result = await response.json().catch(() => ({})) as { error?: string };
-            if (!response.ok) {
-                throw new Error(result.error || "Failed to update AI cover controls");
-            }
-
+            if (!response.ok) throw new Error(result.error || "Failed to update AI cover controls");
             toast.success(!data.settings.enabled ? "AI cover generation enabled" : "AI cover generation disabled");
             await mutate();
         } catch (issue) {
@@ -189,10 +197,7 @@ export default function AIAdminPage() {
                 channel: "ui",
                 message: "Admin AI toggle update failed",
                 error: issue,
-                detail: {
-                    adminView: "admin_ai_page",
-                    nextEnabled: !data.settings.enabled,
-                },
+                detail: { adminView: "admin_ai_page", nextEnabled: !data.settings.enabled },
                 consoleLabel: "[Admin AI] toggle failed",
             });
             toast.error(issue instanceof Error ? issue.message : "Failed to update AI cover controls");
@@ -201,35 +206,19 @@ export default function AIAdminPage() {
         }
     };
 
-    const handleReferenceToggle = async (
-        field: "useTemplateReference" | "useRecentDropCoverReferences",
-        nextValue: boolean,
-    ) => {
-        if (!data?.settings) {
-            return;
-        }
-
+    const handleReferenceToggle = async (field: "useTemplateReference" | "useRecentDropCoverReferences", nextValue: boolean) => {
+        if (!data?.settings) return;
         setSavingReferenceSettings(true);
         try {
-            await persistSettingsPatch({
-                [field]: nextValue,
-            }, nextValue
-                ? field === "useTemplateReference"
-                    ? "Template guidance enabled"
-                    : "Recent cover references enabled"
-                : field === "useTemplateReference"
-                    ? "Template guidance disabled"
-                    : "Recent cover references disabled");
+            await persistSettingsPatch({ [field]: nextValue }, nextValue
+                ? field === "useTemplateReference" ? "Template guidance enabled" : "Recent cover references enabled"
+                : field === "useTemplateReference" ? "Template guidance disabled" : "Recent cover references disabled");
         } catch (issue) {
             reportClientIssue({
                 channel: "ui",
                 message: "Admin AI reference toggle update failed",
                 error: issue,
-                detail: {
-                    adminView: "admin_ai_page",
-                    field,
-                    nextValue,
-                },
+                detail: { adminView: "admin_ai_page", field, nextValue },
                 consoleLabel: "[Admin AI] reference toggle failed",
             });
             toast.error(issue instanceof Error ? issue.message : "Failed to update reference guidance");
@@ -240,24 +229,14 @@ export default function AIAdminPage() {
 
     const handleTemplateFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-        if (!file) {
-            return;
-        }
-
+        if (!file) return;
         setUploadingTemplate(true);
         try {
             const formData = new FormData();
             formData.append("file", file);
-
-            const response = await authFetch("/api/admin/ai/drop-covers/template", {
-                method: "POST",
-                body: formData,
-            });
+            const response = await authFetch("/api/admin/ai/drop-covers/template", { method: "POST", body: formData });
             const result = await response.json().catch(() => ({})) as { error?: string };
-            if (!response.ok) {
-                throw new Error(result.error || "Failed to upload AI cover template");
-            }
-
+            if (!response.ok) throw new Error(result.error || "Failed to upload AI cover template");
             toast.success("AI cover template uploaded");
             await mutate();
         } catch (issue) {
@@ -265,11 +244,7 @@ export default function AIAdminPage() {
                 channel: "ui",
                 message: "Admin AI template upload failed",
                 error: issue,
-                detail: {
-                    adminView: "admin_ai_page",
-                    fileName: file.name,
-                    fileSize: file.size,
-                },
+                detail: { adminView: "admin_ai_page", fileName: file.name, fileSize: file.size },
                 consoleLabel: "[Admin AI] template upload failed",
             });
             toast.error(issue instanceof Error ? issue.message : "Failed to upload AI cover template");
@@ -282,14 +257,9 @@ export default function AIAdminPage() {
     const handleRemoveTemplate = async () => {
         setRemovingTemplate(true);
         try {
-            const response = await authFetch("/api/admin/ai/drop-covers/template", {
-                method: "DELETE",
-            });
+            const response = await authFetch("/api/admin/ai/drop-covers/template", { method: "DELETE" });
             const result = await response.json().catch(() => ({})) as { error?: string };
-            if (!response.ok) {
-                throw new Error(result.error || "Failed to remove AI cover template");
-            }
-
+            if (!response.ok) throw new Error(result.error || "Failed to remove AI cover template");
             toast.success("AI cover template removed");
             await mutate();
         } catch (issue) {
@@ -297,9 +267,7 @@ export default function AIAdminPage() {
                 channel: "ui",
                 message: "Admin AI template removal failed",
                 error: issue,
-                detail: {
-                    adminView: "admin_ai_page",
-                },
+                detail: { adminView: "admin_ai_page" },
                 consoleLabel: "[Admin AI] template removal failed",
             });
             toast.error(issue instanceof Error ? issue.message : "Failed to remove AI cover template");
@@ -321,12 +289,11 @@ export default function AIAdminPage() {
             <AdminPageHeader
                 eyebrow="AI Operations"
                 title="AI Cover Generation"
-                subtitle="Control the real Vertex-powered drop-cover workflow, monitor runtime health, and inspect actual generation cost and feedback history."
                 actions={(
                     <>
                         <div className={cn("inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm", runtimeTone(data?.runtime.status))}>
                             {data?.runtime.status === "ready" ? <Sparkles className="h-4 w-4" /> : <TriangleAlert className="h-4 w-4" />}
-                            {data?.runtime.status === "ready" ? "Vertex ready" : data?.runtime.status === "disabled" ? "AI off" : "Needs attention"}
+                            {data?.runtime.status === "ready" ? "Vertex checks passed" : data?.runtime.status === "disabled" ? "AI off" : "Needs attention"}
                         </div>
                         <Button variant="glass" onClick={() => void mutate()}>
                             <RefreshCw className="mr-2 h-4 w-4" />
@@ -338,9 +305,7 @@ export default function AIAdminPage() {
                             disabled={!data?.settings || updatingToggle}
                             className={cn(
                                 "inline-flex min-h-11 items-center justify-center gap-2 rounded-full border px-4 text-sm font-semibold text-white disabled:opacity-50",
-                                data?.settings?.enabled
-                                    ? "border-red-400/20 bg-red-500/10"
-                                    : "border-emerald-400/20 bg-emerald-500/10",
+                                data?.settings?.enabled ? "border-red-400/20 bg-red-500/10" : "border-emerald-400/20 bg-emerald-500/10",
                             )}
                         >
                             {updatingToggle ? <Loader2 className="h-4 w-4 animate-spin" /> : <Power className="h-4 w-4" />}
@@ -349,24 +314,23 @@ export default function AIAdminPage() {
                     </>
                 )}
             />
-
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
                 <StatCard
                     label="Runtime"
                     value={data?.runtime.status || (error ? "error" : "--")}
                     meta={data?.runtime.generationMode === "reference_guided" ? `${data?.runtime.model || "Vertex"} | reference-guided` : (data?.runtime.model || "Vertex")}
                 />
-                <StatCard label="Generations" value={data?.aggregate.generationCount ?? "--"} meta={`${data?.aggregate.activeGenerationCount ?? 0} active`} />
-                <StatCard label="Accepted" value={data?.aggregate.acceptedCount ?? "--"} meta={`${data?.aggregate.regeneratedCount ?? 0} regens`} />
-                <StatCard label="Signals" value={`${data?.aggregate.likedCount ?? 0}/${data?.aggregate.dislikedCount ?? 0}`} meta="likes / dislikes" />
-                <StatCard label="Avg runtime" value={data?.aggregate.averageLatencyMs ? `${data.aggregate.averageLatencyMs} ms` : "--"} meta={data?.aggregate.successfulGenerationCount ? `${data.aggregate.successfulGenerationCount} successes` : "No completed jobs"} />
+                <StatCard label="Active jobs" value={data?.aggregate.activeGenerationCount ?? "--"} meta="polled every 10s" />
+                <StatCard label="Last success" value={formatCompactTimestamp(data?.aggregate.lastSuccessAtMs)} meta={`${data?.aggregate.successfulGenerationCount ?? 0} succeeded`} />
+                <StatCard label="Retained refs" value={data ? retainedReferenceCount : "--"} meta="template + live covers + positive AI covers" />
+                <StatCard label="Signals" value={`${data?.aggregate.acceptedCount ?? 0}/${data?.aggregate.likedCount ?? 0}`} meta={`${data?.aggregate.dislikedCount ?? 0} disliked and not reused`} />
                 <StatCard label="Estimated cost" value={data ? formatAdminAiUsd(data.aggregate.totalEstimatedCostUsd) : "--"} meta={data ? `${formatAdminAiUsd(data.settings.pricePerGenerationUsd)} each` : "Pricing unavailable"} />
             </div>
 
             {isLoading && !data ? (
                 <div className="rounded-[1.5rem] border border-white/10 bg-black/20 p-6 text-sm text-gray-300">
                     <Loader2 className="mr-2 inline h-4 w-4 animate-spin" />
-                    Loading AI control state…
+                    Loading AI control state...
                 </div>
             ) : null}
 
@@ -379,9 +343,9 @@ export default function AIAdminPage() {
             <section className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4 md:p-5">
                 <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                     <div className="min-w-0">
-                        <h2 className="text-lg font-bold text-white">Runtime and cost truth</h2>
+                        <h2 className="text-lg font-bold text-white">Runtime checks and live activity</h2>
                         <p className="mt-1 text-sm text-gray-400">
-                            Covers are generated server-side with a dedicated Vertex image model. Admins choose title-driven actions only; no prompt textbox exists in the UI.
+                            This page polls every 10 seconds. It shows real job state, retained references, and stored feedback only. It does not expose hidden model reasoning or in-app model training.
                         </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
@@ -401,28 +365,71 @@ export default function AIAdminPage() {
                         Cost is tracked as a real estimate from the current Google Cloud Vertex AI pricing page for the active image model. Failed requests that never reach a successful model response are not counted as billed.
                     </p>
                 </div>
+                <div className="mt-4 rounded-[1.15rem] border border-white/10 bg-black/25 p-4">
+                    <div className="flex items-center justify-between gap-3">
+                        <div>
+                            <p className="text-sm font-semibold text-white">Running now</p>
+                            <p className="mt-1 text-xs text-gray-400">Near-real-time running jobs from the last poll. No hidden step stream exists beyond these job states.</p>
+                        </div>
+                        <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-gray-200">
+                            <Activity className="h-3.5 w-3.5" />
+                            {activeJobs.length} active
+                        </span>
+                    </div>
+                    {activeJobs.length > 0 ? (
+                        <div className="mt-4 grid gap-3 md:grid-cols-2">
+                            {activeJobs.map((job) => (
+                                <article key={job.id} className="rounded-[1rem] border border-cyan-400/20 bg-cyan-500/10 p-3 text-sm text-cyan-100">
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div>
+                                            <p className="font-semibold text-white">{job.title}</p>
+                                            <p className="mt-1 text-xs text-cyan-100/80">
+                                                Requested {formatTimestamp(job.requestedAtMs)} | {job.model}
+                                            </p>
+                                        </div>
+                                        <JobStatusBadge job={job} />
+                                    </div>
+                                    {(job.referenceAssets || []).length > 0 ? (
+                                        <div className="mt-3 flex flex-wrap gap-2">
+                                            {job.referenceAssets!.map((asset) => (
+                                                <span key={`${job.id}_${asset.id}`} className="inline-flex items-center gap-1 rounded-full border border-cyan-300/20 bg-black/25 px-2.5 py-1 text-[11px] text-cyan-50">
+                                                    <ImageIcon className="h-3 w-3" />
+                                                    {describeReferenceAsset(asset)}: {asset.title || asset.dropId || asset.fileName || asset.id}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    ) : null}
+                                </article>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="mt-4 rounded-[1rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-400">
+                            No AI cover job is running right now.
+                        </div>
+                    )}
+                </div>
             </section>
 
             <section className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4 md:p-5">
                 <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                     <div>
-                        <h2 className="text-lg font-bold text-white">Reference-guided cover inputs</h2>
+                        <h2 className="text-lg font-bold text-white">Retained reference library</h2>
                         <p className="mt-1 text-sm text-gray-400">
-                            This is the truthful “train it on our look” control surface: upload one template image and optionally let the generator borrow style cues from recent live drop covers. This is reference-guided generation, not live fine-tuning.
+                            KandyDrops does not retrain model weights here. Later reference-guided generations reuse this retained library: the uploaded template, retained live drop covers, and positively scored AI covers.
                         </p>
                     </div>
                     <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-gray-200">
                         <ImageIcon className="h-3.5 w-3.5" />
-                        {data?.settings.generationMode === "reference_guided" ? "Reference-guided mode active" : "Standard title-only mode"}
+                        {data?.settings.generationMode === "reference_guided" ? `${retainedReferenceCount} retained refs available` : "Reference guidance off"}
                     </div>
                 </div>
 
-                <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+                <div className="mt-4 grid gap-4 xl:grid-cols-3">
                     <div className="rounded-[1.15rem] border border-white/10 bg-black/25 p-4">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                             <div>
                                 <p className="text-sm font-semibold text-white">Template reference</p>
-                                <p className="mt-1 text-xs text-gray-400">Use a single house-style cover template as the strongest visual guide.</p>
+                                <p className="mt-1 text-xs text-gray-400">One uploaded template can act as the strongest fixed style anchor.</p>
                             </div>
                             <div className="flex flex-wrap gap-2">
                                 <Button
@@ -473,12 +480,18 @@ export default function AIAdminPage() {
                                 </div>
                                 <div className="flex flex-wrap items-center justify-between gap-2 p-3 text-xs text-gray-300">
                                     <span className="font-medium text-white">{data.referenceAssets.template.fileName || "Current template"}</span>
-                                    <span>{data.settings.useTemplateReference ? "Will be used in the next generation" : "Uploaded but currently off"}</span>
+                                    <span>
+                                        {data.referenceAssets.template.usageCount
+                                            ? `Used ${data.referenceAssets.template.usageCount} times`
+                                            : data.settings.useTemplateReference
+                                                ? "Eligible for the next generation"
+                                                : "Uploaded but currently off"}
+                                    </span>
                                 </div>
                             </div>
                         ) : (
                             <div className="mt-4 rounded-[1rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-400">
-                                No template uploaded yet. Upload one square cover template if you want the AI to follow a fixed house style more closely.
+                                No template uploaded yet.
                             </div>
                         )}
                     </div>
@@ -486,8 +499,8 @@ export default function AIAdminPage() {
                     <div className="rounded-[1.15rem] border border-white/10 bg-black/25 p-4">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                             <div>
-                                <p className="text-sm font-semibold text-white">Recent live drop covers</p>
-                                <p className="mt-1 text-xs text-gray-400">Recent published covers can be used as additional style references when you want the next cover to stay closer to the current catalog.</p>
+                                <p className="text-sm font-semibold text-white">Retained live drop covers</p>
+                                <p className="mt-1 text-xs text-gray-400">These are real uploaded drop covers currently eligible as reference inputs.</p>
                             </div>
                             <Button
                                 type="button"
@@ -506,18 +519,49 @@ export default function AIAdminPage() {
                                 {data!.referenceAssets.recentDropCovers.map((asset) => (
                                     <article key={asset.id} className="overflow-hidden rounded-[1rem] border border-white/10 bg-black/30">
                                         <div className="relative aspect-square">
-                                            <Image src={asset.imageUrl} alt={asset.title || "Recent drop cover"} fill sizes="(max-width: 1280px) 50vw, 220px" className="object-cover" />
+                                            <Image src={asset.imageUrl} alt={asset.title || "Live drop cover"} fill sizes="(max-width: 1280px) 50vw, 220px" className="object-cover" />
                                         </div>
                                         <div className="space-y-1 p-3">
                                             <p className="text-xs font-semibold text-white">{asset.title || "Untitled Drop"}</p>
-                                            <p className="text-[11px] text-gray-400">{asset.dropId || "drop"}</p>
+                                            <p className="text-[11px] text-gray-400">
+                                                {asset.dropId || "drop"}{asset.usageCount ? ` | used ${asset.usageCount}x` : ""}
+                                            </p>
                                         </div>
                                     </article>
                                 ))}
                             </div>
                         ) : (
                             <div className="mt-4 rounded-[1rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-400">
-                                No recent drop covers with image assets are available for reference guidance yet.
+                                No uploaded live drop covers are currently retained as usable references.
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="rounded-[1.15rem] border border-white/10 bg-black/25 p-4">
+                        <div>
+                            <p className="text-sm font-semibold text-white">Retained positive AI covers</p>
+                            <p className="mt-1 text-xs text-gray-400">Accepted and liked AI covers are eligible for later reference-guided generations. Disliked covers stay in history but are not reused.</p>
+                        </div>
+
+                        {(data?.referenceAssets.retainedAiCovers || []).length > 0 ? (
+                            <div className="mt-4 grid grid-cols-2 gap-3">
+                                {data!.referenceAssets.retainedAiCovers.map((asset) => (
+                                    <article key={asset.id} className="overflow-hidden rounded-[1rem] border border-white/10 bg-black/30">
+                                        <div className="relative aspect-square">
+                                            <Image src={asset.imageUrl} alt={asset.title || "Retained AI cover"} fill sizes="(max-width: 1280px) 50vw, 220px" className="object-cover" />
+                                        </div>
+                                        <div className="space-y-1 p-3">
+                                            <p className="text-xs font-semibold text-white">{asset.title || "Retained AI cover"}</p>
+                                            <p className="text-[11px] text-gray-400">
+                                                {describeReferenceAsset(asset)}{asset.usageCount ? ` | used ${asset.usageCount}x` : ""}
+                                            </p>
+                                        </div>
+                                    </article>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="mt-4 rounded-[1rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-400">
+                                No accepted or liked AI covers are retained yet.
                             </div>
                         )}
                     </div>
@@ -525,17 +569,16 @@ export default function AIAdminPage() {
 
                 {missingReferenceInputs ? (
                     <div className="mt-4 rounded-[1rem] border border-amber-400/20 bg-amber-500/10 p-3 text-sm text-amber-100">
-                        Reference-guided mode is selected, but there is no uploaded template and no recent covered drops to borrow from yet. The next generation will fail until at least one reference source exists.
+                        Reference-guided mode is selected, but there is no uploaded template, no retained positive AI cover, and no retained live drop cover to send as a reference yet. The next generation will fail until at least one reference source exists.
                     </div>
                 ) : null}
             </section>
-
             <section className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4 md:p-5">
                 <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
                     <div>
-                        <h2 className="text-lg font-bold text-white">Feedback dataset</h2>
+                        <h2 className="text-lg font-bold text-white">Feedback retained for later generations</h2>
                         <p className="mt-1 text-sm text-gray-400">
-                            These are real operator signals only: generate, regenerate, like, dislike, accepted-cover selections, and any uploaded reference template. No live model retraining is claimed here.
+                            These counters reflect real operator signals only. Accepted and liked AI covers can be retained for later reference-guided generations. Disliked covers remain visible in job history but are not reused as reference inputs.
                         </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
@@ -553,39 +596,12 @@ export default function AIAdminPage() {
                         </span>
                     </div>
                 </div>
-
-                {acceptedJobs.length > 0 ? (
-                    <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                        {acceptedJobs.map((job) => (
-                            <article key={job.id} className="overflow-hidden rounded-[1.2rem] border border-white/10 bg-black/25">
-                                <div className="relative aspect-square overflow-hidden bg-black">
-                                    <Image src={job.imageUrl!} alt={job.title} fill sizes="(max-width: 1280px) 50vw, 320px" className="object-cover" />
-                                </div>
-                                <div className="space-y-2 p-3">
-                                    <div className="flex items-start justify-between gap-3">
-                                        <div className="min-w-0">
-                                            <p className="truncate text-sm font-semibold text-white">{job.title}</p>
-                                            <p className="mt-1 text-[11px] text-gray-400">
-                                                Accepted {formatTimestamp(job.acceptedAtMs)}
-                                            </p>
-                                        </div>
-                                        <span className="inline-flex items-center gap-1 rounded-full border border-brand-purple/20 bg-brand-purple/10 px-2.5 py-1 text-[11px] font-semibold text-brand-purple">
-                                            <CheckCircle2 className="h-3 w-3" />
-                                            Selected
-                                        </span>
-                                    </div>
-                                    <p className="text-[11px] text-gray-500">
-                                        {job.acceptedForDropId ? `Linked to ${job.acceptedForDropId}` : "Accepted in draft flow"}
-                                    </p>
-                                </div>
-                            </article>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="mt-4 rounded-[1rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-400">
-                        No accepted AI covers yet.
-                    </div>
-                )}
+                <div className="mt-4 grid gap-3 md:grid-cols-4">
+                    <StatCard label="Retained AI refs" value={data?.referenceAssets.retainedAiCovers.length ?? 0} meta="eligible for later reference-guided runs" />
+                    <StatCard label="Accepted refs" value={retainedAcceptedCount} meta="selected by operators" />
+                    <StatCard label="Liked refs" value={retainedLikedCount} meta="positive signal, not yet accepted" />
+                    <StatCard label="Last failure" value={formatCompactTimestamp(data?.aggregate.lastFailureAtMs)} meta={`${data?.aggregate.failedGenerationCount ?? 0} failed jobs stored`} />
+                </div>
             </section>
 
             <section className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4 md:p-5">
@@ -593,7 +609,7 @@ export default function AIAdminPage() {
                     <div>
                         <h2 className="text-lg font-bold text-white">Recent generation jobs</h2>
                         <p className="mt-1 text-sm text-gray-400">
-                            Real job history with success/failure state, latency, estimated cost, and feedback signals.
+                            Real job history with exact model, latency, estimated billed cost, feedback outcome, and the retained references each job used.
                         </p>
                     </div>
                     <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-gray-200">
@@ -642,10 +658,20 @@ export default function AIAdminPage() {
                                             </p>
                                             {job.generationMode === "reference_guided" ? (
                                                 <p className="mt-1 text-[11px] text-gray-500">
-                                                    {job.templateReferenceUsed ? "Template" : "No template"}{job.recentDropReferenceCount ? ` | ${job.recentDropReferenceCount} recent drop covers` : ""}
+                                                    Template {job.templateReferenceUsed ? "on" : "off"} | {job.recentDropReferenceCount || 0} live covers | {job.retainedAiReferenceCount || 0} retained AI covers
                                                 </p>
                                             ) : null}
                                         </div>
+                                        {(job.referenceAssets || []).length > 0 ? (
+                                            <div className="flex flex-wrap gap-2">
+                                                {job.referenceAssets!.map((asset) => (
+                                                    <span key={`${job.id}_${asset.id}`} className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
+                                                        <ImageIcon className="h-3 w-3" />
+                                                        {describeReferenceAsset(asset)}: {asset.title || asset.dropId || asset.fileName || asset.id}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        ) : null}
                                         {job.errorMessage ? <p className="text-sm text-red-200">{job.errorMessage}</p> : null}
                                     </div>
                                     <div className="grid grid-cols-2 gap-2 text-xs text-gray-300 sm:min-w-[15rem]">

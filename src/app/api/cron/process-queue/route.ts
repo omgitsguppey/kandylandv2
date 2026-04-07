@@ -7,7 +7,7 @@ import { buildQueuedDropsMap } from "@/lib/server/process-queue-drops";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { handleApiError } from "@/lib/server/auth";
 import { buildDropQueueLifecycleProjection } from "@/lib/drop-queue-lifecycle";
-import { resolveDropStatusFromTiming } from "@/lib/drop-status";
+import { getFiniteDropTimestamp, resolveDropStatusFromTiming } from "@/lib/drop-status";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 
 type QueuedDropRuntime = {
@@ -17,11 +17,6 @@ type QueuedDropRuntime = {
     activationCount: number;
     status: "active" | "expired" | "scheduled" | null;
 };
-
-function toFiniteNumber(value: unknown) {
-    const numeric = Number(value);
-    return Number.isFinite(numeric) ? numeric : null;
-}
 
 // This cron job should be called periodically (e.g. daily/hourly)
 export async function GET(request: NextRequest) {
@@ -63,9 +58,9 @@ export async function GET(request: NextRequest) {
 
                 return {
                     id: doc.id,
-                    validFrom: toFiniteNumber(data.validFrom),
-                    validUntil: toFiniteNumber(data.validUntil),
-                    activationCount: toFiniteNumber(data.activationCount) ?? 0,
+                    validFrom: getFiniteDropTimestamp(data.validFrom),
+                    validUntil: getFiniteDropTimestamp(data.validUntil),
+                    activationCount: Number.isFinite(Number(data.activationCount)) ? Number(data.activationCount) : 0,
                     status: data.status === "active" || data.status === "expired" || data.status === "scheduled"
                         ? data.status
                         : null,

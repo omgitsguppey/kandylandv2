@@ -129,6 +129,10 @@ export interface AdminAiDropCoverJobRecord {
     referenceImageCount?: number;
     templateReferenceUsed?: boolean;
     recentDropReferenceCount?: number;
+    retainedAiReferenceCount?: number;
+    retainedAcceptedAiReferenceCount?: number;
+    retainedLikedAiReferenceCount?: number;
+    referenceAssets?: AdminAiDropCoverReferenceAsset[];
     acceptedAtMs?: number | null;
     acceptedForDropId?: string | null;
     errorMessage?: string | null;
@@ -136,12 +140,17 @@ export interface AdminAiDropCoverJobRecord {
 
 export interface AdminAiDropCoverReferenceAsset {
     id: string;
-    source: "template" | "recent_drop_cover";
+    source: "template" | "recent_drop_cover" | "retained_ai_cover";
     imageUrl: string;
     fileName?: string | null;
     storagePath?: string | null;
     dropId?: string | null;
     title?: string | null;
+    retentionReason?: "template" | "catalog" | "accepted" | "liked";
+    accepted?: boolean;
+    feedback?: AdminAiDropCoverFeedback | null;
+    usageCount?: number;
+    lastUsedAtMs?: number | null;
 }
 
 export interface AdminAiDropCoverModelOption {
@@ -200,6 +209,10 @@ export const adminAiDropCoverJobSchema = z.object({
     referenceImageCount: z.number().optional(),
     templateReferenceUsed: z.boolean().optional(),
     recentDropReferenceCount: z.number().optional(),
+    retainedAiReferenceCount: z.number().optional(),
+    retainedAcceptedAiReferenceCount: z.number().optional(),
+    retainedLikedAiReferenceCount: z.number().optional(),
+    referenceAssets: z.array(z.lazy(() => adminAiDropCoverReferenceAssetSchema)).optional(),
     acceptedAtMs: z.number().nullable().optional(),
     acceptedForDropId: z.string().nullable().optional(),
     errorMessage: z.string().nullable().optional(),
@@ -240,12 +253,17 @@ export const adminAiDropCoverRuntimeSchema = z.object({
 
 export const adminAiDropCoverReferenceAssetSchema = z.object({
     id: z.string(),
-    source: z.enum(["template", "recent_drop_cover"]),
+    source: z.enum(["template", "recent_drop_cover", "retained_ai_cover"]),
     imageUrl: z.string().url(),
     fileName: z.string().nullable().optional(),
     storagePath: z.string().nullable().optional(),
     dropId: z.string().nullable().optional(),
     title: z.string().nullable().optional(),
+    retentionReason: z.enum(["template", "catalog", "accepted", "liked"]).optional(),
+    accepted: z.boolean().optional(),
+    feedback: z.enum(["neutral", "liked", "disliked"]).nullable().optional(),
+    usageCount: z.number().optional(),
+    lastUsedAtMs: z.number().nullable().optional(),
 });
 
 export const adminAiDropCoverSummarySchema = z.object({
@@ -262,11 +280,14 @@ export const adminAiDropCoverSummarySchema = z.object({
         totalEstimatedCostUsd: z.number(),
         averageLatencyMs: z.number(),
         activeGenerationCount: z.number(),
+        lastSuccessAtMs: z.number().nullable().optional(),
+        lastFailureAtMs: z.number().nullable().optional(),
     }),
     recentJobs: z.array(adminAiDropCoverJobSchema),
     referenceAssets: z.object({
         template: adminAiDropCoverReferenceAssetSchema.nullable(),
         recentDropCovers: z.array(adminAiDropCoverReferenceAssetSchema),
+        retainedAiCovers: z.array(adminAiDropCoverReferenceAssetSchema),
     }),
 });
 

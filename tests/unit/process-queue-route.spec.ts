@@ -193,6 +193,49 @@ describe("GET /api/cron/process-queue", () => {
         expect(mockState.batch.commit).toHaveBeenCalled();
     });
 
+    it("keeps already-scheduled legacy drops stable when validFrom and validUntil are Firestore timestamps", async () => {
+        const now = fromCSTInput("2026-04-02T09:00");
+        const scheduledSlot = fromCSTInput("2026-04-03T12:00");
+        vi.setSystemTime(new Date(now));
+
+        mockState.getResolvedQueueConfig.mockResolvedValue({
+            queue: ["legacy_scheduled"],
+            dropsPerDay: 1,
+            cooldownDays: 7,
+            timesPerDay: ["12:00"],
+        });
+        mockState.buildQueuedDropsMap.mockImplementation(async (input: {
+            materialize: (doc: { id: string; exists: boolean; data: () => Record<string, unknown> | undefined }) => { id: string } | null;
+        }) => {
+            const materialized = input.materialize({
+                id: "legacy_scheduled",
+                exists: true,
+                data: () => ({
+                    validFrom: { toMillis: () => scheduledSlot },
+                    validUntil: { toMillis: () => scheduledSlot + (24 * 60 * 60 * 1000) },
+                    activationCount: 4,
+                    status: "scheduled",
+                }),
+            });
+
+            return materialized ? { legacy_scheduled: materialized } : {};
+        });
+
+        const request = new NextRequest("http://localhost/api/cron/process-queue", {
+            headers: {
+                authorization: "Bearer test-secret",
+            },
+        });
+        const response = await GET(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(payload.updates).toEqual([]);
+        expect(payload.lifecycleReconciled).toEqual([]);
+        expect(mockState.updates.size).toBe(0);
+        expect(mockState.batch.commit).not.toHaveBeenCalled();
+    });
+
     it("does not leak internal errors when queue processing fails", async () => {
         mockState.getResolvedQueueConfig.mockRejectedValue(new Error("firestore batch pipeline exploded"));
 

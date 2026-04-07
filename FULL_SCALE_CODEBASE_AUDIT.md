@@ -108,7 +108,7 @@ Current notable runtime package versions:
 ## Current tracked inventory baseline
 Verified by `npm run check:inventory` on 2026-04-06:
 
-- Total tracked files: `660`
+- Total tracked files: `662`
 - Root files: `54`
 - Root markdown/docs: `16`
 - Root lockfiles: `2`
@@ -304,7 +304,7 @@ Results:
   - `creator_broadcast_opened`
 
 ## Current open follow-up gaps
-- `EVERY_FILE_FUNCTION_CHECKLIST.md` remains a historical exhaustive sweep and has not been regenerated against the current `660` tracked-file baseline.
+- `EVERY_FILE_FUNCTION_CHECKLIST.md` remains a historical exhaustive sweep and has not been regenerated against the current `662` tracked-file baseline.
 - Public creator/discovery follower counts now reconcile immediately after local follow actions, but there is still no cross-user realtime follower aggregate subscription.
 - Referral rewards are currently `100` GumDrops for the referrer only; the referred friend does not yet receive a parallel backend reward.
 - General user settings autosave is present, but creator-specific controls in the profile/settings view still use their existing manual-save path.
@@ -1110,4 +1110,115 @@ Known warnings and non-blocking notices during continuation:
 Continuation follow-up gaps:
 - `gemini-3-pro-image-preview` remains preview-stage and may need a future replacement if Google changes lifecycle, availability, or pricing
 - the current implementation still relies on model-generated hero/background art plus app-side deterministic text treatment; it does not yet perform deterministic template-frame compositing
+- direct authenticated browser verification of the admin AI page and create-drop AI flow still depends on a local admin/auth automation seam that does not currently exist
+
+### Continuation: Admin AI Truth Surface + Legacy Queue Fix
+Current audit date: 2026-04-06 21:10:00 -05:00
+Current branch / commit for continuation start: `main` / `13bc41d`
+Continuation task:
+- remove simulative language and fake training implications from the Admin AI page
+- expose the real retained reference/feedback state used for later AI cover generations
+- repair the legacy queued-drop runtime bug where some drops never go live and keep rolling forward to the next date
+
+Continuation start state:
+- working tree clean at continuation start
+- canonical startup docs re-read:
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+  - `REPO_MEMORY_LEDGER.md`
+  - `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- adjacency traces run before editing:
+  - `npm run trace:adjacent -- src/app/admin/ai/page.tsx`
+  - `npm run trace:adjacent -- src/lib/server/ai-drop-covers.ts`
+  - `npm run trace:adjacent -- src/lib/server/drop-queue.ts`
+  - `npm run trace:adjacent -- src/lib/admin-drop-queue.ts`
+
+Confirmed continuation surfaces before implementation:
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `src/app/admin/ai/page.tsx`
+- `src/app/api/admin/ai/drop-covers/route.ts`
+- `src/lib/ai-drop-covers.ts`
+- `src/lib/server/ai-drop-covers.ts`
+- `src/lib/drop-status.ts`
+- `src/app/api/cron/process-queue/route.ts`
+- `tests/unit/admin-ai-drop-covers-route.spec.ts`
+- `tests/unit/drop-status.spec.ts`
+- `tests/unit/process-queue-route.spec.ts`
+
+Canonical helpers and modules reused for continuation:
+- `src/lib/ai-drop-covers.ts`
+- `src/lib/server/ai-drop-covers.ts`
+- `src/lib/drop-status.ts`
+- `src/lib/drop-queue-lifecycle.ts`
+- `src/lib/server/drop-queue.ts`
+- `src/lib/server/process-queue-drops.ts`
+- `src/lib/server/route-diagnostics.ts`
+- `src/lib/server/server-diagnostics.ts`
+- `src/lib/server/analytics.ts`
+- `src/hooks/useAdminPollingSWR.ts`
+- `src/lib/authFetch.ts`
+
+Continuation implementation:
+- removed operator-facing wording on the Admin AI page that implied live training, model-side retention, or hidden model introspection
+- rewired the Admin AI page to show the real retained reference library instead:
+  - uploaded template reference
+  - retained live drop covers already uploaded in the catalog
+  - retained positive AI covers from accepted/liked past generations
+- extended the AI cover job record to store the exact reference assets used by each generation so the Admin AI page can show which retained images were actually sent with each run
+- changed reference-guided generation to reuse positively-scored AI covers for later generations; dislikes stay in history and are not reused as references
+- added usage counts and last-used visibility for retained reference assets based on actual recorded job history
+- added an active-jobs-now panel on the Admin AI page so operators can see the current running jobs, current model, and current retained inputs without fake progress theater
+- fixed the legacy queue rollover bug by teaching the canonical drop-timestamp helper to understand Firestore Timestamp-like values
+- updated the queue cron route to use the canonical timestamp helper instead of `Number(rawTimestamp)`, which was making some legacy scheduled drops look unscheduled and get pushed forward repeatedly
+- added regression coverage for Firestore Timestamp-like queue/drop timing values
+
+Exact runtime root cause for the legacy queue bug:
+- `src/app/api/cron/process-queue/route.ts` was coercing `validFrom` and `validUntil` with `Number(value)`
+- legacy drops with Firestore Timestamp-like values therefore materialized as `null` timing values
+- the queue lifecycle projection then treated them as queued instead of already scheduled/live
+- each cron run reassigned a future slot and incremented `activationCount`, which produced the observed endless date shifting
+
+Commands run for continuation:
+- `git status --short`
+- `npm run trace:adjacent -- src/app/admin/ai/page.tsx`
+- `npm run trace:adjacent -- src/lib/server/ai-drop-covers.ts`
+- `npm run trace:adjacent -- src/lib/server/drop-queue.ts`
+- `npm run trace:adjacent -- src/lib/admin-drop-queue.ts`
+- focused lint:
+  - `npx eslint src/app/admin/ai/page.tsx src/lib/ai-drop-covers.ts src/lib/server/ai-drop-covers.ts src/lib/drop-status.ts src/app/api/cron/process-queue/route.ts tests/unit/drop-status.spec.ts tests/unit/process-queue-route.spec.ts tests/unit/admin-ai-drop-covers-generate-route.spec.ts tests/unit/admin-ai-drop-covers-route.spec.ts`
+- focused tests:
+  - `corepack pnpm exec vitest run tests/unit/drop-status.spec.ts tests/unit/process-queue-route.spec.ts tests/unit/ai-drop-covers.spec.ts tests/unit/admin-ai-drop-covers-route.spec.ts tests/unit/admin-ai-drop-covers-generate-route.spec.ts`
+- `npm run check:inventory`
+- `npm run check:ui:audits`
+- `npm run check:ui:lighthouse`
+- `corepack pnpm run check`
+- `npx vitest run`
+- final `git status --short`
+
+Continuation results:
+- focused lint passed
+- focused Vitest passed with `5` files and `27` tests
+- `npm run check:inventory` passed and now reports `662` tracked files
+- `npm run check:ui:lighthouse` passed
+- `corepack pnpm run check` passed
+- `npx vitest run` passed with `83` files and `423` tests
+- `npm run check:ui:audits` still fails on the pre-existing Chromium visual instability for `/creators/waitlist`; accessibility passed and the rest of the visual suite passed
+
+Runtime truth and continuity implications from continuation:
+- the Admin AI page now states and shows the real retained guidance system instead of implying live training
+- later reference-guided generations now genuinely improve from accepted/liked past AI covers because those covers are retained as future reference inputs
+- the Admin AI page now shows exact retained reference assets per job, which is the truthful answer to which uploaded/live images the model has already used as references
+- the page still does not claim token-by-token model progress or internal reasoning visibility because the runtime does not expose those signals
+- legacy scheduled drops with Firestore Timestamp-like timing values no longer get re-queued and shifted forward just because the cron route failed to parse their timestamps
+
+Known warnings and non-blocking notices during continuation:
+- npm unknown env config warnings during canonical script chains
+- `check:firebase-runtime` informational dotenv logs inside the canonical `check` pipeline
+- Node `punycode` deprecation warnings from Firebase/Vitest tooling
+- Lighthouse cleanup emitted temporary Windows `EPERM` warnings while deleting temp folders after successful audits
+- `check:telemetry` still reports `creator_broadcast_opened` with no detected emitter
+- `check:ui:audits` still reports the existing Chromium `creator-waitlist-guest-hero` screenshot instability plus the recurring `transformAlgorithm` cleanup warning from the webserver process
+
+Continuation follow-up gaps:
+- the Admin AI page is still polling every 10 seconds; there is no streaming per-step provider progress API behind it
+- the retained-reference system now reuses accepted/liked AI covers, but it still does not perform deterministic post-generation template compositing
 - direct authenticated browser verification of the admin AI page and create-drop AI flow still depends on a local admin/auth automation seam that does not currently exist

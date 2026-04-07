@@ -21,7 +21,6 @@ import {
     adminAiDropCoverSummarySchema,
     buildAdminAiDropCoverPrompt,
     estimateAdminAiDropCoverCostUsd,
-    formatAdminAiUsd,
     getAdminAiDropCoverGenerationMode,
     getAdminAiDropCoverModelOption,
     getAdminAiDropCoverPriceBasis,
@@ -57,6 +56,8 @@ const VERTEX_SCOPE = "https://www.googleapis.com/auth/cloud-platform";
 const DEFAULT_TIMEOUT_MS = 20_000;
 const RECENT_JOB_LIMIT = 18;
 const RECENT_REFERENCE_DROP_LIMIT = 4;
+const RETAINED_AI_REFERENCE_LIMIT = 4;
+const MAX_REFERENCE_INPUTS = 6;
 const TEMPLATE_REFERENCE_STYLE_DESCRIPTION = "KandyDrops premium candy-poster cover art with centered hero framing, strong flavor palette, and title-safe negative space.";
 
 type AdminAiDropCoverRuntime = {
@@ -155,8 +156,12 @@ type LoadedReferenceImage = {
 type AdminAiDropCoverReferenceContext = {
     generationMode: AdminAiDropCoverGenerationMode;
     referenceImages: LoadedReferenceImage[];
+    referenceAssets: AdminAiDropCoverReferenceAsset[];
     templateReferenceUsed: boolean;
     recentDropReferenceCount: number;
+    retainedAiReferenceCount: number;
+    retainedAcceptedAiReferenceCount: number;
+    retainedLikedAiReferenceCount: number;
 };
 
 export class AdminAiDropCoverError extends Error {
@@ -451,6 +456,14 @@ function normalizeJobRecord(id: string, raw: unknown): AdminAiDropCoverJobRecord
         referenceImageCount: toNumber(data.referenceImageCount),
         templateReferenceUsed: data.templateReferenceUsed === true,
         recentDropReferenceCount: toNumber(data.recentDropReferenceCount),
+        retainedAiReferenceCount: toNumber(data.retainedAiReferenceCount),
+        retainedAcceptedAiReferenceCount: toNumber(data.retainedAcceptedAiReferenceCount),
+        retainedLikedAiReferenceCount: toNumber(data.retainedLikedAiReferenceCount),
+        referenceAssets: Array.isArray(data.referenceAssets)
+            ? data.referenceAssets
+                .filter((asset): asset is AdminAiDropCoverReferenceAsset => Boolean(asset && typeof asset === "object"))
+                .map((asset) => normalizeReferenceAsset(asset))
+            : [],
         acceptedAtMs: typeof data.acceptedAtMs === "number" ? data.acceptedAtMs : null,
         acceptedForDropId: typeof data.acceptedForDropId === "string" ? data.acceptedForDropId : null,
         errorMessage: typeof data.errorMessage === "string" ? data.errorMessage : null,
@@ -528,6 +541,84 @@ async function listRecentDropCoverReferenceAssets(excludeDropId?: string | null,
     return assets;
 }
 
+async function listRetainedAiCoverReferenceAssets(limit = RETAINED_AI_REFERENCE_LIMIT) {
+    if (!adminDb) {
+        return [] as AdminAiDropCoverReferenceAsset[];
+    }
+
+    const snapshot = await adminDb.collection(ADMIN_AI_DROP_COVER_JOBS_COLLECTION)
+        .orderBy("requestedAtMs", "desc")
+        .limit(Math.max(limit * 6, 24))
+        .get();
+
+    const assets: AdminAiDropCoverReferenceAsset[] = [];
+    const seenImageUrls = new Set<string>();
+
+    for (const doc of snapshot.docs) {
+        const job = normalizeJobRecord(doc.id, doc.data());
+        if (job.status !== "succeeded" || !job.imageUrl) {
+            continue;
+        }
+
+        const accepted = job.accepted === true;
+        const liked = job.feedback === "liked";
+        if (!accepted && !liked) {
+            continue;
+        }
+
+        if (seenImageUrls.has(job.imageUrl)) {
+            continue;
+        }
+        seenImageUrls.add(job.imageUrl);
+
+        assets.push(normalizeReferenceAsset({
+            id: `ai_job_${job.id}`,
+            source: "retained_ai_cover",
+            imageUrl: job.imageUrl,
+            fileName: job.fileName || null,
+            storagePath: job.storagePath || null,
+            dropId: job.acceptedForDropId || job.dropId || null,
+            title: job.title || "Retained AI cover",
+            retentionReason: accepted ? "accepted" : "liked",
+            accepted,
+            feedback: job.feedback,
+        }));
+
+        if (assets.length >= limit) {
+            break;
+        }
+    }
+
+    return assets;
+}
+
+function applyReferenceUsageStats(
+    assets: AdminAiDropCoverReferenceAsset[],
+    jobs: AdminAiDropCoverJobRecord[],
+) {
+    const usageMap = new Map<string, { usageCount: number; lastUsedAtMs: number }>();
+
+    for (const job of jobs) {
+        const requestedAtMs = typeof job.requestedAtMs === "number" ? job.requestedAtMs : 0;
+        for (const asset of job.referenceAssets || []) {
+            const current = usageMap.get(asset.id);
+            usageMap.set(asset.id, {
+                usageCount: (current?.usageCount || 0) + 1,
+                lastUsedAtMs: Math.max(current?.lastUsedAtMs || 0, requestedAtMs),
+            });
+        }
+    }
+
+    return assets.map((asset) => {
+        const usage = usageMap.get(asset.id);
+        return normalizeReferenceAsset({
+            ...asset,
+            usageCount: usage?.usageCount || 0,
+            lastUsedAtMs: usage?.lastUsedAtMs || null,
+        });
+    });
+}
+
 function inferReferenceImageMimeType(url: string, headerMimeType?: string | null) {
     const normalizedHeader = (headerMimeType || "").toLowerCase();
     if (normalizedHeader.startsWith("image/")) {
@@ -572,14 +663,24 @@ async function buildReferenceContext(
         return {
             generationMode: "standard",
             referenceImages: [],
+            referenceAssets: [],
             templateReferenceUsed: false,
             recentDropReferenceCount: 0,
+            retainedAiReferenceCount: 0,
+            retainedAcceptedAiReferenceCount: 0,
+            retainedLikedAiReferenceCount: 0,
         };
     }
 
     const referenceImages: LoadedReferenceImage[] = [];
+    const referenceAssets: AdminAiDropCoverReferenceAsset[] = [];
     let templateReferenceUsed = false;
     let recentDropReferenceCount = 0;
+    let retainedAiReferenceCount = 0;
+    let retainedAcceptedAiReferenceCount = 0;
+    let retainedLikedAiReferenceCount = 0;
+
+    const canAddMoreReferenceInputs = () => referenceImages.length < MAX_REFERENCE_INPUTS;
 
     if (wantsTemplateReference) {
         if (!settings.templateReferenceUrl) {
@@ -593,10 +694,22 @@ async function buildReferenceContext(
 
         try {
             const templateReference = await loadReferenceImageBytesFromUrl(settings.templateReferenceUrl);
-            referenceImages.push({
-                ...templateReference,
-                styleDescription: TEMPLATE_REFERENCE_STYLE_DESCRIPTION,
-            });
+            if (canAddMoreReferenceInputs()) {
+                referenceImages.push({
+                    ...templateReference,
+                    styleDescription: TEMPLATE_REFERENCE_STYLE_DESCRIPTION,
+                });
+                referenceAssets.push(normalizeReferenceAsset({
+                    id: "template",
+                    source: "template",
+                    imageUrl: settings.templateReferenceUrl,
+                    fileName: settings.templateReferenceFileName || null,
+                    storagePath: settings.templateReferenceStoragePath || null,
+                    dropId: null,
+                    title: "Current template",
+                    retentionReason: "template",
+                }));
+            }
             templateReferenceUsed = true;
         } catch (error) {
             throw classifyStorageError(
@@ -607,15 +720,51 @@ async function buildReferenceContext(
         }
     }
 
+    const retainedAiAssets = await listRetainedAiCoverReferenceAssets();
+    for (const asset of retainedAiAssets) {
+        if (!canAddMoreReferenceInputs()) {
+            break;
+        }
+
+        try {
+            const retainedReference = await loadReferenceImageBytesFromUrl(asset.imageUrl);
+            referenceImages.push({
+                ...retainedReference,
+                styleDescription: TEMPLATE_REFERENCE_STYLE_DESCRIPTION,
+            });
+            referenceAssets.push(asset);
+            retainedAiReferenceCount += 1;
+            if (asset.retentionReason === "accepted") {
+                retainedAcceptedAiReferenceCount += 1;
+            }
+            if (asset.retentionReason === "liked") {
+                retainedLikedAiReferenceCount += 1;
+            }
+        } catch (error) {
+            recordRouteWarning("admin/ai/drop-covers/reference-image", "Failed to load retained AI cover reference", error, {
+                channel: "ai",
+                detail: {
+                    jobId: asset.id,
+                    imageUrl: asset.imageUrl,
+                },
+            });
+        }
+    }
+
     if (wantsRecentDropReferences) {
         const recentAssets = await listRecentDropCoverReferenceAssets(dropId);
         for (const asset of recentAssets) {
+            if (!canAddMoreReferenceInputs()) {
+                break;
+            }
+
             try {
                 const recentReference = await loadReferenceImageBytesFromUrl(asset.imageUrl);
                 referenceImages.push({
                     ...recentReference,
                     styleDescription: TEMPLATE_REFERENCE_STYLE_DESCRIPTION,
                 });
+                referenceAssets.push(asset);
                 recentDropReferenceCount += 1;
             } catch (error) {
                 recordRouteWarning("admin/ai/drop-covers/reference-image", "Failed to load recent drop cover reference", error, {
@@ -634,15 +783,19 @@ async function buildReferenceContext(
             "validation_failed",
             400,
             "Reference-guided cover generation was enabled, but no usable reference images could be loaded.",
-            "Reference-guided generation is on, but no usable template or recent drop covers were available. Upload a template, keep at least one covered drop live, or turn reference guidance off.",
+            "Reference-guided generation is on, but no usable template, retained positive AI cover, or recent drop cover was available. Upload a template, keep at least one covered drop live, or turn reference guidance off.",
         );
     }
 
     return {
         generationMode: "reference_guided",
         referenceImages,
+        referenceAssets,
         templateReferenceUsed,
         recentDropReferenceCount,
+        retainedAiReferenceCount,
+        retainedAcceptedAiReferenceCount,
+        retainedLikedAiReferenceCount,
     };
 }
 
@@ -1232,8 +1385,8 @@ export async function getAdminAiDropCoverRuntimeStatus() {
             enabled: true,
             status: "ready",
             note: settings.generationMode === "reference_guided"
-                ? `Vertex credentials, Firebase Storage, and AI job recording are configured. Reference-guided cover generation is active, using ${runtime.model} in ${runtime.location} with the uploaded template and/or recent drop covers as style references. This is not online fine-tuning; final model access is only fully verified when a generation request succeeds. The default estimated cost is ${formatAdminAiUsd(settings.pricePerGenerationUsd)} per image based on the current Google Cloud pricing page.`
-                : `Vertex credentials, Firebase Storage, and AI job recording are configured. The active image runtime is ${runtime.model} in ${runtime.location}; final model access is only fully verified when a generation request succeeds. Estimated cost is ${formatAdminAiUsd(settings.pricePerGenerationUsd)} per image based on the current Google Cloud pricing page.`,
+                ? `Credential, storage, and job-recording checks passed. When reference-guided generation is on, KandyDrops can send the uploaded template, retained positive AI covers, and retained live drop covers as image references to ${runtime.model} in ${runtime.location}. This page does not expose hidden model reasoning or weight updates. Final model access is still only proven by a successful generation request.`
+                : `Credential, storage, and job-recording checks passed. The active image runtime is ${runtime.model} in ${runtime.location}. This page does not expose hidden model reasoning or weight updates, and final model access is only proven by a successful generation request.`,
             project: runtime.project,
             location: runtime.location,
             model: runtime.model,
@@ -1272,7 +1425,7 @@ export async function listRecentAdminAiDropCoverJobs(limit = RECENT_JOB_LIMIT) {
 }
 
 export async function buildAdminAiDropCoverDashboard() {
-    const [settings, runtime, recentJobs, summarySnapshot, activeJobsSnapshot, recentDropCovers] = await Promise.all([
+    const [settings, runtime, recentJobs, summarySnapshot, activeJobsSnapshot, recentDropCovers, retainedAiCovers] = await Promise.all([
         getAdminAiDropCoverSettings(),
         getAdminAiDropCoverRuntimeStatus(),
         listRecentAdminAiDropCoverJobs(),
@@ -1283,6 +1436,7 @@ export async function buildAdminAiDropCoverDashboard() {
             ? adminDb.collection(ADMIN_AI_DROP_COVER_JOBS_COLLECTION).where("status", "==", "running").get()
             : Promise.resolve(null),
         listRecentDropCoverReferenceAssets(null),
+        listRetainedAiCoverReferenceAssets(),
     ]);
 
     const summary = normalizeSummary(summarySnapshot?.exists ? summarySnapshot.data() : null);
@@ -1299,8 +1453,14 @@ export async function buildAdminAiDropCoverDashboard() {
             storagePath: settings.templateReferenceStoragePath || null,
             dropId: null,
             title: "Current template",
+            retentionReason: "template",
         })
         : null;
+    const decoratedTemplateAsset = templateAsset
+        ? applyReferenceUsageStats([templateAsset], recentJobs)[0] || null
+        : null;
+    const decoratedRecentDropCovers = applyReferenceUsageStats(recentDropCovers, recentJobs);
+    const decoratedRetainedAiCovers = applyReferenceUsageStats(retainedAiCovers, recentJobs);
 
     return adminAiDropCoverSummarySchema.parse({
         settings,
@@ -1316,11 +1476,14 @@ export async function buildAdminAiDropCoverDashboard() {
             totalEstimatedCostUsd: Number(summary.totalEstimatedCostUsd.toFixed(4)),
             averageLatencyMs,
             activeGenerationCount,
+            lastSuccessAtMs: summary.lastSuccessAtMs || null,
+            lastFailureAtMs: summary.lastFailureAtMs || null,
         },
         recentJobs,
         referenceAssets: {
-            template: templateAsset,
-            recentDropCovers,
+            template: decoratedTemplateAsset,
+            recentDropCovers: decoratedRecentDropCovers,
+            retainedAiCovers: decoratedRetainedAiCovers,
         },
     });
 }
@@ -1440,6 +1603,10 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
             referenceImageCount: referenceContext.referenceImages.length,
             templateReferenceUsed: referenceContext.templateReferenceUsed,
             recentDropReferenceCount: referenceContext.recentDropReferenceCount,
+            retainedAiReferenceCount: referenceContext.retainedAiReferenceCount,
+            retainedAcceptedAiReferenceCount: referenceContext.retainedAcceptedAiReferenceCount,
+            retainedLikedAiReferenceCount: referenceContext.retainedLikedAiReferenceCount,
+            referenceAssets: referenceContext.referenceAssets,
             createdAt: FieldValue.serverTimestamp(),
             updatedAt: FieldValue.serverTimestamp(),
             updatedAtMs: nowMs,
@@ -1559,6 +1726,9 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
                 latencyMs,
                 estimatedCostUsd,
                 referenceImageCount: referenceContext.referenceImages.length,
+                retainedAiReferenceCount: referenceContext.retainedAiReferenceCount,
+                retainedAcceptedAiReferenceCount: referenceContext.retainedAcceptedAiReferenceCount,
+                retainedLikedAiReferenceCount: referenceContext.retainedLikedAiReferenceCount,
             },
         });
 
@@ -1574,6 +1744,7 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
             estimated_cost_usd: estimatedCostUsd,
             regenerated_from_job_id: previousJobRecord?.id || "",
             ai_reference_image_count: referenceContext.referenceImages.length,
+            ai_retained_reference_count: referenceContext.retainedAiReferenceCount,
         }, input.requestedByUid);
 
         let finalizedSnapshotData: Record<string, unknown> = {};
@@ -1604,6 +1775,10 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
             referenceImageCount: referenceContext.referenceImages.length,
             templateReferenceUsed: referenceContext.templateReferenceUsed,
             recentDropReferenceCount: referenceContext.recentDropReferenceCount,
+            retainedAiReferenceCount: referenceContext.retainedAiReferenceCount,
+            retainedAcceptedAiReferenceCount: referenceContext.retainedAcceptedAiReferenceCount,
+            retainedLikedAiReferenceCount: referenceContext.retainedLikedAiReferenceCount,
+            referenceAssets: referenceContext.referenceAssets,
         });
     } catch (error) {
         const classifiedError = error instanceof AdminAiDropCoverError
@@ -1658,6 +1833,7 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
                 billed,
                 latencyMs,
                 referenceImageCount: referenceContext.referenceImages.length,
+                retainedAiReferenceCount: referenceContext.retainedAiReferenceCount,
             },
         });
 
@@ -1675,6 +1851,7 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
             failure_reason: errorMessage.slice(0, 120),
             failure_code: classifiedError.code,
             ai_reference_image_count: referenceContext.referenceImages.length,
+            ai_retained_reference_count: referenceContext.retainedAiReferenceCount,
         }, input.requestedByUid);
 
         throw classifiedError;

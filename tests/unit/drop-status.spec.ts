@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { applyDropStatus, isDropActiveNow, resolveDropStatusFromTiming } from "@/lib/drop-status";
+import { applyDropStatus, getFiniteDropTimestamp, isDropActiveNow, resolveDropStatusFromTiming } from "@/lib/drop-status";
 
 describe("drop status timing resolution", () => {
     it("marks a future drop as scheduled", () => {
@@ -61,5 +61,22 @@ describe("drop status timing resolution", () => {
             validUntil: 5_000,
             status: "scheduled",
         }, 2_000)).toBe(false);
+    });
+
+    it("reads Firestore timestamp-like objects without dropping the schedule", () => {
+        expect(getFiniteDropTimestamp({
+            seconds: 10,
+            nanoseconds: 500_000_000,
+        })).toBe(10_500);
+
+        expect(resolveDropStatusFromTiming({
+            validFrom: {
+                toMillis: () => 4_000,
+            },
+            validUntil: {
+                toMillis: () => 5_000,
+            },
+            status: "scheduled",
+        }, 2_000)).toBe("scheduled");
     });
 });

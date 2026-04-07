@@ -1,12 +1,46 @@
 import type { Drop } from "@/types/db";
 
 export type DropTiming = {
-    validFrom?: number | null;
-    validUntil?: number | null;
+    validFrom?: number | TimestampLike | null;
+    validUntil?: number | TimestampLike | null;
     status?: Drop["status"] | null;
 };
 
+type TimestampLike = {
+    toMillis?: () => number;
+    _seconds?: number;
+    _nanoseconds?: number;
+    seconds?: number;
+    nanoseconds?: number;
+};
+
 export function getFiniteDropTimestamp(value: unknown): number | null {
+    if (typeof value === "number") {
+        return Number.isFinite(value) && value > 0 ? value : null;
+    }
+
+    if (typeof value === "object" && value !== null) {
+        const candidate = value as TimestampLike;
+        if (typeof candidate.toMillis === "function") {
+            try {
+                const millis = candidate.toMillis();
+                return Number.isFinite(millis) && millis > 0 ? millis : null;
+            } catch {
+                return null;
+            }
+        }
+
+        if (typeof candidate._seconds === "number") {
+            const millis = (candidate._seconds * 1000) + Math.floor((candidate._nanoseconds || 0) / 1_000_000);
+            return Number.isFinite(millis) && millis > 0 ? millis : null;
+        }
+
+        if (typeof candidate.seconds === "number") {
+            const millis = (candidate.seconds * 1000) + Math.floor((candidate.nanoseconds || 0) / 1_000_000);
+            return Number.isFinite(millis) && millis > 0 ? millis : null;
+        }
+    }
+
     const numeric = Number(value);
     return Number.isFinite(numeric) && numeric > 0 ? numeric : null;
 }
