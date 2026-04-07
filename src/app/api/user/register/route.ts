@@ -179,15 +179,18 @@ export async function POST(request: NextRequest) {
         });
 
         const welcomeBonus = isCreatorSignup ? 0 : 50;
+        const referralBonus = (!isCreatorSignup && referredBy && typeof referredBy === "string" && referredBy !== caller.uid) ? REFERRAL_BONUS_GD : 0;
+        const initialRewardBalance = welcomeBonus + referralBonus;
+
         const newProfile: Record<string, unknown> = {
             uid: caller.uid,
             email: caller.email,
             displayName: (isCreatorSignup ? creatorDisplayName : displayName) || displayName || "User",
             username: normalizedUsername,
             onboardingCompleted: false,
-            gumDropsBalance: welcomeBonus,
+            gumDropsBalance: initialRewardBalance,
             gumDropsPurchasedBalance: 0,
-            gumDropsRewardBalance: welcomeBonus,
+            gumDropsRewardBalance: initialRewardBalance,
             unlockedContent: [],
             unlockedContentTimestamps: {},
             notificationSettings: {
@@ -270,6 +273,22 @@ export async function POST(request: NextRequest) {
                             extra: {
                                 metadata: {
                                     referredUserId: caller.uid,
+                                },
+                            },
+                        }));
+
+                        // Give the new user their parallel referral reward
+                        const newTransactionRef = adminDb.collection("transactions").doc();
+                        transaction.set(newTransactionRef, buildCompletedGumdropTransaction({
+                            userId: caller.uid,
+                            type: "referral_bonus",
+                            amount: REFERRAL_BONUS_GD,
+                            description: `Referral bonus for signing up via invite link`,
+                            balanceBefore: welcomeBonus,
+                            balanceAfter: welcomeBonus + REFERRAL_BONUS_GD,
+                            extra: {
+                                metadata: {
+                                    referredByUserId: referredBy,
                                 },
                             },
                         }));

@@ -37,8 +37,38 @@ type GumdropEconomicsOptions = {
 };
 
 export function getBundlePresentation(deliveredGumDrops: number) {
-  const baseAmount = Math.floor(deliveredGumDrops / GUMDROPS_PER_USD) * GUMDROPS_PER_USD;
-  const bonus = deliveredGumDrops - baseAmount;
+  let baseAmount = deliveredGumDrops;
+  let bonus = 0;
+
+  switch (deliveredGumDrops) {
+    case 100:
+      baseAmount = 100;
+      bonus = 0;
+      break;
+    case 550:
+      baseAmount = 500;
+      bonus = 50;
+      break;
+    case 1100:
+      baseAmount = 1000;
+      bonus = 100;
+      break;
+    case 2500:
+      baseAmount = 2000;
+      bonus = 500;
+      break;
+    default:
+      if (deliveredGumDrops >= 5000) {
+        // "King Size Bundle" gives 100% extra value
+        baseAmount = deliveredGumDrops / 2;
+        bonus = deliveredGumDrops / 2;
+      } else {
+        baseAmount = Math.floor(deliveredGumDrops / GUMDROPS_PER_USD) * GUMDROPS_PER_USD;
+        bonus = deliveredGumDrops - baseAmount;
+      }
+      break;
+  }
+
   const presentationInfo = {
     baseAmount,
     bonus,
