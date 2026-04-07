@@ -105,6 +105,7 @@ export async function POST(req: NextRequest) {
             ...ANALYTICS_ROUTE_POLICIES.identifiedTrack,
             preAuthRateLimit: ANALYTICS_WRITE,
             rateLimit: ANALYTICS_WRITE,
+            requireTrustedOrigin: true,
         });
         const userId = decodedToken?.uid ?? "";
         const userEmail = decodedToken?.email;
