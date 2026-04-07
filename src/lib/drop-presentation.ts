@@ -111,6 +111,8 @@ export function getDropAssetCount(drop: Pick<Drop, "contentUrl" | "contentUrls" 
   return Math.max(0, imageCount + videoCount);
 }
 
+const mediaSummaryCache = new Map<string, { imageCount: number; videoCount: number }>();
+
 export function getDropMediaSummary(drop: Drop): { imageCount: number; videoCount: number } {
   // 1. Prefer explicitly saved counts
   const mediaCounts = drop.mediaCounts;
@@ -121,34 +123,47 @@ export function getDropMediaSummary(drop: Drop): { imageCount: number; videoCoun
     };
   }
 
-  // 2. Fallback: Parse `contentUrls` array directly for legacy drops missing explicit metrics.
-  // Must strip `?alt=media&token=...` Firebase storage parameters before Regex matching.
-  const urlsToCheck = drop.contentUrls && drop.contentUrls.length > 0
-    ? drop.contentUrls
-    : (drop.contentUrl ? [drop.contentUrl] : []);
-
-  if (urlsToCheck.length > 0) {
-    let imageCount = 0;
-    let videoCount = 0;
-
-    urlsToCheck.forEach(url => {
-      if (!url) return;
-      const kind = classifyUrlKind(url, drop.fileMetadata?.type);
-      if (kind === "video") {
-        videoCount++;
-      } else {
-        imageCount++;
-      }
-    });
-
-    return { imageCount, videoCount };
+  // Generate cache key only when computing the slow path
+  const cacheKey = `${drop.contentUrls?.join(",") ?? ""}|${drop.contentUrl ?? ""}|${drop.fileMetadata?.type ?? ""}`;
+  if (mediaSummaryCache.has(cacheKey)) {
+    return mediaSummaryCache.get(cacheKey)!;
   }
 
-  // 3. Absolute Fallback: Single file MIME type guessing
-  const type = drop.fileMetadata?.type ?? "";
-  if (type.startsWith("video/")) {
-    return { imageCount: 0, videoCount: 1 };
-  }
+  const computeSummary = (): { imageCount: number; videoCount: number } => {
+    // 2. Fallback: Parse `contentUrls` array directly for legacy drops missing explicit metrics.
+    // Must strip `?alt=media&token=...` Firebase storage parameters before Regex matching.
+    const urlsToCheck = drop.contentUrls && drop.contentUrls.length > 0
+      ? drop.contentUrls
+      : (drop.contentUrl ? [drop.contentUrl] : []);
 
-  return { imageCount: 1, videoCount: 0 };
+    if (urlsToCheck.length > 0) {
+      let imageCount = 0;
+      let videoCount = 0;
+
+      urlsToCheck.forEach(url => {
+        if (!url) return;
+        const kind = classifyUrlKind(url, drop.fileMetadata?.type);
+        if (kind === "video") {
+          videoCount++;
+        } else {
+          imageCount++;
+        }
+      });
+
+      return { imageCount, videoCount };
+    }
+
+    // 3. Absolute Fallback: Single file MIME type guessing
+    const type = drop.fileMetadata?.type ?? "";
+    if (type.startsWith("video/")) {
+      return { imageCount: 0, videoCount: 1 };
+    }
+
+    return { imageCount: 1, videoCount: 0 };
+  };
+
+  const result = computeSummary();
+  if (mediaSummaryCache.size > 1000) mediaSummaryCache.clear();
+  mediaSummaryCache.set(cacheKey, result);
+  return result;
 }
