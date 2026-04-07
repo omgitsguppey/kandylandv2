@@ -7,7 +7,6 @@ import { LogOut, LayoutDashboard, Library, Settings, ChevronDown, CircleHelp, Li
 
 import { useAuth, useUserProfile } from "@/context/AuthContext";
 import { trackEvent } from "@/lib/telemetry";
-import { PRIVACY_SUPPORT_EMAIL } from "@/lib/privacy-policy";
 import { cn } from "@/lib/utils";
 
 export function ProfileDropdown() {
@@ -40,8 +39,6 @@ export function ProfileDropdown() {
             ? user.email
             : "Manage account";
     const avatarUrl = typeof user.photoURL === "string" && user.photoURL.trim().length > 0 ? user.photoURL : null;
-    const supportHref = `mailto:${PRIVACY_SUPPORT_EMAIL}?subject=${encodeURIComponent("KandyDrops Support")}`;
-
     return (
         <div className="relative" ref={dropdownRef}>
             <button
@@ -105,7 +102,7 @@ export function ProfileDropdown() {
                         <p className="px-4 pb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-500">Help & policies</p>
                         <nav className="space-y-1">
                             <DropdownItem href="/faq" icon={<CircleHelp className="w-4 h-4" />} label="FAQ" onClick={() => setIsOpen(false)} />
-                            <DropdownItem href={supportHref} icon={<LifeBuoy className="w-4 h-4" />} label="Support" onClick={() => setIsOpen(false)} />
+                            <DropdownItem href="/dashboard/support" icon={<LifeBuoy className="w-4 h-4" />} label="Support" onClick={() => setIsOpen(false)} />
                             <DropdownItem href="/privacy" icon={<FileText className="w-4 h-4" />} label="Policies" onClick={() => setIsOpen(false)} />
                         </nav>
                     </div>
@@ -135,19 +132,6 @@ function DropdownItem({ href, icon, label, onClick }: { href: string; icon: Reac
     };
 
     const className = "flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 rounded-xl transition-all group";
-
-    if (href.startsWith("mailto:")) {
-        return (
-            <a
-                href={href}
-                onClick={handleClick}
-                className={className}
-            >
-                <span className="transition-colors">{icon}</span>
-                {label}
-            </a>
-        );
-    }
 
     return (
         <Link

@@ -905,12 +905,20 @@ export default function AdminUserAnalyticsPage() {
                             <LifeBuoy className="h-4 w-4 text-brand-purple" /> Support Readiness
                         </h3>
                         <p className="mt-1 text-xs leading-6 text-gray-400">
-                            Future in-site support hooks for this account, using today&apos;s bug reports and identity channels without requiring the live chat system yet.
+                            Current in-site support threads and bug-report signals attached to this account.
                         </p>
                     </div>
-                    <span className={`inline-flex items-center rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${getSupportStateClasses(supportReadiness?.summary.state || "ready")}`}>
-                        {supportReadiness?.summary.stateLabel || "Ready for support"}
-                    </span>
+                    <div className="flex flex-wrap gap-2">
+                        <span className={`inline-flex items-center rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${getSupportStateClasses(supportReadiness?.summary.state || "ready")}`}>
+                            {supportReadiness?.summary.stateLabel || "Ready for support"}
+                        </span>
+                        <Link
+                            href={`/admin/support?userId=${targetUser.uid}`}
+                            className="inline-flex items-center rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-200"
+                        >
+                            Open support queue
+                        </Link>
+                    </div>
                 </div>
 
                 <div className="mt-5 grid gap-4 xl:grid-cols-[0.92fr_1.08fr]">
@@ -919,12 +927,12 @@ export default function AdminUserAnalyticsPage() {
                             <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
                                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Support handle</p>
                                 <p className="mt-2 text-lg font-black text-white">{supportReadiness?.summary.primaryHandle || targetUser.username || targetUser.email || targetUser.uid}</p>
-                                <p className="mt-1 text-xs text-gray-400">Primary identity future live support will attach to.</p>
+                                <p className="mt-1 text-xs text-gray-400">Primary identity the in-site support queue attaches to.</p>
                             </div>
                             <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
-                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Future thread key</p>
+                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Support thread key</p>
                                 <p className="mt-2 break-all font-mono text-xs font-semibold text-white">{supportReadiness?.summary.threadKey || `support:${targetUser.uid}`}</p>
-                                <p className="mt-1 text-xs text-gray-400">Stable anchor for future support-thread ownership.</p>
+                                <p className="mt-1 text-xs text-gray-400">Stable ownership anchor for in-site support threads.</p>
                             </div>
                             <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
                                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Open support threads</p>
@@ -934,24 +942,24 @@ export default function AdminUserAnalyticsPage() {
                             <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
                                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Support signals</p>
                                 <p className="mt-2 text-2xl font-black text-white">{supportReadiness?.summary.bugReportCount ?? 0}</p>
-                                <p className="mt-1 text-xs text-gray-400">Bug reports already usable as early support intake.</p>
+                                <p className="mt-1 text-xs text-gray-400">Bug reports still surface here as support intake signals.</p>
                             </div>
                         </div>
 
                         <div className="rounded-[1.5rem] border border-white/10 bg-black/25 p-4">
                             <div className="flex flex-wrap gap-2">
-                                <span className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${supportReadiness?.summary.channels.email ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-200" : "border-white/10 bg-white/5 text-gray-400"}`}>
-                                    Email {supportReadiness?.summary.channels.email ? "ready" : "missing"}
+                                <span className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${supportReadiness?.summary.channels.accountEmail ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-200" : "border-white/10 bg-white/5 text-gray-400"}`}>
+                                    Account email {supportReadiness?.summary.channels.accountEmail ? "on file" : "missing"}
                                 </span>
                                 <span className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${supportReadiness?.summary.channels.inApp ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-200" : "border-white/10 bg-white/5 text-gray-400"}`}>
-                                    In-app {supportReadiness?.summary.channels.inApp ? "ready" : "blocked"}
+                                    In-app support {supportReadiness?.summary.channels.inApp ? "ready" : "blocked"}
                                 </span>
                                 <span className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${supportReadiness?.summary.channels.browserPush ? "border-brand-purple/20 bg-brand-purple/10 text-brand-purple" : "border-white/10 bg-white/5 text-gray-400"}`}>
-                                    Push {supportReadiness?.summary.channels.browserPush ? "enabled" : "off"}
+                                    Push alerts {supportReadiness?.summary.channels.browserPush ? "enabled" : "off"}
                                 </span>
                             </div>
                             <p className="mt-3 text-xs leading-6 text-gray-400">
-                                {supportReadiness?.summary.stateDescription || "No current support thread exists, but the account is ready for future in-site support handoff."}
+                                {supportReadiness?.summary.stateDescription || "No current in-site support thread is open for this account."}
                             </p>
                             <p className="mt-2 text-[11px] text-gray-500">
                                 Last signal: {formatRelativeTimestamp(supportReadiness?.summary.lastSupportAt || 0)} via {supportReadiness?.summary.lastSupportSource === "support_thread" ? "support thread" : supportReadiness?.summary.lastSupportSource === "feedback" ? "bug report" : "no support activity yet"}.
@@ -964,7 +972,7 @@ export default function AdminUserAnalyticsPage() {
                             <div>
                                 <p className="text-sm font-semibold text-white">Recent support signals</p>
                                 <p className="mt-1 text-xs leading-6 text-gray-400">
-                                    Live support threads will plug in here later. For now, existing bug reports and any seeded thread records already surface in the same operational lane.
+                                    Current support threads and bug reports share the same operational lane here.
                                 </p>
                             </div>
                             <span className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
@@ -990,7 +998,7 @@ export default function AdminUserAnalyticsPage() {
                                 </div>
                             )) : (
                                 <div className="rounded-[1.1rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-400">
-                                    No current support conversations or bug reports are attached to this account yet. This lane is ready for future in-site support thread integration.
+                                    No support conversations or bug reports are attached to this account yet.
                                 </div>
                             )}
                         </div>

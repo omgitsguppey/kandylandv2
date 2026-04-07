@@ -96,6 +96,6 @@ describe("CreatorWaitlistPage", () => {
 
         expect(markup).toContain("No documents have been sent yet.");
         expect(markup).toContain("Documents will appear here once your application reaches the legal review stage.");
-        expect(markup).toContain("mailto:support@kandydrops.com?subject=Creator%20application%20support");
+        expect(markup).toContain("/dashboard/support?category=creator_application&amp;subject=Creator+application+support");
     });
 });

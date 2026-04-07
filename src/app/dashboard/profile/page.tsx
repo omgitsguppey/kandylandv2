@@ -18,7 +18,7 @@ import { getBrowserNotificationState } from "@/lib/firebase-messaging";
 import { enableBrowserNotifications } from "@/lib/browser-notification-enrollment";
 import { CREATOR_BOOKING_RATES, CREATOR_SUBSCRIPTION_MIN_GD, DEFAULT_CREATOR_SETTINGS, type CreatorRequestCategoryConfig, type CreatorSettings } from "@/lib/creator-experiences";
 import { getBrowserGlobalPrivacyControl, persistPrivacySettingsSnapshot } from "@/lib/privacy-consent";
-import { PRIVACY_POLICY_LAST_UPDATED, PRIVACY_SUPPORT_EMAIL } from "@/lib/privacy-policy";
+import { PRIVACY_POLICY_LAST_UPDATED } from "@/lib/privacy-policy";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { trackEvent } from "@/lib/telemetry";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
@@ -245,8 +245,6 @@ export default function ProfilePage() {
     const [creatorPayoutAmount, setCreatorPayoutAmount] = useState(100);
     const browserGpcEnabled = useMemo(() => getBrowserGlobalPrivacyControl(), []);
     const isCreatorAccount = userProfile?.role === "creator" || userProfile?.role === "admin";
-    const supportHref = `mailto:${PRIVACY_SUPPORT_EMAIL}?subject=${encodeURIComponent("KandyDrops Support")}`;
-
     useEffect(() => {
         setFormState(normalizedInitialState);
         lastSavedSignatureRef.current = JSON.stringify(normalizedInitialState);
@@ -1349,7 +1347,7 @@ export default function ProfilePage() {
                     </div>
                     <div className="rounded-[1.15rem] border border-white/10 bg-black/30 px-4 py-3">
                         <p className="text-sm font-medium text-gray-100">Support & policies</p>
-                        <p className="mt-1 text-xs leading-5 text-gray-500">Quick access to help, support contact, and policy details from the same account surface where you manage sign-out and security.</p>
+                        <p className="mt-1 text-xs leading-5 text-gray-500">Quick access to help, in-site support, and policy details from the same account surface where you manage sign-out and security.</p>
                         <div className="mt-3 flex flex-wrap gap-2">
                             <Link
                                 href="/faq"
@@ -1358,13 +1356,13 @@ export default function ProfilePage() {
                                 <CircleHelp className="mr-2 h-4 w-4 text-brand-purple" />
                                 FAQ
                             </Link>
-                            <a
-                                href={supportHref}
+                            <Link
+                                href="/dashboard/support"
                                 className="inline-flex min-h-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/10"
                             >
                                 <LifeBuoy className="mr-2 h-4 w-4 text-brand-purple" />
                                 Support
-                            </a>
+                            </Link>
                             <Link
                                 href="/privacy"
                                 className="inline-flex min-h-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/10"

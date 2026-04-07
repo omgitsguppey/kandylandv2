@@ -24,7 +24,9 @@ import {
 import {
     buildSupportThreadKey,
     describeSupportState,
+    describeSupportStateDetail,
     getSupportPrimaryHandle,
+    normalizeSupportThreadCategory,
     normalizeSupportThreadStatus,
     SUPPORT_COLLECTIONS,
 } from "@/lib/support-readiness";
@@ -552,6 +554,7 @@ export async function GET(
                 return {
                     id: doc.id,
                     status: normalizeSupportThreadStatus(data.status),
+                    category: normalizeSupportThreadCategory(data.category),
                     channel: (() => {
                         const channel = readString(data.channel);
                         if (channel === "email" || channel === "feedback" || channel === "system") {
@@ -569,6 +572,13 @@ export async function GET(
                         toTimestampNumber(data.createdAt),
                         toTimestampNumber(data.updatedAt),
                     ),
+                    updatedAt: Math.max(
+                        toTimestampNumber(data.updatedAt),
+                        toTimestampNumber(data.createdAt),
+                    ),
+                    lastMessagePreview: readString(data.lastMessagePreview) || null,
+                    unreadForUser: data.unreadForUser === true,
+                    unreadForAdmin: data.unreadForAdmin === true,
                 };
             })
             .sort((left, right) => right.lastMessageAt - left.lastMessageAt);
@@ -604,7 +614,7 @@ export async function GET(
                 threadKey: buildSupportThreadKey(userId),
                 state: derivedSupportState,
                 stateLabel: supportState,
-                stateDescription: supportState,
+                stateDescription: describeSupportStateDetail(derivedSupportState),
                 totalThreads: supportThreads.length,
                 openThreads: openSupportThreads.length,
                 bugReportCount: supportFeedback.length,
@@ -620,7 +630,7 @@ export async function GET(
                     displayName: user.displayName,
                 }),
                 channels: {
-                    email: Boolean(user.email),
+                    accountEmail: Boolean(user.email),
                     inApp: Boolean(user.uid),
                     browserPush: user.notificationSettings?.browserPushEnabled === true,
                 },

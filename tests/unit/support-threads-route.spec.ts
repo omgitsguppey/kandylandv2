@@ -1,0 +1,201 @@
+import { NextRequest, NextResponse } from "next/server";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const mockState = vi.hoisted(() => {
+    const profileGet = vi.fn(async () => ({
+        exists: true,
+        data: () => ({
+            displayName: "Support User",
+            username: "support-user",
+        }),
+    }));
+
+    return {
+        guardApiRequest: vi.fn(),
+        handleApiError: vi.fn(),
+        listSupportThreadsForUser: vi.fn(),
+        createSupportThread: vi.fn(),
+        getSupportThreadForUser: vi.fn(),
+        addSupportMessage: vi.fn(),
+        updateSupportThreadStatus: vi.fn(),
+        adminDb: {
+            collection: vi.fn(() => ({
+                doc: vi.fn(() => ({
+                    get: profileGet,
+                })),
+            })),
+        },
+        profileGet,
+        reset() {
+            this.guardApiRequest.mockReset();
+            this.handleApiError.mockReset();
+            this.listSupportThreadsForUser.mockReset();
+            this.createSupportThread.mockReset();
+            this.getSupportThreadForUser.mockReset();
+            this.addSupportMessage.mockReset();
+            this.updateSupportThreadStatus.mockReset();
+            this.adminDb.collection.mockClear();
+            this.profileGet.mockClear();
+        },
+    };
+});
+
+vi.mock("@/lib/server/request-guard", () => ({
+    guardApiRequest: mockState.guardApiRequest,
+}));
+
+vi.mock("@/lib/server/auth", () => ({
+    AuthError: class MockAuthError extends Error {
+        status: number;
+
+        constructor(message: string, status: number) {
+            super(message);
+            this.status = status;
+        }
+    },
+    handleApiError: mockState.handleApiError,
+}));
+
+vi.mock("@/lib/server/rate-limit", () => ({
+    STANDARD: {},
+}));
+
+vi.mock("@/lib/server/support-threads", () => ({
+    listSupportThreadsForUser: mockState.listSupportThreadsForUser,
+    createSupportThread: mockState.createSupportThread,
+    getSupportThreadForUser: mockState.getSupportThreadForUser,
+    addSupportMessage: mockState.addSupportMessage,
+    updateSupportThreadStatus: mockState.updateSupportThreadStatus,
+}));
+
+vi.mock("@/lib/server/firebase-admin", () => ({
+    adminDb: mockState.adminDb,
+}));
+
+import { GET as getThreads, POST as postThread } from "@/app/api/support/threads/route";
+import { GET as getThread, PATCH as patchThread, POST as postReply } from "@/app/api/support/threads/[threadId]/route";
+
+describe("support thread routes", () => {
+    beforeEach(() => {
+        mockState.reset();
+        mockState.guardApiRequest.mockResolvedValue({
+            uid: "user_1",
+            email: "user@example.com",
+        });
+        mockState.handleApiError.mockImplementation((error: unknown) => NextResponse.json({
+            error: error instanceof Error ? error.message : "error",
+        }, { status: 500 }));
+    });
+
+    it("lists the current user's support threads", async () => {
+        mockState.listSupportThreadsForUser.mockResolvedValue([
+            {
+                id: "thread_1",
+                status: "waiting_on_support",
+                category: "technical",
+                channel: "in_app",
+                subject: "Upload issue",
+                createdAt: 1,
+                lastMessageAt: 2,
+            },
+        ]);
+
+        const response = await getThreads(new NextRequest("http://localhost/api/support/threads"));
+        const body = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(body.threads).toHaveLength(1);
+        expect(mockState.listSupportThreadsForUser).toHaveBeenCalledWith("user_1");
+    });
+
+    it("creates a support thread with caller profile context", async () => {
+        mockState.createSupportThread.mockResolvedValue({
+            thread: {
+                id: "thread_1",
+                status: "waiting_on_support",
+                category: "creator_application",
+                channel: "in_app",
+                subject: "Creator application support",
+                createdAt: 1,
+                lastMessageAt: 1,
+            },
+            messages: [],
+        });
+
+        const response = await postThread(new NextRequest("http://localhost/api/support/threads", {
+            method: "POST",
+            body: JSON.stringify({
+                subject: "Creator application support",
+                category: "creator_application",
+                message: "My review stage looks stuck.",
+            }),
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(body.thread.thread.id).toBe("thread_1");
+        expect(mockState.createSupportThread).toHaveBeenCalledWith(expect.objectContaining({
+            userId: "user_1",
+            userEmail: "user@example.com",
+            userDisplayName: "Support User",
+            userHandle: "support-user",
+            category: "creator_application",
+        }));
+    });
+
+    it("returns thread detail and allows replies and resolution", async () => {
+        mockState.getSupportThreadForUser
+            .mockResolvedValueOnce({
+                thread: { id: "thread_1", status: "waiting_on_support", category: "technical", channel: "in_app", subject: "Upload issue", createdAt: 1, lastMessageAt: 2 },
+                messages: [],
+            })
+            .mockResolvedValueOnce({
+                thread: { id: "thread_1", status: "waiting_on_support", category: "technical", channel: "in_app", subject: "Upload issue", createdAt: 1, lastMessageAt: 2 },
+                messages: [],
+            })
+            .mockResolvedValueOnce({
+                thread: { id: "thread_1", status: "waiting_on_support", category: "technical", channel: "in_app", subject: "Upload issue", createdAt: 1, lastMessageAt: 3 },
+                messages: [{ id: "msg_1", threadId: "thread_1", senderRole: "user", senderId: "user_1", senderLabel: "user@example.com", body: "Any update?", createdAt: 3 }],
+            })
+            .mockResolvedValueOnce({
+                thread: { id: "thread_1", status: "waiting_on_support", category: "technical", channel: "in_app", subject: "Upload issue", createdAt: 1, lastMessageAt: 3 },
+                messages: [{ id: "msg_1", threadId: "thread_1", senderRole: "user", senderId: "user_1", senderLabel: "user@example.com", body: "Any update?", createdAt: 3 }],
+            })
+            .mockResolvedValueOnce({
+                thread: { id: "thread_1", status: "resolved", category: "technical", channel: "in_app", subject: "Upload issue", createdAt: 1, lastMessageAt: 4 },
+                messages: [],
+            });
+
+        const detailResponse = await getThread(
+            new NextRequest("http://localhost/api/support/threads/thread_1"),
+            { params: Promise.resolve({ threadId: "thread_1" }) },
+        );
+        expect(detailResponse.status).toBe(200);
+
+        const replyResponse = await postReply(
+            new NextRequest("http://localhost/api/support/threads/thread_1", {
+                method: "POST",
+                body: JSON.stringify({ message: "Any update?" }),
+            }),
+            { params: Promise.resolve({ threadId: "thread_1" }) },
+        );
+        const replyBody = await replyResponse.json();
+        expect(replyBody.messages).toHaveLength(1);
+        expect(mockState.addSupportMessage).toHaveBeenCalledWith(expect.objectContaining({
+            threadId: "thread_1",
+            senderRole: "user",
+        }));
+
+        const statusResponse = await patchThread(
+            new NextRequest("http://localhost/api/support/threads/thread_1", {
+                method: "PATCH",
+                body: JSON.stringify({ action: "resolve" }),
+            }),
+            { params: Promise.resolve({ threadId: "thread_1" }) },
+        );
+        const statusBody = await statusResponse.json();
+
+        expect(statusBody.thread.status).toBe("resolved");
+        expect(mockState.updateSupportThreadStatus).toHaveBeenCalledWith("thread_1", "resolved");
+    });
+});

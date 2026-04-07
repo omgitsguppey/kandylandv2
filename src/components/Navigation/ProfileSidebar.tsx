@@ -8,7 +8,6 @@ import { LogOut, LayoutDashboard, Library, Settings, X, Plus, CircleHelp, LifeBu
 import { useAuthIdentity, useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { trackEvent } from "@/lib/telemetry";
-import { PRIVACY_SUPPORT_EMAIL } from "@/lib/privacy-policy";
 
 interface ProfileSidebarProps {
     isOpen: boolean;
@@ -48,8 +47,6 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
     const gumDropsBalance = typeof userProfile?.gumDropsBalance === "number" && Number.isFinite(userProfile.gumDropsBalance)
         ? userProfile.gumDropsBalance
         : 0;
-    const supportHref = `mailto:${PRIVACY_SUPPORT_EMAIL}?subject=${encodeURIComponent("KandyDrops Support")}`;
-
     return (
         <>
             <div
@@ -137,7 +134,7 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
                             <p className="px-1 pb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-500">Help & policies</p>
                             <div className="space-y-1">
                                 <SidebarItem href="/faq" icon={<CircleHelp className="w-5 h-5" />} label="FAQ" onClick={onClose} />
-                                <SidebarItem href={supportHref} icon={<LifeBuoy className="w-5 h-5" />} label="Support" onClick={onClose} />
+                                <SidebarItem href="/dashboard/support" icon={<LifeBuoy className="w-5 h-5" />} label="Support" onClick={onClose} />
                                 <SidebarItem href="/privacy" icon={<FileText className="w-5 h-5" />} label="Policies" onClick={onClose} />
                             </div>
                         </div>
@@ -157,19 +154,6 @@ function SidebarItem({ href, icon, label, onClick }: SidebarItemProps) {
     };
 
     const className = "flex items-center gap-3 px-4 py-3 text-gray-300 rounded-xl transition-all group hover:bg-white/5";
-
-    if (href.startsWith("mailto:")) {
-        return (
-            <a
-                href={href}
-                onClick={handleClick}
-                className={className}
-            >
-                <span className="transition-colors">{icon}</span>
-                <span className="font-medium">{label}</span>
-            </a>
-        );
-    }
 
     return (
         <Link

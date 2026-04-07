@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { buildSupportThreadKey, describeSupportState, getSupportPrimaryHandle, normalizeSupportThreadStatus } from "@/lib/support-readiness";
+import {
+    buildSupportThreadKey,
+    describeSupportState,
+    describeSupportStateDetail,
+    formatSupportCategoryLabel,
+    getSupportPrimaryHandle,
+    normalizeSupportThreadCategory,
+    normalizeSupportThreadStatus,
+} from "@/lib/support-readiness";
 
 describe("getSupportPrimaryHandle", () => {
     it("returns @handle if handle is present", () => {
@@ -26,21 +34,36 @@ describe("getSupportPrimaryHandle", () => {
 
 describe("describeSupportState", () => {
     it("returns 'Needs Attention' for 'open'", () => {
-        expect(describeSupportState("open")).toBe("Needs Attention");
+        expect(describeSupportState("open")).toBe("Waiting on Support");
     });
 
-    it("returns 'Waiting on User' for 'waiting_on_user' or 'waiting_on_support'", () => {
+    it("returns 'Waiting on Support' for 'waiting_on_support'", () => {
+        expect(describeSupportState("waiting_on_support")).toBe("Waiting on Support");
+        expect(describeSupportState("pending")).toBe("Waiting on Support");
+    });
+
+    it("returns 'Waiting on User' for 'waiting_on_user'", () => {
         expect(describeSupportState("waiting_on_user")).toBe("Waiting on User");
-        expect(describeSupportState("waiting_on_support")).toBe("Waiting on User");
     });
 
-    it("returns 'Resolved' for 'resolved'", () => {
+    it("returns 'Resolved' for 'resolved' and 'closed'", () => {
         expect(describeSupportState("resolved")).toBe("Resolved");
+        expect(describeSupportState("closed")).toBe("Resolved");
     });
 
     it("returns 'Ready' for 'ready' (default)", () => {
         expect(describeSupportState("ready")).toBe("Ready");
         expect(describeSupportState("anything" as any)).toBe("Ready");
+    });
+});
+
+describe("describeSupportStateDetail", () => {
+    it("describes waiting on support truthfully", () => {
+        expect(describeSupportStateDetail("waiting_on_support")).toContain("waiting on a support reply");
+    });
+
+    it("describes waiting on user truthfully", () => {
+        expect(describeSupportStateDetail("waiting_on_user")).toContain("belongs to the user");
     });
 });
 
@@ -75,6 +98,27 @@ describe("normalizeSupportThreadStatus", () => {
         expect(normalizeSupportThreadStatus(123)).toBe("open");
         expect(normalizeSupportThreadStatus({})).toBe("open");
         expect(normalizeSupportThreadStatus([])).toBe("open");
+    });
+});
+
+describe("normalizeSupportThreadCategory", () => {
+    it("normalizes known category values", () => {
+        expect(normalizeSupportThreadCategory("technical")).toBe("technical");
+        expect(normalizeSupportThreadCategory("billing")).toBe("billing");
+        expect(normalizeSupportThreadCategory("creator_application")).toBe("creator_application");
+        expect(normalizeSupportThreadCategory("account")).toBe("account");
+    });
+
+    it("falls back to general for unknown values", () => {
+        expect(normalizeSupportThreadCategory("unknown")).toBe("general");
+        expect(normalizeSupportThreadCategory(null)).toBe("general");
+    });
+});
+
+describe("formatSupportCategoryLabel", () => {
+    it("renders human readable labels", () => {
+        expect(formatSupportCategoryLabel("creator_application")).toBe("Creator application");
+        expect(formatSupportCategoryLabel("technical")).toBe("Technical");
     });
 });
 

@@ -2,9 +2,9 @@
 
 Status: Canonical audit standard and live baseline
 Last refreshed: 2026-04-07
-Last full-scale audit execution: 2026-04-07 02:53:19 -05:00
+Last full-scale audit execution: 2026-04-07 03:47:50 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
-Audited HEAD at start: `59d801b`
+Audited HEAD at start: `5d4d2bf`
 
 ## Purpose
 This file is the standing audit contract for the repository.
@@ -108,23 +108,23 @@ Current notable runtime package versions:
 ## Current tracked inventory baseline
 Verified by `npm run check:inventory` on 2026-04-07:
 
-- Total tracked files: `670`
+- Total tracked files: `685`
 - Root files: `54`
 - Root markdown/docs: `16`
 - Root lockfiles: `2`
 - Root config/runtime/tooling files: `36`
-- `src`: `379`
-- `src/app`: `126`
-- `src/components`: `70`
+- `src`: `389`
+- `src/app`: `132`
+- `src/components`: `73`
 - `src/context`: `4`
 - `src/hooks`: `14`
-- `src/lib`: `142`
-- `src/lib/server`: `59`
+- `src/lib`: `143`
+- `src/lib/server`: `60`
 - `src/types`: `3`
 - `functions`: `37`
 - `functions/src`: `30`
 - `scripts`: `17`
-- `tests`: `115`
+- `tests`: `120`
 - `public`: `11`
 - `dataconnect`: `14`
 - `src/dataconnect-generated`: `15`
@@ -1809,3 +1809,149 @@ Initial AI audit findings before implementation:
 - the server AI runtime still preserves an older non-Gemini publisher-model `:predict` branch even though the current product path is Gemini image generation
 - the Admin AI page is truthful about not doing hidden training, but it still relies on 10-second polling only and does not show a canonical per-job consistency recipe or why retained references were selected
 - recent live drop covers and retained positive AI covers are visible, but their reuse value is only partially observable because the page does not surface positive reuse counts or ranked selection reasons
+
+### Continuation: In-site Support Foundation and Dead Support Redirect Removal
+Current audit date: 2026-04-07 03:43:16 -05:00
+Current branch / commit for continuation start: `main` / `5d4d2bf`
+Continuation task:
+- full codebase audit for dead or misleading support handling
+- implement a simple real in-site support ticket foundation
+- remove signed-in support redirects to the nonexistent support email
+- keep the support foundation mobile-first and admin-operable
+
+Continuation start state:
+- working tree clean at continuation start
+- canonical startup docs re-read:
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+  - `REPO_MEMORY_LEDGER.md`
+  - `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- initial support audit findings:
+  - no real in-site support inbox existed even though `support_threads` / `support_messages` scaffolding already existed
+  - signed-in support entry points in profile navigation and dashboard/profile still redirected to a dead `mailto:` address
+  - creator application support CTAs also still routed to the dead support email
+  - admin user detail still framed support readiness as future-only instead of reflecting live support state
+
+Exact touched surfaces:
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `REPO_MEMORY_LEDGER.md`
+- `src/lib/privacy-policy.ts`
+- `src/lib/support-readiness.ts`
+- `src/lib/server/support-threads.ts`
+- `src/lib/telemetry-catalog.ts`
+- `src/lib/analytics-semantics.ts`
+- `src/app/api/support/threads/route.ts`
+- `src/app/api/support/threads/[threadId]/route.ts`
+- `src/app/api/admin/support/threads/route.ts`
+- `src/app/api/admin/support/threads/[threadId]/route.ts`
+- `src/app/dashboard/support/page.tsx`
+- `src/app/admin/support/page.tsx`
+- `src/components/Support/SupportInbox.tsx`
+- `src/components/Admin/AdminSupportQueue.tsx`
+- `src/components/Navigation/ProfileDropdown.tsx`
+- `src/components/Navigation/ProfileSidebar.tsx`
+- `src/app/dashboard/profile/page.tsx`
+- `src/app/admin/layout.tsx`
+- `src/components/Navigation/AdminDropdown.tsx`
+- `src/app/creators/apply/page.tsx`
+- `src/app/creators/waitlist/page.tsx`
+- `src/app/(legal)/privacy/page.tsx`
+- `src/app/api/admin/user/[userId]/route.ts`
+- `src/app/admin/user/[userId]/page.tsx`
+- `tests/unit/support-readiness.spec.ts`
+- `tests/unit/support-threads-route.spec.ts`
+- `tests/unit/admin-support-threads-route.spec.ts`
+- `tests/unit/creator-waitlist-page.spec.tsx`
+- `tests/ui-audits/visual-regression.spec.ts-snapshots/privacy-page-chromium-win32.png`
+- `tests/ui-audits/visual-regression.spec.ts-snapshots/privacy-page-Mobile-Chrome-win32.png`
+
+Canonical helpers and modules actually reused:
+- `src/lib/support-readiness.ts`
+- `src/lib/server/auth.ts`
+- `src/lib/server/request-guard.ts`
+- `src/lib/server/firebase-admin.ts`
+- `src/hooks/useAuthSWR.ts`
+- `src/hooks/useAdminPollingSWR.ts`
+- `src/lib/authFetch.ts`
+- `src/lib/client-error-reporting.ts`
+- `src/components/Admin/AdminPageHeader.tsx`
+- `src/components/ui/Button.tsx`
+
+Implementation results:
+- a real signed-in support inbox now exists at `/dashboard/support`
+  - users can create tickets
+  - users can reply in-thread
+  - users can resolve and reopen their own tickets
+  - the inbox polls the live support routes every 10 seconds instead of faking a saved or queued state
+- a real admin support queue now exists at `/admin/support`
+  - admins can filter threads by queue status
+  - admins can read message history
+  - admins can reply and move threads between waiting/resolved states
+- signed-in support entry points no longer use a dead email redirect
+  - profile dropdown support now opens `/dashboard/support`
+  - profile sidebar support now opens `/dashboard/support`
+  - dashboard profile support card now opens `/dashboard/support`
+  - creator application and waitlist support actions now deep-link into `/dashboard/support` with creator-application context
+- privacy/legal copy no longer advertises the nonexistent support email and now points signed-in users to the in-site support flow
+- admin user detail support readiness is now truthful
+  - support readiness no longer claims support is future-only
+  - support chips now distinguish account email presence from in-app support availability
+  - the support lane links directly into the new admin support queue for that user
+- support telemetry is now cataloged
+  - `support_inbox_viewed`
+  - `admin_support_viewed`
+
+Runtime truth and continuity implications:
+- support is now an actual in-site thread/message system instead of a dead redirect
+- bug reports in `platform_feedback` remain support intake signals, not the primary ticket system
+- `support_threads` is the support summary source of truth and `support_messages` subcollections are the conversation source of truth
+- current support is polling-backed, not socket-streamed
+- no signed-in support surface now implies email support exists
+
+Commands run for continuation:
+- `git status --short`
+- adjacency traces:
+  - `npm run trace:adjacent -- src/app/dashboard/profile/page.tsx`
+  - `npm run trace:adjacent -- src/components/Feedback/ReportBugButton.tsx`
+  - `npm run trace:adjacent -- src/app/api/admin/feedback/route.ts`
+  - `npm run trace:adjacent -- src/lib/support-readiness.ts`
+  - `npm run trace:adjacent -- src/lib/server/support-threads.ts`
+  - `npm run trace:adjacent -- src/components/Support/SupportInbox.tsx`
+  - `npm run trace:adjacent -- src/components/Admin/AdminSupportQueue.tsx`
+  - `npm run trace:adjacent -- src/app/api/support/threads/route.ts`
+  - `npm run trace:adjacent -- src/app/api/admin/support/threads/route.ts`
+- focused lint:
+  - `npx eslint 'src/lib/privacy-policy.ts' 'src/lib/support-readiness.ts' 'src/lib/server/support-threads.ts' 'src/app/api/support/threads/route.ts' 'src/app/api/support/threads/[threadId]/route.ts' 'src/app/api/admin/support/threads/route.ts' 'src/app/api/admin/support/threads/[threadId]/route.ts' 'src/components/Support/SupportInbox.tsx' 'src/components/Admin/AdminSupportQueue.tsx' 'src/app/dashboard/support/page.tsx' 'src/app/admin/support/page.tsx' 'src/components/Navigation/ProfileDropdown.tsx' 'src/components/Navigation/ProfileSidebar.tsx' 'src/app/dashboard/profile/page.tsx' 'src/app/admin/layout.tsx' 'src/components/Navigation/AdminDropdown.tsx' 'src/app/creators/apply/page.tsx' 'src/app/creators/waitlist/page.tsx' 'src/app/(legal)/privacy/page.tsx' 'src/app/api/admin/user/[userId]/route.ts' 'src/app/admin/user/[userId]/page.tsx' 'tests/unit/support-readiness.spec.ts' 'tests/unit/support-threads-route.spec.ts' 'tests/unit/admin-support-threads-route.spec.ts' 'tests/unit/creator-waitlist-page.spec.tsx'`
+- focused tests:
+  - `corepack pnpm exec vitest run tests/unit/support-readiness.spec.ts tests/unit/support-threads-route.spec.ts tests/unit/admin-support-threads-route.spec.ts tests/unit/creator-waitlist-page.spec.tsx`
+- repo-wide verification:
+  - `npm run check:inventory`
+  - `corepack pnpm run check`
+  - `npx vitest run`
+  - `npm run check:ui:lighthouse`
+  - `npm run check:ui:audits`
+  - `npm run check:continuity`
+  - `npm run check:telemetry`
+  - `npx cross-env PLAYWRIGHT_USE_BUILD=1 playwright test tests/ui-audits/visual-regression.spec.ts --project=chromium --project="Mobile Chrome" --grep "privacy hero stays stable" --update-snapshots`
+
+Continuation results:
+- focused lint passed
+- focused support tests passed with `3` files and `29` tests
+- `npm run check:inventory` passed
+- `corepack pnpm run check` passed
+- `npx vitest run` passed with `92` files and `454` tests
+- `npm run check:ui:lighthouse` passed
+- `npm run check:ui:audits` passed after refreshing the privacy hero baseline for the intentional in-site support copy change
+- `npm run check:continuity` passed
+- `npm run check:telemetry` passed with `0` orphaned events
+- generated `playwright-report/` and `test-results/` artifacts were removed before signoff
+
+Known warnings and non-blocking notices during continuation:
+- npm unknown env config warnings during canonical script chains
+- `check:firebase-runtime` informational dotenv logs inside the canonical `check` pipeline
+- Node `punycode` deprecation warnings from Firebase/Vitest tooling
+- Lighthouse cleanup emitted temporary Windows `EPERM` warnings while deleting temp folders after successful audits
+
+Continuation follow-up gaps:
+- support is polling-backed at 10 seconds and does not yet use realtime listeners or sockets
+- public signed-out/legal support still routes users toward authenticated in-site support rather than a separate guest intake flow
+- bug reports and support threads are intentionally separate; there is no automatic bug-report-to-ticket conversion yet

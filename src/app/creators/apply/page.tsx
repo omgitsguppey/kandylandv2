@@ -94,10 +94,10 @@ export default function CreatorApplyPage() {
                             </Link>
                         ) : (
                             <Link
-                                href="/dashboard/profile"
+                                href="/dashboard/support?category=creator_application&subject=Creator%20application%20support"
                                 className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white"
                             >
-                                Open profile support
+                                Open creator support
                                 <ArrowRight className="h-4 w-4" />
                             </Link>
                         )}
@@ -113,7 +113,7 @@ export default function CreatorApplyPage() {
 
                     {user && !hasCreatorApplication && !loading ? (
                         <p className="mt-4 rounded-[1.25rem] border border-amber-400/20 bg-amber-400/10 px-4 py-3 text-xs leading-6 text-amber-100">
-                            You are already signed into a regular account. Use your profile support options if this account should enter creator review.
+                            You are already signed into a regular account. Use the in-site creator support flow if this account should enter creator review.
                         </p>
                     ) : null}
                 </section>

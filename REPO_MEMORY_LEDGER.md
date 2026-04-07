@@ -490,3 +490,36 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `src/app/api/admin/analytics/realtime/route.ts`
   - `FULL_SCALE_CODEBASE_AUDIT.md`
 - Follow-up gaps: The scaling input is registered-user count, not direct billing export or traffic forecasting; future passes can refine tiers if real usage patterns diverge.
+
+### 24. Signed-in support is in-site only and runs through support threads, not mailto links
+- Approximate date: Canonicalized and recorded on 2026-04-07
+- Status: Active user/admin support rule
+- Problem/context: The signed-in product still exposed dead `mailto:` support redirects even though no real support inbox email existed. The repo already had latent `support_threads` / `support_messages` scaffolding, but no live in-site support foundation for users or admins.
+- Decision made: Make signed-in support in-site only. The canonical support foundation is now a dashboard support inbox for users and an admin support queue for operators, backed by `support_threads` top-level documents and `support_messages` subcollections. Bug reports remain a separate intake signal, not a second ticketing system.
+- What became canonical:
+  - signed-in support entry points route to `/dashboard/support`
+  - creator-application support deep-links into the same inbox with prefilled subject/category context
+  - admin support operations live at `/admin/support`
+  - `support_threads` holds the thread summary and ownership fields
+  - `support_messages` subcollections hold the thread conversation
+  - user replies move a thread to `waiting_on_support`
+  - admin replies move a thread to `waiting_on_user`
+  - resolved threads stay visible and can be reopened
+  - admin user detail support readiness now reflects real in-site support state instead of future-placeholder copy
+- What is now disallowed or deprecated:
+  - signed-in support mailto links
+  - treating `platform_feedback` as the primary support system
+  - describing the admin support lane as a future integration when real in-site threads exist
+- Truth lives in:
+  - `src/lib/support-readiness.ts`
+  - `src/lib/server/support-threads.ts`
+  - `src/app/api/support/threads/route.ts`
+  - `src/app/api/support/threads/[threadId]/route.ts`
+  - `src/app/api/admin/support/threads/route.ts`
+  - `src/app/api/admin/support/threads/[threadId]/route.ts`
+  - `src/app/dashboard/support/page.tsx`
+  - `src/components/Support/SupportInbox.tsx`
+  - `src/app/admin/support/page.tsx`
+  - `src/components/Admin/AdminSupportQueue.tsx`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: The support inbox/queue is polling-backed rather than socket-streamed, and signed-out public/legal support still routes users into authenticated in-site support instead of a separate guest intake path.

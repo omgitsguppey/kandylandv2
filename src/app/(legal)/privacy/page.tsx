@@ -4,7 +4,7 @@ import { ExternalLink, FileText, Lock, ShieldCheck } from "lucide-react";
 
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { LegalBackLink } from "@/components/Legal/LegalBackLink";
-import { PRIVACY_POLICY_LAST_UPDATED, PRIVACY_SUPPORT_EMAIL } from "@/lib/privacy-policy";
+import { PRIVACY_POLICY_LAST_UPDATED } from "@/lib/privacy-policy";
 import { SITE_ORIGIN } from "@/lib/site-origin";
 
 export const metadata: Metadata = {
@@ -77,10 +77,10 @@ export default function PrivacyPage() {
                 Support contact
               </div>
               <p className="text-xs leading-6 text-gray-400">
-                Privacy and data-rights requests can be sent to{" "}
-                <a href={`mailto:${PRIVACY_SUPPORT_EMAIL}`} className="text-brand-purple hover:underline">
-                  {PRIVACY_SUPPORT_EMAIL}
-                </a>.
+                Signed-in users can send privacy and data-rights requests through{" "}
+                <Link href="/dashboard/support" className="text-brand-purple hover:underline">
+                  in-site support
+                </Link>.
               </p>
             </div>
           </div>
@@ -177,10 +177,11 @@ export default function PrivacyPage() {
             <li><strong>Correction:</strong> update your profile details and settings from your dashboard.</li>
             <li><strong>Withdrawal of consent:</strong> turn off optional analytics or recommendation settings at any time.</li>
             <li><strong>Deletion:</strong> use the account deletion flow in the dashboard, or contact support if you cannot access your account.</li>
-            <li><strong>Complaints or requests:</strong> email{" "}
-              <a href={`mailto:${PRIVACY_SUPPORT_EMAIL}`} className="text-brand-purple hover:underline">
-                {PRIVACY_SUPPORT_EMAIL}
-              </a>.
+            <li><strong>Complaints or requests:</strong> use{" "}
+              <Link href="/dashboard/support" className="text-brand-purple hover:underline">
+                in-site support
+              </Link>{" "}
+              from your dashboard.
             </li>
             <li><strong>Supervisory authority:</strong> if you believe your data has been handled unlawfully, you may also raise a complaint with your local data protection authority.</li>
           </ul>
@@ -188,10 +189,10 @@ export default function PrivacyPage() {
 
         <Section title="9. Contact">
           <p>
-            For privacy, data-rights, or account-security questions, email{" "}
-            <a href={`mailto:${PRIVACY_SUPPORT_EMAIL}`} className="text-brand-purple hover:underline">
-              {PRIVACY_SUPPORT_EMAIL}
-            </a>.
+            For privacy, data-rights, or account-security questions, use{" "}
+            <Link href="/dashboard/support" className="text-brand-purple hover:underline">
+              in-site support
+            </Link>.
           </p>
           <p>
             If you are contacting us about a data request, include the email address tied to your account so we can verify the request safely before acting on it.
@@ -210,9 +211,9 @@ export default function PrivacyPage() {
               FAQ
             </Link>
             {" | "}
-            <a href={`mailto:${PRIVACY_SUPPORT_EMAIL}`} className="text-brand-purple hover:underline">
-              Contact Support
-            </a>
+            <Link href="/dashboard/support" className="text-brand-purple hover:underline">
+              Support
+            </Link>
             {" | "}
             <a href={SITE_ORIGIN} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-brand-purple hover:underline">
               Visit site

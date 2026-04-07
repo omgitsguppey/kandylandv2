@@ -36,7 +36,6 @@ import {
     getCreatorOnboardingStatusSummary,
     KREATOR_EXPERIENCES_DEFINITION,
 } from "@/lib/creator-onboarding";
-import { PRIVACY_SUPPORT_EMAIL } from "@/lib/privacy-policy";
 
 type CreatorApplicationState = NonNullable<NonNullable<ReturnType<typeof useAuth>["userProfile"]>["creatorApplication"]>;
 type IdUploadSide = "front" | "back" | "face_with_id" | "video_with_id";
@@ -111,26 +110,25 @@ function buildUploadButtonLabel(selectedCount: number) {
     return "Choose files to upload";
 }
 
-function buildCreatorSupportHref(input: {
+function buildCreatorSupportPath(input: {
     userId?: string | null;
     username?: string | null;
     creatorDisplayName?: string | null;
     stage: string;
 }) {
-    const subject = encodeURIComponent("Creator application support");
-    const body = encodeURIComponent([
-        "Hi KandyDrops creator support,",
-        "",
-        "I need help with my creator application.",
-        `Current stage: ${input.stage}`,
-        input.creatorDisplayName ? `Creator name: ${input.creatorDisplayName}` : null,
-        input.username ? `Username: @${input.username}` : null,
-        input.userId ? `User ID: ${input.userId}` : null,
-        "",
-        "Please review my application and let me know what needs attention.",
-    ].filter(Boolean).join("\n"));
+    const params = new URLSearchParams({
+        category: "creator_application",
+        subject: "Creator application support",
+        message: [
+            "I need help with my creator application.",
+            `Current stage: ${input.stage}`,
+            input.creatorDisplayName ? `Creator name: ${input.creatorDisplayName}` : null,
+            input.username ? `Username: @${input.username}` : null,
+            input.userId ? `User ID: ${input.userId}` : null,
+        ].filter(Boolean).join("\n"),
+    });
 
-    return `mailto:${PRIVACY_SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
+    return `/dashboard/support?${params.toString()}`;
 }
 
 function buildDefaultEditableDraft(value: CreatorApplicationState | null | undefined): EditableApplicationDraft {
@@ -228,7 +226,7 @@ export default function CreatorWaitlistPage() {
     const selectedUploadCount = Object.values(selectedIdFiles).filter(Boolean).length;
     const hasSelectedFiles = selectedUploadCount > 0;
     const uploadButtonLabel = buildUploadButtonLabel(selectedUploadCount);
-    const creatorSupportHref = buildCreatorSupportHref({
+    const creatorSupportHref = buildCreatorSupportPath({
         userId: user?.uid ?? null,
         username: userProfile?.username ?? null,
         creatorDisplayName: creatorApplication?.creatorDisplayName ?? null,
@@ -562,17 +560,17 @@ export default function CreatorWaitlistPage() {
                             </p>
                             <div className="mt-6 flex flex-wrap gap-3">
                                 <Link
-                                    href="/dashboard/profile"
+                                    href="/dashboard/support?category=creator_application&subject=Creator%20application%20support"
                                     className="rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-purple/20"
                                 >
-                                    Open profile support
+                                    Open creator support
                                 </Link>
-                                <a
+                                <Link
                                     href={creatorSupportHref}
                                     className="rounded-full border border-white/10 bg-black/30 px-5 py-3 text-sm font-semibold text-gray-200"
                                 >
                                     Contact creator support
-                                </a>
+                                </Link>
                             </div>
                         </div>
                     ) : (
@@ -652,12 +650,12 @@ export default function CreatorWaitlistPage() {
                                                 Revise application
                                             </a>
                                         ) : null}
-                                        <a
+                                        <Link
                                             href={creatorSupportHref}
                                             className="rounded-full border border-white/10 bg-black/25 px-4 py-2 text-sm font-semibold text-white transition-colors hover:border-white/20"
                                         >
                                             Contact creator support
-                                        </a>
+                                        </Link>
                                     </div>
                                 </div>
 
@@ -946,12 +944,12 @@ export default function CreatorWaitlistPage() {
                             >
                                 {savingApplication ? "Saving..." : "Save application changes"}
                             </button>
-                            <a
+                            <Link
                                 href={creatorSupportHref}
                                 className="rounded-full border border-white/10 bg-black/30 px-5 py-3 text-sm font-semibold text-gray-200"
                             >
                                 Contact creator support
-                            </a>
+                            </Link>
                         </div>
                     </section>
                 ) : null}
@@ -1061,12 +1059,12 @@ export default function CreatorWaitlistPage() {
                                 Use creator support if your application looks stuck, if the stage on this page contradicts what you were told, or if a required file or legal step is missing after review should have reached it.
                             </p>
                             <div className="mt-4 flex flex-wrap gap-3">
-                                <a
+                                <Link
                                     href={creatorSupportHref}
                                     className="rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-purple/20"
                                 >
-                                    Email creator support
-                                </a>
+                                    Open creator support
+                                </Link>
                                 <Link
                                     href="/dashboard/profile"
                                     className="rounded-full border border-white/10 bg-black/30 px-5 py-3 text-sm font-semibold text-gray-200"

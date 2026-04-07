@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { House, LayoutDashboard, Package, TrendingUp, Users, Terminal, LogOut, ShieldCheck } from "lucide-react";
+import { House, LayoutDashboard, Package, TrendingUp, Users, Terminal, LogOut, ShieldCheck, LifeBuoy } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -34,6 +34,7 @@ export function AdminDropdown() {
         { label: "Analytics", href: "/admin/analytics", icon: TrendingUp },
         { label: "Drops", href: "/admin/drops", icon: Package },
         { label: "Users", href: "/admin/users", icon: Users },
+        { label: "Support", href: "/admin/support", icon: LifeBuoy },
         { label: "Debug Console", href: "/admin/debug", icon: Terminal },
     ];
 
