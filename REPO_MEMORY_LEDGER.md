@@ -382,3 +382,39 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `src/components/Admin/AiDropCoverGeneratorPanel.tsx`
   - `FULL_SCALE_CODEBASE_AUDIT.md`
 - Follow-up gaps: `gemini-3-pro-image-preview` remains preview-stage and may need a future replacement path if Google changes availability, pricing, or lifecycle.
+
+### 20. Admin dashboard hydration health is reported back into debug as a canonical client-to-server signal
+- Approximate date: Canonicalized and recorded on 2026-04-07
+- Status: Active canonical admin-debug rule
+- Problem/context: Admin overview and analytics pages had real loading/degradation logic, but those failures were trapped in local page state. The debug panel could not tell operators which admin modules were currently loaded, degraded, empty, or failed across the dashboard surfaces.
+- Decision made: Add a canonical admin UI chart-health contract that lets admin overview modules and analytics sections report their latest hydration state back to the server, and let the debug route consume that reported state to build truthful analytics/overview panel logs.
+- What became canonical:
+  - admin overview modules and analytics sections report structured health items with:
+    - page
+    - category
+    - source
+    - status
+    - hydration state
+    - data presence
+    - issue list
+    - last updated time
+  - those reports are persisted in `admin_ui_chart_health`
+  - `/api/admin/debug` returns the latest admin UI chart-health items and category summaries
+  - the debug panel shows exact reported module/chart health instead of simulated readiness copy
+  - overview mixed-source modules stay explicit about whether they are snapshot, realtime, or mixed-client-live
+- What is now disallowed or deprecated:
+  - treating local admin page loading banners as sufficient observability for debug
+  - debug summaries that imply analytics coverage exists when the matching admin surface has not reported in
+  - claiming a chart is healthy when its current read path is degraded or failed in the client
+- Truth lives in:
+  - `src/lib/admin-ui-chart-health.ts`
+  - `src/lib/server/admin-ui-chart-health.ts`
+  - `src/app/api/admin/ui-chart-health/route.ts`
+  - `src/hooks/useAdminUiChartHealthReporter.ts`
+  - `src/app/admin/page.tsx`
+  - `src/app/admin/analytics/page.tsx`
+  - `src/app/admin/debug/page.tsx`
+  - `src/app/api/admin/debug/route.ts`
+  - `src/lib/server/admin-panel-system-logs.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: The signal is latest-state reporting, not a long-lived historical time series, and section cards are the current granularity rather than individual sub-chart primitives within a card.

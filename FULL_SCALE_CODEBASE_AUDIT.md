@@ -1413,3 +1413,158 @@ Continuation follow-up gaps:
 - `overview.session_runtime` remains `warn` until `NAVIGATION_COOKIE_SECRET` is configured in the runtime environment
 - `tasks.integrity_and_parity` still fails with live assignment/economy drift and was not broadened into a separate repair pass here
 - `ops.diagnostics_materializers` still fails because recent real diagnostics remain in the sampled window even after the route/index fixes; this is truthful and should decay naturally if no new errors recur
+
+### Continuation: Admin Dashboard UI Hydration + Debug Chart Logging Pass
+Current audit date: 2026-04-06 23:58:00 -05:00
+Current branch / commit for continuation start: `main` / `fbce504`
+Continuation task:
+- refactor the admin dashboard UI so overview and analytics surfaces expose truthful hydration state
+- add robust debug-panel logging for every admin overview module and every admin analytics chart section/category
+- close broad admin UI truth gaps with testing, not decorative loading copy
+
+Continuation start state:
+- working tree clean at continuation start
+- canonical startup docs re-read:
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+  - `REPO_MEMORY_LEDGER.md`
+  - `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- adjacency traces run before editing:
+  - `npm run trace:adjacent -- src/app/admin/page.tsx`
+  - `npm run trace:adjacent -- src/app/admin/analytics/page.tsx`
+  - `npm run trace:adjacent -- src/app/admin/debug/page.tsx`
+  - `npm run trace:adjacent -- src/app/api/admin/debug/route.ts`
+
+Planned continuation surfaces before implementation:
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `src/app/admin/page.tsx`
+- `src/app/admin/analytics/page.tsx`
+- `src/app/admin/debug/page.tsx`
+- `src/app/api/admin/debug/route.ts`
+- `src/components/Admin/AdminDashboardModule.tsx`
+- `src/components/Admin/AdminDropsAtGlancePanel.tsx`
+- `src/components/Admin/AdminAnalyticsCharts.tsx`
+- `src/components/Admin/AdminStatsBar.tsx`
+- `src/components/Admin/RecentTransactionsPanel.tsx`
+- `src/components/Admin/AdminActivityLogPanel.tsx`
+- `src/components/Admin/TopDropsPanel.tsx`
+- `src/hooks/useAdminOverview.ts`
+- `src/hooks/useAdminPollingSWR.ts`
+- new admin UI chart-health helpers/routes/tests as required by the implementation
+
+Canonical helpers and modules targeted for reuse in this continuation:
+- `src/lib/admin-overview.ts`
+- `src/hooks/useAdminOverview.ts`
+- `src/hooks/useAdminPollingSWR.ts`
+- `src/app/api/admin/overview/route.ts`
+- `src/app/api/admin/analytics/historical/route.ts`
+- `src/app/api/admin/analytics/realtime/route.ts`
+- `src/lib/server/admin-ops-health.ts`
+- `src/lib/server/admin-panel-system-logs.ts`
+- `src/lib/admin-panel-system-logs.ts`
+- `src/lib/server/request-guard.ts`
+- `src/lib/server/auth.ts`
+
+Continuation implementation:
+- added a canonical admin UI chart-health contract in `src/lib/admin-ui-chart-health.ts`
+- added a persisted admin chart-health store in `src/lib/server/admin-ui-chart-health.ts` using `admin_ui_chart_health`
+- added `GET`/`PUT` admin chart-health route coverage in `src/app/api/admin/ui-chart-health/route.ts`
+- added `useAdminUiChartHealthReporter` so admin overview and analytics surfaces report their live hydration state back into the canonical debug pipeline instead of keeping chart failures trapped in local page state
+- wired admin overview page health reporting for:
+  - `dashboard.platform_pulse`
+  - `dashboard.revenue_trends`
+  - `dashboard.top_performing_drops`
+- wired `AdminDropsAtGlancePanel`, `RecentTransactionsPanel`, and `AdminActivityLogPanel` so each module reports loaded, degraded, empty, or failed state with source type and last updated time
+- wired admin analytics page reporting for every current section-level analytics surface across all categories:
+  - operations
+  - audience
+  - commerce
+  - security
+- extended `buildAdminPanelSystemLogs` so the debug route emits real `analytics.*_chart_health` logs per category instead of generic decorative summaries
+- extended `/api/admin/debug` so it returns:
+  - `analyticsChartHealth`
+  - `adminUiChartsReported`
+  - `adminUiChartWarnings`
+  - `adminUiChartFailures`
+- added a new debug monitoring lane section in `src/app/admin/debug/page.tsx` that lists each latest reported chart/module with:
+  - page
+  - category
+  - source
+  - health status
+  - hydration state
+  - data presence
+  - last updated time
+  - top issues
+  - next action
+- kept the system truthful:
+  - no chart is presented as healthy if it only has background-degraded or failed reads
+  - no debug lane claims chart coverage exists until the client has actually reported it
+  - empty state is explicit when a matching admin surface has not been opened recently
+
+Exact touched surfaces for continuation:
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `src/app/admin/page.tsx`
+- `src/app/admin/analytics/page.tsx`
+- `src/app/admin/debug/page.tsx`
+- `src/app/api/admin/debug/route.ts`
+- `src/app/api/admin/ui-chart-health/route.ts`
+- `src/components/Admin/AdminActivityLogPanel.tsx`
+- `src/components/Admin/AdminDropsAtGlancePanel.tsx`
+- `src/components/Admin/RecentTransactionsPanel.tsx`
+- `src/hooks/useAdminUiChartHealthReporter.ts`
+- `src/lib/admin-panel-system-logs.ts`
+- `src/lib/admin-ui-chart-health.ts`
+- `src/lib/server/admin-panel-system-logs.ts`
+- `src/lib/server/admin-ui-chart-health.ts`
+- `tests/unit/admin-panel-system-logs.spec.ts`
+- `tests/unit/admin-ui-chart-health-route.spec.ts`
+- `tests/unit/admin-ui-chart-health.spec.ts`
+
+Commands run for continuation:
+- `git status --short`
+- adjacency traces:
+  - `npm run trace:adjacent -- src/app/admin/page.tsx`
+  - `npm run trace:adjacent -- src/app/admin/analytics/page.tsx`
+  - `npm run trace:adjacent -- src/app/admin/debug/page.tsx`
+  - `npm run trace:adjacent -- src/app/api/admin/debug/route.ts`
+- focused lint:
+  - `npx eslint src/app/admin/page.tsx src/app/admin/analytics/page.tsx src/app/admin/debug/page.tsx src/app/api/admin/debug/route.ts src/app/api/admin/ui-chart-health/route.ts src/components/Admin/AdminDropsAtGlancePanel.tsx src/components/Admin/RecentTransactionsPanel.tsx src/components/Admin/AdminActivityLogPanel.tsx src/hooks/useAdminUiChartHealthReporter.ts src/lib/admin-ui-chart-health.ts src/lib/admin-panel-system-logs.ts src/lib/server/admin-ui-chart-health.ts src/lib/server/admin-panel-system-logs.ts tests/unit/admin-ui-chart-health.spec.ts tests/unit/admin-ui-chart-health-route.spec.ts tests/unit/admin-panel-system-logs.spec.ts`
+- focused tests:
+  - `corepack pnpm exec vitest run tests/unit/admin-ui-chart-health.spec.ts tests/unit/admin-ui-chart-health-route.spec.ts tests/unit/admin-panel-system-logs.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/admin-overview-route.spec.ts tests/unit/admin-ops-health.spec.ts`
+- UI and repo-wide verification:
+  - `npm run check:ui:lighthouse`
+  - `npm run check:ui:audits`
+  - `npx vitest run`
+  - `corepack pnpm run check`
+  - `npm run check:inventory`
+  - `npm run check:continuity`
+
+Continuation results:
+- focused lint passed
+- focused Vitest passed with `6` files and `13` tests
+- `npm run check:ui:lighthouse` passed
+- `npm run check:ui:audits` passed
+- `npx vitest run` passed with `87` files and `434` tests
+- `corepack pnpm run check` passed
+- `npm run check:inventory` passed with `663` tracked files and `112` test files
+- `npm run check:continuity` passed
+- no pre-existing untracked repo files were present at continuation start
+- generated verification artifacts `playwright-report/` and `test-results/` were removed before final signoff
+
+Runtime truth and continuity implications from continuation:
+- admin overview and analytics hydration health is now fed back into the canonical debug route instead of being trapped in local component state
+- the debug panel can now show which exact admin modules and analytics sections are loaded, degraded, empty, or failed
+- category-level debug panel logs for analytics are now derived from the real latest client reports rather than simulated health summaries
+- overview modules that use mixed live/polled sources now declare that source truth explicitly in the reported health item
+- recent-transactions live fallback remains truthful because the reported source flips between realtime and overview snapshot paths
+
+Known warnings and non-blocking notices during continuation:
+- npm unknown env config warnings during canonical script chains
+- `check:firebase-runtime` informational dotenv logs inside the canonical `check` pipeline
+- Node `punycode` deprecation warnings from Firebase/Vitest tooling
+- `check:ui:audits` still emits the recurring post-run WebServer `transformAlgorithm` warning after all tests pass
+- Lighthouse cleanup emitted temporary Windows `EPERM` warnings while deleting temp folders after successful audits
+
+Continuation follow-up gaps:
+- chart-health reporting is client-reported and polled; it is not provider-side streaming telemetry
+- the debug page now reports every current overview module and every analytics section/category, but it does not yet inspect individual Recharts primitives inside a single section card as separate debug records
+- the new `admin_ui_chart_health` collection is intentionally bounded by latest-key snapshots and does not retain a long historical series yet

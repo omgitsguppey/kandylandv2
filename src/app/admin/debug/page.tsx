@@ -24,6 +24,7 @@ import { useAdminOverview } from "@/hooks/useAdminOverview";
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import { useCompactViewport } from "@/hooks/useCompactViewport";
 import type { AdminAiDebugSummary } from "@/lib/ai-debug-assistant";
+import { summarizeAdminUiChartHealth } from "@/lib/admin-ui-chart-health";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { cn } from "@/lib/utils";
@@ -63,6 +64,12 @@ function getPipelineStatusLabel(status?: string) {
     if (status === "fail") return "Active";
     if (status === "warn") return "Recent";
     return "Clear";
+}
+
+function getChartHealthStatusTone(status?: string) {
+    if (status === "fail") return "bad" as const;
+    if (status === "warn") return "warn" as const;
+    return "good" as const;
 }
 
 function compactNumber(value?: number) {
@@ -169,20 +176,35 @@ export default function DebugConsole() {
         () => (data?.panelSystemLogs || []).filter((entry: any) => entry.status === "fail").length,
         [data?.panelSystemLogs],
     );
+    const analyticsChartHealth = useMemo(
+        () => data?.analyticsChartHealth || [],
+        [data?.analyticsChartHealth],
+    );
+    const analyticsChartHealthSummary = useMemo(
+        () => summarizeAdminUiChartHealth(analyticsChartHealth),
+        [analyticsChartHealth],
+    );
     const derivedActionCount = useMemo(
-        () => (data?.stats?.orchestrationActionableRepairs ?? 0) + panelLogWarnCount + panelLogFailCount,
-        [data?.stats?.orchestrationActionableRepairs, panelLogFailCount, panelLogWarnCount],
+        () => (
+            (data?.stats?.orchestrationActionableRepairs ?? 0)
+            + panelLogWarnCount
+            + panelLogFailCount
+            + analyticsChartHealthSummary.warn
+            + analyticsChartHealthSummary.fail
+        ),
+        [analyticsChartHealthSummary.fail, analyticsChartHealthSummary.warn, data?.stats?.orchestrationActionableRepairs, panelLogFailCount, panelLogWarnCount],
     );
     const freshestLoadedSignalAt = useMemo(() => {
         const timestamps = [
             ...recentTransactions.map((entry) => (typeof entry.timestamp === "number" ? entry.timestamp : 0)),
             ...(data?.panelSystemLogs || []).map((entry: any) => typeof entry.updatedAtMs === "number" ? entry.updatedAtMs : 0),
+            ...analyticsChartHealth.map((entry: any) => typeof entry.updatedAtMs === "number" ? entry.updatedAtMs : 0),
             ...(data?.opsHealth?.diagnostics?.recent || []).map((entry: any) => typeof entry.timestamp === "number" ? entry.timestamp : 0),
             aiDebugData?.generated_at ? Date.parse(aiDebugData.generated_at) : 0,
         ].filter((value) => Number.isFinite(value) && value > 0);
 
         return timestamps.length > 0 ? Math.max(...timestamps) : 0;
-    }, [aiDebugData?.generated_at, data?.opsHealth?.diagnostics?.recent, data?.panelSystemLogs, recentTransactions]);
+    }, [aiDebugData?.generated_at, analyticsChartHealth, data?.opsHealth?.diagnostics?.recent, data?.panelSystemLogs, recentTransactions]);
     const aiStatusLabel = aiDebugError
         ? "Unavailable"
         : !aiDebugData
@@ -329,7 +351,7 @@ export default function DebugConsole() {
                 <StatCard label="Pipeline failures" value={data?.opsHealth?.pipeline?.failureCount ?? "--"} meta={data?.opsHealth?.pipeline?.status === "healthy" ? `no active incident in ${formatWindowHours(data?.opsHealth?.pipeline?.activeWindowMs)}` : data?.opsHealth?.pipeline?.lastFailureAt ? `last ${formatRelative(data.opsHealth.pipeline.lastFailureAt)}` : "recent failure state without timestamp"} />
                 <StatCard label="Task-issue users" value={data?.stats?.usersWithTaskIssues ?? "--"} meta={`${data?.stats?.runtimeUsersWithRefreshIssues ?? 0} sampled refresh warnings`} />
                 <StatCard label="Creator issues" value={data?.stats?.creatorOnboardingIssues ?? "--"} meta={`${data?.creatorOnboardingDiagnostics?.summary?.missingQueueCount ?? 0} missing queue links`} />
-                <StatCard label="Open actions" value={derivedActionCount} meta={`${data?.stats?.orchestrationActionableRepairs ?? 0} proposals + ${panelLogWarnCount + panelLogFailCount} panel log warnings/failures`} />
+                <StatCard label="Open actions" value={derivedActionCount} meta={`${data?.stats?.orchestrationActionableRepairs ?? 0} proposals + ${panelLogWarnCount + panelLogFailCount} panel log issues + ${analyticsChartHealthSummary.warn + analyticsChartHealthSummary.fail} chart issues`} />
                 <StatCard label="Freshest signal" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "--"} meta="derived from loaded diagnostics, panel logs, transactions, and AI status" />
                 <StatCard label="AI assistant" value={aiStatusLabel} meta={aiDebugData ? `${aiDebugData.model} | ${aiDebugData.latency_ms}ms` : aiDebugError ? "assistant unavailable" : "waiting for summary"} />
             </div>
@@ -726,6 +748,48 @@ export default function DebugConsole() {
                                 </tbody>
                             </table>
                         </ScrollWrap>
+                    </Section>
+
+                    <Section
+                        title="Admin UI chart hydration"
+                        subtitle="Latest client-reported health for every admin overview module and analytics section. These are real UI-side hydration reports, not inferred server guesses."
+                        defaultOpen={(analyticsChartHealthSummary.warn + analyticsChartHealthSummary.fail) > 0}
+                        summary={<><Pill label="Reported" value={analyticsChartHealthSummary.total} /><Pill label="Warn" value={analyticsChartHealthSummary.warn} tone={analyticsChartHealthSummary.warn > 0 ? "warn" : "good"} /><Pill label="Fail" value={analyticsChartHealthSummary.fail} tone={analyticsChartHealthSummary.fail > 0 ? "bad" : "good"} /></>}
+                    >
+                        {analyticsChartHealth.length > 0 ? (
+                            <ScrollWrap>
+                                <div className="divide-y divide-white/10">
+                                    {analyticsChartHealth.map((entry: any) => (
+                                        <div key={entry.key} className="space-y-2 px-4 py-3">
+                                            <div className="flex flex-wrap items-start justify-between gap-2">
+                                                <div>
+                                                    <p className="font-semibold text-white">{entry.title}</p>
+                                                    <p className="text-xs text-gray-400">{entry.page} | {entry.category} | {entry.source} | {formatRelative(entry.updatedAtMs)}</p>
+                                                </div>
+                                                <div className="flex flex-wrap gap-2">
+                                                    <Pill label="Status" value={entry.status} tone={getChartHealthStatusTone(entry.status)} />
+                                                    <Pill label="State" value={entry.hydrationState} tone={entry.hydrationState === "failed" ? "bad" : entry.hydrationState === "background_degraded" || entry.hydrationState === "empty" || entry.hydrationState === "loading" ? "warn" : "good"} />
+                                                    <Pill label="Data" value={entry.hasData ? "Yes" : "No"} tone={entry.hasData ? "good" : "warn"} />
+                                                </div>
+                                            </div>
+                                            <p className="text-sm text-gray-200">{entry.summary}</p>
+                                            <p className="text-xs text-gray-400">{entry.action}</p>
+                                            {Array.isArray(entry.issueMessages) && entry.issueMessages.length > 0 ? (
+                                                <div className="space-y-1 text-xs text-amber-100">
+                                                    {entry.issueMessages.slice(0, 3).map((issue: string) => (
+                                                        <div key={`${entry.key}:${issue}`}>- {issue}</div>
+                                                    ))}
+                                                </div>
+                                            ) : null}
+                                        </div>
+                                    ))}
+                                </div>
+                            </ScrollWrap>
+                        ) : (
+                            <div className="rounded-[1rem] border border-amber-400/20 bg-amber-500/10 p-4 text-sm text-amber-100">
+                                No admin UI chart reports are loaded yet. Open the admin overview and analytics pages to populate this lane with real client hydration state.
+                            </div>
+                        )}
                     </Section>
 
                     <Section

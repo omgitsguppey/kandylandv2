@@ -5,6 +5,8 @@ import { formatDistanceToNow } from "date-fns";
 
 import type { AdminOverviewResponse } from "@/lib/admin-overview";
 import { paginateOverviewItems } from "@/lib/admin-overview";
+import { buildAdminUiChartHealthItem } from "@/lib/admin-ui-chart-health";
+import { useAdminUiChartHealthReporter } from "@/hooks/useAdminUiChartHealthReporter";
 
 type AdminActivityLogPanelProps = {
     activity: AdminOverviewResponse["adminActivity"];
@@ -15,10 +17,29 @@ const PAGE_SIZE = 5;
 
 export function AdminActivityLogPanel({ activity, truthNote }: AdminActivityLogPanelProps) {
     const [page, setPage] = useState(0);
+    const chartUpdatedAtMs = useMemo(
+        () => activity.reduce((latest, item) => Math.max(latest, item.timestamp), 0),
+        [activity],
+    );
+    const chartHealth = useMemo(() => buildAdminUiChartHealthItem({
+        key: "dashboard.admin_activity_feed",
+        title: "Admin activity feed",
+        page: "dashboard",
+        category: "overview",
+        source: "overview_snapshot",
+        updatedAtMs: chartUpdatedAtMs,
+        hasLoaded: true,
+        hasData: activity.length > 0,
+        healthySummary: "Admin-only activity is loaded from the overview snapshot.",
+        emptySummary: "No admin-only activity was returned in the current overview snapshot.",
+        emptyAction: "Confirm whether this truly reflects no admin activity or whether the overview route lost its activity sources.",
+    }), [activity.length, chartUpdatedAtMs]);
     const paginated = useMemo(
         () => paginateOverviewItems(activity, page, PAGE_SIZE),
         [activity, page],
     );
+
+    useAdminUiChartHealthReporter([chartHealth]);
 
     return (
         <div className="space-y-3">
@@ -29,6 +50,11 @@ export function AdminActivityLogPanel({ activity, truthNote }: AdminActivityLogP
                 <span className="rounded-full border border-white/10 bg-black/30 px-2.5 py-1">
                     5s polled snapshot
                 </span>
+                {chartHealth.status !== "healthy" ? (
+                    <span className="rounded-full border border-amber-400/20 bg-amber-500/10 px-2.5 py-1 text-amber-100">
+                        {chartHealth.hydrationState === "empty" ? "Feed empty" : "Feed degraded"}
+                    </span>
+                ) : null}
                 <span className="text-xs text-gray-500">{truthNote}</span>
             </div>
 

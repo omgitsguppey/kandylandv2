@@ -8,7 +8,9 @@ import { toast } from "sonner";
 
 import { CreateDropModal } from "@/components/Admin/CreateDropModal";
 import { TitleMarquee } from "@/components/ui/TitleMarquee";
+import { useAdminUiChartHealthReporter } from "@/hooks/useAdminUiChartHealthReporter";
 import { paginateOverviewItems } from "@/lib/admin-overview";
+import { buildAdminUiChartHealthItem, getAdminUiChartHealthTone } from "@/lib/admin-ui-chart-health";
 import { dispatchAdminOverviewSync } from "@/hooks/client-runtime";
 import { useAdminDropsFeed } from "@/hooks/useAdminDropsFeed";
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
@@ -183,6 +185,31 @@ export function AdminDropsAtGlancePanel() {
         () => paginateOverviewItems(rows, page, PAGE_SIZE),
         [page, rows],
     );
+    const dropsHealthUpdatedAtMs = useMemo(
+        () => rows.reduce((latest, row) => Math.max(
+            latest,
+            Number(row.drop.createdAt || row.drop.validFrom || row.drop.validUntil || 0),
+        ), 0),
+        [rows],
+    );
+    const chartHealth = useMemo(() => buildAdminUiChartHealthItem({
+        key: "dashboard.drops_at_a_glance",
+        title: "Drops at a glance",
+        page: "dashboard",
+        category: "overview",
+        source: "mixed_client_live",
+        updatedAtMs: dropsHealthUpdatedAtMs,
+        hasLoaded: !loading || Boolean(loadError) || rows.length > 0,
+        loading,
+        hasData: rows.length > 0,
+        blockingIssues: loadError && rows.length === 0 ? [loadError] : [],
+        backgroundIssues: loadError && rows.length > 0 ? [loadError] : [],
+        healthySummary: "Realtime drops feed and queue projection are loaded.",
+        emptySummary: "No drops are available in the current admin drops feed.",
+        degradedAction: "Review the drops feed or queue route before trusting the home summary as current.",
+    }), [dropsHealthUpdatedAtMs, loadError, loading, rows.length]);
+
+    useAdminUiChartHealthReporter([chartHealth]);
 
     useEffect(() => {
         setPage(0);
@@ -284,6 +311,26 @@ export function AdminDropsAtGlancePanel() {
                             <p className="mt-1 text-lg font-black text-white">{item.value}</p>
                         </div>
                     ))}
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-400">
+                    <span className={cn(
+                        "rounded-full border px-2.5 py-1",
+                        chartHealth.status === "healthy"
+                            ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-200"
+                            : chartHealth.status === "fail"
+                                ? "border-red-400/20 bg-red-500/10 text-red-100"
+                                : "border-amber-400/20 bg-amber-500/10 text-amber-100",
+                    )}>
+                        {getAdminUiChartHealthTone(chartHealth.status) === "good"
+                            ? "Feed loaded"
+                            : getAdminUiChartHealthTone(chartHealth.status) === "bad"
+                                ? "Feed failed"
+                                : chartHealth.hydrationState === "loading"
+                                    ? "Feed loading"
+                                    : "Feed degraded"}
+                    </span>
+                    <span className="text-xs text-gray-500">{chartHealth.summary}</span>
                 </div>
 
                 {loadError ? (

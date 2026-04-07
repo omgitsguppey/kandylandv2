@@ -6,6 +6,8 @@ import { collection, limit, onSnapshot, orderBy, query } from "firebase/firestor
 
 import type { AdminOverviewResponse, AdminOverviewTransactionRecord } from "@/lib/admin-overview";
 import { paginateOverviewItems } from "@/lib/admin-overview";
+import { buildAdminUiChartHealthItem } from "@/lib/admin-ui-chart-health";
+import { useAdminUiChartHealthReporter } from "@/hooks/useAdminUiChartHealthReporter";
 import { useNow } from "@/hooks/useNow";
 import { db } from "@/lib/firebase-data";
 import { getTransactionBadgeLabel, normalizeTransactionRecord } from "@/lib/transaction-normalizers";
@@ -57,6 +59,8 @@ function toDisplayTransaction(
 export function RecentTransactionsPanel({ transactions: fallbackTransactions, truthNote }: RecentTransactionsPanelProps) {
     const nowMs = useNow({ intervalMs: 60_000 });
     const [liveTransactions, setLiveTransactions] = useState<DisplayTransaction[] | null>(null);
+    const [liveFeedError, setLiveFeedError] = useState<string | null>(null);
+    const [liveFeedErrorAtMs, setLiveFeedErrorAtMs] = useState(0);
     const [page, setPage] = useState(0);
     const fallbackById = useMemo(
         () => new Map(fallbackTransactions.map((transaction) => [transaction.id, transaction])),
@@ -64,10 +68,36 @@ export function RecentTransactionsPanel({ transactions: fallbackTransactions, tr
     );
     const transactions = liveTransactions ?? fallbackTransactions;
     const isLiveFeedActive = liveTransactions !== null;
+    const chartUpdatedAtMs = useMemo(() => {
+        if (transactions.length > 0) {
+            return transactions.reduce((latest, transaction) => Math.max(latest, toTimestampNumber(transaction.timestamp)), 0);
+        }
+
+        return liveFeedErrorAtMs;
+    }, [liveFeedErrorAtMs, transactions]);
+    const chartHealth = useMemo(() => buildAdminUiChartHealthItem({
+        key: "dashboard.recent_transactions",
+        title: "Recent transactions",
+        page: "dashboard",
+        category: "overview",
+        source: isLiveFeedActive ? "realtime_analytics" : "overview_snapshot",
+        updatedAtMs: chartUpdatedAtMs,
+        hasLoaded: fallbackTransactions.length > 0 || isLiveFeedActive || Boolean(liveFeedError),
+        hasData: transactions.length > 0,
+        blockingIssues: liveFeedError && transactions.length === 0 ? [liveFeedError] : [],
+        backgroundIssues: liveFeedError && transactions.length > 0 ? [liveFeedError] : [],
+        healthySummary: isLiveFeedActive
+            ? "Recent transactions are hydrating from the live Firestore feed."
+            : "Recent transactions are loaded from the overview fallback snapshot.",
+        emptySummary: "No recent transactions are available in the current admin window.",
+        degradedAction: "Review the transactions listener or the fallback overview route before trusting this feed as current.",
+    }), [chartUpdatedAtMs, fallbackTransactions.length, isLiveFeedActive, liveFeedError, transactions.length]);
     const paginated = useMemo(
         () => paginateOverviewItems(transactions, page, PAGE_SIZE),
         [page, transactions],
     );
+
+    useAdminUiChartHealthReporter([chartHealth]);
 
     useEffect(() => {
         const recentTransactionsQuery = query(
@@ -79,6 +109,8 @@ export function RecentTransactionsPanel({ transactions: fallbackTransactions, tr
         return onSnapshot(
             recentTransactionsQuery,
             (snapshot) => {
+                setLiveFeedError(null);
+                setLiveFeedErrorAtMs(0);
                 const nextTransactions = snapshot.docs.flatMap((doc) => {
                     try {
                         return [toDisplayTransaction(
@@ -92,7 +124,9 @@ export function RecentTransactionsPanel({ transactions: fallbackTransactions, tr
                 });
                 setLiveTransactions(nextTransactions);
             },
-            () => {
+            (error) => {
+                setLiveFeedError(error instanceof Error ? error.message : "Live transaction listener failed.");
+                setLiveFeedErrorAtMs(Date.now());
                 setLiveTransactions(null);
             },
         );
@@ -110,6 +144,11 @@ export function RecentTransactionsPanel({ transactions: fallbackTransactions, tr
                         5s polled overview fallback
                     </span>
                 )}
+                {chartHealth.status !== "healthy" ? (
+                    <span className={`rounded-full border px-2.5 py-1 ${chartHealth.status === "fail" ? "border-red-400/20 bg-red-500/10 text-red-100" : "border-amber-400/20 bg-amber-500/10 text-amber-100"}`}>
+                        {chartHealth.hydrationState === "failed" ? "Listener failed" : chartHealth.hydrationState === "empty" ? "Feed empty" : "Feed degraded"}
+                    </span>
+                ) : null}
                 <span className="text-xs text-gray-500">{truthNote}</span>
             </div>
 

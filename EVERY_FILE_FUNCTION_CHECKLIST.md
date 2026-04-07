@@ -8642,3 +8642,86 @@ Detected function-like implementations in this historical sweep: 3161
 - Functions:
   - [x] None detected
     - Confidence: 98%
+
+## [x] src/app/api/admin/ui-chart-health/route.ts
+- Confidence: 98%
+- Functions detected: 3
+- Functions:
+  - [x] isAdminUiChartHealthItem (function, line 11)
+    - Confidence: 98%
+  - [x] GET (function, line 29)
+    - Confidence: 98%
+  - [x] PUT (function, line 47)
+    - Confidence: 98%
+
+## [x] src/hooks/useAdminUiChartHealthReporter.ts
+- Confidence: 98%
+- Functions detected: 2
+- Functions:
+  - [x] normalizeItems (function, line 9)
+    - Confidence: 98%
+  - [x] useAdminUiChartHealthReporter (function, line 17)
+    - Confidence: 98%
+
+## [x] src/lib/admin-ui-chart-health.ts
+- Confidence: 97%
+- Functions detected: 3
+- Functions:
+  - [x] getAdminUiChartHealthTone (function, line 60)
+    - Confidence: 97%
+  - [x] buildAdminUiChartHealthItem (function, line 72)
+    - Confidence: 97%
+  - [x] summarizeAdminUiChartHealth (function, line 159)
+    - Confidence: 97%
+
+## [x] src/lib/server/admin-ui-chart-health.ts
+- Confidence: 97%
+- Functions detected: 4
+- Functions:
+  - [x] arraysMatch (function, line 14)
+    - Confidence: 97%
+  - [x] toNumber (function, line 18)
+    - Confidence: 97%
+  - [x] saveAdminUiChartHealth (function, line 22)
+    - Confidence: 97%
+  - [x] listAdminUiChartHealth (function, line 76)
+    - Confidence: 97%
+
+## [x] tests/unit/admin-panel-system-logs.spec.ts
+- Confidence: 97%
+- Functions detected: 3
+- Functions:
+  - [x] describe callback (arrow, line 5)
+    - Confidence: 97%
+  - [x] it callback (arrow, line 6)
+    - Confidence: 97%
+  - [x] it callback (arrow, line 68)
+    - Confidence: 97%
+
+## [x] tests/unit/admin-ui-chart-health-route.spec.ts
+- Confidence: 97%
+- Functions detected: 6
+- Functions:
+  - [x] mockState.reset (function, line 9)
+    - Confidence: 97%
+  - [x] describe callback (arrow, line 31)
+    - Confidence: 97%
+  - [x] beforeEach callback (arrow, line 32)
+    - Confidence: 97%
+  - [x] it callback (arrow, line 58)
+    - Confidence: 97%
+  - [x] it callback (arrow, line 72)
+    - Confidence: 97%
+  - [x] it callback (arrow, line 107)
+    - Confidence: 97%
+
+## [x] tests/unit/admin-ui-chart-health.spec.ts
+- Confidence: 97%
+- Functions detected: 3
+- Functions:
+  - [x] describe callback (arrow, line 5)
+    - Confidence: 97%
+  - [x] it callback (arrow, line 6)
+    - Confidence: 97%
+  - [x] it callback (arrow, line 36)
+    - Confidence: 97%

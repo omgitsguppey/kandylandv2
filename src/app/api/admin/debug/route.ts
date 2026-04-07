@@ -38,6 +38,7 @@ import { CREATOR_SPEND_TRANSACTION_TYPES, getTransactionBadgeLabel } from "@/lib
 import { buildAdminPanelSystemLogs, syncAdminPanelSystemLogs } from "@/lib/server/admin-panel-system-logs";
 import { buildCreatorOnboardingDiagnostics } from "@/lib/server/creator-onboarding-diagnostics";
 import { CREATOR_ONBOARDING_COLLECTION, CREATOR_REVIEW_QUEUE_COLLECTION } from "@/lib/server/creator-onboarding";
+import { listAdminUiChartHealth } from "@/lib/server/admin-ui-chart-health";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const TASK_GROUP_SET = new Set<string>(["visit", "notifications", "unwrap", "watch", "wallet", "purchase", "feedback", "share"]);
@@ -293,6 +294,7 @@ export async function GET(request: NextRequest) {
             adminDb.collection(CREATOR_REVIEW_QUEUE_COLLECTION).get(),
         ]);
 
+        const analyticsChartHealth = await listAdminUiChartHealth();
         const opsHealth = buildAdminOpsHealth({
             nowMs,
             diagnosticsDocs: serverDiagnosticsSnapshot.docs,
@@ -810,6 +812,7 @@ export async function GET(request: NextRequest) {
             creatorSpendViolationsLast7d: creatorSpendParity.restrictedSpendViolationCount,
             opsHealth,
             orchestration: orchestration.summary,
+            chartHealth: analyticsChartHealth,
         });
         await syncAdminPanelSystemLogs(panelSystemLogs);
 
@@ -853,6 +856,9 @@ export async function GET(request: NextRequest) {
                 orchestrationLowConfidence: orchestration.summary.lowConfidenceEvents,
                 rolloutSamples: rolloutSamples.length,
                 releaseEntries: changeLog.length,
+                adminUiChartsReported: analyticsChartHealth.length,
+                adminUiChartWarnings: analyticsChartHealth.filter((item) => item.status === "warn").length,
+                adminUiChartFailures: analyticsChartHealth.filter((item) => item.status === "fail").length,
             },
             coverage,
             taskInventorySummary,
@@ -890,6 +896,7 @@ export async function GET(request: NextRequest) {
             opsHealth,
             orchestration,
             panelSystemLogs,
+            analyticsChartHealth,
         });
     } catch (error) {
         return handleApiError(error, "Admin.Debug.GET");
