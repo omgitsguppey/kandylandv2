@@ -8,6 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRolloutVariant } from "@/context/RolloutContext";
 import { DailyCheckIn } from "@/components/Dashboard/DailyCheckIn";
 import { CollectionList } from "@/components/Dashboard/CollectionList";
+import { CreatorWorkspacePanel } from "@/components/Dashboard/CreatorWorkspacePanel";
 import { useDrops } from "@/hooks/useDrops";
 import { useDeferredClientReady } from "@/hooks/useDeferredClientReady";
 import { useNetworkConditions } from "@/hooks/useNetworkConditions";
@@ -105,6 +106,10 @@ export default function DashboardClient({ drops }: DashboardClientProps) {
                 </h1>
                 <p className="text-sm text-gray-400 sm:text-base">Taste your unwrapped KandyDrops and earn free Gum Drops!</p>
             </header>
+
+            {(userProfile.role === "creator" || Boolean(userProfile.creatorApplication)) ? (
+                <CreatorWorkspacePanel userProfile={userProfile} />
+            ) : null}
 
             <div className="grid grid-cols-1 gap-5 sm:gap-8 lg:grid-cols-3">
                 <div className="space-y-6 md:space-y-8">

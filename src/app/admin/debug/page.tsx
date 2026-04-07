@@ -6,7 +6,6 @@ import {
     ChevronDown,
     ChevronUp,
     Loader2,
-    PlayCircle,
     Plus,
     Radio,
     RefreshCw,
@@ -225,7 +224,7 @@ export default function DebugConsole() {
         toast.success("Debug console refreshed");
     };
 
-    const handleSimulatePurchase = async () => {
+    const handleManualBalanceAdjustment = async () => {
         if (!user) return;
         setProcessing(true);
         try {
@@ -239,21 +238,21 @@ export default function DebugConsole() {
                 }),
             });
             const result = await response.json();
-            if (!response.ok) throw new Error(result.error || "Simulation failed");
-            toast.success("Simulation successful");
+            if (!response.ok) throw new Error(result.error || "Balance adjustment failed");
+            toast.success("Balance updated");
             await mutateOverview();
         } catch (issue) {
             reportClientIssue({
                 channel: "ui",
-                message: "Admin debug balance simulation failed",
+                message: "Admin debug manual balance adjustment failed",
                 error: issue,
                 detail: {
-                    action: "simulate_balance_adjustment",
+                    action: "manual_balance_adjustment",
                     amount: simAmount,
                 },
-                consoleLabel: "[Admin Debug] simulate purchase failed",
+                consoleLabel: "[Admin Debug] manual balance adjustment failed",
             });
-            toast.error(issue instanceof Error ? issue.message : "Simulation failed");
+            toast.error(issue instanceof Error ? issue.message : "Balance adjustment failed");
         } finally {
             setProcessing(false);
         }
@@ -687,34 +686,25 @@ export default function DebugConsole() {
                     </Section>
 
                     <Section
-                        title="Manual admin tools (not live health)"
-                        subtitle="Operator-triggered utilities only. These tools do not reflect current system health and should not be read as monitoring."
+                        title="Manual utilities (not live health)"
+                        subtitle="Operator-triggered controls only. They do not prove system health and they are separated from live diagnostics on purpose."
                         defaultOpen={false}
-                        summary={<><Pill label="Self top-up" value={`${simAmount} drops`} /><Pill label="Webhook" value="Manual test" tone="warn" /></>}
+                        summary={<><Pill label="Balance adjust" value={`${simAmount} drops`} /></>}
                     >
                         <div className="rounded-[1rem] border border-amber-400/20 bg-amber-500/10 p-4 text-sm text-amber-100">
-                            Manual tools can help investigate or simulate behavior, but they are not live monitoring signals and they do not prove system health.
+                            Manual utilities can help unblock investigation, but they are not monitoring signals and they should not be read as system status.
                         </div>
-                        <div className="mt-4 grid gap-4 lg:grid-cols-[1.3fr_1fr]">
-                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Add Gum Drops to the current admin user</p>
-                                <div className="mt-3 flex gap-2">
-                                    <input
-                                        type="number"
-                                        className="min-h-11 flex-1 rounded-[1rem] border border-white/10 bg-black/40 px-3 text-white"
-                                        value={simAmount}
-                                        onChange={(event) => setSimAmount(event.target.value)}
-                                    />
-                                    <Button variant="brand" onClick={handleSimulatePurchase} disabled={processing}>
-                                        {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-                                    </Button>
-                                </div>
-                            </div>
-                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Manual webhook test</p>
-                                <Button variant="glass" className="mt-3 w-full" onClick={() => toast.info("Webhook simulation is still backend-gated and not implemented here yet.")}>
-                                    <PlayCircle className="mr-2 h-4 w-4" />
-                                    Test Payment Webhook
+                        <div className="mt-4 rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                            <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Add Gum Drops to the current admin user</p>
+                            <div className="mt-3 flex gap-2">
+                                <input
+                                    type="number"
+                                    className="min-h-11 flex-1 rounded-[1rem] border border-white/10 bg-black/40 px-3 text-white"
+                                    value={simAmount}
+                                    onChange={(event) => setSimAmount(event.target.value)}
+                                />
+                                <Button variant="brand" onClick={handleManualBalanceAdjustment} disabled={processing}>
+                                    {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
                                 </Button>
                             </div>
                         </div>

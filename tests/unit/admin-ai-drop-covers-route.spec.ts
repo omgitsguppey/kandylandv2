@@ -26,8 +26,8 @@ vi.mock("@/lib/server/ai-drop-covers", () => ({
     saveAdminAiDropCoverSettings: mockState.saveAdminAiDropCoverSettings,
 }));
 vi.mock("@/lib/server/rate-limit", () => ({
-    ADMIN: {},
-    HEAVY_READ: {},
+    ADMIN_AI_CONTROL: {},
+    ADMIN_AI_DASHBOARD_READ: {},
 }));
 
 import { GET, PUT, dynamic, revalidate } from "@/app/api/admin/ai/drop-covers/route";
@@ -43,6 +43,7 @@ describe("GET/PUT /api/admin/ai/drop-covers", () => {
             error: error instanceof Error ? error.message : String(error),
         }, { status: 500 }));
         mockState.buildAdminAiDropCoverDashboard.mockResolvedValue({
+            refreshedAtMs: 1712515200000,
             settings: {
                 enabled: true,
                 model: "gemini-2.5-flash-image",
@@ -85,6 +86,7 @@ describe("GET/PUT /api/admin/ai/drop-covers", () => {
             referenceAssets: {
                 template: null,
                 recentDropCovers: [],
+                retainedAiCovers: [],
             },
         });
         mockState.saveAdminAiDropCoverSettings.mockResolvedValue({

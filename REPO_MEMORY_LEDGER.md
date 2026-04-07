@@ -1,7 +1,7 @@
 # Repo Memory Ledger
 
 Status: Canonical repository-memory and architecture-decision ledger
-Last refreshed: 2026-04-05
+Last refreshed: 2026-04-07
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
 ## Purpose
@@ -418,3 +418,75 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `src/lib/server/admin-panel-system-logs.ts`
   - `FULL_SCALE_CODEBASE_AUDIT.md`
 - Follow-up gaps: The signal is latest-state reporting, not a long-lived historical time series, and section cards are the current granularity rather than individual sub-chart primitives within a card.
+
+### 21. Creator operations live on the user dashboard, but route reads must stay ownership-scoped
+- Approximate date: Canonicalized and recorded on 2026-04-07
+- Status: Active creator/runtime rule
+- Problem/context: Creator workflows already existed on the backend for requests, bookings, inbox threads, subscriptions, broadcasts, payouts, and onboarding review state, but the user dashboard did not expose those operations clearly. At the same time, two creator GET routes were leaking too much data: public creator booking reads could expose other fans' bookings, and direct thread reads could expose messages to unrelated users.
+- Decision made: Treat `/dashboard` as the canonical creator operations workspace for approved creators and creator applicants, while enforcing ownership checks on creator fan-work reads at the route boundary.
+- What became canonical:
+  - the main user dashboard shows a creator workspace when the user is a creator or has a creator application
+  - creator applicants see backend-backed approval and blocker state there instead of empty creator tooling
+  - approved creators see live route-backed queues for requests, bookings, messages, subscribers, payouts, and broadcasts there
+  - `/api/creator/bookings?creatorId=...` only returns a fan's own booking relationship to the creator unless the caller is the creator owner or admin
+  - `/api/creator/messages?threadId=...` only returns message history to the creator owner, the participant, or admin
+  - `/dashboard/profile#creator-tools` remains the settings/control surface for deeper creator settings and drop submission
+- What is now disallowed or deprecated:
+  - burying creator operations exclusively inside profile/settings
+  - allowing public creator-page hydration routes to leak another fan's creator-experience records
+  - returning a creator thread by id without verifying caller ownership
+- Truth lives in:
+  - `src/app/dashboard/DashboardClient.tsx`
+  - `src/components/Dashboard/CreatorWorkspacePanel.tsx`
+  - `src/app/dashboard/profile/page.tsx`
+  - `src/app/api/creator/bookings/route.ts`
+  - `src/app/api/creator/messages/route.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: The workspace is route-backed rather than realtime-streamed per queue, and creator settings still keep their existing manual-save path in the profile view.
+
+### 22. AI drop-cover execution is Gemini-only; old Imagen ids survive only as migration aliases
+- Approximate date: Canonicalized and recorded on 2026-04-07
+- Status: Active canonical AI/runtime rule
+- Problem/context: The AI cover stack had already moved to Gemini, but older Imagen model ids were still present in settings/history normalization. Without an explicit rule, contributors could mistake those aliases for an active second execution path and accidentally resurrect stale provider logic.
+- Decision made: Treat the live AI drop-cover runtime as Gemini-only. Old Imagen model/location strings may remain only inside normalization helpers so persisted settings and historical jobs can migrate cleanly onto the Gemini defaults.
+- What became canonical:
+  - server-side generation executes through the Gemini `generateContent` path only
+  - old Imagen ids are accepted only for normalization/migration, not execution
+  - Admin AI truth surfaces must describe retained references, feedback, and polling cadence honestly without implying hidden training or dual-provider routing
+- What is now disallowed or deprecated:
+  - reintroducing Imagen execution branches as if they are still first-class runtime behavior
+  - treating normalization aliases as proof that legacy provider routing is still supported live
+  - simulative Admin AI wording about model introspection, live training, or opaque “smartness”
+- Truth lives in:
+  - `src/lib/ai-drop-covers.ts`
+  - `src/lib/server/ai-drop-covers.ts`
+  - `src/app/admin/ai/page.tsx`
+  - `src/app/api/admin/ai/drop-covers/generate/route.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: Provider-side step streaming still does not exist for this runtime; the admin page remains a persisted-state polling surface.
+
+### 23. Cost-heavy admin AI and live analytics routes use adaptive user-count rate limiting
+- Approximate date: Canonicalized and recorded on 2026-04-07
+- Status: Active canonical cost-control rule
+- Problem/context: Fixed request budgets were acceptable at small scale, but they became too blunt once the product crossed 200 users. Expensive admin AI generation and high-frequency live admin reads needed a cost-aware limit that tightens over time without breaking the existing request-guard contract.
+- Decision made: Keep the canonical request-guard boundary, but allow route policies to resolve adaptively against the registered user count. Admin AI dashboard reads, control writes, generation requests, debug assistant reads, and realtime analytics reads now tighten at `200`, `500`, and `1000` registered users.
+- What became canonical:
+  - adaptive policies resolve through the shared server rate-limit helper
+  - the registered `users` count is cached briefly and used as the scaling input
+  - routes still declare one canonical policy through `request-guard`; they do not hand-roll their own scaling logic
+  - tighter budgets happen server-side only and do not fabricate client-visible quotas
+- What is now disallowed or deprecated:
+  - copying bespoke adaptive logic into individual routes
+  - assuming expensive admin AI/read paths should stay on one flat limit forever
+  - weakening the request-guard contract by bypassing canonical rate-limit resolution
+- Truth lives in:
+  - `src/lib/server/rate-limit.ts`
+  - `src/lib/server/request-guard.ts`
+  - `src/app/api/admin/ai/drop-covers/route.ts`
+  - `src/app/api/admin/ai/drop-covers/generate/route.ts`
+  - `src/app/api/admin/ai/drop-covers/template/route.ts`
+  - `src/app/api/admin/ai/drop-covers/feedback/route.ts`
+  - `src/app/api/admin/debug/assistant/route.ts`
+  - `src/app/api/admin/analytics/realtime/route.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: The scaling input is registered-user count, not direct billing export or traffic forecasting; future passes can refine tiers if real usage patterns diverge.

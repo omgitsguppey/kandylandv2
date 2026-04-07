@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { ADMIN_REALTIME } from "@/lib/server/rate-limit";
+import { ADMIN_ANALYTICS_REALTIME_ADAPTIVE } from "@/lib/server/rate-limit";
 import { AnalyticsReportRow, safeRunRealtimeReport } from "@/lib/server/admin-analytics-shared";
 import { buildRealtimeSurfaceMix } from "@/lib/server/admin-analytics-context";
 import { createAdminAnalyticsDataClient, getAdminAnalyticsPropertyId } from "@/lib/server/admin-analytics-data";
@@ -23,8 +23,8 @@ export async function GET(request: NextRequest) {
     await guardApiRequest(request, {
       routeName: "admin/analytics/realtime",
       preAuthRouteName: "admin/analytics/realtime/preauth",
-      preAuthRateLimit: ADMIN_REALTIME,
-      rateLimit: ADMIN_REALTIME,
+      preAuthRateLimit: ADMIN_ANALYTICS_REALTIME_ADAPTIVE,
+      rateLimit: ADMIN_ANALYTICS_REALTIME_ADAPTIVE,
       auth: "admin",
       scopeToCaller: true,
     });

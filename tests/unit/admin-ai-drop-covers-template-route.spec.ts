@@ -29,7 +29,7 @@ vi.mock("@/lib/server/ai-drop-covers", () => ({
     toAdminAiDropCoverClientError: mockState.toAdminAiDropCoverClientError,
 }));
 vi.mock("@/lib/server/rate-limit", () => ({
-    ADMIN: {},
+    ADMIN_AI_CONTROL: {},
 }));
 
 import { DELETE, POST, dynamic, revalidate } from "@/app/api/admin/ai/drop-covers/template/route";
@@ -48,12 +48,12 @@ describe("POST/DELETE /api/admin/ai/drop-covers/template", () => {
         mockState.uploadAdminAiDropCoverTemplate.mockResolvedValue({
             settings: {
                 enabled: true,
-                model: "imagen-3.0-capability-001",
-                location: "us-central1",
+                model: "gemini-2.5-flash-image",
+                location: "global",
                 aspectRatio: "1:1",
                 outputMimeType: "image/png",
-                pricePerGenerationUsd: 0.04,
-                priceBasis: "vertex-ai-pricing-imagen-3-customization-2026-04-06",
+                pricePerGenerationUsd: 0.0387,
+                priceBasis: "vertex-ai-pricing-gemini-2.5-flash-image-2026-04-06",
                 priceSourceUrl: "https://cloud.google.com/vertex-ai/generative-ai/pricing",
                 generationMode: "reference_guided",
                 useTemplateReference: true,

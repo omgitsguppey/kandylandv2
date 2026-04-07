@@ -63,11 +63,22 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
+        const callerSnap = await adminDb.collection("users").doc(caller.uid).get();
+        const callerData = callerSnap.data() as Record<string, unknown> | undefined;
+        const callerIsCreator = isCreatorRole(callerData?.role);
+        const callerIsAdmin = callerData?.role === "admin";
         const creatorId = request.nextUrl.searchParams.get("creatorId")?.trim() || "";
         if (creatorId) {
+            const bookingsQuery = (!callerIsAdmin && caller.uid !== creatorId)
+                ? adminDb.collection(CREATOR_COLLECTIONS.bookings)
+                    .where("creatorId", "==", creatorId)
+                    .where("userId", "==", caller.uid)
+                : adminDb.collection(CREATOR_COLLECTIONS.bookings)
+                    .where("creatorId", "==", creatorId);
+
             const [creatorSnap, bookingsSnap, subscriptionSnap] = await Promise.all([
                 adminDb.collection("users").doc(creatorId).get(),
-                adminDb.collection(CREATOR_COLLECTIONS.bookings).where("creatorId", "==", creatorId).get(),
+                bookingsQuery.get(),
                 adminDb.collection(CREATOR_COLLECTIONS.subscriptions).doc(`${caller.uid}__${creatorId}`).get(),
             ]);
             const creatorData = creatorSnap.data() as Record<string, unknown> | undefined;
@@ -80,9 +91,7 @@ export async function GET(request: NextRequest) {
             });
         }
 
-        const callerSnap = await adminDb.collection("users").doc(caller.uid).get();
-        const callerData = callerSnap.data() as Record<string, unknown> | undefined;
-        const field = isCreatorRole(callerData?.role) ? "creatorId" : "userId";
+        const field = callerIsCreator ? "creatorId" : "userId";
         const bookingsSnap = await adminDb.collection(CREATOR_COLLECTIONS.bookings).where(field, "==", caller.uid).get();
 
         return NextResponse.json({

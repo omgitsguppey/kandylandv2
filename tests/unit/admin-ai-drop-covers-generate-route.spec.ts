@@ -29,7 +29,7 @@ vi.mock("@/lib/server/ai-drop-covers", () => ({
     toAdminAiDropCoverClientError: mockState.toAdminAiDropCoverClientError,
 }));
 vi.mock("@/lib/server/rate-limit", () => ({
-    ADMIN: {},
+    ADMIN_AI_GENERATE: {},
 }));
 
 import { POST, dynamic, revalidate } from "@/app/api/admin/ai/drop-covers/generate/route";
@@ -71,7 +71,7 @@ describe("POST /api/admin/ai/drop-covers/generate", () => {
             title: "Cherry Rush",
             model: "gemini-2.5-flash-image",
             location: "global",
-            promptVersion: "drop-cover-v1",
+            promptVersion: "drop-cover-v2",
             recipeLabel: "KandyDrops title-safe cover art",
             status: "succeeded",
             feedback: "neutral",
@@ -127,7 +127,7 @@ describe("POST /api/admin/ai/drop-covers/generate", () => {
             draftSessionId: "draft-session-123",
             model: "gemini-2.5-flash-image",
             location: "global",
-            promptVersion: "drop-cover-v1",
+            promptVersion: "drop-cover-v2",
             recipeLabel: "KandyDrops title-safe cover art",
             status: "succeeded",
             feedback: "neutral",

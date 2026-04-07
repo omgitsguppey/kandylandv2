@@ -7,7 +7,7 @@ import { buildCreatorOnboardingDiagnostics } from "@/lib/server/creator-onboardi
 import { adminDb } from "@/lib/server/firebase-admin";
 import { buildAdminAiDebugSignalInput, generateAdminAiDebugSummary } from "@/lib/server/ai-debug-assistant";
 import { ORCHESTRATION_COLLECTIONS } from "@/lib/orchestration/contract";
-import { ADMIN, HEAVY_READ } from "@/lib/server/rate-limit";
+import { ADMIN_DEBUG_ASSISTANT } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { CREATOR_ONBOARDING_COLLECTION, CREATOR_REVIEW_QUEUE_COLLECTION } from "@/lib/server/creator-onboarding";
 import { getCSTDateKey } from "@/lib/timezone";
@@ -22,8 +22,8 @@ export async function GET(request: NextRequest) {
         await guardApiRequest(request, {
             routeName: "admin/debug/assistant",
             preAuthRouteName: "admin/debug/assistant/preauth",
-            preAuthRateLimit: HEAVY_READ,
-            rateLimit: ADMIN,
+            preAuthRateLimit: ADMIN_DEBUG_ASSISTANT,
+            rateLimit: ADMIN_DEBUG_ASSISTANT,
             auth: "admin",
             scopeToCaller: true,
         });

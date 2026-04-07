@@ -1,10 +1,10 @@
 # Full Scale Codebase Audit
 
 Status: Canonical audit standard and live baseline
-Last refreshed: 2026-04-06
-Last full-scale audit execution: 2026-04-06 23:46:00 -05:00
+Last refreshed: 2026-04-07
+Last full-scale audit execution: 2026-04-07 02:53:19 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
-Audited HEAD at start: `4f90017`
+Audited HEAD at start: `59d801b`
 
 ## Purpose
 This file is the standing audit contract for the repository.
@@ -106,25 +106,25 @@ Current notable runtime package versions:
 | Captured evidence artifacts | `qa-screenshots/*`, `build.log`, `check_out*.txt`, `eslint*.json`, `eslint*_out.txt`, `lint*.txt`, `tsc_output*.txt`, `firestore-debug.log` | Tracked evidence and debug output, not canonical runtime truth |
 
 ## Current tracked inventory baseline
-Verified by `npm run check:inventory` on 2026-04-06:
+Verified by `npm run check:inventory` on 2026-04-07:
 
-- Total tracked files: `663`
+- Total tracked files: `670`
 - Root files: `54`
 - Root markdown/docs: `16`
 - Root lockfiles: `2`
 - Root config/runtime/tooling files: `36`
-- `src`: `375`
-- `src/app`: `125`
+- `src`: `379`
+- `src/app`: `126`
 - `src/components`: `70`
 - `src/context`: `4`
-- `src/hooks`: `13`
-- `src/lib`: `140`
-- `src/lib/server`: `58`
+- `src/hooks`: `14`
+- `src/lib`: `142`
+- `src/lib/server`: `59`
 - `src/types`: `3`
 - `functions`: `37`
 - `functions/src`: `30`
 - `scripts`: `17`
-- `tests`: `112`
+- `tests`: `115`
 - `public`: `11`
 - `dataconnect`: `14`
 - `src/dataconnect-generated`: `15`
@@ -250,70 +250,151 @@ Verified by `npm run check:inventory` on 2026-04-06:
 - Creator administration belongs in creator roster/intake flows, not generic user-management spillover.
 - Manual sign-in accepts username or email through server-side username resolution before Firebase email/password auth.
 - GumDrop economics are backend source-aware even though the client shows one visible balance.
+- Creator fan-work queues and thread reads must stay scoped to the caller's real ownership relationship; public creator views must never receive another fan's bookings or private creator messages.
 - Creator alert controls must stay coherent with the broader new-drop notification preference.
 - Admin/debug surfaces should surface fallback, sampled, derived, stale, and ambiguous states honestly.
 - AI drop-cover generation is server-side, title-driven, admin-only, and does not expose prompt boxes or client-side secrets.
+- The live AI drop-cover runtime is Gemini-only; old Imagen model strings remain only as migration aliases for persisted settings and job history normalization.
+- Cost-sensitive admin AI and realtime analytics routes now use adaptive rate limiting tied to the registered-user count instead of one flat global budget.
 
 ## Verification baseline from this audit
-Commands run on 2026-04-06:
+Commands run on 2026-04-07:
 - `git status --short`
+- `npm run trace:adjacent -- src/lib/server/rate-limit.ts`
+- `npm run trace:adjacent -- src/app/api/admin/ai/drop-covers/route.ts`
+- `npm run trace:adjacent -- src/app/admin/ai/page.tsx`
+- `npm run trace:adjacent -- src/lib/server/admin-panel-system-logs.ts`
+- focused `eslint` on touched AI cover, rate-limit, admin route, creator route, dashboard, and debug files
+- focused `corepack pnpm exec vitest run tests/unit/ai-drop-covers.spec.ts tests/unit/admin-ai-drop-covers-route.spec.ts tests/unit/admin-ai-drop-covers-generate-route.spec.ts tests/unit/admin-ai-drop-covers-feedback-route.spec.ts tests/unit/admin-ai-drop-covers-template-route.spec.ts tests/unit/admin-debug-assistant-route.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/rate-limit.spec.ts tests/unit/creator-bookings-route.spec.ts tests/unit/creator-messages-route.spec.ts`
 - `npm run check:inventory`
-- `npm run check:architecture`
-- `npm run graph:architecture`
-- `npm run check:continuity`
 - `npm run check:functions`
 - `npm run check:firebase:rules`
-- `npm uninstall --save-dev @lhci/cli eslint-plugin-import`
-- `corepack pnpm install --lockfile-only`
-- `npm run check:deps`
-- `npm run check:versions`
-- `npm run build`
-- `npx playwright test tests/ui-audits/visual-regression.spec.ts --project=chromium --project="Mobile Chrome" --update-snapshots`
-- `corepack pnpm run check`
-- `npx vitest run`
-- `npm run check:ui:lighthouse`
+- `npm run check:continuity`
 - `npm run check:ui:audits`
+- `npm run check:ui:lighthouse`
+- `npx vitest run`
+- `corepack pnpm run check`
 
 Results:
-- `git status --short` was clean at audit start.
-- `npm run check:inventory` passed.
-- `npm run check:architecture` passed with no dependency violations (`377` modules, `1411` dependencies cruised).
-- `npm run graph:architecture` passed and wrote `output/dependency-graph.json`.
-- `npm run check:continuity` passed, including cycle checks for app and functions.
+- `git status --short` confirmed the working tree was already dirty at audit start from the earlier uncommitted creator workspace/debug pass; those changes were re-audited and verified before commit.
+- adjacency traces completed for the adaptive rate-limit helper, admin AI routes/page, and the admin panel-log builder.
+- focused `eslint` passed.
+- focused AI/admin/creator route Vitest coverage passed with `11` files and `32` tests.
+- `npm run check:inventory` passed with `670` tracked files and `115` test files.
 - `npm run check:functions` passed.
 - `npm run check:firebase:rules` passed.
   - Firestore rules: `7` tests passed.
   - Storage rules: `16` tests passed.
-- removed unused root devDependencies `@lhci/cli` and `eslint-plugin-import`, then resynchronized the root lockfiles
-- `npm run check:versions` passed.
-- `corepack pnpm run check` passed.
-- `npx vitest run` passed with `79` test files and `405` tests.
+- `npm run check:continuity` passed, including architecture and cycle checks for app and functions.
+- `npm run check:ui:audits` failed only on the existing Chromium `/creators/waitlist` guest hero visual-regression drift; accessibility audits passed and the other `15` checks passed.
 - `npm run check:ui:lighthouse` passed.
-- refreshed Playwright visual baselines for the current home, creator apply, creator waitlist, and privacy hero states
-- `npm run check:ui:audits` passed.
-  - accessibility audits passed
-  - visual regression passed after snapshot refresh
-  - the Mobile Chrome creator-waitlist hero snapshot now uses `maxDiffPixels: 80` to absorb bounded render jitter without hiding larger changes
-- `npm run check:deps` passed.
+- `npx vitest run` passed with `90` test files and `443` tests.
+- `corepack pnpm run check` passed, including telemetry/governance/contracts.
 
 ## Current known warnings and non-blocking notices
 - npm prints unknown env config warnings during some script chains.
 - Current Firebase/Vitest tooling prints Node `punycode` deprecation warnings.
 - `check:firebase-runtime` prints informational dotenv loading logs when run through the canonical `check` pipeline.
-- `check:telemetry` passes but still reports `1` cataloged event with no detected emitter:
-  - `creator_broadcast_opened`
+- `check:ui:audits` still has an existing Chromium visual-regression drift on `/creators/waitlist` guest hero.
+- Lighthouse cleanup can emit temporary Windows `EPERM` warnings while deleting temp folders after successful audits.
 
 ## Current open follow-up gaps
-- `EVERY_FILE_FUNCTION_CHECKLIST.md` remains a historical exhaustive sweep and has not been regenerated against the current `662` tracked-file baseline.
+- `EVERY_FILE_FUNCTION_CHECKLIST.md` remains a historical exhaustive sweep and has not been regenerated against the current `670` tracked-file baseline.
 - Public creator/discovery follower counts now reconcile immediately after local follow actions, but there is still no cross-user realtime follower aggregate subscription.
-- Referral rewards are currently `100` GumDrops for the referrer only; the referred friend does not yet receive a parallel backend reward.
-- General user settings autosave is present, but creator-specific controls in the profile/settings view still use their existing manual-save path.
+- The creator workspace added on `/dashboard` is a live route-backed operations surface, but it is still polling route reads on page load and action refreshes rather than maintaining separate realtime subscriptions for each creator queue.
+- The admin AI page now exposes persisted runtime state, retained references, recipe scoring, and refresh cadence truthfully, but it is still client-polling persisted job state rather than step-streaming provider internals.
+- Legacy Imagen model/location strings still exist only as normalization aliases in the shared AI-cover contract so stored settings and old job history migrate cleanly to Gemini.
 
 ## Active audit entry
-Current audit date: 2026-04-06 09:19:54 -05:00
-Current branch / commit: `main` / `078f522`
+Current audit date: 2026-04-07 02:53:19 -05:00
+Current branch / commit at audit start: `main` / `59d801b`
 Current task:
-- Focused debug-and-fix pass for the Create Drop -> Files & Assets -> AI Cover Generation runtime failure on brand-new unsaved drops
+- Full-scale realtime/truth audit for lingering static or simulative behavior, legacy AI-cover runtime cleanup, reference-consistency improvements for drop-cover generation, and adaptive rate limiting for cost-heavy admin AI routes after crossing 200 users
+
+Audit start state:
+- working tree already dirty at audit start because the earlier creator workspace/admin debug pass had not been committed yet
+- canonical startup docs re-read:
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+  - `REPO_MEMORY_LEDGER.md`
+  - `EVERY_FILE_FUNCTION_CHECKLIST.md`
+
+Root-cause and audit conclusions:
+- no lingering legacy Imagen execution path remained in the live AI cover runtime; the only old model references left were migration aliases used to normalize persisted settings/history into Gemini defaults
+- the Admin AI page was still truthful but too opaque: it needed to show real retained-reference reuse, recipe analysis, and the actual polling cadence instead of implying fixed cadence or hidden model-state introspection
+- fixed-rate limits on admin AI and realtime analytics routes were too blunt for a >200-user product and did not reflect rising cost pressure on expensive generation and read-heavy live dashboards
+- the canonical admin panel-system log builder still contained an outdated `Simulation tools` record even after the debug page copy had been cleaned up; that backing log now says `Manual admin tools` and explicitly avoids implying live health
+
+Touched surfaces:
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `REPO_MEMORY_LEDGER.md`
+- `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- `src/app/admin/ai/page.tsx`
+- `src/app/admin/debug/page.tsx`
+- `src/app/api/admin/ai/drop-covers/feedback/route.ts`
+- `src/app/api/admin/ai/drop-covers/generate/route.ts`
+- `src/app/api/admin/ai/drop-covers/route.ts`
+- `src/app/api/admin/ai/drop-covers/template/route.ts`
+- `src/app/api/admin/analytics/realtime/route.ts`
+- `src/app/api/admin/debug/assistant/route.ts`
+- `src/app/api/creator/bookings/route.ts`
+- `src/app/api/creator/messages/route.ts`
+- `src/app/dashboard/DashboardClient.tsx`
+- `src/app/dashboard/profile/page.tsx`
+- `src/components/Dashboard/CreatorWorkspacePanel.tsx`
+- `src/lib/ai-drop-covers.ts`
+- `src/lib/server/admin-panel-system-logs.ts`
+- `src/lib/server/ai-drop-covers.ts`
+- `src/lib/server/rate-limit.ts`
+- `src/lib/server/request-guard.ts`
+- `tests/unit/admin-ai-drop-covers-feedback-route.spec.ts`
+- `tests/unit/admin-ai-drop-covers-generate-route.spec.ts`
+- `tests/unit/admin-ai-drop-covers-route.spec.ts`
+- `tests/unit/admin-ai-drop-covers-template-route.spec.ts`
+- `tests/unit/admin-analytics-realtime-route.spec.ts`
+- `tests/unit/admin-debug-assistant-route.spec.ts`
+- `tests/unit/ai-drop-covers.spec.ts`
+- `tests/unit/creator-bookings-route.spec.ts`
+- `tests/unit/creator-messages-route.spec.ts`
+- `tests/unit/rate-limit.spec.ts`
+
+Canonical helpers used:
+- `src/lib/ai-drop-covers.ts`
+- `src/lib/server/ai-drop-covers.ts`
+- `src/lib/server/rate-limit.ts`
+- `src/lib/server/request-guard.ts`
+- `src/lib/server/admin-panel-system-logs.ts`
+- `src/lib/server/auth.ts`
+- `src/lib/server/route-diagnostics.ts`
+- `src/lib/server/server-diagnostics.ts`
+- `src/lib/authFetch.ts`
+- `src/lib/client-error-reporting.ts`
+
+What changed:
+- kept legacy Imagen strings only as migration aliases inside the shared AI-cover contract; the live server runtime now stays on the Gemini `generateContent` path only
+- added consistency-recipe analysis and ranked reference selection so later drop-cover generations can reuse retained positive signals instead of treating all references equally
+- made the Admin AI page expose real retained references, real reuse stats, latest analyzed recipe data, and true active-vs-idle poll cadence
+- applied adaptive rate limiting to cost-heavy admin AI/dashboard routes using the registered `users` count with thresholds at `200`, `500`, and `1000` users
+- re-audited the earlier creator workspace/debug changes and carried them into the same verified commit
+- renamed the canonical debug backing log from `Simulation tools` to `Manual admin tools` so the debug route and page no longer disagree about whether that lane represents live health
+
+Runtime truth and cost-control implications:
+- the Admin AI page is now honest about what exists: persisted job state, retained references, stored operator feedback, and recipe selection data; it still does not pretend to expose hidden model reasoning or live weight training
+- adaptive rate limiting now reduces AI generation and high-frequency admin read budgets as the registered user base grows, which lowers spend risk without inventing fake per-user quotas in the UI
+- creator experience routes remain ownership-scoped and dashboard-backed from the earlier pass; this audit did not reopen their underlying backend contract
+
+Known warnings and tolerated notices during this pass:
+- npm unknown env config warnings during some script chains
+- Firebase/Vitest `punycode` deprecation warnings
+- informational dotenv logs during the canonical `check` pipeline
+- Lighthouse temp-folder cleanup can emit Windows `EPERM` warnings after successful runs
+
+Follow-up gaps:
+- no provider-side step streaming exists for Gemini image generation; the admin page remains a truthful polling surface over persisted job state
+- full checklist regeneration against the 670-file baseline is still pending
+- creator workspace queues are route-backed and refresh-driven rather than individual realtime subscriptions
+- Chromium `/creators/waitlist` visual baselines remain unstable and still need a separate stabilization or baseline-refresh pass
+
+### Historical audit entries
 
 Audit start state:
 - working tree clean at start
@@ -1568,3 +1649,163 @@ Continuation follow-up gaps:
 - chart-health reporting is client-reported and polled; it is not provider-side streaming telemetry
 - the debug page now reports every current overview module and every analytics section/category, but it does not yet inspect individual Recharts primitives inside a single section card as separate debug records
 - the new `admin_ui_chart_health` collection is intentionally bounded by latest-key snapshots and does not retain a long historical series yet
+
+### Continuation: Admin Debug Truth and Creator Workspace Pass
+Current audit date: 2026-04-07 09:18:00 -05:00
+Current branch / commit for continuation start: `main` / `fbce504`
+Continuation task:
+- full audit pass for bug handling, error handling, runtime monitoring, admin debug truth, creator experience feature integrity, and creator dashboard workflow coverage
+
+Continuation start state:
+- working tree clean at continuation start
+- canonical startup docs re-read:
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+  - `REPO_MEMORY_LEDGER.md`
+  - `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- adjacency traces completed before editing for:
+  - `src/app/admin/debug/page.tsx`
+  - `src/app/dashboard/page.tsx`
+  - `src/app/dashboard/viewer/page.tsx`
+  - `src/app/api/creator/bookings/route.ts`
+  - `src/app/api/creator/requests/route.ts`
+  - `src/app/api/creator/messages/route.ts`
+
+Planned touched surfaces for this continuation:
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `src/app/admin/debug/page.tsx`
+- `src/app/api/admin/debug/route.ts`
+- `src/app/dashboard/DashboardClient.tsx`
+- `src/app/dashboard/profile/page.tsx` if creator settings gating or navigation needs compatibility cleanup
+- `src/app/api/creator/bookings/route.ts`
+- `src/app/api/creator/messages/route.ts`
+- creator workflow/supporting dashboard components/tests as required by implementation
+
+Canonical helpers and modules targeted for reuse:
+- `src/lib/server/admin-ops-health.ts`
+- `src/lib/server/admin-panel-system-logs.ts`
+- `src/lib/server/admin-ui-chart-health.ts`
+- `src/hooks/useAdminPollingSWR.ts`
+- `src/lib/creator-experiences.ts`
+- `src/lib/creator-onboarding.ts`
+- `src/lib/authFetch.ts`
+- `src/lib/client-error-reporting.ts`
+- `src/context/AuthContext.tsx`
+
+Initial findings before implementation:
+- `GET /api/creator/bookings?creatorId=...` returns the full creator booking queue even for a fan viewer instead of only that caller's relationship to the creator
+- `GET /api/creator/messages?threadId=...` returns thread contents without verifying that the caller owns the thread or is the creator/admin
+- the creator dashboard home does not expose most already-implemented creator operations or onboarding/approval state, so real backend workflows remain buried in settings or inaccessible
+- the admin debug page still contains manual simulation/testing affordances that need stronger truth-first separation from live health
+
+Exact touched surfaces:
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `REPO_MEMORY_LEDGER.md`
+- `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- `src/app/admin/debug/page.tsx`
+- `src/app/api/creator/bookings/route.ts`
+- `src/app/api/creator/messages/route.ts`
+- `src/app/dashboard/DashboardClient.tsx`
+- `src/app/dashboard/profile/page.tsx`
+- `src/components/Dashboard/CreatorWorkspacePanel.tsx`
+- `tests/unit/creator-bookings-route.spec.ts`
+- `tests/unit/creator-messages-route.spec.ts`
+
+Canonical helpers and modules actually reused:
+- `src/lib/server/admin-ops-health.ts`
+- `src/lib/server/admin-panel-system-logs.ts`
+- `src/lib/server/admin-ui-chart-health.ts`
+- `src/hooks/useAdminPollingSWR.ts`
+- `src/lib/creator-experiences.ts`
+- `src/lib/creator-onboarding.ts`
+- `src/lib/authFetch.ts`
+- `src/lib/client-error-reporting.ts`
+- `src/context/AuthContext.tsx`
+
+Implementation results:
+- `GET /api/creator/bookings?creatorId=...` is now ownership-scoped:
+  - a fan only sees their own bookings with that creator
+  - the creator owner still sees the full creator queue
+  - creator settings and subscription state remain available for the public creator page flow
+- `GET /api/creator/messages?threadId=...` now validates thread ownership before returning any messages
+  - creator owner, participant, and admin can read the thread
+  - unrelated callers get a direct `403 Forbidden`
+  - missing threads resolve to an honest empty response instead of leaking query behavior
+- dashboard home now includes a real creator workspace surface driven by the live creator routes already present in the backend
+  - onboarding and approval state for creator applicants
+  - creator stats from `GET /api/creator/settings`
+  - custom request queue with accept / decline / fulfill actions
+  - booking queue with complete / cancel actions
+  - creator inbox thread list with owner-checked thread reads and reply send
+  - subscriber list, payout availability/history, and creator broadcast send/history
+  - per-module load issues stay visible instead of collapsing into decorative empty panels
+- the profile creator controls section now has a stable `#creator-tools` anchor so the dashboard workspace can deep-link to the existing creator settings and drop-submission controls without duplicating them
+- the admin debug page manual-tool lane no longer presents an unimplemented webhook simulation control
+  - the section is now framed as manual utilities only
+  - the live working utility is labeled as manual balance adjustment instead of simulation language
+
+Runtime truth and error-handling implications:
+- creator experience privacy is now stricter and explicit at the route boundary rather than relying on client restraint
+- the new creator workspace is route-backed and surfaces module-specific load failures through `reportClientIssue(...)` and inline operator/user-visible errors
+- approved legacy creators without a `creatorApplication` record no longer show fake onboarding state in the creator workspace
+- admin debug keeps the manual utility lane explicitly separate from live health and no longer exposes a dead-end simulated webhook button
+
+Verification and signoff notes for this continuation:
+- targeted lint and route tests passed
+- full repo check, full contract tests, dependency checks, version checks, functions checks, continuity checks, and Firebase rules checks all passed
+- the only failing verification path is the pre-existing Chromium `/creators/waitlist` guest-hero visual snapshot drift in `npm run check:ui:audits`
+- generated `playwright-report/`, `test-results/`, and `.lighthouseci/` artifacts were removed before final signoff
+
+Continuation follow-up gaps:
+- the creator workspace is a truthful live route-backed operations surface, but it still refreshes by route reads rather than per-queue realtime subscriptions
+- creator-specific controls still live in `/dashboard/profile` and keep their existing manual-save behavior
+- the Chromium `/creators/waitlist` guest-hero visual baseline still needs a separate stabilization or baseline-refresh pass
+
+### Continuation: AI Cover Legacy Audit + Consistency Runtime Pass
+Current audit date: 2026-04-07 11:05:00 -05:00
+Current branch / commit for continuation start: `main` / `fbce504`
+Continuation task:
+- full-scale audit focused on lingering legacy AI cover logic
+- replace stale model/runtime branches with a canonical Gemini-only cover-generation path
+- add custom consistency helpers for drop-cover generation
+- refine the Admin AI page so retained signals, reference reuse, and live job state are visible without simulated training language
+
+Continuation start state:
+- working tree already dirty from an earlier local creator/debug pass and left intact for continuity
+- canonical startup docs re-read:
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+  - `REPO_MEMORY_LEDGER.md`
+  - `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- `git status --short` confirmed unrelated existing local modifications before this continuation
+- adjacency traces completed before editing for:
+  - `src/lib/server/ai-drop-covers.ts`
+  - `src/app/admin/ai/page.tsx`
+  - `src/app/api/admin/ai/drop-covers/generate/route.ts`
+  - `src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+
+Planned touched surfaces for this continuation:
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `REPO_MEMORY_LEDGER.md` if a new durable AI-runtime rule is finalized
+- `src/lib/ai-drop-covers.ts`
+- `src/lib/server/ai-drop-covers.ts`
+- `src/app/admin/ai/page.tsx`
+- `src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+- AI cover route tests under `tests/unit/admin-ai-drop-covers-*.spec.ts`
+- `tests/unit/ai-drop-covers.spec.ts`
+
+Canonical helpers and modules targeted for reuse:
+- `src/lib/ai-drop-covers.ts`
+- `src/lib/server/ai-drop-covers.ts`
+- `src/hooks/useAdminPollingSWR.ts`
+- `src/lib/authFetch.ts`
+- `src/lib/client-error-reporting.ts`
+- `src/lib/server/analytics.ts`
+- `src/lib/server/firebase-admin.ts`
+- `src/lib/server/route-diagnostics.ts`
+- `src/lib/server/server-diagnostics.ts`
+- `src/lib/server/storage-assets.ts`
+
+Initial AI audit findings before implementation:
+- the shared AI cover contract still exposes legacy Imagen constants, pricing entries, and model-location normalization as first-class runtime values instead of a bounded migration shim
+- the server AI runtime still preserves an older non-Gemini publisher-model `:predict` branch even though the current product path is Gemini image generation
+- the Admin AI page is truthful about not doing hidden training, but it still relies on 10-second polling only and does not show a canonical per-job consistency recipe or why retained references were selected
+- recent live drop covers and retained positive AI covers are visible, but their reuse value is only partially observable because the page does not surface positive reuse counts or ranked selection reasons

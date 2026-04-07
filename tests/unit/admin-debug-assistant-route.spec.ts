@@ -84,8 +84,7 @@ vi.mock("@/lib/server/firebase-admin", () => ({
     adminDb: mockState.adminDb,
 }));
 vi.mock("@/lib/server/rate-limit", () => ({
-    ADMIN: {},
-    HEAVY_READ: {},
+    ADMIN_DEBUG_ASSISTANT: {},
 }));
 vi.mock("@/lib/server/admin-ops-health", () => ({
     buildAdminOpsHealth: mockState.buildAdminOpsHealth,

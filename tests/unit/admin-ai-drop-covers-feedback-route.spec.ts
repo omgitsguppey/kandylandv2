@@ -23,7 +23,7 @@ vi.mock("@/lib/server/ai-drop-covers", () => ({
     updateAdminAiDropCoverFeedback: mockState.updateAdminAiDropCoverFeedback,
 }));
 vi.mock("@/lib/server/rate-limit", () => ({
-    ADMIN: {},
+    ADMIN_AI_CONTROL: {},
 }));
 
 import { POST, dynamic, revalidate } from "@/app/api/admin/ai/drop-covers/feedback/route";
@@ -41,9 +41,9 @@ describe("POST /api/admin/ai/drop-covers/feedback", () => {
         mockState.updateAdminAiDropCoverFeedback.mockResolvedValue({
             id: "job_1",
             title: "Cherry Rush",
-            model: "imagen-3.0-fast-generate-001",
-            location: "us-central1",
-            promptVersion: "drop-cover-v1",
+            model: "gemini-2.5-flash-image",
+            location: "global",
+            promptVersion: "drop-cover-v2",
             recipeLabel: "KandyDrops title-safe cover art",
             status: "succeeded",
             feedback: "liked",

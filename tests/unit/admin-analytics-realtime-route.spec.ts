@@ -100,7 +100,7 @@ vi.mock("@/lib/server/firebase-admin", () => ({
 }));
 
 vi.mock("@/lib/server/rate-limit", () => ({
-    ADMIN_REALTIME: {},
+    ADMIN_ANALYTICS_REALTIME_ADAPTIVE: {},
 }));
 
 vi.mock("@/lib/server/admin-analytics-shared", async (importOriginal) => {

@@ -49,8 +49,21 @@ export async function GET(request: NextRequest) {
         const callerSnap = await adminDb.collection("users").doc(caller.uid).get();
         const callerData = callerSnap.data() as Record<string, unknown> | undefined;
         const callerIsCreator = isCreatorRole(callerData?.role);
+        const callerIsAdmin = callerData?.role === "admin";
 
         if (threadId) {
+            const threadSnap = await adminDb.collection(CREATOR_COLLECTIONS.messageThreads).doc(threadId).get();
+            if (!threadSnap.exists) {
+                return NextResponse.json({ success: true, thread: null, messages: [] });
+            }
+
+            const threadData = threadSnap.data() as Record<string, unknown>;
+            const creatorOwner = typeof threadData.creatorId === "string" && threadData.creatorId === caller.uid;
+            const participantOwner = typeof threadData.userId === "string" && threadData.userId === caller.uid;
+            if (!callerIsAdmin && !creatorOwner && !participantOwner) {
+                return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+            }
+
             const messagesSnap = await adminDb.collection(CREATOR_COLLECTIONS.messages)
                 .where("threadId", "==", threadId)
                 .get();
@@ -62,7 +75,11 @@ export async function GET(request: NextRequest) {
                     return leftAt - rightAt;
                 });
 
-            return NextResponse.json({ success: true, messages });
+            return NextResponse.json({
+                success: true,
+                thread: { id: threadSnap.id, ...threadData },
+                messages,
+            });
         }
 
         if (callerIsCreator && !creatorId) {

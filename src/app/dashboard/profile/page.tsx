@@ -100,9 +100,9 @@ function buildFormState(params: {
     };
 }
 
-function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
+function SectionCard({ title, children, id }: { title: string; children: React.ReactNode; id?: string }) {
     return (
-        <section className="glass-panel rounded-2xl border border-white/10 p-4 md:p-5 space-y-4">
+        <section id={id} className="glass-panel rounded-2xl border border-white/10 p-4 md:p-5 space-y-4">
             <h2 className="text-base md:text-lg font-bold text-white">{title}</h2>
             {children}
         </section>
@@ -920,7 +920,7 @@ export default function ProfilePage() {
                 </SectionCard>
 
                 {isCreatorAccount ? (
-                    <SectionCard title="Kreator Experiences">
+                    <SectionCard title="Kreator Experiences" id="creator-tools">
                         <div className="grid gap-3 md:grid-cols-2">
                             <div className="rounded-[1.15rem] border border-white/10 bg-black/30 px-4 py-3">
                                 <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Creator earnings</p>

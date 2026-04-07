@@ -3,7 +3,7 @@ import "server-only";
 import { type NextRequest } from "next/server";
 
 import { type AuthResult, AuthError, verifyAdmin, verifyAuth } from "./auth";
-import { type RateLimitConfig, checkRateLimit } from "./rate-limit";
+import { type RateLimitPolicy, checkRateLimit } from "./rate-limit";
 import { hasTrustedSiteOrigin } from "./request-origin";
 
 type RequestGuardAuthMode = "none" | "user" | "admin";
@@ -11,8 +11,8 @@ type RequestGuardAuthMode = "none" | "user" | "admin";
 interface RequestGuardOptions {
   routeName?: string;
   preAuthRouteName?: string;
-  preAuthRateLimit?: RateLimitConfig;
-  rateLimit?: RateLimitConfig;
+  preAuthRateLimit?: RateLimitPolicy;
+  rateLimit?: RateLimitPolicy;
   requireTrustedOrigin?: boolean;
   auth?: RequestGuardAuthMode;
   scopeToCaller?: boolean;

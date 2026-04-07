@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { handleApiError } from "@/lib/server/auth";
 import { buildAdminAiDropCoverDashboard, saveAdminAiDropCoverSettings } from "@/lib/server/ai-drop-covers";
-import { ADMIN, HEAVY_READ } from "@/lib/server/rate-limit";
+import { ADMIN_AI_CONTROL, ADMIN_AI_DASHBOARD_READ } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 
 export const dynamic = "force-dynamic";
@@ -13,8 +13,8 @@ export async function GET(request: NextRequest) {
         await guardApiRequest(request, {
             routeName: "admin/ai/drop-covers",
             preAuthRouteName: "admin/ai/drop-covers/preauth",
-            preAuthRateLimit: HEAVY_READ,
-            rateLimit: ADMIN,
+            preAuthRateLimit: ADMIN_AI_DASHBOARD_READ,
+            rateLimit: ADMIN_AI_DASHBOARD_READ,
             requireTrustedOrigin: true,
             auth: "admin",
             scopeToCaller: true,
@@ -34,7 +34,7 @@ export async function PUT(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "admin/ai/drop-covers",
-            rateLimit: ADMIN,
+            rateLimit: ADMIN_AI_CONTROL,
             requireTrustedOrigin: true,
             auth: "admin",
             scopeToCaller: true,

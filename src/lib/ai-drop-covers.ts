@@ -8,15 +8,19 @@ export const ADMIN_AI_DROP_COVER_SUMMARY_DOC = "overview";
 export const ADMIN_AI_DROP_COVER_MODEL = "gemini-2.5-flash-image";
 export const ADMIN_AI_DROP_COVER_PREMIUM_MODEL = "gemini-3-pro-image-preview";
 export const ADMIN_AI_DROP_COVER_DEFAULT_LOCATION = "global";
-export const ADMIN_AI_DROP_COVER_LEGACY_DEFAULT_MODEL = "imagen-3.0-fast-generate-001";
-export const ADMIN_AI_DROP_COVER_PREVIOUS_DEFAULT_MODEL = "imagen-4.0-fast-generate-001";
-export const ADMIN_AI_DROP_COVER_PREVIOUS_REFERENCE_MODEL = "imagen-3.0-capability-001";
-export const ADMIN_AI_DROP_COVER_LEGACY_DEFAULT_LOCATION = "us-central1";
-export const ADMIN_AI_DROP_COVER_PROMPT_VERSION = "drop-cover-v1";
+const LEGACY_ADMIN_AI_DROP_COVER_MODEL_ALIASES = new Set([
+    "imagen-3.0-fast-generate-001",
+    "imagen-4.0-fast-generate-001",
+    "imagen-3.0-capability-001",
+]);
+const LEGACY_ADMIN_AI_DROP_COVER_LOCATION_ALIASES = new Set(["us-central1"]);
+export const ADMIN_AI_DROP_COVER_PROMPT_VERSION = "drop-cover-v2";
 export const ADMIN_AI_DROP_COVER_PRICE_BASIS = "vertex-ai-pricing-gemini-2.5-flash-image-2026-04-06";
 export const ADMIN_AI_DROP_COVER_PREMIUM_PRICE_BASIS = "vertex-ai-pricing-gemini-3-pro-image-preview-2026-04-06";
 export const ADMIN_AI_DROP_COVER_PRICE_SOURCE_URL = "https://cloud.google.com/vertex-ai/generative-ai/pricing";
 export const ADMIN_AI_DROP_COVER_OUTPUT_MIME_TYPE = "image/png";
+export const ADMIN_AI_DROP_COVER_ACTIVE_POLL_INTERVAL_MS = 2_500;
+export const ADMIN_AI_DROP_COVER_IDLE_POLL_INTERVAL_MS = 10_000;
 
 export type AdminAiDropCoverSelectableModel =
     | typeof ADMIN_AI_DROP_COVER_MODEL
@@ -71,11 +75,36 @@ export type AdminAiDropCoverErrorCode =
     | "storage_failed"
     | "database_failed";
 
+export type AdminAiDropCoverFlavorFamily =
+    | "apple_spice"
+    | "berry"
+    | "citrus"
+    | "cream"
+    | "chocolate"
+    | "coffee"
+    | "mint"
+    | "tropical"
+    | "candy"
+    | "neutral";
+
 export interface AdminAiDropCoverPromptInput {
     title: string;
     creatorName?: string | null;
     dropType?: "content" | "promo" | "external" | string | null;
     tags?: string[] | null;
+}
+
+export interface AdminAiDropCoverConsistencyRecipe {
+    family: AdminAiDropCoverFlavorFamily;
+    creatorName?: string | null;
+    normalizedFlavorTitle: string;
+    focusTerms: string[];
+    heroSubject: string;
+    paletteDirection: string;
+    lightingDirection: string;
+    backgroundDirection: string;
+    compositionDirection: string;
+    overlayDirection: string;
 }
 
 export interface AdminAiDropCoverSettings {
@@ -109,6 +138,7 @@ export interface AdminAiDropCoverJobRecord {
     generationMode: AdminAiDropCoverGenerationMode;
     promptVersion: string;
     recipeLabel: string;
+    consistencyRecipe?: AdminAiDropCoverConsistencyRecipe;
     status: AdminAiDropCoverJobStatus;
     feedback: AdminAiDropCoverFeedback;
     accepted: boolean;
@@ -144,11 +174,18 @@ export interface AdminAiDropCoverReferenceAsset {
     storagePath?: string | null;
     dropId?: string | null;
     title?: string | null;
+    creatorName?: string | null;
     retentionReason?: "template" | "catalog" | "accepted" | "liked";
     accepted?: boolean;
     feedback?: AdminAiDropCoverFeedback | null;
     usageCount?: number;
+    successfulReuseCount?: number;
+    positiveReuseCount?: number;
+    acceptedReuseCount?: number;
+    likedReuseCount?: number;
     lastUsedAtMs?: number | null;
+    selectionScore?: number;
+    selectionReasons?: string[];
 }
 
 export interface AdminAiDropCoverModelOption {
@@ -189,6 +226,7 @@ export const adminAiDropCoverJobSchema = z.object({
     generationMode: z.enum(["standard", "reference_guided"]),
     promptVersion: z.string(),
     recipeLabel: z.string(),
+    consistencyRecipe: z.lazy(() => adminAiDropCoverConsistencyRecipeSchema).optional(),
     status: z.enum(["running", "succeeded", "failed"]),
     feedback: z.enum(["neutral", "liked", "disliked"]),
     accepted: z.boolean(),
@@ -249,6 +287,19 @@ export const adminAiDropCoverRuntimeSchema = z.object({
     priceSourceUrl: z.string().url(),
 });
 
+export const adminAiDropCoverConsistencyRecipeSchema = z.object({
+    family: z.enum(["apple_spice", "berry", "citrus", "cream", "chocolate", "coffee", "mint", "tropical", "candy", "neutral"]),
+    creatorName: z.string().nullable().optional(),
+    normalizedFlavorTitle: z.string(),
+    focusTerms: z.array(z.string()),
+    heroSubject: z.string(),
+    paletteDirection: z.string(),
+    lightingDirection: z.string(),
+    backgroundDirection: z.string(),
+    compositionDirection: z.string(),
+    overlayDirection: z.string(),
+});
+
 export const adminAiDropCoverReferenceAssetSchema = z.object({
     id: z.string(),
     source: z.enum(["template", "recent_drop_cover", "retained_ai_cover"]),
@@ -257,14 +308,22 @@ export const adminAiDropCoverReferenceAssetSchema = z.object({
     storagePath: z.string().nullable().optional(),
     dropId: z.string().nullable().optional(),
     title: z.string().nullable().optional(),
+    creatorName: z.string().nullable().optional(),
     retentionReason: z.enum(["template", "catalog", "accepted", "liked"]).optional(),
     accepted: z.boolean().optional(),
     feedback: z.enum(["neutral", "liked", "disliked"]).nullable().optional(),
     usageCount: z.number().optional(),
+    successfulReuseCount: z.number().optional(),
+    positiveReuseCount: z.number().optional(),
+    acceptedReuseCount: z.number().optional(),
+    likedReuseCount: z.number().optional(),
     lastUsedAtMs: z.number().nullable().optional(),
+    selectionScore: z.number().optional(),
+    selectionReasons: z.array(z.string()).optional(),
 });
 
 export const adminAiDropCoverSummarySchema = z.object({
+    refreshedAtMs: z.number(),
     settings: adminAiDropCoverSettingsSchema,
     runtime: adminAiDropCoverRuntimeSchema,
     aggregate: z.object({
@@ -289,52 +348,97 @@ export const adminAiDropCoverSummarySchema = z.object({
     }),
 });
 
-const AI_DROP_COVER_MODEL_PRICING_USD = {
-    "gemini-2.5-flash-image": 0.0387,
-    "gemini-3-pro-image-preview": 0.134,
-    "imagen-3.0-fast-generate-001": 0.02,
-    "imagen-3.0-generate-001": 0.04,
-    "imagen-3.0-generate-002": 0.04,
-    "imagen-3.0-capability-001": 0.04,
-    "imagen-4.0-fast-generate-001": 0.02,
-    "imagen-4.0-generate-001": 0.04,
-    "imagen-4.0-ultra-generate-001": 0.06,
-} as const;
-
-const AI_DROP_COVER_MODEL_PRICE_BASES = {
-    "gemini-2.5-flash-image": ADMIN_AI_DROP_COVER_PRICE_BASIS,
-    "gemini-3-pro-image-preview": ADMIN_AI_DROP_COVER_PREMIUM_PRICE_BASIS,
-    "imagen-3.0-fast-generate-001": "vertex-ai-pricing-imagen-3-fast-2026-04-06",
-    "imagen-3.0-generate-001": "vertex-ai-pricing-imagen-3-2026-04-06",
-    "imagen-3.0-generate-002": "vertex-ai-pricing-imagen-3-2026-04-06",
-    "imagen-3.0-capability-001": "vertex-ai-pricing-imagen-3-customization-2026-04-06",
-    "imagen-4.0-fast-generate-001": "vertex-ai-pricing-imagen-4-fast-2026-04-06",
-    "imagen-4.0-generate-001": "vertex-ai-pricing-imagen-4-2026-04-06",
-    "imagen-4.0-ultra-generate-001": "vertex-ai-pricing-imagen-4-ultra-2026-04-06",
-} as const;
-
 const DEFAULT_RECIPE_LABEL = "KandyDrops title-safe cover art";
+const TITLE_TOKEN_STOP_WORDS = new Set([
+    "a",
+    "an",
+    "and",
+    "by",
+    "drop",
+    "edition",
+    "exclusive",
+    "flavor",
+    "for",
+    "from",
+    "kandydrops",
+    "of",
+    "the",
+    "with",
+]);
+const FLAVOR_FAMILY_RULES: Array<{
+    family: AdminAiDropCoverFlavorFamily;
+    keywords: string[];
+    paletteDirection: string;
+    lightingDirection: string;
+    backgroundDirection: string;
+}> = [
+    {
+        family: "apple_spice",
+        keywords: ["apple", "pie", "cinnamon", "caramel", "pumpkin", "pecan", "cobbler", "baked"],
+        paletteDirection: "Use a warm amber and cinnamon palette with glossy caramel highlights and soft bakery warmth.",
+        lightingDirection: "Light the hero like a premium bakery ad with warm steam, golden highlights, and rich appetizing contrast.",
+        backgroundDirection: "Build a luminous bakery-style bokeh background with soft haze and controlled edge falloff.",
+    },
+    {
+        family: "berry",
+        keywords: ["berry", "blueberry", "strawberry", "raspberry", "blackberry", "cherry", "grape"],
+        paletteDirection: "Use one saturated berry-led palette with jewel-toned highlights and soft confection glow.",
+        lightingDirection: "Use glossy, premium beverage-or-dessert lighting with crisp highlights and a rich candy finish.",
+        backgroundDirection: "Create a dreamy berry bokeh field with atmospheric depth and subtle flavor particles.",
+    },
+    {
+        family: "citrus",
+        keywords: ["lemon", "lime", "orange", "citrus", "yuzu", "sorbet"],
+        paletteDirection: "Use a bright citrus palette with creamy yellow-white balance, luminous highlights, and clean contrast.",
+        lightingDirection: "Light the hero like a fresh bakery or dessert ad with bright glaze, sparkle, and soft radiant warmth.",
+        backgroundDirection: "Use an airy citrus glow with round bokeh and light flavor texture without clutter.",
+    },
+    {
+        family: "cream",
+        keywords: ["cream", "cake", "vanilla", "cheesecake", "sundae", "ice", "milkshake", "custard"],
+        paletteDirection: "Use creamy dessert tones with one dominant flavor color and glossy premium contrast.",
+        lightingDirection: "Use luscious dessert lighting with polished highlights, creamy depth, and tactile texture.",
+        backgroundDirection: "Create a soft confection bokeh backdrop with premium depth and minimal prop noise.",
+    },
+    {
+        family: "chocolate",
+        keywords: ["chocolate", "cocoa", "brownie", "cookie", "fudge", "mocha"],
+        paletteDirection: "Use rich cocoa and dark confection tones with glossy highlights and premium restraint.",
+        lightingDirection: "Use cinematic dessert lighting with deep shadows, glossy syrup highlights, and rich texture detail.",
+        backgroundDirection: "Build a dark premium confection background with soft glow and limited supporting props.",
+    },
+    {
+        family: "coffee",
+        keywords: ["coffee", "espresso", "latte", "mocha", "cappuccino"],
+        paletteDirection: "Use espresso, cream, and caramel tones with glossy premium warmth and restrained contrast.",
+        lightingDirection: "Use cafe-style editorial lighting with polished highlights and warm steam-driven atmosphere.",
+        backgroundDirection: "Create a moody coffeehouse bokeh field with subtle haze and premium product depth.",
+    },
+    {
+        family: "mint",
+        keywords: ["mint", "peppermint", "matcha"],
+        paletteDirection: "Use a cool mint-led palette with luminous highlights and clean premium dessert contrast.",
+        lightingDirection: "Use crisp cooling light with frosted highlights and glossy premium detail.",
+        backgroundDirection: "Build a chilled glow background with soft bokeh and restrained frost-like atmosphere.",
+    },
+    {
+        family: "tropical",
+        keywords: ["mango", "pineapple", "banana", "coconut", "peach", "melon", "watermelon"],
+        paletteDirection: "Use a bright tropical palette with one dominant fruit tone, glossy highlights, and candy-level saturation control.",
+        lightingDirection: "Use juicy, sunlit product lighting with premium gloss and strong edible clarity.",
+        backgroundDirection: "Create a tropical bokeh atmosphere with flavor haze and premium depth without collage clutter.",
+    },
+    {
+        family: "candy",
+        keywords: ["cotton", "candy", "bubblegum", "gummy", "taffy", "lollipop"],
+        paletteDirection: "Use a candy-premium palette with one dominant flavor color, glossy sheen, and playful depth.",
+        lightingDirection: "Use polished confection lighting with clean highlights and tactile candy texture.",
+        backgroundDirection: "Build a glowing candy-world backdrop with soft bokeh and disciplined prop use.",
+    },
+];
 
 function normalizeTag(label: string) {
     return label.trim().toLowerCase();
-}
-
-function buildTagStyleNote(tags?: string[] | null) {
-    const normalizedTags = Array.isArray(tags) ? tags.map(normalizeTag) : [];
-
-    if (normalizedTags.includes("spicy")) {
-        return "Use a bold high-contrast palette with glossy reds, ember tones, and cinematic heat.";
-    }
-
-    if (normalizedTags.includes("raw")) {
-        return "Use a darker monochrome-forward palette with dramatic contrast, metallic highlights, and premium editorial tension.";
-    }
-
-    if (normalizedTags.includes("sweet")) {
-        return "Use a candy-premium palette with luminous pinks, creams, berry tones, and glossy confection energy.";
-    }
-
-    return "Use a premium candy-poster palette with one dominant flavor color and controlled contrast.";
 }
 
 function buildDropTypeNote(dropType?: string | null) {
@@ -349,24 +453,209 @@ function buildDropTypeNote(dropType?: string | null) {
     return "Compose like a premium collectible content cover with a single hero visual and clean edges.";
 }
 
+function escapeRegExp(value: string) {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+export function normalizeAdminAiDropCoverFlavorTitle(title: string, creatorName?: string | null) {
+    const trimmedTitle = title.trim();
+    const trimmedCreator = creatorName?.trim() || "";
+    if (!trimmedCreator) {
+        return trimmedTitle;
+    }
+
+    const creatorPattern = new RegExp(`^${escapeRegExp(trimmedCreator)}['’]s\\s+`, "i");
+    return trimmedTitle.replace(creatorPattern, "").trim() || trimmedTitle;
+}
+
+export function getAdminAiDropCoverFocusTerms(title: string, creatorName?: string | null) {
+    const normalizedFlavorTitle = normalizeAdminAiDropCoverFlavorTitle(title, creatorName);
+    const terms = normalizedFlavorTitle
+        .split(/[^A-Za-z0-9]+/)
+        .map((token) => token.trim().toLowerCase())
+        .filter((token) => token.length >= 3 && !TITLE_TOKEN_STOP_WORDS.has(token));
+
+    return Array.from(new Set(terms));
+}
+
+function getFlavorFamilyRule(
+    family: AdminAiDropCoverFlavorFamily,
+) {
+    return FLAVOR_FAMILY_RULES.find((rule) => rule.family === family) || null;
+}
+
+export function inferAdminAiDropCoverFlavorFamily(input: AdminAiDropCoverPromptInput): AdminAiDropCoverFlavorFamily {
+    const focusTerms = getAdminAiDropCoverFocusTerms(input.title, input.creatorName);
+    const normalizedTags = Array.isArray(input.tags) ? input.tags.map(normalizeTag) : [];
+
+    let bestMatch: { family: AdminAiDropCoverFlavorFamily; score: number } = {
+        family: "neutral",
+        score: 0,
+    };
+
+    for (const rule of FLAVOR_FAMILY_RULES) {
+        const score = rule.keywords.reduce((total, keyword) => total + (focusTerms.includes(keyword) ? 1 : 0), 0);
+        if (score > bestMatch.score) {
+            bestMatch = { family: rule.family, score };
+        }
+    }
+
+    if (bestMatch.score > 0) {
+        return bestMatch.family;
+    }
+
+    if (normalizedTags.includes("spicy")) {
+        return "apple_spice";
+    }
+    if (normalizedTags.includes("sweet")) {
+        return "candy";
+    }
+    if (normalizedTags.includes("raw")) {
+        return "chocolate";
+    }
+
+    return "neutral";
+}
+
+export function buildAdminAiDropCoverConsistencyRecipe(input: AdminAiDropCoverPromptInput): AdminAiDropCoverConsistencyRecipe {
+    const normalizedFlavorTitle = normalizeAdminAiDropCoverFlavorTitle(input.title, input.creatorName);
+    const focusTerms = getAdminAiDropCoverFocusTerms(input.title, input.creatorName).slice(0, 5);
+    const family = inferAdminAiDropCoverFlavorFamily(input);
+    const familyRule = getFlavorFamilyRule(family);
+
+    return {
+        family,
+        creatorName: input.creatorName?.trim() || null,
+        normalizedFlavorTitle,
+        focusTerms,
+        heroSubject: `Center one unmistakable edible hero inspired by ${normalizedFlavorTitle}, keeping the food or drink subject large, premium, and immediately readable.`,
+        paletteDirection: familyRule?.paletteDirection || "Use one dominant flavor palette with premium contrast, glossy highlights, and restrained accent color drift.",
+        lightingDirection: familyRule?.lightingDirection || "Use polished confection lighting with tactile highlights, depth, and a premium food-ad editorial finish.",
+        backgroundDirection: familyRule?.backgroundDirection || "Create a soft glowing bokeh background with flavor-led atmosphere, depth, and minimal distracting props.",
+        compositionDirection: "Keep a square poster composition with one centered hero, stable negative space near the top arc, and a clean lower ribbon-safe zone for deterministic product overlays.",
+        overlayDirection: "Preserve clean safe zones for deterministic creator-name, flavor-title, and bottom CTA ribbon overlays. Never depend on model-rendered typography.",
+    };
+}
+
+export function scoreAdminAiDropCoverReferenceAsset(
+    asset: Pick<AdminAiDropCoverReferenceAsset, "id" | "source" | "title" | "creatorName" | "retentionReason">,
+    recipe: AdminAiDropCoverConsistencyRecipe,
+) {
+    const assetTitle = asset.title?.trim() || "";
+    const assetFocusTerms = getAdminAiDropCoverFocusTerms(assetTitle, asset.creatorName);
+    const assetFamily = assetTitle
+        ? inferAdminAiDropCoverFlavorFamily({
+            title: assetTitle,
+            creatorName: asset.creatorName,
+        })
+        : "neutral";
+    const sharedTerms = recipe.focusTerms.filter((term) => assetFocusTerms.includes(term));
+
+    let score = 0;
+    const reasons: string[] = [];
+
+    if (asset.source === "template") {
+        score += 100;
+        reasons.push("uploaded house template anchor");
+    }
+
+    if (sharedTerms.length > 0) {
+        score += sharedTerms.length * 12;
+        reasons.push(`shared flavor terms: ${sharedTerms.join(", ")}`);
+    }
+
+    if (assetFamily !== "neutral" && assetFamily === recipe.family) {
+        score += 18;
+        reasons.push(`${assetFamily.replace(/_/g, " ")} family match`);
+    }
+
+    if (asset.source === "retained_ai_cover") {
+        if (asset.retentionReason === "accepted") {
+            score += 24;
+            reasons.push("accepted by operator");
+        } else if (asset.retentionReason === "liked") {
+            score += 16;
+            reasons.push("liked by operator");
+        }
+    } else if (asset.source === "recent_drop_cover") {
+        score += 8;
+        reasons.push("published live drop cover");
+    }
+
+    if (
+        asset.creatorName
+        && recipe.creatorName
+        && asset.creatorName.trim().toLowerCase() === recipe.creatorName.trim().toLowerCase()
+    ) {
+        score += 6;
+        reasons.push("same creator context");
+    }
+
+    if (reasons.length === 0) {
+        reasons.push("fallback visual variety candidate");
+    }
+
+    return {
+        score,
+        reasons,
+    };
+}
+
+export function selectAdminAiDropCoverReferenceAssets(
+    assets: AdminAiDropCoverReferenceAsset[],
+    recipe: AdminAiDropCoverConsistencyRecipe,
+    limit: number,
+) {
+    return assets
+        .map((asset) => {
+            const selection = scoreAdminAiDropCoverReferenceAsset(asset, recipe);
+            return {
+                asset: {
+                    ...asset,
+                    selectionScore: selection.score,
+                    selectionReasons: selection.reasons,
+                },
+                score: selection.score,
+            };
+        })
+        .sort((left, right) => {
+            if (right.score !== left.score) {
+                return right.score - left.score;
+            }
+            const leftAccepted = left.asset.retentionReason === "accepted" ? 1 : 0;
+            const rightAccepted = right.asset.retentionReason === "accepted" ? 1 : 0;
+            if (rightAccepted !== leftAccepted) {
+                return rightAccepted - leftAccepted;
+            }
+            return (left.asset.title || "").localeCompare(right.asset.title || "");
+        })
+        .slice(0, Math.max(0, limit))
+        .map((entry) => adminAiDropCoverReferenceAssetSchema.parse(entry.asset));
+}
+
 export function buildAdminAiDropCoverPrompt(
     input: AdminAiDropCoverPromptInput,
-    options?: { referenceGuided?: boolean },
+    options?: { referenceGuided?: boolean; recipe?: AdminAiDropCoverConsistencyRecipe },
 ) {
-    const title = input.title.trim();
-    const creatorName = input.creatorName?.trim();
+    const recipe = options?.recipe || buildAdminAiDropCoverConsistencyRecipe(input);
+    const title = recipe.normalizedFlavorTitle;
+    const creatorName = recipe.creatorName?.trim();
 
     return [
         "Create premium square cover art for a KandyDrops drop.",
         `Drop title concept: ${title}.`,
         creatorName ? `Creator context: ${creatorName}. Use this only as mood context, never as rendered text.` : "",
         buildDropTypeNote(input.dropType),
-        buildTagStyleNote(input.tags),
+        recipe.heroSubject,
+        recipe.paletteDirection,
+        recipe.lightingDirection,
+        recipe.backgroundDirection,
+        recipe.compositionDirection,
+        recipe.overlayDirection,
         "The image must feel like luxury candy packaging meets a premium poster.",
         options?.referenceGuided
-            ? "Use the provided KandyDrops cover references as style guidance while keeping the result original, title-safe, and production-ready."
+            ? "Use the provided KandyDrops cover references to preserve the KandyDrops house style while keeping the result original, title-safe, and production-ready."
             : "",
-        "Keep one centered hero composition with enough clean space for the product UI to display deterministic title text outside the image.",
         "Use depth, gloss, tactile lighting, and a flavor-led visual identity.",
         "Do not render any readable text, letters, typography, logos, watermarks, UI, split panels, collage grids, or captions.",
         "Do not crop the hero subject awkwardly. Avoid busy backgrounds, extra props, or generic stock-photo composition.",
@@ -375,11 +664,13 @@ export function buildAdminAiDropCoverPrompt(
 }
 
 export function getAdminAiDropCoverPricePerGenerationUsd(model = ADMIN_AI_DROP_COVER_MODEL) {
-    return AI_DROP_COVER_MODEL_PRICING_USD[model as keyof typeof AI_DROP_COVER_MODEL_PRICING_USD] ?? 0.02;
+    return getAdminAiDropCoverModelOption(model)?.pricePerGenerationUsd
+        ?? getAdminAiDropCoverModelOption(ADMIN_AI_DROP_COVER_MODEL)?.pricePerGenerationUsd
+        ?? 0.0387;
 }
 
 export function getAdminAiDropCoverPriceBasis(model = ADMIN_AI_DROP_COVER_MODEL) {
-    return AI_DROP_COVER_MODEL_PRICE_BASES[model as keyof typeof AI_DROP_COVER_MODEL_PRICE_BASES]
+    return getAdminAiDropCoverModelOption(model)?.priceBasis
         ?? ADMIN_AI_DROP_COVER_PRICE_BASIS;
 }
 
@@ -390,46 +681,34 @@ export function estimateAdminAiDropCoverCostUsd(model = ADMIN_AI_DROP_COVER_MODE
 
 export function normalizeAdminAiDropCoverModel(
     model?: string | null,
-    generationMode: AdminAiDropCoverGenerationMode = "standard",
+    _generationMode: AdminAiDropCoverGenerationMode = "standard",
 ) {
     const normalizedModel = model?.trim() || "";
 
-    if (
-        !normalizedModel
-        || normalizedModel === ADMIN_AI_DROP_COVER_LEGACY_DEFAULT_MODEL
-        || normalizedModel === ADMIN_AI_DROP_COVER_PREVIOUS_DEFAULT_MODEL
-        || normalizedModel === ADMIN_AI_DROP_COVER_PREVIOUS_REFERENCE_MODEL
-    ) {
+    if (!normalizedModel || LEGACY_ADMIN_AI_DROP_COVER_MODEL_ALIASES.has(normalizedModel)) {
         return ADMIN_AI_DROP_COVER_MODEL;
     }
 
-    return normalizedModel;
+    return isAdminAiDropCoverSelectableModel(normalizedModel)
+        ? normalizedModel
+        : ADMIN_AI_DROP_COVER_MODEL;
 }
 
 export function normalizeAdminAiDropCoverLocation(
     location?: string | null,
     model?: string | null,
-    generationMode: AdminAiDropCoverGenerationMode = "standard",
+    _generationMode: AdminAiDropCoverGenerationMode = "standard",
 ) {
     const normalizedLocation = location?.trim() || "";
     const rawModel = model?.trim() || "";
-    const normalizedModel = normalizeAdminAiDropCoverModel(rawModel, generationMode);
+    const normalizedModel = normalizeAdminAiDropCoverModel(rawModel);
 
     if (!normalizedLocation) {
-        return ADMIN_AI_DROP_COVER_DEFAULT_LOCATION;
+        return getAdminAiDropCoverModelOption(normalizedModel)?.location || ADMIN_AI_DROP_COVER_DEFAULT_LOCATION;
     }
 
-    if (
-        normalizedLocation === ADMIN_AI_DROP_COVER_LEGACY_DEFAULT_LOCATION
-        && (
-            !rawModel
-            || rawModel === ADMIN_AI_DROP_COVER_LEGACY_DEFAULT_MODEL
-            || rawModel === ADMIN_AI_DROP_COVER_PREVIOUS_DEFAULT_MODEL
-            || rawModel === ADMIN_AI_DROP_COVER_PREVIOUS_REFERENCE_MODEL
-        )
-        && normalizedModel === ADMIN_AI_DROP_COVER_MODEL
-    ) {
-        return ADMIN_AI_DROP_COVER_DEFAULT_LOCATION;
+    if (LEGACY_ADMIN_AI_DROP_COVER_LOCATION_ALIASES.has(normalizedLocation) && LEGACY_ADMIN_AI_DROP_COVER_MODEL_ALIASES.has(rawModel)) {
+        return getAdminAiDropCoverModelOption(normalizedModel)?.location || ADMIN_AI_DROP_COVER_DEFAULT_LOCATION;
     }
 
     return normalizedLocation;
@@ -473,8 +752,12 @@ export function getDefaultAdminAiDropCoverSettings(): AdminAiDropCoverSettings {
     };
 }
 
-export function getAdminAiDropCoverRecipeLabel() {
-    return DEFAULT_RECIPE_LABEL;
+export function getAdminAiDropCoverRecipeLabel(recipe?: AdminAiDropCoverConsistencyRecipe | null) {
+    if (!recipe || recipe.family === "neutral") {
+        return DEFAULT_RECIPE_LABEL;
+    }
+
+    return `KandyDrops ${recipe.family.replace(/_/g, " ")} title-safe cover art`;
 }
 
 export function formatAdminAiUsd(value: number) {

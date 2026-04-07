@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState, type ChangeEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import Image from "next/image";
 import {
     Activity,
@@ -24,6 +24,8 @@ import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { Button } from "@/components/ui/Button";
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import {
+    ADMIN_AI_DROP_COVER_ACTIVE_POLL_INTERVAL_MS,
+    ADMIN_AI_DROP_COVER_IDLE_POLL_INTERVAL_MS,
     formatAdminAiUsd,
     type AdminAiDropCoverJobRecord,
     type AdminAiDropCoverReferenceAsset,
@@ -34,6 +36,7 @@ import { reportClientIssue } from "@/lib/client-error-reporting";
 import { cn } from "@/lib/utils";
 
 type AdminAiDropCoverDashboard = {
+    refreshedAtMs: number;
     settings: {
         enabled: boolean;
         model: string;
@@ -141,13 +144,34 @@ function describeReferenceAsset(asset: AdminAiDropCoverReferenceAsset) {
     return "Live drop cover";
 }
 
+function formatReuseStats(asset: AdminAiDropCoverReferenceAsset) {
+    const parts: string[] = [];
+    if (asset.usageCount) {
+        parts.push(`used ${asset.usageCount}x`);
+    }
+    if (asset.successfulReuseCount) {
+        parts.push(`${asset.successfulReuseCount} successful`);
+    }
+    if (asset.positiveReuseCount) {
+        parts.push(`${asset.positiveReuseCount} positive`);
+    }
+    return parts.length > 0 ? parts.join(" | ") : "Not reused yet";
+}
+
+function getPollCadenceLabel(refreshIntervalMs: number) {
+    return refreshIntervalMs <= ADMIN_AI_DROP_COVER_ACTIVE_POLL_INTERVAL_MS
+        ? "2.5s active cadence"
+        : "10s idle cadence";
+}
+
 export default function AIAdminPage() {
     const [updatingToggle, setUpdatingToggle] = useState(false);
     const [savingReferenceSettings, setSavingReferenceSettings] = useState(false);
     const [uploadingTemplate, setUploadingTemplate] = useState(false);
     const [removingTemplate, setRemovingTemplate] = useState(false);
+    const [refreshIntervalMs, setRefreshIntervalMs] = useState(ADMIN_AI_DROP_COVER_IDLE_POLL_INTERVAL_MS);
     const templateInputRef = useRef<HTMLInputElement | null>(null);
-    const { data, error, isLoading, mutate } = useAdminPollingSWR<AdminAiDropCoverDashboard>("/api/admin/ai/drop-covers", 10_000, {
+    const { data, error, isLoading, mutate } = useAdminPollingSWR<AdminAiDropCoverDashboard>("/api/admin/ai/drop-covers", refreshIntervalMs, {
         keepPreviousData: true,
     });
 
@@ -165,6 +189,19 @@ export default function AIAdminPage() {
         && (data.referenceAssets.recentDropCovers || []).length === 0
         && (data.referenceAssets.retainedAiCovers || []).length === 0,
     );
+    const latestRecipe = data?.recentJobs.find((job) => job.consistencyRecipe)?.consistencyRecipe || null;
+
+    const pollCadenceLabel = useMemo(() => getPollCadenceLabel(refreshIntervalMs), [refreshIntervalMs]);
+
+    const lastRefreshLabel = useMemo(() => formatCompactTimestamp(data?.refreshedAtMs), [data?.refreshedAtMs]);
+
+    useEffect(() => {
+        const nextInterval = (data?.aggregate.activeGenerationCount || 0) > 0
+            ? ADMIN_AI_DROP_COVER_ACTIVE_POLL_INTERVAL_MS
+            : ADMIN_AI_DROP_COVER_IDLE_POLL_INTERVAL_MS;
+
+        setRefreshIntervalMs((current) => current === nextInterval ? current : nextInterval);
+    }, [data?.aggregate.activeGenerationCount]);
 
     const persistSettingsPatch = async (
         patch: Partial<AdminAiDropCoverDashboard["settings"]>,
@@ -314,17 +351,18 @@ export default function AIAdminPage() {
                     </>
                 )}
             />
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-7">
                 <StatCard
                     label="Runtime"
                     value={data?.runtime.status || (error ? "error" : "--")}
                     meta={data?.runtime.generationMode === "reference_guided" ? `${data?.runtime.model || "Vertex"} | reference-guided` : (data?.runtime.model || "Vertex")}
                 />
-                <StatCard label="Active jobs" value={data?.aggregate.activeGenerationCount ?? "--"} meta="polled every 10s" />
+                <StatCard label="Active jobs" value={data?.aggregate.activeGenerationCount ?? "--"} meta={pollCadenceLabel} />
+                <StatCard label="Last refresh" value={lastRefreshLabel} meta="persisted dashboard snapshot time" />
                 <StatCard label="Last success" value={formatCompactTimestamp(data?.aggregate.lastSuccessAtMs)} meta={`${data?.aggregate.successfulGenerationCount ?? 0} succeeded`} />
                 <StatCard label="Retained refs" value={data ? retainedReferenceCount : "--"} meta="template + live covers + positive AI covers" />
                 <StatCard label="Signals" value={`${data?.aggregate.acceptedCount ?? 0}/${data?.aggregate.likedCount ?? 0}`} meta={`${data?.aggregate.dislikedCount ?? 0} disliked and not reused`} />
-                <StatCard label="Estimated cost" value={data ? formatAdminAiUsd(data.aggregate.totalEstimatedCostUsd) : "--"} meta={data ? `${formatAdminAiUsd(data.settings.pricePerGenerationUsd)} each` : "Pricing unavailable"} />
+                <StatCard label="Estimated cost" value={data ? formatAdminAiUsd(data.aggregate.totalEstimatedCostUsd) : "--"} meta={data ? `${formatAdminAiUsd(data.settings.pricePerGenerationUsd)} each | ${data.settings.model}` : "Pricing unavailable"} />
             </div>
 
             {isLoading && !data ? (
@@ -345,7 +383,7 @@ export default function AIAdminPage() {
                     <div className="min-w-0">
                         <h2 className="text-lg font-bold text-white">Runtime checks and live activity</h2>
                         <p className="mt-1 text-sm text-gray-400">
-                            This page polls every 10 seconds. It shows real job state, retained references, and stored feedback only. It does not expose hidden model reasoning or in-app model training.
+                            This page polls every {refreshIntervalMs / 1000}s while jobs are active and every {ADMIN_AI_DROP_COVER_IDLE_POLL_INTERVAL_MS / 1000}s when idle. It shows persisted job state, retained references, and stored feedback only. It does not expose hidden model reasoning or live weight training because those signals do not exist in this runtime.
                         </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
@@ -356,6 +394,10 @@ export default function AIAdminPage() {
                         <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-gray-200">
                             <Sparkles className="h-3.5 w-3.5" />
                             {data?.runtime.location || "global"}
+                        </span>
+                        <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-gray-200">
+                            <RefreshCw className="h-3.5 w-3.5" />
+                            {pollCadenceLabel}
                         </span>
                     </div>
                 </div>
@@ -369,7 +411,7 @@ export default function AIAdminPage() {
                     <div className="flex items-center justify-between gap-3">
                         <div>
                             <p className="text-sm font-semibold text-white">Running now</p>
-                            <p className="mt-1 text-xs text-gray-400">Near-real-time running jobs from the last poll. No hidden step stream exists beyond these job states.</p>
+                            <p className="mt-1 text-xs text-gray-400">Near-real-time running jobs from the last completed poll. No provider-side step stream exists beyond these persisted job states.</p>
                         </div>
                         <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-gray-200">
                             <Activity className="h-3.5 w-3.5" />
@@ -386,16 +428,28 @@ export default function AIAdminPage() {
                                             <p className="mt-1 text-xs text-cyan-100/80">
                                                 Requested {formatTimestamp(job.requestedAtMs)} | {job.model}
                                             </p>
+                                            {job.consistencyRecipe ? (
+                                                <p className="mt-1 text-[11px] text-cyan-100/75">
+                                                    Recipe: {job.consistencyRecipe.family.replace(/_/g, " ")} | focus {job.consistencyRecipe.focusTerms.join(", ") || "title-only"}
+                                                </p>
+                                            ) : null}
                                         </div>
                                         <JobStatusBadge job={job} />
                                     </div>
                                     {(job.referenceAssets || []).length > 0 ? (
-                                        <div className="mt-3 flex flex-wrap gap-2">
+                                        <div className="mt-3 space-y-2">
                                             {job.referenceAssets!.map((asset) => (
-                                                <span key={`${job.id}_${asset.id}`} className="inline-flex items-center gap-1 rounded-full border border-cyan-300/20 bg-black/25 px-2.5 py-1 text-[11px] text-cyan-50">
-                                                    <ImageIcon className="h-3 w-3" />
-                                                    {describeReferenceAsset(asset)}: {asset.title || asset.dropId || asset.fileName || asset.id}
-                                                </span>
+                                                <div key={`${job.id}_${asset.id}`} className="rounded-[0.85rem] border border-cyan-300/20 bg-black/25 px-2.5 py-2 text-[11px] text-cyan-50">
+                                                    <div className="inline-flex items-center gap-1">
+                                                        <ImageIcon className="h-3 w-3" />
+                                                        {describeReferenceAsset(asset)}: {asset.title || asset.dropId || asset.fileName || asset.id}
+                                                    </div>
+                                                    {asset.selectionReasons?.length ? (
+                                                        <p className="mt-1 text-cyan-100/75">
+                                                            Score {asset.selectionScore ?? 0}: {asset.selectionReasons.join(" | ")}
+                                                        </p>
+                                                    ) : null}
+                                                </div>
                                             ))}
                                         </div>
                                     ) : null}
@@ -480,13 +534,7 @@ export default function AIAdminPage() {
                                 </div>
                                 <div className="flex flex-wrap items-center justify-between gap-2 p-3 text-xs text-gray-300">
                                     <span className="font-medium text-white">{data.referenceAssets.template.fileName || "Current template"}</span>
-                                    <span>
-                                        {data.referenceAssets.template.usageCount
-                                            ? `Used ${data.referenceAssets.template.usageCount} times`
-                                            : data.settings.useTemplateReference
-                                                ? "Eligible for the next generation"
-                                                : "Uploaded but currently off"}
-                                    </span>
+                                    <span>{formatReuseStats(data.referenceAssets.template)}</span>
                                 </div>
                             </div>
                         ) : (
@@ -523,9 +571,8 @@ export default function AIAdminPage() {
                                         </div>
                                         <div className="space-y-1 p-3">
                                             <p className="text-xs font-semibold text-white">{asset.title || "Untitled Drop"}</p>
-                                            <p className="text-[11px] text-gray-400">
-                                                {asset.dropId || "drop"}{asset.usageCount ? ` | used ${asset.usageCount}x` : ""}
-                                            </p>
+                                            <p className="text-[11px] text-gray-400">{asset.dropId || "drop"}</p>
+                                            <p className="text-[11px] text-gray-500">{formatReuseStats(asset)}</p>
                                         </div>
                                     </article>
                                 ))}
@@ -552,9 +599,8 @@ export default function AIAdminPage() {
                                         </div>
                                         <div className="space-y-1 p-3">
                                             <p className="text-xs font-semibold text-white">{asset.title || "Retained AI cover"}</p>
-                                            <p className="text-[11px] text-gray-400">
-                                                {describeReferenceAsset(asset)}{asset.usageCount ? ` | used ${asset.usageCount}x` : ""}
-                                            </p>
+                                            <p className="text-[11px] text-gray-400">{describeReferenceAsset(asset)}</p>
+                                            <p className="text-[11px] text-gray-500">{formatReuseStats(asset)}</p>
                                         </div>
                                     </article>
                                 ))}
@@ -602,6 +648,20 @@ export default function AIAdminPage() {
                     <StatCard label="Liked refs" value={retainedLikedCount} meta="positive signal, not yet accepted" />
                     <StatCard label="Last failure" value={formatCompactTimestamp(data?.aggregate.lastFailureAtMs)} meta={`${data?.aggregate.failedGenerationCount ?? 0} failed jobs stored`} />
                 </div>
+                {latestRecipe ? (
+                    <div className="mt-4 rounded-[1rem] border border-white/10 bg-black/25 p-4 text-sm text-gray-300">
+                        <p className="font-semibold text-white">Latest analyzed recipe</p>
+                        <p className="mt-2 text-xs text-gray-400">
+                            Family: {latestRecipe.family.replace(/_/g, " ")} | Flavor title: {latestRecipe.normalizedFlavorTitle}
+                        </p>
+                        <p className="mt-2 text-xs text-gray-400">
+                            Focus terms: {latestRecipe.focusTerms.join(", ") || "No extracted focus terms"}
+                        </p>
+                        <p className="mt-2 text-xs text-gray-500">
+                            Overlay rule: {latestRecipe.overlayDirection}
+                        </p>
+                    </div>
+                ) : null}
             </section>
 
             <section className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4 md:p-5">
@@ -656,6 +716,11 @@ export default function AIAdminPage() {
                                             <p className="mt-1 text-[11px] text-gray-500">
                                                 Requested {formatTimestamp(job.requestedAtMs)}{job.creatorName ? ` | ${job.creatorName}` : ""}
                                             </p>
+                                            {job.consistencyRecipe ? (
+                                                <p className="mt-1 text-[11px] text-gray-500">
+                                                    Recipe family {job.consistencyRecipe.family.replace(/_/g, " ")} | focus {job.consistencyRecipe.focusTerms.join(", ") || "title-only"}
+                                                </p>
+                                            ) : null}
                                             {job.generationMode === "reference_guided" ? (
                                                 <p className="mt-1 text-[11px] text-gray-500">
                                                     Template {job.templateReferenceUsed ? "on" : "off"} | {job.recentDropReferenceCount || 0} live covers | {job.retainedAiReferenceCount || 0} retained AI covers
@@ -663,12 +728,19 @@ export default function AIAdminPage() {
                                             ) : null}
                                         </div>
                                         {(job.referenceAssets || []).length > 0 ? (
-                                            <div className="flex flex-wrap gap-2">
+                                            <div className="space-y-2">
                                                 {job.referenceAssets!.map((asset) => (
-                                                    <span key={`${job.id}_${asset.id}`} className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
-                                                        <ImageIcon className="h-3 w-3" />
-                                                        {describeReferenceAsset(asset)}: {asset.title || asset.dropId || asset.fileName || asset.id}
-                                                    </span>
+                                                    <div key={`${job.id}_${asset.id}`} className="rounded-[0.9rem] border border-white/10 bg-black/25 px-2.5 py-2 text-[11px] text-gray-300">
+                                                        <div className="inline-flex items-center gap-1">
+                                                            <ImageIcon className="h-3 w-3" />
+                                                            {describeReferenceAsset(asset)}: {asset.title || asset.dropId || asset.fileName || asset.id}
+                                                        </div>
+                                                        {asset.selectionReasons?.length ? (
+                                                            <p className="mt-1 text-gray-500">
+                                                                Score {asset.selectionScore ?? 0}: {asset.selectionReasons.join(" | ")}
+                                                            </p>
+                                                        ) : null}
+                                                    </div>
                                                 ))}
                                             </div>
                                         ) : null}

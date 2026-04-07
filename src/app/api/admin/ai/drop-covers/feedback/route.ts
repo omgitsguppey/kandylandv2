@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { handleApiError } from "@/lib/server/auth";
 import { updateAdminAiDropCoverFeedback } from "@/lib/server/ai-drop-covers";
-import { ADMIN } from "@/lib/server/rate-limit";
+import { ADMIN_AI_CONTROL } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 
 export const dynamic = "force-dynamic";
@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "admin/ai/drop-covers/feedback",
-            rateLimit: ADMIN,
+            rateLimit: ADMIN_AI_CONTROL,
             requireTrustedOrigin: true,
             auth: "admin",
             scopeToCaller: true,

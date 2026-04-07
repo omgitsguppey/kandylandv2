@@ -9,16 +9,17 @@ import {
     ADMIN_AI_DROP_COVER_JOBS_COLLECTION,
     ADMIN_AI_DROP_COVER_MODEL,
     ADMIN_AI_DROP_COVER_OUTPUT_MIME_TYPE,
-    ADMIN_AI_DROP_COVER_PREMIUM_MODEL,
     ADMIN_AI_DROP_COVER_PROMPT_VERSION,
     ADMIN_AI_DROP_COVER_SETTINGS_DOC,
     ADMIN_AI_DROP_COVER_SUMMARY_COLLECTION,
     ADMIN_AI_DROP_COVER_SUMMARY_DOC,
     adminAiDropCoverReferenceAssetSchema,
     adminAiDropCoverJobSchema,
+    adminAiDropCoverConsistencyRecipeSchema,
     adminAiDropCoverRuntimeSchema,
     adminAiDropCoverSettingsSchema,
     adminAiDropCoverSummarySchema,
+    buildAdminAiDropCoverConsistencyRecipe,
     buildAdminAiDropCoverPrompt,
     estimateAdminAiDropCoverCostUsd,
     getAdminAiDropCoverGenerationMode,
@@ -30,11 +31,13 @@ import {
     getDefaultAdminAiDropCoverSettings,
     normalizeAdminAiDropCoverLocation,
     normalizeAdminAiDropCoverModel,
+    selectAdminAiDropCoverReferenceAssets,
     type AdminAiDropCoverFeedbackAction,
     type AdminAiDropCoverGenerationMode,
     type AdminAiDropCoverJobRecord,
     type AdminAiDropCoverJobStatus,
     type AdminAiDropCoverSelectableModel,
+    type AdminAiDropCoverConsistencyRecipe,
     type AdminAiDropCoverPromptInput,
     type AdminAiDropCoverReferenceAsset,
     type AdminAiDropCoverSettings,
@@ -57,6 +60,8 @@ const DEFAULT_TIMEOUT_MS = 20_000;
 const RECENT_JOB_LIMIT = 18;
 const RECENT_REFERENCE_DROP_LIMIT = 4;
 const RETAINED_AI_REFERENCE_LIMIT = 4;
+const RECENT_REFERENCE_DROP_CANDIDATE_LIMIT = 12;
+const RETAINED_AI_REFERENCE_CANDIDATE_LIMIT = 12;
 const MAX_REFERENCE_INPUTS = 6;
 const TEMPLATE_REFERENCE_STYLE_DESCRIPTION = "KandyDrops premium candy-poster cover art with centered hero framing, strong flavor palette, and title-safe negative space.";
 
@@ -64,7 +69,7 @@ type AdminAiDropCoverRuntime = {
     project: string;
     location: string;
     model: string;
-    provider: "gemini_generate_content" | "imagen_predict";
+    provider: "gemini_generate_content";
 };
 
 type SummaryDelta = Partial<{
@@ -81,12 +86,6 @@ type SummaryDelta = Partial<{
     lastSuccessAtMs: number;
     lastFailureAtMs: number;
 }>;
-
-type VertexImagePrediction = {
-    bytesBase64Encoded?: string;
-    mimeType?: string;
-    prompt?: string;
-};
 
 type GeminiInlineData = {
     mimeType?: string;
@@ -155,6 +154,7 @@ type LoadedReferenceImage = {
 
 type AdminAiDropCoverReferenceContext = {
     generationMode: AdminAiDropCoverGenerationMode;
+    recipe: AdminAiDropCoverConsistencyRecipe;
     referenceImages: LoadedReferenceImage[];
     referenceAssets: AdminAiDropCoverReferenceAsset[];
     templateReferenceUsed: boolean;
@@ -305,10 +305,6 @@ function getString(value: unknown) {
     return typeof value === "string" ? value : "";
 }
 
-function isGeminiImageModel(model: string) {
-    return model === ADMIN_AI_DROP_COVER_MODEL || model === ADMIN_AI_DROP_COVER_PREMIUM_MODEL;
-}
-
 function getGenerationModeDefaults(_generationMode: AdminAiDropCoverGenerationMode) {
     return {
         model: ADMIN_AI_DROP_COVER_MODEL,
@@ -425,6 +421,10 @@ function normalizeSummary(raw: unknown): AdminAiDropCoverSummaryRecord {
 
 function normalizeJobRecord(id: string, raw: unknown): AdminAiDropCoverJobRecord {
     const data = (raw && typeof raw === "object") ? raw as Record<string, unknown> : {};
+    const consistencyRecipeResult = adminAiDropCoverConsistencyRecipeSchema.safeParse(data.consistencyRecipe);
+    const consistencyRecipe = consistencyRecipeResult.success
+        ? consistencyRecipeResult.data
+        : undefined;
     return adminAiDropCoverJobSchema.parse({
         id,
         title: getString(data.title) || "Untitled Drop",
@@ -435,7 +435,8 @@ function normalizeJobRecord(id: string, raw: unknown): AdminAiDropCoverJobRecord
         location: getString(data.location) || DEFAULT_VERTEX_LOCATION,
         generationMode: data.generationMode === "reference_guided" ? "reference_guided" : "standard",
         promptVersion: getString(data.promptVersion) || ADMIN_AI_DROP_COVER_PROMPT_VERSION,
-        recipeLabel: getString(data.recipeLabel) || getAdminAiDropCoverRecipeLabel(),
+        recipeLabel: getString(data.recipeLabel) || getAdminAiDropCoverRecipeLabel(consistencyRecipe),
+        consistencyRecipe,
         status: (["running", "succeeded", "failed"] as const).includes(data.status as AdminAiDropCoverJobStatus)
             ? data.status as AdminAiDropCoverJobStatus
             : "failed",
@@ -531,6 +532,7 @@ async function listRecentDropCoverReferenceAssets(excludeDropId?: string | null,
             storagePath: typeof data.storagePath === "string" ? data.storagePath : null,
             dropId: doc.id,
             title: getString(data.title) || "Untitled Drop",
+            creatorName: getString(data.creatorName) || null,
         }));
 
         if (assets.length >= limit) {
@@ -579,6 +581,7 @@ async function listRetainedAiCoverReferenceAssets(limit = RETAINED_AI_REFERENCE_
             storagePath: job.storagePath || null,
             dropId: job.acceptedForDropId || job.dropId || null,
             title: job.title || "Retained AI cover",
+            creatorName: job.creatorName || null,
             retentionReason: accepted ? "accepted" : "liked",
             accepted,
             feedback: job.feedback,
@@ -596,15 +599,30 @@ function applyReferenceUsageStats(
     assets: AdminAiDropCoverReferenceAsset[],
     jobs: AdminAiDropCoverJobRecord[],
 ) {
-    const usageMap = new Map<string, { usageCount: number; lastUsedAtMs: number }>();
+    const usageMap = new Map<string, {
+        usageCount: number;
+        lastUsedAtMs: number;
+        successfulReuseCount: number;
+        positiveReuseCount: number;
+        acceptedReuseCount: number;
+        likedReuseCount: number;
+    }>();
 
     for (const job of jobs) {
         const requestedAtMs = typeof job.requestedAtMs === "number" ? job.requestedAtMs : 0;
         for (const asset of job.referenceAssets || []) {
             const current = usageMap.get(asset.id);
+            const successfulReuseCount = job.status === "succeeded" ? 1 : 0;
+            const likedReuseCount = job.feedback === "liked" ? 1 : 0;
+            const acceptedReuseCount = job.accepted ? 1 : 0;
+            const positiveReuseCount = likedReuseCount || acceptedReuseCount ? 1 : 0;
             usageMap.set(asset.id, {
                 usageCount: (current?.usageCount || 0) + 1,
                 lastUsedAtMs: Math.max(current?.lastUsedAtMs || 0, requestedAtMs),
+                successfulReuseCount: (current?.successfulReuseCount || 0) + successfulReuseCount,
+                positiveReuseCount: (current?.positiveReuseCount || 0) + positiveReuseCount,
+                acceptedReuseCount: (current?.acceptedReuseCount || 0) + acceptedReuseCount,
+                likedReuseCount: (current?.likedReuseCount || 0) + likedReuseCount,
             });
         }
     }
@@ -614,6 +632,10 @@ function applyReferenceUsageStats(
         return normalizeReferenceAsset({
             ...asset,
             usageCount: usage?.usageCount || 0,
+            successfulReuseCount: usage?.successfulReuseCount || 0,
+            positiveReuseCount: usage?.positiveReuseCount || 0,
+            acceptedReuseCount: usage?.acceptedReuseCount || 0,
+            likedReuseCount: usage?.likedReuseCount || 0,
             lastUsedAtMs: usage?.lastUsedAtMs || null,
         });
     });
@@ -654,6 +676,7 @@ async function loadReferenceImageBytesFromUrl(url: string): Promise<LoadedRefere
 
 async function buildReferenceContext(
     settings: AdminAiDropCoverSettings,
+    recipe: AdminAiDropCoverConsistencyRecipe,
     dropId?: string | null,
 ): Promise<AdminAiDropCoverReferenceContext> {
     const wantsTemplateReference = settings.useTemplateReference;
@@ -662,6 +685,7 @@ async function buildReferenceContext(
     if (!wantsTemplateReference && !wantsRecentDropReferences) {
         return {
             generationMode: "standard",
+            recipe,
             referenceImages: [],
             referenceAssets: [],
             templateReferenceUsed: false,
@@ -720,61 +744,50 @@ async function buildReferenceContext(
         }
     }
 
-    const retainedAiAssets = await listRetainedAiCoverReferenceAssets();
-    for (const asset of retainedAiAssets) {
+    const candidateAssets = [
+        ...(await listRetainedAiCoverReferenceAssets(RETAINED_AI_REFERENCE_CANDIDATE_LIMIT)),
+        ...(wantsRecentDropReferences
+            ? await listRecentDropCoverReferenceAssets(dropId, RECENT_REFERENCE_DROP_CANDIDATE_LIMIT)
+            : []),
+    ];
+    const selectedCandidateAssets = selectAdminAiDropCoverReferenceAssets(
+        candidateAssets,
+        recipe,
+        Math.max(0, MAX_REFERENCE_INPUTS - referenceImages.length),
+    );
+
+    for (const asset of selectedCandidateAssets) {
         if (!canAddMoreReferenceInputs()) {
             break;
         }
 
         try {
-            const retainedReference = await loadReferenceImageBytesFromUrl(asset.imageUrl);
+            const loadedReference = await loadReferenceImageBytesFromUrl(asset.imageUrl);
             referenceImages.push({
-                ...retainedReference,
+                ...loadedReference,
                 styleDescription: TEMPLATE_REFERENCE_STYLE_DESCRIPTION,
             });
             referenceAssets.push(asset);
-            retainedAiReferenceCount += 1;
-            if (asset.retentionReason === "accepted") {
-                retainedAcceptedAiReferenceCount += 1;
-            }
-            if (asset.retentionReason === "liked") {
-                retainedLikedAiReferenceCount += 1;
+            if (asset.source === "retained_ai_cover") {
+                retainedAiReferenceCount += 1;
+                if (asset.retentionReason === "accepted") {
+                    retainedAcceptedAiReferenceCount += 1;
+                }
+                if (asset.retentionReason === "liked") {
+                    retainedLikedAiReferenceCount += 1;
+                }
+            } else if (asset.source === "recent_drop_cover") {
+                recentDropReferenceCount += 1;
             }
         } catch (error) {
-            recordRouteWarning("admin/ai/drop-covers/reference-image", "Failed to load retained AI cover reference", error, {
+            recordRouteWarning("admin/ai/drop-covers/reference-image", "Failed to load ranked AI cover reference", error, {
                 channel: "ai",
                 detail: {
-                    jobId: asset.id,
+                    referenceSource: asset.source,
+                    referenceId: asset.id,
                     imageUrl: asset.imageUrl,
                 },
             });
-        }
-    }
-
-    if (wantsRecentDropReferences) {
-        const recentAssets = await listRecentDropCoverReferenceAssets(dropId);
-        for (const asset of recentAssets) {
-            if (!canAddMoreReferenceInputs()) {
-                break;
-            }
-
-            try {
-                const recentReference = await loadReferenceImageBytesFromUrl(asset.imageUrl);
-                referenceImages.push({
-                    ...recentReference,
-                    styleDescription: TEMPLATE_REFERENCE_STYLE_DESCRIPTION,
-                });
-                referenceAssets.push(asset);
-                recentDropReferenceCount += 1;
-            } catch (error) {
-                recordRouteWarning("admin/ai/drop-covers/reference-image", "Failed to load recent drop cover reference", error, {
-                    channel: "ai",
-                    detail: {
-                        dropId: asset.dropId || "",
-                        imageUrl: asset.imageUrl,
-                    },
-                });
-            }
         }
     }
 
@@ -789,6 +802,7 @@ async function buildReferenceContext(
 
     return {
         generationMode: "reference_guided",
+        recipe,
         referenceImages,
         referenceAssets,
         templateReferenceUsed,
@@ -885,92 +899,12 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number) {
     });
 }
 
-function buildVertexPublisherPredictEndpoint(runtime: AdminAiDropCoverRuntime) {
-    const hostname = runtime.location === "global"
-        ? "aiplatform.googleapis.com"
-        : `${runtime.location}-aiplatform.googleapis.com`;
-
-    return `https://${hostname}/v1/projects/${runtime.project}/locations/${runtime.location}/publishers/google/models/${runtime.model}:predict`;
-}
-
 function buildVertexPublisherGenerateContentEndpoint(runtime: AdminAiDropCoverRuntime) {
     const hostname = runtime.location === "global"
         ? "aiplatform.googleapis.com"
         : `${runtime.location}-aiplatform.googleapis.com`;
 
     return `https://${hostname}/v1/projects/${runtime.project}/locations/${runtime.location}/publishers/google/models/${runtime.model}:generateContent`;
-}
-
-function buildImagenReferenceImages(referenceImages: LoadedReferenceImage[]) {
-    return referenceImages.map((referenceImage, index) => ({
-        referenceType: "REFERENCE_TYPE_STYLE" as const,
-        referenceId: index + 1,
-        referenceImage: {
-            bytesBase64Encoded: referenceImage.bytesBase64Encoded,
-        },
-        styleImageConfig: {
-            styleDescription: referenceImage.styleDescription || TEMPLATE_REFERENCE_STYLE_DESCRIPTION,
-        },
-    }));
-}
-
-async function generateImagenImage(input: GenerateImageInput): Promise<GenerateVertexImageResult> {
-    const usesReferenceImages = Array.isArray(input.referenceImages) && input.referenceImages.length > 0;
-    const referenceImages = usesReferenceImages ? buildImagenReferenceImages(input.referenceImages || []) : [];
-    const response = await withTimeout(fetch(
-        buildVertexPublisherPredictEndpoint(input.runtime),
-        {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${input.accessToken}`,
-                "Content-Type": "application/json; charset=utf-8",
-            },
-            body: JSON.stringify({
-                instances: [
-                    usesReferenceImages
-                        ? {
-                            prompt: input.prompt,
-                            referenceImages,
-                        }
-                        : {
-                            prompt: input.prompt,
-                        },
-                ],
-                parameters: usesReferenceImages
-                    ? {
-                        sampleCount: 1,
-                    }
-                    : {
-                        sampleCount: 1,
-                        aspectRatio: input.aspectRatio,
-                        enhancePrompt: true,
-                        includeRaiReason: true,
-                        outputOptions: {
-                            mimeType: input.outputMimeType,
-                        },
-                        personGeneration: "allow_adult",
-                        safetySetting: "block_medium_and_above",
-                    },
-            }),
-        },
-    ).then(async (result) => {
-        const json = await result.json().catch(() => null) as { predictions?: VertexImagePrediction[]; error?: { message?: string } } | null;
-        if (!result.ok) {
-            throw new Error(json?.error?.message || `Vertex image generation failed with status ${result.status}`);
-        }
-        return json;
-    }), input.timeoutMs ?? DEFAULT_TIMEOUT_MS);
-
-    const prediction = Array.isArray(response?.predictions) ? response.predictions[0] : null;
-    if (!prediction?.bytesBase64Encoded) {
-        throw new Error("Vertex image generation returned no image bytes.");
-    }
-
-    return {
-        bytes: Buffer.from(prediction.bytesBase64Encoded, "base64"),
-        mimeType: prediction.mimeType || ADMIN_AI_DROP_COVER_OUTPUT_MIME_TYPE,
-        enhancedPrompt: prediction.prompt,
-    };
 }
 
 async function generateGeminiImage(input: GenerateImageInput): Promise<GenerateVertexImageResult> {
@@ -1030,11 +964,7 @@ async function generateGeminiImage(input: GenerateImageInput): Promise<GenerateV
 }
 
 async function generateVertexImage(input: GenerateImageInput): Promise<GenerateVertexImageResult> {
-    if (input.runtime.provider === "gemini_generate_content") {
-        return generateGeminiImage(input);
-    }
-
-    return generateImagenImage(input);
+    return generateGeminiImage(input);
 }
 
 export function resolveAdminAiDropCoverRuntime(
@@ -1073,7 +1003,7 @@ export function resolveAdminAiDropCoverRuntime(
         project,
         location: runtimeLocation || DEFAULT_VERTEX_LOCATION,
         model: runtimeModel || ADMIN_AI_DROP_COVER_MODEL,
-        provider: isGeminiImageModel(runtimeModel || ADMIN_AI_DROP_COVER_MODEL) ? "gemini_generate_content" : "imagen_predict",
+        provider: "gemini_generate_content",
     };
 }
 
@@ -1425,6 +1355,7 @@ export async function listRecentAdminAiDropCoverJobs(limit = RECENT_JOB_LIMIT) {
 }
 
 export async function buildAdminAiDropCoverDashboard() {
+    const refreshedAtMs = Date.now();
     const [settings, runtime, recentJobs, summarySnapshot, activeJobsSnapshot, recentDropCovers, retainedAiCovers] = await Promise.all([
         getAdminAiDropCoverSettings(),
         getAdminAiDropCoverRuntimeStatus(),
@@ -1463,6 +1394,7 @@ export async function buildAdminAiDropCoverDashboard() {
     const decoratedRetainedAiCovers = applyReferenceUsageStats(retainedAiCovers, recentJobs);
 
     return adminAiDropCoverSummarySchema.parse({
+        refreshedAtMs,
         settings,
         runtime,
         aggregate: {
@@ -1568,16 +1500,19 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
         : null;
     const chainId = previousJobRecord?.chainId || previousJobRecord?.id || jobRef.id;
     const chainDepth = previousJobRecord ? (previousJobRecord.chainDepth || 0) + 1 : 0;
-    const referenceContext = await buildReferenceContext(settings, input.dropId);
     const promptInput: AdminAiDropCoverPromptInput = {
         title,
         creatorName: input.creatorName,
         dropType: input.dropType,
         tags: input.tags,
     };
+    const recipe = buildAdminAiDropCoverConsistencyRecipe(promptInput);
+    const referenceContext = await buildReferenceContext(settings, recipe, input.dropId);
     const prompt = buildAdminAiDropCoverPrompt(promptInput, {
         referenceGuided: referenceContext.generationMode === "reference_guided",
+        recipe,
     });
+    const recipeLabel = getAdminAiDropCoverRecipeLabel(recipe);
 
     try {
         await jobRef.set({
@@ -1590,7 +1525,8 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
             location: runtime.location,
             generationMode: referenceContext.generationMode,
             promptVersion: ADMIN_AI_DROP_COVER_PROMPT_VERSION,
-            recipeLabel: getAdminAiDropCoverRecipeLabel(),
+            recipeLabel,
+            consistencyRecipe: recipe,
             status: "running",
             feedback: "neutral",
             accepted: false,
@@ -1662,7 +1598,7 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
                 metadata: {
                     cacheControl: "public,max-age=31536000,immutable",
                     metadata: {
-                        aiOrigin: runtime.provider === "gemini_generate_content" ? "vertex_gemini_image" : "vertex_imagen",
+                        aiOrigin: "vertex_gemini_image",
                         aiModel: runtime.model,
                         aiPromptVersion: ADMIN_AI_DROP_COVER_PROMPT_VERSION,
                         aiJobId: jobRef.id,
@@ -1722,6 +1658,8 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
                 dropId: input.dropId || "",
                 model: runtime.model,
                 generationMode: referenceContext.generationMode,
+                recipeFamily: recipe.family,
+                recipeFocusTerms: recipe.focusTerms,
                 promptVersion: ADMIN_AI_DROP_COVER_PROMPT_VERSION,
                 latencyMs,
                 estimatedCostUsd,
@@ -1737,6 +1675,7 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
             ai_job_id: jobRef.id,
             ai_model: runtime.model,
             ai_generation_mode: referenceContext.generationMode,
+            ai_recipe_family: recipe.family,
             ai_prompt_version: ADMIN_AI_DROP_COVER_PROMPT_VERSION,
             drop_id: input.dropId || "",
             draft_session_id: draftSessionId,
@@ -1772,6 +1711,8 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
             completedAtMs,
             draftSessionId: draftSessionId || null,
             generationMode: referenceContext.generationMode,
+            recipeLabel,
+            consistencyRecipe: recipe,
             referenceImageCount: referenceContext.referenceImages.length,
             templateReferenceUsed: referenceContext.templateReferenceUsed,
             recentDropReferenceCount: referenceContext.recentDropReferenceCount,
@@ -1828,6 +1769,7 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
                 draftSessionId,
                 model: runtime.model,
                 generationMode: referenceContext.generationMode,
+                recipeFamily: recipe.family,
                 promptVersion: ADMIN_AI_DROP_COVER_PROMPT_VERSION,
                 failureCode: classifiedError.code,
                 billed,
@@ -1842,6 +1784,7 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
             ai_job_id: jobRef.id,
             ai_model: runtime.model,
             ai_generation_mode: referenceContext.generationMode,
+            ai_recipe_family: recipe.family,
             ai_prompt_version: ADMIN_AI_DROP_COVER_PROMPT_VERSION,
             drop_id: input.dropId || "",
             draft_session_id: draftSessionId,
