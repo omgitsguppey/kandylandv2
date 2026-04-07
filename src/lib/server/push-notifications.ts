@@ -101,6 +101,7 @@ export async function sendGlobalDropNotification(
         "Kandy Drops",
         `${dropTitle} just went live! Don't miss out!`,
         DROP_COLLECTION_LINK,
+        "new_drop",
     );
 }
 
@@ -136,5 +137,6 @@ export async function sendTargetedDropNotification(
         "Kandy Drops",
         message,
         DROP_COLLECTION_LINK,
+        "new_drop",
     );
 }

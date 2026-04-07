@@ -62,7 +62,7 @@ describe("broadcastFCM", () => {
         });
     });
 
-    it("sends browser push only to users who have creator/drop alerts enabled", async () => {
+    it("sends new-drop push only to users who have browser push and new-drop alerts enabled", async () => {
         mockState.userDocs.push(
             {
                 fcmTokens: ["token-enabled-1", "token-enabled-2"],
@@ -90,13 +90,74 @@ describe("broadcastFCM", () => {
             },
         );
 
-        const result = await broadcastFCM("Kandy Drops", "A new drop is live.");
+        const result = await broadcastFCM("Kandy Drops", "A new drop is live.", "/drops", "new_drop");
 
         expect(result).toBe(true);
         expect(mockState.selectedFields).toEqual([["fcmTokens", "notificationSettings"]]);
         expect(mockState.sendEachForMulticast).toHaveBeenCalledTimes(1);
         expect(mockState.sendEachForMulticast).toHaveBeenCalledWith(expect.objectContaining({
             tokens: ["token-enabled-1", "token-enabled-2"],
+        }));
+    });
+
+    it("sends general push to any browser-push-enabled user regardless of drop-alert toggle", async () => {
+        mockState.userDocs.push(
+            {
+                fcmTokens: ["token-general-1"],
+                notificationSettings: {
+                    browserPushEnabled: true,
+                    newDropAlerts: false,
+                },
+            },
+            {
+                fcmTokens: ["token-general-2"],
+                notificationSettings: {
+                    browserPushEnabled: true,
+                    expiringSoonAlerts: false,
+                },
+            },
+            {
+                fcmTokens: ["token-browser-off"],
+                notificationSettings: {
+                    browserPushEnabled: false,
+                    newDropAlerts: true,
+                },
+            },
+        );
+
+        const result = await broadcastFCM("Kandy Drops", "General update", "/drops", "general");
+
+        expect(result).toBe(true);
+        expect(mockState.sendEachForMulticast).toHaveBeenCalledTimes(1);
+        expect(mockState.sendEachForMulticast).toHaveBeenCalledWith(expect.objectContaining({
+            tokens: ["token-general-1", "token-general-2"],
+        }));
+    });
+
+    it("sends ending-soon push only to users who left ending-soon reminders enabled", async () => {
+        mockState.userDocs.push(
+            {
+                fcmTokens: ["token-expiring-enabled"],
+                notificationSettings: {
+                    browserPushEnabled: true,
+                    expiringSoonAlerts: true,
+                },
+            },
+            {
+                fcmTokens: ["token-expiring-disabled"],
+                notificationSettings: {
+                    browserPushEnabled: true,
+                    expiringSoonAlerts: false,
+                },
+            },
+        );
+
+        const result = await broadcastFCM("Kandy Drops", "Ending soon", "/drops", "expiring_soon");
+
+        expect(result).toBe(true);
+        expect(mockState.sendEachForMulticast).toHaveBeenCalledTimes(1);
+        expect(mockState.sendEachForMulticast).toHaveBeenCalledWith(expect.objectContaining({
+            tokens: ["token-expiring-enabled"],
         }));
     });
 });

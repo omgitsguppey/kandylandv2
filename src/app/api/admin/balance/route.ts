@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
             const nextBalanceResult = amount >= 0
                 ? {
                     ok: true as const,
-                    next: creditSourceAwareGumdrops(sourceAwareBalance, amount, "purchased"),
+                    next: creditSourceAwareGumdrops(sourceAwareBalance, amount, "reward"),
                   }
                 : spendSourceAwareGumdrops(sourceAwareBalance, Math.abs(amount));
 

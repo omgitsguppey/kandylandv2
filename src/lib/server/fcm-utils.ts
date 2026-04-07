@@ -2,6 +2,8 @@ import "server-only";
 import { adminDb } from "./firebase-admin";
 import * as admin from "firebase-admin";
 
+export type NotificationBroadcastType = "new_drop" | "expiring_soon" | "system_alert" | "general";
+
 /**
  * Universally queries Firestore for all available user FCM tokens
  * and securely dispatches a Web Push multicast via Firebase Cloud Messaging.
@@ -12,7 +14,12 @@ import * as admin from "firebase-admin";
  * @param url The router click-through target when clicked
  * @returns boolean indicating whether the broadcast was fully successful
  */
-export async function broadcastFCM(title: string, body: string, url: string = "/drops"): Promise<boolean> {
+export async function broadcastFCM(
+    title: string,
+    body: string,
+    url: string = "/drops",
+    type: NotificationBroadcastType = "general",
+): Promise<boolean> {
     if (!adminDb) return false;
 
     try {
@@ -47,11 +54,23 @@ export async function broadcastFCM(title: string, body: string, url: string = "/
                 : {};
             const browserPushEnabled = notificationSettings.browserPushEnabled === true;
             const newDropAlertsEnabled = notificationSettings.newDropAlerts !== false;
+            const expiringSoonAlertsEnabled = notificationSettings.expiringSoonAlerts !== false;
             const tokens = Array.isArray(data?.fcmTokens)
                 ? data.fcmTokens.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0)
                 : [];
 
-            if (browserPushEnabled && newDropAlertsEnabled && tokens.length > 0) {
+            let shouldSend = false;
+            if (browserPushEnabled) {
+                if (type === "new_drop") {
+                    shouldSend = newDropAlertsEnabled;
+                } else if (type === "expiring_soon") {
+                    shouldSend = expiringSoonAlertsEnabled;
+                } else {
+                    shouldSend = true;
+                }
+            }
+
+            if (shouldSend && tokens.length > 0) {
                 tokensChunk.push(...tokens);
 
                 while (tokensChunk.length >= BATCH_SIZE) {

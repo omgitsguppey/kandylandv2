@@ -362,6 +362,15 @@ describe("GET /api/admin/overview", () => {
                     timestamp: nowMs - 1_500,
                 },
             ],
+            creator_legal_sent: [
+                {
+                    eventName: "creator_legal_sent",
+                    params: { destination: "/admin/roster" },
+                    userId: "admin_1",
+                    username: "adminone",
+                    timestamp: nowMs - 1_250,
+                },
+            ],
         });
 
         const response = await GET(new NextRequest("http://localhost/api/admin/overview"));
@@ -396,6 +405,11 @@ describe("GET /api/admin/overview", () => {
                     source: "telemetry_logs",
                     domain: "admin",
                     label: "Admin dashboard viewed",
+                }),
+                expect.objectContaining({
+                    source: "telemetry_logs",
+                    domain: "admin",
+                    label: "Creator legal sent",
                 }),
             ]),
         );

@@ -523,3 +523,21 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `src/components/Admin/AdminSupportQueue.tsx`
   - `FULL_SCALE_CODEBASE_AUDIT.md`
 - Follow-up gaps: The support inbox/queue is polling-backed rather than socket-streamed, and signed-out public/legal support still routes users into authenticated in-site support instead of a separate guest intake path.
+
+### 25. Positive admin balance adjustments are reward-backed, not purchased-backed
+- Approximate date: Canonicalized and recorded on 2026-04-07
+- Status: Active canonical Gum Drop integrity rule
+- Problem/context: Manual admin balance adjustments were crediting purchased balance, which let goodwill/manual adjustments masquerade as paid currency and bypass purchased-only creator experience restrictions.
+- Decision made: Positive manual admin balance adjustments credit reward balance only. Purchased balance should move only through verified purchase flows unless a future audited pass adds an explicit purchased-credit admin pathway with separate intent and audit semantics.
+- What became canonical:
+  - admin balance route positive credits increase `gumDropsRewardBalance`
+  - admin balance route negative adjustments still spend from the source-aware total according to the canonical spend helper
+  - admin adjustment transactions remain visible as `admin_adjustment` ledger records without pretending they are purchases
+- What is now disallowed or deprecated:
+  - treating manual goodwill/admin grants as purchased balance
+  - using the generic admin balance tool to mint creator-spendable purchased credits
+- Truth lives in:
+  - `src/app/api/admin/balance/route.ts`
+  - `src/lib/gumdrop-ledger.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: If operators ever need to grant purchased-equivalent balance intentionally, that needs a separate audited route and explicit UI language rather than overloading the current manual adjustment tool.

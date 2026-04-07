@@ -2,9 +2,9 @@
 
 Status: Canonical audit standard and live baseline
 Last refreshed: 2026-04-07
-Last full-scale audit execution: 2026-04-07 03:47:50 -05:00
+Last full-scale audit execution: 2026-04-07 13:38:40 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
-Audited HEAD at start: `5d4d2bf`
+Audited HEAD at start: `dcf7910`
 
 ## Purpose
 This file is the standing audit contract for the repository.
@@ -258,6 +258,170 @@ Verified by `npm run check:inventory` on 2026-04-07:
 - Cost-sensitive admin AI and realtime analytics routes now use adaptive rate limiting tied to the registered-user count instead of one flat global budget.
 
 ## Verification baseline from this audit
+
+### Active continuation: Open PR assimilation and repo cleanup review (in progress)
+- Start timestamp: 2026-04-07 13:21:20 -05:00
+- Start HEAD: `dcf7910`
+- Task scope:
+  - review all currently open PRs against audited `main`
+  - apply any still-needed fixes from open PRs
+  - close all reviewed PRs whether assimilated or superseded
+  - run a second repo cleanup review after assimilation
+- Open PR inventory at start:
+  - `#158` `🛡️ Sentinel: [HIGH] Fix CSRF Vulnerability in Analytics Endpoints`
+  - `#157` `⚡ Bolt: Add LRU cache for drop media summaries`
+  - `#156` `⚙️ Improve algorithmic efficiency and stability in high-ROI hotspot`
+  - `#155` `🛡️ Improve privacy compliance and settings truth`
+  - `#154` `🧾 Clean event tracking drift and dependency inconsistencies`
+  - `#153` `🧹 Audit continuity and codebase hygiene refresh`
+  - `#152` `💸 Fix GumDrop economics and ledger integrity drift`
+- Start-state note:
+  - working tree clean before this pass
+  - PR file diffs will be reviewed against current canonical helpers before any assimilation
+
+### Continuation: Open PR assimilation and second full cleanup review
+Current audit date: 2026-04-07 13:38:40 -05:00
+Current branch / commit for continuation start: `main` / `dcf7910`
+Continuation task:
+- review every open PR against current audited `main`
+- assimilate only still-needed fixes from the open PR set
+- close every open PR after review whether assimilated or superseded
+- run a second full repo cleanup review and record the final verification baseline
+
+Exact touched surfaces:
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `REPO_MEMORY_LEDGER.md`
+- `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- `src/app/api/admin/overview/route.ts`
+- `src/lib/telemetry-catalog.ts`
+- `src/lib/server/fcm-utils.ts`
+- `src/lib/server/push-notifications.ts`
+- `src/app/api/notifications/route.ts`
+- `src/app/api/admin/balance/route.ts`
+- `tests/unit/admin-overview-route.spec.ts`
+- `tests/unit/fcm-utils.spec.ts`
+- `tests/unit/admin-balance-route.spec.ts`
+
+Canonical helpers and modules reused:
+- `src/lib/server/request-guard.ts`
+- `src/lib/server/analytics-governance.ts`
+- `src/lib/telemetry-catalog.ts`
+- `src/lib/gumdrop-ledger.ts`
+- `src/lib/server/gumdrop-ledger.ts`
+- `src/lib/server/fcm-utils.ts`
+- `src/lib/server/push-notifications.ts`
+- `scripts/repo-inventory.ts`
+- `scripts/audit-telemetry.ts`
+
+PR review and disposition ledger:
+- `#158` reviewed and closed as already superseded
+  - current `ANALYTICS_ROUTE_POLICIES` already carry `requireTrustedOrigin: true`
+  - no code delta was still missing on `main`
+- `#157` reviewed and closed without assimilation
+  - the proposed media-summary cache was not adopted
+  - current hot path already has dimension/url-kind caches and the extra summary cache would add additional stale derived state without a proven need
+- `#156` reviewed and closed as not worth assimilating wholesale
+  - it only removed an explicit `next/og` `<img>` eslint suppression
+  - current file still legitimately needs the local suppression because `next/image` is not supported in `ImageResponse`
+- `#155` reviewed and partially assimilated
+  - adopted: push broadcast type filtering so new-drop broadcasts respect new-drop alert settings and general broadcasts do not incorrectly masquerade as drop alerts
+  - not adopted: the privacy-settings normalization change, because the current consent model intentionally couples identified analytics to anonymous analytics at the server helper layer
+- `#154` reviewed and assimilated
+  - adopted: admin overview/admin telemetry coverage for creator and owner lifecycle events so admin activity does not under-report those actions
+- `#153` reviewed and closed as stale/superseded
+  - its audit/checklist freshness changes were overtaken by later audited passes
+- `#152` reviewed and partially assimilated
+  - adopted: positive admin balance adjustments now credit reward balance instead of purchased balance
+  - not adopted: gifting referral bonus balance to the newly referred account, because current product truth still only promises the referrer reward and changing that would be a product-economics decision rather than a bug fix
+
+Implementation results from this continuation:
+- admin overview now includes creator/owner lifecycle telemetry in the admin activity feed instead of filtering them out
+- admin telemetry catalog/module indexes now classify creator legal/id/approval/override events under the admin module and log set
+- browser push broadcast routing is now type-aware
+  - `new_drop` broadcasts respect `newDropAlerts`
+  - `expiring_soon` broadcasts respect `expiringSoonAlerts`
+  - `general` and `system_alert` broadcasts go to browser-push-enabled users without pretending they are drop-alert preference traffic
+- manual admin balance credits now land in reward balance, which preserves purchased-only creator spend restrictions
+- the repo continuity docs now explicitly match the current 685-file inventory baseline
+
+Second cleanup review findings after assimilation:
+- `git ls-files --others --exclude-standard` reported only the newly added route test before staging; no stray generated repo files were present
+- telemetry audit remains clean with `0` cataloged events lacking emitters
+- no dependency violations or circular dependencies were reported
+- no open PRs should remain after the closeout step for this continuation
+
+Commands run for this continuation:
+- `git status --short`
+- `gh auth status`
+- `gh pr list --state open --limit 50 --json number,title,headRefName,baseRefName,author,isDraft,url`
+- `gh pr diff 158 --name-only`
+- `gh pr diff 157 --name-only`
+- `gh pr diff 156 --name-only`
+- `gh pr diff 155 --name-only`
+- `gh pr diff 154 --name-only`
+- `gh pr diff 153 --name-only`
+- `gh pr diff 152 --name-only`
+- `gh pr diff 158`
+- `gh pr diff 157`
+- `gh pr diff 156`
+- `gh pr diff 155`
+- `gh pr diff 154`
+- `gh pr diff 153`
+- `gh pr diff 152`
+- adjacency traces:
+  - `npm run trace:adjacent -- src/app/api/analytics/ingest/route.ts`
+  - `npm run trace:adjacent -- src/lib/server/fcm-utils.ts`
+  - `npm run trace:adjacent -- src/app/drops/[id]/opengraph-image.tsx`
+  - `npm run trace:adjacent -- src/lib/gumdrop-economics.ts`
+  - `npm run trace:adjacent -- src/app/api/admin/overview/route.ts`
+  - `npm run trace:adjacent -- src/lib/drop-presentation.ts`
+  - `npm run trace:adjacent -- src/app/api/admin/balance/route.ts`
+- focused lint:
+  - `npx eslint src/app/api/admin/overview/route.ts src/lib/telemetry-catalog.ts src/lib/server/fcm-utils.ts src/lib/server/push-notifications.ts src/app/api/notifications/route.ts src/app/api/admin/balance/route.ts "src/app/drops/[id]/opengraph-image.tsx" tests/unit/admin-overview-route.spec.ts tests/unit/fcm-utils.spec.ts tests/unit/admin-balance-route.spec.ts`
+- focused tests:
+  - `corepack pnpm exec vitest run tests/unit/admin-overview-route.spec.ts tests/unit/fcm-utils.spec.ts tests/unit/admin-balance-route.spec.ts`
+- repo-wide verification:
+  - `git ls-files --others --exclude-standard`
+  - `npm run check:inventory`
+  - `npm run check:telemetry`
+  - `npm run check:continuity`
+  - `npm run check:architecture`
+  - `npm run check:deps`
+  - `npm run check:versions`
+  - `npm run check:functions`
+  - `npm run check:firebase:rules`
+  - `corepack pnpm run check`
+  - `npx vitest run`
+  - `npm run check:ui:lighthouse`
+  - `npm run check:ui:audits`
+
+Continuation results:
+- focused lint passed
+- focused tests passed with `3` files and `6` tests
+- `npm run check:inventory` passed with `685` tracked files
+- `npm run check:telemetry` passed with `0` orphaned events
+- `npm run check:continuity` passed
+- `npm run check:architecture` passed
+- `npm run check:deps` passed
+- `npm run check:versions` passed
+- `npm run check:functions` passed
+- `npm run check:firebase:rules` passed
+- `corepack pnpm run check` passed
+- `npx vitest run` passed with `93` files and `457` tests
+- `npm run check:ui:lighthouse` passed
+- `npm run check:ui:audits` passed
+
+Known warnings and non-blocking notices during continuation:
+- npm unknown env config warnings during canonical script chains
+- `check:firebase-runtime` emitted informational dotenv logs inside the canonical `check` pipeline
+- Node `punycode` deprecation warnings from Firebase/Vitest tooling
+- Lighthouse cleanup emitted temporary Windows `EPERM` warnings while deleting temp folders after successful audits
+- Playwright reported the recurring `transformAlgorithm` webserver warning after a successful all-green `check:ui:audits` run
+
+Continuation follow-up gaps:
+- the privacy-settings normalization portion of `#155` was intentionally left out because changing that contract requires a separate consent-model decision
+- the extra media-summary cache from `#157` was intentionally left out because there is not yet evidence that the current cached helpers are insufficient
+- admin manual balance still has no separate purchased-credit pathway; that remains intentional until an audited operator workflow explicitly requires it
 Commands run on 2026-04-07:
 - `git status --short`
 - `npm run trace:adjacent -- src/lib/server/rate-limit.ts`
