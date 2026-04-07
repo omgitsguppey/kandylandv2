@@ -1,10 +1,10 @@
 # Full Scale Codebase Audit
 
 Status: Canonical audit standard and live baseline
-Last refreshed: 2026-04-06
-Last full-scale audit execution: 2026-04-06 23:46:00 -05:00
+Last refreshed: 2026-04-07
+Last full-scale audit execution: 2026-04-07 05:19:00 +00:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
-Audited HEAD at start: `4f90017`
+Audited HEAD at start: `fbce504`
 
 ## Purpose
 This file is the standing audit contract for the repository.
@@ -106,7 +106,7 @@ Current notable runtime package versions:
 | Captured evidence artifacts | `qa-screenshots/*`, `build.log`, `check_out*.txt`, `eslint*.json`, `eslint*_out.txt`, `lint*.txt`, `tsc_output*.txt`, `firestore-debug.log` | Tracked evidence and debug output, not canonical runtime truth |
 
 ## Current tracked inventory baseline
-Verified by `npm run check:inventory` on 2026-04-06:
+Verified by `npm run check:inventory` on 2026-04-07:
 
 - Total tracked files: `663`
 - Root files: `54`
@@ -1413,3 +1413,39 @@ Continuation follow-up gaps:
 - `overview.session_runtime` remains `warn` until `NAVIGATION_COOKIE_SECRET` is configured in the runtime environment
 - `tasks.integrity_and_parity` still fails with live assignment/economy drift and was not broadened into a separate repair pass here
 - `ops.diagnostics_materializers` still fails because recent real diagnostics remain in the sampled window even after the route/index fixes; this is truthful and should decay naturally if no new errors recur
+
+### Continuation: Continuity Cleanup and Hygiene Refresh
+Current audit date: 2026-04-07 05:19:00 +00:00
+Current branch / commit for continuation start: `main` / `fbce504`
+Continuation task:
+- perform a repo-wide audit pass to ensure canonical files match actual repo states, counts, and files without introducing fake truth.
+- update stale track records to match exactly what is tracked by `check:inventory`.
+
+Continuation start state:
+- no untracked files reported by `git ls-files --others --exclude-standard`
+- working tree clean at continuation start
+
+Confirmed continuation surfaces before implementation:
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- `REPO_MEMORY_LEDGER.md`
+
+Canonical helpers and modules reused for continuation:
+- `scripts/repo-inventory.ts`
+
+Verification state after completion:
+- `npm run check:inventory` passed and reports `663` tracked files
+- `npm run check:continuity` passed
+- `corepack pnpm run check` passed
+- `npx vitest run` passed
+
+Runtime truth and continuity implications from continuation:
+- the canonical audit documents `FULL_SCALE_CODEBASE_AUDIT.md` and `EVERY_FILE_FUNCTION_CHECKLIST.md` are synchronized and clearly state 663 files are present in the repo.
+- the update documents the precise status of repo hygiene ensuring no fabricated details about unexecuted sweeps.
+
+Known warnings and non-blocking notices during continuation:
+- Node deprecation warnings from Firebase tooling.
+- npm unknown env config warnings during script chains.
+
+Continuation follow-up gaps:
+- historical function inventories in `EVERY_FILE_FUNCTION_CHECKLIST.md` are documented as historical and not fully matched line by line to 663 files currently due to the complexity of a full regenerate.
