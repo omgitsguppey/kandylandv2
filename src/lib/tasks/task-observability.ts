@@ -20,6 +20,14 @@ export const CANONICAL_TASK_EVENT_NAMES = new Set([
   "feedback_submitted",
 ]);
 
+const GENERIC_TASK_LIFECYCLE_EVENT_NAMES = new Set([
+  "daily_task_assigned",
+  "daily_task_started",
+  "daily_task_completed",
+  "daily_task_failed",
+  "daily_task_deadline_reminder_sent",
+]);
+
 export type DailyTaskTrackingSource = "canonical" | "telemetry" | "unsupported";
 
 export interface DailyTaskInventoryEntry {
@@ -698,8 +706,11 @@ export function buildDailyTaskRuntimeAudit({
       const taskEventCounts = taskEventCountsByTrigger.get(eventName) ?? { total: 0, completed: 0 };
       const eventStatsSummary = eventStatByName.get(eventName) ?? { totalCount: 0, lastSeenAt: 0 };
       const recentReceiptCount = receiptCountsByEvent.get(eventName) ?? 0;
+      const tracksGenericTaskLifecycle = GENERIC_TASK_LIFECYCLE_EVENT_NAMES.has(canonicalEventName);
       const driftReasons = Array.from(new Set([
-        ...(mappedTaskIds.length === 0 && (eventStatsSummary.totalCount > 0 || recentReceiptCount > 0 || taskEventCounts.total > 0)
+        ...(mappedTaskIds.length === 0
+          && !tracksGenericTaskLifecycle
+          && (eventStatsSummary.totalCount > 0 || recentReceiptCount > 0 || taskEventCounts.total > 0)
           ? ["tracked_without_task_mapping"]
           : []),
         ...(mappedTaskIds.length > 1 && recentReceiptCount > 0 ? ["receipt_counts_shared_across_multiple_tasks"] : []),

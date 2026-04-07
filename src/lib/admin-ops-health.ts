@@ -34,6 +34,14 @@ export interface AdminOpsHealthDiagnostics {
   errorCount: number;
   warnCount: number;
   infoCount: number;
+  activeErrorCount: number;
+  activeWarnCount: number;
+  recentErrorCount: number;
+  recentWarnCount: number;
+  activeIssueClusterCount: number;
+  recentIssueClusterCount: number;
+  activeWindowMs: number;
+  recentWindowMs: number;
   lastDiagnosticAt: number;
   channels: AdminOpsHealthChannelItem[];
   recent: AdminOpsHealthDiagnosticItem[];
@@ -46,10 +54,13 @@ export interface AdminOpsHealthPipelineRoute {
 }
 
 export interface AdminOpsHealthPipeline {
+  status: AdminOpsHealthStatus;
   failureCount: number;
   lastFailureAt: number;
   lastRouteName: string;
   lastErrorMessage: string;
+  activeWindowMs: number;
+  recentWindowMs: number;
   routes: AdminOpsHealthPipelineRoute[];
 }
 

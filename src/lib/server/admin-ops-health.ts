@@ -14,6 +14,10 @@ import { toNumber, toStringValue } from "./admin-analytics-shared";
 
 const STALE_WARN_MS = 1000 * 60 * 60 * 24 * 3;
 const STALE_FAIL_MS = 1000 * 60 * 60 * 24 * 14;
+const ACTIVE_DIAGNOSTIC_WINDOW_MS = 1000 * 60 * 60;
+const RECENT_DIAGNOSTIC_WINDOW_MS = 1000 * 60 * 60 * 4;
+const ACTIVE_PIPELINE_WINDOW_MS = 1000 * 60 * 60;
+const RECENT_PIPELINE_WINDOW_MS = 1000 * 60 * 60 * 4;
 
 function toTimestampNumber(value: unknown) {
   if (typeof value === "number" && Number.isFinite(value)) {
@@ -157,6 +161,43 @@ function getNavigationSessionSigningReady() {
   return Boolean(process.env.NAVIGATION_COOKIE_SECRET?.trim());
 }
 
+function countDiagnosticsWithinWindow(
+  diagnostics: AdminOpsHealthDiagnosticItem[],
+  nowMs: number,
+  windowMs: number,
+  severity: AdminOpsHealthDiagnosticItem["severity"],
+) {
+  return diagnostics.filter((entry) => entry.severity === severity && entry.timestamp >= nowMs - windowMs).length;
+}
+
+function countDiagnosticIssueClustersWithinWindow(
+  diagnostics: AdminOpsHealthDiagnosticItem[],
+  nowMs: number,
+  windowMs: number,
+) {
+  return new Set(
+    diagnostics
+      .filter((entry) => entry.timestamp >= nowMs - windowMs)
+      .map((entry) => `${entry.channel}|${entry.severity}|${entry.message}`),
+  ).size;
+}
+
+function getPipelineStatus(nowMs: number, lastFailureAt: number): AdminOpsHealthStatus {
+  if (lastFailureAt <= 0) {
+    return "healthy";
+  }
+
+  const ageMs = Math.max(0, nowMs - lastFailureAt);
+  if (ageMs <= ACTIVE_PIPELINE_WINDOW_MS) {
+    return "fail";
+  }
+  if (ageMs <= RECENT_PIPELINE_WINDOW_MS) {
+    return "warn";
+  }
+
+  return "healthy";
+}
+
 export function buildAdminOpsHealth(input: {
   nowMs?: number;
   diagnosticsDocs: Array<FirebaseFirestore.QueryDocumentSnapshot | FirebaseFirestore.DocumentSnapshot>;
@@ -241,7 +282,7 @@ export function buildAdminOpsHealth(input: {
     .slice(0, 8);
 
   const pipelineFailureCount = pipelineDocs.reduce((sum, entry) => sum + entry.failureCount, 0);
-  const lastPipelineEntry = pipelineDocs.sort((left, right) => right.lastFailureAtMs - left.lastFailureAtMs)[0];
+  const lastPipelineEntry = [...pipelineDocs].sort((left, right) => right.lastFailureAtMs - left.lastFailureAtMs)[0];
   const guestIngestFailureCount = readRouteFailureCount(pipelineDocs, "analytics_ingest");
   const guestIngestFailureLastSeenAt = readRouteFailureLastSeenAt(
     pipelineDocs,
@@ -355,21 +396,34 @@ export function buildAdminOpsHealth(input: {
     }),
   ];
 
-  const warnMaterializers = materializers.filter((item) => item.status === "warn").length;
-  const failMaterializers = materializers.filter((item) => item.status === "fail").length;
   const diagnosticsErrorCount = diagnostics.filter((entry) => entry.severity === "error").length;
   const diagnosticsWarnCount = diagnostics.filter((entry) => entry.severity === "warn").length;
+  const activeDiagnosticsErrorCount = countDiagnosticsWithinWindow(diagnostics, nowMs, ACTIVE_DIAGNOSTIC_WINDOW_MS, "error");
+  const activeDiagnosticsWarnCount = countDiagnosticsWithinWindow(diagnostics, nowMs, ACTIVE_DIAGNOSTIC_WINDOW_MS, "warn");
+  const recentDiagnosticsErrorCount = countDiagnosticsWithinWindow(diagnostics, nowMs, RECENT_DIAGNOSTIC_WINDOW_MS, "error");
+  const recentDiagnosticsWarnCount = countDiagnosticsWithinWindow(diagnostics, nowMs, RECENT_DIAGNOSTIC_WINDOW_MS, "warn");
+  const activeDiagnosticIssueClusterCount = countDiagnosticIssueClustersWithinWindow(diagnostics, nowMs, ACTIVE_DIAGNOSTIC_WINDOW_MS);
+  const recentDiagnosticIssueClusterCount = countDiagnosticIssueClustersWithinWindow(diagnostics, nowMs, RECENT_DIAGNOSTIC_WINDOW_MS);
+  const pipelineStatus = getPipelineStatus(nowMs, lastPipelineEntry?.lastFailureAtMs || 0);
+  const recentDiagnosticPenalty = Math.min(
+    20,
+    (activeDiagnosticIssueClusterCount * 2)
+      + Math.max(0, recentDiagnosticIssueClusterCount - activeDiagnosticIssueClusterCount),
+  );
+  const pipelinePenalty = pipelineStatus === "fail"
+    ? 10
+    : pipelineStatus === "warn"
+      ? 4
+      : 0;
 
   const score = Math.max(
     0,
     Math.min(
       100,
       100
-        - (runtimeWarnings.length * 6)
-        - (warnMaterializers * 5)
-        - (failMaterializers * 14)
-        - Math.min(18, pipelineFailureCount * 3)
-        - Math.min(15, diagnosticsErrorCount * 2 + diagnosticsWarnCount),
+        - (runtimeWarnings.length * 4)
+        - pipelinePenalty
+        - recentDiagnosticPenalty,
     ),
   );
 
@@ -388,15 +442,26 @@ export function buildAdminOpsHealth(input: {
       errorCount: diagnosticsErrorCount,
       warnCount: diagnosticsWarnCount,
       infoCount: diagnostics.filter((entry) => entry.severity === "info").length,
+      activeErrorCount: activeDiagnosticsErrorCount,
+      activeWarnCount: activeDiagnosticsWarnCount,
+      recentErrorCount: recentDiagnosticsErrorCount,
+      recentWarnCount: recentDiagnosticsWarnCount,
+      activeIssueClusterCount: activeDiagnosticIssueClusterCount,
+      recentIssueClusterCount: recentDiagnosticIssueClusterCount,
+      activeWindowMs: ACTIVE_DIAGNOSTIC_WINDOW_MS,
+      recentWindowMs: RECENT_DIAGNOSTIC_WINDOW_MS,
       lastDiagnosticAt: diagnostics[0]?.timestamp || 0,
       channels: Array.from(diagnosticsByChannel.values()).sort((left, right) => right.count - left.count),
       recent: diagnostics.slice(0, 10),
     },
     pipeline: {
+      status: pipelineStatus,
       failureCount: pipelineFailureCount,
       lastFailureAt: lastPipelineEntry?.lastFailureAtMs || 0,
       lastRouteName: lastPipelineEntry?.lastRouteName || "",
       lastErrorMessage: lastPipelineEntry?.lastErrorMessage || "",
+      activeWindowMs: ACTIVE_PIPELINE_WINDOW_MS,
+      recentWindowMs: RECENT_PIPELINE_WINDOW_MS,
       routes: pipelineRoutes,
     },
     materializers,

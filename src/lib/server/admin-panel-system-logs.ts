@@ -78,6 +78,12 @@ export function buildAdminPanelSystemLogs(input: {
     const materializerFailures = input.opsHealth.materializers.filter((item) => item.status === "fail").length;
     const materializerWarnings = input.opsHealth.materializers.filter((item) => item.status === "warn").length;
     const runtimeWarningCount = input.opsHealth.runtime.warnings.length;
+    const activeDiagnosticErrorCount = input.opsHealth.diagnostics.activeErrorCount;
+    const activeDiagnosticWarnCount = input.opsHealth.diagnostics.activeWarnCount;
+    const recentDiagnosticErrorCount = input.opsHealth.diagnostics.recentErrorCount;
+    const recentDiagnosticWarnCount = input.opsHealth.diagnostics.recentWarnCount;
+    const staleDiagnosticErrorCount = Math.max(0, input.opsHealth.diagnostics.errorCount - recentDiagnosticErrorCount);
+    const staleDiagnosticWarnCount = Math.max(0, input.opsHealth.diagnostics.warnCount - recentDiagnosticWarnCount);
 
     const behaviorOrchestrationStatus: AdminPanelSystemLogStatus =
         input.orchestration.openFindings > 0 || input.orchestration.actionableProposals > 0
@@ -99,14 +105,11 @@ export function buildAdminPanelSystemLogs(input: {
                 : "healthy";
     const telemetryCoverageStatus: AdminPanelSystemLogStatus =
         input.orphanedTelemetryEvents > 0 ? "warn" : "healthy";
-    const pipelineStatus: AdminPanelSystemLogStatus =
-        input.opsHealth.pipeline.failureCount > 0
-            ? input.opsHealth.pipeline.failureCount > 10 ? "fail" : "warn"
-            : "healthy";
+    const pipelineStatus: AdminPanelSystemLogStatus = input.opsHealth.pipeline.status;
     const diagnosticsStatus: AdminPanelSystemLogStatus =
-        materializerFailures > 0 || input.opsHealth.diagnostics.errorCount > 0
+        materializerFailures > 0 || activeDiagnosticErrorCount > 0
             ? "fail"
-            : materializerWarnings > 0 || input.opsHealth.diagnostics.warnCount > 0 || runtimeWarningCount > 0
+            : materializerWarnings > 0 || activeDiagnosticWarnCount > 0 || recentDiagnosticErrorCount > 0 || recentDiagnosticWarnCount > 0 || runtimeWarningCount > 0
                 ? "warn"
                 : "healthy";
 
@@ -153,9 +156,16 @@ export function buildAdminPanelSystemLogs(input: {
                 : "healthy",
             summary: runtimeWarningCount > 0
                 ? `${runtimeWarningCount} runtime warnings are still present in the admin session/runtime lane.`
-                : "Runtime/session inputs are aligned for the current admin console.",
+                : input.opsHealth.runtime.navigationSessionSigningReady !== true
+                    ? "Navigation session signing is not configured, so admin runtime flows still depend on weak fallback behavior."
+                    : input.opsHealth.runtime.gaPropertyConfigured !== true
+                        ? "GA runtime inputs are not fully configured, so analytics panels may still depend on partial fallback data."
+                        : "Runtime/session inputs are aligned for the current admin console.",
             action: buildRuntimeAction(input.opsHealth),
-            signalCount: runtimeWarningCount,
+            signalCount:
+                runtimeWarningCount
+                + (input.opsHealth.runtime.gaPropertyConfigured !== true ? 1 : 0)
+                + (input.opsHealth.runtime.navigationSessionSigningReady !== true ? 1 : 0),
             signalKeys: ["runtime.warnings", "runtime.gaPropertyConfigured", "runtime.navigationSessionSigningReady"],
             observedAtMs: nowMs,
         }),
@@ -339,14 +349,22 @@ export function buildAdminPanelSystemLogs(input: {
             tab: "ops",
             panelTitle: "Pipeline health",
             status: pipelineStatus,
-            summary: input.opsHealth.pipeline.failureCount > 0
-                ? `${input.opsHealth.pipeline.failureCount} backend pipeline failures are recorded in the current debug window.`
-                : "Pipeline health is clean in the current debug window.",
-            action: input.opsHealth.pipeline.failureCount > 0
+            summary: pipelineStatus !== "healthy"
+                ? `A pipeline failure landed recently and ${input.opsHealth.pipeline.failureCount} failures remain in the loaded sample.`
+                : input.opsHealth.pipeline.failureCount > 0
+                    ? `${input.opsHealth.pipeline.failureCount} older pipeline failures remain in the loaded sample, but no current pipeline incident is active.`
+                    : "Pipeline health is clean in the current debug window.",
+            action: pipelineStatus !== "healthy"
                 ? "Inspect the failing routes and clear backend pipeline errors before trusting admin snapshots as live truth."
-                : "No action required.",
-            signalCount: input.opsHealth.pipeline.failureCount,
-            signalKeys: ["ops.pipeline.failureCount"],
+                : input.opsHealth.pipeline.failureCount > 0
+                    ? "No immediate action is required, but the older pipeline backlog remains available for historical review."
+                    : "No action required.",
+            signalCount: pipelineStatus === "fail"
+                ? 2
+                : pipelineStatus === "warn"
+                    ? 1
+                    : 0,
+            signalKeys: ["ops.pipeline.failureCount", "ops.pipeline.lastFailureAt", "ops.pipeline.status"],
             observedAtMs: nowMs,
         }),
         buildLog({
@@ -356,15 +374,25 @@ export function buildAdminPanelSystemLogs(input: {
             panelTitle: "Diagnostics and materializers",
             status: diagnosticsStatus,
             summary: diagnosticsStatus === "healthy"
-                ? "Diagnostics channels and downstream materializers are current."
-                : `${input.opsHealth.diagnostics.errorCount} errors, ${input.opsHealth.diagnostics.warnCount} warnings, ${materializerFailures} failed materializers, and ${materializerWarnings} warned materializers are active.`,
+                ? staleDiagnosticErrorCount > 0 || staleDiagnosticWarnCount > 0
+                    ? `No active diagnostics are failing the current ops window. ${staleDiagnosticErrorCount} older errors and ${staleDiagnosticWarnCount} older warnings remain in the loaded sample.`
+                    : "Diagnostics channels and downstream materializers are current."
+                : `${activeDiagnosticErrorCount} active errors, ${activeDiagnosticWarnCount} active warnings, ${Math.max(0, recentDiagnosticErrorCount - activeDiagnosticErrorCount)} recent non-active errors, ${Math.max(0, recentDiagnosticWarnCount - activeDiagnosticWarnCount)} recent non-active warnings, ${materializerFailures} failed materializers, and ${materializerWarnings} warned materializers are active.`,
             action: materializerFailures > 0
                 ? "Repair failed materializers first, then review the attached diagnostics for the noisy channels."
-                : input.opsHealth.diagnostics.errorCount > 0 || input.opsHealth.diagnostics.warnCount > 0 || materializerWarnings > 0
-                    ? "Review the latest diagnostics and warned materializers to prevent stale admin fallbacks."
-                    : "No action required.",
-            signalCount: input.opsHealth.diagnostics.errorCount + input.opsHealth.diagnostics.warnCount + materializerFailures + materializerWarnings,
-            signalKeys: ["ops.diagnostics", "ops.materializers"],
+                : activeDiagnosticErrorCount > 0 || activeDiagnosticWarnCount > 0 || recentDiagnosticErrorCount > 0 || recentDiagnosticWarnCount > 0 || materializerWarnings > 0
+                    ? "Review the current diagnostics and warned materializers before treating admin health as fully current."
+                    : staleDiagnosticErrorCount > 0 || staleDiagnosticWarnCount > 0
+                        ? "No immediate action is required, but older sampled diagnostics are still available for historical review."
+                        : "No action required.",
+            signalCount:
+                activeDiagnosticErrorCount
+                + activeDiagnosticWarnCount
+                + Math.max(0, recentDiagnosticErrorCount - activeDiagnosticErrorCount)
+                + Math.max(0, recentDiagnosticWarnCount - activeDiagnosticWarnCount)
+                + materializerFailures
+                + materializerWarnings,
+            signalKeys: ["ops.diagnostics", "ops.materializers", "ops.diagnostics.activeWindowMs"],
             observedAtMs: nowMs,
         }),
     ];

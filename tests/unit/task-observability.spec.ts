@@ -207,4 +207,25 @@ describe("daily task observability inventory", () => {
     expect(report.distribution.find((entry) => entry.taskId === unwrapOne.id)?.recentReceiptCount).toBe(0);
     expect(report.distribution.find((entry) => entry.taskId === unwrapTwo.id)?.recentReceiptCount).toBe(0);
   });
+
+  it("does not mark generic daily-task lifecycle events as orphaned task mappings", () => {
+    const report = buildDailyTaskRuntimeAudit({
+      definitions: [BUILT_IN_DAILY_TASKS.find((task) => task.id === "open_dashboard")!],
+      userStates: [],
+      taskEvents: [],
+      receipts: [],
+      eventStats: [
+        { eventName: "daily_task_assigned", totalCount: 12, lastSeenAt: 5000 },
+        { eventName: "daily_task_completed", totalCount: 8, lastSeenAt: 6000 },
+      ],
+    });
+
+    const assignedAlignment = report.telemetryAlignment.find((entry) => entry.eventName === "daily_task_assigned");
+    const completedAlignment = report.telemetryAlignment.find((entry) => entry.eventName === "daily_task_completed");
+
+    expect(assignedAlignment?.mappedTaskCount).toBe(0);
+    expect(assignedAlignment?.driftReasons).not.toContain("tracked_without_task_mapping");
+    expect(completedAlignment?.mappedTaskCount).toBe(0);
+    expect(completedAlignment?.driftReasons).not.toContain("tracked_without_task_mapping");
+  });
 });

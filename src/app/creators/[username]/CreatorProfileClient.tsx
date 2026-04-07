@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
     Ghost,
     Loader2,
@@ -60,6 +60,7 @@ export default function CreatorProfileClient() {
     const [bookingDurationMinutes, setBookingDurationMinutes] = useState(CREATOR_BOOKING_MIN_MINUTES);
     const [bookingServiceType, setBookingServiceType] = useState<"phone" | "video">("phone");
     const [creatingBooking, setCreatingBooking] = useState(false);
+    const lastTrackedBroadcastKeyRef = useRef<string>("");
 
     useEffect(() => {
         if (!username) {
@@ -183,6 +184,27 @@ export default function CreatorProfileClient() {
             cancelled = true;
         };
     }, [creator, currentUser]);
+
+    useEffect(() => {
+        if (!creator || activeTab !== "drops" || broadcasts.length === 0) {
+            return;
+        }
+
+        const latestBroadcastId = typeof broadcasts[0]?.id === "string" ? broadcasts[0].id : "unknown";
+        const broadcastKey = `${creator.uid}:${latestBroadcastId}:${broadcasts.length}`;
+        if (lastTrackedBroadcastKeyRef.current === broadcastKey) {
+            return;
+        }
+
+        lastTrackedBroadcastKeyRef.current = broadcastKey;
+        trackEvent("creator_broadcast_opened", {
+            creator_id: creator.uid,
+            creator_username: creator.username || username,
+            broadcast_count: broadcasts.length,
+            latest_broadcast_id: latestBroadcastId,
+            page_path: `/creators/${username}`,
+        });
+    }, [activeTab, broadcasts, creator, username]);
 
     const creatorPublicState = useMemo(
         () => resolveCreatorPublicExperienceState(creator?.creatorSettings, drops.length),

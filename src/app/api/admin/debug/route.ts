@@ -613,9 +613,21 @@ export async function GET(request: NextRequest) {
             };
         }).sort((left, right) => right.totalCount - left.totalCount);
 
-        const orphanedEventStats = eventStats
-            .filter((entry) => entry.mappedTaskCount === 0)
-            .slice(0, 20);
+        const orphanedEventStats = runtimeTaskAudit.telemetryAlignment
+            .filter((entry) => (
+                entry.driftReasons.includes("tracked_without_task_mapping")
+                && (entry.eventCategory === "tasks" || entry.eventModules.includes("tasks") || entry.eventModules.includes("task_guidance"))
+            ))
+            .slice(0, 20)
+            .map((entry) => ({
+                eventName: entry.eventName,
+                label: entry.eventLabel,
+                totalCount: entry.eventStatTotalCount,
+                lastSeenAt: entry.lastSeenAt,
+                mappedTaskCount: entry.mappedTaskCount,
+                mappedTaskTitles: [] as string[],
+                trackingSource: entry.trackingSource,
+            }));
 
         const receiptSummary = Array.from(receiptEvents7d.reduce((map, entry) => {
             const current = map.get(entry.eventName) || {

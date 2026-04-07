@@ -54,6 +54,17 @@ function formatRelative(timestamp?: number) {
     return `${Math.floor(hours / 24)}d ago`;
 }
 
+function formatWindowHours(windowMs?: number) {
+    if (!windowMs) return "current";
+    return `${Math.max(1, Math.round(windowMs / 3_600_000))}h`;
+}
+
+function getPipelineStatusLabel(status?: string) {
+    if (status === "fail") return "Active";
+    if (status === "warn") return "Recent";
+    return "Clear";
+}
+
 function compactNumber(value?: number) {
     return new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(value || 0);
 }
@@ -314,8 +325,8 @@ export default function DebugConsole() {
             {renderTabControls()}
 
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-7">
-                <StatCard label="Health score" value={data?.opsHealth ? `${data.opsHealth.score}%` : "--"} meta={`${data?.opsHealth?.pipeline?.failureCount || 0} sampled pipeline failures`} />
-                <StatCard label="Pipeline failures" value={data?.opsHealth?.pipeline?.failureCount ?? "--"} meta={data?.opsHealth?.pipeline?.lastFailureAt ? `last ${formatRelative(data.opsHealth.pipeline.lastFailureAt)}` : "no recent failure in sample"} />
+                <StatCard label="Health score" value={data?.opsHealth ? `${data.opsHealth.score}%` : "--"} meta={`${data?.opsHealth?.diagnostics?.activeIssueClusterCount || 0} active issue clusters | ${getPipelineStatusLabel(data?.opsHealth?.pipeline?.status)} pipeline`} />
+                <StatCard label="Pipeline failures" value={data?.opsHealth?.pipeline?.failureCount ?? "--"} meta={data?.opsHealth?.pipeline?.status === "healthy" ? `no active incident in ${formatWindowHours(data?.opsHealth?.pipeline?.activeWindowMs)}` : data?.opsHealth?.pipeline?.lastFailureAt ? `last ${formatRelative(data.opsHealth.pipeline.lastFailureAt)}` : "recent failure state without timestamp"} />
                 <StatCard label="Task-issue users" value={data?.stats?.usersWithTaskIssues ?? "--"} meta={`${data?.stats?.runtimeUsersWithRefreshIssues ?? 0} sampled refresh warnings`} />
                 <StatCard label="Creator issues" value={data?.stats?.creatorOnboardingIssues ?? "--"} meta={`${data?.creatorOnboardingDiagnostics?.summary?.missingQueueCount ?? 0} missing queue links`} />
                 <StatCard label="Open actions" value={derivedActionCount} meta={`${data?.stats?.orchestrationActionableRepairs ?? 0} proposals + ${panelLogWarnCount + panelLogFailCount} panel log warnings/failures`} />
@@ -330,21 +341,21 @@ export default function DebugConsole() {
                 <div className="space-y-4">
                     <Section
                         title="System health now"
-                        subtitle="Loaded health score, recent pipeline failures, and downstream freshness. The score is derived from the current sample, not full-system certainty."
+                        subtitle="Loaded health score, current diagnostics, and sampled pipeline freshness. Historical failures stay visible, but the score only penalizes active or recent ops issues."
                         defaultOpen
-                        summary={<><Pill label="Score" value={`${data?.opsHealth?.score ?? 0}%`} tone={(data?.opsHealth?.score ?? 0) >= 90 ? "good" : (data?.opsHealth?.score ?? 0) >= 70 ? "warn" : "bad"} /><Pill label="Pipeline failures" value={data?.opsHealth?.pipeline?.failureCount ?? 0} tone={(data?.opsHealth?.pipeline?.failureCount ?? 0) > 0 ? "warn" : "good"} /><Pill label="Diagnostic channels" value={(data?.opsHealth?.diagnostics?.channels || []).length} /><Pill label="Freshest loaded signal" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "Not loaded"} /></>}
+                        summary={<><Pill label="Score" value={`${data?.opsHealth?.score ?? 0}%`} tone={(data?.opsHealth?.score ?? 0) >= 90 ? "good" : (data?.opsHealth?.score ?? 0) >= 70 ? "warn" : "bad"} /><Pill label="Pipeline" value={getPipelineStatusLabel(data?.opsHealth?.pipeline?.status)} tone={data?.opsHealth?.pipeline?.status === "fail" ? "bad" : data?.opsHealth?.pipeline?.status === "warn" ? "warn" : "good"} /><Pill label="Active diagnostics" value={(data?.opsHealth?.diagnostics?.activeErrorCount ?? 0) + (data?.opsHealth?.diagnostics?.activeWarnCount ?? 0)} tone={((data?.opsHealth?.diagnostics?.activeErrorCount ?? 0) + (data?.opsHealth?.diagnostics?.activeWarnCount ?? 0)) > 0 ? "warn" : "good"} /><Pill label="Freshest loaded signal" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "Not loaded"} /></>}
                     >
                         <div className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
                             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-1">
                                 <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                                     <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Pipeline</p>
-                                    <p className="mt-2 text-xl font-black text-white">{data?.opsHealth?.pipeline?.failureCount ?? 0}</p>
-                                    <p className="mt-1 text-sm text-gray-400">Recent sampled failures. Last failure {formatRelative(data?.opsHealth?.pipeline?.lastFailureAt)}.</p>
+                                    <p className="mt-2 text-xl font-black text-white">{getPipelineStatusLabel(data?.opsHealth?.pipeline?.status)}</p>
+                                    <p className="mt-1 text-sm text-gray-400">{data?.opsHealth?.pipeline?.status === "healthy" ? `No active incident in the last ${formatWindowHours(data?.opsHealth?.pipeline?.activeWindowMs)}. ${data?.opsHealth?.pipeline?.failureCount ?? 0} failures remain in the loaded sample.` : `Last failure ${formatRelative(data?.opsHealth?.pipeline?.lastFailureAt)}. ${data?.opsHealth?.pipeline?.failureCount ?? 0} failures remain in the loaded sample.`}</p>
                                 </div>
                                 <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                                     <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Diagnostics</p>
-                                    <p className="mt-2 text-xl font-black text-white">{data?.opsHealth?.diagnostics?.errorCount ?? 0}</p>
-                                    <p className="mt-1 text-sm text-gray-400">Errors in the current loaded sample across tracked diagnostic channels.</p>
+                                    <p className="mt-2 text-xl font-black text-white">{data?.opsHealth?.diagnostics?.activeErrorCount ?? 0}</p>
+                                    <p className="mt-1 text-sm text-gray-400">{data?.opsHealth?.diagnostics?.activeIssueClusterCount ?? 0} current issue clusters across {data?.opsHealth?.diagnostics?.activeErrorCount ?? 0} active errors and {data?.opsHealth?.diagnostics?.activeWarnCount ?? 0} active warnings. {data?.opsHealth?.diagnostics?.errorCount ?? 0} errors and {data?.opsHealth?.diagnostics?.warnCount ?? 0} warnings remain in the loaded sample.</p>
                                 </div>
                                 <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                                     <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Downstream writers</p>
@@ -1327,7 +1338,7 @@ export default function DebugConsole() {
 
                     <Section
                         title="Telemetry coverage sample"
-                        subtitle="Tracked events, task mappings, and last-seen visibility in one bounded sample. This does not equal full journey truth."
+                        subtitle="Tracked events, task mappings, and last-seen visibility in one bounded sample. The orphaned count below is task-related only, not every non-task event."
                         defaultOpen={false}
                         summary={<><Pill label="Tracked events" value={data?.stats?.trackedTelemetryEvents ?? 0} /><Pill label="Orphaned" value={data?.stats?.orphanedTelemetryEvents ?? 0} tone={data?.stats?.orphanedTelemetryEvents ? "warn" : "good"} /></>}
                     >
@@ -1356,7 +1367,7 @@ export default function DebugConsole() {
 
                     <Section
                         title="Tracked events with no task mapping"
-                        subtitle="Warning list for tracked events that do not currently map to a task."
+                        subtitle="Warning list for tracked task-related events that do not currently map to a task."
                         defaultOpen={false}
                         summary={<><Pill label="Orphaned" value={(data?.orphanedEventStats || []).length} tone={(data?.orphanedEventStats || []).length ? "warn" : "good"} /></>}
                     >
