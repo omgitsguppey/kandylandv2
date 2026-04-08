@@ -2273,6 +2273,44 @@ Continuation follow-up gaps:
 - compatibility reads still preserve `recentDropReferenceCount` for older AI job documents; new logic should continue to treat `catalogDropReferenceCount` as the live truth
 - the pre-existing Chromium `/creators/waitlist` visual instability still needs a separate stabilization or baseline refresh pass
 
+### Continuation: Package Economics and Bundle Integrity Audit
+Current audit date: 2026-04-07 19:40:00 -05:00
+Current branch / commit for continuation start: `main` / `0224af7`
+Continuation task:
+- repair the `getBundlePresentation` math drift that incorrectly truncated all Kandy amounts into `baseAmount` without acknowledging fixed-package or bundle bonuses
+- verify source-aware ledger integrity for GumDrop balance modifications
+
+Continuation start state:
+- working tree clean at continuation start
+- canonical startup docs re-read:
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+  - `REPO_MEMORY_LEDGER.md`
+  - `EVERY_FILE_FUNCTION_CHECKLIST.md`
+
+Confirmed findings:
+- `getBundlePresentation` was dividing `deliveredGumDrops` by `100`, rounding down, and assigning everything to `baseAmount` with 0 `bonus` drops. This contradicted the true economics of the packages, notably:
+  - Sweet Pack: 550 drops = 500 base + 50 bonus
+  - Kandy Bag Pack: 1100 drops = 1000 base + 100 bonus
+  - Kandy Land Pack: 2500 drops = 2000 base + 500 bonus
+  - King Size Bundle (>= 5000): 100% extra value = half base + half bonus
+- all other core transaction paths (PayPal capture, admin grants, creator spend, unwraps) correctly enforce source-aware crediting and spending through `buildSourceAwareBalancePatch` and the `credit`/`spend` source-aware helpers.
+
+Implementation results:
+- fixed `getBundlePresentation` to explicitly map fixed packages (100, 550, 1100, 2500) to their canonical base and bonus amounts.
+- fixed bundle presentation math (>= 5000) to divide `deliveredGumDrops` by 2, satisfying the 100% extra value product rule.
+- verified that `resolveExpectedGumdropPrice` is consistent with these amounts, and that `PurchaseModal.tsx` consumes the presentation math safely.
+
+Commands run for continuation:
+- `npm run check:continuity`
+- `npx vitest run tests/unit/gumdrop-economics.spec.ts`
+- `npx vitest run tests/unit/gumdrops-packages.spec.ts`
+- grep for manual `gumDropsBalance` updates to verify ledger integrity
+
+Continuation results:
+- `getBundlePresentation` math aligns with product truth
+- tests passed successfully
+- ledger integrity is sound, no unaudited manual bypasses of the source-aware helpers exist.
+
 ### Continuation: Latest-Cover AI Scan + Queue Reactivation Notification Audit
 Current audit date: 2026-04-07 19:22:35 -05:00
 Current branch / commit for continuation start: `main` / `0224af7`

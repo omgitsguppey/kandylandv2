@@ -37,33 +37,62 @@ type GumdropEconomicsOptions = {
 };
 
 export function getBundlePresentation(deliveredGumDrops: number) {
-  const baseAmount = Math.floor(deliveredGumDrops / GUMDROPS_PER_USD) * GUMDROPS_PER_USD;
-  const bonus = deliveredGumDrops - baseAmount;
-  const presentationInfo = {
-    baseAmount,
-    bonus,
-    hasBonus: bonus > 0,
-  };
+  let baseAmount = 0;
+  let bonus = 0;
+  let bundleLabel = "King Size Bundle";
+  let bundleKey = `bundle_${deliveredGumDrops}`;
+  let bundleTier: "entry" | "bonus" | "bundle" | "custom" = "custom";
 
   switch (deliveredGumDrops) {
     case 100:
-      return { ...presentationInfo, bundleLabel: "Sugar Rush Pack", bundleKey: "sugar_rush_pack", bundleTier: "entry" as const };
+      baseAmount = 100;
+      bonus = 0;
+      bundleLabel = "Sugar Rush Pack";
+      bundleKey = "sugar_rush_pack";
+      bundleTier = "entry";
+      break;
     case 550:
-      return { ...presentationInfo, bundleLabel: "Sweet Pack", bundleKey: "sweet_pack", bundleTier: "bonus" as const };
+      baseAmount = 500;
+      bonus = 50;
+      bundleLabel = "Sweet Pack";
+      bundleKey = "sweet_pack";
+      bundleTier = "bonus";
+      break;
     case 1100:
-      return { ...presentationInfo, bundleLabel: "Kandy Bag Pack", bundleKey: "kandy_bag_pack", bundleTier: "bonus" as const };
+      baseAmount = 1000;
+      bonus = 100;
+      bundleLabel = "Kandy Bag Pack";
+      bundleKey = "kandy_bag_pack";
+      bundleTier = "bonus";
+      break;
     case 2500:
-      return { ...presentationInfo, bundleLabel: "Kandy Land Pack", bundleKey: "kandy_land_pack", bundleTier: "bonus" as const };
-    default: {
-      const bundleLabel = "King Size Bundle";
-      return {
-        ...presentationInfo,
-        bundleLabel,
-        bundleKey: `bundle_${deliveredGumDrops}`,
-        bundleTier: deliveredGumDrops >= 5000 ? "bundle" as const : "custom" as const,
-      };
-    }
+      baseAmount = 2000;
+      bonus = 500;
+      bundleLabel = "Kandy Land Pack";
+      bundleKey = "kandy_land_pack";
+      bundleTier = "bonus";
+      break;
+    default:
+      if (deliveredGumDrops >= 5000 && deliveredGumDrops % 1000 === 0) {
+        baseAmount = deliveredGumDrops / 2;
+        bonus = deliveredGumDrops / 2;
+        bundleTier = "bundle";
+      } else {
+        baseAmount = deliveredGumDrops;
+        bonus = 0;
+        bundleTier = "custom";
+      }
+      break;
   }
+
+  return {
+    baseAmount,
+    bonus,
+    hasBonus: bonus > 0,
+    bundleLabel,
+    bundleKey,
+    bundleTier,
+  };
 }
 
 export function deriveGumdropEconomics(
