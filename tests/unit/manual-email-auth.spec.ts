@@ -7,8 +7,16 @@ import {
 } from "@/lib/manual-email-auth";
 
 describe("manual email auth helpers", () => {
-    it("passes email identifiers through without a lookup request", async () => {
-        const fetchMock = vi.fn<typeof fetch>();
+    it("resolves email identifiers through the manual sign-in lookup route", async () => {
+        const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(new Response(JSON.stringify({
+            resolvedEmail: "fan@example.com",
+            identifierType: "email",
+        }), {
+            status: 200,
+            headers: {
+                "Content-Type": "application/json",
+            },
+        }));
 
         const result = await resolveManualSignInIdentity("  fan@example.com  ", fetchMock);
 
@@ -16,7 +24,9 @@ describe("manual email auth helpers", () => {
             resolvedEmail: "fan@example.com",
             identifierType: "email",
         });
-        expect(fetchMock).not.toHaveBeenCalled();
+        expect(fetchMock).toHaveBeenCalledWith("/api/auth/manual-sign-in-lookup", expect.objectContaining({
+            method: "POST",
+        }));
     });
 
     it("resolves username identifiers through the manual sign-in lookup route", async () => {
@@ -39,6 +49,23 @@ describe("manual email auth helpers", () => {
         expect(fetchMock).toHaveBeenCalledWith("/api/auth/manual-sign-in-lookup", expect.objectContaining({
             method: "POST",
         }));
+    });
+
+    it("blocks manual sign-in when the account is Google-only", async () => {
+        const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(new Response(JSON.stringify({
+            resolvedEmail: null,
+            identifierType: "email",
+            authErrorCode: "auth/use-google-sign-in",
+        }), {
+            status: 200,
+            headers: {
+                "Content-Type": "application/json",
+            },
+        }));
+
+        await expect(resolveManualSignInIdentity("fan@example.com", fetchMock)).rejects.toMatchObject({
+            code: "auth/use-google-sign-in",
+        });
     });
 
     it("fails manual signup when the requested username is unavailable", async () => {

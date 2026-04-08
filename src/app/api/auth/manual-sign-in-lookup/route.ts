@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { AuthError, handleApiError } from "@/lib/server/auth";
-import { adminDb } from "@/lib/server/firebase-admin";
+import { adminAuth, adminDb } from "@/lib/server/firebase-admin";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
@@ -12,6 +12,74 @@ import { normalizeUsername } from "@/lib/user-utils";
 const requestSchema = z.object({
     identifier: z.string().trim().min(1).max(160),
 });
+
+type ManualSignInLookupResult = {
+    resolvedEmail: string | null;
+    identifierType: "email" | "username" | "unknown";
+    authErrorCode?: string;
+};
+
+function buildInvalidCredentialResult(identifierType: ManualSignInLookupResult["identifierType"]): ManualSignInLookupResult {
+    return {
+        resolvedEmail: null,
+        identifierType,
+        authErrorCode: "auth/invalid-credential",
+    };
+}
+
+async function resolveManualAuthLookupForEmail(
+    resolvedEmail: string,
+    identifierType: "email" | "username",
+): Promise<ManualSignInLookupResult> {
+    if (!adminAuth) {
+        return {
+            resolvedEmail,
+            identifierType,
+        };
+    }
+
+    try {
+        const authUser = await adminAuth.getUserByEmail(resolvedEmail);
+        const providerIds = new Set(
+            authUser.providerData
+                .map((provider) => provider.providerId)
+                .filter((providerId): providerId is string => typeof providerId === "string" && providerId.length > 0),
+        );
+        const hasGoogleProvider = providerIds.has("google.com");
+        const hasPasswordProvider = providerIds.has("password");
+
+        if (hasGoogleProvider && !hasPasswordProvider) {
+            return {
+                resolvedEmail: null,
+                identifierType,
+                authErrorCode: "auth/use-google-sign-in",
+            };
+        }
+    } catch (error) {
+        const authError = error as { code?: string; message?: string };
+        if (authError?.code !== "auth/user-not-found") {
+            recordRouteWarning(
+                "auth/manual-sign-in-lookup",
+                "Provider lookup failed during manual sign-in resolution",
+                undefined,
+                {
+                    channel: "auth",
+                    detail: {
+                        identifierType,
+                        resolvedEmail,
+                        code: authError?.code || null,
+                        message: authError?.message || null,
+                    },
+                },
+            );
+        }
+    }
+
+    return {
+        resolvedEmail,
+        identifierType,
+    };
+}
 
 export async function POST(request: NextRequest) {
     try {
@@ -37,19 +105,14 @@ export async function POST(request: NextRequest) {
         }
 
         if (looksLikeEmailAddress(normalizedIdentifier)) {
-            return NextResponse.json({
-                resolvedEmail: normalizeEmailAddress(normalizedIdentifier),
-                identifierType: "email",
-            });
+            return NextResponse.json(
+                await resolveManualAuthLookupForEmail(normalizeEmailAddress(normalizedIdentifier), "email"),
+            );
         }
 
         const normalizedUsername = normalizeUsername(normalizedIdentifier);
         if (!normalizedUsername) {
-            return NextResponse.json({
-                resolvedEmail: null,
-                identifierType: "unknown",
-                authErrorCode: "auth/invalid-credential",
-            });
+            return NextResponse.json(buildInvalidCredentialResult("unknown"));
         }
 
         const matchingUsers = await adminDb
@@ -59,11 +122,7 @@ export async function POST(request: NextRequest) {
             .get();
 
         if (matchingUsers.empty) {
-            return NextResponse.json({
-                resolvedEmail: null,
-                identifierType: "username",
-                authErrorCode: "auth/invalid-credential",
-            });
+            return NextResponse.json(buildInvalidCredentialResult("username"));
         }
 
         const matchedUser = matchingUsers.docs[0];
@@ -77,17 +136,10 @@ export async function POST(request: NextRequest) {
                     username: normalizedUsername,
                 },
             });
-            return NextResponse.json({
-                resolvedEmail: null,
-                identifierType: "username",
-                authErrorCode: "auth/invalid-credential",
-            });
+            return NextResponse.json(buildInvalidCredentialResult("username"));
         }
 
-        return NextResponse.json({
-            resolvedEmail,
-            identifierType: "username",
-        });
+        return NextResponse.json(await resolveManualAuthLookupForEmail(resolvedEmail, "username"));
     } catch (error) {
         return handleApiError(error, "Auth.ManualSignInLookup");
     }

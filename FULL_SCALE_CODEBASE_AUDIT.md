@@ -1,7 +1,7 @@
 # Full Scale Codebase Audit
 
 Status: Canonical audit standard and live baseline
-Last refreshed: 2026-04-07
+Last refreshed: 2026-04-08
 Last full-scale audit execution: 2026-04-07 21:27:55 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 Audited HEAD at start: `8b24119`
@@ -3309,3 +3309,84 @@ Known warnings and non-blocking notices during continuation:
 Continuation follow-up gaps:
 - reservation release is now implemented for account deletion and profile username changes, but there is still no username-history or moderation-hold policy
 - if the product later needs temporary reservation holds or reclaim windows, those rules must extend `username_reservations` instead of bypassing it
+
+### Continuation: Manual Sign-In Provider Hint For Google-Only Accounts
+Current audit date: 2026-04-08 15:59:26 -05:00
+Current branch / commit for continuation start: `main` / `c5bc345`
+Continuation task:
+- ensure manual sign-in tells users to use Google auth when the entered email or resolved username belongs to a Google-only account
+- solve it at the canonical server lookup boundary instead of leaving the client to infer provider state from a generic Firebase credential failure
+
+Continuation start state:
+- canonical startup docs re-read:
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+  - `REPO_MEMORY_LEDGER.md`
+  - `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- `git status --short` was clean at continuation start
+- targeted adjacency traces were run for:
+  - `src/app/api/auth/manual-sign-in-lookup/route.ts`
+  - `src/lib/manual-email-auth.ts`
+  - `src/context/AuthContext.tsx`
+  - `src/lib/auth-errors.ts`
+
+Initial audit findings before implementation:
+- the canonical provider-resolution route already existed at `/api/auth/manual-sign-in-lookup`, but direct email identifiers never used it because `resolveManualSignInIdentity(...)` short-circuited locally
+- that meant Google-only accounts entering their email hit Firebase email/password directly and surfaced a generic invalid-credential style failure instead of a truthful Google sign-in instruction
+- username-based manual sign-in could resolve the email correctly, but the route still did not inspect provider state to distinguish password accounts from Google-only accounts
+
+Exact touched surfaces:
+- `src/app/api/auth/manual-sign-in-lookup/route.ts`
+- `src/lib/manual-email-auth.ts`
+- `src/lib/auth-errors.ts`
+- `tests/unit/manual-sign-in-lookup-route.spec.ts`
+- `tests/unit/manual-email-auth.spec.ts`
+- `tests/unit/auth-errors.spec.ts`
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `REPO_MEMORY_LEDGER.md`
+
+Canonical helpers and modules reused:
+- `src/lib/server/firebase-admin.ts`
+- `src/lib/server/request-guard.ts`
+- `src/lib/server/auth.ts`
+- `src/lib/server/route-diagnostics.ts`
+- `src/lib/auth-errors.ts`
+- `src/lib/manual-email-auth.ts`
+
+Implementation results:
+- `resolveManualSignInIdentity(...)` now sends both email and username identifiers through the same server lookup route instead of bypassing the route for direct email input
+- `/api/auth/manual-sign-in-lookup` now checks Firebase Auth provider state for the resolved email and returns `auth/use-google-sign-in` when the account is linked to Google without a password provider
+- provider inspection failures do not block manual sign-in outright; they are recorded as route warnings and the lookup falls back to the resolved email so a temporary Admin SDK read problem does not become a broader auth outage
+- `resolveEmailAuthError(...)` now maps `auth/use-google-sign-in` to a specific user-facing instruction: continue with Google instead of entering a password
+
+Runtime truth and continuity implications:
+- manual sign-in remains Firebase email/password underneath; this change only improves provider-aware identity resolution before the Firebase client sign-in call
+- direct email entry and username entry now share one canonical provider hint contract
+- Google-only accounts no longer masquerade as bad manual credentials when the account match is already known server-side
+- password-reset affordances are now explicitly suppressed for the Google-only error code at the helper layer
+
+Commands run for continuation:
+- `git status --short`
+- `npm run trace:adjacent -- src/app/api/auth/manual-sign-in-lookup/route.ts`
+- `npm run trace:adjacent -- src/lib/manual-email-auth.ts`
+- `npm run trace:adjacent -- src/context/AuthContext.tsx`
+- `npm run trace:adjacent -- src/lib/auth-errors.ts`
+- `npx eslint src/app/api/auth/manual-sign-in-lookup/route.ts src/lib/manual-email-auth.ts src/lib/auth-errors.ts tests/unit/manual-sign-in-lookup-route.spec.ts tests/unit/manual-email-auth.spec.ts tests/unit/auth-errors.spec.ts`
+- `corepack pnpm exec vitest run tests/unit/manual-sign-in-lookup-route.spec.ts tests/unit/manual-email-auth.spec.ts tests/unit/auth-errors.spec.ts`
+- `npm run check:inventory`
+- `npm run check:continuity`
+- `corepack pnpm run check`
+
+Continuation results:
+- focused eslint passed
+- focused auth Vitest passed with `3` files and `17` tests
+- `npm run check:inventory` passed with `703` tracked files
+- `npm run check:continuity` passed
+- `corepack pnpm run check` passed with `100` files and `490` tests
+
+Known warnings and non-blocking notices during continuation:
+- standard npm unknown env config warnings in canonical scripts
+- Node `punycode` deprecation warnings from Firebase/Vitest tooling
+- the first `npm run check:continuity` attempt timed out under an overly short local command timeout; a clean rerun passed without code changes
+
+Continuation follow-up gaps:
+- this change is intentionally scoped to Google-only accounts; if the product later needs provider-aware hints for other non-password providers, they should extend the same lookup contract rather than reintroducing local client-side inference

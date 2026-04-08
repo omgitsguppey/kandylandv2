@@ -62,6 +62,15 @@ export function resolveEmailAuthError(error: unknown, action: EmailAuthAction): 
         };
     }
 
+    if (code === "auth/use-google-sign-in") {
+        return {
+            code,
+            userMessage: "This account uses Google sign-in. Continue with Google instead of entering a password.",
+            localCooldownMs: 0,
+            allowPasswordReset: false,
+        };
+    }
+
     if (code === "auth/invalid-credential") {
         return {
             code,

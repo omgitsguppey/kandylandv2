@@ -613,12 +613,13 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Status: Active canonical auth rule
 - Problem/context: Firebase email/password account creation finishes before KandyDrops profile bootstrap. Without an explicit guard, fallback profile bootstrap can race the sign-up flow, and server registration can silently replace the requested username with an auto-suggested fallback.
 - Decision made: Keep Firebase email/password as the manual auth backbone, but treat manual sign-up as an explicit profile-registration flow that blocks fallback bootstrap while it is in flight, preserves the requested normalized username when it is available, and only rolls back the just-created auth user on confirmed registration failures.
-- What became canonical:
-  - manual sign-in still supports username-or-email resolution through the server lookup path
-  - manual sign-up checks the requested username directly and returns a truthful conflict if it is no longer available
-  - `/api/user/register` no longer silently swaps a requested username for an auto-suggested fallback during explicit manual registration
-  - password reset now belongs to the same manual-auth helper surface rather than living only as modal-inline logic
-  - fallback profile auto-bootstrap must yield while explicit manual sign-up is in flight
+  - What became canonical:
+    - manual sign-in still supports username-or-email resolution through the server lookup path
+    - the manual sign-in lookup path must return a Google sign-in instruction when the matched account is Google-only and has no password provider
+    - manual sign-up checks the requested username directly and returns a truthful conflict if it is no longer available
+    - `/api/user/register` no longer silently swaps a requested username for an auto-suggested fallback during explicit manual registration
+    - password reset now belongs to the same manual-auth helper surface rather than living only as modal-inline logic
+    - fallback profile auto-bootstrap must yield while explicit manual sign-up is in flight
 - What is now disallowed or deprecated:
   - racing fallback profile bootstrap against explicit manual sign-up
   - silently changing a requested username during manual registration

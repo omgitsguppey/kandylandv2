@@ -42,6 +42,13 @@ describe("auth error helpers", () => {
         expect(resolution.localCooldownMs).toBe(0);
     });
 
+    it("tells Google-only accounts to continue with Google sign-in", () => {
+        const resolution = resolveEmailAuthError({ code: "auth/use-google-sign-in" }, "sign_in");
+
+        expect(resolution.userMessage).toContain("Google sign-in");
+        expect(resolution.allowPasswordReset).toBe(false);
+    });
+
     it("maps username conflicts to a stable manual sign-up error", () => {
         const resolution = resolveEmailAuthError({ code: "auth/username-already-in-use" }, "sign_up");
 

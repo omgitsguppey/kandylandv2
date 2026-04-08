@@ -35,13 +35,6 @@ export async function resolveManualSignInIdentity(identifier: string, fetchImpl:
         throw buildFirebaseLikeAuthError("auth/invalid-credential");
     }
 
-    if (looksLikeEmailAddress(normalizedIdentifier)) {
-        return {
-            resolvedEmail: normalizeEmailAddress(normalizedIdentifier),
-            identifierType: "email",
-        };
-    }
-
     const response = await fetchImpl("/api/auth/manual-sign-in-lookup", {
         method: "POST",
         headers: {
@@ -65,6 +58,10 @@ export async function resolveManualSignInIdentity(identifier: string, fetchImpl:
         }
 
         throw new Error(payload.error || "Username sign-in is temporarily unavailable. Use your account email or try again shortly.");
+    }
+
+    if (typeof payload.authErrorCode === "string" && payload.authErrorCode.length > 0) {
+        throw buildFirebaseLikeAuthError(payload.authErrorCode);
     }
 
     if (typeof payload.resolvedEmail !== "string" || !looksLikeEmailAddress(payload.resolvedEmail)) {
