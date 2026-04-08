@@ -2,13 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 import { z } from "zod";
 
-import { CREATOR_COLLECTIONS, buildCreatorRelationshipId, isCreatorRole } from "@/lib/creator-experiences";
+import { CREATOR_COLLECTIONS, buildCreatorRelationshipId } from "@/lib/creator-experiences";
+import { isCreatorVisibleInDiscovery } from "@/lib/creator-public-pages";
 import { buildRelationshipPatch } from "@/lib/server/creator-experiences";
 import { handleApiError } from "@/lib/server/auth";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { isDropHiddenFromPublic, normalizeAndApplyDropStatusOrNull } from "@/lib/drop-read-models";
 
 type CreatorRelationshipRecord = Record<string, unknown> & {
     id: string;
@@ -26,6 +28,7 @@ type RecommendedCreatorRecord = Record<string, unknown> & {
     photoURL?: unknown;
     bio?: unknown;
     isVerified?: unknown;
+    creatorApplication?: unknown;
 };
 
 type CreatorListEntry = {
@@ -64,7 +67,11 @@ async function getCreatorRecord(creatorId: string) {
     }
 
     const data = creatorSnap.data() as Record<string, unknown>;
-    if (!isCreatorRole(data.role) || data.status === "suspended" || data.status === "banned") {
+    if (!isCreatorVisibleInDiscovery({
+        role: data.role,
+        status: data.status,
+        creatorApplication: data.creatorApplication,
+    })) {
         return null;
     }
 
@@ -114,13 +121,13 @@ export async function GET(request: NextRequest) {
             ...(doc.data() as Record<string, unknown>),
         }) as CreatorRelationshipRecord);
 
-        const [creatorOpsSnap, recommendedCreatorDocs] = await Promise.all([
+        const now = Date.now();
+        const [creatorOpsSnap, recommendedCreatorDocs, dropsSnap] = await Promise.all([
             adminDb.collection("creator_ops").get(),
             adminDb.collection("users")
-                .where("role", "==", "creator")
-                .where("status", "not-in", ["suspended", "banned"])
-                .select("role", "status", "displayName", "username", "photoURL", "bio", "isVerified")
+                .select("role", "status", "displayName", "username", "photoURL", "bio", "isVerified", "creatorApplication")
                 .get(),
+            adminDb.collection("drops").get(),
         ]);
         const creatorFollowerCounts = new Map(
             creatorOpsSnap.docs.map((doc) => {
@@ -128,12 +135,26 @@ export async function GET(request: NextRequest) {
                 return [doc.id, typeof summary?.followerCount === "number" ? summary.followerCount : 0] as const;
             }),
         );
+        const activeDropCounts = new Map<string, number>();
+        dropsSnap.docs.forEach((doc) => {
+            const normalized = normalizeAndApplyDropStatusOrNull(doc.data(), doc.id, now);
+            if (!normalized || isDropHiddenFromPublic(normalized) || normalized.status !== "active" || !normalized.creatorId) {
+                return;
+            }
+
+            activeDropCounts.set(normalized.creatorId, (activeDropCounts.get(normalized.creatorId) ?? 0) + 1);
+        });
 
         const validCreators: CreatorListEntry[] = [];
         for (const doc of recommendedCreatorDocs.docs) {
             const entry = { id: doc.id, ...(doc.data() as Record<string, unknown>) } as RecommendedCreatorRecord;
             const followerCount = creatorFollowerCounts.get(entry.id) ?? 0;
-            if (isCreatorRole(entry.role) && entry.status !== "suspended" && entry.status !== "banned") {
+            if (isCreatorVisibleInDiscovery({
+                role: entry.role,
+                status: entry.status,
+                creatorApplication: entry.creatorApplication,
+                activeDropCount: activeDropCounts.get(entry.id) ?? 0,
+            })) {
                 validCreators.push({
                     uid: entry.id,
                     displayName: typeof entry.displayName === "string" && entry.displayName.trim().length > 0 ? entry.displayName.trim() : "Creator",

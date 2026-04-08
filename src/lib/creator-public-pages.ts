@@ -3,9 +3,11 @@ import {
     CREATOR_MESSAGE_COSTS,
     CREATOR_SUBSCRIPTION_MIN_GD,
     DEFAULT_CREATOR_SETTINGS,
+    isCreatorRole,
     normalizeCreatorSettings,
     type CreatorSettings,
 } from "@/lib/creator-experiences";
+import { normalizeCreatorOnboardingApprovalStatus } from "@/lib/creator-onboarding";
 
 export type CreatorDiscoverySurface = "dashboard" | "drops" | "experiences";
 
@@ -36,6 +38,32 @@ export function buildCreatorDiscoveryNavigationParams(input: {
         creator_id: input.creatorId,
         creator_username: input.creatorUsername || "unknown",
     };
+}
+
+export function isCreatorVisibleInDiscovery(input: {
+    role?: unknown;
+    status?: unknown;
+    creatorApplication?: unknown;
+    activeDropCount?: number;
+}) {
+    const status = typeof input.status === "string" ? input.status : "";
+    if (status === "suspended" || status === "banned") {
+        return false;
+    }
+
+    const activeDropCount = typeof input.activeDropCount === "number" && Number.isFinite(input.activeDropCount)
+        ? input.activeDropCount
+        : 0;
+    const creatorApplication = input.creatorApplication && typeof input.creatorApplication === "object" && !Array.isArray(input.creatorApplication)
+        ? input.creatorApplication as Record<string, unknown>
+        : null;
+    const approvalStatus = creatorApplication
+        ? normalizeCreatorOnboardingApprovalStatus(creatorApplication.approvalStatus ?? creatorApplication.status)
+        : "creator_pending";
+
+    return isCreatorRole(input.role)
+        || approvalStatus === "creator_approved"
+        || activeDropCount > 0;
 }
 
 export function resolveCreatorPublicExperienceState(settingsInput: CreatorSettings | null | undefined, activeDropCount: number) {

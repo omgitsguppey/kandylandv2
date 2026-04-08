@@ -80,7 +80,11 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
                             .map((entry) => [String(entry.creatorId), entry]),
                     );
 
-                    nextRecommended = (relationshipResult.recommendedCreators || nextRecommended).map((creator) => {
+                    const relationshipRecommended = Array.isArray(relationshipResult.recommendedCreators) && relationshipResult.recommendedCreators.length > 0
+                        ? relationshipResult.recommendedCreators
+                        : nextRecommended;
+
+                    nextRecommended = relationshipRecommended.map((creator) => {
                         const relationship = relationshipMap.get(creator.uid);
                         return {
                             ...creator,
@@ -339,11 +343,11 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
                                 className={cn(
                                     "inline-flex min-h-7 items-center justify-center rounded-full border px-3 py-1 text-[10px] font-bold transition-colors",
                                     creator.following
-                                        ? "border-white/10 bg-white/8 text-white"
+                                        ? "border-brand-purple/60 bg-black text-brand-purple"
                                         : "border-brand-purple/30 bg-brand-purple/15 text-white",
                                 )}
                             >
-                                {pendingCreatorId === creator.uid ? <Loader2 className="h-3 w-3 animate-spin" /> : creator.following ? "Following" : "Follow"}
+                                {pendingCreatorId === creator.uid ? <Loader2 className="h-3 w-3 animate-spin" /> : creator.following ? "following" : "Follow"}
                             </button>
                         </div>
                     ))}

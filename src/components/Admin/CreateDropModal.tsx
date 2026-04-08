@@ -19,6 +19,10 @@ import {
     dropFormSchema,
     type DropFormData,
 } from "@/lib/admin-drop-form";
+import {
+    toggleAdminDropFormSection,
+    type AdminDropFormSectionId,
+} from "@/lib/admin-drop-form-sections";
 import { dispatchAdminOverviewSync } from "@/hooks/client-runtime";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import type { AdminAiDropCoverJobRecord } from "@/lib/ai-drop-covers";
@@ -228,10 +232,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
     const [duplicateWarnings, setDuplicateWarnings] = useState<Array<{ dropId: string; title: string; duplicateFileNames: string[]; approvalStatus: string }>>([]);
     const [checkingDuplicateNames, setCheckingDuplicateNames] = useState(false);
 
-    const [uploadsOpen, setUploadsOpen] = useState(true);
-    const [basicsOpen, setBasicsOpen] = useState(true);
-    const [pricingOpen, setPricingOpen] = useState(true);
-    const [actionSettingsOpen, setActionSettingsOpen] = useState(true);
+    const [openSection, setOpenSection] = useState<AdminDropFormSectionId | null>(null);
     const [coverAspectRatio, setCoverAspectRatio] = useState<UploadAspectRatio>("1:1");
     const [contentAspectRatio, setContentAspectRatio] = useState<UploadAspectRatio>("1:1");
     const [selectedAiCoverJobId, setSelectedAiCoverJobId] = useState<string | null>(null);
@@ -309,6 +310,15 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
         return dropType === "promo" ? "Configure the ad button and destination." : "Configure the external destination and CTA.";
     }, [dropType]);
 
+    const basicsOpen = openSection === "basics";
+    const uploadsOpen = openSection === "assets";
+    const pricingOpen = openSection === "pricing";
+    const actionSettingsOpen = openSection === "actions";
+
+    const handleToggleSection = useCallback((section: AdminDropFormSectionId) => {
+        setOpenSection((current) => toggleAdminDropFormSection(current, section));
+    }, []);
+
     useEffect(() => {
         if (!isOpen || mode !== "admin") {
             return;
@@ -349,10 +359,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
     useEffect(() => {
         if (!isOpen) {
             setContentAssets([]);
-            setBasicsOpen(true);
-            setPricingOpen(true);
-            setActionSettingsOpen(true);
-            setUploadsOpen(true);
+            setOpenSection(null);
             setSelectedAiCoverJobId(null);
             setDraftSessionId(null);
             reset(createDefaultDropFormValues(creatorIdOverride));
@@ -407,6 +414,12 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
 
         fetchDrop();
     }, [creatorIdOverride, duplicateFromId, dropId, isOpen, mode, onClose, reset]);
+
+    useEffect(() => {
+        if (dropType === "content" && openSection === "actions") {
+            setOpenSection(null);
+        }
+    }, [dropType, openSection]);
 
     const handleCoverAssetsChange = useCallback((assets: UploadedAsset[]) => {
         const primary = assets[0];
@@ -506,10 +519,6 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
             window.clearTimeout(timeoutId);
         };
     }, [contentAssets, coverFileName, dropId, isOpen, mode]);
-
-    const handleToggleUploads = useCallback(() => {
-        setUploadsOpen((prev) => !prev);
-    }, []);
 
     const toggleTag = useCallback((tag: string) => {
         const newTags = currentTags.includes(tag)
@@ -669,7 +678,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                         title="Basics"
                                         summary={cleanBasicsSummary}
                                         open={basicsOpen}
-                                        onToggle={() => setBasicsOpen((current) => !current)}
+                                        onToggle={() => handleToggleSection("basics")}
                                     >
                                         <div className="space-y-3">
                                         <div className="grid gap-3 sm:grid-cols-2">
@@ -769,7 +778,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
 
                                     <FilesAndAssetsSection
                                         uploadsOpen={uploadsOpen}
-                                        onToggle={handleToggleUploads}
+                                        onToggle={() => handleToggleSection("assets")}
                                         coverAspectRatio={coverAspectRatio}
                                         contentAspectRatio={contentAspectRatio}
                                         onCoverAspectRatioChange={setCoverAspectRatio}
@@ -802,7 +811,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                         title="Pricing & Schedule"
                                         summary={cleanPricingSummary}
                                         open={pricingOpen}
-                                        onToggle={() => setPricingOpen((current) => !current)}
+                                        onToggle={() => handleToggleSection("pricing")}
                                         icon={<DollarSign className="h-4 w-4 text-brand-purple" />}
                                     >
                                         <div className="space-y-3">
@@ -878,7 +887,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                             title="Action Settings"
                                             summary={cleanActionSummary}
                                             open={actionSettingsOpen}
-                                            onToggle={() => setActionSettingsOpen((current) => !current)}
+                                            onToggle={() => handleToggleSection("actions")}
                                             icon={<Calendar className="h-4 w-4 text-brand-purple" />}
                                         >
                                             <div className="space-y-3">

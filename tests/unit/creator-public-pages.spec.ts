@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
     buildCreatorDiscoveryNavigationParams,
+    isCreatorVisibleInDiscovery,
     resolveCreatorPublicExperienceState,
 } from "@/lib/creator-public-pages";
 
@@ -58,5 +59,27 @@ describe("creator-public-pages", () => {
         expect(result.summaryCards.map((card) => card.key)).toEqual(["bookings"]);
         expect(result.enabledRequestCategories).toEqual([]);
         expect(result.hasEnabledExperiences).toBe(true);
+    });
+
+    it("treats approved creator applicants as visible in discovery even before role activation catches up", () => {
+        expect(isCreatorVisibleInDiscovery({
+            role: "user",
+            creatorApplication: {
+                approvalStatus: "creator_approved",
+            },
+        })).toBe(true);
+    });
+
+    it("allows creators with live public drops into discovery and still blocks suspended accounts", () => {
+        expect(isCreatorVisibleInDiscovery({
+            role: "user",
+            activeDropCount: 1,
+        })).toBe(true);
+
+        expect(isCreatorVisibleInDiscovery({
+            role: "creator",
+            status: "suspended",
+            activeDropCount: 3,
+        })).toBe(false);
     });
 });

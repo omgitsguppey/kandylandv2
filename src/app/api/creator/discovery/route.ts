@@ -4,7 +4,7 @@ import { handleApiError } from "@/lib/server/auth";
 import { RELAXED } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { isCreatorRole } from "@/lib/creator-experiences";
+import { isCreatorVisibleInDiscovery } from "@/lib/creator-public-pages";
 import { isDropHiddenFromPublic, normalizeAndApplyDropStatusOrNull } from "@/lib/drop-read-models";
 
 type DiscoverySurface = "dashboard" | "drops" | "experiences";
@@ -17,6 +17,7 @@ type DiscoveryCreatorRecord = Record<string, unknown> & {
     photoURL?: unknown;
     bio?: unknown;
     isVerified?: unknown;
+    creatorApplication?: unknown;
 };
 
 export async function GET(request: NextRequest) {
@@ -68,7 +69,12 @@ export async function GET(request: NextRequest) {
 
         const creators = usersSnap.docs
             .map((doc) => ({ uid: doc.id, ...(doc.data() as Record<string, unknown>) }) as DiscoveryCreatorRecord)
-            .filter((entry) => isCreatorRole(entry.role) && entry.status !== "suspended" && entry.status !== "banned")
+            .filter((entry) => isCreatorVisibleInDiscovery({
+                role: entry.role,
+                status: entry.status,
+                creatorApplication: entry.creatorApplication,
+                activeDropCount: activeDropCounts.get(entry.uid) ?? 0,
+            }))
             .map((entry) => {
                 const counts = relationshipCounts.get(entry.uid) ?? { followers: 0, notifications: 0 };
                 return {

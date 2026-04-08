@@ -62,7 +62,6 @@ import {
 
 const DEFAULT_VERTEX_LOCATION = ADMIN_AI_DROP_COVER_DEFAULT_LOCATION;
 const VERTEX_SCOPE = "https://www.googleapis.com/auth/cloud-platform";
-const DEFAULT_TIMEOUT_MS = 20_000;
 const RECENT_JOB_LIMIT = 18;
 const DROP_COVER_CATALOG_PREVIEW_LIMIT = 1;
 const RETAINED_AI_REFERENCE_LIMIT = 4;
@@ -130,7 +129,6 @@ type GenerateImageInput = {
     aspectRatio: string;
     outputMimeType: string;
     referenceImages?: LoadedReferenceImage[];
-    timeoutMs?: number;
 };
 
 type GenerateVertexImageResult = {
@@ -261,7 +259,7 @@ function summarizeAiAvailabilityIssue(
     }
 
     if (normalized.includes("timed out")) {
-        return "Vertex image generation timed out before the cover finished rendering.";
+        return "The Vertex image request ended before the cover finished rendering.";
     }
 
     return "Vertex image generation is unavailable right now.";
@@ -989,24 +987,6 @@ async function getVertexAccessToken(project?: string) {
     return accessToken;
 }
 
-async function withTimeout<T>(promise: Promise<T>, timeoutMs: number) {
-    return await new Promise<T>((resolve, reject) => {
-        const timeout = setTimeout(() => {
-            reject(new Error(`Vertex image request timed out after ${timeoutMs}ms`));
-        }, timeoutMs);
-
-        promise
-            .then((value) => {
-                clearTimeout(timeout);
-                resolve(value);
-            })
-            .catch((error: unknown) => {
-                clearTimeout(timeout);
-                reject(error);
-            });
-    });
-}
-
 function buildVertexPublisherGenerateContentEndpoint(runtime: AdminAiDropCoverRuntime) {
     const hostname = runtime.location === "global"
         ? "aiplatform.googleapis.com"
@@ -1023,7 +1003,7 @@ async function generateGeminiImage(input: GenerateImageInput): Promise<GenerateV
         },
     }));
 
-    const response = await withTimeout(fetch(
+    const response = await fetch(
         buildVertexPublisherGenerateContentEndpoint(input.runtime),
         {
             method: "POST",
@@ -1054,7 +1034,7 @@ async function generateGeminiImage(input: GenerateImageInput): Promise<GenerateV
             throw new Error(json?.error?.message || `Vertex image generation failed with status ${result.status}`);
         }
         return json;
-    }), input.timeoutMs ?? DEFAULT_TIMEOUT_MS);
+    });
 
     const parts = response?.candidates?.[0]?.content?.parts || [];
     const imagePart = parts.find((part) => typeof part.inlineData?.data === "string" && part.inlineData.data.length > 0) || null;

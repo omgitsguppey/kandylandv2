@@ -77,7 +77,7 @@ function getGenerationErrorMessage(errorCode?: AdminAiDropCoverErrorCode, fallba
         case "provider_unavailable":
             return fallback || "The Vertex image provider is unavailable right now. Check Admin AI runtime/auth and try again.";
         case "provider_timeout":
-            return fallback || "The image provider timed out before the cover finished rendering. Try again.";
+            return fallback || "The image provider ended the request before the cover finished rendering.";
         case "storage_failed":
             return fallback || "The cover image rendered, but KandyDrops could not save it to Firebase Storage.";
         case "database_failed":

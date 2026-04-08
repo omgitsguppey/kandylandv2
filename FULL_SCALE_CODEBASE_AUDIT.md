@@ -2,7 +2,7 @@
 
 Status: Canonical audit standard and live baseline
 Last refreshed: 2026-04-07
-Last full-scale audit execution: 2026-04-07 19:22:35 -05:00
+Last full-scale audit execution: 2026-04-07 21:27:55 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 Audited HEAD at start: `8b24119`
 
@@ -2383,3 +2383,188 @@ Continuation follow-up gaps:
 - the latest-cover AI shortcut is cheaper but narrower than the earlier full-catalog scan; if broader human-cover reuse is needed again, the next step should be a canonical summarized reference index rather than another full collection scan
 - compatibility reads still preserve `recentDropReferenceCount` for older AI job documents even though the live truth is now the latest catalog cover count
 - the pre-existing Chromium `/creators/waitlist` visual instability still needs a separate stabilization or baseline refresh pass
+
+### Continuation: Exclusive Collapsed Drop-Form Sections
+Current audit date: 2026-04-07 21:27:55 -05:00
+Current branch / commit for continuation start: `main` / `7469988`
+Continuation task:
+- make the shared create/edit drop form start with all sections collapsed
+- allow only one section to be open at a time, with the currently open section collapsing when another section expands
+
+Continuation start state:
+- working tree clean at continuation start
+- canonical startup docs re-read:
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+  - `REPO_MEMORY_LEDGER.md`
+  - `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- `git status --short` confirmed a clean tree before editing
+- adjacency traces completed before editing for:
+  - `src/components/Admin/CreateDropModal.tsx`
+  - `src/app/admin/drops/page.tsx`
+
+Initial audit findings before implementation:
+- the shared drop modal still used four independent booleans (`uploadsOpen`, `basicsOpen`, `pricingOpen`, `actionSettingsOpen`)
+- create, edit, and creator-submission flows all mounted through the same shared `CreateDropModal`, so the current behavior opened every section at once across all those surfaces
+- independent booleans meant multiple sections could remain expanded simultaneously, and the action-settings section could stay selected even after switching the drop type back to `content`
+
+Exact touched surfaces:
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `src/components/Admin/CreateDropModal.tsx`
+- `src/lib/admin-drop-form-sections.ts`
+- `tests/unit/admin-drop-form-sections.spec.ts`
+
+Canonical helpers and modules actually reused:
+- `src/components/Admin/CreateDropModal.tsx`
+- `src/app/admin/drops/page.tsx`
+- `src/app/dashboard/profile/page.tsx`
+- `src/lib/admin-drop-form.ts`
+- `src/lib/client-error-reporting.ts`
+
+Implementation results:
+- replaced the four independent section booleans in `CreateDropModal` with one canonical `openSection` state
+- all sections now start collapsed for:
+  - admin create drop
+  - admin edit drop
+  - creator submit/edit drop flows that reuse the same modal
+- opening one section now closes the previously open section
+- toggling the currently open section closes it back to the fully collapsed state
+- switching a drop back to `content` now clears the `Action Settings` section if it was the active section
+- extracted the exclusive-toggle rule into `src/lib/admin-drop-form-sections.ts` and covered it with focused unit tests
+
+Runtime truth and continuity implications:
+- this is a shared modal behavior change, not a page-specific override; admin and creator edit/create flows now stay consistent because they reuse the same component
+- the AI cover generator panel stays inactive while the `Files & Assets` section is collapsed because its visibility is still truthfully tied to the open section state
+
+Commands run for continuation:
+- `git status --short`
+- adjacency traces:
+  - `npm run trace:adjacent -- src/components/Admin/CreateDropModal.tsx`
+  - `npm run trace:adjacent -- src/app/admin/drops/page.tsx`
+- focused lint:
+  - `npx eslint src/components/Admin/CreateDropModal.tsx src/lib/admin-drop-form-sections.ts tests/unit/admin-drop-form-sections.spec.ts`
+- focused tests:
+  - `corepack pnpm exec vitest run tests/unit/admin-drop-form-sections.spec.ts`
+- repo-wide verification:
+  - `corepack pnpm run check`
+  - `npm run check:ui:audits`
+
+Continuation results:
+- focused lint passed
+- focused accordion-state Vitest passed with `1` file and `3` tests
+- `corepack pnpm run check` passed
+- `npm run check:ui:audits` passed
+- generated `playwright-report/` and `test-results/` artifacts were removed before signoff
+
+Known warnings and non-blocking notices during continuation:
+- npm unknown env config warnings during canonical script chains
+- `check:firebase-runtime` informational dotenv logs inside the canonical `check` pipeline
+- Node `punycode` deprecation warnings from Firebase/Vitest tooling
+- Playwright surfaced the recurring webserver `transformAlgorithm` warning after an otherwise successful all-green UI audit run
+
+Continuation follow-up gaps:
+- this pass covers the shared modal accordion state only; it does not add keyboard arrow-key roving focus or a dedicated Radix accordion primitive
+
+### Continuation: Creator Spotlight Hydration And AI Timeout Truth
+Current audit date: 2026-04-08 00:39:00 -05:00
+Current branch / commit for continuation start: `main` / `7469988`
+Continuation task:
+- fix the empty creator spotlight lane
+- make the spotlight follow button truthfully reflect the followed state
+- remove the hardcoded 20-second local AI cover timeout so failure states stop looking simulative
+
+Continuation start state:
+- canonical startup docs re-read:
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+  - `REPO_MEMORY_LEDGER.md`
+  - `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- `git status --short` confirmed a dirty tree at continuation start from the prior uncommitted drop-form accordion pass:
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+  - `src/components/Admin/CreateDropModal.tsx`
+  - `src/lib/admin-drop-form-sections.ts`
+  - `tests/unit/admin-drop-form-sections.spec.ts`
+- adjacency traces completed before editing for:
+  - `src/components/CreatorDiscoveryRail.tsx`
+  - `src/lib/server/ai-drop-covers.ts`
+  - `src/app/admin/ai/page.tsx`
+
+Initial audit findings before implementation:
+- the empty creator spotlight was not caused by the rail component alone; signed-in recommendation hydration was truthfully failing in two places:
+  - creator visibility logic still relied too heavily on `role === "creator"` in the discovery and relationships APIs
+  - `CreatorDiscoveryRail` would overwrite valid discovery results with `relationshipResult.recommendedCreators || nextRecommended`, so an empty recommendations array from the relationships route hid real discovery creators for signed-in users
+- the spotlight follow button did not visually distinguish the already-following state in the requested black / purple treatment
+- AI drop-cover generation still used a local hardcoded `20_000ms` timeout in `src/lib/server/ai-drop-covers.ts`, so the app could terminate a request before the real provider/runtime boundary finished and then surface a misleading timeout failure
+
+Exact touched surfaces for this continuation:
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `src/app/api/creator/discovery/route.ts`
+- `src/app/api/creator/relationships/route.ts`
+- `src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+- `src/components/CreatorDiscoveryRail.tsx`
+- `src/lib/creator-public-pages.ts`
+- `src/lib/server/ai-drop-covers.ts`
+- `tests/unit/creator-public-pages.spec.ts`
+- `tests/unit/creator-discovery-route.spec.ts`
+- `tests/unit/creator-relationships-route.spec.ts`
+
+Canonical helpers and modules actually reused:
+- `src/components/CreatorDiscoveryRail.tsx`
+- `src/lib/creator-public-pages.ts`
+- `src/lib/creator-onboarding.ts`
+- `src/lib/creator-experiences.ts`
+- `src/app/api/creator/discovery/route.ts`
+- `src/app/api/creator/relationships/route.ts`
+- `src/lib/server/ai-drop-covers.ts`
+- `src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+
+Implementation results:
+- added `isCreatorVisibleInDiscovery(...)` to `src/lib/creator-public-pages.ts` so discovery/recommendation eligibility now truthfully includes:
+  - explicit creator-role users
+  - approved creator applicants whose role record has not been promoted yet
+  - users with active public drops
+  - while still excluding suspended/banned users
+- updated `src/app/api/creator/discovery/route.ts` to use that canonical visibility helper instead of a role-only filter
+- updated `src/app/api/creator/relationships/route.ts` to use the same canonical visibility helper for both creator lookup and signed-in recommended-creator hydration, and to count active public drops from the canonical drop-status normalization path
+- fixed `CreatorDiscoveryRail` so signed-in users only replace discovery results with `recommendedCreators` when that array is non-empty; empty relationship recommendations no longer wipe real spotlight candidates
+- updated the spotlight follow button so the followed state now renders as a black button with purple text and a purple outline and the label `following`
+- removed the local `20_000ms` AI-cover timeout wrapper from `src/lib/server/ai-drop-covers.ts`; generation now waits for the real upstream/runtime boundary instead of failing on an app-side hard cutoff
+- tightened AI timeout messaging in the create-drop panel so the failure text no longer implies a fake fixed deadline
+
+Runtime truth and continuity implications:
+- the creator spotlight now reflects the same creator eligibility truth across discovery and relationship hydration instead of diverging by signed-in state
+- approved creator applicants with real active drops are no longer hidden just because their `users.role` field has not been promoted yet
+- AI cover failures now reflect actual upstream/request termination rather than a local simulated 20-second cutoff
+- this continuation intentionally did not modify the pre-existing uncommitted drop-form accordion files beyond carrying them forward in the working tree
+
+Commands run for continuation:
+- `git status --short`
+- adjacency traces:
+  - `npm run trace:adjacent -- src/components/CreatorDiscoveryRail.tsx`
+  - `npm run trace:adjacent -- src/lib/server/ai-drop-covers.ts`
+  - `npm run trace:adjacent -- src/app/admin/ai/page.tsx`
+- focused lint:
+  - `npx eslint src/lib/creator-public-pages.ts src/app/api/creator/discovery/route.ts src/app/api/creator/relationships/route.ts src/components/CreatorDiscoveryRail.tsx src/lib/server/ai-drop-covers.ts src/components/Admin/AiDropCoverGeneratorPanel.tsx tests/unit/creator-public-pages.spec.ts tests/unit/creator-discovery-route.spec.ts tests/unit/creator-relationships-route.spec.ts`
+- focused tests:
+  - `corepack pnpm exec vitest run tests/unit/creator-public-pages.spec.ts tests/unit/creator-discovery-route.spec.ts tests/unit/creator-relationships-route.spec.ts tests/unit/admin-ai-drop-covers-generate-route.spec.ts tests/unit/ai-drop-covers.spec.ts`
+- repo-wide verification:
+  - `corepack pnpm run check`
+  - `npm run check:ui:audits`
+  - `npm run check:ui:lighthouse`
+
+Continuation results:
+- focused lint passed
+- focused creator/AI Vitest passed with `5` files and `22` tests
+- `corepack pnpm run check` passed
+- `npm run check:ui:lighthouse` passed on a sequential rerun after an earlier build-collision attempt
+- `npm run check:ui:audits` still only surfaced the pre-existing visual-regression instability on mobile/Chromium guest surfaces; accessibility passed and the rest of the suite passed
+- generated `playwright-report/`, `test-results/`, and temporary Lighthouse artifacts were removed before signoff
+
+Known warnings and non-blocking notices during continuation:
+- npm unknown env config warnings during canonical script chains
+- `check:firebase-runtime` informational dotenv logs inside the canonical `check` pipeline
+- Node `punycode` deprecation warnings from Firebase/Vitest tooling
+- Lighthouse Chrome cleanup warnings on Windows temp directories after a successful Lighthouse run
+- Playwright surfaced the recurring webserver `transformAlgorithm` warning around otherwise successful UI audit runs
+
+Continuation follow-up gaps:
+- the creator spotlight still depends on poll/fetch hydration rather than a Firestore live listener
+- AI cover generation still depends on actual provider latency and provider/runtime health; this pass removed the fake local cutoff, not the upstream wait itself
