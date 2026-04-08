@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import * as admin from "firebase-admin";
+import { handleApiError } from "@/lib/server/auth";
 import { STRICT } from "@/lib/server/rate-limit";
 import { describeSecurityEvent } from "@/lib/security-events";
 import { trackServerEvent } from "@/lib/server/analytics";
@@ -130,7 +131,6 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({ success: true });
     } catch (error) {
-        console.error("Security log error:", error);
-        return NextResponse.json({ error: "Failed to log attempt" }, { status: 500 });
+        return handleApiError(error, "Security.LogAttempt.POST");
     }
 }
