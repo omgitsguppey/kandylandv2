@@ -2677,3 +2677,16 @@ Known warnings and non-blocking notices during continuation:
 Continuation follow-up gaps:
 - the creator guest-surface Playwright snapshots remain unstable and still need a separate baseline refresh or layout-stability pass
 - the PR-source local branches fetched for review (`jules_pr_159`, `jules_pr_160`, `jules_pr_161`) can be deleted later; they are not part of the product runtime
+
+Late-open PR follow-up:
+- PR `#162` opened during the close-out window and was reviewed before final signoff
+- finding:
+  - `src/app/api/security/log-attempt/route.ts` still returned a route-local raw 500 response instead of delegating to the canonical `handleApiError(...)` path
+- implementation:
+  - updated `src/app/api/security/log-attempt/route.ts` to delegate unexpected failures to `handleApiError(error, "SecurityLogAttempt.POST")`
+  - added `tests/unit/security-log-attempt-route.spec.ts` to assert the route now delegates unexpected failures through the canonical handler
+- focused verification:
+  - `npx eslint src/app/api/security/log-attempt/route.ts tests/unit/security-log-attempt-route.spec.ts`
+  - `corepack pnpm exec vitest run tests/unit/security-log-attempt-route.spec.ts`
+- PR disposition:
+  - `#162` should be closed after the audited mainline commit containing the route hardening lands

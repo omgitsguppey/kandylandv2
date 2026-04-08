@@ -4,6 +4,7 @@ import * as admin from "firebase-admin";
 import { STRICT } from "@/lib/server/rate-limit";
 import { describeSecurityEvent } from "@/lib/security-events";
 import { trackServerEvent } from "@/lib/server/analytics";
+import { handleApiError } from "@/lib/server/auth";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { buildAnalyticsTimeKeys } from "@/lib/server/analytics-event-utils";
 
@@ -130,7 +131,6 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({ success: true });
     } catch (error) {
-        console.error("Security log error:", error);
-        return NextResponse.json({ error: "Failed to log attempt" }, { status: 500 });
+        return handleApiError(error, "SecurityLogAttempt.POST");
     }
 }
