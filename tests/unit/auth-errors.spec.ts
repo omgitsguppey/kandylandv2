@@ -42,6 +42,13 @@ describe("auth error helpers", () => {
         expect(resolution.localCooldownMs).toBe(0);
     });
 
+    it("maps username conflicts to a stable manual sign-up error", () => {
+        const resolution = resolveEmailAuthError({ code: "auth/username-already-in-use" }, "sign_up");
+
+        expect(resolution.userMessage).toBe("Username is already taken.");
+        expect(resolution.allowPasswordReset).toBe(false);
+    });
+
     it("can build Firebase-like auth errors for synthetic manual-sign-in failures", () => {
         const error = buildFirebaseLikeAuthError("auth/invalid-credential");
 

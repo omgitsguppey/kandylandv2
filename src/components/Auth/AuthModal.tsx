@@ -152,7 +152,7 @@ function buildSchema(mode: AuthMode) {
 }
 
 export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps) {
-    const { signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth();
+    const { signInWithGoogle, signInWithEmail, signUpWithEmail, sendPasswordResetLink } = useAuth();
     const [mode, setMode] = useState<AuthMode>(initialMode);
     const [isLoading, setIsLoading] = useState(false);
     const [authError, setAuthError] = useState<string | null>(null);
@@ -540,9 +540,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                 trackEvent("auth_sign_in_failed", mergedParams);
             }
 
-            if (firebaseError.message === "Username is already taken.") {
-                setAuthError("Username is already taken.");
-            } else if (firebaseError.code === "auth/invalid-credential") {
+            if (firebaseError.code === "auth/invalid-credential") {
                 const resolution = resolveEmailAuthError(error, "sign_in");
                 setAuthError(resolution.userMessage);
             } else {
@@ -570,9 +568,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
         setAuthError(null);
         trackEvent("password_reset_requested");
         try {
-            const { sendPasswordResetEmail, getAuth } = await import("firebase/auth");
-            const { auth } = await import("@/lib/firebase");
-            await sendPasswordResetEmail(auth || getAuth(), normalizeEmailAddress(email));
+            await sendPasswordResetLink(normalizeEmailAddress(email));
             trackEvent("password_reset_sent");
             setResetSent(true);
         } catch (error: unknown) {

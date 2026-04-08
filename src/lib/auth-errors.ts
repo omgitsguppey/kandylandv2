@@ -35,6 +35,24 @@ export function resolveEmailAuthError(error: unknown, action: EmailAuthAction): 
     const code = firebaseError?.code;
     const fallbackMessage = firebaseError?.message || "Authentication failed. Please try again.";
 
+    if (code === "auth/username-already-in-use") {
+        return {
+            code,
+            userMessage: "Username is already taken.",
+            localCooldownMs: 0,
+            allowPasswordReset: false,
+        };
+    }
+
+    if (code === "auth/invalid-username") {
+        return {
+            code,
+            userMessage: fallbackMessage,
+            localCooldownMs: 0,
+            allowPasswordReset: false,
+        };
+    }
+
     if (code === "auth/email-already-in-use") {
         return {
             code,

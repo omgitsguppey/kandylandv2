@@ -43,6 +43,10 @@ const mockState = vi.hoisted(() => {
         adminDb,
         guardApiRequest: vi.fn(),
         handleApiError: vi.fn(),
+        checkUsernameAvailability: vi.fn(async (username: string) => ({
+            normalized: username.replace(/[^a-z0-9_-]+/gi, "-").toLowerCase(),
+            available: true,
+        })),
         generateUniqueUsernameSuggestion: vi.fn(async () => "creator-one"),
         trackServerEvent: vi.fn(async () => undefined),
         ensureCreatorOnboardingSubmission: vi.fn(),
@@ -56,10 +60,15 @@ const mockState = vi.hoisted(() => {
             adminDb.runTransaction.mockReset();
             this.guardApiRequest.mockReset();
             this.handleApiError.mockReset();
+            this.checkUsernameAvailability.mockReset();
             this.generateUniqueUsernameSuggestion.mockReset();
             this.trackServerEvent.mockReset();
             this.ensureCreatorOnboardingSubmission.mockReset();
             this.sendCreatorOnboardingAdminNotification.mockReset();
+            this.checkUsernameAvailability.mockImplementation(async (username: string) => ({
+                normalized: username.replace(/[^a-z0-9_-]+/gi, "-").toLowerCase(),
+                available: true,
+            }));
             this.generateUniqueUsernameSuggestion.mockResolvedValue("creator-one");
             this.sendCreatorOnboardingAdminNotification.mockResolvedValue({
                 delivered: true,
@@ -83,6 +92,7 @@ vi.mock("@/lib/server/request-guard", () => ({
 }));
 
 vi.mock("@/lib/server/username-suggestions", () => ({
+    checkUsernameAvailability: mockState.checkUsernameAvailability,
     generateUniqueUsernameSuggestion: mockState.generateUniqueUsernameSuggestion,
 }));
 
@@ -169,7 +179,7 @@ describe("POST /api/user/register", () => {
             welcomeBonus: 0,
         });
         expect(mockState.documents.get("users/creator_1")).toMatchObject({
-            username: "creator-one",
+            username: "creatorone",
             onboardingCompleted: false,
         });
         expect(mockState.ensureCreatorOnboardingSubmission).toHaveBeenCalledWith(expect.objectContaining({
@@ -222,5 +232,53 @@ describe("POST /api/user/register", () => {
         expect(mockState.ensureCreatorOnboardingSubmission).toHaveBeenCalledTimes(1);
         expect(mockState.trackServerEvent).not.toHaveBeenCalled();
         expect(mockState.sendCreatorOnboardingAdminNotification).not.toHaveBeenCalled();
+    });
+
+    it("rejects manual registration when the requested username is no longer available", async () => {
+        mockState.checkUsernameAvailability.mockResolvedValue({
+            normalized: "creatorone",
+            available: false,
+        });
+
+        const request = new NextRequest("http://localhost/api/user/register", {
+            method: "POST",
+            body: JSON.stringify({
+                username: "CreatorOne",
+                displayName: "Creator One",
+            }),
+        });
+
+        const response = await POST(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(409);
+        expect(payload).toEqual({
+            error: "Username is already taken.",
+            authErrorCode: "auth/username-already-in-use",
+        });
+        expect(mockState.documents.has("users/creator_1")).toBe(false);
+    });
+
+    it("preserves the requested normalized username instead of silently auto-suggesting a different one", async () => {
+        mockState.checkUsernameAvailability.mockResolvedValue({
+            normalized: "creator-one",
+            available: true,
+        });
+
+        const request = new NextRequest("http://localhost/api/user/register", {
+            method: "POST",
+            body: JSON.stringify({
+                username: "Creator One",
+                displayName: "Creator One",
+            }),
+        });
+
+        const response = await POST(request);
+
+        expect(response.status).toBe(200);
+        expect(mockState.documents.get("users/creator_1")).toMatchObject({
+            username: "creator-one",
+        });
+        expect(mockState.generateUniqueUsernameSuggestion).not.toHaveBeenCalled();
     });
 });

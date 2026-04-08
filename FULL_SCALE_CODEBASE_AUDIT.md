@@ -3133,3 +3133,99 @@ Runtime tracking improvement suggestions after this implementation:
 Continuation follow-up gaps:
 - route runtime health currently reports persisted aggregate/latest samples, not sliding-window percentiles
 - only the highest-value creator/support/AI routes are covered so far; the follow-up routes above remain open
+
+### Continuation: Manual Email Auth Refactor
+Current audit date: 2026-04-08 15:33:00 -05:00
+Current branch / commit for continuation start: `main` / `f45b773`
+Continuation task:
+- refactor the non-Google manual signup and login flow
+- keep Firebase email/password canonical while removing drift, race conditions, and half-registered states
+
+Continuation start state:
+- canonical startup docs re-read:
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+  - `REPO_MEMORY_LEDGER.md`
+  - `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- `git status --short` was clean at continuation start
+- targeted adjacency traces were run for:
+  - `src/context/AuthContext.tsx`
+  - `src/components/Auth/AuthModal.tsx`
+  - `src/app/api/user/register/route.ts`
+  - `src/app/api/auth/manual-sign-in-lookup/route.ts`
+
+Initial audit findings before implementation:
+- the canonical manual sign-in path is already username-or-email aware through `src/app/api/auth/manual-sign-in-lookup/route.ts`
+- the main instability is in manual email sign-up:
+  - `createUserWithEmailAndPassword(...)` completes before profile registration finishes
+  - the auth-state listener can auto-bootstrap a default profile while the explicit sign-up registration is still running
+  - a failed `/api/user/register` call can leave the newly created auth user signed in without a truthful completed registration result
+- password reset is still implemented inline in `AuthModal.tsx` instead of sharing the same manual-auth helper surface
+
+Exact touched surfaces:
+- `src/context/AuthContext.tsx`
+- `src/components/Auth/AuthModal.tsx`
+- `src/app/api/user/register/route.ts`
+- `src/lib/auth-errors.ts`
+- `src/lib/manual-email-auth.ts`
+- `tests/unit/auth-errors.spec.ts`
+- `tests/unit/manual-email-auth.spec.ts`
+- `tests/unit/user-register-route.spec.ts`
+- `REPO_MEMORY_LEDGER.md`
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+
+Canonical helpers and modules reused:
+- `src/lib/auth-errors.ts`
+- `src/lib/authFetch.ts`
+- `src/lib/server/username-suggestions.ts`
+- `src/lib/server/request-guard.ts`
+- `src/lib/server/auth.ts`
+
+Implementation results:
+- extracted the non-Google client-side auth API helpers into `src/lib/manual-email-auth.ts`
+- `AuthContext` now uses the shared helper path for:
+  - username-or-email sign-in resolution
+  - exact username availability checks before manual sign-up
+  - password reset dispatch
+- manual email sign-up now marks an explicit registration-in-flight state so the auth-state listener does not auto-bootstrap a default profile while the real sign-up registration is still running
+- rollback of the just-created Firebase auth user now happens only on confirmed non-OK registration responses instead of on any thrown network boundary
+- `/api/user/register` now preserves the requested normalized username when it is available and returns a truthful `409` conflict when it is not, instead of silently auto-suggesting a different username during explicit manual registration
+- `AuthModal` now consumes the shared password-reset helper and no longer carries an inline Firebase auth implementation for the non-Google flow
+
+Runtime truth and continuity implications:
+- Google auth behavior was intentionally left unchanged
+- manual sign-in remains Firebase email/password underneath; username handling is still server-side resolution, not a second credential system
+- manual sign-up no longer reports failure while leaving a default fallback profile race to mutate the end state behind the user’s back
+- username conflicts are now surfaced truthfully instead of being silently rewritten into a different final username
+
+Commands run for continuation:
+- `git status --short`
+- `npm run trace:adjacent -- src/context/AuthContext.tsx`
+- `npm run trace:adjacent -- src/components/Auth/AuthModal.tsx`
+- `npm run trace:adjacent -- src/app/api/user/register/route.ts`
+- `npm run trace:adjacent -- src/app/api/auth/manual-sign-in-lookup/route.ts`
+- `npx eslint src/context/AuthContext.tsx src/components/Auth/AuthModal.tsx src/app/api/user/register/route.ts src/lib/auth-errors.ts src/lib/manual-email-auth.ts tests/unit/auth-errors.spec.ts tests/unit/manual-email-auth.spec.ts tests/unit/user-register-route.spec.ts`
+- `corepack pnpm exec vitest run tests/unit/auth-errors.spec.ts tests/unit/manual-email-auth.spec.ts tests/unit/user-register-route.spec.ts`
+- `npm run check:inventory`
+- `npm run check:continuity`
+- `npm run test:contracts`
+- `npm run check:ui:audits`
+- `corepack pnpm run check`
+
+Continuation results:
+- focused eslint passed
+- focused manual-auth Vitest passed with `3` files and `15` tests
+- `npm run check:inventory` passed with `701` tracked files
+- `npm run check:continuity` passed
+- `npm run test:contracts` passed with `100` files and `484` tests
+- `npm run check:ui:audits` passed with `16` tests green
+- `corepack pnpm run check` passed
+- generated `playwright-report/` and `test-results/` directories were removed after verification
+
+Known warnings and non-blocking notices during continuation:
+- standard npm unknown env config warnings in canonical scripts
+- Node `punycode` deprecation warnings from Firebase/Vitest tooling
+- one earlier `corepack pnpm run check` attempt and one earlier `check:ui:audits` attempt timed out under heavy local load; targeted reruns and full clean reruns both passed
+
+Continuation follow-up gaps:
+- this refactor still relies on point-in-time username availability checks rather than a dedicated username reservation contract
+- the fallback auto-bootstrap path remains in place for non-manual-auth cases such as restored Google sessions with no user document, by design

@@ -607,3 +607,27 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `src/lib/drop-queue-lifecycle.ts`
   - `FULL_SCALE_CODEBASE_AUDIT.md`
 - Follow-up gaps: Other non-queue consumers that still query by raw numeric `validFrom` / `validUntil` should be audited separately if legacy Timestamp-shaped drops must remain visible there too.
+
+### 29. Manual email sign-up is explicit-profile-first and must not silently auto-suggest around user input
+- Approximate date: Canonicalized and recorded on 2026-04-08
+- Status: Active canonical auth rule
+- Problem/context: Firebase email/password account creation finishes before KandyDrops profile bootstrap. Without an explicit guard, fallback profile bootstrap can race the sign-up flow, and server registration can silently replace the requested username with an auto-suggested fallback.
+- Decision made: Keep Firebase email/password as the manual auth backbone, but treat manual sign-up as an explicit profile-registration flow that blocks fallback bootstrap while it is in flight, preserves the requested normalized username when it is available, and only rolls back the just-created auth user on confirmed registration failures.
+- What became canonical:
+  - manual sign-in still supports username-or-email resolution through the server lookup path
+  - manual sign-up checks the requested username directly and returns a truthful conflict if it is no longer available
+  - `/api/user/register` no longer silently swaps a requested username for an auto-suggested fallback during explicit manual registration
+  - password reset now belongs to the same manual-auth helper surface rather than living only as modal-inline logic
+  - fallback profile auto-bootstrap must yield while explicit manual sign-up is in flight
+- What is now disallowed or deprecated:
+  - racing fallback profile bootstrap against explicit manual sign-up
+  - silently changing a requested username during manual registration
+  - scattering manual email/password helper behavior across modal-only implementations
+- Truth lives in:
+  - `src/context/AuthContext.tsx`
+  - `src/components/Auth/AuthModal.tsx`
+  - `src/lib/auth-errors.ts`
+  - `src/lib/manual-email-auth.ts`
+  - `src/app/api/user/register/route.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: If the product later needs true username reservation rather than point-in-time availability checks, that should be added as an explicit server-side reservation contract instead of restoring silent auto-suggestion during registration.

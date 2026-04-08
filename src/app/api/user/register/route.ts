@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
-import { generateUniqueUsernameSuggestion } from "@/lib/server/username-suggestions";
+import { checkUsernameAvailability, generateUniqueUsernameSuggestion } from "@/lib/server/username-suggestions";
 import { STRICT } from "@/lib/server/rate-limit";
 import { PRIVACY_POLICY_VERSION } from "@/lib/privacy-policy";
 import { trackServerEvent } from "@/lib/server/analytics";
@@ -22,6 +22,45 @@ function normalizeRegistrationMethod(value: unknown) {
 
 function normalizeSignupIntent(value: unknown) {
     return value === "creator" ? "creator" : "fan";
+}
+
+async function resolveRegistrationUsername(input: {
+    requestedUsername: unknown;
+    displayName: unknown;
+    email: string | undefined;
+    uid: string;
+    excludeUid?: string;
+}) {
+    const requestedUsername = typeof input.requestedUsername === "string" ? input.requestedUsername.trim() : "";
+    if (requestedUsername.length > 0) {
+        const availability = await checkUsernameAvailability(requestedUsername, input.excludeUid);
+        if (!availability.normalized) {
+            return NextResponse.json(
+                { error: "Use 3-20 lowercase letters, numbers, dashes, or underscores." },
+                { status: 400 },
+            );
+        }
+
+        if (!availability.available) {
+            return NextResponse.json(
+                {
+                    error: "Username is already taken.",
+                    authErrorCode: "auth/username-already-in-use",
+                },
+                { status: 409 },
+            );
+        }
+
+        return availability.normalized;
+    }
+
+    return generateUniqueUsernameSuggestion({
+        preferredUsername: null,
+        displayName: typeof input.displayName === "string" ? input.displayName : null,
+        email: input.email,
+        uid: input.uid,
+        excludeUid: input.excludeUid,
+    });
 }
 
 async function emitCreatorSubmissionSignals(input: {
@@ -103,17 +142,21 @@ export async function POST(request: NextRequest) {
             }
 
             if (typeof username === "string" && username.trim().length > 0) {
-                const requestedUsername = username.trim();
                 const existingUsername = typeof existingData.username === "string" ? existingData.username.trim() : "";
                 const existingDisplayName = typeof existingData.displayName === "string" ? existingData.displayName.trim() : "";
                 const existingDateOfBirth = typeof existingData.dateOfBirth === "string" ? existingData.dateOfBirth.trim() : "";
                 if (!existingUsername || existingUsername === "user" || existingUsername === caller.uid || existingDisplayName === "User" || existingDateOfBirth === "") {
-                    profilePatch.username = await generateUniqueUsernameSuggestion({
-                        preferredUsername: requestedUsername,
-                        displayName: typeof displayName === "string" ? displayName : null,
+                    const resolvedUsername = await resolveRegistrationUsername({
+                        requestedUsername: username,
+                        displayName,
                         email: caller.email,
                         uid: caller.uid,
+                        excludeUid: caller.uid,
                     });
+                    if (resolvedUsername instanceof NextResponse) {
+                        return resolvedUsername;
+                    }
+                    profilePatch.username = resolvedUsername;
                 }
             }
 
@@ -171,12 +214,15 @@ export async function POST(request: NextRequest) {
             });
         }
 
-        const normalizedUsername = await generateUniqueUsernameSuggestion({
-            preferredUsername: typeof username === "string" ? username : null,
-            displayName: typeof displayName === "string" ? displayName : null,
+        const normalizedUsername = await resolveRegistrationUsername({
+            requestedUsername: username,
+            displayName,
             email: caller.email,
             uid: caller.uid,
         });
+        if (normalizedUsername instanceof NextResponse) {
+            return normalizedUsername;
+        }
 
         const welcomeBonus = isCreatorSignup ? 0 : 50;
         const newProfile: Record<string, unknown> = {

@@ -10,6 +10,8 @@ import {
     getRedirectResult,
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
+    deleteUser,
+    sendPasswordResetEmail,
     setPersistence,
     browserLocalPersistence,
     signOut,
@@ -27,13 +29,16 @@ import {
 } from "@/lib/navigation-persistence";
 import { CREATOR_WAITLIST_PATH, getPreferredAuthenticatedPathForProfile } from "@/lib/creator-application";
 import {
-    buildFirebaseLikeAuthError,
-    looksLikeEmailAddress,
     normalizeEmailAddress,
 } from "@/lib/auth-errors";
 import { syncClientSessionOwnership } from "@/lib/client-session";
 import { clearTaskGuidanceStorage } from "@/lib/task-guidance";
 import { syncIdentifiedTelemetryOwnership, trackEvent } from "@/lib/telemetry";
+import {
+    ensureManualSignupUsername,
+    readManualRegistrationResult,
+    resolveManualSignInIdentity,
+} from "@/lib/manual-email-auth";
 
 type SignupIntent = "fan" | "creator";
 
@@ -58,6 +63,7 @@ interface AuthIdentityContextType {
     signInWithGoogle: () => Promise<void>;
     signInWithEmail: (identifier: string, pass: string) => Promise<void>;
     signUpWithEmail: (input: SignUpInput) => Promise<SignUpResult>;
+    sendPasswordResetLink: (email: string) => Promise<void>;
     logout: () => Promise<void>;
 }
 
@@ -80,59 +86,6 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 let persistencePromise: Promise<void> | null = null;
 const GOOGLE_REDIRECT_PENDING_KEY = "auth_google_redirect_pending";
-
-async function resolveManualSignInEmail(identifier: string) {
-    const normalizedIdentifier = identifier.trim();
-    if (!normalizedIdentifier) {
-        throw buildFirebaseLikeAuthError("auth/invalid-credential");
-    }
-
-    if (looksLikeEmailAddress(normalizedIdentifier)) {
-        return {
-            resolvedEmail: normalizeEmailAddress(normalizedIdentifier),
-            identifierType: "email" as const,
-        };
-    }
-
-    const response = await fetch("/api/auth/manual-sign-in-lookup", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            identifier: normalizedIdentifier,
-        }),
-    });
-
-    let payload: {
-        error?: string;
-        resolvedEmail?: string | null;
-        identifierType?: "email" | "username" | "unknown";
-        authErrorCode?: string;
-    } = {};
-    try {
-        payload = await response.json();
-    } catch {
-        payload = {};
-    }
-
-    if (!response.ok) {
-        if (response.status === 429) {
-            throw buildFirebaseLikeAuthError("auth/too-many-requests");
-        }
-
-        throw new Error(payload.error || "Username sign-in is temporarily unavailable. Use your account email or try again shortly.");
-    }
-
-    if (typeof payload.resolvedEmail !== "string" || !looksLikeEmailAddress(payload.resolvedEmail)) {
-        throw buildFirebaseLikeAuthError(payload.authErrorCode || "auth/invalid-credential");
-    }
-
-    return {
-        resolvedEmail: normalizeEmailAddress(payload.resolvedEmail),
-        identifierType: payload.identifierType === "username" ? "username" : "email" as const,
-    };
-}
 
 function ensureAuthPersistence() {
     if (!auth) {
@@ -197,6 +150,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [authStateResolved, setAuthStateResolved] = useState(false);
     const initialAuthResolvedRef = useRef(false);
     const autoRegisterInFlightRef = useRef<Set<string>>(new Set());
+    const manualRegistrationStateRef = useRef<{ uid: string | null; email: string } | null>(null);
     const navigationSessionSyncKeyRef = useRef<string | null>(null);
     const currentAuthUidRef = useRef<string | null>(null);
     const router = useRouter();
@@ -351,6 +305,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         setLoading(false);
                     }
                 } else {
+                    const pendingManualRegistration = manualRegistrationStateRef.current;
+                    if (
+                        pendingManualRegistration
+                        && (
+                            pendingManualRegistration.uid === currentUserId
+                            || (
+                                pendingManualRegistration.uid === null
+                                && normalizeEmailAddress(user.email ?? "") === pendingManualRegistration.email
+                            )
+                        )
+                    ) {
+                        return;
+                    }
+
                     if (autoRegisterInFlight.has(currentUserId)) {
                         return;
                     }
@@ -457,14 +425,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             throw new Error("Authentication is unavailable in this environment.");
         }
 
-        try {
-            await ensureAuthPersistence();
-            const resolvedIdentity = await resolveManualSignInEmail(identifier);
-            await signInWithEmailAndPassword(auth, resolvedIdentity.resolvedEmail, pass);
-            toast.success("Welcome back!");
-        } catch (error: unknown) {
-            throw error;
-        }
+        await ensureAuthPersistence();
+        const resolvedIdentity = await resolveManualSignInIdentity(identifier);
+        await signInWithEmailAndPassword(auth, resolvedIdentity.resolvedEmail, pass);
+        toast.success("Welcome back!");
     }, []);
 
     const signUpWithEmail = useCallback(async (input: SignUpInput) => {
@@ -472,19 +436,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             throw new Error("Authentication is unavailable in this environment.");
         }
 
+        const signupIntent: SignupIntent = input.signupIntent === "creator" ? "creator" : "fan";
+        const normalizedEmail = normalizeEmailAddress(input.email);
+        const normalizedUsername = await ensureManualSignupUsername(input.username);
+        let createdUser: User | null = null;
+        let shouldRollbackCreatedUser = false;
+        manualRegistrationStateRef.current = {
+            uid: null,
+            email: normalizedEmail,
+        };
+
         try {
-            const signupIntent: SignupIntent = input.signupIntent === "creator" ? "creator" : "fan";
-            const normalizedEmail = normalizeEmailAddress(input.email);
             await ensureAuthPersistence();
-            await createUserWithEmailAndPassword(auth, normalizedEmail, input.password);
+            const credential = await createUserWithEmailAndPassword(auth, normalizedEmail, input.password);
+            createdUser = credential.user;
+            manualRegistrationStateRef.current = {
+                uid: credential.user.uid,
+                email: normalizedEmail,
+            };
 
             const response = await authFetch("/api/user/register", {
                 method: "POST",
                 body: JSON.stringify({
                     displayName: signupIntent === "creator"
-                        ? input.creatorDisplayName || input.username
-                        : input.username,
-                    username: input.username,
+                        ? input.creatorDisplayName || normalizedUsername
+                        : normalizedUsername,
+                    username: normalizedUsername,
                     dateOfBirth: input.dob,
                     registrationMethod: "email",
                     signupIntent,
@@ -494,14 +471,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     referredBy: readSessionStorageValue(CLIENT_RUNTIME_STORAGE_KEYS.referralCode) ?? undefined,
                 }),
             });
+            shouldRollbackCreatedUser = !response.ok;
 
-            const result = (await response.json()) as { error?: string; welcomeBonus?: number };
-
-            if (!response.ok) {
-                throw new Error(result.error || "Registration failed");
-            }
-
-            const welcomeBonus = typeof result.welcomeBonus === "number" ? Math.max(0, result.welcomeBonus) : 0;
+            const result = await readManualRegistrationResult(response);
+            const welcomeBonus = result.welcomeBonus;
             if (signupIntent === "creator") {
                 toast.success("Creator application received. Check your creator status page for review, legal, and ID updates.");
                 router.push(CREATOR_WAITLIST_PATH);
@@ -516,9 +489,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 signupIntent,
             };
         } catch (error: unknown) {
+            if (shouldRollbackCreatedUser && createdUser && auth.currentUser?.uid === createdUser.uid) {
+                try {
+                    await deleteUser(createdUser);
+                } catch (cleanupError) {
+                    try {
+                        await signOut(auth);
+                    } catch {
+                        // Best effort fallback after delete failure.
+                    }
+                }
+            }
             throw error;
+        } finally {
+            if (
+                manualRegistrationStateRef.current
+                && manualRegistrationStateRef.current.email === normalizedEmail
+            ) {
+                manualRegistrationStateRef.current = null;
+            }
         }
     }, [getPostAuthDestination, pathname, router]);
+
+    const sendPasswordResetLink = useCallback(async (email: string) => {
+        if (!auth || !firebaseClientConfigured) {
+            throw new Error("Authentication is unavailable in this environment.");
+        }
+
+        await ensureAuthPersistence();
+        await sendPasswordResetEmail(auth, normalizeEmailAddress(email));
+    }, []);
 
     const logout = useCallback(async () => {
         clearLastVisitedPath();
@@ -549,9 +549,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             signInWithGoogle,
             signInWithEmail,
             signUpWithEmail,
+            sendPasswordResetLink,
             logout,
         }),
-        [logout, signInWithEmail, signInWithGoogle, signUpWithEmail, user],
+        [logout, sendPasswordResetLink, signInWithEmail, signInWithGoogle, signUpWithEmail, user],
     );
 
     const profileValue = useMemo(
